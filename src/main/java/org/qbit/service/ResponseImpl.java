@@ -11,42 +11,57 @@ public class ResponseImpl<T> implements Response<T> {
     private final Map<String, Object> params;
     private final Object body;
     private final long id;
+    private final long timestamp;
+    private  Object transformedBody;
+
 
     static Response response(long id, Object body) {
-        return new ResponseImpl(id, null, null, body);
+        return new ResponseImpl(id, 0, null, null, body);
     }
 
 
-    static Response response(long id, String address, Object body) {
-        return new ResponseImpl(id, address, null, body);
+    static Response response(long id, long timestamp, String address, Object body) {
+        return new ResponseImpl(id, timestamp, address, null, body);
     }
 
-    public ResponseImpl(long id, String address, Map<String, Object> params, Object body) {
+    public ResponseImpl(long id, long timestamp, String address, Map<String, Object> params, Object body) {
         this.address = address;
         this.params = params;
         this.body = body;
         this.id = id;
+        this.timestamp = timestamp;
     }
 
 
     @Override
     public long id() {
-        return 0;
+        return id;
     }
 
     @Override
     public String address() {
-        return null;
+        return address;
     }
 
     @Override
     public Map<String, Object> params() {
-        return null;
+        return params;
     }
 
     @Override
     public T body() {
-        return (T) body;
+
+        if (transformedBody==null) {
+            return (T) body;
+        } else {
+            return (T) transformedBody;
+        }
+    }
+
+    public void body(T newBody){
+
+        transformedBody = newBody;
+
     }
 
     @Override

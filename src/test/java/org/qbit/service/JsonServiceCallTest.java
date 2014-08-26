@@ -6,12 +6,13 @@ import org.junit.Test;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
+import static org.boon.Boon.fromJson;
 import static org.boon.Exceptions.die;
 
 /**
  * Created by Richard on 8/11/14.
  */
-public class MethodQueueTest {
+public class JsonServiceCallTest {
 
     public static class Adder {
         int all;
@@ -30,24 +31,30 @@ public class MethodQueueTest {
     public void test() {
 
         Adder adder = new Adder();
-        ServiceImpl methodQueue = new ServiceImpl(adder, 1000, TimeUnit.MILLISECONDS, 100);
+        Service methodQueue = Services.jsonService(adder, 1000, TimeUnit.MILLISECONDS, 100);
 
-        methodQueue.requests().offer(MethodImpl.method("add", "[1,2]"));
 
-        methodQueue.requests().offer(MethodImpl.method("add", "[4,5]"));
+        methodQueue.requests().offer(MethodCallImpl.method("add", "[1,2]"));
+
+        methodQueue.requests().offer(MethodCallImpl.method("add", "[4,5]"));
 
 
         Response<Object> response = methodQueue.responses().take();
 
-        ok = response != null || die(response);
 
-        ok = response.body().equals(Integer.valueOf(3)) || die(response);
+        Object o = fromJson(response.body().toString());
+
+        ok = o.equals(Integer.valueOf(3)) || die(response);
 
         response = methodQueue.responses().take();
 
         ok = response != null || die(response);
 
-        ok = response.body().equals(Integer.valueOf(9)) || die(response);
+        o = fromJson(response.body().toString());
+
+        ok = o.equals(Integer.valueOf(9)) || die(response);
+
+
 
 
 
@@ -61,23 +68,27 @@ public class MethodQueueTest {
     public void testMany() {
 
         Adder adder = new Adder();
-        ServiceImpl methodQueue = new ServiceImpl(adder, 1000, TimeUnit.MILLISECONDS, 100);
+        Service methodQueue = Services.jsonService(adder, 1000, TimeUnit.MILLISECONDS, 100);
 
-        methodQueue.requests().offerMany(MethodImpl.method("add", "[1,2]"), MethodImpl.method("add", "[4,5]"));
+
+        methodQueue.requests().offerMany(MethodCallImpl.method("add", "[1,2]"), MethodCallImpl.method("add", "[4,5]"));
 
 
 
         Response<Object> response = methodQueue.responses().take();
 
-        ok = response != null || die(response);
+        Object o = fromJson(response.body().toString());
 
-        ok = response.body().equals(Integer.valueOf(3)) || die(response);
+        ok = o.equals(Integer.valueOf(3)) || die(response);
 
         response = methodQueue.responses().take();
 
         ok = response != null || die(response);
 
-        ok = response.body().equals(Integer.valueOf(9)) || die(response);
+        o = fromJson(response.body().toString());
+
+        ok = o.equals(Integer.valueOf(9)) || die(response);
+
 
 
 
@@ -92,9 +103,9 @@ public class MethodQueueTest {
     public void testBatch() {
 
         Adder adder = new Adder();
-        ServiceImpl methodQueue = new ServiceImpl(adder, 1000, TimeUnit.MILLISECONDS, 100);
+        Service methodQueue = Services.jsonService(adder, 1000, TimeUnit.MILLISECONDS, 100);
 
-        List<Method> methods = Lists.list(MethodImpl.method("add", "[1,2]"), MethodImpl.method("add", "[4,5]"));
+        List<MethodCall> methods = Lists.list(MethodCallImpl.method("add", "[1,2]"), MethodCallImpl.method("add", "[4,5]"));
         methodQueue.requests().offerBatch(methods);
 
 
@@ -103,13 +114,18 @@ public class MethodQueueTest {
 
         ok = response != null || die(response);
 
-        ok = response.body().equals(Integer.valueOf(3)) || die(response);
+
+        Object o = fromJson(response.body().toString());
+
+        ok = o.equals(Integer.valueOf(3)) || die(response);
 
         response = methodQueue.responses().take();
 
         ok = response != null || die(response);
 
-        ok = response.body().equals(Integer.valueOf(9)) || die(response);
+        o = fromJson(response.body().toString());
+
+        ok = o.equals(Integer.valueOf(9)) || die(response);
 
 
 

@@ -41,6 +41,12 @@ public class BasicQueueTest {
            }
 
            @Override
+           public void limit() {
+
+               puts ("Batch size limit is reached");
+           }
+
+           @Override
            public void shutdown() {
 
                puts("Queue is shut down");

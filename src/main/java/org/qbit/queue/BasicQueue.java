@@ -203,6 +203,7 @@ public class BasicQueue <T> implements Queue<T> {
 
                 /* If the batch size has hit the max then we need to break. */
                 if (count >= batchSize) {
+                    listener.limit();
                     break;
                 }
                 /* Grab the next item from the queue. */
@@ -212,7 +213,9 @@ public class BasicQueue <T> implements Queue<T> {
             }
 
             /* Notify listener that the queue is empty. */
-            listener.empty();
+            if (item ==null) {
+                listener.empty();
+            }
             count = 0;
 
 
@@ -243,6 +246,9 @@ public class BasicQueue <T> implements Queue<T> {
                     listener.shutdown();
                     return;
                 }
+                /* Idle means we yielded and then waited a full wait time, so idle might be a good time to do clean up
+                or timed tasks.
+                 */
                 listener.idle();
 
             }

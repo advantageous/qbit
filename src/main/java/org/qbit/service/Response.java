@@ -6,5 +6,6 @@ package org.qbit.service;
  */
 public interface Response <T> extends Message<T> {
 
+    void body(T body);
 }
 

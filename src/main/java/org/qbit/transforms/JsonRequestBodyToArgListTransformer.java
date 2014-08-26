@@ -17,17 +17,10 @@ public class JsonRequestBodyToArgListTransformer implements Transformer<Request,
 
 
     /**
-     * JSON Serializer.
-     */
-    private final JsonSimpleSerializerImpl jsonSerializer = new JsonSimpleSerializerImpl();
-    /**
      * JSON Parser.
      */
     private final JsonParserAndMapper jsonParser = new JsonParserFactory().create();
 
-    protected String toJson(Object object) {
-        return jsonSerializer.serialize(object).toString();
-    }
 
 
     protected Object fromJson(String json) {

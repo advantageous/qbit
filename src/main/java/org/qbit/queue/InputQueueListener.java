@@ -18,6 +18,13 @@ public interface InputQueueListener<T> extends Input {
      * */
     void empty();
 
+
+    /** Notifies the queue listener that we processed up to batch size.
+     * This is good for batch operations. This could mean the queue is empty or we reached our max batch size limit.
+     *
+     * */
+    void limit();
+
     /** Notifies the queue listener that currently the queue is closed for business. */
     void shutdown();
 

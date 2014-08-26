@@ -8,9 +8,12 @@ import org.qbit.queue.OutputQueue;
  */
 public interface Service {
 
-    OutputQueue<Method> requests();
+    OutputQueue<MethodCall> requests();
     InputQueue<Response<Object>> responses();
 
     InputQueue<Event> events();
+
+
+    void stop();
 
 }
