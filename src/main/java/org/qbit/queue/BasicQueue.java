@@ -97,17 +97,15 @@ public class BasicQueue <T> implements Queue<T> {
             public List<T> offerMany(T... items) {
 
 
-                List<T> returnList = Lists.list(items);
+                List<T> returnList = Lists.linkedList(items);
 
-                int index = 0;
                 for (T item : items) {
 
                     if (queue.offer(item)) {
-                        returnList.remove(index);
+                        returnList.remove(item);
                     } else {
                         break;
                     }
-                    index++;
                 }
                 return returnList;
             }
@@ -118,15 +116,13 @@ public class BasicQueue <T> implements Queue<T> {
 
                 List<T> returnList = Lists.list(items);
 
-                int index = 0;
                 for (T item : items) {
 
                     if (queue.offer(item)) {
-                        returnList.remove(index);
+                        returnList.remove(item);
                     } else {
                         break;
                     }
-                    index++;
                 }
                 return returnList;
             }

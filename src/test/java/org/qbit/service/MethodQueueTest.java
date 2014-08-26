@@ -1,7 +1,9 @@
 package org.qbit.service;
 
+import org.boon.Lists;
 import org.junit.Test;
 
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import static org.boon.Exceptions.die;
@@ -53,4 +55,67 @@ public class MethodQueueTest {
             ok = adder.all == 12 || die(adder.all);
         }
     }
+
+
+    @Test
+    public void testMany() {
+
+        Adder adder = new Adder();
+        ServiceImpl methodQueue = new ServiceImpl(adder, 1000, TimeUnit.MILLISECONDS, 100);
+
+        methodQueue.requests().offerMany(MethodImpl.method("add", "[1,2]"), MethodImpl.method("add", "[4,5]"));
+
+
+
+        Response<Object> response = methodQueue.responses().take();
+
+        ok = response != null || die(response);
+
+        ok = response.body().equals(Integer.valueOf(3)) || die(response);
+
+        response = methodQueue.responses().take();
+
+        ok = response != null || die(response);
+
+        ok = response.body().equals(Integer.valueOf(9)) || die(response);
+
+
+
+        synchronized (adder) {
+            ok = adder.all == 12 || die(adder.all);
+        }
+    }
+
+
+
+    @Test
+    public void testBatch() {
+
+        Adder adder = new Adder();
+        ServiceImpl methodQueue = new ServiceImpl(adder, 1000, TimeUnit.MILLISECONDS, 100);
+
+        List<Method> methods = Lists.list(MethodImpl.method("add", "[1,2]"), MethodImpl.method("add", "[4,5]"));
+        methodQueue.requests().offerBatch(methods);
+
+
+
+        Response<Object> response = methodQueue.responses().take();
+
+        ok = response != null || die(response);
+
+        ok = response.body().equals(Integer.valueOf(3)) || die(response);
+
+        response = methodQueue.responses().take();
+
+        ok = response != null || die(response);
+
+        ok = response.body().equals(Integer.valueOf(9)) || die(response);
+
+
+
+        synchronized (adder) {
+            ok = adder.all == 12 || die(adder.all);
+        }
+    }
+
 }

@@ -51,4 +51,30 @@ public class MethodImpl implements Method {
     public List<Object> body() {
         return body;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof MethodImpl)) return false;
+
+        MethodImpl method = (MethodImpl) o;
+
+        if (id != method.id) return false;
+        if (address != null ? !address.equals(method.address) : method.address != null) return false;
+        if (body != null ? !body.equals(method.body) : method.body != null) return false;
+        if (name != null ? !name.equals(method.name) : method.name != null) return false;
+        if (params != null ? !params.equals(method.params) : method.params != null) return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = name != null ? name.hashCode() : 0;
+        result = 31 * result + (address != null ? address.hashCode() : 0);
+        result = 31 * result + (params != null ? params.hashCode() : 0);
+        result = 31 * result + (body != null ? body.hashCode() : 0);
+        result = 31 * result + (int) (id ^ (id >>> 32));
+        return result;
+    }
 }
