@@ -1,5 +1,7 @@
-package org.qbit.service;
+package org.qbit.message;
 
+
+import org.qbit.message.Message;
 
 /**
  * Created by Richard on 7/21/14.

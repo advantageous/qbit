@@ -7,7 +7,7 @@ import org.qbit.Input;
  * Simplifies queue handler loop code by abstracting queue operations.
  * @author Richard Hightower
  */
-public interface InputQueueListener<T> extends Input {
+public interface ReceiveQueueListener<T> extends Input {
 
     /** Notifies a queue listener that an item has been recieved */
     void receive(T item);

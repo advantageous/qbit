@@ -7,9 +7,9 @@ import java.util.List;
 /**
  * Created by Richard on 7/18/14.
  */
-public interface OutputQueue <T> extends Output {
+public interface SendQueue<T> extends Output {
     boolean offer(T item);
-    List<T> offerMany(T... item);
-    List<T> offerBatch(Iterable<T> item);
+    boolean offerMany(T... item);
+    boolean offerBatch(Iterable<T> item);
 
 }

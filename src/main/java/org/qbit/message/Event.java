@@ -1,4 +1,4 @@
-package org.qbit.service;
+package org.qbit.message;
 
 /**
  * Created by Richard on 7/22/14.

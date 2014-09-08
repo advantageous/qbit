@@ -5,14 +5,14 @@ import org.qbit.Input;
 
 /**
  * Created by Richard on 7/18/14.
- * Represents an input queue.
+ * Represents an receive queue.
  * This could be a TCP/IP connection.
  * Reading a file from the file system. Etc.
  * A read operation on a database.
  * @author Richard Hightower
  *
  */
-public interface InputQueue <T> extends Input {
+public interface ReceiveQueue<T> extends Input {
 
     /** Gets the next item. If the item is null,
      * means the timeout has been reached. */
@@ -27,4 +27,8 @@ public interface InputQueue <T> extends Input {
 
     /** Read in a batch of items. */
     Iterable<T> readBatch(int max);
+
+
+    /** Read in a batch of items. */
+    Iterable<T> readBatch();
 }

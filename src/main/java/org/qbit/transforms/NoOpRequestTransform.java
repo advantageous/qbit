@@ -1,6 +1,6 @@
 package org.qbit.transforms;
 
-import org.qbit.service.Request;
+import org.qbit.message.Request;
 
 
 /**

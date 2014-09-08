@@ -1,10 +1,13 @@
 package org.qbit.service;
 
-import org.boon.core.reflection.ClassMeta;
-import org.boon.core.reflection.Invoker;
-import org.boon.core.reflection.MethodAccess;
 
+import org.qbit.message.Event;
+import org.qbit.message.Request;
 import org.qbit.queue.*;
+import org.qbit.message.MethodCall;
+import org.qbit.queue.impl.BasicQueue;
+import org.qbit.service.method.impl.MethodCallImpl;
+import org.qbit.message.Response;
 import org.qbit.transforms.*;
 
 import java.util.concurrent.TimeUnit;
@@ -13,7 +16,7 @@ import java.util.concurrent.TimeUnit;
 /**
  * Created by Richard on 8/11/14.
  */
-public class ServiceImpl extends BasicQueue<MethodCall> implements Service {
+public class ServiceImpl implements Service {
 
     private final Object service;
 
@@ -28,12 +31,14 @@ public class ServiceImpl extends BasicQueue<MethodCall> implements Service {
 
     private AfterMethodCall afterMethodCallAfterTransform = new NoOpAfterMethodCall();
 
-    private InputQueueListener<MethodCall> inputQueueListener = new NoOpInputMethodCallQueueListener();
+    private ReceiveQueueListener<MethodCall> inputQueueListener = new NoOpInputMethodCallQueueListener();
 
-    private final Queue<Response<Object>> responseQueue = new BasicQueue<Response<Object>>(1000,
-            TimeUnit.SECONDS, 100);
+    private final Queue<Response<Object>> responseQueue;
 
-    private  Transformer<Request, Object> requestObjectTransformer = new NoOpRequestTransform();
+    private final Queue<MethodCall<Object>> requestQueue;
+
+
+    private Transformer<Request, Object> requestObjectTransformer = new NoOpRequestTransform();
 
     private Transformer<Response, Response> responseObjectTransformer = new NoOpResponseTransformer();
 
@@ -50,156 +55,134 @@ public class ServiceImpl extends BasicQueue<MethodCall> implements Service {
     }
 
     public ServiceImpl(final Object service, int waitTime, TimeUnit timeUnit, int batchSize,
-                       InputQueueListener customMethodInvoker) {
-        super(waitTime, timeUnit, batchSize);
+                       final ServiceMethodHandler serviceMethodHandler) {
         this.service = service;
 
+        serviceMethodHandler.init(service);
+
+        requestQueue = new BasicQueue<>(waitTime,
+                timeUnit, batchSize);
+
+        responseQueue = new BasicQueue<>(waitTime,
+                timeUnit, batchSize);
 
 
+        requestQueue.startListener(new ReceiveQueueListener<MethodCall<Object>>() {
+            @Override
+            public void receive(MethodCall methodCall) {
+
+                inputQueueListener.receive(methodCall);
+
+                if (!beforeMethodCall.before(methodCall)) {
+                    return;
+                }
+
+                final Object arg = requestObjectTransformer.transform(methodCall);
+
+                if (beforeMethodCallAfterTransform != null) {
+                    MethodCall transformedCall = MethodCallImpl.transformed(methodCall, arg);
+
+                    if (!beforeMethodCallAfterTransform.before(transformedCall)) {
+                        return;
+                    }
+                }
 
 
-        if (customMethodInvoker==null) {
+                Response<Object> response = serviceMethodHandler.receive(methodCall, arg);
 
 
-            final ClassMeta classMeta = ClassMeta.classMeta(service.getClass());
+                if (response != ServiceConstants.VOID) {
 
-            final MethodAccess queueLimit = classMeta.method("queueLimit");
-
-            final MethodAccess queueEmpty = classMeta.method("queueEmpty");
-
-
-            final MethodAccess queueShutdown = classMeta.method("queueShutdown");
-
-
-            final MethodAccess queueIdle = classMeta.method("queueIdle");
-
-            this.startListener(new InputQueueListener<MethodCall>() {
-                @Override
-                public void receive(MethodCall methodCall) {
-
-                    inputQueueListener.receive(methodCall);
-
-                    if (!beforeMethodCall.before(methodCall)) {
+                    if (!afterMethodCall.after(methodCall, response)) {
                         return;
                     }
 
-                    final Object arg = requestObjectTransformer.transform(methodCall);
+                    response = responseObjectTransformer.transform(response);
 
-                    if (beforeMethodCallAfterTransform!=null) {
-                        MethodCall transformedCall = MethodCallImpl.transformed(methodCall, arg);
 
-                        if (!beforeMethodCallAfterTransform.before(transformedCall)) {
-                            return;
-                        }
+                    if (!afterMethodCallAfterTransform.after(methodCall, response)) {
+                        return;
                     }
 
 
+                    responseQueue.send().offer(response);
+                }
+            }
 
-                    final MethodAccess m = classMeta.method(methodCall.name());
-                    if (m.returnType() == Void.class) {
-
-                        Invoker.invokeFromObject(service, methodCall.name(), arg);
-                    } else {
-                        Object returnValue = Invoker.invokeFromObject(service, methodCall.name(), arg);
-
-                        Response response = ResponseImpl.response(methodCall.id(), methodCall.timestamp(), methodCall.name(), returnValue);
+            @Override
+            public void empty() {
 
 
-                        if (!afterMethodCall.after(methodCall, response)) {
-                            return;
-                        }
-
-                        response = responseObjectTransformer.transform(response);
-
-
-                        if (!afterMethodCallAfterTransform.after(methodCall, response)) {
-                            return;
-                        }
-
-
-
-
-                        responseQueue.output().offer(response);
-                    }
+                if (inputQueueListener != null) {
+                    inputQueueListener.empty();
                 }
 
-                @Override
-                public void empty() {
+                serviceMethodHandler.empty();
+            }
+
+            @Override
+            public void limit() {
 
 
-                    if (inputQueueListener!=null) {
-                        inputQueueListener.empty();
-                    }
-                    if (queueEmpty!=null) {
-                        queueEmpty.invoke(service);
-                    }
+                if (inputQueueListener != null) {
+                    inputQueueListener.limit();
                 }
 
-                @Override
-                public void limit() {
+                serviceMethodHandler.limit();
+
+            }
+
+            @Override
+            public void shutdown() {
 
 
-                    if (inputQueueListener!=null) {
-                        inputQueueListener.limit();
-                    }
-
-                    if (queueLimit!=null) {
-                        queueLimit.invoke(service);
-                    }
+                if (inputQueueListener != null) {
+                    inputQueueListener.shutdown();
                 }
 
-                @Override
-                public void shutdown() {
+
+                serviceMethodHandler.shutdown();
+            }
+
+            @Override
+            public void idle() {
 
 
-
-                    if (inputQueueListener!=null) {
-                        inputQueueListener.shutdown();
-                    }
-
-
-                    if (queueShutdown!=null) {
-                        queueShutdown.invoke(service);
-                    }
+                if (inputQueueListener != null) {
+                    inputQueueListener.idle();
                 }
 
-                @Override
-                public void idle() {
 
-
-                    if (inputQueueListener!=null) {
-                        inputQueueListener.idle();
-                    }
-
-                    if (queueIdle!=null) {
-                        queueIdle.invoke(service);
-                    }
-                }
-            });
-
-        } else {
-            this.startListener(customMethodInvoker);
-        }
+                serviceMethodHandler.idle();
+            }
+        });
 
     }
+
 
     public Queue<Response<Object>> responseQueue() {
         return responseQueue;
     }
 
     @Override
-    public OutputQueue<MethodCall> requests() {
-        return this.output();
+    public SendQueue<MethodCall<Object>> requests() {
+        return requestQueue.send();
     }
 
     @Override
-    public InputQueue<Response<Object>> responses() {
-        return this.responseQueue.input();
+    public ReceiveQueue<Response<Object>> responses() {
+        return responseQueue.receive();
     }
 
     @Override
-    public InputQueue<Event> events() {
+    public ReceiveQueue<Event> events() {
         return null;
+    }
+
+    @Override
+    public void stop() {
+        requestQueue.stop();
+        responseQueue.stop();
     }
 
 

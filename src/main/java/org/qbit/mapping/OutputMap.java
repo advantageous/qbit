@@ -1,7 +1,7 @@
 package org.qbit.mapping;
 
 import org.qbit.Output;
-import org.qbit.queue.OutputQueue;
+import org.qbit.queue.SendQueue;
 
 /**
  * Created by Richard on 7/18/14.
@@ -10,5 +10,5 @@ import org.qbit.queue.OutputQueue;
  */
 public interface OutputMap<K, V> extends Output {
 
-    OutputQueue<Entry<K, V>> setOutput();
+    SendQueue<Entry<K, V>> setOutput();
 }

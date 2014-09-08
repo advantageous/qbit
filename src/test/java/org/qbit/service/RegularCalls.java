@@ -3,6 +3,9 @@ package org.qbit.service;
 import org.boon.Lists;
 import org.boon.core.Sys;
 import org.junit.Test;
+import org.qbit.message.MethodCall;
+import org.qbit.service.method.impl.MethodCallImpl;
+import org.qbit.message.Response;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -84,7 +87,7 @@ public class RegularCalls {
         }
 
 
-        List<MethodCall> methods = new ArrayList<MethodCall>();
+        List<MethodCall<Object>> methods = new ArrayList<>();
 
         for (int index = 0; index < 1000; index++) {
             methods.add(MethodCallImpl.method("add", Lists.list(1, 2)));
@@ -147,7 +150,7 @@ public class RegularCalls {
         Adder adder = new Adder();
         Service methodQueue = Services.regularService(adder, 1000, TimeUnit.MILLISECONDS, 100);
 
-        List<MethodCall> methods = Lists.list(MethodCallImpl.method("add", Lists.list(1, 2)), MethodCallImpl.method("add", Lists.list(4, 5)));
+        List<MethodCall<Object>> methods = Lists.list(MethodCallImpl.method("add", Lists.list(1, 2)), MethodCallImpl.method("add", Lists.list(4, 5)));
         methodQueue.requests().offerBatch(methods);
 
 

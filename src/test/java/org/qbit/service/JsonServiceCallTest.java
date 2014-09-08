@@ -2,6 +2,9 @@ package org.qbit.service;
 
 import org.boon.Lists;
 import org.junit.Test;
+import org.qbit.message.MethodCall;
+import org.qbit.service.method.impl.MethodCallImpl;
+import org.qbit.message.Response;
 
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -105,7 +108,7 @@ public class JsonServiceCallTest {
         Adder adder = new Adder();
         Service methodQueue = Services.jsonService(adder, 1000, TimeUnit.MILLISECONDS, 100);
 
-        List<MethodCall> methods = Lists.list(MethodCallImpl.method("add", "[1,2]"), MethodCallImpl.method("add", "[4,5]"));
+        List<MethodCall<Object>> methods = Lists.list(MethodCallImpl.method("add", "[1,2]"), MethodCallImpl.method("add", "[4,5]"));
         methodQueue.requests().offerBatch(methods);
 
 

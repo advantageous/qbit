@@ -1,4 +1,6 @@
-package org.qbit.service;
+package org.qbit.service.method.impl;
+
+import org.qbit.message.Response;
 
 import java.util.Map;
 
@@ -15,12 +17,12 @@ public class ResponseImpl<T> implements Response<T> {
     private  Object transformedBody;
 
 
-    static Response response(long id, Object body) {
+    public static Response response(long id, Object body) {
         return new ResponseImpl(id, 0, null, null, body);
     }
 
 
-    static Response response(long id, long timestamp, String address, Object body) {
+    public static Response response(long id, long timestamp, String address, Object body) {
         return new ResponseImpl(id, timestamp, address, null, body);
     }
 
@@ -38,15 +40,6 @@ public class ResponseImpl<T> implements Response<T> {
         return id;
     }
 
-    @Override
-    public String address() {
-        return address;
-    }
-
-    @Override
-    public Map<String, Object> params() {
-        return params;
-    }
 
     @Override
     public T body() {
@@ -56,6 +49,11 @@ public class ResponseImpl<T> implements Response<T> {
         } else {
             return (T) transformedBody;
         }
+    }
+
+    @Override
+    public boolean isSingleton() {
+        return true;
     }
 
     public void body(T newBody){

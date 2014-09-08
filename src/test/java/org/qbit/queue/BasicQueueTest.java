@@ -3,6 +3,7 @@ package org.qbit.queue;
 import org.boon.Lists;
 import org.boon.core.Sys;
 import org.junit.Test;
+import org.qbit.queue.impl.BasicQueue;
 
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -25,7 +26,7 @@ public class BasicQueueTest {
 
        final int []counter = new int[1];
 
-       queue.startListener(new InputQueueListener<String>() {
+       queue.startListener(new ReceiveQueueListener<String>() {
            @Override
            public void receive(String item) {
                puts (item);
@@ -62,26 +63,26 @@ public class BasicQueueTest {
 
 
        for (int index = 0; index < 10; index++) {
-           queue.output().offer("item" + index);
+           queue.send().offer("item" + index);
        }
 
 
        for (int index = 0; index < 100; index++) {
-            queue.output().offer("item2nd" + index);
+            queue.send().offer("item2nd" + index);
        }
 
        for (int index = 0; index < 5; index++) {
             sleep(1000);
-            queue.output().offer("item3rd" + index);
+            queue.send().offer("item3rd" + index);
        }
 
 
-       queue.output().offerMany("hello", "how", "are", "you");
+       queue.send().offerMany("hello", "how", "are", "you");
 
 
        List<String> list = Lists.linkedList("Good", "Thanks");
 
-       queue.output().offerBatch(list);
+       queue.send().offerBatch(list);
 
 
 
@@ -111,7 +112,7 @@ public class BasicQueueTest {
             public void run() {
 
                 for (int index = 0; index < 1000; index++) {
-                    queue.output().offer("item" + index);
+                    queue.send().offer("item" + index);
                 }
             }
         });
@@ -122,7 +123,7 @@ public class BasicQueueTest {
             @Override
             public void run() {
 
-                while (queue.input().poll()!=null) {
+                while (queue.receive().poll()!=null) {
                     count[0]++;
                 }
             }
@@ -156,7 +157,7 @@ public class BasicQueueTest {
             public void run() {
 
                 for (int index = 0; index < 1000; index++) {
-                    queue.output().offer("item" + index);
+                    queue.send().offer("item" + index);
                 }
             }
         });
@@ -167,12 +168,12 @@ public class BasicQueueTest {
             @Override
             public void run() {
 
-                String item = queue.input().take();
+                String item = queue.receive().take();
 
                 while (item !=null) {
                     count[0]++;
                     puts(item);
-                    item = queue.input().take();
+                    item = queue.receive().take();
 
                     if (count[0]==900) {
                         break;
@@ -209,7 +210,7 @@ public class BasicQueueTest {
             public void run() {
 
                 for (int index = 0; index < 1000; index++) {
-                    queue.output().offer("item" + index);
+                    queue.send().offer("item" + index);
                 }
             }
         });
@@ -220,12 +221,12 @@ public class BasicQueueTest {
             @Override
             public void run() {
 
-                String item = queue.input().pollWait();
+                String item = queue.receive().pollWait();
 
                 while (item !=null) {
                     count[0]++;
                     puts(item);
-                    item = queue.input().pollWait();
+                    item = queue.receive().pollWait();
 
                 }
             }

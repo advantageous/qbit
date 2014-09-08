@@ -1,8 +1,9 @@
-package org.qbit.service;
+package org.qbit.service.method.impl;
 
 import org.boon.Lists;
 import org.boon.concurrent.Timer;
 import org.boon.json.annotations.JsonIgnore;
+import org.qbit.message.MethodCall;
 
 import java.util.Collections;
 import java.util.List;
@@ -11,7 +12,7 @@ import java.util.Map;
 /**
  * Created by Richard on 8/11/14.
  */
-public class MethodCallImpl implements MethodCall {
+public class MethodCallImpl implements MethodCall<Object> {
 
     private String name;
     private String address;
@@ -28,11 +29,11 @@ public class MethodCallImpl implements MethodCall {
     private static volatile long idSequence;
 
 
-    public static MethodCall methodWithArgs(String method, Object... args) {
+    public static MethodCall<Object> methodWithArgs(String method, Object... args) {
         return method(method, Lists.list(args));
     }
 
-    public static MethodCall method(String name, String body) {
+    public static MethodCall<Object> method(String name, String body) {
         MethodCallImpl method = new MethodCallImpl();
         method.name = name;
         method.body = Collections.singletonList((Object)body);
@@ -41,7 +42,7 @@ public class MethodCallImpl implements MethodCall {
         return method;
     }
 
-    public static MethodCall method(String name, List<?> body) {
+    public static MethodCall<Object> method(String name, List<?> body) {
         MethodCallImpl method = new MethodCallImpl();
         method.name = name;
         method.body = body;
@@ -72,6 +73,11 @@ public class MethodCallImpl implements MethodCall {
     }
 
     @Override
+    public String returnAddress() {
+        return null;
+    }
+
+    @Override
     public Map<String, Object> params() {
         return params;
     }
@@ -79,6 +85,11 @@ public class MethodCallImpl implements MethodCall {
     @Override
     public List<Object> body() {
         return (List)body;
+    }
+
+    @Override
+    public boolean isSingleton() {
+        return true;
     }
 
     public boolean hasBody() {

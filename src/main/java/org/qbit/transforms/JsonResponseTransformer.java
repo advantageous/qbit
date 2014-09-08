@@ -1,7 +1,7 @@
 package org.qbit.transforms;
 
 import org.boon.json.serializers.impl.JsonSimpleSerializerImpl;
-import org.qbit.service.Response;
+import org.qbit.message.Response;
 
 /**
  * Created by Richard on 8/26/14.

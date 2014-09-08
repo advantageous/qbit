@@ -2,8 +2,7 @@ package org.qbit.transforms;
 
 import org.boon.json.JsonParserAndMapper;
 import org.boon.json.JsonParserFactory;
-import org.boon.json.serializers.impl.JsonSimpleSerializerImpl;
-import org.qbit.service.Request;
+import org.qbit.message.Request;
 
 import java.util.List;
 

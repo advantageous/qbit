@@ -4,10 +4,10 @@ package org.qbit.queue;
  * Created by Richard on 8/4/14.
  */
 public interface Queue <T> {
-    InputQueue<T> input();
-    OutputQueue<T> output();
+    ReceiveQueue<T> receive();
+    SendQueue<T> send();
 
-    void startListener(InputQueueListener<T> listener);
+    void startListener(ReceiveQueueListener<T> listener);
 
     void stop();
 }

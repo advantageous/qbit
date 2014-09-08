@@ -1,11 +1,12 @@
 package org.qbit.service;
 
-import org.qbit.queue.InputQueueListener;
+import org.qbit.queue.ReceiveQueueListener;
+import org.qbit.message.MethodCall;
 
 /**
  * Created by Richard on 8/26/14.
  */
-public class NoOpInputMethodCallQueueListener implements InputQueueListener<MethodCall> {
+public class NoOpInputMethodCallQueueListener implements ReceiveQueueListener<MethodCall> {
 
     @Override
     public void receive(MethodCall item) {

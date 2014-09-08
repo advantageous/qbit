@@ -1,17 +1,20 @@
 package org.qbit.service;
 
-import org.qbit.queue.InputQueue;
-import org.qbit.queue.OutputQueue;
+import org.qbit.message.Event;
+import org.qbit.queue.ReceiveQueue;
+import org.qbit.queue.SendQueue;
+import org.qbit.message.MethodCall;
+import org.qbit.message.Response;
 
 /**
  * Created by Richard on 7/21/14.
  */
 public interface Service {
 
-    OutputQueue<MethodCall> requests();
-    InputQueue<Response<Object>> responses();
+    SendQueue<MethodCall<Object>> requests();
+    ReceiveQueue<Response<Object>> responses();
 
-    InputQueue<Event> events();
+    ReceiveQueue<Event> events();
 
 
     void stop();
