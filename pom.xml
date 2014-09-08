@@ -49,7 +49,7 @@
         <dependency>
             <groupId>io.fastjson</groupId>
             <artifactId>boon</artifactId>
-            <version>0.24-SNAPSHOT</version>
+            <version>0.24</version>
         </dependency>
 
         <dependency>
