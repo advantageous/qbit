@@ -97,3 +97,30 @@ The solution is simple. There will be a factory where you can specify number of 
 Then QBIT will use the write queue based on the factory params. 
 Currently QBIT uses LinkedTransferQueue at the moment. 
 Anyway. Check back. Work in progress....
+
+Code Examples
+====
+
+```java
+
+     BasicQueue<Integer> queue =  BasicQueue.create(Integer.class, 1000);
+    
+    //Sending threads
+     
+     SendQueue<Integer> sendQueue = queue.sendQueue();
+     for (int index = 0; index < amount; index++) {
+           sendQueue.send(index);
+     }
+     sendQueue.flushSends();
+     ...
+     sendQueue.sendAndFlush(code);
+     //other methods for sendQueue, writeBatch, writeMany
+
+
+     //Recieving Threads
+     ReceiveQueue<Integer> receiveQueue = queue.receiveQueue();
+     Integer item = receiveQueue.take(); 
+     //other methods poll(), pollWait(), readBatch(), readBatch(count)
+```
+
+MORE TO COME...
