@@ -79,6 +79,18 @@ Description                        QBIT(ms)          LinkedBlockingQueue(ms)    
 One Reader, One Writer                6276                             10003                          159.38
 Two Reader, One Writer                4235                              9105                          214.99
 Ten Readers, One Writer                586                              9196                        1,542.95
+10 Readers, 10 Writers                4782                             15182                          317.48
+1 Readers, 10 Writers               40,618	                           16,472                         -246.59     QBIT LOST!
+2 Readers, 10 Writer                16,491                            18,342                          111.22
+5 Readers, 10 Writers               10,598                            17,587                          165.95
+10 Readers, 1 Writer                   316                             1,616                          511.39
+10 Readers, 5 Writer                 1,060	                            7,589                          715.94
 ```
+
+As you can see, QBIT does quite well. But there is one case where it does not do as well.
+The solution is simple. There will be a factory where you can specify number of readers/writers, IO Bound/CPU Bound, etc.
+Then QBIT will use the write queue based on the factory params. 
+Currently QBIT uses LinkedTransferQueue at the moment. 
+
 
 
