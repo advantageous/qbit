@@ -14,6 +14,10 @@ Status
 Early Days.
 
 
+License
+=====
+Apache 2
+
 
 QBit and Boon philosiphy:
 ====
