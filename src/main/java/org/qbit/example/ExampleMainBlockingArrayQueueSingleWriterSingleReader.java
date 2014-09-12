@@ -8,7 +8,7 @@ import java.util.concurrent.*;
 /**
  * Created by Richard on 9/12/14.
  */
-public class ExampleMain {
+public class ExampleMainBlockingArrayQueueSingleWriterSingleReader {
 
 
 
@@ -100,7 +100,7 @@ public class ExampleMain {
 
         System.out.println("Count " + count);
 
-        if (count!=4999999950000000L) {
+        if (count!=1249999975000000L) {
             System.err.println("TEST FAILED");
         }
 

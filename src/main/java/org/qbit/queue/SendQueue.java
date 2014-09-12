@@ -10,6 +10,8 @@ import java.util.List;
  */
 public interface SendQueue<T> extends Output {
     void send(T item);
+    void sendAndFlush(T item);
+
     void sendMany(T... item);
     void sendBatch(Collection<T> item);
     void sendBatch(Iterable<T> item);

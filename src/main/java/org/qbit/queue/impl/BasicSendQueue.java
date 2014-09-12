@@ -44,6 +44,12 @@ public class BasicSendQueue<T> implements SendQueue<T> {
          flushIfOverBatch();
     }
 
+    @Override
+    public void sendAndFlush(T item) {
+        send(item);
+        flushSends();
+    }
+
 
     @Override
     public void sendMany(T... items) {
