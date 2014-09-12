@@ -8,7 +8,10 @@ import java.util.List;
 import java.util.concurrent.LinkedTransferQueue;
 import java.util.concurrent.TimeUnit;
 
+
 /**
+ * This is not thread safe.
+ * You use BasicQueue to create this in the one thread that you are going to use it.
 * Created by Richard on 9/8/14.
 */
 class BasicReceiveQueue<T> implements ReceiveQueue<T> {
@@ -16,7 +19,8 @@ class BasicReceiveQueue<T> implements ReceiveQueue<T> {
     private final long waitTime;
     private final TimeUnit timeUnit;
     private final int batchSize;
-    private ThreadLocal<java.util.Queue> lastQueue = new ThreadLocal<>();
+    private Object[] lastQueue = null;
+    private int lastQueueIndex;
     private final LinkedTransferQueue<Object> queue;
 
     public BasicReceiveQueue(LinkedTransferQueue<Object> queue, long waitTime, TimeUnit timeUnit, int batchSize) {
@@ -29,7 +33,7 @@ class BasicReceiveQueue<T> implements ReceiveQueue<T> {
     @Override
     public T pollWait() {
 
-        if (lastQueue.get()!=null) {
+        if (lastQueue!=null) {
 
             return getItemFromLocalQueue();
         }
@@ -43,19 +47,24 @@ class BasicReceiveQueue<T> implements ReceiveQueue<T> {
         }
     }
 
+
+
     private T getItemFromLocalQueue() {
-        Object item = lastQueue.get().poll();
-        if (lastQueue.get().size()==0) {
-            lastQueue.set(null);
+        T item = (T)lastQueue[lastQueueIndex];
+        lastQueueIndex++;
+
+        if (lastQueueIndex == lastQueue.length) {
+            lastQueueIndex = 0;
+            lastQueue = null;
         }
-        return (T) item;
+        return item;
     }
 
 
     @Override
     public T poll() {
 
-        if (lastQueue.get()!=null) {
+        if (lastQueue!=null) {
 
             return getItemFromLocalQueue();
         }
@@ -68,7 +77,7 @@ class BasicReceiveQueue<T> implements ReceiveQueue<T> {
     @Override
     public T take() {
 
-        if (lastQueue.get()!=null) {
+        if (lastQueue!=null) {
 
             return getItemFromLocalQueue();
         }
@@ -84,9 +93,9 @@ class BasicReceiveQueue<T> implements ReceiveQueue<T> {
     }
 
     private T extractItem(Object o) {
-        if (o instanceof java.util.Queue) {
-            lastQueue.set((java.util.Queue) o);
-            return (T) lastQueue.get().poll();
+        if (o instanceof Object[]) {
+            lastQueue = (Object[]) o;
+            return getItemFromLocalQueue();
         } else {
             return (T)o;
         }

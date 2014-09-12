@@ -11,15 +11,15 @@ import java.util.concurrent.TimeUnit;
  */
 public class Services {
 
-    public static Service jsonService( Object service, int waitTime, TimeUnit timeUnit, int batchSize) {
-        ServiceImpl serviceQueue = new ServiceImpl(service, waitTime, timeUnit, batchSize, new ServiceMethodCallHandlerImpl());
+    public static Service jsonService( final String name, Object service, int waitTime, TimeUnit timeUnit, int batchSize) {
+        ServiceImpl serviceQueue = new ServiceImpl(name, service, waitTime, timeUnit, batchSize, new ServiceMethodCallHandlerImpl());
         serviceQueue.requestObjectTransformer(new JsonRequestBodyToArgListTransformer());
         serviceQueue.responseObjectTransformer(new JsonResponseTransformer());
         return serviceQueue;
     }
 
-    public static Service regularService( Object service, int waitTime, TimeUnit timeUnit, int batchSize) {
-        ServiceImpl serviceQueue = new ServiceImpl(service, waitTime, timeUnit, batchSize, new ServiceMethodCallHandlerImpl());
+    public static Service regularService( final String name, Object service, int waitTime, TimeUnit timeUnit, int batchSize) {
+        ServiceImpl serviceQueue = new ServiceImpl(name, service, waitTime, timeUnit, batchSize, new ServiceMethodCallHandlerImpl());
         return serviceQueue;
     }
 }

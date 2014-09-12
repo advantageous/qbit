@@ -5,7 +5,7 @@ import org.qbit.Input;
 
 /**
  * Created by Richard on 7/18/14.
- * Represents an receive queue.
+ * Represents an receiveQueue queue.
  * This could be a TCP/IP connection.
  * Reading a file from the file system. Etc.
  * A read operation on a database.

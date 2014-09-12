@@ -19,6 +19,7 @@ import java.util.concurrent.TimeUnit;
 public class ServiceImpl implements Service {
 
     private final Object service;
+    private final String name;
 
     private BeforeMethodCall beforeMethodCall = new NoOpBeforeMethodCall();
 
@@ -54,16 +55,17 @@ public class ServiceImpl implements Service {
         return this;
     }
 
-    public ServiceImpl(final Object service, int waitTime, TimeUnit timeUnit, int batchSize,
+    public ServiceImpl(final String name, final Object service, int waitTime, TimeUnit timeUnit, int batchSize,
                        final ServiceMethodHandler serviceMethodHandler) {
         this.service = service;
+        this.name = name;
 
         serviceMethodHandler.init(service);
 
-        requestQueue = new BasicQueue<>(waitTime,
+        requestQueue = new BasicQueue<>("Request Queue " + name, waitTime,
                 timeUnit, batchSize);
 
-        responseQueue = new BasicQueue<>(waitTime,
+        responseQueue = new BasicQueue<>("Response Queue " + name, waitTime,
                 timeUnit, batchSize);
 
 
@@ -105,7 +107,7 @@ public class ServiceImpl implements Service {
                     }
 
 
-                    responseQueue.send().offer(response);
+                    responseQueue.sendQueue().send(response);
                 }
             }
 
@@ -166,12 +168,12 @@ public class ServiceImpl implements Service {
 
     @Override
     public SendQueue<MethodCall<Object>> requests() {
-        return requestQueue.send();
+        return requestQueue.sendQueue();
     }
 
     @Override
     public ReceiveQueue<Response<Object>> responses() {
-        return responseQueue.receive();
+        return responseQueue.receiveQueue();
     }
 
     @Override

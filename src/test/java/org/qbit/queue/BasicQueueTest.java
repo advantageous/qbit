@@ -7,6 +7,7 @@ import org.qbit.queue.impl.BasicQueue;
 
 import java.util.List;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicLong;
 
 import static org.boon.Boon.puts;
 import static org.boon.Exceptions.die;
@@ -22,7 +23,7 @@ public class BasicQueueTest {
 
     @Test
     public void testUsingListener() {
-       BasicQueue<String> queue = new BasicQueue<String>(1000, TimeUnit.MILLISECONDS, 10);
+       BasicQueue<String> queue = new BasicQueue<>("test", 1000, TimeUnit.MILLISECONDS, 10);
 
        final int []counter = new int[1];
 
@@ -61,29 +62,61 @@ public class BasicQueueTest {
            }
        });
 
-
-       for (int index = 0; index < 10; index++) {
-           queue.send().offer("item" + index);
+        final SendQueue<String> sendQueue = queue.sendQueue();
+        for (int index = 0; index < 10; index++) {
+            sendQueue.send("item" + index);
        }
+
+
+        sendQueue.flushSends();
+
+        sleep(1000);
+        synchronized (counter) {
+            puts("1", counter[0]);
+        }
 
 
        for (int index = 0; index < 100; index++) {
-            queue.send().offer("item2nd" + index);
+            sendQueue.send("item2nd" + index);
        }
 
-       for (int index = 0; index < 5; index++) {
+        sendQueue.flushSends();
+
+
+        sleep(1000);
+        synchronized (counter) {
+            puts("2", counter[0]);
+        }
+
+        for (int index = 0; index < 5; index++) {
             sleep(1000);
-            queue.send().offer("item3rd" + index);
+            sendQueue.send("item3rd" + index);
        }
+        sendQueue.flushSends();
+
+        sleep(1000);
+        synchronized (counter) {
+            puts("3", counter[0]);
+        }
 
 
-       queue.send().offerMany("hello", "how", "are", "you");
+       sendQueue.sendMany("hello", "how", "are", "you");
 
+
+        sleep(1000);
+        synchronized (counter) {
+            puts("4", counter[0]);
+        }
 
        List<String> list = Lists.linkedList("Good", "Thanks");
 
-       queue.send().offerBatch(list);
+       sendQueue.sendBatch(list);
 
+
+        sleep(1000);
+        synchronized (counter) {
+            puts("1", counter[0]);
+        }
 
 
 
@@ -102,18 +135,23 @@ public class BasicQueueTest {
     @Test
     public void testUsingInput() throws Exception {
 
-        final BasicQueue<String> queue = new BasicQueue<String>(1000, TimeUnit.MILLISECONDS, 10);
+        final BasicQueue<String> queue = new BasicQueue<>("test", 1000, TimeUnit.MILLISECONDS, 10);
 
         final int count[] = new int[1];
+
 
 
         Thread writer = new Thread(new Runnable() {
             @Override
             public void run() {
 
+
+                final SendQueue<String> sendQueue = queue.sendQueue();
+
                 for (int index = 0; index < 1000; index++) {
-                    queue.send().offer("item" + index);
+                    sendQueue.send("item" + index);
                 }
+                sendQueue.flushSends();
             }
         });
 
@@ -122,8 +160,9 @@ public class BasicQueueTest {
         Thread reader = new Thread(new Runnable() {
             @Override
             public void run() {
+                ReceiveQueue<String> receiveQueue = queue.receiveQueue();
 
-                while (queue.receive().poll()!=null) {
+                while (receiveQueue.poll()!=null) {
                     count[0]++;
                 }
             }
@@ -140,47 +179,54 @@ public class BasicQueueTest {
 
         puts(count[0]);
 
-        ok = count[0] == 1000 || die("count should be 1000");
+        ok = count[0] == 1000 || die("count should be 1000", count[0]);
 
     }
 
     @Test
     public void testUsingInputTake() throws Exception {
 
-        final BasicQueue<String> queue = new BasicQueue<String>(1000, TimeUnit.MILLISECONDS, 10);
+        final BasicQueue<String> queue = new BasicQueue<>("test", 1000, TimeUnit.MILLISECONDS, 1000);
 
-        final int count[] = new int[1];
+        final AtomicLong count = new AtomicLong();
+
+        Thread reader = new Thread(new Runnable() {
+            @Override
+            public void run() {
+
+                long cnt = 0;
+                final ReceiveQueue<String> receiveQueue = queue.receiveQueue();
+                String item = receiveQueue.take();
+
+                while (item !=null) {
+                    cnt++;
+                    puts(item);
+                    item = receiveQueue.take();
+
+                    if (cnt>=900) {
+                        count.set(cnt);
+                        break;
+                    }
+                }
+            }
+        });
 
 
         Thread writer = new Thread(new Runnable() {
             @Override
             public void run() {
 
+                final SendQueue<String> sendQueue = queue.sendQueue();
+
                 for (int index = 0; index < 1000; index++) {
-                    queue.send().offer("item" + index);
+                    sendQueue.send("this item " + index);
                 }
+                sendQueue.flushSends();
             }
         });
 
 
 
-        Thread reader = new Thread(new Runnable() {
-            @Override
-            public void run() {
-
-                String item = queue.receive().take();
-
-                while (item !=null) {
-                    count[0]++;
-                    puts(item);
-                    item = queue.receive().take();
-
-                    if (count[0]==900) {
-                        break;
-                    }
-                }
-            }
-        });
 
         writer.start();
 
@@ -190,9 +236,9 @@ public class BasicQueueTest {
         writer.join();
         reader.join();
 
-        puts(count[0]);
+        puts(count.get());
 
-        ok = count[0] == 900 || die("count should be 1000");
+        ok = count.get() == 900 || die("count should be 1000", count.get());
 
     }
 
@@ -200,18 +246,22 @@ public class BasicQueueTest {
     @Test
     public void testUsingInputPollWait() throws Exception {
 
-        final BasicQueue<String> queue = new BasicQueue<String>(1000, TimeUnit.MILLISECONDS, 10);
+        final BasicQueue<String> queue = new BasicQueue<>("test", 1000, TimeUnit.MILLISECONDS, 10);
 
         final int count[] = new int[1];
+
 
 
         Thread writer = new Thread(new Runnable() {
             @Override
             public void run() {
 
+
+                SendQueue<String> sendQueue = queue.sendQueue();
                 for (int index = 0; index < 1000; index++) {
-                    queue.send().offer("item" + index);
+                    sendQueue.send("item" + index);
                 }
+                sendQueue.flushSends();
             }
         });
 
@@ -220,13 +270,14 @@ public class BasicQueueTest {
         Thread reader = new Thread(new Runnable() {
             @Override
             public void run() {
+                ReceiveQueue<String> receiveQueue = queue.receiveQueue();
 
-                String item = queue.receive().pollWait();
+                String item = receiveQueue.pollWait();
 
                 while (item !=null) {
                     count[0]++;
                     puts(item);
-                    item = queue.receive().pollWait();
+                    item = receiveQueue.pollWait();
 
                 }
             }
@@ -242,7 +293,7 @@ public class BasicQueueTest {
 
         puts(count[0]);
 
-        ok = count[0] == 1000 || die("count should be 1000");
+        ok = count[0] == 1000 || die("count should be 1000",  count[0]);
 
     }
 

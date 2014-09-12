@@ -10,47 +10,61 @@ import static org.boon.Exceptions.die;
 /**
  * Created by Richard on 8/4/14.
  */
-public class BasicQueue <T> implements Queue<T> {
+public class BasicQueue<T> implements Queue<T> {
 
 
     private final LinkedTransferQueue<Object> queue = new LinkedTransferQueue<>();
     private final int batchSize;
 
-    AtomicBoolean stop = new AtomicBoolean();
+    private final AtomicBoolean stop = new AtomicBoolean();
 
 
-    private  ReceiveQueueManager<T> receiveQueueManager;
+    private ReceiveQueueManager<T> receiveQueueManager;
     private ScheduledExecutorService monitor;
 
     private ScheduledFuture<?> future;
+    private final String name;
 
 
+    private final int waitTime;
+
+    private final TimeUnit timeUnit;
 
 
-    private final SendQueue<T> outputQueue;
-    private final ReceiveQueue<T> inputQueue;
-
-    public BasicQueue(int waitTime, TimeUnit timeUnit, int batchSize) {
-        this.outputQueue = new BasicSendQueue<>(queue);
+    public BasicQueue(String name,
+                      final int waitTime,
+                      final TimeUnit timeUnit,
+                      int batchSize) {
+        this.name = name;
+        this.waitTime = waitTime;
+        this.timeUnit = timeUnit;
 
         this.batchSize = batchSize;
 
-        this.inputQueue = new BasicReceiveQueue<>(queue, waitTime, timeUnit, batchSize);
 
         this.receiveQueueManager = new BasicReceiveQueueManager<>();
 
     }
 
+    /**
+     * This returns a new instance of ReceiveQueue<T> every time you call it
+     * so call it only once per thread.
+     * @return received queue.
+     */
     @Override
-    public ReceiveQueue<T> receive() {
-        return inputQueue;
+    public ReceiveQueue<T> receiveQueue() {
+        return new BasicReceiveQueue<>(queue, waitTime, timeUnit, batchSize);
     }
 
+    /**
+     * This returns a new instance of SendQueue<T> every time you call it
+     * so call it only once per thread.
+     * @return sendQueue.
+     */
     @Override
-    public SendQueue<T> send() {
-        return outputQueue;
+    public SendQueue<T> sendQueue() {
+        return new BasicSendQueue<>(batchSize, this.queue);
     }
-
 
 
     @Override
@@ -63,7 +77,7 @@ public class BasicQueue <T> implements Queue<T> {
                         @Override
                         public Thread newThread(Runnable runnable) {
                             Thread thread = new Thread(runnable);
-                            thread.setName("BasicQueueListener");
+                            thread.setName("QueueListener " + name);
                             return thread;
                         }
                     }
@@ -76,37 +90,43 @@ public class BasicQueue <T> implements Queue<T> {
         future = monitor.scheduleAtFixedRate(new Runnable() {
             @Override
             public void run() {
-              manageQueue(listener);
+                manageQueue(listener);
             }
 
         }, 50, 50, TimeUnit.MILLISECONDS);
-
 
 
     }
 
     @Override
     public void stop() {
-        if (future!=null) {
+        if (future != null) {
 
 
             future.cancel(true);
         }
 
-        if (monitor!=null) {
+        if (monitor != null) {
             monitor.shutdownNow();
         }
 
         stop.set(true);
 
 
-
     }
 
 
     private void manageQueue(ReceiveQueueListener<T> listener) {
-        this.receiveQueueManager.manageQueue(inputQueue, listener, batchSize, stop);
+        this.receiveQueueManager.manageQueue(receiveQueue(), listener, batchSize, stop);
 
     }
 
+    public static <T> BasicQueue<T> create(Class<T> cls) {
+        return new BasicQueue<>("BasicQueue", 500, TimeUnit.MILLISECONDS, 10);
+    }
+
+
+    public static <T> BasicQueue<T> create(Class<T> cls, int batchSize) {
+        return new BasicQueue<>("BasicQueue", 500, TimeUnit.MILLISECONDS, batchSize);
+    }
 }

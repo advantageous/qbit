@@ -55,12 +55,12 @@ public class RegularCalls {
     public void test() {
 
         Adder adder = new Adder();
-        Service methodQueue = Services.regularService(adder, 1000, TimeUnit.MILLISECONDS, 10);
+        Service methodQueue = Services.regularService("test", adder, 1000, TimeUnit.MILLISECONDS, 10);
 
 
-        methodQueue.requests().offer(MethodCallImpl.method("add", Lists.list(1, 2)));
+        methodQueue.requests().send(MethodCallImpl.method("add", Lists.list(1, 2)));
 
-        methodQueue.requests().offer(MethodCallImpl.methodWithArgs("add", 4, 5));
+        methodQueue.requests().send(MethodCallImpl.methodWithArgs("add", 4, 5));
 
 
         Response<Object> response = methodQueue.responses().take();
@@ -93,7 +93,7 @@ public class RegularCalls {
             methods.add(MethodCallImpl.method("add", Lists.list(1, 2)));
         }
 
-        methodQueue.requests().offerBatch(methods);
+        methodQueue.requests().sendBatch(methods);
 
         Sys.sleep(3000);
 
@@ -112,10 +112,10 @@ public class RegularCalls {
     public void testMany() {
 
         Adder adder = new Adder();
-        Service methodQueue = Services.regularService(adder, 1000, TimeUnit.MILLISECONDS, 100);
+        Service methodQueue = Services.regularService("test", adder, 1000, TimeUnit.MILLISECONDS, 100);
 
 
-        methodQueue.requests().offerMany(MethodCallImpl.method("add", Lists.list(1, 2)), MethodCallImpl.method("add", Lists.list(4, 5)));
+        methodQueue.requests().sendMany(MethodCallImpl.method("add", Lists.list(1, 2)), MethodCallImpl.method("add", Lists.list(4, 5)));
 
 
 
@@ -148,10 +148,10 @@ public class RegularCalls {
     public void testBatch() {
 
         Adder adder = new Adder();
-        Service methodQueue = Services.regularService(adder, 1000, TimeUnit.MILLISECONDS, 100);
+        Service methodQueue = Services.regularService("test", adder, 1000, TimeUnit.MILLISECONDS, 100);
 
         List<MethodCall<Object>> methods = Lists.list(MethodCallImpl.method("add", Lists.list(1, 2)), MethodCallImpl.method("add", Lists.list(4, 5)));
-        methodQueue.requests().offerBatch(methods);
+        methodQueue.requests().sendBatch(methods);
 
 
 

@@ -6,10 +6,10 @@ import org.qbit.Output;
 import org.qbit.queue.SendQueue;
 
 /**
- * Interface used to set and put values into a mapping.
- * The send types are set, which is pure send and expects no return, and put.
+ * Interface used to set and send values into a mapping.
+ * The sendQueue types are set, which is pure sendQueue and expects no return, and send.
  *
- * This interface is for put operations.
+ * This interface is for send operations.
  * @author Richard Hightower
  *
  */
