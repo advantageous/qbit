@@ -84,13 +84,13 @@ Ten Readers, One Writer                586                              9196    
 2 Readers, 10 Writer                16,491                            18,342                          111.22
 5 Readers, 10 Writers               10,598                            17,587                          165.95
 10 Readers, 1 Writer                   316                             1,616                          511.39
-10 Readers, 5 Writer                 1,060	                            7,589                          715.94
+10 Readers, 5 Writer                 1,060                             7,589                          715.94
 ```
 
 As you can see, QBIT does quite well. But there is one case where it does not do as well.
 The solution is simple. There will be a factory where you can specify number of readers/writers, IO Bound/CPU Bound, etc.
 Then QBIT will use the write queue based on the factory params. 
 Currently QBIT uses LinkedTransferQueue at the moment. 
-
+Anyway. Check back. Work in progress....
 
 
