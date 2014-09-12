@@ -1,8 +1,8 @@
-qbit
+Boon : qbit - Go Channels inspired Java lib.
 ====
 
 Everything is a queue. You have a choice. You can embrace it and control it. You can optimize for it. 
-Or you can hide behind abstractions.Go Channels inspired Java lib.
+Or you can hide behind abstractions.
 
 QBit opens you up to peeking into what is going on, and allows you to pull some levers without selling your soul.
 
