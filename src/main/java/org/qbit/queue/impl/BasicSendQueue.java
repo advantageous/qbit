@@ -92,6 +92,12 @@ public class BasicSendQueue<T> implements SendQueue<T> {
             sendLocalQueue();
         }
 
+//        if (index > (batchSize/10) ) {
+//            if (shouldBatch()) {
+//                sendLocalQueue();
+//            }
+//        }
+
     }
 
     @Override
@@ -107,16 +113,11 @@ public class BasicSendQueue<T> implements SendQueue<T> {
 
 
         final Object[] copy = Arry.fastObjectArraySlice(queueLocal, 0, index);
-        queue.offer(copy);
-        index=0;
 
-//
-//        final Object[] copy = Arry.fastSlice(queueLocal, 0, index);
-//
-//        if (!queue.tryTransfer(copy)) {
-//            queue.offer(copy);
-//        }
-//        index=0;
+        if (!queue.tryTransfer(copy)) {
+            queue.offer(copy);
+        }
+        index=0;
 
     }
 

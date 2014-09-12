@@ -14,25 +14,25 @@ public class ExampleMain {
 
     static ExecutorService executorService = Executors.newCachedThreadPool();
 
-    static final LinkedBlockingQueue<Integer> queue = new LinkedBlockingQueue<>(1000);
+    static final LinkedBlockingQueue<Integer> queue = new LinkedBlockingQueue<>(100_000);
 
     static final int status = 1_000_000;
 
-    static final int sleepEvery = 100_000;
+    static final int sleepEvery = 1_000_000;
 
 
-    public static void sender() throws InterruptedException{
 
-        for (int index = 0; index < 100_000_000; index++) {
+    public static void sender(int amount, int code) throws InterruptedException{
 
-                queue.put(index);
+
+        for (int index = 0; index < amount; index++) {
+
+            queue.put(index);
 
         }
-
-        queue.put(-1);
+        queue.put(code);
 
     }
-
     public static long counter() throws Exception {
 
 
@@ -63,6 +63,8 @@ public class ExampleMain {
 
     public static void main(String... args) throws Exception {
 
+
+
         long startTime = System.currentTimeMillis();
 
 
@@ -84,7 +86,7 @@ public class ExampleMain {
             public void run() {
 
                 try {
-                    sender();
+                    sender(50_000_000, -1);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }

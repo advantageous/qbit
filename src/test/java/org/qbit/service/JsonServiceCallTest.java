@@ -36,22 +36,26 @@ public class JsonServiceCallTest {
     public void test() {
 
         Adder adder = new Adder();
-        Service methodQueue = Services.jsonService("test", adder, 1000, TimeUnit.MILLISECONDS, 100);
+        Service service = Services.jsonService("test", adder, 1000, TimeUnit.MILLISECONDS, 100);
+
+        final ReceiveQueue<Response<Object>> responses = service.responses();
+        final SendQueue<MethodCall<Object>> requests = service.requests();
 
 
-        methodQueue.requests().send(MethodCallImpl.method("add", "[1,2]"));
 
-        methodQueue.requests().send(MethodCallImpl.method("add", "[4,5]"));
+        requests.send(MethodCallImpl.method("add", "[1,2]"));
 
+        requests.send(MethodCallImpl.method("add", "[4,5]"));
+        requests.flushSends();
 
-        Response<Object> response = methodQueue.responses().take();
+        Response<Object> response = responses.take();
 
 
         Object o = fromJson(response.body().toString());
 
         ok = o.equals(Integer.valueOf(3)) || die(response);
 
-        response = methodQueue.responses().take();
+        response = responses.take();
 
         ok = response != null || die(response);
 

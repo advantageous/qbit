@@ -122,11 +122,11 @@ public class BasicQueue<T> implements Queue<T> {
     }
 
     public static <T> BasicQueue<T> create(Class<T> cls) {
-        return new BasicQueue<>("BasicQueue", 500, TimeUnit.MILLISECONDS, 10);
+        return new BasicQueue<>("BasicQueue", 10, TimeUnit.MILLISECONDS, 10);
     }
 
 
     public static <T> BasicQueue<T> create(Class<T> cls, int batchSize) {
-        return new BasicQueue<>("BasicQueue", 500, TimeUnit.MILLISECONDS, batchSize);
+        return new BasicQueue<>("BasicQueue", 10, TimeUnit.MILLISECONDS, batchSize);
     }
 }

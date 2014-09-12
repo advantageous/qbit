@@ -17,12 +17,12 @@ public class ExampleMain2 {
 
     static ExecutorService executorService = Executors.newCachedThreadPool();
 
-    static final BasicQueue<Integer> queue =  BasicQueue.create(Integer.class, 10_000);
+    static final BasicQueue<Integer> queue =  BasicQueue.create(Integer.class, 1_000);
 
 
     static final int status = 1_000_000;
 
-    static final int sleepEvery = 100_000;
+    static final int sleepEvery = 1_000_000;
 
 
     public static void sender(int amount, int code) throws InterruptedException{
@@ -74,9 +74,6 @@ public class ExampleMain2 {
 
     public static void main(String... args) throws Exception {
 
-        sender(1_000_000, 1);
-        sender(1_000_000, 1);
-        sender(1_000_000, 1);
 
         long startTime = System.currentTimeMillis();
 
@@ -101,7 +98,7 @@ public class ExampleMain2 {
             public void run() {
 
                 try {
-                    sender(100_000_000, -1);
+                    sender(50_000_000, -1);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
