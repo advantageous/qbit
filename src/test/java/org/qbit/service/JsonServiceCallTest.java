@@ -84,7 +84,9 @@ public class JsonServiceCallTest {
         SendQueue<MethodCall<Object>> requests = service.requests();
 
 
-        requests.sendMany(MethodCallImpl.method("add", "[1,2]"), MethodCallImpl.method("add", "[4,5]"));
+        requests.sendMany(
+                MethodCallImpl.method("add", "[1,2]"),
+                MethodCallImpl.method("add", "[4,5]"));
 
 
 

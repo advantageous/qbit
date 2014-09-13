@@ -121,7 +121,10 @@ public class RegularCalls {
         SendQueue<MethodCall<Object>> requests = service.requests();
         ReceiveQueue<Response<Object>> responses = service.responses();
 
-        requests.sendMany(MethodCallImpl.method("add", Lists.list(1, 2)), MethodCallImpl.method("add", Lists.list(4, 5)));
+        requests.sendMany(MethodCallImpl.method("add",
+                            Lists.list(1, 2)),
+                        MethodCallImpl.method("add",
+                                Lists.list(4, 5)));
 
 
 
