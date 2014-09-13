@@ -4,6 +4,8 @@ import org.boon.Lists;
 import org.boon.core.Sys;
 import org.junit.Test;
 import org.qbit.message.MethodCall;
+import org.qbit.queue.ReceiveQueue;
+import org.qbit.queue.SendQueue;
 import org.qbit.service.method.impl.MethodCallImpl;
 import org.qbit.message.Response;
 
@@ -55,22 +57,23 @@ public class RegularCalls {
     public void test() {
 
         Adder adder = new Adder();
-        Service methodQueue = Services.regularService("test", adder, 1000, TimeUnit.MILLISECONDS, 10);
+        Service service = Services.regularService("test", adder, 1000, TimeUnit.MILLISECONDS, 10);
+        SendQueue<MethodCall<Object>> requests = service.requests();
+        ReceiveQueue<Response<Object>> responses = service.responses();
+
+        requests.send(MethodCallImpl.method("add", Lists.list(1, 2)));
+
+        requests.sendAndFlush(MethodCallImpl.methodWithArgs("add", 4, 5));
 
 
-        methodQueue.requests().send(MethodCallImpl.method("add", Lists.list(1, 2)));
-
-        methodQueue.requests().send(MethodCallImpl.methodWithArgs("add", 4, 5));
-
-
-        Response<Object> response = methodQueue.responses().take();
+        Response<Object> response = responses.take();
 
 
         Object o = response.body();
 
         ok = o.equals(Integer.valueOf(3)) || die(response);
 
-        response = methodQueue.responses().take();
+        response = responses.take();
 
         ok = response != null || die(response);
 
@@ -93,7 +96,7 @@ public class RegularCalls {
             methods.add(MethodCallImpl.method("add", Lists.list(1, 2)));
         }
 
-        methodQueue.requests().sendBatch(methods);
+        requests.sendBatch(methods);
 
         Sys.sleep(3000);
 
@@ -101,7 +104,7 @@ public class RegularCalls {
             ok = adder.all == 3012 || die(adder.all);
         }
 
-        methodQueue.stop();
+        service.stop();
 
         Sys.sleep(100);
 
@@ -112,21 +115,24 @@ public class RegularCalls {
     public void testMany() {
 
         Adder adder = new Adder();
-        Service methodQueue = Services.regularService("test", adder, 1000, TimeUnit.MILLISECONDS, 100);
 
 
-        methodQueue.requests().sendMany(MethodCallImpl.method("add", Lists.list(1, 2)), MethodCallImpl.method("add", Lists.list(4, 5)));
+        Service service = Services.regularService("test", adder, 1000, TimeUnit.MILLISECONDS, 10);
+        SendQueue<MethodCall<Object>> requests = service.requests();
+        ReceiveQueue<Response<Object>> responses = service.responses();
+
+        requests.sendMany(MethodCallImpl.method("add", Lists.list(1, 2)), MethodCallImpl.method("add", Lists.list(4, 5)));
 
 
 
-        Response<Object> response = methodQueue.responses().take();
+        Response<Object> response = responses.take();
 
 
         Object o = response.body();
 
         ok = o.equals(Integer.valueOf(3)) || die(response);
 
-        response = methodQueue.responses().take();
+        response = responses.take();
 
         ok = response != null || die(response);
 
@@ -148,22 +154,28 @@ public class RegularCalls {
     public void testBatch() {
 
         Adder adder = new Adder();
-        Service methodQueue = Services.regularService("test", adder, 1000, TimeUnit.MILLISECONDS, 100);
+        Service service = Services.regularService("test", adder, 1000, TimeUnit.MILLISECONDS, 10);
+        SendQueue<MethodCall<Object>> requests = service.requests();
+        ReceiveQueue<Response<Object>> responses = service.responses();
 
-        List<MethodCall<Object>> methods = Lists.list(MethodCallImpl.method("add", Lists.list(1, 2)), MethodCallImpl.method("add", Lists.list(4, 5)));
-        methodQueue.requests().sendBatch(methods);
+        List<MethodCall<Object>> methods = Lists.list(
+                MethodCallImpl.method("add", Lists.list(1, 2)),
+                MethodCallImpl.method("add", Lists.list(4, 5)));
+
+
+        requests.sendBatch(methods);
 
 
 
 
-        Response<Object> response = methodQueue.responses().take();
+        Response<Object> response = responses.take();
 
 
         Object o = response.body();
 
         ok = o.equals(Integer.valueOf(3)) || die(response);
 
-        response = methodQueue.responses().take();
+        response = responses.take();
 
         ok = response != null || die(response);
 

@@ -69,6 +69,7 @@ public class ServiceImpl implements Service {
                 timeUnit, batchSize);
 
 
+        final SendQueue<Response<Object>> responseSendQueue = responseQueue.sendQueue();
         requestQueue.startListener(new ReceiveQueueListener<MethodCall<Object>>() {
             @Override
             public void receive(MethodCall methodCall) {
@@ -106,8 +107,8 @@ public class ServiceImpl implements Service {
                         return;
                     }
 
+                    responseSendQueue.sendAndFlush(response);
 
-                    responseQueue.sendQueue().send(response);
                 }
             }
 

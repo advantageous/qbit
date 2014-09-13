@@ -38,8 +38,8 @@ public class JsonServiceCallTest {
         Adder adder = new Adder();
         Service service = Services.jsonService("test", adder, 1000, TimeUnit.MILLISECONDS, 100);
 
-        final ReceiveQueue<Response<Object>> responses = service.responses();
-        final SendQueue<MethodCall<Object>> requests = service.requests();
+        ReceiveQueue<Response<Object>> responses = service.responses();
+        SendQueue<MethodCall<Object>> requests = service.requests();
 
 
 
@@ -77,9 +77,11 @@ public class JsonServiceCallTest {
     public void testMany() {
 
         Adder adder = new Adder();
-        Service methodQueue = Services.jsonService("test", adder, 1000, TimeUnit.MILLISECONDS, 100);
-        final ReceiveQueue<Response<Object>> responses = methodQueue.responses();
-        final SendQueue<MethodCall<Object>> requests = methodQueue.requests();
+
+        Service service = Services.jsonService("test", adder, 1000, TimeUnit.MILLISECONDS, 100);
+
+        ReceiveQueue<Response<Object>> responses = service.responses();
+        SendQueue<MethodCall<Object>> requests = service.requests();
 
 
         requests.sendMany(MethodCallImpl.method("add", "[1,2]"), MethodCallImpl.method("add", "[4,5]"));
@@ -114,14 +116,21 @@ public class JsonServiceCallTest {
     public void testBatch() {
 
         Adder adder = new Adder();
-        Service methodQueue = Services.jsonService("test", adder, 1000, TimeUnit.MILLISECONDS, 100);
 
-        List<MethodCall<Object>> methods = Lists.list(MethodCallImpl.method("add", "[1,2]"), MethodCallImpl.method("add", "[4,5]"));
-        methodQueue.requests().sendBatch(methods);
+        Service service = Services.jsonService("test", adder, 1000, TimeUnit.MILLISECONDS, 100);
+
+        ReceiveQueue<Response<Object>> responses = service.responses();
+        SendQueue<MethodCall<Object>> requests = service.requests();
+
+        List<MethodCall<Object>> methods = Lists.list(
+                MethodCallImpl.method("add", "[1,2]"),
+                MethodCallImpl.method("add", "[4,5]"));
+
+        requests.sendBatch(methods);
 
 
 
-        Response<Object> response = methodQueue.responses().take();
+        Response<Object> response = responses.take();
 
         ok = response != null || die(response);
 
@@ -130,7 +139,7 @@ public class JsonServiceCallTest {
 
         ok = o.equals(Integer.valueOf(3)) || die(response);
 
-        response = methodQueue.responses().take();
+        response = responses.take();
 
         ok = response != null || die(response);
 
