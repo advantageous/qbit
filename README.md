@@ -127,7 +127,8 @@ Basic Queue example:
 ```
 
 Service example:
-Let's say you have maps and lists and arrays of gak, and you want invoke methods on a service.
+
+Let's say you have maps and lists and arrays of gak, and you want invoke methods on a service so maybe you are handling JSON calls with VertX WebSocket support or REST calls with VertX HTTP support (or Servlets, or maybe a file, or a Queue, or... a batch of calls stores in a DB, or... whatever).
 
 Adder.java Service
 =====
@@ -147,7 +148,7 @@ Adder.java Service
     
 ```
 
-To create your service, you first configure in in service.xml, and then you create it with the factoryFactoryofFactoryService... just kidding....
+To create your service, you first configure in in service.xml, and then you create it with the **factoryFactoryofFactoryService**... just kidding....
 
 Creating your service...
 
