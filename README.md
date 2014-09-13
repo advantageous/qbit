@@ -99,6 +99,9 @@ Currently QBIT uses LinkedTransferQueue at the moment.
 Anyway. Check back. Work in progress....
 
 Code Examples
+
+Basic Queue example:
+
 ====
 
 ```java
@@ -123,4 +126,128 @@ Code Examples
      //other methods poll(), pollWait(), readBatch(), readBatch(count)
 ```
 
-MORE TO COME...
+Service example:
+Let's say you have maps and lists and arrays of gak, and you want invoke methods on a service.
+
+Adder.java Service
+=====
+
+```java 
+
+    public static class Adder {
+        int all;
+        int add(int a, int b) {
+            int total;
+
+            total = a + b;
+            all += total;
+            return total;
+        }
+    }
+    
+```
+
+To create your service, you first configure in in service.xml, and then you create it with the factoryFactoryofFactoryService... just kidding....
+
+Creating your service...
+
+```java
+
+        Adder adder = new Adder();
+```
+
+Now wrap your service in a queue handler and you have two options:
+
+```java
+        Service service = Services.regularService("test", adder, 1000, TimeUnit.MILLISECONDS, 10);
+        SendQueue<MethodCall<Object>> requests = service.requests();
+        ReceiveQueue<Response<Object>> responses = service.responses();
+```
+
+So since QBit is related to Boon and Boon does high-speed JSON parsing (and marshaling, etc.).
+
+JSON service.. (Now just hook this up with Vertx WebSocket lib of Vertx HTTP and you have a high speed service engine that will beat most and rival others)...
+
+
+```java
+        Service service = Services.jsonService("test", adder, 1000, TimeUnit.MILLISECONDS, 100);
+        ReceiveQueue<Response<Object>> responses = service.responses();
+        SendQueue<MethodCall<Object>> requests = service.requests();
+
+```
+
+In request thread...
+```java
+        SendQueue<MethodCall<Object>> requests = service.requests();
+
+        requests.send(MethodCallImpl.method("add", "[1,2]"));
+        requests.send(MethodCallImpl.method("add", "[4,5]"));
+        requests.flushSends();
+        //other methods for sendQueue, writeBatch, writeMany
+
+
+```
+
+In response thread...
+```
+        Response<Object> response = responses.take();
+
+        Integer sum = fromJson(response.body().toString());
+
+```
+
+
+
+
+Other ways to send method calls:
+
+JSON
+
+```java
+
+        requests.send(MethodCallImpl.method("add", "[1,2]"));
+
+        requests.send(MethodCallImpl.method("add", "[4,5]"));
+        requests.flushSends();
+
+```
+
+No JSON
+```
+        requests.send(MethodCallImpl.method("add", Lists.list(1, 2)));
+
+        requests.sendAndFlush(MethodCallImpl.methodWithArgs("add", 4, 5));
+```
+
+No JSON batch
+```
+
+        requests.sendMany(MethodCallImpl.method("add", 
+                            Lists.list(1, 2)), 
+                        MethodCallImpl.method("add", 
+                                Lists.list(4, 5)));
+
+
+```
+
+JSON Batch
+```
+
+        requests.sendMany(
+                MethodCallImpl.method("add", "[1,2]"), 
+                MethodCallImpl.method("add", "[4,5]"));
+
+
+```
+
+Another way to batch
+
+No JSON Batch with a list
+```
+        List<MethodCall<Object>> methods = Lists.list(
+                MethodCallImpl.method("add", Lists.list(1, 2)),
+                MethodCallImpl.method("add", Lists.list(4, 5)));
+        requests.sendBatch(methods);
+
+```
+
