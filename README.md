@@ -1,3 +1,5 @@
+Got a question? Ask here: https://groups.google.com/forum/#!forum/boonjava QbIt is part of Boon.
+
 Boon : qbit - Go Channels inspired Java lib.
 ====
 
