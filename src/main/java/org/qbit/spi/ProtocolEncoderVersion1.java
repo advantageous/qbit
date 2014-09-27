@@ -39,6 +39,10 @@ public class ProtocolEncoderVersion1 implements ProtocolEncoder {
         buf.add(methodCall.returnAddress());
         buf.addChar(PROTOCOL_SEPARATOR);
 
+
+        buf.addChar(PROTOCOL_SEPARATOR); //RESERVED
+
+
         buf.add(methodCall.objectName());
         buf.addChar(PROTOCOL_SEPARATOR);
 

@@ -32,8 +32,9 @@ public class Protocol {
     public static final int MESSAGE_ID_POS = 1;
     public static final int ADDRESS_POS = 2;
     public static final int RETURN_ADDRESS_POS = 3;
-    public static final int OBJECT_NAME_POS = 4;
-    public static final int METHOD_NAME_POS = 5;
-    public static final int ARGS_POS = 6;
+
+    public static final int OBJECT_NAME_POS = 5;
+    public static final int METHOD_NAME_POS = 6;
+    public static final int ARGS_POS = 7;
 
 }
