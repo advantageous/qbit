@@ -4,6 +4,7 @@ import org.boon.Lists;
 import org.boon.Pair;
 import org.boon.Str;
 import org.boon.collections.MultiMap;
+import org.boon.collections.MultiMapImpl;
 import org.boon.core.reflection.MethodAccess;
 import org.junit.Test;
 import org.qbit.Factory;
@@ -143,7 +144,7 @@ public class ServiceMethodCallHandlerImplTest {
 
         methodCalled = false;
 
-        MultiMap<String, String> params = new MultiMap<>();
+        MultiMap<String, String> params = new MultiMapImpl<>();
         params.put("methodName", "someMethod2");
 
         impl.receiveMethodCall(factory.createMethodCallByAddress("/geoff/chandles/twoargs/5/11/",

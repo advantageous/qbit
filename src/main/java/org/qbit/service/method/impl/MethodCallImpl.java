@@ -3,6 +3,7 @@ package org.qbit.service.method.impl;
 import org.boon.Boon;
 import org.boon.Lists;
 import org.boon.Str;
+import org.boon.collections.CollectionConstants;
 import org.boon.collections.MultiMap;
 import org.boon.concurrent.Timer;
 import org.boon.json.annotations.JsonIgnore;
@@ -20,7 +21,7 @@ public class MethodCallImpl implements MethodCall<Object> {
 
     private String name="";
     private String address="";
-    private MultiMap<String, String> params = new MultiMap<>();
+    private MultiMap<String, String> params = CollectionConstants.emptyMultiMap();
     private Object body=Collections.emptyList();
 
     @JsonIgnore
