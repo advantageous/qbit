@@ -33,13 +33,10 @@ public class ServiceMethodCallHandlerImpl implements ServiceMethodHandler {
     private  String address="";
     private List<String> addresses = new ArrayList<>();
 
-    private List<String> roots = new ArrayList<>();
+    //private List<String> roots = new ArrayList<>();
 
     private Map<String, Pair<MethodBinding, MethodAccess>> methodMap
             = new LinkedHashMap<>();
-
-
-
 
 
     @Override
@@ -74,7 +71,7 @@ public class ServiceMethodCallHandlerImpl implements ServiceMethodHandler {
 
 
 
-        for (String root : roots) {
+        for (String root : addresses) {
             puts ("ROOT", root, "ADDRESS", mAddress);
             if (mAddress.startsWith(root)) {
                 mAddress = root;
@@ -85,9 +82,7 @@ public class ServiceMethodCallHandlerImpl implements ServiceMethodHandler {
 
 
 
-        Pair<MethodBinding, MethodAccess> binding = methodMap.get(
-
-                Str.add(this.address, mAddress));
+        Pair<MethodBinding, MethodAccess> binding = methodMap.get(mAddress);
 
         final MethodBinding methodBinding = binding.getFirst();
 
@@ -197,12 +192,39 @@ public class ServiceMethodCallHandlerImpl implements ServiceMethodHandler {
     }
 
 
-    public void init(Object service) {
+    public void init(Object service, String rootAddress, String serviceAddress) {
 
         this.service = service;
 
+
         classMeta = (ClassMeta<Class<?>>)(Object) ClassMeta.classMeta(service.getClass());
-        this.address = readAddressFromAnnotation(classMeta);
+
+
+        if (Str.isEmpty(serviceAddress)) {
+            serviceAddress = readAddressFromAnnotation(classMeta);
+        }
+
+        if (serviceAddress.endsWith("/")) {
+            serviceAddress = Str.slc(serviceAddress, 0, -1);
+        }
+
+
+        if (!Str.isEmpty(rootAddress)) {
+
+            if (rootAddress.endsWith("/")) {
+                rootAddress = Str.slc(rootAddress, 0, -1);
+            }
+
+            if (serviceAddress.startsWith("/")) {
+                this.address = Str.add(rootAddress, serviceAddress);
+            }else {
+                this.address = Str.add(rootAddress, "/", serviceAddress);
+
+            }
+        } else {
+            this.address = serviceAddress;
+        }
+
 
         readMethodMetaData();
 
@@ -219,9 +241,6 @@ public class ServiceMethodCallHandlerImpl implements ServiceMethodHandler {
 
     private void readMethodMetaData() {
 
-        if (this.address.endsWith("/")) {
-            this.address = Str.slc(address, 0, -1);
-        }
 
 
         final Iterable<MethodAccess> methods = classMeta.methods();
@@ -236,7 +255,7 @@ public class ServiceMethodCallHandlerImpl implements ServiceMethodHandler {
 
         addresses = Lists.list(methodMap.keySet());
 
-        this.roots = new ArrayList<>(addresses.size());
+        //this.roots = new ArrayList<>(addresses.size());
 
 
         Collections.sort(addresses, new Comparator<String>() {
@@ -253,9 +272,13 @@ public class ServiceMethodCallHandlerImpl implements ServiceMethodHandler {
         });
 
 
-        for (String addr : addresses) {
-            roots.add(StringScanner.substringAfter(addr, this.address));
-        }
+//        if (!Str.isEmpty(address)) {
+//            for (String addr : addresses) {
+//                roots.add(StringScanner.substringAfter(addr, this.address));
+//            }
+//        } else {
+//            roots = Lists.list(addresses);
+//        }
 
 
     }
@@ -332,9 +355,18 @@ public class ServiceMethodCallHandlerImpl implements ServiceMethodHandler {
         AnnotationData requestMapping = annotated.annotation(name);
 
         if (requestMapping!=null) {
-            String[] values = (String[]) requestMapping.getValues().get("value");
-            if (values.length > 0 && !Str.isEmpty(values[0])) {
-                return values[0];
+            Object value = requestMapping.getValues().get("value");
+
+            if (value instanceof String[]) {
+
+                String[] values = (String[]) value;
+                if (values.length > 0 && !Str.isEmpty(values[0])) {
+                    return values[0];
+                }
+            } else {
+
+                String sVal = (String) value;
+                return sVal;
             }
         }
         return null;

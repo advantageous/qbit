@@ -11,6 +11,6 @@ import java.lang.annotation.Target;
 public @interface Service {
 
 
-    String[] value() default {};
+    String value() default "";
 
 }

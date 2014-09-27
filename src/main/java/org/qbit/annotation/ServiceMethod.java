@@ -10,5 +10,5 @@ import java.lang.annotation.Target;
 @Target(value={ElementType.METHOD})
 public  @interface  ServiceMethod {
 
-    String[] value() default {};
+    String value() default "";
 }

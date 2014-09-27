@@ -4,6 +4,8 @@ import org.qbit.message.MethodCall;
 import org.qbit.message.Response;
 import org.qbit.queue.ReceiveQueue;
 
+import java.util.List;
+
 /**
  * Created by Richard on 9/26/14.
  */
@@ -17,5 +19,10 @@ public interface ServiceBundle {
     ReceiveQueue<Response<Object>> responses();
 
     void call(MethodCall<Object> methodCall);
+
+    void flushSends();
+
+
+    List<String> endPoints();
 
 }

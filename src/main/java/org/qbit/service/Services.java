@@ -13,14 +13,14 @@ import java.util.concurrent.TimeUnit;
 public class Services {
 
     public static Service jsonService( final String name, Object service, int waitTime, TimeUnit timeUnit, int batchSize) {
-        ServiceImpl serviceQueue = new ServiceImpl(name, service, waitTime, timeUnit, batchSize, new ServiceMethodCallHandlerImpl());
+        ServiceImpl serviceQueue = new ServiceImpl(null, name, service, waitTime, timeUnit, batchSize, new ServiceMethodCallHandlerImpl(), null);
         serviceQueue.requestObjectTransformer(new JsonRequestBodyToArgListTransformer());
         serviceQueue.responseObjectTransformer(new JsonResponseTransformer());
         return serviceQueue;
     }
 
     public static Service regularService( final String name, Object service, int waitTime, TimeUnit timeUnit, int batchSize) {
-        ServiceImpl serviceQueue = new ServiceImpl(name, service, waitTime, timeUnit, batchSize, new ServiceMethodCallHandlerImpl());
+        ServiceImpl serviceQueue = new ServiceImpl(null, name, service, waitTime, timeUnit, batchSize, new ServiceMethodCallHandlerImpl(), null);
         return serviceQueue;
     }
 }

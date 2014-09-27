@@ -1,7 +1,10 @@
 package org.qbit.service.impl;
 
 
+import org.boon.Boon;
+import org.boon.Logger;
 import org.boon.Str;
+import org.qbit.GlobalConstants;
 import org.qbit.message.Event;
 import org.qbit.message.Request;
 import org.qbit.queue.*;
@@ -19,11 +22,10 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 
-/**
- * Created by Richard on 8/11/14.
- */
 public class ServiceImpl implements Service {
 
+
+    private Logger logger = Boon.logger(ServiceImpl.class);
     private final Object service;
     private final String name;
     private ServiceMethodHandler serviceMethodHandler;
@@ -62,35 +64,51 @@ public class ServiceImpl implements Service {
         return this;
     }
 
-    public ServiceImpl(final String name, final Object service,
+    public ServiceImpl(String rootAddress, final String serviceAddress, final Object service,
                        int waitTime,
                        TimeUnit timeUnit,
                        int batchSize,
-                       final ServiceMethodHandler serviceMethodHandler) {
+                       final ServiceMethodHandler serviceMethodHandler,
+                       Queue<Response<Object>> responseQueue) {
+
+        if (GlobalConstants.DEBUG) {
+            logger.info("ServiceImpl<<constr>>", rootAddress, serviceAddress,
+                    service, waitTime, timeUnit, batchSize, serviceMethodHandler,
+                    responseQueue);
+        }
+
         this.service = service;
         this.serviceMethodHandler = serviceMethodHandler;
 
-        serviceMethodHandler.init(service);
+        serviceMethodHandler.init(service, rootAddress, serviceAddress);
 
-        if (Str.isEmpty(name)) {
+        this.name = serviceMethodHandler.address();
 
-            this.name = serviceMethodHandler.address();
-
-        } else {
-            this.name = name;
-        }
 
         requestQueue = new BasicQueue<>("Request Queue " + name, waitTime,
                 timeUnit, batchSize);
 
-        responseQueue = new BasicQueue<>("Response Queue " + name, waitTime,
-                timeUnit, batchSize);
+        if (responseQueue==null) {
 
+            if (GlobalConstants.DEBUG) {
+                logger.info("RESPONSE QUEUE WAS NULL CREATING ONE");
+            }
 
-        final SendQueue<Response<Object>> responseSendQueue = responseQueue.sendQueue();
+            this.responseQueue = new BasicQueue<>("Response Queue " + name, waitTime,
+                    timeUnit, batchSize);
+        } else {
+            this.responseQueue = responseQueue;
+        }
+
+        final SendQueue<Response<Object>> responseSendQueue = this.responseQueue.sendQueue();
         requestQueue.startListener(new ReceiveQueueListener<MethodCall<Object>>() {
             @Override
             public void receive(MethodCall methodCall) {
+
+
+                if (GlobalConstants.DEBUG) {
+                    logger.info("ServiceImpl::receive() METHOD CALL", methodCall);
+                }
 
                 inputQueueListener.receive(methodCall);
 
@@ -110,6 +128,10 @@ public class ServiceImpl implements Service {
 
 
                 Response<Object> response = serviceMethodHandler.receiveMethodCall(methodCall);
+
+                if (GlobalConstants.DEBUG) {
+                    logger.info("ServiceImpl::receive() RESPONSE", response, "FROM CALL", methodCall);
+                }
 
 
                 if (response != ServiceConstants.VOID) {

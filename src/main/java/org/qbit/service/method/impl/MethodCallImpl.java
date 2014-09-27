@@ -224,17 +224,8 @@ public class MethodCallImpl implements MethodCall<Object> {
         return transformedMethod;
     }
 
-    public MethodCallImpl overrides(MethodCallImpl methodCall) {
 
-        if (methodCall.hasParams()) {
-            if (!this.hasParams()) {
-                this.params = methodCall.params;
-            } else {
-                this.params.putAll(methodCall.params);
-            }
-
-
-        }
+    public void overridesFromParams() {
 
         if (params!=null && params.size() > 0) {
             String _addr = params.get(Protocol.ADDRESS_KEY);
@@ -247,6 +238,21 @@ public class MethodCallImpl implements MethodCall<Object> {
             this.objectName = Str.isEmpty(_objectName) ? objectName : _objectName;
 
         }
+    }
+
+    public MethodCallImpl overrides(MethodCallImpl methodCall) {
+
+        if (methodCall.hasParams()) {
+            if (!this.hasParams()) {
+                this.params = methodCall.params;
+            } else {
+                this.params.putAll(methodCall.params);
+            }
+
+
+        }
+
+        overridesFromParams();
 
         this.address = Str.isEmpty(methodCall.address) ? address : methodCall.address;
         this.returnAddress = Str.isEmpty(methodCall.returnAddress) ? returnAddress : methodCall.returnAddress;
@@ -283,4 +289,5 @@ public class MethodCallImpl implements MethodCall<Object> {
                 ", returnAddress='" + returnAddress + '\'' +
                 '}';
     }
+
 }

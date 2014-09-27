@@ -11,7 +11,7 @@ import java.util.List;
  */
 public interface ServiceMethodHandler extends ReceiveQueueListener<MethodCall<Object>> {
 
-    void init(Object service);
+    void init(Object service, String rootAddress, String serviceAddress);
     Response<Object> receiveMethodCall(MethodCall<Object> methodCall);
 
     String address();

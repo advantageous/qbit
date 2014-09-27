@@ -2,6 +2,8 @@ package org.qbit;
 
 import org.boon.collections.MultiMap;
 import org.qbit.message.MethodCall;
+import org.qbit.message.Response;
+import org.qbit.queue.Queue;
 import org.qbit.service.Service;
 import org.qbit.service.ServiceBundle;
 
@@ -27,5 +29,5 @@ public interface Factory {
 
       ServiceBundle createBundle(String path);
 
-      Service createService(Object object);
+      Service createService(String rootAddress, String serviceAddress, Object object, Queue<Response<Object>> responseQueue);
 }

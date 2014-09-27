@@ -31,7 +31,7 @@ public class ProtocolParserVersion1Test {
                 "", null);
 
 
-        ok = methodCall != null || die();
+        ok = methodCall == null || die();
 
     }
 

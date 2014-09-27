@@ -18,6 +18,8 @@ public interface Service {
 
     ReceiveQueue<Event> events();
 
+    String name();
+
 
     void stop();
 

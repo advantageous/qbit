@@ -6,6 +6,8 @@ import org.qbit.queue.ReceiveQueueManager;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import static org.boon.Boon.puts;
+
 /**
  * Created by Richard on 9/8/14.
  */
@@ -16,6 +18,8 @@ public class BasicReceiveQueueManager<T> implements ReceiveQueueManager<T> {
 
 
         T item = inputQueue.poll(); //Initialize things.
+
+        puts ("item", item);
         int count = 0;
         long longCount = 0;
 

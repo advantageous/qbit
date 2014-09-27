@@ -70,7 +70,7 @@ public class BasicQueueTest {
 
         sendQueue.flushSends();
 
-        sleep(1000);
+        sleep(100);
         synchronized (counter) {
             puts("1", counter[0]);
         }
@@ -83,18 +83,18 @@ public class BasicQueueTest {
         sendQueue.flushSends();
 
 
-        sleep(1000);
+        sleep(100);
         synchronized (counter) {
             puts("2", counter[0]);
         }
 
         for (int index = 0; index < 5; index++) {
-            sleep(1000);
+            sleep(100);
             sendQueue.send("item3rd" + index);
        }
         sendQueue.flushSends();
 
-        sleep(1000);
+        sleep(100);
         synchronized (counter) {
             puts("3", counter[0]);
         }
@@ -103,7 +103,7 @@ public class BasicQueueTest {
        sendQueue.sendMany("hello", "how", "are", "you");
 
 
-        sleep(1000);
+        sleep(100);
         synchronized (counter) {
             puts("4", counter[0]);
         }
@@ -113,14 +113,14 @@ public class BasicQueueTest {
        sendQueue.sendBatch(list);
 
 
-        sleep(1000);
+        sleep(100);
         synchronized (counter) {
             puts("1", counter[0]);
         }
 
 
 
-       sleep(1000);
+       sleep(100);
        synchronized (counter) {
            ok = counter[0] == 121 || die("Crap not 121", counter[0]);
        }

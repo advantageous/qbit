@@ -1,13 +1,21 @@
 package org.qbit.spi;
 
+import org.boon.Boon;
+import org.boon.Logger;
+import org.boon.Str;
 import org.boon.collections.MultiMap;
+import org.boon.core.reflection.ClassMeta;
 import org.qbit.Factory;
+import org.qbit.GlobalConstants;
 import org.qbit.message.MethodCall;
+import org.qbit.message.Response;
+import org.qbit.queue.Queue;
 import org.qbit.service.Service;
 import org.qbit.service.ServiceBundle;
 import org.qbit.service.impl.ServiceBundleImpl;
 import org.qbit.service.impl.ServiceImpl;
 import org.qbit.service.impl.ServiceMethodCallHandlerImpl;
+import org.qbit.service.method.impl.MethodCallImpl;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -20,6 +28,8 @@ import java.util.concurrent.TimeUnit;
 public class FactoryImpl implements Factory{
 
     private ProtocolParser defaultProtocol = new ProtocolParserVersion1();
+
+    private Logger logger = Boon.logger(FactoryImpl.class);
 
     private List<ProtocolParser> protocolParserList = new ArrayList<>();
 
@@ -36,20 +46,33 @@ public class FactoryImpl implements Factory{
                                        Object args,
                                        MultiMap<String, String> params){
 
+        MethodCall<Object> mc = null;
+        MethodCallImpl methodCall =
+                MethodCallImpl.method(0L, address, returnAddress, objectName, methodName, args, params);
 
         if (args != null) {
             ProtocolParser parser = selectProtocolParser(args, params);
 
             if (parser != null) {
-                return parser.parse(address, returnAddress, objectName, methodName, args, params);
+                mc = parser.parse(address, returnAddress, objectName, methodName, args, params);
+            } else {
+                mc = defaultProtocol.parse(address, returnAddress, objectName, methodName, args, params);
             }
         }
 
 
-        return defaultProtocol.parse(address, returnAddress, objectName, methodName, args, params);
 
 
 
+        if (mc instanceof MethodCallImpl) {
+            MethodCallImpl mcImpl = (MethodCallImpl) mc;
+            mcImpl.overrides(methodCall);
+            methodCall = mcImpl;
+        } else {
+            methodCall.overridesFromParams();
+        }
+
+        return methodCall;
     }
 
     @Override
@@ -73,17 +96,29 @@ public class FactoryImpl implements Factory{
 
     @Override
     public ServiceBundle createBundle(String path) {
-        return new ServiceBundleImpl(path, this);
+        return new ServiceBundleImpl(path, 50, 5, this);
     }
 
     @Override
-    public Service createService(Object object) {
+    public Service createService(String rootAddress, String serviceAddress, Object object, Queue<Response<Object>> responseQueue) {
+
+
+        if (GlobalConstants.DEBUG) {
+            logger.info("createService2", object, responseQueue);
+        }
+
+
+        final ClassMeta<?> classMeta = ClassMeta.classMeta(object.getClass());
+
         return new ServiceImpl(
-                object.getClass().getSimpleName(),
+                rootAddress,
+                serviceAddress,
                 object,
-                5, TimeUnit.MILLISECONDS,
-                50,
-                new ServiceMethodCallHandlerImpl()
+                GlobalConstants.POLL_WAIT, TimeUnit.MILLISECONDS,
+                GlobalConstants.BATCH_SIZE,
+                new ServiceMethodCallHandlerImpl(),
+                responseQueue
         );
+
     }
 }
