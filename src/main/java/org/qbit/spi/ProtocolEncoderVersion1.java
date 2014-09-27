@@ -57,6 +57,8 @@ public class ProtocolEncoderVersion1 implements ProtocolEncoder {
         final JsonSerializer serializer = jsonSerializer.get();
         if (body instanceof Iterable) {
 
+
+
             Iterable iter = (Iterable) body;
 
 
@@ -66,6 +68,8 @@ public class ProtocolEncoderVersion1 implements ProtocolEncoder {
                 buf.addChar(PROTOCOL_ARG_SEPARATOR);
             }
         } else if (body!=null) {
+
+
             serializer.serialize(buf, body);
         }
 

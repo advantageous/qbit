@@ -80,7 +80,7 @@ public class ServiceBundleImplTest {
     @Test
     public void testResponses() throws Exception {
 
-        call = factory.createMethodCallByAddress("/foo/adder/add", Lists.list(1, 2), params);
+        call = factory.createMethodCallByAddress("/foo/adder/add", "", Lists.list(1, 2), params);
         serviceBundle.addService("/adder", adderService);
 
         serviceBundle.call(call);

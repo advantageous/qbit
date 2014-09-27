@@ -1,9 +1,6 @@
 package org.qbit.service.impl;
 
-import org.boon.Lists;
-import org.boon.Pair;
-import org.boon.Str;
-import org.boon.StringScanner;
+import org.boon.*;
 import org.boon.core.Conversions;
 import org.boon.core.TypeType;
 import org.boon.core.reflection.*;
@@ -36,6 +33,9 @@ public class ServiceMethodCallHandlerImpl implements ServiceMethodHandler {
 
     private Map<String, Pair<MethodBinding, MethodAccess>> methodMap
             = new LinkedHashMap<>();
+
+
+    private Logger logger = Boon.logger(ServiceMethodCallHandlerImpl.class);
 
 
     @Override
@@ -146,7 +146,12 @@ public class ServiceMethodCallHandlerImpl implements ServiceMethodHandler {
         } else {
             Object returnValue =
                     methodAccess.invokeDynamicObject(service, args);
-            Response<Object> response = ResponseImpl.response(methodCall.id(), methodCall.timestamp(), methodCall.name(), returnValue);
+            Response<Object> response = ResponseImpl.response(
+                    methodCall.id(),
+                    methodCall.timestamp(),
+                    methodCall.address(),
+                    methodCall.returnAddress(),
+                    returnValue);
 
             return response;
         }
@@ -165,7 +170,12 @@ public class ServiceMethodCallHandlerImpl implements ServiceMethodHandler {
         } else {
             Object returnValue =
                     methodAccess.invokeDynamicObject(service, methodCall.body());
-            Response<Object> response = ResponseImpl.response(methodCall.id(), methodCall.timestamp(), methodCall.name(), returnValue);
+            Response<Object> response = ResponseImpl.response(
+                    methodCall.id(),
+                    methodCall.timestamp(),
+                    methodCall.name(),
+                    methodCall.returnAddress(),
+                    returnValue);
 
             return response;
         }
@@ -182,7 +192,12 @@ public class ServiceMethodCallHandlerImpl implements ServiceMethodHandler {
             Object returnValue =
                     Invoker.invokeFromObject(service, methodCall.name(), methodCall.body());
 
-            Response<Object> response = ResponseImpl.response(methodCall.id(), methodCall.timestamp(), methodCall.name(), returnValue);
+            Response<Object> response = ResponseImpl.response(
+                    methodCall.id(),
+                    methodCall.timestamp(),
+                    methodCall.name(),
+                    methodCall.returnAddress(),
+                    returnValue);
 
             return response;
         }

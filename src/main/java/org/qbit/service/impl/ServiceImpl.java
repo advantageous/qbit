@@ -3,7 +3,6 @@ package org.qbit.service.impl;
 
 import org.boon.Boon;
 import org.boon.Logger;
-import org.boon.Str;
 import org.qbit.GlobalConstants;
 import org.qbit.message.Event;
 import org.qbit.message.Request;
@@ -30,10 +29,12 @@ public class ServiceImpl implements Service {
     private final String name;
     private ServiceMethodHandler serviceMethodHandler;
 
-    private BeforeMethodCall beforeMethodCall = new NoOpBeforeMethodCall();
 
 
-    private BeforeMethodCall beforeMethodCallAfterTransform = new NoOpBeforeMethodCall();
+    private BeforeMethodCall beforeMethodCall = ServiceConstants.NO_OP_BEFORE_METHOD_CALL;
+
+
+    private BeforeMethodCall beforeMethodCallAfterTransform = ServiceConstants.NO_OP_BEFORE_METHOD_CALL;
 
 
     private AfterMethodCall afterMethodCall = new NoOpAfterMethodCall();
@@ -48,7 +49,7 @@ public class ServiceImpl implements Service {
     private final Queue<MethodCall<Object>> requestQueue;
 
 
-    private Transformer<Request, Object> requestObjectTransformer = new NoOpRequestTransform();
+    private Transformer<Request, Object> requestObjectTransformer = ServiceConstants.NO_OP_ARG_TRANSFORM;
 
     private Transformer<Response, Response> responseObjectTransformer = new NoOpResponseTransformer();
 
@@ -62,6 +63,56 @@ public class ServiceImpl implements Service {
     public ServiceImpl responseObjectTransformer(Transformer<Response, Response> responseObjectTransformer) {
         this.responseObjectTransformer = responseObjectTransformer;
         return this;
+    }
+
+
+    /**
+     * This method is where all of the action is.
+     * @param methodCall methodCall
+     * @param serviceMethodHandler handler
+     * @param responseSendQueue send queue
+     */
+    private void doHandleMethodCall(MethodCall methodCall, final ServiceMethodHandler serviceMethodHandler, final SendQueue<Response<Object>> responseSendQueue) {
+        if (GlobalConstants.DEBUG) {
+            logger.info("ServiceImpl::doHandleMethodCall() METHOD CALL", methodCall);
+        }
+
+        inputQueueListener.receive(methodCall);
+
+
+        boolean continueFlag[] = new boolean[1];
+
+        methodCall = beforeMethodProcessing(methodCall, continueFlag);
+
+        if (continueFlag[0]) {
+            logger.info("ServiceImpl::doHandleMethodCall() before handling stopped processing");
+            return;
+        }
+
+
+        Response<Object> response = serviceMethodHandler.receiveMethodCall(methodCall);
+
+        if (GlobalConstants.DEBUG) {
+            logger.info("ServiceImpl::receive() RESPONSE", response, "FROM CALL", methodCall);
+        }
+
+
+        if (response != ServiceConstants.VOID) {
+
+            if (!afterMethodCall.after(methodCall, response)) {
+                return;
+            }
+
+            response = responseObjectTransformer.transform(response);
+
+
+            if (!afterMethodCallAfterTransform.after(methodCall, response)) {
+                return;
+            }
+
+            responseSendQueue.sendAndFlush(response);
+
+        }
     }
 
     public ServiceImpl(String rootAddress, final String serviceAddress, final Object service,
@@ -101,56 +152,21 @@ public class ServiceImpl implements Service {
         }
 
         final SendQueue<Response<Object>> responseSendQueue = this.responseQueue.sendQueue();
+
+
+        start(serviceMethodHandler, responseSendQueue);
+
+    }
+
+    private void start(final ServiceMethodHandler serviceMethodHandler, final SendQueue<Response<Object>> responseSendQueue) {
         requestQueue.startListener(new ReceiveQueueListener<MethodCall<Object>>() {
             @Override
             public void receive(MethodCall methodCall) {
 
 
-                if (GlobalConstants.DEBUG) {
-                    logger.info("ServiceImpl::receive() METHOD CALL", methodCall);
-                }
-
-                inputQueueListener.receive(methodCall);
-
-                if (!beforeMethodCall.before(methodCall)) {
-                    return;
-                }
-
-                final Object arg = requestObjectTransformer.transform(methodCall);
-
-                if (beforeMethodCallAfterTransform != null) {
-                    methodCall = MethodCallImpl.transformed(methodCall, arg);
-
-                    if (!beforeMethodCallAfterTransform.before(methodCall)) {
-                        return;
-                    }
-                }
-
-
-                Response<Object> response = serviceMethodHandler.receiveMethodCall(methodCall);
-
-                if (GlobalConstants.DEBUG) {
-                    logger.info("ServiceImpl::receive() RESPONSE", response, "FROM CALL", methodCall);
-                }
-
-
-                if (response != ServiceConstants.VOID) {
-
-                    if (!afterMethodCall.after(methodCall, response)) {
-                        return;
-                    }
-
-                    response = responseObjectTransformer.transform(response);
-
-
-                    if (!afterMethodCallAfterTransform.after(methodCall, response)) {
-                        return;
-                    }
-
-                    responseSendQueue.sendAndFlush(response);
-
-                }
+                doHandleMethodCall(methodCall, serviceMethodHandler, responseSendQueue);
             }
+
 
             @Override
             public void empty() {
@@ -199,8 +215,31 @@ public class ServiceImpl implements Service {
                 serviceMethodHandler.idle();
             }
         });
+    }
+
+    private MethodCall beforeMethodProcessing(MethodCall methodCall, boolean[] continueFlag) {
+
+        if (!beforeMethodCall.before(methodCall)) {
+            continueFlag[0] = false;
+        }
+
+        if (requestObjectTransformer!=null && requestObjectTransformer != ServiceConstants.NO_OP_ARG_TRANSFORM) {
+            final Object arg = requestObjectTransformer.transform(methodCall);
+
+            methodCall = MethodCallImpl.transformed(methodCall, arg);
+        }
+
+        if (beforeMethodCallAfterTransform != null && beforeMethodCallAfterTransform != ServiceConstants.NO_OP_BEFORE_METHOD_CALL) {
+
+            if (!beforeMethodCallAfterTransform.before(methodCall)) {
+                continueFlag[0] = false;
+            }
+        }
+
+        return methodCall;
 
     }
+
 
 
     public Queue<Response<Object>> responseQueue() {

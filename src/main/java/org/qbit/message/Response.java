@@ -1,7 +1,6 @@
 package org.qbit.message;
 
 
-import org.qbit.message.Message;
 
 /**
  * Created by Richard on 7/21/14.
@@ -9,5 +8,7 @@ import org.qbit.message.Message;
 public interface Response <T> extends Message<T> {
 
     void body(T body);
+
+    String returnAddress();
 }
 

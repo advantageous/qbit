@@ -10,6 +10,8 @@ import java.util.Map;
 public class ResponseImpl<T> implements Response<T> {
 
     private final String address;
+
+    private final String returnAddress;
     private final Map<String, Object> params;
     private final Object body;
     private final long id;
@@ -17,21 +19,17 @@ public class ResponseImpl<T> implements Response<T> {
     private  Object transformedBody;
 
 
-    public static Response response(long id, Object body) {
-        return new ResponseImpl(id, 0, null, null, body);
+    public static Response<Object> response(long id, long timestamp, String address, String returnAddress, Object body) {
+        return new ResponseImpl(id, timestamp, address, returnAddress, null, body);
     }
 
-
-    public static Response response(long id, long timestamp, String address, Object body) {
-        return new ResponseImpl(id, timestamp, address, null, body);
-    }
-
-    public ResponseImpl(long id, long timestamp, String address, Map<String, Object> params, Object body) {
+    public ResponseImpl(long id, long timestamp, String address, String returnAddress, Map<String, Object> params, Object body) {
         this.address = address;
         this.params = params;
         this.body = body;
         this.id = id;
         this.timestamp = timestamp;
+        this.returnAddress = returnAddress;
     }
 
 
@@ -60,6 +58,11 @@ public class ResponseImpl<T> implements Response<T> {
 
         transformedBody = newBody;
 
+    }
+
+    @Override
+    public String returnAddress() {
+        return returnAddress;
     }
 
     @Override

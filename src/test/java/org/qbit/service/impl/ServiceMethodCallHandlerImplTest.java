@@ -11,6 +11,7 @@ import org.qbit.Factory;
 import org.qbit.QBit;
 import org.qbit.annotation.RequestMapping;
 import org.qbit.bindings.MethodBinding;
+import org.qbit.message.Response;
 
 import java.util.List;
 import java.util.Map;
@@ -97,7 +98,7 @@ public class ServiceMethodCallHandlerImplTest {
         final Factory factory = QBit.factory();
 
         methodCalled = false;
-        impl.receiveMethodCall(factory.createMethodCallByAddress("/boo/baz/baaah/pluck", null, null));
+        impl.receiveMethodCall(factory.createMethodCallByAddress("/boo/baz/baaah/pluck", null, null, null));
 
         ok = methodCalled == true || die();
 
@@ -115,7 +116,7 @@ public class ServiceMethodCallHandlerImplTest {
         methodCalled = false;
 
         impl.receiveMethodCall(
-                factory.createMethodCallByAddress("/boo/baz/geoff/chandles/",
+                factory.createMethodCallByAddress("/boo/baz/geoff/chandles/", null,
                 Lists.list(1, 2), null));
 
 
@@ -135,7 +136,7 @@ public class ServiceMethodCallHandlerImplTest {
 
         impl.receiveMethodCall(
                 factory.createMethodCallByAddress(
-                        "/boo/baz/geoff/chandles/twoargs/5/11/", null, null));
+                        "/boo/baz/geoff/chandles/twoargs/5/11/", null, null, null));
 
 
         ok = methodCalled || die();
@@ -156,7 +157,7 @@ public class ServiceMethodCallHandlerImplTest {
         params.put("methodName", "someMethod2");
 
         impl.receiveMethodCall(
-                factory.createMethodCallByAddress("/boo/baz/beyondHereDontMatter",
+                factory.createMethodCallByAddress("/boo/baz/beyondHereDontMatter", null,
 
                 Lists.list(1, 99), params));
 
@@ -184,12 +185,47 @@ public class ServiceMethodCallHandlerImplTest {
         methodCalled = false;
 
 
-        impl.receiveMethodCall(factory.createMethodCallByAddress("/root/service/someMethod3/",
+        impl.receiveMethodCall(factory.createMethodCallByAddress("/root/service/someMethod3/", null,
 
                 Lists.list(1, 99), null));
 
 
         ok = methodCalled || die();
+
+    }
+
+
+
+    @Test
+    public void someMethod4() {
+
+        ServiceMethodCallHandlerImpl impl = new ServiceMethodCallHandlerImpl();
+        impl.init(new Foo(), "/root", "/service");
+
+
+        final String address = impl.address();
+        Str.equalsOrDie("/root/service", address);
+
+        final List<String> addresses = impl.addresses();
+        ok = addresses.contains("/root/service/somemethod3") || die(addresses);
+
+        final Factory factory = QBit.factory();
+
+        methodCalled = false;
+
+
+        final Response<Object> response = impl.receiveMethodCall(
+                factory.createMethodCallByAddress(
+                        "/root/service/someMethod3/",
+                        "returnAddress",
+
+                Lists.list(1, 99), null));
+
+        ok = response != null || die();
+
+        ok = methodCalled || die();
+
+        Str.equalsOrDie("returnAddress", response.returnAddress());
 
     }
 

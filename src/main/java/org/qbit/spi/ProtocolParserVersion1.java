@@ -9,6 +9,9 @@ import org.boon.primitive.CharScanner;
 import org.qbit.message.MethodCall;
 import org.qbit.service.method.impl.MethodCallImpl;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import static org.boon.Exceptions.die;
 import static org.qbit.service.Protocol.*;
 
@@ -20,19 +23,29 @@ public class ProtocolParserVersion1 implements ProtocolParser {
     @Override
     public boolean supports(Object args, MultiMap<String, String> params) {
 
-            return args instanceof String;
+            if (!( args instanceof String)) {
+                return false;
+            }
+
+            String sargs = (String) args;
+
+            if ( sargs.charAt(0) == PROTOCOL_MARKER && sargs.charAt(1) == PROTOCOL_VERSION_1) {
+                return true;
+
+            }
+            return false;
     }
 
     @Override
-    public MethodCall<Object> parse(String address, String returnAddress, String objectName, String methodName, Object args, MultiMap<String, String> params) {
+    public MethodCall<Object> parse(Object body) {
 
 
 
 
 
-        if (args!=null) {
-            if (args instanceof String) {
-                return processStringBody((String) args);
+        if (body!=null) {
+            if (body instanceof String) {
+                return processStringBody((String) body);
             }
         }
 
@@ -70,18 +83,15 @@ public class ProtocolParserVersion1 implements ProtocolParser {
                 die("Unsupported method call", args);
                 return null;
             }
-        } else {
-            MethodCallImpl methodCallFromJson =  jsonParserThreadLocal.get().parse(MethodCallImpl.class, chars);
-
-            return methodCallFromJson;
         }
+        return null;
     }
 
 
     private MethodCallImpl handleFastBodySubmissionVersion1Chars(char[] args) {
 
         final char[][] chars = CharScanner.splitFromStartWithLimit(args,
-                (char) PROTOCOL_SEPARATOR, 0, METHOD_NAME_POS+1);
+                (char) PROTOCOL_SEPARATOR, 0, METHOD_NAME_POS+2);
 
 
         String messageId = FastStringUtils.noCopyStringFromChars(chars[
@@ -107,12 +117,21 @@ public class ProtocolParserVersion1 implements ProtocolParser {
                 OBJECT_NAME_POS]);
 
 
-        String body = FastStringUtils.noCopyStringFromChars(chars[
-                ARGS_POS]);
+        char[] body = chars[ ARGS_POS ];
 
 
+        final char[][] argumentList = CharScanner.split(body,
+                (char) PROTOCOL_ARG_SEPARATOR);
 
-        MethodCallImpl methodCall =  MethodCallImpl.method(id, address, returnAddress, objectName, methodName, body, null);
+        List<Object> argList = new ArrayList<>();
+
+        for (int index=0; index< argumentList.length; index++) {
+            char [] charArgs = argumentList[index];
+            Object arg = jsonParserThreadLocal.get().parse(charArgs);
+            argList.add(arg);
+        }
+
+        MethodCallImpl methodCall =  MethodCallImpl.method(id, address, returnAddress, objectName, methodName, argList, null);
 
         return methodCall;
 

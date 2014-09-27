@@ -19,12 +19,13 @@ public interface Factory {
 
 
       MethodCall<Object> createMethodCallByAddress(String address,
+                                                   String returnAddress,
                                         Object args,
                                         MultiMap<String, String> params);
 
 
       MethodCall<Object> createMethodCallByNames(
-              String methodName, String objectName, Object args,
+              String methodName, String objectName, String returnAddress, Object args,
                                                  MultiMap<String, String> params);
 
       ServiceBundle createBundle(String path);

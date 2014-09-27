@@ -1,8 +1,11 @@
 package org.qbit.service.impl;
 
+import org.boon.Boon;
 import org.boon.Lists;
+import org.boon.Logger;
 import org.boon.Str;
 import org.boon.collections.ConcurrentHashSet;
+import org.boon.concurrent.Timer;
 import org.qbit.Factory;
 import org.qbit.GlobalConstants;
 import org.qbit.message.MethodCall;
@@ -12,8 +15,11 @@ import org.qbit.queue.ReceiveQueue;
 import org.qbit.queue.ReceiveQueueListener;
 import org.qbit.queue.SendQueue;
 import org.qbit.queue.impl.BasicQueue;
+import org.qbit.service.BeforeMethodCall;
 import org.qbit.service.Service;
 import org.qbit.service.ServiceBundle;
+import org.qbit.service.method.impl.MethodCallImpl;
+import org.qbit.transforms.NoOpRequestTransform;
 
 import java.util.List;
 import java.util.Map;
@@ -23,9 +29,6 @@ import java.util.concurrent.TimeUnit;
 
 import static org.boon.Exceptions.die;
 
-/**
- * Created by Richard on 9/26/14.
- */
 public class ServiceBundleImpl implements ServiceBundle {
 
     private Map<String, SendQueue<MethodCall<Object>>> serviceMapping
@@ -33,6 +36,9 @@ public class ServiceBundleImpl implements ServiceBundle {
 
 
     private Set<Service> services = new ConcurrentHashSet<>(10);
+
+
+    private Logger logger = Boon.logger(ServiceBundleImpl.class);
 
     final BasicQueue<MethodCall<Object>> methodQueue;
 
@@ -46,6 +52,16 @@ public class ServiceBundleImpl implements ServiceBundle {
 
     private final String address;
     private Factory factory;
+
+    private BeforeMethodCall beforeMethodCall = ServiceConstants.NO_OP_BEFORE_METHOD_CALL;
+
+
+    private BeforeMethodCall beforeMethodCallAfterTransform = ServiceConstants.NO_OP_BEFORE_METHOD_CALL;
+
+
+    private NoOpRequestTransform argTransformer = ServiceConstants.NO_OP_ARG_TRANSFORM;
+
+
 
     public ServiceBundleImpl(String address, int batchSize, int pollRate, Factory factory) {
         if (address.endsWith("/")) {
@@ -63,6 +79,11 @@ public class ServiceBundleImpl implements ServiceBundle {
         methodSendQueue = methodQueue.sendQueue();
 
         methodQueue.startListener(new ReceiveQueueListener<MethodCall<Object>>() {
+
+            long time;
+
+            long lastTimeAutoFlush;
+
             @Override
             public void receive(MethodCall<Object> item) {
                 doCall(item);
@@ -71,8 +92,14 @@ public class ServiceBundleImpl implements ServiceBundle {
             @Override
             public void empty() {
 
-                for (SendQueue<MethodCall<Object>> sendQueue : sendQueues) {
-                    sendQueue.flushSends();
+                time = Timer.timer().now();
+
+                if (time > (lastTimeAutoFlush + 50)) {
+
+                    for (SendQueue<MethodCall<Object>> sendQueue : sendQueues) {
+                        sendQueue.flushSends();
+                    }
+                    lastTimeAutoFlush = time;
                 }
             }
 
@@ -102,6 +129,10 @@ public class ServiceBundleImpl implements ServiceBundle {
     @Override
     public void addService(String serviceAddress, Object object) {
 
+        if (GlobalConstants.DEBUG) {
+            logger.info(Boon.className(this), serviceAddress, object);
+        }
+
 
         final Service service = factory.createService(address, serviceAddress,
                  object, responseQueue);
@@ -115,6 +146,12 @@ public class ServiceBundleImpl implements ServiceBundle {
         sendQueues.add(requests);
 
         final List<String> addresses = service.addresses(this.address);
+
+
+        if (GlobalConstants.DEBUG) {
+            logger.info(Boon.className(this), "addresses", addresses);
+        }
+
 
 
         for (String addr : addresses) {
@@ -138,12 +175,33 @@ public class ServiceBundleImpl implements ServiceBundle {
     @Override
     public void call(MethodCall<Object> methodCall) {
 
+        if (GlobalConstants.DEBUG) {
+            logger.info(Boon.className(this), "::call()",
+                    methodCall.name(),
+                    methodCall.address(),
+                    "\n", methodCall);
+        }
+
         methodSendQueue.send(methodCall);
 
     }
 
     private void doCall(MethodCall<Object> methodCall) {
 
+        if (GlobalConstants.DEBUG) {
+            logger.info(Boon.className(this), "::doCall()",
+                    methodCall.name(),
+                    methodCall.address(),
+                    "\n", methodCall);
+        }
+
+        boolean [] continueFlag = new boolean[1];
+        methodCall = beforeMethodCall(methodCall, continueFlag);
+
+        if (!continueFlag[0]) {
+            logger.info(Boon.className(this), "::doCall()",
+                    "Flag from before call handling does not want to continue");
+        }
 
         SendQueue<MethodCall<Object>> sendQueue = null;
 
@@ -164,12 +222,52 @@ public class ServiceBundleImpl implements ServiceBundle {
 
     }
 
+    private MethodCall<Object> beforeMethodCall(MethodCall<Object> methodCall, boolean[] continueCall) {
+
+
+        if (this.beforeMethodCall.before(methodCall)) {
+            continueCall[0] = true;
+            methodCall = transformBeforeMethodCall(methodCall);
+
+            continueCall[0] = this.beforeMethodCallAfterTransform.before(methodCall);
+            return methodCall;
+
+        }else {
+            continueCall[0] = false;
+
+        }
+
+        return methodCall;
+    }
+
+    private MethodCall<Object> transformBeforeMethodCall(MethodCall<Object> methodCall) {
+
+        if (argTransformer == null || argTransformer == ServiceConstants.NO_OP_ARG_TRANSFORM) {
+            return methodCall;
+        }
+
+
+        Object arg = this.argTransformer.transform(methodCall);
+        return MethodCallImpl.transformed(methodCall, arg);
+    }
+
     @Override
     public void flushSends() {
+
+        if (GlobalConstants.DEBUG) {
+            logger.info(Boon.className(this), "::flushSends()");
+        }
+
         this.methodSendQueue.flushSends();
     }
 
     public void stop() {
+
+
+        if (GlobalConstants.DEBUG) {
+            logger.info(Boon.className(this), "::stop()");
+        }
+
         methodQueue.stop();
 
         for (Service service : services) {

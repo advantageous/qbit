@@ -23,6 +23,9 @@ public class Protocol {
     public static final int PROTOCOL_ARG_SEPARATOR = 0x1e;
 
 
+    public static final int PROTOCOL_LIST_MARKER = 0x1e;
+
+
     public static final int PROTOCOL_MARKER_POSITION = 0;
     public static final int VERSION_MARKER_POSITION = 1;
 
@@ -35,6 +38,7 @@ public class Protocol {
 
     public static final int OBJECT_NAME_POS = 5;
     public static final int METHOD_NAME_POS = 6;
+
     public static final int ARGS_POS = 7;
 
 }

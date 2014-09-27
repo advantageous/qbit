@@ -43,20 +43,20 @@ public class FactoryImpl implements Factory{
                                                String returnAddress,
                                        String objectName,
                                        String methodName,
-                                       Object args,
+                                       Object body,
                                        MultiMap<String, String> params){
 
         MethodCall<Object> mc = null;
         MethodCallImpl methodCall =
-                MethodCallImpl.method(0L, address, returnAddress, objectName, methodName, args, params);
+                MethodCallImpl.method(0L, address, returnAddress, objectName, methodName, body, params);
 
-        if (args != null) {
-            ProtocolParser parser = selectProtocolParser(args, params);
+        if (body != null) {
+            ProtocolParser parser = selectProtocolParser(body, params);
 
             if (parser != null) {
-                mc = parser.parse(address, returnAddress, objectName, methodName, args, params);
+                mc = parser.parse(body);
             } else {
-                mc = defaultProtocol.parse(address, returnAddress, objectName, methodName, args, params);
+                mc = defaultProtocol.parse(body);
             }
         }
 
@@ -76,13 +76,13 @@ public class FactoryImpl implements Factory{
     }
 
     @Override
-    public MethodCall<Object> createMethodCallByAddress(String address, Object args, MultiMap<String, String> params) {
-        return createMethodCall(address, "", "", "", args, params);
+    public MethodCall<Object> createMethodCallByAddress(String address, String returnAddress, Object args, MultiMap<String, String> params) {
+        return createMethodCall(address, returnAddress, "", "", args, params);
     }
 
     @Override
-    public MethodCall<Object> createMethodCallByNames(String methodName, String objectName, Object args, MultiMap<String, String> params) {
-        return createMethodCall(null, null, methodName, objectName, args, params);
+    public MethodCall<Object> createMethodCallByNames(String methodName, String objectName, String returnAddress, Object args, MultiMap<String, String> params) {
+        return createMethodCall("", returnAddress, methodName, objectName, args, params);
     }
 
     private ProtocolParser selectProtocolParser(Object args, MultiMap<String, String> params) {

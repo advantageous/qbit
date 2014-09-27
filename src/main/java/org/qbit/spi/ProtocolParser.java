@@ -10,7 +10,5 @@ public interface ProtocolParser {
 
     boolean supports(Object object, MultiMap<String, String> params);
 
-    MethodCall<Object> parse(String address, String returnAddress, String objectName,
-                             String methodName, Object args,
-                             MultiMap<String, String> params);
+    MethodCall<Object> parse(Object body);
 }

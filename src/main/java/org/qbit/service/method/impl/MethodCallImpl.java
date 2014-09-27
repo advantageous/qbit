@@ -211,12 +211,8 @@ public class MethodCallImpl implements MethodCall<Object> {
     public static MethodCall transformed(MethodCall methodCall, Object arg) {
         MethodCallImpl transformedMethod = new MethodCallImpl();
         transformedMethod.address = methodCall.address();
-
-        if (arg instanceof List) {
-            transformedMethod.body = (List)arg;
-        } else {
-            transformedMethod.body = Collections.singletonList(arg);
-        }
+        transformedMethod.returnAddress = methodCall.returnAddress();
+        transformedMethod.body = arg;
         transformedMethod.params = methodCall.params();
         transformedMethod.name = methodCall.name();
         transformedMethod.timestamp = methodCall.timestamp();
