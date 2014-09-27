@@ -24,3 +24,7 @@
 .idea/workspace.xml
 
 qbit.iml
+
+.idea/libraries/Maven__com_google_guava_guava_18_0.xml
+
+.idea/libraries/Maven__org_codehaus_groovy_groovy_2_3_2.xml

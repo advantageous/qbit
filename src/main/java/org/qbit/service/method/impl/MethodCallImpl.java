@@ -1,5 +1,6 @@
 package org.qbit.service.method.impl;
 
+import org.boon.Boon;
 import org.boon.Lists;
 import org.boon.collections.MultiMap;
 import org.boon.concurrent.Timer;
@@ -18,7 +19,7 @@ public class MethodCallImpl implements MethodCall<Object> {
     private String name="";
     private String address="";
     private MultiMap<String, String> params = new MultiMap<>();
-    private List<?> body=Collections.emptyList();
+    private Object body=Collections.emptyList();
 
     @JsonIgnore
     private static transient Timer timer = Timer.timer();
@@ -36,7 +37,7 @@ public class MethodCallImpl implements MethodCall<Object> {
         return method(method, Lists.list(args));
     }
 
-    public static MethodCall<Object> method(String name, List<?> body) {
+    public static MethodCall<Object> method(String name, Object body) {
         MethodCallImpl method = new MethodCallImpl();
         method.name = name;
         method.body = body;
@@ -47,7 +48,7 @@ public class MethodCallImpl implements MethodCall<Object> {
 
     public static MethodCall<Object> method(String name,
                                             String address,
-                                            List<?> body) {
+                                            Object body) {
         MethodCallImpl method = new MethodCallImpl();
         method.address = address;
         method.name = name;
@@ -60,7 +61,7 @@ public class MethodCallImpl implements MethodCall<Object> {
     public static MethodCall<Object> method(String name,
                                             String address,
                                             MultiMap<String, String> params,
-                                            List<?> body) {
+                                            Object body) {
         MethodCallImpl method = new MethodCallImpl();
         method.address = address;
         method.name = name;
@@ -135,7 +136,7 @@ public class MethodCallImpl implements MethodCall<Object> {
     @Override
     public MultiMap<String, String> params() {
 
-        return this.params();
+        return this.params;
     }
 
 
@@ -150,7 +151,7 @@ public class MethodCallImpl implements MethodCall<Object> {
     }
 
     public boolean hasBody() {
-        return body!=null && body.size() > 0;
+        return body!=null && Boon.len(body)>0;
     }
 
     public boolean hasParams() {

@@ -1,8 +1,6 @@
 package org.qbit.spi;
 
-import org.boon.Str;
 import org.boon.collections.MultiMap;
-import org.boon.core.Conversions;
 import org.boon.core.reflection.FastStringUtils;
 import org.boon.json.JsonParserAndMapper;
 import org.boon.json.JsonParserFactory;
@@ -17,6 +15,8 @@ import org.qbit.service.impl.ServiceImpl;
 import org.qbit.service.impl.ServiceMethodCallHandlerImpl;
 import org.qbit.service.method.impl.MethodCallImpl;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import static org.boon.Exceptions.die;
@@ -26,79 +26,55 @@ import static org.boon.Exceptions.die;
  */
 public class FactoryImpl implements Factory{
 
+    private ProtocolParser defaultProtocol = new ProtocolParserVersion1();
 
+    private List<ProtocolParser> protocolParserList = new ArrayList<>();
+
+    {
+        protocolParserList.add(new ProtocolParserVersion1());
+    }
 
 
     @Override
-    public MethodCall createMethodCall(String name, String path,
+    public MethodCall<Object> createMethodCall(String address,
+                                       String objectName,
+                                       String methodName,
                                        Object args,
                                        MultiMap<String, String> params){
-        if (params!=null && Str.isEmpty(name)) {
-            name = params.get(METHOD_NAME_KEY);
-        }
-
-        if (args instanceof String) {
-            return processArgs((String) args);
-        } else {
-            return MethodCallImpl.method(name, path, Conversions.toList(args));
-
-        }
 
 
-    }
+        if (args != null) {
+            ProtocolParser parser = selectProtocolParser(args, params);
 
-    ThreadLocal<JsonParserAndMapper> jsonParserThreadLocal = new ThreadLocal<JsonParserAndMapper>() {
-        @Override
-        protected JsonParserAndMapper initialValue() {
-            return new JsonParserFactory().create();
-        }
-    };
-
-
-    private MethodCall processArgs(String args) {
-        final char[] chars = FastStringUtils.toCharArray(args);
-        if (chars.length > 2 &&
-                chars[PROTOCOL_MARKER_POSITION]
-                        == PROTOCOL_MARKER) {
-
-            final char versionMarker = chars[VERSION_MARKER_POSITION];
-
-            if (versionMarker == PROTOCOL_VERSION_1) {
-                return handleFastBodySubmissionVersion1Chars(chars);
-            } else {
-                die("Unsupported method call", args);
-                return null;
+            if (parser != null) {
+                return parser.parse(address, objectName, methodName, args, params);
             }
-        } else {
-            return jsonParserThreadLocal.get().parse(MethodCallImpl.class, chars);
         }
+
+
+        return defaultProtocol.parse(address, objectName, methodName, args, params);
+
+
+
     }
 
-    private MethodCall handleFastBodySubmissionVersion1Chars(char[] args) {
+    @Override
+    public MethodCall<Object> createMethodCallByAddress(String address, Object args, MultiMap<String, String> params) {
+        return createMethodCall(address, "", "", args, params);
+    }
 
-        int index=0;
-        index++;
-        index++;
+    @Override
+    public MethodCall<Object> createMethodCallByNames(String methodName, String objectName, Object args, MultiMap<String, String> params) {
+        return createMethodCall(null, methodName, objectName, args, params);
+    }
 
-        final char[][] chars = CharScanner.splitFromStartWithLimit(args,
-                (char) PROTOCOL_SEPARATOR, index, 3);
-
-        String address = FastStringUtils.noCopyStringFromChars(chars[
-                ADDRESS_POS]);
-
-        String returnAddress = FastStringUtils.noCopyStringFromChars(chars[
-                RETURN_ADDRESS_POS]);
-
-
-        String methodName = FastStringUtils.noCopyStringFromChars(chars[
-                METHOD_NAME_POS]);
-
-
-        String objectName = FastStringUtils.noCopyStringFromChars(chars[
-                OBJECT_NAME_POS]);
-
+    private ProtocolParser selectProtocolParser(Object args, MultiMap<String, String> params) {
+        for (ProtocolParser parser : protocolParserList) {
+            if (parser.supports(args, params)) {
+                return parser;
+            }
+        }
         return null;
-
     }
 
     @Override

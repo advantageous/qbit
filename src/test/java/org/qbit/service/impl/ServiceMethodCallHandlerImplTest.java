@@ -91,7 +91,7 @@ public class ServiceMethodCallHandlerImplTest {
         final Factory factory = QBit.factory();
 
         methodCalled = false;
-        impl.receiveMethodCall(factory.createMethodCall("", "/boo/baz/baaah/pluck", null, null));
+        impl.receiveMethodCall(factory.createMethodCallByAddress("/boo/baz/baaah/pluck", null, null));
 
         ok = methodCalled == true || die();
 
@@ -108,7 +108,7 @@ public class ServiceMethodCallHandlerImplTest {
 
         methodCalled = false;
 
-        impl.receiveMethodCall(factory.createMethodCall("", "/boo/baz/geoff/chandles/",
+        impl.receiveMethodCall(factory.createMethodCallByAddress("/boo/baz/geoff/chandles/",
                 Lists.list(1, 2), null));
 
 
@@ -126,7 +126,7 @@ public class ServiceMethodCallHandlerImplTest {
 
         methodCalled = false;
 
-        impl.receiveMethodCall(factory.createMethodCall("", "/geoff/chandles/twoargs/5/11/", null, null));
+        impl.receiveMethodCall(factory.createMethodCallByAddress("/geoff/chandles/twoargs/5/11/", null, null));
 
 
         ok = methodCalled || die();
@@ -146,7 +146,7 @@ public class ServiceMethodCallHandlerImplTest {
         MultiMap<String, String> params = new MultiMap<>();
         params.put("methodName", "someMethod2");
 
-        impl.receiveMethodCall(factory.createMethodCall("", "/geoff/chandles/twoargs/5/11/",
+        impl.receiveMethodCall(factory.createMethodCallByAddress("/geoff/chandles/twoargs/5/11/",
 
                 Lists.list(1, 99), params));
 

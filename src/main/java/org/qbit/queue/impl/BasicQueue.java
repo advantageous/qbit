@@ -1,5 +1,7 @@
 package org.qbit.queue.impl;
 
+import org.boon.Boon;
+import org.boon.Logger;
 import org.qbit.queue.*;
 
 import java.util.concurrent.*;
@@ -17,6 +19,9 @@ public class BasicQueue<T> implements Queue<T> {
     private final int batchSize;
 
     private final AtomicBoolean stop = new AtomicBoolean();
+
+
+    private Logger logger = Boon.logger(BasicQueue.class);
 
 
     private ReceiveQueueManager<T> receiveQueueManager;
@@ -90,7 +95,11 @@ public class BasicQueue<T> implements Queue<T> {
         future = monitor.scheduleAtFixedRate(new Runnable() {
             @Override
             public void run() {
-                manageQueue(listener);
+                try {
+                    manageQueue(listener);
+                }catch (Exception ex) {
+                    logger.error(ex, "BasicQueue Manager", "Problem running queue manager");
+                }
             }
 
         }, 50, 50, TimeUnit.MILLISECONDS);

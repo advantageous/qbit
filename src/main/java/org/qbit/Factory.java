@@ -8,7 +8,21 @@ import org.qbit.service.ServiceBundle;
 public interface Factory {
 
 
-      MethodCall<Object> createMethodCall(String methodName, String path, Object args, MultiMap<String, String> params);
+      MethodCall<Object> createMethodCall(String address,
+                                          String objectName,
+                                          String methodName,
+                                          Object args,
+                                          MultiMap<String, String> params);
+
+
+      MethodCall<Object> createMethodCallByAddress(String address,
+                                        Object args,
+                                        MultiMap<String, String> params);
+
+
+      MethodCall<Object> createMethodCallByNames(
+              String methodName, String objectName, Object args,
+                                                 MultiMap<String, String> params);
 
       ServiceBundle createBundle(String path);
 

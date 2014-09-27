@@ -53,7 +53,7 @@ public class RegularCalls {
 
     boolean ok;
 
-    //@Test
+    @Test
     public void test() {
 
         Adder adder = new Adder();
@@ -111,7 +111,7 @@ public class RegularCalls {
     }
 
 
-    //@Test
+    @Test
     public void testMany() {
 
         Adder adder = new Adder();
@@ -153,7 +153,7 @@ public class RegularCalls {
 
 
 
-    //@Test
+    @Test
     public void testBatch() {
 
         Adder adder = new Adder();
