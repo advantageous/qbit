@@ -62,7 +62,10 @@ public class ServiceImpl implements Service {
         return this;
     }
 
-    public ServiceImpl(final String name, final Object service, int waitTime, TimeUnit timeUnit, int batchSize,
+    public ServiceImpl(final String name, final Object service,
+                       int waitTime,
+                       TimeUnit timeUnit,
+                       int batchSize,
                        final ServiceMethodHandler serviceMethodHandler) {
         this.service = service;
         this.serviceMethodHandler = serviceMethodHandler;
@@ -234,5 +237,9 @@ public class ServiceImpl implements Service {
     public ServiceImpl afterMethodCallAfterTransform(AfterMethodCall afterMethodCallAfterTransform) {
         this.afterMethodCallAfterTransform = afterMethodCallAfterTransform;
         return this;
+    }
+
+    public String name() {
+        return name;
     }
 }

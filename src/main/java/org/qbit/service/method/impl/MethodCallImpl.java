@@ -1,6 +1,7 @@
 package org.qbit.service.method.impl;
 
 import org.boon.Lists;
+import org.boon.collections.MultiMap;
 import org.boon.concurrent.Timer;
 import org.boon.json.annotations.JsonIgnore;
 import org.qbit.message.MethodCall;
@@ -16,7 +17,7 @@ public class MethodCallImpl implements MethodCall<Object> {
 
     private String name="";
     private String address="";
-    private Map<String, Object> params=Collections.emptyMap();
+    private MultiMap<String, String> params = new MultiMap<>();
     private List<?> body=Collections.emptyList();
 
     @JsonIgnore
@@ -27,6 +28,8 @@ public class MethodCallImpl implements MethodCall<Object> {
     private long id;
 
     private static volatile long idSequence;
+    private String objectName;
+    private String returnAddress;
 
 
     public static MethodCall<Object> methodWithArgs(String method, Object... args) {
@@ -42,7 +45,9 @@ public class MethodCallImpl implements MethodCall<Object> {
         return method;
     }
 
-    public static MethodCall<Object> method(String name, String address, List<?> body) {
+    public static MethodCall<Object> method(String name,
+                                            String address,
+                                            List<?> body) {
         MethodCallImpl method = new MethodCallImpl();
         method.address = address;
         method.name = name;
@@ -51,6 +56,40 @@ public class MethodCallImpl implements MethodCall<Object> {
         method.timestamp = timer.time();
         return method;
     }
+
+    public static MethodCall<Object> method(String name,
+                                            String address,
+                                            MultiMap<String, String> params,
+                                            List<?> body) {
+        MethodCallImpl method = new MethodCallImpl();
+        method.address = address;
+        method.name = name;
+        method.body = body;
+        method.id = idSequence++;
+        method.timestamp = timer.time();
+        method.params = params;
+        return method;
+    }
+
+
+    public static MethodCall<Object> method(String name,
+                                            String objectName,
+                                            String address,
+                                            String returnAddress,
+                                            MultiMap<String, String> params,
+                                            List<?> body) {
+        MethodCallImpl method = new MethodCallImpl();
+        method.address = address;
+        method.name = name;
+        method.body = body;
+        method.id = idSequence++;
+        method.timestamp = timer.time();
+        method.params = params;
+        method.objectName = objectName;
+        method.returnAddress = returnAddress;
+        return method;
+    }
+
 
     public static MethodCall<Object> method(String name, String body) {
         MethodCallImpl method = new MethodCallImpl();
@@ -74,6 +113,11 @@ public class MethodCallImpl implements MethodCall<Object> {
     }
 
     @Override
+    public String objectName() {
+        return objectName;
+    }
+
+    @Override
     public long id() {
         return id;
     }
@@ -85,13 +129,15 @@ public class MethodCallImpl implements MethodCall<Object> {
 
     @Override
     public String returnAddress() {
-        return null;
+        return returnAddress;
     }
 
     @Override
-    public Map<String, Object> params() {
-        return params;
+    public MultiMap<String, String> params() {
+
+        return this.params();
     }
+
 
     @Override
     public List<Object> body() {
@@ -108,7 +154,7 @@ public class MethodCallImpl implements MethodCall<Object> {
     }
 
     public boolean hasParams() {
-        return params !=null && params.size()>0;
+        return params !=null && params.size() > 0;
     }
 
     @Override

@@ -32,7 +32,7 @@ public class JsonServiceCallTest {
 
     boolean ok;
 
-    @Test
+    //@Test
     public void test() {
 
         Adder adder = new Adder();
@@ -73,7 +73,7 @@ public class JsonServiceCallTest {
     }
 
 
-    @Test
+    //@Test
     public void testMany() {
 
         Adder adder = new Adder();
@@ -114,7 +114,7 @@ public class JsonServiceCallTest {
 
 
 
-    @Test
+    //@Test
     public void testBatch() {
 
         Adder adder = new Adder();
