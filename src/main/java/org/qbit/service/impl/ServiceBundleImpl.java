@@ -9,6 +9,7 @@ import org.qbit.message.MethodCall;
 import org.qbit.message.Response;
 import org.qbit.queue.Queue;
 import org.qbit.queue.ReceiveQueue;
+import org.qbit.queue.ReceiveQueueListener;
 import org.qbit.queue.SendQueue;
 import org.qbit.queue.impl.BasicQueue;
 import org.qbit.service.Service;
@@ -33,6 +34,11 @@ public class ServiceBundleImpl implements ServiceBundle {
 
     private Set<Service> services = new ConcurrentHashSet<>(10);
 
+    final BasicQueue<MethodCall<Object>> methodQueue;
+
+
+    final SendQueue<MethodCall<Object>> methodSendQueue;
+
 
     private Set<SendQueue<MethodCall<Object>>> sendQueues = new ConcurrentHashSet<>(10);
 
@@ -51,6 +57,41 @@ public class ServiceBundleImpl implements ServiceBundle {
         this.factory = factory;
         this.responseQueue =  new BasicQueue<>("Response Queue " + address, pollRate,
                 TimeUnit.MILLISECONDS, batchSize);
+
+        this.methodQueue = new BasicQueue<>("Send Queue " + address, pollRate, TimeUnit.MILLISECONDS, batchSize);
+
+        methodSendQueue = methodQueue.sendQueue();
+
+        methodQueue.startListener(new ReceiveQueueListener<MethodCall<Object>>() {
+            @Override
+            public void receive(MethodCall<Object> item) {
+                doCall(item);
+            }
+
+            @Override
+            public void empty() {
+
+                for (SendQueue<MethodCall<Object>> sendQueue : sendQueues) {
+                    sendQueue.flushSends();
+                }
+            }
+
+            @Override
+            public void limit() {
+
+            }
+
+            @Override
+            public void shutdown() {
+
+            }
+
+            @Override
+            public void idle() {
+
+            }
+        });
+
     }
 
     @Override
@@ -97,6 +138,12 @@ public class ServiceBundleImpl implements ServiceBundle {
     @Override
     public void call(MethodCall<Object> methodCall) {
 
+        methodSendQueue.send(methodCall);
+
+    }
+
+    private void doCall(MethodCall<Object> methodCall) {
+
 
         SendQueue<MethodCall<Object>> sendQueue = null;
 
@@ -119,9 +166,16 @@ public class ServiceBundleImpl implements ServiceBundle {
 
     @Override
     public void flushSends() {
-        for (SendQueue<MethodCall<Object>> sendQueue : sendQueues) {
-            sendQueue.flushSends();
+        this.methodSendQueue.flushSends();
+    }
+
+    public void stop() {
+        methodQueue.stop();
+
+        for (Service service : services) {
+            service.stop();
         }
+
     }
 
     @Override

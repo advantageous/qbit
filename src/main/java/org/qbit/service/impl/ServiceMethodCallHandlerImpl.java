@@ -16,7 +16,6 @@ import org.qbit.service.method.impl.ResponseImpl;
 
 import java.util.*;
 
-import static org.boon.Boon.puts;
 import static org.boon.Exceptions.die;
 
 /**
@@ -72,10 +71,8 @@ public class ServiceMethodCallHandlerImpl implements ServiceMethodHandler {
 
 
         for (String root : addresses) {
-            puts ("ROOT", root, "ADDRESS", mAddress);
             if (mAddress.startsWith(root)) {
                 mAddress = root;
-                puts("FOUND");
                 break;
             }
         }

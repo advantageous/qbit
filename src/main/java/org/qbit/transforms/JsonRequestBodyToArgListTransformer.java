@@ -1,12 +1,13 @@
 package org.qbit.transforms;
 
+import org.boon.Boon;
+import org.boon.Exceptions;
 import org.boon.json.JsonParserAndMapper;
 import org.boon.json.JsonParserFactory;
 import org.qbit.message.Request;
 
 import java.util.List;
 
-import static org.boon.Boon.puts;
 import static org.boon.Exceptions.die;
 
 /**
@@ -26,8 +27,8 @@ public class JsonRequestBodyToArgListTransformer implements Transformer<Request,
         try {
             return jsonParser.parse(json);
         } catch (Exception ex) {
-            puts("Unable to handle JSON", json);
-            die("Unable to handle JSON", json);
+            Boon.logger(this.getClass()).error(ex, "Unable to handle JSON", json);
+            Exceptions.handle(ex);
             return null;
         }
     }

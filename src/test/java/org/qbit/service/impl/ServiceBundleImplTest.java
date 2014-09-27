@@ -98,6 +98,8 @@ public class ServiceBundleImplTest {
         int sum = Conversions.toInt(responseBody);
 
         Boon.equalsOrDie("Sum should be 3", 3, sum);
+
+        serviceBundle.stop();
     }
 
     @Test

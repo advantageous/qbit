@@ -23,6 +23,9 @@ public interface ServiceBundle {
     void flushSends();
 
 
+    void stop();
+
+
     List<String> endPoints();
 
 }
