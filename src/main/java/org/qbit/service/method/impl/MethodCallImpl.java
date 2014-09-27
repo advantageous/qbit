@@ -223,6 +223,15 @@ public class MethodCallImpl implements MethodCall<Object> {
 
     public MethodCallImpl overrides(MethodCallImpl methodCall) {
 
+        if (methodCall.hasParams()) {
+            if (!this.hasParams()) {
+                this.params = methodCall.params;
+            } else {
+                this.params.putAll(methodCall.params);
+            }
+
+
+        }
 
         if (params!=null && params.size() > 0) {
             String _addr = params.get(Protocol.ADDRESS_KEY);
