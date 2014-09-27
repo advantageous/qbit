@@ -26,24 +26,19 @@ public class ProtocolParserVersion1 implements ProtocolParser {
     @Override
     public MethodCall<Object> parse(String address, String objectName, String methodName, Object args, MultiMap<String, String> params) {
 
-        String name="";
+        MethodCallImpl methodCall =  MethodCallImpl.method(address, objectName, methodName, args, params);
 
-        if (params!=null && params.size()>0) {
 
-            if (params!=null && Str.isEmpty(methodName)) {
-                name = params.get(METHOD_NAME_KEY);
-            }
-
-        }
 
 
         if (args!=null) {
             if (args instanceof String) {
-                return processStringBody((String) args);
+                return processStringBody((String) args, methodCall);
             }
         }
 
-        return MethodCallImpl.method(name, address, args);
+
+       return methodCall;
 
 
     }
@@ -57,7 +52,12 @@ public class ProtocolParserVersion1 implements ProtocolParser {
     };
 
 
-    private MethodCall<Object> processStringBody(String args) {
+    private MethodCall<Object> processStringBody(String args, MethodCallImpl methodCall) {
+
+        if (args.isEmpty()) {
+            return methodCall;
+        }
+
         final char[] chars = FastStringUtils.toCharArray(args);
         if (chars.length > 2 &&
                 chars[PROTOCOL_MARKER_POSITION]
@@ -66,18 +66,21 @@ public class ProtocolParserVersion1 implements ProtocolParser {
             final char versionMarker = chars[VERSION_MARKER_POSITION];
 
             if (versionMarker == PROTOCOL_VERSION_1) {
-                return handleFastBodySubmissionVersion1Chars(chars);
+                return handleFastBodySubmissionVersion1Chars(chars).overrides(methodCall);
             } else {
                 die("Unsupported method call", args);
                 return null;
             }
         } else {
-            return jsonParserThreadLocal.get().parse(MethodCallImpl.class, chars);
+            MethodCallImpl methodCallFromJson =  jsonParserThreadLocal.get().parse(MethodCallImpl.class, chars);
+
+            methodCallFromJson.overrides(methodCall);
+            return methodCallFromJson;
         }
     }
 
 
-    private MethodCall<Object> handleFastBodySubmissionVersion1Chars(char[] args) {
+    private MethodCallImpl handleFastBodySubmissionVersion1Chars(char[] args) {
 
         int index=0;
         index++;
@@ -85,6 +88,10 @@ public class ProtocolParserVersion1 implements ProtocolParser {
 
         final char[][] chars = CharScanner.splitFromStartWithLimit(args,
                 (char) PROTOCOL_SEPARATOR, index, 3);
+
+
+        String messageId = FastStringUtils.noCopyStringFromChars(chars[
+                MESSAGE_ID_POS]);
 
         String address = FastStringUtils.noCopyStringFromChars(chars[
                 ADDRESS_POS]);
@@ -100,7 +107,15 @@ public class ProtocolParserVersion1 implements ProtocolParser {
         String objectName = FastStringUtils.noCopyStringFromChars(chars[
                 OBJECT_NAME_POS]);
 
-        return null;
+
+        String body = FastStringUtils.noCopyStringFromChars(chars[
+                OBJECT_NAME_POS]);
+
+
+
+        MethodCallImpl methodCall =  MethodCallImpl.method(address, objectName, methodName, args, null);
+
+        return methodCall;
 
     }
 

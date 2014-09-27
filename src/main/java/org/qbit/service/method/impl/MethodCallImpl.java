@@ -2,10 +2,12 @@ package org.qbit.service.method.impl;
 
 import org.boon.Boon;
 import org.boon.Lists;
+import org.boon.Str;
 import org.boon.collections.MultiMap;
 import org.boon.concurrent.Timer;
 import org.boon.json.annotations.JsonIgnore;
 import org.qbit.message.MethodCall;
+import org.qbit.service.Protocol;
 
 import java.util.Collections;
 import java.util.List;
@@ -28,13 +30,32 @@ public class MethodCallImpl implements MethodCall<Object> {
 
     private long id;
 
+    @JsonIgnore
     private static volatile long idSequence;
+
     private String objectName;
     private String returnAddress;
 
 
     public static MethodCall<Object> methodWithArgs(String method, Object... args) {
         return method(method, Lists.list(args));
+    }
+
+
+
+
+
+    public static MethodCallImpl method(String address, String objectName, String methodName,
+                                        Object args, MultiMap<String, String> params) {
+        MethodCallImpl method = new MethodCallImpl();
+        method.address = address;
+        method.name = methodName;
+        method.objectName = objectName;
+        method.params = params;
+        method.body = args;
+        method.id = idSequence++;
+        method.timestamp = timer.time();
+        return method;
     }
 
     public static MethodCall<Object> method(String name, Object body) {
@@ -198,5 +219,43 @@ public class MethodCallImpl implements MethodCall<Object> {
         transformedMethod.timestamp = methodCall.timestamp();
         transformedMethod.id = methodCall.id();
         return transformedMethod;
+    }
+
+    public MethodCallImpl overrides(MethodCallImpl methodCall) {
+
+
+        if (params!=null && params.size() > 0) {
+            String _addr = params.get(Protocol.ADDRESS_KEY);
+            String _objectName = params.get(Protocol.OBJECT_NAME_KEY);
+            String _methodName = params.get(Protocol.METHOD_NAME_KEY);
+            String _returnAddress = params.get(Protocol.RETURN_ADDRESS_KEY);
+            this.address = Str.isEmpty(_addr) ? address : _addr;
+            this.returnAddress = Str.isEmpty(_returnAddress) ? returnAddress : _returnAddress;
+            this.name = Str.isEmpty(_methodName) ? name : _methodName;
+            this.objectName = Str.isEmpty(_objectName) ? objectName : _objectName;
+
+        }
+
+        this.address = Str.isEmpty(methodCall.address) ? address : methodCall.address;
+        this.returnAddress = Str.isEmpty(methodCall.returnAddress) ? returnAddress : methodCall.returnAddress;
+        this.name = Str.isEmpty(methodCall.name) ? name : methodCall.name;
+        this.objectName = Str.isEmpty(methodCall.objectName) ? objectName : methodCall.objectName;
+        this.id = methodCall.id==0L ? id : methodCall.id;
+
+        this.timestamp = methodCall.timestamp==0 ? timestamp : methodCall.timestamp;
+
+        if (timestamp==0) {
+            timestamp=timer.now();
+        }
+
+        if (id==0) {
+            id = idSequence++;
+        }
+
+        this.body = methodCall.body == null || Boon.len(body)==0 ? body : methodCall.body;
+
+
+        return this;
+
     }
 }
