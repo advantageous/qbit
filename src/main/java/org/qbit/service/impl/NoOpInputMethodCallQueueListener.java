@@ -1,4 +1,4 @@
-package org.qbit.service;
+package org.qbit.service.impl;
 
 import org.qbit.queue.ReceiveQueueListener;
 import org.qbit.message.MethodCall;

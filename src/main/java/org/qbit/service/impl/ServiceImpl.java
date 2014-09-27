@@ -1,15 +1,21 @@
-package org.qbit.service;
+package org.qbit.service.impl;
 
 
+import org.boon.Str;
 import org.qbit.message.Event;
 import org.qbit.message.Request;
 import org.qbit.queue.*;
 import org.qbit.message.MethodCall;
 import org.qbit.queue.impl.BasicQueue;
+import org.qbit.service.AfterMethodCall;
+import org.qbit.service.BeforeMethodCall;
+import org.qbit.service.Service;
+import org.qbit.service.ServiceMethodHandler;
 import org.qbit.service.method.impl.MethodCallImpl;
 import org.qbit.message.Response;
 import org.qbit.transforms.*;
 
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 
@@ -20,6 +26,7 @@ public class ServiceImpl implements Service {
 
     private final Object service;
     private final String name;
+    private ServiceMethodHandler serviceMethodHandler;
 
     private BeforeMethodCall beforeMethodCall = new NoOpBeforeMethodCall();
 
@@ -58,9 +65,17 @@ public class ServiceImpl implements Service {
     public ServiceImpl(final String name, final Object service, int waitTime, TimeUnit timeUnit, int batchSize,
                        final ServiceMethodHandler serviceMethodHandler) {
         this.service = service;
-        this.name = name;
+        this.serviceMethodHandler = serviceMethodHandler;
 
         serviceMethodHandler.init(service);
+
+        if (Str.isEmpty(name)) {
+
+            this.name = serviceMethodHandler.address();
+
+        } else {
+            this.name = name;
+        }
 
         requestQueue = new BasicQueue<>("Request Queue " + name, waitTime,
                 timeUnit, batchSize);
@@ -83,15 +98,15 @@ public class ServiceImpl implements Service {
                 final Object arg = requestObjectTransformer.transform(methodCall);
 
                 if (beforeMethodCallAfterTransform != null) {
-                    MethodCall transformedCall = MethodCallImpl.transformed(methodCall, arg);
+                    methodCall = MethodCallImpl.transformed(methodCall, arg);
 
-                    if (!beforeMethodCallAfterTransform.before(transformedCall)) {
+                    if (!beforeMethodCallAfterTransform.before(methodCall)) {
                         return;
                     }
                 }
 
 
-                Response<Object> response = serviceMethodHandler.receive(methodCall, arg);
+                Response<Object> response = serviceMethodHandler.receiveMethodCall(methodCall);
 
 
                 if (response != ServiceConstants.VOID) {
@@ -186,6 +201,12 @@ public class ServiceImpl implements Service {
     public void stop() {
         requestQueue.stop();
         responseQueue.stop();
+    }
+
+    @Override
+    public List<String> addresses(String address) {
+
+        return this.serviceMethodHandler.addresses();
     }
 
 

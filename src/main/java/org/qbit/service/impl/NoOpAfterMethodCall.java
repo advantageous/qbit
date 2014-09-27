@@ -1,7 +1,8 @@
-package org.qbit.service;
+package org.qbit.service.impl;
 
 import org.qbit.message.MethodCall;
 import org.qbit.message.Response;
+import org.qbit.service.AfterMethodCall;
 
 /**
  * Created by Richard on 8/26/14.

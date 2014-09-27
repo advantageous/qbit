@@ -14,10 +14,10 @@ import java.util.Map;
  */
 public class MethodCallImpl implements MethodCall<Object> {
 
-    private String name;
-    private String address;
-    private Map<String, Object> params;
-    private List<?> body;
+    private String name="";
+    private String address="";
+    private Map<String, Object> params=Collections.emptyMap();
+    private List<?> body=Collections.emptyList();
 
     @JsonIgnore
     private static transient Timer timer = Timer.timer();
@@ -33,6 +33,25 @@ public class MethodCallImpl implements MethodCall<Object> {
         return method(method, Lists.list(args));
     }
 
+    public static MethodCall<Object> method(String name, List<?> body) {
+        MethodCallImpl method = new MethodCallImpl();
+        method.name = name;
+        method.body = body;
+        method.id = idSequence++;
+        method.timestamp = timer.time();
+        return method;
+    }
+
+    public static MethodCall<Object> method(String name, String address, List<?> body) {
+        MethodCallImpl method = new MethodCallImpl();
+        method.address = address;
+        method.name = name;
+        method.body = body;
+        method.id = idSequence++;
+        method.timestamp = timer.time();
+        return method;
+    }
+
     public static MethodCall<Object> method(String name, String body) {
         MethodCallImpl method = new MethodCallImpl();
         method.name = name;
@@ -42,14 +61,6 @@ public class MethodCallImpl implements MethodCall<Object> {
         return method;
     }
 
-    public static MethodCall<Object> method(String name, List<?> body) {
-        MethodCallImpl method = new MethodCallImpl();
-        method.name = name;
-        method.body = body;
-        method.id = idSequence++;
-        method.timestamp = timer.time();
-        return method;
-    }
 
     @Override
     public String name() {

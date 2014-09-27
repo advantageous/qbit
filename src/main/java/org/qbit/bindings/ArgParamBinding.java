@@ -4,24 +4,47 @@ package org.qbit.bindings;
  * Created by Richard on 7/22/14.
  */
 public class ArgParamBinding {
-    int position;
-    private String name;
 
+    int methodParamPosition;
+    int uriPosition;
+    String methodParamName;
 
-    public static ArgParamBinding param(String name, int position) {
-        return new ArgParamBinding(position, name);
+    public ArgParamBinding(int methodParamPosition, int uriPosition, String methodParamName) {
+        this.methodParamPosition = methodParamPosition;
+        this.uriPosition = uriPosition;
+        this.methodParamName = methodParamName;
     }
 
-    private ArgParamBinding(int position, String name) {
-        this.position = position;
-        this.name = name;
+    public String getMethodParamName() {
+        return methodParamName;
     }
 
-    public int getPosition() {
-        return position;
+    public void setMethodParamName(String methodParamName) {
+        this.methodParamName = methodParamName;
     }
 
-    public String getName() {
-        return name;
+    public int getUriPosition() {
+        return uriPosition;
+    }
+
+    public void setUriPosition(int uriPosition) {
+        this.uriPosition = uriPosition;
+    }
+
+    public int getMethodParamPosition() {
+        return methodParamPosition;
+    }
+
+    public void setMethodParamPosition(int methodParamPosition) {
+        this.methodParamPosition = methodParamPosition;
+    }
+
+    @Override
+    public String toString() {
+        return "ArgParamBinding{" +
+                "methodParamPosition=" + methodParamPosition +
+                ", uriPosition=" + uriPosition +
+                ", methodParamName='" + methodParamName + '\'' +
+                '}';
     }
 }

@@ -47,7 +47,7 @@
         <dependency>
             <groupId>io.fastjson</groupId>
             <artifactId>boon</artifactId>
-            <version>0.26-SNAPSHOT</version>
+            <version>0.28-SNAPSHOT</version>
         </dependency>
 
         <dependency>

@@ -33,7 +33,7 @@ public class HttpObjectBinding extends ObjectBinding {
     public HttpObjectBinding bind(MethodBinding... bindings) {
 
         for (MethodBinding binding : bindings) {
-            methodBindingMap.put(binding.getMethodName(), binding);
+            methodBindingMap.put(binding.methodName(), binding);
         }
         return this;
     }

@@ -1,6 +1,7 @@
 package org.qbit.service;
 
-import org.qbit.service.method.impl.ServiceMethodCallHandlerImpl;
+import org.qbit.service.impl.ServiceImpl;
+import org.qbit.service.impl.ServiceMethodCallHandlerImpl;
 import org.qbit.transforms.JsonRequestBodyToArgListTransformer;
 import org.qbit.transforms.JsonResponseTransformer;
 
