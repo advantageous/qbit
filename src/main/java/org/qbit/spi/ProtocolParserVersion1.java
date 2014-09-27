@@ -24,9 +24,9 @@ public class ProtocolParserVersion1 implements ProtocolParser {
     }
 
     @Override
-    public MethodCall<Object> parse(String address, String objectName, String methodName, Object args, MultiMap<String, String> params) {
+    public MethodCall<Object> parse(String address, String returnAddress, String objectName, String methodName, Object args, MultiMap<String, String> params) {
 
-        MethodCallImpl methodCall =  MethodCallImpl.method(address, objectName, methodName, args, params);
+        MethodCallImpl methodCall =  MethodCallImpl.method(0L, address, returnAddress, objectName, methodName, args, params);
 
 
 
@@ -44,7 +44,8 @@ public class ProtocolParserVersion1 implements ProtocolParser {
     }
 
 
-    ThreadLocal<JsonParserAndMapper> jsonParserThreadLocal = new ThreadLocal<JsonParserAndMapper>() {
+
+    private static ThreadLocal<JsonParserAndMapper> jsonParserThreadLocal = new ThreadLocal<JsonParserAndMapper>() {
         @Override
         protected JsonParserAndMapper initialValue() {
             return new JsonParserFactory().create();
@@ -82,16 +83,17 @@ public class ProtocolParserVersion1 implements ProtocolParser {
 
     private MethodCallImpl handleFastBodySubmissionVersion1Chars(char[] args) {
 
-        int index=0;
-        index++;
-        index++;
-
         final char[][] chars = CharScanner.splitFromStartWithLimit(args,
-                (char) PROTOCOL_SEPARATOR, index, 3);
+                (char) PROTOCOL_SEPARATOR, 0, METHOD_NAME_POS+1);
 
 
         String messageId = FastStringUtils.noCopyStringFromChars(chars[
                 MESSAGE_ID_POS]);
+
+        long id = 0L;
+        if (!Str.isEmpty(messageId)) {
+            id = Long.parseLong(messageId);
+        }
 
         String address = FastStringUtils.noCopyStringFromChars(chars[
                 ADDRESS_POS]);
@@ -109,11 +111,11 @@ public class ProtocolParserVersion1 implements ProtocolParser {
 
 
         String body = FastStringUtils.noCopyStringFromChars(chars[
-                OBJECT_NAME_POS]);
+                ARGS_POS]);
 
 
 
-        MethodCallImpl methodCall =  MethodCallImpl.method(address, objectName, methodName, args, null);
+        MethodCallImpl methodCall =  MethodCallImpl.method(id, address, returnAddress, objectName, methodName, body, null);
 
         return methodCall;
 

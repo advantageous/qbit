@@ -46,9 +46,11 @@ public class MethodCallImpl implements MethodCall<Object> {
 
 
 
-    public static MethodCallImpl method(String address, String objectName, String methodName,
+    public static MethodCallImpl method(long id, String address, String returnAddress, String objectName, String methodName,
                                         Object args, MultiMap<String, String> params) {
         MethodCallImpl method = new MethodCallImpl();
+        method.id = id;
+        method.returnAddress = returnAddress;
         method.address = address;
         method.name = methodName;
         method.objectName = objectName;
@@ -163,8 +165,8 @@ public class MethodCallImpl implements MethodCall<Object> {
 
 
     @Override
-    public List<Object> body() {
-        return (List)body;
+    public Object body() {
+        return body;
     }
 
     @Override
@@ -262,10 +264,23 @@ public class MethodCallImpl implements MethodCall<Object> {
             id = idSequence++;
         }
 
-        this.body = methodCall.body == null || Boon.len(body)==0 ? body : methodCall.body;
 
 
         return this;
 
+    }
+
+    @Override
+    public String toString() {
+        return "MethodCallImpl{" +
+                "name='" + name + '\'' +
+                ", address='" + address + '\'' +
+                ", params=" + params +
+                ", body=" + body +
+                ", timestamp=" + timestamp +
+                ", id=" + id +
+                ", objectName='" + objectName + '\'' +
+                ", returnAddress='" + returnAddress + '\'' +
+                '}';
     }
 }
