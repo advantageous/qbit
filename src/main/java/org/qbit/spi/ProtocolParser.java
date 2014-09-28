@@ -1,7 +1,9 @@
 package org.qbit.spi;
 
 import org.boon.collections.MultiMap;
+import org.qbit.message.Message;
 import org.qbit.message.MethodCall;
+import org.qbit.message.Response;
 
 import java.util.List;
 
@@ -15,5 +17,12 @@ public interface ProtocolParser {
     MethodCall<Object> parseMethodCall(Object body);
 
 
-    List<MethodCall<Object>> parse(Object body);
+    List<Message<Object>> parse(Object body);
+
+
+    List<MethodCall<Object>> parseMethods(Object body);
+
+
+
+    Response<Object> parseResponse(Object body);
 }

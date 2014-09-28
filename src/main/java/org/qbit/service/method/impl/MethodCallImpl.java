@@ -50,14 +50,19 @@ public class MethodCallImpl implements MethodCall<Object> {
     public static MethodCallImpl method(long id, String address, String returnAddress, String objectName, String methodName,
                                         long timestamp, Object args, MultiMap<String, String> params) {
         MethodCallImpl method = new MethodCallImpl();
-        method.id = id;
         method.returnAddress = returnAddress;
         method.address = address;
         method.name = methodName;
         method.objectName = objectName;
         method.params = params;
         method.body = args;
-        method.id = idSequence++;
+
+        if (id == 0L) {
+            method.id = idSequence++;
+        } else {
+            method.id = id;
+        }
+
         if (timestamp == 0L) {
             method.timestamp = timer.time();
         }else {

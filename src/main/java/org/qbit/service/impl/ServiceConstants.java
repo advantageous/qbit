@@ -25,6 +25,16 @@ public class ServiceConstants {
         }
 
         @Override
+        public String address() {
+            return "";
+        }
+
+        @Override
+        public long timestamp() {
+            return 0;
+        }
+
+        @Override
         public long id() {
             return 0;
         }

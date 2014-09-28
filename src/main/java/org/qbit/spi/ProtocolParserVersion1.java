@@ -8,9 +8,12 @@ import org.boon.core.reflection.FastStringUtils;
 import org.boon.json.JsonParserAndMapper;
 import org.boon.json.JsonParserFactory;
 import org.boon.primitive.CharScanner;
+import org.qbit.message.Message;
 import org.qbit.message.MethodCall;
+import org.qbit.message.Response;
 import org.qbit.service.Protocol;
 import org.qbit.service.method.impl.MethodCallImpl;
+import org.qbit.service.method.impl.ResponseImpl;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -34,7 +37,9 @@ public class ProtocolParserVersion1 implements ProtocolParser {
 
             if ( sargs.length() > 2 &&
                     sargs.charAt(0) == PROTOCOL_MARKER &&
-                    (sargs.charAt(1) == PROTOCOL_VERSION_1 || sargs.charAt(1)  == PROTOCOL_VERSION_1_GROUP
+                    (sargs.charAt(1) == PROTOCOL_VERSION_1 ||
+                            sargs.charAt(1)  == PROTOCOL_VERSION_1_GROUP
+                            || sargs.charAt(1)  == PROTOCOL_VERSION_1_RESPONSE
                     )) {
                 return true;
 
@@ -51,7 +56,7 @@ public class ProtocolParserVersion1 implements ProtocolParser {
 
         if (body!=null) {
             if (body instanceof String) {
-                return parseMethodCallFromString((String) body);
+                return (MethodCall<Object>) (Object) parseMessageFromString((String) body);
             }
         }
 
@@ -61,7 +66,7 @@ public class ProtocolParserVersion1 implements ProtocolParser {
     }
 
     @Override
-    public List<MethodCall<Object>> parse(Object body) {
+    public List<Message<Object>> parse(Object body) {
 
         if (! (body instanceof String)) {
 
@@ -83,19 +88,19 @@ public class ProtocolParserVersion1 implements ProtocolParser {
             final char versionMarker = chars[VERSION_MARKER_POSITION];
 
             if (versionMarker == PROTOCOL_VERSION_1) {
-                return Lists.list((MethodCall<Object>)handleFastBodySubmissionVersion1Chars(chars));
+                return Lists.list((Message<Object>)handleFastBodySubmissionVersion1Chars(chars));
             } else if (versionMarker == PROTOCOL_VERSION_1_GROUP){
 
                 final char[][] methodCalls = CharScanner.splitFrom(chars,
-                        (char) PROTOCOL_METHOD_SEPERATOR, 2);
+                        (char) PROTOCOL_MESSAGE_SEPARATOR, 2);
 
-                List<MethodCall<Object>> methods = new ArrayList<>(methodCalls.length);
+                List<Message<Object>> messages = new ArrayList<>(methodCalls.length);
                 for (char[] methodCall : methodCalls) {
-                    final MethodCall<Object> method = parseMethodCallFromChars(methodCall);
-                    methods.add(method);
+                    final Message<Object> m = parseMessageFromChars(methodCall);
+                    messages.add(m);
                 }
 
-                return methods;
+                return messages;
 
 
             } else {
@@ -108,6 +113,76 @@ public class ProtocolParserVersion1 implements ProtocolParser {
 
     }
 
+    @Override
+    public List<MethodCall<Object>> parseMethods(Object body) {
+        return  (List<MethodCall<Object>>) (Object) parse(body);
+    }
+
+    @Override
+    public Response<Object> parseResponse(Object body) {
+
+        if (body instanceof  String) {
+            final char[] args = FastStringUtils.toCharArray((String) body);
+            if (args.length > 2 &&
+                    args[PROTOCOL_MARKER_POSITION]
+                            == PROTOCOL_MARKER) {
+
+                final char versionMarker = args[VERSION_MARKER_POSITION];
+
+                if (versionMarker == PROTOCOL_VERSION_1_RESPONSE) {
+
+
+                    return parseResponseFromChars(args);
+                } else {
+                    return null;
+                }
+            }
+
+
+        }
+        return null;
+    }
+
+    private Response<Object> parseResponseFromChars(char[] args) {
+            final char[][] chars = CharScanner.splitFromStartWithLimit(args,
+                    (char) PROTOCOL_SEPARATOR, 0, METHOD_NAME_POS + 2);
+
+
+            String messageId = FastStringUtils.noCopyStringFromChars(chars[
+                    MESSAGE_ID_POS]);
+
+            long id = 0L;
+            if (!Str.isEmpty(messageId)) {
+                id = Long.parseLong(messageId);
+            }
+
+            String address = FastStringUtils.noCopyStringFromChars(chars[
+                    ADDRESS_POS]);
+
+            String returnAddress = FastStringUtils.noCopyStringFromChars(chars[
+                    RETURN_ADDRESS_POS]);
+
+
+
+
+            String stime = FastStringUtils.noCopyStringFromChars(chars[
+                    TIMESTAMP_POS]);
+
+            long timestamp = 0L;
+
+            if (!Str.isEmpty(stime)) {
+                timestamp = Long.parseLong(stime);
+            }
+
+            char[] messageBodyChars = chars[ ARGS_POS ];
+            Object messageBody = jsonParserThreadLocal.get().parse(messageBodyChars);
+
+            return new ResponseImpl<>( id,  timestamp,  address,  returnAddress, null, messageBody);
+
+
+
+    }
+
 
     private static ThreadLocal<JsonParserAndMapper> jsonParserThreadLocal = new ThreadLocal<JsonParserAndMapper>() {
         @Override
@@ -117,18 +192,18 @@ public class ProtocolParserVersion1 implements ProtocolParser {
     };
 
 
-    private MethodCall<Object> parseMethodCallFromString(String args) {
+    private Message<Object> parseMessageFromString(String args) {
 
         if (args.isEmpty()) {
             return null;
         }
         final char[] chars = FastStringUtils.toCharArray(args);
 
-        return parseMethodCallFromChars(chars);
+        return parseMessageFromChars(chars);
     }
 
 
-    private MethodCall<Object> parseMethodCallFromChars(char[] chars) {
+    private Message<Object> parseMessageFromChars(char[] chars) {
 
 
         if (chars.length > 2 &&
@@ -139,7 +214,10 @@ public class ProtocolParserVersion1 implements ProtocolParser {
 
             if (versionMarker == PROTOCOL_VERSION_1) {
                 return handleFastBodySubmissionVersion1Chars(chars);
-            } else {
+            } else if (versionMarker == PROTOCOL_VERSION_1_RESPONSE) {
+                return parseResponseFromChars(chars);
+            }
+            else {
                 die("Unsupported method call", new String(chars));
                 return null;
             }

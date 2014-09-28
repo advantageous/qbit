@@ -7,8 +7,11 @@ import org.boon.collections.MultiMap;
 import org.boon.collections.MultiMaps;
 import org.junit.Before;
 import org.junit.Test;
+import org.qbit.message.Message;
 import org.qbit.message.MethodCall;
+import org.qbit.message.Response;
 import org.qbit.service.method.impl.MethodCallImpl;
+import org.qbit.service.method.impl.ResponseImpl;
 
 import java.util.List;
 
@@ -41,6 +44,30 @@ public class ProtocolParserVersion1Test {
 
 
     @Test
+    public void testEncodeParseResponse() {
+
+        ProtocolEncoderVersion1 encoder = new ProtocolEncoderVersion1();
+
+        ResponseImpl<Object> response = new ResponseImpl<>(1L, 2L,
+                "addr", "Raddr", null, "body");
+
+        final String s = encoder.encodeAsString(response);
+
+        puts(s);
+
+
+        ProtocolParser parser = new ProtocolParserVersion1();
+        final Response<Object> objectResponse = parser.parseResponse(s);
+
+        Boon.equalsOrDie(response.id(), objectResponse.id());
+        Boon.equalsOrDie(response.timestamp(), objectResponse.timestamp());
+        Boon.equalsOrDie(response.address(), objectResponse.address());
+        Boon.equalsOrDie(response.returnAddress(), objectResponse.returnAddress());
+        Boon.equalsOrDie(response.body(), objectResponse.body().toString());
+
+    }
+
+    @Test
     public void testEncodeDecodeManyMethods() {
 
         ProtocolEncoderVersion1 encoder = new ProtocolEncoderVersion1();
@@ -58,13 +85,30 @@ public class ProtocolParserVersion1Test {
         method.params(multiMap);
         method.headers(multiMap);
 
-        MethodCallImpl method2 = (MethodCallImpl) MethodCallImpl.method("foo2", "bar3", "somebody3");
+
+        //long id, String address, String returnAddress, String objectName, String methodName,
+        //long timestamp, Object args, MultiMap<String, String> params
+
+        MethodCallImpl method2 = (MethodCallImpl) MethodCallImpl.method(
+                1L, "addr", "__RETURNaddr__", "__objectNAME__", "__MEHTOD_NAME__",
+                100L, "ARGS", null);
         method2.params(multiMap);
+
+
 
         MethodCallImpl method3 = (MethodCallImpl) MethodCallImpl.method("foo3", "bar3", "somebody3");
         method3.params(multiMap);
 
-        final List<MethodCall<Object>> list = Lists.list((MethodCall<Object>)method, method2, method3);
+        MethodCallImpl method4 = (MethodCallImpl) MethodCallImpl.method("foo4", "bar4", "somebody4");
+        method3.params(multiMap);
+
+        ResponseImpl<Object> response1 = new ResponseImpl<>(method4, new Exception());
+
+
+        ResponseImpl<Object> response2 = new ResponseImpl<>(method2, new Exception());
+
+        final List<Message<Object>> list = Lists.list(
+                response2, method, method2, method3, response1);
 
 
 
@@ -73,14 +117,14 @@ public class ProtocolParserVersion1Test {
 
         puts(s);
 
-        final List<MethodCall<Object>> methodCalls = parser.parse(s);
+        final List<MethodCall<Object>> methodCalls = parser.parseMethods(s);
         puts(methodCalls);
-        Boon.equalsOrDie(method3.address(), methodCalls.get(2).address());
+        Boon.equalsOrDie(method3.address(), methodCalls.get(3).address());
 
-        Boon.equalsOrDie(method3.name(), methodCalls.get(2).name());
+        Boon.equalsOrDie(method3.name(), methodCalls.get(3).name());
 
 
-        final MultiMap<String, String> params = methodCalls.get(1).params();
+        final MultiMap<String, String> params = methodCalls.get(2).params();
 
         final List<String> fruit = (List<String>) params.getAll("fruit");
 
@@ -90,7 +134,7 @@ public class ProtocolParserVersion1Test {
         Boon.equalsOrDie("yuck", params.get("veggies"));
 
 
-        final MultiMap<String, String> headers = methodCalls.get(0).headers();
+        final MultiMap<String, String> headers = methodCalls.get(1).headers();
 
 
         final List<String> hfruit = (List<String>) headers.getAll("fruit");
@@ -99,6 +143,26 @@ public class ProtocolParserVersion1Test {
 
 
         Boon.equalsOrDie("yuck", headers.get("veggies"));
+
+
+
+
+
+        List<Message<Object>> messages = parser.parse(s);
+
+        final Message<Object> message = messages.get(0);
+        ok = message instanceof Response;
+
+        Response respParsed = (Response) message;
+        Boon.equalsOrDie(method2.id(), respParsed.id());
+
+        Boon.equalsOrDie(method2.address(), respParsed.address());
+
+        Boon.equalsOrDie(method2.returnAddress(), respParsed.returnAddress());
+
+        Boon.equalsOrDie(method2.timestamp(), respParsed.timestamp());
+
+
 
     }
 

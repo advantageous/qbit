@@ -1,6 +1,8 @@
 package org.qbit.spi;
 
+import org.qbit.message.Message;
 import org.qbit.message.MethodCall;
+import org.qbit.message.Response;
 
 import java.util.List;
 
@@ -9,9 +11,13 @@ import java.util.List;
  */
 public interface ProtocolEncoder {
 
+
+
+    String encodeAsString(Response<Object> response);
+
     String encodeAsString(MethodCall<Object> methodCall);
 
 
-    String encodeAsString(List<MethodCall<Object>> methodCalls);
+    String encodeAsString(List<Message<Object>> methodCalls);
 
 }

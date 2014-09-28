@@ -99,6 +99,16 @@ public class ResponseImpl<T> implements Response<T> {
     }
 
     @Override
+    public String address() {
+        return address;
+    }
+
+    @Override
+    public long timestamp() {
+        return timestamp;
+    }
+
+    @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (!(o instanceof ResponseImpl)) return false;

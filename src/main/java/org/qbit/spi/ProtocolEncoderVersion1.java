@@ -4,7 +4,9 @@ import org.boon.collections.MultiMap;
 import org.boon.json.JsonSerializer;
 import org.boon.json.JsonSerializerFactory;
 import org.boon.primitive.CharBuf;
+import org.qbit.message.Message;
 import org.qbit.message.MethodCall;
+import org.qbit.message.Response;
 import org.qbit.service.Protocol;
 
 import java.util.Collection;
@@ -24,6 +26,13 @@ public class ProtocolEncoderVersion1 implements ProtocolEncoder {
     };
 
 
+    @Override
+    public String encodeAsString(Response<Object> response) {
+        CharBuf buf = CharBuf.createCharBuf();
+        encodeAsString(buf, response);
+        return buf.toString();
+
+    }
 
     @Override
     public String encodeAsString(MethodCall<Object> methodCall) {
@@ -33,7 +42,7 @@ public class ProtocolEncoderVersion1 implements ProtocolEncoder {
     }
 
     @Override
-    public String encodeAsString(List<MethodCall<Object>> methodCalls) {
+    public String encodeAsString(List<Message<Object>> methodCalls) {
         CharBuf buf = CharBuf.createCharBuf(1000);
 
 
@@ -42,9 +51,14 @@ public class ProtocolEncoderVersion1 implements ProtocolEncoder {
 
 
 
-        for (MethodCall<Object> metthodCall : methodCalls) {
-            encodeAsString(buf, metthodCall);
-            buf.addChar(PROTOCOL_METHOD_SEPERATOR);
+        for (Message<Object> message : methodCalls) {
+
+            if (message instanceof MethodCall) {
+                encodeAsString(buf, (MethodCall<Object>)message);
+            } else if (message instanceof Response) {
+                encodeAsString(buf, (Response<Object>)message);
+            }
+            buf.addChar(PROTOCOL_MESSAGE_SEPARATOR);
         }
 
         return buf.toString();
@@ -107,6 +121,48 @@ public class ProtocolEncoderVersion1 implements ProtocolEncoder {
                 buf.addChar(PROTOCOL_ARG_SEPARATOR);
             }
         } else if (body!=null) {
+
+
+            serializer.serialize(buf, body);
+        }
+
+
+    }
+
+
+    private void encodeAsString(CharBuf buf, Response<Object> response) {
+
+
+        buf.addChar(PROTOCOL_MARKER);
+        buf.addChar(PROTOCOL_VERSION_1_RESPONSE);
+        buf.addChar(PROTOCOL_SEPARATOR);
+
+
+        buf.add(response.id());
+        buf.addChar(PROTOCOL_SEPARATOR);
+
+        buf.add(response.address());
+        buf.addChar(PROTOCOL_SEPARATOR);
+
+
+        buf.add(response.returnAddress());
+        buf.addChar(PROTOCOL_SEPARATOR);
+
+        buf.addChar(PROTOCOL_SEPARATOR); //reserved for header
+        buf.addChar(PROTOCOL_SEPARATOR); //reserved for params
+        buf.addChar(PROTOCOL_SEPARATOR); //reserved for object name
+        buf.addChar(PROTOCOL_SEPARATOR); //reserved for method name
+        buf.add(response.timestamp());
+        buf.addChar(PROTOCOL_SEPARATOR);
+
+
+        final Object body = response.body();
+
+
+
+        final JsonSerializer serializer = jsonSerializer.get();
+
+        if (body!=null) {
 
 
             serializer.serialize(buf, body);

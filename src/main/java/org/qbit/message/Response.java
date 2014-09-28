@@ -12,5 +12,10 @@ public interface Response <T> extends Message<T> {
     void body(T body);
 
     String returnAddress();
+
+    String address();
+
+
+    long timestamp();
 }
 

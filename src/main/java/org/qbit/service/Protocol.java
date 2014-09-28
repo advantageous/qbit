@@ -18,15 +18,12 @@ public class Protocol {
     public static final int PROTOCOL_MARKER = 0x1c;
 
 
-    public static final int PROTOCOL_METHOD_SEPERATOR = 0x1f;
+    public static final int PROTOCOL_MESSAGE_SEPARATOR = 0x1f;
 
     public static final int PROTOCOL_SEPARATOR = 0x1d;
 
 
     public static final int PROTOCOL_ARG_SEPARATOR = 0x1e;
-
-
-    public static final int PROTOCOL_LIST_MARKER = 0x14;
 
 
     public static final int PROTOCOL_KEY_HEADER_DELIM = 0x1a;
@@ -40,6 +37,7 @@ public class Protocol {
 
     public static final int PROTOCOL_VERSION_1 = 'a';
     public static final int PROTOCOL_VERSION_1_GROUP = 'g';
+    public static final int PROTOCOL_VERSION_1_RESPONSE = 'r';
 
 
     public static final int MESSAGE_ID_POS = 1;
