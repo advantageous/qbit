@@ -286,4 +286,7 @@ public class MethodCallImpl implements MethodCall<Object> {
                 '}';
     }
 
+    public void params(MultiMap<String, String> params) {
+        this.params = params;
+    }
 }

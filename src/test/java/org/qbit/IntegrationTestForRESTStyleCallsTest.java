@@ -7,12 +7,14 @@ import org.boon.core.Sys;
 import org.junit.Before;
 import org.junit.Test;
 import org.qbit.annotation.RequestMapping;
+import org.qbit.annotation.RequestParam;
 import org.qbit.message.MethodCall;
 import org.qbit.message.Response;
 import org.qbit.queue.ReceiveQueue;
 import org.qbit.service.Protocol;
 import org.qbit.service.ServiceBundle;
 import org.qbit.service.impl.ServiceBundleImpl;
+import org.qbit.service.method.impl.MethodCallImpl;
 import org.qbit.spi.ProtocolEncoder;
 import org.qbit.spi.ProtocolEncoderVersion1;
 
@@ -249,6 +251,52 @@ public class IntegrationTestForRESTStyleCallsTest {
 
     }
 
+
+    @Test
+    public void testRequestParamBinding() {
+
+
+        params = new MultiMapImpl<>();
+        params.put("idOfEmployee", ""+10);
+
+        String addressToMethodCall = "/root/employeeRest/addEmployeeWithParams";
+
+        /* Create employee service */
+        serviceBundle.addService(employeeService);
+
+
+        call = factory.createMethodCallByAddress(addressToMethodCall,
+                returnAddress, rick, params );
+
+
+
+        doCall();
+
+
+        response = responseReceiveQueue.pollWait();
+
+        Exceptions.requireNonNull(response);
+
+
+        Boon.equalsOrDie(true, response.body());
+
+        /** Read employee back from service */
+
+
+        params = new MultiMapImpl<>();
+        params.put("idOfEmployee", ""+10);
+
+        addressToMethodCall = "/root/employeeRest/employeeRead";
+
+        call = factory.createMethodCallByAddress(addressToMethodCall,
+                returnAddress, "", params );
+        doCall();
+        response = responseReceiveQueue.pollWait();
+
+        validateRick();
+
+
+    }
     private void doCall() {
 
         if (!Str.isEmpty(call.body())) {
@@ -259,6 +307,12 @@ public class IntegrationTestForRESTStyleCallsTest {
                     "\nPROTOCOL END\n"
             );
             call = factory.createMethodCall(null, null, null, null, qbitStringBody, null);
+        }
+
+        if (params!=null) {
+            MethodCallImpl impl = (MethodCallImpl) call;
+            if (params != null)
+            impl.params(params);
         }
         serviceBundle.call(call);
         serviceBundle.flushSends();
@@ -273,7 +327,17 @@ public class IntegrationTestForRESTStyleCallsTest {
         int id;
         int level;
 
-
+        @Override
+        public String toString() {
+            return "Employee{" +
+                    "firstName='" + firstName + '\'' +
+                    ", lastName='" + lastName + '\'' +
+                    ", salary=" + salary +
+                    ", active=" + active +
+                    ", id=" + id +
+                    ", level=" + level +
+                    '}';
+        }
     }
 
     @RequestMapping("/employeeRest/")
@@ -312,6 +376,23 @@ public class IntegrationTestForRESTStyleCallsTest {
             return map.get(id);
         }
 
+
+        @RequestMapping("/employeeRead")
+        public Employee readEmployeeWithParamBindings(
+                @RequestParam(value="idOfEmployee") int id) {
+            return map.get(id);
+        }
+
+
+        @RequestMapping("/addEmployeeWithParams")
+        public boolean addEmployeeWithParams(
+                @RequestParam(required =true, value="idOfEmployee") int id, Employee employee) {
+
+            puts("addEmployeeWithParams CALLED", id, employee);
+            map.put(id, employee);
+            return true;
+
+        }
 
         @RequestMapping("/employee/remove/")
         public boolean removeEmployee(int id) {

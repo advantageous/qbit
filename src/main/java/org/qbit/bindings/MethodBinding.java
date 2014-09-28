@@ -19,9 +19,13 @@ public class MethodBinding {
 
     private final List<ArgParamBinding> parameters = new ArrayList<ArgParamBinding>();
 
+    private final List<RequestParamBinding> requestParamBindings = new ArrayList<>();
+    RequestParamBinding[] requestParamBindingsMap;
+
     public static MethodBinding method(String methodName, String uri) {
         return new MethodBinding(methodName, uri);
     }
+
 
     public MethodBinding(String methodName, String uri) {
         this.methodName = methodName;
@@ -88,5 +92,35 @@ public class MethodBinding {
                 ", address='" + address + '\'' +
                 ", parameters=" + parameters +
                 '}';
+    }
+
+
+
+    public void addRequestParamBinding(int length, int index, String pathVarName,
+                                       boolean required, String defaultValue) {
+
+        if (requestParamBindingsMap == null) {
+            requestParamBindingsMap = new RequestParamBinding[length];
+        }
+        RequestParamBinding paramBinding = new RequestParamBinding(pathVarName, index,
+                required, defaultValue);
+
+        requestParamBindings.add(paramBinding);
+
+        requestParamBindingsMap[index] = paramBinding;
+    }
+
+    public List<RequestParamBinding> requestParamBindings() {
+
+        return requestParamBindings;
+    }
+
+    public RequestParamBinding requestParamBinding(int index) {
+
+        return requestParamBindingsMap[index];
+    }
+
+    public boolean hasRequestParamBindings() {
+        return requestParamBindings.size() > 0;
     }
 }

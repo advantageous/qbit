@@ -1,12 +1,14 @@
 package org.qbit.service.impl;
 
 import org.boon.*;
+import org.boon.collections.MultiMap;
 import org.boon.core.Conversions;
 import org.boon.core.TypeType;
 import org.boon.core.reflection.*;
 import org.qbit.GlobalConstants;
 import org.qbit.bindings.ArgParamBinding;
 import org.qbit.bindings.MethodBinding;
+import org.qbit.bindings.RequestParamBinding;
 import org.qbit.message.MethodCall;
 import org.qbit.message.Response;
 import org.qbit.service.ServiceMethodHandler;
@@ -130,7 +132,8 @@ public class ServiceMethodCallHandlerImpl implements ServiceMethodHandler {
                     final List<AnnotationData> paramsAnnotationData = annotationDataForParams.get(index);
                     String name = "";
                     for (AnnotationData paramAnnotation : paramsAnnotationData) {
-                        if (paramAnnotation.getName().equals("name")) {
+                        if (paramAnnotation.getName().equalsIgnoreCase("name")
+                                || paramAnnotation.getName().equalsIgnoreCase("PathVariable")) {
                             name = (String) paramAnnotation.getValues().get("value");
                             if (!Str.isEmpty(name)) {
                                 break;
@@ -170,24 +173,29 @@ public class ServiceMethodCallHandlerImpl implements ServiceMethodHandler {
 
     }
 
-    private Response<Object> invokeByAddressWithSimpleBinding(MethodCall<Object> methodCall, Pair<MethodBinding, MethodAccess> binding) {
+    private Response<Object> invokeByAddressWithSimpleBinding(MethodCall<Object> methodCall, Pair<MethodBinding, MethodAccess> pair) {
 
-        MethodAccess methodAccess = binding.getSecond();
+        final MethodBinding binding = pair.getFirst();
 
-        if (methodAccess.returnType() == Void.class) {
+        final MethodAccess method = pair.getSecond();
 
-            methodAccess.invokeDynamicObject(service, methodCall.body());
-            return ServiceConstants.VOID;
-        } else {
+        Object body = methodCall.body();
 
-
-            Object body = methodCall.body();
-            if (Str.isEmpty(body) && methodAccess.parameterTypes().length > 0) {
+        if (binding.hasRequestParamBindings()) {
+            body = bodyFromRequestParams(method, methodCall, binding);
+        }
+        else if (Str.isEmpty(body) && method.parameterTypes().length > 0) {
                 body = methodCall.params();
-            }
+        }
 
+        if (method.returnType() == Void.class) {
+
+                method.invokeDynamicObject(service, methodCall.body());
+                return ServiceConstants.VOID;
+        } else {
             Object returnValue =
-                    methodAccess.invokeDynamicObject( service, body );
+                    method.invokeDynamicObject(service, body);
+
             Response<Object> response = ResponseImpl.response(
                     methodCall.id(),
                     methodCall.timestamp(),
@@ -198,6 +206,62 @@ public class ServiceMethodCallHandlerImpl implements ServiceMethodHandler {
             return response;
         }
 
+    }
+
+    private Object bodyFromRequestParams(MethodAccess method,
+                                         MethodCall<Object> methodCall,
+                                         MethodBinding binding) {
+        final MultiMap<String, String> params = methodCall.params();
+
+        final Class<?>[] parameterTypes = method.parameterTypes();
+
+        List<Object> body = new ArrayList<>(parameterTypes.length);
+
+        for (int index = 0; index < parameterTypes.length; index++) {
+            body.add(null);
+        }
+
+        boolean methodBodyUsed = false;
+
+        for (int index = 0; index < parameterTypes.length; index++) {
+
+            RequestParamBinding paramBinding = binding.requestParamBinding(index);
+            if (paramBinding == null) {
+                if (methodBodyUsed) {
+                    die("Method body was already used for methodCall\n",
+                    methodCall, "\nFor method binding\n", binding,
+                            "\nFor method\n", method);
+                }
+                methodBodyUsed = true;
+                if (methodCall.body() instanceof  List) {
+                    List bList = (List) methodCall.body();
+                    if (bList.size()==1) {
+                        body.set(index, bList.get(0));
+                    }
+                } else {
+                    body.set(index, methodCall.body());
+                }
+            } else {
+                if (paramBinding.isRequired()) {
+                    if (!params.containsKey(paramBinding.getName())) {
+                        die("Method call missing required parameter",
+                                "\nParam Name", paramBinding.getName(), "\nMethod Call",
+                                methodCall, "\nFor method binding\n", binding,
+                                "\nFor method\n", method);
+
+                    }
+                }
+                final String name = paramBinding.getName();
+                Object objectItem = params.getSingleObject(name);
+                objectItem = Conversions.coerce(parameterTypes[index], objectItem);
+
+                body.set(index, objectItem);
+            }
+
+        }
+
+
+        return body;
     }
 
     private Response<Object> invokeByName(MethodCall<Object> methodCall) {
@@ -302,13 +366,6 @@ public class ServiceMethodCallHandlerImpl implements ServiceMethodHandler {
         });
 
 
-//        if (!Str.isEmpty(address)) {
-//            for (String addr : addresses) {
-//                roots.add(StringScanner.substringAfter(addr, this.address));
-//            }
-//        } else {
-//            roots = Lists.list(addresses);
-//        }
 
 
     }
@@ -348,9 +405,33 @@ public class ServiceMethodCallHandlerImpl implements ServiceMethodHandler {
         if (methodAddress.startsWith("/")) {
             methodAddress = Str.slc(methodAddress, 1);
         }
+
+
         MethodBinding methodBinding =
                 new MethodBinding(methodAccess.name(),
                         Str.join('/', address, methodAddress));
+
+
+        final List<List<AnnotationData>> annotationDataForParams = methodAccess.annotationDataForParams();
+
+        int index = 0;
+        for (List<AnnotationData> annotationDataListForParam : annotationDataForParams) {
+            for (AnnotationData annotationData : annotationDataListForParam) {
+                if (annotationData.getName().equalsIgnoreCase("RequestParam")) {
+                    String name = (String) annotationData.getValues().get("value");
+
+                    boolean required = (Boolean) annotationData.getValues().get("required");
+
+                    String defaultValue = (String) annotationData.getValues().get("defaultValue");
+                    methodBinding.addRequestParamBinding(methodAccess.parameterTypes().length, index, name, required, defaultValue);
+                } else if (annotationData.getName().equalsIgnoreCase("Name")) {
+                    String name = (String) annotationData.getValues().get("value");
+                    methodBinding.addRequestParamBinding(methodAccess.parameterTypes().length, index, name, false, null);
+
+                }
+            }
+            index++;
+        }
 
         this.methodMap.put(methodBinding.address(),
                 new Pair<>(methodBinding, methodAccess));
