@@ -7,6 +7,8 @@ package org.qbit.message;
  */
 public interface Response <T> extends Message<T> {
 
+    boolean wasErrors();
+
     void body(T body);
 
     String returnAddress();

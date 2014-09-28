@@ -22,6 +22,7 @@ public class MethodCallImpl implements MethodCall<Object> {
     private String name="";
     private String address="";
     private MultiMap<String, String> params = CollectionConstants.emptyMultiMap();
+    private MultiMap<String, String> headers = CollectionConstants.emptyMultiMap();
     private Object body=Collections.emptyList();
 
     @JsonIgnore
@@ -47,7 +48,7 @@ public class MethodCallImpl implements MethodCall<Object> {
 
 
     public static MethodCallImpl method(long id, String address, String returnAddress, String objectName, String methodName,
-                                        Object args, MultiMap<String, String> params) {
+                                        long timestamp, Object args, MultiMap<String, String> params) {
         MethodCallImpl method = new MethodCallImpl();
         method.id = id;
         method.returnAddress = returnAddress;
@@ -57,7 +58,11 @@ public class MethodCallImpl implements MethodCall<Object> {
         method.params = params;
         method.body = args;
         method.id = idSequence++;
-        method.timestamp = timer.time();
+        if (timestamp == 0L) {
+            method.timestamp = timer.time();
+        }else {
+            method.timestamp = timestamp;
+        }
         return method;
     }
 
@@ -161,6 +166,11 @@ public class MethodCallImpl implements MethodCall<Object> {
     public MultiMap<String, String> params() {
 
         return this.params;
+    }
+
+    @Override
+    public MultiMap<String, String> headers() {
+        return this.headers;
     }
 
 
@@ -288,5 +298,10 @@ public class MethodCallImpl implements MethodCall<Object> {
 
     public void params(MultiMap<String, String> params) {
         this.params = params;
+    }
+
+
+    public void headers(MultiMap<String, String> headers) {
+        this.headers = headers;
     }
 }

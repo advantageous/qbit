@@ -17,6 +17,7 @@ public class ResponseImpl<T> implements Response<T> {
     private final long id;
     private final long timestamp;
     private  Object transformedBody;
+    private boolean errors;
 
 
     public static Response<Object> response(long id, long timestamp, String address, String returnAddress, Object body) {
@@ -52,6 +53,11 @@ public class ResponseImpl<T> implements Response<T> {
     @Override
     public boolean isSingleton() {
         return true;
+    }
+
+    @Override
+    public boolean wasErrors() {
+        return errors;
     }
 
     public void body(T newBody){

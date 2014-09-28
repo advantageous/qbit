@@ -1,11 +1,16 @@
 package org.qbit.spi;
 
 import org.boon.Boon;
+import org.boon.Lists;
 import org.boon.Str;
+import org.boon.collections.MultiMap;
+import org.boon.collections.MultiMaps;
 import org.junit.Before;
 import org.junit.Test;
 import org.qbit.message.MethodCall;
 import org.qbit.service.method.impl.MethodCallImpl;
+
+import java.util.List;
 
 import static org.boon.Boon.puts;
 import static org.boon.Exceptions.die;
@@ -21,19 +26,115 @@ public class ProtocolParserVersion1Test {
 
     @Before
     public void setup() {
-        methodCall = MethodCallImpl.method(99L, "addr_", "return_", "oname_", "mname_", "args_", null);
+        methodCall = MethodCallImpl.method(99L, "addr_", "return_", "oname_", "mname_", 0L, "args_", null);
     }
 
     @Test
     public void test() {
         ProtocolParserVersion1 parserVersion1 = new ProtocolParserVersion1();
-        final MethodCall<Object> methodCall = parserVersion1.parse("");
+        final MethodCall<Object> methodCall = parserVersion1.parseMethodCall("");
 
 
         ok = methodCall == null || die();
 
     }
 
+
+    @Test
+    public void testEncodeDecodeManyMethods() {
+
+        ProtocolEncoderVersion1 encoder = new ProtocolEncoderVersion1();
+
+        ProtocolParser parser = new ProtocolParserVersion1();
+        MultiMap<String, String> multiMap = MultiMaps.multiMap();
+        multiMap.add("fruit", "apple");
+        multiMap.add("fruit", "pair");
+        multiMap.add("fruit", "watermelon");
+
+        multiMap.put("veggies", "yuck");
+
+
+        MethodCallImpl method = (MethodCallImpl) MethodCallImpl.method("foo1", "bar1", "somebody1");
+        method.params(multiMap);
+        method.headers(multiMap);
+
+        MethodCallImpl method2 = (MethodCallImpl) MethodCallImpl.method("foo2", "bar3", "somebody3");
+        method2.params(multiMap);
+
+        MethodCallImpl method3 = (MethodCallImpl) MethodCallImpl.method("foo3", "bar3", "somebody3");
+        method3.params(multiMap);
+
+        final List<MethodCall<Object>> list = Lists.list((MethodCall<Object>)method, method2, method3);
+
+
+
+
+        final String s = encoder.encodeAsString(list);
+
+        puts(s);
+
+        final List<MethodCall<Object>> methodCalls = parser.parse(s);
+        puts(methodCalls);
+        Boon.equalsOrDie(method3.address(), methodCalls.get(2).address());
+
+        Boon.equalsOrDie(method3.name(), methodCalls.get(2).name());
+
+
+        final MultiMap<String, String> params = methodCalls.get(1).params();
+
+        final List<String> fruit = (List<String>) params.getAll("fruit");
+
+        Boon.equalsOrDie(Lists.list("apple", "pair", "watermelon"), fruit);
+
+
+        Boon.equalsOrDie("yuck", params.get("veggies"));
+
+
+        final MultiMap<String, String> headers = methodCalls.get(0).headers();
+
+
+        final List<String> hfruit = (List<String>) headers.getAll("fruit");
+
+        Boon.equalsOrDie(Lists.list("apple", "pair", "watermelon"), hfruit);
+
+
+        Boon.equalsOrDie("yuck", headers.get("veggies"));
+
+    }
+
+    @Test
+    public void testEncodeDecodeMap() {
+        MultiMap<String, String> multiMap = MultiMaps.multiMap();
+        multiMap.add("fruit", "apple");
+        multiMap.add("fruit", "pair");
+        multiMap.add("fruit", "watermelon");
+
+        multiMap.put("veggies", "yuck");
+
+        final MethodCallImpl method = (MethodCallImpl) MethodCallImpl.method("foo", "bar", "");
+
+        method.params(multiMap);
+
+        ProtocolEncoderVersion1 encoder = new ProtocolEncoderVersion1();
+
+        final String s = encoder.encodeAsString(method);
+
+        puts(s);
+
+        ProtocolParser parser = new ProtocolParserVersion1();
+
+        final MethodCall<Object> parse = parser.parseMethodCall(s);
+
+        final List<String> fruit = (List<String>) parse.params().getAll("fruit");
+
+        Boon.equalsOrDie(Lists.list("apple", "pair", "watermelon"), fruit);
+
+
+        Boon.equalsOrDie("yuck", parse.params().get("veggies"));
+
+
+
+    }
 
 
     @Test
@@ -44,7 +145,7 @@ public class ProtocolParserVersion1Test {
         puts(s);
 
         ProtocolParserVersion1 parserVersion1 = new ProtocolParserVersion1();
-        final MethodCall<Object> methodCallParsed = parserVersion1.parse(
+        final MethodCall<Object> methodCallParsed = parserVersion1.parseMethodCall(
                 s);
 
 

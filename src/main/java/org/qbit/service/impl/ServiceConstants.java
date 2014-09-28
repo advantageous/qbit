@@ -10,6 +10,11 @@ public class ServiceConstants {
 
     public static final Response<Object> VOID = new Response<Object>() {
         @Override
+        public boolean wasErrors() {
+            return false;
+        }
+
+        @Override
         public void body(Object body) {
 
         }

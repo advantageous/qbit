@@ -2,7 +2,6 @@ package org.qbit.spi;
 
 import org.boon.Boon;
 import org.boon.Logger;
-import org.boon.Str;
 import org.boon.collections.MultiMap;
 import org.boon.core.reflection.ClassMeta;
 import org.qbit.Factory;
@@ -48,15 +47,15 @@ public class FactoryImpl implements Factory{
 
         MethodCall<Object> mc = null;
         MethodCallImpl methodCall =
-                MethodCallImpl.method(0L, address, returnAddress, objectName, methodName, body, params);
+                MethodCallImpl.method(0L, address, returnAddress, objectName, methodName, 0L, body, params);
 
         if (body != null) {
             ProtocolParser parser = selectProtocolParser(body, params);
 
             if (parser != null) {
-                mc = parser.parse(body);
+                mc = parser.parseMethodCall(body);
             } else {
-                mc = defaultProtocol.parse(body);
+                mc = defaultProtocol.parseMethodCall(body);
             }
         }
 
