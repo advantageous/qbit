@@ -93,7 +93,8 @@ public class ServiceImpl implements Service {
         Response<Object> response = serviceMethodHandler.receiveMethodCall(methodCall);
 
         if (GlobalConstants.DEBUG) {
-            logger.info("ServiceImpl::receive() RESPONSE", response, "FROM CALL", methodCall);
+            logger.info("ServiceImpl::receive() RESPONSE\n",
+                    response, "\nFROM CALL\n", methodCall);
         }
 
 

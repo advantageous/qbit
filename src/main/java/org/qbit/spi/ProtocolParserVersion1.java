@@ -29,7 +29,7 @@ public class ProtocolParserVersion1 implements ProtocolParser {
 
             String sargs = (String) args;
 
-            if ( sargs.charAt(0) == PROTOCOL_MARKER && sargs.charAt(1) == PROTOCOL_VERSION_1) {
+            if ( sargs.length() > 2 && sargs.charAt(0) == PROTOCOL_MARKER && sargs.charAt(1) == PROTOCOL_VERSION_1) {
                 return true;
 
             }

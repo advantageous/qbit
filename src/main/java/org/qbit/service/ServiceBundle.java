@@ -16,6 +16,9 @@ public interface ServiceBundle {
 
     void addService(String address, Object object);
 
+
+    void addService(Object object);
+
     ReceiveQueue<Response<Object>> responses();
 
     void call(MethodCall<Object> methodCall);

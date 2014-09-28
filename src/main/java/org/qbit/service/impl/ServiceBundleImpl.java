@@ -1,9 +1,6 @@
 package org.qbit.service.impl;
 
-import org.boon.Boon;
-import org.boon.Lists;
-import org.boon.Logger;
-import org.boon.Str;
+import org.boon.*;
 import org.boon.collections.ConcurrentHashSet;
 import org.boon.concurrent.Timer;
 import org.qbit.Factory;
@@ -27,6 +24,8 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 
+import static org.boon.Boon.putl;
+import static org.boon.Boon.sputl;
 import static org.boon.Exceptions.die;
 
 public class ServiceBundleImpl implements ServiceBundle {
@@ -126,6 +125,12 @@ public class ServiceBundleImpl implements ServiceBundle {
         return address;
     }
 
+
+    @Override
+    public void addService(Object object) {
+        addService(null, object);
+    }
+
     @Override
     public void addService(String serviceAddress, Object object) {
 
@@ -140,7 +145,10 @@ public class ServiceBundleImpl implements ServiceBundle {
         services.add(service);
 
         final SendQueue<MethodCall<Object>> requests = service.requests();
-        serviceMapping.put(serviceAddress, requests);
+
+        if (!Str.isEmpty(serviceAddress)) {
+            serviceMapping.put(serviceAddress, requests);
+        }
         serviceMapping.put(service.name(), requests);
 
         sendQueues.add(requests);
@@ -205,21 +213,41 @@ public class ServiceBundleImpl implements ServiceBundle {
 
         SendQueue<MethodCall<Object>> sendQueue = null;
 
-        if (  !Str.isEmpty(methodCall.objectName())  ) {
+        if (  !Str.isEmpty(methodCall.address())  ) {
+            sendQueue = handleByAddressCall(methodCall);
+        } else if (  !Str.isEmpty(methodCall.objectName())  ) {
             sendQueue = serviceMapping.get(methodCall.objectName());
-        }
-        else if (  !Str.isEmpty(methodCall.address())  ) {
-            sendQueue = serviceMapping.get(methodCall.address());
         }
 
         if (GlobalConstants.DEBUG && sendQueue==null) {
+
+            putl(serviceMapping.keySet());
             die("SEND QUEUE IS NULL FOR METHOD", methodCall,
-                    "\n", serviceMapping.keySet());
+                    "\n",  serviceMapping.keySet());
+
             return;
+
         }
 
         sendQueue.send(methodCall);
 
+    }
+
+    private SendQueue<MethodCall<Object>> handleByAddressCall(MethodCall<Object> methodCall) {
+        SendQueue<MethodCall<Object>> sendQueue;
+        final String callAddress = methodCall.address();
+
+        sendQueue = serviceMapping.get(callAddress);
+        if (sendQueue==null) {
+
+            if (callAddress.indexOf('{') !=-1) {
+                final String[] split = StringScanner.split(callAddress, '{');
+                sendQueue = serviceMapping.get(split[0]);
+
+            }
+
+        }
+        return sendQueue;
     }
 
     private MethodCall<Object> beforeMethodCall(MethodCall<Object> methodCall, boolean[] continueCall) {

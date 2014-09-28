@@ -4,6 +4,7 @@ import org.boon.*;
 import org.boon.core.Conversions;
 import org.boon.core.TypeType;
 import org.boon.core.reflection.*;
+import org.qbit.GlobalConstants;
 import org.qbit.bindings.ArgParamBinding;
 import org.qbit.bindings.MethodBinding;
 import org.qbit.message.MethodCall;
@@ -40,6 +41,13 @@ public class ServiceMethodCallHandlerImpl implements ServiceMethodHandler {
 
     @Override
     public Response<Object> receiveMethodCall(MethodCall<Object> methodCall) {
+
+        if (GlobalConstants.DEBUG) {
+            logger.info(Boon.className(this), "::receiveMethodCall",
+                    methodCall.name(),
+                    methodCall.address(),
+                    "\n", methodCall);
+        }
 
 
         if (!Str.isEmpty(methodCall.name())) {
@@ -98,17 +106,20 @@ public class ServiceMethodCallHandlerImpl implements ServiceMethodHandler {
         final List<List<AnnotationData>> annotationDataForParams = methodAccess.annotationDataForParams();
 
         for (ArgParamBinding param : parameters) {
-            final int paramPosition = param.getMethodParamPosition();
+            final int uriPosition = param.getUriPosition();
+            final int methodParamPosition = param.getMethodParamPosition();
             final String paramName = param.getMethodParamName();
-            if (paramPosition!=-1) {
+            if (uriPosition!=-1) {
 
-                if (paramPosition > parameterTypes.length) {
+                if (uriPosition > split.length) {
                     die("Parameter position is more than param length of method", methodAccess);
                 } else {
-                    Object arg = Conversions.coerce(paramEnumTypes.get(paramPosition),
-                            parameterTypes[paramPosition],
-                            split[paramPosition]);
-                    args.set(paramPosition, arg);
+                    String paramAtPos = split[uriPosition];
+                    paramAtPos = Str.slc(paramAtPos, 1, -1);
+                    Object arg = Conversions.coerce(paramEnumTypes.get(methodParamPosition),
+                            parameterTypes[methodParamPosition], paramAtPos
+                            );
+                    args.set(methodParamPosition, arg);
                 }
             } else {
                 if (Str.isEmpty(paramName)) {
@@ -168,6 +179,9 @@ public class ServiceMethodCallHandlerImpl implements ServiceMethodHandler {
             methodAccess.invokeDynamicObject(service, methodCall.body());
             return ServiceConstants.VOID;
         } else {
+
+            //TODO here you want to check to see if the body is empty
+            //if it is empty use params to create the object.
             Object returnValue =
                     methodAccess.invokeDynamicObject(service, methodCall.body());
             Response<Object> response = ResponseImpl.response(
