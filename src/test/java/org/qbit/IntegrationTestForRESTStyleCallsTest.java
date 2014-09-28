@@ -23,6 +23,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import static org.boon.Boon.puts;
+import static org.boon.Exceptions.die;
 
 /**
  * Created by Richard on 9/27/14.
@@ -38,6 +39,7 @@ public class IntegrationTestForRESTStyleCallsTest {
     MultiMap<String, String> params = null;
     MethodCall<Object> call = null;
 
+    boolean ok = true;
 
     ReceiveQueue<Response<Object>> responseReceiveQueue = null;
 
@@ -297,6 +299,36 @@ public class IntegrationTestForRESTStyleCallsTest {
 
 
     }
+
+
+
+    @Test
+    public void testException() {
+
+
+
+        String addressToMethodCall = "/root/employeeRest/employee/error/";
+
+        /* Create employee service */
+        serviceBundle.addService(employeeService);
+
+
+        call = factory.createMethodCallByAddress(addressToMethodCall,
+                returnAddress, "", params);
+
+
+        doCall();
+
+
+        response = responseReceiveQueue.pollWait();
+
+        Exceptions.requireNonNull(response);
+
+        ok = response.wasErrors() || die();
+
+        puts (response.body());
+
+    }
     private void doCall() {
 
         if (!Str.isEmpty(call.body())) {
@@ -399,6 +431,15 @@ public class IntegrationTestForRESTStyleCallsTest {
             map.remove(id);
             return true;
         }
+
+
+        @RequestMapping("/employee/error/")
+        public boolean throwAnExceptionNoMatterWhat() {
+            die("YOU ARE NOT THE BOSS OF ME JAVA!");
+            return true;
+        }
+
+
     }
 
     private void validateRick() {

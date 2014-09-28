@@ -14,6 +14,7 @@ import org.qbit.message.Response;
 import org.qbit.service.ServiceMethodHandler;
 import org.qbit.service.method.impl.ResponseImpl;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 
 import static org.boon.Exceptions.die;
@@ -51,11 +52,20 @@ public class ServiceMethodCallHandlerImpl implements ServiceMethodHandler {
                     "\n", methodCall);
         }
 
+        try {
 
-        if (!Str.isEmpty(methodCall.name())) {
-            return invokeByName(methodCall);
-        } else {
-            return invokeByAddress(methodCall);
+            if (!Str.isEmpty(methodCall.name())) {
+                return invokeByName(methodCall);
+            } else {
+                return invokeByAddress(methodCall);
+            }
+        } catch (Exception ex) {
+
+            if (ex.getCause() instanceof InvocationTargetException) {
+                InvocationTargetException tex = (InvocationTargetException) ex.getCause();
+                return new ResponseImpl<>(methodCall, tex.getTargetException());
+            }
+            return new ResponseImpl<>(methodCall, ex);
         }
     }
 
@@ -193,9 +203,19 @@ public class ServiceMethodCallHandlerImpl implements ServiceMethodHandler {
                 method.invokeDynamicObject(service, methodCall.body());
                 return ServiceConstants.VOID;
         } else {
-            Object returnValue =
-                    method.invokeDynamicObject(service, body);
 
+            Object returnValue;
+
+            if (body== null && Str.isEmpty(body) && method.parameterTypes().length==0) {
+
+
+                    returnValue =  method.invokeDynamicObject(service, null);
+
+
+            } else {
+                returnValue =
+                        method.invokeDynamicObject(service, body);
+            }
             Response<Object> response = ResponseImpl.response(
                     methodCall.id(),
                     methodCall.timestamp(),

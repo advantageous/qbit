@@ -1,5 +1,8 @@
 package org.qbit.service.method.impl;
 
+import org.boon.Exceptions;
+import org.boon.collections.LazyMap;
+import org.qbit.message.MethodCall;
 import org.qbit.message.Response;
 
 import java.util.Map;
@@ -22,6 +25,30 @@ public class ResponseImpl<T> implements Response<T> {
 
     public static Response<Object> response(long id, long timestamp, String address, String returnAddress, Object body) {
         return new ResponseImpl(id, timestamp, address, returnAddress, null, body);
+    }
+
+
+    public ResponseImpl(MethodCall<Object> methodCall,
+            Throwable ex) {
+
+        this.returnAddress = methodCall.returnAddress();
+        this.timestamp = methodCall.timestamp();
+        this.id = methodCall.id();
+
+        final LazyMap body = new LazyMap(10);
+        this.body = body;
+        this.address = methodCall.address();
+        body.put("Error", ex.getMessage());
+        body.put("Cause", "" + ex.getCause());
+        body.put("Message", "Problem while calling method " + methodCall.name());
+
+        if (ex instanceof  Exception) {
+            body.put("Details",
+               Exceptions.asMap((Exception) ex));
+        }
+        this.errors = true;
+        this.params=null;
+
     }
 
     public ResponseImpl(long id, long timestamp, String address, String returnAddress, Map<String, Object> params, Object body) {
