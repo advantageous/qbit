@@ -115,7 +115,7 @@ public class ServiceMethodCallHandlerImpl implements ServiceMethodHandler {
                     die("Parameter position is more than param length of method", methodAccess);
                 } else {
                     String paramAtPos = split[uriPosition];
-                    paramAtPos = Str.slc(paramAtPos, 1, -1);
+                    //paramAtPos = Str.slc(paramAtPos, 1, -1);
                     Object arg = Conversions.coerce(paramEnumTypes.get(methodParamPosition),
                             parameterTypes[methodParamPosition], paramAtPos
                             );
@@ -180,10 +180,14 @@ public class ServiceMethodCallHandlerImpl implements ServiceMethodHandler {
             return ServiceConstants.VOID;
         } else {
 
-            //TODO here you want to check to see if the body is empty
-            //if it is empty use params to create the object.
+
+            Object body = methodCall.body();
+            if (Str.isEmpty(body) && methodAccess.parameterTypes().length > 0) {
+                body = methodCall.params();
+            }
+
             Object returnValue =
-                    methodAccess.invokeDynamicObject(service, methodCall.body());
+                    methodAccess.invokeDynamicObject( service, body );
             Response<Object> response = ResponseImpl.response(
                     methodCall.id(),
                     methodCall.timestamp(),

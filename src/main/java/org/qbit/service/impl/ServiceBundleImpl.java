@@ -18,14 +18,12 @@ import org.qbit.service.ServiceBundle;
 import org.qbit.service.method.impl.MethodCallImpl;
 import org.qbit.transforms.NoOpRequestTransform;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 
 import static org.boon.Boon.putl;
-import static org.boon.Boon.sputl;
+import static org.boon.Boon.puts;
 import static org.boon.Exceptions.die;
 
 public class ServiceBundleImpl implements ServiceBundle {
@@ -60,6 +58,23 @@ public class ServiceBundleImpl implements ServiceBundle {
 
     private NoOpRequestTransform argTransformer = ServiceConstants.NO_OP_ARG_TRANSFORM;
 
+    private TreeSet<String> addressesByDescending = new TreeSet<>(
+            new Comparator<String>() {
+                @Override
+                public int compare(String o1, String o2) {
+                    return o2.compareTo(o1);
+                }
+            }
+    );
+
+    private TreeSet<String> seenAddressesDescending = new TreeSet<>(
+            new Comparator<String>() {
+                @Override
+                public int compare(String o1, String o2) {
+                    return o2.compareTo(o1);
+                }
+            }
+    );
 
 
     public ServiceBundleImpl(String address, int batchSize, int pollRate, Factory factory) {
@@ -77,48 +92,10 @@ public class ServiceBundleImpl implements ServiceBundle {
 
         methodSendQueue = methodQueue.sendQueue();
 
-        methodQueue.startListener(new ReceiveQueueListener<MethodCall<Object>>() {
-
-            long time;
-
-            long lastTimeAutoFlush;
-
-            @Override
-            public void receive(MethodCall<Object> item) {
-                doCall(item);
-            }
-
-            @Override
-            public void empty() {
-
-                time = Timer.timer().now();
-
-                if (time > (lastTimeAutoFlush + 50)) {
-
-                    for (SendQueue<MethodCall<Object>> sendQueue : sendQueues) {
-                        sendQueue.flushSends();
-                    }
-                    lastTimeAutoFlush = time;
-                }
-            }
-
-            @Override
-            public void limit() {
-
-            }
-
-            @Override
-            public void shutdown() {
-
-            }
-
-            @Override
-            public void idle() {
-
-            }
-        });
+        start();
 
     }
+
 
     @Override
     public String address() {
@@ -165,6 +142,7 @@ public class ServiceBundleImpl implements ServiceBundle {
         for (String addr : addresses) {
 
 
+            addressesByDescending.add(addr);
             SendQueue<MethodCall<Object>> methodCallSendQueue =
                     serviceMapping.get(service.name());
 
@@ -237,13 +215,33 @@ public class ServiceBundleImpl implements ServiceBundle {
         SendQueue<MethodCall<Object>> sendQueue;
         final String callAddress = methodCall.address();
 
+
+
         sendQueue = serviceMapping.get(callAddress);
+
         if (sendQueue==null) {
 
-            if (callAddress.indexOf('{') !=-1) {
-                final String[] split = StringScanner.split(callAddress, '{');
-                sendQueue = serviceMapping.get(split[0]);
+            String addr;
 
+
+            /* Check the ones we are using to reduce search time. */
+            addr = seenAddressesDescending.higher(callAddress);
+            if (addr !=null && callAddress.startsWith(addr)) {
+                sendQueue = serviceMapping.get(addr);
+                return sendQueue;
+            }
+
+
+            /* if it was not in one of the ones we are using check the rest. */
+            addr = addressesByDescending.higher(callAddress);
+
+
+            if (addr!=null && callAddress.startsWith(addr)) {
+                sendQueue = serviceMapping.get(addr);
+
+                if (sendQueue!=null) {
+                    seenAddressesDescending.add(addr);
+                }
             }
 
         }
@@ -307,5 +305,49 @@ public class ServiceBundleImpl implements ServiceBundle {
     @Override
     public List<String> endPoints() {
         return Lists.list(serviceMapping.keySet());
+    }
+
+
+    private void start() {
+        methodQueue.startListener(new ReceiveQueueListener<MethodCall<Object>>() {
+
+            long time;
+
+            long lastTimeAutoFlush;
+
+            @Override
+            public void receive(MethodCall<Object> item) {
+                doCall(item);
+            }
+
+            @Override
+            public void empty() {
+
+                time = Timer.timer().now();
+
+                if (time > (lastTimeAutoFlush + 50)) {
+
+                    for (SendQueue<MethodCall<Object>> sendQueue : sendQueues) {
+                        sendQueue.flushSends();
+                    }
+                    lastTimeAutoFlush = time;
+                }
+            }
+
+            @Override
+            public void limit() {
+
+            }
+
+            @Override
+            public void shutdown() {
+
+            }
+
+            @Override
+            public void idle() {
+
+            }
+        });
     }
 }

@@ -16,7 +16,6 @@ import org.qbit.service.impl.ServiceBundleImpl;
 import org.qbit.spi.ProtocolEncoder;
 import org.qbit.spi.ProtocolEncoderVersion1;
 
-import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -148,7 +147,7 @@ public class IntegrationTestForRESTStyleCallsTest {
 
         /** Read employee back from service */
 
-        addressToMethodCall = "/root/employeeRest/employee/{10}";
+        addressToMethodCall = "/root/employeeRest/employee/10";
 
         call = factory.createMethodCallByAddress(addressToMethodCall,
                 returnAddress, "", params );
@@ -163,14 +162,23 @@ public class IntegrationTestForRESTStyleCallsTest {
 
         params = new MultiMapImpl<>();
 
-        final Map<String, String> map = Maps.map("level", ""+rick.level, "active", ""+rick.active);
+        params.put("level", ""+1000);
 
-        params.putAll(map);
+        params.put("active", ""+rick.active);
+
+        puts ("LEVEL", params.get("level"));
+
 
         call = factory.createMethodCallByAddress(addressToMethodCall,
                 returnAddress, "", params );
         doCall();
         response = responseReceiveQueue.pollWait();
+
+        puts("BODY", response.body());
+
+        Employee employee1 = (Employee) response.body();
+        Boon.equalsOrDie(1000, employee1.level);
+        Boon.equalsOrDie(rick.active, employee1.active);
 
 
 
@@ -179,7 +187,7 @@ public class IntegrationTestForRESTStyleCallsTest {
 
 
         /** Promote employee from Service */
-        addressToMethodCall = "/root/employeeRest/employee/promote/{100}/{10}";
+        addressToMethodCall = "/root/employeeRest/employee/promote/100/10";
 
         call = factory.createMethodCallByAddress(addressToMethodCall,
                 returnAddress, Lists.list(rick), params );
@@ -196,7 +204,7 @@ public class IntegrationTestForRESTStyleCallsTest {
         /** Read employee back from service */
 
 
-        addressToMethodCall = "/root/employeeRest/employee/{10}";
+        addressToMethodCall = "/root/employeeRest/employee/10";
 
         call = factory.createMethodCallByAddress(addressToMethodCall,
                 returnAddress, "", params );
@@ -224,7 +232,7 @@ public class IntegrationTestForRESTStyleCallsTest {
 
         /** Read employee from Service */
 
-        addressToMethodCall = "/root/employeeRest/employee/{10}";
+        addressToMethodCall = "/root/employeeRest/employee/10";
 
         call = factory.createMethodCallByAddress(addressToMethodCall,
                 returnAddress, "", params );
