@@ -12,7 +12,7 @@
     <!-- boon.io, json.io was taken. -->
     <groupId>io.fastjson</groupId>
     <artifactId>qbit</artifactId>
-    <version>0.2-SNAPSHOT</version>
+    <version>0.2</version>
     <name>qbit</name>
 
     <description>Queuing and service library for boon</description>
