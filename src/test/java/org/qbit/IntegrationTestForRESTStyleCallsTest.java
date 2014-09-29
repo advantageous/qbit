@@ -333,7 +333,7 @@ public class IntegrationTestForRESTStyleCallsTest {
 
     }
 
-    //@Test
+    @Test
     public void testAsync() {
 
 
@@ -358,6 +358,40 @@ public class IntegrationTestForRESTStyleCallsTest {
         ok = !response.wasErrors() || die();
 
         puts (response.body());
+
+        Boon.equalsOrDie("hi mom", response.body());
+
+    }
+
+
+    @Test
+    public void testAsync2() {
+
+
+
+        String addressToMethodCall = "/root/employeeRest/asyncHelloWorld/";
+
+        /* Create employee service */
+        serviceBundle.addService(employeeService);
+
+
+        call = factory.createMethodCallByAddress(addressToMethodCall,
+                returnAddress, "World", params);
+
+
+        doCall();
+
+
+        response = responseReceiveQueue.pollWait();
+
+        Exceptions.requireNonNull(response);
+
+        ok = !response.wasErrors() || die();
+
+        puts (response.body());
+
+
+        Boon.equalsOrDie("Hello World", response.body());
 
     }
 
@@ -474,6 +508,11 @@ public class IntegrationTestForRESTStyleCallsTest {
         @RequestMapping("/async/")
         public void async(Handler<String> handler) {
             handler.handle("hi mom");
+        }
+
+        @RequestMapping("/asyncHelloWorld/")
+        public void asyncHelloWorld(Handler<String> handler, String arg) {
+            handler.handle("Hello " + arg);
         }
 
     }

@@ -169,30 +169,79 @@ public class ServiceMethodCallHandlerImpl implements ServiceMethodHandler {
 
         final MethodAccess method = pair.getSecond();
 
-        Object body = methodCall.body();
 
         if (binding.hasRequestParamBindings()) {
-            body = bodyFromRequestParams(method, methodCall, binding);
-        } else if (Str.isEmpty(body) && method.parameterTypes().length > 0) {
-            body = methodCall.params();
+
+            Object body = bodyFromRequestParams(method, methodCall, binding);
+            Object returnValue = method.invokeDynamicObject(service, body);
+            return response(method, methodCall, returnValue);
+        }
+
+        return mapArgsAsyncHandlersAndInvoke(methodCall, method);
+
+
+    }
+
+    private Response<Object> mapArgsAsyncHandlersAndInvoke(MethodCall<Object> methodCall, MethodAccess method) {
+        if (method.parameterTypes().length == 0) {
+
+            Object returnValue = method.invokeDynamicObject(service, null);
+            return response(method, methodCall, returnValue);
+
+        }
+
+        if (method.parameterTypes().length ==1) {
+
+
+            Object body = methodCall.body();
+
+            if (body==null || (body instanceof String && Str.isEmpty(body)) ) {
+                if (method.parameterTypes()[0] != Handler.class) {
+                    body = methodCall.params();
+                    Object returnValue = method.invokeDynamicObject(service, body);
+                    return response(method, methodCall, returnValue);
+                }
+            }
+
         }
 
         Object returnValue;
 
-        if (body == null && Str.isEmpty(body) && method.parameterTypes().length == 0) {
+
+        Object body = methodCall.body();
+        List<Object> argsList = prepareArgumentList(methodCall,
+                method.parameterTypes());
+
+        if (body instanceof List) {
 
 
-            returnValue = method.invokeDynamicObject(service, null);
+            List<Object> list = (List) body;
 
+            final Iterator<Object> iterator = list.iterator();
 
+            for (int index = 0; index < argsList.size(); index++) {
+
+                final Object o = argsList.get(index);
+                if (o instanceof Handler) {
+                    continue;
+                }
+
+                if (!iterator.hasNext()) {
+                    break;
+                }
+
+                argsList.set(index, iterator.next());
+            }
         } else {
-            returnValue =
-                    method.invokeDynamicObject(service, body);
+            if (argsList.size() == 1 && !(argsList.get(0) instanceof Handler)) {
+                argsList.set(0, body);
+            }
         }
 
+        returnValue =
+                    method.invokeDynamicObject(service, argsList);
+
         return response(method, methodCall, returnValue);
-
-
     }
 
     private Response<Object> response(MethodAccess methodAccess,
@@ -268,6 +317,7 @@ public class ServiceMethodCallHandlerImpl implements ServiceMethodHandler {
             if (parameterTypes[index] == Handler.class) {
 
                 argsList.add(createCallBackHandler(methodCall));
+                continue;
             }
             argsList.add(null);
         }
@@ -287,9 +337,11 @@ public class ServiceMethodCallHandlerImpl implements ServiceMethodHandler {
     }
 
     private Response<Object> invokeByName(MethodCall<Object> methodCall) {
-        final MethodAccess m = classMeta.method(methodCall.name());
-        Object returnValue =  m.invokeDynamicObject(service, methodCall.body());
-        return response(m, methodCall, returnValue);
+
+        final MethodAccess method = classMeta.method(methodCall.name());
+
+        return mapArgsAsyncHandlersAndInvoke(methodCall, method);
+        
 
     }
 
