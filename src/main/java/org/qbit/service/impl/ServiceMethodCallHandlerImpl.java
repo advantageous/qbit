@@ -20,20 +20,18 @@ import java.util.*;
 import static org.boon.Exceptions.die;
 
 /**
-* Created by Richard on 9/8/14.
-*/
+ * Created by Richard on 9/8/14.
+ */
 public class ServiceMethodCallHandlerImpl implements ServiceMethodHandler {
-    private  ClassMeta<Class<?>> classMeta;
-    private  Object service;
-    private  MethodAccess queueEmpty;
-    private  MethodAccess queueLimit;
-    private  MethodAccess queueShutdown;
-    private  MethodAccess queueIdle;
+    private ClassMeta<Class<?>> classMeta;
+    private Object service;
+    private MethodAccess queueEmpty;
+    private MethodAccess queueLimit;
+    private MethodAccess queueShutdown;
+    private MethodAccess queueIdle;
 
-    private  String address="";
+    private String address = "";
     private List<String> addresses = new ArrayList<>();
-
-    //private List<String> roots = new ArrayList<>();
 
     private Map<String, Pair<MethodBinding, MethodAccess>> methodMap
             = new LinkedHashMap<>();
@@ -73,9 +71,8 @@ public class ServiceMethodCallHandlerImpl implements ServiceMethodHandler {
         String address = methodCall.address();
 
 
-
         final Pair<MethodBinding, MethodAccess> binding = methodMap.get(address);
-        if (binding!=null) {
+        if (binding != null) {
             return invokeByAddressWithSimpleBinding(methodCall, binding);
         } else {
             return invokeByAddressWithComplexBinding(methodCall);
@@ -89,14 +86,12 @@ public class ServiceMethodCallHandlerImpl implements ServiceMethodHandler {
         final String[] split = StringScanner.split(mAddress, '/');
 
 
-
         for (String root : addresses) {
             if (mAddress.startsWith(root)) {
                 mAddress = root;
                 break;
             }
         }
-
 
 
         Pair<MethodBinding, MethodAccess> binding = methodMap.get(mAddress);
@@ -121,7 +116,7 @@ public class ServiceMethodCallHandlerImpl implements ServiceMethodHandler {
             final int uriPosition = param.getUriPosition();
             final int methodParamPosition = param.getMethodParamPosition();
             final String paramName = param.getMethodParamName();
-            if (uriPosition!=-1) {
+            if (uriPosition != -1) {
 
                 if (uriPosition > split.length) {
                     die("Parameter position is more than param length of method", methodAccess);
@@ -130,7 +125,7 @@ public class ServiceMethodCallHandlerImpl implements ServiceMethodHandler {
                     //paramAtPos = Str.slc(paramAtPos, 1, -1);
                     Object arg = Conversions.coerce(paramEnumTypes.get(methodParamPosition),
                             parameterTypes[methodParamPosition], paramAtPos
-                            );
+                    );
                     args.set(methodParamPosition, arg);
                 }
             } else {
@@ -138,7 +133,7 @@ public class ServiceMethodCallHandlerImpl implements ServiceMethodHandler {
                     die("Parameter name not supplied in URI path var");
                 }
 
-                for ( int index = 0; index < parameterTypes.length; index++ ) {
+                for (int index = 0; index < parameterTypes.length; index++) {
                     final List<AnnotationData> paramsAnnotationData = annotationDataForParams.get(index);
                     String name = "";
                     for (AnnotationData paramAnnotation : paramsAnnotationData) {
@@ -163,22 +158,9 @@ public class ServiceMethodCallHandlerImpl implements ServiceMethodHandler {
         }
 
 
-        if (methodAccess.returnType() == Void.class) {
-
-            methodAccess.invokeDynamicObject(service, args);
-            return ServiceConstants.VOID;
-        } else {
-            Object returnValue =
-                    methodAccess.invokeDynamicObject(service, args);
-            Response<Object> response = ResponseImpl.response(
-                    methodCall.id(),
-                    methodCall.timestamp(),
-                    methodCall.address(),
-                    methodCall.returnAddress(),
-                    returnValue);
-
-            return response;
-        }
+        Object returnValue =
+                methodAccess.invokeDynamicObject(service, args);
+        return response(methodAccess, methodCall, returnValue);
 
 
     }
@@ -193,39 +175,40 @@ public class ServiceMethodCallHandlerImpl implements ServiceMethodHandler {
 
         if (binding.hasRequestParamBindings()) {
             body = bodyFromRequestParams(method, methodCall, binding);
-        }
-        else if (Str.isEmpty(body) && method.parameterTypes().length > 0) {
-                body = methodCall.params();
+        } else if (Str.isEmpty(body) && method.parameterTypes().length > 0) {
+            body = methodCall.params();
         }
 
-        if (method.returnType() == Void.class) {
+        Object returnValue;
 
-                method.invokeDynamicObject(service, methodCall.body());
-                return ServiceConstants.VOID;
+        if (body == null && Str.isEmpty(body) && method.parameterTypes().length == 0) {
+
+
+            returnValue = method.invokeDynamicObject(service, null);
+
+
         } else {
-
-            Object returnValue;
-
-            if (body== null && Str.isEmpty(body) && method.parameterTypes().length==0) {
-
-
-                    returnValue =  method.invokeDynamicObject(service, null);
-
-
-            } else {
-                returnValue =
-                        method.invokeDynamicObject(service, body);
-            }
-            Response<Object> response = ResponseImpl.response(
-                    methodCall.id(),
-                    methodCall.timestamp(),
-                    methodCall.name(),
-                    methodCall.returnAddress(),
-                    returnValue);
-
-            return response;
+            returnValue =
+                    method.invokeDynamicObject(service, body);
         }
 
+        return response(method, methodCall, returnValue);
+
+
+    }
+
+    private Response<Object> response(MethodAccess methodAccess,
+                                      MethodCall<Object> methodCall, Object returnValue) {
+
+        if (methodAccess.returnType() == Void.class) {
+            return ServiceConstants.VOID;
+        }
+        return ResponseImpl.response(
+                methodCall.id(),
+                methodCall.timestamp(),
+                methodCall.name(),
+                methodCall.returnAddress(),
+                returnValue);
     }
 
     private Object bodyFromRequestParams(MethodAccess method,
@@ -249,13 +232,13 @@ public class ServiceMethodCallHandlerImpl implements ServiceMethodHandler {
             if (paramBinding == null) {
                 if (methodBodyUsed) {
                     die("Method body was already used for methodCall\n",
-                    methodCall, "\nFor method binding\n", binding,
+                            methodCall, "\nFor method binding\n", binding,
                             "\nFor method\n", method);
                 }
                 methodBodyUsed = true;
-                if (methodCall.body() instanceof  List) {
+                if (methodCall.body() instanceof List) {
                     List bList = (List) methodCall.body();
-                    if (bList.size()==1) {
+                    if (bList.size() == 1) {
                         body.set(index, bList.get(0));
                     }
                 } else {
@@ -286,23 +269,9 @@ public class ServiceMethodCallHandlerImpl implements ServiceMethodHandler {
 
     private Response<Object> invokeByName(MethodCall<Object> methodCall) {
         final MethodAccess m = classMeta.method(methodCall.name());
-        if (m.returnType() == Void.class) {
+        Object returnValue =  m.invokeDynamicObject(service, methodCall.body());
+        return response(m, methodCall, returnValue);
 
-            Invoker.invokeFromObject(service, methodCall.name(), methodCall.body());
-            return ServiceConstants.VOID;
-        } else {
-            Object returnValue =
-                    Invoker.invokeFromObject(service, methodCall.name(), methodCall.body());
-
-            Response<Object> response = ResponseImpl.response(
-                    methodCall.id(),
-                    methodCall.timestamp(),
-                    methodCall.name(),
-                    methodCall.returnAddress(),
-                    returnValue);
-
-            return response;
-        }
     }
 
 
@@ -311,7 +280,7 @@ public class ServiceMethodCallHandlerImpl implements ServiceMethodHandler {
         this.service = service;
 
 
-        classMeta = (ClassMeta<Class<?>>)(Object) ClassMeta.classMeta(service.getClass());
+        classMeta = (ClassMeta<Class<?>>) (Object) ClassMeta.classMeta(service.getClass());
 
 
         if (Str.isEmpty(serviceAddress)) {
@@ -331,7 +300,7 @@ public class ServiceMethodCallHandlerImpl implements ServiceMethodHandler {
 
             if (serviceAddress.startsWith("/")) {
                 this.address = Str.add(rootAddress, serviceAddress);
-            }else {
+            } else {
                 this.address = Str.add(rootAddress, "/", serviceAddress);
 
             }
@@ -356,7 +325,6 @@ public class ServiceMethodCallHandlerImpl implements ServiceMethodHandler {
     private void readMethodMetaData() {
 
 
-
         final Iterable<MethodAccess> methods = classMeta.methods();
         for (MethodAccess methodAccess : methods) {
 
@@ -364,7 +332,7 @@ public class ServiceMethodCallHandlerImpl implements ServiceMethodHandler {
                 continue;
             }
 
-            registerMethod( methodAccess );
+            registerMethod(methodAccess);
         }
 
         addresses = Lists.list(methodMap.keySet());
@@ -384,8 +352,6 @@ public class ServiceMethodCallHandlerImpl implements ServiceMethodHandler {
                 }
             }
         });
-
-
 
 
     }
@@ -414,8 +380,6 @@ public class ServiceMethodCallHandlerImpl implements ServiceMethodHandler {
                 methodAccess.name().toLowerCase());
         doRegisterMethodUnderURI(methodAccess,
                 methodAccess.name().toUpperCase());
-
-
 
 
     }
@@ -485,7 +449,7 @@ public class ServiceMethodCallHandlerImpl implements ServiceMethodHandler {
     private String getAddress(String name, Annotated annotated) {
         AnnotationData requestMapping = annotated.annotation(name);
 
-        if (requestMapping!=null) {
+        if (requestMapping != null) {
             Object value = requestMapping.getValues().get("value");
 
             if (value instanceof String[]) {
@@ -536,7 +500,6 @@ public class ServiceMethodCallHandlerImpl implements ServiceMethodHandler {
 
     @Override
     public void shutdown() {
-
 
 
         if (queueShutdown != null) {
