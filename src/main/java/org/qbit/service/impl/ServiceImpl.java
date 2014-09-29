@@ -18,6 +18,7 @@ import org.qbit.message.Response;
 import org.qbit.transforms.*;
 
 import java.util.List;
+import java.util.TreeSet;
 import java.util.concurrent.TimeUnit;
 
 
@@ -137,6 +138,8 @@ public class ServiceImpl implements Service {
         this.name = serviceMethodHandler.address();
 
 
+
+
         requestQueue = new BasicQueue<>("Request Queue " + name, waitTime,
                 timeUnit, batchSize);
 
@@ -154,6 +157,7 @@ public class ServiceImpl implements Service {
 
         final SendQueue<Response<Object>> responseSendQueue = this.responseQueue.sendQueue();
 
+        serviceMethodHandler.initQueue(responseSendQueue);
 
         start(serviceMethodHandler, responseSendQueue);
 
@@ -269,7 +273,7 @@ public class ServiceImpl implements Service {
     }
 
     @Override
-    public List<String> addresses(String address) {
+    public TreeSet<String> addresses(String address) {
 
         return this.serviceMethodHandler.addresses();
     }

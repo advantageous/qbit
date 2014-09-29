@@ -7,6 +7,7 @@ import org.qbit.message.MethodCall;
 import org.qbit.message.Response;
 
 import java.util.List;
+import java.util.TreeSet;
 
 /**
  * Created by Richard on 7/21/14.
@@ -23,5 +24,5 @@ public interface Service {
 
     void stop();
 
-    List<String> addresses(String address);
+    TreeSet<String> addresses(String address);
 }

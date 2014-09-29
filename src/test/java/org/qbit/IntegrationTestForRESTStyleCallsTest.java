@@ -3,6 +3,7 @@ package org.qbit;
 import org.boon.*;
 import org.boon.collections.MultiMap;
 import org.boon.collections.MultiMapImpl;
+import org.boon.core.Handler;
 import org.boon.core.Sys;
 import org.junit.Before;
 import org.junit.Test;
@@ -188,40 +189,6 @@ public class IntegrationTestForRESTStyleCallsTest {
 
 
 
-
-
-        /** Promote employee from Service */
-        addressToMethodCall = "/root/employeeRest/employee/promote/100/10";
-
-        call = factory.createMethodCallByAddress(addressToMethodCall,
-                returnAddress, Lists.list(rick), params );
-        doCall();
-        response = responseReceiveQueue.pollWait();
-
-
-
-
-
-
-
-
-        /** Read employee back from service */
-
-
-        addressToMethodCall = "/root/employeeRest/employee/10";
-
-        call = factory.createMethodCallByAddress(addressToMethodCall,
-                returnAddress, "", params );
-        doCall();
-        response = responseReceiveQueue.pollWait();
-
-
-        validateRick();
-
-        Boon.equalsOrDie(100, employee.level);
-
-
-
         /** Remove employee from Service */
         addressToMethodCall = "/root/employeeRest/employee/remove/";
 
@@ -253,6 +220,42 @@ public class IntegrationTestForRESTStyleCallsTest {
 
     }
 
+
+    @Test
+    public void testTwoUriPathVars() {
+
+
+
+        employeeService.addEmployee(rick);
+        Sys.sleep(10);
+
+
+
+        /* Create employee service */
+        serviceBundle.addService(employeeService);
+
+        /** Promote employee from Service */
+        String addressToMethodCall = "/root/employeeRest/employee/promote/100/10";
+
+        call = factory.createMethodCallByAddress(addressToMethodCall,
+                returnAddress, Lists.list(rick), params );
+        doCall();
+        response = responseReceiveQueue.pollWait();
+
+
+        Boon.equalsOrDie(true, response.body());
+        Sys.sleep(10);
+
+
+        final Employee employee1 = employeeService.readEmployee(10);
+        Boon.equalsOrDie(rick.id, employee1.id);
+        Boon.equalsOrDie(100, employee1.level);
+
+
+
+
+
+    }
 
     @Test
     public void testRequestParamBinding() {
@@ -329,6 +332,35 @@ public class IntegrationTestForRESTStyleCallsTest {
         puts (response.body());
 
     }
+
+    //@Test
+    public void testAsync() {
+
+
+
+        String addressToMethodCall = "/root/employeeRest/async/";
+
+        /* Create employee service */
+        serviceBundle.addService(employeeService);
+
+
+        call = factory.createMethodCallByAddress(addressToMethodCall,
+                returnAddress, "", params);
+
+
+        doCall();
+
+
+        response = responseReceiveQueue.pollWait();
+
+        Exceptions.requireNonNull(response);
+
+        ok = !response.wasErrors() || die();
+
+        puts (response.body());
+
+    }
+
     private void doCall() {
 
         if (!Str.isEmpty(call.body())) {
@@ -439,6 +471,10 @@ public class IntegrationTestForRESTStyleCallsTest {
             return true;
         }
 
+        @RequestMapping("/async/")
+        public void async(Handler<String> handler) {
+            handler.handle("hi mom");
+        }
 
     }
 

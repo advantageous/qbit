@@ -13,6 +13,7 @@ import org.qbit.annotation.RequestMapping;
 import org.qbit.bindings.MethodBinding;
 import org.qbit.message.Response;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -76,7 +77,7 @@ public class ServiceMethodCallHandlerImplTest {
         final String address = impl.address();
         Str.equalsOrDie("/boo/baz", address);
 
-        final List<String> addresses = impl.addresses();
+        final Collection<String> addresses = impl.addresses();
         ok = addresses.contains("/boo/baz/baaah/pluck") || die(addresses);
 
         puts (addresses);
@@ -177,7 +178,7 @@ public class ServiceMethodCallHandlerImplTest {
         final String address = impl.address();
         Str.equalsOrDie("/root/service", address);
 
-        final List<String> addresses = impl.addresses();
+        final Collection<String> addresses = impl.addresses();
         ok = addresses.contains("/root/service/somemethod3") || die(addresses);
 
         final Factory factory = QBit.factory();
@@ -206,7 +207,7 @@ public class ServiceMethodCallHandlerImplTest {
         final String address = impl.address();
         Str.equalsOrDie("/root/service", address);
 
-        final List<String> addresses = impl.addresses();
+        final Collection<String> addresses = impl.addresses();
         ok = addresses.contains("/root/service/somemethod3") || die(addresses);
 
         final Factory factory = QBit.factory();

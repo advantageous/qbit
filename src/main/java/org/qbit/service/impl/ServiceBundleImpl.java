@@ -23,7 +23,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 
 import static org.boon.Boon.putl;
-import static org.boon.Boon.puts;
 import static org.boon.Exceptions.die;
 
 public class ServiceBundleImpl implements ServiceBundle {
@@ -130,7 +129,7 @@ public class ServiceBundleImpl implements ServiceBundle {
 
         sendQueues.add(requests);
 
-        final List<String> addresses = service.addresses(this.address);
+        final Collection<String> addresses = service.addresses(this.address);
 
 
         if (GlobalConstants.DEBUG) {

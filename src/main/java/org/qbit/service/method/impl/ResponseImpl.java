@@ -2,6 +2,7 @@ package org.qbit.service.method.impl;
 
 import org.boon.Exceptions;
 import org.boon.collections.LazyMap;
+import org.boon.core.reflection.MethodAccess;
 import org.qbit.message.MethodCall;
 import org.qbit.message.Response;
 
@@ -12,15 +13,29 @@ import java.util.Map;
  */
 public class ResponseImpl<T> implements Response<T> {
 
-    private final String address;
+    private  String address;
 
-    private final String returnAddress;
-    private final Map<String, Object> params;
-    private final Object body;
-    private final long id;
-    private final long timestamp;
+    private  String returnAddress;
+    private  Map<String, Object> params;
+    private  Object body;
+    private  long id;
+    private  long timestamp;
     private  Object transformedBody;
     private boolean errors;
+
+    public ResponseImpl() {
+
+    }
+
+    public ResponseImpl(MethodCall<T> methodCall, T returnValue) {
+        this.address = methodCall.address();
+        this.returnAddress = methodCall.returnAddress();
+        this.timestamp = methodCall.timestamp();
+        this.id = methodCall.id();
+        this.params = null;
+        this.body = returnValue;
+
+    }
 
 
     public static Response<Object> response(long id, long timestamp, String address, String returnAddress, Object body) {
@@ -50,7 +65,6 @@ public class ResponseImpl<T> implements Response<T> {
         this.params=null;
 
     }
-
     public ResponseImpl(long id, long timestamp, String address, String returnAddress, Map<String, Object> params, Object body) {
         this.address = address;
         this.params = params;
@@ -137,5 +151,12 @@ public class ResponseImpl<T> implements Response<T> {
                 ", params=" + params +
                 ", body=" + body +
                 '}';
+    }
+
+    public static Response<Object> response(MethodCall<Object> methodCall, Object returnValue) {
+
+        ResponseImpl<Object> response = new ResponseImpl<>(methodCall, returnValue);
+
+        return  response;
     }
 }

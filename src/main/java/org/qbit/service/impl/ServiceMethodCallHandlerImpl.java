@@ -3,6 +3,7 @@ package org.qbit.service.impl;
 import org.boon.*;
 import org.boon.collections.MultiMap;
 import org.boon.core.Conversions;
+import org.boon.core.Handler;
 import org.boon.core.TypeType;
 import org.boon.core.reflection.*;
 import org.qbit.GlobalConstants;
@@ -11,6 +12,7 @@ import org.qbit.bindings.MethodBinding;
 import org.qbit.bindings.RequestParamBinding;
 import org.qbit.message.MethodCall;
 import org.qbit.message.Response;
+import org.qbit.queue.SendQueue;
 import org.qbit.service.ServiceMethodHandler;
 import org.qbit.service.method.impl.ResponseImpl;
 
@@ -31,13 +33,16 @@ public class ServiceMethodCallHandlerImpl implements ServiceMethodHandler {
     private MethodAccess queueIdle;
 
     private String address = "";
-    private List<String> addresses = new ArrayList<>();
+    private TreeSet<String> addresses = new TreeSet<>();
 
     private Map<String, Pair<MethodBinding, MethodAccess>> methodMap
             = new LinkedHashMap<>();
 
 
     private Logger logger = Boon.logger(ServiceMethodCallHandlerImpl.class);
+
+
+    private SendQueue<Response<Object>> responseSendQueue;
 
 
     @Override
@@ -81,17 +86,15 @@ public class ServiceMethodCallHandlerImpl implements ServiceMethodHandler {
 
     private Response<Object> invokeByAddressWithComplexBinding(MethodCall<Object> methodCall) {
 
-        String mAddress = methodCall.address();
+        String mAddress = addresses.lower(methodCall.address());
 
-        final String[] split = StringScanner.split(mAddress, '/');
-
-
-        for (String root : addresses) {
-            if (mAddress.startsWith(root)) {
-                mAddress = root;
-                break;
-            }
+        if (!methodCall.address().startsWith(mAddress)) {
+            die("Method not found", methodCall);
         }
+
+        final String[] split = StringScanner.split(methodCall.address(), '/');
+
+
 
 
         Pair<MethodBinding, MethodAccess> binding = methodMap.get(mAddress);
@@ -103,11 +106,7 @@ public class ServiceMethodCallHandlerImpl implements ServiceMethodHandler {
         final Class<?>[] parameterTypes = methodAccess.parameterTypes();
         final List<TypeType> paramEnumTypes = methodAccess.paramTypeEnumList();
 
-        final List<Object> args = new ArrayList<>(parameterTypes.length);
-
-        for (int index = 0; index < parameterTypes.length; index++) {
-            args.add(null);
-        }
+        final List<Object> args = prepareArgumentList(methodCall, methodAccess.parameterTypes());
 
 
         final List<List<AnnotationData>> annotationDataForParams = methodAccess.annotationDataForParams();
@@ -122,7 +121,6 @@ public class ServiceMethodCallHandlerImpl implements ServiceMethodHandler {
                     die("Parameter position is more than param length of method", methodAccess);
                 } else {
                     String paramAtPos = split[uriPosition];
-                    //paramAtPos = Str.slc(paramAtPos, 1, -1);
                     Object arg = Conversions.coerce(paramEnumTypes.get(methodParamPosition),
                             parameterTypes[methodParamPosition], paramAtPos
                     );
@@ -218,11 +216,7 @@ public class ServiceMethodCallHandlerImpl implements ServiceMethodHandler {
 
         final Class<?>[] parameterTypes = method.parameterTypes();
 
-        List<Object> body = new ArrayList<>(parameterTypes.length);
-
-        for (int index = 0; index < parameterTypes.length; index++) {
-            body.add(null);
-        }
+        List<Object> argsList = prepareArgumentList(methodCall, parameterTypes);
 
         boolean methodBodyUsed = false;
 
@@ -239,10 +233,10 @@ public class ServiceMethodCallHandlerImpl implements ServiceMethodHandler {
                 if (methodCall.body() instanceof List) {
                     List bList = (List) methodCall.body();
                     if (bList.size() == 1) {
-                        body.set(index, bList.get(0));
+                        argsList.set(index, bList.get(0));
                     }
                 } else {
-                    body.set(index, methodCall.body());
+                    argsList.set(index, methodCall.body());
                 }
             } else {
                 if (paramBinding.isRequired()) {
@@ -258,13 +252,38 @@ public class ServiceMethodCallHandlerImpl implements ServiceMethodHandler {
                 Object objectItem = params.getSingleObject(name);
                 objectItem = Conversions.coerce(parameterTypes[index], objectItem);
 
-                body.set(index, objectItem);
+                argsList.set(index, objectItem);
             }
 
         }
 
 
-        return body;
+        return argsList;
+    }
+
+    private List<Object> prepareArgumentList(final MethodCall<Object> methodCall, Class<?>[] parameterTypes) {
+        List<Object> argsList = new ArrayList<>(parameterTypes.length);
+
+        for (int index = 0; index < parameterTypes.length; index++) {
+            if (parameterTypes[index] == Handler.class) {
+
+                argsList.add(createCallBackHandler(methodCall));
+            }
+            argsList.add(null);
+        }
+        return argsList;
+    }
+
+    private Handler<Object> createCallBackHandler(final  MethodCall<Object> methodCall) {
+        return new Handler<Object>() {
+            @Override
+            public void handle(Object returnValue) {
+                responseSendQueue.send(
+                        ResponseImpl.response(methodCall, returnValue)
+
+                );
+            }
+        };
     }
 
     private Response<Object> invokeByName(MethodCall<Object> methodCall) {
@@ -335,23 +354,10 @@ public class ServiceMethodCallHandlerImpl implements ServiceMethodHandler {
             registerMethod(methodAccess);
         }
 
-        addresses = Lists.list(methodMap.keySet());
-
-        //this.roots = new ArrayList<>(addresses.size());
+        addresses.addAll(methodMap.keySet());
 
 
-        Collections.sort(addresses, new Comparator<String>() {
-            @Override
-            public int compare(String o1, String o2) {
-                if (o1.length() > o2.length()) {
-                    return -1;
-                } else if (o1.length() > o2.length()) {
-                    return 1;
-                } else {
-                    return 0;
-                }
-            }
-        });
+
 
 
     }
@@ -423,8 +429,13 @@ public class ServiceMethodCallHandlerImpl implements ServiceMethodHandler {
 
 
     @Override
-    public List<String> addresses() {
+    public TreeSet<String> addresses() {
         return addresses;
+    }
+
+    @Override
+    public void initQueue(SendQueue<Response<Object>> responseSendQueue) {
+        this.responseSendQueue = responseSendQueue;
     }
 
     private String readAddressFromAnnotation(Annotated annotated) {
