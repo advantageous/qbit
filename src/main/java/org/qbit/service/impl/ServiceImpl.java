@@ -17,6 +17,7 @@ import org.qbit.service.method.impl.MethodCallImpl;
 import org.qbit.message.Response;
 import org.qbit.transforms.*;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.TreeSet;
 import java.util.concurrent.TimeUnit;
@@ -273,7 +274,7 @@ public class ServiceImpl implements Service {
     }
 
     @Override
-    public TreeSet<String> addresses(String address) {
+    public Collection<String> addresses(String address) {
 
         return this.serviceMethodHandler.addresses();
     }

@@ -31,4 +31,14 @@ public interface Factory {
       ServiceBundle createBundle(String path);
 
       Service createService(String rootAddress, String serviceAddress, Object object, Queue<Response<Object>> responseQueue);
+
+      <T> T createLocalProxyWithReturnAddress(final Class<T> serviceInterface,
+                                               final String serviceName,
+                                               String returnAddressArg,
+                                               final ServiceBundle serviceBundle);
+
+
+     <T> T createLocalProxy(Class<T> serviceInterface,
+                      String serviceName,
+                      ServiceBundle serviceBundle);
 }

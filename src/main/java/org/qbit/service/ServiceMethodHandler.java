@@ -5,6 +5,7 @@ import org.qbit.message.Response;
 import org.qbit.queue.ReceiveQueueListener;
 import org.qbit.queue.SendQueue;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.TreeSet;
 
@@ -18,7 +19,7 @@ public interface ServiceMethodHandler extends ReceiveQueueListener<MethodCall<Ob
 
     String address();
 
-    TreeSet<String> addresses();
+    Collection<String> addresses();
 
     void initQueue(SendQueue<Response<Object>> responseSendQueue);
 }

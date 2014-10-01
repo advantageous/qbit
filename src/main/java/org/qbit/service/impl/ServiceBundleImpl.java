@@ -3,6 +3,9 @@ package org.qbit.service.impl;
 import org.boon.*;
 import org.boon.collections.ConcurrentHashSet;
 import org.boon.concurrent.Timer;
+import org.boon.core.Handler;
+import org.boon.core.HandlerWithErrorHandling;
+import org.boon.datarepo.ObjectEditor;
 import org.qbit.Factory;
 import org.qbit.GlobalConstants;
 import org.qbit.message.MethodCall;
@@ -48,6 +51,40 @@ public class ServiceBundleImpl implements ServiceBundle {
 
     private final String address;
     private Factory factory;
+
+
+    private class HandlerKey {
+        final String returnAddress;
+        final long messageId;
+
+        private HandlerKey(String returnAddress, long messageId) {
+            this.returnAddress = returnAddress;
+            this.messageId = messageId;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+
+            HandlerKey that = (HandlerKey) o;
+
+            if (messageId != that.messageId) return false;
+            if (returnAddress != null ? !returnAddress.equals(that.returnAddress) : that.returnAddress != null)
+                return false;
+
+            return true;
+        }
+
+        @Override
+        public int hashCode() {
+            int result = returnAddress != null ? returnAddress.hashCode() : 0;
+            result = 31 * result + (int) (messageId ^ (messageId >>> 32));
+            return result;
+        }
+    }
+
+    private Map<HandlerKey, Handler> handlers = new ConcurrentHashMap<>();
 
     private BeforeMethodCall beforeMethodCall = ServiceConstants.NO_OP_BEFORE_METHOD_CALL;
 
@@ -157,6 +194,8 @@ public class ServiceBundleImpl implements ServiceBundle {
         return responseQueue.receiveQueue();
     }
 
+
+
     @Override
     public void call(MethodCall<Object> methodCall) {
 
@@ -167,8 +206,146 @@ public class ServiceBundleImpl implements ServiceBundle {
                     "\n", methodCall);
         }
 
+        Object object = methodCall.body();
+
+        if (object instanceof List) {
+            List list = (List)object;
+
+
+            for (int index = 0; index < list.size(); index++) {
+
+                Object arg = list.get(index);
+                if (arg instanceof Handler) {
+                    registerHandlerCallbackForClient(methodCall, (Handler) arg);
+                }
+            }
+
+        } else if (object instanceof Object[]) {
+            Object[] array = (Object[]) object;
+
+            for (int index = 0; index < array.length; index++) {
+
+                Object arg = array[index];
+                if (arg instanceof Handler) {
+
+                    registerHandlerCallbackForClient(methodCall, (Handler) arg);
+                }
+            }
+        }
+
         methodSendQueue.send(methodCall);
 
+    }
+
+    private void registerHandlerCallbackForClient(MethodCall<Object> methodCall, Handler arg) {
+
+        if (arg instanceof HandlerWithErrorHandling) {
+            final HandlerWithErrorHandling clientHandler = (HandlerWithErrorHandling) arg;
+
+            final Handler<Object> handler = new HandlerWithErrorHandling<Object>() {
+                @Override
+                public void handle(Object event) {
+                    clientHandler.handle(event);
+                }
+
+                @Override
+                public Handler<Throwable> errorHandler() {
+                    return clientHandler.errorHandler();
+                }
+            };
+
+            handlers.put(new HandlerKey(methodCall.returnAddress(), methodCall.id()), handler);
+
+        } else {
+            final Handler clientHandler = (Handler) arg;
+
+            final Handler<Object> handler = new Handler<Object>() {
+                @Override
+                public void handle(Object event) {
+                    clientHandler.handle(event);
+                }
+            };
+
+            handlers.put(new HandlerKey(methodCall.returnAddress(), methodCall.id()), handler);
+
+        }
+
+
+    }
+
+    public void startReturnHandlerProcessor() {
+        responseQueue.startListener(new ReceiveQueueListener<Response<Object>>() {
+            @Override
+            public void receive(Response<Object> response) {
+
+                final Handler handler = handlers.get(
+                        new HandlerKey(response.returnAddress(), response.id()));
+
+                if (handler instanceof HandlerWithErrorHandling) {
+                    HandlerWithErrorHandling handling = (HandlerWithErrorHandling) handler;
+                    if (response.wasErrors()) {
+                        logger.info("Service threw an exception address", response.address(),
+                                "\n return address", response.returnAddress(), "\n message id",
+                                response.id());
+
+                        handling.errorHandler().handle(response.body());
+                    } else {
+                        handler.handle(response.body());
+                    }
+                } else {
+
+                    if (response.wasErrors()) {
+
+                        if (response.body() instanceof Throwable) {
+                            Throwable t = (Throwable) response.body();
+                            logger.error(t, "Service threw an exception address", response.address(),
+                                    "\n return address", response.returnAddress(), "\n message id",
+                                    response.id());
+
+                        } else {
+                            logger.error("Service threw an exception address", response.address(),
+                                    "\n return address", response.returnAddress(), "\n message id",
+                                    response.id());
+
+                        }
+
+                    } else {
+                        handler.handle(response.body());
+                    }
+                }
+
+            }
+
+            @Override
+            public void empty() {
+
+            }
+
+            @Override
+            public void limit() {
+
+            }
+
+            @Override
+            public void shutdown() {
+
+            }
+
+            @Override
+            public void idle() {
+
+            }
+        });
+    }
+
+    @Override
+    public <T> T createLocalProxyWithReturnAddress(Class<T> serviceInterface, String serviceName, String returnAddressArg) {
+        return factory.createLocalProxyWithReturnAddress(serviceInterface, serviceName, returnAddressArg, this);
+    }
+
+    @Override
+    public <T> T createLocalProxy(Class<T> serviceInterface, String serviceName) {
+        return factory.createLocalProxy(serviceInterface, serviceName, this);
     }
 
     private void doCall(MethodCall<Object> methodCall) {

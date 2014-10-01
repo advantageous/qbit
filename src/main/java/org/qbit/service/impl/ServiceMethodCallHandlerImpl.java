@@ -6,6 +6,7 @@ import org.boon.core.Conversions;
 import org.boon.core.Handler;
 import org.boon.core.TypeType;
 import org.boon.core.reflection.*;
+import org.boon.primitive.Arry;
 import org.qbit.GlobalConstants;
 import org.qbit.bindings.ArgParamBinding;
 import org.qbit.bindings.MethodBinding;
@@ -217,6 +218,12 @@ public class ServiceMethodCallHandlerImpl implements ServiceMethodHandler {
 
             List<Object> list = (List) body;
 
+            if (list.size() -1 == method.parameterTypes().length) {
+                if (list.get(0) instanceof Handler) {
+                    list = Lists.slc(list, 1);
+                }
+            }
+
             final Iterator<Object> iterator = list.iterator();
 
             for (int index = 0; index < argsList.size(); index++) {
@@ -231,6 +238,27 @@ public class ServiceMethodCallHandlerImpl implements ServiceMethodHandler {
                 }
 
                 argsList.set(index, iterator.next());
+            }
+        } else if  (body instanceof Object[]) {
+
+            Object [] args = (Object[]) body;
+
+
+            if (args.length -1 == method.parameterTypes().length) {
+                if (args[0] instanceof Handler) {
+                    args = Arry.slc(args, 1);
+                }
+            }
+
+
+            for (int index = 0; index < argsList.size(); index++) {
+
+                final Object o = argsList.get(index);
+                if (o instanceof Handler  ) {
+                    continue;
+                }
+
+                argsList.set(index, args[index]);
             }
         } else {
             if (argsList.size() == 1 && !(argsList.get(0) instanceof Handler)) {
@@ -340,8 +368,9 @@ public class ServiceMethodCallHandlerImpl implements ServiceMethodHandler {
 
         final MethodAccess method = classMeta.method(methodCall.name());
 
+
         return mapArgsAsyncHandlersAndInvoke(methodCall, method);
-        
+
 
     }
 

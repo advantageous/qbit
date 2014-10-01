@@ -3,6 +3,7 @@ package org.qbit.service.method.impl;
 import org.boon.Exceptions;
 import org.boon.collections.LazyMap;
 import org.boon.core.reflection.MethodAccess;
+import org.boon.json.annotations.JsonIgnore;
 import org.qbit.message.MethodCall;
 import org.qbit.message.Response;
 
@@ -20,7 +21,9 @@ public class ResponseImpl<T> implements Response<T> {
     private  Object body;
     private  long id;
     private  long timestamp;
-    private  Object transformedBody;
+
+    @JsonIgnore
+    private transient Object transformedBody;
     private boolean errors;
 
     public ResponseImpl() {
@@ -52,6 +55,7 @@ public class ResponseImpl<T> implements Response<T> {
 
         final LazyMap body = new LazyMap(10);
         this.body = body;
+        this.transformedBody = ex;
         this.address = methodCall.address();
         body.put("Error", ex.getMessage());
         body.put("Cause", "" + ex.getCause());

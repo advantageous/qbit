@@ -8,6 +8,8 @@ import org.qbit.Factory;
 import org.qbit.GlobalConstants;
 import org.qbit.message.MethodCall;
 import org.qbit.message.Response;
+import org.qbit.proxy.ServiceProxyFactory;
+import org.qbit.proxy.ServiceProxyFactoryImpl;
 import org.qbit.queue.Queue;
 import org.qbit.service.Service;
 import org.qbit.service.ServiceBundle;
@@ -27,6 +29,7 @@ import java.util.concurrent.TimeUnit;
 public class FactoryImpl implements Factory{
 
     private ProtocolParser defaultProtocol = new ProtocolParserVersion1();
+    private ServiceProxyFactory serviceProxyFactory = new ServiceProxyFactoryImpl();
 
     private Logger logger = Boon.logger(FactoryImpl.class);
 
@@ -119,5 +122,15 @@ public class FactoryImpl implements Factory{
                 responseQueue
         );
 
+    }
+
+    @Override
+    public <T> T createLocalProxyWithReturnAddress(Class<T> serviceInterface, String serviceName, String returnAddressArg, ServiceBundle serviceBundle) {
+        return serviceProxyFactory.createProxyWithReturnAddress(serviceInterface, serviceName, returnAddressArg, serviceBundle);
+    }
+
+    @Override
+    public <T> T createLocalProxy(Class<T> serviceInterface, String serviceName, ServiceBundle serviceBundle) {
+        return serviceProxyFactory.createProxy(serviceInterface, serviceName,  serviceBundle);
     }
 }

@@ -31,4 +31,16 @@ public interface ServiceBundle {
 
     List<String> endPoints();
 
+    void startReturnHandlerProcessor();
+
+
+    <T> T createLocalProxyWithReturnAddress(final Class<T> serviceInterface,
+                                            final String serviceName,
+                                            String returnAddressArg
+                                            );
+
+
+    <T> T createLocalProxy(Class<T> serviceInterface,
+                           String serviceName
+                           );
 }

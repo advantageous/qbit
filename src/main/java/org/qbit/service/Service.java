@@ -6,6 +6,7 @@ import org.qbit.queue.SendQueue;
 import org.qbit.message.MethodCall;
 import org.qbit.message.Response;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.TreeSet;
 
@@ -24,5 +25,5 @@ public interface Service {
 
     void stop();
 
-    TreeSet<String> addresses(String address);
+    Collection<String> addresses(String address);
 }
