@@ -1,42 +1,48 @@
 package org.qbit.proxy;
 
-import java.lang.reflect.InvocationHandler;
+import org.boon.Str;
+import org.boon.concurrent.Timer;
+import org.qbit.Factory;
+import org.qbit.message.MethodCall;
+import org.qbit.service.EndPoint;
+import org.qbit.service.ServiceBundle;
+import org.qbit.spi.ProtocolEncoder;
 
+import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.util.UUID;
 
-import org.boon.Str;
-import org.boon.concurrent.Timer;
-import org.qbit.service.EndPoint;
-import org.qbit.service.ServiceBundle;
-import org.qbit.service.method.impl.MethodCallImpl;
-
-
 /**
- * Created by Richard on 9/30/14.
+ * Created by Richard on 10/1/14.
  */
-public class ServiceProxyFactoryImpl implements ServiceProxyFactory {
+public class ServiceProxyForTextJsonImpl implements ServiceProxyFactory{
+
+    private final Factory factory;
+
 
     private static volatile long generatedMessageId;
 
 
-    @Override
-    public  <T> T createProxyWithReturnAddress(final Class<T> serviceInterface,
-                                               final String serviceName,
-                                               String returnAddressArg,
-                                               final EndPoint serviceBundle) {
+    public ServiceProxyForTextJsonImpl(Factory factory) {
+        this.factory = factory;
+    }
 
+    @Override
+    public <T> T createProxyWithReturnAddress(Class<T> serviceInterface, final String serviceName,
+                                              String returnAddressArg,
+                                              final EndPoint serviceBundle) {
 
         final String objectAddress = serviceBundle!=null
-                ? Str.add(serviceBundle.address(),  "/" , serviceName) : "";
+                ? Str.add(serviceBundle.address(), "/", serviceName) : "";
 
 
         if (!Str.isEmpty(returnAddressArg)) {
-                returnAddressArg = Str.add(objectAddress, "/"+ UUID.randomUUID());
+            returnAddressArg = Str.add(objectAddress, "/"+ UUID.randomUUID());
         }
 
         final String returnAddress = returnAddressArg;
+
 
         InvocationHandler invocationHandler = new InvocationHandler() {
 
@@ -59,15 +65,13 @@ public class ServiceProxyFactoryImpl implements ServiceProxyFactory {
 
                 final String address = Str.add(objectAddress, "/", method.getName());
 
-                final MethodCallImpl call = MethodCallImpl.method(messageId++,
+
+
+                final MethodCall<Object> call = factory.createMethodCallToBeEncodedAndSent(messageId++,
                         address, returnAddress,
-                        objectAddress, method.getName(), timestamp, args, null);
+                        serviceName, method.getName(), timestamp, args, null);
 
-
-
-                if (serviceBundle!=null) {
-                    serviceBundle.call(call);
-                }
+                serviceBundle.call(call);
 
                 return null;
             }
@@ -83,14 +87,8 @@ public class ServiceProxyFactoryImpl implements ServiceProxyFactory {
 
     }
 
-
     @Override
-    public  <T> T createProxy(final Class<T> serviceInterface,
-                              final String serviceName,
-                              final EndPoint serviceBundle) {
-
+    public <T> T createProxy(Class<T> serviceInterface, String serviceName, EndPoint serviceBundle) {
         return createProxyWithReturnAddress(serviceInterface, serviceName, "", serviceBundle);
-
     }
-
 }

@@ -9,7 +9,7 @@ import java.util.List;
 /**
  * Created by Richard on 9/26/14.
  */
-public interface ServiceBundle {
+public interface ServiceBundle extends EndPoint{
 
 
     String address();
@@ -21,7 +21,6 @@ public interface ServiceBundle {
 
     ReceiveQueue<Response<Object>> responses();
 
-    void call(MethodCall<Object> methodCall);
 
     void flushSends();
 

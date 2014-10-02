@@ -404,7 +404,7 @@ public class IntegrationTestForRESTStyleCallsTest {
                             .replace((char) Protocol.PROTOCOL_ARG_SEPARATOR, '\n'),
                     "\nPROTOCOL END\n"
             );
-            call = factory.createMethodCall(null, null, null, null, qbitStringBody, null);
+            call = factory.createMethodCallToBeParsedFromBody(null, null, null, null, qbitStringBody, null);
         }
 
         if (params!=null) {

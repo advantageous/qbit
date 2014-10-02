@@ -1,5 +1,6 @@
 package org.qbit.proxy;
 
+import org.qbit.service.EndPoint;
 import org.qbit.service.ServiceBundle;
 
 /**
@@ -9,9 +10,9 @@ public interface ServiceProxyFactory {
     <T> T createProxyWithReturnAddress(Class<T> serviceInterface,
                                        String serviceName,
                                        String returnAddressArg,
-                                       ServiceBundle serviceBundle);
+                                       EndPoint serviceBundle);
 
     <T> T createProxy(Class<T> serviceInterface,
                       String serviceName,
-                      ServiceBundle serviceBundle);
+                      EndPoint serviceBundle);
 }
