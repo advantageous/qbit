@@ -1,30 +1,10 @@
-/target
-.idea/compiler.xml
+.idea/
+*.iml
 
-.idea/copyright/profiles_settings.xml
+.gradle/
+gradle-app.setting
 
-.idea/encodings.xml
+target/
+build/
 
-.idea/libraries/Maven__io_fastjson_boon_0_26_SNAPSHOT.xml
-
-.idea/libraries/Maven__io_fastjson_boon_0_28_SNAPSHOT.xml
-
-.idea/libraries/Maven__junit_junit_4_10.xml
-
-.idea/libraries/Maven__org_hamcrest_hamcrest_core_1_1.xml
-
-.idea/misc.xml
-
-.idea/modules.xml
-
-.idea/scopes/scope_settings.xml
-
-.idea/vcs.xml
-
-.idea/workspace.xml
-
-qbit.iml
-
-.idea/libraries/Maven__com_google_guava_guava_18_0.xml
-
-.idea/libraries/Maven__org_codehaus_groovy_groovy_2_3_2.xml
+*.class
