@@ -43,13 +43,6 @@
     </developers>
 
     <dependencies>
-
-        <dependency>
-            <groupId>io.fastjson</groupId>
-            <artifactId>boon</artifactId>
-            <version>0.28</version>
-        </dependency>
-
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
@@ -98,20 +91,6 @@
                     </execution>
                 </executions>
             </plugin>
-            <!--
-                        <plugin>
-                            <groupId>org.apache.maven.plugins</groupId>
-                            <artifactId>maven-source-plugin</artifactId>
-                            <executions>
-                                <execution>
-                                    <id>attach-sources</id>
-                                    <goals>
-                                        <goal>jar</goal>
-                                    </goals>
-                                </execution>
-                            </executions>
-                        </plugin>
-            -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-javadoc-plugin</artifactId>
