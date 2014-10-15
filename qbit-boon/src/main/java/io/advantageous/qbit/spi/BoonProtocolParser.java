@@ -24,7 +24,7 @@ import static org.boon.Exceptions.die;
 /**
  * Created by Richard on 9/26/14.
  */
-public class ProtocolParserVersion1 implements ProtocolParser {
+public class BoonProtocolParser implements ProtocolParser {
 
     @Override
     public boolean supports(Object args, MultiMap<String, String> params) {

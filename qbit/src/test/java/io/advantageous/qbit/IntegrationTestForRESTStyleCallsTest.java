@@ -9,8 +9,8 @@ import io.advantageous.qbit.service.Protocol;
 import io.advantageous.qbit.service.ServiceBundle;
 import io.advantageous.qbit.service.impl.ServiceBundleImpl;
 import io.advantageous.qbit.service.method.impl.MethodCallImpl;
+import io.advantageous.qbit.spi.BoonProtocolEncoder;
 import io.advantageous.qbit.spi.ProtocolEncoder;
-import io.advantageous.qbit.spi.ProtocolEncoderVersion1;
 import org.boon.Boon;
 import org.boon.Exceptions;
 import org.boon.Lists;
@@ -54,7 +54,7 @@ public class IntegrationTestForRESTStyleCallsTest {
     private String returnAddress = "clientIdAkaReturnAddress";
 
 
-    ProtocolEncoder encoder = new ProtocolEncoderVersion1();
+    ProtocolEncoder encoder = new BoonProtocolEncoder();
     private Employee employee;
 
 

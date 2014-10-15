@@ -3,8 +3,8 @@ subprojects {
     apply plugin: 'maven'
 
     repositories {
-        mavenCentral()
         mavenLocal()
+        mavenCentral()
     }
 
     sourceCompatibility = JavaVersion.VERSION_1_8
@@ -79,13 +79,12 @@ project(':qbit') {
 
                     developers {
                         developer {
-                            id 'sailorgeoffrey'
-                            name 'Geoffrey Chandler'
-                        }
-
-                        developer {
                             id 'richardHightower'
                             name 'Richard Hightower'
+                        }
+                        developer {
+                            id 'sailorgeoffrey'
+                            name 'Geoffrey Chandler'
                         }
                     }
                 }

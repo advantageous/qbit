@@ -35,7 +35,7 @@ public class ProtocolParserVersion1Test {
 
     @Test
     public void test() {
-        ProtocolParserVersion1 parserVersion1 = new ProtocolParserVersion1();
+        BoonProtocolParser parserVersion1 = new BoonProtocolParser();
         final MethodCall<Object> methodCall = parserVersion1.parseMethodCall("");
 
 
@@ -47,7 +47,7 @@ public class ProtocolParserVersion1Test {
     @Test
     public void testEncodeParseResponse() {
 
-        ProtocolEncoderVersion1 encoder = new ProtocolEncoderVersion1();
+        BoonProtocolEncoder encoder = new BoonProtocolEncoder();
 
         ResponseImpl<Object> response = new ResponseImpl<>(1L, 2L,
                 "addr", "Raddr", null, "body");
@@ -57,7 +57,7 @@ public class ProtocolParserVersion1Test {
         puts(s);
 
 
-        ProtocolParser parser = new ProtocolParserVersion1();
+        ProtocolParser parser = new BoonProtocolParser();
         final Response<Object> objectResponse = parser.parseResponse(s);
 
         Boon.equalsOrDie(response.id(), objectResponse.id());
@@ -71,9 +71,9 @@ public class ProtocolParserVersion1Test {
     @Test
     public void testEncodeDecodeManyMethods() {
 
-        ProtocolEncoderVersion1 encoder = new ProtocolEncoderVersion1();
+        BoonProtocolEncoder encoder = new BoonProtocolEncoder();
 
-        ProtocolParser parser = new ProtocolParserVersion1();
+        ProtocolParser parser = new BoonProtocolParser();
         MultiMap<String, String> multiMap = new MultiMapImpl(ArrayList.class);
         multiMap.add("fruit", "apple");
         multiMap.add("fruit", "pair");
@@ -180,13 +180,13 @@ public class ProtocolParserVersion1Test {
 
         method.params(multiMap);
 
-        ProtocolEncoderVersion1 encoder = new ProtocolEncoderVersion1();
+        BoonProtocolEncoder encoder = new BoonProtocolEncoder();
 
         final String s = encoder.encodeAsString(method);
 
         puts(s);
 
-        ProtocolParser parser = new ProtocolParserVersion1();
+        ProtocolParser parser = new BoonProtocolParser();
 
         final MethodCall<Object> parse = parser.parseMethodCall(s);
 
@@ -205,11 +205,11 @@ public class ProtocolParserVersion1Test {
     @Test
     public void testEncodeDecode() {
 
-        ProtocolEncoderVersion1 encoder = new ProtocolEncoderVersion1();
+        BoonProtocolEncoder encoder = new BoonProtocolEncoder();
         final String s = encoder.encodeAsString(methodCall);
         puts(s);
 
-        ProtocolParserVersion1 parserVersion1 = new ProtocolParserVersion1();
+        BoonProtocolParser parserVersion1 = new BoonProtocolParser();
         final MethodCall<Object> methodCallParsed = parserVersion1.parseMethodCall(
                 s);
 

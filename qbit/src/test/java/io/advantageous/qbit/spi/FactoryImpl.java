@@ -23,12 +23,12 @@ import java.util.concurrent.TimeUnit;
  */
 public class FactoryImpl implements Factory {
 
-    private ProtocolParser defaultProtocol = new ProtocolParserVersion1();
+    private ProtocolParser defaultProtocol = new BoonProtocolParser();
 
     private List<ProtocolParser> protocolParserList = new ArrayList<>();
 
     {
-        protocolParserList.add(new ProtocolParserVersion1());
+        protocolParserList.add(new BoonProtocolParser());
     }
 
     @Override
@@ -117,6 +117,6 @@ public class FactoryImpl implements Factory {
 
     @Override
     public ProtocolEncoder createEncoder() {
-        return new ProtocolEncoderVersion1();
+        return new BoonProtocolEncoder();
     }
 }

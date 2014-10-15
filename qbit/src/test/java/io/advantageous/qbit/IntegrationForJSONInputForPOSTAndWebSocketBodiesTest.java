@@ -6,8 +6,8 @@ import io.advantageous.qbit.queue.ReceiveQueue;
 import io.advantageous.qbit.service.Protocol;
 import io.advantageous.qbit.service.ServiceBundle;
 import io.advantageous.qbit.service.impl.ServiceBundleImpl;
+import io.advantageous.qbit.spi.BoonProtocolEncoder;
 import io.advantageous.qbit.spi.ProtocolEncoder;
-import io.advantageous.qbit.spi.ProtocolEncoderVersion1;
 import org.boon.Boon;
 import org.boon.Exceptions;
 import org.boon.Lists;
@@ -36,7 +36,7 @@ public class IntegrationForJSONInputForPOSTAndWebSocketBodiesTest {
     MultiMap<String, String> params = null;
     MethodCall<Object> call = null;
 
-    ProtocolEncoder encoder = new ProtocolEncoderVersion1();
+    ProtocolEncoder encoder = new BoonProtocolEncoder();
 
     ReceiveQueue<Response<Object>> responseReceiveQueue = null;
 

@@ -16,7 +16,7 @@ import java.util.Set;
 
 import static io.advantageous.qbit.service.Protocol.*;
 
-public class ProtocolEncoderVersion1 implements ProtocolEncoder {
+public class BoonProtocolEncoder implements ProtocolEncoder {
 
     private static ThreadLocal<JsonSerializer> jsonSerializer = new ThreadLocal<JsonSerializer>() {
         @Override
