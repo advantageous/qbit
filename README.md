@@ -1,6 +1,6 @@
 Got a question? Ask here: https://groups.google.com/forum/#!forum/boonjava QbIt is part of Boon.
 
-Boon : qbit - Go Channels inspired Java lib.
+qbit - Go Channels inspired Java lib.
 ====
 
 Everything is a queue. You have a choice. You can embrace it and control it. You can optimize for it. 
@@ -21,22 +21,12 @@ License
 Apache 2
 
 
-QBit and Boon philosiphy:
+QBit philosiphy:
 ====
 At the end of the day QBit is a simpley library not a framework. 
 Your app is not a QBit app but a Java app that uses the QBit lib.
 QBit allows you to work with Java UTIL concurrent, and does not endeavor to hide it from you.
 Just trying to take the sting out of it. 
-
-
-
-QBit a Boon project
-=====
-
-QBit is a Boon sub project.  Boon was (and still is) too big.
-It is time to start breaking it up.
-Boon is large enough now that I often forget features that I added until I see bug reports for them. 
-
 
 Does it work
 =====
