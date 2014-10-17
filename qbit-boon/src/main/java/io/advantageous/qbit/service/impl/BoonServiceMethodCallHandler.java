@@ -1,6 +1,6 @@
 package io.advantageous.qbit.service.impl;
 
-import io.advantageous.qbit.Handler;
+import io.advantageous.qbit.Callback;
 import io.advantageous.qbit.MultiMap;
 import io.advantageous.qbit.bindings.ArgParamBinding;
 import io.advantageous.qbit.bindings.MethodBinding;
@@ -184,7 +184,7 @@ public class BoonServiceMethodCallHandler implements ServiceMethodHandler {
             Object body = methodCall.body();
 
             if (body == null || (body instanceof String && Str.isEmpty(body))) {
-                if (method.parameterTypes()[0] != Handler.class) {
+                if (method.parameterTypes()[0] != Callback.class) {
                     body = methodCall.params();
                     Object returnValue = method.invokeDynamicObject(service, body);
                     return response(method, methodCall, returnValue);
@@ -206,7 +206,7 @@ public class BoonServiceMethodCallHandler implements ServiceMethodHandler {
             List<Object> list = (List) body;
 
             if (list.size() - 1 == method.parameterTypes().length) {
-                if (list.get(0) instanceof Handler) {
+                if (list.get(0) instanceof Callback) {
                     list = Lists.slc(list, 1);
                 }
             }
@@ -216,7 +216,7 @@ public class BoonServiceMethodCallHandler implements ServiceMethodHandler {
             for (int index = 0; index < argsList.size(); index++) {
 
                 final Object o = argsList.get(index);
-                if (o instanceof Handler) {
+                if (o instanceof Callback) {
                     continue;
                 }
 
@@ -232,7 +232,7 @@ public class BoonServiceMethodCallHandler implements ServiceMethodHandler {
 
 
             if (args.length - 1 == method.parameterTypes().length) {
-                if (args[0] instanceof Handler) {
+                if (args[0] instanceof Callback) {
                     args = Arry.slc(args, 1);
                 }
             }
@@ -241,14 +241,14 @@ public class BoonServiceMethodCallHandler implements ServiceMethodHandler {
             for (int index = 0; index < argsList.size(); index++) {
 
                 final Object o = argsList.get(index);
-                if (o instanceof Handler) {
+                if (o instanceof Callback) {
                     continue;
                 }
 
                 argsList.set(index, args[index]);
             }
         } else {
-            if (argsList.size() == 1 && !(argsList.get(0) instanceof Handler)) {
+            if (argsList.size() == 1 && !(argsList.get(0) instanceof Callback)) {
                 argsList.set(0, body);
             }
         }
@@ -326,7 +326,7 @@ public class BoonServiceMethodCallHandler implements ServiceMethodHandler {
     private List<Object> prepareArgumentList(final MethodCall<Object> methodCall, Class<?>[] parameterTypes) {
         final List<Object> argsList = new ArrayList<>(parameterTypes.length);
         for (Class<?> parameterType : parameterTypes) {
-            if (parameterType == Handler.class) {
+            if (parameterType == Callback.class) {
                 argsList.add(createCallBackHandler(methodCall));
                 continue;
             }
@@ -335,10 +335,29 @@ public class BoonServiceMethodCallHandler implements ServiceMethodHandler {
         return argsList;
     }
 
-    private Handler<Object> createCallBackHandler(final MethodCall<Object> methodCall) {
-        return returnValue -> responseSendQueue.send(
-                ResponseImpl.response(methodCall, returnValue)
-        );
+    static class BoonCallBackWrapper implements Callback<Object> {
+        final SendQueue<Response<Object>> responseSendQueue;
+        final MethodCall<Object> methodCall;
+
+        BoonCallBackWrapper(final SendQueue<Response<Object>> responseSendQueue, final MethodCall<Object> methodCall) {
+
+            this.responseSendQueue = responseSendQueue;
+            this.methodCall = methodCall;
+        }
+
+        @Override
+        public void accept(Object result) {
+            responseSendQueue.send(
+                    ResponseImpl.response(methodCall, result)
+            );
+
+        }
+    }
+
+    private Callback<Object> createCallBackHandler(final MethodCall<Object> methodCall) {
+
+        return new BoonCallBackWrapper(responseSendQueue, methodCall);
+
     }
 
     private Response<Object> invokeByName(MethodCall<Object> methodCall) {

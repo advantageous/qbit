@@ -69,7 +69,7 @@ public class ServiceBundleImpl implements ServiceBundle {
         }
     }
 
-    private Map<HandlerKey, Handler<Object>> handlers = new ConcurrentHashMap<>();
+    private Map<HandlerKey, Callback<Object>> handlers = new ConcurrentHashMap<>();
 
     private BeforeMethodCall beforeMethodCall = ServiceConstants.NO_OP_BEFORE_METHOD_CALL;
 
@@ -175,15 +175,15 @@ public class ServiceBundleImpl implements ServiceBundle {
         if (object instanceof List) {
             final List list = (List) object;
             for (Object arg : list) {
-                if (arg instanceof Handler) {
-                    registerHandlerCallbackForClient(methodCall, (Handler) arg);
+                if (arg instanceof Callback) {
+                    registerHandlerCallbackForClient(methodCall, (Callback) arg);
                 }
             }
         } else if (object instanceof Object[]) {
             final Object[] array = (Object[]) object;
             for (Object arg : array) {
-                if (arg instanceof Handler) {
-                    registerHandlerCallbackForClient(methodCall, ((Handler) arg));
+                if (arg instanceof Callback) {
+                    registerHandlerCallbackForClient(methodCall, ((Callback) arg));
                 }
             }
         }
@@ -191,7 +191,7 @@ public class ServiceBundleImpl implements ServiceBundle {
     }
 
     private void registerHandlerCallbackForClient(final MethodCall<Object> methodCall,
-                                                  final Handler<Object> handler) {
+                                                  final Callback<Object> handler) {
         handlers.put(new HandlerKey(methodCall.returnAddress(), methodCall.id()), handler);
     }
 
@@ -199,7 +199,7 @@ public class ServiceBundleImpl implements ServiceBundle {
         responseQueue.startListener(new ReceiveQueueListener<Response<Object>>() {
             @Override
             public void receive(Response<Object> response) {
-                final Handler<Object> handler = handlers.get(new HandlerKey(response.returnAddress(), response.id()));
+                final Callback<Object> handler = handlers.get(new HandlerKey(response.returnAddress(), response.id()));
                 if (response.wasErrors()) {
                     if (response.body() instanceof Throwable) {
                         logger.error("Service threw an exception address", response.address(),

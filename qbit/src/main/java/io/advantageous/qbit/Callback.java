@@ -9,9 +9,9 @@ import java.util.function.Consumer;
  * <p>
  * Created by gcc on 10/14/14.
  */
-public interface Handler<T> extends Consumer<T> {
+public interface Callback<T> extends Consumer<T> {
 
     default void onError(Throwable error) {
-        LoggerFactory.getLogger(Handler.class).error(error.getMessage(), error);
+        LoggerFactory.getLogger(Callback.class).error(error.getMessage(), error);
     }
 }

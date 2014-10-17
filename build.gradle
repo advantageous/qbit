@@ -97,7 +97,7 @@ project(':qbit-boon') {
     sourceSets.main.resources.srcDir 'src/main/java'
     dependencies {
         compile project(':qbit')
-        compile group: 'io.fastjson', name: 'boon', version: '0.28'
+        compile group: 'io.fastjson', name: 'boon', version: '0.30-SNAPSHOT'
     }
 }
 

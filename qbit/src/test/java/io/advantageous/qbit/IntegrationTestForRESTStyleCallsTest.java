@@ -15,7 +15,6 @@ import org.boon.Boon;
 import org.boon.Exceptions;
 import org.boon.Lists;
 import org.boon.Str;
-import org.boon.core.Handler;
 import org.boon.core.Sys;
 import org.junit.Before;
 import org.junit.Test;
@@ -361,7 +360,10 @@ public class IntegrationTestForRESTStyleCallsTest {
 
         Exceptions.requireNonNull(response);
 
+        puts(response.body());
+
         ok = !response.wasErrors() || die();
+
 
         puts(response.body());
 
@@ -480,13 +482,13 @@ public class IntegrationTestForRESTStyleCallsTest {
         }
 
         @RequestMapping("/async/")
-        public void async(Handler<String> handler) {
-            handler.handle("hi mom");
+        public void async(Callback<String> handler) {
+            handler.accept("hi mom");
         }
 
         @RequestMapping("/asyncHelloWorld/")
-        public void asyncHelloWorld(Handler<String> handler, String arg) {
-            handler.handle("Hello " + arg);
+        public void asyncHelloWorld(Callback<String> handler, String arg) {
+            handler.accept("Hello " + arg);
         }
 
     }
