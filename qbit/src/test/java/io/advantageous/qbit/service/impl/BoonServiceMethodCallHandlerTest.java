@@ -230,9 +230,7 @@ public class BoonServiceMethodCallHandlerTest {
 
         ok = methodCalled || die();
 
-        puts(response.returnAddress());
-
-        Str.equalsOrDie("returnAddress", response.returnAddress());
+        //void does not return, its void.
 
     }
 
