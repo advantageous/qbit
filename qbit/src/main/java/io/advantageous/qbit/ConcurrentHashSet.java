@@ -38,7 +38,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * Concurrent HashSet.
  * @author rhightower
  *
- * @param <T>
+ * @param <T> type the sets hold
  */
 public class ConcurrentHashSet<T> implements Set<T> {
 

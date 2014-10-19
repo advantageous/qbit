@@ -9,7 +9,9 @@ import io.advantageous.qbit.Input;
  */
 public interface ReceiveQueueListener<T> extends Input {
 
-    /** Notifies a queue listener that an item has been recieved */
+    /** Notifies a queue listener that an item has been received
+     * @param item item
+     */
     void receive(T item);
 
     /** Notifies the queue listener that currently the queue is empty.

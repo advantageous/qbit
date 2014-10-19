@@ -21,12 +21,15 @@ public @interface RequestMapping {
      * For HTTP, this would be the URI. Or part of the URI after the parent URI context
      * be it ServletApp Context or some other parent context.
      *
+     * @return a request mapping, URIs really
      */
     String[] value() default {};
 
     /**
      * HTTP request methods must be:
      * GET, or POST or WebSocket.
+     *
+     * @return or RequestMethods that are supported by this end point
      */
     RequestMethod[] method() default {};
 }

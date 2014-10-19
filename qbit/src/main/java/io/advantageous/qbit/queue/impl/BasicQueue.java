@@ -11,6 +11,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * This is the base for all the queues we use.
  * <p>
  * Created by Richard on 8/4/14.
+ * @param <T> type
  * @author rhightower
  */
 public class BasicQueue<T> implements Queue<T> {
@@ -38,11 +39,12 @@ public class BasicQueue<T> implements Queue<T> {
         this.receiveQueueManager = new BasicReceiveQueueManager<>();
     }
 
+
     /**
-     * This returns a new instance of ReceiveQueue<T> every time you call it
+     * This returns a new instance of ReceiveQueue every time you call it
      * so call it only once per thread.
      *
-     * @return received queue.
+     * @return received queue
      */
     @Override
     public ReceiveQueue<T> receiveQueue() {
@@ -50,7 +52,7 @@ public class BasicQueue<T> implements Queue<T> {
     }
 
     /**
-     * This returns a new instance of SendQueue<T> every time you call it
+     * This returns a new instance of SendQueue every time you call it
      * so call it only once per thread.
      *
      * @return sendQueue.

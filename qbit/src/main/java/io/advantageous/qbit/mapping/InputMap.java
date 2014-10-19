@@ -9,9 +9,10 @@ import io.advantageous.qbit.queue.SendQueue;
  * The get method is async.
  * You call get, and the poll the queue for the value.
  * Get can be called on one thread while inputForGet can be polled on another thread.
- * <code>
+ * @author Rick Hightower
+ *
  *     <pre>
- *         InputMap<String, String> map = Factory.tcpIpMap("localhost", 9999, string, string, JSON);
+ *         InputMap&lt;String, String&lt; map = Factory.tcpIpMap("localhost", 9999, string, string, JSON);
  *         map.sendQueue().send("foo");
  *
  *         ...
@@ -19,9 +20,8 @@ import io.advantageous.qbit.queue.SendQueue;
  *         String value = map.receiveQueue().poll(1000, TimeUnit.MILLISECONDS);
  *
  *     </pre>
- * </code>
  *
- * @author Rick Hightower
+ *
  *
  */
 public interface InputMap <K, V> extends Input {

@@ -34,8 +34,8 @@ import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * @author rhightower
- * @param <K>
- * @param <V>
+ * @param <K> key
+ * @param <V> value
  */
 
 public class MultiMapImpl<K, V> implements MultiMap<K, V> {

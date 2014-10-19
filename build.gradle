@@ -116,6 +116,32 @@ project(':examples') {
 project(':qbit-vertx') {
 
     apply plugin: 'java'
+    apply plugin: 'signing'
+
+
+    group = 'io.advantageous.qbit'
+    version = '1.0.0-SNAPSHOT'
+
+    task javadocJar(type: Jar, dependsOn: javadoc) {
+        classifier = 'javadoc'
+        from 'build/docs/javadoc'
+    }
+
+    task sourcesJar(type: Jar) {
+        from sourceSets.main.allSource
+        classifier = 'sources'
+    }
+
+    artifacts {
+        archives jar
+        archives javadocJar
+        archives sourcesJar
+    }
+
+    signing {
+        required false
+        sign configurations.archives
+    }
 
     jar {
         manifest {
@@ -131,5 +157,54 @@ project(':qbit-vertx') {
         compile group: 'io.vertx', name: 'vertx-platform', version: vertxVersion
         compile group: 'io.vertx', name: 'lang-groovy', version: vertxVersion
         testCompile 'junit:junit:4.11'
+    }
+
+
+    uploadArchives {
+        repositories {
+            mavenDeployer {
+                beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
+
+                repository(url: "https://oss.sonatype.org/service/local/staging/deploy/maven2/") {
+                    try {
+                        authentication(userName: sonatypeUsername, password: sonatypePassword)
+                    } catch (MissingPropertyException ignore) {
+                    }
+                }
+
+                pom.project {
+                    name 'qbit'
+                    packaging 'jar'
+                    description 'Go Channels inspired Java lib'
+                    url 'https://github.com/RichardHightower/qbit'
+
+                    scm {
+                        url 'scm:git@github.com:RichardHightower/qbit.git'
+                        connection 'scm:git@github.com:RichardHightower/qbit.git'
+                        developerConnection 'scm:git@github.com:RichardHightower/qbit.git'
+                    }
+
+                    licenses {
+                        license {
+                            name 'The Apache Software License, Version 2.0'
+                            url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                            distribution 'repo'
+                        }
+                    }
+
+                    developers {
+                        developer {
+                            id 'richardHightower'
+                            name 'Richard Hightower'
+                        }
+                        developer {
+                            id 'sailorgeoffrey'
+                            name 'Geoffrey Chandler'
+                        }
+                    }
+                }
+            }
+        }
+
     }
 }

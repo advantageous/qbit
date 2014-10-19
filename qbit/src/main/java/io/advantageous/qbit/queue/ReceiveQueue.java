@@ -11,24 +11,37 @@ import io.advantageous.qbit.Input;
  * A read operation on a database.
  * @author Richard Hightower
  *
+ *
+ *
  */
 public interface ReceiveQueue<T> extends Input {
 
     /** Gets the next item. If the item is null,
-     * means the timeout has been reached. */
+     * means the timeout has been reached.
+     * @return value from poll
+     */
     T pollWait();
 
 
-    /** Gets the next item. If the item is null the queue currently has no items. */
+    /** Gets the next item. If the item is null the queue currently has no items.
+     * @return value from poll
+     */
     T poll();
 
-    /** Wait for the next item. */
+    /** Wait for the next item.
+     * @return value from take
+     */
     T take();
 
-    /** Read in a batch of items. */
+    /** Read in a batch of items.
+     * @param max max number you want from batch
+     * @return batch of values
+     */
     Iterable<T> readBatch(int max);
 
 
-    /** Read in a batch of items. */
+    /** Read in a batch of items.
+     * @return batch of values
+     */
     Iterable<T> readBatch();
 }
