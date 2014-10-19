@@ -8,6 +8,7 @@ import java.util.List;
 
 /**
  * Created by Richard on 9/26/14.
+ * @author rhightower
  */
 public interface ProtocolEncoder {
 

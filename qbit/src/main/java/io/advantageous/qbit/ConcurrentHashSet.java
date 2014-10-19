@@ -36,6 +36,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Concurrent HashSet.
+ * @author rhightower
  *
  * @param <T>
  */

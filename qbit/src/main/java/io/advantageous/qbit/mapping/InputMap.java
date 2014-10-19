@@ -20,7 +20,9 @@ import io.advantageous.qbit.queue.SendQueue;
  *
  *     </pre>
  * </code>
-
+ *
+ * @author Rick Hightower
+ *
  */
 public interface InputMap <K, V> extends Input {
 

@@ -7,6 +7,9 @@ import io.advantageous.qbit.service.Service;
 import io.advantageous.qbit.service.ServiceBundle;
 import io.advantageous.qbit.spi.ProtocolEncoder;
 
+/**
+ * @author rhightower
+ */
 public interface Factory {
 
     MethodCall<Object> createMethodCallToBeParsedFromBody(String address,
@@ -41,4 +44,5 @@ public interface Factory {
                                                           MultiMap<String, String> params);
 
 
+    <T> T createLocalProxy(Class<T> serviceInterface, String serviceName, ServiceBundle serviceBundle);
 }

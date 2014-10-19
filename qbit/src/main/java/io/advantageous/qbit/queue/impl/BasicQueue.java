@@ -11,6 +11,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * This is the base for all the queues we use.
  * <p>
  * Created by Richard on 8/4/14.
+ * @author rhightower
  */
 public class BasicQueue<T> implements Queue<T> {
 

@@ -29,6 +29,7 @@ import static org.boon.Exceptions.die;
 
 /**
  * Created by Richard on 9/8/14.
+ * @author Rick Hightower
  */
 public class BoonServiceMethodCallHandler implements ServiceMethodHandler {
     private ClassMeta<Class<?>> classMeta;
@@ -262,7 +263,7 @@ public class BoonServiceMethodCallHandler implements ServiceMethodHandler {
     private Response<Object> response(MethodAccess methodAccess,
                                       MethodCall<Object> methodCall, Object returnValue) {
 
-        if (methodAccess.returnType() == Void.class) {
+        if (methodAccess.returnType() == void.class || methodAccess.returnType() == Void.class) {
             return ServiceConstants.VOID;
         }
         return ResponseImpl.response(
@@ -347,10 +348,11 @@ public class BoonServiceMethodCallHandler implements ServiceMethodHandler {
 
         @Override
         public void accept(Object result) {
-            responseSendQueue.send(
+            /* This wants to be periodic flush or flush based on size but this is a stop gap make something work for now.
+             */
+            responseSendQueue.sendAndFlush(
                     ResponseImpl.response(methodCall, result)
             );
-
         }
     }
 

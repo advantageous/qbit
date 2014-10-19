@@ -1,5 +1,12 @@
 package io.advantageous.qbit.bindings;
 
+
+/**
+ *
+ *
+ * @author Rick Hightower
+ *
+ */
 public class RequestParamBinding {
 
     private final int paramIndex;

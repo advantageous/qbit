@@ -7,6 +7,7 @@ import io.advantageous.qbit.message.Response;
  * Transforms raw json into a service response object.
  * <p>
  * Created by Richard on 8/26/14.
+ * @author rhightower
  */
 public class JsonResponseTransformer implements Transformer<Response<Object>, Response> {
 

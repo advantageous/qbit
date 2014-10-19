@@ -7,6 +7,9 @@ import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
 
+/**
+ * @author rhightower
+ */
 public class Timer {
 
     private final Logger logger = LoggerFactory.getLogger(Timer.class);

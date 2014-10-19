@@ -5,8 +5,11 @@ import java.util.Map;
 
 /**
  * Created by Richard on 7/22/14.
+ *
+ * @author Rick Hightower
+ *
  */
-public class HttpObjectBinding extends ObjectBinding {
+ public class HttpObjectBinding extends ObjectBinding {
 
     private String uri;
     private Map<String, MethodBinding> methodBindingMap = new HashMap<String, MethodBinding>();

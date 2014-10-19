@@ -5,6 +5,7 @@ import org.boon.Boon;
 
 /**
  * Created by gcc on 10/15/14.
+ * @author Rick Hightower
  */
 public class BoonJsonMapper implements JsonMapper {
     @Override

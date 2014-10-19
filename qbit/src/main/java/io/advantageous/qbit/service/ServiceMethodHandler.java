@@ -9,6 +9,7 @@ import java.util.Collection;
 
 /**
  * Created by Richard on 9/8/14.
+ * @author rhightower
  */
 public interface ServiceMethodHandler extends ReceiveQueueListener<MethodCall<Object>> {
 

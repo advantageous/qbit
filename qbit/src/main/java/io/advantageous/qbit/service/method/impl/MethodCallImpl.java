@@ -283,4 +283,9 @@ public class MethodCallImpl implements MethodCall<Object> {
     public void headers(MultiMap<String, String> headers) {
         this.headers = headers;
     }
+
+
+    public void setBody(Object[] body) {
+        this.body = body;
+    }
 }

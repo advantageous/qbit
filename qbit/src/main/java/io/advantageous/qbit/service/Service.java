@@ -10,6 +10,7 @@ import java.util.Collection;
 
 /**
  * Created by Richard on 7/21/14.
+ * @author rhightower
  */
 public interface Service {
 

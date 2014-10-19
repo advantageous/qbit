@@ -11,6 +11,10 @@ import java.util.List;
  * This is a composite message passed to a service.
  * <p>
  * Created by Richard on 9/8/14.
+ *
+ *
+ * @author Rick Hightower
+ *
  */
 public class CompositeMessageImpl<M extends Message<T>, T> implements CompositeMessage<M, T> {
 

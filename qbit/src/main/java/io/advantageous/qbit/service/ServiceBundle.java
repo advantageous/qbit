@@ -7,6 +7,7 @@ import java.util.List;
 
 /**
  * Created by Richard on 9/26/14.
+ * @author rhightower
  */
 public interface ServiceBundle extends EndPoint {
 
@@ -27,4 +28,5 @@ public interface ServiceBundle extends EndPoint {
 
     void startReturnHandlerProcessor();
 
+    <T> T createLocalProxy(Class<T> serviceInterface, String myService);
 }

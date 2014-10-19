@@ -1,1 +1,1 @@
-include 'qbit', 'qbit-boon', 'examples'
+include 'qbit', 'qbit-boon', 'examples', 'qbit-proxy'

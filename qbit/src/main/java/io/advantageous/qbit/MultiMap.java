@@ -4,6 +4,7 @@ import java.util.*;
 
 /**
  * Created by Richard on 9/26/14.
+ * @author rhightower
  */
 public interface MultiMap<K, V> extends Iterable<Map.Entry<K, Collection<V>>>, Map<K, V> {
     Iterator<Entry<K, Collection<V>>> iterator();

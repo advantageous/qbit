@@ -12,7 +12,8 @@ import java.util.concurrent.TimeUnit;
 /**
  * This is not thread safe.
  * You use BasicQueue to create this in the one thread that you are going to use it.
-* Created by Richard on 9/8/14.
+ * Created by Richard on 9/8/14.
+ * @author rhightower
 */
 class BasicReceiveQueue<T> implements ReceiveQueue<T> {
 
@@ -106,7 +107,7 @@ class BasicReceiveQueue<T> implements ReceiveQueue<T> {
 
         T item = this.poll();
         if (item==null) {
-            return Collections.EMPTY_LIST;
+            return Collections.emptyList();
         } else {
             List<T> batch = new ArrayList<>();
             batch.add(item);

@@ -239,6 +239,12 @@ public class ServiceBundleImpl implements ServiceBundle {
         });
     }
 
+    @Override
+    public <T> T createLocalProxy(Class<T> serviceInterface, String myService) {
+        //return factory.createP;
+        return null;
+    }
+
     private void doCall(MethodCall<Object> methodCall) {
 
         if (GlobalConstants.DEBUG) {

@@ -23,6 +23,7 @@ import static org.boon.Exceptions.die;
 
 /**
  * Created by Richard on 9/26/14.
+ * @author Rick Hightower
  */
 public class BoonProtocolParser implements ProtocolParser {
 

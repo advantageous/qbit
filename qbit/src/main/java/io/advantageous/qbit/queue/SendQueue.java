@@ -6,6 +6,7 @@ import java.util.Collection;
 
 /**
  * Created by Richard on 7/18/14.
+ * @author rhightower
  */
 public interface SendQueue<T> extends Output {
     void send(T item);

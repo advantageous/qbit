@@ -32,6 +32,11 @@ package io.advantageous.qbit;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
+/**
+ * @author rhightower
+ * @param <K>
+ * @param <V>
+ */
 
 public class MultiMapImpl<K, V> implements MultiMap<K, V> {
 

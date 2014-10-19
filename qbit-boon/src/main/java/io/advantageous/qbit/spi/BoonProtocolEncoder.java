@@ -16,6 +16,10 @@ import java.util.Set;
 
 import static io.advantageous.qbit.service.Protocol.*;
 
+/**
+ * Protocol encoder.
+ * @author Rick Hightower
+ */
 public class BoonProtocolEncoder implements ProtocolEncoder {
 
     private static ThreadLocal<JsonSerializer> jsonSerializer = new ThreadLocal<JsonSerializer>() {
@@ -86,6 +90,14 @@ public class BoonProtocolEncoder implements ProtocolEncoder {
             Iterable iter = (Iterable) body;
             for (Object bodyPart : iter) {
 
+                serializer.serialize(buf, bodyPart);
+                buf.addChar(PROTOCOL_ARG_SEPARATOR);
+            }
+        } else if (body instanceof Object[]) {
+            Object[] args = (Object[])body;
+
+            for (int index=0; index < args.length; index++) {
+                Object bodyPart = args[index];
                 serializer.serialize(buf, bodyPart);
                 buf.addChar(PROTOCOL_ARG_SEPARATOR);
             }

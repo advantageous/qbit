@@ -2,6 +2,10 @@ package io.advantageous.qbit.bindings;
 
 /**
  * Created by Richard on 7/22/14.
+ *
+ *
+ * @author Rick Hightower
+ *
  */
 public class ObjectBinding {
 

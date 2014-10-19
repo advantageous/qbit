@@ -2,6 +2,7 @@ package io.advantageous.qbit.service;
 
 /**
  * Created by Richard on 9/26/14.
+ * @author rhightower
  */
 public class Protocol {
 

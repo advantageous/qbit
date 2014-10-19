@@ -6,6 +6,7 @@ import io.advantageous.qbit.MultiMap;
  * This is an abstraction for an incoming service request.
  * <p>
  * Created by Richard on 7/21/14.
+ * @author Rick Hightower
  */
 public interface Request<T> extends Message<T> {
 

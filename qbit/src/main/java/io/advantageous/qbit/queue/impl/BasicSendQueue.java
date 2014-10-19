@@ -12,6 +12,7 @@ import java.util.concurrent.LinkedTransferQueue;
  * Create a new for every thread by calling BasicQueue.sendQueue().
  * <p>
  * Created by Richard on 9/8/14.
+ * @author rhightower
  */
 public class BasicSendQueue<T> implements SendQueue<T> {
 

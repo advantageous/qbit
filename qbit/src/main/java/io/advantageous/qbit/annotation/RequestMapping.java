@@ -6,6 +6,11 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+/**
+ *
+ * @author Rick Hightower
+ *
+ */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(value={ElementType.METHOD, ElementType.TYPE})
 public @interface RequestMapping {

@@ -93,11 +93,25 @@ project(':qbit') {
     }
 }
 
+
+
 project(':qbit-boon') {
     sourceSets.main.resources.srcDir 'src/main/java'
     dependencies {
         compile project(':qbit')
         compile group: 'io.fastjson', name: 'boon', version: '0.30-SNAPSHOT'
+        testCompile 'junit:junit:4.11'
+    }
+}
+
+
+project(':qbit-proxy') {
+    sourceSets.main.resources.srcDir 'src/main/java'
+    dependencies {
+        compile project(':qbit')
+        compile group: 'io.fastjson', name: 'boon', version: '0.30-SNAPSHOT'
+        testCompile 'junit:junit:4.11'
+
     }
 }
 
@@ -105,5 +119,6 @@ project(':examples') {
     sourceSets.main.resources.srcDir 'src/main/java'
     dependencies {
         compile project(':qbit-boon')
+        testCompile 'junit:junit:4.11'
     }
 }
