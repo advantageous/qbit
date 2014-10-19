@@ -105,20 +105,31 @@ project(':qbit-boon') {
 }
 
 
-project(':qbit-proxy') {
-    sourceSets.main.resources.srcDir 'src/main/java'
-    dependencies {
-        compile project(':qbit')
-        compile group: 'io.fastjson', name: 'boon', version: '0.30-SNAPSHOT'
-        testCompile 'junit:junit:4.11'
-
-    }
-}
-
 project(':examples') {
     sourceSets.main.resources.srcDir 'src/main/java'
     dependencies {
         compile project(':qbit-boon')
+        testCompile 'junit:junit:4.11'
+    }
+}
+
+project(':qbit-vertx') {
+
+    apply plugin: 'java'
+
+    jar {
+        manifest {
+            attributes 'Main-Class': 'io.rd.cognizance.example.SampleService'
+        }
+        from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
+    }
+    sourceSets.main.resources.srcDir 'src/main/java'
+    dependencies {
+        compile project(':qbit')
+        compile project(':qbit-boon')
+        compile group: 'io.vertx', name: 'vertx-core', version: vertxVersion
+        compile group: 'io.vertx', name: 'vertx-platform', version: vertxVersion
+        compile group: 'io.vertx', name: 'lang-groovy', version: vertxVersion
         testCompile 'junit:junit:4.11'
     }
 }

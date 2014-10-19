@@ -3,6 +3,8 @@ package io.advantageous.qbit;
 import io.advantageous.qbit.message.MethodCall;
 import io.advantageous.qbit.message.Response;
 import io.advantageous.qbit.queue.Queue;
+import io.advantageous.qbit.sender.Sender;
+import io.advantageous.qbit.service.BeforeMethodCall;
 import io.advantageous.qbit.service.Service;
 import io.advantageous.qbit.service.ServiceBundle;
 import io.advantageous.qbit.spi.ProtocolEncoder;
@@ -45,4 +47,12 @@ public interface Factory {
 
 
     <T> T createLocalProxy(Class<T> serviceInterface, String serviceName, ServiceBundle serviceBundle);
+
+    Response<Object> createResponse(String text);
+
+    <T> T createRemoteProxyWithReturnAddress(Class<T> serviceInterface, String uri, String serviceName, String returnAddressArg,
+                                             Sender<String> sender,
+                                             BeforeMethodCall beforeMethodCall);
+
+    MethodCall<Object> createMethodCallToBeParsedFromBody(String addressPrefix, Object message);
 }

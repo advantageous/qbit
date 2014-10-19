@@ -1,4 +1,4 @@
-package io.advantageous.qbit.proxy;
+package io.advantageous.qbit.sender;
 
 import io.advantageous.qbit.message.MethodCall;
 import io.advantageous.qbit.service.BeforeMethodCall;

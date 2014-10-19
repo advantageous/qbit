@@ -1,4 +1,4 @@
-package io.advantageous.qbit.proxy;
+package io.advantageous.qbit.sender;
 
 
 /**

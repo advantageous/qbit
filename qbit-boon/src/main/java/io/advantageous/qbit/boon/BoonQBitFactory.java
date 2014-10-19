@@ -7,6 +7,9 @@ import io.advantageous.qbit.message.MethodCall;
 import io.advantageous.qbit.message.Response;
 import io.advantageous.qbit.proxy.ServiceProxyFactory;
 import io.advantageous.qbit.queue.Queue;
+import io.advantageous.qbit.sender.Sender;
+import io.advantageous.qbit.sender.SenderEndPoint;
+import io.advantageous.qbit.service.BeforeMethodCall;
 import io.advantageous.qbit.service.Service;
 import io.advantageous.qbit.service.ServiceBundle;
 import io.advantageous.qbit.service.impl.BoonServiceMethodCallHandler;
@@ -66,6 +69,39 @@ public class BoonQBitFactory implements Factory {
                                   ServiceBundle serviceBundle) {
 
         return this.serviceProxyFactory.createProxy(serviceInterface, serviceName, serviceBundle);
+    }
+
+    @Override
+    public Response<Object> createResponse(String message) {
+        final ProtocolParser parser = selectProtocolParser(message, null);
+        return parser.parseResponse(message);
+    }
+
+
+    @Override
+    public <T> T createRemoteProxyWithReturnAddress(Class<T> serviceInterface, String address, String serviceName, String returnAddressArg, Sender<String> sender, BeforeMethodCall beforeMethodCall) {
+        return remoteServiceProxyFactory.createProxyWithReturnAddress(serviceInterface, serviceName, returnAddressArg,
+                new SenderEndPoint(this.createEncoder(), address, sender, beforeMethodCall));
+    }
+
+
+    @Override
+    public MethodCall<Object> createMethodCallToBeParsedFromBody(String addressPrefix, Object body) {
+
+        MethodCall<Object> methodCall = null;
+
+        if (body != null) {
+            ProtocolParser parser = selectProtocolParser(body, null);
+
+            if (parser != null) {
+                methodCall = parser.parseMethodCallUsingAddressPrefix(addressPrefix, body);
+            } else {
+                methodCall = defaultProtocol.parseMethodCall(body);
+            }
+        }
+
+        return methodCall;
+
     }
 
     @Override

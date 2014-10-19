@@ -8,7 +8,8 @@ import io.advantageous.qbit.spi.FactorySPI;
 public class QBit {
 
     public static Factory factory() {
-        return FactorySPI.getFactory();
+        Factory factory =  FactorySPI.getFactory();
+        return factory;
     }
 
 }
