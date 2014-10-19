@@ -44,6 +44,11 @@ public class FactoryImpl implements Factory {
     }
 
     @Override
+    public <T> T createLocalProxy(Class<T> serviceInterface, String serviceName, ServiceBundle serviceBundle) {
+        return null;
+    }
+
+    @Override
     public MethodCall<Object> createMethodCallToBeParsedFromBody(String address,
                                                                  String returnAddress,
                                                                  String objectName,
