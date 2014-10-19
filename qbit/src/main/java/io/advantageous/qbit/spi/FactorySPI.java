@@ -6,14 +6,12 @@ import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * Created by Richard on 9/26/14.
+ * @author rhightower
  */
 public class FactorySPI {
 
     private static final AtomicReference<Factory> ref = new AtomicReference<>();
 
-    static {
-        ref.set(new FactoryImpl());
-    }
 
     public static Factory getFactory() {
         return ref.get();

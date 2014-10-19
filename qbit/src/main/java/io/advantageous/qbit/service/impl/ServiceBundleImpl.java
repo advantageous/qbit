@@ -241,8 +241,8 @@ public class ServiceBundleImpl implements ServiceBundle {
 
     @Override
     public <T> T createLocalProxy(Class<T> serviceInterface, String myService) {
-        //return factory.createP;
-        return null;
+
+        return factory.createLocalProxy(serviceInterface, myService, this);
     }
 
     private void doCall(MethodCall<Object> methodCall) {

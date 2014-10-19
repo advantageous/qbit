@@ -1,5 +1,6 @@
 package io.advantageous.qbit.proxy;
 
+import io.advantageous.qbit.Callback;
 import io.advantageous.qbit.Factory;
 import io.advantageous.qbit.QBit;
 import io.advantageous.qbit.annotation.RequestMapping;
@@ -7,6 +8,7 @@ import io.advantageous.qbit.message.MethodCall;
 import io.advantageous.qbit.message.Response;
 import io.advantageous.qbit.queue.ReceiveQueue;
 import io.advantageous.qbit.service.ServiceBundle;
+import io.advantageous.qbit.spi.RegisterBoonWithQBit;
 import org.boon.core.Handler;
 import org.boon.core.Handlers;
 import org.boon.core.Sys;
@@ -14,6 +16,7 @@ import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import static org.boon.Boon.puts;
 import static org.boon.Exceptions.die;
@@ -23,6 +26,10 @@ import static org.boon.Exceptions.die;
  */
 public class ServiceProxyFactoryTest {
 
+    static {
+        RegisterBoonWithQBit.registerBoonWithQBit();
+
+    }
     volatile boolean ok;
 
     List<MethodCall<Object>> calls = new ArrayList<>();
@@ -244,7 +251,7 @@ public class ServiceProxyFactoryTest {
 
         void method2(String hi, int amount);
 
-        void method3(Handler<String> handler, String hi, int amount);
+        void method3(Callback<String> handler, String hi, int amount);
     }
 
     @Test
@@ -291,9 +298,9 @@ public class ServiceProxyFactoryTest {
                 "myService");
 
         ok = false;
-        Handler<String> returnHandler = new Handler<String>() {
+        Callback<String> returnHandler = new Callback<String>() {
             @Override
-            public void handle(String returnValue) {
+            public void accept(String returnValue) {
 
                 puts("We got", returnValue);
 
@@ -313,7 +320,7 @@ public class ServiceProxyFactoryTest {
 
     public static interface ClientInterfaceThrowsException {
 
-        public void methodThrowsExceptionIf5(Handler<String> arg, String hi, int amount);
+        public void methodThrowsExceptionIf5(Callback<String> arg, String hi, int amount);
     }
 
     @Test
@@ -372,14 +379,28 @@ public class ServiceProxyFactoryTest {
             @Override
             public void handle(Throwable exception) {
 
-                puts("We got", exception.getMessage());
-
-                ok = "Hi hi 5".equals(exception.getMessage());
 
             }
         };
 
-        final Handler<String> handler = Handlers.handler(returnHandler, exceptionHandler);
+        AtomicBoolean wasError = new AtomicBoolean();
+        final Callback<String> handler = new Callback<String>() {
+
+            @Override
+            public void accept(String s) {
+
+                ok=true;
+            }
+
+            @Override
+            public void onError(Throwable error) {
+
+                puts("We got", error.getMessage());
+
+                ok = "Hi hi 5".equals(error.getMessage());
+                wasError.set(true);
+            }
+        };
 
         myServiceProxy.methodThrowsExceptionIf5(handler, "hi", 6);
         bundle.flushSends();
@@ -387,13 +408,18 @@ public class ServiceProxyFactoryTest {
 
         ok = ok || die();
 
+        ok = !wasError.get() || die();
+
         ok = false;
+        wasError.set(false);
 
 
         myServiceProxy.methodThrowsExceptionIf5(handler, "hi", 5);
         bundle.flushSends();
         Sys.sleep(1000);
         ok = ok || die();
+
+        ok = wasError.get() || die();
 
 
 

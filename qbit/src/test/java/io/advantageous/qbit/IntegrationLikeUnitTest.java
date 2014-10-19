@@ -1,5 +1,6 @@
 package io.advantageous.qbit;
 
+import io.advantageous.qbit.spi.RegisterBoonWithQBit;
 import org.boon.Boon;
 import org.boon.Exceptions;
 import org.boon.Lists;
@@ -23,6 +24,12 @@ import static org.boon.Boon.puts;
  * Created by Richard on 9/27/14.
  */
 public class IntegrationLikeUnitTest {
+
+
+    static {
+        RegisterBoonWithQBit.registerBoonWithQBit();
+
+    }
 
     EmployeeService employeeService;
     ServiceBundle serviceBundle;

@@ -11,6 +11,7 @@ import io.advantageous.qbit.service.impl.ServiceBundleImpl;
 import io.advantageous.qbit.service.method.impl.MethodCallImpl;
 import io.advantageous.qbit.spi.BoonProtocolEncoder;
 import io.advantageous.qbit.spi.ProtocolEncoder;
+import io.advantageous.qbit.spi.RegisterBoonWithQBit;
 import org.boon.Boon;
 import org.boon.Exceptions;
 import org.boon.Lists;
@@ -30,6 +31,12 @@ import static org.boon.Exceptions.die;
  * Created by Richard on 9/27/14.
  */
 public class IntegrationTestForRESTStyleCallsTest {
+
+
+    static {
+        RegisterBoonWithQBit.registerBoonWithQBit();
+
+    }
 
 
     EmployeeService employeeService;

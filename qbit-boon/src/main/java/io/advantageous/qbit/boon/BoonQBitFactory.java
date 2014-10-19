@@ -1,10 +1,11 @@
-package io.advantageous.qbit.spi;
+package io.advantageous.qbit.boon;
 
 import io.advantageous.qbit.Factory;
 import io.advantageous.qbit.GlobalConstants;
 import io.advantageous.qbit.MultiMap;
 import io.advantageous.qbit.message.MethodCall;
 import io.advantageous.qbit.message.Response;
+import io.advantageous.qbit.proxy.ServiceProxyFactory;
 import io.advantageous.qbit.queue.Queue;
 import io.advantageous.qbit.service.Service;
 import io.advantageous.qbit.service.ServiceBundle;
@@ -12,6 +13,12 @@ import io.advantageous.qbit.service.impl.BoonServiceMethodCallHandler;
 import io.advantageous.qbit.service.impl.ServiceBundleImpl;
 import io.advantageous.qbit.service.impl.ServiceImpl;
 import io.advantageous.qbit.service.method.impl.MethodCallImpl;
+import io.advantageous.qbit.spi.BoonProtocolEncoder;
+import io.advantageous.qbit.spi.BoonProtocolParser;
+import io.advantageous.qbit.spi.ProtocolEncoder;
+import io.advantageous.qbit.spi.ProtocolParser;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -20,10 +27,20 @@ import java.util.concurrent.TimeUnit;
 
 /**
  * Created by Richard on 9/26/14.
+ * @author rhightower
+ * This factory uses Boon reflection and JSON support.
+ * The Factory is a facade over other factories providing a convienient unified interface to QBIT.
+ *
  */
-public class FactoryImpl implements Factory {
+public class BoonQBitFactory implements Factory {
 
     private ProtocolParser defaultProtocol = new BoonProtocolParser();
+    private ServiceProxyFactory serviceProxyFactory = new BoonServiceProxyFactory();
+
+    private ServiceProxyFactory remoteServiceProxyFactory = new BoonJSONServiceFactory(this);
+
+
+    private final Logger logger = LoggerFactory.getLogger(BoonQBitFactory.class);
 
     private List<ProtocolParser> protocolParserList = new ArrayList<>();
 
@@ -44,8 +61,11 @@ public class FactoryImpl implements Factory {
     }
 
     @Override
-    public <T> T createLocalProxy(Class<T> serviceInterface, String serviceName, ServiceBundle serviceBundle) {
-        return null;
+    public <T> T createLocalProxy(Class<T> serviceInterface,
+                                  String serviceName,
+                                  ServiceBundle serviceBundle) {
+
+        return this.serviceProxyFactory.createProxy(serviceInterface, serviceName, serviceBundle);
     }
 
     @Override

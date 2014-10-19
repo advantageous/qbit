@@ -8,6 +8,7 @@ import io.advantageous.qbit.service.ServiceBundle;
 import io.advantageous.qbit.service.impl.ServiceBundleImpl;
 import io.advantageous.qbit.spi.BoonProtocolEncoder;
 import io.advantageous.qbit.spi.ProtocolEncoder;
+import io.advantageous.qbit.spi.RegisterBoonWithQBit;
 import org.boon.Boon;
 import org.boon.Exceptions;
 import org.boon.Lists;
@@ -27,6 +28,11 @@ import static org.boon.Boon.puts;
  */
 public class IntegrationForJSONInputForPOSTAndWebSocketBodiesTest {
 
+
+    static {
+        RegisterBoonWithQBit.registerBoonWithQBit();
+
+    }
 
     EmployeeService employeeService;
     ServiceBundle serviceBundle;

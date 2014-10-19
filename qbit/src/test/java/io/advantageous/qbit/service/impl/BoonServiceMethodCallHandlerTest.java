@@ -7,6 +7,7 @@ import io.advantageous.qbit.QBit;
 import io.advantageous.qbit.annotation.RequestMapping;
 import io.advantageous.qbit.bindings.MethodBinding;
 import io.advantageous.qbit.message.Response;
+import io.advantageous.qbit.spi.RegisterBoonWithQBit;
 import org.boon.Lists;
 import org.boon.Pair;
 import org.boon.Str;
@@ -23,6 +24,12 @@ import static org.boon.Exceptions.die;
  * Created by Richard on 9/26/14.
  */
 public class BoonServiceMethodCallHandlerTest {
+
+
+    static {
+        RegisterBoonWithQBit.registerBoonWithQBit();
+
+    }
 
     boolean methodCalled;
 
@@ -222,6 +229,8 @@ public class BoonServiceMethodCallHandlerTest {
         ok = response != null || die();
 
         ok = methodCalled || die();
+
+        puts(response.returnAddress());
 
         Str.equalsOrDie("returnAddress", response.returnAddress());
 
