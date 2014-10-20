@@ -1,7 +1,7 @@
 package io.advantageous.qbit.spi;
 
-import io.advantageous.qbit.MultiMap;
-import io.advantageous.qbit.MultiMapImpl;
+import io.advantageous.qbit.util.MultiMap;
+import io.advantageous.qbit.util.MultiMapImpl;
 import org.boon.Boon;
 import org.boon.Lists;
 import org.boon.Str;

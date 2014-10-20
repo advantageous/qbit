@@ -1,6 +1,6 @@
 package io.advantageous.qbit.spi;
 
-import io.advantageous.qbit.MultiMap;
+import io.advantageous.qbit.util.MultiMap;
 import io.advantageous.qbit.message.Message;
 import io.advantageous.qbit.message.MethodCall;
 import io.advantageous.qbit.message.Response;

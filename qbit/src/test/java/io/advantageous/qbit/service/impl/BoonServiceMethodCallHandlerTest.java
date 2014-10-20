@@ -1,8 +1,8 @@
 package io.advantageous.qbit.service.impl;
 
 import io.advantageous.qbit.Factory;
-import io.advantageous.qbit.MultiMap;
-import io.advantageous.qbit.MultiMapImpl;
+import io.advantageous.qbit.util.MultiMap;
+import io.advantageous.qbit.util.MultiMapImpl;
 import io.advantageous.qbit.QBit;
 import io.advantageous.qbit.annotation.RequestMapping;
 import io.advantageous.qbit.bindings.MethodBinding;

@@ -9,7 +9,7 @@ import java.lang.annotation.Target;
 
 /**
  *
- *
+ * Exposes a method as a ServiceMethod, i.e., a method that can be accessed from the outside world.
  * @author Rick Hightower
  *
  */

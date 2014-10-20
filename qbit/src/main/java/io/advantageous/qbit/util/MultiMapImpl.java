@@ -26,7 +26,7 @@
  *               \/           \/          \/         \/        \/  \/
  */
 
-package io.advantageous.qbit;
+package io.advantageous.qbit.util;
 
 
 import java.util.*;

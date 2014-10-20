@@ -2,7 +2,7 @@ package io.advantageous.qbit.boon;
 
 import io.advantageous.qbit.Factory;
 import io.advantageous.qbit.GlobalConstants;
-import io.advantageous.qbit.MultiMap;
+import io.advantageous.qbit.util.MultiMap;
 import io.advantageous.qbit.message.MethodCall;
 import io.advantageous.qbit.message.Response;
 import io.advantageous.qbit.proxy.ServiceProxyFactory;
@@ -157,9 +157,12 @@ public class BoonQBitFactory implements Factory {
     }
 
     @Override
-    public ServiceBundle createBundle(String path) {
-        return new ServiceBundleImpl(path, 50, 5, this);
+    public ServiceBundle createServiceBundle(String path) {
+        return new ServiceBundleImpl(path, 50, 5, this, null);
     }
+
+
+
 
     @Override
     public Service createService(String rootAddress, String serviceAddress, Object object, Queue<Response<Object>> responseQueue) {

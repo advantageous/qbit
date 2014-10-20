@@ -8,6 +8,10 @@ import io.advantageous.qbit.queue.SendQueue;
 import java.util.Collection;
 
 /**
+ * This is a plugin just for the piece that does the invocation.
+ * QBit has a boon implementation of this that uses reflection.
+ * One could, for example, plugin an implementation of this that used bytecode generation.
+ *
  * Created by Richard on 9/8/14.
  * @author rhightower
  */

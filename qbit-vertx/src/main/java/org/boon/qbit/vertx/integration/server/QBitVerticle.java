@@ -66,7 +66,7 @@ public class QBitVerticle extends Verticle {
 
         container.logger().info("QBitVerticle started");
 
-        serviceBundle = QBit.factory().createBundle("/services");
+        serviceBundle = QBit.factory().createServiceBundle("/services");
 
         serviceBundle.addService("/employeeService", new EmployeeManagerImpl());
 

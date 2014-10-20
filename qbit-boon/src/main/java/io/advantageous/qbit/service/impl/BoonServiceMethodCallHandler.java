@@ -1,7 +1,7 @@
 package io.advantageous.qbit.service.impl;
 
-import io.advantageous.qbit.Callback;
-import io.advantageous.qbit.MultiMap;
+import io.advantageous.qbit.service.Callback;
+import io.advantageous.qbit.util.MultiMap;
 import io.advantageous.qbit.bindings.ArgParamBinding;
 import io.advantageous.qbit.bindings.MethodBinding;
 import io.advantageous.qbit.bindings.RequestParamBinding;

@@ -5,6 +5,7 @@ import io.advantageous.qbit.message.Response;
 import io.advantageous.qbit.service.AfterMethodCall;
 
 /**
+ * Default after call handler.
  * Created by Richard on 8/26/14.
  */
 public class NoOpAfterMethodCall implements AfterMethodCall {

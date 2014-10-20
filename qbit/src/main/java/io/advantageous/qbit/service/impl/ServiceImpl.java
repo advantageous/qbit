@@ -39,7 +39,7 @@ public class ServiceImpl implements Service {
 
     private AfterMethodCall afterMethodCallAfterTransform = new NoOpAfterMethodCall();
 
-    private ReceiveQueueListener<MethodCall> inputQueueListener = new NoOpInputMethodCallQueueListener();
+    private ReceiveQueueListener<MethodCall<Object>> inputQueueListener = new NoOpInputMethodCallQueueListener();
 
     private final Queue<Response<Object>> responseQueue;
 

@@ -9,6 +9,9 @@ import io.advantageous.qbit.Input;
  * This could be a TCP/IP connection.
  * Reading a file from the file system. Etc.
  * A read operation on a database.
+ *
+ * This is a receive queue.
+ *
  * @author Richard Hightower
  *
  *

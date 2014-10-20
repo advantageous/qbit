@@ -6,6 +6,8 @@ import io.advantageous.qbit.queue.ReceiveQueue;
 import java.util.List;
 
 /**
+ * A service bundle is a collection of services.
+ * The service bundle does the routing of calls based on addresses to a particular service.
  * Created by Richard on 9/26/14.
  * @author rhightower
  */

@@ -1,6 +1,6 @@
 package org.boon.qbit.vertx.integration.vertx;
 
-import io.advantageous.qbit.MultiMap;
+import io.advantageous.qbit.util.MultiMap;
 
 import java.util.Collection;
 import java.util.Iterator;

@@ -7,6 +7,7 @@ import io.advantageous.qbit.service.impl.NoOpBeforeMethodCall;
 import io.advantageous.qbit.spi.ProtocolEncoder;
 
 /**
+ * Combines a sender with a protocol encoder so we can send messages to another remote end point.
  * Created by Richard on 10/1/14.
  *  @author Rick Hightower
  */

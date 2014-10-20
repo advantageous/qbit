@@ -7,7 +7,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.util.UUID;
 
-import io.advantageous.qbit.Timer;
+import io.advantageous.qbit.util.Timer;
 import io.advantageous.qbit.proxy.ServiceProxyFactory;
 import io.advantageous.qbit.service.EndPoint;
 import io.advantageous.qbit.service.method.impl.MethodCallImpl;

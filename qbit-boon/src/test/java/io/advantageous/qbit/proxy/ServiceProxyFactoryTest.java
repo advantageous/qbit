@@ -1,6 +1,6 @@
 package io.advantageous.qbit.proxy;
 
-import io.advantageous.qbit.Callback;
+import io.advantageous.qbit.service.Callback;
 import io.advantageous.qbit.Factory;
 import io.advantageous.qbit.QBit;
 import io.advantageous.qbit.annotation.RequestMapping;
@@ -10,7 +10,6 @@ import io.advantageous.qbit.queue.ReceiveQueue;
 import io.advantageous.qbit.service.ServiceBundle;
 import io.advantageous.qbit.spi.RegisterBoonWithQBit;
 import org.boon.core.Handler;
-import org.boon.core.Handlers;
 import org.boon.core.Sys;
 import org.junit.Test;
 
@@ -177,7 +176,7 @@ public class ServiceProxyFactoryTest {
 
 
         final Factory factory  = QBit.factory();
-        final ServiceBundle bundle = factory.createBundle("/root");
+        final ServiceBundle bundle = factory.createServiceBundle("/root");
 
 
         bundle.addService(myService);
@@ -220,7 +219,7 @@ public class ServiceProxyFactoryTest {
 
 
         final Factory factory  = QBit.factory();
-        final ServiceBundle bundle = factory.createBundle("/root");
+        final ServiceBundle bundle = factory.createServiceBundle("/root");
 
 
         bundle.addService(myService);
@@ -285,7 +284,7 @@ public class ServiceProxyFactoryTest {
 
 
         final Factory factory  = QBit.factory();
-        final ServiceBundle bundle = factory.createBundle("/root");
+        final ServiceBundle bundle = factory.createServiceBundle("/root");
 
 
         bundle.addService(myService);
@@ -351,7 +350,7 @@ public class ServiceProxyFactoryTest {
 
 
         final Factory factory  = QBit.factory();
-        final ServiceBundle bundle = factory.createBundle("/root");
+        final ServiceBundle bundle = factory.createServiceBundle("/root");
 
 
         bundle.addService(myService);

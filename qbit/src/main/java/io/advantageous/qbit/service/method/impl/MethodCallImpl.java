@@ -1,7 +1,7 @@
 package io.advantageous.qbit.service.method.impl;
 
-import io.advantageous.qbit.MultiMap;
-import io.advantageous.qbit.Timer;
+import io.advantageous.qbit.util.MultiMap;
+import io.advantageous.qbit.util.Timer;
 import io.advantageous.qbit.annotation.JsonIgnore;
 import io.advantageous.qbit.message.MethodCall;
 import io.advantageous.qbit.service.Protocol;

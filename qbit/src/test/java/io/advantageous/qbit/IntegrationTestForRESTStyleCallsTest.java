@@ -5,6 +5,7 @@ import io.advantageous.qbit.annotation.RequestParam;
 import io.advantageous.qbit.message.MethodCall;
 import io.advantageous.qbit.message.Response;
 import io.advantageous.qbit.queue.ReceiveQueue;
+import io.advantageous.qbit.service.Callback;
 import io.advantageous.qbit.service.Protocol;
 import io.advantageous.qbit.service.ServiceBundle;
 import io.advantageous.qbit.service.impl.ServiceBundleImpl;
@@ -12,6 +13,8 @@ import io.advantageous.qbit.service.method.impl.MethodCallImpl;
 import io.advantageous.qbit.spi.BoonProtocolEncoder;
 import io.advantageous.qbit.spi.ProtocolEncoder;
 import io.advantageous.qbit.spi.RegisterBoonWithQBit;
+import io.advantageous.qbit.util.MultiMap;
+import io.advantageous.qbit.util.MultiMapImpl;
 import org.boon.Boon;
 import org.boon.Exceptions;
 import org.boon.Lists;
@@ -69,7 +72,7 @@ public class IntegrationTestForRESTStyleCallsTest {
         employeeService = new EmployeeService();
 
         factory = QBit.factory();
-        final ServiceBundle bundle = factory.createBundle("/root");
+        final ServiceBundle bundle = factory.createServiceBundle("/root");
         serviceBundle = bundle;
         serviceBundleImpl = (ServiceBundleImpl) bundle;
 

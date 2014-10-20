@@ -1,6 +1,6 @@
 package io.advantageous.qbit.message;
 
-import io.advantageous.qbit.MultiMap;
+import io.advantageous.qbit.util.MultiMap;
 
 /**
  * This is an abstraction for an incoming service request.

@@ -8,7 +8,7 @@ import java.lang.annotation.Target;
 
 /**
  *
- *
+ * Defines an object as a service.
  * @author Rick Hightower
  *
  */

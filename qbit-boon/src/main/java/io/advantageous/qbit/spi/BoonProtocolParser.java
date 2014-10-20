@@ -1,7 +1,7 @@
 package io.advantageous.qbit.spi;
 
-import io.advantageous.qbit.MultiMap;
-import io.advantageous.qbit.MultiMapImpl;
+import io.advantageous.qbit.util.MultiMap;
+import io.advantageous.qbit.util.MultiMapImpl;
 import io.advantageous.qbit.message.Message;
 import io.advantageous.qbit.message.MethodCall;
 import io.advantageous.qbit.message.Response;
@@ -10,7 +10,6 @@ import io.advantageous.qbit.service.method.impl.MethodCallImpl;
 import io.advantageous.qbit.service.method.impl.ResponseImpl;
 import org.boon.Lists;
 import org.boon.Str;
-import org.boon.collections.MultiMaps;
 import org.boon.core.reflection.FastStringUtils;
 import org.boon.json.JsonParserAndMapper;
 import org.boon.json.JsonParserFactory;

@@ -1,6 +1,6 @@
 package io.advantageous.qbit.message.impl;
 
-import io.advantageous.qbit.Timer;
+import io.advantageous.qbit.util.Timer;
 import io.advantageous.qbit.message.CompositeMessage;
 import io.advantageous.qbit.message.Message;
 

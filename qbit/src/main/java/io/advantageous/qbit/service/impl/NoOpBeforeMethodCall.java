@@ -4,6 +4,7 @@ import io.advantageous.qbit.message.MethodCall;
 import io.advantageous.qbit.service.BeforeMethodCall;
 
 /**
+ * Default before method handler. Does nothing.
  * Created by Richard on 8/26/14.
  */
 public class NoOpBeforeMethodCall implements BeforeMethodCall {

@@ -9,6 +9,7 @@ import io.advantageous.qbit.service.impl.ServiceBundleImpl;
 import io.advantageous.qbit.spi.BoonProtocolEncoder;
 import io.advantageous.qbit.spi.ProtocolEncoder;
 import io.advantageous.qbit.spi.RegisterBoonWithQBit;
+import io.advantageous.qbit.util.MultiMap;
 import org.boon.Boon;
 import org.boon.Exceptions;
 import org.boon.Lists;
@@ -63,7 +64,7 @@ public class IntegrationForJSONInputForPOSTAndWebSocketBodiesTest {
         employeeService = new EmployeeService();
 
         factory = QBit.factory();
-        final ServiceBundle bundle = factory.createBundle("/root");
+        final ServiceBundle bundle = factory.createServiceBundle("/root");
         serviceBundle = bundle;
         serviceBundleImpl = (ServiceBundleImpl) bundle;
 

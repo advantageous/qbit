@@ -8,6 +8,7 @@ import java.lang.annotation.Target;
 
 /**
  *
+ * Defines a request parameter.
  * @author Rick Hightower
  *
  */
