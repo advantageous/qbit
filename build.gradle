@@ -2,6 +2,9 @@ subprojects {
     apply plugin: 'java'
     apply plugin: 'maven'
 
+    group = 'io.advantageous.qbit'
+    version = '1.0.0-SNAPSHOT'
+
     repositories {
         mavenLocal()
         mavenCentral()
@@ -14,9 +17,6 @@ subprojects {
 project(':qbit') {
 
     apply plugin: 'signing'
-
-    group = 'io.advantageous.qbit'
-    version = '1.0.0-SNAPSHOT'
 
     dependencies {
         testCompile group: 'junit', name: 'junit', version: '4.10'
@@ -92,8 +92,6 @@ project(':qbit') {
         }
     }
 }
-
-
 
 project(':qbit-boon') {
     sourceSets.main.resources.srcDir 'src/main/java'
