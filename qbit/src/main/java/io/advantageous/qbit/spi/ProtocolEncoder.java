@@ -12,12 +12,9 @@ import java.util.List;
  */
 public interface ProtocolEncoder {
 
-
-
     String encodeAsString(Response<Object> response);
 
     String encodeAsString(MethodCall<Object> methodCall);
-
 
     String encodeAsString(List<Message<Object>> methodCalls);
 

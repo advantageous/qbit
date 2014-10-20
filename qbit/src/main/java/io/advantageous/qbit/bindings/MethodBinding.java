@@ -18,7 +18,8 @@ public class MethodBinding {
     private final List<ArgParamBinding> parameters = new ArrayList<>();
 
     private final List<RequestParamBinding> requestParamBindings = new ArrayList<>();
-    RequestParamBinding[] requestParamBindingsMap;
+
+    private RequestParamBinding[] requestParamBindingsMap;
 
     //TODO: use boon-utils for fast string parsing
     public static MethodBinding method(String methodName, String uri) {

@@ -13,7 +13,6 @@ public class ObjectBinding {
 
     private Object serviceImpl;
 
-
     public Class<?> interfaceClass() {
         return interfaceClass;
     }
