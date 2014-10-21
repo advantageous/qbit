@@ -5,8 +5,10 @@ import io.advantageous.qbit.message.Message;
 import io.advantageous.qbit.message.MethodCall;
 import io.advantageous.qbit.message.Response;
 import io.advantageous.qbit.service.Protocol;
+import org.boon.core.reflection.fields.FieldAccess;
 import org.boon.json.JsonSerializer;
 import org.boon.json.JsonSerializerFactory;
+import org.boon.json.serializers.FieldFilter;
 import org.boon.primitive.CharBuf;
 
 import java.util.Collection;
@@ -18,6 +20,7 @@ import static io.advantageous.qbit.service.Protocol.*;
 
 /**
  * Protocol encoder.
+ *
  * @author Rick Hightower
  */
 public class BoonProtocolEncoder implements ProtocolEncoder {
@@ -25,7 +28,14 @@ public class BoonProtocolEncoder implements ProtocolEncoder {
     private static ThreadLocal<JsonSerializer> jsonSerializer = new ThreadLocal<JsonSerializer>() {
         @Override
         protected JsonSerializer initialValue() {
-            return new JsonSerializerFactory().create();
+            return new JsonSerializerFactory().addFilter(
+                    new FieldFilter() {
+                        @Override
+                        public boolean include(Object parent, FieldAccess fieldAccess) {
+                              return !fieldAccess.name().equals("metaClass");
+                        }
+                     }
+            ).create();
         }
     };
 
@@ -94,9 +104,9 @@ public class BoonProtocolEncoder implements ProtocolEncoder {
                 buf.addChar(PROTOCOL_ARG_SEPARATOR);
             }
         } else if (body instanceof Object[]) {
-            Object[] args = (Object[])body;
+            Object[] args = (Object[]) body;
 
-            for (int index=0; index < args.length; index++) {
+            for (int index = 0; index < args.length; index++) {
                 Object bodyPart = args[index];
                 serializer.serialize(buf, bodyPart);
                 buf.addChar(PROTOCOL_ARG_SEPARATOR);

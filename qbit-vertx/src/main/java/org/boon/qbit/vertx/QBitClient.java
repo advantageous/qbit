@@ -36,14 +36,13 @@ import io.advantageous.qbit.queue.ReceiveQueue;
 import io.advantageous.qbit.queue.SendQueue;
 import io.advantageous.qbit.queue.impl.BasicQueue;
 import io.advantageous.qbit.service.BeforeMethodCall;
+import io.advantageous.qbit.service.Callback;
 import io.advantageous.qbit.service.method.impl.MethodCallImpl;
 import org.boon.Boon;
 import org.boon.Logger;
 import org.boon.Str;
 import org.boon.StringScanner;
 import org.boon.core.Conversions;
-import org.boon.core.HandlerWithErrorHandling;
-import org.boon.core.Handlers;
 import org.boon.core.reflection.ClassMeta;
 import org.boon.core.reflection.MapObjectConversion;
 import org.boon.core.reflection.MethodAccess;
@@ -113,7 +112,7 @@ public class QBitClient {
     /**
      * Map of handlers so we can do the whole async call back thing.
      */
-    private Map<HandlerKey, org.boon.core.Handler> handlers = new ConcurrentHashMap<>();
+    private Map<HandlerKey, Callback<Object>> handlers = new ConcurrentHashMap<>();
 
     /**
      * Logger.
@@ -207,7 +206,7 @@ public class QBitClient {
         HandlerKey key = new HandlerKey(split[1], response.id());
 
 
-        final org.boon.core.Handler handler = handlers.get(key);
+        final Callback<Object>  handler = handlers.get(key);
 
         if (handler != null) {
 
@@ -218,17 +217,14 @@ public class QBitClient {
     /**
      * Handles an async callback.
      */
-    private void handleAsyncCallback(Response<Object> response, org.boon.core.Handler handler) {
-        if (handler instanceof HandlerWithErrorHandling) {
-            HandlerWithErrorHandling handling = (HandlerWithErrorHandling) handler;
+    private void handleAsyncCallback(Response<Object> response, Callback<Object> handler) {
+
             if (response.wasErrors()) {
-                handling.errorHandler().handle(response.body());
+                handler.onError(new Exception(response.body().toString()));
             } else {
-                handling.handle(response.body());
+                handler.accept(response.body());
             }
-        } else if (handler instanceof org.boon.core.Handler) {
-            handler.handle(response.body());
-        }
+
     }
 
 
@@ -363,9 +359,9 @@ public class QBitClient {
 
                     if (list.length > 0) {
                         final Object o = list[0];
-                        if (o instanceof org.boon.core.Handler) {
+                        if (o instanceof Callback) {
                             handlers.put(new HandlerKey(call.returnAddress(), call.id()),
-                                    createHandler(serviceInterface, call, (org.boon.core.Handler) o));
+                                    createHandler(serviceInterface, call, (Callback) o));
 
                             if (list.length - 1 == 0) {
                                 list = new Object[0];
@@ -400,7 +396,7 @@ public class QBitClient {
      * @param <T>              the class of hte service interface
      * @return the new handler
      */
-    private <T> org.boon.core.Handler createHandler(final Class<T> serviceInterface, final MethodCall call, final org.boon.core.Handler handler) {
+    private <T> Callback createHandler(final Class<T> serviceInterface, final MethodCall call, final Callback handler) {
 
         final ClassMeta<T> clsMeta = ClassMeta.classMeta(serviceInterface);
         final MethodAccess method = clsMeta.method(call.name());
@@ -432,9 +428,9 @@ public class QBitClient {
         final Class<?> componentClass = compType;
 
         /** Create the return handler. */
-        org.boon.core.Handler<Object> returnHandler = new org.boon.core.Handler<Object>() {
+        Callback<Object> returnHandler = new Callback<Object>() {
             @Override
-            public void handle(Object event) {
+            public void accept(Object event) {
 
                 if (actualReturnType != null) {
 
@@ -443,18 +439,15 @@ public class QBitClient {
                     } else {
                         event = Conversions.coerce(actualReturnType, event);
                     }
-                    handler.handle(event);
+                    handler.accept(event);
                 }
 
             }
         };
 
 
-        /** Create the exception handler. */
-        org.boon.core.Handler<Throwable> exceptionHandler = event ->
-                logger.error(event, "QBitClient exception from client");
 
-        return Handlers.handler(returnHandler, exceptionHandler);
+        return returnHandler;
     }
 
 
