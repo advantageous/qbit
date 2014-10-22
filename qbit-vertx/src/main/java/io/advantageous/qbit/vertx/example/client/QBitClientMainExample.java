@@ -26,18 +26,21 @@
  *               \/           \/          \/         \/        \/  \/
  */
 
-package org.boon.qbit.vertx.integration.client;
+package io.advantageous.qbit.vertx.example.client;
+
+
+
+import io.advantageous.qbit.vertx.QBitClient;
+import io.advantageous.qbit.vertx.example.model.Employee;
 
 import io.advantageous.qbit.QBit;
 import io.advantageous.qbit.message.Response;
 import io.advantageous.qbit.queue.ReceiveQueue;
 import io.advantageous.qbit.spi.RegisterBoonWithQBit;
+import io.advantageous.qbit.vertx.example.model.EmployeeManager;
 import org.boon.Boon;
 import org.boon.core.Sys;
 import org.boon.core.reflection.MapObjectConversion;
-import org.boon.qbit.vertx.QBitClient;
-import org.boon.qbit.vertx.integration.model.Employee;
-import org.boon.qbit.vertx.integration.model.EmployeeManager;
 import org.vertx.java.core.Vertx;
 import org.vertx.java.core.VertxFactory;
 
@@ -50,7 +53,7 @@ import static org.boon.Boon.puts;
  * Created by Richard on 10/2/14.
  * @author Rick Hightower
  */
-public class QBitClientMain {
+public class QBitClientMainExample {
 
 
 

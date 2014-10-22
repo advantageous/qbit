@@ -26,54 +26,56 @@
  *               \/           \/          \/         \/        \/  \/
  */
 
-package org.boon.qbit.vertx.integration.model;
+package io.advantageous.qbit.vertx.example.server;
 
-/**
- * Created by Richard on 10/2/14.
- * @author Rick Hightower
- */
-public class Employee {
+import io.advantageous.qbit.spi.RegisterBoonWithQBit;
+import org.boon.Str;
+import org.boon.primitive.Arry;
+import org.vertx.java.core.json.JsonObject;
+import org.vertx.java.platform.PlatformLocator;
+import org.vertx.java.platform.PlatformManager;
 
-    private  String firstName;
-    private  String lastName;
-    private  int salary;
-    private  long employeeId;
+import java.io.File;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
+
+public class QBitServiceExampleMain {
 
 
-    public Employee() {
 
+    public static void main(String... args) throws Exception {
+
+        RegisterBoonWithQBit.registerBoonWithQBit();
+
+        runServer("qbit", "emp", "1.0");
+
+        // Prevent the JVM from exiting
+        System.in.read();
     }
 
-    public Employee(String firstName, String lastName, int salary, long employeeId) {
-        this.firstName = firstName;
-        this.lastName = lastName;
-        this.salary = salary;
-        this.employeeId = employeeId;
+    static void runServer(String owner, String serverName, String version) {
+        PlatformManager platformManager = PlatformLocator.factory.createPlatformManager();
+        platformManager.deployModuleFromClasspath(
+                Str.add(owner, "~", serverName, "~", version),
+                (JsonObject) null, 1, classpath(), null);
     }
 
-    public String getFirstName() {
-        return firstName;
+
+    static URL[] classpath() {
+        String classPathParts = System.getProperty("java.class.path");
+        String[] split = classPathParts.split(":");
+        List<URL> urls = new ArrayList<>(split.length);
+
+        for (String classPathPart : split) {
+            try {
+                urls.add(new File(classPathPart).toURI().toURL());
+            } catch (MalformedURLException e) {
+                throw new RuntimeException(e);
+            }
+        }
+        return Arry.array(urls);
     }
 
-    public String getLastName() {
-        return lastName;
-    }
-
-    public int getSalary() {
-        return salary;
-    }
-
-    public long getEmployeeId() {
-        return employeeId;
-    }
-
-    @Override
-    public String toString() {
-        return "Employee{" +
-                "firstName='" + firstName + '\'' +
-                ", lastName='" + lastName + '\'' +
-                ", salary=" + salary +
-                ", employeeId=" + employeeId +
-                '}';
-    }
 }

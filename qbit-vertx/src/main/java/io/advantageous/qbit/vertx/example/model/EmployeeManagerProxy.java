@@ -26,7 +26,7 @@
  *               \/           \/          \/         \/        \/  \/
  */
 
-package org.boon.qbit.vertx.integration.model;
+package io.advantageous.qbit.vertx.example.model;
 
 import org.boon.core.Handler;
 

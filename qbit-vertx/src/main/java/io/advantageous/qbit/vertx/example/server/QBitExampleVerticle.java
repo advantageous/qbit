@@ -26,7 +26,7 @@
  *               \/           \/          \/         \/        \/  \/
  */
 
-package org.boon.qbit.vertx.integration.server;
+package io.advantageous.qbit.vertx.example.server;
 
 import io.advantageous.qbit.QBit;
 import io.advantageous.qbit.message.MethodCall;
@@ -34,7 +34,7 @@ import io.advantageous.qbit.message.Response;
 import io.advantageous.qbit.queue.ReceiveQueue;
 import io.advantageous.qbit.service.ServiceBundle;
 import io.advantageous.qbit.spi.ProtocolEncoder;
-import org.boon.qbit.vertx.integration.model.EmployeeManagerImpl;
+import io.advantageous.qbit.vertx.example.model.EmployeeManagerImpl;
 
 import org.vertx.java.core.Handler;
 import org.vertx.java.core.buffer.Buffer;
@@ -48,7 +48,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import static org.boon.Boon.puts;
 
-public class QBitVerticle extends Verticle {
+public class QBitExampleVerticle extends Verticle {
 
     private ServiceBundle serviceBundle;
 

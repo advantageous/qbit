@@ -26,60 +26,64 @@
  *               \/           \/          \/         \/        \/  \/
  */
 
-package org.boon.qbit.vertx.integration.server;
+package io.advantageous.qbit.vertx.example.client;
 
 import io.advantageous.qbit.spi.RegisterBoonWithQBit;
-import org.boon.Str;
-import org.boon.primitive.Arry;
-import org.vertx.java.core.AsyncResult;
-import org.vertx.java.core.Handler;
-import org.vertx.java.core.json.JsonObject;
-import org.vertx.java.platform.PlatformLocator;
-import org.vertx.java.platform.PlatformManager;
+import io.advantageous.qbit.vertx.QBitClient;
+import org.boon.Boon;
+import org.boon.core.Handler;
+import io.advantageous.qbit.vertx.example.model.Employee;
+import io.advantageous.qbit.vertx.example.model.EmployeeManagerProxy;
+import org.vertx.java.core.Vertx;
+import org.vertx.java.core.VertxFactory;
 
-import java.io.File;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.ArrayList;
 import java.util.List;
 
 import static org.boon.Boon.puts;
 
-public class QBitServiceMain {
+/**
+ * Created by Richard on 10/3/14.
+ * @author Rick Hightower
+ */
+public class QBitClientUsingAsyncHandleMain {
 
-
-
-    public static void main(String... args) throws Exception {
+    public static void main(String... args) throws InterruptedException {
 
         RegisterBoonWithQBit.registerBoonWithQBit();
 
-        runServer("qbit", "emp", "1.0");
 
-        // Prevent the JVM from exiting
-        System.in.read();
-    }
+        /* Create a new instance of Vertx. */
+        Vertx vertx = VertxFactory.newVertx();
 
-    static void runServer(String owner, String serverName, String version) {
-        PlatformManager platformManager = PlatformLocator.factory.createPlatformManager();
-        platformManager.deployModuleFromClasspath(
-                Str.add(owner, "~", serverName, "~", version),
-                (JsonObject) null, 1, classpath(), null);
-    }
+        /* Create new client. */
+        final QBitClient qBitClient = new QBitClient("localhost", 8080, "/services", vertx);
+
+        /* Start the async callback handler. */
+        qBitClient.startReturnProcessing();
+
+        /* Create an employee proxy using the client proxy interface with the handler. */
+        final EmployeeManagerProxy remoteProxy = qBitClient.createProxy(EmployeeManagerProxy.class,
+                "employeeService");
 
 
-    static URL[] classpath() {
-        String classPathParts = System.getProperty("java.class.path");
-        String[] split = classPathParts.split(":");
-        List<URL> urls = new ArrayList<>(split.length);
+        /* Add an employee to the proxy, which calls the websocket. */
+        remoteProxy.addEmployee(new Employee("Rick", "Hightower", 10, 1L));
 
-        for (String classPathPart : split) {
-            try {
-                urls.add(new File(classPathPart).toURI().toURL());
-            } catch (MalformedURLException e) {
-                throw new RuntimeException(e);
+
+        /* Call list employees. To get a list of employees. Use the
+           Handler to get the list of employees async.
+         */
+        remoteProxy.list(new Handler<List<Employee>>() {
+            @Override
+            public void handle(List<Employee> employees) {
+                puts(employees);
+
             }
-        }
-        return Arry.array(urls);
+        });
+
+        Boon.gets();
+
     }
+
 
 }

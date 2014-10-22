@@ -1,4 +1,4 @@
-package org.boon.qbit.vertx.integration.vertx;
+package io.advantageous.qbit.vertx.example.vertx;
 
 import io.advantageous.qbit.util.MultiMap;
 

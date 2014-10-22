@@ -117,6 +117,7 @@ project(':qbit-vertx') {
     apply plugin: 'signing'
 
 
+
     group = 'io.advantageous.qbit'
     version = '1.0.0-SNAPSHOT'
 

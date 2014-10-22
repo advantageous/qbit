@@ -26,15 +26,32 @@
  *               \/           \/          \/         \/        \/  \/
  */
 
-package org.boon.qbit.vertx.integration.model;
+package io.advantageous.qbit.vertx.example.model;
 
+import org.boon.Lists;
+
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+
 
 /**
- * Created by Richard on 10/2/14.
+ * Employee Manager Service example.
+ * @author Rick Hightower
  */
-public interface EmployeeManager {
-    void addEmployee(Employee employee);
+public class EmployeeManagerImpl implements EmployeeManager {
 
-    List<Employee> list();
+
+    private Map<Long, Employee> employeeMap = new HashMap<>();
+
+    @Override
+    public void addEmployee(Employee employee) {
+
+        employeeMap.put(employee.getEmployeeId(), employee);
+    }
+
+    @Override
+    public List<Employee> list() {
+        return Lists.list(employeeMap.values());
+    }
 }

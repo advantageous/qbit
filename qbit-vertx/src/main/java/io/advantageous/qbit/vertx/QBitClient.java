@@ -26,7 +26,7 @@
  *               \/           \/          \/         \/        \/  \/
  */
 
-package org.boon.qbit.vertx;
+package io.advantageous.qbit.vertx;
 
 import io.advantageous.qbit.QBit;
 import io.advantageous.qbit.message.MethodCall;
@@ -99,13 +99,13 @@ public class QBitClient {
     private final BlockingQueue<WebSocket> connectionQueue = new ArrayBlockingQueue<>(1);
 
     /**
-     * Output queue to server.
+     * Output queue to httpServer.
      */
     private final BlockingQueue<String> queueToServer = new ArrayBlockingQueue<>(1000);
 
 
     /**
-     * Queue from server.
+     * Queue from httpServer.
      */
     private final Queue<String> queueFromServer;
 
@@ -320,7 +320,7 @@ public class QBitClient {
      * @param serviceInterface service interface
      * @param serviceName      service name
      * @param <T>              class type of interface
-     * @return new client proxy.. calling methods on this proxy marshals method calls to server.
+     * @return new client proxy.. calling methods on this proxy marshals method calls to httpServer.
      */
     public <T> T createProxy(final Class<T> serviceInterface,
                              final String serviceName) {
@@ -460,7 +460,7 @@ public class QBitClient {
 
 
     /**
-     * Use vertx to connect to websocket server that is hosting this service.
+     * Use vertx to connect to websocket httpServer that is hosting this service.
      */
     private void connect() {
         vertx.createHttpClient().setHost(host).setPort(port)

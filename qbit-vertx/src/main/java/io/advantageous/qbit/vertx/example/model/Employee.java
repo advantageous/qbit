@@ -26,32 +26,54 @@
  *               \/           \/          \/         \/        \/  \/
  */
 
-package org.boon.qbit.vertx.integration.model;
-
-import org.boon.Lists;
-
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
+package io.advantageous.qbit.vertx.example.model;
 
 /**
- * Employee Manager Service example.
+ * Created by Richard on 10/2/14.
  * @author Rick Hightower
  */
-public class EmployeeManagerImpl implements EmployeeManager {
+public class Employee {
+
+    private  String firstName;
+    private  String lastName;
+    private  int salary;
+    private  long employeeId;
 
 
-    private Map<Long, Employee> employeeMap = new HashMap<>();
+    public Employee() {
 
-    @Override
-    public void addEmployee(Employee employee) {
+    }
 
-        employeeMap.put(employee.getEmployeeId(), employee);
+    public Employee(String firstName, String lastName, int salary, long employeeId) {
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.salary = salary;
+        this.employeeId = employeeId;
+    }
+
+    public String getFirstName() {
+        return firstName;
+    }
+
+    public String getLastName() {
+        return lastName;
+    }
+
+    public int getSalary() {
+        return salary;
+    }
+
+    public long getEmployeeId() {
+        return employeeId;
     }
 
     @Override
-    public List<Employee> list() {
-        return Lists.list(employeeMap.values());
+    public String toString() {
+        return "Employee{" +
+                "firstName='" + firstName + '\'' +
+                ", lastName='" + lastName + '\'' +
+                ", salary=" + salary +
+                ", employeeId=" + employeeId +
+                '}';
     }
 }
