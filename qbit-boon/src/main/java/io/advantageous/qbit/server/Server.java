@@ -184,8 +184,8 @@ public class Server {
     private void handleServiceBundleFlush() {
         long now = timer.now();
 
-        /* Force a flush every 50 milliseconds. */
-        if (now  > lastFlushTime.get() + 50L) {
+        /* Force a flush every 10 milliseconds. */
+        if (now  > lastFlushTime.get() + 10L) {
             serviceBundle.flushSends();
         }
     }
