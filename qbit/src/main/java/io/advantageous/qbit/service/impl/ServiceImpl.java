@@ -70,7 +70,7 @@ public class ServiceImpl implements Service {
                                     final ServiceMethodHandler serviceMethodHandler,
                                     final SendQueue<Response<Object>> responseSendQueue) {
         if (GlobalConstants.DEBUG) {
-            logger.info("ServiceImpl::doHandleMethodCall() METHOD CALL", methodCall);
+            logger.info("ServiceImpl::doHandleMethodCall() METHOD CALL" + methodCall );
         }
 
         inputQueueListener.receive(methodCall);
