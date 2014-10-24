@@ -30,7 +30,7 @@ public class TodoServiceWithQBitService {
     }
 
     @Test
-    public void testCallback() {
+    public void testCallbackWithObjectNameAndMethodName() {
 
 
         Service service = QBit.factory().createService("/services", "/todo-service", new TodoService(), null);
@@ -45,6 +45,50 @@ public class TodoServiceWithQBitService {
         requests.send(addMethodCall);
 
         MethodCall<Object> listMethodCall = QBit.factory().createMethodCallByNames("list", "/todo-service", "call2:localhost",
+                todoItem, null);
+
+        requests.sendAndFlush(listMethodCall);
+
+        Sys.sleep(100);
+
+        ReceiveQueue<Response<Object>> responses = service.responses();
+
+        Response<Object> response = responses.take();
+
+        Object body = response.body();
+
+        if (body instanceof List) {
+            List<TodoItem> items = (List) body;
+
+            ok = items.size() > 0 || die("items should have one todo in it");
+
+            TodoItem todoItem1 = items.get(0);
+
+            ok = todoItem.equals(todoItem1) || die("TodoItem ", todoItem, todoItem1);
+
+
+        } else {
+            die("Response was not a list", body);
+        }
+    }
+
+
+    @Test
+    public void testCallbackWithAddress() {
+
+
+        Service service = QBit.factory().createService("/services", "/todo-service", new TodoService(), null);
+
+        SendQueue<MethodCall<Object>> requests = service.requests();
+
+        TodoItem todoItem = new TodoItem("call mom", "give mom a call", new Date());
+        MethodCall<Object> addMethodCall = QBit.factory().createMethodCallByAddress("/services/todo-service/add", "call1:localhost",
+                todoItem, null);
+
+
+        requests.send(addMethodCall);
+
+        MethodCall<Object> listMethodCall = QBit.factory().createMethodCallByAddress("/services/todo-service/list", "call2:localhost",
                 todoItem, null);
 
         requests.sendAndFlush(listMethodCall);
