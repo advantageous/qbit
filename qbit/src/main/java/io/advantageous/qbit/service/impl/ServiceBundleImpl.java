@@ -268,10 +268,10 @@ public class ServiceBundleImpl implements ServiceBundle {
     @SuppressWarnings("unchecked")
     public void call(MethodCall<Object> methodCall) {
         if (GlobalConstants.DEBUG) {
-            logger.info(ServiceBundleImpl.class.getName(), "::call()",
-                    methodCall.name(),
-                    methodCall.address(),
-                    "\n", methodCall);
+            logger.info( ServiceBundleImpl.class.getName() + "::call() " +
+                    methodCall.name() + " " + " " +
+                    methodCall.address() +
+                    "\n" + methodCall);
         }
         final Object object = methodCall.body();
 
@@ -396,14 +396,15 @@ public class ServiceBundleImpl implements ServiceBundle {
         }
 
         if (sendQueue == null) {
-            logger.error("No service at method address " + methodCall.returnAddress()
+            logger.error("No service at method address " + methodCall.address()
                     + " method name " +methodCall.name() + " object name " + methodCall.objectName() + "\n");
 
             Set<String> uris = serviceMapping.keySet();
 
             uris.forEach((String it)->{logger.error("known URI path " + it);});
 
-            throw new IllegalStateException("there is no object at this address: " + methodCall.returnAddress());
+            throw new IllegalStateException("there is no object at this address: " + methodCall.address()
+                    + "\n method name=" + methodCall.name() + "\n objectName=" + methodCall.objectName());
         }
         sendQueue.send(methodCall);
     }

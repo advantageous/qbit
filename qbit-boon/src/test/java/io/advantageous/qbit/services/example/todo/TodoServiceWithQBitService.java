@@ -1,4 +1,4 @@
-package io.advantageous.qbit.example.todo;
+package io.advantageous.qbit.services.example.todo;
 
 import io.advantageous.qbit.QBit;
 import io.advantageous.qbit.message.MethodCall;

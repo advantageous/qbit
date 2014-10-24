@@ -110,9 +110,6 @@ public class Server {
         });
 
 
-        startResponseQueueListener();
-
-
         httpServer.run();
 
 
