@@ -396,7 +396,14 @@ public class ServiceBundleImpl implements ServiceBundle {
         }
 
         if (sendQueue == null) {
-            throw new IllegalStateException("there is no object at this address: " + methodCall);
+            logger.error("No service at method address " + methodCall.returnAddress()
+                    + " method name " +methodCall.name() + " object name " + methodCall.objectName() + "\n");
+
+            Set<String> uris = serviceMapping.keySet();
+
+            uris.forEach((String it)->{logger.error("known URI path " + it);});
+
+            throw new IllegalStateException("there is no object at this address: " + methodCall.returnAddress());
         }
         sendQueue.send(methodCall);
     }

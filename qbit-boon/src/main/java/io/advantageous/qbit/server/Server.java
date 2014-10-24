@@ -39,8 +39,8 @@ public class Server {
     protected HttpServer httpServer;
     protected ServiceBundle serviceBundle;
 
-    private Set<String> getMethodURIs  = new LinkedHashSet<>();
-    private Set<String> postMethodURIs  = new LinkedHashSet<>();
+    private Set<String> getMethodURIs = new LinkedHashSet<>();
+    private Set<String> postMethodURIs = new LinkedHashSet<>();
 
 
     private final Logger logger = LoggerFactory.getLogger(Server.class);
@@ -79,19 +79,18 @@ public class Server {
             if (future != null) {
                 future.cancel(true);
             }
-        }catch (Exception ex) {
+        } catch (Exception ex) {
             logger.warn("shutting down", ex);
         }
 
 
         try {
-            if (monitor!=null) {
+            if (monitor != null) {
                 monitor.shutdown();
             }
-        }catch (Exception ex) {
+        } catch (Exception ex) {
             logger.warn("shutting down", ex);
         }
-
 
 
     }
@@ -99,7 +98,6 @@ public class Server {
     public void run() {
 
         serviceBundle.startReturnHandlerProcessor();
-
 
 
         httpServer.setHttpRequestConsumer((final HttpRequest request) -> {
@@ -116,7 +114,6 @@ public class Server {
 
 
         httpServer.run();
-
 
 
     }
@@ -185,7 +182,7 @@ public class Server {
         long now = timer.now();
 
         /* Force a flush every 10 milliseconds. */
-        if (now  > lastFlushTime.get() + 10L) {
+        if (now > lastFlushTime.get() + 10L) {
             serviceBundle.flushSends();
         }
     }
@@ -218,11 +215,11 @@ public class Server {
 
         Map<String, Object> requestMapping = classMeta.annotation("RequestMapping").getValues();
 
-        if ( requestMapping == null ) {
+        if (requestMapping == null) {
             return;
         }
 
-        String serviceURI = ((String[])requestMapping.get("value"))[0];
+        String serviceURI = ((String[]) requestMapping.get("value"))[0];
 
         Iterable<MethodAccess> methods = classMeta.methods();
 
@@ -271,12 +268,12 @@ public class Server {
 
         RequestMethod[] httpMethods = (RequestMethod[]) methodValuesForAnnotation.get("method");
 
-        if (httpMethods != null && httpMethods.length > 0 ) {
+        if (httpMethods != null && httpMethods.length > 0) {
             httpMethod = httpMethods[0];
 
         }
 
-        httpMethod = httpMethod==null ? RequestMethod.GET : httpMethod;
+        httpMethod = httpMethod == null ? RequestMethod.GET : httpMethod;
 
         return httpMethod;
     }
@@ -284,7 +281,7 @@ public class Server {
     private String extractMethodURI(Map<String, Object> methodValuesForAnnotation) {
 
 
-        String []  values = (String[]) methodValuesForAnnotation.get("value");
+        String[] values = (String[]) methodValuesForAnnotation.get("value");
         String methodURI = values[0];
         if (methodURI.contains("{")) {
             methodURI = StringScanner.split(methodURI, '{', 1)[0];
@@ -304,7 +301,6 @@ public class Server {
         String uri = request.getUri();
 
 
-
         switch (request.getMethod()) {
             case "GET":
                 knownURI = getMethodURIs.contains(uri);
@@ -317,7 +313,7 @@ public class Server {
 
 
         if (!knownURI) {
-            request.getResponse().response(404, "application/json", Str.add("No service method for URI ", request.getUri()) );
+            request.getResponse().response(404, "application/json", Str.add("No service method for URI ", request.getUri()));
 
         }
 
@@ -325,17 +321,15 @@ public class Server {
                 QBit.factory().createMethodCallToBeParsedFromBody(request.getUri(),
                         request.getRemoteAddress(),
                         null,
-                        null,request.getBody(), request.getParams()
+                        null, request.getBody(), request.getParams()
 
                 );
 
-        puts("RETURN ADDRESS" , methodCall.returnAddress());
+        puts("RETURN ADDRESS", methodCall.returnAddress());
         serviceBundle.call(methodCall);
 
         responseMap.put(request.getRemoteAddress(), request.getResponse());
     }
-
-
 
 
     private void handleWebSocketCall(final WebSocketMessage webSocketMessage) {

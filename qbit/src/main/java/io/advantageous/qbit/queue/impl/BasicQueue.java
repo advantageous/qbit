@@ -80,7 +80,7 @@ public class BasicQueue<T> implements Queue<T> {
             try {
                 manageQueue(listener);
             } catch (Exception ex) {
-                logger.error("BasicQueue Manager", "Problem running queue manager", ex);
+                logger.error("BasicQueue Manager::Problem running queue manager", ex);
             }
         }, 50, 50, TimeUnit.MILLISECONDS);
     }
