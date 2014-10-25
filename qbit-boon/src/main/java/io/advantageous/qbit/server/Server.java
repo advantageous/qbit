@@ -203,9 +203,15 @@ public class Server {
     }
 
     private void handleResponseFromServiceBundle(Response<Object> response) {
+
         String address = response.returnAddress();
 
+
+        puts("RESPONSE CALLBACK TO HTTP ", address, response);
+
         HttpResponse httpResponse = responseMap.get(address);
+
+        puts("RESPONSE CALLBACK TO HTTP ", address, response, httpResponse);
 
 
         if (httpResponse != null) {
@@ -218,6 +224,8 @@ public class Server {
                 String responseAsText = encoder.encodeAsString(response);
                 webSocket.send(responseAsText);
 
+            } else {
+                throw new IllegalStateException("Unable to find response handler to send back http or websocket response");
             }
         }
     }
@@ -348,7 +356,8 @@ public class Server {
         }
         serviceBundle.call(methodCall);
 
-        responseMap.put(request.getRemoteAddress(), request.getResponse());
+        puts("RESPONSE CALLBACK TO HTTP", methodCall.returnAddress(), request.getResponse());
+        responseMap.put(methodCall.returnAddress(), request.getResponse());
     }
 
 

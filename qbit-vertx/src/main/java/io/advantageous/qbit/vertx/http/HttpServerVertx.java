@@ -98,13 +98,30 @@ public class HttpServerVertx implements HttpServer {
     }
 
     private void handleHttpRequest(HttpServerRequest request) {
-        request.dataHandler((Buffer buffer) -> {
 
-            HttpRequest httpRequest = createRequest(request, buffer);
+        switch (request.method()) {
 
-            this.httpRequestConsumer.accept(httpRequest);
+            case "PUT":
+            case "POST":
+                request.dataHandler((Buffer buffer) -> {
+                    final HttpRequest postRequest = createRequest(request, buffer);
+                    this.httpRequestConsumer.accept(postRequest);
+                });
+             break;
 
-        });
+
+            case "HEAD":
+            case "OPTIONS":
+            case "DELETE":
+            case "GET":
+                final HttpRequest getRequest = createRequest(request);
+                this.httpRequestConsumer.accept(getRequest);
+                break;
+
+            default:
+                throw new IllegalStateException("method not supported yet " + request.method());
+
+        }
 
     }
 
@@ -127,6 +144,12 @@ public class HttpServerVertx implements HttpServer {
     private HttpRequest createRequest(HttpServerRequest request, Buffer buffer) {
         return new HttpRequest(request.uri(), request.method(),
                 new MultiMapWrapper(request.params()), buffer.toString("UTF-8"),
+                request.remoteAddress().toString(),
+                createResponse(request.response()));
+    }
+    private HttpRequest createRequest(HttpServerRequest request) {
+        return new HttpRequest(request.uri(), request.method(),
+                new MultiMapWrapper(request.params()), "",
                 request.remoteAddress().toString(),
                 createResponse(request.response()));
     }
