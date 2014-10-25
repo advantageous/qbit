@@ -19,7 +19,7 @@ import static org.boon.Exceptions.die;
  * Created by rhightower on 10/24/14.
  * @author rhightower
  */
-public class TodoServiceWithQBitService {
+public class TodoServiceWithQBitServiceTest {
 
     boolean ok;
 

@@ -17,7 +17,7 @@ import static org.boon.Exceptions.die;
 /**
  * Created by rhightower on 10/24/14.
  */
-public class TodoServiceWithServiceBundle {
+public class TodoServiceWithServiceBundleTest {
 
     boolean ok;
 

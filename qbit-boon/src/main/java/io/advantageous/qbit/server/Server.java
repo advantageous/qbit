@@ -32,12 +32,23 @@ import static org.boon.Exceptions.die;
 
 /**
  * Created by rhightower on 10/22/14.
+ * @author rhightower
  */
 public class Server {
 
-    protected ProtocolEncoder encoder;
-    protected HttpServer httpServer;
-    protected ServiceBundle serviceBundle;
+    protected  ProtocolEncoder encoder;
+    protected  HttpServer httpServer;
+    protected  ServiceBundle serviceBundle;
+
+    public Server() {
+
+    }
+
+    public Server(HttpServer httpServer, ProtocolEncoder encoder, ServiceBundle serviceBundle) {
+        this.encoder = encoder;
+        this.httpServer = httpServer;
+        this.serviceBundle = serviceBundle;
+    }
 
     private Set<String> getMethodURIs = new LinkedHashSet<>();
     private Set<String> postMethodURIs = new LinkedHashSet<>();
@@ -97,9 +108,9 @@ public class Server {
 
     public void run() {
 
-        serviceBundle.startReturnHandlerProcessor();
 
-
+        startResponseQueueListener();
+        
         httpServer.setHttpRequestConsumer((final HttpRequest request) -> {
             handleRestCall(request);
         });
