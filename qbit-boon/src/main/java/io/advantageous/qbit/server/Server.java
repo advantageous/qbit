@@ -1,8 +1,10 @@
 package io.advantageous.qbit.server;
 
+import io.advantageous.qbit.GlobalConstants;
 import io.advantageous.qbit.QBit;
 import io.advantageous.qbit.annotation.RequestMethod;
 import io.advantageous.qbit.http.*;
+import io.advantageous.qbit.json.JsonMapper;
 import io.advantageous.qbit.message.MethodCall;
 import io.advantageous.qbit.message.Response;
 import io.advantageous.qbit.queue.ReceiveQueue;
@@ -28,6 +30,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 
 import static org.boon.Boon.puts;
+import static org.boon.Boon.resource;
 import static org.boon.Exceptions.die;
 
 /**
@@ -39,15 +42,18 @@ public class Server {
     protected  ProtocolEncoder encoder;
     protected  HttpServer httpServer;
     protected  ServiceBundle serviceBundle;
+    protected  JsonMapper jsonMapper;
+
 
     public Server() {
 
     }
 
-    public Server(HttpServer httpServer, ProtocolEncoder encoder, ServiceBundle serviceBundle) {
+    public Server(HttpServer httpServer, ProtocolEncoder encoder, ServiceBundle serviceBundle, JsonMapper jsonMapper) {
         this.encoder = encoder;
         this.httpServer = httpServer;
         this.serviceBundle = serviceBundle;
+        this.jsonMapper = jsonMapper;
     }
 
     private Set<String> getMethodURIs = new LinkedHashSet<>();
@@ -57,6 +63,7 @@ public class Server {
     private final Logger logger = LoggerFactory.getLogger(Server.class);
 
     private final Timer timer = Timer.timer();
+
 
 
     private Map<String, WebsSocketSender> webSocketMap = new ConcurrentHashMap<>();
@@ -110,7 +117,7 @@ public class Server {
 
 
         startResponseQueueListener();
-        
+
         httpServer.setHttpRequestConsumer((final HttpRequest request) -> {
             handleRestCall(request);
         });
@@ -200,14 +207,15 @@ public class Server {
 
         HttpResponse httpResponse = responseMap.get(address);
 
-        String responseAsText = encoder.encodeAsString(response);
 
         if (httpResponse != null) {
-            httpResponse.response(200, "application/json", responseAsText);
+            httpResponse.response(200, "application/json", jsonMapper.toJson(response.body()));
         } else {
 
             WebsSocketSender webSocket = webSocketMap.get(address);
             if (webSocket != null) {
+
+                String responseAsText = encoder.encodeAsString(response);
                 webSocket.send(responseAsText);
 
             }
@@ -302,12 +310,12 @@ public class Server {
     private void handleRestCall(HttpRequest request) {
 
 
-        puts(request);
-
         boolean knownURI = false;
 
-        String uri = request.getUri();
+        final String uri = request.getUri();
 
+
+        Object args =  null;
 
         switch (request.getMethod()) {
             case "GET":
@@ -316,6 +324,7 @@ public class Server {
 
             case "POST":
                 knownURI = postMethodURIs.contains(uri);
+                args = jsonMapper.fromJson(request.getBody());
                 break;
         }
 
@@ -325,15 +334,18 @@ public class Server {
 
         }
 
+
         MethodCall<Object> methodCall =
                 QBit.factory().createMethodCallToBeParsedFromBody(request.getUri(),
                         request.getRemoteAddress(),
                         null,
-                        null, request.getBody(), request.getParams()
+                        null, args, request.getParams()
 
                 );
 
-        puts("RETURN ADDRESS", methodCall.returnAddress());
+        if (GlobalConstants.DEBUG) {
+            logger.info("Handle REST Call for MethodCall " + methodCall);
+        }
         serviceBundle.call(methodCall);
 
         responseMap.put(request.getRemoteAddress(), request.getResponse());

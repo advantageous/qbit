@@ -209,18 +209,18 @@ public class ServiceBundleImpl implements ServiceBundle {
     /**
      * Add a service to this bundle, under a certain address.
      * @param serviceAddress the address of the service
-     * @param object the service we want to add.
+     * @param serviceObject the service we want to add.
      */
     @Override
-    public void addService(String serviceAddress, Object object) {
+    public void addService(String serviceAddress, Object serviceObject) {
 
         if (GlobalConstants.DEBUG) {
-            logger.info(ServiceBundleImpl.class.getName(), serviceAddress, object);
+            logger.info(ServiceBundleImpl.class.getName() + " serviceAddress " + serviceAddress + " service object" + serviceObject);
         }
 
         /** Turn this service object into a service with queues. */
         final Service service = factory.createService(address, serviceAddress,
-                object, responseQueue);
+                serviceObject, responseQueue);
 
         /** add to our list of services. */
         services.add(service);
@@ -243,7 +243,7 @@ public class ServiceBundleImpl implements ServiceBundle {
         final Collection<String> addresses = service.addresses(this.address);
 
         if (GlobalConstants.DEBUG) {
-            logger.info(ServiceBundleImpl.class.getName(), "addresses", addresses);
+            logger.info(ServiceBundleImpl.class.getName() + " addresses \n" + addresses);
         }
 
         /** Add mappings to all addresses for this service to our serviceMapping. */
@@ -371,19 +371,19 @@ public class ServiceBundleImpl implements ServiceBundle {
      * @param methodCall method call
      */
     private void doCall(MethodCall<Object> methodCall) {
-
         if (GlobalConstants.DEBUG) {
-            logger.info(ServiceBundleImpl.class.getName(), "::doCall()",
-                    methodCall.name(),
-                    methodCall.address(),
-                    "\n", methodCall);
+            logger.info( ServiceBundleImpl.class.getName() + "::doCall() " +
+                    methodCall.name() + " " + " " +
+                    methodCall.address() +
+                    "\n" + methodCall);
         }
+
 
         boolean[] continueFlag = new boolean[1];
         methodCall = beforeMethodCall(methodCall, continueFlag);
 
         if (!continueFlag[0]) {
-            logger.info(ServiceBundleImpl.class.getName(), "::doCall()",
+            logger.info(ServiceBundleImpl.class.getName() + "::doCall() " +
                     "Flag from before call handling does not want to continue");
         }
 
@@ -483,9 +483,6 @@ public class ServiceBundleImpl implements ServiceBundle {
      */
     @Override
     public void flushSends() {
-        if (GlobalConstants.DEBUG) {
-            logger.info(ServiceBundleImpl.class.getName(), "::flushSends()");
-        }
         this.methodSendQueue.flushSends();
     }
 
