@@ -13,6 +13,8 @@ import io.advantageous.qbit.queue.ReceiveQueueManager;
 import io.advantageous.qbit.queue.impl.BasicReceiveQueueManager;
 import io.advantageous.qbit.service.ServiceBundle;
 import io.advantageous.qbit.spi.ProtocolEncoder;
+import io.advantageous.qbit.util.MultiMap;
+import io.advantageous.qbit.util.MultiMapImpl;
 import io.advantageous.qbit.util.Timer;
 import org.boon.Str;
 import org.boon.StringScanner;
@@ -22,9 +24,7 @@ import org.boon.core.reflection.MethodAccess;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.LinkedHashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
@@ -38,6 +38,14 @@ import static org.boon.Exceptions.die;
  * @author rhightower
  */
 public class Server {
+
+
+
+    private final MultiMap<String, MethodCall<Object>> methodCallMap = new MultiMapImpl();
+
+    protected  int timeoutInSeconds = 10;
+
+    protected  int methodFlushInMilliSeconds = 10;
 
     protected  ProtocolEncoder encoder;
     protected  HttpServer httpServer;
@@ -63,6 +71,8 @@ public class Server {
     private Set<String> getMethodURIsWithVoidReturn = new LinkedHashSet<>();
     private Set<String> postMethodURIsWithVoidReturn = new LinkedHashSet<>();
 
+    private List<MethodCall<Object>> methodCalls = new ArrayList<>();
+
     private final Logger logger = LoggerFactory.getLogger(Server.class);
 
     private final Timer timer = Timer.timer();
@@ -81,6 +91,8 @@ public class Server {
     private ReceiveQueueManager<Response<Object>> receiveQueueManager;
 
     private AtomicLong lastFlushTime = new AtomicLong();
+
+    private AtomicLong lastCheckMethodTime = new AtomicLong();
 
 
     protected void initServices(Set<Object> services) {
@@ -174,7 +186,9 @@ public class Server {
             public void empty() {
 
 
-                handleServiceBundleFlush();
+                long now = timer.now();
+
+                handleServiceBundleFlush(now);
 
             }
 
@@ -191,16 +205,110 @@ public class Server {
             @Override
             public void idle() {
 
-                handleServiceBundleFlush();
+
+                long now = timer.now();
+
+                handleMethodTimeout(now);
+                handleServiceBundleFlush(now);
             }
         };
     }
 
-    private void handleServiceBundleFlush() {
-        long now = timer.now();
+    private void handleMethodTimeout(long now) {
+        long lastTime = lastCheckMethodTime.get();
 
-        /* Force a flush every 10 milliseconds. */
-        if (now > lastFlushTime.get() + 10L) {
+        long duration = now - lastTime;
+
+        int timeout = (timeoutInSeconds * 1000 );
+        if (duration > timeout) {
+
+            List<MethodCall<Object>> methodCallsToRemove = new ArrayList<>();
+
+            for (MethodCall<Object> methodCall : methodCalls) {
+                long timestamp = methodCall.timestamp();
+                long invokeDuration = now - timestamp;
+                if ( invokeDuration > timeout ) {
+                    methodCallsToRemove.add(methodCall);
+
+                    logger.error("Server MethodCall Timed out " + methodCall);
+
+                    handleMethodTimedOut(methodCall);
+                }
+            }
+
+            for (MethodCall<Object> methodCall : methodCallsToRemove) {
+                methodCalls.remove(methodCall);
+            }
+        }
+
+    }
+
+    private void handleMethodTimedOut(final MethodCall<Object> methodCall) {
+
+        HttpResponse httpResponse = responseMap.get(methodCall.returnAddress());
+
+
+        if (httpResponse != null) {
+            httpResponse.response(408, "application/json", "\"timed out\"");
+        } else {
+
+            WebsSocketSender webSocket = webSocketMap.get(methodCall.returnAddress());
+            if (webSocket != null) {
+
+                Response<Object> response = new Response<Object>() {
+                    @Override
+                    public boolean wasErrors() {
+                        return true;
+                    }
+
+                    @Override
+                    public void body(Object body) {
+
+                    }
+
+                    @Override
+                    public String returnAddress() {
+                        return methodCall.returnAddress();
+                    }
+
+                    @Override
+                    public String address() {
+                        return methodCall.address();
+                    }
+
+                    @Override
+                    public long timestamp() {
+                        return methodCall.timestamp();
+                    }
+
+                    @Override
+                    public long id() {
+                        return methodCall.id();
+                    }
+
+                    @Override
+                    public Object body() {
+                        return new TimeoutException("Method call timed out");
+                    }
+
+                    @Override
+                    public boolean isSingleton() {
+                        return true;
+                    }
+                };
+                String responseAsText = encoder.encodeAsString(response);
+                webSocket.send(responseAsText);
+
+            } else {
+                throw new IllegalStateException("Unable to find response handler to send back http or websocket response");
+            }
+        }
+    }
+
+    private void handleServiceBundleFlush(final long now) {
+
+        /* Force a flush every methodFlushInMilliSeconds milliseconds. */
+        if (now > lastFlushTime.get() + methodFlushInMilliSeconds) {
             serviceBundle.flushSends();
         }
     }
@@ -208,6 +316,8 @@ public class Server {
     private void handleResponseFromServiceBundle(Response<Object> response) {
 
         String address = response.returnAddress();
+
+        removeMethodCall(response, address);
 
 
         puts("RESPONSE CALLBACK TO HTTP ", address, response);
@@ -231,6 +341,29 @@ public class Server {
                 throw new IllegalStateException("Unable to find response handler to send back http or websocket response");
             }
         }
+    }
+
+    private void removeMethodCall(Response<Object> response, String address) {
+        final Iterable<MethodCall<Object>> methodsForAddress = methodCallMap.getAll(address);
+
+
+        MethodCall<Object> methodCallResponsePair=null;
+
+        for (MethodCall<Object> methodCall : methodsForAddress) {
+
+
+            if (response.id() == methodCall.id()) {
+                methodCallResponsePair = methodCall;
+                break;
+            }
+
+        }
+
+        if (methodCallResponsePair!=null) {
+            methodCallMap.remove(address, methodCallResponsePair);
+            methodCalls.remove(methodCallResponsePair);
+        }
+
     }
 
 
@@ -350,7 +483,9 @@ public class Server {
                 if (postMethodURIsWithVoidReturn.contains(uri)) {
                     request.getResponse().response(200, "application/json", "\"success\"");
                 }
-                args = jsonMapper.fromJson(request.getBody());
+                if (!Str.isEmpty(request.getBody())) {
+                    args = jsonMapper.fromJson(request.getBody());
+                }
                 break;
         }
 
@@ -370,6 +505,11 @@ public class Server {
                         null, args, request.getParams()
 
                 );
+
+        methodCalls.add(methodCall);
+        methodCallMap.add(methodCall.returnAddress(), methodCall);
+
+
 
         if (GlobalConstants.DEBUG) {
             logger.info("Handle REST Call for MethodCall " + methodCall);
@@ -393,6 +533,10 @@ public class Server {
 
 
         webSocketMap.put(methodCall.returnAddress(), webSocketMessage.getSender());
+
+
+        methodCalls.add(methodCall);
+        methodCallMap.add(methodCall.returnAddress(), methodCall);
 
     }
 

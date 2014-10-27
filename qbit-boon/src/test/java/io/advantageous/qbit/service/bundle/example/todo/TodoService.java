@@ -1,6 +1,7 @@
 package io.advantageous.qbit.service.bundle.example.todo;
 
 import io.advantageous.qbit.annotation.RequestMapping;
+import org.boon.core.Sys;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -18,6 +19,16 @@ public class TodoService {
 
     private List<Todo> items = new ArrayList<>();
 
+
+    @RequestMapping(value = "/timeout")
+    public boolean timeout() {
+
+        while (true) {
+
+            Sys.sleep(1000);
+        }
+
+    }
 
     @RequestMapping(value = "/todo", method = POST)
     public boolean add(Todo todoItem) {

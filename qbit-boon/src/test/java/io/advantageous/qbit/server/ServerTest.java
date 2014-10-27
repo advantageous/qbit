@@ -95,4 +95,44 @@ public class ServerTest {
         }
 
     }
+
+
+    //@Test
+    public void testServerTimeout() {
+
+        ProtocolEncoder encoder = QBit.factory().createEncoder();
+        MockHttpServer httpServer = new MockHttpServer();
+        ServiceBundle serviceBundle = QBit.factory().createServiceBundle("/services");
+
+        JsonMapper mapper = new BoonJsonMapper();
+
+
+        Server server = new Server(httpServer, encoder, serviceBundle, mapper);
+
+        server.initServices(Sets.set(new TodoService()));
+
+        server.run();
+
+        final AtomicBoolean resultsWorked = new AtomicBoolean();
+
+        httpServer.sendHttpGet("/services/todo-manager/timeout",
+                null, (code, mimeType, body) -> {
+
+
+                    if (body!=null && body.equals("true")) {
+                        resultsWorked.set(true);
+                    }
+                });
+
+
+        Sys.sleep(1000);
+
+
+        if (!resultsWorked.get()) {
+            die(" operation did not work");
+        }
+
+        resultsWorked.set(false);
+
+    }
 }
