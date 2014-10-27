@@ -4,7 +4,7 @@ package io.advantageous.qbit.http;
  * Created by rhightower on 10/24/14.
  * @author rhightower
  */
-public class WebSocketMessageBuilderTmp {
+public class WebSocketMessageBuilder {
 
 
     private String uri;
@@ -16,7 +16,7 @@ public class WebSocketMessageBuilderTmp {
         return uri;
     }
 
-    public WebSocketMessageBuilderTmp setUri(String uri) {
+    public WebSocketMessageBuilder setUri(String uri) {
         this.uri = uri;
         return this;
     }
@@ -25,7 +25,7 @@ public class WebSocketMessageBuilderTmp {
         return message;
     }
 
-    public WebSocketMessageBuilderTmp setMessage(String message) {
+    public WebSocketMessageBuilder setMessage(String message) {
         this.message = message;
         return this;
 
@@ -35,7 +35,7 @@ public class WebSocketMessageBuilderTmp {
         return sender;
     }
 
-    public WebSocketMessageBuilderTmp setSender(WebsSocketSender sender) {
+    public WebSocketMessageBuilder setSender(WebsSocketSender sender) {
         this.sender = sender;
         return this;
 
@@ -45,7 +45,7 @@ public class WebSocketMessageBuilderTmp {
         return remoteAddress;
     }
 
-    public WebSocketMessageBuilderTmp setRemoteAddress(String remoteAddress) {
+    public WebSocketMessageBuilder setRemoteAddress(String remoteAddress) {
         this.remoteAddress = remoteAddress;
         return this;
 
