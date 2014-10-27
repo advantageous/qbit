@@ -60,6 +60,9 @@ public class Server {
     private Set<String> postMethodURIs = new LinkedHashSet<>();
 
 
+    private Set<String> getMethodURIsWithVoidReturn = new LinkedHashSet<>();
+    private Set<String> postMethodURIsWithVoidReturn = new LinkedHashSet<>();
+
     private final Logger logger = LoggerFactory.getLogger(Server.class);
 
     private final Timer timer = Timer.timer();
@@ -265,7 +268,7 @@ public class Server {
         }
     }
 
-    private void registerMethodToEndPoint(String baseURI, String serviceURI, MethodAccess method) {
+    private void registerMethodToEndPoint(final String baseURI, final String serviceURI, final MethodAccess method) {
         AnnotationData data = method.annotation("RequestMapping");
         Map<String, Object> methodValuesForAnnotation = data.getValues();
 
@@ -275,12 +278,21 @@ public class Server {
 
         RequestMethod httpMethod = extractHttpMethod(methodValuesForAnnotation);
 
+
+        String uri = Str.add(baseURI, serviceURI, methodURI);
+
         switch (httpMethod) {
             case GET:
-                getMethodURIs.add(Str.add(baseURI, serviceURI, methodURI));
+                getMethodURIs.add(uri);
+                if (method.returnType()==void.class) {
+                    getMethodURIsWithVoidReturn.add(uri);
+                }
                 break;
             case POST:
-                postMethodURIs.add(Str.add(baseURI, serviceURI, methodURI));
+                postMethodURIs.add(uri);
+                if (method.returnType()==void.class) {
+                    postMethodURIsWithVoidReturn.add(uri);
+                }
                 break;
             default:
                 die("Not supported yet HTTP METHOD", httpMethod, methodURI);
@@ -328,19 +340,27 @@ public class Server {
         switch (request.getMethod()) {
             case "GET":
                 knownURI = getMethodURIs.contains(uri);
+                if (getMethodURIsWithVoidReturn.contains(uri)) {
+                    request.getResponse().response(200, "application/json", "\"success\"");
+                }
                 break;
 
             case "POST":
                 knownURI = postMethodURIs.contains(uri);
+                if (postMethodURIsWithVoidReturn.contains(uri)) {
+                    request.getResponse().response(200, "application/json", "\"success\"");
+                }
                 args = jsonMapper.fromJson(request.getBody());
                 break;
         }
 
 
         if (!knownURI) {
-            request.getResponse().response(404, "application/json", Str.add("No service method for URI ", request.getUri()));
+            request.getResponse().response(404, "application/json", Str.add("\"No service method for URI\"", request.getUri()));
 
         }
+
+
 
 
         MethodCall<Object> methodCall =
