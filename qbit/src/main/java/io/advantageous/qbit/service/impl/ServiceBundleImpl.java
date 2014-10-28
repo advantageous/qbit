@@ -243,7 +243,7 @@ public class ServiceBundleImpl implements ServiceBundle {
         final Collection<String> addresses = service.addresses(this.address);
 
         if (GlobalConstants.DEBUG) {
-            logger.info(ServiceBundleImpl.class.getName() + " addresses \n" + addresses);
+            logger.info(ServiceBundleImpl.class.getName() + " addresses: " + addresses);
         }
 
         /** Add mappings to all addresses for this service to our serviceMapping. */
