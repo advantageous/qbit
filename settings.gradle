@@ -1,2 +1,2 @@
-include 'qbit', 'qbit-boon', 'examples', 'qbit-vertx'
+include 'qbit-core', 'qbit-boon', 'examples', 'qbit-vertx'
 

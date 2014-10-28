@@ -14,7 +14,7 @@ subprojects {
     targetCompatibility = JavaVersion.VERSION_1_8
 }
 
-project(':qbit') {
+project(':qbit-core') {
 
     apply plugin: 'signing'
 
@@ -98,7 +98,7 @@ project(':qbit') {
 project(':qbit-boon') {
     sourceSets.main.resources.srcDir 'src/main/java'
     dependencies {
-        compile project(':qbit')
+        compile project(':qbit-core')
         compile group: 'io.fastjson', name: 'boon', version: '0.30-SNAPSHOT'
         testCompile 'junit:junit:4.11'
         testCompile "org.slf4j:slf4j-simple:[1.7,1.8)"
@@ -155,7 +155,7 @@ project(':qbit-vertx') {
     }
     sourceSets.main.resources.srcDir 'src/main/java'
     dependencies {
-        compile project(':qbit')
+        compile project(':qbit-core')
         compile project(':qbit-boon')
         compile group: 'io.vertx', name: 'vertx-core', version: vertxVersion
         compile group: 'io.vertx', name: 'vertx-platform', version: vertxVersion
