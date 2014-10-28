@@ -1,28 +1,28 @@
 package io.advantageous.qbit.vertx.http;
 
 
-
 import io.advantageous.qbit.http.HttpRequest;
 import io.advantageous.qbit.http.HttpResponse;
 import io.advantageous.qbit.http.HttpServer;
 import io.advantageous.qbit.http.WebSocketMessage;
 import io.advantageous.qbit.vertx.example.vertx.MultiMapWrapper;
 import org.boon.Str;
-import org.vertx.java.core.VertxFactory;
-import org.vertx.java.core.http.HttpServerResponse;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.vertx.java.core.Vertx;
+import org.vertx.java.core.VertxFactory;
 import org.vertx.java.core.buffer.Buffer;
 import org.vertx.java.core.http.HttpServerRequest;
+import org.vertx.java.core.http.HttpServerResponse;
 import org.vertx.java.core.http.ServerWebSocket;
 
 import java.util.function.Consumer;
-
-import static org.boon.Boon.puts;
 
 /**
  */
 public class HttpServerVertx implements HttpServer {
 
+    private final Logger logger = LoggerFactory.getLogger(HttpServerVertx.class);
 
     /**
      * I am leaving these protected and non-final so subclasses can use injection frameworks for them.
@@ -34,19 +34,18 @@ public class HttpServerVertx implements HttpServer {
     private org.vertx.java.core.http.HttpServer httpServer;
 
 
-
     /**
      * Constructor
+     *
      * @param port port
      */
-    public HttpServerVertx( int port, String host, Vertx vertx ) {
+    public HttpServerVertx(int port, String host, Vertx vertx) {
         this.port = port;
         this.host = host;
         this.vertx = vertx;
     }
 
-
-    public HttpServerVertx( int port ) {
+    public HttpServerVertx(int port) {
         this(port, null, VertxFactory.newVertx());
     }
 
@@ -59,7 +58,6 @@ public class HttpServerVertx implements HttpServer {
 
     };
 
-
     @Override
     public void setWebSocketMessageConsumer(Consumer<WebSocketMessage> webSocketMessageConsumer) {
         this.webSocketMessageConsumer = webSocketMessageConsumer;
@@ -71,10 +69,8 @@ public class HttpServerVertx implements HttpServer {
     }
 
 
-
     @Override
     public void run() {
-
 
         httpServer = vertx.createHttpServer();
         httpServer.setTCPKeepAlive(true);
@@ -93,7 +89,7 @@ public class HttpServerVertx implements HttpServer {
             httpServer.listen(port, host);
         }
 
-        puts("HTTP SERVER started on port", port, " host ", host);
+        logger.info("HTTP SERVER started on port " + port + " host " + host);
 
     }
 
@@ -107,7 +103,7 @@ public class HttpServerVertx implements HttpServer {
                     final HttpRequest postRequest = createRequest(request, buffer);
                     this.httpRequestConsumer.accept(postRequest);
                 });
-             break;
+                break;
 
 
             case "HEAD":
@@ -147,6 +143,7 @@ public class HttpServerVertx implements HttpServer {
                 request.remoteAddress().toString(),
                 createResponse(request.response()));
     }
+
     private HttpRequest createRequest(HttpServerRequest request) {
         return new HttpRequest(request.uri(), request.method(),
                 new MultiMapWrapper(request.params()), "",

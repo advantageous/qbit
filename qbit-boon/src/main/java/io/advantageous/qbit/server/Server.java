@@ -29,32 +29,27 @@ import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 
-import static org.boon.Boon.puts;
-import static org.boon.Boon.resource;
 import static org.boon.Exceptions.die;
 
 /**
  * Created by rhightower on 10/22/14.
+ *
  * @author rhightower
  */
 public class Server {
 
+    private final MultiMap<String, MethodCall<Object>> methodCallMap = new MultiMapImpl<>();
 
+    protected int timeoutInSeconds = 10;
 
-    private final MultiMap<String, MethodCall<Object>> methodCallMap = new MultiMapImpl();
+    protected int methodFlushInMilliSeconds = 10;
 
-    protected  int timeoutInSeconds = 10;
-
-    protected  int methodFlushInMilliSeconds = 10;
-
-    protected  ProtocolEncoder encoder;
-    protected  HttpServer httpServer;
-    protected  ServiceBundle serviceBundle;
-    protected  JsonMapper jsonMapper;
-
+    protected ProtocolEncoder encoder;
+    protected HttpServer httpServer;
+    protected ServiceBundle serviceBundle;
+    protected JsonMapper jsonMapper;
 
     public Server() {
-
     }
 
     public Server(HttpServer httpServer, ProtocolEncoder encoder, ServiceBundle serviceBundle, JsonMapper jsonMapper) {
@@ -74,9 +69,9 @@ public class Server {
     private List<MethodCall<Object>> methodCalls = new ArrayList<>();
 
     private final Logger logger = LoggerFactory.getLogger(Server.class);
+    private final boolean debug = logger.isDebugEnabled();
 
     private final Timer timer = Timer.timer();
-
 
 
     private Map<String, WebsSocketSender> webSocketMap = new ConcurrentHashMap<>();
@@ -97,9 +92,8 @@ public class Server {
 
     protected void initServices(Set<Object> services) {
 
-
         for (Object service : services) {
-            puts(service.getClass().getName());
+            if (debug) logger.debug("registering service: " + service.getClass().getName());
             serviceBundle.addService(service);
             this.addRestSupportFor(service.getClass(), serviceBundle.address());
         }
@@ -129,23 +123,10 @@ public class Server {
     }
 
     public void run() {
-
-
         startResponseQueueListener();
-
-        httpServer.setHttpRequestConsumer((final HttpRequest request) -> {
-            handleRestCall(request);
-        });
-
-
-        httpServer.setWebSocketMessageConsumer((final WebSocketMessage webSocketMessage) -> {
-            handleWebSocketCall(webSocketMessage);
-        });
-
-
+        httpServer.setHttpRequestConsumer(this::handleRestCall);
+        httpServer.setWebSocketMessageConsumer(this::handleWebSocketCall);
         httpServer.run();
-
-
     }
 
     private void startResponseQueueListener() {
@@ -158,7 +139,6 @@ public class Server {
                     return thread;
                 }
         );
-
 
         responses = serviceBundle.responses();
 
@@ -219,7 +199,7 @@ public class Server {
 
         long duration = now - lastTime;
 
-        int timeout = (timeoutInSeconds * 1000 );
+        int timeout = (timeoutInSeconds * 1000);
         if (duration > timeout) {
 
             List<MethodCall<Object>> methodCallsToRemove = new ArrayList<>();
@@ -227,7 +207,7 @@ public class Server {
             for (MethodCall<Object> methodCall : methodCalls) {
                 long timestamp = methodCall.timestamp();
                 long invokeDuration = now - timestamp;
-                if ( invokeDuration > timeout ) {
+                if (invokeDuration > timeout) {
                     methodCallsToRemove.add(methodCall);
 
                     logger.error("Server MethodCall Timed out " + methodCall);
@@ -236,9 +216,7 @@ public class Server {
                 }
             }
 
-            for (MethodCall<Object> methodCall : methodCallsToRemove) {
-                methodCalls.remove(methodCall);
-            }
+            methodCallsToRemove.forEach(methodCalls::remove);
         }
 
     }
@@ -300,7 +278,8 @@ public class Server {
                 webSocket.send(responseAsText);
 
             } else {
-                throw new IllegalStateException("Unable to find response handler to send back http or websocket response");
+                throw new IllegalStateException(
+                        "Unable to find response handler to send back http or websocket response");
             }
         }
     }
@@ -319,12 +298,11 @@ public class Server {
 
         removeMethodCall(response, address);
 
-
-        puts("RESPONSE CALLBACK TO HTTP ", address, response);
+        if (debug) logger.debug("RESPONSE CALLBACK TO HTTP " + address + " " + response);
 
         HttpResponse httpResponse = responseMap.get(address);
 
-        puts("RESPONSE CALLBACK TO HTTP ", address, response, httpResponse);
+        if (debug) logger.debug("RESPONSE CALLBACK TO HTTP " + address + " " + response + " " + httpResponse);
 
 
         if (httpResponse != null) {
@@ -338,7 +316,8 @@ public class Server {
                 webSocket.send(responseAsText);
 
             } else {
-                throw new IllegalStateException("Unable to find response handler to send back http or websocket response");
+                throw new IllegalStateException(
+                        "Unable to find response handler to send back http or websocket response");
             }
         }
     }
@@ -347,7 +326,7 @@ public class Server {
         final Iterable<MethodCall<Object>> methodsForAddress = methodCallMap.getAll(address);
 
 
-        MethodCall<Object> methodCallResponsePair=null;
+        MethodCall<Object> methodCallResponsePair = null;
 
         for (MethodCall<Object> methodCall : methodsForAddress) {
 
@@ -359,7 +338,7 @@ public class Server {
 
         }
 
-        if (methodCallResponsePair!=null) {
+        if (methodCallResponsePair != null) {
             methodCallMap.remove(address, methodCallResponsePair);
             methodCalls.remove(methodCallResponsePair);
         }
@@ -369,7 +348,7 @@ public class Server {
 
     private void addRestSupportFor(Class cls, String baseURI) {
 
-        System.out.println("addRestSupportFor " + cls.getName());
+        if (debug) logger.debug("addRestSupportFor " + cls.getName());
 
         ClassMeta classMeta = ClassMeta.classMeta(cls);
 
@@ -404,26 +383,20 @@ public class Server {
     private void registerMethodToEndPoint(final String baseURI, final String serviceURI, final MethodAccess method) {
         AnnotationData data = method.annotation("RequestMapping");
         Map<String, Object> methodValuesForAnnotation = data.getValues();
-
-        if (data == null) return;
-
         String methodURI = extractMethodURI(methodValuesForAnnotation);
-
         RequestMethod httpMethod = extractHttpMethod(methodValuesForAnnotation);
-
-
         String uri = Str.add(baseURI, serviceURI, methodURI);
 
         switch (httpMethod) {
             case GET:
                 getMethodURIs.add(uri);
-                if (method.returnType()==void.class) {
+                if (method.returnType() == void.class) {
                     getMethodURIsWithVoidReturn.add(uri);
                 }
                 break;
             case POST:
                 postMethodURIs.add(uri);
-                if (method.returnType()==void.class) {
+                if (method.returnType() == void.class) {
                     postMethodURIsWithVoidReturn.add(uri);
                 }
                 break;
@@ -468,7 +441,7 @@ public class Server {
         final String uri = request.getUri();
 
 
-        Object args =  null;
+        Object args = null;
 
         switch (request.getMethod()) {
             case "GET":
@@ -491,12 +464,10 @@ public class Server {
 
 
         if (!knownURI) {
-            request.getResponse().response(404, "application/json", Str.add("\"No service method for URI\"", request.getUri()));
+            request.getResponse().response(404, "application/json",
+                    Str.add("\"No service method for URI\"", request.getUri()));
 
         }
-
-
-
 
         MethodCall<Object> methodCall =
                 QBit.factory().createMethodCallToBeParsedFromBody(request.getUri(),
@@ -510,24 +481,24 @@ public class Server {
         methodCallMap.add(methodCall.returnAddress(), methodCall);
 
 
-
         if (GlobalConstants.DEBUG) {
             logger.info("Handle REST Call for MethodCall " + methodCall);
         }
         serviceBundle.call(methodCall);
 
-        puts("RESPONSE CALLBACK TO HTTP", methodCall.returnAddress(), request.getResponse());
+        if (debug)
+            logger.debug("RESPONSE CALLBACK TO HTTP " + methodCall.returnAddress() + " " + request.getResponse());
         responseMap.put(methodCall.returnAddress(), request.getResponse());
     }
 
 
     private void handleWebSocketCall(final WebSocketMessage webSocketMessage) {
 
+        if (debug) logger.debug("websocket message: " + webSocketMessage);
 
-        puts(webSocketMessage);
-
-        final MethodCall<Object> methodCall = QBit.factory().createMethodCallToBeParsedFromBody(webSocketMessage.getRemoteAddress(),
-                webSocketMessage.getMessage());
+        final MethodCall<Object> methodCall =
+                QBit.factory().createMethodCallToBeParsedFromBody(webSocketMessage.getRemoteAddress(),
+                        webSocketMessage.getMessage());
 
         serviceBundle.call(methodCall);
 
