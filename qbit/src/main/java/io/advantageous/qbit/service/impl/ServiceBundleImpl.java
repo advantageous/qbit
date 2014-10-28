@@ -1,8 +1,6 @@
 package io.advantageous.qbit.service.impl;
 
-import io.advantageous.qbit.*;
-import io.advantageous.qbit.service.Callback;
-import io.advantageous.qbit.util.Timer;
+import io.advantageous.qbit.Factory;
 import io.advantageous.qbit.message.MethodCall;
 import io.advantageous.qbit.message.Response;
 import io.advantageous.qbit.queue.Queue;
@@ -11,11 +9,13 @@ import io.advantageous.qbit.queue.ReceiveQueueListener;
 import io.advantageous.qbit.queue.SendQueue;
 import io.advantageous.qbit.queue.impl.BasicQueue;
 import io.advantageous.qbit.service.BeforeMethodCall;
+import io.advantageous.qbit.service.Callback;
 import io.advantageous.qbit.service.Service;
 import io.advantageous.qbit.service.ServiceBundle;
 import io.advantageous.qbit.service.method.impl.MethodCallImpl;
 import io.advantageous.qbit.transforms.NoOpRequestTransform;
 import io.advantageous.qbit.util.ConcurrentHashSet;
+import io.advantageous.qbit.util.Timer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,6 +33,7 @@ public class ServiceBundleImpl implements ServiceBundle {
      * Logger.
      */
     private final Logger logger = LoggerFactory.getLogger(ServiceBundleImpl.class);
+    private final boolean debug = logger.isDebugEnabled();
 
     /**
      * Keep track of services to send queue mappings.
@@ -81,8 +82,6 @@ public class ServiceBundleImpl implements ServiceBundle {
      */
     private Map<HandlerKey, Callback<Object>> handlers = new ConcurrentHashMap<>();
 
-
-    private final ReceiveQueueListener<MethodCall<Object>> responseQueueListener;
 
     /**
      * Maps an incoming call to a response handler.
@@ -160,14 +159,13 @@ public class ServiceBundleImpl implements ServiceBundle {
 
 
     /**
-     *
-     * @param address root address of service bundle
+     * @param address   root address of service bundle
      * @param batchSize outgoing batch size, exceeding this size forces a flush.
-     * @param pollRate time we should wait after not finding anything on the queue. The higher the slower for low traffic.
-     * @param factory the qbit factory where we can create responses, methods, etc.
+     * @param pollRate  time we should wait after not finding anything on the queue. The higher the slower for low traffic.
+     * @param factory   the qbit factory where we can create responses, methods, etc.
      */
     public ServiceBundleImpl(String address, final int batchSize, final int pollRate,
-                             final Factory factory, final ReceiveQueueListener<MethodCall<Object>> responseQueueListener) {
+                             final Factory factory) {
         if (address.endsWith("/")) {
             address = address.substring(0, address.length() - 1);
         }
@@ -182,14 +180,12 @@ public class ServiceBundleImpl implements ServiceBundle {
 
         methodSendQueue = methodQueue.sendQueue();
 
-        this.responseQueueListener = responseQueueListener !=null ? responseQueueListener : new NoOpInputMethodCallQueueListener();
-
-
         start();
     }
 
     /**
      * Base URI for all of the services in this bundle.
+     *
      * @return base URI.
      */
     @Override
@@ -199,6 +195,7 @@ public class ServiceBundleImpl implements ServiceBundle {
 
     /**
      * Add a service to this bundle.
+     *
      * @param object the service we want to add.
      */
     @Override
@@ -208,14 +205,15 @@ public class ServiceBundleImpl implements ServiceBundle {
 
     /**
      * Add a service to this bundle, under a certain address.
+     *
      * @param serviceAddress the address of the service
-     * @param serviceObject the service we want to add.
+     * @param serviceObject  the service we want to add.
      */
     @Override
     public void addService(String serviceAddress, Object serviceObject) {
 
-        if (GlobalConstants.DEBUG) {
-            logger.info(ServiceBundleImpl.class.getName() + " serviceAddress " + serviceAddress + " service object" + serviceObject);
+        if (debug) {
+            logger.debug(ServiceBundleImpl.class.getName() + " serviceAddress " + serviceAddress + " service object" + serviceObject);
         }
 
         /** Turn this service object into a service with queues. */
@@ -242,9 +240,7 @@ public class ServiceBundleImpl implements ServiceBundle {
         /** Generate a list of end point addresses based on the service bundle root address. */
         final Collection<String> addresses = service.addresses(this.address);
 
-        if (GlobalConstants.DEBUG) {
-            logger.info(ServiceBundleImpl.class.getName() + " addresses: " + addresses);
-        }
+        if (debug) logger.debug(ServiceBundleImpl.class.getName() + " addresses: " + addresses);
 
         /** Add mappings to all addresses for this service to our serviceMapping. */
         for (String addr : addresses) {
@@ -256,6 +252,7 @@ public class ServiceBundleImpl implements ServiceBundle {
 
     /**
      * Returns a receive queue for all services managed by this bundle.
+     *
      * @return
      */
     @Override
@@ -263,12 +260,14 @@ public class ServiceBundleImpl implements ServiceBundle {
         return responseQueue.receiveQueue();
     }
 
-    /** Call the method. */
+    /**
+     * Call the method.
+     */
     @Override
     @SuppressWarnings("unchecked")
     public void call(MethodCall<Object> methodCall) {
-        if (GlobalConstants.DEBUG) {
-            logger.info( ServiceBundleImpl.class.getName() + "::call() " +
+        if (debug) {
+            logger.debug(ServiceBundleImpl.class.getName() + "::call() " +
                     methodCall.name() + " " + " " +
                     methodCall.address() +
                     "\n" + methodCall);
@@ -294,10 +293,11 @@ public class ServiceBundleImpl implements ServiceBundle {
         methodSendQueue.send(methodCall);
     }
 
-    /** Register a callback handler
+    /**
+     * Register a callback handler
      *
      * @param methodCall method call
-     * @param handler call back handler to register
+     * @param handler    call back handler to register
      */
     private void registerHandlerCallbackForClient(final MethodCall<Object> methodCall,
                                                   final Callback<Object> handler) {
@@ -355,9 +355,10 @@ public class ServiceBundleImpl implements ServiceBundle {
 
     /**
      * Creates a proxy interface to a particular service. Given a particular address.
+     *
      * @param serviceInterface client view interface of service
-     * @param myService address or name of service
-     * @param <T> type of service
+     * @param myService        address or name of service
+     * @param <T>              type of service
      * @return proxy client to service
      */
     @Override
@@ -368,11 +369,12 @@ public class ServiceBundleImpl implements ServiceBundle {
 
     /**
      * Handles calling a method
+     *
      * @param methodCall method call
      */
     private void doCall(MethodCall<Object> methodCall) {
-        if (GlobalConstants.DEBUG) {
-            logger.info( ServiceBundleImpl.class.getName() + "::doCall() " +
+        if (debug) {
+            logger.debug(ServiceBundleImpl.class.getName() + "::doCall() " +
                     methodCall.name() + " " + " " +
                     methodCall.address() +
                     "\n" + methodCall);
@@ -397,11 +399,13 @@ public class ServiceBundleImpl implements ServiceBundle {
 
         if (sendQueue == null) {
             logger.error("No service at method address " + methodCall.address()
-                    + " method name " +methodCall.name() + " object name " + methodCall.objectName() + "\n");
+                    + " method name " + methodCall.name() + " object name " + methodCall.objectName() + "\n");
 
             Set<String> uris = serviceMapping.keySet();
 
-            uris.forEach((String it)->{logger.error("known URI path " + it);});
+            uris.forEach((String it) -> {
+                logger.error("known URI path " + it);
+            });
 
             throw new IllegalStateException("there is no object at this address: " + methodCall.address()
                     + "\n method name=" + methodCall.name() + "\n objectName=" + methodCall.objectName());
@@ -411,6 +415,7 @@ public class ServiceBundleImpl implements ServiceBundle {
 
     /**
      * Attempts to call a service by its address.
+     *
      * @param methodCall method call to service
      * @return send queue for the service we are trying to call.
      */
@@ -446,7 +451,8 @@ public class ServiceBundleImpl implements ServiceBundle {
 
     /**
      * Handles before call operation
-     * @param methodCall method call
+     *
+     * @param methodCall   method call
      * @param continueCall should we continue the call.
      * @return call object which could have been transformed
      */
@@ -465,7 +471,8 @@ public class ServiceBundleImpl implements ServiceBundle {
         return methodCall;
     }
 
-    /** Handles the before argument transformer.
+    /**
+     * Handles the before argument transformer.
      *
      * @param methodCall method call that we might transform
      * @return method call
@@ -487,12 +494,12 @@ public class ServiceBundleImpl implements ServiceBundle {
     }
 
 
-    /** Stop the service bundle.
-     *
+    /**
+     * Stop the service bundle.
      */
     public void stop() {
-        if (GlobalConstants.DEBUG) {
-            logger.info(ServiceBundleImpl.class.getName(), "::stop()");
+        if (debug) {
+            logger.debug(ServiceBundleImpl.class.getName(), "::stop()");
         }
         methodQueue.stop();
         for (Service service : services) {
@@ -500,7 +507,9 @@ public class ServiceBundleImpl implements ServiceBundle {
         }
     }
 
-    /** Return a list of end points that we are handling. */
+    /**
+     * Return a list of end points that we are handling.
+     */
     @Override
     public List<String> endPoints() {
         return new ArrayList<>(serviceMapping.keySet());

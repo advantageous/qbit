@@ -2,7 +2,6 @@ package io.advantageous.qbit.boon;
 
 import io.advantageous.qbit.Factory;
 import io.advantageous.qbit.GlobalConstants;
-import io.advantageous.qbit.util.MultiMap;
 import io.advantageous.qbit.message.MethodCall;
 import io.advantageous.qbit.message.Response;
 import io.advantageous.qbit.proxy.ServiceProxyFactory;
@@ -20,6 +19,7 @@ import io.advantageous.qbit.spi.BoonProtocolEncoder;
 import io.advantageous.qbit.spi.BoonProtocolParser;
 import io.advantageous.qbit.spi.ProtocolEncoder;
 import io.advantageous.qbit.spi.ProtocolParser;
+import io.advantageous.qbit.util.MultiMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,10 +30,10 @@ import java.util.concurrent.TimeUnit;
 
 /**
  * Created by Richard on 9/26/14.
- * @author rhightower
- * This factory uses Boon reflection and JSON support.
- * The Factory is a facade over other factories providing a convienient unified interface to QBIT.
  *
+ * @author rhightower
+ *         This factory uses Boon reflection and JSON support.
+ *         The Factory is a facade over other factories providing a convienient unified interface to QBIT.
  */
 public class BoonQBitFactory implements Factory {
 
@@ -158,11 +158,8 @@ public class BoonQBitFactory implements Factory {
 
     @Override
     public ServiceBundle createServiceBundle(String path) {
-        return new ServiceBundleImpl(path, 50, 5, this, null);
+        return new ServiceBundleImpl(path, 50, 5, this);
     }
-
-
-
 
     @Override
     public Service createService(String rootAddress, String serviceAddress, Object object, Queue<Response<Object>> responseQueue) {
