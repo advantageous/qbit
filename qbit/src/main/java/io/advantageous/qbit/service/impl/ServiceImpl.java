@@ -27,6 +27,8 @@ import java.util.concurrent.TimeUnit;
 public class ServiceImpl implements Service {
 
     private final Logger logger = LoggerFactory.getLogger(ServiceImpl.class);
+    private final boolean debug = logger.isDebugEnabled();
+
     private final Object service;
     private final String name;
     private ServiceMethodHandler serviceMethodHandler;
@@ -69,8 +71,8 @@ public class ServiceImpl implements Service {
     private void doHandleMethodCall(MethodCall<Object> methodCall,
                                     final ServiceMethodHandler serviceMethodHandler,
                                     final SendQueue<Response<Object>> responseSendQueue) {
-        if (GlobalConstants.DEBUG) {
-            logger.info("ServiceImpl::doHandleMethodCall() METHOD CALL" + methodCall );
+        if (debug) {
+            logger.debug("ServiceImpl::doHandleMethodCall() METHOD CALL" + methodCall );
         }
 
         inputQueueListener.receive(methodCall);
@@ -86,8 +88,8 @@ public class ServiceImpl implements Service {
 
         Response<Object> response = serviceMethodHandler.receiveMethodCall(methodCall);
 
-        if (GlobalConstants.DEBUG) {
-            logger.info("ServiceImpl::receive() RESPONSE\n" + response + "\nFROM CALL\n" + methodCall);
+        if (debug) {
+            logger.debug("ServiceImpl::receive() RESPONSE\n" + response + "\nFROM CALL\n" + methodCall);
         }
 
         if (response != ServiceConstants.VOID) {
@@ -114,8 +116,8 @@ public class ServiceImpl implements Service {
                        final ServiceMethodHandler serviceMethodHandler,
                        Queue<Response<Object>> responseQueue) {
 
-        if (GlobalConstants.DEBUG) {
-            logger.info("ServiceImpl<<constr>>", rootAddress, serviceAddress,
+        if (debug) {
+            logger.debug("ServiceImpl<<constr>>", rootAddress, serviceAddress,
                     service, waitTime, timeUnit, batchSize, serviceMethodHandler,
                     responseQueue);
         }
@@ -133,8 +135,8 @@ public class ServiceImpl implements Service {
 
         if (responseQueue == null) {
 
-            if (GlobalConstants.DEBUG) {
-                logger.info("RESPONSE QUEUE WAS NULL CREATING ONE");
+            if (debug) {
+                logger.debug("RESPONSE QUEUE WAS NULL CREATING ONE");
             }
 
             this.responseQueue = new BasicQueue<>("Response Queue " + name, waitTime,
