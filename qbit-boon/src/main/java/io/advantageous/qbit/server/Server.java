@@ -38,6 +38,9 @@ import static org.boon.Exceptions.die;
  */
 public class Server {
 
+
+    private final Logger logger = LoggerFactory.getLogger(Server.class);
+
     private final MultiMap<String, MethodCall<Object>> methodCallMap = new MultiMapImpl<>();
 
     protected int timeoutInSeconds = 10;
@@ -68,7 +71,6 @@ public class Server {
 
     private List<MethodCall<Object>> methodCalls = new ArrayList<>();
 
-    private final Logger logger = LoggerFactory.getLogger(Server.class);
     private final boolean debug = logger.isDebugEnabled();
 
     private final Timer timer = Timer.timer();

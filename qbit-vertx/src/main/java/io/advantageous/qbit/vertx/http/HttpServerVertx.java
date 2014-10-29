@@ -5,6 +5,7 @@ import io.advantageous.qbit.http.HttpRequest;
 import io.advantageous.qbit.http.HttpResponse;
 import io.advantageous.qbit.http.HttpServer;
 import io.advantageous.qbit.http.WebSocketMessage;
+import io.advantageous.qbit.util.MultiMap;
 import io.advantageous.qbit.vertx.example.vertx.MultiMapWrapper;
 import org.boon.Str;
 import org.slf4j.Logger;
@@ -39,14 +40,19 @@ public class HttpServerVertx implements HttpServer {
      *
      * @param port port
      */
-    public HttpServerVertx(int port, String host, Vertx vertx) {
+    public HttpServerVertx(final int port, final String host, final Vertx vertx) {
         this.port = port;
         this.host = host;
         this.vertx = vertx;
     }
 
-    public HttpServerVertx(int port) {
+    public HttpServerVertx(final int port) {
         this(port, null, VertxFactory.newVertx());
+    }
+
+
+    public HttpServerVertx(final int port, final String host) {
+        this(port, host, VertxFactory.newVertx());
     }
 
     private Consumer<WebSocketMessage> webSocketMessageConsumer = websocketMessage -> {
@@ -59,12 +65,12 @@ public class HttpServerVertx implements HttpServer {
     };
 
     @Override
-    public void setWebSocketMessageConsumer(Consumer<WebSocketMessage> webSocketMessageConsumer) {
+    public void setWebSocketMessageConsumer(final Consumer<WebSocketMessage> webSocketMessageConsumer) {
         this.webSocketMessageConsumer = webSocketMessageConsumer;
     }
 
     @Override
-    public void setHttpRequestConsumer(Consumer<HttpRequest> httpRequestConsumer) {
+    public void setHttpRequestConsumer(final Consumer<HttpRequest> httpRequestConsumer) {
         this.httpRequestConsumer = httpRequestConsumer;
     }
 
@@ -93,7 +99,7 @@ public class HttpServerVertx implements HttpServer {
 
     }
 
-    private void handleHttpRequest(HttpServerRequest request) {
+    private void handleHttpRequest(final HttpServerRequest request) {
 
         switch (request.method()) {
 
@@ -121,7 +127,7 @@ public class HttpServerVertx implements HttpServer {
 
     }
 
-    private void handleWebSocketMessage(ServerWebSocket webSocket) {
+    private void handleWebSocketMessage(final ServerWebSocket webSocket) {
 
 
         webSocket.dataHandler((Buffer buffer) -> {
@@ -132,21 +138,28 @@ public class HttpServerVertx implements HttpServer {
         );
     }
 
-    private WebSocketMessage createWebSocketMessage(ServerWebSocket webSocket, Buffer buffer) {
+    private WebSocketMessage createWebSocketMessage(final ServerWebSocket webSocket, final Buffer buffer) {
         return new WebSocketMessage(webSocket.uri(), buffer.toString("UTF-8"), webSocket.remoteAddress().toString(),
                 webSocket::writeTextFrame);
     }
 
-    private HttpRequest createRequest(HttpServerRequest request, Buffer buffer) {
-        return new HttpRequest(request.uri(), request.method(),
-                new MultiMapWrapper(request.params()), buffer.toString("UTF-8"),
+    private HttpRequest createRequest(final HttpServerRequest request, final Buffer buffer) {
+
+        final MultiMap params = request.params().size() == 0 ? MultiMap.empty() : new MultiMapWrapper(request.params());
+        final MultiMap headers = request.headers().size() == 0 ? MultiMap.empty() : new MultiMapWrapper(request.headers());
+
+        return new HttpRequest(request.uri(), request.method(), params, headers, buffer.toString("UTF-8"),
                 request.remoteAddress().toString(),
                 createResponse(request.response()));
     }
 
-    private HttpRequest createRequest(HttpServerRequest request) {
+    private HttpRequest createRequest(final HttpServerRequest request) {
+
+        final MultiMap params = request.params().size() == 0 ? MultiMap.empty() : new MultiMapWrapper(request.params());
+        final MultiMap headers = request.headers().size() == 0 ? MultiMap.empty() : new MultiMapWrapper(request.headers());
+
         return new HttpRequest(request.uri(), request.method(),
-                new MultiMapWrapper(request.params()), "",
+                params, headers, "",
                 request.remoteAddress().toString(),
                 createResponse(request.response()));
     }

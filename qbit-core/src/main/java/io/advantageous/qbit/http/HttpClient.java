@@ -7,4 +7,8 @@ package io.advantageous.qbit.http;
 public interface HttpClient {
     void sendHttpRequest(HttpRequest request);
 
+    void run();
+
+    void flush();
+
 }

@@ -22,6 +22,10 @@ project(':qbit-core') {
         testCompile group: 'junit', name: 'junit', version: '4.10'
         compile "org.slf4j:slf4j-api:[1.7,1.8)"
         testCompile "org.slf4j:slf4j-simple:[1.7,1.8)"
+        compile group: 'io.fastjson', name: 'boon', version: '0.30-SNAPSHOT'
+
+
+        testCompile project(':qbit-boon')
 
     }
 
