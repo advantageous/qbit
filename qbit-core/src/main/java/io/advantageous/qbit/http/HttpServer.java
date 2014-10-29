@@ -12,4 +12,7 @@ public interface HttpServer {
     void setHttpRequestConsumer(Consumer<HttpRequest> httpRequestConsumer);
 
     void run();
+
+
+    void stop();
 }

@@ -1,6 +1,7 @@
 package io.advantageous.qbit.vertx.http;
 
 import io.advantageous.qbit.http.*;
+import org.boon.HTTP;
 import org.boon.core.Sys;
 import org.junit.Test;
 
@@ -19,7 +20,7 @@ public class HttpClientVertxTest {
         HttpClient client = new HttpClientVertx(9090, "localhost");
         client.run();
 
-        HttpServer server = new HttpServerVertx(9090, "localhost");
+        HttpServer server = new HttpServerVertx(9090);
 
         server.setHttpRequestConsumer(request -> {
             requestReceived = true;
@@ -47,23 +48,28 @@ public class HttpClientVertxTest {
         });
 
 
+
         client.sendHttpRequest(requestBuilder.build());
 
         client.flush();
 
 
 
-//        It don't work yet. 
-//        Sys.sleep(500);
-//
-//        if (!requestReceived) {
-//            die("Request not received");
-//        }
-//
-//
-//        if (!responseReceived) {
-//            die("Response not received");
-//        }
+        Sys.sleep(500);
+
+
+
+
+        Sys.sleep(500);
+
+        if (!requestReceived) {
+            die("Request not received");
+        }
+
+
+        if (!responseReceived) {
+            die("Response not received");
+        }
 
 
     }

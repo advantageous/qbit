@@ -2,9 +2,6 @@ package io.advantageous.qbit.vertx.http;
 
 import io.advantageous.qbit.http.HttpClient;
 import io.advantageous.qbit.http.HttpRequest;
-import io.advantageous.qbit.http.HttpResponse;
-import io.advantageous.qbit.message.MethodCall;
-import io.advantageous.qbit.queue.ReceiveQueue;
 import io.advantageous.qbit.queue.ReceiveQueueListener;
 import io.advantageous.qbit.queue.SendQueue;
 import io.advantageous.qbit.queue.impl.BasicQueue;
@@ -14,10 +11,10 @@ import io.advantageous.qbit.vertx.example.vertx.MultiMapWrapper;
 import org.boon.core.Sys;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.core.Handler;
 import org.vertx.java.core.Vertx;
 import org.vertx.java.core.VertxFactory;
 import org.vertx.java.core.buffer.Buffer;
+import org.vertx.java.core.http.HttpClientRequest;
 import org.vertx.java.core.http.HttpClientResponse;
 
 import java.net.ConnectException;
@@ -35,6 +32,9 @@ public class HttpClientVertx implements HttpClient {
 
 
     private final Logger logger = LoggerFactory.getLogger(HttpClientVertx.class);
+
+    private final boolean debug = logger.isDebugEnabled();
+
 
 
     /**
@@ -83,6 +83,8 @@ public class HttpClientVertx implements HttpClient {
 
     @Override
     public void sendHttpRequest(final HttpRequest request) {
+
+        if(debug) logger.debug("HTTP CLIENT: sendHttpRequest:: \n{}\n", request);
         httpRequestSendQueue.send(request);
     }
 
@@ -98,9 +100,7 @@ public class HttpClientVertx implements HttpClient {
         scheduledExecutorService = Executors.newScheduledThreadPool(2);
 
 
-        this.scheduledExecutorService.schedule(() -> {
-            connectWithRetry();
-        }, 10, TimeUnit.MILLISECONDS);
+        this.scheduledExecutorService.schedule(this::connectWithRetry, 10, TimeUnit.MILLISECONDS);
 
 
         Sys.sleep(200);
@@ -112,9 +112,12 @@ public class HttpClientVertx implements HttpClient {
         requestQueue.startListener(new ReceiveQueueListener<HttpRequest>() {
             @Override
             public void receive(final HttpRequest request) {
-                clientHttp.request(request.getMethod(), request.getUri(), httpClientResponse -> {
-                    handleResponse(request, httpClientResponse);
-                });
+                if (debug) logger.debug("HttpClientVertx::client queue listener request={}", request);
+                final HttpClientRequest httpClientRequest = clientHttp.request(request.getMethod(), request.getUri(), httpClientResponse -> handleResponse(request, httpClientResponse));
+
+                httpClientRequest.end();
+
+                if (debug) logger.debug("HttpClientVertx::SENT \n{}", request);
             }
 
             @Override
@@ -155,19 +158,50 @@ public class HttpClientVertx implements HttpClient {
         this.httpRequestSendQueue.flushSends();
     }
 
+    @Override
+    public void stop() {
+        try {
+            if (this.scheduledExecutorService!=null)
+            this.scheduledExecutorService.shutdown();
+        } catch (Exception ex) {
+            logger.warn("problem shutting down executor service for Http Client", ex);
+        }
+
+        try {
+            if (requestQueue!=null) {
+                requestQueue.stop();
+            }
+        } catch (Exception ex) {
+
+            logger.warn("problem shutting down requestQueue for Http Client", ex);
+        }
+
+    }
+
     private void handleResponse(final HttpRequest request, final HttpClientResponse httpClientResponse) {
         final int statusCode = httpClientResponse.statusCode();
         final MultiMap<String, String> headers = httpClientResponse.headers().size() == 0 ? MultiMap.empty() : new MultiMapWrapper(httpClientResponse.headers());
         httpClientResponse.dataHandler(buffer -> {
             final String body = buffer.toString("UTF-8");
-            request.getResponse().response(statusCode, headers.get("Content-Type"), body);
+
+            handleResponseFromServer(request, statusCode, headers, body);
         });
+    }
+
+    private void handleResponseFromServer(HttpRequest request, int responseStatusCode, MultiMap<String, String> responseHeaders, String body) {
+        if(debug) {
+            logger.debug("HttpClientVertx::handleResponseFromServer:: request = {}, response status code = {}, \n" +
+                    "response headers = {}, body = {}", request, responseStatusCode, responseHeaders, body);
+        }
+        request.getResponse().response(responseStatusCode, responseHeaders.get("Content-Type"), body);
     }
 
     private void connectWithRetry() {
         connect();
         int retry = 0;
         while (closed.get()) {
+
+            /* Retry to connect every one second */
             Sys.sleep(1000);
 
             if (!closed.get()) {
@@ -188,6 +222,9 @@ public class HttpClientVertx implements HttpClient {
         httpClient = vertx.createHttpClient().setHost(host).setPort(port)
                 .setConnectTimeout(timeOutInMilliseconds).setMaxPoolSize(poolSize);
 
+
+        if(debug) logger.debug("HTTP CLIENT: connect:: \nhost {} \nport {}\n", host, port);
+
         httpClient.exceptionHandler(throwable -> {
 
             if (throwable instanceof ConnectException) {
@@ -196,6 +233,8 @@ public class HttpClientVertx implements HttpClient {
                 logger.error("Unable to connect to " + host + " port " + port, throwable);
             }
         });
+
+        Sys.sleep(100);
 
     }
 }

@@ -10,6 +10,7 @@ subprojects {
         mavenCentral()
     }
 
+
     sourceCompatibility = JavaVersion.VERSION_1_8
     targetCompatibility = JavaVersion.VERSION_1_8
 }
@@ -20,12 +21,11 @@ project(':qbit-core') {
 
     dependencies {
         testCompile group: 'junit', name: 'junit', version: '4.10'
-        compile "org.slf4j:slf4j-api:[1.7,1.8)"
-        testCompile "org.slf4j:slf4j-simple:[1.7,1.8)"
         compile group: 'io.fastjson', name: 'boon', version: '0.30-SNAPSHOT'
-
-
         testCompile project(':qbit-boon')
+        compile "org.slf4j:slf4j-api:[1.7,1.8)"
+        testCompile 'ch.qos.logback:logback-classic:1.1.2'
+
 
     }
 
@@ -103,8 +103,11 @@ project(':qbit-boon') {
     dependencies {
         compile project(':qbit-core')
         compile group: 'io.fastjson', name: 'boon', version: '0.30-SNAPSHOT'
-        testCompile 'junit:junit:4.11'
-        testCompile "org.slf4j:slf4j-simple:[1.7,1.8)"
+        compile "org.slf4j:slf4j-api:[1.7,1.8)"
+        testCompile 'ch.qos.logback:logback-classic:1.1.2'
+
+        testCompile group: 'junit', name: 'junit', version: '4.10'
+
 
     }
 }
@@ -114,8 +117,10 @@ project(':examples') {
     sourceSets.main.resources.srcDir 'src/main/java'
     dependencies {
         compile project(':qbit-boon')
-        testCompile 'junit:junit:4.11'
-        testCompile "org.slf4j:slf4j-simple:[1.7,1.8)"
+        compile "org.slf4j:slf4j-api:[1.7,1.8)"
+        testCompile 'ch.qos.logback:logback-classic:1.1.2'
+
+        testCompile group: 'junit', name: 'junit', version: '4.10'
     }
 }
 
@@ -163,7 +168,11 @@ project(':qbit-vertx') {
         compile group: 'io.vertx', name: 'vertx-core', version: vertxVersion
         compile group: 'io.vertx', name: 'vertx-platform', version: vertxVersion
         compile group: 'io.vertx', name: 'lang-groovy', version: vertxVersion
-        testCompile 'junit:junit:4.11'
+        compile "org.slf4j:slf4j-api:[1.7,1.8)"
+        testCompile 'ch.qos.logback:logback-classic:1.1.2'
+
+        testCompile group: 'junit', name: 'junit', version: '4.10'
+
     }
 
 

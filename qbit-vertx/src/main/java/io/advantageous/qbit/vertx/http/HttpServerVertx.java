@@ -25,6 +25,8 @@ public class HttpServerVertx implements HttpServer {
 
     private final Logger logger = LoggerFactory.getLogger(HttpServerVertx.class);
 
+    private final boolean debug = logger.isDebugEnabled();
+
     /**
      * I am leaving these protected and non-final so subclasses can use injection frameworks for them.
      */
@@ -47,7 +49,7 @@ public class HttpServerVertx implements HttpServer {
     }
 
     public HttpServerVertx(final int port) {
-        this(port, null, VertxFactory.newVertx());
+        this(port, "localhost", VertxFactory.newVertx());
     }
 
 
@@ -55,14 +57,10 @@ public class HttpServerVertx implements HttpServer {
         this(port, host, VertxFactory.newVertx());
     }
 
-    private Consumer<WebSocketMessage> webSocketMessageConsumer = websocketMessage -> {
-
-    };
+    private Consumer<WebSocketMessage> webSocketMessageConsumer = websocketMessage -> logger.debug("HttpServerVertx::DEFAULT WEBSOCKET HANDLER CALLED WHICH IS ODD");
 
 
-    private Consumer<HttpRequest> httpRequestConsumer = request -> {
-
-    };
+    private Consumer<HttpRequest> httpRequestConsumer = request -> logger.debug("HttpServerVertx::DEFAULT HTTP HANDLER CALLED WHICH IS ODD");
 
     @Override
     public void setWebSocketMessageConsumer(final Consumer<WebSocketMessage> webSocketMessageConsumer) {
@@ -99,14 +97,24 @@ public class HttpServerVertx implements HttpServer {
 
     }
 
+    @Override
+    public void stop() {
+
+    }
+
     private void handleHttpRequest(final HttpServerRequest request) {
+
+
+        if (debug) logger.debug("HttpServerVertx::handleHttpRequest::{}:{}", request.method(), request.uri());
 
         switch (request.method()) {
 
             case "PUT":
             case "POST":
+
                 request.dataHandler((Buffer buffer) -> {
-                    final HttpRequest postRequest = createRequest(request, buffer);
+                    final HttpRequest postRequest;
+                    postRequest = createRequest(request, buffer);
                     this.httpRequestConsumer.accept(postRequest);
                 });
                 break;
@@ -116,7 +124,8 @@ public class HttpServerVertx implements HttpServer {
             case "OPTIONS":
             case "DELETE":
             case "GET":
-                final HttpRequest getRequest = createRequest(request);
+                final HttpRequest getRequest;
+                getRequest = createRequest(request, null);
                 this.httpRequestConsumer.accept(getRequest);
                 break;
 
@@ -133,6 +142,10 @@ public class HttpServerVertx implements HttpServer {
         webSocket.dataHandler((Buffer buffer) -> {
                     WebSocketMessage webSocketMessage =
                             createWebSocketMessage(webSocket, buffer);
+
+
+                    if (debug) logger.debug("HttpServerVertx::handleWebSocketMessage::%s", webSocketMessage);
+
                     this.webSocketMessageConsumer.accept(webSocketMessage);
                 }
         );
@@ -145,24 +158,15 @@ public class HttpServerVertx implements HttpServer {
 
     private HttpRequest createRequest(final HttpServerRequest request, final Buffer buffer) {
 
-        final MultiMap params = request.params().size() == 0 ? MultiMap.empty() : new MultiMapWrapper(request.params());
-        final MultiMap headers = request.headers().size() == 0 ? MultiMap.empty() : new MultiMapWrapper(request.headers());
+        final MultiMap<String, String> params = request.params().size() == 0 ? MultiMap.empty() : new MultiMapWrapper(request.params());
+        final MultiMap<String, String> headers = request.headers().size() == 0 ? MultiMap.empty() : new MultiMapWrapper(request.headers());
+        final String body = buffer == null ? "" : buffer.toString("UTF-8");
 
-        return new HttpRequest(request.uri(), request.method(), params, headers, buffer.toString("UTF-8"),
+        return new HttpRequest(request.uri(), request.method(), params, headers, body,
                 request.remoteAddress().toString(),
                 createResponse(request.response()));
     }
 
-    private HttpRequest createRequest(final HttpServerRequest request) {
-
-        final MultiMap params = request.params().size() == 0 ? MultiMap.empty() : new MultiMapWrapper(request.params());
-        final MultiMap headers = request.headers().size() == 0 ? MultiMap.empty() : new MultiMapWrapper(request.headers());
-
-        return new HttpRequest(request.uri(), request.method(),
-                params, headers, "",
-                request.remoteAddress().toString(),
-                createResponse(request.response()));
-    }
 
     private HttpResponse createResponse(final HttpServerResponse response) {
         return (code, mimeType, body) -> {

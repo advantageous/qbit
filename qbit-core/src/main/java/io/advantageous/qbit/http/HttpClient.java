@@ -11,4 +11,6 @@ public interface HttpClient {
 
     void flush();
 
+    void stop();
+
 }

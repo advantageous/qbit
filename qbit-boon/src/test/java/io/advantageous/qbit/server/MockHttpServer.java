@@ -73,4 +73,9 @@ public class MockHttpServer implements HttpServer {
     public void run() {
 
     }
+
+    @Override
+    public void stop() {
+
+    }
 }
