@@ -253,7 +253,7 @@ public class ServiceBundleImpl implements ServiceBundle {
     /**
      * Returns a receive queue for all services managed by this bundle.
      *
-     * @return
+     * @return responses queue
      */
     @Override
     public ReceiveQueue<Response<Object>> responses() {

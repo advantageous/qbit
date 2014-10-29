@@ -8,6 +8,7 @@ import io.advantageous.qbit.queue.impl.BasicQueue;
 import io.advantageous.qbit.util.MultiMap;
 import io.advantageous.qbit.util.Timer;
 import io.advantageous.qbit.vertx.example.vertx.MultiMapWrapper;
+import org.boon.Str;
 import org.boon.core.Sys;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -112,12 +113,7 @@ public class HttpClientVertx implements HttpClient {
         requestQueue.startListener(new ReceiveQueueListener<HttpRequest>() {
             @Override
             public void receive(final HttpRequest request) {
-                if (debug) logger.debug("HttpClientVertx::client queue listener request={}", request);
-                final HttpClientRequest httpClientRequest = clientHttp.request(request.getMethod(), request.getUri(), httpClientResponse -> handleResponse(request, httpClientResponse));
-
-                httpClientRequest.end();
-
-                if (debug) logger.debug("HttpClientVertx::SENT \n{}", request);
+                doSendRequestToServer(request, clientHttp);
             }
 
             @Override
@@ -151,6 +147,20 @@ public class HttpClientVertx implements HttpClient {
             }
         });
 
+    }
+
+    private void doSendRequestToServer(HttpRequest request, final org.vertx.java.core.http.HttpClient remoteHttpServer) {
+        if (debug) logger.debug("HttpClientVertx::doSendRequestToServer::\n request={}", request);
+        final HttpClientRequest httpClientRequest = remoteHttpServer.request(request.getMethod(), request.getUri(), httpClientResponse -> handleResponse(request, httpClientResponse));
+
+
+        if (!Str.isEmpty(request.getBody())) {
+            httpClientRequest.end(request.getBody());
+        } else {
+            httpClientRequest.end();
+        }
+
+        if (debug) logger.debug("HttpClientVertx::SENT \n{}", request);
     }
 
     @Override

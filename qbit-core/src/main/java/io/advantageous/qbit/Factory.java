@@ -75,7 +75,10 @@ public interface Factory {
      * @param serviceAddress service address URI
      * @param object object that implements the service
      * @param responseQueue the response queue.
-     * @return
+     * @return new Service that was created
+     *
+     *
+     *
      */
     Service createService(String rootAddress, String serviceAddress, Object object, Queue<Response<Object>> responseQueue);
 
@@ -142,9 +145,9 @@ public interface Factory {
     /**
      * Parses a method call using an address prefix and a body.
      * Useful for Websocket calls and POST calls (if you don't care about request params).
-     * @param addressPrefix
-     * @param message
-     * @return
+     * @param addressPrefix prefix of the address
+     * @param message message that we are sending
+     * @return method call that we just created
      */
     MethodCall<Object> createMethodCallToBeParsedFromBody(String addressPrefix, Object message);
 }

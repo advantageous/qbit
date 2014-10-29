@@ -8,7 +8,7 @@ public interface Queue <T> {
 
     /**
      * This returns a thread safe receive queue. Pulling an item off of the queue makes it unavailable to other thread.
-     * @return
+     * @return receive queue
      */
     ReceiveQueue<T> receiveQueue();
 
@@ -18,7 +18,7 @@ public interface Queue <T> {
      * and to maximize IO throughput. Each call to this method returns a send queue
      * that can only be access from one thread.
      * You get MT behavior by having a SendQueue per thread.
-     * @return
+     * @return send queue
      */
     SendQueue<T> sendQueue();
 
@@ -27,7 +27,7 @@ public interface Queue <T> {
      * receive queue. It will notify when the queue is empty, when the queue is idle, when the queue is shutdown, etc.
      *
      * An idle queue is an indication that it is a good time to do periodic cleanup, etc.
-     * @param listener
+     * @param listener listener
      */
     void startListener(ReceiveQueueListener<T> listener);
 

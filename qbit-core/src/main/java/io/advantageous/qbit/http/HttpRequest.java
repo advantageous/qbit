@@ -67,4 +67,8 @@ public class HttpRequest {
                 ", response=" + response +
                 '}';
     }
+
+    public MultiMap<String, String> getHeaders() {
+        return headers;
+    }
 }
