@@ -20,7 +20,6 @@ project(':qbit-core') {
 
     dependencies {
         testCompile group: 'junit', name: 'junit', version: '4.10'
-        testCompile project(':qbit-boon')
         compile "org.slf4j:slf4j-api:[1.7,1.8)"
         testCompile "org.slf4j:slf4j-simple:[1.7,1.8)"
 
