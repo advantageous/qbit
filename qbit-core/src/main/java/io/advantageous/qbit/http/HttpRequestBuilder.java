@@ -15,6 +15,7 @@ public class HttpRequestBuilder {
     private  String body;
     private  String method;
     private  HttpResponse response;
+    private MultiMap<String, String> headers;
 
 
     public String getUri() {
@@ -72,6 +73,6 @@ public class HttpRequestBuilder {
     }
 
     public HttpRequest build() {
-        return new HttpRequest(uri, method, params, body, remoteAddress, response);
+        return new HttpRequest(uri, method, params, headers, body, remoteAddress, response);
     }
 }
