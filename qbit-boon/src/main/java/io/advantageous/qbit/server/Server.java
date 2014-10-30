@@ -43,7 +43,7 @@ public class Server {
 
     private final MultiMap<String, MethodCall<Object>> methodCallMap = new MultiMapImpl<>();
 
-    protected int timeoutInSeconds = 10;
+    protected int timeoutInSeconds = 30;
 
     protected int methodFlushInMilliSeconds = 10;
 
@@ -229,10 +229,14 @@ public class Server {
 
 
         if (httpResponse != null) {
+
             httpResponse.response(408, "application/json", "\"timed out\"");
+            responseMap.remove(methodCall.returnAddress());
         } else {
 
             WebsSocketSender webSocket = webSocketMap.get(methodCall.returnAddress());
+            webSocketMap.remove(methodCall.returnAddress());
+
             if (webSocket != null) {
 
                 Response<Object> response = new Response<Object>() {
@@ -279,9 +283,6 @@ public class Server {
                 String responseAsText = encoder.encodeAsString(response);
                 webSocket.send(responseAsText);
 
-            } else {
-                throw new IllegalStateException(
-                        "Unable to find response handler to send back http or websocket response");
             }
         }
     }

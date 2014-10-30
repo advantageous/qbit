@@ -434,7 +434,7 @@ public class QBitClient {
 
                 if (actualReturnType != null) {
 
-                    if (componentClass != null && actualReturnType == List.class) {
+                    if ( componentClass != null && actualReturnType == List.class ) {
                         event = MapObjectConversion.convertListOfMapsToObjects(componentClass, (List) event);
                     } else {
                         event = Conversions.coerce(actualReturnType, event);

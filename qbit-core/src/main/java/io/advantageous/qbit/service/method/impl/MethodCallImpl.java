@@ -203,8 +203,6 @@ public class MethodCallImpl implements MethodCall<Object> {
     public int hashCode() {
         int result = name != null ? name.hashCode() : 0;
         result = 31 * result + (address != null ? address.hashCode() : 0);
-        result = 31 * result + (params != null ? params.hashCode() : 0);
-        result = 31 * result + (body != null ? body.hashCode() : 0);
         result = 31 * result + (int) (id ^ (id >>> 32));
         return result;
     }
