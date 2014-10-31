@@ -7,6 +7,7 @@ import java.util.function.Consumer;
  * @author rhightower
  */
 public interface HttpServer {
+
     void setWebSocketMessageConsumer(Consumer<WebSocketMessage> webSocketMessageConsumer);
 
     void setHttpRequestConsumer(Consumer<HttpRequest> httpRequestConsumer);
