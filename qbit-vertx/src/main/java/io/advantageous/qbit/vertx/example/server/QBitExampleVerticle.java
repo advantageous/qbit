@@ -29,6 +29,7 @@
 package io.advantageous.qbit.vertx.example.server;
 
 import io.advantageous.qbit.QBit;
+import io.advantageous.qbit.http.WebSocketMessage;
 import io.advantageous.qbit.message.MethodCall;
 import io.advantageous.qbit.message.Response;
 import io.advantageous.qbit.queue.ReceiveQueue;
@@ -160,8 +161,9 @@ public class QBitExampleVerticle extends Verticle {
 
     private  void handleWebSocketData(ServerWebSocket websocket, String message) {
 
+        final WebSocketMessage webSocketMessage = new WebSocketMessage(websocket.uri(), message, websocket.remoteAddress().toString(), null);
 
-        final MethodCall<Object> methodCall = QBit.factory().createMethodCallToBeParsedFromBody(websocket.remoteAddress().toString(), message);
+        final MethodCall<Object> methodCall = QBit.factory().createMethodCallToBeParsedFromBody(websocket.remoteAddress().toString(), message, webSocketMessage);
         serviceBundle.call(methodCall);
 
         puts("Websocket data", methodCall.returnAddress(), websocket, message);

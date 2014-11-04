@@ -192,7 +192,7 @@ public class BoonProtocolParser implements ProtocolParser {
         } else {
             messageBody = null;
         }
-        return new ResponseImpl<>( id,  timestamp,  address,  returnAddress, null, messageBody);
+        return new ResponseImpl<>( id,  timestamp,  address,  returnAddress, null, messageBody, null);
 
 
 

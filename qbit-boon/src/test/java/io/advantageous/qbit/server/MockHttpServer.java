@@ -4,9 +4,11 @@ import io.advantageous.qbit.QBit;
 import io.advantageous.qbit.http.*;
 import io.advantageous.qbit.message.MethodCall;
 import io.advantageous.qbit.util.MultiMap;
+import io.advantageous.qbit.util.Timer;
 import org.boon.Boon;
 
 import java.util.function.Consumer;
+import java.util.function.Function;
 
 /**
  * Created by rhightower on 10/24/14.
@@ -18,6 +20,11 @@ public class MockHttpServer implements HttpServer {
 
     Consumer<HttpRequest> httpRequestConsumer;
     volatile long  messageId = 0;
+
+
+    private Consumer<Long> timeCallback = time -> {
+
+    };
 
 
     public void postRequestObject(final String uri, final Object body,
@@ -70,6 +77,14 @@ public class MockHttpServer implements HttpServer {
     }
 
     @Override
+    public void setTimeCallback(final Consumer<Long> timeCallback) {
+
+        this.timeCallback = timeCallback;
+
+    }
+
+
+    @Override
     public void run() {
 
     }
@@ -77,5 +92,9 @@ public class MockHttpServer implements HttpServer {
     @Override
     public void stop() {
 
+    }
+
+    public void tick() {
+        timeCallback.accept(Timer.timer().now());
     }
 }

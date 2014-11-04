@@ -18,5 +18,7 @@ public interface Response <T> extends Message<T> {
 
 
     long timestamp();
+
+    Request<Object> request();
 }
 

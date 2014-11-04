@@ -6,6 +6,7 @@ import io.advantageous.qbit.annotation.RequestMethod;
 import io.advantageous.qbit.http.*;
 import io.advantageous.qbit.json.JsonMapper;
 import io.advantageous.qbit.message.MethodCall;
+import io.advantageous.qbit.message.Request;
 import io.advantageous.qbit.message.Response;
 import io.advantageous.qbit.queue.ReceiveQueue;
 import io.advantageous.qbit.queue.ReceiveQueueListener;
@@ -13,8 +14,6 @@ import io.advantageous.qbit.queue.ReceiveQueueManager;
 import io.advantageous.qbit.queue.impl.BasicReceiveQueueManager;
 import io.advantageous.qbit.service.ServiceBundle;
 import io.advantageous.qbit.spi.ProtocolEncoder;
-import io.advantageous.qbit.util.MultiMap;
-import io.advantageous.qbit.util.MultiMapImpl;
 import io.advantageous.qbit.util.Timer;
 import org.boon.Str;
 import org.boon.StringScanner;
@@ -41,9 +40,10 @@ public class Server {
 
     private final Logger logger = LoggerFactory.getLogger(Server.class);
 
-    private final MultiMap<String, MethodCall<Object>> methodCallMap = new MultiMapImpl<>();
 
     protected int timeoutInSeconds = 30;
+
+    protected int outstandingRequestSize = 20_000_000;
 
     protected int methodFlushInMilliSeconds = 10;
 
@@ -62,6 +62,7 @@ public class Server {
         this.jsonMapper = jsonMapper;
     }
 
+
     private Set<String> getMethodURIs = new LinkedHashSet<>();
     private Set<String> postMethodURIs = new LinkedHashSet<>();
 
@@ -69,15 +70,14 @@ public class Server {
     private Set<String> getMethodURIsWithVoidReturn = new LinkedHashSet<>();
     private Set<String> postMethodURIsWithVoidReturn = new LinkedHashSet<>();
 
-    private List<MethodCall<Object>> methodCalls = new ArrayList<>();
+    private Queue<Request<Object>> requests = new LinkedBlockingQueue<>(outstandingRequestSize);
+
 
     private final boolean debug = logger.isDebugEnabled();
 
     private final Timer timer = Timer.timer();
 
 
-    private Map<String, WebsSocketSender> webSocketMap = new ConcurrentHashMap<>();
-    private Map<String, HttpResponse> responseMap = new ConcurrentHashMap<>();
     private ReceiveQueue<Response<Object>> responses;
 
 
@@ -89,7 +89,6 @@ public class Server {
 
     private AtomicLong lastFlushTime = new AtomicLong();
 
-    private AtomicLong lastCheckMethodTime = new AtomicLong();
 
 
     protected void initServices(Set<Object> services) {
@@ -124,13 +123,24 @@ public class Server {
 
     }
 
+    /**
+     * Run this server.
+     */
     public void run() {
-        startResponseQueueListener();
+        stop.set(false);
+
         httpServer.setHttpRequestConsumer(this::handleRestCall);
         httpServer.setWebSocketMessageConsumer(this::handleWebSocketCall);
+        httpServer.setTimeCallback(this::handleServiceBundleFlush);
         httpServer.run();
+
+
+        startResponseQueueListener();
     }
 
+    /**
+     * Sets up the response queue listener so we can send responses to HTTP / Websocket end points.
+     */
     private void startResponseQueueListener() {
         receiveQueueManager = new BasicReceiveQueueManager<>();
 
@@ -144,18 +154,26 @@ public class Server {
 
         responses = serviceBundle.responses();
 
-        stop.set(false);
 
+        /*
+         * Set up thread to monitor the receive queue and manage it with the queue listener.
+         */
         future = monitor.scheduleAtFixedRate(() -> {
             try {
-                receiveQueueManager.manageQueue(responses, queueListener(), 50, stop);
+                receiveQueueManager.manageQueue(responses, createResponseQueueListener(), 50, stop);
             } catch (Exception ex) {
                 logger.error(this.getClass().getName() + " Problem running queue manager", ex);
             }
         }, 50, 50, TimeUnit.MILLISECONDS);
     }
 
-    private ReceiveQueueListener<Response<Object>> queueListener() {
+
+    /**
+     *
+     * Creates the queue listener for method call responses from the service bundle.
+     * @return the response queue listener to handle the responses to method calls.
+     */
+    private ReceiveQueueListener<Response<Object>> createResponseQueueListener() {
         return new ReceiveQueueListener<Response<Object>>() {
             @Override
             public void receive(final Response<Object> response) {
@@ -168,9 +186,6 @@ public class Server {
             public void empty() {
 
 
-                long now = timer.now();
-
-                handleServiceBundleFlush(now);
 
             }
 
@@ -188,167 +203,61 @@ public class Server {
             public void idle() {
 
 
-                long now = timer.now();
-
-                handleMethodTimeout(now);
-                handleServiceBundleFlush(now);
+                checkTimeoutsForRequests();
             }
         };
     }
 
-    private void handleMethodTimeout(long now) {
-        long lastTime = lastCheckMethodTime.get();
-
-        long duration = now - lastTime;
-
-        int timeout = (timeoutInSeconds * 1000);
-        if (duration > timeout) {
-
-            List<MethodCall<Object>> methodCallsToRemove = new ArrayList<>();
-
-            for (MethodCall<Object> methodCall : methodCalls) {
-                long timestamp = methodCall.timestamp();
-                long invokeDuration = now - timestamp;
-                if (invokeDuration > timeout) {
-                    methodCallsToRemove.add(methodCall);
-
-                    logger.error("Server MethodCall Timed out " + methodCall);
-
-                    handleMethodTimedOut(methodCall);
-                }
-            }
-
-            methodCallsToRemove.forEach(methodCalls::remove);
-        }
-
-    }
-
-    private void handleMethodTimedOut(final MethodCall<Object> methodCall) {
-
-        HttpResponse httpResponse = responseMap.get(methodCall.returnAddress());
 
 
-        if (httpResponse != null) {
-
-            httpResponse.response(408, "application/json", "\"timed out\"");
-            responseMap.remove(methodCall.returnAddress());
-        } else {
-
-            WebsSocketSender webSocket = webSocketMap.get(methodCall.returnAddress());
-            webSocketMap.remove(methodCall.returnAddress());
-
-            if (webSocket != null) {
-
-                Response<Object> response = new Response<Object>() {
-                    @Override
-                    public boolean wasErrors() {
-                        return true;
-                    }
-
-                    @Override
-                    public void body(Object body) {
-
-                    }
-
-                    @Override
-                    public String returnAddress() {
-                        return methodCall.returnAddress();
-                    }
-
-                    @Override
-                    public String address() {
-                        return methodCall.address();
-                    }
-
-                    @Override
-                    public long timestamp() {
-                        return methodCall.timestamp();
-                    }
-
-                    @Override
-                    public long id() {
-                        return methodCall.id();
-                    }
-
-                    @Override
-                    public Object body() {
-                        return new TimeoutException("Method call timed out");
-                    }
-
-                    @Override
-                    public boolean isSingleton() {
-                        return true;
-                    }
-                };
-                String responseAsText = encoder.encodeAsString(response);
-                webSocket.send(responseAsText);
-
-            }
-        }
-    }
-
+    /** Flush the service bundle and then set the last flush time if now exceeds method flush rate.
+     *
+     * @param now the current time.
+     */
     private void handleServiceBundleFlush(final long now) {
 
         /* Force a flush every methodFlushInMilliSeconds milliseconds. */
         if (now > lastFlushTime.get() + methodFlushInMilliSeconds) {
             serviceBundle.flushSends();
+            lastFlushTime.set(now);
         }
     }
 
-    private void handleResponseFromServiceBundle(Response<Object> response) {
+    /**
+     * Handle a response from the server.
+     * @param response
+     */
+    private void handleResponseFromServiceBundle(final Response<Object> response) {
 
-        String address = response.returnAddress();
+        final Request<Object> request = response.request();
 
-        removeMethodCall(response, address);
+        if (request instanceof MethodCall) {
+            final MethodCall<Object> methodCall = ((MethodCall<Object>) request);
+            final Request<Object> originatingRequest = methodCall.originatingRequest();
 
-        if (debug) logger.debug("RESPONSE CALLBACK TO HTTP " + address + " " + response);
-
-        HttpResponse httpResponse = responseMap.get(address);
-
-        if (debug) logger.debug("RESPONSE CALLBACK TO HTTP " + address + " " + response + " " + httpResponse);
-
-
-        if (httpResponse != null) {
-            httpResponse.response(200, "application/json", jsonMapper.toJson(response.body()));
-        } else {
-
-            WebsSocketSender webSocket = webSocketMap.get(address);
-            if (webSocket != null) {
-
+            if (originatingRequest instanceof HttpRequest) {
+                final HttpRequest httpRequest = ((HttpRequest) originatingRequest);
+                httpRequest.getResponse().response(200, "application/json", jsonMapper.toJson(response.body()));
+            } else if (originatingRequest instanceof WebSocketMessage) {
+                final WebSocketMessage webSocketMessage =((WebSocketMessage) originatingRequest);
                 String responseAsText = encoder.encodeAsString(response);
-                webSocket.send(responseAsText);
-
+                webSocketMessage.getSender().send(responseAsText);
             } else {
-                throw new IllegalStateException(
-                        "Unable to find response handler to send back http or websocket response");
+
+                throw new IllegalStateException("Unknown response " + response);
             }
-        }
-    }
-
-    private void removeMethodCall(Response<Object> response, String address) {
-        final Iterable<MethodCall<Object>> methodsForAddress = methodCallMap.getAll(address);
-
-
-        MethodCall<Object> methodCallResponsePair = null;
-
-        for (MethodCall<Object> methodCall : methodsForAddress) {
-
-
-            if (response.id() == methodCall.id()) {
-                methodCallResponsePair = methodCall;
-                break;
-            }
-
-        }
-
-        if (methodCallResponsePair != null) {
-            methodCallMap.remove(address, methodCallResponsePair);
-            methodCalls.remove(methodCallResponsePair);
+        } else {
+            throw new IllegalStateException("Unknown response " + response);
         }
 
     }
 
 
+    /**
+     * Register REST and webSocket support for a class and URI.
+     * @param cls class
+     * @param baseURI baseURI
+     */
     private void addRestSupportFor(Class cls, String baseURI) {
 
         if (debug) logger.debug("addRestSupportFor " + cls.getName());
@@ -369,6 +278,12 @@ public class Server {
 
     }
 
+    /**
+     * Registers methods from a service class or interface to an end point
+     * @param baseURI base URI
+     * @param serviceURI service URI
+     * @param methods methods
+     */
     private void registerMethodsToEndPoints(String baseURI, String serviceURI, Iterable<MethodAccess> methods) {
         for (MethodAccess method : methods) {
             if (!method.isPublic() || method.method().getName().contains("$")) continue;
@@ -383,6 +298,12 @@ public class Server {
         }
     }
 
+    /**
+     * Registers a single baseURI, serviceURI and method to a GET or POST URI.
+     * @param baseURI base URI
+     * @param serviceURI service URI
+     * @param method method
+     */
     private void registerMethodToEndPoint(final String baseURI, final String serviceURI, final MethodAccess method) {
         AnnotationData data = method.annotation("RequestMapping");
         Map<String, Object> methodValuesForAnnotation = data.getValues();
@@ -408,6 +329,11 @@ public class Server {
         }
     }
 
+    /**
+     * gets the HTTP method from an annotation.
+     * @param methodValuesForAnnotation methods
+     * @return request method
+     */
     private RequestMethod extractHttpMethod(Map<String, Object> methodValuesForAnnotation) {
         RequestMethod httpMethod = null;
 
@@ -423,6 +349,11 @@ public class Server {
         return httpMethod;
     }
 
+    /**
+     * Gets the URI from a method annotation
+     * @param methodValuesForAnnotation
+     * @return URI
+     */
     private String extractMethodURI(Map<String, Object> methodValuesForAnnotation) {
 
 
@@ -436,7 +367,13 @@ public class Server {
     }
 
 
+    /**
+     * Handles a REST call.
+     * @param request http request
+     */
     private void handleRestCall(HttpRequest request) {
+
+        requests.add(request);
 
 
         boolean knownURI = false;
@@ -472,16 +409,9 @@ public class Server {
 
         }
 
-        MethodCall<Object> methodCall =
-                QBit.factory().createMethodCallToBeParsedFromBody(request.getUri(),
-                        request.getRemoteAddress(),
-                        null,
-                        null, args, request.getParams()
+        final MethodCall<Object> methodCall =
+                QBit.factory().createMethodCallFromHttpRequest(request, args);
 
-                );
-
-        methodCalls.add(methodCall);
-        methodCallMap.add(methodCall.returnAddress(), methodCall);
 
 
         if (GlobalConstants.DEBUG) {
@@ -489,29 +419,150 @@ public class Server {
         }
         serviceBundle.call(methodCall);
 
-        if (debug)
-            logger.debug("RESPONSE CALLBACK TO HTTP " + methodCall.returnAddress() + " " + request.getResponse());
-        responseMap.put(methodCall.returnAddress(), request.getResponse());
     }
 
 
     private void handleWebSocketCall(final WebSocketMessage webSocketMessage) {
 
-        if (debug) logger.debug("websocket message: " + webSocketMessage);
+        if (GlobalConstants.DEBUG) logger.info("websocket message: " + webSocketMessage);
+
+
 
         final MethodCall<Object> methodCall =
                 QBit.factory().createMethodCallToBeParsedFromBody(webSocketMessage.getRemoteAddress(),
-                        webSocketMessage.getMessage());
+                        webSocketMessage.getMessage(), webSocketMessage);
+
+
+        if (GlobalConstants.DEBUG) logger.info("websocket message for method call: " + methodCall);
+
+
+        addRequestToCheckForTimeouts(webSocketMessage);
 
         serviceBundle.call(methodCall);
 
 
-        webSocketMap.put(methodCall.returnAddress(), webSocketMessage.getSender());
 
-
-        methodCalls.add(methodCall);
-        methodCallMap.add(methodCall.returnAddress(), methodCall);
 
     }
+
+    /** Add a request to the timeout queue. Server checks for timeouts when it is idle or when
+     * the max outstanding requests is met.
+     * @param request request.
+     */
+    private void addRequestToCheckForTimeouts(final Request<Object> request) {
+
+        if (!requests.offer(request)) {
+            checkTimeoutsForRequests();
+            requests.add(request);
+        }
+    }
+
+    /**
+     *
+     */
+    private void checkTimeoutsForRequests() {
+
+        final long now = Timer.timer().now();
+        long duration;
+
+        Request<Object> request = requests.poll();
+
+        List<Request<Object>> notTimedOutRequests = new ArrayList<>(requests.size());
+
+        while (request!=null) {
+            duration = now - request.timestamp();
+
+            if (duration > (timeoutInSeconds *1000)) {
+                if (!request.isHandled()) {
+                    handleMethodTimedOut(request);
+                }
+            } else {
+                notTimedOutRequests.add(request);
+            }
+            request = requests.poll();
+
+        }
+
+        /* Add the requests that have not timed out back to the queue. */
+        requests.addAll(notTimedOutRequests);
+
+
+    }
+
+
+    /**
+     * Handle a method timeout.
+     * @param request request
+     */
+    private void handleMethodTimedOut(final Request<Object> request) {
+
+        if (request instanceof HttpRequest) {
+
+            final HttpResponse httpResponse = ((HttpRequest) request).getResponse();
+
+            httpResponse.response(408, "application/json", "\"timed out\"");
+        } else if (request instanceof WebSocketMessage) {
+
+            final WebSocketMessage webSocketMessage = (WebSocketMessage) request;
+
+            final WebsSocketSender webSocket = webSocketMessage.getSender();
+
+            if (webSocket != null) {
+
+                Response<Object> response = new Response<Object>() {
+                    @Override
+                    public boolean wasErrors() {
+                        return true;
+                    }
+
+                    @Override
+                    public void body(Object body) {
+
+                    }
+
+                    @Override
+                    public String returnAddress() {
+                        return request.returnAddress();
+                    }
+
+                    @Override
+                    public String address() {
+                        return request.address();
+                    }
+
+                    @Override
+                    public long timestamp() {
+                        return request.timestamp();
+                    }
+
+                    @Override
+                    public Request<Object> request() {
+                        return request;
+                    }
+
+                    @Override
+                    public long id() {
+                        return request.id();
+                    }
+
+                    @Override
+                    public Object body() {
+                        return new TimeoutException("Request timed out");
+                    }
+
+                    @Override
+                    public boolean isSingleton() {
+                        return true;
+                    }
+                };
+                String responseAsText = encoder.encodeAsString(response);
+                webSocket.send(responseAsText);
+
+            }
+        } else {
+            throw new IllegalStateException("Unexpected request type " + request);
+        }
+    }
+
 
 }

@@ -1,5 +1,6 @@
 package io.advantageous.qbit.service.impl;
 
+import io.advantageous.qbit.message.Request;
 import io.advantageous.qbit.message.Response;
 import io.advantageous.qbit.transforms.NoOpRequestTransform;
 
@@ -32,6 +33,11 @@ public class ServiceConstants {
         @Override
         public long timestamp() {
             return 0;
+        }
+
+        @Override
+        public Request<Object> request() {
+            return null;
         }
 
         @Override

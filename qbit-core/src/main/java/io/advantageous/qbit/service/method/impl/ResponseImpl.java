@@ -2,6 +2,7 @@ package io.advantageous.qbit.service.method.impl;
 
 import io.advantageous.qbit.annotation.JsonIgnore;
 import io.advantageous.qbit.message.MethodCall;
+import io.advantageous.qbit.message.Request;
 import io.advantageous.qbit.message.Response;
 
 import java.util.HashMap;
@@ -12,6 +13,7 @@ import java.util.Map;
  */
 public class ResponseImpl<T> implements Response<T> {
 
+    private final Request<Object> request;
     private String address;
 
     private String returnAddress;
@@ -24,24 +26,25 @@ public class ResponseImpl<T> implements Response<T> {
     private transient Object transformedBody;
     private boolean errors;
 
-    public ResponseImpl() {
 
-    }
-
-    public ResponseImpl(MethodCall<T> methodCall, T returnValue) {
+    public ResponseImpl(MethodCall<Object> methodCall, T returnValue) {
         this.address = methodCall.address();
         this.returnAddress = methodCall.returnAddress();
         this.timestamp = methodCall.timestamp();
         this.id = methodCall.id();
         this.params = null;
         this.body = returnValue;
+        this.request = methodCall;
 
     }
 
 
-    public static Response<Object> response(long id, long timestamp, String address, String returnAddress, Object body) {
-        return new ResponseImpl<>(id, timestamp, address, returnAddress, null, body);
+    public static Response<Object> response(long id, long timestamp, String address, String returnAddress, Object body, Request<Object> requestForResponse) {
+
+        return new ResponseImpl<>(id, timestamp, address, returnAddress, null, body, requestForResponse);
+
     }
+
 
 
     public ResponseImpl(MethodCall<Object> methodCall, Throwable ex) {
@@ -63,16 +66,19 @@ public class ResponseImpl<T> implements Response<T> {
         }
         this.errors = true;
         this.params = null;
+        this.request =  methodCall;
 
     }
 
-    public ResponseImpl(long id, long timestamp, String address, String returnAddress, Map<String, Object> params, Object body) {
+    public ResponseImpl(long id, long timestamp, String address, String returnAddress, Map<String, Object> params,
+                        Object body, Request<Object> request) {
         this.address = address;
         this.params = params;
         this.body = body;
         this.id = id;
         this.timestamp = timestamp;
         this.returnAddress = returnAddress;
+        this.request = request;
     }
 
 
@@ -120,6 +126,12 @@ public class ResponseImpl<T> implements Response<T> {
     @Override
     public long timestamp() {
         return timestamp;
+    }
+
+    @Override
+    public Request<Object> request() {
+
+        return (Request<Object>) this.request;
     }
 
     @Override

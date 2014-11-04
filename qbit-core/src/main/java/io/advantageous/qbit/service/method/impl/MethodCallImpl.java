@@ -1,5 +1,7 @@
 package io.advantageous.qbit.service.method.impl;
 
+import io.advantageous.qbit.http.HttpRequest;
+import io.advantageous.qbit.message.Request;
 import io.advantageous.qbit.util.MultiMap;
 import io.advantageous.qbit.util.Timer;
 import io.advantageous.qbit.annotation.JsonIgnore;
@@ -33,6 +35,7 @@ public class MethodCallImpl implements MethodCall<Object> {
     private Object body = Collections.emptyList();
     private String objectName;
     private String returnAddress;
+    private Request<Object> originatingRequest;
 
     public static MethodCall<Object> methodWithArgs(final String method,
                                                     final Object... args) {
@@ -145,8 +148,23 @@ public class MethodCallImpl implements MethodCall<Object> {
     }
 
     @Override
+    public boolean isHandled() {
+        return false;
+    }
+
+    @Override
+    public void handled() {
+
+    }
+
+    @Override
     public String objectName() {
         return objectName;
+    }
+
+    @Override
+    public Request<Object> originatingRequest() {
+        return originatingRequest;
     }
 
     @Override
@@ -285,5 +303,12 @@ public class MethodCallImpl implements MethodCall<Object> {
 
     public void setBody(Object[] body) {
         this.body = body;
+    }
+
+    public static MethodCallImpl method(final Request<Object> request, final Object args) {
+        MethodCallImpl methodCall =   method(request.id(), request.address(), request.returnAddress(), null, null, request.timestamp(), request.body(), request.params());
+        methodCall.originatingRequest = request;
+        methodCall.body = args;
+        return methodCall;
     }
 }

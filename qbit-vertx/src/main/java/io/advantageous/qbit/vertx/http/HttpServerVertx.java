@@ -6,10 +6,12 @@ import io.advantageous.qbit.http.HttpResponse;
 import io.advantageous.qbit.http.HttpServer;
 import io.advantageous.qbit.http.WebSocketMessage;
 import io.advantageous.qbit.util.MultiMap;
+import io.advantageous.qbit.util.Timer;
 import io.advantageous.qbit.vertx.example.vertx.MultiMapWrapper;
 import org.boon.Str;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.vertx.java.core.Handler;
 import org.vertx.java.core.Vertx;
 import org.vertx.java.core.VertxFactory;
 import org.vertx.java.core.buffer.Buffer;
@@ -18,6 +20,7 @@ import org.vertx.java.core.http.HttpServerResponse;
 import org.vertx.java.core.http.ServerWebSocket;
 
 import java.util.function.Consumer;
+import java.util.function.Function;
 
 /**
  */
@@ -32,6 +35,11 @@ public class HttpServerVertx implements HttpServer {
      */
     protected int port;
     protected String host;
+
+    /*
+    how often do we want a call on the HTTP request thread so we can perform cleanup or flush in milis.
+     */
+    protected long timeCallbackDuration = 50;
     protected Vertx vertx;
 
     private org.vertx.java.core.http.HttpServer httpServer;
@@ -41,6 +49,8 @@ public class HttpServerVertx implements HttpServer {
      * Constructor
      *
      * @param port port
+     * @param host host
+     * @param vertx vertx
      */
     public HttpServerVertx(final int port, final String host, final Vertx vertx) {
         this.port = port;
@@ -62,6 +72,11 @@ public class HttpServerVertx implements HttpServer {
 
     private Consumer<HttpRequest> httpRequestConsumer = request -> logger.debug("HttpServerVertx::DEFAULT HTTP HANDLER CALLED WHICH IS ODD");
 
+
+    private Consumer<Long> timeCallback = time -> {
+
+    };
+
     @Override
     public void setWebSocketMessageConsumer(final Consumer<WebSocketMessage> webSocketMessageConsumer) {
         this.webSocketMessageConsumer = webSocketMessageConsumer;
@@ -72,11 +87,18 @@ public class HttpServerVertx implements HttpServer {
         this.httpRequestConsumer = httpRequestConsumer;
     }
 
+    @Override
+    public void setTimeCallback(Consumer<Long> timeCallback) {
+
+        this.timeCallback = timeCallback;
+    }
+
 
     @Override
     public void run() {
 
         httpServer = vertx.createHttpServer();
+
         httpServer.setTCPKeepAlive(true);
         httpServer.setTCPNoDelay(true);
         httpServer.setSoLinger(0);
@@ -95,6 +117,9 @@ public class HttpServerVertx implements HttpServer {
 
         logger.info("HTTP SERVER started on port " + port + " host " + host);
 
+
+
+        vertx.setPeriodic(timeCallbackDuration, event -> timeCallback.accept(Timer.timer().now()));
     }
 
     @Override

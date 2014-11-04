@@ -50,7 +50,7 @@ public class ProtocolParserVersion1Test {
         BoonProtocolEncoder encoder = new BoonProtocolEncoder();
 
         ResponseImpl<Object> response = new ResponseImpl<>(1L, 2L,
-                "addr", "Raddr", null, "body");
+                "addr", "Raddr", null, "body", null);
 
         final String s = encoder.encodeAsString(response);
 

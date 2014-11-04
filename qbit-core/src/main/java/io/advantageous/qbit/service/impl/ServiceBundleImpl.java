@@ -290,7 +290,7 @@ public class ServiceBundleImpl implements ServiceBundle {
                 }
             }
         }
-        methodSendQueue.send(methodCall);
+        methodSendQueue.sendAndFlush(methodCall);
     }
 
     /**

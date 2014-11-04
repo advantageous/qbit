@@ -20,4 +20,7 @@ public interface Request<T> extends Message<T> {
 
     long timestamp();
 
+    boolean isHandled();
+
+    void handled();
 }

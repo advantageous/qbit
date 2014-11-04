@@ -271,7 +271,7 @@ public class BoonServiceMethodCallHandler implements ServiceMethodHandler {
                 methodCall.timestamp(),
                 methodCall.name(),
                 methodCall.returnAddress(),
-                returnValue);
+                returnValue, methodCall);
     }
 
     private Object bodyFromRequestParams(MethodAccess method,

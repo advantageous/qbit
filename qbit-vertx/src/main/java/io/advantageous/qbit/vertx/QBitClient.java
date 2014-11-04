@@ -284,6 +284,7 @@ public class QBitClient {
 
     /**
      * Sends a message over websocket.
+     * @param newMessage message to send over WebSocket
      */
     public void send(String newMessage) {
         webSocket();
@@ -452,7 +453,8 @@ public class QBitClient {
 
 
     /**
-     * Return the recieve queue.
+     * Return the receive queue.
+     * @return receive queue
      */
     public final ReceiveQueue<String> receiveQueue() {
         return queueFromServer.receiveQueue();

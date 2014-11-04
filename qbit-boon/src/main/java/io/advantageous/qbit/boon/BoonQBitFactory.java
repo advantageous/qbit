@@ -2,7 +2,9 @@ package io.advantageous.qbit.boon;
 
 import io.advantageous.qbit.Factory;
 import io.advantageous.qbit.GlobalConstants;
+import io.advantageous.qbit.http.HttpRequest;
 import io.advantageous.qbit.message.MethodCall;
+import io.advantageous.qbit.message.Request;
 import io.advantageous.qbit.message.Response;
 import io.advantageous.qbit.proxy.ServiceProxyFactory;
 import io.advantageous.qbit.queue.Queue;
@@ -86,7 +88,7 @@ public class BoonQBitFactory implements Factory {
 
 
     @Override
-    public MethodCall<Object> createMethodCallToBeParsedFromBody(String addressPrefix, Object body) {
+    public MethodCall<Object> createMethodCallToBeParsedFromBody(String addressPrefix, Object body, Request<Object> originatingRequest) {
 
         MethodCall<Object> methodCall = null;
 
@@ -99,6 +101,38 @@ public class BoonQBitFactory implements Factory {
                 methodCall = defaultProtocol.parseMethodCall(body);
             }
         }
+
+        return methodCall;
+
+    }
+
+    @Override
+    public MethodCall<Object> createMethodCallFromHttpRequest(final Request<Object> request, Object args) {
+
+
+        MethodCall<Object> mc = null;
+        MethodCallImpl methodCall =
+                MethodCallImpl.method(request, args);
+
+        if (request.body() != null) {
+            ProtocolParser parser = selectProtocolParser(request.body(), request.params());
+
+            if (parser != null) {
+                mc = parser.parseMethodCall(request.body());
+            } else {
+                mc = defaultProtocol.parseMethodCall(request.body());
+            }
+            if (mc instanceof MethodCallImpl) {
+                MethodCallImpl mcImpl = (MethodCallImpl) mc;
+                mcImpl.overrides(methodCall);
+                methodCall = mcImpl;
+            } else {
+                methodCall.overridesFromParams();
+            }
+
+        }
+
+
 
         return methodCall;
 

@@ -121,4 +121,56 @@ public class TodoServiceWithServiceBundleTest {
 
 
     }
+
+
+
+    @Test
+    public void testWithBundleUsingAddressRequestMappings() {
+        ServiceBundle serviceBundle = QBit.factory().createServiceBundle("/services");
+        serviceBundle.addService(new TodoService());
+
+
+        Todo todoItem = new Todo("call mom", "give mom a call", new Date());
+
+        MethodCall<Object> addMethod = QBit.factory().createMethodCallByAddress("/services/todo-manager/todo", "client1",
+                todoItem, null);
+
+
+        serviceBundle.call(addMethod);
+
+
+        MethodCall<Object> listMethod = QBit.factory().createMethodCallByAddress("/services/todo-manager/todo/list/", "client1",
+                null, null);
+
+        serviceBundle.call(listMethod);
+
+        serviceBundle.flushSends();
+
+        Sys.sleep(100);
+
+        ReceiveQueue<Response<Object>> responses = serviceBundle.responses();
+
+        Response<Object> response = responses.take();
+
+        Object body = response.body();
+
+        if (body instanceof List) {
+            List<Todo> items = (List) body;
+
+            ok = items.size() > 0 || die("items should have one todo in it");
+
+            Todo todoItem1 = items.get(0);
+
+            ok = todoItem.equals(todoItem1) || die("TodoItem ", todoItem, todoItem1);
+
+
+        } else {
+            die("Response was not a list", body);
+        }
+
+
+
+    }
+
+
 }

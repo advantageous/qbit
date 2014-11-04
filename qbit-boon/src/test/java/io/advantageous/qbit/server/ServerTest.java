@@ -57,13 +57,16 @@ public class ServerTest {
                 new Todo("Call Dad", "Call Dad", new Date()), (code, mimeType, body) -> {
 
 
-                    if (body!=null && body.equals("true")) {
+                    puts("CALL CALLED", body, "\n\n");
+                    if (body!=null && code==200 && body.equals("\"success\"") ) {
                         resultsWorked.set(true);
                     }
                 });
 
 
-        Sys.sleep(1000);
+        httpServer.tick();
+
+        Sys.sleep(1_000);
 
 
         if (!resultsWorked.get()) {
@@ -72,7 +75,7 @@ public class ServerTest {
 
         resultsWorked.set(false);
 
-        httpServer.sendHttpGet("/services/todo-manager/todo/",
+        httpServer.sendHttpGet("/services/todo-manager/todo/list/",
                 null, (code, mimeType, body) -> {
 
                     puts("ADD CALL RESPONSE code ", code, " mimeType ", mimeType, " body ", body);
@@ -88,10 +91,12 @@ public class ServerTest {
                 });
 
 
-        Sys.sleep(1000);
+        httpServer.tick();
+
+        Sys.sleep(1_000);
 
         if (!resultsWorked.get()) {
-            die("Add operation did not work");
+            die("List operation did not work");
         }
 
     }

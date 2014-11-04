@@ -1,6 +1,8 @@
 package io.advantageous.qbit;
 
+import io.advantageous.qbit.http.HttpRequest;
 import io.advantageous.qbit.message.MethodCall;
+import io.advantageous.qbit.message.Request;
 import io.advantageous.qbit.message.Response;
 import io.advantageous.qbit.queue.Queue;
 import io.advantageous.qbit.queue.ReceiveQueueListener;
@@ -147,7 +149,16 @@ public interface Factory {
      * Useful for Websocket calls and POST calls (if you don't care about request params).
      * @param addressPrefix prefix of the address
      * @param message message that we are sending
+     * @param originatingRequest the request that caused this method to be created
      * @return method call that we just created
      */
-    MethodCall<Object> createMethodCallToBeParsedFromBody(String addressPrefix, Object message);
+    MethodCall<Object> createMethodCallToBeParsedFromBody(String addressPrefix, Object message, Request<Object> originatingRequest);
+
+    /**
+     * Request request
+     * @param request incoming request that we want to create a MethodCall from.
+     * @param args args
+     * @return request
+     */
+    MethodCall<Object> createMethodCallFromHttpRequest(Request<Object> request, Object args);
 }

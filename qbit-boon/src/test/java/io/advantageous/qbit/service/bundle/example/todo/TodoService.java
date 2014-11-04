@@ -31,16 +31,15 @@ public class TodoService {
     }
 
     @RequestMapping(value = "/todo", method = POST)
-    public boolean add(Todo todoItem) {
+    public void add(Todo todoItem) {
 
         puts("add method was called", todoItem);
         items.add( todoItem );
 
         puts("add method AFTER called", items);
-        return true;
     }
 
-    @RequestMapping("/todo/")
+    @RequestMapping("/todo/list/")
     public List<Todo> list() {
         puts("List method was called", items);
         return new ArrayList<>(items);

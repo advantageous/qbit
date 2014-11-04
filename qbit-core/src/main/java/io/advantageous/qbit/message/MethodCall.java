@@ -7,4 +7,6 @@ public interface MethodCall<T> extends Request<T> {
     long timestamp();
 
     String objectName();
+
+    Request<Object> originatingRequest();
 }
