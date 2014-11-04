@@ -45,7 +45,6 @@ public class Server {
 
     protected int outstandingRequestSize = 20_000_000;
 
-    protected int methodFlushInMilliSeconds = 10;
 
     protected ProtocolEncoder encoder;
     protected HttpServer httpServer;
@@ -55,11 +54,22 @@ public class Server {
     public Server() {
     }
 
-    public Server(HttpServer httpServer, ProtocolEncoder encoder, ServiceBundle serviceBundle, JsonMapper jsonMapper) {
+    public Server(final HttpServer httpServer, final ProtocolEncoder encoder, final ServiceBundle serviceBundle,
+                  final JsonMapper jsonMapper) {
         this.encoder = encoder;
         this.httpServer = httpServer;
         this.serviceBundle = serviceBundle;
         this.jsonMapper = jsonMapper;
+    }
+
+    public Server(final HttpServer httpServer, final ProtocolEncoder encoder, final ServiceBundle serviceBundle,
+                  final JsonMapper jsonMapper,
+                  final int timeOutInSeconds) {
+        this.encoder = encoder;
+        this.httpServer = httpServer;
+        this.serviceBundle = serviceBundle;
+        this.jsonMapper = jsonMapper;
+        this.timeoutInSeconds = timeOutInSeconds;
     }
 
 
@@ -75,7 +85,6 @@ public class Server {
 
     private final boolean debug = logger.isDebugEnabled();
 
-    private final Timer timer = Timer.timer();
 
 
     private ReceiveQueue<Response<Object>> responses;
@@ -86,8 +95,6 @@ public class Server {
     private ScheduledExecutorService monitor;
     private ScheduledFuture<?> future;
     private ReceiveQueueManager<Response<Object>> receiveQueueManager;
-
-    private AtomicLong lastFlushTime = new AtomicLong();
 
 
 
@@ -155,7 +162,7 @@ public class Server {
 
 
         /*
-         * Set up thread to monitor the receive queue and manage it with the queue listener.
+         * Setup thread to monitor the receive queue and manage it with the queue listener.
          */
         future = monitor.scheduleAtFixedRate(() -> {
             try {
@@ -200,27 +207,13 @@ public class Server {
 
             @Override
             public void idle() {
-
-
-                //checkTimeoutsForRequests();
+                checkTimeoutsForRequests();
             }
         };
     }
 
 
 
-    /** Flush the service bundle and then set the last flush time if now exceeds method flush rate.
-     *
-     * @param now the current time.
-     */
-    private void handleServiceBundleFlush(final long now) {
-
-        /* Force a flush every methodFlushInMilliSeconds milliseconds. */
-        if (now > lastFlushTime.get() + methodFlushInMilliSeconds) {
-            serviceBundle.flushSends();
-            lastFlushTime.set(now);
-        }
-    }
 
     /**
      * Handle a response from the server.

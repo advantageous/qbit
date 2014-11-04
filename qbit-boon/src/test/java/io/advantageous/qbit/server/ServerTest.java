@@ -99,7 +99,7 @@ public class ServerTest {
     }
 
 
-    //@Test
+    @Test
     public void testServerTimeout() {
 
         ProtocolEncoder encoder = QBit.factory().createEncoder();
@@ -109,7 +109,7 @@ public class ServerTest {
         JsonMapper mapper = new BoonJsonMapper();
 
 
-        Server server = new Server(httpServer, encoder, serviceBundle, mapper);
+        Server server = new Server(httpServer, encoder, serviceBundle, mapper, 1);
 
         server.initServices(Sets.set(new TodoService()));
 
@@ -121,17 +121,17 @@ public class ServerTest {
                 null, (code, mimeType, body) -> {
 
 
-                    if (body!=null && body.equals("true")) {
+                    if (code == 408 && body!=null && body.equals("\"timed out\"")) {
                         resultsWorked.set(true);
                     }
                 });
 
 
-        Sys.sleep(1000);
+        Sys.sleep(2_000);
 
 
         if (!resultsWorked.get()) {
-            die(" operation did not work");
+            die(" we did not get timeout");
         }
 
         resultsWorked.set(false);
