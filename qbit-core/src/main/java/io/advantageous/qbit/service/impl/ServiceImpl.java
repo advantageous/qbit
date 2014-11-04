@@ -117,8 +117,8 @@ public class ServiceImpl implements Service {
                        Queue<Response<Object>> responseQueue) {
 
         if (debug) {
-            logger.debug("ServiceImpl<<constr>>", rootAddress, serviceAddress,
-                    service, waitTime, timeUnit, batchSize, serviceMethodHandler,
+            logger.debug("ServiceImpl<<constr>> " + rootAddress + " " + serviceAddress + " " +
+                    " " + service+ " " + waitTime+ " " + timeUnit+ " " + batchSize+ " " + serviceMethodHandler+ " " +
                     responseQueue);
         }
 

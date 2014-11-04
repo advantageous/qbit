@@ -22,10 +22,6 @@ public class MockHttpServer implements HttpServer {
     volatile long  messageId = 0;
 
 
-    private Consumer<Long> timeCallback = time -> {
-
-    };
-
 
     public void postRequestObject(final String uri, final Object body,
                                   final HttpResponse response) {
@@ -76,12 +72,6 @@ public class MockHttpServer implements HttpServer {
 
     }
 
-    @Override
-    public void setTimeCallback(final Consumer<Long> timeCallback) {
-
-        this.timeCallback = timeCallback;
-
-    }
 
 
     @Override
@@ -94,7 +84,4 @@ public class MockHttpServer implements HttpServer {
 
     }
 
-    public void tick() {
-        timeCallback.accept(Timer.timer().now());
-    }
 }

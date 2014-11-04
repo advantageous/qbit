@@ -311,4 +311,8 @@ public class MethodCallImpl implements MethodCall<Object> {
         methodCall.body = args;
         return methodCall;
     }
+
+    public void originatingRequest(Request<Object> originatingRequest) {
+        this.originatingRequest = originatingRequest;
+    }
 }

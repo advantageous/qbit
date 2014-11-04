@@ -102,6 +102,11 @@ public class BoonQBitFactory implements Factory {
             }
         }
 
+        if (methodCall instanceof MethodCallImpl) {
+            MethodCallImpl impl = ((MethodCallImpl) methodCall);
+            impl.originatingRequest(originatingRequest);
+        }
+
         return methodCall;
 
     }

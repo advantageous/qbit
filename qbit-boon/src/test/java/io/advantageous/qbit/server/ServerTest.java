@@ -64,7 +64,6 @@ public class ServerTest {
                 });
 
 
-        httpServer.tick();
 
         Sys.sleep(1_000);
 
@@ -90,8 +89,6 @@ public class ServerTest {
                     }
                 });
 
-
-        httpServer.tick();
 
         Sys.sleep(1_000);
 

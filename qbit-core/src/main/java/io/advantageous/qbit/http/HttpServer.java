@@ -14,7 +14,6 @@ public interface HttpServer {
     void setHttpRequestConsumer(Consumer<HttpRequest> httpRequestConsumer);
 
 
-    void setTimeCallback(Consumer<Long> time);
 
     void run();
 

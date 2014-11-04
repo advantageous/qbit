@@ -299,6 +299,7 @@ public class QBitClient {
 
                 while (message != null) {
                     webSocket.writeTextFrame(message);
+                    message = queueToServer.poll();
                 }
 
                 webSocket.writeTextFrame(newMessage);

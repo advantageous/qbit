@@ -131,7 +131,6 @@ public class Server {
 
         httpServer.setHttpRequestConsumer(this::handleRestCall);
         httpServer.setWebSocketMessageConsumer(this::handleWebSocketCall);
-        httpServer.setTimeCallback(this::handleServiceBundleFlush);
         httpServer.run();
 
 
@@ -203,7 +202,7 @@ public class Server {
             public void idle() {
 
 
-                checkTimeoutsForRequests();
+                //checkTimeoutsForRequests();
             }
         };
     }
@@ -235,21 +234,33 @@ public class Server {
             final MethodCall<Object> methodCall = ((MethodCall<Object>) request);
             final Request<Object> originatingRequest = methodCall.originatingRequest();
 
-            if (originatingRequest instanceof HttpRequest) {
-                final HttpRequest httpRequest = ((HttpRequest) originatingRequest);
-                httpRequest.getResponse().response(200, "application/json", jsonMapper.toJson(response.body()));
-            } else if (originatingRequest instanceof WebSocketMessage) {
-                final WebSocketMessage webSocketMessage =((WebSocketMessage) originatingRequest);
-                String responseAsText = encoder.encodeAsString(response);
-                webSocketMessage.getSender().send(responseAsText);
-            } else {
-
-                throw new IllegalStateException("Unknown response " + response);
-            }
+            handleResponseFromServiceBundle(response, originatingRequest);
         } else {
             throw new IllegalStateException("Unknown response " + response);
         }
 
+    }
+
+    private void handleResponseFromServiceBundle(Response<Object> response, Request<Object> originatingRequest) {
+        if (originatingRequest instanceof HttpRequest) {
+            handleResponseFromServiceToHttpResponse(response, (HttpRequest) originatingRequest);
+        } else if (originatingRequest instanceof WebSocketMessage) {
+            handleResponseFromServiceBundleToWebSocketSender(response, (WebSocketMessage) originatingRequest);
+        } else {
+
+            throw new IllegalStateException("Unknown response " + response);
+        }
+    }
+
+    private void handleResponseFromServiceBundleToWebSocketSender(Response<Object> response, WebSocketMessage originatingRequest) {
+        final WebSocketMessage webSocketMessage = originatingRequest;
+        String responseAsText = encoder.encodeAsString(response);
+        webSocketMessage.getSender().send(responseAsText);
+    }
+
+    private void handleResponseFromServiceToHttpResponse(Response<Object> response, HttpRequest originatingRequest) {
+        final HttpRequest httpRequest = originatingRequest;
+        httpRequest.getResponse().response(200, "application/json", jsonMapper.toJson(response.body()));
     }
 
 
@@ -484,7 +495,9 @@ public class Server {
         }
 
         /* Add the requests that have not timed out back to the queue. */
-        requests.addAll(notTimedOutRequests);
+        if (notTimedOutRequests.size() > 0) {
+            requests.addAll(notTimedOutRequests);
+        }
 
 
     }

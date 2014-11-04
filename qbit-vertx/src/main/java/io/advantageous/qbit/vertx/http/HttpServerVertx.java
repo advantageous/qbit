@@ -6,12 +6,10 @@ import io.advantageous.qbit.http.HttpResponse;
 import io.advantageous.qbit.http.HttpServer;
 import io.advantageous.qbit.http.WebSocketMessage;
 import io.advantageous.qbit.util.MultiMap;
-import io.advantageous.qbit.util.Timer;
 import io.advantageous.qbit.vertx.example.vertx.MultiMapWrapper;
 import org.boon.Str;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.core.Handler;
 import org.vertx.java.core.Vertx;
 import org.vertx.java.core.VertxFactory;
 import org.vertx.java.core.buffer.Buffer;
@@ -20,7 +18,6 @@ import org.vertx.java.core.http.HttpServerResponse;
 import org.vertx.java.core.http.ServerWebSocket;
 
 import java.util.function.Consumer;
-import java.util.function.Function;
 
 /**
  */
@@ -73,9 +70,6 @@ public class HttpServerVertx implements HttpServer {
     private Consumer<HttpRequest> httpRequestConsumer = request -> logger.debug("HttpServerVertx::DEFAULT HTTP HANDLER CALLED WHICH IS ODD");
 
 
-    private Consumer<Long> timeCallback = time -> {
-
-    };
 
     @Override
     public void setWebSocketMessageConsumer(final Consumer<WebSocketMessage> webSocketMessageConsumer) {
@@ -86,13 +80,6 @@ public class HttpServerVertx implements HttpServer {
     public void setHttpRequestConsumer(final Consumer<HttpRequest> httpRequestConsumer) {
         this.httpRequestConsumer = httpRequestConsumer;
     }
-
-    @Override
-    public void setTimeCallback(Consumer<Long> timeCallback) {
-
-        this.timeCallback = timeCallback;
-    }
-
 
     @Override
     public void run() {
@@ -119,7 +106,6 @@ public class HttpServerVertx implements HttpServer {
 
 
 
-        vertx.setPeriodic(timeCallbackDuration, event -> timeCallback.accept(Timer.timer().now()));
     }
 
     @Override
