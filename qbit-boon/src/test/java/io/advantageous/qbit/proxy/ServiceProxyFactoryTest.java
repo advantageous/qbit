@@ -1,5 +1,7 @@
 package io.advantageous.qbit.proxy;
 
+import io.advantageous.qbit.queue.Queue;
+import io.advantageous.qbit.queue.ReceiveQueueListener;
 import io.advantageous.qbit.service.Callback;
 import io.advantageous.qbit.Factory;
 import io.advantageous.qbit.QBit;
@@ -51,9 +53,10 @@ public class ServiceProxyFactoryTest {
         }
 
         @Override
-        public ReceiveQueue<Response<Object>> responses() {
+        public Queue<Response<Object>> responses() {
             return null;
         }
+
 
         @Override
         public void call(MethodCall<Object> methodCall) {
@@ -73,6 +76,11 @@ public class ServiceProxyFactoryTest {
         @Override
         public List<String> endPoints() {
             return null;
+        }
+
+        @Override
+        public void startReturnHandlerProcessor(ReceiveQueueListener<Response<Object>> listener) {
+
         }
 
         @Override
@@ -224,7 +232,7 @@ public class ServiceProxyFactoryTest {
 
         bundle.addService(myService);
 
-        final ReceiveQueue<Response<Object>> responseReceiveQueue = bundle.responses();
+        final ReceiveQueue<Response<Object>> responseReceiveQueue = bundle.responses().receiveQueue();
 
 
         final SomeInterface myServiceProxy = bundle.createLocalProxy(

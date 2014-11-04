@@ -51,7 +51,7 @@ public class TodoServiceWithServiceBundleTest {
 
         Sys.sleep(100);
 
-        ReceiveQueue<Response<Object>> responses = serviceBundle.responses();
+        ReceiveQueue<Response<Object>> responses = serviceBundle.responses().receiveQueue();
 
         Response<Object> response = responses.take();
 
@@ -99,7 +99,7 @@ public class TodoServiceWithServiceBundleTest {
 
         Sys.sleep(100);
 
-        ReceiveQueue<Response<Object>> responses = serviceBundle.responses();
+        ReceiveQueue<Response<Object>> responses = serviceBundle.responses().receiveQueue();
 
         Response<Object> response = responses.take();
 
@@ -148,7 +148,7 @@ public class TodoServiceWithServiceBundleTest {
 
         Sys.sleep(100);
 
-        ReceiveQueue<Response<Object>> responses = serviceBundle.responses();
+        ReceiveQueue<Response<Object>> responses = serviceBundle.responses().receiveQueue();
 
         Response<Object> response = responses.take();
 

@@ -1,7 +1,9 @@
 package io.advantageous.qbit.service;
 
 import io.advantageous.qbit.message.Response;
+import io.advantageous.qbit.queue.Queue;
 import io.advantageous.qbit.queue.ReceiveQueue;
+import io.advantageous.qbit.queue.ReceiveQueueListener;
 
 import java.util.List;
 
@@ -20,13 +22,15 @@ public interface ServiceBundle extends EndPoint {
 
     void addService(Object object);
 
-    ReceiveQueue<Response<Object>> responses();
+    Queue<Response<Object>> responses();
 
     void flushSends();
 
     void stop();
 
     List<String> endPoints();
+
+    void startReturnHandlerProcessor(ReceiveQueueListener<Response<Object>> listener);
 
     void startReturnHandlerProcessor();
 

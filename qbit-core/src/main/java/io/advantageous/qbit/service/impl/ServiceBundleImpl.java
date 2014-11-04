@@ -257,8 +257,9 @@ public class ServiceBundleImpl implements ServiceBundle {
      * @return responses queue
      */
     @Override
-    public ReceiveQueue<Response<Object>> responses() {
-        return responseQueue.receiveQueue();
+    public Queue<Response<Object>> responses() {
+
+        return responseQueue;
     }
 
     /**
@@ -303,6 +304,12 @@ public class ServiceBundleImpl implements ServiceBundle {
     private void registerHandlerCallbackForClient(final MethodCall<Object> methodCall,
                                                   final Callback<Object> handler) {
         handlers.put(new HandlerKey(methodCall.returnAddress(), methodCall.id()), handler);
+    }
+
+    public void startReturnHandlerProcessor(ReceiveQueueListener<Response<Object>> listener) {
+
+        responseQueue.startListener(listener);
+
     }
 
     /**

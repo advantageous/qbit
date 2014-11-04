@@ -76,7 +76,7 @@ public class IntegrationTestForRESTStyleCallsTest {
         serviceBundle = bundle;
         serviceBundleImpl = (ServiceBundleImpl) bundle;
 
-        responseReceiveQueue = bundle.responses();
+        responseReceiveQueue = bundle.responses().receiveQueue();
 
 
         Employee employee = new Employee();

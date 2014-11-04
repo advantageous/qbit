@@ -89,7 +89,7 @@ public class ServiceBundleImplTest {
 
         Sys.sleep(1000);
 
-        responseReceiveQueue = serviceBundle.responses();
+        responseReceiveQueue = serviceBundle.responses().receiveQueue();
 
         response = responseReceiveQueue.pollWait();
 

@@ -96,9 +96,6 @@ public class Server {
 
     private AtomicBoolean stop = new AtomicBoolean();
 
-    private ScheduledExecutorService monitor;
-    private ScheduledFuture<?> future;
-    private ReceiveQueueManager<Response<Object>> receiveQueueManager;
 
 
 
@@ -112,25 +109,8 @@ public class Server {
     }
 
     public void stop() {
-        stop.set(true);
 
-        try {
-            if (future != null) {
-                future.cancel(true);
-            }
-        } catch (Exception ex) {
-            logger.warn("shutting down", ex);
-        }
-
-
-        try {
-            if (monitor != null) {
-                monitor.shutdown();
-            }
-        } catch (Exception ex) {
-            logger.warn("shutting down", ex);
-        }
-
+        serviceBundle.stop();
 
     }
 
@@ -152,29 +132,7 @@ public class Server {
      * Sets up the response queue listener so we can send responses to HTTP / WebSocket end points.
      */
     private void startResponseQueueListener() {
-        receiveQueueManager = new BasicReceiveQueueManager<>();
-
-        monitor = Executors.newScheduledThreadPool(1,
-                runnable -> {
-                    Thread thread = new Thread(runnable);
-                    thread.setName("QBit Server");
-                    return thread;
-                }
-        );
-
-        responses = serviceBundle.responses();
-
-
-        /*
-         * Setup thread to monitor the receive queue and manage it with the queue listener.
-         */
-        future = monitor.scheduleAtFixedRate(() -> {
-            try {
-                receiveQueueManager.manageQueue(responses, createResponseQueueListener(), 50, stop);
-            } catch (Exception ex) {
-                logger.error(this.getClass().getName() + " Problem running queue manager", ex);
-            }
-        }, 50, 50, TimeUnit.MILLISECONDS);
+        serviceBundle.startReturnHandlerProcessor( createResponseQueueListener() );
     }
 
 
@@ -318,7 +276,7 @@ public class Server {
         final String methodURI = extractMethodURI(methodValuesForAnnotation);
         final RequestMethod httpMethod = extractHttpMethod(methodValuesForAnnotation);
 
-        final String objectNameAddress = Str.add(baseURI, serviceURI, method.name());
+        final String objectNameAddress = Str.add(baseURI, serviceURI, "/", method.name());
 
         final boolean voidReturn = method.returnType() == void.class;
 
@@ -458,7 +416,7 @@ public class Server {
 
         if (GlobalConstants.DEBUG) logger.info("websocket message for method call: " + methodCall);
 
-        if (!objectNameAddressURIWithVoidReturn.contains(webSocketMessage.getUri())) {
+        if (!objectNameAddressURIWithVoidReturn.contains(methodCall.address())) {
 
             addRequestToCheckForTimeouts(webSocketMessage);
         }

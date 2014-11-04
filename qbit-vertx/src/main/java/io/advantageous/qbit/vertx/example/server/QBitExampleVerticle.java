@@ -115,7 +115,7 @@ public class QBitExampleVerticle extends Verticle {
         });
 
 
-        responses = serviceBundle.responses();
+        responses = serviceBundle.responses().receiveQueue();
 
 
 
