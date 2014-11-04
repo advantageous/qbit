@@ -23,6 +23,7 @@ import org.boon.core.reflection.MethodAccess;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+
 import java.util.*;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -77,6 +78,9 @@ public class Server {
     private Set<String> postMethodURIs = new LinkedHashSet<>();
 
 
+
+
+    private Set<String> objectNameAddressURIWithVoidReturn = new LinkedHashSet<>();
     private Set<String> getMethodURIsWithVoidReturn = new LinkedHashSet<>();
     private Set<String> postMethodURIsWithVoidReturn = new LinkedHashSet<>();
 
@@ -145,7 +149,7 @@ public class Server {
     }
 
     /**
-     * Sets up the response queue listener so we can send responses to HTTP / Websocket end points.
+     * Sets up the response queue listener so we can send responses to HTTP / WebSocket end points.
      */
     private void startResponseQueueListener() {
         receiveQueueManager = new BasicReceiveQueueManager<>();
@@ -217,7 +221,7 @@ public class Server {
 
     /**
      * Handle a response from the server.
-     * @param response
+     * @param response response
      */
     private void handleResponseFromServiceBundle(final Response<Object> response) {
 
@@ -309,22 +313,35 @@ public class Server {
      * @param method method
      */
     private void registerMethodToEndPoint(final String baseURI, final String serviceURI, final MethodAccess method) {
-        AnnotationData data = method.annotation("RequestMapping");
-        Map<String, Object> methodValuesForAnnotation = data.getValues();
-        String methodURI = extractMethodURI(methodValuesForAnnotation);
-        RequestMethod httpMethod = extractHttpMethod(methodValuesForAnnotation);
-        String uri = Str.add(baseURI, serviceURI, methodURI);
+        final AnnotationData data = method.annotation("RequestMapping");
+        final Map<String, Object> methodValuesForAnnotation = data.getValues();
+        final String methodURI = extractMethodURI(methodValuesForAnnotation);
+        final RequestMethod httpMethod = extractHttpMethod(methodValuesForAnnotation);
+
+        final String objectNameAddress = Str.add(baseURI, serviceURI, method.name());
+
+        final boolean voidReturn = method.returnType() == void.class;
+
+
+
+        if (voidReturn) {
+            objectNameAddressURIWithVoidReturn.add(objectNameAddress);
+        }
+
+
+        final String uri = Str.add(baseURI, serviceURI, methodURI);
+
 
         switch (httpMethod) {
             case GET:
                 getMethodURIs.add(uri);
-                if (method.returnType() == void.class) {
+                if (voidReturn) {
                     getMethodURIsWithVoidReturn.add(uri);
                 }
                 break;
             case POST:
                 postMethodURIs.add(uri);
-                if (method.returnType() == void.class) {
+                if (voidReturn) {
                     postMethodURIsWithVoidReturn.add(uri);
                 }
                 break;
@@ -375,9 +392,8 @@ public class Server {
      * Handles a REST call.
      * @param request http request
      */
-    private void handleRestCall(HttpRequest request) {
+    private void handleRestCall(final HttpRequest request) {
 
-        requests.add(request);
 
 
         boolean knownURI = false;
@@ -392,6 +408,8 @@ public class Server {
                 knownURI = getMethodURIs.contains(uri);
                 if (getMethodURIsWithVoidReturn.contains(uri)) {
                     request.getResponse().response(200, "application/json", "\"success\"");
+                } else {
+                    addRequestToCheckForTimeouts(request);
                 }
                 break;
 
@@ -399,6 +417,8 @@ public class Server {
                 knownURI = postMethodURIs.contains(uri);
                 if (postMethodURIsWithVoidReturn.contains(uri)) {
                     request.getResponse().response(200, "application/json", "\"success\"");
+                } else {
+                    addRequestToCheckForTimeouts(request);
                 }
                 if (!Str.isEmpty(request.getBody())) {
                     args = jsonMapper.fromJson(request.getBody());
@@ -436,14 +456,14 @@ public class Server {
                 QBit.factory().createMethodCallToBeParsedFromBody(webSocketMessage.getRemoteAddress(),
                         webSocketMessage.getMessage(), webSocketMessage);
 
-
         if (GlobalConstants.DEBUG) logger.info("websocket message for method call: " + methodCall);
 
+        if (!objectNameAddressURIWithVoidReturn.contains(webSocketMessage.getUri())) {
 
-        addRequestToCheckForTimeouts(webSocketMessage);
+            addRequestToCheckForTimeouts(webSocketMessage);
+        }
 
         serviceBundle.call(methodCall);
-
 
 
 

@@ -3,8 +3,6 @@ package io.advantageous.qbit.server;
 
 import io.advantageous.qbit.BoonJsonMapper;
 import io.advantageous.qbit.QBit;
-import io.advantageous.qbit.http.HttpResponse;
-import io.advantageous.qbit.http.HttpServer;
 import io.advantageous.qbit.json.JsonMapper;
 import io.advantageous.qbit.service.ServiceBundle;
 import io.advantageous.qbit.service.bundle.example.todo.Todo;
@@ -128,6 +126,49 @@ public class ServerTest {
 
 
         Sys.sleep(2_000);
+
+
+        if (!resultsWorked.get()) {
+            die(" we did not get timeout");
+        }
+
+        resultsWorked.set(false);
+
+    }
+
+
+    @Test
+    public void testNoMethodCallFound() {
+
+        ProtocolEncoder encoder = QBit.factory().createEncoder();
+        MockHttpServer httpServer = new MockHttpServer();
+        ServiceBundle serviceBundle = QBit.factory().createServiceBundle("/services");
+
+        JsonMapper mapper = new BoonJsonMapper();
+
+
+        Server server = new Server(httpServer, encoder, serviceBundle, mapper, 1);
+
+        server.initServices(Sets.set(new TodoService()));
+
+        server.run();
+
+        final AtomicBoolean resultsWorked = new AtomicBoolean();
+
+
+        resultsWorked.set(false);
+
+        httpServer.sendHttpGet("/services/todo-manager/testNoMethodCallFound",
+                null, (code, mimeType, body) -> {
+
+
+                    if (code == 404 && body!=null && body.startsWith("\"No service method for URI")) {
+                        resultsWorked.set(true);
+                    }
+                });
+
+
+        Sys.sleep(1_000);
 
 
         if (!resultsWorked.get()) {
