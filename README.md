@@ -1,7 +1,6 @@
-Got a question? Ask here: https://groups.google.com/forum/#!forum/boonjava QbIt is part of Boon.
+#qbit - Go Channels inspired Java lib. [![Build Status](https://travis-ci.org/advantageous/qbit.svg)](https://travis-ci.org/advantageous/qbit)
 
-qbit - Go Channels inspired Java lib.
-====
+Got a question? Ask here: https://groups.google.com/forum/#!forum/boonjava QbIt is part of Boon.
 
 Everything is a queue. You have a choice. You can embrace it and control it. You can optimize for it. 
 Or you can hide behind abstractions.
