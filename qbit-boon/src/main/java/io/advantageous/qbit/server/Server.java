@@ -1,5 +1,6 @@
 package io.advantageous.qbit.server;
 
+import io.advantageous.qbit.Factory;
 import io.advantageous.qbit.GlobalConstants;
 import io.advantageous.qbit.QBit;
 import io.advantageous.qbit.annotation.RequestMethod;
@@ -8,13 +9,11 @@ import io.advantageous.qbit.json.JsonMapper;
 import io.advantageous.qbit.message.MethodCall;
 import io.advantageous.qbit.message.Request;
 import io.advantageous.qbit.message.Response;
-import io.advantageous.qbit.queue.ReceiveQueue;
 import io.advantageous.qbit.queue.ReceiveQueueListener;
-import io.advantageous.qbit.queue.ReceiveQueueManager;
-import io.advantageous.qbit.queue.impl.BasicReceiveQueueManager;
 import io.advantageous.qbit.service.ServiceBundle;
 import io.advantageous.qbit.spi.ProtocolEncoder;
 import io.advantageous.qbit.util.Timer;
+import org.boon.Sets;
 import org.boon.Str;
 import org.boon.StringScanner;
 import org.boon.core.Sys;
@@ -28,9 +27,7 @@ import org.slf4j.LoggerFactory;
 import java.util.*;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicLong;
 
-import static org.boon.Boon.puts;
 import static org.boon.Exceptions.die;
 
 /**
@@ -42,20 +39,37 @@ public class Server {
 
 
     private final Logger logger = LoggerFactory.getLogger(Server.class);
-
-
     protected int timeoutInSeconds = 30;
-
     protected int outstandingRequestSize = 20_000_000;
-
-
     protected ProtocolEncoder encoder;
     protected HttpServer httpServer;
     protected ServiceBundle serviceBundle;
     protected JsonMapper jsonMapper;
 
+    private Set<String> getMethodURIs = new LinkedHashSet<>();
+    private Set<String> postMethodURIs = new LinkedHashSet<>();
+    private Set<String> objectNameAddressURIWithVoidReturn = new LinkedHashSet<>();
+    private Set<String> getMethodURIsWithVoidReturn = new LinkedHashSet<>();
+    private Set<String> postMethodURIsWithVoidReturn = new LinkedHashSet<>();
+    private Queue<Request<Object>> outstandingRequests = new LinkedBlockingQueue<>(outstandingRequestSize);
+    private final boolean debug = logger.isDebugEnabled();
+    private AtomicBoolean stop = new AtomicBoolean();
+
+
     public Server() {
+        this("localhost", 8080, "/services/");
     }
+
+
+    public Server(final String host, final int port, final String uri) {
+        final Factory factory = QBit.factory();
+        httpServer = factory.createHttpServer(host, port);
+        encoder = factory.createEncoder();
+        serviceBundle = factory.createServiceBundle(uri);
+        jsonMapper = factory.createJsonMapper();
+
+    }
+
 
     public Server(final HttpServer httpServer, final ProtocolEncoder encoder, final ServiceBundle serviceBundle,
                   final JsonMapper jsonMapper) {
@@ -76,32 +90,106 @@ public class Server {
     }
 
 
-    private Set<String> getMethodURIs = new LinkedHashSet<>();
-    private Set<String> postMethodURIs = new LinkedHashSet<>();
+
+
+    /**
+     * All REST calls come through here.
+     * Handles a REST call.
+     * @param request http request
+     */
+    private void handleRestCall(final HttpRequest request) {
 
 
 
+        boolean knownURI = false;
 
-    private Set<String> objectNameAddressURIWithVoidReturn = new LinkedHashSet<>();
-    private Set<String> getMethodURIsWithVoidReturn = new LinkedHashSet<>();
-    private Set<String> postMethodURIsWithVoidReturn = new LinkedHashSet<>();
-
-    private Queue<Request<Object>> requests = new LinkedBlockingQueue<>(outstandingRequestSize);
+        final String uri = request.getUri();
 
 
-    private final boolean debug = logger.isDebugEnabled();
+        Object args = null;
+
+        switch (request.getMethod()) {
+            case "GET":
+                knownURI = getMethodURIs.contains(uri);
+                if (getMethodURIsWithVoidReturn.contains(uri)) {
+                    request.getResponse().response(200, "application/json", "\"success\"");
+                } else {
+                    addRequestToCheckForTimeouts(request);
+                }
+                break;
+
+            case "POST":
+                knownURI = postMethodURIs.contains(uri);
+                if (postMethodURIsWithVoidReturn.contains(uri)) {
+                    request.getResponse().response(200, "application/json", "\"success\"");
+                } else {
+                    addRequestToCheckForTimeouts(request);
+                }
+                if (!Str.isEmpty(request.getBody())) {
+                    args = jsonMapper.fromJson(request.getBody());
+                }
+                break;
+        }
+
+
+        if (!knownURI) {
+            request.handled(); //Mark the request as handled.
+            request.getResponse().response(404, "application/json",
+                    Str.add("\"No service method for URI\"", request.getUri()));
+
+        }
+
+        final MethodCall<Object> methodCall =
+                QBit.factory().createMethodCallFromHttpRequest(request, args);
 
 
 
-    private ReceiveQueue<Response<Object>> responses;
+        if (GlobalConstants.DEBUG) {
+            logger.info("Handle REST Call for MethodCall " + methodCall);
+        }
+        serviceBundle.call(methodCall);
+
+    }
 
 
-    private AtomicBoolean stop = new AtomicBoolean();
+    /**
+     * All WebSocket calls come through here.
+     * @param webSocketMessage
+     */
+    private void handleWebSocketCall(final WebSocketMessage webSocketMessage) {
+
+        if (GlobalConstants.DEBUG) logger.info("websocket message: " + webSocketMessage);
 
 
 
+        final MethodCall<Object> methodCall =
+                QBit.factory().createMethodCallToBeParsedFromBody(webSocketMessage.getRemoteAddress(),
+                        webSocketMessage.getMessage(), webSocketMessage);
 
-    public void initServices(Set<Object> services) {
+        if (GlobalConstants.DEBUG) logger.info("websocket message for method call: " + methodCall);
+
+        if (!objectNameAddressURIWithVoidReturn.contains(methodCall.address())) {
+
+            addRequestToCheckForTimeouts(webSocketMessage);
+        }
+
+        serviceBundle.call(methodCall);
+
+    }
+
+    private void handleResponseFromServiceBundleToWebSocketSender(Response<Object> response, WebSocketMessage originatingRequest) {
+        final WebSocketMessage webSocketMessage = originatingRequest;
+        String responseAsText = encoder.encodeAsString(response);
+        webSocketMessage.getSender().send(responseAsText);
+    }
+
+    private void handleResponseFromServiceToHttpResponse(Response<Object> response, HttpRequest originatingRequest) {
+        final HttpRequest httpRequest = originatingRequest;
+        httpRequest.getResponse().response(200, "application/json", jsonMapper.toJson(response.body()));
+    }
+
+
+    protected void initServices(final Set<Object> services) {
 
         for (Object service : services) {
             if (debug) logger.debug("registering service: " + service.getClass().getName());
@@ -118,8 +206,11 @@ public class Server {
 
     /**
      * Run this server.
+     * @param services services
      */
-    public void run() {
+    public void run(Object... services) {
+
+        initServices(Sets.set(services));
         stop.set(false);
 
         httpServer.setHttpRequestConsumer(this::handleRestCall);
@@ -131,7 +222,8 @@ public class Server {
     }
 
     /**
-     * Sets up the response queue listener so we can send responses to HTTP / WebSocket end points.
+     * Sets up the response queue listener so we can send responses
+     * to HTTP / WebSocket end points.
      */
     private void startResponseQueueListener() {
         serviceBundle.startReturnHandlerProcessor( createResponseQueueListener() );
@@ -156,29 +248,22 @@ public class Server {
             public void empty() {
 
 
-                //puts("EMPTY " + Thread.currentThread().getName());
-
-                Sys.sleep(100);
 
             }
 
             @Override
             public void limit() {
-
-                //puts("LIMIT " + Thread.currentThread().getName());
             }
 
             @Override
             public void shutdown() {
-
-                //puts("shutdown " + Thread.currentThread().getName());
 
             }
 
             @Override
             public void idle() {
 
-                if (requests.size()>0) {
+                if (outstandingRequests.size()>0) {
                     checkTimeoutsForRequests();
                 }
                 Sys.sleep(100);
@@ -208,7 +293,8 @@ public class Server {
 
     }
 
-    private void handleResponseFromServiceBundle(Response<Object> response, Request<Object> originatingRequest) {
+    private void handleResponseFromServiceBundle(final Response<Object> response, final Request<Object> originatingRequest) {
+        originatingRequest.handled();
         if (originatingRequest instanceof HttpRequest) {
             handleResponseFromServiceToHttpResponse(response, (HttpRequest) originatingRequest);
         } else if (originatingRequest instanceof WebSocketMessage) {
@@ -219,16 +305,6 @@ public class Server {
         }
     }
 
-    private void handleResponseFromServiceBundleToWebSocketSender(Response<Object> response, WebSocketMessage originatingRequest) {
-        final WebSocketMessage webSocketMessage = originatingRequest;
-        String responseAsText = encoder.encodeAsString(response);
-        webSocketMessage.getSender().send(responseAsText);
-    }
-
-    private void handleResponseFromServiceToHttpResponse(Response<Object> response, HttpRequest originatingRequest) {
-        final HttpRequest httpRequest = originatingRequest;
-        httpRequest.getResponse().response(200, "application/json", jsonMapper.toJson(response.body()));
-    }
 
 
     /**
@@ -365,96 +441,16 @@ public class Server {
     }
 
 
-    /**
-     * Handles a REST call.
-     * @param request http request
-     */
-    private void handleRestCall(final HttpRequest request) {
-
-
-
-        boolean knownURI = false;
-
-        final String uri = request.getUri();
-
-
-        Object args = null;
-
-        switch (request.getMethod()) {
-            case "GET":
-                knownURI = getMethodURIs.contains(uri);
-                if (getMethodURIsWithVoidReturn.contains(uri)) {
-                    request.getResponse().response(200, "application/json", "\"success\"");
-                } else {
-                    addRequestToCheckForTimeouts(request);
-                }
-                break;
-
-            case "POST":
-                knownURI = postMethodURIs.contains(uri);
-                if (postMethodURIsWithVoidReturn.contains(uri)) {
-                    request.getResponse().response(200, "application/json", "\"success\"");
-                } else {
-                    addRequestToCheckForTimeouts(request);
-                }
-                if (!Str.isEmpty(request.getBody())) {
-                    args = jsonMapper.fromJson(request.getBody());
-                }
-                break;
-        }
-
-
-        if (!knownURI) {
-            request.getResponse().response(404, "application/json",
-                    Str.add("\"No service method for URI\"", request.getUri()));
-
-        }
-
-        final MethodCall<Object> methodCall =
-                QBit.factory().createMethodCallFromHttpRequest(request, args);
-
-
-
-        if (GlobalConstants.DEBUG) {
-            logger.info("Handle REST Call for MethodCall " + methodCall);
-        }
-        serviceBundle.call(methodCall);
-
-    }
-
-
-    private void handleWebSocketCall(final WebSocketMessage webSocketMessage) {
-
-        if (GlobalConstants.DEBUG) logger.info("websocket message: " + webSocketMessage);
-
-
-
-        final MethodCall<Object> methodCall =
-                QBit.factory().createMethodCallToBeParsedFromBody(webSocketMessage.getRemoteAddress(),
-                        webSocketMessage.getMessage(), webSocketMessage);
-
-        if (GlobalConstants.DEBUG) logger.info("websocket message for method call: " + methodCall);
-
-        if (!objectNameAddressURIWithVoidReturn.contains(methodCall.address())) {
-
-            addRequestToCheckForTimeouts(webSocketMessage);
-        }
-
-        serviceBundle.call(methodCall);
-
-
-
-    }
 
     /** Add a request to the timeout queue. Server checks for timeouts when it is idle or when
-     * the max outstanding requests is met.
+     * the max outstanding outstandingRequests is met.
      * @param request request.
      */
     private void addRequestToCheckForTimeouts(final Request<Object> request) {
 
-        if (!requests.offer(request)) {
+        if (!outstandingRequests.offer(request)) {
             checkTimeoutsForRequests();
-            requests.add(request);
+            outstandingRequests.add(request);
         }
     }
 
@@ -466,9 +462,9 @@ public class Server {
         final long now = Timer.timer().now();
         long duration;
 
-        Request<Object> request = requests.poll();
+        Request<Object> request = outstandingRequests.poll();
 
-        List<Request<Object>> notTimedOutRequests = new ArrayList<>(requests.size());
+        List<Request<Object>> notTimedOutRequests = new ArrayList<>(outstandingRequests.size());
 
         while (request!=null) {
             duration = now - request.timestamp();
@@ -480,13 +476,13 @@ public class Server {
             } else {
                 notTimedOutRequests.add(request);
             }
-            request = requests.poll();
+            request = outstandingRequests.poll();
 
         }
 
-        /* Add the requests that have not timed out back to the queue. */
+        /* Add the outstandingRequests that have not timed out back to the queue. */
         if (notTimedOutRequests.size() > 0) {
-            requests.addAll(notTimedOutRequests);
+            outstandingRequests.addAll(notTimedOutRequests);
         }
 
 

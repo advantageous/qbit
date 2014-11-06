@@ -1,6 +1,8 @@
 package io.advantageous.qbit;
 
 import io.advantageous.qbit.http.HttpRequest;
+import io.advantageous.qbit.http.HttpServer;
+import io.advantageous.qbit.json.JsonMapper;
 import io.advantageous.qbit.message.MethodCall;
 import io.advantageous.qbit.message.Request;
 import io.advantageous.qbit.message.Response;
@@ -161,4 +163,14 @@ public interface Factory {
      * @return request
      */
     MethodCall<Object> createMethodCallFromHttpRequest(Request<Object> request, Object args);
+
+
+    /**
+     * Creates a JSON Mapper.
+     * @return json mapper
+     */
+    JsonMapper createJsonMapper();
+
+
+    HttpServer createHttpServer(String host, int port);
 }

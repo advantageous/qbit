@@ -1,8 +1,11 @@
 package io.advantageous.qbit.boon;
 
+import io.advantageous.qbit.BoonJsonMapper;
 import io.advantageous.qbit.Factory;
 import io.advantageous.qbit.GlobalConstants;
 import io.advantageous.qbit.http.HttpRequest;
+import io.advantageous.qbit.http.HttpServer;
+import io.advantageous.qbit.json.JsonMapper;
 import io.advantageous.qbit.message.MethodCall;
 import io.advantageous.qbit.message.Request;
 import io.advantageous.qbit.message.Response;
@@ -17,10 +20,7 @@ import io.advantageous.qbit.service.impl.BoonServiceMethodCallHandler;
 import io.advantageous.qbit.service.impl.ServiceBundleImpl;
 import io.advantageous.qbit.service.impl.ServiceImpl;
 import io.advantageous.qbit.service.method.impl.MethodCallImpl;
-import io.advantageous.qbit.spi.BoonProtocolEncoder;
-import io.advantageous.qbit.spi.BoonProtocolParser;
-import io.advantageous.qbit.spi.ProtocolEncoder;
-import io.advantageous.qbit.spi.ProtocolParser;
+import io.advantageous.qbit.spi.*;
 import io.advantageous.qbit.util.MultiMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -142,6 +142,17 @@ public class BoonQBitFactory implements Factory {
         return methodCall;
 
     }
+
+    @Override
+    public JsonMapper createJsonMapper() {
+        return new BoonJsonMapper();
+    }
+
+    @Override
+    public HttpServer createHttpServer(String host, int port) {
+        return FactorySPI.getHttpServerFactory().create(host, port);
+    }
+
 
     @Override
     public MethodCall<Object> createMethodCallToBeParsedFromBody(String address,

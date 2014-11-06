@@ -10,7 +10,7 @@ import java.util.List;
  * Created by rhightower on 11/5/14.
  */
 
-@RequestMapping("/todo-manager/")
+@RequestMapping("/todo-manager")
 public class TodoService {
 
 

@@ -44,7 +44,6 @@ public class BasicSendQueue<T> implements SendQueue<T> {
     @Override
     public void sendAndFlush(T item) {
 
-        puts ("QUEUE SEND FLUSH " + queue.hashCode() + " " + Thread.currentThread().getName());
         send(item);
         flushSends();
     }
