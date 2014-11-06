@@ -42,7 +42,7 @@ public class WebSocketMessage implements Request<Object>{
 
     @Override
     public long timestamp() {
-        return timestamp();
+        return timestamp;
     }
 
 

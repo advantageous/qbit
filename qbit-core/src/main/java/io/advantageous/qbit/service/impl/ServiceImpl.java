@@ -89,7 +89,7 @@ public class ServiceImpl implements Service {
         Response<Object> response = serviceMethodHandler.receiveMethodCall(methodCall);
 
         if (debug) {
-            logger.debug("ServiceImpl::receive() RESPONSE\n" + response + "\nFROM CALL\n" + methodCall);
+            logger.debug("ServiceImpl::receive() \nRESPONSE\n" + response + "\nFROM CALL\n" + methodCall + "\n\n");
         }
 
         if (response != ServiceConstants.VOID) {

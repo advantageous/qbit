@@ -17,6 +17,7 @@ import io.advantageous.qbit.spi.ProtocolEncoder;
 import io.advantageous.qbit.util.Timer;
 import org.boon.Str;
 import org.boon.StringScanner;
+import org.boon.core.Sys;
 import org.boon.core.reflection.AnnotationData;
 import org.boon.core.reflection.ClassMeta;
 import org.boon.core.reflection.MethodAccess;
@@ -29,6 +30,7 @@ import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 
+import static org.boon.Boon.puts;
 import static org.boon.Exceptions.die;
 
 /**
@@ -154,22 +156,32 @@ public class Server {
             public void empty() {
 
 
+                //puts("EMPTY " + Thread.currentThread().getName());
+
+                Sys.sleep(100);
 
             }
 
             @Override
             public void limit() {
 
+                //puts("LIMIT " + Thread.currentThread().getName());
             }
 
             @Override
             public void shutdown() {
 
+                //puts("shutdown " + Thread.currentThread().getName());
+
             }
 
             @Override
             public void idle() {
-                checkTimeoutsForRequests();
+
+                if (requests.size()>0) {
+                    checkTimeoutsForRequests();
+                }
+                Sys.sleep(100);
             }
         };
     }

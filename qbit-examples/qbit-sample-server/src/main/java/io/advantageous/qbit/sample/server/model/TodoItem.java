@@ -1,4 +1,4 @@
-package io.advantageous.qbit.sample.server;
+package io.advantageous.qbit.sample.server.model;
 
 import java.util.Date;
 
@@ -18,4 +18,15 @@ public class TodoItem {
         this.due = due;
     }
 
+    public String getDescription() {
+        return description;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public Date getDue() {
+        return due;
+    }
 }

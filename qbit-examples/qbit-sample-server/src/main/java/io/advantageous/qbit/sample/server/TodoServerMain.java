@@ -6,6 +6,7 @@ import io.advantageous.qbit.Factory;
 import io.advantageous.qbit.QBit;
 import io.advantageous.qbit.http.HttpServer;
 import io.advantageous.qbit.json.JsonMapper;
+import io.advantageous.qbit.sample.server.service.TodoService;
 import io.advantageous.qbit.server.Server;
 import io.advantageous.qbit.service.ServiceBundle;
 import io.advantageous.qbit.spi.ProtocolEncoder;
@@ -16,7 +17,7 @@ import org.boon.Sets;
 /**
  * Created by rhightower on 11/5/14.
  */
-public class TodoMain {
+public class TodoServerMain {
 
     public static void main(String... args) {
 

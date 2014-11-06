@@ -214,7 +214,7 @@ public class ServiceBundleImpl implements ServiceBundle {
     public void addService(String serviceAddress, Object serviceObject) {
 
         if (debug) {
-            logger.debug(ServiceBundleImpl.class.getName() + " serviceAddress " + serviceAddress + " service object" + serviceObject);
+            logger.debug(ServiceBundleImpl.class.getName() + " serviceAddress " + serviceAddress + " service object " + serviceObject);
         }
 
         /** Turn this service object into a service with queues. */

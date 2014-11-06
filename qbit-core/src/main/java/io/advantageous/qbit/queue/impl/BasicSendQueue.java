@@ -7,6 +7,8 @@ import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.LinkedTransferQueue;
 
+import static org.boon.Boon.puts;
+
 /**
  * This is not thread safe.
  * Create a new for every thread by calling BasicQueue.sendQueue().
@@ -41,6 +43,8 @@ public class BasicSendQueue<T> implements SendQueue<T> {
 
     @Override
     public void sendAndFlush(T item) {
+
+        puts ("QUEUE SEND FLUSH " + queue.hashCode() + " " + Thread.currentThread().getName());
         send(item);
         flushSends();
     }

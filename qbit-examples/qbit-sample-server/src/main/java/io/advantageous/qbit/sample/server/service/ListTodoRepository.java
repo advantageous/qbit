@@ -1,4 +1,6 @@
-package io.advantageous.qbit.sample.server;
+package io.advantageous.qbit.sample.server.service;
+
+import io.advantageous.qbit.sample.server.model.TodoItem;
 
 import java.util.ArrayList;
 import java.util.List;
