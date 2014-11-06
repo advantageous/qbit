@@ -99,7 +99,7 @@ public class Server {
 
 
 
-    protected void initServices(Set<Object> services) {
+    public void initServices(Set<Object> services) {
 
         for (Object service : services) {
             if (debug) logger.debug("registering service: " + service.getClass().getName());
@@ -230,7 +230,14 @@ public class Server {
 
         ClassMeta classMeta = ClassMeta.classMeta(cls);
 
-        Map<String, Object> requestMapping = classMeta.annotation("RequestMapping").getValues();
+        final AnnotationData mapping = classMeta.annotation("RequestMapping");
+
+        if (mapping == null) {
+            return;
+        }
+
+        Map<String, Object> requestMapping = mapping.getValues();
+
 
         if (requestMapping == null) {
             return;

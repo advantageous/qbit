@@ -1,3 +1,13 @@
+apply plugin: 'idea'
+
+allprojects {
+    apply plugin: 'idea'
+    apply plugin: 'maven'
+    task helloQbit << { task -> println "I'm $task.project.name" }
+}
+
+
+
 subprojects {
     apply plugin: 'java'
     apply plugin: 'maven'
@@ -113,7 +123,7 @@ project(':qbit-boon') {
 }
 
 
-project(':examples') {
+project(':qbit-examples-standalone') {
     sourceSets.main.resources.srcDir 'src/main/java'
     dependencies {
         compile project(':qbit-boon')
@@ -123,6 +133,19 @@ project(':examples') {
         testCompile group: 'junit', name: 'junit', version: '4.10'
     }
 }
+
+project(':qbit-sample-server') {
+    sourceSets.main.resources.srcDir 'src/main/java'
+    dependencies {
+        compile project(':qbit-boon')
+        compile project(':qbit-vertx')
+        compile "org.slf4j:slf4j-api:[1.7,1.8)"
+        testCompile 'ch.qos.logback:logback-classic:1.1.2'
+
+        testCompile group: 'junit', name: 'junit', version: '4.10'
+    }
+}
+
 
 project(':qbit-vertx') {
 

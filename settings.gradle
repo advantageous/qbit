@@ -1,2 +1,14 @@
-include 'qbit-core', 'qbit-boon', 'examples', 'qbit-vertx'
+include ':qbit-core'
+include ':qbit-boon'
+include ':qbit-vertx'
+include ':qbit-examples'
+include ':qbit-sample-server'
+include ':qbit-examples-standalone'
 
+
+project(':qbit-core').projectDir = "$rootDir/qbit-core" as File
+project(':qbit-boon').projectDir = "$rootDir/qbit-boon" as File
+project(':qbit-vertx').projectDir = "$rootDir/qbit-vertx" as File
+project(':qbit-examples').projectDir = "$rootDir/qbit-examples" as File
+project(':qbit-sample-server').projectDir = "$rootDir/qbit-examples/qbit-sample-server" as File
+project(':qbit-examples-standalone').projectDir = "$rootDir/qbit-examples/qbit-examples-standalone" as File
