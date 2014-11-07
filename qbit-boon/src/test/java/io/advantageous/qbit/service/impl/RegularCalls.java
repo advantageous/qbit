@@ -1,6 +1,7 @@
-package io.advantageous.qbit.service;
+package io.advantageous.qbit.service.impl;
 
 import io.advantageous.qbit.Services;
+import io.advantageous.qbit.service.Service;
 import org.boon.Lists;
 import org.boon.core.Sys;
 import org.junit.Test;

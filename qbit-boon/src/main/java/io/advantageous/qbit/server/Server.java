@@ -28,6 +28,7 @@ import java.util.*;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import static org.boon.Boon.puts;
 import static org.boon.Exceptions.die;
 
 /**
@@ -499,7 +500,13 @@ public class Server {
 
             final HttpResponse httpResponse = ((HttpRequest) request).getResponse();
 
-            httpResponse.response(408, "application/json", "\"timed out\"");
+            try {
+                httpResponse.response(408, "application/json", "\"timed out\"");
+            }catch (Exception ex) {
+                logger.debug("Response not marked handled and it timed out, but could not be written " + request, ex);
+                puts(request);
+
+            }
         } else if (request instanceof WebSocketMessage) {
 
             final WebSocketMessage webSocketMessage = (WebSocketMessage) request;

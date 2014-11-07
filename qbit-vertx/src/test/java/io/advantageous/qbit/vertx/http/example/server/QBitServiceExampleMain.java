@@ -26,20 +26,56 @@
  *               \/           \/          \/         \/        \/  \/
  */
 
-package io.advantageous.qbit.vertx.example.model;
+package io.advantageous.qbit.vertx.http.example.server;
 
-import org.boon.core.Handler;
+import io.advantageous.qbit.spi.RegisterBoonWithQBit;
+import org.boon.Str;
+import org.boon.primitive.Arry;
+import org.vertx.java.core.json.JsonObject;
+import org.vertx.java.platform.PlatformLocator;
+import org.vertx.java.platform.PlatformManager;
 
+import java.io.File;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Client proxy interface. This does not do much.
- * It is the client view of the employee manager service.
- */
-public interface EmployeeManagerProxy {
+public class QBitServiceExampleMain {
 
-    void addEmployee(Employee employee);
 
-    void list(Handler<List<Employee>> employees );
+
+    public static void main(String... args) throws Exception {
+
+        RegisterBoonWithQBit.registerBoonWithQBit();
+
+        runServer("qbit", "emp", "1.0");
+
+        // Prevent the JVM from exiting
+        System.in.read();
+    }
+
+    static void runServer(String owner, String serverName, String version) {
+        PlatformManager platformManager = PlatformLocator.factory.createPlatformManager();
+        platformManager.deployModuleFromClasspath(
+                Str.add(owner, "~", serverName, "~", version),
+                (JsonObject) null, 1, classpath(), null);
+    }
+
+
+    static URL[] classpath() {
+        String classPathParts = System.getProperty("java.class.path");
+        String[] split = classPathParts.split(":");
+        List<URL> urls = new ArrayList<>(split.length);
+
+        for (String classPathPart : split) {
+            try {
+                urls.add(new File(classPathPart).toURI().toURL());
+            } catch (MalformedURLException e) {
+                throw new RuntimeException(e);
+            }
+        }
+        return Arry.array(urls);
+    }
+
 }
-

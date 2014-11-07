@@ -1,6 +1,7 @@
 package io.advantageous.qbit.service.impl;
 
 import io.advantageous.qbit.Factory;
+import io.advantageous.qbit.service.impl.BoonServiceMethodCallHandler;
 import io.advantageous.qbit.util.MultiMap;
 import io.advantageous.qbit.util.MultiMapImpl;
 import io.advantageous.qbit.QBit;

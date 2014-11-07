@@ -32,7 +32,6 @@ project(':qbit-core') {
     dependencies {
         testCompile group: 'junit', name: 'junit', version: '4.10'
         compile group: 'io.fastjson', name: 'boon', version: '0.30-SNAPSHOT'
-        testCompile project(':qbit-boon')
         compile "org.slf4j:slf4j-api:[1.7,1.8)"
         testCompile 'ch.qos.logback:logback-classic:1.1.2'
 

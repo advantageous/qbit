@@ -26,7 +26,7 @@
  *               \/           \/          \/         \/        \/  \/
  */
 
-package io.advantageous.qbit.vertx.example.server;
+package io.advantageous.qbit.vertx.http.example.server;
 
 import io.advantageous.qbit.QBit;
 import io.advantageous.qbit.http.WebSocketMessage;
@@ -35,7 +35,7 @@ import io.advantageous.qbit.message.Response;
 import io.advantageous.qbit.queue.ReceiveQueue;
 import io.advantageous.qbit.service.ServiceBundle;
 import io.advantageous.qbit.spi.ProtocolEncoder;
-import io.advantageous.qbit.vertx.example.model.EmployeeManagerImpl;
+import io.advantageous.qbit.vertx.http.example.model.EmployeeManagerImpl;
 
 import org.vertx.java.core.Handler;
 import org.vertx.java.core.buffer.Buffer;

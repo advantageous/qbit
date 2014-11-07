@@ -6,7 +6,7 @@ import io.advantageous.qbit.http.HttpResponse;
 import io.advantageous.qbit.http.HttpServer;
 import io.advantageous.qbit.http.WebSocketMessage;
 import io.advantageous.qbit.util.MultiMap;
-import io.advantageous.qbit.vertx.example.vertx.MultiMapWrapper;
+import io.advantageous.qbit.vertx.MultiMapWrapper;
 import org.boon.Str;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

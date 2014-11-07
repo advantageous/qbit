@@ -26,32 +26,20 @@
  *               \/           \/          \/         \/        \/  \/
  */
 
-package io.advantageous.qbit.vertx.example.model;
+package io.advantageous.qbit.vertx.http.example.model;
 
-import org.boon.Lists;
+import org.boon.core.Handler;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-
 
 /**
- * Employee Manager Service example.
- * @author Rick Hightower
+ * Client proxy interface. This does not do much.
+ * It is the client view of the employee manager service.
  */
-public class EmployeeManagerImpl implements EmployeeManager {
+public interface EmployeeManagerProxy {
 
+    void addEmployee(Employee employee);
 
-    private Map<Long, Employee> employeeMap = new HashMap<>();
-
-    @Override
-    public void addEmployee(Employee employee) {
-
-        employeeMap.put(employee.getEmployeeId(), employee);
-    }
-
-    @Override
-    public List<Employee> list() {
-        return Lists.list(employeeMap.values());
-    }
+    void list(Handler<List<Employee>> employees );
 }
+

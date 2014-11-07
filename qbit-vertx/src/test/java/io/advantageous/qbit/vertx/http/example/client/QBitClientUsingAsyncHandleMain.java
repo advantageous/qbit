@@ -26,89 +26,64 @@
  *               \/           \/          \/         \/        \/  \/
  */
 
-package io.advantageous.qbit.vertx.example.client;
+package io.advantageous.qbit.vertx.http.example.client;
 
-
-
-import io.advantageous.qbit.vertx.QBitClient;
-import io.advantageous.qbit.vertx.example.model.Employee;
-
-import io.advantageous.qbit.QBit;
-import io.advantageous.qbit.message.Response;
-import io.advantageous.qbit.queue.ReceiveQueue;
 import io.advantageous.qbit.spi.RegisterBoonWithQBit;
-import io.advantageous.qbit.vertx.example.model.EmployeeManager;
+import io.advantageous.qbit.vertx.QBitClient;
+import io.advantageous.qbit.vertx.http.example.model.Employee;
+import io.advantageous.qbit.vertx.http.example.model.EmployeeManagerProxy;
 import org.boon.Boon;
-import org.boon.core.Sys;
-import org.boon.core.reflection.MapObjectConversion;
+import org.boon.core.Handler;
 import org.vertx.java.core.Vertx;
 import org.vertx.java.core.VertxFactory;
 
 import java.util.List;
-import java.util.Map;
 
 import static org.boon.Boon.puts;
 
 /**
- * Created by Richard on 10/2/14.
+ * Created by Richard on 10/3/14.
  * @author Rick Hightower
  */
-public class QBitClientMainExample {
+public class QBitClientUsingAsyncHandleMain {
 
-
-
-    public static void main (String... args) throws InterruptedException {
-
+    public static void main(String... args) throws InterruptedException {
 
         RegisterBoonWithQBit.registerBoonWithQBit();
+
 
         /* Create a new instance of Vertx. */
         Vertx vertx = VertxFactory.newVertx();
 
-
+        /* Create new client. */
         final QBitClient qBitClient = new QBitClient("localhost", 8080, "/services", vertx);
 
+        /* Start the async callback handler. */
+        qBitClient.startReturnProcessing();
 
-        /** You can use the regular interface but then you have to
-         * Use a return queue.
-         */
-        final EmployeeManager remoteProxy = qBitClient.createProxy(EmployeeManager.class,
+        /* Create an employee proxy using the client proxy interface with the handler. */
+        final EmployeeManagerProxy remoteProxy = qBitClient.createProxy(EmployeeManagerProxy.class,
                 "employeeService");
 
 
+        /* Add an employee to the proxy, which calls the websocket. */
         remoteProxy.addEmployee(new Employee("Rick", "Hightower", 10, 1L));
 
 
-        /* Call list but ignore the return type because it comes back async
-         * in this example anyway.
+        /* Call list employees. To get a list of employees. Use the
+           Handler to get the list of employees async.
          */
-        remoteProxy.list();
+        remoteProxy.list(new Handler<List<Employee>>() {
+            @Override
+            public void handle(List<Employee> employees) {
+                puts(employees);
 
-        /* Receive queue. */
-        final ReceiveQueue<String> receiveQueue = qBitClient.receiveQueue();
-
-        Sys.sleep(1000);
-
-
-        /* This is a raw message from websocket so we will need to parse it. */
-        final String message = receiveQueue.pollWait();
-
-        puts(message);
-
-        /* This is how we parse it. */
-        final Response<Object> response = QBit.factory().createResponse(message);
-
-        /* Now parse the employees object. */
-        final List<Employee> employees = MapObjectConversion.convertListOfMapsToObjects(Employee.class, (List<Map>) response.body());
-
-
-        puts(employees);
+            }
+        });
 
         Boon.gets();
 
     }
-
-
 
 
 }

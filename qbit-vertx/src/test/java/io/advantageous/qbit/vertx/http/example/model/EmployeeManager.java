@@ -26,54 +26,15 @@
  *               \/           \/          \/         \/        \/  \/
  */
 
-package io.advantageous.qbit.vertx.example.model;
+package io.advantageous.qbit.vertx.http.example.model;
+
+import java.util.List;
 
 /**
  * Created by Richard on 10/2/14.
- * @author Rick Hightower
  */
-public class Employee {
+public interface EmployeeManager {
+    void addEmployee(Employee employee);
 
-    private  String firstName;
-    private  String lastName;
-    private  int salary;
-    private  long employeeId;
-
-
-    public Employee() {
-
-    }
-
-    public Employee(String firstName, String lastName, int salary, long employeeId) {
-        this.firstName = firstName;
-        this.lastName = lastName;
-        this.salary = salary;
-        this.employeeId = employeeId;
-    }
-
-    public String getFirstName() {
-        return firstName;
-    }
-
-    public String getLastName() {
-        return lastName;
-    }
-
-    public int getSalary() {
-        return salary;
-    }
-
-    public long getEmployeeId() {
-        return employeeId;
-    }
-
-    @Override
-    public String toString() {
-        return "Employee{" +
-                "firstName='" + firstName + '\'' +
-                ", lastName='" + lastName + '\'' +
-                ", salary=" + salary +
-                ", employeeId=" + employeeId +
-                '}';
-    }
+    List<Employee> list();
 }

@@ -7,14 +7,13 @@ import io.advantageous.qbit.queue.SendQueue;
 import io.advantageous.qbit.queue.impl.BasicQueue;
 import io.advantageous.qbit.util.MultiMap;
 import io.advantageous.qbit.util.Timer;
-import io.advantageous.qbit.vertx.example.vertx.MultiMapWrapper;
+import io.advantageous.qbit.vertx.MultiMapWrapper;
 import org.boon.Str;
 import org.boon.core.Sys;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.vertx.java.core.Vertx;
 import org.vertx.java.core.VertxFactory;
-import org.vertx.java.core.buffer.Buffer;
 import org.vertx.java.core.http.HttpClientRequest;
 import org.vertx.java.core.http.HttpClientResponse;
 
