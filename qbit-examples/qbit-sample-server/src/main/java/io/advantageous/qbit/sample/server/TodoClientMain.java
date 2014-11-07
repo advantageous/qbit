@@ -4,7 +4,6 @@ import io.advantageous.qbit.sample.server.client.TodoServiceClient;
 import io.advantageous.qbit.sample.server.model.TodoItem;
 import io.advantageous.qbit.spi.RegisterBoonWithQBit;
 import io.advantageous.qbit.vertx.Client;
-import io.advantageous.qbit.vertx.QBitClient;
 import org.boon.core.Sys;
 
 import java.util.Date;

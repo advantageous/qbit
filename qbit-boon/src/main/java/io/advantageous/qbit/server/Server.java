@@ -181,8 +181,6 @@ public class Server {
     private void handleResponseFromServiceBundleToWebSocketSender(Response<Object> response, WebSocketMessage originatingRequest) {
         final WebSocketMessage webSocketMessage = originatingRequest;
         String responseAsText = encoder.encodeAsString(response);
-
-        puts("WEBSOCKET MESSAGE SENDING BACK TO CLIENT " + responseAsText);
         webSocketMessage.getSender().send(responseAsText);
     }
 

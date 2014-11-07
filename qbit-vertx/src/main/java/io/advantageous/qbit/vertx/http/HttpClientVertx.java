@@ -322,7 +322,6 @@ public class HttpClientVertx implements HttpClient {
     }
 
     private void connectWithRetry() {
-        connect();
         int retry = 0;
         while (closed.get()) {
 

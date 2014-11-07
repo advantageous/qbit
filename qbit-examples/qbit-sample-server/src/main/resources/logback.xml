@@ -11,7 +11,7 @@
     </root>
 
 
-    <logger name="io.advantageous" level="DEBUG" />
+    <logger name="io.advantageous" level="INFO" />
 
 
 
