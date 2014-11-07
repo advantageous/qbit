@@ -131,5 +131,18 @@ public class WebSocketMessage implements Request<Object>{
         result = 31 * result + (int) (timestamp ^ (timestamp >>> 32));
         return result;
     }
+
+    @Override
+    public String toString() {
+        return "WebSocketMessage{" +
+                "uri='" + uri + '\'' +
+                ", message='" + message + '\'' +
+                ", sender=" + sender +
+                ", remoteAddress='" + remoteAddress + '\'' +
+                ", messageId=" + messageId +
+                ", timestamp=" + timestamp +
+                ", handled=" + handled +
+                '}';
+    }
 }
 

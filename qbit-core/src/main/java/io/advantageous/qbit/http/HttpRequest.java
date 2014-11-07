@@ -162,4 +162,20 @@ public class HttpRequest implements Request<Object>{
         result = 31 * result + (int) (timestamp ^ (timestamp >>> 32));
         return result;
     }
+
+    @Override
+    public String toString() {
+        return "HttpRequest{" +
+                "uri='" + uri + '\'' +
+                ", remoteAddress='" + remoteAddress + '\'' +
+                ", params=" + params +
+                ", headers=" + headers +
+                ", body='" + body + '\'' +
+                ", method='" + method + '\'' +
+                ", response=" + response +
+                ", messageId=" + messageId +
+                ", timestamp=" + timestamp +
+                ", handled=" + handled +
+                '}';
+    }
 }

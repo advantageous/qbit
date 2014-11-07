@@ -19,6 +19,8 @@ import org.vertx.java.core.http.ServerWebSocket;
 
 import java.util.function.Consumer;
 
+import static org.boon.Boon.puts;
+
 /**
  */
 public class HttpServerVertx implements HttpServer {
@@ -110,6 +112,17 @@ public class HttpServerVertx implements HttpServer {
 
     @Override
     public void stop() {
+
+        try {
+            if (httpServer!=null) {
+
+                httpServer.close();
+            }
+        } catch (Exception ex) {
+
+            logger.info("HTTP SERVER unable to close " + port + " host " + host);
+        }
+
 
     }
 

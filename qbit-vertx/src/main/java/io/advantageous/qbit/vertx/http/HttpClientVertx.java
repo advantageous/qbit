@@ -2,9 +2,11 @@ package io.advantageous.qbit.vertx.http;
 
 import io.advantageous.qbit.http.HttpClient;
 import io.advantageous.qbit.http.HttpRequest;
+import io.advantageous.qbit.http.WebSocketMessage;
 import io.advantageous.qbit.queue.ReceiveQueueListener;
 import io.advantageous.qbit.queue.SendQueue;
 import io.advantageous.qbit.queue.impl.BasicQueue;
+import io.advantageous.qbit.queue.impl.BasicSendQueue;
 import io.advantageous.qbit.util.MultiMap;
 import io.advantageous.qbit.util.Timer;
 import io.advantageous.qbit.vertx.MultiMapWrapper;
@@ -12,12 +14,17 @@ import org.boon.Str;
 import org.boon.core.Sys;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.vertx.java.core.Handler;
 import org.vertx.java.core.Vertx;
 import org.vertx.java.core.VertxFactory;
+import org.vertx.java.core.buffer.Buffer;
 import org.vertx.java.core.http.HttpClientRequest;
 import org.vertx.java.core.http.HttpClientResponse;
+import org.vertx.java.core.http.WebSocket;
 
 import java.net.ConnectException;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -36,7 +43,6 @@ public class HttpClientVertx implements HttpClient {
     private final boolean debug = logger.isDebugEnabled();
 
 
-
     /**
      * I am leaving these protected and non-final so subclasses can use injection frameworks for them.
      */
@@ -46,13 +52,17 @@ public class HttpClientVertx implements HttpClient {
     private  int poolSize;
     private org.vertx.java.core.http.HttpClient httpClient;
     protected Vertx vertx;
+    protected boolean autoFlush;
 
-    public HttpClientVertx(int port, String host, int timeOutInMilliseconds, int poolSize) {
+    private final Map<String, WebSocket> webSocketMap = new ConcurrentHashMap<>();
+
+    public HttpClientVertx(int port, String host, int timeOutInMilliseconds, int poolSize, boolean autoFlush) {
         this.port = port;
         this.host = host;
         this.timeOutInMilliseconds = timeOutInMilliseconds;
         this.poolSize = poolSize;
         this.vertx = VertxFactory.newVertx();
+        this.autoFlush = autoFlush;
     }
 
 
@@ -62,12 +72,18 @@ public class HttpClientVertx implements HttpClient {
         this.timeOutInMilliseconds = 3000;
         this.poolSize = 5;
         this.vertx = VertxFactory.newVertx();
+        this.autoFlush = true;
     }
 
 
     protected ScheduledExecutorService scheduledExecutorService;
 
+
+    private BasicQueue<HttpRequest> requestQueue;
+    private BasicQueue<WebSocketMessage> webSocketMessageQueue;
+
     private  SendQueue<HttpRequest> httpRequestSendQueue;
+    private  SendQueue<WebSocketMessage> webSocketSendQueue;
 
     /**
      * Are we closed.
@@ -75,7 +91,6 @@ public class HttpClientVertx implements HttpClient {
     private final AtomicBoolean closed = new AtomicBoolean();
 
 
-    private BasicQueue<HttpRequest> requestQueue;
 
     private final Timer timer = Timer.timer();
 
@@ -86,33 +101,70 @@ public class HttpClientVertx implements HttpClient {
 
         if(debug) logger.debug("HTTP CLIENT: sendHttpRequest:: \n{}\n", request);
         httpRequestSendQueue.send(request);
+
+        if (autoFlush) httpRequestSendQueue.flushSends();
+    }
+
+    @Override
+    public void sendWebSocketMessage(final WebSocketMessage webSocketMessage) {
+
+        if(debug) logger.debug("HTTP CLIENT: sendWebSocketMessage:: \n{}\n", webSocketMessage);
+        webSocketSendQueue.send(webSocketMessage);
+
+        if (autoFlush) webSocketSendQueue.flushSends();
+
     }
 
 
     @Override
     public void run() {
-        requestQueue = new BasicQueue<>("HttpClient queue " + host + ":" + port, 50, TimeUnit.MILLISECONDS, 50);
+        requestQueue = new BasicQueue<>("HTTP REQUEST queue " + host + ":" + port, 50, TimeUnit.MILLISECONDS, 50);
+        webSocketMessageQueue = new BasicQueue<>("WebSocket queue " + host + ":" + port, 50, TimeUnit.MILLISECONDS, 50);
         httpRequestSendQueue = requestQueue.sendQueue();
-
-
-
-
+        webSocketSendQueue = webSocketMessageQueue.sendQueue();
         scheduledExecutorService = Executors.newScheduledThreadPool(2);
 
+        connect();
 
-        this.scheduledExecutorService.schedule(this::connectWithRetry, 10, TimeUnit.MILLISECONDS);
+        this.scheduledExecutorService.scheduleAtFixedRate(this::connectWithRetry, 0, 10, TimeUnit.SECONDS);
 
 
-        Sys.sleep(200);
+        Sys.sleep(100);
 
-        final org.vertx.java.core.http.HttpClient clientHttp = httpClient;
 
+        webSocketMessageQueue.startListener(new ReceiveQueueListener<WebSocketMessage>() {
+            @Override
+            public void receive(WebSocketMessage item) {
+                doSendWebSocketMessageToServer(item);
+            }
+
+            @Override
+            public void empty() {
+
+            }
+
+            @Override
+            public void limit() {
+
+            }
+
+            @Override
+            public void shutdown() {
+
+            }
+
+            @Override
+            public void idle() {
+
+            }
+        });
 
 
         requestQueue.startListener(new ReceiveQueueListener<HttpRequest>() {
             @Override
             public void receive(final HttpRequest request) {
-                doSendRequestToServer(request, clientHttp);
+
+                doSendRequestToServer(request, httpClient);
             }
 
             @Override
@@ -123,7 +175,6 @@ public class HttpClientVertx implements HttpClient {
                 long duration = currentTime - lastFlushTime;
 
                 if (duration>3_000) {
-                    //httpRequestSendQueue.flushSends(); nope.. can't do that
                     lastFlushTime = currentTime;
                 }
 
@@ -142,7 +193,62 @@ public class HttpClientVertx implements HttpClient {
             @Override
             public void idle() {
 
-                //httpRequestSendQueue.flushSends(); nope can't do that
+            }
+        });
+
+    }
+
+
+
+    private void doSendWebSocketMessageToServer(final WebSocketMessage webSocketMessage) {
+
+        final String uri = webSocketMessage.getUri();
+
+        WebSocket webSocket = webSocketMap.get(uri);
+
+        if (webSocket!=null) {
+            try {
+                webSocket.writeTextFrame(webSocketMessage.getMessage());
+            } catch (Exception ex) {
+                connectWebSocketAndSend(webSocketMessage);
+            }
+        } else {
+            connectWebSocketAndSend(webSocketMessage);
+        }
+    }
+
+
+    private void connectWebSocketAndSend(final WebSocketMessage webSocketMessage) {
+
+
+        final String uri = webSocketMessage.getUri();
+
+        httpClient.connectWebsocket(uri, new Handler<WebSocket>(){
+            @Override
+            public void handle(final WebSocket webSocket) {
+
+                webSocketMap.put(uri, webSocket);
+                webSocket.writeTextFrame(webSocketMessage.getMessage());
+
+
+                webSocket.dataHandler(new Handler<Buffer>() {
+                    @Override
+                    public void handle(Buffer buffer) {
+
+                        webSocketMessage.getSender().send(buffer.toString());
+                    }
+                });
+
+                webSocket.closeHandler(new Handler<Void>() {
+                    @Override
+                    public void handle(Void event) {
+                        webSocketMap.remove(uri);
+                    }
+                });
+
+
+
+
             }
         });
 
@@ -165,6 +271,7 @@ public class HttpClientVertx implements HttpClient {
     @Override
     public void flush() {
         this.httpRequestSendQueue.flushSends();
+        this.webSocketSendQueue.flushSends();
     }
 
     @Override
@@ -183,6 +290,15 @@ public class HttpClientVertx implements HttpClient {
         } catch (Exception ex) {
 
             logger.warn("problem shutting down requestQueue for Http Client", ex);
+        }
+
+        try {
+            if (httpClient != null) {
+                httpClient.close();
+            }
+        }catch (Exception ex) {
+
+            logger.warn("problem shutting down vertx httpClient for QBIT Http Client", ex);
         }
 
     }
@@ -230,6 +346,8 @@ public class HttpClientVertx implements HttpClient {
     private void connect() {
         httpClient = vertx.createHttpClient().setHost(host).setPort(port)
                 .setConnectTimeout(timeOutInMilliseconds).setMaxPoolSize(poolSize);
+
+
 
 
         if(debug) logger.debug("HTTP CLIENT: connect:: \nhost {} \nport {}\n", host, port);

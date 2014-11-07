@@ -29,15 +29,14 @@
 package io.advantageous.qbit.vertx;
 
 import io.advantageous.qbit.QBit;
+import io.advantageous.qbit.http.*;
 import io.advantageous.qbit.message.MethodCall;
 import io.advantageous.qbit.message.Response;
-import io.advantageous.qbit.queue.Queue;
-import io.advantageous.qbit.queue.ReceiveQueue;
-import io.advantageous.qbit.queue.SendQueue;
-import io.advantageous.qbit.queue.impl.BasicQueue;
+
 import io.advantageous.qbit.service.BeforeMethodCall;
 import io.advantageous.qbit.service.Callback;
 import io.advantageous.qbit.service.method.impl.MethodCallImpl;
+import io.advantageous.qbit.vertx.http.HttpClientVertx;
 import org.boon.Boon;
 import org.boon.Logger;
 import org.boon.Str;
@@ -47,10 +46,6 @@ import org.boon.core.reflection.ClassMeta;
 import org.boon.core.reflection.MapObjectConversion;
 import org.boon.core.reflection.MethodAccess;
 import org.boon.primitive.Arry;
-import org.vertx.java.core.Vertx;
-import org.vertx.java.core.VertxFactory;
-import org.vertx.java.core.http.WebSocket;
-
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.List;
@@ -61,19 +56,14 @@ import java.util.concurrent.*;
 import static io.advantageous.qbit.service.Protocol.PROTOCOL_ARG_SEPARATOR;
 import static org.boon.Exceptions.die;
 
+
 /**
  * Factory to create client proxies using interfaces.
  * Created by Richard on 10/2/14.
  *
  * @author Rick Hightower
  */
-public class QBitClient {
-
-
-    /**
-     * Are we closed.
-     */
-    private volatile boolean closed;
+public class Client {
 
     /**
      * Host to connect to.
@@ -87,67 +77,33 @@ public class QBitClient {
      * Uri at the host to connect to.
      */
     private final String uri;
-
-    /**
-     * Vertx which is the websocket lib we use.
-     */
-    private Vertx vertx;
-
-    /**
-     * Queue to get a connection.
-     */
-    private final BlockingQueue<WebSocket> connectionQueue = new ArrayBlockingQueue<>(1);
-
-    /**
-     * Output queue to httpServer.
-     */
-    private final BlockingQueue<String> queueToServer = new ArrayBlockingQueue<>(1000);
-
-
-    /**
-     * Queue from httpServer.
-     */
-    private final Queue<String> queueFromServer;
-
     /**
      * Map of handlers so we can do the whole async call back thing.
      */
     private Map<HandlerKey, Callback<Object>> handlers = new ConcurrentHashMap<>();
-
     /**
      * Logger.
      */
-    private Logger logger = Boon.logger(QBitClient.class);
+    private Logger logger = Boon.logger(Client.class);
 
-    /**
-     * Websocket from vertx land.
-     */
-    private WebSocket webSocket;
 
     /**
      * scheduledFuture, we need to shut this down on close.
      */
     private ScheduledFuture<?> scheduledFuture;
+    private HttpClient httpServer;
+
 
     /**
      * @param host  host to connect to
      * @param port  port on host
      * @param uri   uri to connect to
-     * @param vertx vertx to attach to
      */
-    public QBitClient(String host, int port, String uri, Vertx vertx) {
-
+    public Client(String host, int port, String uri) {
         this.host = host;
         this.port = port;
         this.uri = uri;
-        this.vertx = vertx == null ? VertxFactory.newVertx() : vertx;
-
         connect();
-
-        queueFromServer = new BasicQueue<>(
-                Boon.joinBy('-', "QBitClient", host, port, uri), 5, TimeUnit.MILLISECONDS, 20);
-
-
     }
 
 
@@ -155,39 +111,17 @@ public class QBitClient {
      * Stop client. Stops processing call backs.
      */
     public void stop() {
-        if (scheduledFuture != null) {
+
+        if (httpServer!=null) {
             try {
-                scheduledFuture.cancel(true);
+                httpServer.stop();
             } catch (Exception ex) {
-                logger.warn(ex, "Problem stopping client");
+
+                logger.warn(ex, "Problem closing httpServer connection", port, host);
             }
         }
     }
 
-    /**
-     * Start processing callbacks.
-     */
-    public void run() {
-        final ReceiveQueue<String> receiveQueue = queueFromServer.receiveQueue();
-
-        scheduledFuture = Executors.newScheduledThreadPool(2).scheduleAtFixedRate(() -> {
-            try {
-
-                while (true) {
-                    String poll = receiveQueue.pollWait();
-
-                    while (poll != null) {
-                        handleWebsocketQueueResponses(poll);
-
-
-                        poll = receiveQueue.pollWait();
-                    }
-                }
-            } catch (Exception ex) {
-                logger.error(ex, "Problem handling queue");
-            }
-        }, 500, 500, TimeUnit.MILLISECONDS);
-    }
 
     /**
      * Handles websocket messages and parses them into responses.
@@ -219,12 +153,16 @@ public class QBitClient {
      */
     private void handleAsyncCallback(Response<Object> response, Callback<Object> handler) {
 
-        if (response.wasErrors()) {
-            handler.onError(new Exception(response.body().toString()));
-        } else {
-            handler.accept(response.body());
-        }
+            if (response.wasErrors()) {
+                handler.onError(new Exception(response.body().toString()));
+            } else {
+                handler.accept(response.body());
+            }
+    }
 
+    public void flush() {
+
+        httpServer.flush();
     }
 
 
@@ -267,52 +205,19 @@ public class QBitClient {
 
 
     /**
-     * Looks up websocket connection.
-     */
-    private WebSocket webSocket() {
-        if (webSocket == null) {
-            try {
-                webSocket = connectionQueue.poll(200, TimeUnit.MILLISECONDS);
-            } catch (InterruptedException e) {
-                Thread.interrupted();
-                die("QBitClient::Unable to connect", host, port);
-            }
-
-        }
-        return webSocket;
-    }
-
-    /**
      * Sends a message over websocket.
-     * @param newMessage message to send over WebSocket
+     * @param message message to send over WebSocket
+     *
+     * @param serviceName message to send over WebSocket
      */
-    public void send(String newMessage) {
-        webSocket();
-        if (webSocket == null || closed) {
-            webSocket = null;
-            if (!queueToServer.add(newMessage)) {
-                die("QBitClient::not connected and output queueToServer is full");
-            }
-        } else {
-            try {
-                String message = queueToServer.poll();
-
-                while (message != null) {
-                    webSocket.writeTextFrame(message);
-                    message = queueToServer.poll();
-                }
-
-                webSocket.writeTextFrame(newMessage);
-            } catch (Exception ex) {
-                queueToServer.add(newMessage);
-                closed = true;
-                webSocket = null;
-                connect();
-            }
-
-        }
+    public void send(String serviceName, String message) {
 
 
+        final WebSocketMessage webSocketMessage = new WebSocketMessageBuilder()
+                .setUri(Str.add(uri, "/", serviceName))
+                .setMessage(message)
+                .setSender(this::handleWebsocketQueueResponses).build();
+        httpServer.sendWebSocketMessage(webSocketMessage);
     }
 
 
@@ -385,7 +290,7 @@ public class QBitClient {
         };
         return QBit.factory().createRemoteProxyWithReturnAddress(serviceInterface,
                 uri,
-                serviceName, returnAddressArg, (returnAddress, buffer) -> QBitClient.this.send(buffer), beforeMethodCall
+                serviceName, returnAddressArg, (returnAddress, buffer) -> Client.this.send(serviceName, buffer), beforeMethodCall
         );
     }
 
@@ -453,30 +358,17 @@ public class QBitClient {
     }
 
 
-    /**
-     * Return the receive queue.
-     * @return receive queue
-     */
-    public final ReceiveQueue<String> receiveQueue() {
-        return queueFromServer.receiveQueue();
-    }
 
 
     /**
      * Use vertx to connect to websocket httpServer that is hosting this service.
      */
     private void connect() {
-        vertx.createHttpClient().setHost(host).setPort(port)
-                .connectWebsocket(uri,
-                        event -> {
-                            connectionQueue.add(event);
-                            closed = false;
-                            final SendQueue<String> sendQueueFromServer = queueFromServer.sendQueue();
-                            event.dataHandler(event1 -> sendQueueFromServer.sendAndFlush(event1.toString()));
-                            event.exceptionHandler(event1 ->
-                                    logger.error(event1, "Exception handling web socket connection"));
-                            event.closeHandler(event1 -> closed = true);
-                        }
-                );
+       this.httpServer = new HttpClientVertx(this.port, this.host);
+
+    }
+
+    public void run() {
+        this.httpServer.run();
     }
 }

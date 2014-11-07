@@ -7,6 +7,9 @@ package io.advantageous.qbit.http;
 public interface HttpClient {
     void sendHttpRequest(HttpRequest request);
 
+
+    void sendWebSocketMessage(WebSocketMessage webSocketMessage);
+
     void run();
 
     void flush();
