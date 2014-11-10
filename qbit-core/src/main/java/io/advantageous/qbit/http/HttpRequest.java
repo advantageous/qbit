@@ -176,7 +176,13 @@ public class HttpRequest implements Request<Object>{
     }
 
     public String getContentType() {
-        return contentType;
+
+        if (contentType==null) {
+            return headers != null ?  headers.get("Content-Type") : "";
+        } else {
+            return contentType;
+        }
+
     }
 
     public boolean isJson() {

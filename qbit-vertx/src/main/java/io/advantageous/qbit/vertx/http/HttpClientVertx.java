@@ -260,6 +260,9 @@ public class HttpClientVertx implements HttpClient {
 
 
         if (!Str.isEmpty(request.getBody())) {
+                if (request.getContentType()!=null) {
+                    httpClientRequest.putHeader("Content-Type", request.getContentType());
+                }
                 httpClientRequest.end(new Buffer(request.getBody()));
 
         } else {
