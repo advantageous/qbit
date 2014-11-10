@@ -24,6 +24,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -127,7 +128,7 @@ public class Server {
                     addRequestToCheckForTimeouts(request);
                 }
                 if (!Str.isEmpty(request.getBody())) {
-                    args = jsonMapper.fromJson(request.getBody());
+                    args = jsonMapper.fromJson(new String(request.getBody(), StandardCharsets.UTF_8));
                 }
                 break;
         }

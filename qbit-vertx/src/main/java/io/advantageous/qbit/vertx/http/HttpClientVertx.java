@@ -260,7 +260,8 @@ public class HttpClientVertx implements HttpClient {
 
 
         if (!Str.isEmpty(request.getBody())) {
-            httpClientRequest.end(request.getBody());
+                httpClientRequest.end(new Buffer(request.getBody()));
+
         } else {
             httpClientRequest.end();
         }

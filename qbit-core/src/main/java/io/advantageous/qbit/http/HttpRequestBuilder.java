@@ -2,6 +2,8 @@ package io.advantageous.qbit.http;
 
 import io.advantageous.qbit.util.MultiMap;
 
+import java.nio.charset.StandardCharsets;
+
 /**
  * Created by rhightower on 10/24/14.
  * @author rhightower
@@ -9,7 +11,10 @@ import io.advantageous.qbit.util.MultiMap;
 public class HttpRequestBuilder {
 
 
+    public static final byte[] EMPTY_STRING = "".getBytes(StandardCharsets.UTF_8);
     private  String uri;
+
+    private  String contentType;
     private  String remoteAddress;
     private  MultiMap<String, String> params;
     private  String body;
@@ -73,6 +78,26 @@ public class HttpRequestBuilder {
     }
 
     public HttpRequest build() {
-        return new HttpRequest(uri, method, params, headers, body, remoteAddress, response);
+        return new HttpRequest(uri, method, params, headers,
+                body != null ? body.getBytes(StandardCharsets.UTF_8) : EMPTY_STRING,
+                remoteAddress, contentType, response);
+    }
+
+    public String getContentType() {
+        return contentType;
+    }
+
+    public HttpRequestBuilder setContentType(String contentType) {
+        this.contentType = contentType;
+        return this;
+    }
+
+    public MultiMap<String, String> getHeaders() {
+        return headers;
+    }
+
+    public HttpRequestBuilder setHeaders(MultiMap<String, String> headers) {
+        this.headers = headers;
+        return this;
     }
 }

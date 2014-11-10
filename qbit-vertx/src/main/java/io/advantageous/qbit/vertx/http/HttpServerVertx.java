@@ -17,9 +17,8 @@ import org.vertx.java.core.http.HttpServerRequest;
 import org.vertx.java.core.http.HttpServerResponse;
 import org.vertx.java.core.http.ServerWebSocket;
 
+import java.nio.charset.StandardCharsets;
 import java.util.function.Consumer;
-
-import static org.boon.Boon.puts;
 
 /**
  */
@@ -184,11 +183,13 @@ public class HttpServerVertx implements HttpServer {
 
         final MultiMap<String, String> params = request.params().size() == 0 ? MultiMap.empty() : new MultiMapWrapper(request.params());
         final MultiMap<String, String> headers = request.headers().size() == 0 ? MultiMap.empty() : new MultiMapWrapper(request.headers());
-        final String body = buffer == null ? "" : buffer.toString("UTF-8");
+        final byte[] body = buffer == null ? "".getBytes(StandardCharsets.UTF_8) : buffer.getBytes();
+
+        final String contentType = request.headers().get("Content-Type");
 
         return new HttpRequest(request.uri(), request.method(), params, headers, body,
                 request.remoteAddress().toString(),
-                createResponse(request.response()));
+                contentType, createResponse(request.response()));
     }
 
 

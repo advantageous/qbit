@@ -3,6 +3,11 @@ package io.advantageous.qbit.http;
 import io.advantageous.qbit.message.Request;
 import io.advantageous.qbit.util.MultiMap;
 
+import java.io.UnsupportedEncodingException;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
+
 
 /**
  * Created by rhightower on 10/21/14.
@@ -15,7 +20,9 @@ public class HttpRequest implements Request<Object>{
     private final MultiMap<String, String> params;
 
     private final MultiMap<String, String> headers;
-    private final String body;
+    private final byte[] body;
+    private final String contentType;
+
     private final String method;
     private final HttpResponse response;
 
@@ -91,11 +98,12 @@ public class HttpRequest implements Request<Object>{
 
     public HttpRequest(final String uri, final String method, final MultiMap<String, String> params,
                        final MultiMap<String, String> headers,
-                       final String body, final String remoteAddress, final HttpResponse response) {
+                       final byte[] body, final String remoteAddress, String contentType, final HttpResponse response) {
         this.params = params;
         this.body = body;
         this.method = method;
         this.uri = uri;
+        this.contentType = contentType;
         this.response = response;
         this.remoteAddress = remoteAddress;
         this.headers = headers;
@@ -107,8 +115,12 @@ public class HttpRequest implements Request<Object>{
         return params;
     }
 
-    public String getBody() {
+    public byte[] getBody() {
         return body;
+    }
+
+    public String getBodyAsJson() {
+        return new String(body, StandardCharsets.UTF_8);
     }
 
     public String getMethod() {
@@ -163,6 +175,15 @@ public class HttpRequest implements Request<Object>{
         return result;
     }
 
+    public String getContentType() {
+        return contentType;
+    }
+
+    public boolean isJson() {
+        return "application/json".equals(contentType);
+    }
+
+
     @Override
     public String toString() {
         return "HttpRequest{" +
@@ -170,7 +191,8 @@ public class HttpRequest implements Request<Object>{
                 ", remoteAddress='" + remoteAddress + '\'' +
                 ", params=" + params +
                 ", headers=" + headers +
-                ", body='" + body + '\'' +
+                ", body=" + Arrays.toString(body) +
+                ", contentType='" + contentType + '\'' +
                 ", method='" + method + '\'' +
                 ", response=" + response +
                 ", messageId=" + messageId +
