@@ -1,5 +1,6 @@
 package io.advantageous.qbit;
 
+import io.advantageous.qbit.http.HttpClient;
 import io.advantageous.qbit.http.HttpServer;
 import io.advantageous.qbit.json.JsonMapper;
 import io.advantageous.qbit.message.MethodCall;
@@ -170,11 +171,15 @@ public interface Factory {
     JsonMapper createJsonMapper();
 
 
-    HttpServer createHttpServer(String host, int port);
 
     HttpServer createHttpServer(String host, int port, boolean manageQueues,
                       int pollTime,
                       int requestBatchSize,
                       int flushInterval);
+
+    HttpClient createHttpClient(String host, int port, int pollTime, int requestBatchSize, int timeOutInMilliseconds, int poolSize, boolean autoFlush);
+
+
+
 
 }

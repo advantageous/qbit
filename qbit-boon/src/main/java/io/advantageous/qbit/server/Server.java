@@ -65,7 +65,8 @@ public class Server {
 
     public Server(final String host, final int port, final String uri) {
         final Factory factory = QBit.factory();
-        httpServer = factory.createHttpServer(host, port);
+        httpServer =
+                new HttpServerBuilder().setHost(host).setPort(port).build();
         encoder = factory.createEncoder();
         serviceBundle = factory.createServiceBundle(uri);
         jsonMapper = factory.createJsonMapper();

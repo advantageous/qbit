@@ -18,10 +18,10 @@ public class HttpClientVertxTest {
 
     public void connect(int port) {
 
-        client = new HttpClientVertx(port, "localhost");
+        client = new HttpClientBuilder().setPort(port).build();
         client.run();
 
-        server = new HttpServerVertx(port);
+        server = new HttpServerBuilder().setPort(port).build();
 
         requestReceived = false;
         responseReceived = false;

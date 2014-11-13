@@ -64,12 +64,6 @@ public class HttpServerVertx implements HttpServer {
         this.vertx = vertx;
     }
 
-    public HttpServerVertx(final int port) {
-        this(port, "localhost", VertxFactory.newVertx());
-    }
-    public HttpServerVertx(final int port, final String host) {
-        this(port, host, VertxFactory.newVertx());
-    }
 
 
     public HttpServerVertx(final int port, final String host, boolean manageQueues,
@@ -121,23 +115,23 @@ public class HttpServerVertx implements HttpServer {
             vertx.setPeriodic(flushInterval, aLong -> {
 
 
-                if (requestLock.tryLock()) {
+                try {
+                    requestLock.lock();
                     try {
                         httpRequestSendQueue.flushSends();
                     } finally {
                         requestLock.unlock();
                     }
-                }
 
 
-
-
-                if (responseLock.tryLock()) {
+                    responseLock.lock();
                     try {
                         httpResponsesSendQueue.flushSends();
                     } finally {
                         responseLock.unlock();
                     }
+                } catch (Exception ex) {
+                    logger.error("Unable to flush", ex);
                 }
 
 
@@ -153,8 +147,8 @@ public class HttpServerVertx implements HttpServer {
         httpServer.setReuseAddress(true);
         httpServer.setAcceptBacklog(1_000_000);
         httpServer.setTCPKeepAlive(true);
-        httpServer.setSoLinger(0);
-
+        httpServer.setCompressionSupported(true);
+        httpServer.setSoLinger(1000);
 
         httpServer.websocketHandler(this::handleWebSocketMessage);
 

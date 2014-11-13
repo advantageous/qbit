@@ -364,7 +364,9 @@ public class Client {
      * Use vertx to connect to websocket httpServer that is hosting this service.
      */
     private void connect() {
-       this.httpServer = new HttpClientVertx(this.port, this.host);
+
+        this.httpServer = new HttpClientBuilder().setPort(port).setHost(host).build();
+
 
     }
 

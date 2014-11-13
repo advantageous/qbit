@@ -12,9 +12,9 @@ public class HttpServerBuilder {
     private String host = "localhost";
     private int port = 8080;
     private boolean manageQueues = true;
-    private int pollTime = 5;
-    private int requestBatchSize = 50;
-    private int flushInterval = 1000;
+    private int pollTime = 100;
+    private int requestBatchSize = 10;
+    private int flushInterval = 100;
 
     private Consumer<WebSocketMessage> webSocketMessageConsumer;
     private Consumer<HttpRequest> httpRequestConsumer;

@@ -19,10 +19,10 @@ public class PerfClientTest {
 
     private static volatile LongAdder receivedCount = new LongAdder();
 
-    private static final  int REQUEST_COUNT = 5_000_000;
+    private static final  int REQUEST_COUNT = 500_000;
 
 
-    private static final  int CLIENT_COUNT = 100;
+    private static final  int CLIENT_COUNT = 2;
 
     public static void main(String... args) throws InterruptedException {
 
@@ -53,21 +53,26 @@ public class PerfClientTest {
 
 
         for (int threadNum=0; threadNum< CLIENT_COUNT; threadNum++) {
-            final HttpClientVertx client = new HttpClientVertx(9090, "localhost", false);
-            client.run();
 
 
             Thread thread = new Thread(new Runnable() {
                 @Override
                 public void run() {
 
+                    //final HttpClientVertx client = new HttpClientVertx(9090, "localhost", false);
+
+                    final HttpClient client = new HttpClientBuilder().setPort(9090).setHost("localhost")
+                            .setPoolSize(100).setRequestBatchSize(10).build();
+                    client.run();
+
+                    Sys.sleep(5000);
+
                     for (int index = 0; index<countPerThread; index++) {
                          client.sendHttpRequest(perfRequest);
-                         if (index % 10 == 0) {
-                             client.flush();
-                         }
 
                     }
+
+                    client.flush();
 
 
                     Sys.sleep(100_000);
@@ -85,15 +90,15 @@ public class PerfClientTest {
 
         for (Thread t : threads) {
 
-            Sys.sleep(3);
             t.start();
         }
 
+        Sys.sleep(5000);
 
         startTime = System.currentTimeMillis();
 
         for (int i = 0; i < 1000; i++) {
-            if (receivedCount.sum() + errorCount.sum() >= REQUEST_COUNT) {
+            if (receivedCount.sum() + errorCount.sum() >= REQUEST_COUNT - 100) {
                 long duration = System.currentTimeMillis() - startTime;
                 puts("DURATION", duration/1000, "Recieved Count", receivedCount);
                 break;
@@ -104,7 +109,7 @@ public class PerfClientTest {
                 long duration = System.currentTimeMillis() - startTime;
                 puts("DURATION", duration/1000, "count", receivedCount, "errors", errorCount);
             }
-            Sys.sleep(10_000);
+            Sys.sleep(100);
 
         }
 

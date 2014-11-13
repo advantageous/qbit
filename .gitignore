@@ -10,3 +10,13 @@ build/
 *.class
 
 settings.gradle~
+
+lib/javax.annotation.jar
+
+lib/javax.resource.jar
+
+lib/javax.servlet.jar
+
+lib/javax.servlet.jsp.jar
+
+lib/javax.servlet.jsp.jstl.jar

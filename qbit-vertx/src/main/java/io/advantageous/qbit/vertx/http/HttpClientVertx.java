@@ -46,6 +46,8 @@ public class HttpClientVertx implements HttpClient {
      * I am leaving these protected and non-final so subclasses can use injection frameworks for them.
      */
     protected  int port;
+    protected  int pollTime=10;
+    private int requestBatchSize=50;
     protected  String host;
     private  int timeOutInMilliseconds;
     private  int poolSize;
@@ -55,33 +57,6 @@ public class HttpClientVertx implements HttpClient {
 
     private final Map<String, WebSocket> webSocketMap = new ConcurrentHashMap<>();
 
-    public HttpClientVertx(int port, String host, int timeOutInMilliseconds, int poolSize, boolean autoFlush) {
-        this.port = port;
-        this.host = host;
-        this.timeOutInMilliseconds = timeOutInMilliseconds;
-        this.poolSize = poolSize;
-        this.vertx = VertxFactory.newVertx();
-        this.autoFlush = autoFlush;
-    }
-
-
-    public HttpClientVertx(int port, String host) {
-        this.port = port;
-        this.host = host;
-        this.timeOutInMilliseconds = 3000;
-        this.poolSize = 5;
-        this.vertx = VertxFactory.newVertx();
-        this.autoFlush = true;
-    }
-
-    public HttpClientVertx(int port, String host, boolean autoFlush) {
-        this.port = port;
-        this.host = host;
-        this.timeOutInMilliseconds = 3000;
-        this.poolSize = 5;
-        this.vertx = VertxFactory.newVertx();
-        this.autoFlush = autoFlush;
-    }
 
     protected ScheduledExecutorService scheduledExecutorService;
 
@@ -98,10 +73,28 @@ public class HttpClientVertx implements HttpClient {
     private final AtomicBoolean closed = new AtomicBoolean();
 
 
+//
+//    private final Timer timer = Timer.timer();
+//
+//    private volatile long lastFlushTime;
 
-    private final Timer timer = Timer.timer();
 
-    private volatile long lastFlushTime;
+
+
+
+    public HttpClientVertx(String host, int port, int pollTime, int requestBatchSize, int timeOutInMilliseconds, int poolSize, boolean autoFlush) {
+
+        this.port = port;
+        this.host = host;
+        this.timeOutInMilliseconds = timeOutInMilliseconds;
+        this.poolSize = 5;
+        this.vertx = VertxFactory.newVertx();
+        this.autoFlush = autoFlush;
+        this.pollTime = pollTime;
+        this.requestBatchSize = requestBatchSize;
+        this.poolSize = poolSize;
+
+    }
 
     @Override
     public void sendHttpRequest(final HttpRequest request) {
@@ -177,13 +170,13 @@ public class HttpClientVertx implements HttpClient {
             @Override
             public void empty() {
 
-                long currentTime = timer.now();
-
-                long duration = currentTime - lastFlushTime;
-
-                if (duration>3_000) {
-                    lastFlushTime = currentTime;
-                }
+//                long currentTime = timer.now();
+//
+//                long duration = currentTime - lastFlushTime;
+//
+//                if (duration>3_000) {
+//                    lastFlushTime = currentTime;
+//                }
 
             }
 
@@ -355,7 +348,12 @@ public class HttpClientVertx implements HttpClient {
 
     private void connect() {
         httpClient = vertx.createHttpClient().setHost(host).setPort(port)
-                .setConnectTimeout(timeOutInMilliseconds).setMaxPoolSize(poolSize);
+                .setConnectTimeout(timeOutInMilliseconds).setMaxPoolSize(poolSize)
+                .setKeepAlive(true).setPipelining(false)
+                .setUsePooledBuffers(true)
+                .setSoLinger(100)
+                .setTCPNoDelay(false)
+                .setConnectTimeout(this.timeOutInMilliseconds);
 
 
 

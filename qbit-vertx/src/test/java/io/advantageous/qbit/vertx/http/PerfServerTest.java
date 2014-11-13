@@ -19,14 +19,13 @@ public class PerfServerTest {
 
         final HttpServer server = new HttpServerBuilder()
                                     .setPort(9090)
-                                    .setHost("localhost").setRequestBatchSize(50)
-                                    .setFlushInterval(100)
-        .setHttpRequestConsumer(request -> {
+                                    .setHost("localhost")
+                                    .setHttpRequestConsumer(request -> {
 
-            if (request.getUri().equals("/perf/")) {
-                request.getResponse().response(200, "application/json", "\"ok\"");
-            }
-        }).build();
+                                        if (request.getUri().equals("/perf/")) {
+                                            request.getResponse().response(200, "application/json", "\"ok\"");
+                                        }
+                                    }).build();
 
 
         server.run();
