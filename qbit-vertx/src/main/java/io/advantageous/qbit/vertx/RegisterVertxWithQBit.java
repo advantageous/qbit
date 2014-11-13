@@ -16,6 +16,11 @@ public class RegisterVertxWithQBit {
             public HttpServer create(String host, int port) {
                 return new HttpServerVertx(port, host);
             }
+
+            @Override
+            public HttpServer create(String host, int port, boolean manageQueues, int pollTime, int requestBatchSize, int flushInterval) {
+                return new HttpServerVertx (port, host, manageQueues, pollTime, requestBatchSize, flushInterval);
+            }
         });
     }
 }

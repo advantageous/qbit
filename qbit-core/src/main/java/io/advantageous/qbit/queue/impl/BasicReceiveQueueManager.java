@@ -26,12 +26,10 @@ public class BasicReceiveQueueManager<T> implements ReceiveQueueManager<T> {
         while (true) {
 
 
-            if (item!=null) {
-                count++;
-            }
-
             /* Collect a batch of items as long as no item is null. */
             while (item!=null) {
+
+                count++;
 
                 /* Notify listener that we have an item. */
                 listener.receive(item);
@@ -49,9 +47,7 @@ public class BasicReceiveQueueManager<T> implements ReceiveQueueManager<T> {
             }
 
             /* Notify listener that the queue is empty. */
-            if (item ==null) {
-                listener.empty();
-            }
+            listener.empty();
             count = 0;
 
 
@@ -87,10 +83,12 @@ public class BasicReceiveQueueManager<T> implements ReceiveQueueManager<T> {
                  */
                 listener.idle();
 
+
             }
 
 
             longCount++;
+
 
         }
 

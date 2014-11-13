@@ -1,13 +1,11 @@
 package io.advantageous.qbit;
 
-import io.advantageous.qbit.http.HttpRequest;
 import io.advantageous.qbit.http.HttpServer;
 import io.advantageous.qbit.json.JsonMapper;
 import io.advantageous.qbit.message.MethodCall;
 import io.advantageous.qbit.message.Request;
 import io.advantageous.qbit.message.Response;
 import io.advantageous.qbit.queue.Queue;
-import io.advantageous.qbit.queue.ReceiveQueueListener;
 import io.advantageous.qbit.sender.Sender;
 import io.advantageous.qbit.service.BeforeMethodCall;
 import io.advantageous.qbit.service.Service;
@@ -173,4 +171,10 @@ public interface Factory {
 
 
     HttpServer createHttpServer(String host, int port);
+
+    HttpServer createHttpServer(String host, int port, boolean manageQueues,
+                      int pollTime,
+                      int requestBatchSize,
+                      int flushInterval);
+
 }

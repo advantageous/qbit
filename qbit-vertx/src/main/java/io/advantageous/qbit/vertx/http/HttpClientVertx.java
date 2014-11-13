@@ -6,7 +6,6 @@ import io.advantageous.qbit.http.WebSocketMessage;
 import io.advantageous.qbit.queue.ReceiveQueueListener;
 import io.advantageous.qbit.queue.SendQueue;
 import io.advantageous.qbit.queue.impl.BasicQueue;
-import io.advantageous.qbit.queue.impl.BasicSendQueue;
 import io.advantageous.qbit.util.MultiMap;
 import io.advantageous.qbit.util.Timer;
 import io.advantageous.qbit.vertx.MultiMapWrapper;
@@ -75,6 +74,14 @@ public class HttpClientVertx implements HttpClient {
         this.autoFlush = true;
     }
 
+    public HttpClientVertx(int port, String host, boolean autoFlush) {
+        this.port = port;
+        this.host = host;
+        this.timeOutInMilliseconds = 3000;
+        this.poolSize = 5;
+        this.vertx = VertxFactory.newVertx();
+        this.autoFlush = autoFlush;
+    }
 
     protected ScheduledExecutorService scheduledExecutorService;
 

@@ -3,7 +3,6 @@ package io.advantageous.qbit.boon;
 import io.advantageous.qbit.BoonJsonMapper;
 import io.advantageous.qbit.Factory;
 import io.advantageous.qbit.GlobalConstants;
-import io.advantageous.qbit.http.HttpRequest;
 import io.advantageous.qbit.http.HttpServer;
 import io.advantageous.qbit.json.JsonMapper;
 import io.advantageous.qbit.message.MethodCall;
@@ -151,6 +150,11 @@ public class BoonQBitFactory implements Factory {
     @Override
     public HttpServer createHttpServer(String host, int port) {
         return FactorySPI.getHttpServerFactory().create(host, port);
+    }
+
+    @Override
+    public HttpServer createHttpServer(String host, int port, boolean manageQueues, int pollTime, int requestBatchSize, int flushInterval) {
+        return FactorySPI.getHttpServerFactory().create(host, port, manageQueues, pollTime, requestBatchSize, flushInterval);
     }
 
 
