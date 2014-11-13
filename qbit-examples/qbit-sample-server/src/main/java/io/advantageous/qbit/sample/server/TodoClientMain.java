@@ -17,7 +17,6 @@ public class TodoClientMain {
 
     public static void main(String... args) {
 
-        RegisterBoonWithQBit.registerBoonWithQBit();
         Client client = new Client("localhost", 8080, "/services");
         TodoServiceClient todoService = client.createProxy(TodoServiceClient.class, "todo-manager");
 
