@@ -1,12 +1,8 @@
 package io.advantageous.qbit.vertx.http;
 
 import io.advantageous.qbit.http.*;
-import org.boon.HTTP;
 import org.boon.core.Sys;
-import org.junit.Before;
 import org.junit.Test;
-
-import java.util.function.Consumer;
 
 import static org.boon.Boon.puts;
 import static org.boon.Exceptions.die;

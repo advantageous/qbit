@@ -46,12 +46,12 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/qbit.iml" filepath="$PROJECT_DIR$/qbit.iml"/>
-      <module fileurl="file://$PROJECT_DIR$/qbit-boon/qbit-boon.iml" filepath="$PROJECT_DIR$/qbit-boon/qbit-boon.iml"/>
-      <module fileurl="file://$PROJECT_DIR$/qbit-core/qbit-core.iml" filepath="$PROJECT_DIR$/qbit-core/qbit-core.iml"/>
       <module fileurl="file://$PROJECT_DIR$/qbit-examples/qbit-examples.iml" filepath="$PROJECT_DIR$/qbit-examples/qbit-examples.iml"/>
       <module fileurl="file://$PROJECT_DIR$/qbit-examples/qbit-examples-standalone/qbit-examples-standalone.iml" filepath="$PROJECT_DIR$/qbit-examples/qbit-examples-standalone/qbit-examples-standalone.iml"/>
-      <module fileurl="file://$PROJECT_DIR$/qbit-examples/qbit-sample-server/qbit-sample-server.iml" filepath="$PROJECT_DIR$/qbit-examples/qbit-sample-server/qbit-sample-server.iml"/>
+      <module fileurl="file://$PROJECT_DIR$/qbit-boon/qbit-boon.iml" filepath="$PROJECT_DIR$/qbit-boon/qbit-boon.iml"/>
       <module fileurl="file://$PROJECT_DIR$/qbit-vertx/qbit-vertx.iml" filepath="$PROJECT_DIR$/qbit-vertx/qbit-vertx.iml"/>
+      <module fileurl="file://$PROJECT_DIR$/qbit-core/qbit-core.iml" filepath="$PROJECT_DIR$/qbit-core/qbit-core.iml"/>
+      <module fileurl="file://$PROJECT_DIR$/qbit-examples/qbit-sample-server/qbit-sample-server.iml" filepath="$PROJECT_DIR$/qbit-examples/qbit-sample-server/qbit-sample-server.iml"/>
     </modules>
   </component>
   <component name="ProjectRootManager" version="2" languageLevel="JDK_1_6" assert-keyword="true" jdk-15="true" project-jdk-type="JavaSDK" assert-jdk-15="true" project-jdk-name="1.8">

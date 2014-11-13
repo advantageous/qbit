@@ -19,7 +19,8 @@ public class PerfServerTest {
 
         final HttpServer server = new HttpServerBuilder()
                                     .setPort(9090)
-                                    .setHost("localhost")
+                                    .setHost("localhost").setRequestBatchSize(50)
+                                    .setFlushInterval(100)
         .setHttpRequestConsumer(request -> {
 
             if (request.getUri().equals("/perf/")) {
