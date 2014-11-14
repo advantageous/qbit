@@ -259,6 +259,16 @@ public class HttpClientVertx implements HttpClient {
         final HttpClientRequest httpClientRequest = remoteHttpServer.request(request.getMethod(), request.getUri(), httpClientResponse -> handleResponse(request, httpClientResponse));
 
 
+        final MultiMap<String, String> headers = request.getHeaders();
+
+        if (headers!=null) {
+
+            for (String key : headers.keySet()) {
+                httpClientRequest.putHeader(key, headers.getAll(key));
+            }
+        }
+
+
         if (!Str.isEmpty(request.getBody())) {
                 if (request.getContentType()!=null) {
                     httpClientRequest.putHeader("Content-Type", request.getContentType());

@@ -1,6 +1,7 @@
 package io.advantageous.qbit.http;
 
 import io.advantageous.qbit.util.MultiMap;
+import io.advantageous.qbit.util.MultiMapImpl;
 
 import java.nio.charset.StandardCharsets;
 
@@ -98,6 +99,24 @@ public class HttpRequestBuilder {
 
     public HttpRequestBuilder setHeaders(MultiMap<String, String> headers) {
         this.headers = headers;
+        return this;
+    }
+
+
+    public HttpRequestBuilder addHeader(final String name, final String value) {
+        if (headers==null) {
+           headers = new MultiMapImpl<>();
+        }
+        headers.put(name, value);
+        return this;
+    }
+
+
+    public HttpRequestBuilder addParam(final String name, final String value) {
+        if (params==null) {
+            params = new MultiMapImpl<>();
+        }
+        params.put(name, value);
         return this;
     }
 }
