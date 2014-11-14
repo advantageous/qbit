@@ -28,7 +28,7 @@ public class PerfServerTest {
                                     }).build();
 
 
-        server.run();
+        server.start();
 
 
         Sys.sleep(1000);

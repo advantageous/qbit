@@ -13,6 +13,8 @@ import io.advantageous.qbit.proxy.ServiceProxyFactory;
 import io.advantageous.qbit.queue.Queue;
 import io.advantageous.qbit.sender.Sender;
 import io.advantageous.qbit.sender.SenderEndPoint;
+import io.advantageous.qbit.server.ServiceServer;
+import io.advantageous.qbit.server.ServiceServerImpl;
 import io.advantageous.qbit.service.BeforeMethodCall;
 import io.advantageous.qbit.service.Service;
 import io.advantageous.qbit.service.ServiceBundle;
@@ -157,6 +159,14 @@ public class BoonQBitFactory implements Factory {
     @Override
     public HttpClient createHttpClient(String host, int port, int pollTime, int requestBatchSize, int timeOutInMilliseconds, int poolSize, boolean autoFlush) {
         return FactorySPI.getHttpClientFactory().create(host, port, pollTime, requestBatchSize, timeOutInMilliseconds, poolSize, autoFlush);
+    }
+
+    @Override
+    public ServiceServer createServiceServer(
+            final HttpServer httpServer, final ProtocolEncoder encoder, final ServiceBundle serviceBundle,
+            final JsonMapper jsonMapper,
+            final int timeOutInSeconds) {
+        return new ServiceServerImpl(httpServer, encoder, serviceBundle, jsonMapper, timeOutInSeconds);
     }
 
 

@@ -43,11 +43,11 @@ public class ServerTest {
         JsonMapper mapper = new BoonJsonMapper();
 
 
-        Server server = new Server(httpServer, encoder, serviceBundle, mapper);
+        ServiceServerImpl server = new ServiceServerImpl(httpServer, encoder, serviceBundle, mapper, 30);
 
         server.initServices(Sets.set(new TodoService()));
 
-        server.run();
+        server.start();
 
         final AtomicBoolean resultsWorked = new AtomicBoolean();
 
@@ -107,11 +107,11 @@ public class ServerTest {
         JsonMapper mapper = new BoonJsonMapper();
 
 
-        Server server = new Server(httpServer, encoder, serviceBundle, mapper, 1);
+        ServiceServerImpl server = new ServiceServerImpl(httpServer, encoder, serviceBundle, mapper, 1);
 
         server.initServices(Sets.set(new TodoService()));
 
-        server.run();
+        server.start();
 
         final AtomicBoolean resultsWorked = new AtomicBoolean();
 
@@ -147,11 +147,11 @@ public class ServerTest {
         JsonMapper mapper = new BoonJsonMapper();
 
 
-        Server server = new Server(httpServer, encoder, serviceBundle, mapper, 1);
+        ServiceServerImpl server = new ServiceServerImpl(httpServer, encoder, serviceBundle, mapper, 1);
 
         server.initServices(Sets.set(new TodoService()));
 
-        server.run();
+        server.start();
 
         final AtomicBoolean resultsWorked = new AtomicBoolean();
 

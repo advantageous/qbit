@@ -1,6 +1,5 @@
 package io.advantageous.qbit.server;
 
-import io.advantageous.qbit.Factory;
 import io.advantageous.qbit.GlobalConstants;
 import io.advantageous.qbit.QBit;
 import io.advantageous.qbit.annotation.RequestMethod;
@@ -23,10 +22,10 @@ import org.boon.core.reflection.MethodAccess;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
 import java.nio.charset.StandardCharsets;
 import java.util.*;
-import java.util.concurrent.*;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import static org.boon.Boon.puts;
@@ -37,10 +36,10 @@ import static org.boon.Exceptions.die;
  *
  * @author rhightower
  */
-public class Server {
+public class ServiceServerImpl implements ServiceServer{
 
 
-    private final Logger logger = LoggerFactory.getLogger(Server.class);
+    private final Logger logger = LoggerFactory.getLogger(ServiceServerImpl.class);
     protected int timeoutInSeconds = 30;
     protected int outstandingRequestSize = 20_000_000;
     protected ProtocolEncoder encoder;
@@ -58,33 +57,10 @@ public class Server {
     private AtomicBoolean stop = new AtomicBoolean();
 
 
-    public Server() {
-        this("localhost", 8080, "/services/");
-    }
 
-
-    public Server(final String host, final int port, final String uri) {
-        final Factory factory = QBit.factory();
-        httpServer =
-                new HttpServerBuilder().setHost(host).setPort(port).build();
-        encoder = factory.createEncoder();
-        serviceBundle = factory.createServiceBundle(uri);
-        jsonMapper = factory.createJsonMapper();
-
-    }
-
-
-    public Server(final HttpServer httpServer, final ProtocolEncoder encoder, final ServiceBundle serviceBundle,
-                  final JsonMapper jsonMapper) {
-        this.encoder = encoder;
-        this.httpServer = httpServer;
-        this.serviceBundle = serviceBundle;
-        this.jsonMapper = jsonMapper;
-    }
-
-    public Server(final HttpServer httpServer, final ProtocolEncoder encoder, final ServiceBundle serviceBundle,
-                  final JsonMapper jsonMapper,
-                  final int timeOutInSeconds) {
+    public ServiceServerImpl(final HttpServer httpServer, final ProtocolEncoder encoder, final ServiceBundle serviceBundle,
+                             final JsonMapper jsonMapper,
+                             final int timeOutInSeconds) {
         this.encoder = encoder;
         this.httpServer = httpServer;
         this.serviceBundle = serviceBundle;
@@ -201,6 +177,20 @@ public class Server {
         }
     }
 
+    @Override
+    public void start() {
+
+        stop.set(false);
+
+        httpServer.setHttpRequestConsumer(this::handleRestCall);
+        httpServer.setWebSocketMessageConsumer(this::handleWebSocketCall);
+        httpServer.start();
+
+
+        startResponseQueueListener();
+
+    }
+
     public void stop() {
 
         serviceBundle.stop();
@@ -214,14 +204,8 @@ public class Server {
     public void run(Object... services) {
 
         initServices(Sets.set(services));
-        stop.set(false);
 
-        httpServer.setHttpRequestConsumer(this::handleRestCall);
-        httpServer.setWebSocketMessageConsumer(this::handleWebSocketCall);
-        httpServer.run();
-
-
-        startResponseQueueListener();
+        start();
     }
 
     /**
@@ -577,4 +561,28 @@ public class Server {
     }
 
 
+    @Override
+    public void initServices(Iterable services) {
+
+
+        for (Object service : services) {
+            if (debug) logger.debug("registering service: " + service.getClass().getName());
+            serviceBundle.addService(service);
+            this.addRestSupportFor(service.getClass(), serviceBundle.address());
+        }
+
+    }
+
+
+    @Override
+    public void initServices(Object... services) {
+
+
+        for (Object service : services) {
+            if (debug) logger.debug("registering service: " + service.getClass().getName());
+            serviceBundle.addService(service);
+            this.addRestSupportFor(service.getClass(), serviceBundle.address());
+        }
+
+    }
 }

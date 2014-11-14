@@ -8,6 +8,7 @@ import io.advantageous.qbit.message.Request;
 import io.advantageous.qbit.message.Response;
 import io.advantageous.qbit.queue.Queue;
 import io.advantageous.qbit.sender.Sender;
+import io.advantageous.qbit.server.ServiceServer;
 import io.advantageous.qbit.service.BeforeMethodCall;
 import io.advantageous.qbit.service.Service;
 import io.advantageous.qbit.service.ServiceBundle;
@@ -179,6 +180,10 @@ public interface Factory {
 
     HttpClient createHttpClient(String host, int port, int pollTime, int requestBatchSize, int timeOutInMilliseconds, int poolSize, boolean autoFlush);
 
+
+    ServiceServer createServiceServer(final HttpServer httpServer, final ProtocolEncoder encoder, final ServiceBundle serviceBundle,
+                                      final JsonMapper jsonMapper,
+                                      final int timeOutInSeconds);
 
 
 

@@ -100,7 +100,7 @@ public class HttpClientVertxTest {
 
     public void run() {
 
-        server.run();
+        server.start();
         client.run();
         Sys.sleep(500);
     }

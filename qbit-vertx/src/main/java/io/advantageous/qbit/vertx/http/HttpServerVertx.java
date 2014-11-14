@@ -105,7 +105,7 @@ public class HttpServerVertx implements HttpServer {
     }
 
     @Override
-    public void run() {
+    public void start() {
 
         manageQueues();
 
