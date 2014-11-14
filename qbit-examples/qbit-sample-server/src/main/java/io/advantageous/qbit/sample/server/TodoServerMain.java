@@ -11,11 +11,6 @@ import io.advantageous.qbit.vertx.RegisterVertxWithQBit;
  */
 public class TodoServerMain {
 
-    static {
-        RegisterBoonWithQBit.registerBoonWithQBit();
-        RegisterVertxWithQBit.registerVertxWithQBit();
-    }
-
     public static void main(String... args) {
         Server server = new Server();
         server.run(new TodoService());

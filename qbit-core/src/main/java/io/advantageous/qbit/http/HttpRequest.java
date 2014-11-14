@@ -60,7 +60,7 @@ public class HttpRequest implements Request<Object>{
 
     @Override
     public boolean isHandled() {
-        return false;
+        return handled;
     }
 
     @Override

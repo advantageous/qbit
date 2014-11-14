@@ -297,6 +297,10 @@ public class Server {
     }
 
     private void handleResponseFromServiceBundle(final Response<Object> response, final Request<Object> originatingRequest) {
+
+        if (originatingRequest.isHandled()) {
+            return; // the operation timed out
+        }
         originatingRequest.handled();
         if (originatingRequest instanceof HttpRequest) {
             handleResponseFromServiceToHttpResponse(response, (HttpRequest) originatingRequest);
