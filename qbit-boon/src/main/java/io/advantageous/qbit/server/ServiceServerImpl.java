@@ -69,6 +69,9 @@ public class ServiceServerImpl implements ServiceServer{
     }
 
 
+    protected ServiceServerImpl() {
+
+    }
 
 
     /**
