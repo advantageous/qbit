@@ -10,7 +10,6 @@ import io.advantageous.qbit.util.MultiMap;
 import io.advantageous.qbit.vertx.MultiMapWrapper;
 import org.boon.Str;
 import org.boon.core.Sys;
-import org.boon.primitive.ByteBuf;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.vertx.java.core.Handler;
@@ -22,9 +21,7 @@ import org.vertx.java.core.http.HttpClientResponse;
 import org.vertx.java.core.http.WebSocket;
 
 import java.net.ConnectException;
-import java.nio.charset.StandardCharsets;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -259,85 +256,10 @@ public class HttpClientVertx implements HttpClient {
     private void doSendRequestToServer(HttpRequest request, final org.vertx.java.core.http.HttpClient remoteHttpServer) {
         if (debug) logger.debug("HttpClientVertx::doSendRequestToServer::\n request={}", request);
 
-        final MultiMap<String, String> params = request.getParams();
 
-
-        String paramString = null;
-
-
-        if (params!=null) {
-
-            ByteBuf buf = ByteBuf.create( 244 );
-
-            final Set<String> keys = params.keySet();
-
-            int index = 0;
-            for ( String key : keys ) {
-
-                final Iterable<String> paramsAtKey = params.getAll(key);
-
-                for (Object value : paramsAtKey) {
-                    if (index > 0) {
-                        buf.addByte('&');
-                    }
-
-
-                    buf.addUrlEncoded(key);
-                    buf.addByte('=');
-
-                    if (!(value instanceof byte[])) {
-                        buf.addUrlEncoded(value.toString());
-                    } else {
-                        buf.addUrlEncodedByteArray((byte[]) value);
-                    }
-                    index++;
-                }
-            }
-
-
-            paramString = new String( buf.readForRecycle(), 0, buf.len(), StandardCharsets.UTF_8 );
-
-
-        }
-
-
-
-
-
-        HttpClientRequest httpClientRequest;
-
-        if (paramString != null) {
-
-            String uri = request.getUri();
-            switch (request.getMethod()) {
-                case "GET":
-                case "HEAD":
-                case "DELETE":
-                case "OPTION":
-                    uri = Str.add(uri, "?", paramString);
-                    httpClientRequest = remoteHttpServer.request(request.getMethod(), uri, httpClientResponse -> handleResponse(request, httpClientResponse));
-                    break;
-                case "POST":
-                case "PUT":
-                    httpClientRequest = remoteHttpServer.request(request.getMethod(), uri, httpClientResponse -> handleResponse(request, httpClientResponse));
-                    httpClientRequest.putHeader("Content-Type", "application/x-www-form-urlencoded");
-
-
-                    if (request.getBody()==null) {
-                        httpClientRequest.end(new Buffer(paramString));
-                    } else {
-                        throw new IllegalStateException("You can't have params and a post body\nparams "
-                                + paramString + "\nbody " + request.getBody());
-                    }
-                    break;
-                default:
-                    throw new IllegalStateException("METHOD NOT HANDLED");
-            }
-        } else {
-            httpClientRequest = remoteHttpServer.request(request.getMethod(), request.getUri(), httpClientResponse -> handleResponse(request, httpClientResponse));
-
-        }
-
+        final HttpClientRequest httpClientRequest = remoteHttpServer.request(
+                request.getMethod(), request.getUri(),
+                httpClientResponse -> handleResponse(request, httpClientResponse));
 
         final MultiMap<String, String> headers = request.getHeaders();
 

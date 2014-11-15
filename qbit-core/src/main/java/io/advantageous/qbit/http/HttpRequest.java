@@ -3,8 +3,6 @@ package io.advantageous.qbit.http;
 import io.advantageous.qbit.message.Request;
 import io.advantageous.qbit.util.MultiMap;
 
-import java.io.UnsupportedEncodingException;
-import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 
@@ -119,7 +117,7 @@ public class HttpRequest implements Request<Object>{
         return body;
     }
 
-    public String getBodyAsJson() {
+    public String getBodyAsString() {
         return new String(body, StandardCharsets.UTF_8);
     }
 
