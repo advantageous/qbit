@@ -19,7 +19,7 @@ public class HttpRequestBuilder {
     private  String remoteAddress;
     private  MultiMap<String, String> params;
     private  String body;
-    private  String method;
+    private  String method = "GET";
     private  HttpResponse response;
     private MultiMap<String, String> headers;
 

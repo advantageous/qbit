@@ -282,7 +282,7 @@ public class HttpServerVertx implements HttpServer {
             case "PUT":
             case "POST":
 
-                request.dataHandler((Buffer buffer) -> {
+                request.bodyHandler((Buffer buffer) -> {
                     final HttpRequest postRequest;
                     postRequest = createRequest(request, buffer);
 
