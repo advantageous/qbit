@@ -124,23 +124,125 @@ project(':qbit-boon') {
 
 project(':qbit-examples-standalone') {
     sourceSets.main.resources.srcDir 'src/main/java'
+
     dependencies {
         compile project(':qbit-boon')
         compile "org.slf4j:slf4j-api:[1.7,1.8)"
         testCompile 'ch.qos.logback:logback-classic:1.1.2'
+        testCompile group: 'junit', name: 'junit', version: '4.10'
+    }
+}
+
+
+project(':qbit-perf-client') {
+    sourceSets.main.resources.srcDir 'src/main/java'
+    apply plugin:'application'
+
+    /*
+    You can run this by doing this: gradle run -PappArgs="['localhost', 8080]"
+     */
+
+    mainClassName = "io.advantageous.qbit.vertx.http.PerfClientTest"
+
+    run {
+        if ( project.hasProperty("appArgs") ) {
+            args Eval.me(appArgs)
+        }
+    }
+
+
+    dependencies {
+        compile project(':qbit-vertx')
+        compile project(':qbit-boon')
+        compile group: 'io.fastjson', name: 'boon', version: '0.30'
+        compile "org.slf4j:slf4j-api:[1.7,1.8)"
+        compile 'ch.qos.logback:logback-classic:1.1.2'
+
+        testCompile group: 'junit', name: 'junit', version: '4.10'
+    }
+
+}
+
+
+project(':qbit-perf-server') {
+    sourceSets.main.resources.srcDir 'src/main/java'
+    apply plugin:'application'
+
+
+    /*
+    You can run this by doing this: gradle run -PappArgs="['localhost', 8080]"
+     */
+
+    mainClassName = "io.advantageous.qbit.vertx.http.PerfClientTest"
+
+    run {
+        if ( project.hasProperty("appArgs") ) {
+            args Eval.me(appArgs)
+        }
+    }
+
+    mainClassName = "io.advantageous.qbit.vertx.http.PerfServerTest"
+
+    dependencies {
+        compile project(':qbit-vertx')
+
+        compile project(':qbit-boon')
+        compile "org.slf4j:slf4j-api:[1.7,1.8)"
+        compile 'ch.qos.logback:logback-classic:1.1.2'
+
+        testCompile group: 'junit', name: 'junit', version: '4.10'
+    }
+
+}
+
+project(':qbit-sample-server') {
+    sourceSets.main.resources.srcDir 'src/main/java'
+    apply plugin:'application'
+
+
+    mainClassName = "io.advantageous.qbit.sample.server.TodoServerMain"
+
+
+    dependencies {
+        compile project(':qbit-boon')
+        compile project(':qbit-sample-model')
+        compile project(':qbit-vertx')
+        compile "org.slf4j:slf4j-api:[1.7,1.8)"
+        compile 'ch.qos.logback:logback-classic:1.1.2'
 
         testCompile group: 'junit', name: 'junit', version: '4.10'
     }
 }
 
-project(':qbit-sample-server') {
+project(':qbit-sample-client') {
     sourceSets.main.resources.srcDir 'src/main/java'
+    apply plugin:'application'
+
+
+    mainClassName = "io.advantageous.qbit.sample.server.TodoClientMain"
+
+
+    dependencies {
+        compile project(':qbit-boon')
+        compile project(':qbit-sample-model')
+        compile "org.slf4j:slf4j-api:[1.7,1.8)"
+        compile 'ch.qos.logback:logback-classic:1.1.2'
+
+        testCompile group: 'junit', name: 'junit', version: '4.10'
+    }
+}
+
+
+project(':qbit-sample-model') {
+    sourceSets.main.resources.srcDir 'src/main/java'
+
+
+
     dependencies {
         compile project(':qbit-boon')
         compile project(':qbit-vertx')
         compile "org.slf4j:slf4j-api:[1.7,1.8)"
         compile 'ch.qos.logback:logback-classic:1.1.2'
-
         testCompile group: 'junit', name: 'junit', version: '4.10'
     }
 }

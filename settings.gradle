@@ -2,13 +2,28 @@ include ':qbit-core'
 include ':qbit-boon'
 include ':qbit-vertx'
 include ':qbit-examples'
+include ':qbit-sample-model'
+include ':qbit-sample-client'
 include ':qbit-sample-server'
 include ':qbit-examples-standalone'
+
+
+include ':qbit-perf'
+include ':qbit-perf-server'
+include ':qbit-perf-client'
+
+
+project(':qbit-perf').projectDir = "$rootDir/qbit-perf" as File
+project(':qbit-perf-server').projectDir = "$rootDir/qbit-perf/qbit-perf-server" as File
+project(':qbit-perf-client').projectDir = "$rootDir/qbit-perf/qbit-perf-client" as File
+
 
 
 project(':qbit-core').projectDir = "$rootDir/qbit-core" as File
 project(':qbit-boon').projectDir = "$rootDir/qbit-boon" as File
 project(':qbit-vertx').projectDir = "$rootDir/qbit-vertx" as File
 project(':qbit-examples').projectDir = "$rootDir/qbit-examples" as File
+project(':qbit-sample-model').projectDir = "$rootDir/qbit-examples/qbit-sample-model" as File
+project(':qbit-sample-client').projectDir = "$rootDir/qbit-examples/qbit-sample-client" as File
 project(':qbit-sample-server').projectDir = "$rootDir/qbit-examples/qbit-sample-server" as File
 project(':qbit-examples-standalone').projectDir = "$rootDir/qbit-examples/qbit-examples-standalone" as File

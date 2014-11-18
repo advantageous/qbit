@@ -2,7 +2,6 @@ package io.advantageous.qbit.sample.server;
 
 import io.advantageous.qbit.sample.server.client.TodoServiceClient;
 import io.advantageous.qbit.sample.server.model.TodoItem;
-import io.advantageous.qbit.spi.RegisterBoonWithQBit;
 import io.advantageous.qbit.vertx.Client;
 import org.boon.core.Sys;
 
@@ -11,14 +10,30 @@ import java.util.Date;
 import static org.boon.Boon.puts;
 
 /**
- * Created by rhightower on 11/5/14.
+ * Created by Richard on 11/17/14.
  */
-public class TodoClientMain {
+public class TodoWebSocketClient {
+
 
     public static void main(String... args) {
 
-        Client client = new Client("localhost", 8080, "/services");
-        TodoServiceClient todoService = client.createProxy(TodoServiceClient.class, "todo-manager");
+        String host = "localhost";
+        int port = 8080;
+        if (args.length > 1) {
+
+            host = args[1];
+        }
+
+
+        if (args.length > 2) {
+
+            port = Integer.parseInt(args[2]);
+        }
+
+
+
+        Client client = new Client(host, port, "/services");
+        io.advantageous.qbit.sample.server.client.TodoServiceClient todoService = client.createProxy(TodoServiceClient.class, "todo-manager");
 
         client.run();
 
@@ -46,4 +61,5 @@ public class TodoClientMain {
 
 
     }
+
 }
