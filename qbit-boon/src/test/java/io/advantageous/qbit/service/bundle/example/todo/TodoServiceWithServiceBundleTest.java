@@ -29,20 +29,26 @@ public class TodoServiceWithServiceBundleTest {
 
     @Test
     public void testWithBundleUsingAddress() {
-        ServiceBundle serviceBundle = QBit.factory().createServiceBundle("/services");
+
+
+        ServiceBundle serviceBundle = QBit.factory()
+                .createServiceBundle("/services");
         serviceBundle.addService(new TodoService());
 
 
-        Todo todoItem = new Todo("call mom", "give mom a call", new Date());
+        Todo todoItem = new Todo("call mom", "give mom a call",
+                new Date());
 
-        MethodCall<Object> addMethod = QBit.factory().createMethodCallByAddress("/services/todo-manager/add", "client1",
+        MethodCall<Object> addMethod = QBit.factory()
+                .createMethodCallByAddress("/services/todo-manager/add", "client1",
                 todoItem, null);
 
 
         serviceBundle.call(addMethod);
 
 
-        MethodCall<Object> listMethod = QBit.factory().createMethodCallByAddress("/services/todo-manager/list", "client1",
+        MethodCall<Object> listMethod = QBit.factory()
+                .createMethodCallByAddress("/services/todo-manager/list", "client1",
                 null, null);
 
         serviceBundle.call(listMethod);

@@ -9,6 +9,7 @@ import io.advantageous.qbit.spi.ProtocolEncoder;
 /**
  * Created by Richard on 11/14/14.
  */
+
 public class ServiceServerBuilder {
 
     private String host = "localhost";

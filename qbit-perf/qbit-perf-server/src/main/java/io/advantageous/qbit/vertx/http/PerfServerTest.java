@@ -79,7 +79,7 @@ public class PerfServerTest {
                                     .setPollTime(pollTime)
                                     .setRequestBatchSize(batchSize)
                                     .setFlushInterval(flushRate)
-                                   
+
                                     .setHttpRequestConsumer(request -> {
 
                                         if (request.getUri().equals("/perf/")) {

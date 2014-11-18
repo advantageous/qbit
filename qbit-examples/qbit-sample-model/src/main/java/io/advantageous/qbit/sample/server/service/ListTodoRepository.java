@@ -8,7 +8,7 @@ import java.util.List;
 /**
  * Created by rhightower on 11/5/14.
  */
-public class ListTodoRepository implements io.advantageous.qbit.sample.server.service.TodoRepository {
+public class ListTodoRepository implements TodoRepository {
 
 
     List<TodoItem> todoItemList = new ArrayList<>(10);
