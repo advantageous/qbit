@@ -1,4 +1,6 @@
 allprojects {
+
+    group = 'io.advantageous.qbit'
     apply plugin: 'idea'
     apply plugin: 'java'
     apply plugin: 'maven'
