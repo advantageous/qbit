@@ -1,25 +1,19 @@
-apply plugin: 'idea'
-
 allprojects {
     apply plugin: 'idea'
+    apply plugin: 'java'
     apply plugin: 'maven'
     task helloQbit << { task -> println "I'm $task.project.name" }
 }
 
-
-
 subprojects {
-    apply plugin: 'java'
-    apply plugin: 'maven'
 
     group = 'io.advantageous.qbit'
-    version = '1.0.0-SNAPSHOT'
+    version = '0.5.0'
 
     repositories {
         mavenLocal()
         mavenCentral()
     }
-
 
     sourceCompatibility = JavaVersion.VERSION_1_8
     targetCompatibility = JavaVersion.VERSION_1_8
@@ -34,8 +28,6 @@ project(':qbit-core') {
         compile group: 'io.fastjson', name: 'boon', version: '0.30'
         compile "org.slf4j:slf4j-api:[1.7,1.8)"
         testCompile 'ch.qos.logback:logback-classic:1.1.2'
-
-
     }
 
     task javadocJar(type: Jar, dependsOn: javadoc) {
@@ -72,15 +64,15 @@ project(':qbit-core') {
                 }
 
                 pom.project {
-                    name 'qbit'
+                    name 'qbit-core'
                     packaging 'jar'
                     description 'Go Channels inspired Java lib'
-                    url 'https://github.com/RichardHightower/qbit'
+                    url 'https://github.com/advantageous/qbit'
 
                     scm {
-                        url 'scm:git@github.com:RichardHightower/qbit.git'
-                        connection 'scm:git@github.com:RichardHightower/qbit.git'
-                        developerConnection 'scm:git@github.com:RichardHightower/qbit.git'
+                        url 'scm:git@github.com:advantageous/qbit.git'
+                        connection 'scm:git@github.com:advantageous/qbit.git'
+                        developerConnection 'scm:git@github.com:advantageous/qbit.git'
                     }
 
                     licenses {
@@ -108,23 +100,89 @@ project(':qbit-core') {
 }
 
 project(':qbit-boon') {
+
+    apply plugin: 'signing'
+
     sourceSets.main.resources.srcDir 'src/main/java'
     dependencies {
         compile project(':qbit-core')
         compile group: 'io.fastjson', name: 'boon', version: '0.30'
         compile "org.slf4j:slf4j-api:[1.7,1.8)"
         testCompile 'ch.qos.logback:logback-classic:1.1.2'
-
         testCompile group: 'junit', name: 'junit', version: '4.10'
+    }
 
+    task javadocJar(type: Jar, dependsOn: javadoc) {
+        classifier = 'javadoc'
+        from 'build/docs/javadoc'
+    }
 
+    task sourcesJar(type: Jar) {
+        from sourceSets.main.allSource
+        classifier = 'sources'
+    }
+
+    artifacts {
+        archives jar
+        archives javadocJar
+        archives sourcesJar
+    }
+
+    signing {
+        required false
+        sign configurations.archives
+    }
+
+    uploadArchives {
+        repositories {
+            mavenDeployer {
+                beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
+
+                repository(url: "https://oss.sonatype.org/service/local/staging/deploy/maven2/") {
+                    try {
+                        authentication(userName: sonatypeUsername, password: sonatypePassword)
+                    } catch (MissingPropertyException ignore) {
+                    }
+                }
+
+                pom.project {
+                    name 'qbit-boon'
+                    packaging 'jar'
+                    description 'Go Channels inspired Java lib'
+                    url 'https://github.com/advantageous/qbit'
+
+                    scm {
+                        url 'scm:git@github.com:advantageous/qbit.git'
+                        connection 'scm:git@github.com:advantageous/qbit.git'
+                        developerConnection 'scm:git@github.com:advantageous/qbit.git'
+                    }
+
+                    licenses {
+                        license {
+                            name 'The Apache Software License, Version 2.0'
+                            url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                            distribution 'repo'
+                        }
+                    }
+
+                    developers {
+                        developer {
+                            id 'richardHightower'
+                            name 'Richard Hightower'
+                        }
+                        developer {
+                            id 'sailorgeoffrey'
+                            name 'Geoffrey Chandler'
+                        }
+                    }
+                }
+            }
+        }
     }
 }
 
-
 project(':qbit-examples-standalone') {
     sourceSets.main.resources.srcDir 'src/main/java'
-
     dependencies {
         compile project(':qbit-boon')
         compile "org.slf4j:slf4j-api:[1.7,1.8)"
@@ -168,7 +226,6 @@ project(':qbit-perf-server') {
     sourceSets.main.resources.srcDir 'src/main/java'
     apply plugin:'application'
 
-
     /*
     You can run this by doing this: gradle run -PappArgs="['localhost', 8080]"
      */
@@ -199,9 +256,7 @@ project(':qbit-sample-server') {
     sourceSets.main.resources.srcDir 'src/main/java'
     apply plugin:'application'
 
-
     mainClassName = "io.advantageous.qbit.sample.server.TodoServerMain"
-
 
     dependencies {
         compile project(':qbit-boon')
@@ -218,9 +273,7 @@ project(':qbit-sample-client') {
     sourceSets.main.resources.srcDir 'src/main/java'
     apply plugin:'application'
 
-
     mainClassName = "io.advantageous.qbit.sample.server.TodoClientMain"
-
 
     dependencies {
         compile project(':qbit-boon')
@@ -235,9 +288,6 @@ project(':qbit-sample-client') {
 
 project(':qbit-sample-model') {
     sourceSets.main.resources.srcDir 'src/main/java'
-
-
-
     dependencies {
         compile project(':qbit-boon')
         compile project(':qbit-vertx')
@@ -247,16 +297,9 @@ project(':qbit-sample-model') {
     }
 }
 
-
 project(':qbit-vertx') {
 
-    apply plugin: 'java'
     apply plugin: 'signing'
-
-
-
-    group = 'io.advantageous.qbit'
-    version = '1.0.0-SNAPSHOT'
 
     task javadocJar(type: Jar, dependsOn: javadoc) {
         classifier = 'javadoc'
@@ -299,7 +342,6 @@ project(':qbit-vertx') {
 
     }
 
-
     uploadArchives {
         repositories {
             mavenDeployer {
@@ -313,15 +355,15 @@ project(':qbit-vertx') {
                 }
 
                 pom.project {
-                    name 'qbit'
+                    name 'qbit-vertx'
                     packaging 'jar'
                     description 'Go Channels inspired Java lib'
-                    url 'https://github.com/RichardHightower/qbit'
+                    url 'https://github.com/advantageous/qbit'
 
                     scm {
-                        url 'scm:git@github.com:RichardHightower/qbit.git'
-                        connection 'scm:git@github.com:RichardHightower/qbit.git'
-                        developerConnection 'scm:git@github.com:RichardHightower/qbit.git'
+                        url 'scm:git@github.com:advantageous/qbit.git'
+                        connection 'scm:git@github.com:advantageous/qbit.git'
+                        developerConnection 'scm:git@github.com:advantageous/qbit.git'
                     }
 
                     licenses {
@@ -345,6 +387,5 @@ project(':qbit-vertx') {
                 }
             }
         }
-
     }
 }
