@@ -5,7 +5,6 @@ allprojects {
     apply plugin: 'java'
     apply plugin: 'maven'
 
-    group = 'io.advantageous.qbit'
     version = '0.5.2-SNAPSHOT'
 }
 
