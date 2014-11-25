@@ -20,6 +20,7 @@ public class ServiceServerBuilder {
     private int flushInterval = 100;
     private String uri = "/services";
 
+
     public String getUri() {
         return uri;
     }

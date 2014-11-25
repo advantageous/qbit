@@ -19,10 +19,10 @@ public class PerfClientTest {
 
     private static volatile LongAdder receivedCount = new LongAdder();
 
-    private static final  int REQUEST_COUNT = 500_000;
+    private static final  int REQUEST_COUNT = 800_000;
 
 
-    private static final  int CLIENT_COUNT = 2;
+    private static final  int CLIENT_COUNT = 4;
 
     public static void main(String... args) throws InterruptedException {
 
@@ -130,7 +130,7 @@ public class PerfClientTest {
                     client.flush();
 
 
-                    Sys.sleep(100_000);
+                    Sys.sleep(20_000);
                     client.stop();
                 }
             });
@@ -153,7 +153,7 @@ public class PerfClientTest {
         startTime = System.currentTimeMillis();
 
         for (int i = 0; i < 1000; i++) {
-            if (receivedCount.sum() + errorCount.sum() >= REQUEST_COUNT - 100) {
+            if (receivedCount.sum() + errorCount.sum() >= REQUEST_COUNT - 5000) {
                 long duration = System.currentTimeMillis() - startTime;
                 puts("DURATION", duration / 1000, "Recieved Count", receivedCount);
                 break;

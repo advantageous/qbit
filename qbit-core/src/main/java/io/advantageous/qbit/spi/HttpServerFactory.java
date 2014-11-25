@@ -8,7 +8,8 @@ public interface HttpServerFactory {
     HttpServer create(String host, int port, boolean manageQueues,
          int pollTime,
          int requestBatchSize,
-         int flushInterval);
+         int flushInterval
+         );
 
 
 

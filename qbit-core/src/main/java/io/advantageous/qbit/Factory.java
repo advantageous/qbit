@@ -176,7 +176,8 @@ public interface Factory {
     HttpServer createHttpServer(String host, int port, boolean manageQueues,
                       int pollTime,
                       int requestBatchSize,
-                      int flushInterval);
+                      int flushInterval
+                      );
 
     HttpClient createHttpClient(String host, int port, int pollTime, int requestBatchSize, int timeOutInMilliseconds, int poolSize, boolean autoFlush);
 

@@ -12,12 +12,23 @@ public class HttpServerBuilder {
     private String host = "localhost";
     private int port = 8080;
     private boolean manageQueues = true;
+
+    private boolean pipeline = true;
     private int pollTime = 100;
     private int requestBatchSize = 10;
     private int flushInterval = 100;
 
     private Consumer<WebSocketMessage> webSocketMessageConsumer;
     private Consumer<HttpRequest> httpRequestConsumer;
+
+    public boolean isPipeline() {
+        return pipeline;
+    }
+
+    public HttpServerBuilder setPipeline(boolean pipeline) {
+        this.pipeline = pipeline;
+        return this;
+    }
 
     public String getHost() {
         return host;

@@ -18,6 +18,7 @@ import org.vertx.java.core.VertxFactory;
 import org.vertx.java.core.buffer.Buffer;
 import org.vertx.java.core.http.HttpClientRequest;
 import org.vertx.java.core.http.HttpClientResponse;
+import org.vertx.java.core.http.HttpHeaders;
 import org.vertx.java.core.http.WebSocket;
 
 import java.net.ConnectException;
@@ -53,6 +54,9 @@ public class HttpClientVertx implements HttpClient {
     private org.vertx.java.core.http.HttpClient httpClient;
     protected Vertx vertx;
     protected boolean autoFlush;
+    protected boolean keepAlive = true;
+    protected boolean pipeline = true;
+
 
     private final Map<String, WebSocket> webSocketMap = new ConcurrentHashMap<>();
 
@@ -86,7 +90,7 @@ public class HttpClientVertx implements HttpClient {
         this.port = port;
         this.host = host;
         this.timeOutInMilliseconds = timeOutInMilliseconds;
-        this.poolSize = 5;
+        this.poolSize = poolSize;
         this.vertx = VertxFactory.newVertx();
         this.autoFlush = autoFlush;
         this.pollTime = pollTime;
@@ -117,8 +121,8 @@ public class HttpClientVertx implements HttpClient {
 
     @Override
     public void run() {
-        requestQueue = new BasicQueue<>("HTTP REQUEST queue " + host + ":" + port, 50, TimeUnit.MILLISECONDS, 50);
-        webSocketMessageQueue = new BasicQueue<>("WebSocket queue " + host + ":" + port, 50, TimeUnit.MILLISECONDS, 50);
+        requestQueue = new BasicQueue<>("HTTP REQUEST queue " + host + ":" + port, 50, TimeUnit.MILLISECONDS, requestBatchSize);
+        webSocketMessageQueue = new BasicQueue<>("WebSocket queue " + host + ":" + port, 50, TimeUnit.MILLISECONDS, requestBatchSize);
         httpRequestSendQueue = requestQueue.sendQueue();
         webSocketSendQueue = webSocketMessageQueue.sendQueue();
         scheduledExecutorService = Executors.newScheduledThreadPool(2);
@@ -270,10 +274,20 @@ public class HttpClientVertx implements HttpClient {
             }
         }
 
+        final byte[] body = request.getBody();
+
+        if (keepAlive) {
+            httpClientRequest.putHeader(HttpHeaders.CONNECTION, HttpHeaders.KEEP_ALIVE);
+        }
 
 
-        if (!Str.isEmpty(request.getBody())) {
-                if (request.getContentType()!=null) {
+        if (body != null && body.length > 0) {
+
+
+            httpClientRequest.putHeader(HttpHeaders.CONTENT_LENGTH, Integer.toString(body.length));
+            if (request.getContentType()!=null) {
+
+
                     httpClientRequest.putHeader("Content-Type", request.getContentType());
                 }
                 httpClientRequest.end(new Buffer(request.getBody()));
@@ -365,7 +379,7 @@ public class HttpClientVertx implements HttpClient {
     private void connect() {
         httpClient = vertx.createHttpClient().setHost(host).setPort(port)
                 .setConnectTimeout(timeOutInMilliseconds).setMaxPoolSize(poolSize)
-                .setKeepAlive(true).setPipelining(false)
+                .setKeepAlive(keepAlive).setPipelining(pipeline)
                 .setUsePooledBuffers(true)
                 .setSoLinger(100)
                 .setTCPNoDelay(false)

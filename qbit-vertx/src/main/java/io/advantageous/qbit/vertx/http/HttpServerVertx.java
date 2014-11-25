@@ -39,6 +39,7 @@ public class HttpServerVertx implements HttpServer {
     protected int port;
     protected String host;
 
+
     protected  int requestBatchSize = 50;
     protected  int pollTime = 5;
 
@@ -49,20 +50,6 @@ public class HttpServerVertx implements HttpServer {
 
 
     private org.vertx.java.core.http.HttpServer httpServer;
-
-
-    /**
-     * Constructor
-     *
-     * @param port port
-     * @param host host
-     * @param vertx vertx
-     */
-    public HttpServerVertx(final int port, final String host, final Vertx vertx) {
-        this.port = port;
-        this.host = host;
-        this.vertx = vertx;
-    }
 
 
 
@@ -149,6 +136,7 @@ public class HttpServerVertx implements HttpServer {
         httpServer.setTCPKeepAlive(true);
         httpServer.setCompressionSupported(true);
         httpServer.setSoLinger(1000);
+
 
         httpServer.websocketHandler(this::handleWebSocketMessage);
 
@@ -379,11 +367,10 @@ public class HttpServerVertx implements HttpServer {
         }
 
         public void send() {
-
-                response.setStatusCode(code).putHeader("Content-Type", mimeType);
-                response.end(body, "UTF-8");
-
-
+            response.setStatusCode(code).putHeader("Content-Type", mimeType);
+            Buffer buffer = new Buffer(body, "UTF-8");
+            response.putHeader("Content-Size", Integer.toString(buffer.length()));
+            response.end(buffer);
         }
     }
 
