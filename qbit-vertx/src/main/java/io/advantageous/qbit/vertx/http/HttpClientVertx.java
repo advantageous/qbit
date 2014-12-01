@@ -55,7 +55,7 @@ public class HttpClientVertx implements HttpClient {
     protected Vertx vertx;
     protected boolean autoFlush;
     protected boolean keepAlive = true;
-    protected boolean pipeline = true;
+    protected boolean pipeline = false;
 
 
     private final Map<String, WebSocket> webSocketMap = new ConcurrentHashMap<>();
