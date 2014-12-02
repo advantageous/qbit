@@ -19,7 +19,7 @@ public class PerfClientTest {
 
     private static volatile LongAdder receivedCount = new LongAdder();
 
-    private static final  int REQUEST_COUNT = 800_000;
+    private static final  int REQUEST_COUNT = 20_000_000;
 
 
     private static final  int CLIENT_COUNT = 4;
@@ -85,7 +85,7 @@ public class PerfClientTest {
 
         final HttpRequest perfRequest = httpRequestBuilder
                                         .setContentType("application/json")
-                                        .setMethod("GET").setUri("/perf/")
+                                        .setMethod("GET").setUri("/perf/").addHeader("X-USER", "BOB")
                                         .setResponse((code, mimeType, body) -> {
                                             if (code != 200 || !body.equals("\"ok\"")) {
                                                 errorCount.increment();
@@ -114,10 +114,11 @@ public class PerfClientTest {
 
                     //final HttpClientVertx client = new HttpClientVertx(9090, "localhost", false);
 
-                    final HttpClient client = new HttpClientBuilder().setPort(port)
+                    HttpClient client = new HttpClientBuilder().setPort(port)
                             .setHost(host)
                             .setPoolSize(poolSize).setRequestBatchSize(batchSize).
-                                    setPollTime(pollTime).build();
+                                    setPollTime(pollTime).setAutoFlush(true)
+                            .build();
                     client.run();
 
                     Sys.sleep(5000);
@@ -125,9 +126,25 @@ public class PerfClientTest {
                     for (int index = 0; index<countPerThread; index++) {
                          client.sendHttpRequest(perfRequest);
 
+                        if (index % 30_000 == 0) {
+                            Sys.sleep(3_000);
+                        }
+
+//                        if (index % 200_000 == 0) {
+//                            client.stop();
+//                            Sys.sleep(1_000);
+//                            client = new HttpClientBuilder().setPort(port)
+//                                    .setHost(host)
+//                                    .setPoolSize(poolSize).setRequestBatchSize(batchSize).
+//                                            setPollTime(pollTime).setAutoFlush(true)
+//                                    .build();
+//                            client.run();
+//
+//
+//                        }
+
                     }
 
-                    client.flush();
 
 
                     Sys.sleep(20_000);
@@ -152,7 +169,7 @@ public class PerfClientTest {
 
         startTime = System.currentTimeMillis();
 
-        for (int i = 0; i < 1000; i++) {
+        for (int i = 0; i < 100_000; i++) {
             if (receivedCount.sum() + errorCount.sum() >= REQUEST_COUNT - 5000) {
                 long duration = System.currentTimeMillis() - startTime;
                 puts("DURATION", duration / 1000, "Recieved Count", receivedCount);

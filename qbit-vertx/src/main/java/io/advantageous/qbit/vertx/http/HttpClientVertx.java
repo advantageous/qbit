@@ -28,6 +28,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * Created by rhightower on 10/28/14.
@@ -47,15 +48,17 @@ public class HttpClientVertx implements HttpClient {
      */
     protected  int port;
     protected  int pollTime=10;
-    private int requestBatchSize=50;
+    protected int requestBatchSize=50;
     protected  String host;
-    private  int timeOutInMilliseconds;
-    private  int poolSize;
-    private org.vertx.java.core.http.HttpClient httpClient;
+    protected  int timeOutInMilliseconds;
+    protected  int poolSize;
+    protected org.vertx.java.core.http.HttpClient httpClient;
     protected Vertx vertx;
     protected boolean autoFlush;
     protected boolean keepAlive = true;
     protected boolean pipeline = false;
+    protected  int flushInterval = 10;
+    protected ReentrantLock requestLock = new ReentrantLock();
 
 
     private final Map<String, WebSocket> webSocketMap = new ConcurrentHashMap<>();
@@ -76,14 +79,6 @@ public class HttpClientVertx implements HttpClient {
     private final AtomicBoolean closed = new AtomicBoolean();
 
 
-//
-//    private final Timer timer = Timer.timer();
-//
-//    private volatile long lastFlushTime;
-
-
-
-
 
     public HttpClientVertx(String host, int port, int pollTime, int requestBatchSize, int timeOutInMilliseconds, int poolSize, boolean autoFlush) {
 
@@ -102,34 +97,71 @@ public class HttpClientVertx implements HttpClient {
     @Override
     public void sendHttpRequest(final HttpRequest request) {
 
-        if(debug) logger.debug("HTTP CLIENT: sendHttpRequest:: \n{}\n", request);
-        httpRequestSendQueue.send(request);
 
-        if (autoFlush) httpRequestSendQueue.flushSends();
+
+        if(debug) logger.debug("HTTP CLIENT: sendHttpRequest:: \n{}\n", request);
+
+
+        requestLock.lock();
+
+        try {
+            httpRequestSendQueue.send(request);
+
+        } finally {
+
+            requestLock.unlock();
+        }
     }
 
     @Override
     public void sendWebSocketMessage(final WebSocketMessage webSocketMessage) {
 
-        if(debug) logger.debug("HTTP CLIENT: sendWebSocketMessage:: \n{}\n", webSocketMessage);
-        webSocketSendQueue.send(webSocketMessage);
+        requestLock.lock();
 
-        if (autoFlush) webSocketSendQueue.flushSends();
+        try {
+
+            if (debug) logger.debug("HTTP CLIENT: sendWebSocketMessage:: \n{}\n", webSocketMessage);
+            webSocketSendQueue.send(webSocketMessage);
+
+        } finally {
+            requestLock.unlock();
+        }
 
     }
 
 
+
+
+    private void autoFlush() {
+        requestLock.lock();
+
+        try {
+            httpRequestSendQueue.flushSends();
+            webSocketSendQueue.flushSends();
+        } finally {
+            requestLock.unlock();
+        }
+
+    }
+
     @Override
     public void run() {
         requestQueue = new BasicQueue<>("HTTP REQUEST queue " + host + ":" + port, 50, TimeUnit.MILLISECONDS, requestBatchSize);
+
         webSocketMessageQueue = new BasicQueue<>("WebSocket queue " + host + ":" + port, 50, TimeUnit.MILLISECONDS, requestBatchSize);
+
         httpRequestSendQueue = requestQueue.sendQueue();
         webSocketSendQueue = webSocketMessageQueue.sendQueue();
-        scheduledExecutorService = Executors.newScheduledThreadPool(2);
+        scheduledExecutorService = Executors.newScheduledThreadPool(3);
 
         connect();
 
         this.scheduledExecutorService.scheduleAtFixedRate(this::connectWithRetry, 0, 10, TimeUnit.SECONDS);
+
+        if (autoFlush) {
+
+            this.scheduledExecutorService.scheduleAtFixedRate(this::autoFlush, 0, flushInterval, TimeUnit.MILLISECONDS);
+        }
 
 
         Sys.sleep(100);
@@ -143,7 +175,7 @@ public class HttpClientVertx implements HttpClient {
 
             @Override
             public void empty() {
-
+                autoFlush();
             }
 
             @Override
@@ -173,13 +205,8 @@ public class HttpClientVertx implements HttpClient {
             @Override
             public void empty() {
 
-//                long currentTime = timer.now();
-//
-//                long duration = currentTime - lastFlushTime;
-//
-//                if (duration>3_000) {
-//                    lastFlushTime = currentTime;
-//                }
+                autoFlush();
+
 
             }
 
@@ -301,8 +328,12 @@ public class HttpClientVertx implements HttpClient {
 
     @Override
     public void flush() {
-        this.httpRequestSendQueue.flushSends();
-        this.webSocketSendQueue.flushSends();
+        if (autoFlush) {
+            autoFlush();
+        } else {
+            this.httpRequestSendQueue.flushSends();
+            this.webSocketSendQueue.flushSends();
+        }
     }
 
     @Override

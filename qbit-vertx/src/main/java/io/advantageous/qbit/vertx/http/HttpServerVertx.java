@@ -13,6 +13,7 @@ import io.advantageous.qbit.vertx.MultiMapWrapper;
 import org.boon.Str;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.vertx.java.core.Handler;
 import org.vertx.java.core.Vertx;
 import org.vertx.java.core.VertxFactory;
 import org.vertx.java.core.buffer.Buffer;
@@ -143,6 +144,7 @@ public class HttpServerVertx implements HttpServer {
         httpServer.requestHandler(this::handleHttpRequest);
 
 
+
         if (Str.isEmpty(host)) {
             httpServer.listen(port);
         } else {
@@ -262,6 +264,22 @@ public class HttpServerVertx implements HttpServer {
 
     private void handleHttpRequest(final HttpServerRequest request) {
 
+        request.exceptionHandler( new Handler<Throwable>() {
+            @Override
+            public void handle(Throwable event) {
+
+                logger.info("EXCEPTION");
+                event.printStackTrace();
+            }
+        });
+
+        request.endHandler(new Handler<Void>() {
+            @Override
+            public void handle(Void event) {
+
+                //logger.info("REQUEST OVER");
+            }
+        });
 
         if (debug) logger.debug("HttpServerVertx::handleHttpRequest::{}:{}", request.method(), request.uri());
 
