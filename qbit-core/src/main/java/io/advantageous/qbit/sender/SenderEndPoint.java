@@ -24,7 +24,7 @@ public class SenderEndPoint implements EndPoint {
     final String address;
     private final Sender<String> sender;
     private final BeforeMethodCall beforeMethodCall;
-    private final BlockingQueue<MethodCall<Object>> methodCalls = new ArrayBlockingQueue<>(25);
+    private final BlockingQueue<MethodCall<Object>> methodCalls = new ArrayBlockingQueue<>(50);
 
 
     public SenderEndPoint(ProtocolEncoder encoder, String address, Sender<String> sender, BeforeMethodCall beforeMethodCall) {
@@ -67,7 +67,7 @@ public class SenderEndPoint implements EndPoint {
 
         String returnAddress = ((MethodCall<Object>)method).returnAddress();
 
-        methods = new ArrayList<>(25);
+        methods = new ArrayList<>(50);
 
         while (method != null) {
             methods.add(method);

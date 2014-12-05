@@ -49,8 +49,8 @@ public class TodoWebSocketClient {
 
 
 
-        Client client = new ClientBuilder().setPort(port).setHost(host).setPollTime(100)
-                .setAutoFlush(true).setFlushInterval(1000).setRequestBatchSize(10).build();
+        Client client = new ClientBuilder().setPort(port).setHost(host).setPollTime(10)
+                .setAutoFlush(true).setFlushInterval(100).setRequestBatchSize(5).build();
 
         TodoServiceClient todoService = client.createProxy(TodoServiceClient.class, "todo-manager");
 
@@ -94,7 +94,7 @@ public class TodoWebSocketClient {
 
 
 
-            for (int index = 0; index < 200_000; index++) {
+            for (int index = 0; index < 400_000; index++) {
                 todoService.add(new TodoItem("a" + index, "b", date));
 
 
@@ -114,8 +114,8 @@ public class TodoWebSocketClient {
 
             client.flush();
 
-            totalSends.addAndGet(200_000);
-            Sys.sleep(50);
+            totalSends.addAndGet(400_000);
+            Sys.sleep(25);
 
 
 

@@ -90,9 +90,9 @@ public class BasicSendQueue<T> implements SendQueue<T> {
 
     private void sendLocalQueue() {
         final Object[] copy = fastObjectArraySlice(queueLocal, 0, index);
-        if (!queue.tryTransfer(copy)) {
+        //if (!queue.tryTransfer(copy)) {
             queue.offer(copy);
-        }
+        //}
         index = 0;
     }
 
