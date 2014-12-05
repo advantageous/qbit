@@ -12,6 +12,8 @@ public interface TodoServiceClient {
 
         void list(Callback<List<TodoItem>> handler);
 
+        void size(Callback<Integer> handler);
+
         void add(TodoItem todoItem);
 
 

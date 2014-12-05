@@ -13,4 +13,6 @@ public interface TodoRepository {
     List<TodoItem> list();
 
     void add(TodoItem item);
+
+    int size();
 }

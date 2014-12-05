@@ -13,7 +13,11 @@ public class FactorySPI {
     private static final AtomicReference<Factory> ref = new AtomicReference<>();
 
     private static final AtomicReference<HttpServerFactory> httpServerFactoryRef = new AtomicReference<>();
+
+    private static final AtomicReference<ClientFactory> clientFactoryRef = new AtomicReference<>();
     private static final AtomicReference<HttpClientFactory> httpClientFactoryRef = new AtomicReference<>();
+
+
 
 
 
@@ -46,4 +50,12 @@ public class FactorySPI {
     }
 
 
+    public static ClientFactory getClientFactory() {
+        return clientFactoryRef.get();
+    }
+
+    public static void setClientFactory(ClientFactory clientFactory) {
+        clientFactoryRef.set(clientFactory);
+
+    }
 }

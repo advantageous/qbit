@@ -1,10 +1,16 @@
 package io.advantageous.qbit.sender;
 
+import io.advantageous.qbit.message.Message;
 import io.advantageous.qbit.message.MethodCall;
 import io.advantageous.qbit.service.BeforeMethodCall;
 import io.advantageous.qbit.service.EndPoint;
 import io.advantageous.qbit.service.impl.NoOpBeforeMethodCall;
 import io.advantageous.qbit.spi.ProtocolEncoder;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
 
 /**
  * Combines a sender with a protocol encoder so we can send messages to another remote end point.
@@ -18,6 +24,7 @@ public class SenderEndPoint implements EndPoint {
     final String address;
     private final Sender<String> sender;
     private final BeforeMethodCall beforeMethodCall;
+    private final BlockingQueue<MethodCall<Object>> methodCalls = new ArrayBlockingQueue<>(25);
 
 
     public SenderEndPoint(ProtocolEncoder encoder, String address, Sender<String> sender, BeforeMethodCall beforeMethodCall) {
@@ -37,6 +44,40 @@ public class SenderEndPoint implements EndPoint {
     public void call(MethodCall<Object> methodCall) {
 
         beforeMethodCall.before(methodCall);
-        sender.send(methodCall.returnAddress(), encoder.encodeAsString(methodCall));
+
+        if (!methodCalls.offer(methodCall)) {
+            flush();
+            sender.send(methodCall.returnAddress(), encoder.encodeAsString(methodCall));
+        }
+
+    }
+
+    @Override
+    public void flush() {
+
+
+        Message<Object> method = methodCalls.poll();
+
+        if (method == null) {
+            return;
+        }
+
+
+        List<Message<Object>> methods = null;
+
+        String returnAddress = ((MethodCall<Object>)method).returnAddress();
+
+        methods = new ArrayList<>(25);
+
+        while (method != null) {
+            methods.add(method);
+            method = methodCalls.poll();
+
+        }
+
+
+        sender.send(returnAddress, encoder.encodeAsString(methods));
+
+
     }
 }

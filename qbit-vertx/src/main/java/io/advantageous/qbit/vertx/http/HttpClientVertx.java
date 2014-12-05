@@ -23,12 +23,12 @@ import org.vertx.java.core.http.WebSocket;
 
 import java.net.ConnectException;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.locks.ReentrantLock;
+import java.util.function.Consumer;
+
+import static org.boon.Boon.puts;
 
 /**
  * Created by rhightower on 10/28/14.
@@ -77,7 +77,12 @@ public class HttpClientVertx implements HttpClient {
      * Are we closed.
      */
     private final AtomicBoolean closed = new AtomicBoolean();
+    private Consumer<Void> periodicFlushCallback = new Consumer<Void>() {
+        @Override
+        public void accept(Void aVoid) {
 
+        }
+    };
 
 
     public HttpClientVertx(String host, int port, int pollTime, int requestBatchSize, int timeOutInMilliseconds, int poolSize, boolean autoFlush) {
@@ -129,7 +134,10 @@ public class HttpClientVertx implements HttpClient {
 
     }
 
-
+    @Override
+    public void periodicFlushCallback(Consumer<Void> periodicFlushCallback) {
+        this.periodicFlushCallback = periodicFlushCallback;
+    }
 
 
     private void autoFlush() {
@@ -140,6 +148,47 @@ public class HttpClientVertx implements HttpClient {
             webSocketSendQueue.flushSends();
         } finally {
             requestLock.unlock();
+        }
+
+    }
+
+
+    @Override
+    public void stop() {
+        try {
+            if (this.scheduledExecutorService!=null)
+                this.scheduledExecutorService.shutdown();
+        } catch (Exception ex) {
+            logger.warn("problem shutting down executor service for Http Client", ex);
+        }
+
+        try {
+            if (requestQueue!=null) {
+                requestQueue.stop();
+            }
+        } catch (Exception ex) {
+
+            logger.warn("problem shutting down requestQueue for Http Client", ex);
+        }
+
+        try {
+            if (webSocketMessageQueue!=null) {
+
+                webSocketMessageQueue.stop();
+            }
+
+        } catch (Exception ex) {
+
+            logger.warn("problem shutting down webSocketMessageQueue for Http Client", ex);
+        }
+
+        try {
+            if (httpClient != null) {
+                httpClient.close();
+            }
+        }catch (Exception ex) {
+
+            logger.warn("problem shutting down vertx httpClient for QBIT Http Client", ex);
         }
 
     }
@@ -159,6 +208,7 @@ public class HttpClientVertx implements HttpClient {
         this.scheduledExecutorService.scheduleAtFixedRate(this::connectWithRetry, 0, 10, TimeUnit.SECONDS);
 
         if (autoFlush) {
+            periodicFlushCallback.accept(null);
 
             this.scheduledExecutorService.scheduleAtFixedRate(this::autoFlush, 0, flushInterval, TimeUnit.MILLISECONDS);
         }
@@ -175,7 +225,7 @@ public class HttpClientVertx implements HttpClient {
 
             @Override
             public void empty() {
-                autoFlush();
+
             }
 
             @Override
@@ -190,7 +240,7 @@ public class HttpClientVertx implements HttpClient {
 
             @Override
             public void idle() {
-
+                autoFlush();
             }
         });
 
@@ -205,7 +255,6 @@ public class HttpClientVertx implements HttpClient {
             @Override
             public void empty() {
 
-                autoFlush();
 
 
             }
@@ -222,7 +271,7 @@ public class HttpClientVertx implements HttpClient {
 
             @Override
             public void idle() {
-
+                autoFlush();
             }
         });
 
@@ -253,34 +302,70 @@ public class HttpClientVertx implements HttpClient {
 
         final String uri = webSocketMessage.getUri();
 
-        httpClient.connectWebsocket(uri, new Handler<WebSocket>(){
-            @Override
-            public void handle(final WebSocket webSocket) {
+        WebSocket webSocket = webSocketMap.get(uri);
 
-                webSocketMap.put(uri, webSocket);
-                webSocket.writeTextFrame(webSocketMessage.getMessage());
+        if (webSocket == null) {
 
+            final BlockingQueue<WebSocket> connectQueue = new ArrayBlockingQueue<WebSocket>(1);
 
-                webSocket.dataHandler(new Handler<Buffer>() {
-                    @Override
-                    public void handle(Buffer buffer) {
+            httpClient.connectWebsocket(uri, new Handler<WebSocket>(){
+                @Override
+                public void handle(final WebSocket webSocket) {
 
-                        webSocketMessage.getSender().send(buffer.toString());
-                    }
-                });
+                    webSocketMap.put(uri, webSocket);
 
-                webSocket.closeHandler(new Handler<Void>() {
-                    @Override
-                    public void handle(Void event) {
-                        webSocketMap.remove(uri);
-                    }
-                });
+                    connectQueue.offer(webSocket);
 
 
+                    webSocket.dataHandler(new Handler<Buffer>() {
+                        @Override
+                        public void handle(Buffer buffer) {
 
+                            webSocketMessage.getSender().send(buffer.toString());
+                        }
+                    });
+
+                    webSocket.closeHandler(new Handler<Void>() {
+                        @Override
+                        public void handle(Void event) {
+                            logger.debug("Closed WebSocket " + uri);
+
+                            webSocketMap.remove(uri);
+                        }
+                    });
+
+                    webSocket.exceptionHandler(new Handler<Throwable>() {
+                        @Override
+                        public void handle(Throwable event) {
+                            logger.warn("Problem with WebSocket connection " + uri, event);
+                        }
+                    });
+
+                    webSocket.endHandler(new Handler<Void>() {
+                        @Override
+                        public void handle(Void event) {
+
+                            logger.debug("End WebSocket Message" + uri);
+                        }
+                    });
+
+                }
+            });
+
+
+            try {
+                webSocket = connectQueue.poll(timeOutInMilliseconds, TimeUnit.MILLISECONDS);
+            } catch (InterruptedException e) {
+                logger.warn("Unable to get connection interrupted thread", e);
 
             }
-        });
+
+        }
+
+        if (webSocket!=null) {
+            webSocket.writeTextFrame(webSocketMessage.getMessage());
+
+        }
 
     }
 
@@ -336,34 +421,6 @@ public class HttpClientVertx implements HttpClient {
         }
     }
 
-    @Override
-    public void stop() {
-        try {
-            if (this.scheduledExecutorService!=null)
-            this.scheduledExecutorService.shutdown();
-        } catch (Exception ex) {
-            logger.warn("problem shutting down executor service for Http Client", ex);
-        }
-
-        try {
-            if (requestQueue!=null) {
-                requestQueue.stop();
-            }
-        } catch (Exception ex) {
-
-            logger.warn("problem shutting down requestQueue for Http Client", ex);
-        }
-
-        try {
-            if (httpClient != null) {
-                httpClient.close();
-            }
-        }catch (Exception ex) {
-
-            logger.warn("problem shutting down vertx httpClient for QBIT Http Client", ex);
-        }
-
-    }
 
     private void handleResponse(final HttpRequest request, final HttpClientResponse httpClientResponse) {
         final int statusCode = httpClientResponse.statusCode();
@@ -411,12 +468,13 @@ public class HttpClientVertx implements HttpClient {
         httpClient = vertx.createHttpClient().setHost(host).setPort(port)
                 .setConnectTimeout(timeOutInMilliseconds).setMaxPoolSize(poolSize)
                 .setKeepAlive(keepAlive).setPipelining(pipeline)
-                .setUsePooledBuffers(true)
                 .setSoLinger(100)
                 .setTCPNoDelay(false)
+                .setMaxWebSocketFrameSize(20_000_000)
                 .setConnectTimeout(this.timeOutInMilliseconds);
 
 
+        httpClient.setUsePooledBuffers(true);
 
 
         if(debug) logger.debug("HTTP CLIENT: connect:: \nhost {} \nport {}\n", host, port);

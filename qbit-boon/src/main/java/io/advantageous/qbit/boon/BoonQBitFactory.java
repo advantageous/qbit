@@ -3,6 +3,7 @@ package io.advantageous.qbit.boon;
 import io.advantageous.qbit.BoonJsonMapper;
 import io.advantageous.qbit.Factory;
 import io.advantageous.qbit.GlobalConstants;
+import io.advantageous.qbit.client.Client;
 import io.advantageous.qbit.http.HttpClient;
 import io.advantageous.qbit.http.HttpServer;
 import io.advantageous.qbit.json.JsonMapper;
@@ -28,6 +29,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -113,6 +115,35 @@ public class BoonQBitFactory implements Factory {
 
     }
 
+
+
+    public List<MethodCall<Object>> createMethodCallListToBeParsedFromBody(String addressPrefix, Object body, Request<Object> originatingRequest) {
+
+        List<MethodCall<Object>> methodCalls = Collections.emptyList();
+
+
+        if (body != null) {
+            ProtocolParser parser = selectProtocolParser(body, null);
+
+            if (parser != null) {
+                methodCalls = parser.parseMethodCallListUsingAddressPrefix(addressPrefix, body);
+            } else {
+                methodCalls = defaultProtocol.parseMethodCallListUsingAddressPrefix(addressPrefix, body);
+            }
+        }
+
+
+        for (MethodCall<Object> methodCall : methodCalls) {
+            if (methodCall instanceof MethodCallImpl) {
+                MethodCallImpl impl = ((MethodCallImpl) methodCall);
+                impl.originatingRequest(originatingRequest);
+            }
+        }
+
+        return methodCalls;
+
+    }
+
     @Override
     public MethodCall<Object> createMethodCallFromHttpRequest(final Request<Object> request, Object args) {
 
@@ -167,6 +198,11 @@ public class BoonQBitFactory implements Factory {
             final JsonMapper jsonMapper,
             final int timeOutInSeconds) {
         return new ServiceServerImpl(httpServer, encoder, serviceBundle, jsonMapper, timeOutInSeconds);
+    }
+
+    @Override
+    public Client createClient(String uri, HttpClient httpClient) {
+        return FactorySPI.getClientFactory().create(uri, httpClient);
     }
 
 

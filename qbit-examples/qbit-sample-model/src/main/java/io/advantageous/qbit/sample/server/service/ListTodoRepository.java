@@ -21,4 +21,6 @@ public class ListTodoRepository implements TodoRepository {
         todoItemList.add(item);
     }
 
+    public int size() {return todoItemList.size();}
+
 }

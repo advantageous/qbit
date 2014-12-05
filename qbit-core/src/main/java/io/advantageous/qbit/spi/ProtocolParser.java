@@ -21,9 +21,12 @@ public interface ProtocolParser {
 
     MethodCall<Object> parseMethodCallUsingAddressPrefix(String addressPrefix, Object body);
 
-    List<Message<Object>> parse(Object body);
+    List<Message<Object>> parse(String address, Object body);
 
     List<MethodCall<Object>> parseMethods(Object body);
+
+
+    List<MethodCall<Object>> parseMethodCallListUsingAddressPrefix(String addressPrefix, Object body);
 
     Response<Object> parseResponse(Object body);
 }

@@ -78,8 +78,14 @@ public class HttpServerVertx implements HttpServer {
     private SendQueue<HttpRequest> httpRequestSendQueue;
     private BasicQueue<HttpResponseInternal> responses;
     private SendQueue<HttpResponseInternal> httpResponsesSendQueue;
+    private SendQueue<WebSocketMessage> webSocketMessageIncommingSendQueue;
     private ReentrantLock requestLock;
     private ReentrantLock responseLock;
+
+    private ReentrantLock webSocketSendLock;
+
+
+    private BasicQueue<WebSocketMessage> webSocketMessageInQueue;
 
 
     @Override
@@ -107,6 +113,8 @@ public class HttpServerVertx implements HttpServer {
                     requestLock.lock();
                     try {
                         httpRequestSendQueue.flushSends();
+
+
                     } finally {
                         requestLock.unlock();
                     }
@@ -117,6 +125,14 @@ public class HttpServerVertx implements HttpServer {
                         httpResponsesSendQueue.flushSends();
                     } finally {
                         responseLock.unlock();
+                    }
+
+                    webSocketSendLock.lock();
+
+                    try {
+                        webSocketMessageIncommingSendQueue.flushSends();
+                    } finally {
+                        webSocketSendLock.unlock();
                     }
                 } catch (Exception ex) {
                     logger.error("Unable to flush", ex);
@@ -164,10 +180,48 @@ public class HttpServerVertx implements HttpServer {
 
             responseLock = new ReentrantLock();
             requestLock = new ReentrantLock();
+            webSocketSendLock = new ReentrantLock();
+
             requests = new BasicQueue<>("HttpServerRequests", pollTime, TimeUnit.MILLISECONDS, requestBatchSize);
             httpRequestSendQueue = requests.sendQueue();
             responses = new BasicQueue<>("HttpServerResponses", pollTime, TimeUnit.MILLISECONDS, requestBatchSize);
             httpResponsesSendQueue = responses.sendQueue();
+            webSocketMessageInQueue = new BasicQueue<>("WebSocketMessagesIn", pollTime, TimeUnit.MILLISECONDS, requestBatchSize);
+
+            webSocketMessageIncommingSendQueue = webSocketMessageInQueue.sendQueue();
+
+
+
+            webSocketMessageInQueue.startListener(new ReceiveQueueListener<WebSocketMessage>() {
+                @Override
+                public void receive(WebSocketMessage webSocketMessage) {
+
+                    webSocketMessageConsumer.accept(webSocketMessage);
+
+
+                }
+
+                @Override
+                public void empty() {
+
+                }
+
+                @Override
+                public void limit() {
+
+                }
+
+                @Override
+                public void shutdown() {
+
+                }
+
+                @Override
+                public void idle() {
+
+                }
+            });
+
 
 
             responses.startListener(new ReceiveQueueListener<HttpResponseInternal>() {
@@ -200,6 +254,7 @@ public class HttpServerVertx implements HttpServer {
             requests.startListener(new ReceiveQueueListener<HttpRequest>() {
                 @Override
                 public void receive(HttpRequest request) {
+
                     httpRequestConsumer.accept(request);
                 }
 
@@ -268,8 +323,8 @@ public class HttpServerVertx implements HttpServer {
             @Override
             public void handle(Throwable event) {
 
-                logger.info("EXCEPTION");
-                event.printStackTrace();
+                logger.info("EXCEPTION", event);
+
             }
         });
 
@@ -277,7 +332,7 @@ public class HttpServerVertx implements HttpServer {
             @Override
             public void handle(Void event) {
 
-                //logger.info("REQUEST OVER");
+                logger.info("REQUEST OVER");
             }
         });
 
@@ -337,6 +392,17 @@ public class HttpServerVertx implements HttpServer {
         }
     }
 
+
+    private void sendWebSocketOnQueue(WebSocketMessage message) {
+
+        webSocketSendLock.lock();
+        try {
+            webSocketMessageIncommingSendQueue.send(message);
+        } finally {
+            webSocketSendLock.unlock();
+        }
+    }
+
     private void handleWebSocketMessage(final ServerWebSocket webSocket) {
 
 
@@ -347,7 +413,12 @@ public class HttpServerVertx implements HttpServer {
 
                     if (debug) logger.debug("HttpServerVertx::handleWebSocketMessage::%s", webSocketMessage);
 
-                    this.webSocketMessageConsumer.accept(webSocketMessage);
+                    if (manageQueues) {
+                        sendWebSocketOnQueue(webSocketMessage);
+                    } else {
+
+                        this.webSocketMessageConsumer.accept(webSocketMessage);
+                    }
                 }
         );
     }

@@ -64,6 +64,11 @@ public class ServiceProxyFactoryTest {
         }
 
         @Override
+        public void flush() {
+
+        }
+
+        @Override
         public void flushSends() {
 
         }

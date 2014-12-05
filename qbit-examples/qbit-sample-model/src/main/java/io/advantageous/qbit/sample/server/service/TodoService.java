@@ -16,7 +16,16 @@ public class TodoService {
 
     private final TodoRepository todoRepository = new ListTodoRepository();
 
+    int adds = 0;
+
     @RequestMapping("/todo/list")
+    public int size() {
+
+        return adds;
+    }
+
+
+    @RequestMapping("/todo/size")
     public List<TodoItem> list() {
 
         return todoRepository.list();
@@ -24,7 +33,10 @@ public class TodoService {
 
     @RequestMapping(value = "/todo", method = RequestMethod.POST)
     public void add(TodoItem item) {
+        adds++;
 
-        todoRepository.add(item);
+        if (adds<10_000) {
+            todoRepository.add(item);
+        }
     }
 }

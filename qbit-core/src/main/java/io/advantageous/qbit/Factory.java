@@ -1,7 +1,9 @@
 package io.advantageous.qbit;
 
+import io.advantageous.qbit.client.Client;
 import io.advantageous.qbit.http.HttpClient;
 import io.advantageous.qbit.http.HttpServer;
+
 import io.advantageous.qbit.json.JsonMapper;
 import io.advantageous.qbit.message.MethodCall;
 import io.advantageous.qbit.message.Request;
@@ -14,6 +16,8 @@ import io.advantageous.qbit.service.Service;
 import io.advantageous.qbit.service.ServiceBundle;
 import io.advantageous.qbit.spi.ProtocolEncoder;
 import io.advantageous.qbit.util.MultiMap;
+
+import java.util.List;
 
 /**
  * Main factory for QBit. This gets used internally to create / parse methods.
@@ -156,6 +160,9 @@ public interface Factory {
      */
     MethodCall<Object> createMethodCallToBeParsedFromBody(String addressPrefix, Object message, Request<Object> originatingRequest);
 
+
+    List<MethodCall<Object>> createMethodCallListToBeParsedFromBody(String addressPrefix, Object body, Request<Object> originatingRequest);
+
     /**
      * Request request
      * @param request incoming request that we want to create a MethodCall from.
@@ -187,5 +194,7 @@ public interface Factory {
                                       final int timeOutInSeconds);
 
 
+
+    Client createClient(String uri, HttpClient httpClient);
 
 }

@@ -16,4 +16,6 @@ public interface EndPoint {
 
     void call(MethodCall<Object> methodCall);
 
+    void flush();
+
 }

@@ -142,27 +142,42 @@ public class ServiceServerImpl implements ServiceServer{
 
         if (GlobalConstants.DEBUG) logger.info("websocket message: " + webSocketMessage);
 
+//
+//
+//        final MethodCall<Object> methodCall =
+//                QBit.factory().createMethodCallToBeParsedFromBody(webSocketMessage.getRemoteAddress(),
+//                        webSocketMessage.getMessage(), webSocketMessage);
+//
+//        if (GlobalConstants.DEBUG) logger.info("websocket message for method call: " + methodCall);
+//
+//        if (!objectNameAddressURIWithVoidReturn.contains(methodCall.address())) {
+//
+//            addRequestToCheckForTimeouts(webSocketMessage);
+//        }
+//
+//        serviceBundle.call(methodCall);
 
+        final List<MethodCall<Object>> methodCalls = QBit.factory().createMethodCallListToBeParsedFromBody(webSocketMessage.getRemoteAddress(), webSocketMessage.getMessage(), webSocketMessage);
 
-        final MethodCall<Object> methodCall =
-                QBit.factory().createMethodCallToBeParsedFromBody(webSocketMessage.getRemoteAddress(),
-                        webSocketMessage.getMessage(), webSocketMessage);
+        for (MethodCall<Object> methodCall : methodCalls) {
 
-        if (GlobalConstants.DEBUG) logger.info("websocket message for method call: " + methodCall);
+            if (!objectNameAddressURIWithVoidReturn.contains(methodCall.address())) {
 
-        if (!objectNameAddressURIWithVoidReturn.contains(methodCall.address())) {
+                addRequestToCheckForTimeouts(webSocketMessage);
+            }
 
-            addRequestToCheckForTimeouts(webSocketMessage);
+            serviceBundle.call(methodCall);
         }
-
-        serviceBundle.call(methodCall);
-
     }
 
     private void handleResponseFromServiceBundleToWebSocketSender(Response<Object> response, WebSocketMessage originatingRequest) {
         final WebSocketMessage webSocketMessage = originatingRequest;
         String responseAsText = encoder.encodeAsString(response);
-        webSocketMessage.getSender().send(responseAsText);
+        try {
+            webSocketMessage.getSender().send(responseAsText);
+        } catch (Exception ex) {
+            logger.warn("websocket unable to send response");
+        }
     }
 
     private void handleResponseFromServiceToHttpResponse(Response<Object> response, HttpRequest originatingRequest) {

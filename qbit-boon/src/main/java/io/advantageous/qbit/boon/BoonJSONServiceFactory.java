@@ -1,6 +1,7 @@
 package io.advantageous.qbit.boon;
 
 import io.advantageous.qbit.Factory;
+import io.advantageous.qbit.client.ClientProxy;
 import io.advantageous.qbit.util.Timer;
 import io.advantageous.qbit.message.MethodCall;
 import io.advantageous.qbit.proxy.ServiceProxyFactory;
@@ -31,10 +32,10 @@ public class BoonJSONServiceFactory implements ServiceProxyFactory {
     @Override
     public <T> T createProxyWithReturnAddress(Class<T> serviceInterface, final String serviceName,
                                               String returnAddressArg,
-                                              final EndPoint serviceBundle) {
+                                              final EndPoint endPoint) {
 
-        final String objectAddress = serviceBundle!=null
-                ? Str.add(serviceBundle.address(), "/", serviceName) : "";
+        final String objectAddress = endPoint!=null
+                ? Str.add(endPoint.address(), "/", serviceName) : "";
 
 
         if (!Str.isEmpty(returnAddressArg)) {
@@ -54,6 +55,11 @@ public class BoonJSONServiceFactory implements ServiceProxyFactory {
             public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
 
 
+                if (method.getName().equals("clientProxyFlush")) {
+
+                    endPoint.flush();
+                    return null;
+                }
                 times--;
                 if (times == 0){
                     timestamp = Timer.timer().now();
@@ -75,14 +81,14 @@ public class BoonJSONServiceFactory implements ServiceProxyFactory {
                     return "PROXY OBJECT";
                 }
 
-                serviceBundle.call(call);
+                endPoint.call(call);
 
                 return null;
             }
         };
 
         final Object o = Proxy.newProxyInstance(Thread.currentThread().getContextClassLoader(),
-                new Class[]{serviceInterface}, invocationHandler
+                new Class[]{serviceInterface, ClientProxy.class}, invocationHandler
         );
 
 
@@ -92,7 +98,7 @@ public class BoonJSONServiceFactory implements ServiceProxyFactory {
     }
 
     @Override
-    public <T> T createProxy(Class<T> serviceInterface, String serviceName, EndPoint serviceBundle) {
-        return createProxyWithReturnAddress(serviceInterface, serviceName, "", serviceBundle);
+    public <T> T createProxy(Class<T> serviceInterface, String serviceName, EndPoint endPoint) {
+        return createProxyWithReturnAddress(serviceInterface, serviceName, "", endPoint);
     }
 }

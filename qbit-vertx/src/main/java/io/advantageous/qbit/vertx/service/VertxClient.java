@@ -26,9 +26,11 @@
  *               \/           \/          \/         \/        \/  \/
  */
 
-package io.advantageous.qbit.vertx;
+package io.advantageous.qbit.vertx.service;
 
 import io.advantageous.qbit.QBit;
+import io.advantageous.qbit.client.Client;
+import io.advantageous.qbit.client.ClientProxy;
 import io.advantageous.qbit.http.*;
 import io.advantageous.qbit.message.MethodCall;
 import io.advantageous.qbit.message.Response;
@@ -36,7 +38,6 @@ import io.advantageous.qbit.message.Response;
 import io.advantageous.qbit.service.BeforeMethodCall;
 import io.advantageous.qbit.service.Callback;
 import io.advantageous.qbit.service.method.impl.MethodCallImpl;
-import io.advantageous.qbit.vertx.http.HttpClientVertx;
 import org.boon.Boon;
 import org.boon.Logger;
 import org.boon.Str;
@@ -52,8 +53,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.*;
+import java.util.function.Consumer;
 
 import static io.advantageous.qbit.service.Protocol.PROTOCOL_ARG_SEPARATOR;
+import static org.boon.Boon.puts;
 import static org.boon.Exceptions.die;
 
 
@@ -63,19 +66,8 @@ import static org.boon.Exceptions.die;
  *
  * @author Rick Hightower
  */
-public class Client {
+public class VertxClient implements Client {
 
-    /**
-     * Host to connect to.
-     */
-    private final String host;
-    /**
-     * Port of host to connect to.
-     */
-    private final int port;
-    /**
-     * Uri at the host to connect to.
-     */
     private final String uri;
     /**
      * Map of handlers so we can do the whole async call back thing.
@@ -84,26 +76,22 @@ public class Client {
     /**
      * Logger.
      */
-    private Logger logger = Boon.logger(Client.class);
+    private Logger logger = Boon.logger(VertxClient.class);
 
 
-    /**
-     * scheduledFuture, we need to shut this down on close.
-     */
-    private ScheduledFuture<?> scheduledFuture;
-    private HttpClient httpServer;
+    private final HttpClient httpServerProxy;
 
+    private List<ClientProxy> clientProxies = new CopyOnWriteArrayList<>();
 
     /**
-     * @param host  host to connect to
-     * @param port  port on host
-     * @param uri   uri to connect to
+     *
+     * @param httpClient httpClient
+     * @param uri uri
      */
-    public Client(String host, int port, String uri) {
-        this.host = host;
-        this.port = port;
+    public VertxClient(String uri, HttpClient httpClient) {
+
+        this.httpServerProxy = httpClient;
         this.uri = uri;
-        connect();
     }
 
 
@@ -112,12 +100,13 @@ public class Client {
      */
     public void stop() {
 
-        if (httpServer!=null) {
+
+        if (httpServerProxy !=null) {
             try {
-                httpServer.stop();
+                httpServerProxy.stop();
             } catch (Exception ex) {
 
-                logger.warn(ex, "Problem closing httpServer connection", port, host);
+                logger.warn(ex, "Problem closing httpServerProxy ");
             }
         }
     }
@@ -130,14 +119,18 @@ public class Client {
      *
      * @param websocketText websocket text
      */
-    private void handleWebsocketQueueResponses(String websocketText) {
-    /* Message comes in as a string but we parse it into a Response object. */
+    private void handleWebsocketQueueResponses(final String websocketText) {
+
+        /* Message comes in as a string but we parse it into a Response object. */
         final Response<Object> response = QBit.factory().createResponse(websocketText);
 
 
         final String[] split = StringScanner.split(response.returnAddress(),
                 (char) PROTOCOL_ARG_SEPARATOR);
-        HandlerKey key = new HandlerKey(split[1], response.id());
+
+        HandlerKey key = split.length == 2 ? new HandlerKey(split[1], response.id()) :
+            new HandlerKey(split[0], response.id());
+
 
 
         final Callback<Object>  handler = handlers.get(key);
@@ -151,7 +144,7 @@ public class Client {
     /**
      * Handles an async callback.
      */
-    private void handleAsyncCallback(Response<Object> response, Callback<Object> handler) {
+    private void handleAsyncCallback(final Response<Object> response, final Callback<Object> handler) {
 
             if (response.wasErrors()) {
                 handler.onError(new Exception(response.body().toString()));
@@ -162,7 +155,7 @@ public class Client {
 
     public void flush() {
 
-        httpServer.flush();
+        httpServerProxy.flush();
     }
 
 
@@ -210,14 +203,14 @@ public class Client {
      *
      * @param serviceName message to send over WebSocket
      */
-    public void send(String serviceName, String message) {
+    private void send(String serviceName, String message) {
 
 
         final WebSocketMessage webSocketMessage = new WebSocketMessageBuilder()
                 .setUri(Str.add(uri, "/", serviceName))
                 .setMessage(message)
                 .setSender(this::handleWebsocketQueueResponses).build();
-        httpServer.sendWebSocketMessage(webSocketMessage);
+        httpServerProxy.sendWebSocketMessage(webSocketMessage);
     }
 
 
@@ -227,7 +220,7 @@ public class Client {
      * @param serviceInterface service interface
      * @param serviceName      service name
      * @param <T>              class type of interface
-     * @return new client proxy.. calling methods on this proxy marshals method calls to httpServer.
+     * @return new client proxy.. calling methods on this proxy marshals method calls to httpServerProxy.
      */
     public <T> T createProxy(final Class<T> serviceInterface,
                              final String serviceName) {
@@ -247,7 +240,7 @@ public class Client {
      */
     public <T> T createProxy(final Class<T> serviceInterface,
                              final String serviceName,
-                             String returnAddressArg
+                             final String returnAddressArg
     ) {
 
         if (!serviceInterface.isInterface()) {
@@ -288,10 +281,16 @@ public class Client {
                 return true;
             }
         };
-        return QBit.factory().createRemoteProxyWithReturnAddress(serviceInterface,
+        T proxy = QBit.factory().createRemoteProxyWithReturnAddress(serviceInterface,
                 uri,
-                serviceName, returnAddressArg, (returnAddress, buffer) -> Client.this.send(serviceName, buffer), beforeMethodCall
+                serviceName, returnAddressArg, (returnAddress, buffer) -> VertxClient.this.send(serviceName, buffer), beforeMethodCall
         );
+
+        if (proxy instanceof ClientProxy) {
+            clientProxies.add((ClientProxy) proxy);
+        }
+
+        return proxy;
     }
 
     /**
@@ -360,17 +359,18 @@ public class Client {
 
 
 
-    /**
-     * Use vertx to connect to websocket httpServer that is hosting this service.
-     */
-    private void connect() {
-
-        this.httpServer = new HttpClientBuilder().setPort(port).setHost(host).build();
-
-
-    }
 
     public void run() {
-        this.httpServer.run();
+
+        this.httpServerProxy.periodicFlushCallback(new Consumer<Void>() {
+            @Override
+            public void accept(Void aVoid) {
+                for (ClientProxy clientProxy : clientProxies) {
+                    clientProxy.clientProxyFlush();
+                }
+            }
+        });
+
+        this.httpServerProxy.run();
     }
 }

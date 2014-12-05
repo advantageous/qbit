@@ -579,4 +579,8 @@ public class ServiceBundleImpl implements ServiceBundle {
             }
         });
     }
+
+    public void flush() {
+        flushSends();
+    }
 }

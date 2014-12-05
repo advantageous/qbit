@@ -76,7 +76,7 @@ public class BoonProtocolParser implements ProtocolParser {
     }
 
     @Override
-    public List<Message<Object>> parse(Object body) {
+    public List<Message<Object>> parse(String address, Object body) {
 
         if (! (body instanceof String)) {
 
@@ -106,7 +106,7 @@ public class BoonProtocolParser implements ProtocolParser {
 
                 List<Message<Object>> messages = new ArrayList<>(methodCalls.length);
                 for (char[] methodCall : methodCalls) {
-                    final Message<Object> m = parseMessageFromChars("", methodCall);
+                    final Message<Object> m = parseMessageFromChars(address, methodCall);
                     messages.add(m);
                 }
 
@@ -125,7 +125,12 @@ public class BoonProtocolParser implements ProtocolParser {
 
     @Override
     public List<MethodCall<Object>> parseMethods(Object body) {
-        return  (List<MethodCall<Object>>) (Object) parse(body);
+        return  (List<MethodCall<Object>>) (Object) parse("", body);
+    }
+
+    @Override
+    public List<MethodCall<Object>> parseMethodCallListUsingAddressPrefix(String addressPrefix, Object body) {
+        return  (List<MethodCall<Object>>) (Object) parse("", body);
     }
 
     @Override

@@ -149,7 +149,7 @@ public class ProtocolParserVersion1Test {
 
 
 
-        List<Message<Object>> messages = parser.parse(s);
+        List<Message<Object>> messages = parser.parse("", s);
 
         final Message<Object> message = messages.get(0);
         ok = message instanceof Response;
