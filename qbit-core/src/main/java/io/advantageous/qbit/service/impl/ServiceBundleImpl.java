@@ -4,7 +4,6 @@ import io.advantageous.qbit.Factory;
 import io.advantageous.qbit.message.MethodCall;
 import io.advantageous.qbit.message.Response;
 import io.advantageous.qbit.queue.Queue;
-import io.advantageous.qbit.queue.ReceiveQueue;
 import io.advantageous.qbit.queue.ReceiveQueueListener;
 import io.advantageous.qbit.queue.SendQueue;
 import io.advantageous.qbit.queue.impl.BasicQueue;
@@ -119,13 +118,13 @@ public class ServiceBundleImpl implements ServiceBundle {
 
 
     /**
-     * Allows interception of method calls before they get sent to a service.
+     * Allows interception of method calls before they get sent to a client.
      * This allows us to transform or reject method calls.
      */
     private BeforeMethodCall beforeMethodCall = ServiceConstants.NO_OP_BEFORE_METHOD_CALL;
 
     /**
-     * Allows interception of method calls before they get transformed and sent to a service.
+     * Allows interception of method calls before they get transformed and sent to a client.
      * This allows us to transform or reject method calls.
      */
     private BeforeMethodCall beforeMethodCallAfterTransform = ServiceConstants.NO_OP_BEFORE_METHOD_CALL;
@@ -160,7 +159,7 @@ public class ServiceBundleImpl implements ServiceBundle {
 
 
     /**
-     * @param address   root address of service bundle
+     * @param address   root address of client bundle
      * @param batchSize outgoing batch size, exceeding this size forces a flush.
      * @param pollRate  time we should wait after not finding anything on the queue. The higher the slower for low traffic.
      * @param factory   the qbit factory where we can create responses, methods, etc.
@@ -195,9 +194,9 @@ public class ServiceBundleImpl implements ServiceBundle {
     }
 
     /**
-     * Add a service to this bundle.
+     * Add a client to this bundle.
      *
-     * @param object the service we want to add.
+     * @param object the client we want to add.
      */
     @Override
     public void addService(Object object) {
@@ -205,10 +204,10 @@ public class ServiceBundleImpl implements ServiceBundle {
     }
 
     /**
-     * Add a service to this bundle, under a certain address.
+     * Add a client to this bundle, under a certain address.
      *
-     * @param serviceAddress the address of the service
-     * @param serviceObject  the service we want to add.
+     * @param serviceAddress the address of the client
+     * @param serviceObject  the client we want to add.
      */
     @Override
     public void addService(String serviceAddress, Object serviceObject) {
@@ -217,33 +216,36 @@ public class ServiceBundleImpl implements ServiceBundle {
             logger.debug(ServiceBundleImpl.class.getName() + " serviceAddress " + serviceAddress + " service object " + serviceObject);
         }
 
-        /** Turn this service object into a service with queues. */
+
+
+        /** Turn this client object into a client with queues. */
         final Service service = factory.createService(address, serviceAddress,
                 serviceObject, responseQueue);
+
 
         /** add to our list of services. */
         services.add(service);
 
-        /* Create an send queue for this service. which we access from a single thread. */
+        /* Create an send queue for this client. which we access from a single thread. */
         final SendQueue<MethodCall<Object>> requests = service.requests();
 
-        /** Add the service given the address if we have an address. */
+        /** Add the client given the address if we have an address. */
         if (serviceAddress != null && !serviceAddress.isEmpty()) {
             serviceMapping.put(serviceAddress, requests);
         }
 
-        /** Put the service incoming requests in our service name, request queue mapping. */
+        /** Put the client incoming requests in our client name, request queue mapping. */
         serviceMapping.put(service.name(), requests);
 
         /** Add the request queue to our set of request queues. */
         sendQueues.add(requests);
 
-        /** Generate a list of end point addresses based on the service bundle root address. */
+        /** Generate a list of end point addresses based on the client bundle root address. */
         final Collection<String> addresses = service.addresses(this.address);
 
         if (debug) logger.debug(ServiceBundleImpl.class.getName() + " addresses: " + addresses);
 
-        /** Add mappings to all addresses for this service to our serviceMapping. */
+        /** Add mappings to all addresses for this client to our serviceMapping. */
         for (String addr : addresses) {
             addressesByDescending.add(addr);
             SendQueue<MethodCall<Object>> methodCallSendQueue = serviceMapping.get(service.name());
@@ -362,12 +364,12 @@ public class ServiceBundleImpl implements ServiceBundle {
     }
 
     /**
-     * Creates a proxy interface to a particular service. Given a particular address.
+     * Creates a proxy interface to a particular client. Given a particular address.
      *
-     * @param serviceInterface client view interface of service
-     * @param myService        address or name of service
-     * @param <T>              type of service
-     * @return proxy client to service
+     * @param serviceInterface client view interface of client
+     * @param myService        address or name of client
+     * @param <T>              type of client
+     * @return proxy client to client
      */
     @Override
     public <T> T createLocalProxy(Class<T> serviceInterface, String myService) {
@@ -428,10 +430,10 @@ public class ServiceBundleImpl implements ServiceBundle {
     }
 
     /**
-     * Attempts to call a service by its address.
+     * Attempts to call a client by its address.
      *
-     * @param methodCall method call to service
-     * @return send queue for the service we are trying to call.
+     * @param methodCall method call to client
+     * @return send queue for the client we are trying to call.
      */
     private SendQueue<MethodCall<Object>> handleByAddressCall(final MethodCall<Object> methodCall) {
         SendQueue<MethodCall<Object>> sendQueue;
@@ -509,7 +511,7 @@ public class ServiceBundleImpl implements ServiceBundle {
 
 
     /**
-     * Stop the service bundle.
+     * Stop the client bundle.
      */
     public void stop() {
         if (debug) {
@@ -530,7 +532,7 @@ public class ServiceBundleImpl implements ServiceBundle {
     }
 
     /**
-     * Start the service bundle.
+     * Start the client bundle.
      */
     private void start() {
         methodQueue.startListener(new ReceiveQueueListener<MethodCall<Object>>() {
@@ -549,7 +551,7 @@ public class ServiceBundleImpl implements ServiceBundle {
             }
 
             /**
-             * If the queue is empty, then go ahead, and flush to each service all incoming requests every 50 milliseconds.
+             * If the queue is empty, then go ahead, and flush to each client all incoming requests every 50 milliseconds.
              */
             @Override
             public void empty() {

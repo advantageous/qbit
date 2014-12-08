@@ -115,14 +115,17 @@ public class ServerTest {
 
         final AtomicBoolean resultsWorked = new AtomicBoolean();
 
-        httpServer.sendHttpGet("/services/todo-manager/timeout",
-                null, (code, mimeType, body) -> {
+        for (int index=0; index < 100; index++) {
+
+            httpServer.sendHttpGet("/services/todo-manager/timeout",
+                    null, (code, mimeType, body) -> {
 
 
-                    if (code == 408 && body!=null && body.equals("\"timed out\"")) {
-                        resultsWorked.set(true);
-                    }
-                });
+                        if (code == 408 && body != null && body.equals("\"timed out\"")) {
+                            resultsWorked.set(true);
+                        }
+                    });
+        }
 
 
         Sys.sleep(2_000);

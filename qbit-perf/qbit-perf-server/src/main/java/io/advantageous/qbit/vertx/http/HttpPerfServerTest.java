@@ -9,7 +9,7 @@ import static org.boon.Boon.puts;
 /**
  * Created by Richard on 11/12/14.
  */
-public class PerfServerTest {
+public class HttpPerfServerTest {
 
 
 

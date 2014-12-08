@@ -70,18 +70,18 @@ public interface Factory {
             MultiMap<String, String> params);
 
     /**
-     * Create a service bundle.
+     * Create a client bundle.
      * @param path path to bundle (base URI really)
-     * @return new service bundle
+     * @return new client bundle
      */
     ServiceBundle createServiceBundle(String path);
 
 
     /**
-     * Create a service
+     * Create a client
      * @param rootAddress base URI
-     * @param serviceAddress service address URI
-     * @param object object that implements the service
+     * @param serviceAddress client address URI
+     * @param object object that implements the client
      * @param responseQueue the response queue.
      * @return new Service that was created
      *
@@ -120,9 +120,9 @@ public interface Factory {
 
     /**
      * Create a local client proxy
-     * @param serviceInterface client interface to service
-     * @param serviceName name of the service that we are proxying method calls to.
-     * @param serviceBundle name of service bundle
+     * @param serviceInterface client interface to client
+     * @param serviceName name of the client that we are proxying method calls to.
+     * @param serviceBundle name of client bundle
      * @param <T> type of proxy
      * @return new proxy object
      */
@@ -137,13 +137,13 @@ public interface Factory {
 
     /**
      * Create a remote proxy using a sender that knows how to send method body over wire
-     * @param serviceInterface client view of service
-     * @param uri uri of service
-     * @param serviceName name of the service that we are proxying method calls to.
+     * @param serviceInterface client view of client
+     * @param uri uri of client
+     * @param serviceName name of the client that we are proxying method calls to.
      * @param returnAddressArg return address
      * @param sender how we are sending the message over the wire
      * @param beforeMethodCall before method call
-     * @param <T> type of service
+     * @param <T> type of client
      * @return remote proxy
      */
     <T> T createRemoteProxyWithReturnAddress(Class<T> serviceInterface, String uri, String serviceName, String returnAddressArg,

@@ -8,10 +8,10 @@ public interface Client {
 
 
     /**
-     * Creates a new client proxy given a service interface.
+     * Creates a new client proxy given a client interface.
      *
-     * @param serviceInterface service interface
-     * @param serviceName      service name
+     * @param serviceInterface client interface
+     * @param serviceName      client name
      * @param <T>              class type of interface
      * @return new client proxy.. calling methods on this proxy marshals method calls to httpServer.
      */

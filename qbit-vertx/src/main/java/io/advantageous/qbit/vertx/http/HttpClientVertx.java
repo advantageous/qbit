@@ -8,7 +8,6 @@ import io.advantageous.qbit.queue.SendQueue;
 import io.advantageous.qbit.queue.impl.BasicQueue;
 import io.advantageous.qbit.util.MultiMap;
 import io.advantageous.qbit.vertx.MultiMapWrapper;
-import org.boon.Str;
 import org.boon.core.Sys;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,8 +26,6 @@ import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Consumer;
-
-import static org.boon.Boon.puts;
 
 /**
  * Created by rhightower on 10/28/14.
@@ -159,7 +156,7 @@ public class HttpClientVertx implements HttpClient {
             if (this.scheduledExecutorService!=null)
                 this.scheduledExecutorService.shutdown();
         } catch (Exception ex) {
-            logger.warn("problem shutting down executor service for Http Client", ex);
+            logger.warn("problem shutting down executor client for Http Client", ex);
         }
 
         try {

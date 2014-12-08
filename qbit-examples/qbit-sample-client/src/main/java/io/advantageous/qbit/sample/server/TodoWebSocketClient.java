@@ -1,18 +1,13 @@
 package io.advantageous.qbit.sample.server;
 
-import io.advantageous.qbit.QBit;
 import io.advantageous.qbit.client.Client;
 import io.advantageous.qbit.client.ClientBuilder;
-import io.advantageous.qbit.queue.Queue;
 import io.advantageous.qbit.sample.server.client.TodoServiceClient;
 import io.advantageous.qbit.sample.server.model.TodoItem;
 import io.advantageous.qbit.service.Callback;
-import io.advantageous.qbit.vertx.service.VertxClient;
 import org.boon.core.Sys;
 
 import java.util.Date;
-import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -67,26 +62,6 @@ public class TodoWebSocketClient {
 
         todoService.add(new TodoItem("a" , "b", new Date()));
 
-//
-//        Sys.sleep(100);
-//
-//        todoService.size(new Callback<Integer>() {
-//            @Override
-//            public void accept(Integer size) {
-//                sizeQueue.offer(size);
-//            }
-//        });
-
-
-
-
-
-//        try {
-//            startingSize       = sizeQueue.take();
-//        } catch (InterruptedException e) {
-//            startingSize = 0;
-//        }
-
 
         Date date = new Date();
 
@@ -124,16 +99,6 @@ public class TodoWebSocketClient {
         }
 
 
-//        /* Read the items back. */
-//        todoService.list(todoItems -> {
-//
-////            for (TodoItem item : todoItems) {
-////                //puts (item.getDescription(), item.getName(), item.getDue());
-////
-////            }
-//
-//            puts("SIZE " + todoItems.size());
-//        });
 
 
         Sys.sleep(10_000);

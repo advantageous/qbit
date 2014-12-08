@@ -3,7 +3,7 @@ package io.advantageous.qbit.service;
 import io.advantageous.qbit.message.MethodCall;
 
 /**
- * An end point is an address and a way to transmit method calls to a service.
+ * An end point is an address and a way to transmit method calls to a client.
  *
  * Created by Richard on 10/1/14.
  * @author rhightower

@@ -8,7 +8,7 @@ import java.util.Iterator;
 import java.util.List;
 
 /**
- * This is a composite message passed to a service.
+ * This is a composite message passed to a client.
  * <p>
  * Created by Richard on 9/8/14.
  *

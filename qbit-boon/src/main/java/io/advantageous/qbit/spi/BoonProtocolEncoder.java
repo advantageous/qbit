@@ -25,7 +25,7 @@ import static io.advantageous.qbit.service.Protocol.*;
  */
 public class BoonProtocolEncoder implements ProtocolEncoder {
 
-    private static ThreadLocal<JsonSerializer> jsonSerializer = new ThreadLocal<JsonSerializer>() {
+    private ThreadLocal<JsonSerializer> jsonSerializer = new ThreadLocal<JsonSerializer>() {
         @Override
         protected JsonSerializer initialValue() {
             return new JsonSerializerFactory().addFilter(
@@ -37,6 +37,16 @@ public class BoonProtocolEncoder implements ProtocolEncoder {
                      }
             ).create();
         }
+    };
+
+
+    private ThreadLocal<CharBuf> bufRef = new ThreadLocal<CharBuf>() {
+        @Override
+        protected CharBuf initialValue() {
+            CharBuf buf = CharBuf.createCharBuf(1000);
+
+            return buf;
+        };
     };
 
     @Override
@@ -55,7 +65,8 @@ public class BoonProtocolEncoder implements ProtocolEncoder {
 
     @Override
     public String encodeAsString(List<Message<Object>> methodCalls) {
-        CharBuf buf = CharBuf.createCharBuf(1000);
+        CharBuf buf = bufRef.get();
+        buf.recycle();
 
         buf.addChar(PROTOCOL_MARKER);
         buf.addChar(PROTOCOL_VERSION_1_GROUP);

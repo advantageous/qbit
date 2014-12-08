@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * This binds a method to an annotated method in a service.
+ * This binds a method to an annotated method in a client.
  * <p>
  * Created by Richard on 7/22/14.
  */

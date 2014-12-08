@@ -1,13 +1,13 @@
 package io.advantageous.qbit.spi;
 
-import io.advantageous.qbit.util.MultiMap;
-import io.advantageous.qbit.util.MultiMapImpl;
 import io.advantageous.qbit.message.Message;
 import io.advantageous.qbit.message.MethodCall;
 import io.advantageous.qbit.message.Response;
 import io.advantageous.qbit.service.Protocol;
 import io.advantageous.qbit.service.method.impl.MethodCallImpl;
 import io.advantageous.qbit.service.method.impl.ResponseImpl;
+import io.advantageous.qbit.util.MultiMap;
+import io.advantageous.qbit.util.MultiMapImpl;
 import org.boon.Lists;
 import org.boon.Str;
 import org.boon.core.reflection.FastStringUtils;
@@ -252,12 +252,15 @@ public class BoonProtocolParser implements ProtocolParser {
                 (char) PROTOCOL_SEPARATOR, 0, METHOD_NAME_POS+2);
 
 
-        String messageId = FastStringUtils.noCopyStringFromChars(chars[
-                MESSAGE_ID_POS]);
+//        String messageId = FastStringUtils.noCopyStringFromChars(chars[
+//                MESSAGE_ID_POS]);
+
 
         long id = 0L;
-        if (!Str.isEmpty(messageId)) {
-            id = Long.parseLong(messageId);
+        if (!Chr.isEmpty(        chars[
+                MESSAGE_ID_POS])) {
+            id = CharScanner.parseLong(chars[
+                    MESSAGE_ID_POS]);
         }
 
         String address = FastStringUtils.noCopyStringFromChars(chars[
@@ -291,13 +294,14 @@ public class BoonProtocolParser implements ProtocolParser {
                 OBJECT_NAME_POS]);
 
 
-        String stime = FastStringUtils.noCopyStringFromChars(chars[
-                TIMESTAMP_POS]);
+//        String stime = FastStringUtils.noCopyStringFromChars(chars[
+//                TIMESTAMP_POS]);
 
         long timestamp = 0L;
 
-        if (!Str.isEmpty(stime)) {
-            timestamp = Long.parseLong(stime);
+        if (!Chr.isEmpty(chars[TIMESTAMP_POS])) {
+            //timestamp = Long.parseLong(stime);
+            timestamp = CharScanner.parseLong(chars[TIMESTAMP_POS]);
         }
 
         char[] body = chars[ ARGS_POS ];
@@ -306,7 +310,7 @@ public class BoonProtocolParser implements ProtocolParser {
         final char[][] argumentList = CharScanner.split(body,
                 (char) PROTOCOL_ARG_SEPARATOR);
 
-        List<Object> argList = new ArrayList<>();
+        Object[] argList = new Object[argumentList.length];
 
         for (int index=0; index< argumentList.length; index++) {
             char [] charArgs = argumentList[index];
@@ -315,7 +319,7 @@ public class BoonProtocolParser implements ProtocolParser {
                 break;
             }
             Object arg = jsonParserThreadLocal.get().parse(charArgs);
-            argList.add(arg);
+            argList[index] = arg;
         }
 
         MethodCallImpl methodCall =  MethodCallImpl.method(id, address, returnAddress, objectName, methodName, timestamp, argList, params);

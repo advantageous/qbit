@@ -12,7 +12,7 @@ import static org.boon.Boon.puts;
 /**
  * Created by rhightower on 11/12/14.
  */
-public class PerfClientTest {
+public class HttpPerfClientTest {
 
 
     private static volatile LongAdder errorCount = new LongAdder();

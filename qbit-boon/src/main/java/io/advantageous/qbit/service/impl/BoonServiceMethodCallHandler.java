@@ -1,15 +1,15 @@
 package io.advantageous.qbit.service.impl;
 
-import io.advantageous.qbit.service.Callback;
-import io.advantageous.qbit.util.MultiMap;
 import io.advantageous.qbit.bindings.ArgParamBinding;
 import io.advantageous.qbit.bindings.MethodBinding;
 import io.advantageous.qbit.bindings.RequestParamBinding;
 import io.advantageous.qbit.message.MethodCall;
 import io.advantageous.qbit.message.Response;
 import io.advantageous.qbit.queue.SendQueue;
+import io.advantageous.qbit.service.Callback;
 import io.advantageous.qbit.service.ServiceMethodHandler;
 import io.advantageous.qbit.service.method.impl.ResponseImpl;
+import io.advantageous.qbit.util.MultiMap;
 import org.boon.Lists;
 import org.boon.Pair;
 import org.boon.Str;
@@ -20,7 +20,6 @@ import org.boon.core.reflection.Annotated;
 import org.boon.core.reflection.AnnotationData;
 import org.boon.core.reflection.ClassMeta;
 import org.boon.core.reflection.MethodAccess;
-import org.boon.primitive.Arry;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.*;
@@ -201,11 +200,18 @@ public class BoonServiceMethodCallHandler implements ServiceMethodHandler {
         List<Object> argsList = prepareArgumentList(methodCall,
                 method.parameterTypes());
 
+
+        List<Object> list = null;
+
+        if (body instanceof Object[]) {
+
+            Object [] array = (Object[]) body;
+            list = Arrays.asList(array);
+            body = list;
+        }
+
         if (body instanceof List) {
-
-
-            List<Object> list = (List) body;
-
+            list = (List<Object>) body;
             if (list.size() - 1 == method.parameterTypes().length) {
                 if (list.get(0) instanceof Callback) {
                     list = Lists.slc(list, 1);
@@ -226,27 +232,6 @@ public class BoonServiceMethodCallHandler implements ServiceMethodHandler {
                 }
 
                 argsList.set(index, iterator.next());
-            }
-        } else if (body instanceof Object[]) {
-
-            Object[] args = (Object[]) body;
-
-
-            if (args.length - 1 == method.parameterTypes().length) {
-                if (args[0] instanceof Callback) {
-                    args = Arry.slc(args, 1);
-                }
-            }
-
-
-            for (int index = 0; index < argsList.size(); index++) {
-
-                final Object o = argsList.get(index);
-                if (o instanceof Callback) {
-                    continue;
-                }
-
-                argsList.set(index, args[index]);
             }
         } else {
             if (argsList.size() == 1 && !(argsList.get(0) instanceof Callback)) {
@@ -299,6 +284,13 @@ public class BoonServiceMethodCallHandler implements ServiceMethodHandler {
                     List bList = (List) methodCall.body();
                     if (bList.size() == 1) {
                         argsList.set(index, bList.get(0));
+                    }
+                } else if (methodCall.body() instanceof Object[]) {
+
+                    Object[] bList = (Object[]) methodCall.body();
+                    if (bList.length == 1) {
+
+                        argsList.set(index, bList[0]);
                     }
                 } else {
                     argsList.set(index, methodCall.body());
@@ -375,7 +367,10 @@ public class BoonServiceMethodCallHandler implements ServiceMethodHandler {
         if (Str.isEmpty(serviceAddress)) {
             serviceAddress = readAddressFromAnnotation(classMeta);
         }
+        if (Str.isEmpty(serviceAddress)) {
 
+            serviceAddress =  Str.camelCaseLower(classMeta.name());
+        }
         if (serviceAddress.endsWith("/")) {
             serviceAddress = Str.slc(serviceAddress, 0, -1);
         }

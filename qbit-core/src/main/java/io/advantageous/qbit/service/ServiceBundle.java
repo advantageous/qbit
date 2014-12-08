@@ -2,14 +2,13 @@ package io.advantageous.qbit.service;
 
 import io.advantageous.qbit.message.Response;
 import io.advantageous.qbit.queue.Queue;
-import io.advantageous.qbit.queue.ReceiveQueue;
 import io.advantageous.qbit.queue.ReceiveQueueListener;
 
 import java.util.List;
 
 /**
- * A service bundle is a collection of services.
- * The service bundle does the routing of calls based on addresses to a particular service.
+ * A client bundle is a collection of services.
+ * The client bundle does the routing of calls based on addresses to a particular client.
  * Created by Richard on 9/26/14.
  * @author rhightower
  */

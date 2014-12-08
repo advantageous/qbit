@@ -4,11 +4,9 @@ import io.advantageous.qbit.QBit;
 import io.advantageous.qbit.http.*;
 import io.advantageous.qbit.message.MethodCall;
 import io.advantageous.qbit.util.MultiMap;
-import io.advantageous.qbit.util.Timer;
 import org.boon.Boon;
 
 import java.util.function.Consumer;
-import java.util.function.Function;
 
 /**
  * Created by rhightower on 10/24/14.

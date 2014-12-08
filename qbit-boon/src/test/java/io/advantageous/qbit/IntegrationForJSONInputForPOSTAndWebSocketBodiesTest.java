@@ -109,7 +109,7 @@ public class IntegrationForJSONInputForPOSTAndWebSocketBodiesTest {
 
         String addressToMethodCall = "/root/empservice/addEmployee";
 
-        /* Create employee service */
+        /* Create employee client */
         serviceBundle.addService("/empservice/", employeeService);
 
 
@@ -132,7 +132,7 @@ public class IntegrationForJSONInputForPOSTAndWebSocketBodiesTest {
 
         String addressToMethodCall = "/root/empservice/addEmployee";
 
-        /* Create employee service */
+        /* Create employee client */
         serviceBundle.addService("/empservice/", employeeService);
 
 
@@ -145,7 +145,7 @@ public class IntegrationForJSONInputForPOSTAndWebSocketBodiesTest {
 
         Exceptions.requireNonNull(response);
 
-        /** Read employee back from service */
+        /** Read employee back from client */
 
         addressToMethodCall = "/root/empservice/readEmployee";
 
@@ -171,7 +171,7 @@ public class IntegrationForJSONInputForPOSTAndWebSocketBodiesTest {
         puts(response.body());
 
 
-        /** Read employee back from service */
+        /** Read employee back from client */
 
         addressToMethodCall = "/root/empservice/readEmployee";
 

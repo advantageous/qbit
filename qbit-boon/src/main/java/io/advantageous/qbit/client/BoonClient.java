@@ -26,11 +26,9 @@
  *               \/           \/          \/         \/        \/  \/
  */
 
-package io.advantageous.qbit.vertx.service;
+package io.advantageous.qbit.client;
 
 import io.advantageous.qbit.QBit;
-import io.advantageous.qbit.client.Client;
-import io.advantageous.qbit.client.ClientProxy;
 import io.advantageous.qbit.http.*;
 import io.advantageous.qbit.message.MethodCall;
 import io.advantageous.qbit.message.Response;
@@ -47,6 +45,8 @@ import org.boon.core.reflection.ClassMeta;
 import org.boon.core.reflection.MapObjectConversion;
 import org.boon.core.reflection.MethodAccess;
 import org.boon.primitive.Arry;
+import org.boon.primitive.CharBuf;
+
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.List;
@@ -56,7 +56,6 @@ import java.util.concurrent.*;
 import java.util.function.Consumer;
 
 import static io.advantageous.qbit.service.Protocol.PROTOCOL_ARG_SEPARATOR;
-import static org.boon.Boon.puts;
 import static org.boon.Exceptions.die;
 
 
@@ -66,7 +65,7 @@ import static org.boon.Exceptions.die;
  *
  * @author Rick Hightower
  */
-public class VertxClient implements Client {
+public class BoonClient implements Client {
 
     private final String uri;
     /**
@@ -76,7 +75,7 @@ public class VertxClient implements Client {
     /**
      * Logger.
      */
-    private Logger logger = Boon.logger(VertxClient.class);
+    private Logger logger = Boon.logger(BoonClient.class);
 
 
     private final HttpClient httpServerProxy;
@@ -88,7 +87,7 @@ public class VertxClient implements Client {
      * @param httpClient httpClient
      * @param uri uri
      */
-    public VertxClient(String uri, HttpClient httpClient) {
+    public BoonClient(String uri, HttpClient httpClient) {
 
         this.httpServerProxy = httpClient;
         this.uri = uri;
@@ -197,6 +196,13 @@ public class VertxClient implements Client {
     }
 
 
+    ThreadLocal <CharBuf> charBufRef = new ThreadLocal<CharBuf>(){
+        @Override
+        protected CharBuf initialValue() {
+            return CharBuf.create(100);
+        }
+    };
+
     /**
      * Sends a message over websocket.
      * @param message message to send over WebSocket
@@ -205,9 +211,12 @@ public class VertxClient implements Client {
      */
     private void send(String serviceName, String message) {
 
+        final CharBuf charBuf = charBufRef.get();
+        charBuf.recycle();
+        charBuf.add(uri).add( "/").add(serviceName);
 
         final WebSocketMessage webSocketMessage = new WebSocketMessageBuilder()
-                .setUri(Str.add(uri, "/", serviceName))
+                .setUri(charBuf.toString())
                 .setMessage(message)
                 .setSender(this::handleWebsocketQueueResponses).build();
         httpServerProxy.sendWebSocketMessage(webSocketMessage);
@@ -215,10 +224,10 @@ public class VertxClient implements Client {
 
 
     /**
-     * Creates a new client proxy given a service interface.
+     * Creates a new client proxy given a client interface.
      *
-     * @param serviceInterface service interface
-     * @param serviceName      service name
+     * @param serviceInterface client interface
+     * @param serviceName      client name
      * @param <T>              class type of interface
      * @return new client proxy.. calling methods on this proxy marshals method calls to httpServerProxy.
      */
@@ -232,10 +241,10 @@ public class VertxClient implements Client {
     }
 
     /**
-     * @param serviceInterface service interface
-     * @param serviceName      service name
+     * @param serviceInterface client interface
+     * @param serviceName      client name
      * @param returnAddressArg specify a specific return address
-     * @param <T>              class type of service interface
+     * @param <T>              class type of client interface
      * @return proxy object
      */
     public <T> T createProxy(final Class<T> serviceInterface,
@@ -283,7 +292,7 @@ public class VertxClient implements Client {
         };
         T proxy = QBit.factory().createRemoteProxyWithReturnAddress(serviceInterface,
                 uri,
-                serviceName, returnAddressArg, (returnAddress, buffer) -> VertxClient.this.send(serviceName, buffer), beforeMethodCall
+                serviceName, returnAddressArg, (returnAddress, buffer) -> BoonClient.this.send(serviceName, buffer), beforeMethodCall
         );
 
         if (proxy instanceof ClientProxy) {
@@ -296,10 +305,10 @@ public class VertxClient implements Client {
     /**
      * Create an async handler. Uses some generics reflection to see what the actual type is
      *
-     * @param serviceInterface service interface
+     * @param serviceInterface client interface
      * @param call             method call object
      * @param handler          handler that will handle the message
-     * @param <T>              the class of hte service interface
+     * @param <T>              the class of hte client interface
      * @return the new handler
      */
     private <T> Callback createHandler(final Class<T> serviceInterface, final MethodCall call, final Callback handler) {

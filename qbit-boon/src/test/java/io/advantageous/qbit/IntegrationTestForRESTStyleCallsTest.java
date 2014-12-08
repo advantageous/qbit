@@ -118,7 +118,7 @@ public class IntegrationTestForRESTStyleCallsTest {
 
         String addressToMethodCall = "/root/employeeRest/employee/add";
 
-        /* Create employee service */
+        /* Create employee client */
         serviceBundle.addService(employeeService);
 
 
@@ -143,7 +143,7 @@ public class IntegrationTestForRESTStyleCallsTest {
 
         String addressToMethodCall = "/root/employeeRest/employee/add";
 
-        /* Create employee service */
+        /* Create employee client */
         serviceBundle.addService(employeeService);
 
 
@@ -159,7 +159,7 @@ public class IntegrationTestForRESTStyleCallsTest {
 
         Boon.equalsOrDie(true, response.body());
 
-        /** Read employee back from service */
+        /** Read employee back from client */
 
         addressToMethodCall = "/root/employeeRest/employee/10";
 
@@ -233,7 +233,7 @@ public class IntegrationTestForRESTStyleCallsTest {
 
 
 
-        /* Create employee service */
+        /* Create employee client */
         serviceBundle.addService(employeeService);
 
         /** Promote employee from Service */
@@ -265,7 +265,7 @@ public class IntegrationTestForRESTStyleCallsTest {
 
         String addressToMethodCall = "/root/employeeRest/addEmployeeWithParams";
 
-        /* Create employee service */
+        /* Create employee client */
         serviceBundle.addService(employeeService);
 
 
@@ -280,10 +280,14 @@ public class IntegrationTestForRESTStyleCallsTest {
 
         Exceptions.requireNonNull(response);
 
+        if (response.body() instanceof  Exception) {
+            Exception ex = (Exception) response.body();
+            ex.printStackTrace();
+        }
 
         Boon.equalsOrDie(true, response.body());
 
-        /** Read employee back from service */
+        /** Read employee back from client */
 
 
         params = new MultiMapImpl<>();
@@ -308,7 +312,7 @@ public class IntegrationTestForRESTStyleCallsTest {
 
         String addressToMethodCall = "/root/employeeRest/employee/error/";
 
-        /* Create employee service */
+        /* Create employee client */
         serviceBundle.addService(employeeService);
 
 
@@ -334,7 +338,7 @@ public class IntegrationTestForRESTStyleCallsTest {
 
         String addressToMethodCall = "/root/employeeRest/async/";
 
-        /* Create employee service */
+        /* Create employee client */
         serviceBundle.addService(employeeService);
 
         call = factory.createMethodCallByAddress(addressToMethodCall, returnAddress, "", params);
@@ -359,7 +363,7 @@ public class IntegrationTestForRESTStyleCallsTest {
 
         String addressToMethodCall = "/root/employeeRest/asyncHelloWorld/";
 
-        /* Create employee service */
+        /* Create employee client */
         serviceBundle.addService(employeeService);
 
         call = factory.createMethodCallByAddress(addressToMethodCall, returnAddress, "World", params);

@@ -15,8 +15,8 @@ import java.util.Collection;
 public interface Service {
 
     /**
-     * Queue so we can enqueue method calls onto a service.
-     * A service send queue is not thread safe. Every thread that uses this service, needs its own SendQueue
+     * Queue so we can enqueue method calls onto a client.
+     * A client send queue is not thread safe. Every thread that uses this client, needs its own SendQueue
      * this allows us to batch calls.
      *
      * @return send queue
@@ -24,7 +24,7 @@ public interface Service {
     SendQueue<MethodCall<Object>> requests();
 
     /**
-     * Queue so we can receive method calls from a service
+     * Queue so we can receive method calls from a client
      * @return receive queue
      */
     ReceiveQueue<Response<Object>> responses();
@@ -36,14 +36,14 @@ public interface Service {
     ReceiveQueue<Event> events();
 
     /**
-     * Name of the service
+     * Name of the client
      * @return name
      */
     String name();
 
 
     /**
-     * Stop the service.
+     * Stop the client.
      */
     void stop();
 

@@ -7,6 +7,7 @@ import io.advantageous.qbit.message.MethodCall;
 import io.advantageous.qbit.proxy.ServiceProxyFactory;
 import io.advantageous.qbit.service.EndPoint;
 import org.boon.Str;
+import org.boon.primitive.CharBuf;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
@@ -44,6 +45,13 @@ public class BoonJSONServiceFactory implements ServiceProxyFactory {
 
         final String returnAddress = returnAddressArg;
 
+        final ThreadLocal<CharBuf> addressCreatorBufRef = new ThreadLocal<CharBuf>(){
+            @Override
+            protected CharBuf initialValue() {
+                return CharBuf.createCharBuf(255);
+            }
+        };
+
 
         InvocationHandler invocationHandler = new InvocationHandler() {
 
@@ -69,7 +77,13 @@ public class BoonJSONServiceFactory implements ServiceProxyFactory {
                 }
 
 
-                final String address = Str.add(objectAddress, "/", method.getName());
+                final CharBuf addressBuf = addressCreatorBufRef.get();
+
+                addressBuf.recycle();
+
+                addressBuf.add(objectAddress).add("/").add(method.getName());
+
+                final String address = addressBuf.toString();
 
 
 

@@ -18,14 +18,14 @@ public class TodoService {
 
     int adds = 0;
 
-    @RequestMapping("/todo/list")
+    @RequestMapping("/todo/size")
     public int size() {
 
         return adds;
     }
 
 
-    @RequestMapping("/todo/size")
+    @RequestMapping("/todo/list")
     public List<TodoItem> list() {
 
         return todoRepository.list();

@@ -103,7 +103,7 @@ public class IntegrationLikeUnitTest {
 
         String addressToMethodCall = "/root/empservice/addEmployee";
 
-        /* Create employee service */
+        /* Create employee client */
         serviceBundle.addService("/empservice/", employeeService);
 
 
@@ -128,7 +128,7 @@ public class IntegrationLikeUnitTest {
 
         String addressToMethodCall = "/root/empservice/addEmployee";
 
-        /* Create employee service */
+        /* Create employee client */
         serviceBundle.addService("/empservice/", employeeService);
 
 
@@ -141,7 +141,7 @@ public class IntegrationLikeUnitTest {
 
         Exceptions.requireNonNull(response);
 
-        /** Read employee back from service */
+        /** Read employee back from client */
 
         addressToMethodCall = "/root/empservice/readEmployee";
 
@@ -170,7 +170,7 @@ public class IntegrationLikeUnitTest {
 
 
 
-        /** Read employee back from service */
+        /** Read employee back from client */
 
         addressToMethodCall = "/root/empservice/readEmployee";
 
