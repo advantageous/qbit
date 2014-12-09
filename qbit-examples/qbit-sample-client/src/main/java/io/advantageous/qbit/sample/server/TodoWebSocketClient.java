@@ -70,11 +70,11 @@ public class TodoWebSocketClient {
 
 
 
-            for (int index = 0; index < 100_000; index++) {
+            for (int index = 0; index < 200_000; index++) {
                 todoService.add(new TodoItem("a" + index, "b", date));
 
 
-                if (index % 10_000 == 0) {
+                if (index % 40_000 == 0) {
 
                     if (wait.get()) {
                         todoService.size(TodoWebSocketClient::adjustSize);
@@ -90,8 +90,8 @@ public class TodoWebSocketClient {
 
             client.flush();
 
-            totalSends.addAndGet(100_000);
-            Sys.sleep(250);
+            totalSends.addAndGet(200_000);
+            Sys.sleep(25);
 
 
 
@@ -127,7 +127,7 @@ public class TodoWebSocketClient {
         int itemsReceived = size - startSize;
         int currentTotalSends = totalSends.get();
 
-        if (currentTotalSends - 50_000 > ( itemsReceived ) ) {
+        if (currentTotalSends - 400_000 > ( itemsReceived ) ) {
 
             puts("Waiting flag", "currentTotalSends", currentTotalSends, "itemsReceived", itemsReceived);
             wait.set(true);

@@ -208,7 +208,7 @@ public class PerfTestMain {
             final int runNum = index;
 
 
-            if (index % 200_000 == 0 ) {
+            if (index % 400_000 == 0 ) {
                 adder.sum(new Callback<Integer>() {
                     @Override
                     public void accept(Integer integer) {

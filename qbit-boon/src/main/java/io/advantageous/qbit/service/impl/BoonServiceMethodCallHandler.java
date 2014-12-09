@@ -20,6 +20,7 @@ import org.boon.core.reflection.Annotated;
 import org.boon.core.reflection.AnnotationData;
 import org.boon.core.reflection.ClassMeta;
 import org.boon.core.reflection.MethodAccess;
+import org.boon.primitive.Arry;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.*;
@@ -201,24 +202,31 @@ public class BoonServiceMethodCallHandler implements ServiceMethodHandler {
                 method.parameterTypes());
 
 
-        List<Object> list = null;
 
-        if (body instanceof Object[]) {
+        if (body instanceof List || body instanceof Object[]) {
 
-            Object [] array = (Object[]) body;
-            list = Arrays.asList(array);
-            body = list;
-        }
 
-        if (body instanceof List) {
-            list = (List<Object>) body;
-            if (list.size() - 1 == method.parameterTypes().length) {
-                if (list.get(0) instanceof Callback) {
-                    list = Lists.slc(list, 1);
+            if (body instanceof List) {
+
+                List<Object> list = (List<Object>) body;
+                if (list.size() - 1 == method.parameterTypes().length) {
+                    if (list.get(0) instanceof Callback) {
+                        list = Lists.slc(list, 1);
+                    }
                 }
+                body = list;
+            } else if (body instanceof Object[]) {
+                Object[] array = (Object[]) body;
+                if (array.length - 1 == method.parameterTypes().length) {
+                    if (array[0] instanceof Callback) {
+                        array = Arry.slc(array, 1);
+                    }
+                }
+
+                body = array;
             }
 
-            final Iterator<Object> iterator = list.iterator();
+            final Iterator<Object> iterator = Conversions.iterator(Object.class, body);
 
             for (int index = 0; index < argsList.size(); index++) {
 

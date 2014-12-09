@@ -22,3 +22,5 @@ lib/javax.servlet.jsp.jar
 lib/javax.servlet.jsp.jstl.jar
 
 qbit.ipr
+
+*.hprof
