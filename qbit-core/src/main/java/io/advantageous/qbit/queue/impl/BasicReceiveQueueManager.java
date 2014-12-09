@@ -1,10 +1,11 @@
 package io.advantageous.qbit.queue.impl;
 
-import io.advantageous.qbit.queue.ReceiveQueueListener;
 import io.advantageous.qbit.queue.ReceiveQueue;
+import io.advantageous.qbit.queue.ReceiveQueueListener;
 import io.advantageous.qbit.queue.ReceiveQueueManager;
 
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.locks.LockSupport;
 
 
 /**
@@ -12,6 +13,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * @author rhightower
  */
 public class BasicReceiveQueueManager<T> implements ReceiveQueueManager<T> {
+
+    boolean sleepWait = true;
 
     @Override
     public void manageQueue(ReceiveQueue<T> inputQueue, ReceiveQueueListener<T> listener, int batchSize, AtomicBoolean stop) {
@@ -27,7 +30,7 @@ public class BasicReceiveQueueManager<T> implements ReceiveQueueManager<T> {
 
 
             /* Collect a batch of items as long as no item is null. */
-            while (item!=null) {
+            while (item != null) {
 
                 count++;
 
@@ -50,15 +53,61 @@ public class BasicReceiveQueueManager<T> implements ReceiveQueueManager<T> {
             listener.empty();
             count = 0;
 
+            if (sleepWait) {
 
-            item = inputQueue.poll();
+                item = inputQueue.poll();
 
             /* See if a yield helps. Try to keep the thread alive. */
-            if (item!=null) {
-                continue;
-            } else {
-                Thread.yield();
+                if (item != null) {
+                    continue;
+                } else {
+                    Thread.yield();
+                }
+
+
+                item = inputQueue.poll();
+
+            /* See if a yield helps. Try to keep the thread alive. */
+                if (item != null) {
+                    continue;
+                } else {
+                    LockSupport.parkNanos(1_000_000);
+                }
+
+
+                item = inputQueue.poll();
+
+            /* See if a yield helps. Try to keep the thread alive. */
+                if (item != null) {
+                    continue;
+                } else {
+
+                    LockSupport.parkNanos(2_000_000);
+                }
+
+
+                item = inputQueue.poll();
+
+            /* See if a yield helps. Try to keep the thread alive. */
+                if (item != null) {
+                    continue;
+                } else {
+
+                    LockSupport.parkNanos(4_000_000);
+                }
+
+
+                item = inputQueue.poll();
+
+            /* See if a yield helps. Try to keep the thread alive. */
+                if (item != null) {
+                    continue;
+                } else {
+                    LockSupport.parkNanos(8_000_000);
+
+                }
             }
+
 
 
             /* Get the next item, but wait this time since the queue was empty. */

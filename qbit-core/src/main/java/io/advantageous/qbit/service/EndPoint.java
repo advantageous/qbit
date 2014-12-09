@@ -2,6 +2,8 @@ package io.advantageous.qbit.service;
 
 import io.advantageous.qbit.message.MethodCall;
 
+import java.util.List;
+
 /**
  * An end point is an address and a way to transmit method calls to a client.
  *
@@ -15,6 +17,9 @@ public interface EndPoint {
 
 
     void call(MethodCall<Object> methodCall);
+
+
+    void call(List<MethodCall<Object>> methodCalls);
 
     void flush();
 

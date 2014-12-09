@@ -13,7 +13,9 @@ import io.advantageous.qbit.queue.ReceiveQueueListener;
 import io.advantageous.qbit.queue.SendQueue;
 import io.advantageous.qbit.queue.impl.BasicQueue;
 import io.advantageous.qbit.service.ServiceBundle;
+import io.advantageous.qbit.service.method.impl.MethodCallImpl;
 import io.advantageous.qbit.spi.ProtocolEncoder;
+import io.advantageous.qbit.spi.ProtocolParser;
 import io.advantageous.qbit.util.Timer;
 import org.boon.Sets;
 import org.boon.Str;
@@ -46,6 +48,7 @@ public class ServiceServerImpl implements ServiceServer {
     protected HttpServer httpServer;
     protected ServiceBundle serviceBundle;
     protected JsonMapper jsonMapper;
+    protected ProtocolParser parser;
 
     private Set<String> getMethodURIs = new LinkedHashSet<>();
     private Set<String> postMethodURIs = new LinkedHashSet<>();
@@ -60,10 +63,14 @@ public class ServiceServerImpl implements ServiceServer {
     private AtomicBoolean stop = new AtomicBoolean();
 
 
-    public ServiceServerImpl(final HttpServer httpServer, final ProtocolEncoder encoder, final ServiceBundle serviceBundle,
+    public ServiceServerImpl(final HttpServer httpServer,
+                             final ProtocolEncoder encoder,
+                             final ProtocolParser parser,
+                             final ServiceBundle serviceBundle,
                              final JsonMapper jsonMapper,
                              final int timeOutInSeconds) {
         this.encoder = encoder;
+        this.parser = parser;
         this.httpServer = httpServer;
         this.serviceBundle = serviceBundle;
         this.jsonMapper = jsonMapper;
@@ -135,6 +142,32 @@ public class ServiceServerImpl implements ServiceServer {
     }
 
 
+
+    public List<MethodCall<Object>> createMethodCallListToBeParsedFromBody(String addressPrefix, Object body, Request<Object> originatingRequest) {
+
+        List<MethodCall<Object>> methodCalls;
+
+        if (body != null) {
+
+            methodCalls = parser.parseMethodCallListUsingAddressPrefix(addressPrefix, body);
+
+        } else {
+            methodCalls = Collections.emptyList();
+
+        }
+
+
+        for (MethodCall<Object> methodCall : methodCalls) {
+            if (methodCall instanceof MethodCallImpl) {
+                MethodCallImpl impl = ((MethodCallImpl) methodCall);
+                impl.originatingRequest(originatingRequest);
+            }
+        }
+
+        return methodCalls;
+
+    }
+
     /**
      * All WebSocket calls come through here.
      *
@@ -144,17 +177,9 @@ public class ServiceServerImpl implements ServiceServer {
 
         if (GlobalConstants.DEBUG) logger.info("websocket message: " + webSocketMessage);
 
-        final List<MethodCall<Object>> methodCalls = QBit.factory().createMethodCallListToBeParsedFromBody(webSocketMessage.getRemoteAddress(), webSocketMessage.getMessage(), webSocketMessage);
+        final List<MethodCall<Object>> methodCallListToBeParsedFromBody = createMethodCallListToBeParsedFromBody(webSocketMessage.getRemoteAddress(), webSocketMessage.getMessage(), webSocketMessage);
 
-        for (MethodCall<Object> methodCall : methodCalls) {
-
-            if (!objectNameAddressURIWithVoidReturn.contains(methodCall.address())) {
-
-                addRequestToCheckForTimeouts(webSocketMessage);
-            }
-
-            serviceBundle.call(methodCall);
-        }
+        serviceBundle.call(methodCallListToBeParsedFromBody);
     }
 
     private void handleResponseFromServiceBundleToWebSocketSender(Response<Object> response, WebSocketMessage originatingRequest) {

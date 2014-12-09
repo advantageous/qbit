@@ -276,25 +276,13 @@ public class ServiceBundleImpl implements ServiceBundle {
                     methodCall.address() +
                     "\n" + methodCall);
         }
-        final Object object = methodCall.body();
-
-        /** Look for callback handler in the args */
-        if (object instanceof Iterable) {
-            final Iterable list = (Iterable) object;
-            for (Object arg : list) {
-                if (arg instanceof Callback) {
-                    registerHandlerCallbackForClient(methodCall, (Callback) arg);
-                }
-            }
-        } else if (object instanceof Object[]) {
-            final Object[] array = (Object[]) object;
-            for (Object arg : array) {
-                if (arg instanceof Callback) {
-                    registerHandlerCallbackForClient(methodCall, ((Callback) arg));
-                }
-            }
-        }
         methodSendQueue.sendAndFlush(methodCall);
+    }
+
+
+    @Override
+    public void call(List<MethodCall<Object>> methodCalls) {
+        methodSendQueue.sendBatch(methodCalls);
     }
 
     /**
@@ -391,7 +379,29 @@ public class ServiceBundleImpl implements ServiceBundle {
         }
 
 
+
+
         try {
+
+            final Object object = methodCall.body();
+
+            /** Look for callback handler in the args */
+            if (object instanceof Iterable) {
+                final Iterable list = (Iterable) object;
+                for (Object arg : list) {
+                    if (arg instanceof Callback) {
+                        registerHandlerCallbackForClient(methodCall, (Callback) arg);
+                    }
+                }
+            } else if (object instanceof Object[]) {
+                final Object[] array = (Object[]) object;
+                for (Object arg : array) {
+                    if (arg instanceof Callback) {
+                        registerHandlerCallbackForClient(methodCall, ((Callback) arg));
+                    }
+                }
+            }
+
             boolean[] continueFlag = new boolean[1];
             methodCall = beforeMethodCall(methodCall, continueFlag);
 

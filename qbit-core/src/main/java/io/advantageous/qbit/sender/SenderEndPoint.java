@@ -24,14 +24,20 @@ public class SenderEndPoint implements EndPoint {
     final String address;
     private final Sender<String> sender;
     private final BeforeMethodCall beforeMethodCall;
-    private final BlockingQueue<MethodCall<Object>> methodCalls = new ArrayBlockingQueue<>(50);
+    private final BlockingQueue<MethodCall<Object>> methodCalls;
 
+    private final int requestBatchSize;
 
-    public SenderEndPoint(ProtocolEncoder encoder, String address, Sender<String> sender, BeforeMethodCall beforeMethodCall) {
+    public SenderEndPoint(ProtocolEncoder encoder, String address, Sender<String> sender, BeforeMethodCall beforeMethodCall,
+                         int requestBatchSize ) {
         this.encoder = encoder;
         this.address = address;
 
         this.beforeMethodCall = beforeMethodCall == null ? new NoOpBeforeMethodCall() : beforeMethodCall;
+
+        this.requestBatchSize = requestBatchSize;
+        this.methodCalls = new ArrayBlockingQueue<>(requestBatchSize);
+
         this.sender = sender;
     }
 
@@ -46,14 +52,29 @@ public class SenderEndPoint implements EndPoint {
         beforeMethodCall.before(methodCall);
 
         if (!methodCalls.offer(methodCall)) {
-            flush();
-            sender.send(methodCall.returnAddress(), encoder.encodeAsString(methodCall));
+            flush(methodCall);
         }
 
     }
 
     @Override
+    public void call(List<MethodCall<Object>> methodCalls) {
+
+        if (methodCalls.size()>0) {
+            String returnAddress = methodCalls.get(0).returnAddress();
+            List<Message<Object>> methods =  (List<Message<Object>>) (Object) methodCalls;
+            sender.send(returnAddress, encoder.encodeAsString(methods));
+        }
+    }
+
+
+    @Override
     public void flush() {
+
+        flush(null);
+    }
+
+    private synchronized void flush(MethodCall<Object> lastMethodCall) {
 
 
         Message<Object> method = methodCalls.poll();
@@ -67,7 +88,7 @@ public class SenderEndPoint implements EndPoint {
 
         String returnAddress = ((MethodCall<Object>)method).returnAddress();
 
-        methods = new ArrayList<>(50);
+        methods = new ArrayList<>(requestBatchSize+1);
 
         while (method != null) {
             methods.add(method);
@@ -75,6 +96,9 @@ public class SenderEndPoint implements EndPoint {
 
         }
 
+        if (lastMethodCall!=null) {
+            methods.add(lastMethodCall);
+        }
 
 
         sender.send(returnAddress, encoder.encodeAsString(methods));

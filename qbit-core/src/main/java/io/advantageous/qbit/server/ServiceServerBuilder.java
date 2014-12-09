@@ -5,6 +5,7 @@ import io.advantageous.qbit.http.HttpServer;
 import io.advantageous.qbit.json.JsonMapper;
 import io.advantageous.qbit.service.ServiceBundle;
 import io.advantageous.qbit.spi.ProtocolEncoder;
+import io.advantageous.qbit.spi.ProtocolParser;
 
 /**
  * Created by Richard on 11/14/14.
@@ -104,8 +105,10 @@ public class ServiceServerBuilder {
         final ProtocolEncoder encoder = QBit.factory().createEncoder();
         final ServiceBundle serviceBundle = QBit.factory().createServiceBundle(uri);
 
+        final ProtocolParser parser = QBit.factory().createProtocolParser();
 
-        final ServiceServer serviceServer = QBit.factory().createServiceServer(httpServer, encoder, serviceBundle, jsonMapper, timeoutSeconds);
+
+        final ServiceServer serviceServer = QBit.factory().createServiceServer(httpServer, encoder, parser, serviceBundle, jsonMapper, timeoutSeconds);
         return serviceServer;
 
     }

@@ -16,6 +16,10 @@ public class ClientBuilder {
     private int poolSize = 10;
 
     private int requestBatchSize = 10;
+
+
+    private int protocolBatchSize = -1;
+
     private int flushInterval = 100;
     private String uri = "/services";
 
@@ -95,7 +99,14 @@ public class ClientBuilder {
     }
 
 
+    public int getProtocolBatchSize() {
+        return protocolBatchSize;
+    }
 
+    public ClientBuilder setProtocolBatchSize(int protocolBatchSize) {
+        this.protocolBatchSize = protocolBatchSize;
+        return this;
+    }
 
     public Client build() {
 
@@ -104,8 +115,11 @@ public class ClientBuilder {
          */
         final HttpClient httpClient = QBit.factory().createHttpClient(host, port, pollTime, requestBatchSize, timeoutSeconds * 1000, poolSize, autoFlush);
 
+        if (protocolBatchSize==-1) {
+            protocolBatchSize = requestBatchSize;
+        }
 
-        Client client = QBit.factory().createClient(uri, httpClient);
+        Client client = QBit.factory().createClient(uri, httpClient, protocolBatchSize);
         return client;
 
     }

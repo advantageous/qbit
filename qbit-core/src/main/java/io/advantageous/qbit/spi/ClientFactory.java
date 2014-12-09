@@ -8,5 +8,5 @@ import io.advantageous.qbit.http.HttpClient;
  */
 public interface ClientFactory {
 
-    Client create(String uri, HttpClient httpClient) ;
+    Client create(String uri, HttpClient httpClient, int requestBatchSize) ;
 }

@@ -9,7 +9,7 @@ import io.advantageous.qbit.spi.ClientFactory;
 public class BoonClientFactory implements ClientFactory {
 
     @Override
-    public Client create(String uri, HttpClient httpClient) {
-        return new BoonClient(uri, httpClient);
+    public Client create(String uri, HttpClient httpClient, int requestBatchSize) {
+        return new BoonClient(uri, httpClient, requestBatchSize);
     }
 }

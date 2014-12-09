@@ -30,7 +30,7 @@ public class PerfTestMain {
 
 
 
-    static BasicQueue<WebSocketMessage> messages = new BasicQueue<>("websocket sim", 5, TimeUnit.MILLISECONDS, 5);
+    static BasicQueue<WebSocketMessage> messages = new BasicQueue<>("websocket sim", 100, TimeUnit.MILLISECONDS, 5);
 
 
 
@@ -132,7 +132,7 @@ public class PerfTestMain {
                 public void run() {
 
                     while(true) {
-                        Sys.sleep(100);
+                        Sys.sleep(50);
 
                         periodicFlushCallback.accept(null);
                         sendQueue.flushSends();
@@ -188,7 +188,8 @@ public class PerfTestMain {
 
 
         Client client = new ClientBuilder().setPollTime(10)
-                .setAutoFlush(true).setFlushInterval(100).setRequestBatchSize(5).build();
+                .setAutoFlush(true).setFlushInterval(50)
+                .setProtocolBatchSize(1000).setRequestBatchSize(10).build();
 
         AdderClientInterface adder = client.createProxy(AdderClientInterface.class, "adderservice");
 
@@ -231,16 +232,7 @@ public class PerfTestMain {
         });
 
 
-        adder.sum(new Callback<Integer>() {
-            @Override
-            public void accept(Integer integer) {
-
-
-                final long endTime = System.currentTimeMillis();
-                puts("sum", integer, "time", endTime - startTime);
-            }
-        });
-
+        client.flush();
 
         adder.sum(new Callback<Integer>() {
             @Override
@@ -252,6 +244,21 @@ public class PerfTestMain {
             }
         });
 
+
+        client.flush();
+
+        adder.sum(new Callback<Integer>() {
+            @Override
+            public void accept(Integer integer) {
+
+
+                final long endTime = System.currentTimeMillis();
+                puts("sum", integer, "time", endTime - startTime);
+            }
+        });
+
+
+        client.flush();
 
 
         adder.sum(new Callback<Integer>() {
@@ -264,6 +271,10 @@ public class PerfTestMain {
 
             }
         });
+
+
+        client.flush();
+
         adder.sum(new Callback<Integer>() {
             @Override
             public void accept(Integer integer) {

@@ -28,6 +28,20 @@ import static org.boon.Exceptions.die;
  */
 public class BoonProtocolParser implements ProtocolParser {
 
+    private  JsonParserAndMapper jsonParser = new JsonParserFactory().create();
+
+
+    private Message<Object> parseMessageFromString(String addressPrefix, String args) {
+
+        if (args.isEmpty()) {
+            return null;
+        }
+        final char[] chars = FastStringUtils.toCharArray(args);
+
+        return parseMessageFromChars(addressPrefix, chars);
+    }
+
+
 
     @Override
     public boolean supports(Object args, MultiMap<String, String> params) {
@@ -193,7 +207,7 @@ public class BoonProtocolParser implements ProtocolParser {
 
         Object messageBody=null;
         if (!Chr.isEmpty(messageBodyChars)) {
-            messageBody = jsonParserThreadLocal.get().parse(messageBodyChars);
+            messageBody = jsonParser.parse(messageBodyChars);
         } else {
             messageBody = null;
         }
@@ -204,23 +218,6 @@ public class BoonProtocolParser implements ProtocolParser {
     }
 
 
-    private static ThreadLocal<JsonParserAndMapper> jsonParserThreadLocal = new ThreadLocal<JsonParserAndMapper>() {
-        @Override
-        protected JsonParserAndMapper initialValue() {
-            return new JsonParserFactory().create();
-        }
-    };
-
-
-    private Message<Object> parseMessageFromString(String addressPrefix, String args) {
-
-        if (args.isEmpty()) {
-            return null;
-        }
-        final char[] chars = FastStringUtils.toCharArray(args);
-
-        return parseMessageFromChars(addressPrefix, chars);
-    }
 
 
     private Message<Object> parseMessageFromChars(String addressPrefix, char[] chars) {
@@ -318,7 +315,7 @@ public class BoonProtocolParser implements ProtocolParser {
             if (charArgs.length==0) {
                 break;
             }
-            Object arg = jsonParserThreadLocal.get().parse(charArgs);
+            Object arg = jsonParser.parse(charArgs);
             argList[index] = arg;
         }
 

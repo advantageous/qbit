@@ -64,6 +64,11 @@ public class ServiceProxyFactoryTest {
         }
 
         @Override
+        public void call(List<MethodCall<Object>> methodCalls) {
+            calls.addAll(methodCalls);
+        }
+
+        @Override
         public void flush() {
 
         }

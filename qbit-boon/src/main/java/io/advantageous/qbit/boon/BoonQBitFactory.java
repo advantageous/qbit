@@ -51,11 +51,15 @@ public class BoonQBitFactory implements Factory {
 
     private final Logger logger = LoggerFactory.getLogger(BoonQBitFactory.class);
 
-    private List<ProtocolParser> protocolParserList = new ArrayList<>();
+    private ThreadLocal<List<ProtocolParser>> protocolParserListRef = new ThreadLocal<List<ProtocolParser>>(){
 
-    {
-        protocolParserList.add(new BoonProtocolParser());
-    }
+        @Override
+        protected List<ProtocolParser> initialValue() {
+            ArrayList<ProtocolParser> list = new ArrayList<>();
+            list.add(createProtocolParser());
+            return list;
+        }
+    };
 
     @Override
     public MethodCall<Object> createMethodCallToBeEncodedAndSent(long id, String address,
@@ -85,9 +89,9 @@ public class BoonQBitFactory implements Factory {
 
 
     @Override
-    public <T> T createRemoteProxyWithReturnAddress(Class<T> serviceInterface, String address, String serviceName, String returnAddressArg, Sender<String> sender, BeforeMethodCall beforeMethodCall) {
+    public <T> T createRemoteProxyWithReturnAddress(Class<T> serviceInterface, String address, String serviceName, String returnAddressArg, Sender<String> sender, BeforeMethodCall beforeMethodCall, int requestBatchSize) {
         return remoteServiceProxyFactory.createProxyWithReturnAddress(serviceInterface, serviceName, returnAddressArg,
-                new SenderEndPoint(this.createEncoder(), address, sender, beforeMethodCall));
+                new SenderEndPoint(this.createEncoder(), address, sender, beforeMethodCall, requestBatchSize));
     }
 
 
@@ -194,15 +198,22 @@ public class BoonQBitFactory implements Factory {
 
     @Override
     public ServiceServer createServiceServer(
-            final HttpServer httpServer, final ProtocolEncoder encoder, final ServiceBundle serviceBundle,
+            final HttpServer httpServer, final ProtocolEncoder encoder,
+            final ProtocolParser protocolParser,
+            final ServiceBundle serviceBundle,
             final JsonMapper jsonMapper,
             final int timeOutInSeconds) {
-        return new ServiceServerImpl(httpServer, encoder, serviceBundle, jsonMapper, timeOutInSeconds);
+        return new ServiceServerImpl(httpServer, encoder, protocolParser, serviceBundle, jsonMapper, timeOutInSeconds);
     }
 
     @Override
-    public Client createClient(String uri, HttpClient httpClient) {
-        return FactorySPI.getClientFactory().create(uri, httpClient);
+    public Client createClient(String uri, HttpClient httpClient, int requestBatchSize) {
+        return FactorySPI.getClientFactory().create(uri, httpClient, requestBatchSize);
+    }
+
+    @Override
+    public ProtocolParser createProtocolParser() {
+        return new BoonProtocolParser();
     }
 
 
@@ -250,7 +261,7 @@ public class BoonQBitFactory implements Factory {
     }
 
     private ProtocolParser selectProtocolParser(Object args, MultiMap<String, String> params) {
-        for (ProtocolParser parser : protocolParserList) {
+        for (ProtocolParser parser : protocolParserListRef.get()) {
             if (parser.supports(args, params)) {
                 return parser;
             }

@@ -15,6 +15,7 @@ import io.advantageous.qbit.service.BeforeMethodCall;
 import io.advantageous.qbit.service.Service;
 import io.advantageous.qbit.service.ServiceBundle;
 import io.advantageous.qbit.spi.ProtocolEncoder;
+import io.advantageous.qbit.spi.ProtocolParser;
 import io.advantageous.qbit.util.MultiMap;
 
 import java.util.List;
@@ -148,7 +149,8 @@ public interface Factory {
      */
     <T> T createRemoteProxyWithReturnAddress(Class<T> serviceInterface, String uri, String serviceName, String returnAddressArg,
                                              Sender<String> sender,
-                                             BeforeMethodCall beforeMethodCall);
+                                             BeforeMethodCall beforeMethodCall,
+                                             int requestBatchSize);
 
     /**
      * Parses a method call using an address prefix and a body.
@@ -189,12 +191,18 @@ public interface Factory {
     HttpClient createHttpClient(String host, int port, int pollTime, int requestBatchSize, int timeOutInMilliseconds, int poolSize, boolean autoFlush);
 
 
-    ServiceServer createServiceServer(final HttpServer httpServer, final ProtocolEncoder encoder, final ServiceBundle serviceBundle,
+    ServiceServer createServiceServer(final HttpServer httpServer,
+                                      final ProtocolEncoder encoder,
+                                      final ProtocolParser protocolParser,
+                                      final ServiceBundle serviceBundle,
                                       final JsonMapper jsonMapper,
                                       final int timeOutInSeconds);
 
 
 
-    Client createClient(String uri, HttpClient httpClient);
+    Client createClient(String uri, HttpClient httpClient, int requestBatchSize);
+
+
+    ProtocolParser createProtocolParser();
 
 }

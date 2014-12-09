@@ -8,6 +8,7 @@ import io.advantageous.qbit.service.ServiceBundle;
 import io.advantageous.qbit.service.bundle.example.todo.Todo;
 import io.advantageous.qbit.service.bundle.example.todo.TodoService;
 import io.advantageous.qbit.spi.ProtocolEncoder;
+import io.advantageous.qbit.spi.ProtocolParser;
 import io.advantageous.qbit.spi.RegisterBoonWithQBit;
 import org.boon.Boon;
 import org.boon.Sets;
@@ -37,13 +38,16 @@ public class ServerTest {
     public void testServer() {
 
         ProtocolEncoder encoder = QBit.factory().createEncoder();
+
+        ProtocolParser parser = QBit.factory().createProtocolParser();
         MockHttpServer httpServer = new MockHttpServer();
         ServiceBundle serviceBundle = QBit.factory().createServiceBundle("/services");
 
         JsonMapper mapper = new BoonJsonMapper();
 
 
-        ServiceServerImpl server = new ServiceServerImpl(httpServer, encoder, serviceBundle, mapper, 30);
+        ServiceServerImpl server = new ServiceServerImpl(httpServer, encoder, parser,
+                serviceBundle, mapper, 30);
 
         server.initServices(Sets.set(new TodoService()));
 
@@ -107,7 +111,7 @@ public class ServerTest {
         JsonMapper mapper = new BoonJsonMapper();
 
 
-        ServiceServerImpl server = new ServiceServerImpl(httpServer, encoder, serviceBundle, mapper, 1);
+        ServiceServerImpl server = new ServiceServerImpl(httpServer, encoder, QBit.factory().createProtocolParser(), serviceBundle, mapper, 1);
 
         server.initServices(Sets.set(new TodoService()));
 
@@ -150,7 +154,8 @@ public class ServerTest {
         JsonMapper mapper = new BoonJsonMapper();
 
 
-        ServiceServerImpl server = new ServiceServerImpl(httpServer, encoder, serviceBundle, mapper, 1);
+        ServiceServerImpl server = new ServiceServerImpl(httpServer, encoder,
+                QBit.factory().createProtocolParser(), serviceBundle, mapper, 1);
 
         server.initServices(Sets.set(new TodoService()));
 

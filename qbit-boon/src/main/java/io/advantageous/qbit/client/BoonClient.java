@@ -82,15 +82,18 @@ public class BoonClient implements Client {
 
     private List<ClientProxy> clientProxies = new CopyOnWriteArrayList<>();
 
+    private final int requestBatchSize;
+
     /**
      *
      * @param httpClient httpClient
      * @param uri uri
      */
-    public BoonClient(String uri, HttpClient httpClient) {
+    public BoonClient(String uri, HttpClient httpClient, int requestBatchSize) {
 
         this.httpServerProxy = httpClient;
         this.uri = uri;
+        this.requestBatchSize = requestBatchSize;
     }
 
 
@@ -292,7 +295,7 @@ public class BoonClient implements Client {
         };
         T proxy = QBit.factory().createRemoteProxyWithReturnAddress(serviceInterface,
                 uri,
-                serviceName, returnAddressArg, (returnAddress, buffer) -> BoonClient.this.send(serviceName, buffer), beforeMethodCall
+                serviceName, returnAddressArg, (returnAddress, buffer) -> BoonClient.this.send(serviceName, buffer), beforeMethodCall, requestBatchSize
         );
 
         if (proxy instanceof ClientProxy) {

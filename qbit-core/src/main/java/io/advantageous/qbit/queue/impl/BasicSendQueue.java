@@ -7,8 +7,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.LinkedTransferQueue;
 
-import static org.boon.Boon.puts;
-
 /**
  * This is not thread safe.
  * Create a new for every thread by calling BasicQueue.sendQueue().
@@ -89,6 +87,8 @@ public class BasicSendQueue<T> implements SendQueue<T> {
     }
 
     private void sendLocalQueue() {
+
+
         final Object[] copy = fastObjectArraySlice(queueLocal, 0, index);
         //if (!queue.tryTransfer(copy)) {
             queue.offer(copy);
