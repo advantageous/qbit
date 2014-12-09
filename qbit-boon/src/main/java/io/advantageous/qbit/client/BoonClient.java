@@ -375,7 +375,7 @@ public class BoonClient implements Client {
 
 
 
-    public void run() {
+    public void start() {
 
         this.httpServerProxy.periodicFlushCallback(new Consumer<Void>() {
             @Override

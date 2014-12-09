@@ -38,7 +38,7 @@ public class PerfMain {
 
         io.advantageous.qbit.sample.server.client.TodoServiceClient todoService = client.createProxy(TodoServiceClient.class, "todo-manager");
 
-        client.run();
+        client.start();
 
 
         Date date = new Date();

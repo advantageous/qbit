@@ -195,7 +195,7 @@ public class PerfTestMain {
 
         AdderClientInterface adder = client.createProxy(AdderClientInterface.class, "adderservice");
 
-        client.run();
+        client.start();
 
 
         puts("Client started");

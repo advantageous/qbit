@@ -50,7 +50,7 @@ public class TodoWebSocketClient {
 
         TodoServiceClient todoService = client.createProxy(TodoServiceClient.class, "todo-manager");
 
-        client.run();
+        client.start();
 
                 /* Add a new item. */
         todoService.add(new TodoItem("Buy Hot dogs", "Go to 7/11 and buy some hot dogs", new Date()));

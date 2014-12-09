@@ -21,7 +21,7 @@ public interface Client {
 
     void flush();
 
-    void run();
+    void start();
 
     void stop();
 

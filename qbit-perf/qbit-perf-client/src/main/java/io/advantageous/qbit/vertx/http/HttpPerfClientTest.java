@@ -138,7 +138,7 @@ public class HttpPerfClientTest {
 //                                    .setPoolSize(poolSize).setRequestBatchSize(batchSize).
 //                                            setPollTime(pollTime).setAutoFlush(true)
 //                                    .build();
-//                            client.run();
+//                            client.start();
 //
 //
 //                        }
