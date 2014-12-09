@@ -32,6 +32,8 @@ public class PerfTestMain {
 
     static BasicQueue<WebSocketMessage> messages = new BasicQueue<>("websocket sim", 100, TimeUnit.MILLISECONDS, 5);
 
+    static Object context = Sys.contextToHold();
+
 
 
     static class MockHttpServer implements HttpServer {

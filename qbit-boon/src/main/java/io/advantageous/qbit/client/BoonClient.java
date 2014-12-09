@@ -41,6 +41,7 @@ import org.boon.Logger;
 import org.boon.Str;
 import org.boon.StringScanner;
 import org.boon.core.Conversions;
+import org.boon.core.Sys;
 import org.boon.core.reflection.ClassMeta;
 import org.boon.core.reflection.MapObjectConversion;
 import org.boon.core.reflection.MethodAccess;
@@ -83,6 +84,8 @@ public class BoonClient implements Client {
     private List<ClientProxy> clientProxies = new CopyOnWriteArrayList<>();
 
     private final int requestBatchSize;
+
+    Object context = Sys.contextToHold();
 
     /**
      *

@@ -20,6 +20,7 @@ import io.advantageous.qbit.util.Timer;
 import org.boon.Sets;
 import org.boon.Str;
 import org.boon.StringScanner;
+import org.boon.core.Sys;
 import org.boon.core.reflection.AnnotationData;
 import org.boon.core.reflection.ClassMeta;
 import org.boon.core.reflection.MethodAccess;
@@ -61,6 +62,9 @@ public class ServiceServerImpl implements ServiceServer {
     private SendQueue<Request<Object>> sendQueueOutstanding = outstandingRequests.sendQueue();
     private final boolean debug = logger.isDebugEnabled();
     private AtomicBoolean stop = new AtomicBoolean();
+
+    Object context = Sys.contextToHold();
+
 
 
     public ServiceServerImpl(final HttpServer httpServer,

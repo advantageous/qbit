@@ -46,7 +46,7 @@ public class TodoWebSocketClient {
 
         Client client = new ClientBuilder().setPort(port).setHost(host).setPollTime(500)
                 .setAutoFlush(true).setFlushInterval(50).setRequestBatchSize(50)
-                .setProtocolBatchSize(100).build();
+                .setProtocolBatchSize(50).build();
 
         TodoServiceClient todoService = client.createProxy(TodoServiceClient.class, "todo-manager");
 
@@ -70,11 +70,11 @@ public class TodoWebSocketClient {
 
 
 
-            for (int index = 0; index < 400_000; index++) {
+            for (int index = 0; index < 100_000; index++) {
                 todoService.add(new TodoItem("a" + index, "b", date));
 
 
-                if (index % 30_000 == 0) {
+                if (index % 10_000 == 0) {
 
                     if (wait.get()) {
                         todoService.size(TodoWebSocketClient::adjustSize);
@@ -90,8 +90,8 @@ public class TodoWebSocketClient {
 
             client.flush();
 
-            totalSends.addAndGet(400_000);
-            Sys.sleep(25);
+            totalSends.addAndGet(100_000);
+            Sys.sleep(250);
 
 
 
@@ -127,7 +127,7 @@ public class TodoWebSocketClient {
         int itemsReceived = size - startSize;
         int currentTotalSends = totalSends.get();
 
-        if (currentTotalSends - 300_000 > ( itemsReceived ) ) {
+        if (currentTotalSends - 50_000 > ( itemsReceived ) ) {
 
             puts("Waiting flag", "currentTotalSends", currentTotalSends, "itemsReceived", itemsReceived);
             wait.set(true);
