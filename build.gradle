@@ -41,6 +41,11 @@ subprojects {
         dependsOn buildDockerImage
         commandLine "docker", "run", "-t", "$project.group/$project.name:$version", buildDockerfile.dockerDir
     }
+
+
+    task dockerRun (type: Exec) {
+        commandLine "docker", "run", '-m="4g"', "-t", "$project.group/$project.name:$version", buildDockerfile.dockerDir
+    }
 }
 
 project(':qbit-core') {
