@@ -1,14 +1,19 @@
+
+
 allprojects {
 
     group = 'io.advantageous.qbit'
     apply plugin: 'idea'
     apply plugin: 'java'
     apply plugin: 'maven'
+    apply plugin: 'application'
 
     version = '0.5.2-SNAPSHOT'
 }
 
+
 subprojects {
+
     repositories {
         mavenLocal()
         mavenCentral()
@@ -16,6 +21,26 @@ subprojects {
 
     sourceCompatibility = JavaVersion.VERSION_1_8
     targetCompatibility = JavaVersion.VERSION_1_8
+
+
+    task buildDockerfile (type: Dockerfile) {
+        dependsOn distTar
+        from "java:openjdk-8"
+        add "$distTar.archivePath", "/"
+        workdir "/$distTar.archivePath.name" - ".$distTar.extension" + "/bin"
+        entrypoint "./$project.name"
+    }
+
+    task buildDockerImage (type: Exec) {
+        dependsOn buildDockerfile
+        commandLine "docker", "build", "-t", "$project.group/$project.name:$version", buildDockerfile.dockerDir
+    }
+
+
+    task runDockerImage (type: Exec) {
+        dependsOn buildDockerImage
+        commandLine "docker", "run", "-t", "$project.group/$project.name:$version", buildDockerfile.dockerDir
+    }
 }
 
 project(':qbit-core') {
@@ -251,9 +276,15 @@ project(':qbit-perf-server') {
 
 }
 
+
+
+
 project(':qbit-sample-server') {
-    sourceSets.main.resources.srcDir 'src/main/java'
+
     apply plugin:'application'
+
+
+    sourceSets.main.resources.srcDir 'src/main/java'
 
     mainClassName = "io.advantageous.qbit.sample.server.TodoServerMain"
 
@@ -265,6 +296,11 @@ project(':qbit-sample-server') {
         compile 'ch.qos.logback:logback-classic:1.1.2'
 
         testCompile group: 'junit', name: 'junit', version: '4.10'
+    }
+
+
+    buildDockerfile {
+        expose 8080
     }
 }
 
@@ -281,6 +317,11 @@ project(':qbit-sample-client') {
         compile 'ch.qos.logback:logback-classic:1.1.2'
 
         testCompile group: 'junit', name: 'junit', version: '4.10'
+    }
+
+
+    buildDockerfile {
+        expose 7070
     }
 }
 
@@ -388,3 +429,69 @@ project(':qbit-vertx') {
         }
     }
 }
+
+
+
+
+class Dockerfile extends DefaultTask {
+    def dockerfileInfo = ""
+    def dockerDir = "$project.buildDir/docker"
+    def dockerfileDestination = "$project.buildDir/docker/Dockerfile"
+    def filesToCopy = []
+
+    File getDockerfileDestination() {
+        project.file(dockerfileDestination)
+    }
+
+    def from(image="java") {
+        dockerfileInfo += "FROM $image\r\n"
+    }
+
+    def maintainer(contact) {
+        maintainer += "MAINTAINER $contact\r\n"
+    }
+
+    def add(sourceLocation, targetLocation) {
+        filesToCopy << sourceLocation
+        def file = project.file(sourceLocation)
+        dockerfileInfo += "ADD $file.name ${targetLocation}\r\n"
+    }
+
+    def run(command) {
+        dockerfileInfo += "RUN $command\r\n"
+    }
+
+    def env(var, value) {
+        dockerfileInfo += "ENV $var $value\r\n"
+    }
+
+    def expose(port) {
+        dockerfileInfo += "EXPOSE $port\r\n"
+    }
+
+    def workdir(dir) {
+        dockerfileInfo += "WORKDIR $dir\r\n"
+    }
+
+    def cmd(command) {
+        dockerfileInfo += "CMD $command\r\n"
+    }
+
+    def entrypoint(command) {
+        dockerfileInfo += "ENTRYPOINT $command\r\n"
+    }
+
+    @TaskAction
+    def writeDockerfile() {
+        for (fileName in filesToCopy) {
+            def source = project.file(fileName)
+            def target = project.file("$dockerDir/$source.name")
+            target.parentFile.mkdirs()
+            target << source.bytes
+        }
+        def file = getDockerfileDestination()
+        file.parentFile.mkdirs()
+        file.write dockerfileInfo
+    }
+}
+
