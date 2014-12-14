@@ -42,6 +42,9 @@ public class TodoRESTClient {
         final String readTodoListURL
                 = "http://" + host + ":" + port + "/services/todo-manager/todo/list";
 
+
+        puts(readTodoListURL);
+
         //HTTP POST
         HTTP.postJSON(addTodoURL, Boon.toJson(todoItem));
 

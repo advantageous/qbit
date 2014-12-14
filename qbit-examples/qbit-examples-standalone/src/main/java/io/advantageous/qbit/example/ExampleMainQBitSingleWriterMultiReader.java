@@ -115,7 +115,7 @@ public class ExampleMainQBitSingleWriterMultiReader {
             public void run() {
 
                 try {
-                    sender(50_000_000, -1);
+                    sender(200_000_000, -1);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
