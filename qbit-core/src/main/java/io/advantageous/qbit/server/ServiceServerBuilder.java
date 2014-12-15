@@ -103,7 +103,7 @@ public class ServiceServerBuilder {
         final HttpServer httpServer = QBit.factory().createHttpServer(host, port, manageQueues, pollTime, requestBatchSize, flushInterval);
         final JsonMapper jsonMapper = QBit.factory().createJsonMapper();
         final ProtocolEncoder encoder = QBit.factory().createEncoder();
-        final ServiceBundle serviceBundle = QBit.factory().createServiceBundle(uri);
+        final ServiceBundle serviceBundle = QBit.factory().createServiceBundle(uri, true);
 
         final ProtocolParser parser = QBit.factory().createProtocolParser();
 

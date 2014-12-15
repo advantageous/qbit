@@ -191,8 +191,10 @@ public class HttpServerVertx implements HttpServer {
 
 
             httpResponsesSendQueue = responses.sendQueue();
-            webSocketMessageInQueue = new QueueBuilder().setName("WebSocketMessagesIn").setPollWait(pollTime).setBatchSize(requestBatchSize).build();
+            webSocketMessageInQueue =
 
+            new QueueBuilder().setName("WebSocketMessagesIn " + host + " " + port).setPollWait(pollTime).setBatchSize(requestBatchSize)
+                    .setLinkTransferQueue().setCheckEvery(10).setTryTransfer(true).build();
 
 
             webSocketMessageIncommingSendQueue = webSocketMessageInQueue.sendQueue();

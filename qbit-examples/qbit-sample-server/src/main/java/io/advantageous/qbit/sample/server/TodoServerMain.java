@@ -12,7 +12,7 @@ import io.advantageous.qbit.server.ServiceServerBuilder;
 public class TodoServerMain {
 
     public static void main(String... args) {
-        ServiceServer server = new ServiceServerBuilder().setRequestBatchSize(50).build();
+        ServiceServer server = new ServiceServerBuilder().setRequestBatchSize(100).build();
         server.initServices(new TodoService());
         server.start();
 

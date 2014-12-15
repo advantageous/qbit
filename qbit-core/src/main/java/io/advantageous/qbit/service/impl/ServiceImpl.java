@@ -106,12 +106,24 @@ public class ServiceImpl implements Service {
         }
     }
 
+
     public ServiceImpl(String rootAddress, final String serviceAddress, final Object service,
                        int waitTime,
                        TimeUnit timeUnit,
                        int batchSize,
                        final ServiceMethodHandler serviceMethodHandler,
                        Queue<Response<Object>> responseQueue) {
+
+         this(rootAddress, serviceAddress, service, waitTime, timeUnit, batchSize, serviceMethodHandler, responseQueue, true);
+
+    }
+
+    public ServiceImpl(String rootAddress, final String serviceAddress, final Object service,
+                       int waitTime,
+                       TimeUnit timeUnit,
+                       int batchSize,
+                       final ServiceMethodHandler serviceMethodHandler,
+                       Queue<Response<Object>> responseQueue, boolean async) {
 
         if (debug) {
             logger.debug("ServiceImpl<<constr>> " + rootAddress + " " + serviceAddress + " " +
@@ -130,9 +142,6 @@ public class ServiceImpl implements Service {
         final QueueBuilder queueBuilder = new QueueBuilder().setName("Send Queue  " + name).setPollWait(waitTime).setBatchSize(batchSize);
 
 
-
-        requestQueue = queueBuilder.setName("Send Queue  " + name).build();
-
         if (responseQueue == null) {
 
             if (debug) {
@@ -149,7 +158,89 @@ public class ServiceImpl implements Service {
 
         serviceMethodHandler.initQueue(responseSendQueue);
 
-        start(serviceMethodHandler, responseSendQueue);
+
+        if (async) {
+            requestQueue = queueBuilder.setName("Send Queue  " + name).build();
+
+        } else {
+            requestQueue = new Queue<MethodCall<Object>>() {
+                @Override
+                public ReceiveQueue<MethodCall<Object>> receiveQueue() {
+
+                    return null;
+                }
+
+                @Override
+                public SendQueue<MethodCall<Object>> sendQueue() {
+                    return new SendQueue<MethodCall<Object>>() {
+                        @Override
+                        public void send(MethodCall<Object> item) {
+                            doHandleMethodCall(item, serviceMethodHandler, responseSendQueue);
+                        }
+
+                        @Override
+                        public void sendAndFlush(MethodCall<Object> item) {
+
+                            doHandleMethodCall(item, serviceMethodHandler, responseSendQueue);
+                        }
+
+                        @Override
+                        public void sendMany(MethodCall<Object>... items) {
+
+                            for (MethodCall<Object> item : items) {
+
+                                doHandleMethodCall(item, serviceMethodHandler, responseSendQueue);
+                            }
+                        }
+
+                        @Override
+                        public void sendBatch(Collection<MethodCall<Object>> items) {
+
+                            for (MethodCall<Object> item : items) {
+
+                                doHandleMethodCall(item, serviceMethodHandler, responseSendQueue);
+                            }
+
+                        }
+
+                        @Override
+                        public void sendBatch(Iterable<MethodCall<Object>> items) {
+
+                            for (MethodCall<Object> item : items) {
+
+                                doHandleMethodCall(item, serviceMethodHandler, responseSendQueue);
+                            }
+
+                        }
+
+                        @Override
+                        public boolean shouldBatch() {
+                            return false;
+                        }
+
+                        @Override
+                        public void flushSends() {
+
+                        }
+                    };
+                }
+
+                @Override
+                public void startListener(ReceiveQueueListener<MethodCall<Object>> listener) {
+
+                }
+
+                @Override
+                public void stop() {
+
+                }
+            };
+        }
+
+        if (async) {
+            start(serviceMethodHandler, responseSendQueue);
+        }
+
 
     }
 

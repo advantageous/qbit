@@ -270,9 +270,16 @@ public class BoonQBitFactory implements Factory {
     }
 
     @Override
-    public ServiceBundle createServiceBundle(String path) {
-        return new ServiceBundleImpl(path, 50, 5, this);
+    public ServiceBundle createServiceBundle(String path, boolean async) {
+        return new ServiceBundleImpl(path, 50, 5, this, async);
     }
+
+
+    @Override
+    public ServiceBundle createServiceBundle(String path) {
+        return new ServiceBundleImpl(path, 50, 5, this, false);
+    }
+
 
     @Override
     public Service createService(String rootAddress, String serviceAddress, Object object, Queue<Response<Object>> responseQueue) {
@@ -288,6 +295,23 @@ public class BoonQBitFactory implements Factory {
         );
 
     }
+
+    @Override
+    public Service createService(String rootAddress, String serviceAddress, Object object, Queue<Response<Object>> responseQueue,
+                                 boolean async) {
+
+        return new ServiceImpl(
+                rootAddress,
+                serviceAddress,
+                object,
+                GlobalConstants.POLL_WAIT, TimeUnit.MILLISECONDS,
+                GlobalConstants.BATCH_SIZE,
+                new BoonServiceMethodCallHandler(),
+                responseQueue, async
+        );
+
+    }
+
 
     @Override
     public ProtocolEncoder createEncoder() {

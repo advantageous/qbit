@@ -32,7 +32,8 @@ public class PerfTestMain {
 
 
 
-    static Queue<WebSocketMessage> messages = new QueueBuilder().setName("websocket sim").setPollWait(100).setBatchSize(5).build();
+    static Queue<WebSocketMessage> messages = new QueueBuilder().setName("websocket sim").setPollWait(100).setLinkedBlockingQueue()
+            .setBatchSize(5).build();
 
 
     static Object context = Sys.contextToHold();
@@ -183,7 +184,7 @@ public class PerfTestMain {
 
 
 
-        ServiceServer server = new ServiceServerBuilder().setRequestBatchSize(50).build();
+        ServiceServer server = new ServiceServerBuilder().setRequestBatchSize(10_000).build();
         server.initServices(new AdderService());
         server.start();
 
@@ -194,7 +195,7 @@ public class PerfTestMain {
 
         Client client = new ClientBuilder().setPollTime(10)
                 .setAutoFlush(true).setFlushInterval(50)
-                .setProtocolBatchSize(1000).setRequestBatchSize(10).build();
+                .setProtocolBatchSize(100).setRequestBatchSize(10).build();
 
         AdderClientInterface adder = client.createProxy(AdderClientInterface.class, "adderservice");
 

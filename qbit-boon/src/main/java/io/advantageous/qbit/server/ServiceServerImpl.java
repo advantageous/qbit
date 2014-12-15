@@ -181,7 +181,10 @@ public class ServiceServerImpl implements ServiceServer {
 
         final List<MethodCall<Object>> methodCallListToBeParsedFromBody = createMethodCallListToBeParsedFromBody(webSocketMessage.getRemoteAddress(), webSocketMessage.getMessage(), webSocketMessage);
 
-        serviceBundle.call(methodCallListToBeParsedFromBody);
+
+        for (MethodCall<Object> methodCall : methodCallListToBeParsedFromBody) {
+            serviceBundle.call(methodCall);
+        }
     }
 
     private void handleResponseFromServiceBundleToWebSocketSender(Response<Object> response, WebSocketMessage originatingRequest) {

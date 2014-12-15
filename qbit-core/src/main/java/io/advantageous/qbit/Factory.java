@@ -79,6 +79,30 @@ public interface Factory {
 
 
     /**
+     * Create a client bundle.
+     * @param path path to bundle (base URI really)
+     *
+     * @param async service calls
+     * @return new client bundle
+     */
+    ServiceBundle createServiceBundle(String path, boolean async);
+
+
+    /**
+     * Create a client
+     * @param rootAddress base URI
+     * @param serviceAddress client address URI
+     * @param object object that implements the client
+     * @param responseQueue the response queue.
+     * @return new Service that was created
+     *
+     *
+     *
+     */
+    Service createService(String rootAddress, String serviceAddress, Object object, Queue<Response<Object>> responseQueue, boolean asyncCalls);
+
+
+    /**
      * Create a client
      * @param rootAddress base URI
      * @param serviceAddress client address URI
@@ -90,7 +114,6 @@ public interface Factory {
      *
      */
     Service createService(String rootAddress, String serviceAddress, Object object, Queue<Response<Object>> responseQueue);
-
 
     /**
      * Create an encoder.

@@ -35,6 +35,7 @@ public class ServiceBundleImpl implements ServiceBundle {
      */
     private final Logger logger = LoggerFactory.getLogger(ServiceBundleImpl.class);
     private final boolean debug = logger.isDebugEnabled();
+    private final boolean asyncCalls;
 
     /**
      * Keep track of services to send queue mappings.
@@ -166,7 +167,7 @@ public class ServiceBundleImpl implements ServiceBundle {
      * @param factory   the qbit factory where we can create responses, methods, etc.
      */
     public ServiceBundleImpl(String address, final int batchSize, final int pollRate,
-                             final Factory factory) {
+                             final Factory factory, boolean asyncCalls) {
         if (address.endsWith("/")) {
             address = address.substring(0, address.length() - 1);
         }
@@ -175,7 +176,9 @@ public class ServiceBundleImpl implements ServiceBundle {
 
         this.factory = factory;
 
-        final QueueBuilder queueBuilder = new QueueBuilder().setName("Send Queue  " + address).setPollWait(pollRate).setBatchSize(batchSize);
+        this.asyncCalls = asyncCalls;
+
+        final QueueBuilder queueBuilder = new QueueBuilder().setName("Send Queue  " + address).setPollWait(pollRate).setBatchSize(batchSize).setTryTransfer(true).setLinkTransferQueue().setCheckEvery(5);
 
 
         this.methodQueue = queueBuilder.build();
@@ -229,7 +232,7 @@ public class ServiceBundleImpl implements ServiceBundle {
 
         /** Turn this client object into a client with queues. */
         final Service service = factory.createService(address, serviceAddress,
-                serviceObject, responseQueue);
+                serviceObject, responseQueue, this.asyncCalls);
 
 
         /** add to our list of services. */

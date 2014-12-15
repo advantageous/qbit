@@ -198,7 +198,8 @@ public class HttpClientVertx implements HttpClient {
                 new QueueBuilder().setName("HttpRequestQueue " + host + " " + port).setPollWait(pollTime).setBatchSize(requestBatchSize).build();
 
 
-        webSocketMessageQueue =   new QueueBuilder().setName("WebSocketQueue " + host + " " + port).setPollWait(pollTime).setBatchSize(requestBatchSize).build();
+        webSocketMessageQueue =   new QueueBuilder().setName("WebSocketQueue " + host + " " + port).setPollWait(pollTime).setBatchSize(requestBatchSize)
+                .setLinkTransferQueue().setCheckEvery(10).setTryTransfer(true).build();
 
         httpRequestSendQueue = requestQueue.sendQueue();
         webSocketSendQueue = webSocketMessageQueue.sendQueue();
