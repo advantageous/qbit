@@ -1,6 +1,9 @@
 package io.advantageous.qbit.queue.impl;
 
 import io.advantageous.qbit.queue.*;
+import org.boon.core.reflection.BeanUtils;
+import org.boon.core.reflection.ClassMeta;
+import org.boon.core.reflection.ConstructorAccess;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -16,7 +19,10 @@ import java.util.concurrent.atomic.AtomicBoolean;
  */
 public class BasicQueue<T> implements Queue<T> {
 
-    private final LinkedTransferQueue<Object> queue = new LinkedTransferQueue<>();
+    private final BlockingQueue<Object> queue;
+
+
+    private final boolean tryTransfer;
     private final int batchSize;
     private final AtomicBoolean stop = new AtomicBoolean();
     private final Logger logger = LoggerFactory.getLogger(BasicQueue.class);
@@ -25,18 +31,44 @@ public class BasicQueue<T> implements Queue<T> {
     private final int waitTime;
     private final TimeUnit timeUnit;
 
+    private final int checkEvery;
     private ScheduledExecutorService monitor;
     private ScheduledFuture<?> future;
 
     public BasicQueue(String name,
                       final int waitTime,
                       final TimeUnit timeUnit,
-                      int batchSize) {
+                      int batchSize,
+                      Class<? extends  BlockingQueue> queueClass, boolean tryTransfer, int size, int checkEvery) {
         this.name = name;
         this.waitTime = waitTime;
         this.timeUnit = timeUnit;
         this.batchSize = batchSize;
+
+        boolean shouldTryTransfer;
+
         this.receiveQueueManager = new BasicReceiveQueueManager<>();
+
+
+        if (size==-1) {
+                this.queue = ClassMeta.classMeta(queueClass).noArgConstructor().create();
+        } else {
+
+            final ClassMeta<? extends BlockingQueue> classMeta = ClassMeta.classMeta(queueClass);
+            final ConstructorAccess<Object> constructor = classMeta.declaredConstructor(int.class);
+            this.queue = (BlockingQueue<Object>) constructor.create(size);
+        }
+
+
+        shouldTryTransfer = queue instanceof TransferQueue;
+
+        if (shouldTryTransfer && tryTransfer) {
+            this.tryTransfer = true;
+        } else {
+            this.tryTransfer = false;
+        }
+
+        this.checkEvery = checkEvery;
     }
 
 
@@ -59,7 +91,7 @@ public class BasicQueue<T> implements Queue<T> {
      */
     @Override
     public SendQueue<T> sendQueue() {
-        return new BasicSendQueue<>(batchSize, this.queue);
+        return new BasicSendQueue<>(batchSize, this.queue, tryTransfer, checkEvery);
     }
 
     @Override
@@ -98,13 +130,5 @@ public class BasicQueue<T> implements Queue<T> {
 
     private void manageQueue(ReceiveQueueListener<T> listener) {
         this.receiveQueueManager.manageQueue(receiveQueue(), listener, batchSize, stop);
-    }
-
-    public static <T> BasicQueue<T> create() {
-        return new BasicQueue<>("BasicQueue", 10, TimeUnit.MILLISECONDS, 10);
-    }
-
-    public static <T> BasicQueue<T> create(int batchSize) {
-        return new BasicQueue<>("BasicQueue", 10, TimeUnit.MILLISECONDS, batchSize);
     }
 }

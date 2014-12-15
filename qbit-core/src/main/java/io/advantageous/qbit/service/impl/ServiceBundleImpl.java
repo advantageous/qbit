@@ -4,6 +4,7 @@ import io.advantageous.qbit.Factory;
 import io.advantageous.qbit.message.MethodCall;
 import io.advantageous.qbit.message.Response;
 import io.advantageous.qbit.queue.Queue;
+import io.advantageous.qbit.queue.QueueBuilder;
 import io.advantageous.qbit.queue.ReceiveQueueListener;
 import io.advantageous.qbit.queue.SendQueue;
 import io.advantageous.qbit.queue.impl.BasicQueue;
@@ -53,7 +54,7 @@ public class ServiceBundleImpl implements ServiceBundle {
     /**
      * Method queue for receiving method calls.
      */
-    private final BasicQueue<MethodCall<Object>> methodQueue;
+    private final Queue<MethodCall<Object>> methodQueue;
 
     /**
      *
@@ -173,10 +174,18 @@ public class ServiceBundleImpl implements ServiceBundle {
         this.address = address;
 
         this.factory = factory;
-        this.responseQueue = new BasicQueue<>("Response Queue " + address, pollRate,
-                TimeUnit.MILLISECONDS, batchSize);
 
-        this.methodQueue = new BasicQueue<>("Send Queue " + address, pollRate, TimeUnit.MILLISECONDS, batchSize);
+        final QueueBuilder queueBuilder = new QueueBuilder().setName("Send Queue  " + address).setPollWait(pollRate).setBatchSize(batchSize);
+
+
+        this.methodQueue = queueBuilder.build();
+
+        this.responseQueue = queueBuilder.setName("Response Queue " + address).build();
+
+
+
+
+
 
         methodSendQueue = methodQueue.sendQueue();
 

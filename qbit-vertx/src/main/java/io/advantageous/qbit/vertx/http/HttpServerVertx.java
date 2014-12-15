@@ -5,6 +5,8 @@ import io.advantageous.qbit.http.HttpRequest;
 import io.advantageous.qbit.http.HttpResponse;
 import io.advantageous.qbit.http.HttpServer;
 import io.advantageous.qbit.http.WebSocketMessage;
+import io.advantageous.qbit.queue.Queue;
+import io.advantageous.qbit.queue.QueueBuilder;
 import io.advantageous.qbit.queue.ReceiveQueueListener;
 import io.advantageous.qbit.queue.SendQueue;
 import io.advantageous.qbit.queue.impl.BasicQueue;
@@ -74,9 +76,9 @@ public class HttpServerVertx implements HttpServer {
     private Consumer<HttpRequest> httpRequestConsumer = request -> logger.debug("HttpServerVertx::DEFAULT HTTP HANDLER CALLED WHICH IS ODD");
 
 
-    private BasicQueue<HttpRequest> requests;
+    private Queue<HttpRequest> requests;
     private SendQueue<HttpRequest> httpRequestSendQueue;
-    private BasicQueue<HttpResponseInternal> responses;
+    private Queue<HttpResponseInternal> responses;
     private SendQueue<HttpResponseInternal> httpResponsesSendQueue;
     private SendQueue<WebSocketMessage> webSocketMessageIncommingSendQueue;
     private ReentrantLock requestLock;
@@ -85,7 +87,7 @@ public class HttpServerVertx implements HttpServer {
     private ReentrantLock webSocketSendLock;
 
 
-    private BasicQueue<WebSocketMessage> webSocketMessageInQueue;
+    private Queue<WebSocketMessage> webSocketMessageInQueue;
 
 
     @Override
@@ -182,11 +184,16 @@ public class HttpServerVertx implements HttpServer {
             requestLock = new ReentrantLock();
             webSocketSendLock = new ReentrantLock();
 
-            requests = new BasicQueue<>("HttpServerRequests", pollTime, TimeUnit.MILLISECONDS, requestBatchSize);
+            requests = new QueueBuilder().setName("HttpServerRequests").setPollWait(pollTime).setBatchSize(requestBatchSize).build();
+
             httpRequestSendQueue = requests.sendQueue();
-            responses = new BasicQueue<>("HttpServerResponses", pollTime, TimeUnit.MILLISECONDS, requestBatchSize);
+            responses = new QueueBuilder().setName("HttpServerRequests").setPollWait(pollTime).setBatchSize(requestBatchSize).build();
+
+
             httpResponsesSendQueue = responses.sendQueue();
-            webSocketMessageInQueue = new BasicQueue<>("WebSocketMessagesIn", pollTime, TimeUnit.MILLISECONDS, requestBatchSize);
+            webSocketMessageInQueue = new QueueBuilder().setName("WebSocketMessagesIn").setPollWait(pollTime).setBatchSize(requestBatchSize).build();
+
+
 
             webSocketMessageIncommingSendQueue = webSocketMessageInQueue.sendQueue();
 

@@ -1,5 +1,7 @@
 package io.advantageous.qbit.example;
 
+import io.advantageous.qbit.queue.Queue;
+import io.advantageous.qbit.queue.QueueBuilder;
 import io.advantageous.qbit.queue.ReceiveQueue;
 import io.advantageous.qbit.queue.SendQueue;
 import io.advantageous.qbit.queue.impl.BasicQueue;
@@ -29,19 +31,23 @@ import java.util.concurrent.atomic.AtomicBoolean;
  */
 public class QBitQueueMultiWriterMultiReader {
 
-    static final BasicQueue<Integer> queue = BasicQueue.create(1000);
+
+    static final Queue<Integer> queue = new QueueBuilder()
+            .setBatchSize(100_000)
+            .setPollWait(100).setSize(6).setTryTransfer(true).setLinkTransferQueue().setCheckEvery(1000)
+            .build();
 
     static ExecutorService executorService = Executors.newCachedThreadPool();
 
-    static final int status = 1_000_000;
+    static final int status = 100_000_000;
 
-    static final int sleepEvery = 1_000_000;
+    static final int sleepEvery = 1_000_000_000;
 
-    static final int numReaders = 2;
+    static final int numReaders = 1;
 
-    static final int numWriters = 10;
+    static final int numWriters = 5;
 
-    static final int amountOfMessagesToSend = 10_000_000; //Each
+    static final int amountOfMessagesToSend = 100_000_000; //Each
 
     static final List<Future<Long>> receiverJobs = new ArrayList<>();
 
@@ -177,6 +183,26 @@ public class QBitQueueMultiWriterMultiReader {
 
 
         executorService.shutdown();
+
+        System.out.println("RATE " + ((numWriters * amountOfMessagesToSend) / (duration / 1000)) + " per second" );
+
+        //12,500,000
+        //25,000,000
+        //35_714_285
+        //142_857_142
+        //39_215_686
+        //100_000_000
+        //42_553_191
+        //100_000_000
+        //117_647_058
+        //133_333_333
+        //166_666_666
+        //181_818_181
+        //200_000_000
+        //222_222_222
+        //125_000_000
+        //50_000_000
+
 
     }
 

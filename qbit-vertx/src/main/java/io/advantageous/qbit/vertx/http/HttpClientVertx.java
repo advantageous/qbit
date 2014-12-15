@@ -3,6 +3,8 @@ package io.advantageous.qbit.vertx.http;
 import io.advantageous.qbit.http.HttpClient;
 import io.advantageous.qbit.http.HttpRequest;
 import io.advantageous.qbit.http.WebSocketMessage;
+import io.advantageous.qbit.queue.Queue;
+import io.advantageous.qbit.queue.QueueBuilder;
 import io.advantageous.qbit.queue.ReceiveQueueListener;
 import io.advantageous.qbit.queue.SendQueue;
 import io.advantageous.qbit.queue.impl.BasicQueue;
@@ -64,8 +66,8 @@ public class HttpClientVertx implements HttpClient {
     protected ScheduledExecutorService scheduledExecutorService;
 
 
-    private BasicQueue<HttpRequest> requestQueue;
-    private BasicQueue<WebSocketMessage> webSocketMessageQueue;
+    private Queue<HttpRequest> requestQueue;
+    private Queue<WebSocketMessage> webSocketMessageQueue;
 
     private  SendQueue<HttpRequest> httpRequestSendQueue;
     private  SendQueue<WebSocketMessage> webSocketSendQueue;
@@ -192,9 +194,11 @@ public class HttpClientVertx implements HttpClient {
 
     @Override
     public void run() {
-        requestQueue = new BasicQueue<>("HTTP REQUEST queue " + host + ":" + port, 50, TimeUnit.MILLISECONDS, requestBatchSize);
+        requestQueue =
+                new QueueBuilder().setName("HttpRequestQueue " + host + " " + port).setPollWait(pollTime).setBatchSize(requestBatchSize).build();
 
-        webSocketMessageQueue = new BasicQueue<>("WebSocket queue " + host + ":" + port, 50, TimeUnit.MILLISECONDS, requestBatchSize);
+
+        webSocketMessageQueue =   new QueueBuilder().setName("WebSocketQueue " + host + " " + port).setPollWait(pollTime).setBatchSize(requestBatchSize).build();
 
         httpRequestSendQueue = requestQueue.sendQueue();
         webSocketSendQueue = webSocketMessageQueue.sendQueue();

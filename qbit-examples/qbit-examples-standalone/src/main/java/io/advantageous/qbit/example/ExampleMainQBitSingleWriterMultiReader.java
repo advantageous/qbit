@@ -1,5 +1,7 @@
 package io.advantageous.qbit.example;
 
+import io.advantageous.qbit.queue.Queue;
+import io.advantageous.qbit.queue.QueueBuilder;
 import org.boon.core.Sys;
 import io.advantageous.qbit.queue.ReceiveQueue;
 import io.advantageous.qbit.queue.SendQueue;
@@ -17,7 +19,10 @@ public class ExampleMainQBitSingleWriterMultiReader {
 
 
 
-    static final BasicQueue<Integer> queue =  BasicQueue.create(1_000);
+    static final Queue<Integer> queue =    new QueueBuilder().setBatchSize(1_000).build();
+
+
+
 
     static ExecutorService executorService = Executors.newCachedThreadPool();
 

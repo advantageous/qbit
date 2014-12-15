@@ -8,9 +8,8 @@ import io.advantageous.qbit.json.JsonMapper;
 import io.advantageous.qbit.message.MethodCall;
 import io.advantageous.qbit.message.Request;
 import io.advantageous.qbit.message.Response;
-import io.advantageous.qbit.queue.ReceiveQueue;
-import io.advantageous.qbit.queue.ReceiveQueueListener;
-import io.advantageous.qbit.queue.SendQueue;
+import io.advantageous.qbit.queue.*;
+import io.advantageous.qbit.queue.Queue;
 import io.advantageous.qbit.queue.impl.BasicQueue;
 import io.advantageous.qbit.service.ServiceBundle;
 import io.advantageous.qbit.service.method.impl.MethodCallImpl;
@@ -56,8 +55,7 @@ public class ServiceServerImpl implements ServiceServer {
     private Set<String> objectNameAddressURIWithVoidReturn = new LinkedHashSet<>();
     private Set<String> getMethodURIsWithVoidReturn = new LinkedHashSet<>();
     private Set<String> postMethodURIsWithVoidReturn = new LinkedHashSet<>();
-    private BasicQueue<Request<Object>> outstandingRequests =
-            new BasicQueue<>("outstandingRequests", 10, TimeUnit.MILLISECONDS, 5);
+    private Queue<Request<Object>> outstandingRequests = new QueueBuilder().setName("outstandingRequests").setPollWait(10).setBatchSize(5).build();
 
     private SendQueue<Request<Object>> sendQueueOutstanding = outstandingRequests.sendQueue();
     private final boolean debug = logger.isDebugEnabled();

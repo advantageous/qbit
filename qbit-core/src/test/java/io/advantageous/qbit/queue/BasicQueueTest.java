@@ -23,7 +23,11 @@ public class BasicQueueTest {
 
     @Test
     public void testUsingListener() {
-       BasicQueue<String> queue = new BasicQueue<>("test", 1000, TimeUnit.MILLISECONDS, 10);
+
+       final QueueBuilder builder = new QueueBuilder().setName("test").setPollWait(1000).setBatchSize(10);
+       Queue<String> queue = builder.build();
+
+               //new BasicQueue<>("test", 1000, TimeUnit.MILLISECONDS, 10);
 
        final int []counter = new int[1];
 
@@ -135,7 +139,9 @@ public class BasicQueueTest {
     @Test
     public void testUsingInput() throws Exception {
 
-        final BasicQueue<String> queue = new BasicQueue<>("test", 1000, TimeUnit.MILLISECONDS, 10);
+
+        final QueueBuilder builder = new QueueBuilder().setName("test").setPollWait(1000).setBatchSize(10);
+        Queue<String> queue = builder.build();
 
         final int count[] = new int[1];
 
@@ -186,7 +192,9 @@ public class BasicQueueTest {
     @Test
     public void testUsingInputTake() throws Exception {
 
-        final BasicQueue<String> queue = new BasicQueue<>("test", 1000, TimeUnit.MILLISECONDS, 1000);
+
+        final QueueBuilder builder = new QueueBuilder().setName("test").setPollWait(1000).setBatchSize(10);
+        Queue<String> queue = builder.build();
 
         final AtomicLong count = new AtomicLong();
 
@@ -246,7 +254,9 @@ public class BasicQueueTest {
     @Test
     public void testUsingInputPollWait() throws Exception {
 
-        final BasicQueue<String> queue = new BasicQueue<>("test", 1000, TimeUnit.MILLISECONDS, 10);
+
+        final QueueBuilder builder = new QueueBuilder().setName("test").setPollWait(1000).setBatchSize(10);
+        Queue<String> queue = builder.build();
 
         final int count[] = new int[1];
 

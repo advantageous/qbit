@@ -6,6 +6,8 @@ import io.advantageous.qbit.http.HttpClient;
 import io.advantageous.qbit.http.HttpRequest;
 import io.advantageous.qbit.http.HttpServer;
 import io.advantageous.qbit.http.WebSocketMessage;
+import io.advantageous.qbit.queue.Queue;
+import io.advantageous.qbit.queue.QueueBuilder;
 import io.advantageous.qbit.queue.ReceiveQueueListener;
 import io.advantageous.qbit.queue.SendQueue;
 import io.advantageous.qbit.queue.impl.BasicQueue;
@@ -30,7 +32,8 @@ public class PerfTestMain {
 
 
 
-    static BasicQueue<WebSocketMessage> messages = new BasicQueue<>("websocket sim", 100, TimeUnit.MILLISECONDS, 5);
+    static Queue<WebSocketMessage> messages = new QueueBuilder().setName("websocket sim").setPollWait(100).setBatchSize(5).build();
+
 
     static Object context = Sys.contextToHold();
 
@@ -180,7 +183,7 @@ public class PerfTestMain {
 
 
 
-        ServiceServer server = new ServiceServerBuilder().setRequestBatchSize(500).build();
+        ServiceServer server = new ServiceServerBuilder().setRequestBatchSize(50).build();
         server.initServices(new AdderService());
         server.start();
 
@@ -202,7 +205,7 @@ public class PerfTestMain {
 
         final long startTime = System.currentTimeMillis();
 
-        for (int index = 0; index < 8_000_000; index++) {
+        for (int index = 0; index < 80_000_000; index++) {
             adder.add("name", 1);
 
             final int runNum = index;
@@ -215,7 +218,8 @@ public class PerfTestMain {
 
 
                         final long endTime = System.currentTimeMillis();
-                        puts("sum " + runNum, " SUM ", integer, "time", endTime - startTime);
+
+                        puts("sum", integer, "time", endTime - startTime, "rate", (integer/(endTime-startTime) * 1000) );
                     }
                 });
             }
@@ -229,7 +233,8 @@ public class PerfTestMain {
 
 
                 final long endTime = System.currentTimeMillis();
-                puts("sum", integer, "time", endTime - startTime);
+
+                puts("sum", integer, "time", endTime - startTime, "rate", (integer/(endTime-startTime) * 1000) );
             }
         });
 
@@ -242,7 +247,8 @@ public class PerfTestMain {
 
 
                 final long endTime = System.currentTimeMillis();
-                puts("sum", integer, "time", endTime - startTime);
+
+                puts("sum", integer, "time", endTime - startTime, "rate", (integer/(endTime-startTime) * 1000) );
             }
         });
 
@@ -255,7 +261,8 @@ public class PerfTestMain {
 
 
                 final long endTime = System.currentTimeMillis();
-                puts("sum", integer, "time", endTime - startTime);
+
+                puts("sum", integer, "time", endTime - startTime, "rate", (integer/(endTime-startTime) * 1000) );
             }
         });
 

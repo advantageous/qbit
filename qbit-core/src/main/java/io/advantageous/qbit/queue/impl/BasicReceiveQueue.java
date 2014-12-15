@@ -5,6 +5,7 @@ import io.advantageous.qbit.queue.ReceiveQueue;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedTransferQueue;
 import java.util.concurrent.TimeUnit;
 
@@ -22,9 +23,9 @@ class BasicReceiveQueue<T> implements ReceiveQueue<T> {
     private final int batchSize;
     private Object[] lastQueue = null;
     private int lastQueueIndex;
-    private final LinkedTransferQueue<Object> queue;
+    private final BlockingQueue<Object> queue;
 
-    public BasicReceiveQueue(LinkedTransferQueue<Object> queue, long waitTime, TimeUnit timeUnit, int batchSize) {
+    public BasicReceiveQueue(BlockingQueue<Object> queue, long waitTime, TimeUnit timeUnit, int batchSize) {
         this.queue = queue;
         this.waitTime = waitTime;
         this.timeUnit = timeUnit;

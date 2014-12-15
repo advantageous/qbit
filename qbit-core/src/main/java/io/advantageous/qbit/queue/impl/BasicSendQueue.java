@@ -5,7 +5,8 @@ import io.advantageous.qbit.queue.SendQueue;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.concurrent.LinkedTransferQueue;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.TransferQueue;
 
 /**
  * This is not thread safe.
@@ -16,20 +17,44 @@ import java.util.concurrent.LinkedTransferQueue;
  */
 public class BasicSendQueue<T> implements SendQueue<T> {
 
-    private final LinkedTransferQueue<Object> queue;
+    private final BlockingQueue<Object> queue;
+
+    private final TransferQueue<Object> transferQueue;
+
     private final Object[] queueLocal;
+    private final int checkBusyEvery;
     private int index;
+
+    private final boolean tryTransfer;
 
     private final int batchSize;
 
-    public BasicSendQueue(int batchSize, LinkedTransferQueue<Object> queue) {
+
+    private int checkEveryCount = 0;
+
+    public BasicSendQueue(int batchSize, BlockingQueue<Object> queue, boolean tryTransfer, int checkBusyEvery) {
         this.batchSize = batchSize;
         this.queue = queue;
         queueLocal = new Object[batchSize];
+        if (queue instanceof TransferQueue && tryTransfer) {
+            transferQueue = ((TransferQueue) queue);
+            this.tryTransfer = true;
+        } else {
+            this.tryTransfer = false;
+            transferQueue = null;
+        }
+        this.checkBusyEvery = checkBusyEvery;
     }
 
     public boolean shouldBatch() {
-        return !queue.hasWaitingConsumer();
+
+        if (tryTransfer) {
+            return !transferQueue.hasWaitingConsumer();
+
+        }
+
+        return true;//might be other ways to determine this like flow control, not implemented yet.
+
     }
 
     @Override
@@ -50,32 +75,35 @@ public class BasicSendQueue<T> implements SendQueue<T> {
     @Override
     public final void sendMany(T... items) {
         flushSends();
-        if (!queue.tryTransfer(items)) {
-            queue.offer(items);
-        }
+        sendArray(items);
     }
 
     @Override
     public void sendBatch(Iterable<T> items) {
         flushSends();
         final Object[] array = objectArray(items);
-        if (!queue.tryTransfer(array)) {
-            queue.offer(array);
-        }
+        sendArray(array);
     }
 
     @Override
     public void sendBatch(Collection<T> items) {
         flushSends();
         final Object[] array = objectArray(items);
-        if (!queue.tryTransfer(array)) {
-            queue.offer(array);
-        }
+        sendArray(array);
+
     }
 
+
     private void flushIfOverBatch() {
+
         if (index >= batchSize) {
             sendLocalQueue();
+        } else if (tryTransfer) {
+            checkEveryCount++;
+            if (checkEveryCount > this.checkBusyEvery && !shouldBatch()) {
+                checkEveryCount = 0;
+                sendLocalQueue();
+            }
         }
     }
 
@@ -87,13 +115,25 @@ public class BasicSendQueue<T> implements SendQueue<T> {
     }
 
     private void sendLocalQueue() {
-
-
         final Object[] copy = fastObjectArraySlice(queueLocal, 0, index);
-        if (!queue.tryTransfer(copy)) {
-            queue.offer(copy);
-        }
+        sendArray(copy);
         index = 0;
+    }
+
+    private void sendArray(
+            final Object[] array) {
+
+        if (tryTransfer) {
+            if (!transferQueue.tryTransfer(array)) {
+                transferQueue.offer(array);
+            }
+        } else {
+            try {
+                queue.put(array);
+            } catch (InterruptedException e) {
+                throw new IllegalStateException("Unable to send", e);
+            }
+        }
     }
 
     static Object[] objectArray(final Iterable iter) {

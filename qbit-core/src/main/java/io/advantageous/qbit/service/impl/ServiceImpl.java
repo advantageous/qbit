@@ -5,10 +5,7 @@ import io.advantageous.qbit.message.Event;
 import io.advantageous.qbit.message.MethodCall;
 import io.advantageous.qbit.message.Request;
 import io.advantageous.qbit.message.Response;
-import io.advantageous.qbit.queue.Queue;
-import io.advantageous.qbit.queue.ReceiveQueue;
-import io.advantageous.qbit.queue.ReceiveQueueListener;
-import io.advantageous.qbit.queue.SendQueue;
+import io.advantageous.qbit.queue.*;
 import io.advantageous.qbit.queue.impl.BasicQueue;
 import io.advantageous.qbit.service.AfterMethodCall;
 import io.advantageous.qbit.service.BeforeMethodCall;
@@ -130,8 +127,11 @@ public class ServiceImpl implements Service {
         this.name = serviceMethodHandler.address();
 
 
-        requestQueue = new BasicQueue<>("Request Queue " + name, waitTime,
-                timeUnit, batchSize);
+        final QueueBuilder queueBuilder = new QueueBuilder().setName("Send Queue  " + name).setPollWait(waitTime).setBatchSize(batchSize);
+
+
+
+        requestQueue = queueBuilder.setName("Send Queue  " + name).build();
 
         if (responseQueue == null) {
 
@@ -139,8 +139,8 @@ public class ServiceImpl implements Service {
                 logger.debug("RESPONSE QUEUE WAS NULL CREATING ONE");
             }
 
-            this.responseQueue = new BasicQueue<>("Response Queue " + name, waitTime,
-                    timeUnit, batchSize);
+            this.responseQueue = queueBuilder.setName("Response Queue  " + name).build();
+
         } else {
             this.responseQueue = responseQueue;
         }
