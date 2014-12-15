@@ -9,7 +9,7 @@ import java.util.function.Consumer;
  */
 public class HttpServerBuilder {
 
-    private String host = "localhost";
+    private String host;
     private int port = 8080;
     private boolean manageQueues = true;
 
