@@ -22,7 +22,7 @@ public class HttpPerfClientTest {
     private static final  int REQUEST_COUNT = 20_000_000;
 
 
-    private static final  int CLIENT_COUNT = 4;
+    private static final  int CLIENT_COUNT = 10;
 
     public static void main(String... args) throws InterruptedException {
 
