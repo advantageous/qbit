@@ -7,7 +7,7 @@ Or you can hide behind abstractions.
 
 QBit opens you up to peeking into what is going on, and allows you to pull some levers without selling your soul.
 
-QBit can be 15x faster than built-in Java Queues.
+QBit can be 15x faster than built-in Java queues.
 
 
 Status
