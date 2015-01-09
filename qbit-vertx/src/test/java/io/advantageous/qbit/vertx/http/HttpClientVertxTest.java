@@ -59,6 +59,8 @@ public class HttpClientVertxTest {
         client.sendWebSocketMessage(webSocketMessage);
         client.flush();
 
+        Sys.sleep(100);
+
 
         validate();
         stop();
