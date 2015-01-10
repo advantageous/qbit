@@ -356,7 +356,24 @@ public class BoonClient implements Client {
                 if (actualReturnType != null) {
 
                     if ( componentClass != null && actualReturnType == List.class ) {
-                        event = MapObjectConversion.convertListOfMapsToObjects(componentClass, (List) event);
+
+                        try {
+                            event = MapObjectConversion.convertListOfMapsToObjects(componentClass, (List) event);
+                        } catch (Exception ex) {
+                            if (event instanceof CharSequence) {
+                                String errorMessage = event.toString();
+                                if (errorMessage.startsWith("java.lang.IllegalState")) {
+                                    handler.onError(new IllegalStateException(errorMessage));
+                                    return;
+                                } else {
+                                    handler.onError(new IllegalStateException("Conversion error"));
+                                    return;
+                                }
+                            } else {
+                                handler.onError(new IllegalStateException("Conversion error"));
+                                return;
+                            }
+                        }
                     } else {
                         event = Conversions.coerce(actualReturnType, event);
                     }

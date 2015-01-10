@@ -28,12 +28,15 @@ public class TodoService  {
     @RequestMapping("/todo/list")
     public List<TodoItem> list() {
 
+        System.out.println("LIST");
         return todoRepository.list();
     }
 
     @RequestMapping(value = "/todo", method = RequestMethod.POST)
     public void add(TodoItem item) {
         adds++;
+
+        System.out.println("ADD");
 
         if (adds<10_000) {
             todoRepository.add(item);

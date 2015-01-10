@@ -24,3 +24,10 @@ lib/javax.servlet.jsp.jstl.jar
 qbit.ipr
 
 *.hprof
+
+out/
+qbit-examples/tutorial/todo-service-websocket-client/todo-service-websocket-client.ipr
+
+*.ipr
+
+*.iws
