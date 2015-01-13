@@ -5,6 +5,7 @@ import io.advantageous.qbit.Factory;
 import java.util.concurrent.atomic.AtomicReference;
 
 /**
+ * SPI interface to register default implementations of built-in factories and services.
  * Created by Richard on 9/26/14.
  * @author rhightower
  */

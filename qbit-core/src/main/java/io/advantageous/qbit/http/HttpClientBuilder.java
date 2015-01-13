@@ -4,6 +4,8 @@ import io.advantageous.qbit.QBit;
 
 
 /**
+ * This allows one to construct an http client which attaches to a remote server.
+ * @author rhightower
  * Created by rhightower on 11/13/14.
  */
 public class HttpClientBuilder {

@@ -10,7 +10,7 @@ import io.advantageous.qbit.json.JsonMapper;
 import io.advantageous.qbit.message.MethodCall;
 import io.advantageous.qbit.message.Request;
 import io.advantageous.qbit.message.Response;
-import io.advantageous.qbit.proxy.ServiceProxyFactory;
+import io.advantageous.qbit.client.ServiceProxyFactory;
 import io.advantageous.qbit.queue.Queue;
 import io.advantageous.qbit.sender.Sender;
 import io.advantageous.qbit.sender.SenderEndPoint;

@@ -1,12 +1,10 @@
 package io.advantageous.qbit.service.impl;
 
-import io.advantageous.qbit.GlobalConstants;
 import io.advantageous.qbit.message.Event;
 import io.advantageous.qbit.message.MethodCall;
 import io.advantageous.qbit.message.Request;
 import io.advantageous.qbit.message.Response;
 import io.advantageous.qbit.queue.*;
-import io.advantageous.qbit.queue.impl.BasicQueue;
 import io.advantageous.qbit.service.AfterMethodCall;
 import io.advantageous.qbit.service.BeforeMethodCall;
 import io.advantageous.qbit.service.Service;
@@ -29,6 +27,7 @@ public class ServiceImpl implements Service {
     private final Object service;
     private final String name;
     private ServiceMethodHandler serviceMethodHandler;
+
 
     private BeforeMethodCall beforeMethodCall = ServiceConstants.NO_OP_BEFORE_METHOD_CALL;
 
@@ -79,7 +78,7 @@ public class ServiceImpl implements Service {
         methodCall = beforeMethodProcessing(methodCall, continueFlag);
 
         if (continueFlag[0]) {
-            logger.info("ServiceImpl::doHandleMethodCall() before handling stopped processing");
+            if (debug) logger.info("ServiceImpl::doHandleMethodCall() before handling stopped processing");
             return;
         }
 

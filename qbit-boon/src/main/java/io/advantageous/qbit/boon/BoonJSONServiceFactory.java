@@ -4,7 +4,7 @@ import io.advantageous.qbit.Factory;
 import io.advantageous.qbit.client.ClientProxy;
 import io.advantageous.qbit.util.Timer;
 import io.advantageous.qbit.message.MethodCall;
-import io.advantageous.qbit.proxy.ServiceProxyFactory;
+import io.advantageous.qbit.client.ServiceProxyFactory;
 import io.advantageous.qbit.service.EndPoint;
 import org.boon.Str;
 import org.boon.primitive.CharBuf;

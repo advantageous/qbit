@@ -8,6 +8,9 @@ import io.advantageous.qbit.spi.ProtocolEncoder;
 import io.advantageous.qbit.spi.ProtocolParser;
 
 /**
+ *
+ * Allows for the programmatic construction of a service.
+ * @author rhightower
  * Created by Richard on 11/14/14.
  */
 

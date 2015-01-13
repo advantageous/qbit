@@ -5,6 +5,8 @@ import io.advantageous.qbit.QBit;
 import java.util.function.Consumer;
 
 /**
+ * Allows one to build an HTTP server.
+ * @author rhightower
  * Created by Richard on 11/12/14.
  */
 public class HttpServerBuilder {

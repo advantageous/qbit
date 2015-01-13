@@ -4,6 +4,7 @@ import io.advantageous.qbit.message.Request;
 import io.advantageous.qbit.util.MultiMap;
 
 /**
+ * Represents a WebSocketMessage
  * Created by rhightower on 10/22/14.
  * @author rhightower
  */

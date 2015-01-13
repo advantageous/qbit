@@ -1,6 +1,7 @@
 package io.advantageous.qbit.http;
 
 /**
+ * Allows one to create a WebSocket message to send.
  * Created by rhightower on 10/24/14.
  * @author rhightower
  */

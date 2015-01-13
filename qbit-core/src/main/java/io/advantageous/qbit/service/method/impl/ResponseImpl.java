@@ -53,7 +53,7 @@ public class ResponseImpl<T> implements Response<T> {
         this.timestamp = methodCall.timestamp();
         this.id = methodCall.id();
 
-        final Map<String, Object> body = new HashMap<>(10);
+        final Map<String, Object> body = new HashMap<>(8);
         this.body = body;
         this.transformedBody = ex;
         this.address = methodCall.address();

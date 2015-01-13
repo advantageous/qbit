@@ -1,6 +1,8 @@
 package io.advantageous.qbit.queue;
 
 /**
+ * Represents a queue manager.
+ * Queues are split up into receivers views and send views to facilitate batching.
  * Created by Richard on 8/4/14.
  * @author rhightower
  */

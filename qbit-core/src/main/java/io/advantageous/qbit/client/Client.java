@@ -1,7 +1,11 @@
 package io.advantageous.qbit.client;
 
 /**
- * Created by rhightower on 12/3/14.
+ * This is the main interface for accessing the server from a client perspective.
+ * With this interface you can create a client proxy.
+ * A client proxy is an interface that will marshall calls to a remote server.
+ *
+ * @author rhightower
  */
 public interface Client {
 

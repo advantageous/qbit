@@ -9,6 +9,9 @@ import java.nio.charset.StandardCharsets;
 import java.util.Set;
 
 /**
+ *
+ * This is a builder for creating HTTP request objects.
+ *
  * Created by rhightower on 10/24/14.
  *
  * @author rhightower

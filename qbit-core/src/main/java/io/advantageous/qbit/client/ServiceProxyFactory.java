@@ -1,4 +1,4 @@
-package io.advantageous.qbit.proxy;
+package io.advantageous.qbit.client;
 
 
 import io.advantageous.qbit.service.EndPoint;

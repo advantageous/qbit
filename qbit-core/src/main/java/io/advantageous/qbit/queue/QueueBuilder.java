@@ -5,6 +5,9 @@ import io.advantageous.qbit.queue.impl.BasicQueue;
 import java.util.concurrent.*;
 
 /**
+ *
+ * Allows for the programmatic construction of a queue.
+ *
  * Created by rhightower on 12/14/14.
  */
 public class QueueBuilder {

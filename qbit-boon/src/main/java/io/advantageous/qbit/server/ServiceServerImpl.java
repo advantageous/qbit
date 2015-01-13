@@ -193,7 +193,7 @@ public class ServiceServerImpl implements ServiceServer {
         try {
             webSocketMessage.getSender().send(responseAsText);
         } catch (Exception ex) {
-            logger.warn("websocket unable to send response");
+            logger.warn("websocket unable to send response", ex);
         }
     }
 
@@ -574,7 +574,6 @@ public class ServiceServerImpl implements ServiceServer {
                 httpResponse.response(408, "application/json", "\"timed out\"");
             } catch (Exception ex) {
                 logger.debug("Response not marked handled and it timed out, but could not be written " + request, ex);
-                puts(request);
 
             }
         } else if (request instanceof WebSocketMessage) {

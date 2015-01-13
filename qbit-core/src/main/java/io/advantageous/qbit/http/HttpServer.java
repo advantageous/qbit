@@ -5,6 +5,9 @@ import io.advantageous.qbit.server.Server;
 import java.util.function.Consumer;
 
 /**
+ * Represents an HTTP server.
+ * Has the ability to register callbacks.
+ *
  * Created by rhightower on 10/22/14.
  * @author rhightower
  */

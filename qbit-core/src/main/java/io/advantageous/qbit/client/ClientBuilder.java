@@ -4,6 +4,10 @@ import io.advantageous.qbit.QBit;
 import io.advantageous.qbit.http.HttpClient;
 
 /**
+ * Client builder is used to create a client programatically.
+ *
+ *
+ *
  * Created by rhightower on 12/3/14.
  */
 public class ClientBuilder {
