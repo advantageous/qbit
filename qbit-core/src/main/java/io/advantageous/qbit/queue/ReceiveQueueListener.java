@@ -22,20 +22,20 @@ public interface ReceiveQueueListener<T> extends Input {
      * This is good for batch operations. This could mean the queue is empty or we reached our max batch size limit.
      *
      * */
-    void empty();
+    default void empty() {};
 
 
     /** Notifies the queue listener that we processed up to batch size.
      * This is good for batch operations. This could mean the queue is empty or we reached our max batch size limit.
      *
      * */
-    void limit();
+    default void limit() {}
 
     /** Notifies the queue listener that currently the queue is closed for business. */
-    void shutdown();
+    default void shutdown(){};
 
     /** This means we did not find an item. We waited for an item as well and there was still not an item in the queue
      * This would be a good time to do some clean up.
      */
-    void idle();
+    default void idle(){}
 }

@@ -157,7 +157,7 @@ public class ServerTest {
         ServiceServerImpl server = new ServiceServerImpl(httpServer, encoder,
                 QBit.factory().createProtocolParser(), serviceBundle, mapper, 1);
 
-        server.initServices(Sets.set(new TodoService()));
+        server.initServices(new TodoService());
 
         server.start();
 

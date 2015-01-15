@@ -3,6 +3,7 @@ package io.advantageous.qbit.server;
 import io.advantageous.qbit.Factory;
 import io.advantageous.qbit.QBit;
 import io.advantageous.qbit.annotation.RequestMapping;
+import io.advantageous.qbit.annotation.RequestMethod;
 import io.advantageous.qbit.http.*;
 import io.advantageous.qbit.json.JsonMapper;
 import io.advantageous.qbit.message.MethodCall;
@@ -54,6 +55,12 @@ public class ServiceServerImplTest {
         public String callWithReturn() {
             callMeCounter++;
             return "bacon";
+        }
+
+        @RequestMapping(value = "/callPost", method = RequestMethod.POST)
+        public String callPOST() {
+            callMeCounter++;
+            return "baconPOST";
         }
 
 
@@ -118,6 +125,52 @@ public class ServiceServerImplTest {
 
 
     @Test
+    public void testSimplePOST_HTTPRequest() throws Exception {
+
+        final HttpRequest request = new HttpRequestBuilder()
+                .setUri("/services/mock/callPost")
+                .setResponse(new MockResponse()).setMethod("POST")
+                .setBody("[]").build();
+
+        httpServer.sendRequest(request);
+
+        Sys.sleep(200);
+
+
+        ok |= responseCounter == 1 || die();
+        ok |= callMeCounter == 1 || die();
+
+        ok |= lastResponse.equals("\"baconPOST\"") || die();
+
+
+
+    }
+
+
+    @Test
+    public void testSimplePOST_HTTPRequest_ErrorWrongHttpMethod() throws Exception {
+
+        final HttpRequest request = new HttpRequestBuilder()
+                .setUri("/services/mock/callPost")
+                .setResponse(new MockResponse())
+                .setBody("[]").build();
+
+        httpServer.sendRequest(request);
+
+        Sys.sleep(200);
+
+
+        ok |= responseCounter == 0 || die();
+
+        ok |= failureCounter == 1 || die();
+        ok |= callMeCounter == 1 || die();
+
+        puts(lastResponse);
+
+
+    }
+
+    @Test
     public void testAsyncCallHttp() throws Exception {
 
         final HttpRequest request = new HttpRequestBuilder()
@@ -152,7 +205,7 @@ public class ServiceServerImplTest {
         Sys.sleep(200);
 
 
-        //left off here 1/13/2015
+        ok |= failureCounter == 1 || die();
         ok |= callMeCounter == 1 || die();
         ok |= lastResponse.equals("\"java.lang.RuntimeException: EXCEPTION_CALL\"") || die();
 

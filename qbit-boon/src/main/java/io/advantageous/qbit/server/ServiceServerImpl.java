@@ -43,26 +43,24 @@ public class ServiceServerImpl implements ServiceServer {
 
 
     private final Logger logger = LoggerFactory.getLogger(ServiceServerImpl.class);
+    private final boolean debug = logger.isDebugEnabled();
     protected int timeoutInSeconds = 30;
     protected ProtocolEncoder encoder;
     protected HttpServer httpServer;
     protected ServiceBundle serviceBundle;
     protected JsonMapper jsonMapper;
     protected ProtocolParser parser;
-
+    Object context = Sys.contextToHold();
+    long lastTimeoutCheckTime = 0;
+    int timedOut;
     private Set<String> getMethodURIs = new LinkedHashSet<>();
     private Set<String> postMethodURIs = new LinkedHashSet<>();
     private Set<String> objectNameAddressURIWithVoidReturn = new LinkedHashSet<>();
     private Set<String> getMethodURIsWithVoidReturn = new LinkedHashSet<>();
     private Set<String> postMethodURIsWithVoidReturn = new LinkedHashSet<>();
     private Queue<Request<Object>> outstandingRequests = new QueueBuilder().setName("outstandingRequests").setPollWait(10).setBatchSize(5).build();
-
     private SendQueue<Request<Object>> sendQueueOutstanding = outstandingRequests.sendQueue();
-    private final boolean debug = logger.isDebugEnabled();
     private AtomicBoolean stop = new AtomicBoolean();
-
-    Object context = Sys.contextToHold();
-
 
 
     public ServiceServerImpl(final HttpServer httpServer,
@@ -77,11 +75,6 @@ public class ServiceServerImpl implements ServiceServer {
         this.serviceBundle = serviceBundle;
         this.jsonMapper = jsonMapper;
         this.timeoutInSeconds = timeOutInSeconds;
-    }
-
-
-    protected ServiceServerImpl() {
-
     }
 
 
@@ -128,7 +121,7 @@ public class ServiceServerImpl implements ServiceServer {
         if (!knownURI) {
             request.handled(); //Mark the request as handled.
             request.getResponse().response(404, "application/json",
-                    Str.add("\"No service method for URI\"", request.getUri()));
+                    Str.add("\"No service method for URI ", request.getUri(), "\""));
 
         }
 
@@ -142,8 +135,6 @@ public class ServiceServerImpl implements ServiceServer {
         serviceBundle.call(methodCall);
 
     }
-
-
 
     public List<MethodCall<Object>> createMethodCallListToBeParsedFromBody(String addressPrefix, Object body, Request<Object> originatingRequest) {
 
@@ -199,18 +190,16 @@ public class ServiceServerImpl implements ServiceServer {
 
     private void handleResponseFromServiceToHttpResponse(Response<Object> response, HttpRequest originatingRequest) {
         final HttpRequest httpRequest = originatingRequest;
-        httpRequest.getResponse().response(200, "application/json", jsonMapper.toJson(response.body()));
-    }
 
+        if (response.wasErrors()) {
+            httpRequest.getResponse().response(500, "application/json", jsonMapper.toJson(response.body()));
 
-    protected void initServices(final Set<Object> services) {
+        } else {
+            httpRequest.getResponse().response(200, "application/json", jsonMapper.toJson(response.body()));
 
-        for (Object service : services) {
-            if (debug) logger.debug("registering service: " + service.getClass().getName());
-            serviceBundle.addService(service);
-            this.addRestSupportFor(service.getClass(), serviceBundle.address());
         }
     }
+
 
     @Override
     public void start() {
@@ -232,17 +221,6 @@ public class ServiceServerImpl implements ServiceServer {
 
     }
 
-    /**
-     * Run this server.
-     *
-     * @param services services
-     */
-    public void run(Object... services) {
-
-        initServices(Sets.set(services));
-
-        start();
-    }
 
     /**
      * Sets up the response queue listener so we can send responses
@@ -251,7 +229,6 @@ public class ServiceServerImpl implements ServiceServer {
     private void startResponseQueueListener() {
         serviceBundle.startReturnHandlerProcessor(createResponseQueueListener());
     }
-
 
     /**
      * Creates the queue listener for method call responses from the client bundle.
@@ -268,28 +245,12 @@ public class ServiceServerImpl implements ServiceServer {
             }
 
             @Override
-            public void empty() {
-
-
-            }
-
-            @Override
-            public void limit() {
-            }
-
-            @Override
-            public void shutdown() {
-
-            }
-
-            @Override
             public void idle() {
 
                 checkTimeoutsForRequests();
             }
         };
     }
-
 
     /**
      * Handle a response from the server.
@@ -326,7 +287,6 @@ public class ServiceServerImpl implements ServiceServer {
             throw new IllegalStateException("Unknown response " + response);
         }
     }
-
 
     /**
      * Register REST and webSocket support for a class and URI.
@@ -483,7 +443,6 @@ public class ServiceServerImpl implements ServiceServer {
         return methodURI;
     }
 
-
     /**
      * Add a request to the timeout queue. Server checks for timeouts when it is idle or when
      * the max outstanding outstandingRequests is met.
@@ -504,8 +463,6 @@ public class ServiceServerImpl implements ServiceServer {
 //            }
 //        }
     }
-
-    long lastTimeoutCheckTime = 0;
 
     /**
      *
@@ -554,9 +511,6 @@ public class ServiceServerImpl implements ServiceServer {
 
 
     }
-
-
-    int timedOut;
 
     /**
      * Handle a method timeout.
