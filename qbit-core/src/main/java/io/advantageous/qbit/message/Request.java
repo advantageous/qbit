@@ -18,6 +18,11 @@ public interface Request<T> extends Message<T> {
 
     MultiMap<String, String> headers();
 
+
+    boolean hasParams();
+
+    boolean hasHeaders();
+
     long timestamp();
 
     boolean isHandled();

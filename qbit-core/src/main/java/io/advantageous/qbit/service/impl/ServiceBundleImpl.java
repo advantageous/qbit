@@ -2,18 +2,17 @@ package io.advantageous.qbit.service.impl;
 
 import io.advantageous.qbit.Factory;
 import io.advantageous.qbit.message.MethodCall;
+import io.advantageous.qbit.message.MethodCallBuilder;
 import io.advantageous.qbit.message.Response;
 import io.advantageous.qbit.queue.Queue;
 import io.advantageous.qbit.queue.QueueBuilder;
 import io.advantageous.qbit.queue.ReceiveQueueListener;
 import io.advantageous.qbit.queue.SendQueue;
-import io.advantageous.qbit.queue.impl.BasicQueue;
 import io.advantageous.qbit.service.BeforeMethodCall;
 import io.advantageous.qbit.service.Callback;
 import io.advantageous.qbit.service.Service;
 import io.advantageous.qbit.service.ServiceBundle;
-import io.advantageous.qbit.service.method.impl.MethodCallImpl;
-import io.advantageous.qbit.service.method.impl.ResponseImpl;
+import io.advantageous.qbit.message.impl.ResponseImpl;
 import io.advantageous.qbit.transforms.NoOpRequestTransform;
 import io.advantageous.qbit.util.ConcurrentHashSet;
 import io.advantageous.qbit.util.Timer;
@@ -22,7 +21,6 @@ import org.slf4j.LoggerFactory;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.TimeUnit;
 
 /**
  * Manages a collection of services.
@@ -520,7 +518,7 @@ public class ServiceBundleImpl implements ServiceBundle {
             return methodCall;
         }
         Object arg = this.argTransformer.transform(methodCall);
-        return MethodCallImpl.transformed(methodCall, arg);
+        return MethodCallBuilder.transformed(methodCall, arg);
     }
 
     /**

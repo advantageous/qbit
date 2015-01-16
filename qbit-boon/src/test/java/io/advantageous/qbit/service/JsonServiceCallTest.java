@@ -1,12 +1,13 @@
 package io.advantageous.qbit.service;
 
 import io.advantageous.qbit.Services;
+import io.advantageous.qbit.message.MethodCallBuilder;
 import org.boon.Lists;
 import org.junit.Test;
 import io.advantageous.qbit.message.MethodCall;
 import io.advantageous.qbit.queue.ReceiveQueue;
 import io.advantageous.qbit.queue.SendQueue;
-import io.advantageous.qbit.service.method.impl.MethodCallImpl;
+import io.advantageous.qbit.message.impl.MethodCallImpl;
 import io.advantageous.qbit.message.Response;
 
 import java.util.List;
@@ -44,9 +45,9 @@ public class JsonServiceCallTest {
 
 
 
-        requests.send(MethodCallImpl.method("add", "[1,2]"));
+        requests.send(MethodCallBuilder.method("add", "[1,2]"));
 
-        requests.send(MethodCallImpl.method("add", "[4,5]"));
+        requests.send(MethodCallBuilder.method("add", "[4,5]"));
         requests.flushSends();
 
         Response<Object> response = responses.take();
@@ -86,8 +87,8 @@ public class JsonServiceCallTest {
 
 
         requests.sendMany(
-                MethodCallImpl.method("add", "[1,2]"),
-                MethodCallImpl.method("add", "[4,5]"));
+                MethodCallBuilder.method("add", "[1,2]"),
+                MethodCallBuilder.method("add", "[4,5]"));
 
 
 
@@ -126,8 +127,8 @@ public class JsonServiceCallTest {
         SendQueue<MethodCall<Object>> requests = service.requests();
 
         List<MethodCall<Object>> methods = Lists.list(
-                MethodCallImpl.method("add", "[1,2]"),
-                MethodCallImpl.method("add", "[4,5]"));
+                MethodCallBuilder.method("add", "[1,2]"),
+                MethodCallBuilder.method("add", "[4,5]"));
 
         requests.sendBatch(methods);
 

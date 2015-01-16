@@ -1,8 +1,7 @@
-package io.advantageous.qbit.service.method.impl;
+package io.advantageous.qbit.message.impl;
 
 import io.advantageous.qbit.message.CompositeResponse;
 import io.advantageous.qbit.message.Response;
-import io.advantageous.qbit.message.impl.CompositeMessageImpl;
 
 import java.util.Iterator;
 import java.util.List;

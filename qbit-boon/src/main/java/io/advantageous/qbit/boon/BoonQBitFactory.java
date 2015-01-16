@@ -8,6 +8,7 @@ import io.advantageous.qbit.http.HttpClient;
 import io.advantageous.qbit.http.HttpServer;
 import io.advantageous.qbit.json.JsonMapper;
 import io.advantageous.qbit.message.MethodCall;
+import io.advantageous.qbit.message.MethodCallBuilder;
 import io.advantageous.qbit.message.Request;
 import io.advantageous.qbit.message.Response;
 import io.advantageous.qbit.client.ServiceProxyFactory;
@@ -22,7 +23,7 @@ import io.advantageous.qbit.service.ServiceBundle;
 import io.advantageous.qbit.service.impl.BoonServiceMethodCallHandler;
 import io.advantageous.qbit.service.impl.ServiceBundleImpl;
 import io.advantageous.qbit.service.impl.ServiceImpl;
-import io.advantageous.qbit.service.method.impl.MethodCallImpl;
+import io.advantageous.qbit.message.impl.MethodCallImpl;
 import io.advantageous.qbit.spi.*;
 import io.advantageous.qbit.util.MultiMap;
 import org.slf4j.Logger;
@@ -70,7 +71,7 @@ public class BoonQBitFactory implements Factory {
                                                                  Object body,
                                                                  MultiMap<String, String> params) {
 
-        return MethodCallImpl.method(id, address, returnAddress, objectName, methodName, timestamp, body, params);
+        return MethodCallBuilder.createMethodCallToBeEncodedAndSent(id, address, returnAddress, objectName, methodName, timestamp, body, params);
     }
 
     @Override
@@ -151,32 +152,14 @@ public class BoonQBitFactory implements Factory {
     @Override
     public MethodCall<Object> createMethodCallFromHttpRequest(final Request<Object> request, Object args) {
 
-
-        MethodCall<Object> mc = null;
-        MethodCallImpl methodCall =
-                MethodCallImpl.method(request, args);
-
-        if (request.body() != null) {
-            ProtocolParser parser = selectProtocolParser(request.body(), request.params());
-
-            if (parser != null) {
-                mc = parser.parseMethodCall(request.body());
-            } else {
-                mc = defaultProtocol.parseMethodCall(request.body());
-            }
-            if (mc instanceof MethodCallImpl) {
-                MethodCallImpl mcImpl = (MethodCallImpl) mc;
-                mcImpl.overrides(methodCall);
-                methodCall = mcImpl;
-            } else {
-                methodCall.overridesFromParams();
-            }
-
-        }
-
-
-
-        return methodCall;
+        MethodCallBuilder methodCallBuilder = new MethodCallBuilder();
+        methodCallBuilder.setOriginatingRequest(request);
+        methodCallBuilder.setBody(args);
+        methodCallBuilder.setHeaders(request.headers());
+        methodCallBuilder.setParams(request.params());
+        methodCallBuilder.setAddress(request.address());
+        methodCallBuilder.overridesFromParams();
+        return methodCallBuilder.build();
 
     }
 
@@ -225,29 +208,39 @@ public class BoonQBitFactory implements Factory {
                                                                  Object body,
                                                                  MultiMap<String, String> params) {
 
-        MethodCall<Object> mc = null;
-        MethodCallImpl methodCall =
-                MethodCallImpl.method(0L, address, returnAddress, objectName, methodName, 0L, body, params);
+
+        MethodCall<Object> parsedMethodCall = null;
 
         if (body != null) {
             ProtocolParser parser = selectProtocolParser(body, params);
 
             if (parser != null) {
-                mc = parser.parseMethodCall(body);
+                parsedMethodCall= parser.parseMethodCall(body);
             } else {
-                mc = defaultProtocol.parseMethodCall(body);
+                parsedMethodCall = defaultProtocol.parseMethodCall(body);
             }
         }
 
-        if (mc instanceof MethodCallImpl) {
-            MethodCallImpl mcImpl = (MethodCallImpl) mc;
-            mcImpl.overrides(methodCall);
-            methodCall = mcImpl;
-        } else {
-            methodCall.overridesFromParams();
+
+        if (parsedMethodCall!=null) {
+            return parsedMethodCall;
         }
 
-        return methodCall;
+
+        MethodCallBuilder methodCallBuilder = new MethodCallBuilder();
+
+        methodCallBuilder.setName(methodName);
+        methodCallBuilder.setBody(body);
+        methodCallBuilder.setObjectName(objectName);
+        methodCallBuilder.setAddress(address);
+        methodCallBuilder.setReturnAddress(returnAddress);
+        if (params!=null) {
+            methodCallBuilder.setParams(params);
+        }
+
+        methodCallBuilder.overridesFromParams();
+
+        return methodCallBuilder.build();
     }
 
     @Override

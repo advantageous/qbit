@@ -1,15 +1,11 @@
 package io.advantageous.qbit.service.impl;
 
-import io.advantageous.qbit.message.Event;
-import io.advantageous.qbit.message.MethodCall;
-import io.advantageous.qbit.message.Request;
-import io.advantageous.qbit.message.Response;
+import io.advantageous.qbit.message.*;
 import io.advantageous.qbit.queue.*;
 import io.advantageous.qbit.service.AfterMethodCall;
 import io.advantageous.qbit.service.BeforeMethodCall;
 import io.advantageous.qbit.service.Service;
 import io.advantageous.qbit.service.ServiceMethodHandler;
-import io.advantageous.qbit.service.method.impl.MethodCallImpl;
 import io.advantageous.qbit.transforms.NoOpResponseTransformer;
 import io.advantageous.qbit.transforms.Transformer;
 import org.slf4j.Logger;
@@ -295,7 +291,7 @@ public class ServiceImpl implements Service {
         if (requestObjectTransformer != null && requestObjectTransformer != ServiceConstants.NO_OP_ARG_TRANSFORM) {
             final Object arg = requestObjectTransformer.transform(methodCall);
 
-            methodCall = MethodCallImpl.transformed(methodCall, arg);
+            methodCall = MethodCallBuilder.transformed(methodCall, arg);
         }
 
         if (beforeMethodCallAfterTransform != null && beforeMethodCallAfterTransform != ServiceConstants.NO_OP_BEFORE_METHOD_CALL) {

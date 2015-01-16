@@ -6,10 +6,12 @@ import io.advantageous.qbit.annotation.RequestMapping;
 import io.advantageous.qbit.annotation.RequestMethod;
 import io.advantageous.qbit.http.*;
 import io.advantageous.qbit.json.JsonMapper;
+import io.advantageous.qbit.message.Message;
 import io.advantageous.qbit.message.MethodCall;
 import io.advantageous.qbit.message.Response;
 import io.advantageous.qbit.queue.Queue;
 import io.advantageous.qbit.queue.ReceiveQueueListener;
+import io.advantageous.qbit.sender.Sender;
 import io.advantageous.qbit.service.ServiceBundle;
 import io.advantageous.qbit.spi.ProtocolEncoder;
 import io.advantageous.qbit.spi.ProtocolParser;
@@ -191,6 +193,42 @@ public class ServiceServerImplTest {
 
     }
 
+    @Test
+    public void testWesocketCallThatIsCrap() throws Exception {
+
+
+        httpServer.sendWebSocketMessage(new WebSocketMessageBuilder().setMessage("CRAP").setSender(new MockWebSocketSender()).build());
+
+
+
+
+        ok |= responseCounter == 1 || die();
+        ok |= failureCounter == 1 || die();
+
+    }
+
+    @Test
+    public void testWebSocketCall() throws Exception {
+
+
+        final HttpRequest request = new HttpRequestBuilder()
+                .setUri("/services/mock/callWithReturn")
+                .setTextResponse(new MockResponse())
+                .setBody("").build();
+
+
+
+        httpServer.sendWebSocketMessage(new WebSocketMessageBuilder().setMessage("CRAP").setSender(new MockWebSocketSender()).build());
+
+
+
+
+        ok |= responseCounter == 1 || die();
+        ok |= failureCounter == 1 || die();
+
+    }
+
+
 
     @Test
     public void testExceptionCall() throws Exception {
@@ -231,6 +269,21 @@ public class ServiceServerImplTest {
             }
 
         }
+    }
+
+    class MockWebSocketSender implements WebsSocketSender {
+        @Override
+        public void send(String message) {
+
+            Response<Object> response = QBit.factory().createProtocolParser().parseResponse(message);
+            responseCounter++;
+            if (response.wasErrors()) {
+                failureCounter++;
+            }
+
+        }
+
+
     }
 
     class HttpServerMock implements HttpServer {

@@ -1,4 +1,4 @@
-package io.advantageous.qbit.service.method.impl;
+package io.advantageous.qbit.message.impl;
 
 import io.advantageous.qbit.annotation.JsonIgnore;
 import io.advantageous.qbit.message.MethodCall;
@@ -39,13 +39,19 @@ public class ResponseImpl<T> implements Response<T> {
     }
 
 
-    public static Response<Object> response(long id, long timestamp, String address, String returnAddress, Object body, Request<Object> requestForResponse) {
 
-        return new ResponseImpl<>(id, timestamp, address, returnAddress, null, body, requestForResponse);
+    public static Response<Object> response(long id, long timestamp, String address, String returnAddress, Object body, Request<Object> requestForResponse, boolean errors) {
+
+        return new ResponseImpl<>(id, timestamp, address, returnAddress, null, body, requestForResponse, errors);
 
     }
 
 
+    public static Response<Object> response(long id, long timestamp, String address, String returnAddress, Object body, Request<Object> requestForResponse) {
+
+        return new ResponseImpl<>(id, timestamp, address, returnAddress, null, body, requestForResponse, false);
+
+    }
 
     public ResponseImpl(MethodCall<Object> methodCall, Throwable ex) {
 
@@ -71,7 +77,7 @@ public class ResponseImpl<T> implements Response<T> {
     }
 
     public ResponseImpl(long id, long timestamp, String address, String returnAddress, Map<String, Object> params,
-                        Object body, Request<Object> request) {
+                        Object body, Request<Object> request, boolean errors) {
         this.address = address;
         this.params = params;
         this.body = body;
@@ -79,6 +85,7 @@ public class ResponseImpl<T> implements Response<T> {
         this.timestamp = timestamp;
         this.returnAddress = returnAddress;
         this.request = request;
+        this.errors = errors;
     }
 
 

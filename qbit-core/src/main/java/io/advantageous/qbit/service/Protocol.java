@@ -54,6 +54,8 @@ public class Protocol {
     public static final int TIMESTAMP_POS = 8;
     public static final int ARGS_POS = 9;
 
+    public static final int WAS_ERRORS_POS = 9;
+    public static final int RESPONSE_RETURN = 10;
 
 
 }

@@ -7,10 +7,12 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.util.UUID;
 
+import io.advantageous.qbit.message.MethodCall;
+import io.advantageous.qbit.message.MethodCallBuilder;
 import io.advantageous.qbit.util.Timer;
 import io.advantageous.qbit.client.ServiceProxyFactory;
 import io.advantageous.qbit.service.EndPoint;
-import io.advantageous.qbit.service.method.impl.MethodCallImpl;
+import io.advantageous.qbit.message.impl.MethodCallImpl;
 import org.boon.Str;
 
 
@@ -21,6 +23,7 @@ import org.boon.Str;
 public class BoonServiceProxyFactory implements ServiceProxyFactory {
 
     private static volatile long generatedMessageId;
+
 
 
     @Override
@@ -61,9 +64,9 @@ public class BoonServiceProxyFactory implements ServiceProxyFactory {
 
                 final String address = Str.add(objectAddress, "/", method.getName());
 
-                final MethodCallImpl call = MethodCallImpl.method(messageId++,
-                        address, returnAddress,
-                        objectAddress, method.getName(), timestamp, args, null);
+                final MethodCall<Object> call = new MethodCallBuilder().setId(messageId++).setAddress(address)
+                        .setReturnAddress(returnAddress).setObjectName(objectAddress)
+                        .setName(method.getName()).setTimestamp(timestamp).setBody(args).build();
 
 
 

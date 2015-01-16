@@ -144,12 +144,16 @@ public class BoonProtocolEncoder implements ProtocolEncoder {
         buf.addChar(PROTOCOL_SEPARATOR); //reserved for method name
         buf.add(response.timestamp());
         buf.addChar(PROTOCOL_SEPARATOR);
+        buf.add(response.wasErrors() ? 1 : 0);
+        buf.addChar(PROTOCOL_SEPARATOR);
 
         final Object body = response.body();
         final JsonSerializer serializer = jsonSerializer.get();
 
         if (body != null) {
             serializer.serialize(buf, body);
+        } else {
+            buf.addNull();
         }
     }
 

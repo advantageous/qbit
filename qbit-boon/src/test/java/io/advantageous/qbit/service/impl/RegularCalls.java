@@ -1,6 +1,7 @@
 package io.advantageous.qbit.service.impl;
 
 import io.advantageous.qbit.Services;
+import io.advantageous.qbit.message.MethodCallBuilder;
 import io.advantageous.qbit.service.Service;
 import org.boon.Lists;
 import org.boon.core.Sys;
@@ -8,7 +9,7 @@ import org.junit.Test;
 import io.advantageous.qbit.message.MethodCall;
 import io.advantageous.qbit.queue.ReceiveQueue;
 import io.advantageous.qbit.queue.SendQueue;
-import io.advantageous.qbit.service.method.impl.MethodCallImpl;
+import io.advantageous.qbit.message.impl.MethodCallImpl;
 import io.advantageous.qbit.message.Response;
 
 import java.util.ArrayList;
@@ -63,9 +64,9 @@ public class RegularCalls {
         SendQueue<MethodCall<Object>> requests = service.requests();
         ReceiveQueue<Response<Object>> responses = service.responses();
 
-        requests.send(MethodCallImpl.method("add", Lists.list(1, 2)));
+        requests.send(new MethodCallBuilder().setName("add").setBody(Lists.list(1, 2)).build());
 
-        requests.sendAndFlush(MethodCallImpl.methodWithArgs("add", 4, 5));
+        requests.sendAndFlush(MethodCallBuilder.methodWithArgs("add", 4, 5));
 
 
         Response<Object> response = responses.take();
@@ -95,7 +96,7 @@ public class RegularCalls {
         List<MethodCall<Object>> methods = new ArrayList<>();
 
         for (int index = 0; index < 1000; index++) {
-            methods.add(MethodCallImpl.method("add", Lists.list(1, 2)));
+            methods.add(MethodCallBuilder.method("add", Lists.list(1, 2)));
         }
 
         requests.sendBatch(methods);
@@ -123,9 +124,9 @@ public class RegularCalls {
         SendQueue<MethodCall<Object>> requests = service.requests();
         ReceiveQueue<Response<Object>> responses = service.responses();
 
-        requests.sendMany(MethodCallImpl.method("add",
+        requests.sendMany(MethodCallBuilder.method("add",
                             Lists.list(1, 2)),
-                        MethodCallImpl.method("add",
+                MethodCallBuilder.method("add",
                                 Lists.list(4, 5)));
 
 
@@ -164,8 +165,8 @@ public class RegularCalls {
         ReceiveQueue<Response<Object>> responses = service.responses();
 
         List<MethodCall<Object>> methods = Lists.list(
-                MethodCallImpl.method("add", Lists.list(1, 2)),
-                MethodCallImpl.method("add", Lists.list(4, 5)));
+                MethodCallBuilder.method("add", Lists.list(1, 2)),
+                MethodCallBuilder.method("add", Lists.list(4, 5)));
 
 
         requests.sendBatch(methods);

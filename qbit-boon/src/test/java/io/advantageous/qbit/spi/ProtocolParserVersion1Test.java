@@ -1,5 +1,6 @@
 package io.advantageous.qbit.spi;
 
+import io.advantageous.qbit.message.MethodCallBuilder;
 import io.advantageous.qbit.util.MultiMap;
 import io.advantageous.qbit.util.MultiMapImpl;
 import org.boon.Boon;
@@ -10,12 +11,13 @@ import org.junit.Test;
 import io.advantageous.qbit.message.Message;
 import io.advantageous.qbit.message.MethodCall;
 import io.advantageous.qbit.message.Response;
-import io.advantageous.qbit.service.method.impl.MethodCallImpl;
-import io.advantageous.qbit.service.method.impl.ResponseImpl;
+import io.advantageous.qbit.message.impl.MethodCallImpl;
+import io.advantageous.qbit.message.impl.ResponseImpl;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import static io.advantageous.qbit.message.MethodCallBuilder.method;
 import static org.boon.Boon.puts;
 import static org.boon.Exceptions.die;
 
@@ -26,11 +28,11 @@ public class ProtocolParserVersion1Test {
 
     boolean ok;
 
-    MethodCallImpl methodCall;
+     MethodCall<Object> methodCall;
 
     @Before
     public void setup() {
-        methodCall = MethodCallImpl.method(99L, "addr_", "return_", "oname_", "mname_", 0L, "args_", null);
+        methodCall = new MethodCallBuilder().setId(99L).setAddress("addr_").setReturnAddress("return_").setObjectName("oname_").setName("mname_").setTimestamp( 0L).setBody("args_").build();
     }
 
     @Test
@@ -50,7 +52,7 @@ public class ProtocolParserVersion1Test {
         BoonProtocolEncoder encoder = new BoonProtocolEncoder();
 
         ResponseImpl<Object> response = new ResponseImpl<>(1L, 2L,
-                "addr", "Raddr", null, "body", null);
+                "addr", "Raddr", null, "body", null, false);
 
         final String s = encoder.encodeAsString(response);
 
@@ -82,26 +84,25 @@ public class ProtocolParserVersion1Test {
         multiMap.put("veggies", "yuck");
 
 
-        MethodCallImpl method = (MethodCallImpl) MethodCallImpl.method("foo1", "bar1", "somebody1");
-        method.params(multiMap);
-        method.headers(multiMap);
+        MethodCall<Object> method = new MethodCallBuilder().setName("foo1").setBody("bar1").setAddress("somebody1").setParams(multiMap).setHeaders(multiMap).build();
+
 
 
         //long id, String address, String returnAddress, String objectName, String methodName,
         //long timestamp, Object args, MultiMap<String, String> params
 
-        MethodCallImpl method2 = (MethodCallImpl) MethodCallImpl.method(
-                1L, "addr", "__RETURNaddr__", "__objectNAME__", "__MEHTOD_NAME__",
-                100L, "ARGS", null);
-        method2.params(multiMap);
+
+        MethodCall<Object> method2 = new MethodCallBuilder().setId(1L)
+                .setAddress("addr").setReturnAddress("__RETURNaddr__").setObjectName("__objectNAME__")
+                .setName("__MEHTOD_NAME__").setTimestamp(100L).setBody("ARGS")
+                .setParams(multiMap).build();
 
 
 
-        MethodCallImpl method3 = (MethodCallImpl) MethodCallImpl.method("foo3", "bar3", "somebody3");
-        method3.params(multiMap);
+        MethodCall<Object> method3 = new MethodCallBuilder().setName("foo3").setBody("bar3").setAddress("somebody3").setParams(multiMap).build();
 
-        MethodCallImpl method4 = (MethodCallImpl) MethodCallImpl.method("foo4", "bar4", "somebody4");
-        method3.params(multiMap);
+
+        MethodCall<Object> method4 = new MethodCallBuilder().setName("foo4").setBody("bar4").setAddress("somebody4").setParams(multiMap).build();
 
         ResponseImpl<Object> response1 = new ResponseImpl<>(method4, new Exception());
 
@@ -176,9 +177,9 @@ public class ProtocolParserVersion1Test {
 
         multiMap.put("veggies", "yuck");
 
-        final MethodCallImpl method = (MethodCallImpl) MethodCallImpl.method("foo", "bar", "");
+        MethodCall<Object> method = new MethodCallBuilder().setName("foo").setBody("bar").setAddress("somebody").setParams(multiMap).build();
 
-        method.params(multiMap);
+
 
         BoonProtocolEncoder encoder = new BoonProtocolEncoder();
 

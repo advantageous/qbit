@@ -2,10 +2,11 @@ package io.advantageous.qbit.spi;
 
 import io.advantageous.qbit.message.Message;
 import io.advantageous.qbit.message.MethodCall;
+import io.advantageous.qbit.message.MethodCallBuilder;
 import io.advantageous.qbit.message.Response;
 import io.advantageous.qbit.service.Protocol;
-import io.advantageous.qbit.service.method.impl.MethodCallImpl;
-import io.advantageous.qbit.service.method.impl.ResponseImpl;
+import io.advantageous.qbit.message.impl.MethodCallImpl;
+import io.advantageous.qbit.message.impl.ResponseImpl;
 import io.advantageous.qbit.util.MultiMap;
 import io.advantageous.qbit.util.MultiMapImpl;
 import org.boon.Lists;
@@ -174,7 +175,7 @@ public class BoonProtocolParser implements ProtocolParser {
 
     private Response<Object> parseResponseFromChars(String addressPrefix, char[] args) {
         final char[][] chars = CharScanner.splitFromStartWithLimit(args,
-                (char) PROTOCOL_SEPARATOR, 0, METHOD_NAME_POS + 2);
+                (char) PROTOCOL_SEPARATOR, 0, RESPONSE_RETURN);
 
 
         String messageId = FastStringUtils.noCopyStringFromChars(chars[
@@ -197,13 +198,23 @@ public class BoonProtocolParser implements ProtocolParser {
         String stime = FastStringUtils.noCopyStringFromChars(chars[
                 TIMESTAMP_POS]);
 
+
         long timestamp = 0L;
 
         if (!Str.isEmpty(stime)) {
             timestamp = Long.parseLong(stime);
         }
 
-        char[] messageBodyChars = chars[ ARGS_POS ];
+
+
+        char[] wasErrorsStr = chars[
+                WAS_ERRORS_POS];
+
+
+
+        boolean wasErrors = wasErrorsStr!=null && wasErrorsStr.length==1 && wasErrorsStr[0] == '1';
+
+        char[] messageBodyChars = chars[ RESPONSE_RETURN ];
 
         Object messageBody=null;
         if (!Chr.isEmpty(messageBodyChars)) {
@@ -211,7 +222,7 @@ public class BoonProtocolParser implements ProtocolParser {
         } else {
             messageBody = null;
         }
-        return new ResponseImpl<>( id,  timestamp,  address,  returnAddress, null, messageBody, null);
+        return new ResponseImpl<>( id,  timestamp,  address,  returnAddress, null, messageBody, null, wasErrors);
 
 
 
@@ -243,7 +254,7 @@ public class BoonProtocolParser implements ProtocolParser {
     }
 
 
-    private MethodCallImpl handleFastBodySubmissionVersion1Chars(String addressPrefix, char[] args) {
+    private MethodCall<Object> handleFastBodySubmissionVersion1Chars(String addressPrefix, char[] args) {
 
         final char[][] chars = CharScanner.splitFromStartWithLimit(args,
                 (char) PROTOCOL_SEPARATOR, 0, METHOD_NAME_POS+2);
@@ -319,10 +330,8 @@ public class BoonProtocolParser implements ProtocolParser {
             argList[index] = arg;
         }
 
-        MethodCallImpl methodCall =  MethodCallImpl.method(id, address, returnAddress, objectName, methodName, timestamp, argList, params);
-
-        methodCall.headers(headers);
-        return methodCall;
+        return new MethodCallBuilder().setId(id).setAddress(address).setReturnAddress(returnAddress).setHeaders(headers)
+                .setObjectName(objectName).setName(methodName).setTimestamp(timestamp).setBody(argList).setParams(params).build();
 
     }
 

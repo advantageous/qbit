@@ -8,7 +8,7 @@ import io.advantageous.qbit.message.Response;
 import io.advantageous.qbit.queue.SendQueue;
 import io.advantageous.qbit.service.Callback;
 import io.advantageous.qbit.service.ServiceMethodHandler;
-import io.advantageous.qbit.service.method.impl.ResponseImpl;
+import io.advantageous.qbit.message.impl.ResponseImpl;
 import io.advantageous.qbit.util.MultiMap;
 import org.boon.Lists;
 import org.boon.Pair;

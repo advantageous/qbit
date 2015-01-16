@@ -42,6 +42,16 @@ public class WebSocketMessage implements Request<Object>{
     }
 
     @Override
+    public boolean hasParams() {
+        return false;
+    }
+
+    @Override
+    public boolean hasHeaders() {
+        return false;
+    }
+
+    @Override
     public long timestamp() {
         return timestamp;
     }

@@ -10,13 +10,12 @@ import io.advantageous.qbit.message.Request;
 import io.advantageous.qbit.message.Response;
 import io.advantageous.qbit.queue.*;
 import io.advantageous.qbit.queue.Queue;
-import io.advantageous.qbit.queue.impl.BasicQueue;
 import io.advantageous.qbit.service.ServiceBundle;
-import io.advantageous.qbit.service.method.impl.MethodCallImpl;
+import io.advantageous.qbit.message.impl.MethodCallImpl;
+import io.advantageous.qbit.message.impl.ResponseImpl;
 import io.advantageous.qbit.spi.ProtocolEncoder;
 import io.advantageous.qbit.spi.ProtocolParser;
 import io.advantageous.qbit.util.Timer;
-import org.boon.Sets;
 import org.boon.Str;
 import org.boon.StringScanner;
 import org.boon.core.Sys;
@@ -28,11 +27,8 @@ import org.slf4j.LoggerFactory;
 
 import java.nio.charset.StandardCharsets;
 import java.util.*;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicBoolean;
-
-import static org.boon.Boon.puts;
 
 /**
  * Created by rhightower on 10/22/14.
@@ -157,6 +153,20 @@ public class ServiceServerImpl implements ServiceServer {
         } else {
             methodCalls = Collections.emptyList();
 
+        }
+
+        if (methodCalls == null) {
+
+            if (originatingRequest instanceof WebSocketMessage) {
+                WebSocketMessage webSocketMessage = ((WebSocketMessage) originatingRequest);
+
+                final Response<Object> response = ResponseImpl.response(-1, Timer.timer().now(), "SYSTEM", "ERROR", "CAN'T HANDLE CALL", originatingRequest, true);
+                final WebsSocketSender sender = webSocketMessage.getSender();
+                sender.send(encoder.encodeAsString(response));
+
+            }
+
+            return Collections.emptyList();
         }
 
 

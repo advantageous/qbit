@@ -9,7 +9,7 @@ import io.advantageous.qbit.service.Callback;
 import io.advantageous.qbit.service.Protocol;
 import io.advantageous.qbit.service.ServiceBundle;
 import io.advantageous.qbit.service.impl.ServiceBundleImpl;
-import io.advantageous.qbit.service.method.impl.MethodCallImpl;
+import io.advantageous.qbit.message.impl.MethodCallImpl;
 import io.advantageous.qbit.spi.BoonProtocolEncoder;
 import io.advantageous.qbit.spi.ProtocolEncoder;
 import io.advantageous.qbit.spi.RegisterBoonWithQBit;
@@ -399,8 +399,8 @@ public class IntegrationTestForRESTStyleCallsTest {
 
         if (params != null) {
             MethodCallImpl impl = (MethodCallImpl) call;
-            if (params != null)
-                impl.params(params);
+//            if (params != null)
+//                impl.params(params);
         }
         serviceBundle.call(call);
         serviceBundle.flushSends();

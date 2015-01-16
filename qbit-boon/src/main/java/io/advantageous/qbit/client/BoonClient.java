@@ -35,7 +35,7 @@ import io.advantageous.qbit.message.Response;
 
 import io.advantageous.qbit.service.BeforeMethodCall;
 import io.advantageous.qbit.service.Callback;
-import io.advantageous.qbit.service.method.impl.MethodCallImpl;
+import io.advantageous.qbit.message.impl.MethodCallImpl;
 import org.boon.Boon;
 import org.boon.Logger;
 import org.boon.Str;
