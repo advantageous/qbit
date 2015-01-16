@@ -108,7 +108,7 @@ public class ServiceServerImplTest {
 
         final HttpRequest request = new HttpRequestBuilder()
                 .setUri("/services/mock/callme")
-                .setResponse(new MockResponse())
+                .setTextResponse(new MockResponse())
                 .setBody("").build();
 
         httpServer.sendRequest(request);
@@ -129,7 +129,7 @@ public class ServiceServerImplTest {
 
         final HttpRequest request = new HttpRequestBuilder()
                 .setUri("/services/mock/callPost")
-                .setResponse(new MockResponse()).setMethod("POST")
+                .setTextResponse(new MockResponse()).setMethod("POST")
                 .setBody("[]").build();
 
         httpServer.sendRequest(request);
@@ -152,7 +152,7 @@ public class ServiceServerImplTest {
 
         final HttpRequest request = new HttpRequestBuilder()
                 .setUri("/services/mock/callPost")
-                .setResponse(new MockResponse())
+                .setTextResponse(new MockResponse())
                 .setBody("[]").build();
 
         httpServer.sendRequest(request);
@@ -175,7 +175,7 @@ public class ServiceServerImplTest {
 
         final HttpRequest request = new HttpRequestBuilder()
                 .setUri("/services/mock/callWithReturn")
-                .setResponse(new MockResponse())
+                .setTextResponse(new MockResponse())
                 .setBody("").build();
 
         httpServer.sendRequest(request);
@@ -197,7 +197,7 @@ public class ServiceServerImplTest {
 
         final HttpRequest request = new HttpRequestBuilder()
                 .setUri("/services/mock/exceptionCall")
-                .setResponse(new MockResponse())
+                .setTextResponse(new MockResponse())
                 .setBody("").build();
 
         httpServer.sendRequest(request);
@@ -215,7 +215,7 @@ public class ServiceServerImplTest {
 
 
 
-    class MockResponse implements HttpResponse {
+    class MockResponse implements HttpTextResponse {
 
         @Override
         public void response(int code, String mimeType, String body) {

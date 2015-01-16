@@ -226,21 +226,6 @@ public class HttpClientVertx implements HttpClient {
             }
 
             @Override
-            public void empty() {
-
-            }
-
-            @Override
-            public void limit() {
-
-            }
-
-            @Override
-            public void shutdown() {
-
-            }
-
-            @Override
             public void idle() {
                 autoFlush();
             }
@@ -252,23 +237,6 @@ public class HttpClientVertx implements HttpClient {
             public void receive(final HttpRequest request) {
 
                 doSendRequestToServer(request, httpClient);
-            }
-
-            @Override
-            public void empty() {
-
-
-
-            }
-
-            @Override
-            public void limit() {
-
-            }
-
-            @Override
-            public void shutdown() {
-
             }
 
             @Override

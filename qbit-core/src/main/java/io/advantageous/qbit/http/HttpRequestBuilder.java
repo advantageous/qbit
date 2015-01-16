@@ -80,10 +80,22 @@ public class HttpRequestBuilder {
         return response;
     }
 
-    public HttpRequestBuilder setResponse(HttpResponse response) {
+    public HttpRequestBuilder response(HttpResponse response) {
         this.response = response;
         return this;
     }
+
+
+    public HttpRequestBuilder setTextResponse(HttpTextResponse response) {
+        this.response = response;
+        return this;
+    }
+
+    public HttpRequestBuilder setBinaryResponse(HttpBinaryResponse response) {
+        this.response = response;
+        return this;
+    }
+
 
     public HttpRequest build() {
 

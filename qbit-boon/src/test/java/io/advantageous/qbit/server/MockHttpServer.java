@@ -26,7 +26,7 @@ public class MockHttpServer implements HttpServer {
 
         final String json = Boon.toJson(body);
         final HttpRequest request = new HttpRequestBuilder().setUri(uri).setBody(json)
-                .setMethod("POST").setResponse(response).setRemoteAddress("localhost:9999").build();
+                .setMethod("POST").response(response).setRemoteAddress("localhost:9999").build();
         this.httpRequestConsumer.accept(request);
 
 
@@ -48,10 +48,10 @@ public class MockHttpServer implements HttpServer {
     }
 
 
-    public void sendHttpGet(final String uri, final MultiMap<String, String> params, final HttpResponse response) {
+    public void sendHttpGet(final String uri, final MultiMap<String, String> params, final HttpTextResponse response) {
 
         final HttpRequest request = new HttpRequestBuilder().setUri(uri).setParams(params)
-                .setMethod("GET").setResponse(response).setRemoteAddress("localhost:9999").build();
+                .setMethod("GET").setTextResponse(response).setRemoteAddress("localhost:9999").build();
         this.httpRequestConsumer.accept(request);
 
 

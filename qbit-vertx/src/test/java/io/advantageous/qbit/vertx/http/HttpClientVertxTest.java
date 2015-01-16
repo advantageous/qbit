@@ -85,7 +85,7 @@ public class HttpClientVertxTest {
 
         requestBuilder.setRemoteAddress("localhost").setMethod("GET").setUri("/client/foo");
 
-        requestBuilder.setResponse((code, mimeType, body) -> {
+        requestBuilder.setTextResponse((code, mimeType, body) -> {
             responseReceived = true;
 
             puts("CLIENT", code, mimeType, body);

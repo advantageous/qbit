@@ -77,6 +77,14 @@ public class ServiceServerImpl implements ServiceServer {
         this.timeoutInSeconds = timeOutInSeconds;
     }
 
+    private void writeResponse(HttpResponse response, int code, String mimeType, String responseString) {
+
+        if (response.isText()) {
+            response.response(code, mimeType, responseString);
+        } else {
+            response.response(code, mimeType, responseString.getBytes(StandardCharsets.UTF_8));
+        }
+    }
 
     /**
      * All REST calls come through here.
@@ -98,7 +106,8 @@ public class ServiceServerImpl implements ServiceServer {
             case "GET":
                 knownURI = getMethodURIs.contains(uri);
                 if (getMethodURIsWithVoidReturn.contains(uri)) {
-                    request.getResponse().response(200, "application/json", "\"success\"");
+                    writeResponse(request.getResponse(), 200, "application/json", "\"success\"");
+
                 } else {
                     addRequestToCheckForTimeouts(request);
                 }
@@ -107,7 +116,7 @@ public class ServiceServerImpl implements ServiceServer {
             case "POST":
                 knownURI = postMethodURIs.contains(uri);
                 if (postMethodURIsWithVoidReturn.contains(uri)) {
-                    request.getResponse().response(200, "application/json", "\"success\"");
+                    writeResponse(request.getResponse(), 200, "application/json", "\"success\"");
                 } else {
                     addRequestToCheckForTimeouts(request);
                 }
@@ -120,7 +129,8 @@ public class ServiceServerImpl implements ServiceServer {
 
         if (!knownURI) {
             request.handled(); //Mark the request as handled.
-            request.getResponse().response(404, "application/json",
+
+            writeResponse(request.getResponse(), 404, "application/json",
                     Str.add("\"No service method for URI ", request.getUri(), "\""));
 
         }
@@ -192,11 +202,9 @@ public class ServiceServerImpl implements ServiceServer {
         final HttpRequest httpRequest = originatingRequest;
 
         if (response.wasErrors()) {
-            httpRequest.getResponse().response(500, "application/json", jsonMapper.toJson(response.body()));
-
+            writeResponse(httpRequest.getResponse(), 500, "application/json", jsonMapper.toJson(response.body()));
         } else {
-            httpRequest.getResponse().response(200, "application/json", jsonMapper.toJson(response.body()));
-
+            writeResponse(httpRequest.getResponse(), 200, "application/json", jsonMapper.toJson(response.body()));
         }
     }
 

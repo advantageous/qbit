@@ -450,13 +450,29 @@ public class HttpServerVertx implements HttpServer {
     }
 
 
+    private static Buffer createBuffer(Object body) {
+        Buffer buffer = null;
+
+        if (body instanceof byte[]) {
+
+            byte[] bBody = ((byte[]) body);
+            buffer = new Buffer(bBody);
+
+        } else if (body instanceof String) {
+
+            String sBody = ((String) body);
+            buffer = new Buffer(sBody, "UTF-8");
+        }
+        return buffer;
+    }
+
     private static class HttpResponseInternal {
         final HttpServerResponse response;
         final int code;
         final String mimeType;
-        final String body;
+        final Object body;
 
-        private HttpResponseInternal(HttpServerResponse response, int code, String mimeType, String body) {
+        private HttpResponseInternal(HttpServerResponse response, int code, String mimeType, Object body) {
             this.response = response;
             this.code = code;
             this.mimeType = mimeType;
@@ -465,10 +481,13 @@ public class HttpServerVertx implements HttpServer {
 
         public void send() {
             response.setStatusCode(code).putHeader("Content-Type", mimeType);
-            Buffer buffer = new Buffer(body, "UTF-8");
+
+            Buffer buffer = createBuffer(body);
+
             response.putHeader("Content-Size", Integer.toString(buffer.length()));
             response.end(buffer);
         }
+
     }
 
     private HttpResponse createResponse(final HttpServerResponse response) {
@@ -490,7 +509,12 @@ public class HttpServerVertx implements HttpServer {
             } else {
 
                 response.setStatusCode(code).putHeader("Content-Type", mimeType);
-                response.end(body, "UTF-8");
+
+                Buffer buffer = createBuffer(body);
+
+                response.putHeader("Content-Size", Integer.toString(buffer.length()));
+
+                response.end(buffer);
             }
 
         };
