@@ -80,7 +80,7 @@ public class WebSocketMessage implements Request<Object>{
 
     @Override
     public boolean isSingleton() {
-        return false;
+        return true;
     }
 
     private static class RequestIdGenerator {

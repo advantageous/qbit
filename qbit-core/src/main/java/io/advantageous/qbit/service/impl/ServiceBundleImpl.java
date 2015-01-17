@@ -16,6 +16,7 @@ import io.advantageous.qbit.message.impl.ResponseImpl;
 import io.advantageous.qbit.transforms.NoOpRequestTransform;
 import io.advantageous.qbit.util.ConcurrentHashSet;
 import io.advantageous.qbit.util.Timer;
+import org.boon.Str;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -376,59 +377,81 @@ public class ServiceBundleImpl implements ServiceBundle {
         try {
 
             final Object object = methodCall.body();
+            registerCallbacks(methodCall, object);
 
-            /** Look for callback handler in the args */
-            if (object instanceof Iterable) {
-                final Iterable list = (Iterable) object;
-                for (Object arg : list) {
-                    if (arg instanceof Callback) {
-                        registerHandlerCallbackForClient(methodCall, (Callback) arg);
-                    }
-                }
-            } else if (object instanceof Object[]) {
-                final Object[] array = (Object[]) object;
-                for (Object arg : array) {
-                    if (arg instanceof Callback) {
-                        registerHandlerCallbackForClient(methodCall, ((Callback) arg));
-                    }
-                }
-            }
 
-            boolean[] continueFlag = new boolean[1];
-            methodCall = beforeMethodCall(methodCall, continueFlag);
+            methodCall = handleBeforeMethodCall(methodCall);
 
-            if (!continueFlag[0]) {
-                logger.info(ServiceBundleImpl.class.getName() + "::doCall() " +
-                        "Flag from before call handling does not want to continue");
-            }
-
-            SendQueue<MethodCall<Object>> sendQueue = null;
-
-            if (methodCall.address() != null && !methodCall.address().isEmpty()) {
-                sendQueue = handleByAddressCall(methodCall);
-            } else if (methodCall.objectName() != null && !methodCall.objectName().isEmpty()) {
-                sendQueue = serviceMapping.get(methodCall.objectName());
-            }
-
-            if (sendQueue == null) {
-                logger.error("No service at method address " + methodCall.address()
-                        + " method name " + methodCall.name() + " object name " + methodCall.objectName() + "\n");
-
-                Set<String> uris = serviceMapping.keySet();
-
-                uris.forEach((String it) -> {
-                    logger.error("known URI path " + it);
-                });
-
-                throw new IllegalStateException("there is no object at this address: " + methodCall.address()
-                        + "\n method name=" + methodCall.name() + "\n objectName=" + methodCall.objectName());
-            }
+            SendQueue<MethodCall<Object>> sendQueue = getMethodCallSendQueue(methodCall);
             sendQueue.send(methodCall);
         }catch (Exception ex) {
 
             Response<Object> response = new ResponseImpl<>(methodCall, ex);
             this.responseQueue.sendQueue().sendAndFlush(response);
         }
+    }
+
+    private MethodCall<Object> handleBeforeMethodCall(MethodCall<Object> methodCall) {
+        boolean[] continueFlag = new boolean[1];
+        methodCall = beforeMethodCall(methodCall, continueFlag);
+
+        if (!continueFlag[0]) {
+            logger.info(ServiceBundleImpl.class.getName() + "::doCall() " +
+                    "Flag from before call handling does not want to continue");
+        }
+        return methodCall;
+    }
+
+    private void registerCallbacks(MethodCall<Object> methodCall, Object object) {
+        /** Look for callback handler in the args */
+        if (object instanceof Iterable) {
+            final Iterable list = (Iterable) object;
+            for (Object arg : list) {
+                if (arg instanceof Callback) {
+                    registerHandlerCallbackForClient(methodCall, (Callback) arg);
+                }
+            }
+        } else if (object instanceof Object[]) {
+            final Object[] array = (Object[]) object;
+            for (Object arg : array) {
+                if (arg instanceof Callback) {
+                    registerHandlerCallbackForClient(methodCall, ((Callback) arg));
+                }
+            }
+        }
+    }
+
+    private SendQueue<MethodCall<Object>> getMethodCallSendQueue(MethodCall<Object> methodCall) {
+        SendQueue<MethodCall<Object>> sendQueue = null;
+
+        boolean hasAddress = !Str.isEmpty(methodCall.address());
+
+        boolean hasMethodName = !Str.isEmpty(methodCall.name());
+
+        boolean hasObjectName = !Str.isEmpty(methodCall.objectName());
+
+        if (hasMethodName && hasObjectName) {
+            sendQueue = serviceMapping.get(methodCall.objectName());
+        }
+
+        if (hasAddress && sendQueue == null) {
+            sendQueue = handleByAddressCall(methodCall);
+        }
+
+        if (sendQueue == null) {
+            logger.error("No service at method address " + methodCall.address()
+                    + " method name " + methodCall.name() + " object name " + methodCall.objectName() + "\n SERVICES" + serviceMapping.keySet() + "\n");
+
+            Set<String> uris = serviceMapping.keySet();
+
+            uris.forEach((String it) -> {
+                logger.error("known URI path " + it);
+            });
+
+            throw new IllegalStateException("there is no object at this address: " + methodCall.address()
+                    + "\n method name=" + methodCall.name() + "\n objectName=" + methodCall.objectName());
+        }
+        return sendQueue;
     }
 
     /**

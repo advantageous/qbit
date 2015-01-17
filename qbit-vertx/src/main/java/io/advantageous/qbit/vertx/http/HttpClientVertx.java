@@ -194,7 +194,7 @@ public class HttpClientVertx implements HttpClient {
     }
 
     @Override
-    public void run() {
+    public void start() {
         requestQueue =
                 new QueueBuilder().setName("HttpRequestQueue " + host + " " + port).setPollWait(pollTime).setBatchSize(requestBatchSize).build();
 

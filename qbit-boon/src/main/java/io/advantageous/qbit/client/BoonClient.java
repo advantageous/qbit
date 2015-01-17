@@ -396,15 +396,12 @@ public class BoonClient implements Client {
 
     public void start() {
 
-        this.httpServerProxy.periodicFlushCallback(new Consumer<Void>() {
-            @Override
-            public void accept(Void aVoid) {
-                for (ClientProxy clientProxy : clientProxies) {
-                    clientProxy.clientProxyFlush();
-                }
+        this.httpServerProxy.periodicFlushCallback(aVoid -> {
+            for (ClientProxy clientProxy : clientProxies) {
+                clientProxy.clientProxyFlush();
             }
         });
 
-        this.httpServerProxy.run();
+        this.httpServerProxy.start();
     }
 }

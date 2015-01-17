@@ -19,7 +19,7 @@ public class HttpClientVertxTest {
     public void connect(int port) {
 
         client = new HttpClientBuilder().setPort(port).build();
-        client.run();
+        client.start();
 
         server = new HttpServerBuilder().setPort(port).build();
 
@@ -103,7 +103,7 @@ public class HttpClientVertxTest {
     public void run() {
 
         server.start();
-        client.run();
+        client.start();
         Sys.sleep(500);
     }
 

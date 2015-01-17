@@ -18,7 +18,7 @@ public interface HttpClient {
     void periodicFlushCallback(Consumer<Void> periodicFlushCallback);
 
 
-    void run();
+    void start();
 
     void flush();
 

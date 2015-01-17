@@ -130,7 +130,7 @@ public class PerfTestMain {
         }
 
         @Override
-        public void run() {
+        public void start() {
             sendQueue = messages.sendQueue();
 
              thread = new Thread(new Runnable() {
