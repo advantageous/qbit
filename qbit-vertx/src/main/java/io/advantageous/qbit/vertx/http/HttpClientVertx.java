@@ -145,6 +145,7 @@ public class HttpClientVertx implements HttpClient {
         try {
             httpRequestSendQueue.flushSends();
             webSocketSendQueue.flushSends();
+            periodicFlushCallback.accept(null);
         } finally {
             requestLock.unlock();
         }

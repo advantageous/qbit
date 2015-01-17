@@ -14,7 +14,7 @@ import static org.boon.Exceptions.die;
 
 public class BoonJSONServiceFactoryTest {
 
-    BoonJSONServiceFactory boonJSONServiceFactory;
+    BoonServiceProxyFactory boonJSONServiceFactory;
     ServiceProxyFactory objectUnderTest;
 
     List<MethodCall<Object>> methodCalls = new ArrayList<>();
@@ -29,7 +29,7 @@ public class BoonJSONServiceFactoryTest {
 
     @Before
     public void setup() {
-        boonJSONServiceFactory = new BoonJSONServiceFactory(QBit.factory());
+        boonJSONServiceFactory = new BoonServiceProxyFactory(QBit.factory());
         objectUnderTest = boonJSONServiceFactory;
         methodCalls = new ArrayList<>();
         flushCounter = 0;

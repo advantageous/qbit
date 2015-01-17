@@ -45,9 +45,9 @@ import java.util.concurrent.TimeUnit;
 public class BoonQBitFactory implements Factory {
 
     private ProtocolParser defaultProtocol = new BoonProtocolParser();
-    private ServiceProxyFactory serviceProxyFactory = new BoonServiceProxyFactory();
+    private ServiceProxyFactory serviceProxyFactory = new BoonServiceProxyFactory(this);
 
-    private ServiceProxyFactory remoteServiceProxyFactory = new BoonJSONServiceFactory(this);
+    private ServiceProxyFactory remoteServiceProxyFactory = new BoonServiceProxyFactory(this);
 
 
     private final Logger logger = LoggerFactory.getLogger(BoonQBitFactory.class);

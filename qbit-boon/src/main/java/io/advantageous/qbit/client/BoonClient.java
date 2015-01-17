@@ -160,6 +160,8 @@ public class BoonClient implements Client {
 
     public void flush() {
 
+
+
         httpServerProxy.flush();
     }
 
