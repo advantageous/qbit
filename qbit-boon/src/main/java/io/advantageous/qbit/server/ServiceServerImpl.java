@@ -27,6 +27,8 @@ import org.slf4j.LoggerFactory;
 
 import java.nio.charset.StandardCharsets;
 import java.util.*;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -48,14 +50,12 @@ public class ServiceServerImpl implements ServiceServer {
     protected ProtocolParser parser;
     Object context = Sys.contextToHold();
     long lastTimeoutCheckTime = 0;
-    int timedOut;
     private Set<String> getMethodURIs = new LinkedHashSet<>();
     private Set<String> postMethodURIs = new LinkedHashSet<>();
     private Set<String> objectNameAddressURIWithVoidReturn = new LinkedHashSet<>();
     private Set<String> getMethodURIsWithVoidReturn = new LinkedHashSet<>();
     private Set<String> postMethodURIsWithVoidReturn = new LinkedHashSet<>();
-    private Queue<Request<Object>> outstandingRequests = new QueueBuilder().setName("outstandingRequests").setPollWait(10).setBatchSize(5).build();
-    private SendQueue<Request<Object>> sendQueueOutstanding = outstandingRequests.sendQueue();
+    private BlockingQueue<Request<Object>> outstandingRequests;
     private AtomicBoolean stop = new AtomicBoolean();
 
 
@@ -64,13 +64,15 @@ public class ServiceServerImpl implements ServiceServer {
                              final ProtocolParser parser,
                              final ServiceBundle serviceBundle,
                              final JsonMapper jsonMapper,
-                             final int timeOutInSeconds) {
+                             final int timeOutInSeconds,
+                             final int numberOfOutstandingRequests) {
         this.encoder = encoder;
         this.parser = parser;
         this.httpServer = httpServer;
         this.serviceBundle = serviceBundle;
         this.jsonMapper = jsonMapper;
         this.timeoutInSeconds = timeOutInSeconds;
+        this.outstandingRequests = new ArrayBlockingQueue<>(numberOfOutstandingRequests);
     }
 
     private void writeResponse(HttpResponse response, int code, String mimeType, String responseString) {
@@ -105,7 +107,11 @@ public class ServiceServerImpl implements ServiceServer {
                     writeResponse(request.getResponse(), 200, "application/json", "\"success\"");
 
                 } else {
-                    addRequestToCheckForTimeouts(request);
+                    if (!addRequestToCheckForTimeouts(request)) {
+
+                        writeResponse(request.getResponse(), 429, "application/json", "\"too many outstanding requests\"");
+                        return;
+                    }
                 }
                 break;
 
@@ -114,7 +120,11 @@ public class ServiceServerImpl implements ServiceServer {
                 if (postMethodURIsWithVoidReturn.contains(uri)) {
                     writeResponse(request.getResponse(), 200, "application/json", "\"success\"");
                 } else {
-                    addRequestToCheckForTimeouts(request);
+                    if (!addRequestToCheckForTimeouts(request)) {
+
+                        writeResponse(request.getResponse(), 429, "application/json", "\"too many outstanding requests\"");
+                        return;
+                    }
                 }
                 if (!Str.isEmpty(request.getBody())) {
                     args = jsonMapper.fromJson(new String(request.getBody(), StandardCharsets.UTF_8));
@@ -336,7 +346,7 @@ public class ServiceServerImpl implements ServiceServer {
         } else {
 
 
-            registerMethodsToEndPoints(baseURI, "/" + Str.camelCaseLower(classMeta.name()),
+            registerMethodsToEndPoints(baseURI, "/" + Str.uncapitalize(classMeta.name()),
                     methods);
 
         }
@@ -467,19 +477,9 @@ public class ServiceServerImpl implements ServiceServer {
      *
      * @param request request.
      */
-    private void addRequestToCheckForTimeouts(final Request<Object> request) {
+    private boolean addRequestToCheckForTimeouts(final Request<Object> request) {
 
-        sendQueueOutstanding.send(request);
-
-//
-//
-//        if (!sendQueueOutstanding.send(request)) {
-//            checkTimeoutsForRequests();
-//
-//            while (!outstandingRequests.offer(request)) {
-//                Sys.sleep(100);
-//            }
-//        }
+        return outstandingRequests.offer(request);
     }
 
     /**
@@ -494,13 +494,12 @@ public class ServiceServerImpl implements ServiceServer {
         }
 
 
-        final ReceiveQueue<Request<Object>> requestReceiveOutstandingQueue = outstandingRequests.receiveQueue();
 
 
         lastTimeoutCheckTime = now;
         long duration;
 
-        Request<Object> request = requestReceiveOutstandingQueue.poll();
+        Request<Object> request = outstandingRequests.poll();
 
         List<Request<Object>> notTimedOutRequests = new ArrayList<>();
 
@@ -514,17 +513,14 @@ public class ServiceServerImpl implements ServiceServer {
             } else {
                 notTimedOutRequests.add(request);
             }
-            request = requestReceiveOutstandingQueue.poll();
+            request = outstandingRequests.poll();
         }
 
 
         /* Add the outstandingRequests that have not timed out back to the queue. */
         if (notTimedOutRequests.size() > 0) {
-            final SendQueue<Request<Object>> requestSendOutstandingQueue = outstandingRequests.sendQueue();
+            outstandingRequests.addAll(notTimedOutRequests);
 
-
-            requestSendOutstandingQueue.sendBatch(notTimedOutRequests);
-            requestSendOutstandingQueue.flushSends();
         }
 
 

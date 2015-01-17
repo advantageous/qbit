@@ -21,7 +21,6 @@ public class ServiceImpl implements Service {
     private final boolean debug = logger.isDebugEnabled();
 
     private final Object service;
-    private final String name;
     private ServiceMethodHandler serviceMethodHandler;
 
 
@@ -131,10 +130,10 @@ public class ServiceImpl implements Service {
 
         serviceMethodHandler.init(service, rootAddress, serviceAddress);
 
-        this.name = serviceMethodHandler.address();
 
 
-        final QueueBuilder queueBuilder = new QueueBuilder().setName("Send Queue  " + name).setPollWait(waitTime).setBatchSize(batchSize);
+
+        final QueueBuilder queueBuilder = new QueueBuilder().setName("Send Queue  " + serviceMethodHandler.address()).setPollWait(waitTime).setBatchSize(batchSize);
 
 
         if (responseQueue == null) {
@@ -143,7 +142,7 @@ public class ServiceImpl implements Service {
                 logger.debug("RESPONSE QUEUE WAS NULL CREATING ONE");
             }
 
-            this.responseQueue = queueBuilder.setName("Response Queue  " + name).build();
+            this.responseQueue = queueBuilder.setName("Response Queue  " + serviceMethodHandler.address()).build();
 
         } else {
             this.responseQueue = responseQueue;
@@ -155,7 +154,7 @@ public class ServiceImpl implements Service {
 
 
         if (async) {
-            requestQueue = queueBuilder.setName("Send Queue  " + name).build();
+            requestQueue = queueBuilder.setName("Send Queue  " + serviceMethodHandler.address()).build();
 
         } else {
             requestQueue = new Queue<MethodCall<Object>>() {
@@ -321,6 +320,16 @@ public class ServiceImpl implements Service {
     }
 
     @Override
+    public String name() {
+        return serviceMethodHandler.name();
+    }
+
+    @Override
+    public String address() {
+        return serviceMethodHandler.address();
+    }
+
+    @Override
     public void stop() {
         requestQueue.stop();
         responseQueue.stop();
@@ -337,7 +346,4 @@ public class ServiceImpl implements Service {
     }
 
 
-    public String name() {
-        return name;
-    }
 }

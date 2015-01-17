@@ -23,7 +23,18 @@ public class ServiceServerBuilder {
     private int requestBatchSize = 10;
     private int flushInterval = 100;
     private String uri = "/services";
+    private int numberOfOutstandingRequests = 500_000;
 
+    private int timeoutSeconds = 30;
+
+    public int getNumberOfOutstandingRequests() {
+        return numberOfOutstandingRequests;
+    }
+
+    public ServiceServerBuilder setNumberOfOutstandingRequests(int numberOfOutstandingRequests) {
+        this.numberOfOutstandingRequests = numberOfOutstandingRequests;
+        return this;
+    }
 
     public String getUri() {
         return uri;
@@ -43,7 +54,6 @@ public class ServiceServerBuilder {
         return this;
     }
 
-    private int timeoutSeconds = 30;
 
     public String getHost() {
         return host;
@@ -111,7 +121,7 @@ public class ServiceServerBuilder {
         final ProtocolParser parser = QBit.factory().createProtocolParser();
 
 
-        final ServiceServer serviceServer = QBit.factory().createServiceServer(httpServer, encoder, parser, serviceBundle, jsonMapper, timeoutSeconds);
+        final ServiceServer serviceServer = QBit.factory().createServiceServer(httpServer, encoder, parser, serviceBundle, jsonMapper, timeoutSeconds, numberOfOutstandingRequests);
         return serviceServer;
 
     }

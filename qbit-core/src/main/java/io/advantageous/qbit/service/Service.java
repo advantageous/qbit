@@ -41,6 +41,13 @@ public interface Service {
      */
     String name();
 
+    /**
+     * Name of the client
+     * @return name
+     */
+    String address();
+
+
 
     /**
      * Stop the client.

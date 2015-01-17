@@ -8,6 +8,7 @@ import io.advantageous.qbit.http.*;
 import io.advantageous.qbit.json.JsonMapper;
 import io.advantageous.qbit.message.Message;
 import io.advantageous.qbit.message.MethodCall;
+import io.advantageous.qbit.message.MethodCallBuilder;
 import io.advantageous.qbit.message.Response;
 import io.advantageous.qbit.queue.Queue;
 import io.advantageous.qbit.queue.ReceiveQueueListener;
@@ -15,6 +16,7 @@ import io.advantageous.qbit.sender.Sender;
 import io.advantageous.qbit.service.ServiceBundle;
 import io.advantageous.qbit.spi.ProtocolEncoder;
 import io.advantageous.qbit.spi.ProtocolParser;
+import org.boon.Lists;
 import org.boon.core.Sys;
 import org.junit.Before;
 import org.junit.Test;
@@ -41,6 +43,9 @@ public class ServiceServerImplTest {
 
     transient int failureCounter = 0;
 
+
+    transient int timeOutCounter = 0;
+
     transient String lastResponse = "";
 
     @RequestMapping("/mock")
@@ -51,6 +56,15 @@ public class ServiceServerImplTest {
            callMeCounter++;
         }
 
+        @RequestMapping("/timeOut")
+        public String timeOut() {
+
+
+            puts("TIMEOUT");
+            Sys.sleep(30000);
+
+            return "ok";
+        }
 
 
         @RequestMapping("/callWithReturn")
@@ -89,7 +103,7 @@ public class ServiceServerImplTest {
                                 protocolParser,
                                 serviceBundle,
                                 mapper,
-                                1);
+                                1, 100);
 
 
         callMeCounter = 0;
@@ -125,6 +139,27 @@ public class ServiceServerImplTest {
 
     }
 
+    @Test
+    public void testTimeOut() throws Exception {
+
+        final HttpRequest request = new HttpRequestBuilder()
+                .setUri("/services/mock/timeOut")
+                .setTextResponse(new MockResponse())
+                .setBody("").build();
+
+        httpServer.sendRequest(request);
+
+        Sys.sleep(3000);
+
+
+        ok |= responseCounter == 0 || die();
+        ok |= callMeCounter == 0 || die();
+        ok |= timeOutCounter == 1 || die();
+
+
+
+
+    }
 
     @Test
     public void testSimplePOST_HTTPRequest() throws Exception {
@@ -210,21 +245,18 @@ public class ServiceServerImplTest {
     @Test
     public void testWebSocketCall() throws Exception {
 
+        final MethodCall<Object> methodCall = new MethodCallBuilder().setObjectName("serviceMockObject").setName("callWithReturn").setBody(null).build();
 
-        final HttpRequest request = new HttpRequestBuilder()
-                .setUri("/services/mock/callWithReturn")
-                .setTextResponse(new MockResponse())
-                .setBody("").build();
+        final String message = QBit.factory().createEncoder().encodeAsString(Lists.list(methodCall));
 
-
-
-        httpServer.sendWebSocketMessage(new WebSocketMessageBuilder().setMessage("CRAP").setSender(new MockWebSocketSender()).build());
+        httpServer.sendWebSocketMessage(new WebSocketMessageBuilder().setMessage(message).setSender(new MockWebSocketSender()).build());
 
 
 
+        Sys.sleep(200);
 
         ok |= responseCounter == 1 || die();
-        ok |= failureCounter == 1 || die();
+        ok |= failureCounter == 0 || die();
 
     }
 
@@ -251,6 +283,27 @@ public class ServiceServerImplTest {
 
     }
 
+    @Test
+    public void testExceptionCallWebSocket() throws Exception {
+
+        final MethodCall<Object> methodCall = new MethodCallBuilder().setObjectName("serviceMockObject").setName("exceptionCall").setBody(null).build();
+
+        final String message = QBit.factory().createEncoder().encodeAsString(Lists.list(methodCall));
+
+        httpServer.sendWebSocketMessage(new WebSocketMessageBuilder().setMessage(message).setSender(new MockWebSocketSender()).build());
+
+
+
+        Sys.sleep(200);
+
+
+        ok |= failureCounter == 1 || die();
+        ok |= callMeCounter == 1 || die();
+
+    }
+
+
+
 
 
     class MockResponse implements HttpTextResponse {
@@ -263,7 +316,10 @@ public class ServiceServerImplTest {
 
             if (code==200) {
                 responseCounter++;
-            } else {
+            } if (code == 408) {
+                timeOutCounter++;
+            }
+            else {
                 failureCounter++;
                 puts("FAILURE", code, mimeType, body);
             }

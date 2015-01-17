@@ -40,6 +40,8 @@ public class BoonServiceMethodCallHandler implements ServiceMethodHandler {
     private MethodAccess queueIdle;
 
     private String address = "";
+
+    private String name = "";
     private TreeSet<String> addresses = new TreeSet<>();
 
     private Map<String, Pair<MethodBinding, MethodAccess>> methodMap = new LinkedHashMap<>();
@@ -379,6 +381,15 @@ public class BoonServiceMethodCallHandler implements ServiceMethodHandler {
 
             serviceAddress =  Str.camelCaseLower(classMeta.name());
         }
+
+        this.name = readNameFromAnnotation(classMeta);
+
+        if (Str.isEmpty(name)) {
+
+            this.name =  Str.uncapitalize(classMeta.name());
+
+        }
+
         if (serviceAddress.endsWith("/")) {
             serviceAddress = Str.slc(serviceAddress, 0, -1);
         }
@@ -523,6 +534,21 @@ public class BoonServiceMethodCallHandler implements ServiceMethodHandler {
         return address == null ? "" : address;
     }
 
+    private String readNameFromAnnotation(Annotated annotated) {
+        String name = null;
+
+        if (Str.isEmpty(name)) {
+            name = getAddress("Name", annotated);
+        }
+
+        if (Str.isEmpty(name)) {
+            name = getAddress("Service", annotated);
+        }
+
+
+        return name == null ? "" : name;
+    }
+
     private String getAddress(String name, Annotated annotated) {
         AnnotationData requestMapping = annotated.annotation(name);
 
@@ -548,6 +574,11 @@ public class BoonServiceMethodCallHandler implements ServiceMethodHandler {
     @Override
     public String address() {
         return address;
+    }
+
+    @Override
+    public String name() {
+        return name;
     }
 
 

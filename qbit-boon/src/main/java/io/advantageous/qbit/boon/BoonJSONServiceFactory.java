@@ -57,7 +57,7 @@ public class BoonJSONServiceFactory implements ServiceProxyFactory {
 
             long timestamp = Timer.timer().now();
             int times = 10;
-            long messageId = generatedMessageId+=1_000_000_000;
+            long messageId = generatedMessageId++;
 
             @Override
             public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {

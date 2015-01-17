@@ -219,7 +219,8 @@ public interface Factory {
                                       final ProtocolParser protocolParser,
                                       final ServiceBundle serviceBundle,
                                       final JsonMapper jsonMapper,
-                                      final int timeOutInSeconds);
+                                      final int timeOutInSeconds,
+                                      final int numberOfOutstandingRequests);
 
 
 

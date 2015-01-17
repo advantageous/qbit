@@ -246,6 +246,7 @@ public class ServiceBundleImpl implements ServiceBundle {
 
         /** Put the client incoming requests in our client name, request queue mapping. */
         serviceMapping.put(service.name(), requests);
+        serviceMapping.put(service.address(), requests);
 
         /** Add the request queue to our set of request queues. */
         sendQueues.add(requests);
@@ -339,25 +340,6 @@ public class ServiceBundleImpl implements ServiceBundle {
                 }
             }
 
-            @Override
-            public void empty() {
-
-            }
-
-            @Override
-            public void limit() {
-
-            }
-
-            @Override
-            public void shutdown() {
-
-            }
-
-            @Override
-            public void idle() {
-
-            }
         });
     }
 
@@ -585,20 +567,6 @@ public class ServiceBundleImpl implements ServiceBundle {
                 }
             }
 
-            @Override
-            public void limit() {
-
-            }
-
-            @Override
-            public void shutdown() {
-
-            }
-
-            @Override
-            public void idle() {
-
-            }
         });
     }
 

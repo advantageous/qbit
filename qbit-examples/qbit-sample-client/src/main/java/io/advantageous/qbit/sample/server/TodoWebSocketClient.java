@@ -8,8 +8,7 @@ import io.advantageous.qbit.service.Callback;
 import org.boon.core.Sys;
 
 import java.util.Date;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.List;
 
 import static org.boon.Boon.puts;
 
@@ -18,13 +17,6 @@ import static org.boon.Boon.puts;
  */
 public class TodoWebSocketClient {
 
-    final static AtomicBoolean wait = new AtomicBoolean();
-    final static int startSize = 0;
-
-    final static long startTime =  System.currentTimeMillis();
-
-    final static
-    AtomicInteger totalSends = new AtomicInteger();
 
 
     public static void main(String... args) {
@@ -64,52 +56,24 @@ public class TodoWebSocketClient {
         todoService.add(new TodoItem("a" , "b", new Date()));
 
 
-        Date date = new Date();
-
-        for (int runs =0; runs < 10000; runs++) {
-
-
-
-            for (int index = 0; index < 200_000; index++) {
-                todoService.add(new TodoItem("a" + index, "b", date));
-
-
-                if (index % 40_000 == 0) {
-
-                    if (wait.get()) {
-                        todoService.size(TodoWebSocketClient::adjustSize);
-                        puts("Waiting");
-                        Sys.sleep(1000);
-                    }
-
-                }
-
-
-
-            }
-
-            client.flush();
-
-            totalSends.addAndGet(200_000);
-            Sys.sleep(25);
-
-
-
-            todoService.size(TodoWebSocketClient::adjustSize);
-
-        }
-
-
-
-
-        Sys.sleep(10_000);
-
         todoService.size(new Callback<Integer>() {
             @Override
             public void accept(Integer size) {
-                puts("FINAL SIZE " + size);
+                puts(" SIZE " + size);
             }
         });
+
+
+        todoService.list(new Callback<List<TodoItem>>() {
+
+            @Override
+            public void accept(List<TodoItem> todoItems) {
+                puts(todoItems);
+            }
+        });
+
+        client.flush();
+
 
 
         Sys.sleep(10_000);
@@ -119,24 +83,6 @@ public class TodoWebSocketClient {
 
     }
 
-
-
-    private static void adjustSize(Integer size) {
-        long duration = System.currentTimeMillis() - startTime;
-
-        int itemsReceived = size - startSize;
-        int currentTotalSends = totalSends.get();
-
-        if (currentTotalSends - 400_000 > ( itemsReceived ) ) {
-
-            puts("Waiting flag", "currentTotalSends", currentTotalSends, "itemsReceived", itemsReceived);
-            wait.set(true);
-        } else {
-            wait.set(false);
-        }
-
-        puts("SENDS", currentTotalSends, "SIZE", size, "duration", duration, "rate", size / (duration / 1000));
-    }
 
 
 }
