@@ -10,5 +10,5 @@ package io.advantageous.qbit.bindings;
  */
 public enum HttpMethod {
     POST,
-    GET;
+    GET
 }

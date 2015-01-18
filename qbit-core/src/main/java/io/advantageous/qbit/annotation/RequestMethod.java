@@ -13,7 +13,7 @@ public enum RequestMethod {
     TRACE,
     CONNECT,
     HEAD,
-    WEBSOCKET,
+    WEB_SOCKET,
     ALL_HTTP,
     ALL
 }

@@ -9,7 +9,6 @@ import io.advantageous.qbit.message.MethodCall;
 import io.advantageous.qbit.message.Request;
 import io.advantageous.qbit.message.Response;
 import io.advantageous.qbit.queue.*;
-import io.advantageous.qbit.queue.Queue;
 import io.advantageous.qbit.service.ServiceBundle;
 import io.advantageous.qbit.message.impl.MethodCallImpl;
 import io.advantageous.qbit.message.impl.ResponseImpl;
@@ -381,7 +380,7 @@ public class ServiceServerImpl implements ServiceServer {
     private void registerMethodToEndPoint(final String baseURI, final String serviceURI, final MethodAccess method) {
         final AnnotationData data = method.annotation("RequestMapping");
         String methodURI;
-        RequestMethod httpMethod = RequestMethod.WEBSOCKET;
+        RequestMethod httpMethod = RequestMethod.WEB_SOCKET;
         String objectNameAddress;
 
 

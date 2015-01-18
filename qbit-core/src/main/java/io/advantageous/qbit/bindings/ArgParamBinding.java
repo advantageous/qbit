@@ -10,9 +10,9 @@ package io.advantageous.qbit.bindings;
  */
 public class ArgParamBinding {
 
-    int methodParamPosition;
-    int uriPosition;
-    String methodParamName;
+    final int methodParamPosition;
+    final int uriPosition;
+    final String methodParamName;
 
     public ArgParamBinding(int methodParamPosition, int uriPosition, String methodParamName) {
         this.methodParamPosition = methodParamPosition;
@@ -24,24 +24,12 @@ public class ArgParamBinding {
         return methodParamName;
     }
 
-    public void setMethodParamName(String methodParamName) {
-        this.methodParamName = methodParamName;
-    }
-
     public int getUriPosition() {
         return uriPosition;
     }
 
-    public void setUriPosition(int uriPosition) {
-        this.uriPosition = uriPosition;
-    }
-
     public int getMethodParamPosition() {
         return methodParamPosition;
-    }
-
-    public void setMethodParamPosition(int methodParamPosition) {
-        this.methodParamPosition = methodParamPosition;
     }
 
     @Override

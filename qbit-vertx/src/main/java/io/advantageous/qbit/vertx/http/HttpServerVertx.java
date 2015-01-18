@@ -72,7 +72,7 @@ public class HttpServerVertx implements HttpServer {
 
     }
 
-    private Consumer<WebSocketMessage> webSocketMessageConsumer = websocketMessage -> logger.debug("HttpServerVertx::DEFAULT WEBSOCKET HANDLER CALLED WHICH IS ODD");
+    private Consumer<WebSocketMessage> webSocketMessageConsumer = websocketMessage -> logger.debug("HttpServerVertx::DEFAULT WEB_SOCKET HANDLER CALLED WHICH IS ODD");
     private Consumer<HttpRequest> httpRequestConsumer = request -> logger.debug("HttpServerVertx::DEFAULT HTTP HANDLER CALLED WHICH IS ODD");
 
 

@@ -21,11 +21,6 @@ public class MethodBinding {
 
     private RequestParamBinding[] requestParamBindingsMap;
 
-    //TODO: use boon-utils for fast string parsing
-    public static MethodBinding method(String methodName, String uri) {
-        return new MethodBinding(methodName, uri);
-    }
-
     public MethodBinding(String methodName, String uri) {
         this.methodName = methodName;
 
