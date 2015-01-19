@@ -35,9 +35,9 @@ public class BoonClientIntegrationTest {
     boolean httpPeriodicFlushCallbackCalled;
 
     boolean ok;
-    transient int sum;
+    volatile int sum;
 
-    transient Response<Object> response;
+    volatile Response<Object> response;
 
 
     ServiceBundle serviceBundle;

@@ -437,7 +437,7 @@ public class HttpServerVertx implements HttpServer {
                 webSocket::writeTextFrame);
     }
 
-    transient long id;
+    volatile long id;
     private HttpRequest createRequest(final HttpServerRequest request, final Buffer buffer) {
 
         final MultiMap<String, String> params = request.params().size() == 0 ? MultiMap.empty() : new MultiMapWrapper(request.params());

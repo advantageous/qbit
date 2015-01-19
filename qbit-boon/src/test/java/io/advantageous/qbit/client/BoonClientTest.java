@@ -34,7 +34,7 @@ public class BoonClientTest {
     boolean ok;
 
 
-    transient int sum;
+    volatile int sum;
 
     public static interface ServiceMock {
         void add(int a, int b);

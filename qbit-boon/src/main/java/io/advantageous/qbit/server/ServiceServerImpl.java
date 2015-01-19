@@ -394,6 +394,10 @@ public class ServiceServerImpl implements ServiceServer {
         if (data != null) {
             final Map<String, Object> methodValuesForAnnotation = data.getValues();
             methodURI = extractMethodURI(methodValuesForAnnotation);
+
+            if (methodURI==null) {
+                methodURI = Str.add("/", method.name());
+            }
             httpMethod = extractHttpMethod(methodValuesForAnnotation);
 
 
@@ -419,6 +423,8 @@ public class ServiceServerImpl implements ServiceServer {
         switch (httpMethod) {
             case GET:
                 getMethodURIs.add(objectNameAddress);
+
+                getMethodURIs.add(objectNameAddress.toLowerCase());
                 if (voidReturn) {
                     getMethodURIsWithVoidReturn.add(objectNameAddress);
 
@@ -429,6 +435,7 @@ public class ServiceServerImpl implements ServiceServer {
                 break;
             case POST:
                 postMethodURIs.add(objectNameAddress);
+                postMethodURIs.add(objectNameAddress.toLowerCase());
                 if (voidReturn) {
                     postMethodURIsWithVoidReturn.add(objectNameAddress);
                     postMethodURIsWithVoidReturn.add(Str.add(baseURI, serviceURI, "/", method.name()));
@@ -469,6 +476,10 @@ public class ServiceServerImpl implements ServiceServer {
 
 
         String[] values = (String[]) methodValuesForAnnotation.get("value");
+
+        if (values == null || values.length ==0) {
+            return null;
+        }
         String methodURI = values[0];
         if (methodURI.contains("{")) {
             methodURI = StringScanner.split(methodURI, '{', 1)[0];

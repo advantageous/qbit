@@ -36,17 +36,17 @@ public class ServiceServerImplTest {
     private boolean ok = true;
 
 
-    transient int callMeCounter = 0;
+    volatile int callMeCounter = 0;
 
-    transient int responseCounter = 0;
-
-
-    transient int failureCounter = 0;
+    volatile int responseCounter = 0;
 
 
-    transient int timeOutCounter = 0;
+    volatile int failureCounter = 0;
 
-    transient String lastResponse = "";
+
+    volatile int timeOutCounter = 0;
+
+    volatile String lastResponse = "";
 
     @RequestMapping("/mock")
     public  class ServiceMockObject {
