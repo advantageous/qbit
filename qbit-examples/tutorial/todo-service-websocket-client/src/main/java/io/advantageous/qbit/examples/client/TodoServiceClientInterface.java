@@ -4,7 +4,7 @@ import io.advantageous.qbit.service.Callback;
 
 import java.util.List;
 
-public interface TodoServiceClient {
+public interface TodoServiceClientInterface {
 
     void list(Callback<List<TodoItem>> handler);
 

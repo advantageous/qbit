@@ -24,7 +24,7 @@ sourceSets {
 }
 
 
-mainClassName = "io.advantageous.qbit.examples.TodoMainWebSocketClient"
+mainClassName = "io.advantageous.qbit.examples.client.TodoClientMain"
 
 repositories {
     mavenLocal()
