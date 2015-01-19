@@ -14,6 +14,7 @@ import io.advantageous.qbit.message.impl.MethodCallImpl;
 import io.advantageous.qbit.message.impl.ResponseImpl;
 import io.advantageous.qbit.spi.ProtocolEncoder;
 import io.advantageous.qbit.spi.ProtocolParser;
+import io.advantageous.qbit.util.MultiMap;
 import io.advantageous.qbit.util.Timer;
 import org.boon.Str;
 import org.boon.StringScanner;
@@ -74,7 +75,13 @@ public class ServiceServerImpl implements ServiceServer {
         this.outstandingRequests = new ArrayBlockingQueue<>(numberOfOutstandingRequests);
     }
 
+
     private void writeResponse(HttpResponse response, int code, String mimeType, String responseString) {
+
+        writeResponse(response, code, mimeType, responseString, MultiMap.EMPTY);
+    }
+
+    private void writeResponse(HttpResponse response, int code, String mimeType, String responseString, MultiMap<String, String> headers) {
 
         if (response.isText()) {
             response.response(code, mimeType, responseString);
@@ -103,12 +110,12 @@ public class ServiceServerImpl implements ServiceServer {
             case "GET":
                 knownURI = getMethodURIs.contains(uri);
                 if (getMethodURIsWithVoidReturn.contains(uri)) {
-                    writeResponse(request.getResponse(), 200, "application/json", "\"success\"");
+                    writeResponse(request.getResponse(), 200, "application/json", "\"success\"", request.getHeaders());
 
                 } else {
                     if (!addRequestToCheckForTimeouts(request)) {
 
-                        writeResponse(request.getResponse(), 429, "application/json", "\"too many outstanding requests\"");
+                        writeResponse(request.getResponse(), 429, "application/json", "\"too many outstanding requests\"", request.getHeaders());
                         return;
                     }
                 }
@@ -117,11 +124,11 @@ public class ServiceServerImpl implements ServiceServer {
             case "POST":
                 knownURI = postMethodURIs.contains(uri);
                 if (postMethodURIsWithVoidReturn.contains(uri)) {
-                    writeResponse(request.getResponse(), 200, "application/json", "\"success\"");
+                    writeResponse(request.getResponse(), 200, "application/json", "\"success\"", request.getHeaders());
                 } else {
                     if (!addRequestToCheckForTimeouts(request)) {
 
-                        writeResponse(request.getResponse(), 429, "application/json", "\"too many outstanding requests\"");
+                        writeResponse(request.getResponse(), 429, "application/json", "\"too many outstanding requests\"", request.getHeaders());
                         return;
                     }
                 }
@@ -136,7 +143,7 @@ public class ServiceServerImpl implements ServiceServer {
             request.handled(); //Mark the request as handled.
 
             writeResponse(request.getResponse(), 404, "application/json",
-                    Str.add("\"No service method for URI ", request.getUri(), "\""));
+                    Str.add("\"No service method for URI ", request.getUri(), "\""), request.getHeaders());
 
         }
 
@@ -221,9 +228,9 @@ public class ServiceServerImpl implements ServiceServer {
         final HttpRequest httpRequest = originatingRequest;
 
         if (response.wasErrors()) {
-            writeResponse(httpRequest.getResponse(), 500, "application/json", jsonMapper.toJson(response.body()));
+            writeResponse(httpRequest.getResponse(), 500, "application/json", jsonMapper.toJson(response.body()), httpRequest.getHeaders());
         } else {
-            writeResponse(httpRequest.getResponse(), 200, "application/json", jsonMapper.toJson(response.body()));
+            writeResponse(httpRequest.getResponse(), 200, "application/json", jsonMapper.toJson(response.body()), httpRequest.getHeaders());
         }
     }
 

@@ -93,22 +93,14 @@ public class HttpRequest implements Request<Object>{
         return false;
     }
 
-    private static class RequestIdGenerator {
-        private long value;
-        private long inc() {return value++;}
-    }
-
-    private final static ThreadLocal<RequestIdGenerator> idGen = new ThreadLocal<RequestIdGenerator>(){
-        @Override
-        protected RequestIdGenerator initialValue() {
-            return new RequestIdGenerator();
-        }
-    };
 
 
-    public HttpRequest(final String uri, final String method, final MultiMap<String, String> params,
+
+    public HttpRequest(long id, final String uri, final String method, final MultiMap<String, String> params,
                        final MultiMap<String, String> headers,
-                       final byte[] body, final String remoteAddress, String contentType, final HttpResponse response) {
+                       final byte[] body, final String remoteAddress, String contentType, final HttpResponse response, long timestamp) {
+
+        this.messageId = id;
         this.params = params;
         this.body = body;
         this.method = method;
@@ -117,8 +109,7 @@ public class HttpRequest implements Request<Object>{
         this.response = response;
         this.remoteAddress = remoteAddress;
         this.headers = headers;
-        this.messageId = idGen.get().inc();
-        this.timestamp = io.advantageous.qbit.util.Timer.timer().now();
+        this.timestamp = timestamp;
     }
 
     public MultiMap<String, String> getParams() {

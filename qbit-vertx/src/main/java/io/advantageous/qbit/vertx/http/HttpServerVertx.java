@@ -11,6 +11,7 @@ import io.advantageous.qbit.queue.ReceiveQueueListener;
 import io.advantageous.qbit.queue.SendQueue;
 import io.advantageous.qbit.queue.impl.BasicQueue;
 import io.advantageous.qbit.util.MultiMap;
+import io.advantageous.qbit.util.Timer;
 import io.advantageous.qbit.vertx.MultiMapWrapper;
 import org.boon.Str;
 import org.slf4j.Logger;
@@ -436,6 +437,7 @@ public class HttpServerVertx implements HttpServer {
                 webSocket::writeTextFrame);
     }
 
+    transient long id;
     private HttpRequest createRequest(final HttpServerRequest request, final Buffer buffer) {
 
         final MultiMap<String, String> params = request.params().size() == 0 ? MultiMap.empty() : new MultiMapWrapper(request.params());
@@ -444,9 +446,9 @@ public class HttpServerVertx implements HttpServer {
 
         final String contentType = request.headers().get("Content-Type");
 
-        return new HttpRequest(request.uri(), request.method(), params, headers, body,
+        return new HttpRequest(id++, request.uri(), request.method(), params, headers, body,
                 request.remoteAddress().toString(),
-                contentType, createResponse(request.response()));
+                contentType, createResponse(request.response()), Timer.timer().now());
     }
 
 

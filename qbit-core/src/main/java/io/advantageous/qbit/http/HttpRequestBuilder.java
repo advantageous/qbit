@@ -29,7 +29,40 @@ public class HttpRequestBuilder {
     private String method = "GET";
     private HttpResponse response;
     private MultiMap<String, String> headers;
+    private long id;
+    private long timestamp;
 
+    private static class RequestIdGenerator {
+        private long value;
+        private long inc() {return value++;}
+    }
+
+
+    private final static ThreadLocal<RequestIdGenerator> idGen = new ThreadLocal<RequestIdGenerator>(){
+        @Override
+        protected RequestIdGenerator initialValue() {
+            return new RequestIdGenerator();
+        }
+    };
+
+
+    public long getId() {
+        return id;
+    }
+
+    public HttpRequestBuilder setId(long id) {
+        this.id = id;
+        return this;
+    }
+
+    public long getTimestamp() {
+        return timestamp;
+    }
+
+    public HttpRequestBuilder setTimestamp(long timestamp) {
+        this.timestamp = timestamp;
+        return this;
+    }
 
     public String getUri() {
         return uri;
@@ -99,6 +132,7 @@ public class HttpRequestBuilder {
 
     public HttpRequest build() {
 
+        String newURI = uri;
 
         if (params != null && params.size() > 1) {
             String paramString = paramString();
@@ -107,7 +141,7 @@ public class HttpRequestBuilder {
                 case "OPTION":
                 case "HEAD":
                 case "DELETE":
-                    uri = Str.add(uri, "?", paramString);
+                    newURI = Str.add(uri, "?", paramString);
                     break;
                 case "POST":
                 case "PUT":
@@ -116,9 +150,20 @@ public class HttpRequestBuilder {
                     break;
             }
         }
-        return new HttpRequest(uri, method, params, headers,
+
+
+
+        if (id == 0) {
+
+            this.id = idGen.get().inc();
+        }
+
+        if (timestamp == 0) {
+            timestamp = io.advantageous.qbit.util.Timer.timer().now();
+        }
+        return new HttpRequest(id, newURI, method, params, headers,
                 body != null ? body.getBytes(StandardCharsets.UTF_8) : EMPTY_STRING,
-                remoteAddress, contentType, response);
+                remoteAddress, contentType, response, timestamp);
     }
 
     public String getContentType() {

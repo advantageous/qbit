@@ -97,59 +97,6 @@ public class BoonQBitFactory implements Factory {
 
 
     @Override
-    public MethodCall<Object> createMethodCallToBeParsedFromBody(String addressPrefix, Object body, Request<Object> originatingRequest) {
-
-        MethodCall<Object> methodCall = null;
-
-        if (body != null) {
-            ProtocolParser parser = selectProtocolParser(body, null);
-
-            if (parser != null) {
-                methodCall = parser.parseMethodCallUsingAddressPrefix(addressPrefix, body);
-            } else {
-                methodCall = defaultProtocol.parseMethodCall(body);
-            }
-        }
-
-        if (methodCall instanceof MethodCallImpl) {
-            MethodCallImpl impl = ((MethodCallImpl) methodCall);
-            impl.originatingRequest(originatingRequest);
-        }
-
-        return methodCall;
-
-    }
-
-
-
-    public List<MethodCall<Object>> createMethodCallListToBeParsedFromBody(String addressPrefix, Object body, Request<Object> originatingRequest) {
-
-        List<MethodCall<Object>> methodCalls = Collections.emptyList();
-
-
-        if (body != null) {
-            ProtocolParser parser = selectProtocolParser(body, null);
-
-            if (parser != null) {
-                methodCalls = parser.parseMethodCallListUsingAddressPrefix(addressPrefix, body);
-            } else {
-                methodCalls = defaultProtocol.parseMethodCallListUsingAddressPrefix(addressPrefix, body);
-            }
-        }
-
-
-        for (MethodCall<Object> methodCall : methodCalls) {
-            if (methodCall instanceof MethodCallImpl) {
-                MethodCallImpl impl = ((MethodCallImpl) methodCall);
-                impl.originatingRequest(originatingRequest);
-            }
-        }
-
-        return methodCalls;
-
-    }
-
-    @Override
     public MethodCall<Object> createMethodCallFromHttpRequest(final Request<Object> request, Object args) {
 
         MethodCallBuilder methodCallBuilder = new MethodCallBuilder();
