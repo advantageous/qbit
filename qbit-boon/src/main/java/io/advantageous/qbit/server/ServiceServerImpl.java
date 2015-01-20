@@ -233,17 +233,17 @@ public class ServiceServerImpl implements ServiceServer {
         public void send(final Response<Object> message) {
 
             if (!outputMessages.offer(message)) {
-                buildAndSendMessages(message);
+                buildAndSendMessages(message, Timer.timer().now());
             }
         }
 
-        private void buildAndSendMessages(final Response<Object> message) {
+        private void buildAndSendMessages(final Response<Object> message, long now) {
 
-            if (outputMessages.size() == 0) {
+            if (outputMessages.size() == 0 && message == null) {
                 return;
             }
 
-            List<Response<Object>> messages = new ArrayList<>(outputMessages.size());
+            List<Response<Object>> messages = new ArrayList<>(outputMessages.size() + 1);
 
             Response<Object> currentMessage = outputMessages.poll();
 
@@ -263,7 +263,7 @@ public class ServiceServerImpl implements ServiceServer {
 
             serverWebSocket.getSender().send(textMessage);
 
-            lastSend = Timer.timer().now();
+            lastSend = now;
         }
 
 
@@ -398,6 +398,7 @@ public class ServiceServerImpl implements ServiceServer {
         long duration = now - flushResponsePeriodic;
 
         if (duration > flushResponseInterval && webSocketDelegateMap.size() > 0) {
+            flushResponsePeriodic = now;
 
             final Collection<WebSocketDelegate> values = this.webSocketDelegateMap.values();
             for (WebSocketDelegate ws : values) {
@@ -405,7 +406,7 @@ public class ServiceServerImpl implements ServiceServer {
                 long dur = now - ws.lastSend;
 
                 if (dur > flushResponseInterval) {
-                    ws.buildAndSendMessages(null);
+                    ws.buildAndSendMessages(null, now);
                 }
             }
         }
