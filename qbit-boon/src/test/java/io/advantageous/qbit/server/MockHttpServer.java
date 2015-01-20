@@ -65,6 +65,11 @@ public class MockHttpServer implements HttpServer {
     }
 
     @Override
+    public void setWebSocketCloseConsumer(Consumer<WebSocketMessage> webSocketMessageConsumer) {
+
+    }
+
+    @Override
     public void setHttpRequestConsumer(Consumer<HttpRequest> httpRequestConsumer) {
         this.httpRequestConsumer=httpRequestConsumer;
 

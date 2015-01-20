@@ -5,6 +5,7 @@ import io.advantageous.qbit.QBit;
 import io.advantageous.qbit.annotation.RequestMethod;
 import io.advantageous.qbit.http.*;
 import io.advantageous.qbit.json.JsonMapper;
+import io.advantageous.qbit.message.Message;
 import io.advantageous.qbit.message.MethodCall;
 import io.advantageous.qbit.message.Request;
 import io.advantageous.qbit.message.Response;
@@ -29,8 +30,10 @@ import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicBoolean;
+import io.advantageous.qbit.http.WebSocketSender;
 
 /**
  * Created by rhightower on 10/22/14.
@@ -43,13 +46,20 @@ public class ServiceServerImpl implements ServiceServer {
     private final Logger logger = LoggerFactory.getLogger(ServiceServerImpl.class);
     private final boolean debug = logger.isDebugEnabled();
     protected int timeoutInSeconds = 30;
+    protected final int batchSize;
     protected ProtocolEncoder encoder;
     protected HttpServer httpServer;
     protected ServiceBundle serviceBundle;
     protected JsonMapper jsonMapper;
     protected ProtocolParser parser;
-    Object context = Sys.contextToHold();
-    long lastTimeoutCheckTime = 0;
+    protected Object context = Sys.contextToHold();
+    protected volatile long lastTimeoutCheckTime = 0;
+
+
+    protected final long flushResponseInterval = 50;
+    protected volatile long flushResponsePeriodic = 0;
+
+
     private Set<String> getMethodURIs = new LinkedHashSet<>();
     private Set<String> postMethodURIs = new LinkedHashSet<>();
     private Set<String> objectNameAddressURIWithVoidReturn = new LinkedHashSet<>();
@@ -58,6 +68,9 @@ public class ServiceServerImpl implements ServiceServer {
     private BlockingQueue<Request<Object>> outstandingRequests;
     private AtomicBoolean stop = new AtomicBoolean();
 
+    private final Map<String, WebSocketDelegate> webSocketDelegateMap = new ConcurrentHashMap<>(100);
+
+
 
     public ServiceServerImpl(final HttpServer httpServer,
                              final ProtocolEncoder encoder,
@@ -65,7 +78,8 @@ public class ServiceServerImpl implements ServiceServer {
                              final ServiceBundle serviceBundle,
                              final JsonMapper jsonMapper,
                              final int timeOutInSeconds,
-                             final int numberOfOutstandingRequests) {
+                             final int numberOfOutstandingRequests,
+                             final int batchSize) {
         this.encoder = encoder;
         this.parser = parser;
         this.httpServer = httpServer;
@@ -73,6 +87,7 @@ public class ServiceServerImpl implements ServiceServer {
         this.jsonMapper = jsonMapper;
         this.timeoutInSeconds = timeOutInSeconds;
         this.outstandingRequests = new ArrayBlockingQueue<>(numberOfOutstandingRequests);
+        this.batchSize = batchSize;
     }
 
 
@@ -197,6 +212,69 @@ public class ServiceServerImpl implements ServiceServer {
 
     }
 
+
+
+    class WebSocketDelegate {
+        final int requestBatchSize;
+
+        final BlockingQueue<Response<Object>> outputMessages;
+
+        final WebSocketMessage serverWebSocket;
+
+        volatile long lastSend;
+
+        private WebSocketDelegate(int requestBatchSize, WebSocketMessage serverWebSocket) {
+            this.requestBatchSize = requestBatchSize;
+            outputMessages = new ArrayBlockingQueue<>(requestBatchSize);
+            this.serverWebSocket = serverWebSocket;
+        }
+
+
+        public void send(final Response<Object> message) {
+
+            if (!outputMessages.offer(message)) {
+                buildAndSendMessages(message);
+            }
+        }
+
+        private void buildAndSendMessages(final Response<Object> message) {
+
+            if (outputMessages.size() == 0) {
+                return;
+            }
+
+            List<Response<Object>> messages = new ArrayList<>(outputMessages.size());
+
+            Response<Object> currentMessage = outputMessages.poll();
+
+            while (currentMessage !=null) {
+
+                messages.add(currentMessage);
+                currentMessage = outputMessages.poll();
+
+            }
+
+            if (message !=null) {
+                messages.add(message);
+            }
+
+
+            final String textMessage = encoder.encodeAsString((Collection<Message<Object>>) (Object) messages);
+
+            serverWebSocket.getSender().send(textMessage);
+
+            lastSend = Timer.timer().now();
+        }
+
+
+    }
+
+
+
+    private void handleWebSocketClose(final WebSocketMessage webSocketMessage) {
+        webSocketDelegateMap.remove(webSocketMessage.getRemoteAddress());
+    }
+
     /**
      * All WebSocket calls come through here.
      *
@@ -204,9 +282,23 @@ public class ServiceServerImpl implements ServiceServer {
      */
     private void handleWebSocketCall(final WebSocketMessage webSocketMessage) {
 
-        if (GlobalConstants.DEBUG) logger.info("websocket message: " + webSocketMessage);
+        if (GlobalConstants.DEBUG) logger.info("WebSocket message: " + webSocketMessage);
 
-        final List<MethodCall<Object>> methodCallListToBeParsedFromBody = createMethodCallListToBeParsedFromBody(webSocketMessage.getRemoteAddress(), webSocketMessage.getMessage(), webSocketMessage);
+
+
+
+        WebSocketDelegate webSocketDelegate = webSocketDelegateMap.get(webSocketMessage.getRemoteAddress());
+
+        if (webSocketDelegate == null) {
+            webSocketDelegate = new WebSocketDelegate(batchSize, webSocketMessage);
+            webSocketDelegateMap.put(webSocketMessage.getRemoteAddress(), webSocketDelegate);
+        }
+
+
+
+        final List<MethodCall<Object>> methodCallListToBeParsedFromBody =
+                createMethodCallListToBeParsedFromBody(webSocketMessage.getRemoteAddress(),
+                        webSocketMessage.getMessage(), webSocketMessage);
 
 
         for (MethodCall<Object> methodCall : methodCallListToBeParsedFromBody) {
@@ -216,9 +308,17 @@ public class ServiceServerImpl implements ServiceServer {
 
     private void handleResponseFromServiceBundleToWebSocketSender(Response<Object> response, WebSocketMessage originatingRequest) {
         final WebSocketMessage webSocketMessage = originatingRequest;
-        String responseAsText = encoder.encodeAsString(response);
         try {
-            webSocketMessage.getSender().send(responseAsText);
+
+            final WebSocketDelegate webSocketDelegate = this.webSocketDelegateMap.get(webSocketMessage.getRemoteAddress());
+
+            if (webSocketDelegate == null) {
+                String responseAsText = encoder.encodeAsString(response);
+
+                webSocketMessage.getSender().send(responseAsText);
+            } else {
+                webSocketDelegate.send(response);
+            }
         } catch (Exception ex) {
             logger.warn("websocket unable to send response", ex);
         }
@@ -242,6 +342,7 @@ public class ServiceServerImpl implements ServiceServer {
 
         httpServer.setHttpRequestConsumer(this::handleRestCall);
         httpServer.setWebSocketMessageConsumer(this::handleWebSocketCall);
+        httpServer.setWebSocketCloseConsumer(this::handleWebSocketClose);
         httpServer.start();
 
 
@@ -282,8 +383,34 @@ public class ServiceServerImpl implements ServiceServer {
             public void idle() {
 
                 checkTimeoutsForRequests();
+                checkResponseBatchSend();
             }
         };
+    }
+
+
+    private void checkResponseBatchSend() {
+
+
+        final long now = Timer.timer().now();
+
+
+        long duration = now - flushResponsePeriodic;
+
+        if (duration > flushResponseInterval && webSocketDelegateMap.size() > 0) {
+
+            final Collection<WebSocketDelegate> values = this.webSocketDelegateMap.values();
+            for (WebSocketDelegate ws : values) {
+
+                long dur = now - ws.lastSend;
+
+                if (dur > flushResponseInterval) {
+                    ws.buildAndSendMessages(null);
+                }
+            }
+        }
+
+
     }
 
     /**

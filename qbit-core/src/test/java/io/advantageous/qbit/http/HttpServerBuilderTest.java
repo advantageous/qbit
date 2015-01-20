@@ -64,6 +64,11 @@ public class HttpServerBuilderTest {
                     }
 
                     @Override
+                    public void setWebSocketCloseConsumer(Consumer<WebSocketMessage> webSocketMessageConsumer) {
+
+                    }
+
+                    @Override
                     public void setHttpRequestConsumer(Consumer<HttpRequest> httpRequestConsumer) {
 
                     }

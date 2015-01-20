@@ -69,6 +69,9 @@ public class HttpServerVertx implements HttpServer {
     }
 
     private Consumer<WebSocketMessage> webSocketMessageConsumer = websocketMessage -> logger.debug("HttpServerVertx::DEFAULT WEB_SOCKET HANDLER CALLED WHICH IS ODD");
+
+    private Consumer<WebSocketMessage> webSocketCloseConsumer = webSocketMessage -> {};
+
     private Consumer<HttpRequest> httpRequestConsumer = request -> logger.debug("HttpServerVertx::DEFAULT HTTP HANDLER CALLED WHICH IS ODD");
 
 
@@ -89,6 +92,12 @@ public class HttpServerVertx implements HttpServer {
     @Override
     public void setWebSocketMessageConsumer(final Consumer<WebSocketMessage> webSocketMessageConsumer) {
         this.webSocketMessageConsumer = webSocketMessageConsumer;
+    }
+
+    @Override
+    public void setWebSocketCloseConsumer(final Consumer<WebSocketMessage> webSocketMessageConsumer) {
+
+        this.webSocketCloseConsumer = webSocketMessageConsumer;
     }
 
     @Override
@@ -206,25 +215,6 @@ public class HttpServerVertx implements HttpServer {
 
                 }
 
-                @Override
-                public void empty() {
-
-                }
-
-                @Override
-                public void limit() {
-
-                }
-
-                @Override
-                public void shutdown() {
-
-                }
-
-                @Override
-                public void idle() {
-
-                }
             });
 
 
@@ -233,26 +223,6 @@ public class HttpServerVertx implements HttpServer {
                 @Override
                 public void receive(final HttpResponseInternal response) {
                     response.send();
-                }
-
-                @Override
-                public void empty() {
-
-                }
-
-                @Override
-                public void limit() {
-
-                }
-
-                @Override
-                public void shutdown() {
-
-                }
-
-                @Override
-                public void idle() {
-
                 }
             });
 
@@ -263,25 +233,6 @@ public class HttpServerVertx implements HttpServer {
                     httpRequestConsumer.accept(request);
                 }
 
-                @Override
-                public void empty() {
-
-                }
-
-                @Override
-                public void limit() {
-
-                }
-
-                @Override
-                public void shutdown() {
-
-                }
-
-                @Override
-                public void idle() {
-
-                }
             });
 
         }
@@ -410,6 +361,8 @@ public class HttpServerVertx implements HttpServer {
     private void handleWebSocketMessage(final ServerWebSocket webSocket) {
 
 
+
+
         webSocket.dataHandler((Buffer buffer) -> {
                     WebSocketMessage webSocketMessage =
                             createWebSocketMessage(webSocket, buffer);
@@ -425,57 +378,26 @@ public class HttpServerVertx implements HttpServer {
                     }
                 }
         );
-    }
 
-//    private Map<String, WebSocketDelegate> webSocketDelegateMap = new ConcurrentHashMap<>(100);
-//
-//    static class WebSocketDelegate implements WebsSocketSender{
-//        final int requestBatchSize;
-//
-//        final BlockingQueue<String> outputMessages;
-//
-//        final ServerWebSocket serverWebSocket;
-//
-//        private WebSocketDelegate(int requestBatchSize, ServerWebSocket serverWebSocket) {
-//            this.requestBatchSize = requestBatchSize;
-//            outputMessages = new ArrayBlockingQueue<>(requestBatchSize);
-//            this.serverWebSocket = serverWebSocket;
-//        }
-//
-//
-//        @Override
-//        public void send(String message) {
-//
-//            if (!outputMessages.offer(message)) {
-//
-//                buildAndSendMessages(message);
-//            }
-//        }
-//
-//        private void buildAndSendMessages(String message) {
-//
-//        }
-//
-//
-//    }
+
+
+        webSocket.closeHandler(event -> {
+
+
+            WebSocketMessage webSocketMessage =
+                    createWebSocketMessage(webSocket, null);
+
+            webSocketCloseConsumer.accept(webSocketMessage);
+
+        });
+
+
+    }
 
     private WebSocketMessage createWebSocketMessage(final ServerWebSocket serverWebSocket, final Buffer buffer) {
 
-//        final String address = serverWebSocket.remoteAddress().toString();
-//
-//
-//        WebSocketDelegate webSocketDelegate = webSocketDelegateMap.get(address);
-//
-//        if (webSocketDelegate == null) {
-//            webSocketDelegate = new WebSocketDelegate(requestBatchSize, serverWebSocket);
-//            webSocketDelegateMap.put(address, webSocketDelegate);
-//        }
 
-
-        //return new WebSocketMessage(serverWebSocket.uri(), buffer.toString("UTF-8"), serverWebSocket.remoteAddress().toString(),serverWebSocket::writeTextFrame
-        //        );
-
-        return createWebSocketMessage(serverWebSocket.uri(), serverWebSocket.remoteAddress().toString(), serverWebSocket::writeTextFrame, buffer.toString("UTF-8"));
+        return createWebSocketMessage(serverWebSocket.uri(), serverWebSocket.remoteAddress().toString(), serverWebSocket::writeTextFrame, buffer != null ? buffer.toString("UTF-8"): "");
     }
 
 

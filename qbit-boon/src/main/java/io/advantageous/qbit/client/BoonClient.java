@@ -30,6 +30,7 @@ package io.advantageous.qbit.client;
 
 import io.advantageous.qbit.QBit;
 import io.advantageous.qbit.http.*;
+import io.advantageous.qbit.message.Message;
 import io.advantageous.qbit.message.MethodCall;
 import io.advantageous.qbit.message.Response;
 
@@ -130,23 +131,32 @@ public class BoonClient implements Client {
      */
     private void handleWebsocketQueueResponses(final String websocketText) {
 
-        /* Message comes in as a string but we parse it into a Response object. */
-        final Response<Object> response = QBit.factory().createResponse(websocketText);
+
+        final List<Message<Object>> messages = QBit.factory().createProtocolParser().parse("", websocketText);
+
+        for (Message<Object> message : messages) {
+
+            if (message instanceof Response) {
+
+                Response<Object> response = ((Response) message);
+
+                final String[] split = StringScanner.split(response.returnAddress(),
+                        (char) PROTOCOL_ARG_SEPARATOR);
+
+                HandlerKey key = split.length == 2 ? new HandlerKey(split[1], response.id()) :
+                        new HandlerKey(split[0], response.id());
 
 
-        final String[] split = StringScanner.split(response.returnAddress(),
-                (char) PROTOCOL_ARG_SEPARATOR);
 
-        HandlerKey key = split.length == 2 ? new HandlerKey(split[1], response.id()) :
-            new HandlerKey(split[0], response.id());
+                final Callback<Object>  handler = handlers.get(key);
 
+                if (handler != null) {
 
+                    handleAsyncCallback(response, handler);
+                }
 
-        final Callback<Object>  handler = handlers.get(key);
+            }
 
-        if (handler != null) {
-
-            handleAsyncCallback(response, handler);
         }
     }
 

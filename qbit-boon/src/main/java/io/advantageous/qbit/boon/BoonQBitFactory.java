@@ -136,8 +136,10 @@ public class BoonQBitFactory implements Factory {
             final ServiceBundle serviceBundle,
             final JsonMapper jsonMapper,
             final int timeOutInSeconds,
-            final int numberOfOutstandingRequests) {
-        return new ServiceServerImpl(httpServer, encoder, protocolParser, serviceBundle, jsonMapper, timeOutInSeconds, numberOfOutstandingRequests);
+            final int numberOfOutstandingRequests,
+            final int batchSize) {
+        return new ServiceServerImpl(httpServer, encoder, protocolParser, serviceBundle,
+                jsonMapper, timeOutInSeconds, numberOfOutstandingRequests, batchSize);
     }
 
 

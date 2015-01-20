@@ -64,14 +64,14 @@ public class BoonProtocolEncoder implements ProtocolEncoder {
     }
 
     @Override
-    public String encodeAsString(List<Message<Object>> methodCalls) {
+    public String encodeAsString(Collection<Message<Object>> messages) {
         CharBuf buf = bufRef.get();
         buf.recycle();
 
         buf.addChar(PROTOCOL_MARKER);
         buf.addChar(PROTOCOL_VERSION_1_GROUP);
 
-        for (Message<Object> message : methodCalls) {
+        for (Message<Object> message : messages) {
 
             if (message instanceof MethodCall) {
                 encodeAsString(buf, (MethodCall<Object>) message);

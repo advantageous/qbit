@@ -53,6 +53,11 @@ public class PerfTestMain {
         }
 
         @Override
+        public void setWebSocketCloseConsumer(Consumer<WebSocketMessage> webSocketMessageConsumer) {
+
+        }
+
+        @Override
         public void setHttpRequestConsumer(Consumer<HttpRequest> httpRequestConsumer) {
 
             this.httpRequestConsumer = httpRequestConsumer;

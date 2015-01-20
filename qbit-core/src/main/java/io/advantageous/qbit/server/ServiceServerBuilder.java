@@ -193,7 +193,7 @@ public class ServiceServerBuilder {
         final ProtocolParser parser = QBit.factory().createProtocolParser();
 
 
-        final ServiceServer serviceServer = QBit.factory().createServiceServer(httpServer, encoder, parser, serviceBundle, jsonMapper, timeoutSeconds, numberOfOutstandingRequests);
+        final ServiceServer serviceServer = QBit.factory().createServiceServer(httpServer, encoder, parser, serviceBundle, jsonMapper, timeoutSeconds, numberOfOutstandingRequests, requestBatchSize);
         return serviceServer;
 
     }

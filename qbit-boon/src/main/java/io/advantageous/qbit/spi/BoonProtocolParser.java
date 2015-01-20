@@ -114,6 +114,8 @@ public class BoonProtocolParser implements ProtocolParser {
 
             if (versionMarker == PROTOCOL_VERSION_1) {
                 return Lists.list((Message<Object>)handleFastBodySubmissionVersion1Chars("", chars));
+            } else if (versionMarker == PROTOCOL_VERSION_1_RESPONSE) {
+                return Lists.list((Message<Object>)parseResponseFromChars("", chars));
             } else if (versionMarker == PROTOCOL_VERSION_1_GROUP){
 
                 final char[][] methodCalls = CharScanner.splitFrom(chars,

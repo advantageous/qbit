@@ -15,6 +15,8 @@ public interface HttpServer extends Server {
 
     void setWebSocketMessageConsumer(Consumer<WebSocketMessage> webSocketMessageConsumer);
 
+    void setWebSocketCloseConsumer(Consumer<WebSocketMessage> webSocketMessageConsumer);
+
     void setHttpRequestConsumer(Consumer<HttpRequest> httpRequestConsumer);
 
 

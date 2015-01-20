@@ -281,7 +281,8 @@ public interface Factory {
                                       final ServiceBundle serviceBundle,
                                       final JsonMapper jsonMapper,
                                       final int timeOutInSeconds,
-                                      final int numberOfOutstandingRequests){
+                                      final int numberOfOutstandingRequests,
+                                      final int batchSize){
         throw new UnsupportedOperationException();
     }
 
