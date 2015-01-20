@@ -53,7 +53,7 @@ public class TodoServiceWithServiceBundleTest {
 
         serviceBundle.call(listMethod);
 
-        serviceBundle.flushSends();
+        serviceBundle.flush();
 
         Sys.sleep(100);
 
@@ -100,7 +100,7 @@ public class TodoServiceWithServiceBundleTest {
 
         serviceBundle.call(listMethodCall);
 
-        serviceBundle.flushSends();
+        serviceBundle.flush();
 
 
         Sys.sleep(100);
@@ -150,7 +150,7 @@ public class TodoServiceWithServiceBundleTest {
 
         serviceBundle.call(listMethod);
 
-        serviceBundle.flushSends();
+        serviceBundle.flush();
 
         Sys.sleep(100);
 

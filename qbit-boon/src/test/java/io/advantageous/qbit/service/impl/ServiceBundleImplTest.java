@@ -91,6 +91,10 @@ public class ServiceBundleImplTest {
 
         responseReceiveQueue = serviceBundle.responses().receiveQueue();
 
+        serviceBundle.flush();
+
+        Sys.sleep(200);
+
         response = responseReceiveQueue.pollWait();
 
         responseBody = response.body();

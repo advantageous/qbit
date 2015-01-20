@@ -17,6 +17,7 @@ import io.advantageous.qbit.transforms.NoOpRequestTransform;
 import io.advantageous.qbit.util.ConcurrentHashSet;
 import io.advantageous.qbit.util.Timer;
 import org.boon.Str;
+import org.boon.core.Sys;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -594,6 +595,12 @@ public class ServiceBundleImpl implements ServiceBundle {
     }
 
     public void flush() {
+
         flushSends();
+        Sys.sleep(100);
+        for (Service service : services) {
+            service.flush();
+        }
+
     }
 }

@@ -173,6 +173,10 @@ public class ServiceServerImplTest {
 
         Sys.sleep(200);
 
+        serviceServerImpl.flush();
+
+        Sys.sleep(200);
+
 
         ok |= responseCounter == 1 || die();
         ok |= callMeCounter == 1 || die();
@@ -218,6 +222,10 @@ public class ServiceServerImplTest {
         httpServer.sendRequest(request);
 
         Sys.sleep(200);
+        serviceServerImpl.flush();
+
+        Sys.sleep(200);
+
 
 
         ok |= responseCounter == 1 || die();
@@ -235,6 +243,10 @@ public class ServiceServerImplTest {
         httpServer.sendWebSocketMessage(new WebSocketMessageBuilder().setMessage("CRAP").setSender(new MockWebSocketSender()).build());
 
 
+        Sys.sleep(200);
+        serviceServerImpl.flush();
+
+        Sys.sleep(200);
 
 
         ok |= responseCounter == 1 || die();
@@ -255,6 +267,13 @@ public class ServiceServerImplTest {
 
         Sys.sleep(200);
 
+
+        serviceServerImpl.flush();
+
+        Sys.sleep(200);
+
+
+
         ok |= responseCounter == 1 || die();
         ok |= failureCounter == 0 || die();
 
@@ -273,6 +292,13 @@ public class ServiceServerImplTest {
         httpServer.sendRequest(request);
 
         Sys.sleep(200);
+
+
+        serviceServerImpl.flush();
+
+        Sys.sleep(200);
+
+
 
 
         ok |= failureCounter == 1 || die();
@@ -295,6 +321,13 @@ public class ServiceServerImplTest {
 
 
         Sys.sleep(200);
+
+
+        serviceServerImpl.flush();
+
+        Sys.sleep(200);
+
+
 
 
         ok |= failureCounter == 1 || die();

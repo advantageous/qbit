@@ -250,7 +250,7 @@ public class ServiceProxyFactoryTest {
                 "myService");
 
         myServiceProxy.method3("hi", 5);
-        bundle.flushSends();
+        bundle.flush();
         Sys.sleep(1000);
 
         final Response<Object> objectResponse = responseReceiveQueue.pollWait();
@@ -326,7 +326,7 @@ public class ServiceProxyFactoryTest {
             }
         };
         myServiceProxy.method3(returnHandler, "hi", 5);
-        bundle.flushSends();
+        bundle.flush();
         Sys.sleep(1000);
 
         ok = ok || die();
@@ -381,24 +381,6 @@ public class ServiceProxyFactoryTest {
                 "myService");
 
         ok = false;
-        Handler<String> returnHandler = new Handler<String>() {
-            @Override
-            public void handle(String returnValue) {
-
-                puts("We got", returnValue);
-
-                ok = "Hi hi 6".equals(returnValue);
-
-            }
-        };
-
-        Handler<Throwable> exceptionHandler = new Handler<Throwable>() {
-            @Override
-            public void handle(Throwable exception) {
-
-
-            }
-        };
 
         AtomicBoolean wasError = new AtomicBoolean();
         final Callback<String> handler = new Callback<String>() {
@@ -420,7 +402,7 @@ public class ServiceProxyFactoryTest {
         };
 
         myServiceProxy.methodThrowsExceptionIf5(handler, "hi", 6);
-        bundle.flushSends();
+        bundle.flush();
         Sys.sleep(1000);
 
         ok = ok || die();
@@ -432,7 +414,7 @@ public class ServiceProxyFactoryTest {
 
 
         myServiceProxy.methodThrowsExceptionIf5(handler, "hi", 5);
-        bundle.flushSends();
+        bundle.flush();
         Sys.sleep(1000);
         ok = ok || die();
 

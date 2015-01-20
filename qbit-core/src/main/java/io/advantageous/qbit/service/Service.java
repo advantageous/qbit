@@ -60,4 +60,7 @@ public interface Service {
      * @return addresses
      */
     Collection<String> addresses(String address);
+
+
+    void flush();
 }

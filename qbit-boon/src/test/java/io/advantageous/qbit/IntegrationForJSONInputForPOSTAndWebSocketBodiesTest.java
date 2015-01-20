@@ -235,7 +235,7 @@ public class IntegrationForJSONInputForPOSTAndWebSocketBodiesTest {
                 "\nPROTOCOL END\n");
         call = factory.createMethodCallToBeParsedFromBody(null, null, null, null, qbitStringBody, null);
         serviceBundle.call(call);
-        serviceBundle.flushSends();
+        serviceBundle.flush();
         Sys.sleep(100);
     }
 

@@ -126,7 +126,7 @@ public class IntegrationTestForRESTStyleCallsTest {
                 returnAddress, rick, params);
 
         serviceBundle.call(call);
-        serviceBundle.flushSends();
+        serviceBundle.flush();
 
         Sys.sleep(1000);
 
@@ -403,7 +403,7 @@ public class IntegrationTestForRESTStyleCallsTest {
 //                impl.params(params);
         }
         serviceBundle.call(call);
-        serviceBundle.flushSends();
+        serviceBundle.flush();
         Sys.sleep(100);
     }
 

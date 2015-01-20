@@ -91,6 +91,7 @@ public class ServerTest {
                     }
                 });
 
+        server.flush();
 
         Sys.sleep(1_000);
 

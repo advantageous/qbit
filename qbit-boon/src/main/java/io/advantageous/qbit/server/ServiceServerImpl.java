@@ -637,6 +637,11 @@ public class ServiceServerImpl implements ServiceServer {
 
     }
 
+    @Override
+    public void flush() {
+        this.serviceBundle.flush();
+    }
+
 
     @Override
     public void initServices(Object... services) {

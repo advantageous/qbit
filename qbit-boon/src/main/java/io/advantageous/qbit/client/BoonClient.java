@@ -105,6 +105,10 @@ public class BoonClient implements Client {
      */
     public void stop() {
 
+        flush();
+
+        Sys.sleep(100);
+
 
         if (httpServerProxy !=null) {
             try {
@@ -160,6 +164,11 @@ public class BoonClient implements Client {
 
     public void flush() {
 
+        this.httpServerProxy.periodicFlushCallback(aVoid -> {
+            for (ClientProxy clientProxy : clientProxies) {
+                clientProxy.clientProxyFlush();
+            }
+        });
 
 
         httpServerProxy.flush();

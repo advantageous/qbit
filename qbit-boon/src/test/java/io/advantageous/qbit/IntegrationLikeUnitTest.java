@@ -107,11 +107,12 @@ public class IntegrationLikeUnitTest {
         serviceBundle.addService("/empservice/", employeeService);
 
 
+
         call = factory.createMethodCallByAddress(addressToMethodCall,
                 returnAddress, rick, params );
 
         serviceBundle.call(call);
-        serviceBundle.flushSends();
+        serviceBundle.flush();
 
         Sys.sleep(1000);
 
@@ -221,7 +222,7 @@ public class IntegrationLikeUnitTest {
 
     private void doCall() {
         serviceBundle.call(call);
-        serviceBundle.flushSends();
+        serviceBundle.flush();
         Sys.sleep(100);
     }
 

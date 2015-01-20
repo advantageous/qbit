@@ -99,8 +99,11 @@ public class BoonClientIntegrationTest {
 
         mockService.add(1, 2);
 
-        ((ClientProxy)mockService).clientProxyFlush();
+        serviceBundle.flush();
 
+        ((ClientProxy)mockService).clientProxyFlush();
+        Sys.sleep(100);
+        serviceBundle.flush();
         Sys.sleep(100);
 
         ok = httpSendWebSocketCalled || die();
@@ -122,8 +125,6 @@ public class BoonClientIntegrationTest {
         mockService.sum(integer -> sum = integer);
 
         ((ClientProxy)mockService).clientProxyFlush();
-
-        Sys.sleep(100);
 
         ok = httpSendWebSocketCalled || die();
 
@@ -156,7 +157,7 @@ public class BoonClientIntegrationTest {
 
             serviceBundle.call(methodCalls);
 
-            serviceBundle.flushSends();
+            serviceBundle.flush();
 
             Sys.sleep(100);
 

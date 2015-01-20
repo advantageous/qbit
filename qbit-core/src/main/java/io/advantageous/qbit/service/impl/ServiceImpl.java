@@ -8,11 +8,13 @@ import io.advantageous.qbit.service.Service;
 import io.advantageous.qbit.service.ServiceMethodHandler;
 import io.advantageous.qbit.transforms.NoOpResponseTransformer;
 import io.advantageous.qbit.transforms.Transformer;
+import io.advantageous.qbit.util.Timer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Collection;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.ReentrantLock;
 
 
 public class ServiceImpl implements Service {
@@ -42,6 +44,9 @@ public class ServiceImpl implements Service {
 
     private Transformer<Response<Object>, Response> responseObjectTransformer = new NoOpResponseTransformer();
 
+
+    SendQueue<Response<Object>> responseSendQueue;
+
     public ServiceImpl requestObjectTransformer(Transformer<Request, Object> requestObjectTransformer) {
         this.requestObjectTransformer = requestObjectTransformer;
         return this;
@@ -57,11 +62,10 @@ public class ServiceImpl implements Service {
      *
      * @param methodCall           methodCall
      * @param serviceMethodHandler handler
-     * @param responseSendQueue    send queue
      */
     private void doHandleMethodCall(MethodCall<Object> methodCall,
-                                    final ServiceMethodHandler serviceMethodHandler,
-                                    final SendQueue<Response<Object>> responseSendQueue) {
+                                    final ServiceMethodHandler serviceMethodHandler
+                                    ) {
         if (debug) {
             logger.debug("ServiceImpl::doHandleMethodCall() METHOD CALL" + methodCall );
         }
@@ -95,7 +99,13 @@ public class ServiceImpl implements Service {
                 return;
             }
 
-            responseSendQueue.sendAndFlush(response);
+
+            responseLock.lock();
+            try {
+                responseSendQueue.send(response);
+            } finally {
+                responseLock.unlock();
+            }
 
         }
     }
@@ -148,7 +158,7 @@ public class ServiceImpl implements Service {
             this.responseQueue = responseQueue;
         }
 
-        final SendQueue<Response<Object>> responseSendQueue = this.responseQueue.sendQueue();
+        responseSendQueue = this.responseQueue.sendQueue();
 
         serviceMethodHandler.initQueue(responseSendQueue);
 
@@ -169,13 +179,13 @@ public class ServiceImpl implements Service {
                     return new SendQueue<MethodCall<Object>>() {
                         @Override
                         public void send(MethodCall<Object> item) {
-                            doHandleMethodCall(item, serviceMethodHandler, responseSendQueue);
+                            doHandleMethodCall(item, serviceMethodHandler);
                         }
 
                         @Override
                         public void sendAndFlush(MethodCall<Object> item) {
 
-                            doHandleMethodCall(item, serviceMethodHandler, responseSendQueue);
+                            doHandleMethodCall(item, serviceMethodHandler);
                         }
 
                         @Override
@@ -183,7 +193,7 @@ public class ServiceImpl implements Service {
 
                             for (MethodCall<Object> item : items) {
 
-                                doHandleMethodCall(item, serviceMethodHandler, responseSendQueue);
+                                doHandleMethodCall(item, serviceMethodHandler);
                             }
                         }
 
@@ -192,7 +202,7 @@ public class ServiceImpl implements Service {
 
                             for (MethodCall<Object> item : items) {
 
-                                doHandleMethodCall(item, serviceMethodHandler, responseSendQueue);
+                                doHandleMethodCall(item, serviceMethodHandler);
                             }
 
                         }
@@ -202,7 +212,7 @@ public class ServiceImpl implements Service {
 
                             for (MethodCall<Object> item : items) {
 
-                                doHandleMethodCall(item, serviceMethodHandler, responseSendQueue);
+                                doHandleMethodCall(item, serviceMethodHandler);
                             }
 
                         }
@@ -232,23 +242,31 @@ public class ServiceImpl implements Service {
         }
 
         if (async) {
-            start(serviceMethodHandler, responseSendQueue);
+            start(serviceMethodHandler);
         }
 
 
     }
 
-    private void start(final ServiceMethodHandler serviceMethodHandler,
-                       final SendQueue<Response<Object>> responseSendQueue) {
+
+    protected ReentrantLock responseLock  = new ReentrantLock();
+    protected volatile long lastResponseFlushTime = Timer.timer().now();
+
+    private void start(final ServiceMethodHandler serviceMethodHandler
+                       ) {
+
+
 
         requestQueue.startListener(new ReceiveQueueListener<MethodCall<Object>>() {
             @Override
             public void receive(MethodCall<Object> methodCall) {
-                doHandleMethodCall(methodCall, serviceMethodHandler, responseSendQueue);
+                doHandleMethodCall(methodCall, serviceMethodHandler);
             }
 
             @Override
             public void empty() {
+
+                manageResponseQueue();
                 if (inputQueueListener != null) {
                     inputQueueListener.empty();
                 }
@@ -257,6 +275,8 @@ public class ServiceImpl implements Service {
 
             @Override
             public void limit() {
+
+                manageResponseQueue();
                 if (inputQueueListener != null) {
                     inputQueueListener.limit();
                 }
@@ -273,12 +293,31 @@ public class ServiceImpl implements Service {
 
             @Override
             public void idle() {
+
+                manageResponseQueue();
                 if (inputQueueListener != null) {
                     inputQueueListener.idle();
                 }
                 serviceMethodHandler.idle();
             }
         });
+    }
+
+    private void manageResponseQueue() {
+
+
+        long now = Timer.timer().now();
+
+        if (now - lastResponseFlushTime > 50) {
+            lastResponseFlushTime = now;
+            responseLock.lock();
+
+            try {
+                responseSendQueue.flushSends();
+            } finally {
+                responseLock.unlock();
+            }
+        }
     }
 
     private MethodCall<Object> beforeMethodProcessing(MethodCall<Object> methodCall, boolean[] continueFlag) {
@@ -339,6 +378,13 @@ public class ServiceImpl implements Service {
     public Collection<String> addresses(String address) {
 
         return this.serviceMethodHandler.addresses();
+    }
+
+    @Override
+    public void flush() {
+
+        lastResponseFlushTime = 0;
+        manageResponseQueue();
     }
 
     public Object service() {
