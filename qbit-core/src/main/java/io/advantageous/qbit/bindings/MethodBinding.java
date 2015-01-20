@@ -12,6 +12,7 @@ public class MethodBinding {
 
     private final boolean hasURIParams;
     private final String methodName;
+    private final String method;
 
     private final String address;
 
@@ -21,8 +22,9 @@ public class MethodBinding {
 
     private RequestParamBinding[] requestParamBindingsMap;
 
-    public MethodBinding(String methodName, String uri) {
+    public MethodBinding(String method, String methodName, String uri) {
         this.methodName = methodName;
+        this.method = method;
 
         final String[] split = uri.split("/");
 
@@ -62,6 +64,10 @@ public class MethodBinding {
         return methodName;
     }
 
+    public String method() {
+        return method;
+    }
+
     public String address() {
         return address;
     }
@@ -75,6 +81,7 @@ public class MethodBinding {
         return "MethodBinding{" +
                 "hasURIParams=" + hasURIParams +
                 ", methodName='" + methodName + '\'' +
+                ", method='" + methodName + '\'' +
                 ", address='" + address + '\'' +
                 ", parameters=" + parameters +
                 '}';

@@ -88,17 +88,10 @@ public class BoonServiceMethodCallHandlerTest {
 
         puts(addresses);
 
-        final Map<String, Pair<MethodBinding, MethodAccess>> methodMap = impl.methodMap();
+        final Map<String, Map<String, Pair<MethodBinding, MethodAccess>>> methodMap = impl.methodMap();
 
         for (String key : methodMap.keySet()) {
             puts(key);
-            final Pair<MethodBinding, MethodAccess> methodBindingMethodAccessPair = methodMap.get(key);
-            final MethodBinding binding = methodBindingMethodAccessPair.getFirst();
-            final MethodAccess methodAccess = methodBindingMethodAccessPair.getSecond();
-            puts("BINDING", binding);
-            puts("PARAMS", binding.parameters());
-
-            puts("METHOD", methodAccess);
 
         }
 

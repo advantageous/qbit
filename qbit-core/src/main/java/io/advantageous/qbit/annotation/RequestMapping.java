@@ -31,5 +31,5 @@ public @interface RequestMapping {
      *
      * @return or RequestMethods that are supported by this end point
      */
-    RequestMethod[] method() default {};
+    RequestMethod[] method() default {RequestMethod.GET};
 }

@@ -9,7 +9,7 @@ public class MethodBindingTest {
 
     @Test
     public void test() {
-        MethodBinding binding = new MethodBinding("bob", "/hi/how/{are}/{1}");
+        MethodBinding binding = new MethodBinding("GET", "bob", "/hi/how/{are}/{1}");
         puts(binding);
 
         Str.equalsOrDie("bob", binding.methodName());
