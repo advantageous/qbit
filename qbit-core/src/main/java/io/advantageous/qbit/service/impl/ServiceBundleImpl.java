@@ -389,12 +389,20 @@ public class ServiceBundleImpl implements ServiceBundle {
 
             final Object object = methodCall.body();
             registerCallbacks(methodCall, object);
+            boolean[] continueFlag = new boolean[1];
 
 
-            methodCall = handleBeforeMethodCall(methodCall);
+            methodCall = handleBeforeMethodCall(methodCall, continueFlag);
 
-            SendQueue<MethodCall<Object>> sendQueue = getMethodCallSendQueue(methodCall);
-            sendQueue.send(methodCall);
+
+            if (!continueFlag[0]) {
+                logger.info(ServiceBundleImpl.class.getName() + "::doCall() " +
+                        "Flag from before call handling does not want to continue");
+            } else {
+                SendQueue<MethodCall<Object>> sendQueue = getMethodCallSendQueue(methodCall);
+                sendQueue.send(methodCall);
+            }
+
         }catch (Exception ex) {
 
             Response<Object> response = new ResponseImpl<>(methodCall, ex);
@@ -402,14 +410,9 @@ public class ServiceBundleImpl implements ServiceBundle {
         }
     }
 
-    private MethodCall<Object> handleBeforeMethodCall(MethodCall<Object> methodCall) {
-        boolean[] continueFlag = new boolean[1];
+    private MethodCall<Object> handleBeforeMethodCall(MethodCall<Object> methodCall, boolean[] continueFlag) {
         methodCall = beforeMethodCall(methodCall, continueFlag);
 
-        if (!continueFlag[0]) {
-            logger.info(ServiceBundleImpl.class.getName() + "::doCall() " +
-                    "Flag from before call handling does not want to continue");
-        }
         return methodCall;
     }
 

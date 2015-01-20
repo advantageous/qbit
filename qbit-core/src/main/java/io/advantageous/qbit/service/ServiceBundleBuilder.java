@@ -19,7 +19,7 @@ public class ServiceBundleBuilder {
     private int pollTime = GlobalConstants.POLL_WAIT;
     private int requestBatchSize = GlobalConstants.BATCH_SIZE;
 
-    private  String address;
+    private  String address = "/services";
 
     private boolean eachServiceInItsOwnThread = true;
 
