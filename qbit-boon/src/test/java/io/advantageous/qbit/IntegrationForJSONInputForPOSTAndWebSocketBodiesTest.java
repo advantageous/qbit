@@ -64,7 +64,8 @@ public class IntegrationForJSONInputForPOSTAndWebSocketBodiesTest {
         employeeService = new EmployeeService();
 
         factory = QBit.factory();
-        final ServiceBundle bundle = factory.createServiceBundle("/root");
+        final ServiceBundle bundle =
+                factory.createServiceBundle("/root");
         serviceBundle = bundle;
         serviceBundleImpl = (ServiceBundleImpl) bundle;
 

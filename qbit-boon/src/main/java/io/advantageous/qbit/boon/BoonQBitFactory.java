@@ -3,6 +3,7 @@ package io.advantageous.qbit.boon;
 import io.advantageous.qbit.BoonJsonMapper;
 import io.advantageous.qbit.Factory;
 import io.advantageous.qbit.GlobalConstants;
+import io.advantageous.qbit.QBit;
 import io.advantageous.qbit.client.Client;
 import io.advantageous.qbit.http.HttpClient;
 import io.advantageous.qbit.http.HttpServer;
@@ -22,9 +23,11 @@ import io.advantageous.qbit.service.Service;
 import io.advantageous.qbit.service.ServiceBundle;
 import io.advantageous.qbit.service.impl.BoonServiceMethodCallHandler;
 import io.advantageous.qbit.service.impl.ServiceBundleImpl;
+import io.advantageous.qbit.service.impl.ServiceConstants;
 import io.advantageous.qbit.service.impl.ServiceImpl;
 import io.advantageous.qbit.message.impl.MethodCallImpl;
 import io.advantageous.qbit.spi.*;
+import io.advantageous.qbit.transforms.Transformer;
 import io.advantageous.qbit.util.MultiMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -137,6 +140,8 @@ public class BoonQBitFactory implements Factory {
         return new ServiceServerImpl(httpServer, encoder, protocolParser, serviceBundle, jsonMapper, timeOutInSeconds, numberOfOutstandingRequests);
     }
 
+
+
     @Override
     public Client createClient(String uri, HttpClient httpClient, int requestBatchSize) {
         return FactorySPI.getClientFactory().create(uri, httpClient, requestBatchSize);
@@ -210,16 +215,6 @@ public class BoonQBitFactory implements Factory {
         return null;
     }
 
-    @Override
-    public ServiceBundle createServiceBundle(String path, boolean async) {
-        return new ServiceBundleImpl(path, 50, 5, this, async);
-    }
-
-
-    @Override
-    public ServiceBundle createServiceBundle(String path) {
-        return new ServiceBundleImpl(path, 50, 5, this, false);
-    }
 
 
     @Override
@@ -253,6 +248,23 @@ public class BoonQBitFactory implements Factory {
 
     }
 
+
+    @Override
+    public ServiceBundle createServiceBundle(String address, final int batchSize, final int pollRate,
+                                      final Factory factory, final boolean asyncCalls,
+                                      final BeforeMethodCall beforeMethodCall,
+                                      final BeforeMethodCall beforeMethodCallAfterTransform,
+                                      final Transformer<Request, Object> argTransformer){
+        return new ServiceBundleImpl(address, batchSize, pollRate, factory,
+                asyncCalls, beforeMethodCall, beforeMethodCallAfterTransform, argTransformer);
+    }
+
+
+    @Override
+    public ServiceBundle createServiceBundle(String address){
+        return new ServiceBundleImpl(address, GlobalConstants.BATCH_SIZE, GlobalConstants.POLL_WAIT, QBit.factory(),
+                true, ServiceConstants.NO_OP_BEFORE_METHOD_CALL, ServiceConstants.NO_OP_BEFORE_METHOD_CALL, ServiceConstants.NO_OP_ARG_TRANSFORM);
+    }
 
     @Override
     public ProtocolEncoder createEncoder() {

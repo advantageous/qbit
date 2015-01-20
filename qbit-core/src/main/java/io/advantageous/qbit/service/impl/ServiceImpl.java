@@ -45,7 +45,7 @@ public class ServiceImpl implements Service {
     private Transformer<Response<Object>, Response> responseObjectTransformer = new NoOpResponseTransformer();
 
 
-    SendQueue<Response<Object>> responseSendQueue;
+    private SendQueue<Response<Object>> responseSendQueue;
 
     public ServiceImpl requestObjectTransformer(Transformer<Request, Object> requestObjectTransformer) {
         this.requestObjectTransformer = requestObjectTransformer;

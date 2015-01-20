@@ -16,6 +16,7 @@ import io.advantageous.qbit.service.Service;
 import io.advantageous.qbit.service.ServiceBundle;
 import io.advantageous.qbit.spi.ProtocolEncoder;
 import io.advantageous.qbit.spi.ProtocolParser;
+import io.advantageous.qbit.transforms.Transformer;
 import io.advantageous.qbit.util.MultiMap;
 
 import java.util.List;
@@ -75,24 +76,31 @@ public interface Factory {
         throw new UnsupportedOperationException();
     }
 
+
     /**
-     * Create a client bundle.
-     * @param path path to bundle (base URI really)
+     * String address, final int batchSize, final int pollRate,
+     final Factory factory, final boolean asyncCalls,
+     final BeforeMethodCall beforeMethodCall,
+     final BeforeMethodCall beforeMethodCallAfterTransform,
+     final Transformer<Request, Object> argTransformer
+     */
+
+    /**
+     * Create a service bundle.
+     * @param address service path to bundle (base URI really)
+     *
+     * @param asyncCalls service calls
      * @return new client bundle
      */
-    default ServiceBundle createServiceBundle(String path){
+    default ServiceBundle createServiceBundle(String address, final int batchSize, final int pollRate,
+                                              final Factory factory, final boolean asyncCalls,
+                                              final BeforeMethodCall beforeMethodCall,
+                                              final BeforeMethodCall beforeMethodCallAfterTransform,
+                                              final Transformer<Request, Object> argTransformer){
         throw new UnsupportedOperationException();
     }
 
-
-    /**
-     * Create a client bundle.
-     * @param path path to bundle (base URI really)
-     *
-     * @param async service calls
-     * @return new client bundle
-     */
-    default ServiceBundle createServiceBundle(String path, boolean async){
+    default ServiceBundle createServiceBundle(String path) {
         throw new UnsupportedOperationException();
     }
 
@@ -279,6 +287,7 @@ public interface Factory {
 
 
 
+
     default Client createClient(String uri, HttpClient httpClient, int requestBatchSize){
         throw new UnsupportedOperationException();
     }
@@ -287,5 +296,6 @@ public interface Factory {
     default ProtocolParser createProtocolParser(){
         throw new UnsupportedOperationException();
     }
+
 
 }

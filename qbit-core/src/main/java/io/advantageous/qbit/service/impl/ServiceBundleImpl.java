@@ -3,6 +3,7 @@ package io.advantageous.qbit.service.impl;
 import io.advantageous.qbit.Factory;
 import io.advantageous.qbit.message.MethodCall;
 import io.advantageous.qbit.message.MethodCallBuilder;
+import io.advantageous.qbit.message.Request;
 import io.advantageous.qbit.message.Response;
 import io.advantageous.qbit.queue.Queue;
 import io.advantageous.qbit.queue.QueueBuilder;
@@ -14,6 +15,7 @@ import io.advantageous.qbit.service.Service;
 import io.advantageous.qbit.service.ServiceBundle;
 import io.advantageous.qbit.message.impl.ResponseImpl;
 import io.advantageous.qbit.transforms.NoOpRequestTransform;
+import io.advantageous.qbit.transforms.Transformer;
 import io.advantageous.qbit.util.ConcurrentHashSet;
 import io.advantageous.qbit.util.Timer;
 import org.boon.Str;
@@ -40,17 +42,17 @@ public class ServiceBundleImpl implements ServiceBundle {
     /**
      * Keep track of services to send queue mappings.
      */
-    private Map<String, SendQueue<MethodCall<Object>>> serviceMapping = new ConcurrentHashMap<>();
+    private final Map<String, SendQueue<MethodCall<Object>>> serviceMapping = new ConcurrentHashMap<>();
 
     /**
      * Keep a list of current services that we are routing to.
      */
-    private Set<Service> services = new ConcurrentHashSet<>(10);
+    private final Set<Service> services = new ConcurrentHashSet<>(10);
 
     /**
      * Keep a list of current send queue.
      */
-    private Set<SendQueue<MethodCall<Object>>> sendQueues = new ConcurrentHashSet<>(10);
+    private final Set<SendQueue<MethodCall<Object>>> sendQueues = new ConcurrentHashSet<>(10);
 
     /**
      * Method queue for receiving method calls.
@@ -66,7 +68,7 @@ public class ServiceBundleImpl implements ServiceBundle {
     /**
      * Response queue for returning responses from services that we invoked.
      */
-    private Queue<Response<Object>> responseQueue;
+    private final Queue<Response<Object>> responseQueue;
 
     /**
      * Base URI for services that this bundle is managing.
@@ -76,13 +78,13 @@ public class ServiceBundleImpl implements ServiceBundle {
     /**
      * Access to QBit factory.
      */
-    private Factory factory;
+    private final Factory factory;
 
 
     /**
      * Maps incoming calls with outgoing handlers (returns, async returns really).
      */
-    private Map<HandlerKey, Callback<Object>> handlers = new ConcurrentHashMap<>();
+    private final Map<HandlerKey, Callback<Object>> handlers = new ConcurrentHashMap<>();
 
 
     /**
@@ -123,21 +125,20 @@ public class ServiceBundleImpl implements ServiceBundle {
      * Allows interception of method calls before they get sent to a client.
      * This allows us to transform or reject method calls.
      */
-    private BeforeMethodCall beforeMethodCall = ServiceConstants.NO_OP_BEFORE_METHOD_CALL;
-
+    private final BeforeMethodCall beforeMethodCall;
     /**
      * Allows interception of method calls before they get transformed and sent to a client.
      * This allows us to transform or reject method calls.
      */
-    private BeforeMethodCall beforeMethodCallAfterTransform = ServiceConstants.NO_OP_BEFORE_METHOD_CALL;
+    private final BeforeMethodCall beforeMethodCallAfterTransform;
 
 
     /**
      * Allows transformation of arguments, for example from JSON to Java objects.
      */
-    private NoOpRequestTransform argTransformer = ServiceConstants.NO_OP_ARG_TRANSFORM;
+    private final Transformer<Request, Object> argTransformer;
 
-    private TreeSet<String> addressesByDescending = new TreeSet<>(
+    private final TreeSet<String> addressesByDescending = new TreeSet<>(
             new Comparator<String>() {
                 @Override
                 public int compare(String o1, String o2) {
@@ -150,7 +151,7 @@ public class ServiceBundleImpl implements ServiceBundle {
      * This is used for routing. It keeps track of root addresses that we have already seen.
      * This makes it easier to compare this root addresses to new addresses coming in.
      */
-    private TreeSet<String> seenAddressesDescending = new TreeSet<>(
+    private final TreeSet<String> seenAddressesDescending = new TreeSet<>(
             new Comparator<String>() {
                 @Override
                 public int compare(String o1, String o2) {
@@ -167,10 +168,19 @@ public class ServiceBundleImpl implements ServiceBundle {
      * @param factory   the qbit factory where we can create responses, methods, etc.
      */
     public ServiceBundleImpl(String address, final int batchSize, final int pollRate,
-                             final Factory factory, boolean asyncCalls) {
+                             final Factory factory, final boolean asyncCalls,
+                             final BeforeMethodCall beforeMethodCall,
+                             final BeforeMethodCall beforeMethodCallAfterTransform,
+                             final Transformer<Request, Object> argTransformer) {
+
+
         if (address.endsWith("/")) {
             address = address.substring(0, address.length() - 1);
         }
+
+        this.beforeMethodCall = beforeMethodCall;
+        this.beforeMethodCallAfterTransform = beforeMethodCallAfterTransform;
+        this.argTransformer = argTransformer;
 
         this.address = address;
 
