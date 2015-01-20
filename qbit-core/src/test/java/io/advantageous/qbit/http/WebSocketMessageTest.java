@@ -80,7 +80,7 @@ public class WebSocketMessageTest  {
 
     }
 
-    public  class WebsSocketSenderMock implements WebsSocketSender {
+    public  class WebsSocketSenderMock implements WebSocketSender {
 
         @Override
         public void send(String message) {

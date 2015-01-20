@@ -12,7 +12,7 @@ public class WebSocketMessage implements Request<Object>{
 
     private final String uri;
     private final String message;
-    private final WebsSocketSender sender;
+    private final WebSocketSender sender;
     private final String remoteAddress;
 
     private final long messageId;
@@ -98,7 +98,7 @@ public class WebSocketMessage implements Request<Object>{
 
 
     public WebSocketMessage(
-            final String uri, final String message, final String remoteAddress, final WebsSocketSender sender) {
+            final String uri, final String message, final String remoteAddress, final WebSocketSender sender) {
         this.uri = uri;
         this.message = message;
         this.sender = sender;
@@ -115,7 +115,7 @@ public class WebSocketMessage implements Request<Object>{
         return message;
     }
 
-    public WebsSocketSender getSender() {
+    public WebSocketSender getSender() {
         return sender;
     }
 

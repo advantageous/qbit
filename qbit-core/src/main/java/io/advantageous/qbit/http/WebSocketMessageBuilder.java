@@ -10,7 +10,7 @@ public class WebSocketMessageBuilder {
 
     private String uri;
     private String message;
-    private WebsSocketSender sender;
+    private WebSocketSender sender;
     private String remoteAddress;
 
     public String getUri() {
@@ -32,11 +32,11 @@ public class WebSocketMessageBuilder {
 
     }
 
-    public WebsSocketSender getSender() {
+    public WebSocketSender getSender() {
         return sender;
     }
 
-    public WebSocketMessageBuilder setSender(WebsSocketSender sender) {
+    public WebSocketMessageBuilder setSender(WebSocketSender sender) {
         this.sender = sender;
         return this;
 

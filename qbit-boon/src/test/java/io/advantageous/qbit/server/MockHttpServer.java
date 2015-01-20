@@ -34,7 +34,7 @@ public class MockHttpServer implements HttpServer {
 
 
 
-    public void sendWebSocketMessage(final String uri, final Object args, WebsSocketSender socketSender) {
+    public void sendWebSocketMessage(final String uri, final Object args, WebSocketSender socketSender) {
 
 
         final MethodCall<Object> methodCall =

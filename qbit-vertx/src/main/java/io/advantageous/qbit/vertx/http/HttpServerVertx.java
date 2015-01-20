@@ -1,15 +1,11 @@
 package io.advantageous.qbit.vertx.http;
 
 
-import io.advantageous.qbit.http.HttpRequest;
-import io.advantageous.qbit.http.HttpResponse;
-import io.advantageous.qbit.http.HttpServer;
-import io.advantageous.qbit.http.WebSocketMessage;
+import io.advantageous.qbit.http.*;
 import io.advantageous.qbit.queue.Queue;
 import io.advantageous.qbit.queue.QueueBuilder;
 import io.advantageous.qbit.queue.ReceiveQueueListener;
 import io.advantageous.qbit.queue.SendQueue;
-import io.advantageous.qbit.queue.impl.BasicQueue;
 import io.advantageous.qbit.util.MultiMap;
 import io.advantageous.qbit.util.Timer;
 import io.advantageous.qbit.vertx.MultiMapWrapper;
@@ -25,7 +21,6 @@ import org.vertx.java.core.http.HttpServerResponse;
 import org.vertx.java.core.http.ServerWebSocket;
 
 import java.nio.charset.StandardCharsets;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Consumer;
 
@@ -432,9 +427,72 @@ public class HttpServerVertx implements HttpServer {
         );
     }
 
-    private WebSocketMessage createWebSocketMessage(final ServerWebSocket webSocket, final Buffer buffer) {
-        return new WebSocketMessage(webSocket.uri(), buffer.toString("UTF-8"), webSocket.remoteAddress().toString(),
-                webSocket::writeTextFrame);
+//    private Map<String, WebSocketDelegate> webSocketDelegateMap = new ConcurrentHashMap<>(100);
+//
+//    static class WebSocketDelegate implements WebsSocketSender{
+//        final int requestBatchSize;
+//
+//        final BlockingQueue<String> outputMessages;
+//
+//        final ServerWebSocket serverWebSocket;
+//
+//        private WebSocketDelegate(int requestBatchSize, ServerWebSocket serverWebSocket) {
+//            this.requestBatchSize = requestBatchSize;
+//            outputMessages = new ArrayBlockingQueue<>(requestBatchSize);
+//            this.serverWebSocket = serverWebSocket;
+//        }
+//
+//
+//        @Override
+//        public void send(String message) {
+//
+//            if (!outputMessages.offer(message)) {
+//
+//                buildAndSendMessages(message);
+//            }
+//        }
+//
+//        private void buildAndSendMessages(String message) {
+//
+//        }
+//
+//
+//    }
+
+    private WebSocketMessage createWebSocketMessage(final ServerWebSocket serverWebSocket, final Buffer buffer) {
+
+//        final String address = serverWebSocket.remoteAddress().toString();
+//
+//
+//        WebSocketDelegate webSocketDelegate = webSocketDelegateMap.get(address);
+//
+//        if (webSocketDelegate == null) {
+//            webSocketDelegate = new WebSocketDelegate(requestBatchSize, serverWebSocket);
+//            webSocketDelegateMap.put(address, webSocketDelegate);
+//        }
+
+
+        //return new WebSocketMessage(serverWebSocket.uri(), buffer.toString("UTF-8"), serverWebSocket.remoteAddress().toString(),serverWebSocket::writeTextFrame
+        //        );
+
+        return createWebSocketMessage(serverWebSocket.uri(), serverWebSocket.remoteAddress().toString(), serverWebSocket::writeTextFrame, buffer.toString("UTF-8"));
+    }
+
+
+    private WebSocketMessage createWebSocketMessage(final String address, final String returnAddress, final WebSocketSender webSocketSender, final String message) {
+
+//        final String address = serverWebSocket.remoteAddress().toString();
+//
+//
+//        WebSocketDelegate webSocketDelegate = webSocketDelegateMap.get(address);
+//
+//        if (webSocketDelegate == null) {
+//            webSocketDelegate = new WebSocketDelegate(requestBatchSize, serverWebSocket);
+//            webSocketDelegateMap.put(address, webSocketDelegate);
+//        }
+
+
+        return new WebSocketMessage(address, message, returnAddress, webSocketSender);
     }
 
     volatile long id;

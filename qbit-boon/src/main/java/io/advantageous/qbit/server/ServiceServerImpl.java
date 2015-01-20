@@ -84,9 +84,9 @@ public class ServiceServerImpl implements ServiceServer {
     private void writeResponse(HttpResponse response, int code, String mimeType, String responseString, MultiMap<String, String> headers) {
 
         if (response.isText()) {
-            response.response(code, mimeType, responseString);
+            response.response(code, mimeType, responseString, headers);
         } else {
-            response.response(code, mimeType, responseString.getBytes(StandardCharsets.UTF_8));
+            response.response(code, mimeType, responseString.getBytes(StandardCharsets.UTF_8), headers);
         }
     }
 
@@ -177,7 +177,7 @@ public class ServiceServerImpl implements ServiceServer {
                 WebSocketMessage webSocketMessage = ((WebSocketMessage) originatingRequest);
 
                 final Response<Object> response = ResponseImpl.response(-1, Timer.timer().now(), "SYSTEM", "ERROR", "CAN'T HANDLE CALL", originatingRequest, true);
-                final WebsSocketSender sender = webSocketMessage.getSender();
+                final WebSocketSender sender = webSocketMessage.getSender();
                 sender.send(encoder.encodeAsString(response));
 
             }
@@ -565,7 +565,7 @@ public class ServiceServerImpl implements ServiceServer {
 
             final WebSocketMessage webSocketMessage = (WebSocketMessage) request;
 
-            final WebsSocketSender webSocket = webSocketMessage.getSender();
+            final WebSocketSender webSocket = webSocketMessage.getSender();
 
             if (webSocket != null) {
 

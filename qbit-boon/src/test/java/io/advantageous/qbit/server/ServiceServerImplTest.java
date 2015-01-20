@@ -6,13 +6,9 @@ import io.advantageous.qbit.annotation.RequestMapping;
 import io.advantageous.qbit.annotation.RequestMethod;
 import io.advantageous.qbit.http.*;
 import io.advantageous.qbit.json.JsonMapper;
-import io.advantageous.qbit.message.Message;
 import io.advantageous.qbit.message.MethodCall;
 import io.advantageous.qbit.message.MethodCallBuilder;
 import io.advantageous.qbit.message.Response;
-import io.advantageous.qbit.queue.Queue;
-import io.advantageous.qbit.queue.ReceiveQueueListener;
-import io.advantageous.qbit.sender.Sender;
 import io.advantageous.qbit.service.ServiceBundle;
 import io.advantageous.qbit.spi.ProtocolEncoder;
 import io.advantageous.qbit.spi.ProtocolParser;
@@ -21,12 +17,10 @@ import org.boon.core.Sys;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.util.List;
 import java.util.function.Consumer;
 
 import static org.boon.Boon.puts;
 import static org.boon.Exceptions.die;
-import static org.junit.Assert.*;
 
 public class ServiceServerImplTest {
 
@@ -360,7 +354,7 @@ public class ServiceServerImplTest {
         }
     }
 
-    class MockWebSocketSender implements WebsSocketSender {
+    class MockWebSocketSender implements WebSocketSender {
         @Override
         public void send(String message) {
 
