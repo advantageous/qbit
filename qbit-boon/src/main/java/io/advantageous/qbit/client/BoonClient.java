@@ -58,6 +58,7 @@ import java.util.concurrent.*;
 import java.util.function.Consumer;
 
 import static io.advantageous.qbit.service.Protocol.PROTOCOL_ARG_SEPARATOR;
+import static org.boon.Boon.puts;
 import static org.boon.Exceptions.die;
 
 
@@ -134,6 +135,8 @@ public class BoonClient implements Client {
 
         final List<Message<Object>> messages = QBit.factory().createProtocolParser().parse("", websocketText);
 
+        //uts("** Got MESSAGES", messages.size(), messages);
+
         for (Message<Object> message : messages) {
 
             if (message instanceof Response) {
@@ -174,13 +177,9 @@ public class BoonClient implements Client {
 
     public void flush() {
 
-        this.httpServerProxy.periodicFlushCallback(aVoid -> {
-            for (ClientProxy clientProxy : clientProxies) {
-                clientProxy.clientProxyFlush();
-            }
-        });
-
-
+        for (ClientProxy clientProxy : clientProxies) {
+            clientProxy.clientProxyFlush();
+        }
         httpServerProxy.flush();
     }
 
@@ -416,9 +415,9 @@ public class BoonClient implements Client {
     public void start() {
 
         this.httpServerProxy.periodicFlushCallback(aVoid -> {
-            for (ClientProxy clientProxy : clientProxies) {
-                clientProxy.clientProxyFlush();
-            }
+
+            flush();
+
         });
 
         this.httpServerProxy.start();

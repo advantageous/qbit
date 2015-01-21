@@ -21,6 +21,9 @@ public class WebSocketMessage implements Request<Object>{
     private boolean handled;
 
 
+    private int handledCount;
+
+
     @Override
     public String address() {
         return uri;

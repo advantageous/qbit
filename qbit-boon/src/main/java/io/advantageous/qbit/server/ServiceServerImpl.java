@@ -35,6 +35,8 @@ import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicBoolean;
 import io.advantageous.qbit.http.WebSocketSender;
 
+import static org.boon.Boon.puts;
+
 /**
  * Created by rhightower on 10/22/14.
  *
@@ -56,8 +58,8 @@ public class ServiceServerImpl implements ServiceServer {
     protected volatile long lastTimeoutCheckTime = 0;
 
 
-    protected final long flushResponseInterval = 50;
-    protected volatile long flushResponsePeriodic = 0;
+    protected final long flushResponseInterval = 200;
+    protected volatile long flushResponseLastTimestamp = 0;
 
 
     private Set<String> getMethodURIs = new LinkedHashSet<>();
@@ -186,7 +188,7 @@ public class ServiceServerImpl implements ServiceServer {
 
         }
 
-        if (methodCalls == null) {
+        if (methodCalls == null || methodCalls.size() == 0) {
 
             if (originatingRequest instanceof WebSocketMessage) {
                 WebSocketMessage webSocketMessage = ((WebSocketMessage) originatingRequest);
@@ -235,6 +237,9 @@ public class ServiceServerImpl implements ServiceServer {
             if (!outputMessages.offer(message)) {
                 buildAndSendMessages(message, Timer.timer().now());
             }
+//            } else {
+//                uts("OUTPUT QUEUE", outputMessages.size());
+//            }
         }
 
         private void buildAndSendMessages(final Response<Object> message, long now) {
@@ -244,6 +249,8 @@ public class ServiceServerImpl implements ServiceServer {
             }
 
             List<Response<Object>> messages = new ArrayList<>(outputMessages.size() + 1);
+
+            //uts("*** SENDING MESSAGES buildAndSendMessages", outputMessages.size() + 1);
 
             Response<Object> currentMessage = outputMessages.poll();
 
@@ -264,6 +271,9 @@ public class ServiceServerImpl implements ServiceServer {
             serverWebSocket.getSender().send(textMessage);
 
             lastSend = now;
+
+
+            //uts("*** JUST SENT buildAndSendMessages", messages.size(), lastSend);
         }
 
 
@@ -310,6 +320,7 @@ public class ServiceServerImpl implements ServiceServer {
         final WebSocketMessage webSocketMessage = originatingRequest;
         try {
 
+            //uts("handle WebSocket response", webSocketMessage.getRemoteAddress());
             final WebSocketDelegate webSocketDelegate = this.webSocketDelegateMap.get(webSocketMessage.getRemoteAddress());
 
             if (webSocketDelegate == null) {
@@ -375,7 +386,23 @@ public class ServiceServerImpl implements ServiceServer {
             @Override
             public void receive(final Response<Object> response) {
 
+                //uts("RESPONSE receive ******", response);
                 handleResponseFromServiceBundle(response);
+
+            }
+
+
+            @Override
+            public void limit() {
+
+                checkTimeoutsForRequests();
+                checkResponseBatchSend();
+            }
+
+            @Override
+            public void empty() {
+                checkTimeoutsForRequests();
+                checkResponseBatchSend();
 
             }
 
@@ -395,10 +422,10 @@ public class ServiceServerImpl implements ServiceServer {
         final long now = Timer.timer().now();
 
 
-        long duration = now - flushResponsePeriodic;
+        long duration = now - flushResponseLastTimestamp;
 
-        if (duration > flushResponseInterval && webSocketDelegateMap.size() > 0) {
-            flushResponsePeriodic = now;
+        if (duration > flushResponseInterval) {
+            flushResponseLastTimestamp = now;
 
             final Collection<WebSocketDelegate> values = this.webSocketDelegateMap.values();
             for (WebSocketDelegate ws : values) {
@@ -421,6 +448,8 @@ public class ServiceServerImpl implements ServiceServer {
      */
     private void handleResponseFromServiceBundle(final Response<Object> response) {
 
+
+
         final Request<Object> request = response.request();
 
         if (request instanceof MethodCall) {
@@ -436,10 +465,12 @@ public class ServiceServerImpl implements ServiceServer {
 
     private void handleResponseFromServiceBundle(final Response<Object> response, final Request<Object> originatingRequest) {
 
-        if (originatingRequest.isHandled()) {
-            return; // the operation timed out
-        }
-        originatingRequest.handled();
+        /* TODO Since websockets can be for many requests, we need a counter of some sort. */
+//        if (originatingRequest.isHandled()) {
+//            return; // the operation timed out
+//        }
+        originatingRequest.handled(); //Let others know that it is handled.
+
         if (originatingRequest instanceof HttpRequest) {
             handleResponseFromServiceToHttpResponse(response, (HttpRequest) originatingRequest);
         } else if (originatingRequest instanceof WebSocketMessage) {

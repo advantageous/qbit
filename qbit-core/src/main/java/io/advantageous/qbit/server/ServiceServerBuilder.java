@@ -26,7 +26,7 @@ public class ServiceServerBuilder {
     private boolean manageQueues = true;
     private int pollTime = GlobalConstants.POLL_WAIT;
     private int requestBatchSize = GlobalConstants.BATCH_SIZE;
-    private int flushInterval = 100;
+    private int flushInterval = 200;
     private String uri = "/services";
     private int numberOfOutstandingRequests = 500_000;
 

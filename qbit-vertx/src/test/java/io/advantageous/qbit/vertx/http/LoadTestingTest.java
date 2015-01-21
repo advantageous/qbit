@@ -19,19 +19,20 @@ import static org.boon.Boon.puts;
 import static org.boon.Exceptions.die;
 
 /**
- * Created by rhightower on 1/19/15.
+ * Created by rhightower on 1/21/15.
  */
-public class FullIntegrationTest {
+public class LoadTestingTest {
 
+    public static final int WARMUP = 10_000;
     Client client;
     ServiceServer server;
     HttpClient httpClient;
     ClientServiceInterface clientProxy;
     volatile int callCount;
+    volatile int returnCount;
     AtomicReference<String> pongValue;
     boolean ok;
-    static volatile int port = 7777;
-    private volatile int returnCount;
+    static int port = 5555;
 
     static interface ClientServiceInterface {
         String ping(Callback<String> callback, String ping);
@@ -48,89 +49,68 @@ public class FullIntegrationTest {
 
 
     @Test
-    public void testWebSocket() throws Exception {
-
-        clientProxy.ping(new Callback<String>() {
-            @Override
-            public void accept(String s) {
-                puts(s);
-                pongValue.set(s);
-            }
-        }, "hi");
+    public void warmup() throws Exception {
 
 
-        while (pongValue.get() == null) {
-            Sys.sleep(100);
-        }
-
-        final String pongValue = this.pongValue.get();
-        ok = pongValue.equals("hi pong") || die();
-
-    }
-
-
-
-    @Test
-    public void testWebSocketFlushHappy() throws Exception {
-
-
+        final long startTime = System.currentTimeMillis();
 
         final Callback<String> callback = new Callback<String>() {
             @Override
             public void accept(String s) {
                 returnCount++;
-
-                if (returnCount % 2 == 0) {
-                    puts("return count", returnCount);
-                }
-
-                puts("                     PONG");
-                pongValue.set(s);
             }
         };
 
-        for (int index=0; index< 10; index++) {
+        for (int index=0; index< WARMUP; index++) {
 
             clientProxy.ping(callback, "hi");
-            client.flush();
 
         }
 
-
         client.flush();
-        Sys.sleep(2000);
+
+        while (returnCount < WARMUP -1) {
+            Sys.sleep(1);
+        }
 
 
         puts("HERE                        ", callCount, returnCount);
+
+
+        final long endTime = System.currentTimeMillis();
 
         ok = returnCount == callCount || die();
 
+        final long duration = endTime - startTime;
+
+        puts(duration);
+
 
 
     }
 
 
-
     @Test
-    public void testWebSocketSend10() throws Exception {
+    public void test10K() throws Exception {
+
+        warmup();
+
+        returnCount = 0;
+        callCount = 0;
+        Sys.sleep(100);
 
 
+
+        final long startTime = System.currentTimeMillis();
 
         final Callback<String> callback = new Callback<String>() {
             @Override
             public void accept(String s) {
                 returnCount++;
-
-                if (returnCount % 2 == 0) {
-                    puts("return count", returnCount);
-                }
-
-                puts("                     PONG");
-                pongValue.set(s);
             }
         };
 
-        for (int index=0; index< 10; index++) {
+        for (int index=0; index< WARMUP; index++) {
 
             clientProxy.ping(callback, "hi");
 
@@ -138,61 +118,33 @@ public class FullIntegrationTest {
 
 
         client.flush();
-        Sys.sleep(5000);
+
+        while (returnCount < WARMUP -1) {
+            Sys.sleep(1);
+        }
 
 
         puts("HERE                        ", callCount, returnCount);
 
-        ok = returnCount == callCount || die(returnCount, callCount);
+
+        final long endTime = System.currentTimeMillis();
+
+        ok = returnCount == callCount || die();
+
+        final long duration = endTime - startTime;
+
+        puts(duration);
 
 
 
     }
 
-    @Test
-    public void testRestCallSimple() throws Exception {
-
-        final HttpRequest request = new HttpRequestBuilder()
-                .setUri("/services/mockservice/ping")
-                .setJsonBodyForPost("\"hello\"")
-                .setTextResponse(new HttpTextResponse() {
-                    @Override
-                    public void response(int code, String mimeType, String body) {
-                        if (code==200) {
-                            pongValue.set(body);
-                        } else {
-                            pongValue.set("ERROR " + body);
-                            throw new RuntimeException("ERROR " + code + " " + body);
-
-                        }
-                    }
-                })
-                .build();
-
-        httpClient.sendHttpRequest(request);
-
-        httpClient.flush();
-
-
-        while (pongValue.get() == null) {
-            Sys.sleep(100);
-        }
-
-
-        final String pongValue = this.pongValue.get();
-        ok = pongValue.equals("\"hello pong\"") || die(pongValue);
-
-    }
 
     @Before
-    public synchronized void setup() throws Exception {
-
-        port+=10;
+    public void setup() throws Exception {
         pongValue = new AtomicReference<>();
 
         httpClient = new HttpClientBuilder().setPort(port).build();
-
-        puts("PORT", port);
 
         client = new ClientBuilder().setPort(port).build();
         server = new ServiceServerBuilder().setPort(port).build();
@@ -221,9 +173,6 @@ public class FullIntegrationTest {
 
         port++;
 
-        if (!ok) {
-            die("NOT OK");
-        }
 
         Sys.sleep(200);
         server.stop();

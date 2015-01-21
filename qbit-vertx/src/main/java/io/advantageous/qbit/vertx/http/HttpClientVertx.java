@@ -9,6 +9,7 @@ import io.advantageous.qbit.queue.ReceiveQueueListener;
 import io.advantageous.qbit.queue.SendQueue;
 import io.advantageous.qbit.queue.impl.BasicQueue;
 import io.advantageous.qbit.util.MultiMap;
+import io.advantageous.qbit.util.Timer;
 import io.advantageous.qbit.vertx.MultiMapWrapper;
 import org.boon.core.Sys;
 import org.slf4j.Logger;
@@ -56,7 +57,7 @@ public class HttpClientVertx implements HttpClient {
     protected boolean autoFlush;
     protected boolean keepAlive = true;
     protected boolean pipeline = false;
-    protected  int flushInterval = 10;
+    protected  int flushInterval = 200;
     protected ReentrantLock requestLock = new ReentrantLock();
 
 
@@ -106,9 +107,10 @@ public class HttpClientVertx implements HttpClient {
         if(debug) logger.debug("HTTP CLIENT: sendHttpRequest:: \n{}\n", request);
 
 
-        requestLock.lock();
 
         try {
+
+            requestLock.lock();
             httpRequestSendQueue.send(request);
 
         } finally {
@@ -120,14 +122,17 @@ public class HttpClientVertx implements HttpClient {
     @Override
     public void sendWebSocketMessage(final WebSocketMessage webSocketMessage) {
 
-        requestLock.lock();
 
         try {
 
+            requestLock.lock();
             if (debug) logger.debug("HTTP CLIENT: sendWebSocketMessage:: \n{}\n", webSocketMessage);
             webSocketSendQueue.send(webSocketMessage);
 
-        } finally {
+        } catch (Exception ex ) {
+            logger.error("Unable to handle websocket send", ex);
+        }
+        finally {
             requestLock.unlock();
         }
 
@@ -139,15 +144,24 @@ public class HttpClientVertx implements HttpClient {
     }
 
 
-    private void autoFlush() {
-        requestLock.lock();
+    private  volatile long lastAutoFlushTime = Timer.timer().now();
 
-        try {
-            httpRequestSendQueue.flushSends();
-            webSocketSendQueue.flushSends();
-            periodicFlushCallback.accept(null);
-        } finally {
-            requestLock.unlock();
+    private void autoFlush() {
+
+        long now = Timer.timer().now();
+        long duration = now - lastAutoFlushTime;
+
+        if (duration > (flushInterval / 10L)) {
+            lastAutoFlushTime = now;
+            try {
+                requestLock.lock();
+
+                httpRequestSendQueue.flushSends();
+                webSocketSendQueue.flushSends();
+                periodicFlushCallback.accept(null);
+            } finally {
+                requestLock.unlock();
+            }
         }
 
     }
@@ -385,7 +399,16 @@ public class HttpClientVertx implements HttpClient {
     @Override
     public void flush() {
         if (autoFlush) {
-            autoFlush();
+
+            try {
+
+                requestLock.lock();
+                httpRequestSendQueue.flushSends();
+                webSocketSendQueue.flushSends();
+            } finally {
+                requestLock.unlock();
+            }
+
         } else {
             this.httpRequestSendQueue.flushSends();
             this.webSocketSendQueue.flushSends();
