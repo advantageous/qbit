@@ -85,6 +85,7 @@ public class ServiceBundleImpl implements ServiceBundle {
      * Maps incoming calls with outgoing handlers (returns, async returns really).
      */
     private final Map<HandlerKey, Callback<Object>> handlers = new ConcurrentHashMap<>();
+    private final int batchSize;
 
 
     /**
@@ -188,6 +189,8 @@ public class ServiceBundleImpl implements ServiceBundle {
 
         this.asyncCalls = asyncCalls;
 
+        this.batchSize = batchSize;
+
         final QueueBuilder queueBuilder = new QueueBuilder().setName("Send Queue  " + address).setPollWait(pollRate).setBatchSize(batchSize).setTryTransfer(true).setLinkTransferQueue().setCheckEvery(5);
 
 
@@ -242,7 +245,7 @@ public class ServiceBundleImpl implements ServiceBundle {
 
         /** Turn this client object into a client with queues. */
         final Service service = factory.createService(address, serviceAddress,
-                serviceObject, responseQueue, this.asyncCalls);
+                serviceObject, responseQueue,  this.batchSize, this.asyncCalls);
 
 
         /** add to our list of services. */

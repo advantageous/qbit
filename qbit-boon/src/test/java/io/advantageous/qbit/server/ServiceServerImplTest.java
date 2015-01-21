@@ -197,11 +197,11 @@ public class ServiceServerImplTest {
         Sys.sleep(200);
 
 
-        ok |= responseCounter == 0 || die();
 
         ok |= failureCounter == 1 || die();
-        ok |= callMeCounter == 1 || die();
+        ok |= callMeCounter == 0 || die();
 
+        ok |= responseCounter == 0 || die();
         puts(lastResponse);
 
 

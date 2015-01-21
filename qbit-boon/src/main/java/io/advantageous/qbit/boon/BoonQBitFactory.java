@@ -235,7 +235,11 @@ public class BoonQBitFactory implements Factory {
     }
 
     @Override
-    public Service createService(String rootAddress, String serviceAddress, Object object, Queue<Response<Object>> responseQueue,
+    public Service createService(String rootAddress,
+                                 String serviceAddress,
+                                 Object object,
+                                 Queue<Response<Object>> responseQueue,
+                                 final int batchSize,
                                  boolean async) {
 
         return new ServiceImpl(
@@ -243,7 +247,7 @@ public class BoonQBitFactory implements Factory {
                 serviceAddress,
                 object,
                 GlobalConstants.POLL_WAIT, TimeUnit.MILLISECONDS,
-                GlobalConstants.BATCH_SIZE,
+                batchSize,
                 new BoonServiceMethodCallHandler(),
                 responseQueue, async
         );

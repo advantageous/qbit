@@ -9,6 +9,8 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedTransferQueue;
 import java.util.concurrent.TimeUnit;
 
+import static org.boon.Boon.puts;
+
 
 /**
  * This is not thread safe.
@@ -95,8 +97,11 @@ class BasicReceiveQueue<T> implements ReceiveQueue<T> {
     }
 
     private T extractItem(Object o) {
+
         if (o instanceof Object[]) {
+
             lastQueue = (Object[]) o;
+            //uts("batch size", lastQueue.length);
             return getItemFromLocalQueue();
         } else {
             return (T)o;

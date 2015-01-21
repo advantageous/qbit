@@ -140,14 +140,66 @@ public class LoadTestingTest {
     }
 
 
+
+    @Test
+    public void test100K() throws Exception {
+
+        warmup();
+
+        returnCount = 0;
+        callCount = 0;
+        Sys.sleep(100);
+
+
+
+        final long startTime = System.currentTimeMillis();
+
+        final Callback<String> callback = new Callback<String>() {
+            @Override
+            public void accept(String s) {
+                returnCount++;
+            }
+        };
+
+        for (int index=0; index< 100_000; index++) {
+
+            clientProxy.ping(callback, "hi");
+
+        }
+
+
+        client.flush();
+
+        while (returnCount < 100_000 -1) {
+            Sys.sleep(1);
+        }
+
+
+        puts("HERE                        ", callCount, returnCount);
+
+
+        final long endTime = System.currentTimeMillis();
+
+        ok = returnCount == callCount || die();
+
+        final long duration = endTime - startTime;
+
+        puts(duration);
+
+
+
+    }
+
     @Before
     public void setup() throws Exception {
+
+        Sys.sleep(5000);
         pongValue = new AtomicReference<>();
 
         httpClient = new HttpClientBuilder().setPort(port).build();
 
-        client = new ClientBuilder().setPort(port).build();
-        server = new ServiceServerBuilder().setPort(port).build();
+        client = new ClientBuilder().setRequestBatchSize(300).setPort(port).build();
+        server = new ServiceServerBuilder().setRequestBatchSize(1000).setPort(port).build();
 
         server.initServices(new MockService());
 

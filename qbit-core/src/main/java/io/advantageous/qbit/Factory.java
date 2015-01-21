@@ -119,6 +119,7 @@ public interface Factory {
     default Service createService(String rootAddress, String serviceAddress,
                                   Object object,
                                   Queue<Response<Object>> responseQueue,
+                                  final int batchSize,
                                   boolean asyncCalls){
         throw new UnsupportedOperationException();
     }

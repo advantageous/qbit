@@ -162,6 +162,8 @@ public class ServiceServerImpl implements ServiceServer {
             writeResponse(request.getResponse(), 404, "application/json",
                     Str.add("\"No service method for URI ", request.getUri(), "\""), request.getHeaders());
 
+            return;
+
         }
 
         final MethodCall<Object> methodCall =
@@ -205,8 +207,10 @@ public class ServiceServerImpl implements ServiceServer {
 
         for (MethodCall<Object> methodCall : methodCalls) {
             if (methodCall instanceof MethodCallImpl) {
-                MethodCallImpl impl = ((MethodCallImpl) methodCall);
-                impl.originatingRequest(originatingRequest);
+
+                MethodCallImpl method = ((MethodCallImpl) methodCall);
+
+                method.originatingRequest(originatingRequest);
             }
         }
 
@@ -311,9 +315,17 @@ public class ServiceServerImpl implements ServiceServer {
                         webSocketMessage.getMessage(), webSocketMessage);
 
 
-        for (MethodCall<Object> methodCall : methodCallListToBeParsedFromBody) {
-            serviceBundle.call(methodCall);
+        if (methodCallListToBeParsedFromBody.size() > batchSize) {
+
+            for (MethodCall<Object> methodCall : methodCallListToBeParsedFromBody) {
+                serviceBundle.call(methodCall);
+            }
+        } else {
+
+            serviceBundle.call(methodCallListToBeParsedFromBody);
         }
+
+
     }
 
     private void handleResponseFromServiceBundleToWebSocketSender(Response<Object> response, WebSocketMessage originatingRequest) {
