@@ -199,7 +199,7 @@ public class LoadTestingTest {
         httpClient = new HttpClientBuilder().setPort(port).build();
 
         client = new ClientBuilder().setRequestBatchSize(300).setPort(port).build();
-        server = new ServiceServerBuilder().setRequestBatchSize(1000).setPort(port).build();
+        server = new ServiceServerBuilder().setRequestBatchSize(300).setPort(port).build();
 
         server.initServices(new MockService());
 

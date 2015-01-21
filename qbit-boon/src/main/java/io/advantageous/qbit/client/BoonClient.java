@@ -135,7 +135,6 @@ public class BoonClient implements Client {
 
         final List<Message<Object>> messages = QBit.factory().createProtocolParser().parse("", websocketText);
 
-        //uts("** Got MESSAGES", messages.size(), messages);
 
         for (Message<Object> message : messages) {
 
