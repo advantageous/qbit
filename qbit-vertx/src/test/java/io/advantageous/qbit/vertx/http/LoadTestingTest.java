@@ -32,7 +32,17 @@ public class LoadTestingTest {
     static volatile int returnCount;
     AtomicReference<String> pongValue;
     boolean ok;
-    static int port = 5555;
+    static volatile int port = 5555;
+
+
+    final Callback<String> callback = new Callback<String>() {
+        @Override
+        public void accept(String s) {
+
+            returnCount++;
+        }
+    };
+
 
     static interface ClientServiceInterface {
         String ping(Callback<String> callback, String ping);
@@ -54,13 +64,6 @@ public class LoadTestingTest {
 
         final long startTime = System.currentTimeMillis();
 
-        final Callback<String> callback = new Callback<String>() {
-            @Override
-            public void accept(String s) {
-
-                returnCount++;
-            }
-        };
 
         for (int index=0; index< WARMUP; index++) {
 
@@ -98,61 +101,10 @@ public class LoadTestingTest {
     }
 
 
-    @Test
-    public void test10K() throws Exception {
-
-        warmup();
-        Sys.sleep(1000);
-
-
-
-
-
-
-        final long startTime = System.currentTimeMillis();
-
-        final Callback<String> callback = new Callback<String>() {
-            @Override
-            public void accept(String s) {
-                returnCount++;
-            }
-        };
-
-        for (int index=0; index< WARMUP; index++) {
-
-            clientProxy.ping(callback, "hi");
-
-        }
-
-
-        client.flush();
-
-        while (returnCount < WARMUP) {
-            Sys.sleep(1);
-        }
-
-
-        puts("HERE                        ", callCount, returnCount);
-
-
-        final long endTime = System.currentTimeMillis();
-
-        ok = returnCount == callCount || die(callCount, returnCount);
-
-        final long duration = endTime - startTime;
-
-        puts(duration);
-
-
-
-    }
-
-
 
     @Test
     public void test100K() throws Exception {
 
-        warmup();
 
         returnCount = 0;
         callCount = 0;
@@ -163,16 +115,8 @@ public class LoadTestingTest {
         callCount = 0;
 
 
-        clientProxy = client.createProxy(ClientServiceInterface.class, "mockService");
-
         final long startTime = System.currentTimeMillis();
 
-        final Callback<String> callback = new Callback<String>() {
-            @Override
-            public void accept(String s) {
-                returnCount++;
-            }
-        };
 
         for (int index=0; index< 100_000; index++) {
 
@@ -211,7 +155,6 @@ public class LoadTestingTest {
     @Test
     public void test1M() throws Exception {
 
-        warmup();
 
         returnCount = 0;
         callCount = 0;
@@ -226,17 +169,6 @@ public class LoadTestingTest {
         final long startTime = System.currentTimeMillis();
 
 
-        clientProxy = client.createProxy(ClientServiceInterface.class, "mockService");
-
-
-
-        final Callback<String> callback = new Callback<String>() {
-            @Override
-            public void accept(String s) {
-                returnCount++;
-            }
-        };
-
         for (int index=0; index< 1_000_000; index++) {
 
             clientProxy.ping(callback, "hi");
@@ -247,7 +179,7 @@ public class LoadTestingTest {
 
         client.flush();
 
-        while (returnCount < 1_000_000 -1) {
+        while (returnCount < 1_000_000) {
             Sys.sleep(100);
         }
 
