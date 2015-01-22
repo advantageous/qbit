@@ -58,7 +58,7 @@ public class LoadTestingTest {
     }
 
 
-    @Test
+    //@Test
     public void warmup() throws Exception {
 
 
@@ -102,7 +102,7 @@ public class LoadTestingTest {
 
 
 
-    @Test
+    //@Test
     public void test100K() throws Exception {
 
 
@@ -152,7 +152,13 @@ public class LoadTestingTest {
     }
 
 
+
+
     @Test
+    public void test() throws Exception {
+
+    }
+        //@Test
     public void test1M() throws Exception {
 
 
