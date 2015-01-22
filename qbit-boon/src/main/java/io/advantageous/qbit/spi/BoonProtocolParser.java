@@ -207,7 +207,11 @@ public class BoonProtocolParser implements ProtocolParser {
         String address = FastStringUtils.noCopyStringFromChars(chars[
                 ADDRESS_POS]);
 
-        String returnAddress = parentReturnAddress != null ? parentReturnAddress : FastStringUtils.noCopyStringFromChars(chars[
+//        String returnAddress = parentReturnAddress != null ? parentReturnAddress : FastStringUtils.noCopyStringFromChars(chars[
+//                RETURN_ADDRESS_POS]);
+
+
+        String returnAddress = FastStringUtils.noCopyStringFromChars(chars[
                 RETURN_ADDRESS_POS]);
 
 
@@ -294,16 +298,25 @@ public class BoonProtocolParser implements ProtocolParser {
 
 
         String returnAddress = null;
-        if (parentReturnAddress!=null) {
-            returnAddress = parentReturnAddress;
-        } else {
-            returnAddress = FastStringUtils.noCopyStringFromChars(chars[
-                    RETURN_ADDRESS_POS]);
 
-            if (!Str.isEmpty(addressPrefix)) {
-                returnAddress = Str.add(addressPrefix, ""+((char) PROTOCOL_ARG_SEPARATOR), returnAddress);
-            }
+//        if (parentReturnAddress!=null) {
+//            returnAddress = parentReturnAddress;
+//        } else {
+//            returnAddress = FastStringUtils.noCopyStringFromChars(chars[
+//                    RETURN_ADDRESS_POS]);
+//
+//            if (!Str.isEmpty(addressPrefix)) {
+//                returnAddress = Str.add(addressPrefix, ""+((char) PROTOCOL_ARG_SEPARATOR), returnAddress);
+//            }
+//        }
+
+        returnAddress = FastStringUtils.noCopyStringFromChars(chars[
+                RETURN_ADDRESS_POS]);
+
+        if (!Str.isEmpty(addressPrefix)) {
+            returnAddress = Str.add(addressPrefix, ""+((char) PROTOCOL_ARG_SEPARATOR), returnAddress);
         }
+
 
         String headerBlock = FastStringUtils.noCopyStringFromChars(chars[
                 HEADER_POS]);

@@ -334,6 +334,7 @@ public class ServiceServerImpl implements ServiceServer {
             if (webSocketDelegate == null) {
                 String responseAsText = encoder.encodeAsString(response);
 
+
                 webSocketMessage.getSender().send(responseAsText);
             } else {
                 webSocketDelegate.send(response);

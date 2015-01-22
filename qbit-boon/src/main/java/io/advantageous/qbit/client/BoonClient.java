@@ -155,6 +155,7 @@ public class BoonClient implements Client {
                 if (handler != null) {
 
                     handleAsyncCallback(response, handler);
+                    handlers.remove(key);
                 }
 
             }

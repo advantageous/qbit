@@ -99,11 +99,15 @@ public class BoonProtocolEncoder implements ProtocolEncoder {
         buf.addChar(PROTOCOL_SEPARATOR);
         buf.add(methodCall.address());
         buf.addChar(PROTOCOL_SEPARATOR);
-        if (encodeAddress) {
-            buf.add(methodCall.returnAddress());
-        } else {
-            buf.add("same");
-        }
+
+        buf.add(methodCall.returnAddress());
+
+//        if (encodeAddress) {
+//            buf.add(methodCall.returnAddress());
+//
+//        } else {
+//            buf.add("same");
+//        }
 
         buf.addChar(PROTOCOL_SEPARATOR);
         encodeHeadersAndParams(buf, methodCall.headers());
@@ -147,11 +151,14 @@ public class BoonProtocolEncoder implements ProtocolEncoder {
         buf.addChar(PROTOCOL_SEPARATOR);
         buf.add(response.address());
         buf.addChar(PROTOCOL_SEPARATOR);
-        if (encodeAddress) {
-            buf.add(response.returnAddress());
-        } else {
-            buf.add("same");
-        }
+
+
+        buf.add(response.returnAddress());
+//        if (encodeAddress) {
+//            buf.add(response.returnAddress());
+//        } else {
+//            buf.add("same");
+//        }
         buf.addChar(PROTOCOL_SEPARATOR);
         buf.addChar(PROTOCOL_SEPARATOR); //reserved for header
         buf.addChar(PROTOCOL_SEPARATOR); //reserved for params

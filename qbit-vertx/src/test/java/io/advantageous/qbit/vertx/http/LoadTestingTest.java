@@ -57,6 +57,7 @@ public class LoadTestingTest {
         final Callback<String> callback = new Callback<String>() {
             @Override
             public void accept(String s) {
+
                 returnCount++;
             }
         };
@@ -69,8 +70,8 @@ public class LoadTestingTest {
 
         client.flush();
 
-        while (returnCount < WARMUP -1) {
-            Sys.sleep(1);
+        while (returnCount < WARMUP ) {
+            Sys.sleep(10);
         }
 
 
@@ -101,17 +102,11 @@ public class LoadTestingTest {
     public void test10K() throws Exception {
 
         warmup();
-
-        returnCount = 0;
-        callCount = 0;
-        Sys.sleep(100);
+        Sys.sleep(1000);
 
 
-        returnCount = 0;
-        callCount = 0;
 
 
-        clientProxy = client.createProxy(ClientServiceInterface.class, "mockService");
 
 
         final long startTime = System.currentTimeMillis();
@@ -132,7 +127,7 @@ public class LoadTestingTest {
 
         client.flush();
 
-        while (returnCount < WARMUP -1) {
+        while (returnCount < WARMUP) {
             Sys.sleep(1);
         }
 
@@ -297,30 +292,30 @@ public class LoadTestingTest {
 
         }
 
-//
-//        client.flush();
-//
-//        while (returnCount < 1_000_000 -10_000) {
-//            Sys.sleep(100);
-//
-//            if (returnCount % 10_000==0) {
-//
-//                puts(returnCount);
-//            }
-//        }
-//
-//
-//        puts("HERE                        ", callCount, returnCount);
-//
-//
-//        final long endTime2 = System.currentTimeMillis();
-//
-//        ok = returnCount == callCount || die();
-//
-//        final long duration2 = endTime2 - startTime2;
-//
-//
-//        puts("DURATION 2", duration2);
+
+
+        client.flush();
+
+        while (returnCount < 1_000_000) {
+            Sys.sleep(100);
+
+        }
+
+
+        puts("HERE                        ", callCount, returnCount);
+
+
+        final long endTime2 = System.currentTimeMillis();
+
+
+        Sys.sleep(5_000);
+
+        ok = returnCount == callCount || die();
+
+        final long duration2 = endTime2 - startTime2;
+
+
+        puts("DURATION 2", duration2);
 
     }
 
