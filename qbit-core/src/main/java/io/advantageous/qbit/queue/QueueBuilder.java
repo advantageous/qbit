@@ -14,11 +14,11 @@ public class QueueBuilder {
 
     private int batchSize = 10_000;
     private int pollWait = 10;
-    private int size = 1_000;
+    private int size = 1_000_000;
     private int checkEvery = 100;
 
     private String name;
-    private Class<? extends BlockingQueue> queueClass = ArrayBlockingQueue.class;
+    private Class<? extends BlockingQueue> queueClass = LinkedBlockingQueue.class;
 
     private boolean tryTransfer=false;
 
@@ -33,17 +33,15 @@ public class QueueBuilder {
     }
 
     public QueueBuilder setLinkedBlockingQueue() {
-        if (size==-1) {
-            size = 1_000;
-        }
         queueClass = LinkedBlockingQueue.class;
         return this;
     }
 
     public QueueBuilder setArrayBlockingQueue() {
         if (size==-1) {
-            size = 1_000;
+            size = 1_000_000;
         }
+
         queueClass = ArrayBlockingQueue.class;
         return this;
     }
@@ -103,15 +101,6 @@ public class QueueBuilder {
 
     }
 
-    public Class<? extends BlockingQueue> getQueueClass() {
-        return queueClass;
-    }
-
-    public QueueBuilder setQueueClass(Class<? extends BlockingQueue> queueClass) {
-        this.queueClass = queueClass;
-        return this;
-
-    }
 
 
 

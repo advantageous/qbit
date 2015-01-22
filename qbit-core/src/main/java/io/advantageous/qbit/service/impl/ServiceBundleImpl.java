@@ -191,10 +191,10 @@ public class ServiceBundleImpl implements ServiceBundle {
 
         this.batchSize = batchSize;
 
-        final QueueBuilder queueBuilder = new QueueBuilder().setName("Send Queue  " + address).setPollWait(pollRate).setBatchSize(batchSize).setTryTransfer(true).setLinkTransferQueue().setCheckEvery(5);
+        final QueueBuilder queueBuilder = new QueueBuilder().setPollWait(pollRate).setBatchSize(batchSize);
 
 
-        this.methodQueue = queueBuilder.build();
+        this.methodQueue = queueBuilder.setName("Send Queue " + address).build();
 
         this.responseQueue = queueBuilder.setName("Response Queue " + address).build();
 

@@ -160,6 +160,8 @@ public class HttpServerVertx implements HttpServer {
         httpServer.setTCPKeepAlive(true);
         httpServer.setCompressionSupported(true);
         httpServer.setSoLinger(1000);
+        httpServer.setMaxWebSocketFrameSize(100_000_000);
+
 
 
         httpServer.websocketHandler(this::handleWebSocketMessage);
@@ -192,14 +194,14 @@ public class HttpServerVertx implements HttpServer {
             requests = new QueueBuilder().setName("HttpServerRequests").setPollWait(pollTime).setBatchSize(requestBatchSize).build();
 
             httpRequestSendQueue = requests.sendQueue();
-            responses = new QueueBuilder().setName("HttpServerRequests").setPollWait(pollTime).setBatchSize(requestBatchSize).build();
+            responses = new QueueBuilder().setName("HTTP Responses").setPollWait(pollTime).setBatchSize(requestBatchSize).build();
 
 
             httpResponsesSendQueue = responses.sendQueue();
             webSocketMessageInQueue =
 
             new QueueBuilder().setName("WebSocketMessagesIn " + host + " " + port).setPollWait(pollTime).setBatchSize(requestBatchSize)
-                    .setLinkTransferQueue().setCheckEvery(10).setTryTransfer(true).build();
+                    .build();
 
 
             webSocketMessageIncommingSendQueue = webSocketMessageInQueue.sendQueue();

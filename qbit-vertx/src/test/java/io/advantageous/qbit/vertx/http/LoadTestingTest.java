@@ -190,6 +190,57 @@ public class LoadTestingTest {
 
     }
 
+
+
+    @Test
+    public void test1M() throws Exception {
+
+        warmup();
+
+        returnCount = 0;
+        callCount = 0;
+        Sys.sleep(100);
+
+
+
+        final long startTime = System.currentTimeMillis();
+
+        final Callback<String> callback = new Callback<String>() {
+            @Override
+            public void accept(String s) {
+                returnCount++;
+            }
+        };
+
+        for (int index=0; index< 1_000_000; index++) {
+
+            clientProxy.ping(callback, "hi");
+
+        }
+
+
+        client.flush();
+
+        while (returnCount < 1_000_000 -1) {
+            Sys.sleep(1);
+        }
+
+
+        puts("HERE                        ", callCount, returnCount);
+
+
+        final long endTime = System.currentTimeMillis();
+
+        ok = returnCount == callCount || die();
+
+        final long duration = endTime - startTime;
+
+        puts(duration);
+
+
+
+    }
+
     @Before
     public void setup() throws Exception {
 
@@ -199,7 +250,8 @@ public class LoadTestingTest {
         httpClient = new HttpClientBuilder().setPort(port).build();
 
         client = new ClientBuilder().setRequestBatchSize(300).setPort(port).build();
-        server = new ServiceServerBuilder().setRequestBatchSize(300).setPort(port).build();
+        server = new ServiceServerBuilder().setRequestBatchSize(300).setTimeoutSeconds(20)
+                .setPollTime(10).setPort(port).build();
 
         server.initServices(new MockService());
 

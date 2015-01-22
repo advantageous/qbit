@@ -93,10 +93,6 @@ public class ServiceServerImpl implements ServiceServer {
     }
 
 
-    private void writeResponse(HttpResponse response, int code, String mimeType, String responseString) {
-
-        writeResponse(response, code, mimeType, responseString, MultiMap.EMPTY);
-    }
 
     private void writeResponse(HttpResponse response, int code, String mimeType, String responseString, MultiMap<String, String> headers) {
 

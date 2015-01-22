@@ -102,7 +102,6 @@ public class SenderEndPoint implements EndPoint {
         int count = 0;
 
         while (method != null) {
-            count++;
             methods.add(method);
 
             try {
@@ -112,9 +111,16 @@ public class SenderEndPoint implements EndPoint {
                 Thread.currentThread().interrupted();
             }
 
+
+
             if (count> requestBatchSize) {
-                break;
+
+                sender.send(returnAddress, encoder.encodeAsString(methods));
+                methods.clear();
+                count = 0;
             }
+
+            count++;
 
 
         }
@@ -124,7 +130,9 @@ public class SenderEndPoint implements EndPoint {
         }
 
 
-        sender.send(returnAddress, encoder.encodeAsString(methods));
+        if (methods.size() > 0) {
+            sender.send(returnAddress, encoder.encodeAsString(methods));
+        }
 
 
     }
