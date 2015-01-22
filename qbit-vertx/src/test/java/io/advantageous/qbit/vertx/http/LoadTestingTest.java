@@ -28,8 +28,8 @@ public class LoadTestingTest {
     ServiceServer server;
     HttpClient httpClient;
     ClientServiceInterface clientProxy;
-    volatile int callCount;
-    volatile int returnCount;
+    static volatile int callCount;
+    static volatile int returnCount;
     AtomicReference<String> pongValue;
     boolean ok;
     static int port = 5555;
@@ -79,11 +79,18 @@ public class LoadTestingTest {
 
         final long endTime = System.currentTimeMillis();
 
-        ok = returnCount == callCount || die();
+        Sys.sleep(1000);
+
+        ok = returnCount == callCount || die(callCount, returnCount);
 
         final long duration = endTime - startTime;
 
         puts(duration);
+
+
+        client.flush();
+
+        Sys.sleep(1000);
 
 
 
@@ -99,6 +106,12 @@ public class LoadTestingTest {
         callCount = 0;
         Sys.sleep(100);
 
+
+        returnCount = 0;
+        callCount = 0;
+
+
+        clientProxy = client.createProxy(ClientServiceInterface.class, "mockService");
 
 
         final long startTime = System.currentTimeMillis();
@@ -129,7 +142,7 @@ public class LoadTestingTest {
 
         final long endTime = System.currentTimeMillis();
 
-        ok = returnCount == callCount || die();
+        ok = returnCount == callCount || die(callCount, returnCount);
 
         final long duration = endTime - startTime;
 
@@ -151,6 +164,11 @@ public class LoadTestingTest {
         Sys.sleep(100);
 
 
+        returnCount = 0;
+        callCount = 0;
+
+
+        clientProxy = client.createProxy(ClientServiceInterface.class, "mockService");
 
         final long startTime = System.currentTimeMillis();
 
@@ -180,6 +198,10 @@ public class LoadTestingTest {
 
         final long endTime = System.currentTimeMillis();
 
+
+        client.flush();
+
+
         ok = returnCount == callCount || die();
 
         final long duration = endTime - startTime;
@@ -191,7 +213,6 @@ public class LoadTestingTest {
     }
 
 
-
     @Test
     public void test1M() throws Exception {
 
@@ -199,11 +220,20 @@ public class LoadTestingTest {
 
         returnCount = 0;
         callCount = 0;
-        Sys.sleep(100);
+        Sys.sleep(10000);
+
+
+        returnCount = 0;
+        callCount = 0;
 
 
 
         final long startTime = System.currentTimeMillis();
+
+
+        clientProxy = client.createProxy(ClientServiceInterface.class, "mockService");
+
+
 
         final Callback<String> callback = new Callback<String>() {
             @Override
@@ -216,28 +246,81 @@ public class LoadTestingTest {
 
             clientProxy.ping(callback, "hi");
 
+
         }
 
 
         client.flush();
 
         while (returnCount < 1_000_000 -1) {
-            Sys.sleep(1);
+            Sys.sleep(100);
         }
 
 
         puts("HERE                        ", callCount, returnCount);
 
 
+
+
         final long endTime = System.currentTimeMillis();
 
         ok = returnCount == callCount || die();
 
+
         final long duration = endTime - startTime;
 
-        puts(duration);
+        puts("DURATION 1", duration);
 
 
+
+
+        returnCount = 0;
+        callCount = 0;
+        Sys.sleep(10000);
+
+
+        returnCount = 0;
+        callCount = 0;
+
+
+        ok = returnCount == callCount || die();
+
+
+
+        final long startTime2 = System.currentTimeMillis();
+
+
+        for (int index=0; index< 1_000_000; index++) {
+
+            clientProxy.ping(callback, "hi");
+
+
+        }
+
+//
+//        client.flush();
+//
+//        while (returnCount < 1_000_000 -10_000) {
+//            Sys.sleep(100);
+//
+//            if (returnCount % 10_000==0) {
+//
+//                puts(returnCount);
+//            }
+//        }
+//
+//
+//        puts("HERE                        ", callCount, returnCount);
+//
+//
+//        final long endTime2 = System.currentTimeMillis();
+//
+//        ok = returnCount == callCount || die();
+//
+//        final long duration2 = endTime2 - startTime2;
+//
+//
+//        puts("DURATION 2", duration2);
 
     }
 
@@ -249,8 +332,8 @@ public class LoadTestingTest {
 
         httpClient = new HttpClientBuilder().setPort(port).build();
 
-        client = new ClientBuilder().setRequestBatchSize(300).setPort(port).build();
-        server = new ServiceServerBuilder().setRequestBatchSize(300).setTimeoutSeconds(20)
+        client = new ClientBuilder().setRequestBatchSize(20000).setFlushInterval(200).setPort(port).build();
+        server = new ServiceServerBuilder().setRequestBatchSize(20000).setFlushInterval(200).setTimeoutSeconds(20)
                 .setPollTime(10).setPort(port).build();
 
         server.initServices(new MockService());

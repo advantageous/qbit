@@ -12,8 +12,8 @@ import java.util.concurrent.*;
  */
 public class QueueBuilder {
 
-    private int batchSize = 10_000;
-    private int pollWait = 10;
+    private int batchSize = 500;
+    private int pollWait = 5;
     private int size = 1_000_000;
     private int checkEvery = 100;
 

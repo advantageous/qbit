@@ -51,8 +51,6 @@ public class BasicQueue<T> implements Queue<T> {
 
         this.receiveQueueManager = new BasicReceiveQueueManager<>();
 
-        puts("CLASS", queueClass);
-
 
         if (size==-1) {
                 this.queue = ClassMeta.classMeta(queueClass).noArgConstructor().create();

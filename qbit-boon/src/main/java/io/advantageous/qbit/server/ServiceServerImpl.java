@@ -391,11 +391,18 @@ public class ServiceServerImpl implements ServiceServer {
      */
     private ReceiveQueueListener<Response<Object>> createResponseQueueListener() {
         return new ReceiveQueueListener<Response<Object>>() {
+
+            List<Response<Object>> responseBatch = new ArrayList<>();
+
             @Override
             public void receive(final Response<Object> response) {
 
-                //uts("RESPONSE receive ******", response);
-                handleResponseFromServiceBundle(response);
+                responseBatch.add(response);
+
+                if (responseBatch.size() >= batchSize) {
+                    handleResponseFromServiceBundle(new ArrayList<>(responseBatch));
+                    responseBatch.clear();
+                }
 
             }
 
@@ -403,12 +410,20 @@ public class ServiceServerImpl implements ServiceServer {
             @Override
             public void limit() {
 
+
+
+                handleResponseFromServiceBundle(new ArrayList<>(responseBatch));
+                responseBatch.clear();
+
                 checkTimeoutsForRequests();
                 checkResponseBatchSend();
             }
 
             @Override
             public void empty() {
+                handleResponseFromServiceBundle(new ArrayList<>(responseBatch));
+                responseBatch.clear();
+
                 checkTimeoutsForRequests();
                 checkResponseBatchSend();
 
@@ -416,6 +431,10 @@ public class ServiceServerImpl implements ServiceServer {
 
             @Override
             public void idle() {
+
+                handleResponseFromServiceBundle(new ArrayList<>(responseBatch));
+                responseBatch.clear();
+
 
                 checkTimeoutsForRequests();
                 checkResponseBatchSend();
@@ -452,21 +471,25 @@ public class ServiceServerImpl implements ServiceServer {
     /**
      * Handle a response from the server.
      *
-     * @param response response
+     * @param responses responses
      */
-    private void handleResponseFromServiceBundle(final Response<Object> response) {
+    private void handleResponseFromServiceBundle(final List<Response<Object>> responses) {
 
 
 
-        final Request<Object> request = response.request();
+        for (Response<Object> response : responses) {
 
-        if (request instanceof MethodCall) {
-            final MethodCall<Object> methodCall = ((MethodCall<Object>) request);
-            final Request<Object> originatingRequest = methodCall.originatingRequest();
+            final Request<Object> request = response.request();
 
-            handleResponseFromServiceBundle(response, originatingRequest);
-        } else {
-            throw new IllegalStateException("Unknown response " + response);
+            if (request instanceof MethodCall) {
+
+
+                final MethodCall<Object> methodCall = ((MethodCall<Object>) request);
+                final Request<Object> originatingRequest = methodCall.originatingRequest();
+
+                handleResponseFromServiceBundle(response, originatingRequest);
+
+            }
         }
 
     }
@@ -474,14 +497,18 @@ public class ServiceServerImpl implements ServiceServer {
     private void handleResponseFromServiceBundle(final Response<Object> response, final Request<Object> originatingRequest) {
 
         /* TODO Since websockets can be for many requests, we need a counter of some sort. */
-//        if (originatingRequest.isHandled()) {
-//            return; // the operation timed out
-//        }
-        originatingRequest.handled(); //Let others know that it is handled.
 
         if (originatingRequest instanceof HttpRequest) {
+
+            if (originatingRequest.isHandled()) {
+                return; // the operation timed out
+            }
+            originatingRequest.handled(); //Let others know that it is handled.
+
             handleResponseFromServiceToHttpResponse(response, (HttpRequest) originatingRequest);
         } else if (originatingRequest instanceof WebSocketMessage) {
+            originatingRequest.handled(); //Let others know that it is handled.
+
             handleResponseFromServiceBundleToWebSocketSender(response, (WebSocketMessage) originatingRequest);
         } else {
 

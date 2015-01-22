@@ -464,12 +464,11 @@ public class HttpClientVertx implements HttpClient {
                 .setKeepAlive(keepAlive).setPipelining(pipeline)
                 .setSoLinger(100)
                 .setTCPNoDelay(false)
-                .setMaxWebSocketFrameSize(20_000_000)
+                .setMaxWebSocketFrameSize(100_000_000)
                 .setConnectTimeout(this.timeOutInMilliseconds);
 
 
         httpClient.setUsePooledBuffers(true);
-
 
         if(debug) logger.debug("HTTP CLIENT: connect:: \nhost {} \nport {}\n", host, port);
 
