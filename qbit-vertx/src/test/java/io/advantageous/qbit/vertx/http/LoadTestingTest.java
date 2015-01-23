@@ -158,7 +158,7 @@ public class LoadTestingTest {
     public void test() throws Exception {
 
     }
-        //@Test
+    //@Test
     public void test1M() throws Exception {
 
 
@@ -223,7 +223,7 @@ public class LoadTestingTest {
         final long startTime2 = System.currentTimeMillis();
 
 
-        for (int index=0; index< 1_000_000; index++) {
+        for (int index=0; index< 5_000_000; index++) {
 
             clientProxy.ping(callback, "hi");
 
@@ -234,7 +234,7 @@ public class LoadTestingTest {
 
         client.flush();
 
-        while (returnCount < 1_000_000) {
+        while (returnCount < 5_000_000) {
             Sys.sleep(100);
 
         }
