@@ -120,9 +120,18 @@ public class BoonQBitFactory implements Factory {
 
 
     @Override
-    public HttpServer createHttpServer(String host, int port, boolean manageQueues, int pollTime, int requestBatchSize, int flushInterval) {
-        return FactorySPI.getHttpServerFactory().create(host, port, manageQueues, pollTime, requestBatchSize, flushInterval);
+    public HttpServer createHttpServer(String host, int port, boolean manageQueues, int pollTime, int requestBatchSize, int flushInterval, int maxRequests) {
+        return FactorySPI.getHttpServerFactory().create(host, port, manageQueues, pollTime, requestBatchSize, flushInterval, maxRequests);
     }
+
+
+    @Override
+    public HttpServer createHttpServer(String host, int port, boolean manageQueues, int pollTime, int requestBatchSize,
+                                       int flushInterval, int maxRequests, int httpWorkers, Class handler) {
+        return FactorySPI.getHttpServerFactory().create(host, port, manageQueues, pollTime, requestBatchSize,
+                flushInterval, maxRequests, httpWorkers, handler);
+    }
+
 
     @Override
     public HttpClient createHttpClient(String host, int port, int pollTime, int requestBatchSize, int timeOutInMilliseconds, int poolSize, boolean autoFlush) {

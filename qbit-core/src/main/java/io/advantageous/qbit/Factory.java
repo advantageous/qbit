@@ -259,8 +259,17 @@ public interface Factory {
     default HttpServer createHttpServer(String host, int port, boolean manageQueues,
                       int pollTime,
                       int requestBatchSize,
-                      int flushInterval
+                      int flushInterval, int maxRequests
                       ){
+        throw new UnsupportedOperationException();
+    }
+
+
+    default HttpServer createHttpServer(String host, int port, boolean manageQueues,
+                                        int pollTime,
+                                        int requestBatchSize,
+                                        int flushInterval, int maxRequests, int httpWorkers, Class handlerClass
+    ){
         throw new UnsupportedOperationException();
     }
 

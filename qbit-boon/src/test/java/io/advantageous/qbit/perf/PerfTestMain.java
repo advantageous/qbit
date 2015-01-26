@@ -182,7 +182,8 @@ public class PerfTestMain {
 
         FactorySPI.setHttpServerFactory(new HttpServerFactory() {
             @Override
-            public HttpServer create(String host, int port, boolean manageQueues, int pollTime, int requestBatchSize, int flushInterval) {
+            public HttpServer create(String host, int port, boolean manageQueues, int pollTime, int requestBatchSize,
+                                     int flushInterval, int maxRequests) {
                 return new MockHttpServer();
             }
         });

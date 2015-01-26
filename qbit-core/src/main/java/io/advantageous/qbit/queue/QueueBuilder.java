@@ -105,7 +105,8 @@ public class QueueBuilder {
 
 
     public <T> Queue<T> build() {
-        return new BasicQueue<>(name, pollWait, TimeUnit.MILLISECONDS, batchSize, queueClass, tryTransfer, size, checkEvery);
+        return new BasicQueue<>(this.getName(), this.getPollWait(), TimeUnit.MILLISECONDS, this.getBatchSize(),
+                this.queueClass, this.isTryTransfer(), this.getSize(), this.getCheckEvery());
     }
 
 }

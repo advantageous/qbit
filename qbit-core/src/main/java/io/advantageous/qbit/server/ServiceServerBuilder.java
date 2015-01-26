@@ -30,6 +30,8 @@ public class ServiceServerBuilder {
     private String uri = "/services";
     private int numberOfOutstandingRequests = 500_000;
 
+    private int maxHttpRequests = -1;
+
     private int timeoutSeconds = 30;
     /**
      * Allows interception of method calls before they get sent to a client.
@@ -49,6 +51,14 @@ public class ServiceServerBuilder {
      */
     private Transformer<Request, Object> argTransformer = ServiceConstants.NO_OP_ARG_TRANSFORM;
 
+    public int getMaxHttpRequests() {
+        return maxHttpRequests;
+    }
+
+    public ServiceServerBuilder setMaxHttpRequests(int maxHttpRequests) {
+        this.maxHttpRequests = maxHttpRequests;
+        return this;
+    }
 
     private boolean eachServiceInItsOwnThread=true;
 
@@ -178,7 +188,7 @@ public class ServiceServerBuilder {
 
 
     public ServiceServer build() {
-        final HttpServer httpServer = QBit.factory().createHttpServer(host, port, manageQueues, pollTime, requestBatchSize, flushInterval);
+        final HttpServer httpServer = QBit.factory().createHttpServer(host, port, manageQueues, pollTime, requestBatchSize, flushInterval, maxHttpRequests);
         final JsonMapper jsonMapper = QBit.factory().createJsonMapper();
         final ProtocolEncoder encoder = QBit.factory().createEncoder();
 

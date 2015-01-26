@@ -44,8 +44,9 @@ public class HttpServerBuilderTest {
         FactorySPI.setFactory(new Factory() {
 
             @Override
-            public HttpServer createHttpServer(String host, int port, boolean manageQueues, int pollTime, int requestBatchSize, int flushInterval) {
-                return FactorySPI.getHttpServerFactory().create(host, port, manageQueues, pollTime, requestBatchSize, flushInterval);
+            public HttpServer createHttpServer(String host, int port, boolean manageQueues, int pollTime, int requestBatchSize, int flushInterval,
+                                               int maxRequests) {
+                return FactorySPI.getHttpServerFactory().create(host, port, manageQueues, pollTime, requestBatchSize, flushInterval, maxRequests);
             }
         });
 
@@ -56,7 +57,7 @@ public class HttpServerBuilderTest {
                                      boolean manageQueues,
                                      int pollTime,
                                      int requestBatchSize,
-                                     int flushInterval) {
+                                     int flushInterval, int maxRequests) {
                 return new HttpServer() {
                     @Override
                     public void setWebSocketMessageConsumer(Consumer<WebSocketMessage> webSocketMessageConsumer) {
