@@ -32,8 +32,9 @@ public class HttpServerVertxEmbeddedBuilder extends HttpServerBuilder {
         return handlerCallbackClass;
     }
 
-    public void setHandlerCallbackClass(Class handlerCallbackClass) {
+    public HttpServerVertxEmbeddedBuilder setHandlerCallbackClass(Class handlerCallbackClass) {
         this.handlerCallbackClass = handlerCallbackClass;
+        return this;
     }
 
     public int getHttpWorkers() {
