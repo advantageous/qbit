@@ -1,9 +1,13 @@
 package io.advantageous.qbit.vertx.http;
 
 import io.advantageous.qbit.http.HttpServer;
+import org.boon.core.reflection.BeanUtils;
+import org.boon.core.reflection.ClassMeta;
+import org.boon.core.reflection.fields.FieldAccess;
 import org.vertx.java.core.json.JsonObject;
 import org.vertx.java.platform.Verticle;
 
+import java.util.Map;
 import java.util.function.Consumer;
 
 
@@ -79,6 +83,15 @@ public class HttpServerVerticle extends Verticle {
 
             try {
                 beforeCallbackHandler = (Consumer<HttpServer>) Class.forName(handlerClass).newInstance();
+
+                final Map<String, FieldAccess> fieldMap = ClassMeta
+                        .classMeta(beforeCallbackHandler.getClass())
+                        .fieldMap();
+
+                if (fieldMap.containsKey("vertx")) {
+                    BeanUtils.setPropertyValue(beforeCallbackHandler, vertx, "vertx");
+                }
+
             } catch (Exception e) {
                 throw new IllegalStateException(e);
             }
