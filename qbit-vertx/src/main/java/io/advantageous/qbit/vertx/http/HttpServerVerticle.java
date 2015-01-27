@@ -4,6 +4,8 @@ import io.advantageous.qbit.http.HttpServer;
 import org.vertx.java.core.json.JsonObject;
 import org.vertx.java.platform.Verticle;
 
+import java.util.function.Consumer;
+
 
 /**
  * Created by rhightower on 1/26/15.
@@ -18,6 +20,8 @@ public class HttpServerVerticle extends Verticle {
     public static final String HTTP_SERVER_VERTICLE_MAX_REQUEST_BATCHES = "HttpServerVerticle.maxRequestBatches";
     public static final String HTTP_SERVER_VERTICLE_FLUSH_INTERVAL = "HttpServerVerticle.flushInterval";
     public static final String HTTP_SERVER_VERTICLE_REQUEST_BATCH_SIZE = "HttpServerVerticle.requestBatchSize";
+
+    public static final String HTTP_SERVER_HANDLER = "HttpServerVerticle.handler";
     int port = 8080;
     String host = null;
     boolean manageQueues = false;
@@ -29,6 +33,8 @@ public class HttpServerVerticle extends Verticle {
     int maxRequestBatches = -1;
 
     HttpServerVertx httpServerVertx;
+
+    Consumer<HttpServer> beforeCallbackHandler;
 
 
     @Override
@@ -68,6 +74,18 @@ public class HttpServerVerticle extends Verticle {
                     HTTP_SERVER_VERTICLE_REQUEST_BATCH_SIZE);
         }
 
+        if (config.containsField(HTTP_SERVER_HANDLER)) {
+            String handlerClass = config.getString(HTTP_SERVER_HANDLER);
+
+            try {
+                beforeCallbackHandler = (Consumer<HttpServer>) Class.forName(handlerClass).newInstance();
+            } catch (Exception e) {
+                throw new IllegalStateException(e);
+            }
+
+        }
+
+
 
         httpServerVertx = new HttpServerVertx(port, host, manageQueues,
                                         pollTime,
@@ -82,7 +100,11 @@ public class HttpServerVerticle extends Verticle {
 
     }
 
-    protected void beforeStart(HttpServer httpServerVertx) {
+    protected void beforeStart(HttpServer httpServer) {
+
+        if (beforeCallbackHandler!=null) {
+            beforeCallbackHandler.accept(httpServer);
+        }
 
     }
 

@@ -23,7 +23,7 @@ public class HttpServerBuilder {
     private int flushInterval = 100;
 
     private int workers = -1;
-    private Class handlerClass = null;
+    private Class<Consumer> handlerClass = null;
 
     private Consumer<WebSocketMessage> webSocketMessageConsumer;
     private Consumer<HttpRequest> httpRequestConsumer;
@@ -49,7 +49,7 @@ public class HttpServerBuilder {
         return this;
     }
 
-    public Class getHandlerClass() {
+    public Class<Consumer> getHandlerClass() {
         return handlerClass;
     }
 
@@ -152,11 +152,12 @@ public class HttpServerBuilder {
         } else {
             final HttpServer httpServer = QBit.factory().createHttpServer(this.getHost(),
                     this.getPort(), this.isManageQueues(), this.getPollTime(), this.getRequestBatchSize(),
-                    this.getFlushInterval(), this.getMaxRequestBatches(), this.workers, this.handlerClass);
+                    this.getFlushInterval(), this.getMaxRequestBatches(), this.getWorkers(), this.getHandlerClass());
 
             httpServer.setHttpRequestConsumer(this.httpRequestConsumer);
             httpServer.setWebSocketMessageConsumer(this.webSocketMessageConsumer);
             return httpServer;
         }
     }
+
 }

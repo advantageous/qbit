@@ -174,12 +174,13 @@ public class HttpServerVertx implements HttpServer {
             jsonObject.putNumber(HttpServerVerticle.HTTP_SERVER_VERTICLE_POLL_TIME, this.pollTime);
             jsonObject.putString(HttpServerVerticle.HTTP_SERVER_VERTICLE_HOST, this.host);
             jsonObject.putNumber(HttpServerVerticle.HTTP_SERVER_VERTICLE_REQUEST_BATCH_SIZE, this.requestBatchSize);
+            jsonObject.putString(HttpServerVerticle.HTTP_SERVER_HANDLER, handler.getName());
 
             URL[] urls = getClasspathUrls();
 
 
 
-            platformManager.deployVerticle(handler.getName(), jsonObject, urls, httpWorkers, null,
+            platformManager.deployVerticle(HttpServerVerticle.class.getName(), jsonObject, urls, httpWorkers, null,
                     new Handler<AsyncResult<String>>() {
                         @Override
                         public void handle(AsyncResult<String> stringAsyncResult) {

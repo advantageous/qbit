@@ -4,6 +4,8 @@ import io.advantageous.qbit.http.*;
 import org.boon.core.Sys;
 import org.junit.Test;
 
+import java.util.function.Consumer;
+
 import static org.boon.Boon.puts;
 import static org.boon.Exceptions.die;
 
@@ -19,18 +21,18 @@ public class HttpClientServerEmbeddedTest {
     HttpClient client;
     HttpServer server;
 
-    public static class HanderClass extends HttpServerVerticle {
+    public static class HanderClass implements Consumer<HttpServer> {
+
+
 
         @Override
-        protected void beforeStart(HttpServer server) {
+        public void accept(HttpServer server) {
 
             server.setHttpRequestConsumer(request -> {
                 requestReceived = true;
                 puts("SERVER", request.getUri(), request.getBody());
                 request.getResponse().response(200, "application/json", "\"ok\"");
             });
-
-
 
         }
     }
