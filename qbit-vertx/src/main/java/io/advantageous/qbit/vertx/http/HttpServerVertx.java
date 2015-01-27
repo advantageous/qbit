@@ -9,6 +9,7 @@ import io.advantageous.qbit.queue.SendQueue;
 import io.advantageous.qbit.util.MultiMap;
 import io.advantageous.qbit.util.Timer;
 import io.advantageous.qbit.vertx.MultiMapWrapper;
+import io.advantageous.qbit.vertx.http.verticle.HttpServerVerticle;
 import org.boon.Lists;
 import org.boon.Str;
 import org.slf4j.Logger;

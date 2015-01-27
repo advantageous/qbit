@@ -8,20 +8,18 @@ import io.advantageous.qbit.message.Request;
 import io.advantageous.qbit.message.Response;
 import io.advantageous.qbit.queue.*;
 import io.advantageous.qbit.queue.Queue;
-import io.advantageous.qbit.server.HttpRequestServerHandler;
-import io.advantageous.qbit.server.WebSocketServerHandler;
+import io.advantageous.qbit.server.HttpRequestServiceServerHandler;
+import io.advantageous.qbit.server.WebSocketServiceServerHandler;
 import io.advantageous.qbit.service.ServiceBundle;
 import io.advantageous.qbit.service.ServiceBundleBuilder;
 import io.advantageous.qbit.spi.ProtocolEncoder;
 import io.advantageous.qbit.spi.ProtocolParser;
-import io.advantageous.qbit.vertx.http.HttpServerVerticle;
+import io.advantageous.qbit.vertx.http.verticle.BaseHttpRelay;
 import org.boon.core.reflection.BeanUtils;
 import org.boon.core.reflection.ClassMeta;
 import org.boon.core.reflection.fields.FieldAccess;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.core.buffer.Buffer;
-import org.vertx.java.core.json.JsonObject;
 
 import java.util.*;
 import java.util.function.Consumer;
@@ -35,9 +33,13 @@ public class ServiceServerVerticle extends BaseHttpRelay {
     private final Logger logger = LoggerFactory.getLogger(ServiceServerVerticle.class);
     private final boolean debug = logger.isDebugEnabled();
 
+    public static final String SERVICE_SERVER_VERTICLE_HANDLER = "ServiceServerVerticle.handler";
+    public static final String SERVICE_SERVER_VERTICLE_BUNDLE_URI = "ServiceServerVerticle.bundleUri";
 
-    protected WebSocketServerHandler webSocketHandler;
-    protected HttpRequestServerHandler httpRequestServerHandler;
+
+
+    protected WebSocketServiceServerHandler webSocketHandler;
+    protected HttpRequestServiceServerHandler httpRequestServerHandler;
     private Consumer<ServiceBundle> beforeCallbackHandler;
     private String bundleUri = "/services";
 
@@ -48,42 +50,32 @@ public class ServiceServerVerticle extends BaseHttpRelay {
 
 
     @Override
-    public void start() {
-
-        jsonMapper = QBit.factory().createJsonMapper();
-        encoder = QBit.factory().createEncoder();
-        parser = QBit.factory().createProtocolParser();
-        extractConfig();
-
+    protected void extractConfig() {
+        super.extractConfig();
         if (container.config().containsField(SERVICE_SERVER_VERTICLE_BUNDLE_URI)) {
             bundleUri = container.config().getString(SERVICE_SERVER_VERTICLE_BUNDLE_URI);
         }
         if (container.config().containsField(SERVICE_SERVER_VERTICLE_HANDLER)) {
             handlerClassName = container.config().getString(SERVICE_SERVER_VERTICLE_HANDLER);
         }
-        serverId = UUID.randomUUID().toString();
-        final JsonObject httpServerConfig = createHttpConfig();
+    }
 
 
-        container.deployVerticle(HttpServerVerticle.class.getName(), httpServerConfig, httpWorkers,
-                result -> {
-                    if (result.succeeded()) {
-                        logger.info("Service Server Verticle is Launched");
-                    }
-                }
-        );
+    @Override
+    protected void afterStart() {
 
+        jsonMapper = QBit.factory().createJsonMapper();
+        encoder = QBit.factory().createEncoder();
+        parser = QBit.factory().createProtocolParser();
         serviceBundle = new ServiceBundleBuilder().setAddress(bundleUri).setPollTime(pollTime).setRequestBatchSize(requestBatchSize).build();
-        webSocketHandler = new WebSocketServerHandler(requestBatchSize, serviceBundle, encoder, parser);
-        httpRequestServerHandler = new HttpRequestServerHandler(this.timeoutInSeconds, this.encoder, this.parser, serviceBundle, jsonMapper, 1_000_000);
+        webSocketHandler = new WebSocketServiceServerHandler(requestBatchSize, serviceBundle, encoder, parser);
+        httpRequestServerHandler = new HttpRequestServiceServerHandler(this.timeoutInSeconds, this.encoder, this.parser, serviceBundle, jsonMapper, 1_000_000);
 
 
         configureBeforeStartCallback();
         configureEventBus();
         startResponseQueueListener();
 
-
-        stop.set(false);
 
     }
 

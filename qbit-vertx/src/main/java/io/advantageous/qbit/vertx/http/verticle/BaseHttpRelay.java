@@ -1,49 +1,40 @@
-package io.advantageous.qbit.vertx.service;
+package io.advantageous.qbit.vertx.http.verticle;
 
 import io.advantageous.qbit.http.HttpRequest;
 import io.advantageous.qbit.http.HttpRequestBuilder;
 import io.advantageous.qbit.http.WebSocketMessage;
 import io.advantageous.qbit.http.WebSocketMessageBuilder;
-import io.advantageous.qbit.json.JsonMapper;
-import io.advantageous.qbit.message.MethodCall;
-import io.advantageous.qbit.message.Response;
-import io.advantageous.qbit.queue.Queue;
-import io.advantageous.qbit.queue.ReceiveQueueListener;
 import io.advantageous.qbit.service.ServiceBundle;
-import io.advantageous.qbit.spi.ProtocolEncoder;
-import io.advantageous.qbit.spi.ProtocolParser;
 import io.advantageous.qbit.util.MultiMap;
 import io.advantageous.qbit.vertx.BufferUtils;
-import io.advantageous.qbit.vertx.http.HttpServerVerticle;
+import io.advantageous.qbit.vertx.service.BeforeWebServerStartsHandler;
 import org.boon.Str;
 import org.boon.core.Sys;
-import org.boon.core.reflection.BeanUtils;
-import org.boon.core.reflection.ClassMeta;
-import org.boon.core.reflection.fields.FieldAccess;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.vertx.java.core.buffer.Buffer;
 import org.vertx.java.core.eventbus.Message;
 import org.vertx.java.core.json.JsonObject;
 import org.vertx.java.platform.Verticle;
 
-import java.util.List;
-import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.function.Consumer;
 
 /**
  * Created by rhightower on 1/27/15.
  */
 public abstract class BaseHttpRelay extends Verticle {
-    public static final String SERVICE_SERVER_VERTICLE_PORT = "ServiceServerVerticle.port";
-    public static final String SERVICE_SERVER_VERTICLE_HTTP_WORKERS = "ServiceServerVerticle.httpWorkers";
-    public static final String SERVICE_SERVER_VERTICLE_HOST = "ServiceServerVerticle.host";
-    public static final String SERVICE_SERVER_VERTICLE_MANAGE_QUEUES = "ServiceServerVerticle.manageQueues";
-    public static final String SERVICE_SERVER_VERTICLE_POLL_TIME = "ServiceServerVerticle.pollTime";
-    public static final String SERVICE_SERVER_VERTICLE_MAX_REQUEST_BATCHES = "ServiceServerVerticle.maxRequestBatches";
-    public static final String SERVICE_SERVER_VERTICLE_FLUSH_INTERVAL = "ServiceServerVerticle.flushInterval";
-    public static final String SERVICE_SERVER_VERTICLE_REQUEST_BATCH_SIZE = "ServiceServerVerticle.requestBatchSize";
-    public static final String SERVICE_SERVER_VERTICLE_HANDLER = "ServiceServerVerticle.handler";
-    public static final String SERVICE_SERVER_VERTICLE_BUNDLE_URI = "ServiceServerVerticle.bundleUri";
+
+    private final Logger logger = LoggerFactory.getLogger(BaseHttpRelay.class);
+    private final boolean debug = logger.isDebugEnabled();
+    public static final String HTTP_RELAY_VERTICLE_PORT = "HttpRelay.port";
+    public static final String HTTP_RELAY_VERTICLE_HTTP_WORKERS = "HttpRelay.httpWorkers";
+    public static final String HTTP_RELAY_VERTICLE_HOST = "HttpRelay.host";
+    public static final String HTTP_RELAY_VERTICLE_MANAGE_QUEUES = "HttpRelay.manageQueues";
+    public static final String HTTP_RELAY_VERTICLE_POLL_TIME = "HttpRelay.pollTime";
+    public static final String HTTP_RELAY_VERTICLE_MAX_REQUEST_BATCHES = "HttpRelay.maxRequestBatches";
+    public static final String HTTP_RELAY_VERTICLE_FLUSH_INTERVAL = "HttpRelay.flushInterval";
+    public static final String HTTP_RELAY_VERTICLE_REQUEST_BATCH_SIZE = "HttpRelay.requestBatchSize";
     protected int pollTime;
     protected int requestBatchSize = 20;
     protected int httpWorkers = 4;
@@ -215,32 +206,32 @@ public abstract class BaseHttpRelay extends Verticle {
     protected void extractConfig() {
         JsonObject config = container.config();
 
-        if (config.containsField(SERVICE_SERVER_VERTICLE_PORT)) {
-            port = config.getInteger(SERVICE_SERVER_VERTICLE_PORT);
+        if (config.containsField(HTTP_RELAY_VERTICLE_PORT)) {
+            port = config.getInteger(HTTP_RELAY_VERTICLE_PORT);
         }
-        if (config.containsField(SERVICE_SERVER_VERTICLE_HOST)) {
-            host = config.getString(SERVICE_SERVER_VERTICLE_HOST);
+        if (config.containsField(HTTP_RELAY_VERTICLE_HOST)) {
+            host = config.getString(HTTP_RELAY_VERTICLE_HOST);
         }
-        if (config.containsField(SERVICE_SERVER_VERTICLE_MANAGE_QUEUES)) {
-            manageQueues = config.getBoolean(SERVICE_SERVER_VERTICLE_MANAGE_QUEUES);
+        if (config.containsField(HTTP_RELAY_VERTICLE_MANAGE_QUEUES)) {
+            manageQueues = config.getBoolean(HTTP_RELAY_VERTICLE_MANAGE_QUEUES);
         }
-        if (config.containsField(SERVICE_SERVER_VERTICLE_POLL_TIME)) {
+        if (config.containsField(HTTP_RELAY_VERTICLE_POLL_TIME)) {
             pollTime = config.getInteger(
-                    SERVICE_SERVER_VERTICLE_POLL_TIME);
+                    HTTP_RELAY_VERTICLE_POLL_TIME);
         }
-        if (config.containsField(SERVICE_SERVER_VERTICLE_MAX_REQUEST_BATCHES)) {
-            maxRequestBatches = config.getInteger(SERVICE_SERVER_VERTICLE_MAX_REQUEST_BATCHES);
+        if (config.containsField(HTTP_RELAY_VERTICLE_MAX_REQUEST_BATCHES)) {
+            maxRequestBatches = config.getInteger(HTTP_RELAY_VERTICLE_MAX_REQUEST_BATCHES);
         }
-        if (config.containsField(SERVICE_SERVER_VERTICLE_FLUSH_INTERVAL)) {
-            flushInterval = config.getInteger(SERVICE_SERVER_VERTICLE_FLUSH_INTERVAL);
+        if (config.containsField(HTTP_RELAY_VERTICLE_FLUSH_INTERVAL)) {
+            flushInterval = config.getInteger(HTTP_RELAY_VERTICLE_FLUSH_INTERVAL);
         }
-        if (config.containsField(SERVICE_SERVER_VERTICLE_REQUEST_BATCH_SIZE)) {
+        if (config.containsField(HTTP_RELAY_VERTICLE_REQUEST_BATCH_SIZE)) {
             requestBatchSize = config.getInteger(
-                    SERVICE_SERVER_VERTICLE_REQUEST_BATCH_SIZE);
+                    HTTP_RELAY_VERTICLE_REQUEST_BATCH_SIZE);
         }
-        if (config.containsField(SERVICE_SERVER_VERTICLE_HTTP_WORKERS)) {
+        if (config.containsField(HTTP_RELAY_VERTICLE_HTTP_WORKERS)) {
             httpWorkers = config.getInteger(
-                    SERVICE_SERVER_VERTICLE_HTTP_WORKERS);
+                    HTTP_RELAY_VERTICLE_HTTP_WORKERS);
         }
     }
 
@@ -250,4 +241,33 @@ public abstract class BaseHttpRelay extends Verticle {
         }
         stop.set(true);
     }
+
+
+    @Override
+    public void start() {
+
+        extractConfig();
+
+        serverId = UUID.randomUUID().toString();
+        final JsonObject httpServerConfig = createHttpConfig();
+
+
+        container.deployVerticle(HttpServerVerticle.class.getName(), httpServerConfig, httpWorkers,
+                result -> {
+                    if (result.succeeded()) {
+                        logger.info("Service Server Verticle is Launched");
+                    }
+                }
+        );
+
+
+        stop.set(false);
+
+
+        afterStart();
+
+    }
+
+    protected abstract void afterStart();
+
 }

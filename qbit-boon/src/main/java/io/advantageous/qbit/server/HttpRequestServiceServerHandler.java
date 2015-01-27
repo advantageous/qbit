@@ -30,9 +30,9 @@ import java.util.concurrent.TimeoutException;
 /**
  * Created by rhightower on 1/27/15.
  */
-public class HttpRequestServerHandler {
+public class HttpRequestServiceServerHandler {
 
-    private final Logger logger = LoggerFactory.getLogger(WebSocketServerHandler.class);
+    private final Logger logger = LoggerFactory.getLogger(WebSocketServiceServerHandler.class);
     private final boolean debug = logger.isDebugEnabled();
 
     protected final int timeoutInSeconds;
@@ -54,9 +54,9 @@ public class HttpRequestServerHandler {
 
 
 
-    public HttpRequestServerHandler(int timeoutInSeconds, ProtocolEncoder encoder, ProtocolParser parser, ServiceBundle serviceBundle, JsonMapper jsonMapper,
-                                    final int numberOfOutstandingRequests
-                                    ) {
+    public HttpRequestServiceServerHandler(int timeoutInSeconds, ProtocolEncoder encoder, ProtocolParser parser, ServiceBundle serviceBundle, JsonMapper jsonMapper,
+                                           final int numberOfOutstandingRequests
+    ) {
         this.timeoutInSeconds = timeoutInSeconds;
         this.encoder = encoder;
         this.parser = parser;

@@ -1,6 +1,7 @@
-package io.advantageous.qbit.vertx.http;
+package io.advantageous.qbit.vertx.http.verticle;
 
 import io.advantageous.qbit.http.HttpServer;
+import io.advantageous.qbit.vertx.http.HttpServerVertx;
 import org.boon.core.reflection.BeanUtils;
 import org.boon.core.reflection.ClassMeta;
 import org.boon.core.reflection.fields.FieldAccess;

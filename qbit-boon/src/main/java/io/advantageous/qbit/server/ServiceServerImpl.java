@@ -29,8 +29,8 @@ public class ServiceServerImpl implements ServiceServer {
 
 
 
-    protected WebSocketServerHandler webSocketHandler;
-    protected HttpRequestServerHandler httpRequestServerHandler;
+    protected WebSocketServiceServerHandler webSocketHandler;
+    protected HttpRequestServiceServerHandler httpRequestServerHandler;
 
     protected int timeoutInSeconds = 30;
     protected final int batchSize;
@@ -65,8 +65,8 @@ public class ServiceServerImpl implements ServiceServer {
         this.timeoutInSeconds = timeOutInSeconds;
         this.batchSize = batchSize;
 
-        webSocketHandler = new WebSocketServerHandler(batchSize, serviceBundle, encoder, parser);
-        httpRequestServerHandler = new HttpRequestServerHandler(this.timeoutInSeconds, this.encoder, this.parser, serviceBundle, jsonMapper, numberOfOutstandingRequests);
+        webSocketHandler = new WebSocketServiceServerHandler(batchSize, serviceBundle, encoder, parser);
+        httpRequestServerHandler = new HttpRequestServiceServerHandler(this.timeoutInSeconds, this.encoder, this.parser, serviceBundle, jsonMapper, numberOfOutstandingRequests);
     }
 
 

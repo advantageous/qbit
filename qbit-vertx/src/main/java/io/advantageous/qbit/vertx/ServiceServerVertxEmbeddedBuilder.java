@@ -3,12 +3,10 @@ package io.advantageous.qbit.vertx;
 import io.advantageous.qbit.server.ServiceServer;
 import io.advantageous.qbit.server.ServiceServerBuilder;
 import io.advantageous.qbit.service.Callback;
-import io.advantageous.qbit.vertx.service.BaseHttpRelay;
+import io.advantageous.qbit.vertx.http.verticle.BaseHttpRelay;
 import io.advantageous.qbit.vertx.service.ServiceServerVerticle;
 import org.boon.Lists;
 import org.boon.Str;
-import org.vertx.java.core.AsyncResult;
-import org.vertx.java.core.Handler;
 import org.vertx.java.core.json.JsonObject;
 import org.vertx.java.platform.PlatformLocator;
 import org.vertx.java.platform.PlatformManager;
@@ -85,6 +83,9 @@ public class ServiceServerVertxEmbeddedBuilder extends ServiceServerBuilder {
     @Override
     public ServiceServer build() {
 
+
+        final PlatformManager platformManager = PlatformLocator.factory.createPlatformManager();
+
         return new ServiceServer() {
             @Override
             public void initServices(Object... services) {
@@ -104,32 +105,28 @@ public class ServiceServerVertxEmbeddedBuilder extends ServiceServerBuilder {
             @Override
             public void start() {
 
-                PlatformManager platformManager = PlatformLocator.factory.createPlatformManager();
 
 
 
                 JsonObject jsonObject = new JsonObject();
-                jsonObject.putNumber(BaseHttpRelay.SERVICE_SERVER_VERTICLE_PORT, getPort());
-                jsonObject.putNumber(BaseHttpRelay.SERVICE_SERVER_VERTICLE_FLUSH_INTERVAL, getFlushInterval());
-                jsonObject.putBoolean(BaseHttpRelay.SERVICE_SERVER_VERTICLE_MANAGE_QUEUES, isManageQueues());
-                jsonObject.putNumber(BaseHttpRelay.SERVICE_SERVER_VERTICLE_MAX_REQUEST_BATCHES, getMaxRequestBatches());
-                jsonObject.putNumber(BaseHttpRelay.SERVICE_SERVER_VERTICLE_POLL_TIME, getPollTime());
-                jsonObject.putString(BaseHttpRelay.SERVICE_SERVER_VERTICLE_HOST, getHost());
-                jsonObject.putNumber(BaseHttpRelay.SERVICE_SERVER_VERTICLE_REQUEST_BATCH_SIZE, getRequestBatchSize());
-                jsonObject.putString(BaseHttpRelay.SERVICE_SERVER_VERTICLE_HANDLER, getBeforeStartHandler().getName());
-                jsonObject.putString(BaseHttpRelay.SERVICE_SERVER_VERTICLE_BUNDLE_URI, getUri());
+                jsonObject.putNumber(BaseHttpRelay.HTTP_RELAY_VERTICLE_PORT, getPort());
+                jsonObject.putNumber(BaseHttpRelay.HTTP_RELAY_VERTICLE_FLUSH_INTERVAL, getFlushInterval());
+                jsonObject.putBoolean(BaseHttpRelay.HTTP_RELAY_VERTICLE_MANAGE_QUEUES, isManageQueues());
+                jsonObject.putNumber(BaseHttpRelay.HTTP_RELAY_VERTICLE_MAX_REQUEST_BATCHES, getMaxRequestBatches());
+                jsonObject.putNumber(BaseHttpRelay.HTTP_RELAY_VERTICLE_POLL_TIME, getPollTime());
+                jsonObject.putString(BaseHttpRelay.HTTP_RELAY_VERTICLE_HOST, getHost());
+                jsonObject.putNumber(BaseHttpRelay.HTTP_RELAY_VERTICLE_REQUEST_BATCH_SIZE, getRequestBatchSize());
+                jsonObject.putString(ServiceServerVerticle.SERVICE_SERVER_VERTICLE_HANDLER, getBeforeStartHandler().getName());
+                jsonObject.putString(ServiceServerVerticle.SERVICE_SERVER_VERTICLE_BUNDLE_URI, getUri());
 
                 URL[] urls = getClasspathUrls();
 
 
 
                 platformManager.deployVerticle(ServiceServerVerticle.class.getName(), jsonObject, urls, 1, null,
-                        new Handler<AsyncResult<String>>() {
-                            @Override
-                            public void handle(AsyncResult<String> stringAsyncResult) {
-                                if (stringAsyncResult.succeeded()) {
-                                    puts("Launched service server verticle");
-                                }
+                        result -> {
+                            if (result.succeeded()) {
+                                puts("Launched service server verticle");
                             }
                         }
                 );
@@ -139,6 +136,13 @@ public class ServiceServerVertxEmbeddedBuilder extends ServiceServerBuilder {
 
             @Override
             public void stop() {
+
+                platformManager.uninstallModule(ServiceServerVerticle.class.getName(),
+                        result -> {
+                            if (result.succeeded()) {
+                                puts("Stopped service server verticle");
+                            }
+                        });
 
             }
         };

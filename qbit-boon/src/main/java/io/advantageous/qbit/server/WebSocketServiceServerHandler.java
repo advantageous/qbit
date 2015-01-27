@@ -25,10 +25,10 @@ import java.util.concurrent.ConcurrentHashMap;
 /**
  * Created by rhightower on 1/27/15.
  */
-public class WebSocketServerHandler {
+public class WebSocketServiceServerHandler {
 
 
-    private final Logger logger = LoggerFactory.getLogger(WebSocketServerHandler.class);
+    private final Logger logger = LoggerFactory.getLogger(WebSocketServiceServerHandler.class);
     private final boolean debug = logger.isDebugEnabled();
     protected final int batchSize;
     protected final ServiceBundle serviceBundle;
@@ -40,7 +40,7 @@ public class WebSocketServerHandler {
     private final Map<String, WebSocketDelegate> webSocketDelegateMap = new ConcurrentHashMap<>(100);
 
 
-    public WebSocketServerHandler(int batchSize, ServiceBundle serviceBundle, ProtocolEncoder encoder, ProtocolParser parser) {
+    public WebSocketServiceServerHandler(int batchSize, ServiceBundle serviceBundle, ProtocolEncoder encoder, ProtocolParser parser) {
         this.batchSize = batchSize;
         this.serviceBundle = serviceBundle;
         this.encoder = encoder;
