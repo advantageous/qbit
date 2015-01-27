@@ -4,14 +4,19 @@ import io.advantageous.qbit.http.HttpRequest;
 import io.advantageous.qbit.http.HttpServerHttpHandler;
 import io.advantageous.qbit.http.WebSocketMessage;
 import org.boon.core.reflection.Reflection;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Created by rhightower on 1/27/15.
  */
 public class HttpHandlerVerticle extends BaseHttpRelay {
 
+    private final Logger logger = LoggerFactory.getLogger(HttpHandlerVerticle.class);
+    private final boolean debug = logger.isDebugEnabled();
 
-    private static final String HTTP_HANDLER_VERTICLE_HANDLER = "HTTP_HANDLER_VERTICLE_HANDLER";
+
+    public static final String HTTP_HANDLER_VERTICLE_HANDLER = "HTTP_HANDLER_VERTICLE_HANDLER";
     private String handlerClassName;
     private HttpServerHttpHandler httpServerHandler;
 
@@ -25,13 +30,26 @@ public class HttpHandlerVerticle extends BaseHttpRelay {
     }
 
     @Override
+    protected void handleWebSocketClosed(WebSocketMessage webSocketMessage) {
+
+
+        if (debug) logger.debug("HTTP HANDLER VERTICLE GOT CLOSED WEB_SOCKET " + webSocketMessage);
+        httpServerHandler.webSocketClosed().accept(webSocketMessage);
+    }
+
+    @Override
     protected void handleWebSocketMessage(WebSocketMessage message) {
+
+
+        if (debug) logger.debug("HTTP HANDLER VERTICLE GOT WEB_SOCKET " + message);
         httpServerHandler.webSocketConsumer().accept(message);
 
     }
 
     @Override
     protected void handleHttpRequest(HttpRequest httpRequest) {
+
+        if (debug) logger.debug("HTTP HANDLER VERTICLE GOT REQUEST " + httpRequest);
         httpServerHandler.httpRequestConsumer().accept(httpRequest);
     }
 

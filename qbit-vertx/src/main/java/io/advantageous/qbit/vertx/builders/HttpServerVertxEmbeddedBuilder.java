@@ -1,9 +1,8 @@
-package io.advantageous.qbit.vertx;
+package io.advantageous.qbit.vertx.builders;
 
-import io.advantageous.qbit.server.ServiceServer;
-import io.advantageous.qbit.server.ServiceServerBuilder;
-import io.advantageous.qbit.service.Callback;
+import io.advantageous.qbit.http.*;
 import io.advantageous.qbit.vertx.http.verticle.BaseHttpRelay;
+import io.advantageous.qbit.vertx.http.verticle.HttpHandlerVerticle;
 import io.advantageous.qbit.vertx.service.ServiceServerVerticle;
 import org.boon.Lists;
 import org.boon.Str;
@@ -16,42 +15,32 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
 
 import static org.boon.Boon.puts;
 
 /**
- * Created by rhightower on 1/26/15.
+ * Created by rhightower on 1/27/15.
  */
-public class ServiceServerVertxEmbeddedBuilder extends ServiceServerBuilder {
+public class HttpServerVertxEmbeddedBuilder extends HttpServerBuilder {
 
-    private int maxRequestBatches=-1;
 
-    private int httpWorkers;
-    private Class<Callback> beforeStartHandler;
+    private int httpWorkers=4;
+    private Class<HttpServerHttpHandler> handlerCallbackClass;
 
-    public Class<Callback> getBeforeStartHandler() {
-        return beforeStartHandler;
+    public Class<HttpServerHttpHandler> getHandlerCallbackClass() {
+        return handlerCallbackClass;
     }
 
-    public ServiceServerVertxEmbeddedBuilder setBeforeStartHandler(Class beforeStartHandler) {
-        this.beforeStartHandler = beforeStartHandler;
-        return this;
-    }
-
-    public int getMaxRequestBatches() {
-        return maxRequestBatches;
-    }
-
-    public ServiceServerVertxEmbeddedBuilder setMaxRequestBatches(int maxRequestBatches) {
-        this.maxRequestBatches = maxRequestBatches;
-        return this;
+    public void setHandlerCallbackClass(Class handlerCallbackClass) {
+        this.handlerCallbackClass = handlerCallbackClass;
     }
 
     public int getHttpWorkers() {
         return httpWorkers;
     }
 
-    public ServiceServerVertxEmbeddedBuilder setHttpWorkers(int httpWorkers) {
+    public HttpServerVertxEmbeddedBuilder setHttpWorkers(int httpWorkers) {
         this.httpWorkers = httpWorkers;
         return this;
     }
@@ -79,28 +68,13 @@ public class ServiceServerVertxEmbeddedBuilder extends ServiceServerBuilder {
 
 
 
-
     @Override
-    public ServiceServer build() {
+    public HttpServer build() {
 
 
         final PlatformManager platformManager = PlatformLocator.factory.createPlatformManager();
 
-        return new ServiceServer() {
-            @Override
-            public void initServices(Object... services) {
-
-            }
-
-            @Override
-            public void initServices(Iterable services) {
-
-            }
-
-            @Override
-            public void flush() {
-
-            }
+        return new HttpServer() {
 
             @Override
             public void start() {
@@ -110,23 +84,23 @@ public class ServiceServerVertxEmbeddedBuilder extends ServiceServerBuilder {
 
                 JsonObject jsonObject = new JsonObject();
                 jsonObject.putNumber(BaseHttpRelay.HTTP_RELAY_VERTICLE_PORT, getPort());
+                jsonObject.putNumber(BaseHttpRelay.HTTP_RELAY_VERTICLE_HTTP_WORKERS, getHttpWorkers());
+                jsonObject.putString(HttpHandlerVerticle.HTTP_HANDLER_VERTICLE_HANDLER, getHandlerCallbackClass().getName());
                 jsonObject.putNumber(BaseHttpRelay.HTTP_RELAY_VERTICLE_FLUSH_INTERVAL, getFlushInterval());
                 jsonObject.putBoolean(BaseHttpRelay.HTTP_RELAY_VERTICLE_MANAGE_QUEUES, isManageQueues());
                 jsonObject.putNumber(BaseHttpRelay.HTTP_RELAY_VERTICLE_MAX_REQUEST_BATCHES, getMaxRequestBatches());
                 jsonObject.putNumber(BaseHttpRelay.HTTP_RELAY_VERTICLE_POLL_TIME, getPollTime());
                 jsonObject.putString(BaseHttpRelay.HTTP_RELAY_VERTICLE_HOST, getHost());
                 jsonObject.putNumber(BaseHttpRelay.HTTP_RELAY_VERTICLE_REQUEST_BATCH_SIZE, getRequestBatchSize());
-                jsonObject.putString(ServiceServerVerticle.SERVICE_SERVER_VERTICLE_HANDLER, getBeforeStartHandler().getName());
-                jsonObject.putString(ServiceServerVerticle.SERVICE_SERVER_VERTICLE_BUNDLE_URI, getUri());
 
                 URL[] urls = getClasspathUrls();
 
 
 
-                platformManager.deployVerticle(ServiceServerVerticle.class.getName(), jsonObject, urls, 1, null,
+                platformManager.deployVerticle(HttpHandlerVerticle.class.getName(), jsonObject, urls, 1, null,
                         result -> {
                             if (result.succeeded()) {
-                                puts("Launched service server verticle");
+                                puts("Launched service http server verticle");
                             }
                         }
                 );
@@ -140,9 +114,24 @@ public class ServiceServerVertxEmbeddedBuilder extends ServiceServerBuilder {
                 platformManager.uninstallModule(ServiceServerVerticle.class.getName(),
                         result -> {
                             if (result.succeeded()) {
-                                puts("Stopped service server verticle");
+                                puts("Stopped http server verticle");
                             }
                         });
+
+            }
+
+            @Override
+            public void setWebSocketMessageConsumer(Consumer<WebSocketMessage> webSocketMessageConsumer) {
+
+            }
+
+            @Override
+            public void setWebSocketCloseConsumer(Consumer<WebSocketMessage> webSocketMessageConsumer) {
+
+            }
+
+            @Override
+            public void setHttpRequestConsumer(Consumer<HttpRequest> httpRequestConsumer) {
 
             }
         };

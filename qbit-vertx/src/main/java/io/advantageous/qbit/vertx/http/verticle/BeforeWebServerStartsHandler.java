@@ -1,4 +1,4 @@
-package io.advantageous.qbit.vertx.service;
+package io.advantageous.qbit.vertx.http.verticle;
 
 import io.advantageous.qbit.http.HttpRequest;
 import io.advantageous.qbit.http.HttpServer;
@@ -26,6 +26,7 @@ public class BeforeWebServerStartsHandler implements Consumer<HttpServer> {
     public static final String HTTP_WEB_SOCKET_RECEIVE_EVENT = "HTTP_WEB_SOCKET_RECEIVE_EVENT";
     public static final String HTTP_REQUEST_RESPONSE_EVENT = "HTTP_REQUEST_RESPONSE_EVENT";
     public static final String HTTP_WEB_SOCKET_RESPONSE_EVENT = "HTTP_WEB_SOCKET_RESPONSE_EVENT";
+    public static final String HTTP_WEB_SOCKET_CLOSE_EVENT = "HTTP_WEB_SOCKET_CLOSE_EVENT";
 
     private Map<String, HttpRequest> map = new ConcurrentHashMap<>();
 
@@ -43,6 +44,7 @@ public class BeforeWebServerStartsHandler implements Consumer<HttpServer> {
     private String httpReceiveWebSocketEventChannel = null;
     private String httpRequestResponseEventChannel = null;
     private String webSocketReturnChannel = null;
+    private String httpReceiveWebSocketClosedEventChannel=null;
 
 
     public String returnAddress() {
@@ -60,6 +62,13 @@ public class BeforeWebServerStartsHandler implements Consumer<HttpServer> {
     }
 
 
+    public String httpReceiveWebSocketClosedEventChannel() {
+        if (httpReceiveWebSocketClosedEventChannel==null) {
+            httpReceiveWebSocketClosedEventChannel = Str.add(serverId, ".", HTTP_WEB_SOCKET_CLOSE_EVENT);
+        }
+        return httpReceiveWebSocketClosedEventChannel;
+    }
+
     public String httpReceiveWebSocketEventChannel() {
         if (httpReceiveWebSocketEventChannel==null) {
             httpReceiveWebSocketEventChannel = Str.add(serverId, ".", HTTP_WEB_SOCKET_RECEIVE_EVENT);
@@ -69,7 +78,16 @@ public class BeforeWebServerStartsHandler implements Consumer<HttpServer> {
     @Override
     public void accept(final HttpServer httpServer) {
 
-        httpServer.setWebSocketCloseConsumer(webSocketMessage -> wsMap.remove(webSocketMessage.getRemoteAddress()));
+        httpServer.setWebSocketCloseConsumer(
+                webSocketMessage -> {
+                            wsMap.remove(webSocketMessage.getRemoteAddress());
+                    final Buffer buffer = new Buffer();
+                    BufferUtils.writeString(buffer, webSocketMessage.getRemoteAddress());
+                    vertx.eventBus().send(httpReceiveWebSocketClosedEventChannel(),
+                                    buffer);
+
+
+                });
 
         httpServer.setHttpRequestConsumer(request -> {
             Buffer buffer = new Buffer();

@@ -7,7 +7,6 @@ import io.advantageous.qbit.http.WebSocketMessageBuilder;
 import io.advantageous.qbit.service.ServiceBundle;
 import io.advantageous.qbit.util.MultiMap;
 import io.advantageous.qbit.vertx.BufferUtils;
-import io.advantageous.qbit.vertx.service.BeforeWebServerStartsHandler;
 import org.boon.Str;
 import org.boon.core.Sys;
 import org.slf4j.Logger;
@@ -52,6 +51,7 @@ public abstract class BaseHttpRelay extends Verticle {
     private String httpRequestResponseEventChannel = null;
     private String httpReceiveWebSocketEventChannel = null;
     private String webSocketReturnChannel;
+    private String httpReceiveWebSocketClosedEventChannel=null;
 
     public String webSocketReturnChannel() {
         if (webSocketReturnChannel==null) {
@@ -97,7 +97,32 @@ public abstract class BaseHttpRelay extends Verticle {
             handleWebSocketMessage(request);
         }
         );
+
+
+        vertx.eventBus().registerHandler(httpReceiveWebSocketClosedEventChannel(), event -> {
+                    Message<Buffer> bufferMessage = event;
+                    final Buffer request = bufferMessage.body();
+                    handleWebSocketClosed(request);
+                }
+        );
     }
+
+    private void handleWebSocketClosed(Buffer request) {
+        String remoteAddress = BufferUtils.readString(request, new int[]{0});
+
+        WebSocketMessage webSocketMessage = new WebSocketMessageBuilder().setRemoteAddress(remoteAddress).build();
+        handleWebSocketClosed(webSocketMessage);
+    }
+
+    protected abstract void handleWebSocketClosed(WebSocketMessage webSocketMessage);
+
+    public String httpReceiveWebSocketClosedEventChannel() {
+        if (httpReceiveWebSocketClosedEventChannel==null) {
+            httpReceiveWebSocketClosedEventChannel = Str.add(serverId, ".", BeforeWebServerStartsHandler.HTTP_WEB_SOCKET_CLOSE_EVENT);
+        }
+        return httpReceiveWebSocketClosedEventChannel;
+    }
+
 
     protected JsonObject createHttpConfig() {
         JsonObject jsonObject = new JsonObject();
@@ -262,6 +287,8 @@ public abstract class BaseHttpRelay extends Verticle {
 
 
         stop.set(false);
+
+        configureEventBus();
 
 
         afterStart();

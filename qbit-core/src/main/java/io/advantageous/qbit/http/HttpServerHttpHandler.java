@@ -1,7 +1,5 @@
 package io.advantageous.qbit.http;
 
-import io.advantageous.qbit.http.HttpRequest;
-import io.advantageous.qbit.http.WebSocketMessage;
 import io.advantageous.qbit.service.Callback;
 
 /**

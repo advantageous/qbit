@@ -1,4 +1,4 @@
-package io.advantageous.qbit.vertx;
+package io.advantageous.qbit.vertx.builders;
 
 import io.advantageous.qbit.annotation.RequestMapping;
 import io.advantageous.qbit.annotation.RequestMethod;
@@ -7,6 +7,7 @@ import io.advantageous.qbit.client.ClientBuilder;
 import io.advantageous.qbit.server.ServiceServer;
 import io.advantageous.qbit.service.Callback;
 import io.advantageous.qbit.service.ServiceBundle;
+import io.advantageous.qbit.vertx.builders.ServiceServerVertxEmbeddedBuilder;
 import org.boon.HTTP;
 import org.boon.core.Sys;
 import org.junit.After;
@@ -18,11 +19,10 @@ import java.util.function.Consumer;
 
 import static org.boon.Boon.puts;
 import static org.boon.Exceptions.die;
-import static org.junit.Assert.*;
 
 public class ServiceServerVertxEmbeddedBuilderTest {
 
-    ServiceServerVertxEmbeddedBuilder  builder;
+    ServiceServerVertxEmbeddedBuilder builder;
 
     Client client;
 

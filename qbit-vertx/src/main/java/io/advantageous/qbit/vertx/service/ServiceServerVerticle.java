@@ -73,7 +73,6 @@ public class ServiceServerVerticle extends BaseHttpRelay {
 
 
         configureBeforeStartCallback();
-        configureEventBus();
         startResponseQueueListener();
 
 
@@ -269,6 +268,12 @@ public class ServiceServerVerticle extends BaseHttpRelay {
         );
     }
 
+
+    @Override
+    protected void handleWebSocketClosed(WebSocketMessage webSocketMessage) {
+
+        webSocketHandler.handleWebSocketClose(webSocketMessage);
+    }
 
     public void handleWebSocketMessage(WebSocketMessage message) {
         webSocketHandler.handleWebSocketCall(message);
