@@ -13,6 +13,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 
 import static org.boon.Boon.puts;
@@ -86,12 +87,14 @@ public class ServiceServerVertxEmbeddedBuilderTest {
         ok = ping.equals("\"ping pong\"") || die(ping);
 
 
+        final AtomicInteger count = new AtomicInteger();
 
         final Callback<String> callback = new Callback<String>() {
             @Override
             public void accept(String s) {
 
-                puts("                     PONG");
+                count.incrementAndGet();
+                puts("                     PONG", s);
 
             }
         };
@@ -104,14 +107,16 @@ public class ServiceServerVertxEmbeddedBuilderTest {
 
 
         client.flush();
-        Sys.sleep(5000);
+        Sys.sleep(1_000);
+
+        ok = count.get() == 10 || die();
 
 
     }
     @After
     public void tearDown() throws Exception {
 
-        Sys.sleep(5_000);
+        Sys.sleep(1_000);
         client.stop();
 
     }

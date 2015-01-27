@@ -21,6 +21,7 @@ import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
 
+
 /**
  * Created by rhightower on 1/27/15.
  */
@@ -74,9 +75,6 @@ public class WebSocketServerHandler {
             if (!outputMessages.offer(message)) {
                 buildAndSendMessages(message, Timer.timer().now());
             }
-//            } else {
-//                uts("OUTPUT QUEUE", outputMessages.size());
-//            }
         }
 
         private void buildAndSendMessages(final Response<Object> message, long now) {
@@ -104,6 +102,7 @@ public class WebSocketServerHandler {
 
 
             final String textMessage = encoder.encodeAsString((Collection<Message<Object>>) (Object) messages);
+
 
             serverWebSocket.getSender().send(textMessage);
 
