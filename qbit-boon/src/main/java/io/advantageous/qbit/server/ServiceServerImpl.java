@@ -109,7 +109,7 @@ public class ServiceServerImpl implements ServiceServer {
      *
      * @param request http request
      */
-    private void handleRestCall(final HttpRequest request) {
+    public void handleRestCall(final HttpRequest request) {
 
 
         boolean knownURI = false;
@@ -290,7 +290,7 @@ public class ServiceServerImpl implements ServiceServer {
      *
      * @param webSocketMessage
      */
-    private void handleWebSocketCall(final WebSocketMessage webSocketMessage) {
+    public void handleWebSocketCall(final WebSocketMessage webSocketMessage) {
 
         if (GlobalConstants.DEBUG) logger.info("WebSocket message: " + webSocketMessage);
 

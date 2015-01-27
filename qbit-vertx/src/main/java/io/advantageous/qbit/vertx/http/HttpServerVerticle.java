@@ -8,6 +8,7 @@ import org.vertx.java.core.json.JsonObject;
 import org.vertx.java.platform.Verticle;
 
 import java.util.Map;
+import java.util.UUID;
 import java.util.function.Consumer;
 
 
@@ -26,8 +27,12 @@ public class HttpServerVerticle extends Verticle {
     public static final String HTTP_SERVER_VERTICLE_REQUEST_BATCH_SIZE = "HttpServerVerticle.requestBatchSize";
 
     public static final String HTTP_SERVER_HANDLER = "HttpServerVerticle.handler";
+
+    public static final String HTTP_SERVER_ID = "HttpServerVerticle.serverId";
+
     int port = 8080;
     String host = null;
+    String serverId;
     boolean manageQueues = false;
 
     int pollTime;
@@ -45,6 +50,12 @@ public class HttpServerVerticle extends Verticle {
     public void start() {
 
         JsonObject config = container.config();
+
+        if (config.containsField(HTTP_SERVER_ID)) {
+            serverId = config.getString(HTTP_SERVER_ID);
+        } else {
+            serverId = UUID.randomUUID().toString();
+        }
 
         if (config.containsField(HTTP_SERVER_VERTICLE_PORT)) {
             port = config.getInteger(HTTP_SERVER_VERTICLE_PORT);
@@ -90,6 +101,11 @@ public class HttpServerVerticle extends Verticle {
 
                 if (fieldMap.containsKey("vertx")) {
                     BeanUtils.setPropertyValue(beforeCallbackHandler, vertx, "vertx");
+                }
+
+
+                if (fieldMap.containsKey("serverId")) {
+                    BeanUtils.setPropertyValue(beforeCallbackHandler, serverId, "serverId");
                 }
 
             } catch (Exception e) {

@@ -26,7 +26,7 @@ import static org.boon.Boon.puts;
  */
 public class ServiceServerVertxEmbeddedBuilder extends ServiceServerBuilder {
 
-    private int maxRequestBatches;
+    private int maxRequestBatches=-1;
 
     private int httpWorkers;
     private Class<Callback> beforeStartHandler;
@@ -117,6 +117,7 @@ public class ServiceServerVertxEmbeddedBuilder extends ServiceServerBuilder {
                 jsonObject.putString(ServiceServerVerticle.SERVICE_SERVER_VERTICLE_HOST, getHost());
                 jsonObject.putNumber(ServiceServerVerticle.SERVICE_SERVER_VERTICLE_REQUEST_BATCH_SIZE, getRequestBatchSize());
                 jsonObject.putString(ServiceServerVerticle.SERVICE_SERVER_VERTICLE_HANDLER, getBeforeStartHandler().getName());
+                jsonObject.putString(ServiceServerVerticle.SERVICE_SERVER_VERTICLE_BUNDLE_URI, getUri());
 
                 URL[] urls = getClasspathUrls();
 

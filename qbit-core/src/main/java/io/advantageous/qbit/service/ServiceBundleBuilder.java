@@ -85,8 +85,9 @@ public class ServiceBundleBuilder {
         return address;
     }
 
-    public void setAddress(String address) {
+    public ServiceBundleBuilder setAddress(String address) {
         this.address = address;
+        return this;
     }
 
 
