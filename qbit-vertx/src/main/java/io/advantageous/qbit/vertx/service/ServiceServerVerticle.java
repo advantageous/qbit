@@ -116,7 +116,16 @@ public class ServiceServerVerticle extends Verticle {
     private String httpRequestResponseEventChannel = null;
 
     private String httpReceiveWebSocketEventChannel = null;
+    private String webSocketReturnChannel;
 
+
+    public String webSocketReturnChannel() {
+        if (webSocketReturnChannel==null) {
+            webSocketReturnChannel = Str.add(serverId, ".", BeforeStartHandler.HTTP_WEB_SOCKET_RESPONSE_EVENT);
+        }
+
+        return webSocketReturnChannel;
+    }
 
     public String httpRequestResponseEventChannel() {
         if (httpRequestResponseEventChannel==null) {
@@ -147,6 +156,7 @@ public class ServiceServerVerticle extends Verticle {
 
         jsonMapper = QBit.factory().createJsonMapper();
         encoder = QBit.factory().createEncoder();
+        parser = QBit.factory().createProtocolParser();
 
 
 
@@ -316,6 +326,52 @@ public class ServiceServerVerticle extends Verticle {
     private void handleWebSocketMessage(Buffer buffer) {
 
 
+        int [] location = new int[]{0};
+
+
+        String returnEventBusAddress = BufferUtils.readString(buffer, location);
+        String id = BufferUtils.readString(buffer, location);
+        long messageId = Long.parseLong(id);
+        String ts = BufferUtils.readString(buffer, location);
+        long timestamp = Long.parseLong(ts);
+        String uri = BufferUtils.readString(buffer, location);
+        String remoteAddress = BufferUtils.readString(buffer, location);
+        String body = BufferUtils.readString(buffer, location);
+
+
+
+
+        final WebSocketMessage message =
+                new WebSocketMessageBuilder()
+                        .setMessage(body)
+                        .setRemoteAddress(remoteAddress)
+                        .setUri(uri)
+                        .setMessageId(messageId)
+                        .setTimestamp(timestamp)
+                        .setSender(new WebSocketSender() {
+                    @Override
+                    public void send(String message) {
+
+
+
+                        Buffer buffer = new Buffer();
+
+
+                        BufferUtils.writeString(buffer, remoteAddress);
+                        BufferUtils.writeString(buffer, body);
+
+                        String returnEventAddress = Str.add(webSocketReturnChannel(), ".", returnEventBusAddress);
+
+
+                        puts("SENDING WS ", returnEventAddress);
+                        vertx.eventBus().send(returnEventAddress, buffer);
+
+                    }
+                }).build();
+
+
+        webSocketHandler.handleWebSocketCall(message);
+
 
     }
 
@@ -358,7 +414,7 @@ public class ServiceServerVerticle extends Verticle {
 
                                 String returnEventAddress = Str.add(httpRequestResponseEventChannel(), ".", returnEventBusAddress);
 
-                                puts("SENDING", returnEventAddress);
+                                puts("SENDING ", returnEventAddress);
 
                                 vertx.eventBus().send(returnEventAddress, buffer);
 

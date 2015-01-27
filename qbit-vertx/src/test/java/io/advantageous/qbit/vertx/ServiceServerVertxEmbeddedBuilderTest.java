@@ -2,6 +2,8 @@ package io.advantageous.qbit.vertx;
 
 import io.advantageous.qbit.annotation.RequestMapping;
 import io.advantageous.qbit.annotation.RequestMethod;
+import io.advantageous.qbit.client.Client;
+import io.advantageous.qbit.client.ClientBuilder;
 import io.advantageous.qbit.server.ServiceServer;
 import io.advantageous.qbit.service.Callback;
 import io.advantageous.qbit.service.ServiceBundle;
@@ -20,6 +22,10 @@ import static org.junit.Assert.*;
 public class ServiceServerVertxEmbeddedBuilderTest {
 
     ServiceServerVertxEmbeddedBuilder  builder;
+
+    Client client;
+
+    ClientServiceInterface clientProxy;
 
     boolean ok;
 
@@ -59,6 +65,15 @@ public class ServiceServerVertxEmbeddedBuilderTest {
         final ServiceServer server = builder.build();
 
         server.start();
+
+        Sys.sleep(200);
+
+
+        client = new ClientBuilder().setPort(4049).build();
+
+        clientProxy = client.createProxy(ClientServiceInterface.class, "mockService");
+        client.start();
+        Sys.sleep(200);
     }
 
     @Test
@@ -70,11 +85,34 @@ public class ServiceServerVertxEmbeddedBuilderTest {
 
         ok = ping.equals("\"ping pong\"") || die(ping);
 
+
+
+        final Callback<String> callback = new Callback<String>() {
+            @Override
+            public void accept(String s) {
+
+                puts("                     PONG");
+
+            }
+        };
+
+        for (int index=0; index< 10; index++) {
+
+            clientProxy.ping(callback, "hi");
+
+        }
+
+
+        client.flush();
+        Sys.sleep(5000);
+
+
     }
     @After
     public void tearDown() throws Exception {
 
         Sys.sleep(5_000);
+        client.stop();
 
     }
 }

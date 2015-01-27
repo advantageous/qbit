@@ -513,18 +513,8 @@ public class HttpServerVertx implements HttpServer {
 
     private WebSocketMessage createWebSocketMessage(final String address, final String returnAddress, final WebSocketSender webSocketSender, final String message) {
 
-//        final String address = serverWebSocket.remoteAddress().toString();
-//
-//
-//        WebSocketDelegate webSocketDelegate = webSocketDelegateMap.get(address);
-//
-//        if (webSocketDelegate == null) {
-//            webSocketDelegate = new WebSocketDelegate(requestBatchSize, serverWebSocket);
-//            webSocketDelegateMap.put(address, webSocketDelegate);
-//        }
 
-
-        return new WebSocketMessage(address, message, returnAddress, webSocketSender);
+        return new WebSocketMessage(-1L, -1L, address, message, returnAddress, webSocketSender);
     }
 
     volatile long id;
