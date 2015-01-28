@@ -2,7 +2,7 @@ package io.advantageous.qbit.vertx.builders;
 
 import io.advantageous.qbit.http.*;
 import io.advantageous.qbit.vertx.http.verticle.BaseHttpRelay;
-import io.advantageous.qbit.vertx.http.verticle.HttpHandlerVerticle;
+import io.advantageous.qbit.vertx.http.verticle.HttpHandlerConcentratorVerticle;
 import io.advantageous.qbit.vertx.service.ServiceServerVerticle;
 import org.boon.Lists;
 import org.boon.Str;
@@ -86,7 +86,7 @@ public class HttpServerVertxEmbeddedBuilder extends HttpServerBuilder {
                 JsonObject jsonObject = new JsonObject();
                 jsonObject.putNumber(BaseHttpRelay.HTTP_RELAY_VERTICLE_PORT, getPort());
                 jsonObject.putNumber(BaseHttpRelay.HTTP_RELAY_VERTICLE_HTTP_WORKERS, getHttpWorkers());
-                jsonObject.putString(HttpHandlerVerticle.HTTP_HANDLER_VERTICLE_HANDLER, getHandlerCallbackClass().getName());
+                jsonObject.putString(HttpHandlerConcentratorVerticle.HTTP_HANDLER_VERTICLE_HANDLER, getHandlerCallbackClass().getName());
                 jsonObject.putNumber(BaseHttpRelay.HTTP_RELAY_VERTICLE_FLUSH_INTERVAL, getFlushInterval());
                 jsonObject.putBoolean(BaseHttpRelay.HTTP_RELAY_VERTICLE_MANAGE_QUEUES, isManageQueues());
                 jsonObject.putNumber(BaseHttpRelay.HTTP_RELAY_VERTICLE_MAX_REQUEST_BATCHES, getMaxRequestBatches());
@@ -98,7 +98,7 @@ public class HttpServerVertxEmbeddedBuilder extends HttpServerBuilder {
 
 
 
-                platformManager.deployVerticle(HttpHandlerVerticle.class.getName(), jsonObject, urls, 1, null,
+                platformManager.deployVerticle(HttpHandlerConcentratorVerticle.class.getName(), jsonObject, urls, 1, null,
                         result -> {
                             if (result.succeeded()) {
                                 puts("Launched service http server verticle");

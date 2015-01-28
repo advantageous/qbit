@@ -16,7 +16,7 @@ import java.util.function.Consumer;
 /**
  * Created by rhightower on 1/26/15.
  */
-public class HttpServerVerticle extends Verticle {
+public class HttpServerWorkerVerticle extends Verticle {
 
 
     public static final String HTTP_SERVER_VERTICLE_PORT = "HttpServerVerticle.port";

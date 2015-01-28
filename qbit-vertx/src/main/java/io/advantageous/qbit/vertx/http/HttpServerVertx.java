@@ -9,7 +9,7 @@ import io.advantageous.qbit.queue.SendQueue;
 import io.advantageous.qbit.util.MultiMap;
 import io.advantageous.qbit.util.Timer;
 import io.advantageous.qbit.vertx.MultiMapWrapper;
-import io.advantageous.qbit.vertx.http.verticle.HttpServerVerticle;
+import io.advantageous.qbit.vertx.http.verticle.HttpServerWorkerVerticle;
 import org.boon.Lists;
 import org.boon.Str;
 import org.slf4j.Logger;
@@ -168,20 +168,20 @@ public class HttpServerVertx implements HttpServer {
 
 
             JsonObject jsonObject = new JsonObject();
-            jsonObject.putNumber(HttpServerVerticle.HTTP_SERVER_VERTICLE_PORT, this.port);
-            jsonObject.putNumber(HttpServerVerticle.HTTP_SERVER_VERTICLE_FLUSH_INTERVAL, this.flushInterval);
-            jsonObject.putBoolean(HttpServerVerticle.HTTP_SERVER_VERTICLE_MANAGE_QUEUES, this.manageQueues);
-            jsonObject.putNumber(HttpServerVerticle.HTTP_SERVER_VERTICLE_MAX_REQUEST_BATCHES, this.maxRequestBatches);
-            jsonObject.putNumber(HttpServerVerticle.HTTP_SERVER_VERTICLE_POLL_TIME, this.pollTime);
-            jsonObject.putString(HttpServerVerticle.HTTP_SERVER_VERTICLE_HOST, this.host);
-            jsonObject.putNumber(HttpServerVerticle.HTTP_SERVER_VERTICLE_REQUEST_BATCH_SIZE, this.requestBatchSize);
-            jsonObject.putString(HttpServerVerticle.HTTP_SERVER_HANDLER, handler.getName());
+            jsonObject.putNumber(HttpServerWorkerVerticle.HTTP_SERVER_VERTICLE_PORT, this.port);
+            jsonObject.putNumber(HttpServerWorkerVerticle.HTTP_SERVER_VERTICLE_FLUSH_INTERVAL, this.flushInterval);
+            jsonObject.putBoolean(HttpServerWorkerVerticle.HTTP_SERVER_VERTICLE_MANAGE_QUEUES, this.manageQueues);
+            jsonObject.putNumber(HttpServerWorkerVerticle.HTTP_SERVER_VERTICLE_MAX_REQUEST_BATCHES, this.maxRequestBatches);
+            jsonObject.putNumber(HttpServerWorkerVerticle.HTTP_SERVER_VERTICLE_POLL_TIME, this.pollTime);
+            jsonObject.putString(HttpServerWorkerVerticle.HTTP_SERVER_VERTICLE_HOST, this.host);
+            jsonObject.putNumber(HttpServerWorkerVerticle.HTTP_SERVER_VERTICLE_REQUEST_BATCH_SIZE, this.requestBatchSize);
+            jsonObject.putString(HttpServerWorkerVerticle.HTTP_SERVER_HANDLER, handler.getName());
 
             URL[] urls = getClasspathUrls();
 
 
 
-            platformManager.deployVerticle(HttpServerVerticle.class.getName(), jsonObject, urls, httpWorkers, null,
+            platformManager.deployVerticle(HttpServerWorkerVerticle.class.getName(), jsonObject, urls, httpWorkers, null,
                     new Handler<AsyncResult<String>>() {
                         @Override
                         public void handle(AsyncResult<String> stringAsyncResult) {

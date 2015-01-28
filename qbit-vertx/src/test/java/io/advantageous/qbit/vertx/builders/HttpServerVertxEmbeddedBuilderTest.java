@@ -102,7 +102,7 @@ public class HttpServerVertxEmbeddedBuilderTest {
 
         client.flush();
 
-        Sys.sleep(1000);
+        Sys.sleep(2000);
 
         ok = queue.size() == 2 || die(queue.size());
 
