@@ -213,9 +213,10 @@ project(':qbit-boon') {
 project(':qbit-examples-standalone') {
     sourceSets.main.resources.srcDir 'src/main/java'
     dependencies {
-        compile project(':qbit-boon')
+        compile project(':qbit-vertx')
         compile "org.slf4j:slf4j-api:[1.7,1.8)"
         compile 'ch.qos.logback:logback-classic:1.1.2'
+
         testCompile group: 'junit', name: 'junit', version: '4.10'
     }
 }

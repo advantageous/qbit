@@ -361,7 +361,16 @@ public class HttpRequestServiceServerHandler {
 
         /* Add the outstandingRequests that have not timed out back to the queue. */
         if (notTimedOutRequests.size() > 0) {
-            outstandingRequests.addAll(notTimedOutRequests);
+
+            try {
+                outstandingRequests.addAll(notTimedOutRequests);
+            }catch (Exception ex) {
+                for (Request item : notTimedOutRequests) {
+                    if (!outstandingRequests.offer(item)) {
+                        logger.warn("Unable to track outstanding request " + item.address());
+                    }
+                }
+            }
 
         }
 
