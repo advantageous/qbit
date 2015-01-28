@@ -28,9 +28,9 @@ public class ServiceServerBuilder {
     private int requestBatchSize = GlobalConstants.BATCH_SIZE;
     private int flushInterval = 200;
     private String uri = "/services";
-    private int numberOfOutstandingRequests = 500_000;
+    private int numberOfOutstandingRequests = 1_000_000;
 
-    private int maxHttpRequests = -1;
+    private int maxRequestBatches = -1;
 
     private int timeoutSeconds = 30;
     /**
@@ -51,12 +51,12 @@ public class ServiceServerBuilder {
      */
     private Transformer<Request, Object> argTransformer = ServiceConstants.NO_OP_ARG_TRANSFORM;
 
-    public int getMaxHttpRequests() {
-        return maxHttpRequests;
+    public int getMaxRequestBatches() {
+        return maxRequestBatches;
     }
 
-    public ServiceServerBuilder setMaxHttpRequests(int maxHttpRequests) {
-        this.maxHttpRequests = maxHttpRequests;
+    public ServiceServerBuilder setMaxRequestBatches(int maxRequestBatches) {
+        this.maxRequestBatches = maxRequestBatches;
         return this;
     }
 
@@ -188,7 +188,7 @@ public class ServiceServerBuilder {
 
 
     public ServiceServer build() {
-        final HttpServer httpServer = QBit.factory().createHttpServer(host, port, manageQueues, pollTime, requestBatchSize, flushInterval, maxHttpRequests);
+        final HttpServer httpServer = QBit.factory().createHttpServer(host, port, manageQueues, pollTime, requestBatchSize, flushInterval, maxRequestBatches);
         final JsonMapper jsonMapper = QBit.factory().createJsonMapper();
         final ProtocolEncoder encoder = QBit.factory().createEncoder();
 

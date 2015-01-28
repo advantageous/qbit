@@ -10,9 +10,9 @@ import org.slf4j.LoggerFactory;
 /**
  * Created by rhightower on 1/27/15.
  */
-public class HttpHandlerVerticle extends BaseHttpRelay {
+public class HttpHandlerConcentratorVerticle extends BaseHttpRelay {
 
-    private final Logger logger = LoggerFactory.getLogger(HttpHandlerVerticle.class);
+    private final Logger logger = LoggerFactory.getLogger(HttpHandlerConcentratorVerticle.class);
     private final boolean debug = logger.isDebugEnabled();
 
 

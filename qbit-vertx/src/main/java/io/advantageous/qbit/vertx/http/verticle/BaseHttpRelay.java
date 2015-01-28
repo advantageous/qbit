@@ -1,9 +1,6 @@
 package io.advantageous.qbit.vertx.http.verticle;
 
-import io.advantageous.qbit.http.HttpRequest;
-import io.advantageous.qbit.http.HttpRequestBuilder;
-import io.advantageous.qbit.http.WebSocketMessage;
-import io.advantageous.qbit.http.WebSocketMessageBuilder;
+import io.advantageous.qbit.http.*;
 import io.advantageous.qbit.service.ServiceBundle;
 import io.advantageous.qbit.util.MultiMap;
 import io.advantageous.qbit.vertx.BufferUtils;
@@ -11,12 +8,16 @@ import org.boon.Str;
 import org.boon.core.Sys;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.vertx.java.core.Handler;
 import org.vertx.java.core.buffer.Buffer;
 import org.vertx.java.core.eventbus.Message;
 import org.vertx.java.core.json.JsonObject;
 import org.vertx.java.platform.Verticle;
 
-import java.util.UUID;
+import java.util.*;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
@@ -55,7 +56,7 @@ public abstract class BaseHttpRelay extends Verticle {
 
     public String webSocketReturnChannel() {
         if (webSocketReturnChannel==null) {
-            webSocketReturnChannel = Str.add(serverId, ".", BeforeWebServerStartsHandler.HTTP_WEB_SOCKET_RESPONSE_EVENT);
+            webSocketReturnChannel = Str.add(serverId, ".", HttpRepeaterBeforeWebServerStartHandler.HTTP_WEB_SOCKET_RESPONSE_EVENT);
         }
 
         return webSocketReturnChannel;
@@ -63,7 +64,7 @@ public abstract class BaseHttpRelay extends Verticle {
 
     public String httpRequestResponseEventChannel() {
         if (httpRequestResponseEventChannel==null) {
-            httpRequestResponseEventChannel = Str.add(serverId, ".", BeforeWebServerStartsHandler.HTTP_REQUEST_RESPONSE_EVENT);
+            httpRequestResponseEventChannel = Str.add(serverId, ".", HttpRepeaterBeforeWebServerStartHandler.HTTP_REQUEST_RESPONSE_EVENT);
         }
 
         return httpRequestResponseEventChannel;
@@ -71,14 +72,14 @@ public abstract class BaseHttpRelay extends Verticle {
 
     public String httpReceiveRequestEventChannel() {
         if (httpReceiveRequestEventChannel==null) {
-            httpReceiveRequestEventChannel = Str.add(serverId, ".", BeforeWebServerStartsHandler.HTTP_REQUEST_RECEIVE_EVENT);
+            httpReceiveRequestEventChannel = Str.add(serverId, ".", HttpRepeaterBeforeWebServerStartHandler.HTTP_REQUEST_RECEIVE_EVENT);
         }
         return httpReceiveRequestEventChannel;
     }
 
     public String httpReceiveWebSocketEventChannel() {
         if (httpReceiveWebSocketEventChannel==null) {
-            httpReceiveWebSocketEventChannel = Str.add(serverId, ".", BeforeWebServerStartsHandler.HTTP_WEB_SOCKET_RECEIVE_EVENT);
+            httpReceiveWebSocketEventChannel = Str.add(serverId, ".", HttpRepeaterBeforeWebServerStartHandler.HTTP_WEB_SOCKET_RECEIVE_EVENT);
         }
         return httpReceiveWebSocketEventChannel;
     }
@@ -118,7 +119,7 @@ public abstract class BaseHttpRelay extends Verticle {
 
     public String httpReceiveWebSocketClosedEventChannel() {
         if (httpReceiveWebSocketClosedEventChannel==null) {
-            httpReceiveWebSocketClosedEventChannel = Str.add(serverId, ".", BeforeWebServerStartsHandler.HTTP_WEB_SOCKET_CLOSE_EVENT);
+            httpReceiveWebSocketClosedEventChannel = Str.add(serverId, ".", HttpRepeaterBeforeWebServerStartHandler.HTTP_WEB_SOCKET_CLOSE_EVENT);
         }
         return httpReceiveWebSocketClosedEventChannel;
     }
@@ -126,15 +127,15 @@ public abstract class BaseHttpRelay extends Verticle {
 
     protected JsonObject createHttpConfig() {
         JsonObject jsonObject = new JsonObject();
-        jsonObject.putNumber(HttpServerVerticle.HTTP_SERVER_VERTICLE_PORT, this.port);
-        jsonObject.putNumber(HttpServerVerticle.HTTP_SERVER_VERTICLE_FLUSH_INTERVAL, this.flushInterval);
-        jsonObject.putBoolean(HttpServerVerticle.HTTP_SERVER_VERTICLE_MANAGE_QUEUES, this.manageQueues);
-        jsonObject.putNumber(HttpServerVerticle.HTTP_SERVER_VERTICLE_MAX_REQUEST_BATCHES, this.maxRequestBatches);
-        jsonObject.putNumber(HttpServerVerticle.HTTP_SERVER_VERTICLE_POLL_TIME, this.pollTime);
-        jsonObject.putString(HttpServerVerticle.HTTP_SERVER_VERTICLE_HOST, this.host);
-        jsonObject.putNumber(HttpServerVerticle.HTTP_SERVER_VERTICLE_REQUEST_BATCH_SIZE, this.requestBatchSize);
-        jsonObject.putString(HttpServerVerticle.HTTP_SERVER_HANDLER, BeforeWebServerStartsHandler.class.getName());
-        jsonObject.putString(HttpServerVerticle.HTTP_SERVER_ID, serverId);
+        jsonObject.putNumber(HttpServerWorkerVerticle.HTTP_SERVER_VERTICLE_PORT, this.port);
+        jsonObject.putNumber(HttpServerWorkerVerticle.HTTP_SERVER_VERTICLE_FLUSH_INTERVAL, this.flushInterval);
+        jsonObject.putBoolean(HttpServerWorkerVerticle.HTTP_SERVER_VERTICLE_MANAGE_QUEUES, this.manageQueues);
+        jsonObject.putNumber(HttpServerWorkerVerticle.HTTP_SERVER_VERTICLE_MAX_REQUEST_BATCHES, this.maxRequestBatches);
+        jsonObject.putNumber(HttpServerWorkerVerticle.HTTP_SERVER_VERTICLE_POLL_TIME, this.pollTime);
+        jsonObject.putString(HttpServerWorkerVerticle.HTTP_SERVER_VERTICLE_HOST, this.host);
+        jsonObject.putNumber(HttpServerWorkerVerticle.HTTP_SERVER_VERTICLE_REQUEST_BATCH_SIZE, this.requestBatchSize);
+        jsonObject.putString(HttpServerWorkerVerticle.HTTP_SERVER_HANDLER, HttpRepeaterBeforeWebServerStartHandler.class.getName());
+        jsonObject.putString(HttpServerWorkerVerticle.HTTP_SERVER_ID, serverId);
         return jsonObject;
     }
 
@@ -179,53 +180,150 @@ public abstract class BaseHttpRelay extends Verticle {
     }
 
     private void handleHttpRequest(Buffer buffer) {
-        final HttpRequest request = readHttpRequest(buffer);
-        handleHttpRequest(request);
+        final List<HttpRequest> requests = readHttpRequests(buffer);
+
+        for (HttpRequest request : requests) {
+            handleHttpRequest(request);
+        }
 
     }
+
 
     protected  abstract  void handleHttpRequest(HttpRequest httpRequest);
 
 
 
-    private HttpRequest readHttpRequest(Buffer buffer) {
-        int [] location = new int[]{0};
+    private List<HttpRequest> readHttpRequests(Buffer buffer) {
+
+        int [] location = new int[]{2};
+
+        final short size = buffer.getShort(0);
+
         String returnEventBusAddress = BufferUtils.readString(buffer, location);
-        String id = BufferUtils.readString(buffer, location);
-        long messageId = Long.parseLong(id);
-        String uri = BufferUtils.readString(buffer, location);
-        String method = BufferUtils.readString(buffer, location);
-        String remoteAddress = BufferUtils.readString(buffer, location);
-        MultiMap<String, String> params = BufferUtils.readMap(buffer, location);
-        MultiMap<String, String> headers = BufferUtils.readMap(buffer, location);
-        String body = BufferUtils.readString(buffer, location);
 
-        return new HttpRequestBuilder().setBody(body).setUri(uri).setMethod(method)
-                .setRemoteAddress(remoteAddress).setParams(params)
-                .setHeaders(headers).setId(messageId)
-                .setTextResponse((code, mimeType, body1) -> {
+        List<HttpRequest> requests = new ArrayList<>(size);
 
 
-                    handleHttpRequestResponse(returnEventBusAddress, id, remoteAddress, (short) code, mimeType, body1);
 
-                })
-                .build();
+        for (int index=0; index < size; index++) {
+
+            String id = BufferUtils.readString(buffer, location);
+            long messageId = Long.parseLong(id);
+            String uri = BufferUtils.readString(buffer, location);
+            String method = BufferUtils.readString(buffer, location);
+            String remoteAddress = BufferUtils.readString(buffer, location);
+            MultiMap<String, String> params = BufferUtils.readMap(buffer, location);
+            MultiMap<String, String> headers = BufferUtils.readMap(buffer, location);
+            String body = BufferUtils.readString(buffer, location);
+
+            requests.add(new HttpRequestBuilder().setBody(body).setUri(uri).setMethod(method)
+                    .setRemoteAddress(remoteAddress).setParams(params)
+                    .setHeaders(headers).setId(messageId)
+                    .setTextResponse((code, mimeType, body1) -> {
+
+
+                        handleHttpRequestResponse(returnEventBusAddress, id, remoteAddress, (short) code, mimeType, body1);
+
+                    })
+                    .build());
+        }
+
+        return requests;
     }
+
+    public static class ResponseHolder {
+
+        String remoteAddress;
+        String id;
+        int code;
+        String mimeType;
+        String body;
+
+        public ResponseHolder(String remoteAddress, String id, int code, String mimeType, String body) {
+            this.remoteAddress = remoteAddress;
+            this.id = id;
+            this.code = code;
+            this.mimeType = mimeType;
+            this.body = body;
+        }
+    }
+
+    private Map<String, BlockingQueue<ResponseHolder>> requestQueueMap = new ConcurrentHashMap<>(100_000);
 
     private void handleHttpRequestResponse(final String returnEventBusAddress, final String id,
                                            final String remoteAddress, final short code, final String mimeType, final String body) {
-        Buffer buffer1 = new Buffer();
-
-        buffer1.appendShort((short) code);
-
-        BufferUtils.writeString(buffer1, Str.add(remoteAddress, "|", id));
-        BufferUtils.writeString(buffer1, mimeType);
-        BufferUtils.writeString(buffer1, body);
-
-        String returnEventAddress = Str.add(httpRequestResponseEventChannel(), ".", returnEventBusAddress);
 
 
-        vertx.eventBus().send(returnEventAddress, buffer1);
+        BlockingQueue<ResponseHolder> responses = requestQueueMap.get(returnEventBusAddress);
+        if (responses == null) {
+            responses = new ArrayBlockingQueue<>(10);
+
+            requestQueueMap.put(returnEventBusAddress, responses);
+        }
+
+
+        ResponseHolder responseHolder = new ResponseHolder(remoteAddress, id, code, mimeType, body);
+
+        if (!responses.offer(responseHolder)) {
+
+            sendResponses(returnEventBusAddress, responseHolder);
+        }
+
+
+
+
+    }
+
+    private void sendResponses(String returnEventBusAddress, ResponseHolder responseHolder) {
+
+
+
+        BlockingQueue<ResponseHolder> responses = requestQueueMap.get(returnEventBusAddress);
+
+        int queueSize = responses.size();
+
+        if (queueSize==0 && responseHolder==null) {
+            return;
+        }
+
+        List<ResponseHolder> responseHolders = new ArrayList<>(queueSize);
+
+        ResponseHolder currentResponse = responses.poll();
+
+        while (currentResponse!=null) {
+
+            responseHolders.add(currentResponse);
+            currentResponse = responses.poll();
+
+        }
+
+        if (responseHolder!=null) {
+            responseHolders.add(responseHolder);
+        }
+
+        if (responseHolders.size() > 0) {
+
+            Buffer buffer = new Buffer();
+
+            buffer.appendShort((short) responseHolders.size());
+
+            for (ResponseHolder response : responseHolders) {
+
+                buffer.appendShort((short) response.code);
+                BufferUtils.writeString(buffer, Str.add(response.remoteAddress, "|", response.id));
+                BufferUtils.writeString(buffer, response.mimeType);
+                BufferUtils.writeString(buffer, response.body);
+
+            }
+
+
+            String returnEventAddress = Str.add(httpRequestResponseEventChannel(), ".", returnEventBusAddress);
+
+
+            vertx.eventBus().send(returnEventAddress, buffer);
+        }
+
+
     }
 
     protected void extractConfig() {
@@ -277,7 +375,7 @@ public abstract class BaseHttpRelay extends Verticle {
         final JsonObject httpServerConfig = createHttpConfig();
 
 
-        container.deployVerticle(HttpServerVerticle.class.getName(), httpServerConfig, httpWorkers,
+        container.deployVerticle(HttpServerWorkerVerticle.class.getName(), httpServerConfig, httpWorkers,
                 result -> {
                     if (result.succeeded()) {
                         logger.info("Service Server Verticle is Launched");
@@ -292,6 +390,19 @@ public abstract class BaseHttpRelay extends Verticle {
 
 
         afterStart();
+
+        vertx.setPeriodic(100, new Handler<Long>() {
+            @Override
+            public void handle(Long event) {
+
+
+                final Set<String> keys = requestQueueMap.keySet();
+
+                for (String key : keys) {
+                    sendResponses(key, null);
+                }
+            }
+        });
 
     }
 
