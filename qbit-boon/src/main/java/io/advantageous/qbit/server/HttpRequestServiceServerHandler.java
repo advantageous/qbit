@@ -26,6 +26,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeoutException;
 
 /**
@@ -50,7 +51,7 @@ public class HttpRequestServiceServerHandler {
     private final Set<String> objectNameAddressURIWithVoidReturn = new LinkedHashSet<>();
     private final Set<String> getMethodURIsWithVoidReturn = new LinkedHashSet<>();
     private final Set<String> postMethodURIsWithVoidReturn = new LinkedHashSet<>();
-    private BlockingQueue<Request<Object>> outstandingRequests;
+    private final Map<String, Request<Object>> outstandingRequestMap = new ConcurrentHashMap<>(100_000);
     private final int numberOfOutstandingRequests;
 
 
@@ -70,7 +71,6 @@ public class HttpRequestServiceServerHandler {
 
         this.methodCallSendQueue = serviceBundle.methodSendQueue();
 
-        this.outstandingRequests = new ArrayBlockingQueue<>(numberOfOutstandingRequests);
     }
 
 
@@ -325,7 +325,10 @@ public class HttpRequestServiceServerHandler {
      */
     private boolean addRequestToCheckForTimeouts(final Request<Object> request) {
 
-        return outstandingRequests.offer(request);
+        String key = Str.add("" + request.id(), "|", request.returnAddress());
+        this.outstandingRequestMap.put(key, request);
+
+        return outstandingRequestMap.size() < numberOfOutstandingRequests;
     }
 
 
@@ -337,7 +340,7 @@ public class HttpRequestServiceServerHandler {
 
         final long now = Timer.timer().now();
 
-        if (!(now - lastTimeoutCheckTime > 500)) {
+        if (!(now - lastTimeoutCheckTime > timeoutInSeconds * 1_000)) {
             return;
         }
 
@@ -347,39 +350,20 @@ public class HttpRequestServiceServerHandler {
         lastTimeoutCheckTime = now;
         long duration;
 
-        Request<Object> request = outstandingRequests.poll();
 
-        List<Request<Object>> notTimedOutRequests = new ArrayList<>();
+        final Collection<Request<Object>> values = this.outstandingRequestMap.values();
 
-        while (request != null) {
+
+        for(Request<Object> request : values) {
             duration = now - request.timestamp();
 
             if (duration > (timeoutInSeconds * 1000)) {
                 if (!request.isHandled()) {
+
                     handleMethodTimedOut(request);
                 }
-            } else {
-                notTimedOutRequests.add(request);
             }
-            request = outstandingRequests.poll();
         }
-
-
-        /* Add the outstandingRequests that have not timed out back to the queue. */
-        if (notTimedOutRequests.size() > 0) {
-
-            try {
-                outstandingRequests.addAll(notTimedOutRequests);
-            }catch (Exception ex) {
-                for (Request item : notTimedOutRequests) {
-                    if (!outstandingRequests.offer(item)) {
-                        logger.warn("Unable to track outstanding request " + item.address());
-                    }
-                }
-            }
-
-        }
-
 
     }
 
@@ -391,6 +375,11 @@ public class HttpRequestServiceServerHandler {
      * @param request request
      */
     private void handleMethodTimedOut(final Request<Object> request) {
+
+
+        String key = Str.add("" + request.id(), "|", request.returnAddress());
+        this.outstandingRequestMap.remove(key);
+        request.handled();
 
 
         if (request instanceof HttpRequest) {
@@ -481,6 +470,11 @@ public class HttpRequestServiceServerHandler {
 
 
     public void handleResponseFromServiceToHttpResponse(Response<Object> response, HttpRequest originatingRequest) {
+
+
+        String key = Str.add("" + originatingRequest.id(), "|", originatingRequest.returnAddress());
+        this.outstandingRequestMap.remove(key);
+
         final HttpRequest httpRequest = originatingRequest;
 
         if (response.wasErrors()) {

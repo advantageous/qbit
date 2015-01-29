@@ -202,6 +202,8 @@ public class ServiceServerImpl implements ServiceServer {
             }
             originatingRequest.handled(); //Let others know that it is handled.
 
+
+
             httpRequestServerHandler.handleResponseFromServiceToHttpResponse(response, (HttpRequest) originatingRequest);
         } else if (originatingRequest instanceof WebSocketMessage) {
             originatingRequest.handled(); //Let others know that it is handled.

@@ -352,7 +352,7 @@ public class ServiceServerImplTest {
 
             if (code==200) {
                 responseCounter++;
-            } if (code == 408) {
+            } else if (code == 408) {
                 timeOutCounter++;
             }
             else {

@@ -15,7 +15,7 @@ public class HttpServerBuilder {
     private int port = 8080;
     private boolean manageQueues = true;
 
-    private int maxRequestBatches = -1;
+    private int maxRequestBatches = 1_000_000;
 
     private boolean pipeline = true;
     private int pollTime = 100;

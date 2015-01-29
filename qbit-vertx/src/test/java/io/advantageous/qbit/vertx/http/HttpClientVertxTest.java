@@ -62,6 +62,7 @@ public class HttpClientVertxTest {
         Sys.sleep(100);
 
 
+
         validate();
         stop();
 

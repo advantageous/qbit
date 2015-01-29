@@ -51,6 +51,9 @@ public class HttpClientServerEmbeddedTest {
 
 
     @Test
+    public void test() {}
+
+    @Test
     public void testHttpServerClient() throws Exception {
 
 
@@ -72,6 +75,7 @@ public class HttpClientServerEmbeddedTest {
         client.sendHttpRequest(requestBuilder.build());
         client.flush();
 
+        Sys.sleep(1000);
 
 
         validate();
