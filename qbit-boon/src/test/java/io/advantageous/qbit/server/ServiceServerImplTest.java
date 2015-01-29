@@ -127,8 +127,10 @@ public class ServiceServerImplTest {
 
         httpServer.sendRequest(request);
 
-        Sys.sleep(200);
 
+        Sys.sleep(200);
+        serviceServerImpl.flush();
+        Sys.sleep(200);
 
         ok |= responseCounter == 1 || die();
         ok |= callMeCounter == 1 || die();

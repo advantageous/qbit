@@ -276,73 +276,112 @@ public class BoonServiceMethodCallHandler implements ServiceMethodHandler {
         if (body instanceof List) {
 
             List<Object> list = (List<Object>) body;
-            if (list.size() - 1 == method.parameterTypes().length) {
-                if (list.get(0) instanceof Callback) {
-                    list = Lists.slc(list, 1);
-                }
-            }
 
-            final Iterator<Object> iterator = list.iterator();
-
-            for (int index = 0; index < argsList.size(); index++) {
-
-                final Object o = argsList.get(index);
-                if (o instanceof Callback) {
-                    continue;
-                }
-
-                if (!iterator.hasNext()) {
-                    break;
-                }
-
-                argsList.set(index, iterator.next());
-            }
+            extractHandlersFromArgumentListBodyIsList(method, argsList, list);
 
         } else if (body instanceof Object[]) {
-            Object[] array = (Object[]) body;
-            if (array.length - 1 == method.parameterTypes().length) {
-                if (array[0] instanceof Callback) {
-                    array = Arry.slc(array, 1);
-                }
+            extactHandlersFromArgumentListArrayCase(method, (Object[]) body, argsList);
+        }
+    }
+
+    private void extactHandlersFromArgumentListArrayCase(MethodAccess method, Object[] array, List<Object> argsList) {
+
+        if (array.length - 1 == method.parameterTypes().length) {
+            if (array[0] instanceof Callback) {
+                array = Arry.slc(array, 1);
+            }
+        }
+
+
+
+        for (int index = 0, arrayIndex = 0; index < argsList.size(); index++) {
+
+            final Object o = argsList.get(index);
+            if (o instanceof Callback) {
+                continue;
             }
 
 
-            final Object[] theArray = array;
-            final Iterator<Object> iterator = new Iterator<Object>() {
-
-                int index = 0;
-                @Override
-                public boolean hasNext() {
-                    if(index>=theArray.length) {
-                        return false;
-                    } else {
-                        return true;
-                    }
-                }
-
-                @Override
-                public Object next() {
-
-                    Object o = theArray[index];
-                    index++;
-                    return o;
-
-                }
-            };
-
-            for (int index = 0; index < argsList.size(); index++) {
-
-                final Object o = argsList.get(index);
-                if (o instanceof Callback) {
-                    continue;
-                }
-
-                if (!iterator.hasNext()) {
-                    break;
-                }
-
-                argsList.set(index, iterator.next());
+            if(arrayIndex >=array.length) {
+                break;
             }
+
+
+            argsList.set(index, array[arrayIndex]);
+            arrayIndex++;
+
+        }
+    }
+
+
+    private void extactHandlersFromArgumentListArrayCaseOld(MethodAccess method, Object[] array, List<Object> argsList) {
+
+        if (array.length - 1 == method.parameterTypes().length) {
+            if (array[0] instanceof Callback) {
+                array = Arry.slc(array, 1);
+            }
+        }
+
+
+        final Object[] theArray = array;
+        final Iterator<Object> iterator = new Iterator<Object>() {
+
+            int index = 0;
+            @Override
+            public boolean hasNext() {
+                if(index>=theArray.length) {
+                    return false;
+                } else {
+                    return true;
+                }
+            }
+
+            @Override
+            public Object next() {
+
+                Object o = theArray[index];
+                index++;
+                return o;
+
+            }
+        };
+
+        for (int index = 0; index < argsList.size(); index++) {
+
+            final Object o = argsList.get(index);
+            if (o instanceof Callback) {
+                continue;
+            }
+
+            if (!iterator.hasNext()) {
+                break;
+            }
+
+            argsList.set(index, iterator.next());
+        }
+    }
+
+    private void extractHandlersFromArgumentListBodyIsList(MethodAccess method, List<Object> argsList, List<Object> list) {
+        if (list.size() - 1 == method.parameterTypes().length) {
+            if (list.get(0) instanceof Callback) {
+                list = Lists.slc(list, 1);
+            }
+        }
+
+        final Iterator<Object> iterator = list.iterator();
+
+        for (int index = 0; index < argsList.size(); index++) {
+
+            final Object o = argsList.get(index);
+            if (o instanceof Callback) {
+                continue;
+            }
+
+            if (!iterator.hasNext()) {
+                break;
+            }
+
+            argsList.set(index, iterator.next());
         }
     }
 

@@ -1,9 +1,16 @@
 package qbit;
 
+import io.advantageous.qbit.message.MethodCall;
+import io.advantageous.qbit.message.MethodCallBuilder;
 import io.advantageous.qbit.queue.QueueBuilder;
+import io.advantageous.qbit.queue.SendQueue;
 import io.advantageous.qbit.service.ServiceBundle;
 import io.advantageous.qbit.service.ServiceBundleBuilder;
+import io.advantageous.qbit.service.impl.BoonServiceMethodCallHandler;
+import io.advantageous.qbit.service.impl.ServiceImpl;
 import org.boon.core.Sys;
+import org.boon.core.reflection.ClassMeta;
+import org.boon.core.reflection.MethodAccess;
 import org.boon.primitive.Arry;
 import org.boon.primitive.Int;
 import org.junit.After;
@@ -28,16 +35,23 @@ public class StatSerivceBundleTest {
     ServiceBundle serviceBundle;
 
     protected static Object context = Sys.contextToHold();
+    ServiceImpl service;
 
     @Before
     public void setUp() throws Exception {
+
+
+
+
 
         recorder = new DebugRecorder();
         replicator = new DebugReplicator();
         statService = new StatServiceBuilder().setRecorder(recorder).setReplicator(replicator).build();
 
-        QueueBuilder builder = new QueueBuilder().setPollWait(1).setBatchSize(200).setLinkTransferQueue().setCheckEvery(15).setTryTransfer(true);
-        //QueueBuilder builder = new QueueBuilder().setPollWait(10).setBatchSize(2000).setArrayBlockingQueue().setSize(100);
+        //QueueBuilder builder = new QueueBuilder().setPollWait(10).setBatchSize(1000).setLinkTransferQueue().setCheckEvery(100).setTryTransfer(true);
+        QueueBuilder builder = new QueueBuilder().setPollWait(1).setBatchSize(1000).setArrayBlockingQueue().setSize(1000);
+
+        service = new ServiceImpl("/root", "/serviceAddress", statService, builder, new BoonServiceMethodCallHandler(false), null, true);
 
         serviceBundle = new ServiceBundleBuilder().setEachServiceInItsOwnThread(true).setQueueBuilder(builder).setInvokeDynamic(false)
                 .build();
@@ -154,6 +168,89 @@ public class StatSerivceBundleTest {
             puts(replicator.count);
 
         }
+        //ok = replicator.count == 16_000_000 || die(replicator.count);
+
+
+        final long end = System.currentTimeMillis();
+
+
+        puts(replicator.count, end-start);
+
+
+    }
+
+
+    @Test
+    public void testRecord16MillionWithServiceDirectThreeTimes() throws Exception {
+
+        testRecord16MillionWithServiceDirect();
+        Sys.sleep(1000);
+        replicator.count=0;
+        testRecord16MillionWithServiceDirect();
+        Sys.sleep(1000);
+        replicator.count=0;
+        testRecord16MillionWithServiceDirect();
+
+    }
+
+    @Test
+    public void testRecord16MillionWithServiceDirect() throws Exception {
+
+
+
+
+        final MethodCallBuilder methodCallBuilder = new MethodCallBuilder();
+
+        final MethodCall<Object> record = methodCallBuilder.setName("record").setBody(new Object[]{"mystat", 1}).build();
+
+
+        final SendQueue<MethodCall<Object>> requests = service.requests();
+
+        Sys.sleep(200);
+
+        final long start = System.currentTimeMillis();
+
+        for (int index=0; index< 16_000_000; index++) {
+            requests.send(record);
+
+        }
+        requests.flushSends();
+
+
+
+        for (int index = 0; index < 10; index++) {
+            Sys.sleep(100);
+            puts(replicator.count);
+
+        }
+        //ok = replicator.count == 16_000_000 || die(replicator.count);
+
+
+        final long end = System.currentTimeMillis();
+
+
+        puts(replicator.count, end-start);
+
+
+    }
+
+
+    @Test
+    public void testRecord16MillionNoBundle() throws Exception {
+
+        Sys.sleep(200);
+
+        final long start = System.currentTimeMillis();
+
+        for (int index=0; index< 16_000_000; index++) {
+            statService.record("mystat", 1);
+
+        }
+        for (int index = 0; index < 10; index++) {
+            Sys.sleep(100);
+            puts(replicator.count);
+
+        }
         ok = replicator.count == 16_000_000 || die(replicator.count);
 
 
@@ -164,4 +261,51 @@ public class StatSerivceBundleTest {
 
 
     }
+
+
+    @Test
+    public void testRecord16MillionNoBundleReflection() throws Exception {
+
+        Sys.sleep(200);
+
+        final long start = System.currentTimeMillis();
+
+        final ClassMeta<StatService> statServiceClassMeta = ClassMeta.classMeta(StatService.class);
+        final MethodAccess record = statServiceClassMeta.method("record");
+
+
+        for (int index=0; index< 16_000_000; index++) {
+            //statService.record("mystat", 1);
+
+            record.invoke(statService, "mystat", 1);
+        }
+        for (int index = 0; index < 10; index++) {
+            Sys.sleep(100);
+            puts(replicator.count);
+
+        }
+        ok = replicator.count == 16_000_000 || die(replicator.count);
+
+
+        final long end = System.currentTimeMillis();
+
+
+        puts(replicator.count, end-start);
+
+
+    }
+
+    @Test
+    public void testRecord16MillionThreeTimesNoBundle() throws Exception {
+
+        testRecord16MillionNoBundle();
+        Sys.sleep(1000);
+        replicator.count=0;
+        testRecord16MillionNoBundle();
+        Sys.sleep(1000);
+        replicator.count=0;
+        testRecord16MillionNoBundle();
+
+    }
+
 }

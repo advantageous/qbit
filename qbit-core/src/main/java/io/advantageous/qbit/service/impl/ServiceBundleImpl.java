@@ -198,7 +198,7 @@ public class ServiceBundleImpl implements ServiceBundle {
 
 
 
-        this.methodQueue = queueBuilder.setName("Send Queue " + address).build();
+        this.methodQueue = queueBuilder.setName("Call Queue " + address).build();
 
         this.responseQueue = queueBuilder.setName("Response Queue " + address).build();
 
@@ -306,7 +306,7 @@ public class ServiceBundleImpl implements ServiceBundle {
                     methodCall.address() +
                     "\n" + methodCall);
         }
-        methodSendQueue.sendAndFlush(methodCall);
+        methodSendQueue.send(methodCall);
     }
 
 

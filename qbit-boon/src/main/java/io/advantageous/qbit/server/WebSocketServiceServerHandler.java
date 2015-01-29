@@ -142,15 +142,7 @@ public class WebSocketServiceServerHandler {
                         webSocketMessage.getMessage(), webSocketMessage);
 
 
-        if (methodCallListToBeParsedFromBody.size() > batchSize) {
-
-            for (MethodCall<Object> methodCall : methodCallListToBeParsedFromBody) {
-                serviceBundle.call(methodCall);
-            }
-        } else {
-
             serviceBundle.call(methodCallListToBeParsedFromBody);
-        }
 
 
     }

@@ -32,7 +32,7 @@ import java.util.concurrent.TimeoutException;
  */
 public class HttpRequestServiceServerHandler {
 
-    private final Logger logger = LoggerFactory.getLogger(WebSocketServiceServerHandler.class);
+    private final Logger logger = LoggerFactory.getLogger(HttpRequestServiceServerHandler.class);
     private final boolean debug = logger.isDebugEnabled();
 
     protected final int timeoutInSeconds;
@@ -137,6 +137,7 @@ public class HttpRequestServiceServerHandler {
             logger.info("Handle REST Call for MethodCall " + methodCall);
         }
         serviceBundle.call(methodCall);
+        serviceBundle.flushSends();
 
     }
 
