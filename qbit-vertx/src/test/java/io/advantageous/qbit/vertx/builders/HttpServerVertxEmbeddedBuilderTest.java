@@ -57,6 +57,26 @@ public class HttpServerVertxEmbeddedBuilderTest {
                 }
             };
         }
+
+        @Override
+        public Callback<Void> webSocketQueueIdle() {
+            return new Callback<Void>() {
+                @Override
+                public void accept(Void aVoid) {
+
+                }
+            };
+        }
+
+        @Override
+        public Callback<Void> requestQueueIdle() {
+            return new Callback<Void>() {
+                @Override
+                public void accept(Void aVoid) {
+
+                }
+            };
+        }
     }
 
     @Before

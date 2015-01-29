@@ -18,7 +18,8 @@ public class MockHttpServer implements HttpServer {
 
     Consumer<HttpRequest> httpRequestConsumer;
     volatile long  messageId = 0;
-
+    private Consumer<Void> idleHttpRequestConsumer;
+    private Consumer<Void> idleWebSocketConsumer;
 
 
     public void postRequestObject(final String uri, final Object body,
@@ -44,6 +45,7 @@ public class MockHttpServer implements HttpServer {
         final WebSocketMessage webSocketMessage = new WebSocketMessageBuilder()
                 .setMessage(message).setSender(socketSender).build();
         this.webSocketMessageConsumer.accept(webSocketMessage);
+        this.idleWebSocketConsumer.accept(null);
 
     }
 
@@ -53,6 +55,7 @@ public class MockHttpServer implements HttpServer {
         final HttpRequest request = new HttpRequestBuilder().setUri(uri).setParams(params)
                 .setMethod("GET").setTextResponse(response).setRemoteAddress("localhost:9999").build();
         this.httpRequestConsumer.accept(request);
+        this.idleHttpRequestConsumer.accept(null);
 
 
     }
@@ -77,11 +80,13 @@ public class MockHttpServer implements HttpServer {
 
     @Override
     public void setHttpRequestsIdleConsumer(Consumer<Void> idleConsumer) {
+        this.idleHttpRequestConsumer = idleConsumer;
 
     }
 
     @Override
     public void setWebSocketIdleConsume(Consumer<Void> idleConsumer) {
+        this.idleWebSocketConsumer = idleConsumer;
 
     }
 

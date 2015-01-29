@@ -60,11 +60,6 @@ public class ServiceImpl implements Service {
                        final boolean async) {
 
 
-        if (debug) {
-            logger.debug("ServiceImpl<<constr>> " + rootAddress + " " + serviceAddress + " " +
-                    " " + service+ " " + queueBuilder.getPollWait()+  queueBuilder.getBatchSize()+ " " + serviceMethodHandler+ " " +
-                    responseQueue);
-        }
 
         this.service = service;
         this.serviceMethodHandler = serviceMethodHandler;

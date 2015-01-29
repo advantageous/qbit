@@ -10,5 +10,7 @@ public interface HttpServerHttpHandler {
     Callback<HttpRequest> httpRequestConsumer();
     Callback<WebSocketMessage> webSocketConsumer();
     Callback<WebSocketMessage> webSocketClosed();
+    Callback<Void> webSocketQueueIdle();
+    Callback<Void> requestQueueIdle();
 
 }

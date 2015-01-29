@@ -30,6 +30,17 @@ public class HttpHandlerConcentratorVerticle extends BaseHttpRelay {
     }
 
     @Override
+    protected void idleWebSocket() {
+        httpServerHandler.webSocketQueueIdle().accept(null);
+    }
+
+    @Override
+    protected void idleRequests() {
+
+        httpServerHandler.requestQueueIdle().accept(null);
+    }
+
+    @Override
     protected void handleWebSocketClosed(WebSocketMessage webSocketMessage) {
 
 

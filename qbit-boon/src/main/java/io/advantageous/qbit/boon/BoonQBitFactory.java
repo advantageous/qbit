@@ -270,6 +270,12 @@ public class BoonQBitFactory implements Factory {
     }
 
 
+    @Override
+    public ServiceMethodHandler createServiceMethodHandler(boolean invokeDynamic) {
+
+        return new BoonServiceMethodCallHandler(invokeDynamic);
+    }
+
 
     @Override
     public ProtocolEncoder createEncoder() {

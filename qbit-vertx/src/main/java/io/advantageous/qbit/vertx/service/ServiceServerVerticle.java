@@ -60,6 +60,17 @@ public class ServiceServerVerticle extends BaseHttpRelay {
         }
     }
 
+    @Override
+    protected void idleWebSocket() {
+        webSocketHandler.webSocketQueueIdle(null);
+    }
+
+    @Override
+    protected void idleRequests() {
+
+        httpRequestServerHandler.httpRequestQueueIdle(null);
+    }
+
 
     @Override
     protected void afterStart() {

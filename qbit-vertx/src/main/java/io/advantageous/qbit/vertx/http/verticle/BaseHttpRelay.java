@@ -401,10 +401,17 @@ public abstract class BaseHttpRelay extends Verticle {
                 for (String key : keys) {
                     sendResponses(key, null);
                 }
+
+                idleRequests();
+                idleWebSocket();
             }
         });
 
     }
+
+    protected abstract void idleWebSocket();
+
+    protected abstract void idleRequests() ;
 
     protected abstract void afterStart();
 

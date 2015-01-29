@@ -389,14 +389,20 @@ public class ServiceServerImplTest {
     class HttpServerMock implements HttpServer {
         Consumer<WebSocketMessage> webSocketMessageConsumer;
         Consumer<HttpRequest> requestConsumer;
+        private Consumer<Void> idleConsumerRequest;
+        private Consumer<Void> idleConsumerWebSocket;
 
         public void sendWebSocketMessage(WebSocketMessage ws) {
             webSocketMessageConsumer.accept(ws);
+            this.idleConsumerWebSocket.accept(null);
+
         }
 
 
         public void sendRequest(HttpRequest request) {
+
             requestConsumer.accept(request);
+            idleConsumerRequest.accept(null);
         }
 
 
@@ -418,10 +424,13 @@ public class ServiceServerImplTest {
         @Override
         public void setHttpRequestsIdleConsumer(Consumer<Void> idleConsumer) {
 
+            this.idleConsumerRequest = idleConsumer;
         }
 
         @Override
         public void setWebSocketIdleConsume(Consumer<Void> idleConsumer) {
+
+            this.idleConsumerWebSocket = idleConsumer;
 
         }
 

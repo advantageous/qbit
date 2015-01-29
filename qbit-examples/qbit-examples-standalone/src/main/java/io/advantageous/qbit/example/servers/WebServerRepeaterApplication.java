@@ -45,6 +45,26 @@ public class WebServerRepeaterApplication {
         public Callback<WebSocketMessage> webSocketClosed() {
             return webSocketMessage -> puts("WEBSOCKET CLOSED " + webSocketMessage.getRemoteAddress());
         }
+
+        @Override
+        public Callback<Void> webSocketQueueIdle() {
+            return new Callback<Void>() {
+                @Override
+                public void accept(Void aVoid) {
+
+                }
+            };
+        }
+
+        @Override
+        public Callback<Void> requestQueueIdle() {
+            return new Callback<Void>() {
+                @Override
+                public void accept(Void aVoid) {
+
+                }
+            };
+        }
     }
 
 

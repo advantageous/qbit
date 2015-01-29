@@ -15,6 +15,7 @@ import io.advantageous.qbit.server.ServiceServer;
 import io.advantageous.qbit.service.BeforeMethodCall;
 import io.advantageous.qbit.service.Service;
 import io.advantageous.qbit.service.ServiceBundle;
+import io.advantageous.qbit.service.ServiceMethodHandler;
 import io.advantageous.qbit.spi.ProtocolEncoder;
 import io.advantageous.qbit.spi.ProtocolParser;
 import io.advantageous.qbit.transforms.Transformer;
@@ -101,6 +102,10 @@ public interface Factory {
         throw new UnsupportedOperationException();
     }
 
+
+    default ServiceMethodHandler createServiceMethodHandler(boolean invokeDynamic) {
+        throw new UnsupportedOperationException();
+    }
 
     /**
      * Create a client
