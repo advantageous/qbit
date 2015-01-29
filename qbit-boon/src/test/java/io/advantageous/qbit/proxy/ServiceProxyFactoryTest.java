@@ -2,6 +2,7 @@ package io.advantageous.qbit.proxy;
 
 import io.advantageous.qbit.queue.Queue;
 import io.advantageous.qbit.queue.ReceiveQueueListener;
+import io.advantageous.qbit.queue.SendQueue;
 import io.advantageous.qbit.service.Callback;
 import io.advantageous.qbit.Factory;
 import io.advantageous.qbit.QBit;
@@ -55,6 +56,11 @@ public class ServiceProxyFactoryTest {
 
         @Override
         public Queue<Response<Object>> responses() {
+            return null;
+        }
+
+        @Override
+        public SendQueue<MethodCall<Object>> methodSendQueue() {
             return null;
         }
 

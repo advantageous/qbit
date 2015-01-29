@@ -19,5 +19,8 @@ public interface HttpServer extends Server {
 
     void setHttpRequestConsumer(Consumer<HttpRequest> httpRequestConsumer);
 
+    void setHttpRequestsIdleConsumer(Consumer<Void> idleConsumer);
+
+    void setWebSocketIdleConsume(Consumer<Void> idleConsumer);
 
 }

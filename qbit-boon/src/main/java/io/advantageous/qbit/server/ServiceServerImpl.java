@@ -80,6 +80,9 @@ public class ServiceServerImpl implements ServiceServer {
         httpServer.setHttpRequestConsumer(httpRequestServerHandler::handleRestCall);
         httpServer.setWebSocketMessageConsumer(webSocketHandler::handleWebSocketCall);
         httpServer.setWebSocketCloseConsumer(webSocketHandler::handleWebSocketClose);
+        httpServer.setHttpRequestsIdleConsumer(httpRequestServerHandler::httpRequestQueueIdle);
+
+        httpServer.setWebSocketIdleConsume(webSocketHandler::webSocketQueueIdle);
         httpServer.start();
 
 

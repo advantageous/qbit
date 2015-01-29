@@ -135,6 +135,16 @@ public class HttpServerVertxEmbeddedBuilder extends HttpServerBuilder {
             public void setHttpRequestConsumer(Consumer<HttpRequest> httpRequestConsumer) {
 
             }
+
+            @Override
+            public void setHttpRequestsIdleConsumer(Consumer<Void> idleConsumer) {
+
+            }
+
+            @Override
+            public void setWebSocketIdleConsume(Consumer<Void> idleConsumer) {
+
+            }
         };
     }
 }

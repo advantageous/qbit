@@ -220,6 +220,11 @@ public class ServiceServerVerticle extends BaseHttpRelay {
                     }
 
                     @Override
+                    public SendQueue<MethodCall<Object>> methodSendQueue() {
+                        return null;
+                    }
+
+                    @Override
                     public void flushSends() {
 
                         serviceBundle.flushSends();

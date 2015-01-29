@@ -294,6 +294,11 @@ public class ServiceBundleImpl implements ServiceBundle {
         return responseQueue;
     }
 
+    @Override
+    public SendQueue<MethodCall<Object>> methodSendQueue() {
+        return methodQueue.sendQueue();
+    }
+
     /**
      * Call the method.
      */

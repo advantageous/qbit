@@ -1,8 +1,10 @@
 package io.advantageous.qbit.service;
 
+import io.advantageous.qbit.message.MethodCall;
 import io.advantageous.qbit.message.Response;
 import io.advantageous.qbit.queue.Queue;
 import io.advantageous.qbit.queue.ReceiveQueueListener;
+import io.advantageous.qbit.queue.SendQueue;
 
 import java.util.List;
 
@@ -22,6 +24,8 @@ public interface ServiceBundle extends EndPoint {
     void addService(Object object);
 
     Queue<Response<Object>> responses();
+
+    SendQueue<MethodCall<Object>> methodSendQueue();
 
     void flushSends();
 

@@ -9,6 +9,7 @@ import io.advantageous.qbit.message.Request;
 import io.advantageous.qbit.message.Response;
 import io.advantageous.qbit.message.impl.MethodCallImpl;
 import io.advantageous.qbit.message.impl.ResponseImpl;
+import io.advantageous.qbit.queue.SendQueue;
 import io.advantageous.qbit.service.ServiceBundle;
 import io.advantageous.qbit.spi.ProtocolEncoder;
 import io.advantageous.qbit.spi.ProtocolParser;
@@ -31,10 +32,10 @@ public class WebSocketServiceServerHandler {
     private final Logger logger = LoggerFactory.getLogger(WebSocketServiceServerHandler.class);
     private final boolean debug = logger.isDebugEnabled();
     protected final int batchSize;
-    protected final ServiceBundle serviceBundle;
     protected final ProtocolEncoder encoder;
     protected final ProtocolParser parser;
     protected final long flushResponseInterval = 200;
+    private final SendQueue<MethodCall<Object>> methodCallSendQueue;
     protected volatile long flushResponseLastTimestamp = 0;
 
     private final Map<String, WebSocketDelegate> webSocketDelegateMap = new ConcurrentHashMap<>(100);
@@ -42,9 +43,10 @@ public class WebSocketServiceServerHandler {
 
     public WebSocketServiceServerHandler(int batchSize, ServiceBundle serviceBundle, ProtocolEncoder encoder, ProtocolParser parser) {
         this.batchSize = batchSize;
-        this.serviceBundle = serviceBundle;
         this.encoder = encoder;
         this.parser = parser;
+
+        this.methodCallSendQueue = serviceBundle.methodSendQueue();
     }
 
 
@@ -116,6 +118,10 @@ public class WebSocketServiceServerHandler {
     }
 
 
+    public void webSocketQueueIdle(Void v) {
+        methodCallSendQueue.flushSends();
+    }
+
     /**
      * All WebSocket calls come through here.
      *
@@ -142,8 +148,7 @@ public class WebSocketServiceServerHandler {
                         webSocketMessage.getMessage(), webSocketMessage);
 
 
-            serviceBundle.call(methodCallListToBeParsedFromBody);
-
+        methodCallSendQueue.sendBatch(methodCallListToBeParsedFromBody);
 
     }
 

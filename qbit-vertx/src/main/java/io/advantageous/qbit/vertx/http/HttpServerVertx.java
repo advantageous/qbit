@@ -66,6 +66,20 @@ public class HttpServerVertx implements HttpServer {
 
     private org.vertx.java.core.http.HttpServer httpServer;
 
+    private Consumer<Void> idleRequestConsumer = new Consumer<Void>() {
+        @Override
+        public void accept(Void aVoid) {
+
+        }
+    };
+    private Consumer<Void> idleWebSocketConsumer = new Consumer<Void>() {
+        @Override
+        public void accept(Void aVoid) {
+
+        }
+    };
+
+
 
 
     public HttpServerVertx(final int port, final String host, boolean manageQueues,
@@ -155,6 +169,20 @@ public class HttpServerVertx implements HttpServer {
     @Override
     public void setHttpRequestConsumer(final Consumer<HttpRequest> httpRequestConsumer) {
         this.httpRequestConsumer = httpRequestConsumer;
+    }
+
+
+    @Override
+    public void setHttpRequestsIdleConsumer(Consumer<Void> idleRequestConsumer) {
+        this.idleRequestConsumer = idleRequestConsumer;
+
+    }
+
+
+    @Override
+    public void setWebSocketIdleConsume(Consumer<Void> idleWebSocketConsumer) {
+        this.idleWebSocketConsumer = idleWebSocketConsumer;
+
     }
 
     @Override
@@ -326,6 +354,11 @@ public class HttpServerVertx implements HttpServer {
 
                 }
 
+                @Override
+                public void idle() {
+
+                    idleWebSocketConsumer.accept(null);
+                }
             });
 
 
@@ -344,6 +377,11 @@ public class HttpServerVertx implements HttpServer {
                     httpRequestConsumer.accept(request);
                 }
 
+                @Override
+                public void idle() {
+
+                    idleRequestConsumer.accept(null);
+                }
             });
 
         }

@@ -8,6 +8,7 @@ import io.advantageous.qbit.json.JsonMapper;
 import io.advantageous.qbit.message.MethodCall;
 import io.advantageous.qbit.message.Request;
 import io.advantageous.qbit.message.Response;
+import io.advantageous.qbit.queue.SendQueue;
 import io.advantageous.qbit.service.ServiceBundle;
 import io.advantageous.qbit.spi.ProtocolEncoder;
 import io.advantageous.qbit.spi.ProtocolParser;
@@ -38,8 +39,8 @@ public class HttpRequestServiceServerHandler {
     protected final int timeoutInSeconds;
     protected final ProtocolEncoder encoder;
     protected final ProtocolParser parser;
-    protected final ServiceBundle serviceBundle;
     protected final JsonMapper jsonMapper;
+    private final SendQueue<MethodCall<Object>> methodCallSendQueue;
     protected volatile long lastTimeoutCheckTime = 0;
 
 
@@ -54,15 +55,20 @@ public class HttpRequestServiceServerHandler {
 
 
 
+    public void httpRequestQueueIdle(Void v) {
+        methodCallSendQueue.flushSends();
+    }
+
     public HttpRequestServiceServerHandler(int timeoutInSeconds, ProtocolEncoder encoder, ProtocolParser parser, ServiceBundle serviceBundle, JsonMapper jsonMapper,
                                            final int numberOfOutstandingRequests
     ) {
         this.timeoutInSeconds = timeoutInSeconds;
         this.encoder = encoder;
         this.parser = parser;
-        this.serviceBundle = serviceBundle;
         this.jsonMapper = jsonMapper;
         this.numberOfOutstandingRequests = numberOfOutstandingRequests;
+
+        this.methodCallSendQueue = serviceBundle.methodSendQueue();
 
         this.outstandingRequests = new ArrayBlockingQueue<>(numberOfOutstandingRequests);
     }
@@ -136,8 +142,7 @@ public class HttpRequestServiceServerHandler {
         if (GlobalConstants.DEBUG) {
             logger.info("Handle REST Call for MethodCall " + methodCall);
         }
-        serviceBundle.call(methodCall);
-        serviceBundle.flushSends();
+        methodCallSendQueue.send(methodCall);
 
     }
 

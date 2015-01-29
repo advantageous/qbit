@@ -75,6 +75,16 @@ public class HttpServerBuilderTest {
                     }
 
                     @Override
+                    public void setHttpRequestsIdleConsumer(Consumer<Void> idleConsumer) {
+
+                    }
+
+                    @Override
+                    public void setWebSocketIdleConsume(Consumer<Void> idleConsumer) {
+
+                    }
+
+                    @Override
                     public void start() {
 
                     }

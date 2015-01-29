@@ -64,6 +64,16 @@ public class PerfTestMain {
         }
 
         @Override
+        public void setHttpRequestsIdleConsumer(Consumer<Void> idleConsumer) {
+
+        }
+
+        @Override
+        public void setWebSocketIdleConsume(Consumer<Void> idleConsumer) {
+
+        }
+
+        @Override
         public void start() {
 
             messages.startListener(new ReceiveQueueListener<WebSocketMessage>() {
