@@ -14,6 +14,7 @@ import io.advantageous.qbit.message.Request;
 import io.advantageous.qbit.message.Response;
 import io.advantageous.qbit.client.ServiceProxyFactory;
 import io.advantageous.qbit.queue.Queue;
+import io.advantageous.qbit.queue.QueueBuilder;
 import io.advantageous.qbit.sender.Sender;
 import io.advantageous.qbit.sender.SenderEndPoint;
 import io.advantageous.qbit.server.ServiceServer;
@@ -21,6 +22,7 @@ import io.advantageous.qbit.server.ServiceServerImpl;
 import io.advantageous.qbit.service.BeforeMethodCall;
 import io.advantageous.qbit.service.Service;
 import io.advantageous.qbit.service.ServiceBundle;
+import io.advantageous.qbit.service.ServiceMethodHandler;
 import io.advantageous.qbit.service.impl.BoonServiceMethodCallHandler;
 import io.advantageous.qbit.service.impl.ServiceBundleImpl;
 import io.advantageous.qbit.service.impl.ServiceConstants;
@@ -229,17 +231,11 @@ public class BoonQBitFactory implements Factory {
 
 
     @Override
-    public Service createService(String rootAddress, String serviceAddress, Object object, Queue<Response<Object>> responseQueue) {
+    public Service createService(String rootAddress, String serviceAddress, Object service, Queue<Response<Object>> responseQueue) {
 
-        return new ServiceImpl(
-                rootAddress,
-                serviceAddress,
-                object,
-                GlobalConstants.POLL_WAIT, TimeUnit.MILLISECONDS,
-                GlobalConstants.BATCH_SIZE,
-                new BoonServiceMethodCallHandler(),
-                responseQueue
-        );
+
+        return new ServiceImpl(rootAddress,
+                serviceAddress, service, null, new BoonServiceMethodCallHandler(true), responseQueue, true);
 
     }
 
@@ -248,16 +244,15 @@ public class BoonQBitFactory implements Factory {
                                  String serviceAddress,
                                  Object object,
                                  Queue<Response<Object>> responseQueue,
-                                 final int batchSize,
-                                 boolean async) {
+                                 final QueueBuilder queueBuilder,
+                                 boolean async, boolean invokeDynamic) {
 
         return new ServiceImpl(
                 rootAddress,
                 serviceAddress,
                 object,
-                GlobalConstants.POLL_WAIT, TimeUnit.MILLISECONDS,
-                batchSize,
-                new BoonServiceMethodCallHandler(),
+                queueBuilder,
+                new BoonServiceMethodCallHandler(invokeDynamic),
                 responseQueue, async
         );
 
@@ -265,21 +260,16 @@ public class BoonQBitFactory implements Factory {
 
 
     @Override
-    public ServiceBundle createServiceBundle(String address, final int batchSize, final int pollRate,
+    public ServiceBundle createServiceBundle(String address, QueueBuilder queueBuilder,
                                       final Factory factory, final boolean asyncCalls,
                                       final BeforeMethodCall beforeMethodCall,
                                       final BeforeMethodCall beforeMethodCallAfterTransform,
-                                      final Transformer<Request, Object> argTransformer){
-        return new ServiceBundleImpl(address, batchSize, pollRate, factory,
-                asyncCalls, beforeMethodCall, beforeMethodCallAfterTransform, argTransformer);
+                                      final Transformer<Request, Object> argTransformer, boolean invokeDynamic){
+        return new ServiceBundleImpl(address, queueBuilder, factory,
+                asyncCalls, beforeMethodCall, beforeMethodCallAfterTransform, argTransformer, invokeDynamic);
     }
 
 
-    @Override
-    public ServiceBundle createServiceBundle(String address){
-        return new ServiceBundleImpl(address, GlobalConstants.BATCH_SIZE, GlobalConstants.POLL_WAIT, QBit.factory(),
-                true, ServiceConstants.NO_OP_BEFORE_METHOD_CALL, ServiceConstants.NO_OP_BEFORE_METHOD_CALL, ServiceConstants.NO_OP_ARG_TRANSFORM);
-    }
 
     @Override
     public ProtocolEncoder createEncoder() {

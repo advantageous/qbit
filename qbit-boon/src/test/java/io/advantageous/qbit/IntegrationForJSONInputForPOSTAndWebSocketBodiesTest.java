@@ -5,6 +5,7 @@ import io.advantageous.qbit.message.Response;
 import io.advantageous.qbit.queue.ReceiveQueue;
 import io.advantageous.qbit.service.Protocol;
 import io.advantageous.qbit.service.ServiceBundle;
+import io.advantageous.qbit.service.ServiceBundleBuilder;
 import io.advantageous.qbit.service.impl.ServiceBundleImpl;
 import io.advantageous.qbit.spi.BoonProtocolEncoder;
 import io.advantageous.qbit.spi.ProtocolEncoder;
@@ -39,7 +40,7 @@ public class IntegrationForJSONInputForPOSTAndWebSocketBodiesTest {
     ServiceBundle serviceBundle;
     ServiceBundleImpl serviceBundleImpl;
 
-    Factory factory;
+    Factory factory = QBit.factory();
     MultiMap<String, String> params = null;
     MethodCall<Object> call = null;
 
@@ -63,9 +64,8 @@ public class IntegrationForJSONInputForPOSTAndWebSocketBodiesTest {
     public void setup() {
         employeeService = new EmployeeService();
 
-        factory = QBit.factory();
-        final ServiceBundle bundle =
-                factory.createServiceBundle("/root");
+        final ServiceBundle bundle = new ServiceBundleBuilder().setAddress("/root").build();
+
         serviceBundle = bundle;
         serviceBundleImpl = (ServiceBundleImpl) bundle;
 

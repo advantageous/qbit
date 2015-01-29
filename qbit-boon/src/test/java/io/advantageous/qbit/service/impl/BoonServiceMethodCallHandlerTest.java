@@ -77,7 +77,7 @@ public class BoonServiceMethodCallHandlerTest {
 
     @Test
     public void test() {
-        BoonServiceMethodCallHandler impl = new BoonServiceMethodCallHandler();
+        BoonServiceMethodCallHandler impl = new BoonServiceMethodCallHandler(true);
         impl.init(new Foo(), "", "");
 
         final String address = impl.address();
@@ -105,10 +105,30 @@ public class BoonServiceMethodCallHandlerTest {
 
     }
 
+
+    @Test
+    public void testTwoBasicArgsNotDynamic() {
+
+        BoonServiceMethodCallHandler impl = new BoonServiceMethodCallHandler(false);
+        impl.init(new Foo(), "", "");
+
+        final Factory factory = QBit.factory();
+
+        methodCalled = false;
+
+        impl.receiveMethodCall(
+                factory.createMethodCallByAddress("/boo/baz/geoff/chandles/", null,
+                        Lists.list("1", 2), null));
+
+
+        ok = methodCalled || die();
+
+    }
+
     @Test
     public void testTwoBasicArgs() {
 
-        BoonServiceMethodCallHandler impl = new BoonServiceMethodCallHandler();
+        BoonServiceMethodCallHandler impl = new BoonServiceMethodCallHandler(true);
         impl.init(new Foo(), "", "");
 
         final Factory factory = QBit.factory();
@@ -127,7 +147,7 @@ public class BoonServiceMethodCallHandlerTest {
     @Test
     public void testTwoBasicArgsInURIParams() {
 
-        BoonServiceMethodCallHandler impl = new BoonServiceMethodCallHandler();
+        BoonServiceMethodCallHandler impl = new BoonServiceMethodCallHandler(true);
         impl.init(new Foo(), "", "");
 
         final Factory factory = QBit.factory();
@@ -146,7 +166,7 @@ public class BoonServiceMethodCallHandlerTest {
     @Test
     public void someMethod2() {
 
-        BoonServiceMethodCallHandler impl = new BoonServiceMethodCallHandler();
+        BoonServiceMethodCallHandler impl = new BoonServiceMethodCallHandler(true);
         impl.init(new Foo(), null, null);
 
         final Factory factory = QBit.factory();
@@ -170,7 +190,7 @@ public class BoonServiceMethodCallHandlerTest {
     @Test
     public void someMethod3() {
 
-        BoonServiceMethodCallHandler impl = new BoonServiceMethodCallHandler();
+        BoonServiceMethodCallHandler impl = new BoonServiceMethodCallHandler(true);
         impl.init(new Foo(), "/root", "/service");
 
 
@@ -198,7 +218,41 @@ public class BoonServiceMethodCallHandlerTest {
     @Test
     public void someMethod4() {
 
-        BoonServiceMethodCallHandler impl = new BoonServiceMethodCallHandler();
+        BoonServiceMethodCallHandler impl = new BoonServiceMethodCallHandler(true);
+        impl.init(new Foo(), "/root", "/service");
+
+
+        final String address = impl.address();
+        Str.equalsOrDie("/root/service", address);
+
+        final Collection<String> addresses = impl.addresses();
+        ok = addresses.contains("/root/service/somemethod3") || die(addresses);
+
+        final Factory factory = QBit.factory();
+
+        methodCalled = false;
+
+
+        final Response<Object> response = impl.receiveMethodCall(
+                factory.createMethodCallByAddress(
+                        "/root/service/someMethod3/",
+                        "returnAddress",
+
+                        Lists.list(1, 99), null));
+
+        ok = response != null || die();
+
+        ok = methodCalled || die();
+
+        //void does not return, its void.
+
+    }
+
+
+    @Test
+    public void someMethod4NotDynamic() {
+
+        BoonServiceMethodCallHandler impl = new BoonServiceMethodCallHandler(false);
         impl.init(new Foo(), "/root", "/service");
 
 

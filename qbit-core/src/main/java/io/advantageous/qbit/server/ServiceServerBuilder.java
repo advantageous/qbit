@@ -5,6 +5,7 @@ import io.advantageous.qbit.QBit;
 import io.advantageous.qbit.http.HttpServer;
 import io.advantageous.qbit.json.JsonMapper;
 import io.advantageous.qbit.message.Request;
+import io.advantageous.qbit.queue.QueueBuilder;
 import io.advantageous.qbit.service.BeforeMethodCall;
 import io.advantageous.qbit.service.ServiceBundle;
 import io.advantageous.qbit.service.impl.ServiceConstants;
@@ -33,6 +34,17 @@ public class ServiceServerBuilder {
     private int maxRequestBatches = -1;
 
     private int timeoutSeconds = 30;
+    private boolean invokeDynamic = true;
+
+
+    public boolean isInvokeDynamic() {
+        return invokeDynamic;
+    }
+
+    public ServiceServerBuilder setInvokeDynamic(boolean invokeDynamic) {
+        this.invokeDynamic = invokeDynamic;
+        return this;
+    }
     /**
      * Allows interception of method calls before they get sent to a client.
      * This allows us to transform or reject method calls.
@@ -186,19 +198,37 @@ public class ServiceServerBuilder {
 
 
 
+    QueueBuilder queueBuilder;
+
+    public QueueBuilder getQueueBuilder() {
+        return queueBuilder;
+    }
+
+    public ServiceServerBuilder setQueueBuilder(QueueBuilder queueBuilder) {
+        this.queueBuilder = queueBuilder;
+        return this;
+    }
 
     public ServiceServer build() {
         final HttpServer httpServer = QBit.factory().createHttpServer(host, port, manageQueues, pollTime, requestBatchSize, flushInterval, maxRequestBatches);
         final JsonMapper jsonMapper = QBit.factory().createJsonMapper();
         final ProtocolEncoder encoder = QBit.factory().createEncoder();
 
+
+        if (queueBuilder==null) {
+
+            queueBuilder = new QueueBuilder().setBatchSize(this.getRequestBatchSize()).setPollWait(this.getPollTime());
+
+        }
+
+
+
         final ServiceBundle serviceBundle = QBit.factory().createServiceBundle(uri,
-                this.getRequestBatchSize(),
-                this.getPollTime(),
+                queueBuilder,
                 QBit.factory(),
                 eachServiceInItsOwnThread, this.getBeforeMethodCall(),
                 this.getBeforeMethodCallAfterTransform(),
-                this.getArgTransformer());
+                this.getArgTransformer(), true);
 
         final ProtocolParser parser = QBit.factory().createProtocolParser();
 

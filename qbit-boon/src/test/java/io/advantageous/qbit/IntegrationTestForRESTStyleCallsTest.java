@@ -8,6 +8,7 @@ import io.advantageous.qbit.queue.ReceiveQueue;
 import io.advantageous.qbit.service.Callback;
 import io.advantageous.qbit.service.Protocol;
 import io.advantageous.qbit.service.ServiceBundle;
+import io.advantageous.qbit.service.ServiceBundleBuilder;
 import io.advantageous.qbit.service.impl.ServiceBundleImpl;
 import io.advantageous.qbit.message.impl.MethodCallImpl;
 import io.advantageous.qbit.spi.BoonProtocolEncoder;
@@ -72,11 +73,11 @@ public class IntegrationTestForRESTStyleCallsTest {
         employeeService = new EmployeeService();
 
         factory = QBit.factory();
-        final ServiceBundle bundle = factory.createServiceBundle("/root");
-        serviceBundle = bundle;
-        serviceBundleImpl = (ServiceBundleImpl) bundle;
 
-        responseReceiveQueue = bundle.responses().receiveQueue();
+        serviceBundle = new ServiceBundleBuilder().setAddress("/root").build();
+        serviceBundleImpl = (ServiceBundleImpl) serviceBundle;
+
+        responseReceiveQueue = serviceBundle.responses().receiveQueue();
 
 
         Employee employee = new Employee();

@@ -1,5 +1,6 @@
 package io.advantageous.qbit;
 
+import io.advantageous.qbit.service.ServiceBundleBuilder;
 import io.advantageous.qbit.spi.RegisterBoonWithQBit;
 import io.advantageous.qbit.util.MultiMap;
 import org.boon.Boon;
@@ -58,7 +59,8 @@ public class IntegrationLikeUnitTest {
         employeeService = new EmployeeService();
 
         factory = QBit.factory();
-        final ServiceBundle bundle = factory.createServiceBundle("/root");
+
+        final ServiceBundle bundle = new ServiceBundleBuilder().setAddress("/root").build();
         serviceBundle = bundle;
         serviceBundleImpl = (ServiceBundleImpl) bundle;
 

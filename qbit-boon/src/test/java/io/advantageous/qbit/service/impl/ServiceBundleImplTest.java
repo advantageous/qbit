@@ -1,5 +1,6 @@
 package io.advantageous.qbit.service.impl;
 
+import io.advantageous.qbit.service.ServiceBundleBuilder;
 import io.advantageous.qbit.util.MultiMap;
 import org.boon.Boon;
 import org.boon.Lists;
@@ -55,7 +56,8 @@ public class ServiceBundleImplTest {
     public void before() {
 
         factory = QBit.factory();
-        final ServiceBundle bundle = factory.createServiceBundle("/foo");
+
+        final ServiceBundle bundle = new ServiceBundleBuilder().setAddress("/foo").build();
         serviceBundle = bundle;
         serviceBundleImpl = (ServiceBundleImpl) bundle;
         adderService = new AdderService();

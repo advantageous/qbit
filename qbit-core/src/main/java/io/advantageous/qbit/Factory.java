@@ -9,6 +9,7 @@ import io.advantageous.qbit.message.MethodCall;
 import io.advantageous.qbit.message.Request;
 import io.advantageous.qbit.message.Response;
 import io.advantageous.qbit.queue.Queue;
+import io.advantageous.qbit.queue.QueueBuilder;
 import io.advantageous.qbit.sender.Sender;
 import io.advantageous.qbit.server.ServiceServer;
 import io.advantageous.qbit.service.BeforeMethodCall;
@@ -92,15 +93,11 @@ public interface Factory {
      * @param asyncCalls service calls
      * @return new client bundle
      */
-    default ServiceBundle createServiceBundle(String address, final int batchSize, final int pollRate,
+    default ServiceBundle createServiceBundle(String address, final QueueBuilder queueBuilder,
                                               final Factory factory, final boolean asyncCalls,
                                               final BeforeMethodCall beforeMethodCall,
                                               final BeforeMethodCall beforeMethodCallAfterTransform,
-                                              final Transformer<Request, Object> argTransformer){
-        throw new UnsupportedOperationException();
-    }
-
-    default ServiceBundle createServiceBundle(String path) {
+                                              final Transformer<Request, Object> argTransformer, boolean invokeDynamic){
         throw new UnsupportedOperationException();
     }
 
@@ -119,8 +116,8 @@ public interface Factory {
     default Service createService(String rootAddress, String serviceAddress,
                                   Object object,
                                   Queue<Response<Object>> responseQueue,
-                                  final int batchSize,
-                                  boolean asyncCalls){
+                                  final  QueueBuilder queueBuilder,
+                                  boolean asyncCalls, boolean invokeDynamic){
         throw new UnsupportedOperationException();
     }
 

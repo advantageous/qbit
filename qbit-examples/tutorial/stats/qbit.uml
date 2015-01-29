@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Diagram>
+  <ID>JAVA</ID>
+  <OriginalElement>qbit</OriginalElement>
+  <nodes>
+    <node x="0.0" y="0.0">qbit.StatReplicator</node>
+    <node x="163.31018518518522" y="313.0">qbit.support</node>
+    <node x="102.9768518518519" y="102.0">qbit.StatService</node>
+    <node x="356.5046296296297" y="0.0">qbit.StatRecorder</node>
+  </nodes>
+  <notes />
+  <edges>
+    <edge source="qbit.support" target="qbit.StatReplicator">
+      <point x="-43.125" y="-15.0" />
+      <point x="189.18518518518522" y="283.0" />
+      <point x="81.4768518518519" y="283.0" />
+      <point x="81.4768518518519" y="77.0" />
+      <point x="86.625" y="77.0" />
+      <point x="-28.875" y="26.0" />
+    </edge>
+    <edge source="qbit.support" target="qbit.StatRecorder">
+      <point x="43.125" y="-15.0" />
+      <point x="275.4351851851852" y="283.0" />
+      <point x="501.4768518518519" y="283.0" />
+      <point x="501.4768518518519" y="77.0" />
+      <point x="478.0046296296297" y="77.0" />
+      <point x="0.0" y="26.0" />
+    </edge>
+    <edge source="qbit.support" target="qbit.support">
+      <point x="0.0" y="15.0" />
+      <point x="232.31018518518522" y="363.0" />
+      <point x="143.31018518518522" y="363.0" />
+      <point x="143.31018518518522" y="328.0" />
+      <point x="-69.0" y="-0.0" />
+    </edge>
+    <edge source="qbit.StatService" target="qbit.support">
+      <point x="129.33333333333337" y="70.5" />
+      <point x="426.3101851851853" y="273.0" />
+      <point x="258.1851851851852" y="273.0" />
+      <point x="25.875" y="-15.0" />
+    </edge>
+    <edge source="qbit.StatService" target="qbit.StatRecorder">
+      <point x="97.0" y="-70.5" />
+      <point x="393.9768518518519" y="77.0" />
+      <point x="397.0046296296297" y="77.0" />
+      <point x="-81.0" y="26.0" />
+    </edge>
+    <edge source="qbit.StatService" target="qbit.StatReplicator">
+      <point x="-97.0" y="-70.5" />
+      <point x="199.9768518518519" y="77.0" />
+      <point x="202.125" y="77.0" />
+      <point x="86.625" y="26.0" />
+    </edge>
+    <edge source="qbit.support" target="qbit.StatService">
+      <point x="-8.625" y="-15.0" />
+      <point x="223.68518518518522" y="263.0" />
+      <point x="167.64351851851856" y="263.0" />
+      <point x="-129.33333333333334" y="70.5" />
+    </edge>
+  </edges>
+  <settings layout="Hierarchic Group" zoom="1.0" x="300.0" y="186.5" />
+  <SelectedNodes />
+  <Categories>
+    <Category>Methods</Category>
+    <Category>Constructors</Category>
+    <Category>Inner Classes</Category>
+    <Category>Fields</Category>
+    <Category>Properties</Category>
+  </Categories>
+  <SCOPE>Production</SCOPE>
+  <VISIBILITY>public</VISIBILITY>
+</Diagram>
+

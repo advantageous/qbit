@@ -10,7 +10,7 @@ import java.util.concurrent.*;
  *
  * Created by rhightower on 12/14/14.
  */
-public class QueueBuilder {
+public class QueueBuilder implements Cloneable{
 
     private int batchSize = 500;
     private int pollWait = 5;
@@ -22,6 +22,10 @@ public class QueueBuilder {
 
     private boolean tryTransfer=false;
 
+    @Override
+    protected Object clone() throws CloneNotSupportedException {
+        return super.clone();
+    }
 
     public int getCheckEvery() {
         return checkEvery;

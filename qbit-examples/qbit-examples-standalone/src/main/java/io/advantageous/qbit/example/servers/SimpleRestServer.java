@@ -5,6 +5,9 @@ import io.advantageous.qbit.server.ServiceServer;
 import io.advantageous.qbit.server.ServiceServerBuilder;
 import org.boon.Boon;
 
+import java.util.Collections;
+import java.util.List;
+
 /**
  *
  * ./wrk -c 500 -d 10s http://localhost:6060/services/myservice/ping -H "X_USER_ID: RICK"  --timeout 100000s -t 8
@@ -28,8 +31,8 @@ public class SimpleRestServer {
         curl http://localhost:6060/services/myservice/ping -H "X_USER_ID: RICK"
          */
         @RequestMapping
-        public String ping() {
-            return "ping";
+        public List ping() {
+            return Collections.singletonList("Hello World!");
         }
     }
 

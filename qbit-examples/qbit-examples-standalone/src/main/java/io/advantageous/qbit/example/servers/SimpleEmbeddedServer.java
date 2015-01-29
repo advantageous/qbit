@@ -53,7 +53,7 @@ public class SimpleEmbeddedServer {
 
 
         final ServiceServer serviceServer = new ServiceServerVertxEmbeddedBuilder()
-                .setBeforeStartHandler(BeforeHandler.class).setPort(5050)
+                .setBeforeStartHandler(BeforeHandler.class).setHttpWorkers(4).setPort(5050)
                 .setRequestBatchSize(40).setMaxRequestBatches(10).build();
 
         serviceServer.start();

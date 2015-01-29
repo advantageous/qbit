@@ -38,6 +38,7 @@ public class ServiceBundleImpl implements ServiceBundle {
     private final Logger logger = LoggerFactory.getLogger(ServiceBundleImpl.class);
     private final boolean debug = logger.isDebugEnabled();
     private final boolean asyncCalls;
+    private final boolean invokeDynamic;
 
     /**
      * Keep track of services to send queue mappings.
@@ -85,7 +86,7 @@ public class ServiceBundleImpl implements ServiceBundle {
      * Maps incoming calls with outgoing handlers (returns, async returns really).
      */
     private final Map<HandlerKey, Callback<Object>> handlers = new ConcurrentHashMap<>();
-    private final int batchSize;
+    //private final int batchSize;
 
 
     /**
@@ -162,17 +163,20 @@ public class ServiceBundleImpl implements ServiceBundle {
     );
 
 
+    final QueueBuilder queueBuilder;
+
     /**
      * @param address   root address of client bundle
-     * @param batchSize outgoing batch size, exceeding this size forces a flush.
-     * @param pollRate  time we should wait after not finding anything on the queue. The higher the slower for low traffic.
      * @param factory   the qbit factory where we can create responses, methods, etc.
      */
-    public ServiceBundleImpl(String address, final int batchSize, final int pollRate,
+    public ServiceBundleImpl(String address, QueueBuilder queueBuilder,
                              final Factory factory, final boolean asyncCalls,
                              final BeforeMethodCall beforeMethodCall,
                              final BeforeMethodCall beforeMethodCallAfterTransform,
-                             final Transformer<Request, Object> argTransformer) {
+                             final Transformer<Request, Object> argTransformer,
+                             final boolean invokeDynamic) {
+
+        this.invokeDynamic = invokeDynamic;
 
 
         if (address.endsWith("/")) {
@@ -189,9 +193,9 @@ public class ServiceBundleImpl implements ServiceBundle {
 
         this.asyncCalls = asyncCalls;
 
-        this.batchSize = batchSize;
 
-        final QueueBuilder queueBuilder = new QueueBuilder().setPollWait(pollRate).setBatchSize(batchSize);
+        this.queueBuilder = queueBuilder;
+
 
 
         this.methodQueue = queueBuilder.setName("Send Queue " + address).build();
@@ -245,7 +249,7 @@ public class ServiceBundleImpl implements ServiceBundle {
 
         /** Turn this client object into a client with queues. */
         final Service service = factory.createService(address, serviceAddress,
-                serviceObject, responseQueue,  this.batchSize, this.asyncCalls);
+                serviceObject, responseQueue,  this.queueBuilder, this.asyncCalls, this.invokeDynamic);
 
 
         /** add to our list of services. */

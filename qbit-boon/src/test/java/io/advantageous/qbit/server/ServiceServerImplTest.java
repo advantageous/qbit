@@ -11,6 +11,7 @@ import io.advantageous.qbit.message.MethodCall;
 import io.advantageous.qbit.message.MethodCallBuilder;
 import io.advantageous.qbit.message.Response;
 import io.advantageous.qbit.service.ServiceBundle;
+import io.advantageous.qbit.service.ServiceBundleBuilder;
 import io.advantageous.qbit.spi.ProtocolEncoder;
 import io.advantageous.qbit.spi.ProtocolParser;
 import org.boon.Lists;
@@ -88,7 +89,8 @@ public class ServiceServerImplTest {
         final Factory factory = QBit.factory();
         final ProtocolParser protocolParser = factory.createProtocolParser();
         final ProtocolEncoder encoder = factory.createEncoder();
-        final ServiceBundle serviceBundle = factory.createServiceBundle("/services");
+
+        final ServiceBundle serviceBundle = new ServiceBundleBuilder().setAddress("/services").build();
         final JsonMapper mapper = factory.createJsonMapper();
 
 
