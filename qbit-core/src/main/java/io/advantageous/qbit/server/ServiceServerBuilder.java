@@ -31,7 +31,7 @@ public class ServiceServerBuilder {
     private String uri = "/services";
     private int numberOfOutstandingRequests = 1_000_000;
 
-    private int maxRequestBatches = -1;
+    private int maxRequestBatches = 1_0000;
 
     private int timeoutSeconds = 30;
     private boolean invokeDynamic = true;

@@ -18,7 +18,7 @@ public class QueueBuilder implements Cloneable{
     private int checkEvery = 100;
 
     private String name;
-    private Class<? extends BlockingQueue> queueClass = LinkedBlockingQueue.class;
+    private Class<? extends BlockingQueue> queueClass = ArrayBlockingQueue.class;
 
     private boolean tryTransfer=false;
 

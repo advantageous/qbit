@@ -1,6 +1,7 @@
 package io.advantageous.qbit.example.servers;
 
 import io.advantageous.qbit.annotation.RequestMapping;
+import io.advantageous.qbit.queue.QueueBuilder;
 import io.advantageous.qbit.server.ServiceServer;
 import io.advantageous.qbit.server.ServiceServerBuilder;
 import org.boon.Boon;
@@ -39,8 +40,10 @@ public class SimpleRestServer {
     public static void main(String... args) throws Exception {
 
 
-        final ServiceServer serviceServer = new ServiceServerBuilder().setPort(6060)
-                .setRequestBatchSize(40).setMaxRequestBatches(10).build();
+        final ServiceServer serviceServer = new ServiceServerBuilder().setPort(6060).setQueueBuilder(
+                new QueueBuilder().setLinkTransferQueue().setTryTransfer(true).setBatchSize(40).setPollWait(10)
+        )
+                .build();
 
         serviceServer.initServices(new MyService());
         serviceServer.start();
