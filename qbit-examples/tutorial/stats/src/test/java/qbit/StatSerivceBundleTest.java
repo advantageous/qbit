@@ -51,7 +51,8 @@ public class StatSerivceBundleTest {
         //QueueBuilder builder = new QueueBuilder().setPollWait(10).setBatchSize(1000).setLinkTransferQueue().setCheckEvery(100).setTryTransfer(true);
         QueueBuilder builder = new QueueBuilder().setPollWait(1).setBatchSize(1000).setArrayBlockingQueue().setSize(1000);
 
-        service = new ServiceImpl("/root", "/serviceAddress", statService, builder, new BoonServiceMethodCallHandler(false), null, true);
+        service = new ServiceImpl("/root", "/serviceAddress", statService,
+                builder, new BoonServiceMethodCallHandler(false), null, true);
 
         serviceBundle = new ServiceBundleBuilder().setEachServiceInItsOwnThread(true).setQueueBuilder(builder).setInvokeDynamic(false)
                 .build();
