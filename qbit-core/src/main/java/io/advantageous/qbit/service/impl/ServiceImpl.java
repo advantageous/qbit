@@ -1,18 +1,20 @@
 package io.advantageous.qbit.service.impl;
 
+import io.advantageous.qbit.client.ClientProxy;
 import io.advantageous.qbit.message.*;
 import io.advantageous.qbit.queue.*;
-import io.advantageous.qbit.service.AfterMethodCall;
-import io.advantageous.qbit.service.BeforeMethodCall;
-import io.advantageous.qbit.service.Service;
-import io.advantageous.qbit.service.ServiceMethodHandler;
+import io.advantageous.qbit.service.*;
 import io.advantageous.qbit.transforms.NoOpResponseTransformer;
 import io.advantageous.qbit.transforms.Transformer;
+import io.advantageous.qbit.util.MultiMap;
 import io.advantageous.qbit.util.Timer;
 import org.boon.core.reflection.BeanUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.Method;
+import java.lang.reflect.Proxy;
 import java.util.Collection;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -387,6 +389,141 @@ public class ServiceImpl implements Service {
     public Object service() {
         return service;
     }
+
+
+    static class MethodCallLocal implements MethodCall<Object>{
+
+        private final String name;
+        private final long timestamp;
+        private final Object[] arguments;
+
+        public MethodCallLocal(String name, long timestamp, Object[] args) {
+            this.name = name;
+            this.timestamp = timestamp;
+            this.arguments = args;
+        }
+
+        @Override
+        public String name() {
+            return name;
+        }
+
+        @Override
+        public String address() {
+            return "";
+        }
+
+        @Override
+        public String returnAddress() {
+            return "";
+        }
+
+        @Override
+        public MultiMap<String, String> params() {
+            return null;
+        }
+
+        @Override
+        public MultiMap<String, String> headers() {
+            return null;
+        }
+
+        @Override
+        public boolean hasParams() {
+            return false;
+        }
+
+        @Override
+        public boolean hasHeaders() {
+            return false;
+        }
+
+        @Override
+        public long timestamp() {
+            return timestamp;
+        }
+
+        @Override
+        public boolean isHandled() {
+            return false;
+        }
+
+        @Override
+        public void handled() {
+
+        }
+
+        @Override
+        public String objectName() {
+            return "";
+        }
+
+        @Override
+        public Request<Object> originatingRequest() {
+            return null;
+        }
+
+        @Override
+        public long id() {
+            return timestamp;
+        }
+
+        @Override
+        public Object body() {
+            return arguments;
+        }
+
+        @Override
+        public boolean isSingleton() {
+            return true;
+        }
+    }
+
+    public <T> T createProxy(Class<T> serviceInterface) {
+
+
+        final SendQueue<MethodCall<Object>> methodCallSendQueue = requestQueue.sendQueue();
+
+
+        InvocationHandler invocationHandler = new InvocationHandler() {
+
+            long timestamp = Timer.timer().now();
+            int times = 10;
+
+            @Override
+            public Object invoke(final Object proxy, final Method method, final Object[] args) throws Throwable {
+
+
+
+                if (method.getName().equals("clientProxyFlush")) {
+
+                    methodCallSendQueue.flushSends();
+                    return null;
+                }
+                times--;
+                if (times == 0){
+                    timestamp = Timer.timer().now();
+                    times = 10;
+                } else {
+                    timestamp++;
+                }
+
+                final MethodCallLocal call = new MethodCallLocal(method.getName(), timestamp, args);
+                methodCallSendQueue.send(call);
+                return null;
+            }
+        };
+
+        final Object o = Proxy.newProxyInstance(Thread.currentThread().getContextClassLoader(),
+                new Class[]{serviceInterface, ClientProxy.class}, invocationHandler
+        );
+
+
+        return (T) o;
+
+
+    }
+
 
 
 }

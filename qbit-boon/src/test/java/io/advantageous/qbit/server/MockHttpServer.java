@@ -23,7 +23,7 @@ public class MockHttpServer implements HttpServer {
 
 
     public void postRequestObject(final String uri, final Object body,
-                                  final HttpResponse response) {
+                                  final HttpResponseReceiver response) {
 
         final String json = Boon.toJson(body);
         final HttpRequest request = new HttpRequestBuilder().setUri(uri).setBody(json)

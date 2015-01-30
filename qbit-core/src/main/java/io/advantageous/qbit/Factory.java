@@ -282,7 +282,9 @@ public interface Factory {
                 int requestBatchSize,
                 int timeOutInMilliseconds,
                 int poolSize,
-                boolean autoFlush){
+                boolean autoFlush,
+                boolean keepAlive,
+                boolean pipeline){
         throw new UnsupportedOperationException();
     }
 

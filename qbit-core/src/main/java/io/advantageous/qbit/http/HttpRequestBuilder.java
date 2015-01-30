@@ -27,10 +27,25 @@ public class HttpRequestBuilder {
     private MultiMap<String, String> params;
     private String body;
     private String method = "GET";
-    private HttpResponse response;
+
+    public static HttpRequestBuilder httpRequestBuilder() {
+        return new HttpRequestBuilder();
+    }
+    private HttpResponseReceiver response = (code, mimeType, body1) -> {
+    };
+
     private MultiMap<String, String> headers;
     private long id;
     private long timestamp;
+
+    public HttpRequestBuilder setMethodPost() {
+        this.method = "POST";
+        return this;
+    }
+    public HttpRequestBuilder setMethodPut() {
+        this.method = "PUT";
+        return this;
+    }
 
     private static class RequestIdGenerator {
         private long value;
@@ -109,11 +124,11 @@ public class HttpRequestBuilder {
         return this;
     }
 
-    public HttpResponse getResponse() {
+    public HttpResponseReceiver getResponse() {
         return response;
     }
 
-    public HttpRequestBuilder response(HttpResponse response) {
+    public HttpRequestBuilder response(HttpResponseReceiver response) {
         this.response = response;
         return this;
     }

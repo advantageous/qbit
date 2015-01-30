@@ -24,8 +24,6 @@ import org.slf4j.LoggerFactory;
 
 import java.nio.charset.StandardCharsets;
 import java.util.*;
-import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeoutException;
 
@@ -384,7 +382,7 @@ public class HttpRequestServiceServerHandler {
 
         if (request instanceof HttpRequest) {
 
-            final HttpResponse httpResponse = ((HttpRequest) request).getResponse();
+            final HttpResponseReceiver httpResponse = ((HttpRequest) request).getResponse();
 
             try {
                 httpResponse.response(408, "application/json", "\"timed out\"");
@@ -456,7 +454,7 @@ public class HttpRequestServiceServerHandler {
     }
 
 
-    private void writeResponse(HttpResponse response, int code, String mimeType, String responseString, MultiMap<String, String> headers) {
+    private void writeResponse(HttpResponseReceiver response, int code, String mimeType, String responseString, MultiMap<String, String> headers) {
 
         if (response.isText()) {
             response.response(code, mimeType, responseString, headers);

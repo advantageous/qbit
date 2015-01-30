@@ -223,6 +223,15 @@ public class HttpServerVertx implements HttpServer {
 
             manageQueues();
 
+            if (debug) {
+                vertx.setPeriodic(10_000, new Handler<Long>() {
+                    @Override
+                    public void handle(Long event) {
+
+                        puts ("Exceptions", exceptionCount, "Close Count", closeCount);
+                    }
+                });
+            }
             httpServer = vertx.createHttpServer();
 
             if (manageQueues) {
@@ -280,6 +289,7 @@ public class HttpServerVertx implements HttpServer {
             httpServer.websocketHandler(this::handleWebSocketMessage);
 
             httpServer.requestHandler(this::handleHttpRequest);
+
 
 
 
@@ -422,11 +432,18 @@ public class HttpServerVertx implements HttpServer {
         }
     }
 
+    volatile int exceptionCount;
+    volatile int closeCount;
+
     private void handleHttpRequest(final HttpServerRequest request) {
 
         request.exceptionHandler( new Handler<Throwable>() {
             @Override
             public void handle(Throwable event) {
+
+                if (debug) {
+                    exceptionCount++;
+                }
 
                 logger.info("EXCEPTION", event);
 
@@ -437,9 +454,16 @@ public class HttpServerVertx implements HttpServer {
             @Override
             public void handle(Void event) {
 
+
+                if (debug) {
+                    closeCount++;
+                }
+
+
                 logger.info("REQUEST OVER");
             }
         });
+
 
         if (debug) logger.debug("HttpServerVertx::handleHttpRequest::{}:{}", request.method(), request.uri());
 
@@ -602,16 +626,15 @@ public class HttpServerVertx implements HttpServer {
 
         public void send() {
             response.setStatusCode(code).putHeader("Content-Type", mimeType);
-
             Buffer buffer = createBuffer(body);
-
-            response.putHeader("Content-Size", Integer.toString(buffer.length()));
+            response.putHeader("Content-Length", Integer.toString(buffer.length()));
+            //response.putHeader("Keep-Alive", "timeout=30");
             response.end(buffer);
         }
 
     }
 
-    private HttpResponse createResponse(final HttpServerResponse response) {
+    private HttpResponseReceiver createResponse(final HttpServerResponse response) {
         return (code, mimeType, body) -> {
 
             if (manageQueues) {
@@ -630,11 +653,8 @@ public class HttpServerVertx implements HttpServer {
             } else {
 
                 response.setStatusCode(code).putHeader("Content-Type", mimeType);
-
+                //response.setStatusCode(code).putHeader("Keep-Alive", "timeout=600");
                 Buffer buffer = createBuffer(body);
-
-                response.putHeader("Content-Size", Integer.toString(buffer.length()));
-
                 response.end(buffer);
             }
 

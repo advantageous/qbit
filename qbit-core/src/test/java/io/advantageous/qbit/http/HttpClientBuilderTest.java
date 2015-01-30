@@ -39,14 +39,18 @@ public class HttpClientBuilderTest {
         FactorySPI.setFactory(new Factory() {
 
             @Override
-            public HttpClient createHttpClient(String host, int port, int pollTime, int requestBatchSize, int timeOutInMilliseconds, int poolSize, boolean autoFlush) {
-                return FactorySPI.getHttpClientFactory().create(host, port, pollTime, requestBatchSize, timeOutInMilliseconds, poolSize, autoFlush);
+            public HttpClient createHttpClient(String host, int port, int pollTime, int requestBatchSize,
+                                               int timeOutInMilliseconds, int poolSize, boolean autoFlush,
+                                               boolean keepAlive, boolean pipeline) {
+                return FactorySPI.getHttpClientFactory().create(host, port, pollTime, requestBatchSize,
+                        timeOutInMilliseconds, poolSize, autoFlush, keepAlive, pipeline);
             }
         });
 
         FactorySPI.setHttpClientFactory(new HttpClientFactory() {
             @Override
-            public HttpClient create(String host, int port, int pollTime, int requestBatchSize, int timeOutInMilliseconds, int poolSize, boolean autoFlush) {
+            public HttpClient create(String host, int port, int pollTime, int requestBatchSize,
+                                     int timeOutInMilliseconds, int poolSize, boolean autoFlush, boolean a, boolean b) {
                 return null;
             }
         });

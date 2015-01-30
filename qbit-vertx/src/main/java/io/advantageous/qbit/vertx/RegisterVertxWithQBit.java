@@ -13,7 +13,9 @@ public class RegisterVertxWithQBit {
     public static void registerVertxWithQBit() {
         FactorySPI.setHttpServerFactory(new HttpServerVertxFactory());
 
-        FactorySPI.setHttpClientFactory((host, port, pollTime, requestBatchSize, timeOutInMilliseconds, poolSize, autoFlush) -> new HttpClientVertx(host, port, pollTime, requestBatchSize, timeOutInMilliseconds, poolSize, autoFlush));
+        FactorySPI.setHttpClientFactory((host, port, pollTime, requestBatchSize, timeOutInMilliseconds, poolSize, autoFlush, keepAlive, pipeline)
+                -> new HttpClientVertx(host, port, pollTime, requestBatchSize,
+                timeOutInMilliseconds, poolSize, autoFlush, keepAlive, pipeline));
 
     }
 }

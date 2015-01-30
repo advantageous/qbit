@@ -1,23 +1,15 @@
 package io.advantageous.qbit.http;
 
-
 import io.advantageous.qbit.util.MultiMap;
 
 /**
- * Represents a callback which receives an HTTP response.
- *
- * Created by rhightower on 10/21/14.
- * @author rhightower
- * can be text or binary
+ * Created by rhightower on 1/29/15.
  */
-public interface HttpResponse<T> {
+public interface HttpResponse {
 
-    default boolean isText(){ return true; }
+    MultiMap<String, String> headers();
+    int code();
+    String contentType();
+    String body();
 
-    void response(int code, String mimeType, T body);
-
-
-    default void response(int code, String mimeType, T body, MultiMap<String, String> multiMap) {
-        response(code, mimeType, body);
-    }
 }

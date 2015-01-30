@@ -184,8 +184,9 @@ public class BoonClientIntegrationTest {
         }
 
         @Override
-        public void start() {
+        public HttpClient start() {
             httpStartCalled = true;
+            return this;
 
         }
 

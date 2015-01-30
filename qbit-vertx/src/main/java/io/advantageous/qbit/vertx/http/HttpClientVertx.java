@@ -30,6 +30,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Consumer;
 
+import static org.boon.Boon.puts;
+
 /**
  * Created by rhightower on 10/28/14.
  *
@@ -39,7 +41,6 @@ public class HttpClientVertx implements HttpClient {
 
 
     private final Logger logger = LoggerFactory.getLogger(HttpClientVertx.class);
-
     private final boolean debug = logger.isDebugEnabled();
 
 
@@ -55,9 +56,9 @@ public class HttpClientVertx implements HttpClient {
     protected org.vertx.java.core.http.HttpClient httpClient;
     protected Vertx vertx;
     protected boolean autoFlush;
-    protected boolean keepAlive = true;
-    protected boolean pipeline = false;
-    protected  int flushInterval = 200;
+    protected final boolean keepAlive;
+    protected final boolean pipeline;
+    protected  final int flushInterval = 20000;
     protected ReentrantLock requestLock = new ReentrantLock();
 
 
@@ -77,15 +78,13 @@ public class HttpClientVertx implements HttpClient {
      * Are we closed.
      */
     private final AtomicBoolean closed = new AtomicBoolean();
-    private Consumer<Void> periodicFlushCallback = new Consumer<Void>() {
-        @Override
-        public void accept(Void aVoid) {
+    private Consumer<Void> periodicFlushCallback = aVoid -> {
 
-        }
     };
 
 
-    public HttpClientVertx(String host, int port, int pollTime, int requestBatchSize, int timeOutInMilliseconds, int poolSize, boolean autoFlush) {
+    public HttpClientVertx(String host, int port, int pollTime, int requestBatchSize, int timeOutInMilliseconds, int poolSize,
+                           boolean autoFlush, boolean keepAlive, boolean pipeline) {
 
         this.port = port;
         this.host = host;
@@ -96,46 +95,35 @@ public class HttpClientVertx implements HttpClient {
         this.pollTime = pollTime;
         this.requestBatchSize = requestBatchSize;
         this.poolSize = poolSize;
+        this.keepAlive=keepAlive;
+        this.pipeline=pipeline;
 
     }
 
     @Override
     public void sendHttpRequest(final HttpRequest request) {
-
-
-
         if(debug) logger.debug("HTTP CLIENT: sendHttpRequest:: \n{}\n", request);
-
-
-
         try {
-
             requestLock.lock();
             httpRequestSendQueue.send(request);
 
         } finally {
-
             requestLock.unlock();
         }
     }
 
     @Override
     public void sendWebSocketMessage(final WebSocketMessage webSocketMessage) {
-
-
         try {
-
             requestLock.lock();
             if (debug) logger.debug("HTTP CLIENT: sendWebSocketMessage:: \n{}\n", webSocketMessage);
             webSocketSendQueue.send(webSocketMessage);
-
         } catch (Exception ex ) {
             logger.error("Unable to handle websocket send", ex);
         }
         finally {
             requestLock.unlock();
         }
-
     }
 
     @Override
@@ -152,6 +140,8 @@ public class HttpClientVertx implements HttpClient {
         long duration = now - lastAutoFlushTime;
 
         if (duration > (flushInterval / 10L)) {
+
+            //puts("AUTO FLUSH", duration);
             lastAutoFlushTime = now;
             try {
                 requestLock.lock();
@@ -208,12 +198,16 @@ public class HttpClientVertx implements HttpClient {
     }
 
     @Override
-    public void start() {
+    public HttpClient start() {
         requestQueue =
-                new QueueBuilder().setName("HttpRequestQueue " + host + " " + port).setPollWait(pollTime).setBatchSize(requestBatchSize).build();
+                new QueueBuilder()
+                        .setArrayBlockingQueue().setSize(100000)
+                        .setName("HttpRequestQueue " + host + " " + port).setPollWait(pollTime).setBatchSize(requestBatchSize).build();
 
 
-        webSocketMessageQueue =   new QueueBuilder().setName("WebSocketQueue " + host + " " + port).setPollWait(pollTime).setBatchSize(requestBatchSize)
+        webSocketMessageQueue =   new QueueBuilder()
+                .setArrayBlockingQueue().setSize(100000)
+                .setName("WebSocketQueue " + host + " " + port).setPollWait(pollTime).setBatchSize(requestBatchSize)
                 .build();
 
         httpRequestSendQueue = requestQueue.sendQueue();
@@ -241,6 +235,11 @@ public class HttpClientVertx implements HttpClient {
             }
 
             @Override
+            public void limit() {
+                autoFlush();
+            }
+
+            @Override
             public void idle() {
                 autoFlush();
             }
@@ -255,10 +254,17 @@ public class HttpClientVertx implements HttpClient {
             }
 
             @Override
+            public void limit() {
+                autoFlush();
+            }
+
+            @Override
             public void idle() {
                 autoFlush();
             }
         });
+
+        return this;
 
     }
 
@@ -416,14 +422,26 @@ public class HttpClientVertx implements HttpClient {
     }
 
 
+    volatile long responseCount=0;
+
     private void handleResponse(final HttpRequest request, final HttpClientResponse httpClientResponse) {
         final int statusCode = httpClientResponse.statusCode();
         final MultiMap<String, String> headers = httpClientResponse.headers().size() == 0 ? MultiMap.empty() : new MultiMapWrapper(httpClientResponse.headers());
 
 
 
+        if (debug) {
+            responseCount++;
+            puts("status code", httpClientResponse.statusCode(), responseCount);
+        }
+
         httpClientResponse.bodyHandler(buffer -> {
             final String body = buffer.toString("UTF-8");
+
+
+            if (debug) {
+                puts("got body", "BODY");
+            }
 
             handleResponseFromServer(request, statusCode, headers, body);
         });

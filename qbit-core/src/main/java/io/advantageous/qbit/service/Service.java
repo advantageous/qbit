@@ -62,5 +62,8 @@ public interface Service {
     Collection<String> addresses(String address);
 
 
+    <T> T createProxy(Class<T> serviceInterface);
+
+
     void flush();
 }

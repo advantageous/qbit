@@ -20,6 +20,9 @@ public class ClientBuilder {
     private int poolSize = 10;
 
     private int requestBatchSize = 10;
+    private boolean keepAlive = true;
+    private boolean pipeline = true;
+
 
 
     private int protocolBatchSize = -1;
@@ -117,7 +120,7 @@ public class ClientBuilder {
         /**
          * String host, int port, int pollTime, int requestBatchSize, int timeOutInMilliseconds, int poolSize, boolean autoFlush
          */
-        final HttpClient httpClient = QBit.factory().createHttpClient(host, port, pollTime, requestBatchSize, timeoutSeconds * 1000, poolSize, autoFlush);
+        final HttpClient httpClient = QBit.factory().createHttpClient(host, port, pollTime, requestBatchSize, timeoutSeconds * 1000, poolSize, autoFlush, keepAlive, pipeline);
 
         if (protocolBatchSize==-1) {
             protocolBatchSize = requestBatchSize;
