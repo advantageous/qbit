@@ -54,6 +54,9 @@ public interface Service {
      */
     void stop();
 
+
+    Service startCallBackHandler();
+
     /**
      * Return a list of addresses.
      * @param address address

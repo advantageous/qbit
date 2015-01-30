@@ -14,7 +14,6 @@ import io.advantageous.qbit.service.Callback;
 import io.advantageous.qbit.service.Service;
 import io.advantageous.qbit.service.ServiceBundle;
 import io.advantageous.qbit.message.impl.ResponseImpl;
-import io.advantageous.qbit.transforms.NoOpRequestTransform;
 import io.advantageous.qbit.transforms.Transformer;
 import io.advantageous.qbit.util.ConcurrentHashSet;
 import io.advantageous.qbit.util.Timer;
@@ -39,6 +38,8 @@ public class ServiceBundleImpl implements ServiceBundle {
     private final boolean debug = logger.isDebugEnabled();
     private final boolean asyncCalls;
     private final boolean invokeDynamic;
+
+    private final CallbackManager callbackManager = new CallbackManager();
 
     /**
      * Keep track of services to send queue mappings.
@@ -82,45 +83,6 @@ public class ServiceBundleImpl implements ServiceBundle {
     private final Factory factory;
 
 
-    /**
-     * Maps incoming calls with outgoing handlers (returns, async returns really).
-     */
-    private final Map<HandlerKey, Callback<Object>> handlers = new ConcurrentHashMap<>();
-    //private final int batchSize;
-
-
-    /**
-     * Maps an incoming call to a response handler.
-     * This uniquely identifies a method call based on its message id and return address combo.
-     * We use this as a key into the
-     */
-    private class HandlerKey {
-        final String returnAddress;
-        final long messageId;
-
-        private HandlerKey(String returnAddress, long messageId) {
-            this.returnAddress = returnAddress;
-            this.messageId = messageId;
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
-            final HandlerKey that = (HandlerKey) o;
-            return messageId == that.messageId
-                    && !(returnAddress != null
-                    ? !returnAddress.equals(that.returnAddress)
-                    : that.returnAddress != null);
-        }
-
-        @Override
-        public int hashCode() {
-            int result = returnAddress != null ? returnAddress.hashCode() : 0;
-            result = 31 * result + (int) (messageId ^ (messageId >>> 32));
-            return result;
-        }
-    }
 
 
     /**
@@ -320,16 +282,6 @@ public class ServiceBundleImpl implements ServiceBundle {
         methodSendQueue.sendBatch(methodCalls);
     }
 
-    /**
-     * Register a callback handler
-     *
-     * @param methodCall method call
-     * @param handler    call back handler to register
-     */
-    private void registerHandlerCallbackForClient(final MethodCall<Object> methodCall,
-                                                  final Callback<Object> handler) {
-        handlers.put(new HandlerKey(methodCall.returnAddress(), methodCall.id()), handler);
-    }
 
     public void startReturnHandlerProcessor(ReceiveQueueListener<Response<Object>> listener) {
 
@@ -341,30 +293,7 @@ public class ServiceBundleImpl implements ServiceBundle {
      * Handles responses coming back from services.
      */
     public void startReturnHandlerProcessor() {
-
-        responseQueue.startListener(new ReceiveQueueListener<Response<Object>>() {
-            @Override
-            public void receive(Response<Object> response) {
-                final Callback<Object> handler = handlers.get(new HandlerKey(response.returnAddress(), response.id()));
-                if (response.wasErrors()) {
-                    if (response.body() instanceof Throwable) {
-                        logger.error("Service threw an exception address", response.address(),
-                                "\n return address", response.returnAddress(), "\n message id",
-                                response.id(), response.body());
-                        handler.onError(((Throwable) response.body()));
-                    } else {
-                        logger.error("Service threw an exception address", response.address(),
-                                "\n return address", response.returnAddress(), "\n message id",
-                                response.id());
-
-                        handler.onError(new Exception(response.body().toString()));
-                    }
-                } else {
-                    handler.accept(response.body());
-                }
-            }
-
-        });
+        callbackManager.startReturnHandlerProcessor(responseQueue);
     }
 
     /**
@@ -399,8 +328,7 @@ public class ServiceBundleImpl implements ServiceBundle {
 
         try {
 
-            final Object object = methodCall.body();
-            registerCallbacks(methodCall, object);
+            callbackManager.registerCallbacks(methodCall);
             boolean[] continueFlag = new boolean[1];
 
 
@@ -426,25 +354,6 @@ public class ServiceBundleImpl implements ServiceBundle {
         methodCall = beforeMethodCall(methodCall, continueFlag);
 
         return methodCall;
-    }
-
-    private void registerCallbacks(MethodCall<Object> methodCall, Object object) {
-        /** Look for callback handler in the args */
-        if (object instanceof Iterable) {
-            final Iterable list = (Iterable) object;
-            for (Object arg : list) {
-                if (arg instanceof Callback) {
-                    registerHandlerCallbackForClient(methodCall, (Callback) arg);
-                }
-            }
-        } else if (object instanceof Object[]) {
-            final Object[] array = (Object[]) object;
-            for (Object arg : array) {
-                if (arg instanceof Callback) {
-                    registerHandlerCallbackForClient(methodCall, ((Callback) arg));
-                }
-            }
-        }
     }
 
     private SendQueue<MethodCall<Object>> getMethodCallSendQueue(MethodCall<Object> methodCall) {

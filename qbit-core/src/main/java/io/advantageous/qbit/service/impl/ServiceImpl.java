@@ -52,6 +52,8 @@ public class ServiceImpl implements Service {
     final QueueBuilder queueBuilder;
 
 
+    private CallbackManager callbackManager;
+
 
     public ServiceImpl(final String rootAddress,
                        final String serviceAddress,
@@ -181,6 +183,15 @@ public class ServiceImpl implements Service {
     }
 
 
+
+    public Service startCallBackHandler() {
+        callbackManager = new CallbackManager();
+        callbackManager.startReturnHandlerProcessor(this.responseQueue);
+        return this;
+
+    }
+
+
     public ServiceImpl requestObjectTransformer(Transformer<Request, Object> requestObjectTransformer) {
         this.requestObjectTransformer = requestObjectTransformer;
         return this;
@@ -204,6 +215,9 @@ public class ServiceImpl implements Service {
             logger.debug("ServiceImpl::doHandleMethodCall() METHOD CALL" + methodCall );
         }
 
+        if (callbackManager!=null) {
+            callbackManager.registerCallbacks(methodCall);
+        }
         inputQueueListener.receive(methodCall);
 
         final boolean continueFlag[] = new boolean[1];

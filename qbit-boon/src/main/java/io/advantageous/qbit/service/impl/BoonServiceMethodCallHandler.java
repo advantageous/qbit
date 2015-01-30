@@ -219,7 +219,7 @@ public class BoonServiceMethodCallHandler implements ServiceMethodHandler {
     }
 
     private Response<Object> mapArgsAsyncHandlersAndInvoke(MethodCall<Object> methodCall, MethodAccess method) {
-        if (method.parameterTypes().length == 0) {
+        if (method.parameterTypes().length == 0  ) {
 
             Object returnValue = method.invokeDynamicObject(service, null);
             return response(method, methodCall, returnValue);

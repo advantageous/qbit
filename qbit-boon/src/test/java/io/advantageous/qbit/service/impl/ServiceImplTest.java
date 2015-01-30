@@ -65,6 +65,10 @@ public class ServiceImplTest {
     @Test
     public void testCallback() throws Exception {
 
+
+
+        service.startCallBackHandler();
+        Sys.sleep(100);
         AtomicInteger returnValue = new AtomicInteger();
         proxy.method2(integer -> {
             returnValue.set(integer);
@@ -76,7 +80,7 @@ public class ServiceImplTest {
 
         ok = callCount==1 || die();
 
-        //ok = returnValue.get()==1 || die(returnValue.get()); TODO
+        ok = returnValue.get()==1 || die(returnValue.get());
     }
 
 
