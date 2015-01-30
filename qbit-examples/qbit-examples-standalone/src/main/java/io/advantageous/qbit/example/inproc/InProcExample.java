@@ -92,10 +92,13 @@ public class InProcExample {
         After it hits so many, it sends those methods to the service.
         This allows threads to handle many method calls with on access of the queue.
         Here we set it to 1 so it will flush with every call.
+        Setting invoke dynamic false turns off auto type conversion which is mainly for JSON REST calls
+        and WebSocket calls.
+        This means that you can execute the service more efficiently when it is in proc.
          */
         final Service service = serviceBuilder()
                 .setQueueBuilder(queueBuilder().setBatchSize(1))
-                .setServiceObject(todoManagerImpl)
+                .setServiceObject(todoManagerImpl).setInvokeDynamic(false)
                 .build();
 
 
