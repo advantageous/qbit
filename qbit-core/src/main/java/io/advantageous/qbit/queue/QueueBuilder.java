@@ -12,6 +12,7 @@ import java.util.concurrent.*;
  */
 public class QueueBuilder implements Cloneable{
 
+    public static QueueBuilder queueBuilder() {return new QueueBuilder();}
     private int batchSize = 500;
     private int pollWait = 5;
     private int size = 1_000_000;

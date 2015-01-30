@@ -22,6 +22,7 @@ import org.slf4j.LoggerFactory;
 public class ServiceBuilder {
 
 
+    public static ServiceBuilder serviceBuilder () {return new ServiceBuilder();}
     private final Logger logger = LoggerFactory.getLogger(ServiceBuilder.class);
     private final boolean debug = logger.isDebugEnabled();
 

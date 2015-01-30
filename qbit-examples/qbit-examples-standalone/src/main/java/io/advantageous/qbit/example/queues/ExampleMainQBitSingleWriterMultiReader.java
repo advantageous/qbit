@@ -1,4 +1,4 @@
-package io.advantageous.qbit.example;
+package io.advantageous.qbit.example.queues;
 
 import io.advantageous.qbit.queue.Queue;
 import io.advantageous.qbit.queue.QueueBuilder;
