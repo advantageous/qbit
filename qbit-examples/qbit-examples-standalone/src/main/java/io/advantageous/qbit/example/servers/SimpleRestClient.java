@@ -41,7 +41,7 @@ public class SimpleRestClient {
                 .setPort(6060).setPoolSize(500).setRequestBatchSize(100)
                 .build().start();
 
-        Sys.sleep(1000);
+        Sys.sleep(1_000);
 
 
         final long start = System.currentTimeMillis();
@@ -50,42 +50,17 @@ public class SimpleRestClient {
         final HttpRequest httpRequest = httpRequestBuilder().setUri("/services/myservice/ping").setTextResponse(new HttpTextResponse() {
             @Override
             public void response(int code, String mimeType, String body) {
-
                 count++;
-
-
-//                if (count % 100 == 0) {
-//
-//                    Sys.sleep(100);
-//                }
-                //puts(count++, body);
             }
         }).build();
 
-        for (int index =  0; index < 2_000; index++) {
-
+        for (int index =  0; index < 500_005; index++) {
             httpClient.sendHttpRequest(httpRequest);
-
-
-
-            if (index % 100 == 0) {
-
-
-                Sys.sleep(10);
-             }
         }
 
-        //                httpClient.flush();
 
-//        httpClient.flush();
-//        Sys.sleep(100);
-//        httpClient.flush();
-//        Sys.sleep(100);
-//        httpClient.flush();
-
-
-        while (count < 1999) {
-            Sys.sleep(1);
+        while (count < 490_000) {
+            Sys.sleep(100);
             if (count > 100) {
                 puts(count);
             }
@@ -98,6 +73,22 @@ public class SimpleRestClient {
             }
 
             if (count > 950) {
+                puts(count);
+            }
+            if (count > 2000) {
+                puts(count);
+            }
+
+            if (count > 10_000) {
+                puts(count);
+            }
+
+            if (count > 15_000) {
+                puts(count);
+            }
+
+
+            if (count > 100_000) {
                 puts(count);
             }
         }

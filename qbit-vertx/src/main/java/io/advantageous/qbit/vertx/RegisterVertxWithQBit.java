@@ -1,8 +1,7 @@
 package io.advantageous.qbit.vertx;
 
 import io.advantageous.qbit.spi.FactorySPI;
-import io.advantageous.qbit.vertx.http.HttpClientVertx;
-import io.advantageous.qbit.vertx.http.HttpServerVertx;
+import io.advantageous.qbit.vertx.http.HttpVertxClient;
 import io.advantageous.qbit.vertx.http.HttpServerVertxFactory;
 
 /**
@@ -14,7 +13,7 @@ public class RegisterVertxWithQBit {
         FactorySPI.setHttpServerFactory(new HttpServerVertxFactory());
 
         FactorySPI.setHttpClientFactory((host, port, pollTime, requestBatchSize, timeOutInMilliseconds, poolSize, autoFlush, keepAlive, pipeline)
-                -> new HttpClientVertx(host, port, pollTime, requestBatchSize,
+                -> new HttpVertxClient(host, port, pollTime, requestBatchSize,
                 timeOutInMilliseconds, poolSize, autoFlush, keepAlive, pipeline));
 
     }
