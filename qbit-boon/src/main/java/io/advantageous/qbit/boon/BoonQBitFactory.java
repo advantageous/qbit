@@ -14,6 +14,7 @@ import io.advantageous.qbit.message.Request;
 import io.advantageous.qbit.message.Response;
 import io.advantageous.qbit.client.ServiceProxyFactory;
 import io.advantageous.qbit.queue.Queue;
+import io.advantageous.qbit.queue.QueueBuilder;
 import io.advantageous.qbit.sender.Sender;
 import io.advantageous.qbit.sender.SenderEndPoint;
 import io.advantageous.qbit.server.ServiceServer;
@@ -21,6 +22,7 @@ import io.advantageous.qbit.server.ServiceServerImpl;
 import io.advantageous.qbit.service.BeforeMethodCall;
 import io.advantageous.qbit.service.Service;
 import io.advantageous.qbit.service.ServiceBundle;
+import io.advantageous.qbit.service.ServiceMethodHandler;
 import io.advantageous.qbit.service.impl.BoonServiceMethodCallHandler;
 import io.advantageous.qbit.service.impl.ServiceBundleImpl;
 import io.advantageous.qbit.service.impl.ServiceConstants;
@@ -120,13 +122,22 @@ public class BoonQBitFactory implements Factory {
 
 
     @Override
-    public HttpServer createHttpServer(String host, int port, boolean manageQueues, int pollTime, int requestBatchSize, int flushInterval) {
-        return FactorySPI.getHttpServerFactory().create(host, port, manageQueues, pollTime, requestBatchSize, flushInterval);
+    public HttpServer createHttpServer(String host, int port, boolean manageQueues, int pollTime, int requestBatchSize, int flushInterval, int maxRequests) {
+        return FactorySPI.getHttpServerFactory().create(host, port, manageQueues, pollTime, requestBatchSize, flushInterval, maxRequests);
     }
 
+
     @Override
-    public HttpClient createHttpClient(String host, int port, int pollTime, int requestBatchSize, int timeOutInMilliseconds, int poolSize, boolean autoFlush) {
-        return FactorySPI.getHttpClientFactory().create(host, port, pollTime, requestBatchSize, timeOutInMilliseconds, poolSize, autoFlush);
+    public HttpServer createHttpServer(String host, int port, boolean manageQueues, int pollTime, int requestBatchSize,
+                                       int flushInterval, int maxRequests, int httpWorkers, Class handler) {
+        return FactorySPI.getHttpServerFactory().create(host, port, manageQueues, pollTime, requestBatchSize,
+                flushInterval, maxRequests, httpWorkers, handler);
+    }
+
+
+    @Override
+    public HttpClient createHttpClient(String host, int port, int pollTime, int requestBatchSize, int timeOutInMilliseconds, int poolSize, boolean autoFlush, boolean keepAlive, boolean pipeline) {
+        return FactorySPI.getHttpClientFactory().create(host, port, pollTime, requestBatchSize, timeOutInMilliseconds, poolSize, autoFlush, keepAlive, pipeline);
     }
 
     @Override
@@ -136,8 +147,10 @@ public class BoonQBitFactory implements Factory {
             final ServiceBundle serviceBundle,
             final JsonMapper jsonMapper,
             final int timeOutInSeconds,
-            final int numberOfOutstandingRequests) {
-        return new ServiceServerImpl(httpServer, encoder, protocolParser, serviceBundle, jsonMapper, timeOutInSeconds, numberOfOutstandingRequests);
+            final int numberOfOutstandingRequests,
+            final int batchSize) {
+        return new ServiceServerImpl(httpServer, encoder, protocolParser, serviceBundle,
+                jsonMapper, timeOutInSeconds, numberOfOutstandingRequests, batchSize);
     }
 
 
@@ -218,31 +231,28 @@ public class BoonQBitFactory implements Factory {
 
 
     @Override
-    public Service createService(String rootAddress, String serviceAddress, Object object, Queue<Response<Object>> responseQueue) {
+    public Service createService(String rootAddress, String serviceAddress, Object service, Queue<Response<Object>> responseQueue) {
 
-        return new ServiceImpl(
-                rootAddress,
-                serviceAddress,
-                object,
-                GlobalConstants.POLL_WAIT, TimeUnit.MILLISECONDS,
-                GlobalConstants.BATCH_SIZE,
-                new BoonServiceMethodCallHandler(),
-                responseQueue
-        );
+
+        return new ServiceImpl(rootAddress,
+                serviceAddress, service, null, new BoonServiceMethodCallHandler(true), responseQueue, true);
 
     }
 
     @Override
-    public Service createService(String rootAddress, String serviceAddress, Object object, Queue<Response<Object>> responseQueue,
-                                 boolean async) {
+    public Service createService(String rootAddress,
+                                 String serviceAddress,
+                                 Object object,
+                                 Queue<Response<Object>> responseQueue,
+                                 final QueueBuilder queueBuilder,
+                                 boolean async, boolean invokeDynamic) {
 
         return new ServiceImpl(
                 rootAddress,
                 serviceAddress,
                 object,
-                GlobalConstants.POLL_WAIT, TimeUnit.MILLISECONDS,
-                GlobalConstants.BATCH_SIZE,
-                new BoonServiceMethodCallHandler(),
+                queueBuilder,
+                new BoonServiceMethodCallHandler(invokeDynamic),
                 responseQueue, async
         );
 
@@ -250,21 +260,22 @@ public class BoonQBitFactory implements Factory {
 
 
     @Override
-    public ServiceBundle createServiceBundle(String address, final int batchSize, final int pollRate,
+    public ServiceBundle createServiceBundle(String address, QueueBuilder queueBuilder,
                                       final Factory factory, final boolean asyncCalls,
                                       final BeforeMethodCall beforeMethodCall,
                                       final BeforeMethodCall beforeMethodCallAfterTransform,
-                                      final Transformer<Request, Object> argTransformer){
-        return new ServiceBundleImpl(address, batchSize, pollRate, factory,
-                asyncCalls, beforeMethodCall, beforeMethodCallAfterTransform, argTransformer);
+                                      final Transformer<Request, Object> argTransformer, boolean invokeDynamic){
+        return new ServiceBundleImpl(address, queueBuilder, factory,
+                asyncCalls, beforeMethodCall, beforeMethodCallAfterTransform, argTransformer, invokeDynamic);
     }
 
 
     @Override
-    public ServiceBundle createServiceBundle(String address){
-        return new ServiceBundleImpl(address, GlobalConstants.BATCH_SIZE, GlobalConstants.POLL_WAIT, QBit.factory(),
-                true, ServiceConstants.NO_OP_BEFORE_METHOD_CALL, ServiceConstants.NO_OP_BEFORE_METHOD_CALL, ServiceConstants.NO_OP_ARG_TRANSFORM);
+    public ServiceMethodHandler createServiceMethodHandler(boolean invokeDynamic) {
+
+        return new BoonServiceMethodCallHandler(invokeDynamic);
     }
+
 
     @Override
     public ProtocolEncoder createEncoder() {

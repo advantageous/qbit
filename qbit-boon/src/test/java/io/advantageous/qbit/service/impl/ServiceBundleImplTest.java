@@ -1,5 +1,7 @@
 package io.advantageous.qbit.service.impl;
 
+import io.advantageous.qbit.service.Callback;
+import io.advantageous.qbit.service.ServiceBundleBuilder;
 import io.advantageous.qbit.util.MultiMap;
 import org.boon.Boon;
 import org.boon.Lists;
@@ -16,8 +18,10 @@ import io.advantageous.qbit.queue.ReceiveQueue;
 import io.advantageous.qbit.service.ServiceBundle;
 
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.boon.Boon.puts;
+import static org.boon.Exceptions.die;
 
 public class ServiceBundleImplTest {
 
@@ -29,6 +33,7 @@ public class ServiceBundleImplTest {
     Factory factory;
     MultiMap<String, String> params = null;
     MethodCall<Object> call = null;
+    boolean ok;
 
 
     ReceiveQueue<Response<Object>> responseReceiveQueue = null;
@@ -37,6 +42,27 @@ public class ServiceBundleImplTest {
 
     Object responseBody = null;
 
+    volatile  int callCount = 0;
+    MockServiceInterface proxy;
+
+
+
+    class MockService {
+        public void method1() {
+            callCount++;
+        }
+        public int method2() {
+            ++callCount;
+            return callCount;
+        }
+    }
+
+    interface MockServiceInterface {
+        void method1();
+        void method2(Callback<Integer> count);
+        void clientProxyFlush();
+
+    }
 
 
 
@@ -55,11 +81,54 @@ public class ServiceBundleImplTest {
     public void before() {
 
         factory = QBit.factory();
-        final ServiceBundle bundle = factory.createServiceBundle("/foo");
+
+        final ServiceBundle bundle = new ServiceBundleBuilder().setAddress("/foo").build();
         serviceBundle = bundle;
         serviceBundleImpl = (ServiceBundleImpl) bundle;
         adderService = new AdderService();
+        callCount = 0;
+
     }
+
+
+    @Test
+    public void test() {
+
+        serviceBundle.addService(new MockService());
+        proxy = serviceBundle.createLocalProxy(MockServiceInterface.class, "mockService");
+        serviceBundle.startReturnHandlerProcessor();
+
+        proxy.method1();
+        proxy.clientProxyFlush();
+
+
+        Sys.sleep(1000);
+
+        ok = callCount==1 || die();
+    }
+
+    @Test
+    public void testCallback() throws Exception {
+
+
+        serviceBundle.addService(new MockService());
+        proxy = serviceBundle.createLocalProxy(MockServiceInterface.class, "mockService");
+        serviceBundle.startReturnHandlerProcessor();
+
+        AtomicInteger returnValue = new AtomicInteger();
+        proxy.method2(integer -> {
+            returnValue.set(integer);
+        } );
+        proxy.clientProxyFlush();
+
+
+        Sys.sleep(1000);
+
+        ok = callCount==1 || die();
+
+        ok = returnValue.get()==1 || die(returnValue.get());
+    }
+
 
     @Test
     public void testAddress() throws Exception {
@@ -67,6 +136,8 @@ public class ServiceBundleImplTest {
         Str.equalsOrDie("/foo", serviceBundle.address());
 
     }
+
+
 
     @Test
     public void testAddService() throws Exception {

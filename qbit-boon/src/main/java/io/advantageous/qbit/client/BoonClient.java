@@ -30,6 +30,7 @@ package io.advantageous.qbit.client;
 
 import io.advantageous.qbit.QBit;
 import io.advantageous.qbit.http.*;
+import io.advantageous.qbit.message.Message;
 import io.advantageous.qbit.message.MethodCall;
 import io.advantageous.qbit.message.Response;
 
@@ -57,6 +58,7 @@ import java.util.concurrent.*;
 import java.util.function.Consumer;
 
 import static io.advantageous.qbit.service.Protocol.PROTOCOL_ARG_SEPARATOR;
+import static org.boon.Boon.puts;
 import static org.boon.Exceptions.die;
 
 
@@ -130,23 +132,34 @@ public class BoonClient implements Client {
      */
     private void handleWebsocketQueueResponses(final String websocketText) {
 
-        /* Message comes in as a string but we parse it into a Response object. */
-        final Response<Object> response = QBit.factory().createResponse(websocketText);
+
+        final List<Message<Object>> messages = QBit.factory().createProtocolParser().parse("", websocketText);
 
 
-        final String[] split = StringScanner.split(response.returnAddress(),
-                (char) PROTOCOL_ARG_SEPARATOR);
+        for (Message<Object> message : messages) {
 
-        HandlerKey key = split.length == 2 ? new HandlerKey(split[1], response.id()) :
-            new HandlerKey(split[0], response.id());
+            if (message instanceof Response) {
+
+                Response<Object> response = ((Response) message);
+
+                final String[] split = StringScanner.split(response.returnAddress(),
+                        (char) PROTOCOL_ARG_SEPARATOR);
+
+                HandlerKey key = split.length == 2 ? new HandlerKey(split[1], response.id()) :
+                        new HandlerKey(split[0], response.id());
 
 
 
-        final Callback<Object>  handler = handlers.get(key);
+                final Callback<Object>  handler = handlers.get(key);
 
-        if (handler != null) {
+                if (handler != null) {
 
-            handleAsyncCallback(response, handler);
+                    handleAsyncCallback(response, handler);
+                    handlers.remove(key);
+                }
+
+            }
+
         }
     }
 
@@ -164,13 +177,9 @@ public class BoonClient implements Client {
 
     public void flush() {
 
-        this.httpServerProxy.periodicFlushCallback(aVoid -> {
-            for (ClientProxy clientProxy : clientProxies) {
-                clientProxy.clientProxyFlush();
-            }
-        });
-
-
+        for (ClientProxy clientProxy : clientProxies) {
+            clientProxy.clientProxyFlush();
+        }
         httpServerProxy.flush();
     }
 
@@ -406,9 +415,9 @@ public class BoonClient implements Client {
     public void start() {
 
         this.httpServerProxy.periodicFlushCallback(aVoid -> {
-            for (ClientProxy clientProxy : clientProxies) {
-                clientProxy.clientProxyFlush();
-            }
+
+            flush();
+
         });
 
         this.httpServerProxy.start();

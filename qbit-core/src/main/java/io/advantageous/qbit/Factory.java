@@ -9,11 +9,13 @@ import io.advantageous.qbit.message.MethodCall;
 import io.advantageous.qbit.message.Request;
 import io.advantageous.qbit.message.Response;
 import io.advantageous.qbit.queue.Queue;
+import io.advantageous.qbit.queue.QueueBuilder;
 import io.advantageous.qbit.sender.Sender;
 import io.advantageous.qbit.server.ServiceServer;
 import io.advantageous.qbit.service.BeforeMethodCall;
 import io.advantageous.qbit.service.Service;
 import io.advantageous.qbit.service.ServiceBundle;
+import io.advantageous.qbit.service.ServiceMethodHandler;
 import io.advantageous.qbit.spi.ProtocolEncoder;
 import io.advantageous.qbit.spi.ProtocolParser;
 import io.advantageous.qbit.transforms.Transformer;
@@ -92,18 +94,18 @@ public interface Factory {
      * @param asyncCalls service calls
      * @return new client bundle
      */
-    default ServiceBundle createServiceBundle(String address, final int batchSize, final int pollRate,
+    default ServiceBundle createServiceBundle(String address, final QueueBuilder queueBuilder,
                                               final Factory factory, final boolean asyncCalls,
                                               final BeforeMethodCall beforeMethodCall,
                                               final BeforeMethodCall beforeMethodCallAfterTransform,
-                                              final Transformer<Request, Object> argTransformer){
+                                              final Transformer<Request, Object> argTransformer, boolean invokeDynamic){
         throw new UnsupportedOperationException();
     }
 
-    default ServiceBundle createServiceBundle(String path) {
+
+    default ServiceMethodHandler createServiceMethodHandler(boolean invokeDynamic) {
         throw new UnsupportedOperationException();
     }
-
 
     /**
      * Create a client
@@ -119,7 +121,8 @@ public interface Factory {
     default Service createService(String rootAddress, String serviceAddress,
                                   Object object,
                                   Queue<Response<Object>> responseQueue,
-                                  boolean asyncCalls){
+                                  final  QueueBuilder queueBuilder,
+                                  boolean asyncCalls, boolean invokeDynamic){
         throw new UnsupportedOperationException();
     }
 
@@ -258,8 +261,17 @@ public interface Factory {
     default HttpServer createHttpServer(String host, int port, boolean manageQueues,
                       int pollTime,
                       int requestBatchSize,
-                      int flushInterval
+                      int flushInterval, int maxRequests
                       ){
+        throw new UnsupportedOperationException();
+    }
+
+
+    default HttpServer createHttpServer(String host, int port, boolean manageQueues,
+                                        int pollTime,
+                                        int requestBatchSize,
+                                        int flushInterval, int maxRequests, int httpWorkers, Class handlerClass
+    ){
         throw new UnsupportedOperationException();
     }
 
@@ -270,7 +282,9 @@ public interface Factory {
                 int requestBatchSize,
                 int timeOutInMilliseconds,
                 int poolSize,
-                boolean autoFlush){
+                boolean autoFlush,
+                boolean keepAlive,
+                boolean pipeline){
         throw new UnsupportedOperationException();
     }
 
@@ -281,7 +295,8 @@ public interface Factory {
                                       final ServiceBundle serviceBundle,
                                       final JsonMapper jsonMapper,
                                       final int timeOutInSeconds,
-                                      final int numberOfOutstandingRequests){
+                                      final int numberOfOutstandingRequests,
+                                      final int batchSize){
         throw new UnsupportedOperationException();
     }
 

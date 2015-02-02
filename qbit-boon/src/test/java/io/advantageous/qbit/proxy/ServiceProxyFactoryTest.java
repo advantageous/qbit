@@ -2,6 +2,7 @@ package io.advantageous.qbit.proxy;
 
 import io.advantageous.qbit.queue.Queue;
 import io.advantageous.qbit.queue.ReceiveQueueListener;
+import io.advantageous.qbit.queue.SendQueue;
 import io.advantageous.qbit.service.Callback;
 import io.advantageous.qbit.Factory;
 import io.advantageous.qbit.QBit;
@@ -10,6 +11,7 @@ import io.advantageous.qbit.message.MethodCall;
 import io.advantageous.qbit.message.Response;
 import io.advantageous.qbit.queue.ReceiveQueue;
 import io.advantageous.qbit.service.ServiceBundle;
+import io.advantageous.qbit.service.ServiceBundleBuilder;
 import io.advantageous.qbit.spi.RegisterBoonWithQBit;
 import org.boon.core.Handler;
 import org.boon.core.Sys;
@@ -54,6 +56,11 @@ public class ServiceProxyFactoryTest {
 
         @Override
         public Queue<Response<Object>> responses() {
+            return null;
+        }
+
+        @Override
+        public SendQueue<MethodCall<Object>> methodSendQueue() {
             return null;
         }
 
@@ -192,9 +199,8 @@ public class ServiceProxyFactoryTest {
             }
         };
 
+        final ServiceBundle bundle = new ServiceBundleBuilder().setAddress("/root").build();
 
-        final Factory factory  = QBit.factory();
-        final ServiceBundle bundle = factory.createServiceBundle("/root");
 
 
         bundle.addService(myService);
@@ -236,8 +242,7 @@ public class ServiceProxyFactoryTest {
         SomeInterface myService = new MyServiceClass();
 
 
-        final Factory factory  = QBit.factory();
-        final ServiceBundle bundle = factory.createServiceBundle("/root");
+        final ServiceBundle bundle = new ServiceBundleBuilder().setAddress("/root").build();
 
 
         bundle.addService(myService);
@@ -300,9 +305,8 @@ public class ServiceProxyFactoryTest {
 
         SomeInterface myService = new MyServiceClass();
 
+        final ServiceBundle bundle = new ServiceBundleBuilder().setAddress("/root").build();
 
-        final Factory factory  = QBit.factory();
-        final ServiceBundle bundle = factory.createServiceBundle("/root");
 
 
         bundle.addService(myService);
@@ -366,17 +370,16 @@ public class ServiceProxyFactoryTest {
 
         MyServiceClass myService = new MyServiceClass();
 
-
-        final Factory factory  = QBit.factory();
-        final ServiceBundle bundle = factory.createServiceBundle("/root");
-
-
-        bundle.addService(myService);
-        bundle.startReturnHandlerProcessor();
+        final ServiceBundle serviceBundle = new ServiceBundleBuilder().setAddress("/root").build();
 
 
 
-        final ClientInterfaceThrowsException myServiceProxy = bundle.createLocalProxy(
+        serviceBundle.addService(myService);
+        serviceBundle.startReturnHandlerProcessor();
+
+
+
+        final ClientInterfaceThrowsException myServiceProxy = serviceBundle.createLocalProxy(
                 ClientInterfaceThrowsException.class,
                 "myService");
 
@@ -402,7 +405,7 @@ public class ServiceProxyFactoryTest {
         };
 
         myServiceProxy.methodThrowsExceptionIf5(handler, "hi", 6);
-        bundle.flush();
+        serviceBundle.flush();
         Sys.sleep(1000);
 
         ok = ok || die();
@@ -414,7 +417,7 @@ public class ServiceProxyFactoryTest {
 
 
         myServiceProxy.methodThrowsExceptionIf5(handler, "hi", 5);
-        bundle.flush();
+        serviceBundle.flush();
         Sys.sleep(1000);
         ok = ok || die();
 

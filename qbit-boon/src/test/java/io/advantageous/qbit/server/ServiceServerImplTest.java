@@ -6,10 +6,12 @@ import io.advantageous.qbit.annotation.RequestMapping;
 import io.advantageous.qbit.annotation.RequestMethod;
 import io.advantageous.qbit.http.*;
 import io.advantageous.qbit.json.JsonMapper;
+import io.advantageous.qbit.message.Message;
 import io.advantageous.qbit.message.MethodCall;
 import io.advantageous.qbit.message.MethodCallBuilder;
 import io.advantageous.qbit.message.Response;
 import io.advantageous.qbit.service.ServiceBundle;
+import io.advantageous.qbit.service.ServiceBundleBuilder;
 import io.advantageous.qbit.spi.ProtocolEncoder;
 import io.advantageous.qbit.spi.ProtocolParser;
 import org.boon.Lists;
@@ -17,6 +19,7 @@ import org.boon.core.Sys;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.util.List;
 import java.util.function.Consumer;
 
 import static org.boon.Boon.puts;
@@ -86,7 +89,8 @@ public class ServiceServerImplTest {
         final Factory factory = QBit.factory();
         final ProtocolParser protocolParser = factory.createProtocolParser();
         final ProtocolEncoder encoder = factory.createEncoder();
-        final ServiceBundle serviceBundle = factory.createServiceBundle("/services");
+
+        final ServiceBundle serviceBundle = new ServiceBundleBuilder().setAddress("/services").build();
         final JsonMapper mapper = factory.createJsonMapper();
 
 
@@ -97,7 +101,7 @@ public class ServiceServerImplTest {
                                 protocolParser,
                                 serviceBundle,
                                 mapper,
-                                1, 100);
+                                1, 100, 30);
 
 
         callMeCounter = 0;
@@ -123,8 +127,10 @@ public class ServiceServerImplTest {
 
         httpServer.sendRequest(request);
 
-        Sys.sleep(200);
 
+        Sys.sleep(200);
+        serviceServerImpl.flush();
+        Sys.sleep(200);
 
         ok |= responseCounter == 1 || die();
         ok |= callMeCounter == 1 || die();
@@ -195,11 +201,11 @@ public class ServiceServerImplTest {
         Sys.sleep(200);
 
 
-        ok |= responseCounter == 0 || die();
 
         ok |= failureCounter == 1 || die();
-        ok |= callMeCounter == 1 || die();
+        ok |= callMeCounter == 0 || die();
 
+        ok |= responseCounter == 0 || die();
         puts(lastResponse);
 
 
@@ -234,7 +240,9 @@ public class ServiceServerImplTest {
     public void testWesocketCallThatIsCrap() throws Exception {
 
 
-        httpServer.sendWebSocketMessage(new WebSocketMessageBuilder().setMessage("CRAP").setSender(new MockWebSocketSender()).build());
+        httpServer.sendWebSocketMessage(new WebSocketMessageBuilder().setMessage("CRAP")
+
+                .setRemoteAddress("/crap/at/crap").setSender(new MockWebSocketSender()).build());
 
 
         Sys.sleep(200);
@@ -255,7 +263,8 @@ public class ServiceServerImplTest {
 
         final String message = QBit.factory().createEncoder().encodeAsString(Lists.list(methodCall));
 
-        httpServer.sendWebSocketMessage(new WebSocketMessageBuilder().setMessage(message).setSender(new MockWebSocketSender()).build());
+        httpServer.sendWebSocketMessage(new WebSocketMessageBuilder()
+                .setRemoteAddress("/foo").setMessage(message).setSender(new MockWebSocketSender()).build());
 
 
 
@@ -310,7 +319,7 @@ public class ServiceServerImplTest {
 
         final String message = QBit.factory().createEncoder().encodeAsString(Lists.list(methodCall));
 
-        httpServer.sendWebSocketMessage(new WebSocketMessageBuilder().setMessage(message).setSender(new MockWebSocketSender()).build());
+        httpServer.sendWebSocketMessage(new WebSocketMessageBuilder().setRemoteAddress("/error").setMessage(message).setSender(new MockWebSocketSender()).build());
 
 
 
@@ -343,7 +352,7 @@ public class ServiceServerImplTest {
 
             if (code==200) {
                 responseCounter++;
-            } if (code == 408) {
+            } else if (code == 408) {
                 timeOutCounter++;
             }
             else {
@@ -356,12 +365,20 @@ public class ServiceServerImplTest {
 
     class MockWebSocketSender implements WebSocketSender {
         @Override
-        public void send(String message) {
+        public void send(final String message) {
 
-            Response<Object> response = QBit.factory().createProtocolParser().parseResponse(message);
-            responseCounter++;
-            if (response.wasErrors()) {
-                failureCounter++;
+            puts("MESSAGE", message);
+
+            final List<Message<Object>> messages = QBit.factory().createProtocolParser().parse("", message);
+
+            if (messages.size() == 1) {
+
+
+                responseCounter++;
+                final Response<Object> response = (Response<Object>) messages.get(0);
+                if (response.wasErrors()) {
+                    failureCounter++;
+                }
             }
 
         }
@@ -372,14 +389,20 @@ public class ServiceServerImplTest {
     class HttpServerMock implements HttpServer {
         Consumer<WebSocketMessage> webSocketMessageConsumer;
         Consumer<HttpRequest> requestConsumer;
+        private Consumer<Void> idleConsumerRequest;
+        private Consumer<Void> idleConsumerWebSocket;
 
         public void sendWebSocketMessage(WebSocketMessage ws) {
             webSocketMessageConsumer.accept(ws);
+            this.idleConsumerWebSocket.accept(null);
+
         }
 
 
         public void sendRequest(HttpRequest request) {
+
             requestConsumer.accept(request);
+            idleConsumerRequest.accept(null);
         }
 
 
@@ -389,8 +412,26 @@ public class ServiceServerImplTest {
         }
 
         @Override
+        public void setWebSocketCloseConsumer(Consumer<WebSocketMessage> webSocketMessageConsumer) {
+
+        }
+
+        @Override
         public void setHttpRequestConsumer(Consumer<HttpRequest> httpRequestConsumer) {
             this.requestConsumer = httpRequestConsumer;
+        }
+
+        @Override
+        public void setHttpRequestsIdleConsumer(Consumer<Void> idleConsumer) {
+
+            this.idleConsumerRequest = idleConsumer;
+        }
+
+        @Override
+        public void setWebSocketIdleConsume(Consumer<Void> idleConsumer) {
+
+            this.idleConsumerWebSocket = idleConsumer;
+
         }
 
         @Override

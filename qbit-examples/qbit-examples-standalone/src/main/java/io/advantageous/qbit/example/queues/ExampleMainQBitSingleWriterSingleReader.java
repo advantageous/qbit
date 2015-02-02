@@ -1,68 +1,83 @@
-package io.advantageous.qbit.example;
+package io.advantageous.qbit.example.queues;
 
+import io.advantageous.qbit.queue.Queue;
+import io.advantageous.qbit.queue.QueueBuilder;
+import io.advantageous.qbit.queue.ReceiveQueue;
+import io.advantageous.qbit.queue.SendQueue;
+import io.advantageous.qbit.queue.impl.BasicQueue;
 import org.boon.core.Sys;
 
-import java.util.concurrent.*;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 
 /**
  * Created by Richard on 9/12/14.
  */
-public class ExampleMainBlockingArrayQueueSingleWriterSingleReader {
-
+public class ExampleMainQBitSingleWriterSingleReader {
 
 
     static ExecutorService executorService = Executors.newCachedThreadPool();
 
-    static final LinkedBlockingQueue<Integer> queue = new LinkedBlockingQueue<>(100_000);
+
+    static final Queue<Integer> queue =    new QueueBuilder().setBatchSize(1_000).build();
+
 
     static final int status = 1_000_000;
 
     static final int sleepEvery = 1_000_000;
 
 
+    public static void sender(int amount, int code) throws InterruptedException {
 
-    public static void sender(int amount, int code) throws InterruptedException{
-
+        SendQueue<Integer> sendQueue = queue.sendQueue();
 
         for (int index = 0; index < amount; index++) {
 
-            queue.put(index);
+            sendQueue.send(index);
 
         }
-        queue.put(code);
-
+        sendQueue.send(code);
+        sendQueue.flushSends();
     }
+
     public static long counter() throws Exception {
 
 
-            long count = 0;
+        ReceiveQueue<Integer> receiveQueue = queue.receiveQueue();
 
-            while (true) {
+        long count = 0;
+        long index = 0;
 
-                Integer item = queue.take();
+        while (true) {
+            index++;
 
-                if (item % status == 0) {
-                    System.out.println("Got " + item);
-                }
+            Integer item = receiveQueue.take();
 
-                if (item % sleepEvery == 0) {
-                    Sys.sleep(50);
-                }
-
-                if (item == -1) {
-
-                    System.out.println("DONE");
-                    return count;
-                }
-                count += item;
+            if (index % status == 0) {
+                System.out.println("Got " + item);
             }
+
+
+            if (item % sleepEvery == 0) {
+                Sys.sleep(50);
+            }
+
+
+            if (item == -1) {
+
+                System.out.println("DONE");
+                return count;
+            }
+            count += item;
+        }
 
 
     }
 
     public static void main(String... args) throws Exception {
-
 
 
         long startTime = System.currentTimeMillis();
@@ -100,7 +115,7 @@ public class ExampleMainBlockingArrayQueueSingleWriterSingleReader {
 
         System.out.println("Count " + count);
 
-        if (count!=1249999975000000L) {
+        if (count != 1249999975000000L) {
             System.err.println("TEST FAILED");
         }
 
@@ -110,7 +125,6 @@ public class ExampleMainBlockingArrayQueueSingleWriterSingleReader {
         long duration = endTime - startTime;
 
         System.out.println(duration);
-
 
         executorService.shutdown();
 

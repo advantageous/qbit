@@ -4,6 +4,7 @@ import io.advantageous.qbit.message.Message;
 import io.advantageous.qbit.message.MethodCall;
 import io.advantageous.qbit.message.Response;
 
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -16,6 +17,6 @@ public interface ProtocolEncoder {
 
     String encodeAsString(MethodCall<Object> methodCall);
 
-    String encodeAsString(List<Message<Object>> methodCalls);
+    String encodeAsString(Collection<Message<Object>> messages);
 
 }

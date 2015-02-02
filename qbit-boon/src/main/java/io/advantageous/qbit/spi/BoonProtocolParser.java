@@ -39,7 +39,7 @@ public class BoonProtocolParser implements ProtocolParser {
         }
         final char[] chars = FastStringUtils.toCharArray(args);
 
-        return parseMessageFromChars(addressPrefix, chars);
+        return parseMessageFromChars(addressPrefix, chars, null);
     }
 
 
@@ -113,16 +113,34 @@ public class BoonProtocolParser implements ProtocolParser {
             final char versionMarker = chars[VERSION_MARKER_POSITION];
 
             if (versionMarker == PROTOCOL_VERSION_1) {
-                return Lists.list((Message<Object>)handleFastBodySubmissionVersion1Chars("", chars));
+                return Lists.list((Message<Object>)handleFastBodySubmissionVersion1Chars("", chars, null));
+            } else if (versionMarker == PROTOCOL_VERSION_1_RESPONSE) {
+                return Lists.list((Message<Object>)parseResponseFromChars("", chars, null));
             } else if (versionMarker == PROTOCOL_VERSION_1_GROUP){
 
-                final char[][] methodCalls = CharScanner.splitFrom(chars,
+                String returnAddress = null;
+
+                final char[][] messageBuffers = CharScanner.splitFrom(chars,
                         (char) PROTOCOL_MESSAGE_SEPARATOR, 2);
 
-                List<Message<Object>> messages = new ArrayList<>(methodCalls.length);
-                for (char[] methodCall : methodCalls) {
-                    final Message<Object> m = parseMessageFromChars(address, methodCall);
+                List<Message<Object>> messages = new ArrayList<>(messageBuffers.length);
+
+                int index = 0;
+
+                for (char[] methodCall : messageBuffers) {
+                    final Message<Object> m = parseMessageFromChars(address, methodCall, returnAddress);
+
+                    if (index==0) {
+                        if (m instanceof MethodCall) {
+                            final MethodCall call = (MethodCall) m;
+                            returnAddress = call.returnAddress();
+                        } else if (m instanceof Response) {
+                            final Response response = (Response) m;
+                            returnAddress = response.returnAddress();
+                        }
+                    }
                     messages.add(m);
+                    index++;
                 }
 
                 return messages;
@@ -162,7 +180,7 @@ public class BoonProtocolParser implements ProtocolParser {
                 if (versionMarker == PROTOCOL_VERSION_1_RESPONSE) {
 
 
-                    return parseResponseFromChars("", args);
+                    return parseResponseFromChars("", args, null);
                 } else {
                     return null;
                 }
@@ -173,7 +191,7 @@ public class BoonProtocolParser implements ProtocolParser {
         return null;
     }
 
-    private Response<Object> parseResponseFromChars(String addressPrefix, char[] args) {
+    private Response<Object> parseResponseFromChars(String addressPrefix, char[] args, String parentReturnAddress) {
         final char[][] chars = CharScanner.splitFromStartWithLimit(args,
                 (char) PROTOCOL_SEPARATOR, 0, RESPONSE_RETURN);
 
@@ -188,6 +206,10 @@ public class BoonProtocolParser implements ProtocolParser {
 
         String address = FastStringUtils.noCopyStringFromChars(chars[
                 ADDRESS_POS]);
+
+//        String returnAddress = parentReturnAddress != null ? parentReturnAddress : FastStringUtils.noCopyStringFromChars(chars[
+//                RETURN_ADDRESS_POS]);
+
 
         String returnAddress = FastStringUtils.noCopyStringFromChars(chars[
                 RETURN_ADDRESS_POS]);
@@ -231,7 +253,7 @@ public class BoonProtocolParser implements ProtocolParser {
 
 
 
-    private Message<Object> parseMessageFromChars(String addressPrefix, char[] chars) {
+    private Message<Object> parseMessageFromChars(String addressPrefix, char[] chars, String returnAddress) {
 
 
         if (chars.length > 2 &&
@@ -241,9 +263,9 @@ public class BoonProtocolParser implements ProtocolParser {
             final char versionMarker = chars[VERSION_MARKER_POSITION];
 
             if (versionMarker == PROTOCOL_VERSION_1) {
-                return handleFastBodySubmissionVersion1Chars(addressPrefix, chars);
+                return handleFastBodySubmissionVersion1Chars(addressPrefix, chars, returnAddress);
             } else if (versionMarker == PROTOCOL_VERSION_1_RESPONSE) {
-                return parseResponseFromChars(addressPrefix, chars);
+                return parseResponseFromChars(addressPrefix, chars, returnAddress);
             }
             else {
                 die("Unsupported method call", new String(chars));
@@ -254,7 +276,7 @@ public class BoonProtocolParser implements ProtocolParser {
     }
 
 
-    private MethodCall<Object> handleFastBodySubmissionVersion1Chars(String addressPrefix, char[] args) {
+    private MethodCall<Object> handleFastBodySubmissionVersion1Chars(String addressPrefix, char[] args, String parentReturnAddress) {
 
         final char[][] chars = CharScanner.splitFromStartWithLimit(args,
                 (char) PROTOCOL_SEPARATOR, 0, METHOD_NAME_POS+2);
@@ -274,7 +296,21 @@ public class BoonProtocolParser implements ProtocolParser {
         String address = FastStringUtils.noCopyStringFromChars(chars[
                 ADDRESS_POS]);
 
-        String returnAddress = FastStringUtils.noCopyStringFromChars(chars[
+
+        String returnAddress = null;
+
+//        if (parentReturnAddress!=null) {
+//            returnAddress = parentReturnAddress;
+//        } else {
+//            returnAddress = FastStringUtils.noCopyStringFromChars(chars[
+//                    RETURN_ADDRESS_POS]);
+//
+//            if (!Str.isEmpty(addressPrefix)) {
+//                returnAddress = Str.add(addressPrefix, ""+((char) PROTOCOL_ARG_SEPARATOR), returnAddress);
+//            }
+//        }
+
+        returnAddress = FastStringUtils.noCopyStringFromChars(chars[
                 RETURN_ADDRESS_POS]);
 
         if (!Str.isEmpty(addressPrefix)) {

@@ -10,11 +10,12 @@ import java.util.concurrent.*;
  *
  * Created by rhightower on 12/14/14.
  */
-public class QueueBuilder {
+public class QueueBuilder implements Cloneable{
 
-    private int batchSize = 10_000;
-    private int pollWait = 10;
-    private int size = 1_000;
+    public static QueueBuilder queueBuilder() {return new QueueBuilder();}
+    private int batchSize = 200;
+    private int pollWait = 5;
+    private int size = 100_000;
     private int checkEvery = 100;
 
     private String name;
@@ -22,6 +23,10 @@ public class QueueBuilder {
 
     private boolean tryTransfer=false;
 
+    @Override
+    protected Object clone() throws CloneNotSupportedException {
+        return super.clone();
+    }
 
     public int getCheckEvery() {
         return checkEvery;
@@ -33,17 +38,15 @@ public class QueueBuilder {
     }
 
     public QueueBuilder setLinkedBlockingQueue() {
-        if (size==-1) {
-            size = 1_000;
-        }
         queueClass = LinkedBlockingQueue.class;
         return this;
     }
 
     public QueueBuilder setArrayBlockingQueue() {
         if (size==-1) {
-            size = 1_000;
+            size = 100_000;
         }
+
         queueClass = ArrayBlockingQueue.class;
         return this;
     }
@@ -103,20 +106,12 @@ public class QueueBuilder {
 
     }
 
-    public Class<? extends BlockingQueue> getQueueClass() {
-        return queueClass;
-    }
-
-    public QueueBuilder setQueueClass(Class<? extends BlockingQueue> queueClass) {
-        this.queueClass = queueClass;
-        return this;
-
-    }
 
 
 
     public <T> Queue<T> build() {
-        return new BasicQueue<>(name, pollWait, TimeUnit.MILLISECONDS, batchSize, queueClass, tryTransfer, size, checkEvery);
+        return new BasicQueue<>(this.getName(), this.getPollWait(), TimeUnit.MILLISECONDS, this.getBatchSize(),
+                this.queueClass, this.isTryTransfer(), this.getSize(), this.getCheckEvery());
     }
 
 }

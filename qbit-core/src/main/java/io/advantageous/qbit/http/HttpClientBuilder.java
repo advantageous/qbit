@@ -13,12 +13,36 @@ public class HttpClientBuilder {
 
     private String host = "localhost";
     private int port = 8080;
-    private int poolSize = 5;
+    private int poolSize = 20;
     private int pollTime = 10;
     private int requestBatchSize = 10;
     private int timeOutInMilliseconds=3000;
     private boolean autoFlush = true;
+    private boolean keepAlive = true;
+    private boolean pipeline = true;
 
+
+    public static HttpClientBuilder httpClientBuilder () {
+
+        return new HttpClientBuilder();
+    }
+    public boolean isKeepAlive() {
+        return keepAlive;
+    }
+
+    public HttpClientBuilder setKeepAlive(boolean keepAlive) {
+        this.keepAlive = keepAlive;
+        return this;
+    }
+
+    public boolean isPipeline() {
+        return pipeline;
+    }
+
+    public HttpClientBuilder setPipeline(boolean pipeline) {
+        this.pipeline = pipeline;
+        return this;
+    }
 
     public String getHost() {
         return host;
@@ -87,7 +111,7 @@ public class HttpClientBuilder {
     }
 
     public HttpClient build() {
-        final HttpClient httpClient = QBit.factory().createHttpClient(host, port, pollTime, requestBatchSize, timeOutInMilliseconds, poolSize, autoFlush);
+        final HttpClient httpClient = QBit.factory().createHttpClient(host, port, pollTime, requestBatchSize, timeOutInMilliseconds, poolSize, autoFlush, keepAlive, pipeline);
 
         return httpClient;
     }

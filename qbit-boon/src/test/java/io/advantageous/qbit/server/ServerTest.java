@@ -5,6 +5,7 @@ import io.advantageous.qbit.BoonJsonMapper;
 import io.advantageous.qbit.QBit;
 import io.advantageous.qbit.json.JsonMapper;
 import io.advantageous.qbit.service.ServiceBundle;
+import io.advantageous.qbit.service.ServiceBundleBuilder;
 import io.advantageous.qbit.service.bundle.example.todo.Todo;
 import io.advantageous.qbit.service.bundle.example.todo.TodoService;
 import io.advantageous.qbit.spi.ProtocolEncoder;
@@ -41,13 +42,13 @@ public class ServerTest {
 
         ProtocolParser parser = QBit.factory().createProtocolParser();
         MockHttpServer httpServer = new MockHttpServer();
-        ServiceBundle serviceBundle = QBit.factory().createServiceBundle("/services");
+        final ServiceBundle serviceBundle = new ServiceBundleBuilder().setAddress("/services").build();
 
         JsonMapper mapper = new BoonJsonMapper();
 
 
         ServiceServerImpl server = new ServiceServerImpl(httpServer, encoder, parser,
-                serviceBundle, mapper, 30, 100);
+                serviceBundle, mapper, 30, 100, 30);
 
         server.initServices(Sets.set(new TodoService()));
 
@@ -93,6 +94,7 @@ public class ServerTest {
 
         server.flush();
 
+
         Sys.sleep(1_000);
 
         if (!resultsWorked.get()) {
@@ -107,12 +109,13 @@ public class ServerTest {
 
         ProtocolEncoder encoder = QBit.factory().createEncoder();
         MockHttpServer httpServer = new MockHttpServer();
-        ServiceBundle serviceBundle = QBit.factory().createServiceBundle("/services");
 
+
+        final ServiceBundle serviceBundle = new ServiceBundleBuilder().setAddress("/services").build();
         JsonMapper mapper = new BoonJsonMapper();
 
 
-        ServiceServerImpl server = new ServiceServerImpl(httpServer, encoder, QBit.factory().createProtocolParser(), serviceBundle, mapper, 1, 100);
+        ServiceServerImpl server = new ServiceServerImpl(httpServer, encoder, QBit.factory().createProtocolParser(), serviceBundle, mapper, 1, 100, 30);
 
         server.initServices(Sets.set(new TodoService()));
 
@@ -150,13 +153,14 @@ public class ServerTest {
 
         ProtocolEncoder encoder = QBit.factory().createEncoder();
         MockHttpServer httpServer = new MockHttpServer();
-        ServiceBundle serviceBundle = QBit.factory().createServiceBundle("/services");
+
+        final ServiceBundle serviceBundle = new ServiceBundleBuilder().setAddress("/root").build();
 
         JsonMapper mapper = new BoonJsonMapper();
 
 
         ServiceServerImpl server = new ServiceServerImpl(httpServer, encoder,
-                QBit.factory().createProtocolParser(), serviceBundle, mapper, 1, 100);
+                QBit.factory().createProtocolParser(), serviceBundle, mapper, 1, 100, 30);
 
         server.initServices(new TodoService());
 

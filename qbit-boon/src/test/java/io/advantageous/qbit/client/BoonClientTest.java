@@ -49,7 +49,8 @@ public class BoonClientTest {
 
         FactorySPI.setHttpClientFactory(new HttpClientFactory() {
             @Override
-            public HttpClient create(String host, int port, int pollTime, int requestBatchSize, int timeOutInMilliseconds, int poolSize, boolean autoFlush) {
+            public HttpClient create(String host, int port, int pollTime, int requestBatchSize, int timeOutInMilliseconds,
+                                     int poolSize, boolean autoFlush, boolean a, boolean b) {
                 return new HttpClientMock();
             }
         });
@@ -198,9 +199,9 @@ public class BoonClientTest {
         }
 
         @Override
-        public void start() {
+        public HttpClient start() {
             httpStartCalled = true;
-
+            return this;
         }
 
         @Override

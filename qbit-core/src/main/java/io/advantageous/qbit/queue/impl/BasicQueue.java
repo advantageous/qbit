@@ -10,6 +10,8 @@ import org.slf4j.LoggerFactory;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import static org.boon.Boon.puts;
+
 /**
  * This is the base for all the queues we use.
  * <p>

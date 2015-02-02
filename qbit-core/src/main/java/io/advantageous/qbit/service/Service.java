@@ -54,12 +54,18 @@ public interface Service {
      */
     void stop();
 
+
+    Service startCallBackHandler();
+
     /**
      * Return a list of addresses.
      * @param address address
      * @return addresses
      */
     Collection<String> addresses(String address);
+
+
+    <T> T createProxy(Class<T> serviceInterface);
 
 
     void flush();

@@ -3,6 +3,7 @@ package io.advantageous.qbit.service;
 import io.advantageous.qbit.GlobalConstants;
 import io.advantageous.qbit.QBit;
 import io.advantageous.qbit.message.Request;
+import io.advantageous.qbit.queue.QueueBuilder;
 import io.advantageous.qbit.service.impl.ServiceConstants;
 import io.advantageous.qbit.transforms.Transformer;
 
@@ -19,9 +20,21 @@ public class ServiceBundleBuilder {
     private int pollTime = GlobalConstants.POLL_WAIT;
     private int requestBatchSize = GlobalConstants.BATCH_SIZE;
 
+    private boolean invokeDynamic = true;
+
     private  String address = "/services";
 
     private boolean eachServiceInItsOwnThread = true;
+
+
+    public boolean isInvokeDynamic() {
+        return invokeDynamic;
+    }
+
+    public ServiceBundleBuilder setInvokeDynamic(boolean invokeDynamic) {
+        this.invokeDynamic = invokeDynamic;
+        return this;
+    }
 
     public boolean isEachServiceInItsOwnThread() {
         return eachServiceInItsOwnThread;
@@ -85,8 +98,9 @@ public class ServiceBundleBuilder {
         return address;
     }
 
-    public void setAddress(String address) {
+    public ServiceBundleBuilder setAddress(String address) {
         this.address = address;
+        return this;
     }
 
 
@@ -112,14 +126,30 @@ public class ServiceBundleBuilder {
 
 
 
+    QueueBuilder queueBuilder;
+
+    public QueueBuilder getQueueBuilder() {
+        return queueBuilder;
+    }
+
+    public ServiceBundleBuilder setQueueBuilder(QueueBuilder queueBuilder) {
+        this.queueBuilder = queueBuilder;
+        return this;
+    }
 
     public ServiceBundle build() {
 
+        if (queueBuilder==null) {
+
+            queueBuilder = new QueueBuilder().setBatchSize(this.getRequestBatchSize()).setPollWait(this.getPollTime());
+
+        }
+
         final ServiceBundle serviceBundle = QBit.factory().createServiceBundle(this.getAddress(),
-                this.getRequestBatchSize(), this.getPollTime(),
+                queueBuilder,
                 QBit.factory(),
                 eachServiceInItsOwnThread, this.getBeforeMethodCall(), this.getBeforeMethodCallAfterTransform(),
-                this.getArgTransformer());
+                this.getArgTransformer(), invokeDynamic);
 
         return serviceBundle;
 

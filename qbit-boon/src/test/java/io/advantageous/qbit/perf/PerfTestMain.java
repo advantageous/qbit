@@ -53,9 +53,24 @@ public class PerfTestMain {
         }
 
         @Override
+        public void setWebSocketCloseConsumer(Consumer<WebSocketMessage> webSocketMessageConsumer) {
+
+        }
+
+        @Override
         public void setHttpRequestConsumer(Consumer<HttpRequest> httpRequestConsumer) {
 
             this.httpRequestConsumer = httpRequestConsumer;
+        }
+
+        @Override
+        public void setHttpRequestsIdleConsumer(Consumer<Void> idleConsumer) {
+
+        }
+
+        @Override
+        public void setWebSocketIdleConsume(Consumer<Void> idleConsumer) {
+
         }
 
         @Override
@@ -130,7 +145,7 @@ public class PerfTestMain {
         }
 
         @Override
-        public void start() {
+        public HttpClient start() {
             sendQueue = messages.sendQueue();
 
              thread = new Thread(new Runnable() {
@@ -150,6 +165,7 @@ public class PerfTestMain {
                 }
             });
             thread.start();
+            return this;
 
         }
 
@@ -170,14 +186,15 @@ public class PerfTestMain {
 
         FactorySPI.setHttpClientFactory(new HttpClientFactory() {
             @Override
-            public HttpClient create(String host, int port, int pollTime, int requestBatchSize, int timeOutInMilliseconds, int poolSize, boolean autoFlush) {
+            public HttpClient create(String host, int port, int pollTime, int requestBatchSize, int timeOutInMilliseconds, int poolSize, boolean autoFlush, boolean a, boolean b) {
                 return new MockHttpClient();
             }
         });
 
         FactorySPI.setHttpServerFactory(new HttpServerFactory() {
             @Override
-            public HttpServer create(String host, int port, boolean manageQueues, int pollTime, int requestBatchSize, int flushInterval) {
+            public HttpServer create(String host, int port, boolean manageQueues, int pollTime, int requestBatchSize,
+                                     int flushInterval, int maxRequests) {
                 return new MockHttpServer();
             }
         });

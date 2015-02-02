@@ -24,7 +24,7 @@ public class HttpRequest implements Request<Object>{
     private final String contentType;
 
     private final String method;
-    private final HttpResponse response;
+    private final HttpResponseReceiver response;
 
     private final long messageId;
 
@@ -98,7 +98,7 @@ public class HttpRequest implements Request<Object>{
 
     public HttpRequest(long id, final String uri, final String method, final MultiMap<String, String> params,
                        final MultiMap<String, String> headers,
-                       final byte[] body, final String remoteAddress, String contentType, final HttpResponse response, long timestamp) {
+                       final byte[] body, final String remoteAddress, String contentType, final HttpResponseReceiver response, long timestamp) {
 
         this.messageId = id;
         this.params = params;
@@ -133,7 +133,7 @@ public class HttpRequest implements Request<Object>{
     }
 
 
-    public HttpResponse getResponse() {
+    public HttpResponseReceiver getResponse() {
         return response;
     }
 

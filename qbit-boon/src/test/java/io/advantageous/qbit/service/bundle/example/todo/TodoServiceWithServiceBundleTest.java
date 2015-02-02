@@ -5,6 +5,7 @@ import io.advantageous.qbit.message.MethodCall;
 import io.advantageous.qbit.message.Response;
 import io.advantageous.qbit.queue.ReceiveQueue;
 import io.advantageous.qbit.service.ServiceBundle;
+import io.advantageous.qbit.service.ServiceBundleBuilder;
 import io.advantageous.qbit.spi.RegisterBoonWithQBit;
 import org.boon.core.Sys;
 import org.junit.Test;
@@ -30,9 +31,8 @@ public class TodoServiceWithServiceBundleTest {
     @Test
     public void testWithBundleUsingAddress() {
 
+        final ServiceBundle serviceBundle = new ServiceBundleBuilder().setAddress("/services").build();
 
-        ServiceBundle serviceBundle = QBit.factory()
-                .createServiceBundle("/services");
         serviceBundle.addService(new TodoService());
 
 
@@ -84,7 +84,8 @@ public class TodoServiceWithServiceBundleTest {
 
     @Test
     public void testWithBundleUsingObjectName() {
-        ServiceBundle serviceBundle = QBit.factory().createServiceBundle("/services");
+        final ServiceBundle serviceBundle = new ServiceBundleBuilder().setAddress("/services").build();
+
         serviceBundle.addService(new TodoService());
 
 
@@ -132,7 +133,8 @@ public class TodoServiceWithServiceBundleTest {
 
     @Test
     public void testWithBundleUsingAddressRequestMappings() {
-        ServiceBundle serviceBundle = QBit.factory().createServiceBundle("/services");
+        final ServiceBundle serviceBundle = new ServiceBundleBuilder().setAddress("/services").build();
+
         serviceBundle.addService(new TodoService());
 
 

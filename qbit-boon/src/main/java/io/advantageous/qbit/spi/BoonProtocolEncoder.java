@@ -52,40 +52,46 @@ public class BoonProtocolEncoder implements ProtocolEncoder {
     @Override
     public String encodeAsString(Response<Object> response) {
         CharBuf buf = CharBuf.createCharBuf();
-        encodeAsString(buf, response);
+        encodeAsString(buf, response, true);
         return buf.toString();
     }
 
     @Override
     public String encodeAsString(MethodCall<Object> methodCall) {
         CharBuf buf = CharBuf.createCharBuf();
-        encodeAsString(buf, methodCall);
+        encodeAsString(buf, methodCall, true);
         return buf.toString();
     }
 
     @Override
-    public String encodeAsString(List<Message<Object>> methodCalls) {
+    public String encodeAsString(Collection<Message<Object>> messages) {
         CharBuf buf = bufRef.get();
         buf.recycle();
 
         buf.addChar(PROTOCOL_MARKER);
         buf.addChar(PROTOCOL_VERSION_1_GROUP);
+        int index=0;
 
-        for (Message<Object> message : methodCalls) {
+        for (Message<Object> message : messages) {
+
+            boolean encodeAddress = index==0;
 
             if (message instanceof MethodCall) {
-                encodeAsString(buf, (MethodCall<Object>) message);
+                encodeAsString(buf, (MethodCall<Object>) message, encodeAddress);
             } else if (message instanceof Response) {
-                encodeAsString(buf, (Response<Object>) message);
+                encodeAsString(buf, (Response<Object>) message, encodeAddress);
             }
             buf.addChar(PROTOCOL_MESSAGE_SEPARATOR);
+
+            index++;
         }
 
         return buf.toString();
 
     }
 
-    private void encodeAsString(CharBuf buf, MethodCall<Object> methodCall) {
+
+    private void encodeAsString(CharBuf buf, MethodCall<Object> methodCall, boolean encodeAddress) {
         buf.addChar(PROTOCOL_MARKER);
         buf.addChar(PROTOCOL_VERSION_1);
         buf.addChar(PROTOCOL_SEPARATOR);
@@ -93,7 +99,16 @@ public class BoonProtocolEncoder implements ProtocolEncoder {
         buf.addChar(PROTOCOL_SEPARATOR);
         buf.add(methodCall.address());
         buf.addChar(PROTOCOL_SEPARATOR);
+
         buf.add(methodCall.returnAddress());
+
+//        if (encodeAddress) {
+//            buf.add(methodCall.returnAddress());
+//
+//        } else {
+//            buf.add("same");
+//        }
+
         buf.addChar(PROTOCOL_SEPARATOR);
         encodeHeadersAndParams(buf, methodCall.headers());
         buf.addChar(PROTOCOL_SEPARATOR);
@@ -128,7 +143,7 @@ public class BoonProtocolEncoder implements ProtocolEncoder {
     }
 
 
-    private void encodeAsString(CharBuf buf, Response<Object> response) {
+    private void encodeAsString(CharBuf buf, Response<Object> response, boolean encodeAddress) {
         buf.addChar(PROTOCOL_MARKER);
         buf.addChar(PROTOCOL_VERSION_1_RESPONSE);
         buf.addChar(PROTOCOL_SEPARATOR);
@@ -136,7 +151,14 @@ public class BoonProtocolEncoder implements ProtocolEncoder {
         buf.addChar(PROTOCOL_SEPARATOR);
         buf.add(response.address());
         buf.addChar(PROTOCOL_SEPARATOR);
+
+
         buf.add(response.returnAddress());
+//        if (encodeAddress) {
+//            buf.add(response.returnAddress());
+//        } else {
+//            buf.add("same");
+//        }
         buf.addChar(PROTOCOL_SEPARATOR);
         buf.addChar(PROTOCOL_SEPARATOR); //reserved for header
         buf.addChar(PROTOCOL_SEPARATOR); //reserved for params

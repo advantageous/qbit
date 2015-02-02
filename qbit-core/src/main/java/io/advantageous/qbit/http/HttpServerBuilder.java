@@ -15,13 +15,48 @@ public class HttpServerBuilder {
     private int port = 8080;
     private boolean manageQueues = true;
 
+    private int maxRequestBatches = 1_000_000;
+
     private boolean pipeline = true;
     private int pollTime = 100;
     private int requestBatchSize = 10;
     private int flushInterval = 100;
 
+    private int workers = -1;
+    private Class<Consumer> handlerClass = null;
+
     private Consumer<WebSocketMessage> webSocketMessageConsumer;
     private Consumer<HttpRequest> httpRequestConsumer;
+
+    public int getMaxRequestBatches() {
+        return maxRequestBatches;
+    }
+
+
+
+    public HttpServerBuilder setMaxRequestBatches(int maxRequestBatches) {
+        this.maxRequestBatches = maxRequestBatches;
+
+        return this;
+    }
+
+    public int getWorkers() {
+        return workers;
+    }
+
+    public HttpServerBuilder setWorkers(int workers) {
+        this.workers = workers;
+        return this;
+    }
+
+    public Class<Consumer> getHandlerClass() {
+        return handlerClass;
+    }
+
+    public HttpServerBuilder setHandlerClass(Class handlerClass) {
+        this.handlerClass = handlerClass;
+        return this;
+    }
 
     public boolean isPipeline() {
         return pipeline;
@@ -105,9 +140,24 @@ public class HttpServerBuilder {
     }
 
     public HttpServer build() {
-        final HttpServer httpServer = QBit.factory().createHttpServer(host, port, manageQueues, pollTime, requestBatchSize, flushInterval);
-        httpServer.setHttpRequestConsumer(this.httpRequestConsumer);
-        httpServer.setWebSocketMessageConsumer(this.webSocketMessageConsumer);
-        return httpServer;
+
+        if (workers == -1 || handlerClass==null) {
+            final HttpServer httpServer = QBit.factory().createHttpServer(this.getHost(),
+                    this.getPort(), this.isManageQueues(), this.getPollTime(), this.getRequestBatchSize(),
+                    this.getFlushInterval(), this.getMaxRequestBatches());
+
+            httpServer.setHttpRequestConsumer(this.httpRequestConsumer);
+            httpServer.setWebSocketMessageConsumer(this.webSocketMessageConsumer);
+            return httpServer;
+        } else {
+            final HttpServer httpServer = QBit.factory().createHttpServer(this.getHost(),
+                    this.getPort(), this.isManageQueues(), this.getPollTime(), this.getRequestBatchSize(),
+                    this.getFlushInterval(), this.getMaxRequestBatches(), this.getWorkers(), this.getHandlerClass());
+
+            httpServer.setHttpRequestConsumer(this.httpRequestConsumer);
+            httpServer.setWebSocketMessageConsumer(this.webSocketMessageConsumer);
+            return httpServer;
+        }
     }
+
 }

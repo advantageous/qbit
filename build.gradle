@@ -9,6 +9,8 @@ allprojects {
     apply plugin: 'application'
 
     version = '0.5.2-SNAPSHOT'
+
+    test.onlyIf { ! Boolean.getBoolean('skip.tests') }
 }
 
 
@@ -213,10 +215,23 @@ project(':qbit-boon') {
 project(':qbit-examples-standalone') {
     sourceSets.main.resources.srcDir 'src/main/java'
     dependencies {
-        compile project(':qbit-boon')
+        compile project(':qbit-vertx')
         compile "org.slf4j:slf4j-api:[1.7,1.8)"
         compile 'ch.qos.logback:logback-classic:1.1.2'
+
         testCompile group: 'junit', name: 'junit', version: '4.10'
+    }
+
+    task runRestServer(type: JavaExec, dependsOn: 'classes') {
+
+        main = 'io.advantageous.qbit.example.servers.SimpleRestServer'
+        classpath=sourceSets.main.runtimeClasspath
+    }
+
+
+    task runRestClient(type: JavaExec, dependsOn: 'classes') {
+        main = 'io.advantageous.qbit.example.servers.SimpleRestClient'
+        classpath=sourceSets.main.runtimeClasspath
     }
 }
 

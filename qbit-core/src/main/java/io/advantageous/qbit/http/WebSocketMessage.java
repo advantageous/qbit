@@ -21,6 +21,9 @@ public class WebSocketMessage implements Request<Object>{
     private boolean handled;
 
 
+    private int handledCount;
+
+
     @Override
     public String address() {
         return uri;
@@ -97,14 +100,26 @@ public class WebSocketMessage implements Request<Object>{
 
 
 
-    public WebSocketMessage(
+    public WebSocketMessage(final long id, final long timestamp,
             final String uri, final String message, final String remoteAddress, final WebSocketSender sender) {
         this.uri = uri;
         this.message = message;
         this.sender = sender;
         this.remoteAddress = remoteAddress;
-        this.messageId = idGen.get().inc();
-        this.timestamp = io.advantageous.qbit.util.Timer.timer().now();
+
+        if (id <= 0) {
+            this.messageId = idGen.get().inc();
+        } else {
+            this.messageId = id;
+        }
+
+
+        if (id <= 0) {
+            this.timestamp = io.advantageous.qbit.util.Timer.timer().now();
+
+        } else {
+            this.timestamp = timestamp;
+        }
     }
 
     public String getUri() {

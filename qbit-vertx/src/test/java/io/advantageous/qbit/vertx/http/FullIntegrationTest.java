@@ -30,7 +30,8 @@ public class FullIntegrationTest {
     volatile int callCount;
     AtomicReference<String> pongValue;
     boolean ok;
-    int port = 7777;
+    static volatile int port = 7777;
+    private volatile int returnCount;
 
     static interface ClientServiceInterface {
         String ping(Callback<String> callback, String ping);
@@ -68,6 +69,86 @@ public class FullIntegrationTest {
     }
 
 
+
+    @Test
+    public void testWebSocketFlushHappy() throws Exception {
+
+
+
+        final Callback<String> callback = new Callback<String>() {
+            @Override
+            public void accept(String s) {
+                returnCount++;
+
+                if (returnCount % 2 == 0) {
+                    puts("return count", returnCount);
+                }
+
+                puts("                     PONG");
+                pongValue.set(s);
+            }
+        };
+
+        for (int index=0; index< 10; index++) {
+
+            clientProxy.ping(callback, "hi");
+            client.flush();
+
+        }
+
+
+        client.flush();
+        Sys.sleep(2000);
+
+
+        puts("HERE                        ", callCount, returnCount);
+
+        ok = returnCount == callCount || die();
+
+
+
+    }
+
+
+
+    @Test
+    public void testWebSocketSend10() throws Exception {
+
+
+
+        final Callback<String> callback = new Callback<String>() {
+            @Override
+            public void accept(String s) {
+                returnCount++;
+
+                if (returnCount % 2 == 0) {
+                    puts("return count", returnCount);
+                }
+
+                puts("                     PONG");
+                pongValue.set(s);
+            }
+        };
+
+        for (int index=0; index< 10; index++) {
+
+            clientProxy.ping(callback, "hi");
+
+        }
+
+
+        client.flush();
+        Sys.sleep(5000);
+
+
+        puts("HERE                        ", callCount, returnCount);
+
+        ok = returnCount == callCount || die(returnCount, callCount);
+
+
+
+    }
+
     @Test
     public void testRestCallSimple() throws Exception {
 
@@ -104,10 +185,14 @@ public class FullIntegrationTest {
     }
 
     @Before
-    public void setup() throws Exception {
+    public synchronized void setup() throws Exception {
+
+        port+=10;
         pongValue = new AtomicReference<>();
 
         httpClient = new HttpClientBuilder().setPort(port).build();
+
+        puts("PORT", port);
 
         client = new ClientBuilder().setPort(port).build();
         server = new ServiceServerBuilder().setPort(port).build();

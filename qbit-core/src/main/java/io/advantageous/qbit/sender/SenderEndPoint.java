@@ -11,6 +11,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.TimeUnit;
+
+import static org.boon.Boon.puts;
 
 /**
  * Combines a sender with a protocol encoder so we can send messages to another remote end point.
@@ -74,10 +77,16 @@ public class SenderEndPoint implements EndPoint {
         flush(null);
     }
 
-    private synchronized void flush(MethodCall<Object> lastMethodCall) {
+    private  void flush(MethodCall<Object> lastMethodCall) {
 
 
-        Message<Object> method = methodCalls.poll();
+        Message<Object> method = null;
+
+        try {
+            method = methodCalls.poll(10L, TimeUnit.MILLISECONDS);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupted();
+        }
 
         if (method == null) {
             return;
@@ -90,9 +99,29 @@ public class SenderEndPoint implements EndPoint {
 
         methods = new ArrayList<>(requestBatchSize+1);
 
+        int count = 0;
+
         while (method != null) {
             methods.add(method);
-            method = methodCalls.poll();
+
+            try {
+                method = methodCalls.poll(10L, TimeUnit.MILLISECONDS);
+            } catch (InterruptedException e) {
+                method = null;
+                Thread.currentThread().interrupted();
+            }
+
+
+
+            if (count> requestBatchSize) {
+
+                sender.send(returnAddress, encoder.encodeAsString(methods));
+                methods.clear();
+                count = 0;
+            }
+
+            count++;
+
 
         }
 
@@ -101,7 +130,9 @@ public class SenderEndPoint implements EndPoint {
         }
 
 
-        sender.send(returnAddress, encoder.encodeAsString(methods));
+        if (methods.size() > 0) {
+            sender.send(returnAddress, encoder.encodeAsString(methods));
+        }
 
 
     }

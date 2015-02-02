@@ -9,6 +9,7 @@ import io.advantageous.qbit.message.Response;
 import io.advantageous.qbit.queue.ReceiveQueueListener;
 import io.advantageous.qbit.service.Callback;
 import io.advantageous.qbit.service.ServiceBundle;
+import io.advantageous.qbit.service.ServiceBundleBuilder;
 import org.boon.core.Sys;
 import org.junit.After;
 import org.junit.Before;
@@ -70,7 +71,8 @@ public class BoonClientIntegrationTest {
 
         client.start();
 
-        serviceBundle = QBit.factory().createServiceBundle("/services");
+
+        serviceBundle = new ServiceBundleBuilder().setAddress("/services").build();
         serviceBundle.addService(new ServiceMock());
         sum = 0;
 
@@ -182,8 +184,9 @@ public class BoonClientIntegrationTest {
         }
 
         @Override
-        public void start() {
+        public HttpClient start() {
             httpStartCalled = true;
+            return this;
 
         }
 

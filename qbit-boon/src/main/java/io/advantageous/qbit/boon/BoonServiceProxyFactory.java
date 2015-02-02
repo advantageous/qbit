@@ -57,11 +57,13 @@ public class BoonServiceProxyFactory implements ServiceProxyFactory {
 
             long timestamp = Timer.timer().now();
             int times = 10;
-            long messageId = generatedMessageId++;
 
             @Override
             public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
 
+
+
+                long messageId = generatedMessageId++;
 
                 if (method.getName().equals("clientProxyFlush")) {
 
@@ -87,7 +89,7 @@ public class BoonServiceProxyFactory implements ServiceProxyFactory {
 
 
 
-                final MethodCall<Object> call = factory.createMethodCallToBeEncodedAndSent(messageId++,
+                final MethodCall<Object> call = factory.createMethodCallToBeEncodedAndSent(messageId,
                         address, returnAddress,
                         serviceName, method.getName(), timestamp, args, null);
 

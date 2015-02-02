@@ -12,6 +12,8 @@ public class WebSocketMessageBuilder {
     private String message;
     private WebSocketSender sender;
     private String remoteAddress;
+    private long messageId = -1;
+    private long timestamp;
 
     public String getUri() {
         return uri;
@@ -53,6 +55,20 @@ public class WebSocketMessageBuilder {
     }
 
     public WebSocketMessage build() {
-        return new WebSocketMessage(uri, message, remoteAddress, sender);
+        return new WebSocketMessage(messageId, timestamp, uri, message, remoteAddress, sender);
+    }
+
+    public WebSocketMessageBuilder setMessageId(long messageId) {
+        this.messageId = messageId;
+        return this;
+    }
+
+    public WebSocketMessageBuilder setTimestamp(long timestamp) {
+        this.timestamp = timestamp;
+        return this;
+    }
+
+    public long getTimestamp() {
+        return timestamp;
     }
 }
