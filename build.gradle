@@ -9,6 +9,8 @@ allprojects {
     apply plugin: 'application'
 
     version = '0.5.2-SNAPSHOT'
+
+    test.onlyIf { ! Boolean.getBoolean('skip.tests') }
 }
 
 
