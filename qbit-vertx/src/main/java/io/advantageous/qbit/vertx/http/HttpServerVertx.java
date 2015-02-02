@@ -273,15 +273,14 @@ public class HttpServerVertx implements HttpServer {
 
 
 
-            httpServer.setTCPKeepAlive(true);
+
             httpServer.setTCPNoDelay(true);
             httpServer.setSoLinger(0);
             httpServer.setUsePooledBuffers(true);
             httpServer.setReuseAddress(true);
             httpServer.setAcceptBacklog(1_000_000);
             httpServer.setTCPKeepAlive(true);
-            httpServer.setCompressionSupported(true);
-            httpServer.setSoLinger(1000);
+            httpServer.setCompressionSupported(false);
             httpServer.setMaxWebSocketFrameSize(100_000_000);
 
 
