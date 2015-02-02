@@ -13,9 +13,9 @@ import java.util.concurrent.*;
 public class QueueBuilder implements Cloneable{
 
     public static QueueBuilder queueBuilder() {return new QueueBuilder();}
-    private int batchSize = 500;
+    private int batchSize = 200;
     private int pollWait = 5;
-    private int size = 1_000_000;
+    private int size = 100_000;
     private int checkEvery = 100;
 
     private String name;
@@ -44,7 +44,7 @@ public class QueueBuilder implements Cloneable{
 
     public QueueBuilder setArrayBlockingQueue() {
         if (size==-1) {
-            size = 1_000_000;
+            size = 100_000;
         }
 
         queueClass = ArrayBlockingQueue.class;

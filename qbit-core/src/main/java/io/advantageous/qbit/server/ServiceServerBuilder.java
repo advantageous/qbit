@@ -217,7 +217,7 @@ public class ServiceServerBuilder {
 
         if (queueBuilder==null) {
 
-            queueBuilder = new QueueBuilder().setLinkTransferQueue().setSize(-1).setBatchSize(this.getRequestBatchSize()).setPollWait(this.getPollTime());
+            queueBuilder = new QueueBuilder().setBatchSize(this.getRequestBatchSize()).setPollWait(this.getPollTime());
 
         }
 
