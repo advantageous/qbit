@@ -1,0 +1,24 @@
+apply plugin: 'java'
+
+apply plugin: 'application'
+
+mainClassName = "hello.MyService"
+
+version = '1.0'
+
+
+
+repositories {
+    mavenCentral()
+}
+configurations {
+    compile.exclude module: "spring-boot-starter-tomcat"
+}
+
+
+dependencies {
+    compile("org.springframework.boot:spring-boot-starter-web:1.2.1.RELEASE")
+    compile("org.springframework.boot:spring-boot-starter-jetty:1.2.1.RELEASE")
+    //compile("org.springframework.boot:spring-boot-starter-undertow:1.2.1.RELEASE")
+
+}
