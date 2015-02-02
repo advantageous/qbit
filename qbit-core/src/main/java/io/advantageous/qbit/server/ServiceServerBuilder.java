@@ -22,7 +22,7 @@ import io.advantageous.qbit.transforms.Transformer;
 
 public class ServiceServerBuilder {
 
-    private String host = "localhost";
+    private String host;
     private int port = 8080;
     private boolean manageQueues = true;
     private int pollTime = GlobalConstants.POLL_WAIT;
