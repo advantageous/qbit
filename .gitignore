@@ -1,33 +1,20 @@
+#IDE files
 .idea/
 *.iml
+*.ipr
+*.iws
 
+#Gradle files
 .gradle/
 gradle-app.setting
-
-target/
-build/
-
-*.class
-
 settings.gradle~
 
-lib/javax.annotation.jar
-
-lib/javax.resource.jar
-
-lib/javax.servlet.jar
-
-lib/javax.servlet.jsp.jar
-
-lib/javax.servlet.jsp.jstl.jar
-
-qbit.ipr
+#Build targets and binaries
+target/
+build/
+out/
+lib/
+*.class
 
 *.hprof
 
-out/
-qbit-examples/tutorial/todo-service-websocket-client/todo-service-websocket-client.ipr
-
-*.ipr
-
-*.iws
