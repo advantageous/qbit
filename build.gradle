@@ -233,6 +233,13 @@ project(':qbit-examples-standalone') {
         main = 'io.advantageous.qbit.example.servers.SimpleRestClient'
         classpath=sourceSets.main.runtimeClasspath
     }
+
+    task runRestClient(type: JavaExec, dependsOn: 'classes') {
+        main = 'io.advantageous.qbit.example.servers.SimpleWebSocketClient'
+        classpath=sourceSets.main.runtimeClasspath
+    }
+
+
 }
 
 

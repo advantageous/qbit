@@ -1,5 +1,6 @@
 package io.advantageous.qbit.client;
 
+import io.advantageous.qbit.GlobalConstants;
 import io.advantageous.qbit.QBit;
 import io.advantageous.qbit.http.HttpClient;
 
@@ -13,13 +14,18 @@ import io.advantageous.qbit.http.HttpClient;
 public class ClientBuilder {
 
 
+    public static ClientBuilder clientBuilder() {
+        return new ClientBuilder();
+    }
+
     private String host = "localhost";
     private int port = 8080;
     private boolean autoFlush = true;
-    private int pollTime = 100;
-    private int poolSize = 10;
+    private int pollTime = GlobalConstants.POLL_WAIT;
 
-    private int requestBatchSize = 10;
+    private int poolSize = 1;
+
+    private int requestBatchSize = GlobalConstants.BATCH_SIZE;
     private boolean keepAlive = true;
     private boolean pipeline = true;
 
@@ -27,8 +33,36 @@ public class ClientBuilder {
 
     private int protocolBatchSize = -1;
 
-    private int flushInterval = 100;
+    private int flushInterval = 50;
     private String uri = "/services";
+
+
+    public int getPoolSize() {
+        return poolSize;
+    }
+
+    public ClientBuilder setPoolSize(int poolSize) {
+        this.poolSize = poolSize;
+        return this;
+    }
+
+    public boolean isKeepAlive() {
+        return keepAlive;
+    }
+
+    public ClientBuilder setKeepAlive(boolean keepAlive) {
+        this.keepAlive = keepAlive;
+        return this;
+    }
+
+    public boolean isPipeline() {
+        return pipeline;
+    }
+
+    public ClientBuilder setPipeline(boolean pipeline) {
+        this.pipeline = pipeline;
+        return this;
+    }
 
 
     public String getUri() {
