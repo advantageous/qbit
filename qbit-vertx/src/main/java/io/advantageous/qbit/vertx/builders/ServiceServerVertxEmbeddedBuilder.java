@@ -87,20 +87,7 @@ public class ServiceServerVertxEmbeddedBuilder extends ServiceServerBuilder {
         final PlatformManager platformManager = PlatformLocator.factory.createPlatformManager();
 
         return new ServiceServer() {
-            @Override
-            public void initServices(Object... services) {
-
-            }
-
-            @Override
-            public void initServices(Iterable services) {
-
-            }
-
-            @Override
-            public void flush() {
-
-            }
+          
 
             @Override
             public void start() {

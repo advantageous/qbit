@@ -216,14 +216,15 @@ public class ServiceServerImpl implements ServiceServer {
     }
 
     @Override
-    public void flush() {
+    public ServiceServer flush() {
         this.serviceBundle.flush();
+        return this;
     }
 
 
 
     @Override
-    public void initServices(Iterable services) {
+    public ServiceServer initServices(Iterable services) {
 
 
         for (Object service : services) {
@@ -232,11 +233,13 @@ public class ServiceServerImpl implements ServiceServer {
             httpRequestServerHandler.addRestSupportFor(service.getClass(), serviceBundle.address());
         }
 
+        return this;
+
     }
 
 
     @Override
-    public void initServices(Object... services) {
+    public ServiceServer initServices(Object... services) {
 
 
         for (Object service : services) {
@@ -244,6 +247,8 @@ public class ServiceServerImpl implements ServiceServer {
             serviceBundle.addService(service);
             httpRequestServerHandler.addRestSupportFor(service.getClass(), serviceBundle.address());
         }
+
+        return this;
 
     }
 

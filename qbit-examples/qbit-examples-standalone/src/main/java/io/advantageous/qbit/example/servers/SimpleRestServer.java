@@ -41,13 +41,9 @@ public class SimpleRestServer {
     public static void main(String... args) throws Exception {
 
 
-        final ServiceServer serviceServer = new ServiceServerBuilder().setPort(6060).setQueueBuilder(
-                new QueueBuilder().setLinkTransferQueue().setTryTransfer(true).setBatchSize(10).setPollWait(10)
-        ).setNumberOfOutstandingRequests(1_000_000).setTimeoutSeconds(40)
-                .build();
+        final ServiceServer serviceServer = new ServiceServerBuilder().setPort(6060)
+                 .build().initServices(new MyService()).startServer();
 
-        serviceServer.initServices(new MyService());
-        serviceServer.start();
 
         Sys.sleep(1_000_000_000);
     }

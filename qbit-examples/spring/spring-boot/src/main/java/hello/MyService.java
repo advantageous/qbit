@@ -8,7 +8,8 @@ import java.util.Collections;
 import java.util.List;
 
 /*
- ./wrk -c 500 -d 10s http://localhost:8080 -H "X_USER_ID: RICK"  --timeout 100000s -t 8
+ ./wrk -c 3000 -d 10s http://localhost:8080/services/myservice/ping -H "X_USER_ID: RICK"   --timeout 100000s -t 8
+
  */
 
 @RestController
