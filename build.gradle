@@ -221,6 +221,18 @@ project(':qbit-examples-standalone') {
 
         testCompile group: 'junit', name: 'junit', version: '4.10'
     }
+
+    task runRestServer(type: JavaExec, dependsOn: 'classes') {
+
+        main = 'io.advantageous.qbit.example.servers.SimpleRestServer'
+        classpath=sourceSets.main.runtimeClasspath
+    }
+
+
+    task runRestClient(type: JavaExec, dependsOn: 'classes') {
+        main = 'io.advantageous.qbit.example.servers.SimpleRestClient'
+        classpath=sourceSets.main.runtimeClasspath
+    }
 }
 
 

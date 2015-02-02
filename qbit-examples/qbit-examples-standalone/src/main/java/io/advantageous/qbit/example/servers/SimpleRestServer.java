@@ -5,6 +5,7 @@ import io.advantageous.qbit.queue.QueueBuilder;
 import io.advantageous.qbit.server.ServiceServer;
 import io.advantageous.qbit.server.ServiceServerBuilder;
 import org.boon.Boon;
+import org.boon.core.Sys;
 
 import java.util.Collections;
 import java.util.List;
@@ -48,6 +49,6 @@ public class SimpleRestServer {
         serviceServer.initServices(new MyService());
         serviceServer.start();
 
-        Boon.gets();
+        Sys.sleep(1_000_000_000);
     }
 }
