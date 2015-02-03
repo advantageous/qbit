@@ -2,6 +2,7 @@ package io.advantageous.qbit.http;
 
 import io.advantageous.qbit.message.Request;
 import io.advantageous.qbit.util.MultiMap;
+import org.boon.Str;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
@@ -100,11 +101,11 @@ public class HttpRequest implements Request<Object>{
                        final MultiMap<String, String> headers,
                        final byte[] body, final String remoteAddress, String contentType, final HttpResponseReceiver response, long timestamp) {
 
+        this.uri = uri;
         this.messageId = id;
         this.params = params;
         this.body = body;
         this.method = method;
-        this.uri = uri;
         this.contentType = contentType;
         this.response = response;
         this.remoteAddress = remoteAddress;

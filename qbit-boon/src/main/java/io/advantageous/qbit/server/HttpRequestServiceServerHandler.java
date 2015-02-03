@@ -93,6 +93,7 @@ public class HttpRequestServiceServerHandler {
         switch (request.getMethod()) {
             case "GET":
                 knownURI = getMethodURIs.contains(uri);
+
                 if (getMethodURIsWithVoidReturn.contains(uri)) {
                     writeResponse(request.getResponse(), 200, "application/json", "\"success\"", request.getHeaders());
 

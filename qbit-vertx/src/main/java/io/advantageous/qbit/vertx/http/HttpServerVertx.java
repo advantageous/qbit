@@ -35,7 +35,7 @@ import java.util.List;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Consumer;
 
-import static org.boon.Boon.puts;
+//import static org.boon.Boon.puts;
 
 /**
  */
@@ -214,7 +214,7 @@ public class HttpServerVertx implements HttpServer {
                         @Override
                         public void handle(AsyncResult<String> stringAsyncResult) {
                             if (stringAsyncResult.succeeded()) {
-                                puts("Launched verticle");
+                                logger.info("Launched verticle");
                             }
                         }
                     }
@@ -228,7 +228,7 @@ public class HttpServerVertx implements HttpServer {
                     @Override
                     public void handle(Long event) {
 
-                        puts ("Exceptions", exceptionCount, "Close Count", closeCount);
+                        logger.info ("Exceptions", exceptionCount, "Close Count", closeCount);
                     }
                 });
             }
@@ -449,6 +449,28 @@ public class HttpServerVertx implements HttpServer {
             }
         });
 
+        request.bodyHandler(new Handler<Buffer>() {
+            @Override
+            public void handle(Buffer event) {
+
+                //puts("BODY PARAM", request.params().size());
+            }
+        });
+
+        request.dataHandler(new Handler<Buffer>() {
+            @Override
+            public void handle(Buffer event) {
+
+                //puts("DATA PARAM", request.params().size());
+            }
+        });
+
+//        puts("PATH", request.path());
+//
+//        puts("PATH ABS URI", request.absoluteURI());
+
+
+
         request.endHandler(new Handler<Void>() {
             @Override
             public void handle(Void event) {
@@ -582,13 +604,15 @@ public class HttpServerVertx implements HttpServer {
     volatile long id;
     private HttpRequest createRequest(final HttpServerRequest request, final Buffer buffer) {
 
+        //puts(request.params().size());
+
         final MultiMap<String, String> params = request.params().size() == 0 ? MultiMap.empty() : new MultiMapWrapper(request.params());
         final MultiMap<String, String> headers = request.headers().size() == 0 ? MultiMap.empty() : new MultiMapWrapper(request.headers());
         final byte[] body = buffer == null ? "".getBytes(StandardCharsets.UTF_8) : buffer.getBytes();
 
         final String contentType = request.headers().get("Content-Type");
 
-        return new HttpRequest(id++, request.uri(), request.method(), params, headers, body,
+        return new HttpRequest(id++, request.path(), request.method(), params, headers, body,
                 request.remoteAddress().toString(),
                 contentType, createResponse(request.response()), Timer.timer().now());
     }
