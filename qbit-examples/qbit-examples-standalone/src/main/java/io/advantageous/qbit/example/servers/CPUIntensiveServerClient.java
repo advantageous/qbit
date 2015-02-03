@@ -21,7 +21,7 @@ public class CPUIntensiveServerClient {
 
 
         final HttpClient httpClient = httpClientBuilder()
-                .setPort(6060).setPoolSize(500).setRequestBatchSize(100).setPipeline(true).setKeepAlive(true)
+                .setPort(8080).setPoolSize(500).setRequestBatchSize(100).setPipeline(true).setKeepAlive(true)
                 .build().start();
 
         Sys.sleep(1_000);

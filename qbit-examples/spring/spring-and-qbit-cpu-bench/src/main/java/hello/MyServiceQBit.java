@@ -3,6 +3,7 @@ package hello;
 
 import io.advantageous.qbit.annotation.RequestMapping;
 import io.advantageous.qbit.annotation.RequestParam;
+import io.advantageous.qbit.queue.QueueBuilder;
 import io.advantageous.qbit.server.ServiceServer;
 import io.advantageous.qbit.server.ServiceServerBuilder;
 import org.boon.core.Sys;
@@ -33,8 +34,13 @@ public class MyServiceQBit {
 
 
 
-        final ServiceServer serviceServer = new ServiceServerBuilder().setPort(6060)
+
+        final ServiceServer serviceServer = new ServiceServerBuilder().setManageQueues(true)
+                .setQueueBuilder(QueueBuilder.queueBuilder().setLinkTransferQueue()
+                        .setBatchSize(10).setArrayBlockingQueue().setSize(1_000_000))
+                .setPort(6060).setFlushInterval(5)
                 .build();
+
 
         serviceServer.initServices(new MyServiceQBit());
         serviceServer.start();

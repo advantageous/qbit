@@ -19,7 +19,7 @@ public class ActualService {
         int ivalue=0;
 
         if (key == 0) {
-            for (long index = 0; index < 20_000_000L; index++) {
+            for (long index = 0; index < 100_000L; index++) {
 
                 dvalue = dvalue + index * 1000;
                 ivalue = (int) dvalue;

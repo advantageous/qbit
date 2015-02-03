@@ -13,15 +13,15 @@ repositories {
     mavenLocal()
     mavenCentral()
 }
-//configurations {
-//    compile.exclude module: "spring-boot-starter-tomcat"
-//}
+configurations {
+    compile.exclude module: "spring-boot-starter-tomcat"
+}
 
 //spring.groovy.template.check-template-location=false
 
 dependencies {
     compile("org.springframework.boot:spring-boot-starter-web:1.2.1.RELEASE")
-    //compile("org.springframework.boot:spring-boot-starter-jetty:1.2.1.RELEASE")
+    compile("org.springframework.boot:spring-boot-starter-jetty:1.2.1.RELEASE")
     //compile("org.springframework.boot:spring-boot-starter-undertow:1.2.1.RELEASE")
 
 

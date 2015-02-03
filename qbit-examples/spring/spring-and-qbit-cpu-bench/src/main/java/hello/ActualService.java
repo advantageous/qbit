@@ -13,6 +13,10 @@ import static org.boon.Boon.puts;
 public class ActualService {
 
 
+    ActualService() {
+        puts("created ActualService");
+    }
+
     final Map<Integer, String> map = new HashMap<Integer, String>();
 
     public double addKey(int key, String value) {
@@ -21,7 +25,7 @@ public class ActualService {
         int ivalue=0;
 
         if (key == 0) {
-            for (long index = 0; index < 20_000_000L; index++) {
+            for (long index = 0; index < 100_000L; index++) {
 
                 dvalue = dvalue + index * 1000;
                 ivalue = (int) dvalue;

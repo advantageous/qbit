@@ -43,6 +43,10 @@ public class HttpRequestServiceServerHandler {
     protected volatile long lastTimeoutCheckTime = 0;
 
 
+    protected long flushInterval = 50;
+    protected volatile long lastFlushTime = 0;
+
+
 
     private final Set<String> getMethodURIs = new LinkedHashSet<>();
     private final Set<String> postMethodURIs = new LinkedHashSet<>();
@@ -55,7 +59,14 @@ public class HttpRequestServiceServerHandler {
 
 
     public void httpRequestQueueIdle(Void v) {
-        methodCallSendQueue.flushSends();
+        long lastFlush = lastFlushTime;
+        long now = Timer.timer().now();
+        long duration =  now - lastFlush;
+
+        if (duration > 50) {
+            lastFlushTime = now;
+            methodCallSendQueue.flushSends();
+        }
     }
 
     public HttpRequestServiceServerHandler(int timeoutInSeconds, ProtocolEncoder encoder, ProtocolParser parser, ServiceBundle serviceBundle, JsonMapper jsonMapper,

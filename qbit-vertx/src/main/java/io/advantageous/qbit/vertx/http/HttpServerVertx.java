@@ -35,6 +35,8 @@ import java.util.List;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Consumer;
 
+import static org.boon.Boon.puts;
+
 //import static org.boon.Boon.puts;
 
 /**
@@ -228,7 +230,7 @@ public class HttpServerVertx implements HttpServer {
                     @Override
                     public void handle(Long event) {
 
-                        logger.info ("Exceptions", exceptionCount, "Close Count", closeCount);
+                        logger.info("Exceptions", exceptionCount, "Close Count", closeCount);
                     }
                 });
             }
@@ -604,7 +606,7 @@ public class HttpServerVertx implements HttpServer {
     volatile long id;
     private HttpRequest createRequest(final HttpServerRequest request, final Buffer buffer) {
 
-        //puts(request.params().size());
+        //puts(request.params().size(), request.absoluteURI(), request.params().get("key"), request.params().get("value"));
 
         final MultiMap<String, String> params = request.params().size() == 0 ? MultiMap.empty() : new MultiMapWrapper(request.params());
         final MultiMap<String, String> headers = request.headers().size() == 0 ? MultiMap.empty() : new MultiMapWrapper(request.headers());
