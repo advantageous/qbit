@@ -20,6 +20,8 @@ import static org.boon.Boon.puts;
 @Scope
 public class MyServiceSpring {
 
+    static volatile int count;
+
     ActualService actualService = new ActualService();
 
     MyServiceSpring() {
@@ -37,9 +39,17 @@ public class MyServiceSpring {
     @ResponseBody
     synchronized public double addKey(@RequestParam("key") int key, @RequestParam("value") String value) {
 
+        count++;
+        if (count > 5) {
+            count = 0;
+            write();
+        }
         return actualService.addKey(key, value);
     }
 
+    private synchronized void write() {
+        actualService.write();
+    }
     public static void main(String[] args) throws Exception {
         SpringApplication.run(MyServiceSpring.class, args);
     }

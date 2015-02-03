@@ -2,7 +2,7 @@ apply plugin: 'java'
 
 apply plugin: 'application'
 
-mainClassName = "hello.MyService"
+mainClassName = "hello.MyServiceSpring"
 
 version = '1.0'
 
@@ -16,6 +16,14 @@ repositories {
 configurations {
     compile.exclude module: "spring-boot-starter-tomcat"
 }
+
+
+task runQBit(type: JavaExec, dependsOn: 'classes') {
+
+    main = 'hello.MyServiceQBit'
+    classpath=sourceSets.main.runtimeClasspath
+}
+
 
 //spring.groovy.template.check-template-location=false
 

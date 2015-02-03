@@ -15,6 +15,7 @@ public class CPUIntensiveService {
 
 
     ActualService actualService = new ActualService();
+    int count = 0;
 
     @RequestMapping("/ping")
     public List ping() {
@@ -24,17 +25,33 @@ public class CPUIntensiveService {
     @RequestMapping("/addkey/" )
     public double addKey(@RequestParam("key") int key, @RequestParam("value") String value) {
 
+        count++;
         return actualService.addKey(key, value);
+    }
+
+    void queueLimit() {
+        if (count > 1000) {
+            count = 0;
+            actualService.write();
+        }
+    }
+
+    void queueEmpty() {
+
+        if (count > 1000) {
+            count = 0;
+            actualService.write();
+        }
     }
 
     public static void main(String... args) throws Exception {
 
 
 
-        final ServiceServer serviceServer = new ServiceServerBuilder().setManageQueues(true)
-                .setQueueBuilder(QueueBuilder.queueBuilder().setLinkTransferQueue()
-                        .setBatchSize(10).setArrayBlockingQueue().setSize(1_000_000))
-                .setPort(6060).setFlushInterval(50)
+        final ServiceServer serviceServer = new ServiceServerBuilder()
+                .setQueueBuilder(QueueBuilder.queueBuilder()
+                        .setBatchSize(250).setArrayBlockingQueue().setSize(10_000))
+                .setPort(6060).setFlushInterval(10)
                 .build();
 
         serviceServer.initServices(new CPUIntensiveService());

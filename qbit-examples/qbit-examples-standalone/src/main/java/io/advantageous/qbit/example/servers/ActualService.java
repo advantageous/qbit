@@ -1,5 +1,8 @@
 package io.advantageous.qbit.example.servers;
 
+import io.advantageous.qbit.util.Timer;
+import org.boon.core.Sys;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -13,6 +16,20 @@ public class ActualService {
 
     final Map<Integer, String> map = new HashMap<Integer, String>();
 
+    long lastWrite = Timer.timer().now();
+
+    public void write() {
+
+        long now = Timer.timer().now();
+        long duration = now - lastWrite;
+
+        if (duration > 5000) {
+            lastWrite = now;
+            Sys.sleep(200);
+        }
+    }
+
+
     public double addKey(int key, String value) {
 
         double dvalue = 0.0;
@@ -25,7 +42,7 @@ public class ActualService {
                 ivalue = (int) dvalue;
                 ivalue = ivalue % 13;
             }
-        } else if (key == 1) {
+        } else {
 
 
             final Set<Integer> integers = map.keySet();
@@ -33,9 +50,8 @@ public class ActualService {
             for (Integer k : integers) {
                 dvalue += k + map.get(k).hashCode();
             }
-        } else {
             map.put(key, value);
-            return map.get(key).hashCode();
+            dvalue += map.get(key).hashCode();
         }
 
         return (dvalue += ((double) ivalue));
