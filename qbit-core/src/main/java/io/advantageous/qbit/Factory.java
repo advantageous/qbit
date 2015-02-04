@@ -1,6 +1,7 @@
 package io.advantageous.qbit;
 
 import io.advantageous.qbit.client.Client;
+import io.advantageous.qbit.events.EventManager;
 import io.advantageous.qbit.http.HttpClient;
 import io.advantageous.qbit.http.HttpServer;
 
@@ -16,6 +17,7 @@ import io.advantageous.qbit.service.BeforeMethodCall;
 import io.advantageous.qbit.service.Service;
 import io.advantageous.qbit.service.ServiceBundle;
 import io.advantageous.qbit.service.ServiceMethodHandler;
+import io.advantageous.qbit.spi.FactorySPI;
 import io.advantageous.qbit.spi.ProtocolEncoder;
 import io.advantageous.qbit.spi.ProtocolParser;
 import io.advantageous.qbit.transforms.Transformer;
@@ -288,6 +290,16 @@ public interface Factory {
         throw new UnsupportedOperationException();
     }
 
+
+
+    default EventManager systemEventManager() {
+        throw new IllegalStateException("Not implemented");
+    }
+
+
+    default EventManager createEventManager() {
+        return FactorySPI.getEventManagerFactory().createEventManager();
+    }
 
     default ServiceServer createServiceServer(final HttpServer httpServer,
                                       final ProtocolEncoder encoder,

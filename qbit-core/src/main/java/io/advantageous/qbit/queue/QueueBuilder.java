@@ -1,5 +1,6 @@
 package io.advantageous.qbit.queue;
 
+import io.advantageous.qbit.GlobalConstants;
 import io.advantageous.qbit.queue.impl.BasicQueue;
 
 import java.util.concurrent.*;
@@ -13,9 +14,9 @@ import java.util.concurrent.*;
 public class QueueBuilder implements Cloneable{
 
     public static QueueBuilder queueBuilder() {return new QueueBuilder();}
-    private int batchSize = 200;
-    private int pollWait = 5;
-    private int size = 100_000;
+    private int batchSize = GlobalConstants.BATCH_SIZE;
+    private int pollWait = GlobalConstants.POLL_WAIT;
+    private int size = GlobalConstants.NUM_BATCHES;
     private int checkEvery = 100;
 
     private String name;

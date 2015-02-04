@@ -1,5 +1,6 @@
 package io.advantageous.qbit.queue.impl;
 
+import io.advantageous.qbit.GlobalConstants;
 import io.advantageous.qbit.queue.*;
 import org.boon.core.reflection.BeanUtils;
 import org.boon.core.reflection.ClassMeta;
@@ -32,6 +33,8 @@ public class BasicQueue<T> implements Queue<T> {
     private final String name;
     private final int waitTime;
     private final TimeUnit timeUnit;
+
+    private final boolean debug = GlobalConstants.DEBUG;
 
     private final int checkEvery;
     private ScheduledExecutorService monitor;

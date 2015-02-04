@@ -1,6 +1,8 @@
 package io.advantageous.qbit.spi;
 
 import io.advantageous.qbit.Factory;
+import io.advantageous.qbit.events.EventManager;
+import io.advantageous.qbit.events.EventManagerFactory;
 
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -19,8 +21,18 @@ public class FactorySPI {
     private static final AtomicReference<HttpClientFactory> httpClientFactoryRef = new AtomicReference<>();
 
 
+    private static final AtomicReference<EventManagerFactory> eventManagerFactoryRef = new AtomicReference<>();
 
 
+    public static void setEventManagerFactory(EventManagerFactory factory) {
+        eventManagerFactoryRef.set(factory);
+    }
+
+
+
+    public static EventManagerFactory getEventManagerFactory() {
+        return eventManagerFactoryRef.get();
+    }
 
     public static Factory getFactory() {
         return ref.get();

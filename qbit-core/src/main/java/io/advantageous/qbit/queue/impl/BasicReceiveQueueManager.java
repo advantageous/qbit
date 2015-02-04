@@ -1,5 +1,6 @@
 package io.advantageous.qbit.queue.impl;
 
+import io.advantageous.qbit.GlobalConstants;
 import io.advantageous.qbit.queue.ReceiveQueue;
 import io.advantageous.qbit.queue.ReceiveQueueListener;
 import io.advantageous.qbit.queue.ReceiveQueueManager;
@@ -7,12 +8,17 @@ import io.advantageous.qbit.queue.ReceiveQueueManager;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.locks.LockSupport;
 
+import static org.boon.Boon.puts;
+
 
 /**
  * Created by Richard on 9/8/14.
  * @author rhightower
  */
 public class BasicReceiveQueueManager<T> implements ReceiveQueueManager<T> {
+
+    private final boolean debug = GlobalConstants.DEBUG;
+
 
     //boolean sleepWait = false;
 
@@ -40,6 +46,10 @@ public class BasicReceiveQueueManager<T> implements ReceiveQueueManager<T> {
 
                 /* If the batch size has hit the max then we need to break. */
                 if (count >= batchSize) {
+
+                    if (debug) {
+                        puts("BasicReceiveQueueManager limit reached", batchSize);
+                    }
                     listener.limit();
                     break;
                 }
@@ -51,6 +61,11 @@ public class BasicReceiveQueueManager<T> implements ReceiveQueueManager<T> {
 
             /* Notify listener that the queue is empty. */
             listener.empty();
+
+            if (debug) {
+                puts("BasicReceiveQueueManager empty queue count was", count);
+            }
+
             count = 0;
 
 
@@ -76,6 +91,11 @@ public class BasicReceiveQueueManager<T> implements ReceiveQueueManager<T> {
                 or timed tasks.
                  */
                 listener.idle();
+
+                if (debug) {
+                    puts("BasicReceiveQueueManager idle");
+                }
+
 
 
             }

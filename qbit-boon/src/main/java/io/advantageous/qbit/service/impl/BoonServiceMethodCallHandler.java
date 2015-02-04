@@ -219,6 +219,9 @@ public class BoonServiceMethodCallHandler implements ServiceMethodHandler {
     }
 
     private Response<Object> mapArgsAsyncHandlersAndInvoke(MethodCall<Object> methodCall, MethodAccess method) {
+
+
+
         if (method.parameterTypes().length == 0  ) {
 
             Object returnValue = method.invokeDynamicObject(service, null);
@@ -241,35 +244,105 @@ public class BoonServiceMethodCallHandler implements ServiceMethodHandler {
 
         }
 
+        boolean hasHandlers = hasHandlers(methodCall);
+
+        hasHandlers = hasHandlers(method) || hasHandlers;
+
         Object returnValue;
 
 
-        Object body = methodCall.body();
-        List<Object> argsList = prepareArgumentList(methodCall,
-                method.parameterTypes());
+        if (hasHandlers) {
+            Object body = methodCall.body();
+            List<Object> argsList = prepareArgumentList(methodCall,
+                    method.parameterTypes());
 
 
+            if (body instanceof List || body instanceof Object[]) {
 
-        if (body instanceof List || body instanceof Object[]) {
+
+                extactHandlersFromArgumentList(method, body, argsList);
+
+            } else {
+                if (argsList.size() == 1 && !(argsList.get(0) instanceof Callback)) {
+                    argsList.set(0, body);
+                }
+            }
 
 
-            extactHandlersFromArgumentList(method, body, argsList);
+            if (invokeDynamic) {
+                returnValue =
+                        method.invokeDynamicObject(service, argsList);
+            } else {
+                returnValue = method.invoke(service, argsList.toArray(new Object[argsList.size()]));
+            }
 
         } else {
-            if (argsList.size() == 1 && !(argsList.get(0) instanceof Callback)) {
-                argsList.set(0, body);
+
+            if (invokeDynamic) {
+
+                if (methodCall.body() instanceof List) {
+                    final List argsList = (List) methodCall.body();
+                    returnValue = method.invokeDynamic(service, argsList.toArray(new Object[argsList.size()]));
+                } else
+                if (methodCall.body() instanceof Object[]) {
+                    final Object[] argsList = (Object[]) methodCall.body();
+                    returnValue = method.invokeDynamic(service, argsList);
+                }
+                else {
+                    returnValue = method.invokeDynamic(service, methodCall.body());
+                }
+            } else {
+                if (methodCall.body() instanceof List) {
+                    final List argsList = (List) methodCall.body();
+                    returnValue = method.invoke(service, argsList.toArray(new Object[argsList.size()]));
+                } else if (methodCall.body() instanceof Object[]) {
+                    final Object[] argsList = (Object[]) methodCall.body();
+                    returnValue = method.invoke(service, argsList);
+                }
+                else {
+                    returnValue = method.invoke(service, methodCall.body());
+                }
             }
         }
 
 
-        if (invokeDynamic) {
-            returnValue =
-                    method.invokeDynamicObject(service, argsList);
-        } else {
-            returnValue = method.invoke(service, argsList.toArray(new Object[argsList.size()]));
-        }
-
         return response(method, methodCall, returnValue);
+    }
+
+
+    private boolean hasHandlers(MethodAccess method) {
+
+        for (Class<?> paramType : method.parameterTypes()) {
+            if (paramType == Callback.class) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private boolean hasHandlers(MethodCall<Object> methodCall) {
+        if (methodCall.body() instanceof List) {
+
+            final List body = (List) methodCall.body();
+            for (Object item : body) {
+                if (item instanceof Callback) {
+                    return true;
+                }
+            }
+            return false;
+        } else if (methodCall.body() instanceof Object[]) {
+
+            final Object[] body = (Object[]) methodCall.body();
+            for (Object item : body) {
+                if (item instanceof Callback) {
+                    return true;
+                }
+            }
+            return false;
+
+        } else {
+            return methodCall.body() instanceof Callback;
+        }
     }
 
     private void extactHandlersFromArgumentList(MethodAccess method, Object body, List<Object> argsList) {

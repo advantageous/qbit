@@ -5,6 +5,7 @@ import io.advantageous.qbit.Factory;
 import io.advantageous.qbit.GlobalConstants;
 import io.advantageous.qbit.QBit;
 import io.advantageous.qbit.client.Client;
+import io.advantageous.qbit.events.EventManager;
 import io.advantageous.qbit.http.HttpClient;
 import io.advantageous.qbit.http.HttpServer;
 import io.advantageous.qbit.json.JsonMapper;
@@ -38,6 +39,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicReference;
 
 
 /**
@@ -48,6 +50,22 @@ import java.util.concurrent.TimeUnit;
  *         The Factory is a facade over other factories providing a convienient unified interface to QBIT.
  */
 public class BoonQBitFactory implements Factory {
+
+    private AtomicReference<EventManager> systemEventManager = new AtomicReference<>();
+
+    @Override
+    public EventManager systemEventManager() {
+
+        if (systemEventManager.get() == null) {
+            systemEventManager.set(this.createEventManager());
+        }
+        return systemEventManager.get();
+    }
+
+    @Override
+    public EventManager createEventManager() {
+        return FactorySPI.getEventManagerFactory().createEventManager();
+    }
 
     private ProtocolParser defaultProtocol = new BoonProtocolParser();
     private ServiceProxyFactory serviceProxyFactory = new BoonServiceProxyFactory(this);
