@@ -1,6 +1,8 @@
 package io.advantageous.qbit.service.impl;
 
+import io.advantageous.qbit.QBit;
 import io.advantageous.qbit.client.ClientProxy;
+import io.advantageous.qbit.events.EventManager;
 import io.advantageous.qbit.message.*;
 import io.advantageous.qbit.queue.*;
 import io.advantageous.qbit.service.*;
@@ -17,6 +19,9 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.util.Collection;
 import java.util.concurrent.locks.ReentrantLock;
+
+import static io.advantageous.qbit.QBit.*;
+import static io.advantageous.qbit.service.ServiceContext.serviceContext;
 
 
 public class ServiceImpl implements Service {
@@ -268,8 +273,16 @@ public class ServiceImpl implements Service {
 
                         eventQueue.receiveQueue();
 
-        serviceMethodHandler.queueInit();
 
+
+        serviceThreadLocal.set(ServiceImpl.this);
+
+        if (! (service instanceof EventManager) ) {
+            serviceContext().joinEventManager();
+        }
+        serviceMethodHandler.queueInit();
+        flushEventManagerCalls();
+        serviceThreadLocal.set(null);
 
         requestQueue.startListener(new ReceiveQueueListener<MethodCall<Object>>() {
 
@@ -284,16 +297,15 @@ public class ServiceImpl implements Service {
             public void empty() {
 
 
-                serviceThreadLocal.set(null);
 
                 handle();
+
 
             }
 
             @Override
             public void startBatch() {
 
-                serviceThreadLocal.set(ServiceImpl.this);
 
 
                 if (inputQueueListener != null) {
@@ -341,6 +353,7 @@ public class ServiceImpl implements Service {
             /** Such a small method with so much responsibility. */
             public void handle() {
 
+
                 manageResponseQueue();
 
                 /* Handles the CallBacks if you have configured the service
@@ -366,9 +379,20 @@ public class ServiceImpl implements Service {
                     event = eventReceiveQueue.poll();
 
                 }
+
+
+                flushEventManagerCalls();
             }
 
         });
+    }
+
+    private void flushEventManagerCalls() {
+        final EventManager eventManager = factory().eventManagerProxy();
+        if (eventManager!=null) {
+            ServiceProxyUtils.flushServiceProxy(eventManager);
+            factory().clearEventManagerProxy();
+        }
     }
 
     private void manageResponseQueue() {
@@ -594,5 +618,14 @@ public class ServiceImpl implements Service {
 
         return this.eventQueue.sendQueue();
 
+    }
+
+
+    @Override
+    public String toString() {
+        return "Service{" +
+                "debug=" + debug +
+                ", service=" + service.getClass().getSimpleName() +
+                '}';
     }
 }

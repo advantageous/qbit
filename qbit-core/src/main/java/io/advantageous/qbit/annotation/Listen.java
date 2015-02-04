@@ -15,8 +15,8 @@ public @interface Listen {
     /* The channel you want to listen to. */;
     String value() default "";
 
-    /* The consumer is the last object listening to this event.
-       An event channel can have many subscribers but only one consumer.
+    /* The consume is the last object listening to this event.
+       An event channel can have many subscribers but only one consume.
      */
     boolean consume() default false;
 

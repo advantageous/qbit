@@ -14,11 +14,7 @@ public class BoonEventManagerFactory implements EventManagerFactory{
 
     @Override
     public EventManager createEventManager() {
-        final Service service = serviceBuilder().setInvokeDynamic(false)
-                .setServiceObject(new BoonEventManager())
-                .build();
-
-        return service.createProxy(EventManager.class);
+        return new BoonEventManager();
     }
 
 }

@@ -3,13 +3,20 @@ package io.advantageous.qbit.events.impl;
 import io.advantageous.qbit.QBit;
 import io.advantageous.qbit.annotation.Listen;
 import io.advantageous.qbit.client.ClientProxy;
-import io.advantageous.qbit.events.*;
+import io.advantageous.qbit.events.EventConsumer;
+import io.advantageous.qbit.events.EventManager;
+import io.advantageous.qbit.events.EventSubscriber;
 import io.advantageous.qbit.message.Event;
+import io.advantageous.qbit.service.Service;
+import io.advantageous.qbit.service.ServiceBuilder;
+import io.advantageous.qbit.service.ServiceContext;
+import io.advantageous.qbit.service.ServiceProxyUtils;
 import org.boon.core.Sys;
 import org.junit.Before;
 import org.junit.Test;
 
 import static io.advantageous.qbit.events.EventUtils.callbackEventListener;
+import static io.advantageous.qbit.service.ServiceContext.serviceContext;
 import static org.boon.Boon.puts;
 import static org.boon.Exceptions.die;
 
@@ -30,10 +37,9 @@ public class BoonEventManagerTest {
         eventManager = QBit.factory().systemEventManager();
         clientProxy = (ClientProxy) eventManager;
         subscribeMessageCount = 0;
-        consumerMessageCount=0;
+        consumerMessageCount = 0;
 
     }
-
 
 
     @Test
@@ -42,6 +48,11 @@ public class BoonEventManagerTest {
 
         String rick = "rick";
 
+        MyEventListener myEventListener = new MyEventListener();
+
+        eventManager.listen(myEventListener);
+        clientProxy.clientProxyFlush();
+
         eventManager.register(rick, new EventConsumer<Object>() {
             @Override
             public void listen(Event<Object> event) {
@@ -49,7 +60,6 @@ public class BoonEventManagerTest {
                 consumerMessageCount++;
             }
         });
-
 
 
         eventManager.register(rick, new EventSubscriber<Object>() {
@@ -66,9 +76,15 @@ public class BoonEventManagerTest {
         }));
 
 
-        MyEventListener myEventListener = new MyEventListener();
+        final MyServiceConsumer myServiceConsumer = new MyServiceConsumer();
 
-        eventManager.listen(myEventListener);
+        final MyService myService = new MyService();
+
+        Service consumerService = new ServiceBuilder().setServiceObject(myServiceConsumer).setInvokeDynamic(false).build();
+
+        clientProxy.clientProxyFlush();
+
+        Sys.sleep(100);
 
 
         eventManager.send(rick, "Hello Rick");
@@ -76,14 +92,34 @@ public class BoonEventManagerTest {
 
         Sys.sleep(100);
 
-        ok = subscribeMessageCount == 2 || die();
+        ok = subscribeMessageCount == 2 || die(subscribeMessageCount);
 
         ok = consumerMessageCount == 1 || die();
 
 
         ok = myEventListener.callCount == 1 || die();
 
+        ok = myServiceConsumer.callCount() == 1 || die();
 
+
+        Sys.sleep(100);
+        Service senderService = new ServiceBuilder().setServiceObject(myService).setInvokeDynamic(false).build();
+
+        final MyServiceClient clientProxy = senderService.createProxy(MyServiceClient.class);
+
+        clientProxy.sendHi("Hello");
+        ServiceProxyUtils.flushServiceProxy(clientProxy);
+
+        Sys.sleep(100);
+
+        ok = subscribeMessageCount == 4 || die(subscribeMessageCount);
+
+        ok = consumerMessageCount == 2 || die();
+
+
+        ok = myEventListener.callCount == 2 || die();
+
+        ok = myServiceConsumer.callCount() == 2 || die();
 
     }
 
@@ -91,7 +127,7 @@ public class BoonEventManagerTest {
     //@Test This takes a long time to run. I only need it for perf tuning.
     public void testPerfMultiple() throws Exception {
 
-        for (int index =0; index < 5; index++) {
+        for (int index = 0; index < 5; index++) {
             testPerf();
             Sys.sleep(5_000);
         }
@@ -122,9 +158,6 @@ public class BoonEventManagerTest {
             subscribeMessageCount++;
         }));
 
-
-
-
         clientProxy.clientProxyFlush();
         Sys.sleep(100);
 
@@ -134,7 +167,6 @@ public class BoonEventManagerTest {
         for (int index = 0; index < 10_000_000; index++) {
             eventManager.send(rick, "PERF");
         }
-
 
 
         clientProxy.clientProxyFlush();
@@ -159,7 +191,6 @@ public class BoonEventManagerTest {
         Sys.sleep(100);
 
 
-
         long duration = (stop - start);
 
         if (duration > 10_000) {
@@ -171,10 +202,9 @@ public class BoonEventManagerTest {
             die("consumerMessageCount", consumerMessageCount);
         }
 
-        puts ("Duration to send messages", duration,
-                "ms. \nconsumer message count", consumerMessageCount,
-                "\ntotal message count", consumerMessageCount+subscribeMessageCount);
-
+        puts("Duration to send messages", duration,
+                "ms. \nconsume message count", consumerMessageCount,
+                "\ntotal message count", consumerMessageCount + subscribeMessageCount);
 
 
     }
@@ -188,6 +218,48 @@ public class BoonEventManagerTest {
         void listen(String message) {
             callCount++;
         }
+    }
+
+
+    public static interface MyServiceClient  {
+
+        void sendHi(String hi);
+    }
+
+    public static class MyService {
+
+        private void queueInit() {
+            puts("QUEUE START MyService");
+        }
+
+        public void sendHi(String hi) {
+            serviceContext().send("rick", "hello rick " + hi);
+        }
+    }
+
+    public static class MyServiceConsumer {
+
+        int callCount = 0;
+
+        public MyServiceConsumer() {
+            puts("MyService created");
+        }
+
+
+
+        @Listen("rick")
+        private void listen(String message) {
+
+            puts(message);
+            callCount++;
+        }
+
+
+        private int callCount() {
+            return callCount;
+        }
+
+
     }
 
 

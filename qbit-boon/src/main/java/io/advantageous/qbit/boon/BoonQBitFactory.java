@@ -6,6 +6,7 @@ import io.advantageous.qbit.GlobalConstants;
 import io.advantageous.qbit.QBit;
 import io.advantageous.qbit.client.Client;
 import io.advantageous.qbit.events.EventManager;
+import io.advantageous.qbit.events.impl.BoonEventManager;
 import io.advantageous.qbit.http.HttpClient;
 import io.advantageous.qbit.http.HttpServer;
 import io.advantageous.qbit.json.JsonMapper;
@@ -41,6 +42,8 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 
+import static io.advantageous.qbit.service.ServiceBuilder.serviceBuilder;
+
 
 /**
  * Created by Richard on 9/26/14.
@@ -51,15 +54,45 @@ import java.util.concurrent.atomic.AtomicReference;
  */
 public class BoonQBitFactory implements Factory {
 
-    private AtomicReference<EventManager> systemEventManager = new AtomicReference<>();
+    private AtomicReference<Service> systemEventManager = new AtomicReference<>();
+
+    private ThreadLocal<EventManager> eventManagerThreadLocal = new ThreadLocal<>();
 
     @Override
     public EventManager systemEventManager() {
 
-        if (systemEventManager.get() == null) {
-            systemEventManager.set(this.createEventManager());
+        final EventManager eventManager = eventManagerThreadLocal.get();
+
+        if (eventManager!=null) {
+            return eventManager;
         }
-        return systemEventManager.get();
+
+        EventManager proxy;
+        if (systemEventManager.get() == null) {
+
+            final Service service = serviceBuilder().setInvokeDynamic(false)
+                    .setServiceObject(createEventManager())
+                    .build();
+
+            systemEventManager.set(service);
+            proxy = service.createProxy(EventManager.class);
+
+        } else {
+            proxy = systemEventManager.get().createProxy(EventManager.class);
+        }
+
+        eventManagerThreadLocal.set(proxy);
+
+        return proxy;
+    }
+
+    public EventManager eventManagerProxy() {
+        return eventManagerThreadLocal.get();
+    }
+
+
+    public void clearEventManagerProxy() {
+         eventManagerThreadLocal.set(null);
     }
 
     @Override

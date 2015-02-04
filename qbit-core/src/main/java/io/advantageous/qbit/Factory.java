@@ -325,4 +325,13 @@ public interface Factory {
     }
 
 
+    default EventManager eventManagerProxy() {
+        return null;
+    }
+
+
+    default void clearEventManagerProxy() {
+    }
+
+
 }

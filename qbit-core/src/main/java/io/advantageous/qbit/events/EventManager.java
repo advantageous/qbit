@@ -4,6 +4,7 @@ import io.advantageous.qbit.client.ClientProxy;
 import io.advantageous.qbit.message.Event;
 import io.advantageous.qbit.message.Message;
 import io.advantageous.qbit.queue.SendQueue;
+import io.advantageous.qbit.service.Service;
 
 /**
  * Created by rhightower on 2/3/15.
@@ -20,7 +21,8 @@ public interface EventManager {
      * EVENTS COME IN ON THE SAME QUEUE AS THE METHOD CALLS
      * (or another queue managed by the same thread depending on the implementation).
      */
-    void join();
+    void joinService(Service service);
+
 
 //
 //    /**
@@ -75,17 +77,17 @@ public interface EventManager {
      *
      * @param channelName array of channel names
      */
-    <T> void subscribe(String channelName, SendQueue<Message<Object>> event);
+    <T> void subscribe(String channelName, SendQueue<Event<Object>> event);
 
 
     /**
      *
      * This method can only be called outside of a service.
-     * Registers an output queue to a consumer for P2P style messaging.
+     * Registers an output queue to a consume for P2P style messaging.
      *
      * @param channelName array of channel names
      */
-    <T> void consumer(String channelName, SendQueue<Message<Object>> event);
+    <T> void consume(String channelName, SendQueue<Event<Object>> event);
 
 
     /**
