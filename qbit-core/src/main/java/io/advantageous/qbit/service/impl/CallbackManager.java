@@ -66,26 +66,30 @@ public class CallbackManager {
         responseQueue.startListener(new ReceiveQueueListener<Response<Object>>() {
             @Override
             public void receive(Response<Object> response) {
-                final Callback<Object> handler = handlers.get(new HandlerKey(response.returnAddress(), response.id()));
-                if (response.wasErrors()) {
-                    if (response.body() instanceof Throwable) {
-                        logger.error("Service threw an exception address", response.address(),
-                                "\n return address", response.returnAddress(), "\n message id",
-                                response.id(), response.body());
-                        handler.onError(((Throwable) response.body()));
-                    } else {
-                        logger.error("Service threw an exception address", response.address(),
-                                "\n return address", response.returnAddress(), "\n message id",
-                                response.id());
-
-                        handler.onError(new Exception(response.body().toString()));
-                    }
-                } else {
-                    handler.accept(response.body());
-                }
+                handleResponse(response);
             }
 
         });
+    }
+
+    public void handleResponse(Response<Object> response) {
+        final Callback<Object> handler = handlers.get(new HandlerKey(response.returnAddress(), response.id()));
+        if (response.wasErrors()) {
+            if (response.body() instanceof Throwable) {
+                logger.error("Service threw an exception address", response.address(),
+                        "\n return address", response.returnAddress(), "\n message id",
+                        response.id(), response.body());
+                handler.onError(((Throwable) response.body()));
+            } else {
+                logger.error("Service threw an exception address", response.address(),
+                        "\n return address", response.returnAddress(), "\n message id",
+                        response.id());
+
+                handler.onError(new Exception(response.body().toString()));
+            }
+        } else {
+            handler.accept(response.body());
+        }
     }
 
 

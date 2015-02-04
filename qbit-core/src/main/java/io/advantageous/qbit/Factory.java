@@ -124,7 +124,7 @@ public interface Factory {
                                   Object object,
                                   Queue<Response<Object>> responseQueue,
                                   final  QueueBuilder queueBuilder,
-                                  boolean asyncCalls, boolean invokeDynamic){
+                                  boolean asyncCalls, boolean invokeDynamic, boolean handleCallbacks){
         throw new UnsupportedOperationException();
     }
 

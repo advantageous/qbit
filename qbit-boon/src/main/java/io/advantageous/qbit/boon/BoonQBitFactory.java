@@ -253,7 +253,7 @@ public class BoonQBitFactory implements Factory {
 
 
         return new ServiceImpl(rootAddress,
-                serviceAddress, service, null, new BoonServiceMethodCallHandler(true), responseQueue, true);
+                serviceAddress, service, null, new BoonServiceMethodCallHandler(true), responseQueue, true, false);
 
     }
 
@@ -263,7 +263,7 @@ public class BoonQBitFactory implements Factory {
                                  Object object,
                                  Queue<Response<Object>> responseQueue,
                                  final QueueBuilder queueBuilder,
-                                 boolean async, boolean invokeDynamic) {
+                                 boolean async, boolean invokeDynamic, boolean handleCallbacks) {
 
         return new ServiceImpl(
                 rootAddress,
@@ -271,7 +271,7 @@ public class BoonQBitFactory implements Factory {
                 object,
                 queueBuilder,
                 new BoonServiceMethodCallHandler(invokeDynamic),
-                responseQueue, async
+                responseQueue, async, handleCallbacks
         );
 
     }

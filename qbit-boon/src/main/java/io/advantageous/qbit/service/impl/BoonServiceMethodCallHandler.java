@@ -37,6 +37,8 @@ import static org.boon.Exceptions.die;
 public class BoonServiceMethodCallHandler implements ServiceMethodHandler {
     private ClassMeta<Class<?>> classMeta;
     private Object service;
+    private MethodAccess queueInit;
+
     private MethodAccess queueEmpty;
     private MethodAccess queueLimit;
     private MethodAccess queueShutdown;
@@ -626,6 +628,7 @@ public class BoonServiceMethodCallHandler implements ServiceMethodHandler {
         queueEmpty = classMeta.method("queueEmpty");
         queueShutdown = classMeta.method("queueShutdown");
         queueIdle = classMeta.method("queueIdle");
+        queueInit = classMeta.method("queueInit");
     }
 
     private void readMethodMetaData() {
@@ -727,6 +730,15 @@ public class BoonServiceMethodCallHandler implements ServiceMethodHandler {
     @Override
     public void initQueue(SendQueue<Response<Object>> responseSendQueue) {
         this.responseSendQueue = responseSendQueue;
+    }
+
+    @Override
+    public void queueInit() {
+
+        if (queueInit!=null) {
+            queueInit.invoke(this.service);
+        }
+
     }
 
     private String readAddressFromAnnotation(Annotated annotated) {

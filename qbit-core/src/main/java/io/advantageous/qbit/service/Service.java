@@ -23,17 +23,17 @@ public interface Service {
      */
     SendQueue<MethodCall<Object>> requests();
 
+
+    /*
+    Queue to send events to the service.
+     */
+    SendQueue<Event<Object>> events();
+
     /**
-     * Queue so we can receive method calls from a client
+     * Queue so we can receive method calls returns from a client
      * @return receive queue
      */
     ReceiveQueue<Response<Object>> responses();
-
-    /**
-     * Allow the sending of async or periodic events.
-     * @return event queue
-     */
-    ReceiveQueue<Event> events();
 
     /**
      * Name of the client

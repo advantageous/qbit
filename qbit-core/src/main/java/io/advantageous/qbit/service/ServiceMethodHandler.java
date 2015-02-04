@@ -28,4 +28,6 @@ public interface ServiceMethodHandler extends ReceiveQueueListener<MethodCall<Ob
     Collection<String> addresses();
 
     void initQueue(SendQueue<Response<Object>> responseSendQueue);
+
+    void queueInit();
 }

@@ -23,37 +23,23 @@ public class ServiceImpl implements Service {
 
     private final Logger logger = LoggerFactory.getLogger(ServiceImpl.class);
     private final boolean debug = logger.isDebugEnabled();
-
     private final Object service;
     private ServiceMethodHandler serviceMethodHandler;
-
-
     private BeforeMethodCall beforeMethodCall = ServiceConstants.NO_OP_BEFORE_METHOD_CALL;
-
     private BeforeMethodCall beforeMethodCallAfterTransform = ServiceConstants.NO_OP_BEFORE_METHOD_CALL;
-
     private AfterMethodCall afterMethodCall = new NoOpAfterMethodCall();
-
     private AfterMethodCall afterMethodCallAfterTransform = new NoOpAfterMethodCall();
-
     private ReceiveQueueListener<MethodCall<Object>> inputQueueListener = new NoOpInputMethodCallQueueListener();
-
     private final Queue<Response<Object>> responseQueue;
-
     private final Queue<MethodCall<Object>> requestQueue;
-
+    private final Queue<Event<Object>> eventQueue;
     private Transformer<Request, Object> requestObjectTransformer = ServiceConstants.NO_OP_ARG_TRANSFORM;
-
     private Transformer<Response<Object>, Response> responseObjectTransformer = new NoOpResponseTransformer();
-
-
     private SendQueue<Response<Object>> responseSendQueue;
-
-    final QueueBuilder queueBuilder;
-
-
+    private final QueueBuilder queueBuilder;
     private CallbackManager callbackManager;
 
+    private final boolean handleCallbacks;
 
     public ServiceImpl(final String rootAddress,
                        final String serviceAddress,
@@ -61,45 +47,44 @@ public class ServiceImpl implements Service {
                        final QueueBuilder queueBuilder,
                        final ServiceMethodHandler serviceMethodHandler,
                        final Queue<Response<Object>> responseQueue,
-                       final boolean async) {
-
-
-
+                       final boolean async,
+                       final boolean handleCallbacks) {
+        this.handleCallbacks = handleCallbacks;
         this.service = service;
         this.serviceMethodHandler = serviceMethodHandler;
-
         serviceMethodHandler.init(service, rootAddress, serviceAddress);
-
-
-
         if (queueBuilder==null) {
             this.queueBuilder = new QueueBuilder();
         } else {
             this.queueBuilder = BeanUtils.copy(queueBuilder);
         }
-
-
-
         if (responseQueue == null) {
-
             if (debug) {
                 logger.debug("RESPONSE QUEUE WAS NULL CREATING ONE");
             }
-
             this.responseQueue = this.queueBuilder.setName("Response Queue  " + serviceMethodHandler.address()).build();
-
         } else {
             this.responseQueue = responseQueue;
         }
 
-        responseSendQueue = this.responseQueue.sendQueue();
 
+        eventQueue = this.queueBuilder.setName("Event Queue" + serviceMethodHandler.address()).build();
+        requestQueue = initRequestQueue(serviceMethodHandler, async);
+        responseSendQueue = this.responseQueue.sendQueue();
         serviceMethodHandler.initQueue(responseSendQueue);
 
+        if (async) {
+            start(serviceMethodHandler);
+        }
+
+
+    }
+
+    private Queue<MethodCall<Object>> initRequestQueue(final ServiceMethodHandler serviceMethodHandler, boolean async) {
+        Queue<MethodCall<Object>> requestQueue;
 
         if (async) {
             requestQueue = this.queueBuilder.setName("Send Queue  " + serviceMethodHandler.address()).build();
-
         } else {
             requestQueue = new Queue<MethodCall<Object>>() {
                 @Override
@@ -107,7 +92,6 @@ public class ServiceImpl implements Service {
 
                     return null;
                 }
-
                 @Override
                 public SendQueue<MethodCall<Object>> sendQueue() {
                     return new SendQueue<MethodCall<Object>>() {
@@ -175,19 +159,19 @@ public class ServiceImpl implements Service {
             };
         }
 
-        if (async) {
-            start(serviceMethodHandler);
-        }
-
-
+        return requestQueue;
     }
 
 
-
     public Service startCallBackHandler() {
-        callbackManager = new CallbackManager();
-        callbackManager.startReturnHandlerProcessor(this.responseQueue);
-        return this;
+
+        if (!handleCallbacks) {
+            callbackManager = new CallbackManager();
+            callbackManager.startReturnHandlerProcessor(this.responseQueue);
+            return this;
+        } else {
+            throw new IllegalStateException("Unable to handle callbacks in a new thread when handleCallbacks is set");
+        }
 
     }
 
@@ -265,9 +249,22 @@ public class ServiceImpl implements Service {
     protected ReentrantLock responseLock  = new ReentrantLock();
     protected volatile long lastResponseFlushTime = Timer.timer().now();
 
-    private void start(final ServiceMethodHandler serviceMethodHandler
-                       ) {
+    private void start(final ServiceMethodHandler serviceMethodHandler) {
 
+        final ReceiveQueue<Response<Object>> responseReceiveQueue =
+                this.handleCallbacks ?
+                responseQueue.receiveQueue() : null;
+
+        if (handleCallbacks) {
+            this.callbackManager = new CallbackManager();
+        }
+
+
+        final ReceiveQueue<Event<Object>> eventReceiveQueue =
+
+                        eventQueue.receiveQueue();
+
+        serviceMethodHandler.queueInit();
 
 
         requestQueue.startListener(new ReceiveQueueListener<MethodCall<Object>>() {
@@ -279,17 +276,17 @@ public class ServiceImpl implements Service {
             @Override
             public void empty() {
 
-                manageResponseQueue();
-                if (inputQueueListener != null) {
-                    inputQueueListener.empty();
-                }
-                serviceMethodHandler.empty();
+
+                handle();
+
             }
 
             @Override
             public void limit() {
 
-                manageResponseQueue();
+
+                handle();
+
                 if (inputQueueListener != null) {
                     inputQueueListener.limit();
                 }
@@ -298,6 +295,9 @@ public class ServiceImpl implements Service {
 
             @Override
             public void shutdown() {
+
+
+                handle();
                 if (inputQueueListener != null) {
                     inputQueueListener.shutdown();
                 }
@@ -307,12 +307,37 @@ public class ServiceImpl implements Service {
             @Override
             public void idle() {
 
-                manageResponseQueue();
+
+                handle();
                 if (inputQueueListener != null) {
                     inputQueueListener.idle();
                 }
                 serviceMethodHandler.idle();
             }
+
+
+            public void handle() {
+
+                manageResponseQueue();
+
+                if (handleCallbacks) {
+
+                    Response<Object> response = responseReceiveQueue.poll();
+                    while (response != null) {
+                        callbackManager.handleResponse(response);
+                        response = responseReceiveQueue.poll();
+                    }
+                }
+
+                Event<Object> event = eventReceiveQueue.poll();
+
+                while (event!=null) {
+
+                    //deliver the event TODO
+                    event = eventReceiveQueue.poll();
+                }
+            }
+
         });
     }
 
@@ -366,10 +391,6 @@ public class ServiceImpl implements Service {
         return responseQueue.receiveQueue();
     }
 
-    @Override
-    public ReceiveQueue<Event> events() {
-        return null;
-    }
 
     @Override
     public String name() {
@@ -538,6 +559,10 @@ public class ServiceImpl implements Service {
 
     }
 
+    @Override
+    public SendQueue<Event<Object>> events() {
 
+        return this.eventQueue.sendQueue();
 
+    }
 }

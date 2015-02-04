@@ -21,13 +21,13 @@ public class Services {
         JsonMapper mapper = new BoonJsonMapper();
 
 
-        ServiceImpl serviceQueue = new ServiceImpl(null, name, service, new QueueBuilder(), new BoonServiceMethodCallHandler(true), null, true);
+        ServiceImpl serviceQueue = new ServiceImpl(null, name, service, new QueueBuilder(), new BoonServiceMethodCallHandler(true), null, true, false);
         serviceQueue.requestObjectTransformer(new JsonRequestBodyToArgListTransformer(mapper));
         serviceQueue.responseObjectTransformer(new JsonResponseTransformer(mapper));
         return serviceQueue;
     }
 
     public static Service regularService(final String name, Object service, int waitTime, TimeUnit timeUnit, int batchSize) {
-        return new ServiceImpl(null, name, service, new QueueBuilder(), new BoonServiceMethodCallHandler(true), null, true);
+        return new ServiceImpl(null, name, service, new QueueBuilder(), new BoonServiceMethodCallHandler(true), null, true, false);
     }
 }

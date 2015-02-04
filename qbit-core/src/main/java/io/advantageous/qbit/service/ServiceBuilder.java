@@ -218,6 +218,17 @@ public class ServiceBuilder {
     }
 
 
+    boolean handleCallbacks;
+
+    public boolean isHandleCallbacks() {
+        return handleCallbacks;
+    }
+
+    public ServiceBuilder setHandleCallbacks(final boolean handleCallbacks) {
+        this.handleCallbacks = handleCallbacks;
+        return this;
+    }
+
     public Service build() {
 
         if (this.getResponseQueue()==null) {
@@ -229,8 +240,8 @@ public class ServiceBuilder {
                 this.getServiceAddress(),
                 this.getServiceObject(),
                 this.getQueueBuilder(),
-                QBit.factory().createServiceMethodHandler(invokeDynamic),
-                this.getResponseQueue(), asyncResponse);
+                QBit.factory().createServiceMethodHandler(this.isInvokeDynamic()),
+                this.getResponseQueue(), this.isAsyncResponse(), handleCallbacks);
 
         return service;
     }

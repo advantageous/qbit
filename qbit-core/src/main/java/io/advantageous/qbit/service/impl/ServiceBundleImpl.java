@@ -211,7 +211,7 @@ public class ServiceBundleImpl implements ServiceBundle {
 
         /** Turn this client object into a client with queues. */
         final Service service = factory.createService(address, serviceAddress,
-                serviceObject, responseQueue,  this.queueBuilder, this.asyncCalls, this.invokeDynamic);
+                serviceObject, responseQueue,  this.queueBuilder, this.asyncCalls, this.invokeDynamic, false);
 
 
         /** add to our list of services. */
