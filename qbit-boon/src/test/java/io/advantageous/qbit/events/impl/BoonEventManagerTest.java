@@ -1,6 +1,7 @@
 package io.advantageous.qbit.events.impl;
 
 import io.advantageous.qbit.QBit;
+import io.advantageous.qbit.annotation.Listen;
 import io.advantageous.qbit.client.ClientProxy;
 import io.advantageous.qbit.events.*;
 import io.advantageous.qbit.message.Event;
@@ -33,6 +34,8 @@ public class BoonEventManagerTest {
 
     }
 
+
+
     @Test
     public void test() throws Exception {
 
@@ -60,10 +63,12 @@ public class BoonEventManagerTest {
         eventManager.register(rick, callbackEventListener(event -> {
             puts(event);
             subscribeMessageCount++;
-
-
-
         }));
+
+
+        MyEventListener myEventListener = new MyEventListener();
+
+        eventManager.listen(myEventListener);
 
 
         eventManager.send(rick, "Hello Rick");
@@ -76,11 +81,14 @@ public class BoonEventManagerTest {
         ok = consumerMessageCount == 1 || die();
 
 
+        ok = myEventListener.callCount == 1 || die();
+
+
 
     }
 
 
-    @Test
+    //@Test This takes a long time to run. I only need it for perf tuning.
     public void testPerfMultiple() throws Exception {
 
         for (int index =0; index < 5; index++) {
@@ -170,4 +178,17 @@ public class BoonEventManagerTest {
 
 
     }
+
+
+    public static class MyEventListener {
+
+        volatile int callCount = 0;
+
+        @Listen("rick")
+        void listen(String message) {
+            callCount++;
+        }
+    }
+
+
 }

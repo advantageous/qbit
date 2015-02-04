@@ -338,10 +338,16 @@ public class ServiceImpl implements Service {
             }
 
 
+            /** Such a small method with so much responsibility. */
             public void handle() {
 
                 manageResponseQueue();
 
+                /* Handles the CallBacks if you have configured the service
+                to handle its own callbacks.
+                Callbacks can be handled in a separate thread or the same
+                thread the manages the service.
+                 */
                 if (handleCallbacks) {
 
                     Response<Object> response = responseReceiveQueue.poll();
@@ -351,6 +357,7 @@ public class ServiceImpl implements Service {
                     }
                 }
 
+                /* Handles the event processing. */
                 Event<Object> event = eventReceiveQueue.poll();
 
                 while (event!=null) {

@@ -8,7 +8,10 @@ import io.advantageous.qbit.queue.SendQueue;
 import io.advantageous.qbit.service.Service;
 import io.advantageous.qbit.service.ServiceContext;
 import io.advantageous.qbit.util.Timer;
+import org.boon.core.reflection.AnnotationData;
 import org.boon.core.reflection.BeanUtils;
+import org.boon.core.reflection.ClassMeta;
+import org.boon.core.reflection.MethodAccess;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -141,17 +144,70 @@ public class BoonEventManager implements EventManager {
     }
 
 
-    /** */
     @Override
-    public void listen(Object listener) {
+    public void listen(final Object listener) {
+        final ClassMeta<?> classMeta = ClassMeta.classMeta(listener.getClass());
+        final Iterable<MethodAccess> methods = classMeta.methods();
 
+        for (final MethodAccess methodAccess : methods) {
+            final AnnotationData listen = methodAccess.annotation("Listen");
+            if (listen == null) continue;
+            extractEventListenerFromMethod(listener, methodAccess, listen);
+        }
+    }
 
+    private void extractEventListenerFromMethod(final Object listener, final MethodAccess methodAccess, AnnotationData listen) {
+        final String channel = listen.getValues().get("value").toString();
+        final boolean consume = (boolean) listen.getValues().get("consume");
+        if (consume) {
+
+            /* Do not use Lambda, this has to be a consumer! */
+            this.register(channel, new EventConsumer<Object>() {
+                @Override
+                public void listen(Event<Object> event) {
+
+                    invokeEventMethod(event, methodAccess, listener);
+                }
+            });
+        } else {
+            /* Do not use Lambda, this has to be a subscriber! */
+            this.register(channel, new EventSubscriber<Object>() {
+                @Override
+                public void listen(Event<Object> event) {
+
+                    invokeEventMethod(event, methodAccess, listener);
+                }
+            });
+        }
+    }
+
+    private void invokeEventMethod(Event<Object> event, MethodAccess methodAccess, Object listener) {
+        if (event.body() instanceof Object[]) {
+            methodAccess.invokeDynamic(listener, (Object[]) event.body());
+        } else if (event.body() instanceof List) {
+            final List body = (List) event.body();
+            methodAccess.invokeDynamic(listener, body.toArray(new Object[body.size()]));
+
+        } else {
+            methodAccess.invokeDynamic(listener, event.body());
+        }
     }
 
     @Override
     public void stopListening(Object listener) {
+        final ClassMeta<?> classMeta = ClassMeta.classMeta(listener.getClass());
+        final Iterable<MethodAccess> methods = classMeta.methods();
 
+        for (final MethodAccess methodAccess : methods) {
+            final AnnotationData listen = methodAccess.annotation("Listen");
+            if (listen == null) continue;
+            stopListeningToMethodEventListeners(listener, methodAccess, listen);
+        }
 
+    }
+
+    private void stopListeningToMethodEventListeners(Object listener, MethodAccess methodAccess, AnnotationData listen) {
+        //I don't know how to do this yet. PUNT.
     }
 
     @Override
