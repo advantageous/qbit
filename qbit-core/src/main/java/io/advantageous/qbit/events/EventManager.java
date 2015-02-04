@@ -22,16 +22,16 @@ public interface EventManager {
      */
     void join();
 
-
-    /**
-     * ONLY FOR SERVICES
-     * Joins current event manager. Maps a list of event channels to one service topic method,
-     *
-     * This method can only be called from inside a service.
-     * EVENTS COME IN ON THE SAME QUEUE AS THE METHOD CALLS
-     * (or another queue managed by the same thread depending on the implementation).
-     */
-    void map(String serviceTopicName, String... eventChannels);
+//
+//    /**
+//     * ONLY FOR SERVICES
+//     * Joins current event manager. Maps a list of event channels to one service topic method,
+//     *
+//     * This method can only be called from inside a service.
+//     * EVENTS COME IN ON THE SAME QUEUE AS THE METHOD CALLS
+//     * (or another queue managed by the same thread depending on the implementation).
+//     */
+//    void map(String serviceTopicName, String... eventChannels);
 
     /**
      * Opposite of join. ONLY FOR SERVICES.

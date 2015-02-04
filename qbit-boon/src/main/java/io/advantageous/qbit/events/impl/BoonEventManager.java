@@ -5,6 +5,8 @@ import io.advantageous.qbit.events.*;
 import io.advantageous.qbit.message.Event;
 import io.advantageous.qbit.message.Message;
 import io.advantageous.qbit.queue.SendQueue;
+import io.advantageous.qbit.service.Service;
+import io.advantageous.qbit.service.ServiceContext;
 import io.advantageous.qbit.util.Timer;
 import org.boon.core.reflection.BeanUtils;
 
@@ -116,34 +118,39 @@ public class BoonEventManager implements EventManager {
 
     @Override
     public void join() {
-        throw new IllegalStateException("Must be called from inside of a Service");
+
+        final Service service = ServiceContext.currentService();
+        if (service == null) {
+            throw new IllegalStateException("Must be called from inside of a Service");
+        }
+
+        listen(service.service());
     }
 
-    @Override
-    public void map(String serviceTopicName, String... eventChannels) {
-
-        throw new IllegalStateException("Must be called from inside of an Service");
-
-    }
 
     @Override
     public void leave() {
 
-        throw new IllegalStateException("Must be called from inside of an Service");
+        final Service service = ServiceContext.currentService();
+        if (service == null) {
+            throw new IllegalStateException("Must be called from inside of a Service");
+        }
 
+
+        stopListening(service.service());
     }
 
+
+    /** */
     @Override
     public void listen(Object listener) {
 
-        throw new IllegalStateException("Must be called from inside of an Service");
 
     }
 
     @Override
     public void stopListening(Object listener) {
 
-        throw new IllegalStateException("Must be called from inside of an Service");
 
     }
 

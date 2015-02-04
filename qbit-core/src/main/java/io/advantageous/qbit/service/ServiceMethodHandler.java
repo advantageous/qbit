@@ -1,5 +1,6 @@
 package io.advantageous.qbit.service;
 
+import io.advantageous.qbit.message.Event;
 import io.advantageous.qbit.message.MethodCall;
 import io.advantageous.qbit.message.Response;
 import io.advantageous.qbit.queue.ReceiveQueueListener;
@@ -30,4 +31,8 @@ public interface ServiceMethodHandler extends ReceiveQueueListener<MethodCall<Ob
     void initQueue(SendQueue<Response<Object>> responseSendQueue);
 
     void queueInit();
+
+    void handleEvent(Event<Object> event);
+
+    void queueStartBatch();
 }

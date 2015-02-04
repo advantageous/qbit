@@ -5,6 +5,7 @@ import io.advantageous.qbit.bindings.ArgParamBinding;
 import io.advantageous.qbit.bindings.MethodBinding;
 import io.advantageous.qbit.bindings.RequestParamBinding;
 import io.advantageous.qbit.http.HttpRequest;
+import io.advantageous.qbit.message.Event;
 import io.advantageous.qbit.message.MethodCall;
 import io.advantageous.qbit.message.Request;
 import io.advantageous.qbit.message.Response;
@@ -27,6 +28,7 @@ import org.boon.primitive.Arry;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 import static org.boon.Exceptions.die;
 
@@ -37,8 +39,9 @@ import static org.boon.Exceptions.die;
 public class BoonServiceMethodCallHandler implements ServiceMethodHandler {
     private ClassMeta<Class<?>> classMeta;
     private Object service;
-    private MethodAccess queueInit;
 
+    private MethodAccess queueStartBatch;
+    private MethodAccess queueInit;
     private MethodAccess queueEmpty;
     private MethodAccess queueLimit;
     private MethodAccess queueShutdown;
@@ -54,6 +57,7 @@ public class BoonServiceMethodCallHandler implements ServiceMethodHandler {
     private Map<String, Map<String, Pair<MethodBinding, MethodAccess>>> methodMap = new LinkedHashMap<>();
 
     private SendQueue<Response<Object>> responseSendQueue;
+    private Map<String, MethodAccess> eventMap = new ConcurrentHashMap<>();
 
     public BoonServiceMethodCallHandler(final boolean invokeDynamic) {
         this.invokeDynamic = invokeDynamic;
@@ -617,6 +621,17 @@ public class BoonServiceMethodCallHandler implements ServiceMethodHandler {
         }
 
 
+        final Iterable<MethodAccess> methods = classMeta.methods();
+
+        for (MethodAccess methodAccess : methods) {
+            final AnnotationData listen = methodAccess.annotation("Listen");
+            if (listen==null) {
+                continue;
+            }
+            String channel = listen.getValues().get("value").toString();
+            eventMap.put(channel, methodAccess);
+        }
+
         readMethodMetaData();
 
         initQueueHandlerMethods();
@@ -629,6 +644,13 @@ public class BoonServiceMethodCallHandler implements ServiceMethodHandler {
         queueShutdown = classMeta.method("queueShutdown");
         queueIdle = classMeta.method("queueIdle");
         queueInit = classMeta.method("queueInit");
+        queueStartBatch = classMeta.method("queueStartBatch");
+    }
+
+    public void queueStartBatch() {
+        if (queueStartBatch!=null) {
+            queueStartBatch.invoke(service);
+        }
     }
 
     private void readMethodMetaData() {
@@ -739,6 +761,43 @@ public class BoonServiceMethodCallHandler implements ServiceMethodHandler {
             queueInit.invoke(this.service);
         }
 
+    }
+
+    @Override
+    public void handleEvent(Event<Object> event) {
+
+        MethodAccess methodAccess = eventMap.get(event.topic());
+
+
+        if (invokeDynamic) {
+            final Object body = event.body();
+
+            if (body instanceof List) {
+                List list = ((List) body);
+                methodAccess.invokeDynamic(service, list.toArray(new Object[list.size()]));
+
+            } else if (body instanceof Object[]) {
+                final Object[] array = (Object[]) body;
+                methodAccess.invokeDynamic(service, array);
+
+            } else {
+                methodAccess.invokeDynamicObject(service, body);
+            }
+        } else {
+            final Object body = event.body();
+
+            if (body instanceof List) {
+                List list = ((List) body);
+                methodAccess.invoke(service, list.toArray(new Object[list.size()]));
+
+            } else if (body instanceof Object[]) {
+                final Object[] array = (Object[]) body;
+                methodAccess.invoke(service, array);
+
+            } else {
+                methodAccess.invoke(service, body);
+            }
+        }
     }
 
     private String readAddressFromAnnotation(Annotated annotated) {

@@ -14,6 +14,8 @@ import java.util.Collection;
  */
 public interface Service {
 
+    Object service();
+
     /**
      * Queue so we can enqueue method calls onto a client.
      * A client send queue is not thread safe. Every thread that uses this client, needs its own SendQueue

@@ -37,7 +37,7 @@ public class EventBusImpl implements EventBus{
     public <T> void send(String channel, T event) {
 
         messageCounter++;
-        channel(channel).send(new EventImpl<T>(event, messageCounter));
+        channel(channel).send(new EventImpl<T>(event, messageCounter, channel));
 
     }
 

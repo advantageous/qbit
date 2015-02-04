@@ -242,7 +242,11 @@ public class ServiceImpl implements Service {
         }
     }
 
+    public static Service currentService() {
+        return serviceThreadLocal.get();
+    }
 
+    private static ThreadLocal<Service> serviceThreadLocal = new ThreadLocal<>();
 
 
 
@@ -268,6 +272,9 @@ public class ServiceImpl implements Service {
 
 
         requestQueue.startListener(new ReceiveQueueListener<MethodCall<Object>>() {
+
+
+
             @Override
             public void receive(MethodCall<Object> methodCall) {
                 doHandleMethodCall(methodCall, serviceMethodHandler);
@@ -277,8 +284,23 @@ public class ServiceImpl implements Service {
             public void empty() {
 
 
+                serviceThreadLocal.set(null);
+
                 handle();
 
+            }
+
+            @Override
+            public void startBatch() {
+
+                serviceThreadLocal.set(ServiceImpl.this);
+
+
+                if (inputQueueListener != null) {
+                    inputQueueListener.startBatch();
+                }
+
+                serviceMethodHandler.queueStartBatch();
             }
 
             @Override
@@ -333,8 +355,9 @@ public class ServiceImpl implements Service {
 
                 while (event!=null) {
 
-                    //deliver the event TODO
+                    serviceMethodHandler.handleEvent(event);
                     event = eventReceiveQueue.poll();
+
                 }
             }
 

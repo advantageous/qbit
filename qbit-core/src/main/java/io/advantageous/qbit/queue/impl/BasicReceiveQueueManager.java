@@ -38,6 +38,8 @@ public class BasicReceiveQueueManager<T> implements ReceiveQueueManager<T> {
             /* Collect a batch of items as long as no item is null. */
             while (item != null) {
 
+                listener.startBatch();
+
                 count++;
 
                 /* Notify listener that we have an item. */

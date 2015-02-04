@@ -9,10 +9,12 @@ public class EventImpl<T> implements Event<T> {
 
     private final T body;
     private final long id;
+    private final String topic;
 
-    public EventImpl(T body, long id) {
+    public EventImpl(T body, long id, String topic) {
         this.body = body;
         this.id = id;
+        this.topic = topic;
     }
 
     @Override
@@ -36,5 +38,10 @@ public class EventImpl<T> implements Event<T> {
                 "body=" + body +
                 ", id=" + id +
                 '}';
+    }
+
+    @Override
+    public String topic() {
+        return topic;
     }
 }

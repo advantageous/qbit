@@ -13,7 +13,7 @@ import java.lang.annotation.Target;
 public @interface Listen {
 
     /* The channel you want to listen to. */;
-    String value();
+    String value() default "";
 
     /* The consumer is the last object listening to this event.
        An event channel can have many subscribers but only one consumer.

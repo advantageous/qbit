@@ -38,4 +38,6 @@ public interface ReceiveQueueListener<T> extends Input {
      * This would be a good time to do some clean up.
      */
     default void idle(){}
+
+    default void startBatch(){};
 }
