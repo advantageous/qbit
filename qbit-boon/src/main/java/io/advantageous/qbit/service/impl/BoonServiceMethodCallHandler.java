@@ -30,6 +30,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
+import static io.advantageous.qbit.annotation.AnnotationUtils.getListenAnnotation;
 import static org.boon.Exceptions.die;
 
 /**
@@ -624,7 +625,7 @@ public class BoonServiceMethodCallHandler implements ServiceMethodHandler {
         final Iterable<MethodAccess> methods = classMeta.methods();
 
         for (MethodAccess methodAccess : methods) {
-            final AnnotationData listen = methodAccess.annotation("Listen");
+            final AnnotationData listen = getListenAnnotation(methodAccess);
             if (listen==null) {
                 continue;
             }
@@ -637,6 +638,7 @@ public class BoonServiceMethodCallHandler implements ServiceMethodHandler {
         initQueueHandlerMethods();
 
     }
+
 
     private void initQueueHandlerMethods() {
         queueLimit = classMeta.method("queueLimit");

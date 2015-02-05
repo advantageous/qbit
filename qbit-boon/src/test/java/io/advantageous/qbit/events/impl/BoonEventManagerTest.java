@@ -2,6 +2,7 @@ package io.advantageous.qbit.events.impl;
 
 import io.advantageous.qbit.QBit;
 import io.advantageous.qbit.annotation.Listen;
+import io.advantageous.qbit.annotation.OnEvent;
 import io.advantageous.qbit.client.ClientProxy;
 import io.advantageous.qbit.events.EventConsumer;
 import io.advantageous.qbit.events.EventManager;
@@ -16,6 +17,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import static io.advantageous.qbit.events.EventUtils.callbackEventListener;
+import static io.advantageous.qbit.service.ServiceBuilder.serviceBuilder;
 import static io.advantageous.qbit.service.ServiceContext.serviceContext;
 import static org.boon.Boon.puts;
 import static org.boon.Exceptions.die;
@@ -80,7 +82,9 @@ public class BoonEventManagerTest {
 
         final MyService myService = new MyService();
 
-        Service consumerService = new ServiceBuilder().setServiceObject(myServiceConsumer).setInvokeDynamic(false).build();
+        Service consumerService = serviceBuilder()
+                .setServiceObject(myServiceConsumer)
+                .setInvokeDynamic(false).build();
 
         clientProxy.clientProxyFlush();
 
@@ -103,7 +107,9 @@ public class BoonEventManagerTest {
 
 
         Sys.sleep(100);
-        Service senderService = new ServiceBuilder().setServiceObject(myService).setInvokeDynamic(false).build();
+        Service senderService = serviceBuilder()
+                .setServiceObject(myService)
+                .setInvokeDynamic(false).build();
 
         final MyServiceClient clientProxy = senderService.createProxy(MyServiceClient.class);
 
@@ -249,9 +255,8 @@ public class BoonEventManagerTest {
 
 
 
-        @Listen("rick")
+        @OnEvent("rick")
         private void listen(String message) {
-
             puts(message);
             callCount++;
         }

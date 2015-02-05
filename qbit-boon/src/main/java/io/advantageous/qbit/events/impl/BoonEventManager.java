@@ -159,10 +159,38 @@ public class BoonEventManager implements EventManager {
         final Iterable<MethodAccess> methods = classMeta.methods();
 
         for (final MethodAccess methodAccess : methods) {
-            final AnnotationData listen = methodAccess.annotation("Listen");
+            AnnotationData listen = getListenAnnotation(methodAccess);
+
             if (listen == null) continue;
             extractEventListenerFromMethod(listener, methodAccess, listen, service);
         }
+    }
+
+    private AnnotationData getListenAnnotation(MethodAccess methodAccess) {
+        AnnotationData listen = methodAccess.annotation("Listen");
+
+        if (listen == null) {
+            listen = methodAccess.annotation("OnEvent");
+
+        }
+
+        if (listen == null) {
+            listen = methodAccess.annotation("Subscribe");
+
+        }
+
+
+        if (listen == null) {
+            listen = methodAccess.annotation("Consume");
+
+        }
+
+
+        if (listen == null) {
+            listen = methodAccess.annotation("Hear");
+
+        }
+        return listen;
     }
 
     private void extractEventListenerFromMethod(final Object listener,
@@ -242,7 +270,7 @@ public class BoonEventManager implements EventManager {
         final Iterable<MethodAccess> methods = classMeta.methods();
 
         for (final MethodAccess methodAccess : methods) {
-            final AnnotationData listen = methodAccess.annotation("Listen");
+            final AnnotationData listen = getListenAnnotation(methodAccess);
             if (listen == null) continue;
             stopListeningToMethodEventListeners(listener, methodAccess, listen);
         }
