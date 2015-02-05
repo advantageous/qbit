@@ -100,6 +100,14 @@ public interface EventManager {
 
 
     /**
+     *
+     * @param channel channel
+     * @param event event
+     * @param <T> T
+     */
+    <T> void sendArray(String channel, T... event);
+
+    /**
      * Copies the state of the object and sends this instead of actual object to
      * avoid thread sync issues with object data.
      * @param channel channel

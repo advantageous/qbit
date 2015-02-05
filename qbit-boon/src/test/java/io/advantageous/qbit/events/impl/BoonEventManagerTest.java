@@ -255,11 +255,11 @@ public class BoonEventManagerTest {
 
 
 
-        @OnEvent("rick")
-        private void listen(String message) {
-            puts(message);
-            callCount++;
-        }
+            @OnEvent("rick")
+            private void listen(String message) {
+                puts(message);
+                callCount++;
+            }
 
 
         private int callCount() {

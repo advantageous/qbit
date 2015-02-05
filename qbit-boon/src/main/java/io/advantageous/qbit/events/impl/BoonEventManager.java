@@ -122,6 +122,11 @@ public class BoonEventManager implements EventManager {
     @Override
     public void joinService(Service service) {
 
+        if (debug) {
+
+            puts("Joined", service);
+        }
+
         if (service == null) {
             throw new IllegalStateException("Must be called from inside of a Service");
         }
@@ -323,6 +328,11 @@ public class BoonEventManager implements EventManager {
     public <T> void send(final String channel, T event) {
         messageCountSinceLastFlush++;
         events(channel).add(event);
+    }
+
+    @Override
+    public <T> void sendArray(String channel, T... event) {
+        this.send(channel, event);
     }
 
     private List<Object> events(String channel) {
