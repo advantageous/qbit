@@ -56,7 +56,7 @@ public class BoonEventManagerTest {
         eventManager.register(rick, new EventConsumer<Object>() {
             @Override
             public void listen(Event<Object> event) {
-                puts(event);
+                //puts(event);
                 consumerMessageCount++;
             }
         });
@@ -65,13 +65,13 @@ public class BoonEventManagerTest {
         eventManager.register(rick, new EventSubscriber<Object>() {
             @Override
             public void listen(Event<Object> event) {
-                puts(event);
+                //puts(event);
                 subscribeMessageCount++;
             }
         });
 
         eventManager.register(rick, callbackEventListener(event -> {
-            puts(event);
+            if (subscribeMessageCount < 1000) puts(event);
             subscribeMessageCount++;
         }));
 
@@ -137,7 +137,7 @@ public class BoonEventManagerTest {
     public void testPerf() throws Exception {
 
 
-        eventManager = QBit.factory().createEventManager();
+        eventManager = QBit.factory().systemEventManager();
         consumerMessageCount = 0;
         Sys.sleep(100);
         subscribeMessageCount = 0;
@@ -164,8 +164,9 @@ public class BoonEventManagerTest {
 
         long start = System.currentTimeMillis();
 
-        for (int index = 0; index < 10_000_000; index++) {
+        for (int index = 0; index < 1_000_000; index++) {
             eventManager.send(rick, "PERF");
+
         }
 
 
@@ -177,7 +178,8 @@ public class BoonEventManagerTest {
 
             Sys.sleep(10);
 
-            if (consumerMessageCount >= 9_999_000) {
+
+            if (consumerMessageCount >= 900_000) {
                 break;
             }
 
@@ -198,7 +200,7 @@ public class BoonEventManagerTest {
         }
 
 
-        if (consumerMessageCount < 1_000_000) {
+        if (consumerMessageCount < 900_000) {
             die("consumerMessageCount", consumerMessageCount);
         }
 
