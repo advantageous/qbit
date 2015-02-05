@@ -14,7 +14,7 @@ import static io.advantageous.qbit.service.ServiceProxyUtils.flushServiceProxy;
 /**
  * Created by rhightower on 2/4/15.
  */
-public class EmployeeEventExample {
+public class EmployeeEventExampleUsingSystemEventBus {
 
     public static final String NEW_HIRE_CHANNEL = "com.mycompnay.employee.new";
 
