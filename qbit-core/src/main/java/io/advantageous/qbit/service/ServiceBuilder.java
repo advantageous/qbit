@@ -25,42 +25,21 @@ public class ServiceBuilder {
     public static ServiceBuilder serviceBuilder () {return new ServiceBuilder();}
     private final Logger logger = LoggerFactory.getLogger(ServiceBuilder.class);
     private final boolean debug = logger.isDebugEnabled();
-
     private ServiceMethodHandler serviceMethodHandler;
-
-
     private BeforeMethodCall beforeMethodCall = ServiceConstants.NO_OP_BEFORE_METHOD_CALL;
-
     private BeforeMethodCall beforeMethodCallAfterTransform = ServiceConstants.NO_OP_BEFORE_METHOD_CALL;
-
     private AfterMethodCall afterMethodCall = new NoOpAfterMethodCall();
-
     private AfterMethodCall afterMethodCallAfterTransform = new NoOpAfterMethodCall();
-
     private ReceiveQueueListener<MethodCall<Object>> inputQueueListener = new NoOpInputMethodCallQueueListener();
-
     private Transformer<Request, Object> requestObjectTransformer = ServiceConstants.NO_OP_ARG_TRANSFORM;
-
     private Transformer<Response<Object>, Response> responseObjectTransformer = new NoOpResponseTransformer();
-
-
     private Queue<Response<Object>> responseQueue;
-
     private QueueBuilder queueBuilder;
-
     private QueueBuilder responseQueueBuilder = new QueueBuilder();
-
-
     private boolean asyncResponse = true;
-
-
     private boolean invokeDynamic = true;
-
     private String rootAddress;
-
-
     private String serviceAddress;
-
     private Object serviceObject;
 
     public QueueBuilder getResponseQueueBuilder() {
@@ -229,6 +208,7 @@ public class ServiceBuilder {
         return this;
     }
 
+
     public Service build() {
 
         if (this.getResponseQueue()==null) {
@@ -244,5 +224,10 @@ public class ServiceBuilder {
                 this.getResponseQueue(), this.isAsyncResponse(), handleCallbacks);
 
         return service;
+    }
+
+    public Service buildAndStart() {
+
+        return build().start();
     }
 }

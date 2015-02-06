@@ -5,7 +5,7 @@ import io.advantageous.qbit.QBit;
 import java.util.function.Consumer;
 
 /**
- * Allows one to build an HTTP server.
+ * Allows one to build().start() an HTTP server.
  * @author rhightower
  * Created by Richard on 11/12/14.
  */
@@ -14,20 +14,15 @@ public class HttpServerBuilder {
     private String host;
     private int port = 8080;
     private boolean manageQueues = true;
-
     private int maxRequestBatches = 1_000_000;
-
     private boolean pipeline = true;
     private int pollTime = 100;
     private int requestBatchSize = 10;
     private int flushInterval = 100;
-
     private int workers = -1;
     private Class<Consumer> handlerClass = null;
-
     private Consumer<WebSocketMessage> webSocketMessageConsumer;
     private Consumer<HttpRequest> httpRequestConsumer;
-
     public int getMaxRequestBatches() {
         return maxRequestBatches;
     }
@@ -36,7 +31,6 @@ public class HttpServerBuilder {
 
     public HttpServerBuilder setMaxRequestBatches(int maxRequestBatches) {
         this.maxRequestBatches = maxRequestBatches;
-
         return this;
     }
 
@@ -141,21 +135,21 @@ public class HttpServerBuilder {
 
     public HttpServer build() {
 
-        if (workers == -1 || handlerClass==null) {
+        if (getWorkers() == -1 || getHandlerClass()==null) {
             final HttpServer httpServer = QBit.factory().createHttpServer(this.getHost(),
                     this.getPort(), this.isManageQueues(), this.getPollTime(), this.getRequestBatchSize(),
                     this.getFlushInterval(), this.getMaxRequestBatches());
 
-            httpServer.setHttpRequestConsumer(this.httpRequestConsumer);
-            httpServer.setWebSocketMessageConsumer(this.webSocketMessageConsumer);
+            httpServer.setHttpRequestConsumer(this.getHttpRequestConsumer());
+            httpServer.setWebSocketMessageConsumer(this.getWebSocketMessageConsumer());
             return httpServer;
         } else {
             final HttpServer httpServer = QBit.factory().createHttpServer(this.getHost(),
                     this.getPort(), this.isManageQueues(), this.getPollTime(), this.getRequestBatchSize(),
                     this.getFlushInterval(), this.getMaxRequestBatches(), this.getWorkers(), this.getHandlerClass());
 
-            httpServer.setHttpRequestConsumer(this.httpRequestConsumer);
-            httpServer.setWebSocketMessageConsumer(this.webSocketMessageConsumer);
+            httpServer.setHttpRequestConsumer(this.getHttpRequestConsumer());
+            httpServer.setWebSocketMessageConsumer(this.getWebSocketMessageConsumer());
             return httpServer;
         }
     }

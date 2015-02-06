@@ -213,6 +213,8 @@ public class ServiceBundleImpl implements ServiceBundle {
         final Service service = factory.createService(address, serviceAddress,
                 serviceObject, responseQueue,  this.queueBuilder, this.asyncCalls, this.invokeDynamic, false);
 
+        service.start();
+
 
         /** add to our list of services. */
         services.add(service);

@@ -8,10 +8,8 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static org.boon.Boon.puts;
 import static org.boon.Exceptions.die;
 
 public class ServiceImplTest {
@@ -42,7 +40,7 @@ public class ServiceImplTest {
 
     @Before
     public void setup() {
-        service = new ServiceBuilder().setServiceObject(new MockService()).setInvokeDynamic(false).build();
+        service = new ServiceBuilder().setServiceObject(new MockService()).setInvokeDynamic(false).build().start();
 
         proxy = service.createProxy(MockServiceInterface.class);
         ok = true;

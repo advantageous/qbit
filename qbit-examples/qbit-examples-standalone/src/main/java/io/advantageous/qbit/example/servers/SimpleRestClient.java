@@ -21,7 +21,7 @@ public class SimpleRestClient {
 //       final long start = System.currentTimeMillis();
 //
 //        final HttpClient httpClient = httpClientBuilder().setPoolSize(20)
-//                .setPort(6060).build().start();
+//                .setPort(6060).build().start().start();
 //
 //
 //        for (int index = 0; index < 10; index++) {

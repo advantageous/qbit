@@ -165,7 +165,7 @@ public class EmployeeEventExampleUsingStandaloneEventBus {
         /* Create a service queue for this event bus. */
         Service privateEventBusService = serviceBuilder()
                 .setServiceObject(privateEventBus)
-                .setInvokeDynamic(false).build();
+                .setInvokeDynamic(false).build().start();
 
         /*
          Create a proxy client for the queued event bus service.
@@ -191,19 +191,19 @@ public class EmployeeEventExampleUsingStandaloneEventBus {
         /** Employee hiring service. */
         Service employeeHiringService = serviceBuilder()
                 .setServiceObject(employeeHiring)
-                .setInvokeDynamic(false).build();
+                .setInvokeDynamic(false).build().start();
         /** Payroll service */
         Service payrollService = serviceBuilder()
                 .setServiceObject(payroll)
-                .setInvokeDynamic(false).build();
+                .setInvokeDynamic(false).build().start();
         /** Employee Benefits service. */
         Service employeeBenefitsService = serviceBuilder()
                 .setServiceObject(benefits)
-                .setInvokeDynamic(false).build();
+                .setInvokeDynamic(false).build().start();
         /* Community outreach program. */
         Service volunteeringService = serviceBuilder()
                 .setServiceObject(volunteering)
-                .setInvokeDynamic(false).build();
+                .setInvokeDynamic(false).build().start();
 
 
         /* Now wire in the event bus so it can fire events into the service queues. */

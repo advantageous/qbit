@@ -9,8 +9,6 @@ import io.advantageous.qbit.events.EventManager;
 import io.advantageous.qbit.events.EventSubscriber;
 import io.advantageous.qbit.message.Event;
 import io.advantageous.qbit.service.Service;
-import io.advantageous.qbit.service.ServiceBuilder;
-import io.advantageous.qbit.service.ServiceContext;
 import io.advantageous.qbit.service.ServiceProxyUtils;
 import org.boon.core.Sys;
 import org.junit.Before;
@@ -84,7 +82,7 @@ public class BoonEventManagerTest {
 
         Service consumerService = serviceBuilder()
                 .setServiceObject(myServiceConsumer)
-                .setInvokeDynamic(false).build();
+                .setInvokeDynamic(false).build().start();
 
         clientProxy.clientProxyFlush();
 
@@ -109,7 +107,7 @@ public class BoonEventManagerTest {
         Sys.sleep(100);
         Service senderService = serviceBuilder()
                 .setServiceObject(myService)
-                .setInvokeDynamic(false).build();
+                .setInvokeDynamic(false).build().start();
 
         final MyServiceClient clientProxy = senderService.createProxy(MyServiceClient.class);
 

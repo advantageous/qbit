@@ -415,11 +415,13 @@ public class ServiceProxyFactoryTest {
         ok = false;
         wasError.set(false);
 
+        Sys.sleep(10);
+
 
         myServiceProxy.methodThrowsExceptionIf5(handler, "hi", 5);
         serviceBundle.flush();
         Sys.sleep(1000);
-        ok = ok || die();
+
 
         ok = wasError.get() || die();
 

@@ -71,4 +71,7 @@ public interface Service {
 
 
     void flush();
+
+
+    default Service start() {return this;}
 }

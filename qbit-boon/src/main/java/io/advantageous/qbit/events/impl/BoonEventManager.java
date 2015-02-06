@@ -5,7 +5,6 @@ import io.advantageous.qbit.events.*;
 import io.advantageous.qbit.message.Event;
 import io.advantageous.qbit.queue.SendQueue;
 import io.advantageous.qbit.service.Service;
-import io.advantageous.qbit.service.ServiceContext;
 import io.advantageous.qbit.util.Timer;
 import org.boon.core.reflection.AnnotationData;
 import org.boon.core.reflection.BeanUtils;
@@ -18,6 +17,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
+import static io.advantageous.qbit.annotation.AnnotationUtils.getListenAnnotation;
 import static io.advantageous.qbit.service.ServiceContext.serviceContext;
 import static org.boon.Boon.puts;
 
@@ -32,11 +32,8 @@ public class BoonEventManager implements EventManager {
     private int messageCountSinceLastFlush = 0;
     private long flushCount = 0;
     private long lastFlushTime = 0;
-
     private final boolean debug = GlobalConstants.DEBUG;
-
     private long now;
-
 
     private void sendMessages() {
 
@@ -171,32 +168,6 @@ public class BoonEventManager implements EventManager {
         }
     }
 
-    private AnnotationData getListenAnnotation(MethodAccess methodAccess) {
-        AnnotationData listen = methodAccess.annotation("Listen");
-
-        if (listen == null) {
-            listen = methodAccess.annotation("OnEvent");
-
-        }
-
-        if (listen == null) {
-            listen = methodAccess.annotation("Subscribe");
-
-        }
-
-
-        if (listen == null) {
-            listen = methodAccess.annotation("Consume");
-
-        }
-
-
-        if (listen == null) {
-            listen = methodAccess.annotation("Hear");
-
-        }
-        return listen;
-    }
 
     private void extractEventListenerFromMethod(final Object listener,
                                                 final MethodAccess methodAccess,

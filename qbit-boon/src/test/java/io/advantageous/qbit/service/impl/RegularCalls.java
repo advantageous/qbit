@@ -35,22 +35,21 @@ public class RegularCalls {
         }
 
         void queueIdle() {
-            puts("Queue Idle");
+            //puts("Queue Idle");
         }
 
 
         void queueEmpty() {
-            puts("Queue Empty");
+            //puts("Queue Empty");
         }
 
 
         void queueShutdown() {
-            puts("Queue Shutdown");
+            //puts("Queue Shutdown");
         }
 
-
         void queueLimit() {
-            puts("Queue Limit");
+            //puts("Queue Limit");
         }
     }
 

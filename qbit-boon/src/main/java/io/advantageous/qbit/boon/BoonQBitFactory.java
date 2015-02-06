@@ -2,11 +2,8 @@ package io.advantageous.qbit.boon;
 
 import io.advantageous.qbit.BoonJsonMapper;
 import io.advantageous.qbit.Factory;
-import io.advantageous.qbit.GlobalConstants;
-import io.advantageous.qbit.QBit;
 import io.advantageous.qbit.client.Client;
 import io.advantageous.qbit.events.EventManager;
-import io.advantageous.qbit.events.impl.BoonEventManager;
 import io.advantageous.qbit.http.HttpClient;
 import io.advantageous.qbit.http.HttpServer;
 import io.advantageous.qbit.json.JsonMapper;
@@ -27,9 +24,7 @@ import io.advantageous.qbit.service.ServiceBundle;
 import io.advantageous.qbit.service.ServiceMethodHandler;
 import io.advantageous.qbit.service.impl.BoonServiceMethodCallHandler;
 import io.advantageous.qbit.service.impl.ServiceBundleImpl;
-import io.advantageous.qbit.service.impl.ServiceConstants;
 import io.advantageous.qbit.service.impl.ServiceImpl;
-import io.advantageous.qbit.message.impl.MethodCallImpl;
 import io.advantageous.qbit.spi.*;
 import io.advantageous.qbit.transforms.Transformer;
 import io.advantageous.qbit.util.MultiMap;
@@ -37,9 +32,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static io.advantageous.qbit.service.ServiceBuilder.serviceBuilder;
@@ -72,7 +65,7 @@ public class BoonQBitFactory implements Factory {
 
             final Service service = serviceBuilder().setInvokeDynamic(false)
                     .setServiceObject(createEventManager())
-                    .build();
+                    .build().start();
 
             systemEventManager.set(service);
             proxy = service.createProxy(EventManager.class);
