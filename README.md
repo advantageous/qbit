@@ -9,10 +9,11 @@ QBit opens you up to peeking into what is going on, and allows you to pull some 
 
 QBit can be 15x faster than built-in Java Queues.
 
+![QBit the microservice framework for java](https://docs.google.com/spreadsheets/d/1kd3gjyyz1MyTJvNLJ-BC0YIkzIU-8YYLLrxpjUl0TBQ/pubchart?oid=781959089&format=image)
 
 Status
 =====
-Early Days.
+Getting there
 
 
 License
