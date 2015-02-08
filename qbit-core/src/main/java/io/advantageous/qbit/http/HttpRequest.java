@@ -180,7 +180,7 @@ public class HttpRequest implements Request<Object>{
     public String getContentType() {
 
         if (contentType==null) {
-            return headers != null ?  headers.get("Content-Type") : "";
+            return headers != MultiMap.EMPTY ?  headers.get("Content-Type") : "";
         } else {
             return contentType;
         }

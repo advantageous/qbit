@@ -47,7 +47,7 @@ public class HttpRequestBuilderTest {
         ok = request1.equals(request2) || die();
         ok = request.getBody().equals(request1.getBody()) || die();
         ok = request.getBodyAsString().equals(request1.getBodyAsString()) || die();
-        ok = request.getContentType().equals(request1.getContentType()) || die();
+        ok = request.getContentType().equals(request1.getContentType()) || die(request.getContentType());
         ok = request.getMethod().equals(request1.getMethod()) || die();
         ok = request2.getMessageId() == request1.getMessageId() || die();
         ok = request2.getRemoteAddress().equals(request1.getRemoteAddress()) || die();

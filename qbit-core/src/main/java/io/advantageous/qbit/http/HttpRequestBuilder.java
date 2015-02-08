@@ -19,24 +19,24 @@ import java.util.Set;
 public class HttpRequestBuilder {
 
 
-    public static final byte[] EMPTY_STRING = "".getBytes(StandardCharsets.UTF_8);
-    private String uri;
-
-    private String contentType;
-    private String remoteAddress;
-    private MultiMap<String, String> params;
-    private String body;
-    private String method = "GET";
-
     public static HttpRequestBuilder httpRequestBuilder() {
         return new HttpRequestBuilder();
     }
+
+    public static final byte[] EMPTY_STRING = "".getBytes(StandardCharsets.UTF_8);
+    private String uri;
+    private long id;
+    private long timestamp;
+    private String contentType;
+    private String remoteAddress;
+    private MultiMap<String, String> params;
+    private MultiMap<String, String> headers;
+    private String body;
+    private String method = "GET";
+
     private HttpResponseReceiver response = (code, mimeType, body1) -> {
     };
 
-    private MultiMap<String, String> headers;
-    private long id;
-    private long timestamp;
 
     public HttpRequestBuilder setMethodPost() {
         this.method = "POST";
@@ -98,7 +98,8 @@ public class HttpRequestBuilder {
     }
 
     public MultiMap<String, String> getParams() {
-        return params;
+
+        return params == null ? MultiMap.EMPTY : params;
     }
 
     public HttpRequestBuilder setParams(MultiMap<String, String> params) {
@@ -176,9 +177,10 @@ public class HttpRequestBuilder {
         if (timestamp == 0) {
             timestamp = io.advantageous.qbit.util.Timer.timer().now();
         }
-        return new HttpRequest(id, newURI, method, params, headers,
-                body != null ? body.getBytes(StandardCharsets.UTF_8) : EMPTY_STRING,
-                remoteAddress, contentType, response, timestamp);
+        return new HttpRequest(this.getId(), newURI, this.getMethod(), this.getParams(),
+                this.getHeaders(),
+                this.getBody() != null ? this.getBody().getBytes(StandardCharsets.UTF_8) : EMPTY_STRING,
+                this.getRemoteAddress(), this.getContentType(), this.getResponse(), this.getTimestamp());
     }
 
     public String getContentType() {
@@ -191,7 +193,8 @@ public class HttpRequestBuilder {
     }
 
     public MultiMap<String, String> getHeaders() {
-        return headers;
+
+        return headers == null ? MultiMap.EMPTY : headers;
     }
 
     public HttpRequestBuilder setHeaders(MultiMap<String, String> headers) {

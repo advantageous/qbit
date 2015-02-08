@@ -260,7 +260,7 @@ public class LoadTestingTest {
     @Before
     public void setup() throws Exception {
 
-        Sys.sleep(5000);
+        Sys.sleep(100);
         pongValue = new AtomicReference<>();
 
         httpClient = new HttpClientBuilder().setPort(port).build();
@@ -303,7 +303,7 @@ public class LoadTestingTest {
         server = null;
         client = null;
         System.gc();
-        Sys.sleep(1000);
+        Sys.sleep(100);
 
     }
 }

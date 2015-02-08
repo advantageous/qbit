@@ -8,6 +8,7 @@ import io.advantageous.qbit.http.*;
 import io.advantageous.qbit.server.ServiceServer;
 import io.advantageous.qbit.server.ServiceServerBuilder;
 import io.advantageous.qbit.service.Callback;
+import io.advantageous.qbit.service.ServiceProxyUtils;
 import org.boon.core.Sys;
 import org.junit.After;
 import org.junit.Before;
@@ -92,13 +93,14 @@ public class FullIntegrationTest {
         for (int index=0; index< 10; index++) {
 
             clientProxy.ping(callback, "hi");
-            client.flush();
 
         }
 
+        ServiceProxyUtils.flushServiceProxy(clientProxy);
+        Sys.sleep(100);
 
         client.flush();
-        Sys.sleep(2000);
+        Sys.sleep(300);
 
 
         puts("HERE                        ", callCount, returnCount);
@@ -136,9 +138,13 @@ public class FullIntegrationTest {
 
         }
 
+        ServiceProxyUtils.flushServiceProxy(clientProxy);
+        Sys.sleep(100);
+
+
 
         client.flush();
-        Sys.sleep(5000);
+        Sys.sleep(500);
 
 
         puts("HERE                        ", callCount, returnCount);
@@ -205,9 +211,9 @@ public class FullIntegrationTest {
 
         clientProxy = client.createProxy(ClientServiceInterface.class, "mockService");
         Sys.sleep(100);
-
-        client.start();
         httpClient.start();
+        Sys.sleep(100);
+        client.start();
 
         callCount = 0;
         pongValue.set(null);
