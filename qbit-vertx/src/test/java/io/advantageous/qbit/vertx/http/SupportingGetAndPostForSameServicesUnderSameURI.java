@@ -8,6 +8,7 @@ import io.advantageous.qbit.http.*;
 import io.advantageous.qbit.server.ServiceServer;
 import io.advantageous.qbit.server.ServiceServerBuilder;
 import io.advantageous.qbit.service.Callback;
+import io.advantageous.qbit.service.ServiceProxyUtils;
 import org.boon.core.Sys;
 import org.junit.After;
 import org.junit.Before;
@@ -64,6 +65,8 @@ public class SupportingGetAndPostForSameServicesUnderSameURI {
                 pongValue.set(s);
             }
         }, "hi");
+
+        //ServiceProxyUtils.flushServiceProxy(clientProxy);
 
 
         while (pongValue.get() == null) {
@@ -171,6 +174,8 @@ public class SupportingGetAndPostForSameServicesUnderSameURI {
         pongValue.set(null);
 
         Sys.sleep(200);
+
+        puts("STARTED..........");
 
 
 

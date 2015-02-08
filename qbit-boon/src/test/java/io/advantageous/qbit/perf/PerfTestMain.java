@@ -185,8 +185,10 @@ public class PerfTestMain {
     public static void main(String... args){
 
         FactorySPI.setHttpClientFactory(new HttpClientFactory() {
+
+
             @Override
-            public HttpClient create(String host, int port, int pollTime, int requestBatchSize, int timeOutInMilliseconds, int poolSize, boolean autoFlush, boolean a, boolean b) {
+            public HttpClient create(String host, int port, int requestBatchSize, int timeOutInMilliseconds, int poolSize, boolean autoFlush, int flushRate, boolean keepAlive, boolean pipeLine) {
                 return new MockHttpClient();
             }
         });

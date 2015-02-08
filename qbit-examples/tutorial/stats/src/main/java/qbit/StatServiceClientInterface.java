@@ -5,6 +5,7 @@ import io.advantageous.qbit.service.Callback;
 /**
  * Created by rhightower on 1/28/15.
  */
+
 public interface StatServiceClientInterface {
     void record(String name, int count);
 

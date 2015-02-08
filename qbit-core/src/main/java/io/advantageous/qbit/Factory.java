@@ -280,11 +280,10 @@ public interface Factory {
     default HttpClient createHttpClient(
                 String host,
                 int port,
-                int pollTime,
                 int requestBatchSize,
                 int timeOutInMilliseconds,
                 int poolSize,
-                boolean autoFlush,
+                boolean autoFlush, int flushRate,
                 boolean keepAlive,
                 boolean pipeline){
         throw new UnsupportedOperationException();

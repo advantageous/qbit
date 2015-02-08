@@ -20,7 +20,17 @@ public class HttpClientBuilder {
     private boolean autoFlush = true;
     private boolean keepAlive = true;
     private boolean pipeline = true;
+    private int flushInterval = 500;
 
+
+    public int getFlushInterval() {
+        return flushInterval;
+    }
+
+    public HttpClientBuilder setFlushInterval(int flushInterval) {
+        this.flushInterval = flushInterval;
+        return this;
+    }
 
     public static HttpClientBuilder httpClientBuilder () {
 
@@ -111,7 +121,15 @@ public class HttpClientBuilder {
     }
 
     public HttpClient build() {
-        final HttpClient httpClient = QBit.factory().createHttpClient(host, port, pollTime, requestBatchSize, timeOutInMilliseconds, poolSize, autoFlush, keepAlive, pipeline);
+        final HttpClient httpClient = QBit.factory().createHttpClient(
+                this.getHost(),
+                this.getPort(),
+                this.getRequestBatchSize(),
+                this.getTimeOutInMilliseconds(),
+                this.getPoolSize(),
+                this.isAutoFlush(),
+                this.getFlushInterval(),
+                this.isKeepAlive(), this.isPipeline());
 
         return httpClient;
     }

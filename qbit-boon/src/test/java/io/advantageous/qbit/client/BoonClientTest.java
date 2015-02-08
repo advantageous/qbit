@@ -48,9 +48,9 @@ public class BoonClientTest {
         client = new BoonClientFactory().create("/uri", new HttpClientMock() , 10);
 
         FactorySPI.setHttpClientFactory(new HttpClientFactory() {
+
             @Override
-            public HttpClient create(String host, int port, int pollTime, int requestBatchSize, int timeOutInMilliseconds,
-                                     int poolSize, boolean autoFlush, boolean a, boolean b) {
+            public HttpClient create(String host, int port, int requestBatchSize, int timeOutInMilliseconds, int poolSize, boolean autoFlush, int flushRate, boolean keepAlive, boolean pipeLine) {
                 return new HttpClientMock();
             }
         });

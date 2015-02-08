@@ -18,11 +18,12 @@ public class QueueBuilder implements Cloneable{
     private int pollWait = GlobalConstants.POLL_WAIT;
     private int size = GlobalConstants.NUM_BATCHES;
     private int checkEvery = 100;
+    private boolean tryTransfer = false;
 
     private String name;
     private Class<? extends BlockingQueue> queueClass = ArrayBlockingQueue.class;
 
-    private boolean tryTransfer=false;
+    private boolean checkIfBusy =false;
 
     @Override
     protected Object clone() throws CloneNotSupportedException {
@@ -33,8 +34,26 @@ public class QueueBuilder implements Cloneable{
         return checkEvery;
     }
 
+    public boolean isTryTransfer() {
+        return tryTransfer;
+    }
+
+    public QueueBuilder setTryTransfer(boolean tryTransfer) {
+        this.tryTransfer = tryTransfer;
+        return this;
+    }
+
+    public Class<? extends BlockingQueue> getQueueClass() {
+        return queueClass;
+    }
+
+    public void setQueueClass(Class<? extends BlockingQueue> queueClass) {
+        this.queueClass = queueClass;
+    }
+
     public QueueBuilder setCheckEvery(int checkEvery) {
         this.checkEvery = checkEvery;
+        this.checkIfBusy = true;
         return this;
     }
 
@@ -69,12 +88,12 @@ public class QueueBuilder implements Cloneable{
         return this;
     }
 
-    public boolean isTryTransfer() {
-        return tryTransfer;
+    public boolean isCheckIfBusy() {
+        return checkIfBusy;
     }
 
-    public QueueBuilder setTryTransfer(boolean tryTransfer) {
-        this.tryTransfer = tryTransfer;
+    public QueueBuilder setCheckIfBusy(boolean checkIfBusy) {
+        this.checkIfBusy = checkIfBusy;
         return this;
     }
 
@@ -112,7 +131,7 @@ public class QueueBuilder implements Cloneable{
 
     public <T> Queue<T> build() {
         return new BasicQueue<>(this.getName(), this.getPollWait(), TimeUnit.MILLISECONDS, this.getBatchSize(),
-                this.queueClass, this.isTryTransfer(), this.getSize(), this.getCheckEvery());
+                this.queueClass, this.isCheckIfBusy(), this.getSize(), this.getCheckEvery(), this.isTryTransfer());
     }
 
 }

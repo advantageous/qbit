@@ -204,6 +204,8 @@ public class FullIntegrationTest {
         Sys.sleep(200);
 
         clientProxy = client.createProxy(ClientServiceInterface.class, "mockService");
+        Sys.sleep(100);
+
         client.start();
         httpClient.start();
 

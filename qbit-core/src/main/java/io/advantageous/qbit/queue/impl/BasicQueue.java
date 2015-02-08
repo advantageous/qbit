@@ -2,7 +2,6 @@ package io.advantageous.qbit.queue.impl;
 
 import io.advantageous.qbit.GlobalConstants;
 import io.advantageous.qbit.queue.*;
-import org.boon.core.reflection.BeanUtils;
 import org.boon.core.reflection.ClassMeta;
 import org.boon.core.reflection.ConstructorAccess;
 import org.slf4j.Logger;
@@ -10,8 +9,6 @@ import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
-
-import static org.boon.Boon.puts;
 
 /**
  * This is the base for all the queues we use.
@@ -25,7 +22,7 @@ public class BasicQueue<T> implements Queue<T> {
     private final BlockingQueue<Object> queue;
 
 
-    private final boolean tryTransfer;
+    private final boolean checkIfBusy;
     private final int batchSize;
     private final AtomicBoolean stop = new AtomicBoolean();
     private final Logger logger = LoggerFactory.getLogger(BasicQueue.class);
@@ -34,23 +31,31 @@ public class BasicQueue<T> implements Queue<T> {
     private final int waitTime;
     private final TimeUnit timeUnit;
 
+    private final boolean  tryTransfer;
+
     private final boolean debug = GlobalConstants.DEBUG;
 
     private final int checkEvery;
     private ScheduledExecutorService monitor;
     private ScheduledFuture<?> future;
 
-    public BasicQueue(String name,
+    public BasicQueue(final String name,
                       final int waitTime,
                       final TimeUnit timeUnit,
-                      int batchSize,
-                      Class<? extends  BlockingQueue> queueClass, boolean tryTransfer, int size, int checkEvery) {
+                      final int batchSize,
+                      final Class<? extends BlockingQueue> queueClass,
+                      final boolean checkIfBusy,
+                      final int size,
+                      final int checkEvery, boolean tryTransfer) {
+
+
+        this.tryTransfer = tryTransfer;
         this.name = name;
         this.waitTime = waitTime;
         this.timeUnit = timeUnit;
         this.batchSize = batchSize;
 
-        boolean shouldTryTransfer;
+        boolean shouldCheckIfBusy;
 
         this.receiveQueueManager = new BasicReceiveQueueManager<>();
 
@@ -65,12 +70,12 @@ public class BasicQueue<T> implements Queue<T> {
         }
 
 
-        shouldTryTransfer = queue instanceof TransferQueue;
+        shouldCheckIfBusy = queue instanceof TransferQueue;
 
-        if (shouldTryTransfer && tryTransfer) {
-            this.tryTransfer = true;
+        if (shouldCheckIfBusy && checkIfBusy) {
+            this.checkIfBusy = true;
         } else {
-            this.tryTransfer = false;
+            this.checkIfBusy = false;
         }
 
         this.checkEvery = checkEvery;
@@ -96,7 +101,7 @@ public class BasicQueue<T> implements Queue<T> {
      */
     @Override
     public SendQueue<T> sendQueue() {
-        return new BasicSendQueue<>(batchSize, this.queue, tryTransfer, checkEvery);
+        return new BasicSendQueue<>(batchSize, this.queue, checkIfBusy, checkEvery, tryTransfer);
     }
 
     @Override

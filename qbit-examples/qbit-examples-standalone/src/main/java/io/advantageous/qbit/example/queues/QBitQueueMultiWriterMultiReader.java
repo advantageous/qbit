@@ -4,7 +4,6 @@ import io.advantageous.qbit.queue.Queue;
 import io.advantageous.qbit.queue.QueueBuilder;
 import io.advantageous.qbit.queue.ReceiveQueue;
 import io.advantageous.qbit.queue.SendQueue;
-import io.advantageous.qbit.queue.impl.BasicQueue;
 import org.boon.core.Sys;
 
 import java.util.ArrayList;
@@ -34,7 +33,7 @@ public class QBitQueueMultiWriterMultiReader {
 
     static final Queue<Integer> queue = new QueueBuilder()
             .setBatchSize(100_000)
-            .setPollWait(100).setSize(6).setTryTransfer(true).setLinkTransferQueue().setCheckEvery(1000)
+            .setPollWait(100).setSize(6).setCheckIfBusy(true).setLinkTransferQueue().setCheckEvery(1000)
             .build();
 
     static ExecutorService executorService = Executors.newCachedThreadPool();

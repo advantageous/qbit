@@ -50,7 +50,7 @@ public class HttpVertxClient implements HttpClient {
     protected Vertx vertx;
     protected final boolean keepAlive;
     protected final boolean pipeline;
-    protected  final int flushInterval = 20000;
+    protected  final int flushInterval;
 
 
     private final Map<String, WebSocket> webSocketMap = new ConcurrentHashMap<>();
@@ -67,9 +67,10 @@ public class HttpVertxClient implements HttpClient {
     private boolean autoFlush;
 
 
-    public HttpVertxClient(String host, int port, int pollTime, int requestBatchSize, int timeOutInMilliseconds, int poolSize,
-                                     boolean autoFlush, boolean keepAlive, boolean pipeline) {
+    public HttpVertxClient(String host, int port, int requestBatchSize, int timeOutInMilliseconds, int poolSize,
+                                     boolean autoFlush, int flushInterval, boolean keepAlive, boolean pipeline) {
 
+        this.flushInterval = flushInterval;
         this.port = port;
         this.host = host;
         this.timeOutInMilliseconds = timeOutInMilliseconds;

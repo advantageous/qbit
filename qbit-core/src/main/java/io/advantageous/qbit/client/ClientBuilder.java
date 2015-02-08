@@ -29,13 +29,23 @@ public class ClientBuilder {
     private boolean keepAlive = true;
     private boolean pipeline = true;
 
+    private int timeOutInMilliseconds = 3000;
+
 
 
     private int protocolBatchSize = -1;
 
-    private int flushInterval = 50;
+    private int flushInterval = 500;
     private String uri = "/services";
 
+    public int getTimeOutInMilliseconds() {
+        return timeOutInMilliseconds;
+    }
+
+    public ClientBuilder setTimeOutInMilliseconds(int timeOutInMilliseconds) {
+        this.timeOutInMilliseconds = timeOutInMilliseconds;
+        return this;
+    }
 
     public int getPoolSize() {
         return poolSize;
@@ -154,7 +164,16 @@ public class ClientBuilder {
         /**
          * String host, int port, int pollTime, int requestBatchSize, int timeOutInMilliseconds, int poolSize, boolean autoFlush
          */
-        final HttpClient httpClient = QBit.factory().createHttpClient(host, port, pollTime, requestBatchSize, timeoutSeconds * 1000, poolSize, autoFlush, keepAlive, pipeline);
+
+        final HttpClient httpClient = QBit.factory().createHttpClient(
+                this.getHost(),
+                this.getPort(),
+                this.getRequestBatchSize(),
+                this.getTimeOutInMilliseconds(),
+                this.getPoolSize(),
+                this.isAutoFlush(),
+                this.getFlushInterval(),
+                this.isKeepAlive(), this.isPipeline());
 
         if (protocolBatchSize==-1) {
             protocolBatchSize = requestBatchSize;

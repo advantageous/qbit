@@ -94,6 +94,8 @@ public class BasicReceiveQueueManager<T> implements ReceiveQueueManager<T> {
                  */
                 listener.idle();
 
+
+
                 if (debug) {
                     puts("BasicReceiveQueueManager idle");
                 }

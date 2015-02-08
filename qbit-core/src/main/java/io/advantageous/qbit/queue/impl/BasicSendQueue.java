@@ -23,24 +23,32 @@ public class BasicSendQueue<T> implements SendQueue<T> {
 
     private final Object[] queueLocal;
     private final int checkBusyEvery;
+    private final boolean tryTransfer;
     private int index;
 
-    private final boolean tryTransfer;
+    private final boolean checkBusy;
 
     private final int batchSize;
 
 
     private int checkEveryCount = 0;
 
-    public BasicSendQueue(int batchSize, BlockingQueue<Object> queue, boolean tryTransfer, int checkBusyEvery) {
+    public BasicSendQueue(
+                    final int batchSize,
+                    final BlockingQueue<Object> queue,
+                    final boolean checkBusy,
+                    final int checkBusyEvery,
+                    final boolean tryTransfer) {
+
+        this.tryTransfer = tryTransfer;
         this.batchSize = batchSize;
         this.queue = queue;
         queueLocal = new Object[batchSize];
-        if (queue instanceof TransferQueue && tryTransfer) {
+        if (queue instanceof TransferQueue && checkBusy) {
             transferQueue = ((TransferQueue) queue);
-            this.tryTransfer = true;
+            this.checkBusy = true;
         } else {
-            this.tryTransfer = false;
+            this.checkBusy = false;
             transferQueue = null;
         }
         this.checkBusyEvery = checkBusyEvery;
@@ -48,7 +56,7 @@ public class BasicSendQueue<T> implements SendQueue<T> {
 
     public boolean shouldBatch() {
 
-        if (tryTransfer) {
+        if (checkBusy) {
             return !transferQueue.hasWaitingConsumer();
 
         }
@@ -98,11 +106,13 @@ public class BasicSendQueue<T> implements SendQueue<T> {
 
         if (index >= batchSize) {
             sendLocalQueue();
-        } else if (tryTransfer) {
+        } else if (checkBusy) {
             checkEveryCount++;
-            if (checkEveryCount > this.checkBusyEvery && !shouldBatch()) {
+            if (checkEveryCount > this.checkBusyEvery) {
                 checkEveryCount = 0;
-                sendLocalQueue();
+                if (transferQueue.hasWaitingConsumer()) {
+                    sendLocalQueue();
+                }
             }
         }
     }
@@ -123,11 +133,14 @@ public class BasicSendQueue<T> implements SendQueue<T> {
     private void sendArray(
             final Object[] array) {
 
-        if (tryTransfer) {
+        if (checkBusy) {
+             transferQueue.offer(array);
+        } else if (checkBusy && tryTransfer) {
             if (!transferQueue.tryTransfer(array)) {
                 transferQueue.offer(array);
             }
-        } else {
+        }
+        else {
             try {
                 queue.put(array);
             } catch (InterruptedException e) {
