@@ -24,9 +24,13 @@ public class PerfTest {
 
     static class TestReader {
 
+        private final boolean cpuIntensive;
+        private final int times;
         int total;
 
         volatile int totalOut;
+
+        public AtomicLong answer = new AtomicLong();
 
         AtomicBoolean stop = new AtomicBoolean();
 
@@ -34,9 +38,11 @@ public class PerfTest {
 
         private final ReceiveQueue<Integer> receiveQueue;
 
-        TestReader(final Queue<Integer> queue) {
+        TestReader(final Queue<Integer> queue, boolean cpuIntensive, int times) {
             this.queue = queue;
             this.receiveQueue = queue.receiveQueue();
+            this.cpuIntensive = cpuIntensive;
+            this.times = times;
         }
 
 
@@ -55,6 +61,9 @@ public class PerfTest {
                     if (total % 10 == 0) {
                         totalOut = total;
                     }
+                    if (cpuIntensive) {
+                        doSomething(value);
+                    }
                     value = receiveQueue.poll();
                 }
 
@@ -64,6 +73,15 @@ public class PerfTest {
                     return;
                 }
             }
+        }
+
+        private void doSomething(Integer value) {
+
+            long lv = 0;
+            for (int index = 0; index< times; index++) {
+                lv = value * index % 13 + index;
+            }
+            this.answer.set(lv);
         }
     }
 
@@ -83,7 +101,8 @@ public class PerfTest {
             final int totalCountExpected,
             final int timeOut,
             LongList readTimes,
-            int extra, int sleepAmount, int sleepEvery ) throws Exception{
+            int extra, int sleepAmount, int sleepEvery,
+            boolean cpuIntensive, int times) throws Exception{
 
         final int itemsEachThread = totalCountExpected / writers +1;
 
@@ -109,7 +128,7 @@ public class PerfTest {
 
         for (int index = 0; index < readers; index++) {
 
-            final TestReader reader = new TestReader(queue);
+            final TestReader reader = new TestReader(queue, cpuIntensive, times);
             readerList.add(reader);
             Thread thread = new Thread(new Runnable() {
                 @Override
@@ -162,6 +181,7 @@ public class PerfTest {
 
         for (TestReader testReader : readerList) {
             testReader.stop();
+            puts(testReader.answer.get());
         }
         Sys.sleep(100);
 
@@ -284,45 +304,47 @@ public class PerfTest {
     public static void main (String... args) throws Exception {
 
 
-        final int batchSize = 1_000;
+        final int batchSize = 10_000;
         final int totalSends = 400_000_000;
         final int timeout = 5_000;
         final int fudgeFactor = 100;
-        final int sleepAmount = 100;
+        final int sleepAmount = 10;
         final int sleepEvery = 10_000_000;
         final int checkEvery = batchSize/10;
-
+        final boolean cpuIntensive = true;
+        final int times = 1_000_000;
 
 
         final QueueBuilder queueBuilder = queueBuilder()
                 .setBatchSize(batchSize)
-                .setLinkTransferQueue().setCheckEvery(checkEvery);
+                .setLinkTransferQueue()
+                .setCheckEvery(checkEvery);
 
-        perfTest(queueBuilder, 1, 10, totalSends, 50_000, new LongList(), fudgeFactor, sleepAmount, sleepEvery);
+
+//        final QueueBuilder queueBuilder = queueBuilder()
+//                .setBatchSize(batchSize)
+//                .setLinkTransferQueue();
+
+
+//        final QueueBuilder queueBuilder = queueBuilder()
+//                .setBatchSize(batchSize)
+//                .setSize(10_000_000).setArrayBlockingQueue();
+
+        perfTest(queueBuilder, 1, 10, totalSends, 50_000, new LongList(), fudgeFactor, sleepAmount, sleepEvery, cpuIntensive, times);
         System.gc();
         Sys.sleep(10_000);
 
 
         final LongList timeMeasurements = new LongList();
 
-        for (int writers = 10; writers < 25; writers+=5) {
+        for (int writers = 0; writers < 25; writers+=5) {
             int numThreads = writers == 0 ? writers+2 : writers;
-            perfTest(queueBuilder, 1, numThreads, totalSends, timeout, timeMeasurements, fudgeFactor, sleepAmount, sleepEvery);
+            perfTest(queueBuilder, 1, numThreads, totalSends, timeout, timeMeasurements, fudgeFactor, sleepAmount, sleepEvery, cpuIntensive, times);
             Sys.sleep(500);
             System.gc();
             Sys.sleep(10_000);
         }
 
-//        final LongList times = new LongList();
-//
-//        for (int writers = 0; writers < 20; writers++) {
-//            final QueueBuilder qb = queueBuilder().setBatchSize(100).setLinkTransferQueue();
-//            puts("NUM WRITER THREADS", writers+1);
-//            perfTest(queueBuilder, 1, writers+1, 500_000_000, 5_000, times, 10_000);
-//            System.gc();
-//            Sys.sleep(1000);
-//
-//        }
 
 
         for (Long value : timeMeasurements) {
