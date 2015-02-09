@@ -101,7 +101,7 @@ public class ServiceServerImplTest {
                                 protocolParser,
                                 serviceBundle,
                                 mapper,
-                                1, 100, 30);
+                                1, 100, 30, 10);
 
 
         callMeCounter = 0;

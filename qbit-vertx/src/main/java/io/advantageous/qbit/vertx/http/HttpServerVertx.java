@@ -1,6 +1,7 @@
 package io.advantageous.qbit.vertx.http;
 
 
+import io.advantageous.qbit.GlobalConstants;
 import io.advantageous.qbit.http.*;
 import io.advantageous.qbit.queue.Queue;
 import io.advantageous.qbit.queue.QueueBuilder;
@@ -45,7 +46,7 @@ public class HttpServerVertx implements HttpServer {
 
     private final Logger logger = LoggerFactory.getLogger(HttpServerVertx.class);
 
-    private final boolean debug = logger.isDebugEnabled();
+    private final boolean debug = GlobalConstants.DEBUG || logger.isDebugEnabled();
     private final int maxRequestBatches;
     private final int httpWorkers;
     private final Class handler;

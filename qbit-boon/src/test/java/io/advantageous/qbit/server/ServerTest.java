@@ -48,7 +48,7 @@ public class ServerTest {
 
 
         ServiceServerImpl server = new ServiceServerImpl(httpServer, encoder, parser,
-                serviceBundle, mapper, 30, 100, 30);
+                serviceBundle, mapper, 30, 100, 30, 10);
 
         server.initServices(Sets.set(new TodoService()));
 
@@ -115,7 +115,7 @@ public class ServerTest {
         JsonMapper mapper = new BoonJsonMapper();
 
 
-        ServiceServerImpl server = new ServiceServerImpl(httpServer, encoder, QBit.factory().createProtocolParser(), serviceBundle, mapper, 1, 100, 30);
+        ServiceServerImpl server = new ServiceServerImpl(httpServer, encoder, QBit.factory().createProtocolParser(), serviceBundle, mapper, 1, 100, 30, 10);
 
         server.initServices(Sets.set(new TodoService()));
 
@@ -160,7 +160,7 @@ public class ServerTest {
 
 
         ServiceServerImpl server = new ServiceServerImpl(httpServer, encoder,
-                QBit.factory().createProtocolParser(), serviceBundle, mapper, 1, 100, 30);
+                QBit.factory().createProtocolParser(), serviceBundle, mapper, 1, 100, 30, 10);
 
         server.initServices(new TodoService());
 

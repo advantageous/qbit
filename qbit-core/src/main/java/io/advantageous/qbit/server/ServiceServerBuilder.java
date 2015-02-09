@@ -204,7 +204,7 @@ public class ServiceServerBuilder {
         final ProtocolParser parser = QBit.factory().createProtocolParser();
         final ServiceServer serviceServer = QBit.factory().createServiceServer(httpServer,
                 encoder, parser, serviceBundle, jsonMapper, this.getTimeoutSeconds(),
-                this.getNumberOfOutstandingRequests(), this.getRequestBatchSize());
+                this.getNumberOfOutstandingRequests(), this.getRequestBatchSize(), this.getFlushInterval());
         return serviceServer;
     }
 

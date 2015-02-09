@@ -10,6 +10,8 @@ import org.boon.core.Sys;
 import java.util.Collections;
 import java.util.List;
 
+import static io.advantageous.qbit.server.ServiceServerBuilder.serviceServerBuilder;
+
 @RequestMapping("/myservice")
 public class CPUIntensiveService {
 
@@ -47,19 +49,17 @@ public class CPUIntensiveService {
     public static void main(String... args) throws Exception {
 
 
-
-        final ServiceServer serviceServer = new ServiceServerBuilder()
+        final ServiceServer serviceServer = serviceServerBuilder()
+                //2,500,000 454,065
+                .setRequestQueueBuilder(
+                        QueueBuilder.queueBuilder()
+                                .setBatchSize(1000).setLinkTransferQueue().setCheckEvery(50).setPollWait(100)
+                )
                 .setServiceBundleQueueBuilder(QueueBuilder.queueBuilder()
-                        .setBatchSize(250).setArrayBlockingQueue().setSize(10_000))
-                .setPort(6060).setFlushInterval(10)
+                        .setBatchSize(250).setLinkTransferQueue().setCheckEvery(5))
+                .setPort(6060).setFlushInterval(10).setRequestBatchSize(100)
+                .setTimeoutSeconds(60)
                 .build();
-
-//        final ServiceServer serviceServer = new ServiceServerBuilder()
-//                .setServiceBundleQueueBuilder(QueueBuilder.queueBuilder()
-//                        .setBatchSize(250).setArrayBlockingQueue())
-//                .setPort(6060).setFlushInterval(50)
-//                .build();
-
 
         serviceServer.initServices(new CPUIntensiveService());
         serviceServer.start();

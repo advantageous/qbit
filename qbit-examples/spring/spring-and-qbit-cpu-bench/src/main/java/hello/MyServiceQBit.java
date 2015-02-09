@@ -11,6 +11,7 @@ import org.boon.core.Sys;
 import java.util.Collections;
 import java.util.List;
 
+import static io.advantageous.qbit.queue.QueueBuilder.queueBuilder;
 import static io.advantageous.qbit.server.ServiceServerBuilder.serviceServerBuilder;
 
 /**
@@ -230,11 +231,91 @@ Running 10s test @ http://localhost:6060
                 //50089.54
                 //30360.42
 
+//        final ServiceServer serviceServer = serviceServerBuilder()
+//                //2,500,000 454,065
+//                .setRequestQueueBuilder(
+//                        QueueBuilder.queueBuilder()
+//                                .setBatchSize(1000).setLinkTransferQueue().setCheckEvery(50).setPollWait(100)
+//                )
+//                .setServiceBundleQueueBuilder(QueueBuilder.queueBuilder()
+//                        .setBatchSize(250).setLinkTransferQueue().setCheckEvery(5))
+//                .setPort(6060).setFlushInterval(10).setRequestBatchSize(100)
+//                .setTimeoutSeconds(60)
+//                .build();
+
+
+        //Tried this
+        // ./wrk -c 2000 -d 10s "http://localhost:6060" -s pipeline.lua --timeout 100000s -t 16
+        /*
+        cat pipeline.lua
+init = function(args)
+   wrk.init(args)
+
+   local r = {}
+
+   r[1] = wrk.format("GET", "/services/myservice/addkey/?key=1&value=mom")
+   r[2] = wrk.format("GET", "/services/myservice/addkey/?key=2&value=mom")
+   r[3] = wrk.format("GET", "/services/myservice/addkey/?key=3&value=mom")
+   r[4] = wrk.format("GET", "/services/myservice/addkey/?key=4&value=mom")
+   r[5] = wrk.format("GET", "/services/myservice/addkey/?key=5&value=mom")
+   r[6] = wrk.format("GET", "/services/myservice/addkey/?key=6&value=mom")
+   r[7] = wrk.format("GET", "/services/myservice/addkey/?key=7&value=mom")
+   r[8] = wrk.format("GET", "/services/myservice/addkey/?key=8&value=mom")
+   r[9] = wrk.format("GET", "/services/myservice/addkey/?key=9&value=mom")
+   r[10] = wrk.format("GET", "/services/myservice/addkey/?key=1&value=mom")
+   r[11] = wrk.format("GET", "/services/myservice/addkey/?key=1&value=mom")
+   r[12] = wrk.format("GET", "/services/myservice/addkey/?key=2&value=mom")
+   r[13] = wrk.format("GET", "/services/myservice/addkey/?key=3&value=mom")
+   r[14] = wrk.format("GET", "/services/myservice/addkey/?key=4&value=mom")
+   r[15] = wrk.format("GET", "/services/myservice/addkey/?key=5&value=mom")
+   r[16] = wrk.format("GET", "/services/myservice/addkey/?key=6&value=mom")
+   r[17] = wrk.format("GET", "/services/myservice/addkey/?key=7&value=mom")
+   r[18] = wrk.format("GET", "/services/myservice/addkey/?key=8&value=mom")
+   r[19] = wrk.format("GET", "/services/myservice/addkey/?key=9&value=mom")
+   r[20] = wrk.format("GET", "/services/myservice/addkey/?key=1&value=mom")
+   r[21] = wrk.format("GET", "/services/myservice/addkey/?key=1&value=mom")
+   r[22] = wrk.format("GET", "/services/myservice/addkey/?key=2&value=mom")
+   r[23] = wrk.format("GET", "/services/myservice/addkey/?key=3&value=mom")
+   r[24] = wrk.format("GET", "/services/myservice/addkey/?key=4&value=mom")
+   r[25] = wrk.format("GET", "/services/myservice/addkey/?key=5&value=mom")
+   r[26] = wrk.format("GET", "/services/myservice/addkey/?key=6&value=mom")
+   r[27] = wrk.format("GET", "/services/myservice/addkey/?key=7&value=mom")
+   r[28] = wrk.format("GET", "/services/myservice/addkey/?key=8&value=mom")
+   r[29] = wrk.format("GET", "/services/myservice/addkey/?key=9&value=mom")
+   r[30] = wrk.format("GET", "/services/myservice/addkey/?key=0&value=mom")
+
+   req = table.concat(r)
+end
+
+request = function()
+   return req
+end
+
+         */
+
+        //SB/J gets 45k to 50K TPS, and uses twice the CPU as QBit
+        //QBit gets about 75K to 80K and uses 1/2 the CPU as SB/J
+
+//        final ServiceServer serviceServer = serviceServerBuilder()
+//                //2,500,000 454,065
+//                .setRequestQueueBuilder(
+//                        queueBuilder()
+//                                .setBatchSize(100).setLinkTransferQueue()
+//                )
+//                .setServiceBundleQueueBuilder(
+//                        queueBuilder()
+//                                .setBatchSize(100).setLinkTransferQueue().setCheckEvery(10).setPollWait(100)
+//                )
+//                .setPort(6060).setFlushInterval(10).setRequestBatchSize(100)
+//                .setTimeoutSeconds(60)
+//                .build();
+
+
         final ServiceServer serviceServer = serviceServerBuilder()
                 //2,500,000 454,065
                 .setRequestQueueBuilder(
                         QueueBuilder.queueBuilder()
-                                .setBatchSize(1000).setLinkTransferQueue().setCheckEvery(50)
+                                .setBatchSize(1000).setLinkTransferQueue().setCheckEvery(50).setPollWait(100)
                 )
                 .setServiceBundleQueueBuilder(QueueBuilder.queueBuilder()
                         .setBatchSize(250).setLinkTransferQueue().setCheckEvery(5))
@@ -242,9 +323,11 @@ Running 10s test @ http://localhost:6060
                 .setTimeoutSeconds(60)
                 .build();
 
+        //80734.79 QBit //83,135.93 QBIT
 
         serviceServer.initServices(new MyServiceQBit());
         serviceServer.start();
+
 
 
         while (true) Sys.sleep(100_000_000);

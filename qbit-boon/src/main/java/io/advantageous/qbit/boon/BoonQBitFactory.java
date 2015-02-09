@@ -198,15 +198,17 @@ public class BoonQBitFactory implements Factory {
 
     @Override
     public ServiceServer createServiceServer(
-            final HttpServer httpServer, final ProtocolEncoder encoder,
+            final HttpServer httpServer,
+            final ProtocolEncoder encoder,
             final ProtocolParser protocolParser,
             final ServiceBundle serviceBundle,
             final JsonMapper jsonMapper,
             final int timeOutInSeconds,
             final int numberOfOutstandingRequests,
-            final int batchSize) {
+            final int batchSize,
+            final int flushInterval) {
         return new ServiceServerImpl(httpServer, encoder, protocolParser, serviceBundle,
-                jsonMapper, timeOutInSeconds, numberOfOutstandingRequests, batchSize);
+                jsonMapper, timeOutInSeconds, numberOfOutstandingRequests, batchSize, flushInterval);
     }
 
 

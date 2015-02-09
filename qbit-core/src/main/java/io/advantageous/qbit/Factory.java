@@ -315,7 +315,8 @@ public interface Factory {
                                       final JsonMapper jsonMapper,
                                       final int timeOutInSeconds,
                                       final int numberOfOutstandingRequests,
-                                      final int batchSize){
+                                      final int batchSize,
+                                      final int flushInterval){
         throw new UnsupportedOperationException();
     }
 

@@ -29,13 +29,15 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeoutException;
 
+import static org.boon.Boon.puts;
+
 /**
  * Created by rhightower on 1/27/15.
  */
 public class HttpRequestServiceServerHandler {
 
     private final Logger logger = LoggerFactory.getLogger(HttpRequestServiceServerHandler.class);
-    private final boolean debug = logger.isDebugEnabled();
+    private final boolean debug = GlobalConstants.DEBUG;
 
     protected final int timeoutInSeconds;
     protected final ProtocolEncoder encoder;
@@ -45,7 +47,7 @@ public class HttpRequestServiceServerHandler {
     protected volatile long lastTimeoutCheckTime;
 
 
-    protected long flushInterval = 50;
+    protected final long flushInterval;
     protected volatile long lastFlushTime = 0;
 
 
@@ -67,14 +69,14 @@ public class HttpRequestServiceServerHandler {
         long now = Timer.timer().now();
         long duration =  now - lastFlush;
 
-        if (duration > 50) {
+        if (duration > flushInterval) {
             lastFlushTime = now;
             methodCallSendQueue.flushSends();
         }
     }
 
     public HttpRequestServiceServerHandler(int timeoutInSeconds, ProtocolEncoder encoder, ProtocolParser parser, ServiceBundle serviceBundle, JsonMapper jsonMapper,
-                                           final int numberOfOutstandingRequests
+                                           final int numberOfOutstandingRequests, int flushInterval
     ) {
         this.timeoutInSeconds = timeoutInSeconds;
         lastTimeoutCheckTime = Timer.timer().now() + ( timeoutInSeconds * 1000 );
@@ -84,6 +86,7 @@ public class HttpRequestServiceServerHandler {
         this.numberOfOutstandingRequests = numberOfOutstandingRequests;
 
         this.methodCallSendQueue = serviceBundle.methodSendQueue();
+        this.flushInterval = flushInterval;
 
     }
 
@@ -154,7 +157,7 @@ public class HttpRequestServiceServerHandler {
                 QBit.factory().createMethodCallFromHttpRequest(request, args);
 
 
-        if (GlobalConstants.DEBUG) {
+        if (debug) {
             logger.info("Handle REST Call for MethodCall " + methodCall);
         }
         methodCallSendQueue.send(methodCall);
@@ -365,8 +368,9 @@ public class HttpRequestServiceServerHandler {
 
 
 
-
-
+        if (debug) {
+            puts("Checking for timeout.", "duration", durationSinceLastCheck, "ms timeout", timeoutInMS);
+        }
 
         executorService.submit(new Runnable() {
             @Override
@@ -382,6 +386,9 @@ public class HttpRequestServiceServerHandler {
 
                     if (duration > timeoutInMS) {
                         if (!request.isHandled()) {
+                            if (debug) {
+                                puts("Request timed out.", "duration", duration, "ms timeout", timeoutInMS);
+                            }
                             handleMethodTimedOut(requestEntry.getKey(), request);
                         }
                     }

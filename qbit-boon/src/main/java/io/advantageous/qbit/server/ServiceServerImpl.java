@@ -1,5 +1,6 @@
 package io.advantageous.qbit.server;
 
+import io.advantageous.qbit.GlobalConstants;
 import io.advantageous.qbit.http.*;
 import io.advantageous.qbit.json.JsonMapper;
 import io.advantageous.qbit.message.MethodCall;
@@ -25,7 +26,7 @@ public class ServiceServerImpl implements ServiceServer {
 
 
     private final Logger logger = LoggerFactory.getLogger(ServiceServerImpl.class);
-    private final boolean debug = logger.isDebugEnabled();
+    private final boolean debug = GlobalConstants.DEBUG;
 
 
 
@@ -56,7 +57,8 @@ public class ServiceServerImpl implements ServiceServer {
                              final JsonMapper jsonMapper,
                              final int timeOutInSeconds,
                              final int numberOfOutstandingRequests,
-                             final int batchSize) {
+                             final int batchSize,
+                             final int flushInterval) {
         this.encoder = encoder;
         this.parser = parser;
         this.httpServer = httpServer;
@@ -66,7 +68,7 @@ public class ServiceServerImpl implements ServiceServer {
         this.batchSize = batchSize;
 
         webSocketHandler = new WebSocketServiceServerHandler(batchSize, serviceBundle, encoder, parser);
-        httpRequestServerHandler = new HttpRequestServiceServerHandler(this.timeoutInSeconds, this.encoder, this.parser, serviceBundle, jsonMapper, numberOfOutstandingRequests);
+        httpRequestServerHandler = new HttpRequestServiceServerHandler(this.timeoutInSeconds, this.encoder, this.parser, serviceBundle, jsonMapper, numberOfOutstandingRequests, flushInterval);
     }
 
 
