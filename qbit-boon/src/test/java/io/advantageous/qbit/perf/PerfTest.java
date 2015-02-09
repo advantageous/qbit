@@ -61,7 +61,7 @@ public class PerfTest {
                     if (total % 10 == 0) {
                         totalOut = total;
                     }
-                    if (cpuIntensive) {
+                    if (cpuIntensive && total % 13 == 0) {
                         doSomething(value);
                     }
                     value = receiveQueue.poll();
@@ -78,10 +78,15 @@ public class PerfTest {
         private void doSomething(Integer value) {
 
             long lv = 0;
-            for (int index = 0; index< times; index++) {
-                lv = value * index % 13 + index;
+            for (int j = 0; j < 10; j++) {
+                for (int index = 0; index < times; index++) {
+                    lv = value * index % 13 + index;
+                    lv = lv * 47;
+                    lv = lv * 1000;
+                    lv = lv * 13 + lv % 31;
+                }
+                this.answer.set(this.answer.get() + lv);
             }
-            this.answer.set(lv);
         }
     }
 
@@ -304,21 +309,21 @@ public class PerfTest {
     public static void main (String... args) throws Exception {
 
 
-        final int batchSize = 10_000;
+        final int batchSize = 100_000;
         final int totalSends = 400_000_000;
         final int timeout = 5_000;
         final int fudgeFactor = 100;
-        final int sleepAmount = 10;
-        final int sleepEvery = 10_000_000;
-        final int checkEvery = batchSize/10;
-        final boolean cpuIntensive = true;
-        final int times = 1_000_000;
+        final int sleepAmount = 1;
+        final int sleepEvery = 400_000_000;
+        final int checkEvery = 1000;
+        final boolean cpuIntensive = false;
+        final int times = 2_000_000_000;
 
 
-        final QueueBuilder queueBuilder = queueBuilder()
-                .setBatchSize(batchSize)
-                .setLinkTransferQueue()
-                .setCheckEvery(checkEvery);
+//            final QueueBuilder queueBuilder = queueBuilder()
+//                    .setBatchSize(batchSize)
+//                    .setLinkTransferQueue()
+//                    .setCheckEvery(checkEvery).setTryTransfer(true);
 
 
 //        final QueueBuilder queueBuilder = queueBuilder()
@@ -326,9 +331,9 @@ public class PerfTest {
 //                .setLinkTransferQueue();
 
 
-//        final QueueBuilder queueBuilder = queueBuilder()
-//                .setBatchSize(batchSize)
-//                .setSize(10_000_000).setArrayBlockingQueue();
+        final QueueBuilder queueBuilder = queueBuilder()
+                .setBatchSize(batchSize)
+                .setSize(10_000_000).setArrayBlockingQueue();
 
         perfTest(queueBuilder, 1, 10, totalSends, 50_000, new LongList(), fudgeFactor, sleepAmount, sleepEvery, cpuIntensive, times);
         System.gc();
@@ -338,11 +343,11 @@ public class PerfTest {
         final LongList timeMeasurements = new LongList();
 
         for (int writers = 0; writers < 25; writers+=5) {
-            int numThreads = writers == 0 ? writers+2 : writers;
+            int numThreads = writers == 0 ? writers+1 : writers;
             perfTest(queueBuilder, 1, numThreads, totalSends, timeout, timeMeasurements, fudgeFactor, sleepAmount, sleepEvery, cpuIntensive, times);
             Sys.sleep(500);
             System.gc();
-            Sys.sleep(10_000);
+            Sys.sleep(3_000);
         }
 
 

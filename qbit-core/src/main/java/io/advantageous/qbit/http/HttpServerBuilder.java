@@ -1,6 +1,8 @@
 package io.advantageous.qbit.http;
 
 import io.advantageous.qbit.QBit;
+import io.advantageous.qbit.queue.Queue;
+import io.advantageous.qbit.queue.QueueBuilder;
 
 import java.util.function.Consumer;
 
@@ -10,6 +12,10 @@ import java.util.function.Consumer;
  * Created by Richard on 11/12/14.
  */
 public class HttpServerBuilder {
+
+    public static HttpServerBuilder httpServerBuilder() {
+        return new HttpServerBuilder();
+    }
 
     private String host;
     private int port = 8080;
@@ -23,6 +29,27 @@ public class HttpServerBuilder {
     private Class<Consumer> handlerClass = null;
     private Consumer<WebSocketMessage> webSocketMessageConsumer;
     private Consumer<HttpRequest> httpRequestConsumer;
+    private QueueBuilder requestQueueBuilder;
+    private QueueBuilder webSocketMessageQueueBuilder;
+
+    public QueueBuilder getRequestQueueBuilder() {
+        return requestQueueBuilder;
+    }
+
+    public HttpServerBuilder setRequestQueueBuilder(QueueBuilder requestQueueBuilder) {
+        this.requestQueueBuilder = requestQueueBuilder;
+        return this;
+    }
+
+    public QueueBuilder getWebSocketMessageQueueBuilder() {
+        return webSocketMessageQueueBuilder;
+    }
+
+    public HttpServerBuilder setWebSocketMessageQueueBuilder(QueueBuilder webSocketMessageQueueBuilder) {
+        this.webSocketMessageQueueBuilder = webSocketMessageQueueBuilder;
+        return this;
+    }
+
     public int getMaxRequestBatches() {
         return maxRequestBatches;
     }
@@ -135,6 +162,8 @@ public class HttpServerBuilder {
 
     public HttpServer build() {
 
+
+
         if (getWorkers() == -1 || getHandlerClass()==null) {
             final HttpServer httpServer = QBit.factory().createHttpServer(this.getHost(),
                     this.getPort(), this.isManageQueues(), this.getPollTime(), this.getRequestBatchSize(),
@@ -144,13 +173,35 @@ public class HttpServerBuilder {
             httpServer.setWebSocketMessageConsumer(this.getWebSocketMessageConsumer());
             return httpServer;
         } else {
-            final HttpServer httpServer = QBit.factory().createHttpServer(this.getHost(),
-                    this.getPort(), this.isManageQueues(), this.getPollTime(), this.getRequestBatchSize(),
-                    this.getFlushInterval(), this.getMaxRequestBatches(), this.getWorkers(), this.getHandlerClass());
 
-            httpServer.setHttpRequestConsumer(this.getHttpRequestConsumer());
-            httpServer.setWebSocketMessageConsumer(this.getWebSocketMessageConsumer());
-            return httpServer;
+            if (webSocketMessageQueueBuilder!=null || requestQueueBuilder!=null) {
+
+                if (webSocketMessageQueueBuilder == null) {
+                    webSocketMessageQueueBuilder = requestQueueBuilder;
+                }
+                if (requestQueueBuilder == null) {
+                    requestQueueBuilder = webSocketMessageQueueBuilder;
+
+                }
+
+                final Queue<HttpRequest> requestQueue = requestQueueBuilder.build();
+                final Queue<WebSocketMessage> webSocketMessageQueue = webSocketMessageQueueBuilder.build();
+                final HttpServer httpServer = QBit.factory().createHttpServerWithQueue(this.getHost(),
+                        this.getPort(), this.getFlushInterval(), requestQueue, webSocketMessageQueue);
+                httpServer.setHttpRequestConsumer(this.getHttpRequestConsumer());
+                httpServer.setWebSocketMessageConsumer(this.getWebSocketMessageConsumer());
+                return httpServer;
+
+            } else {
+
+                final HttpServer httpServer = QBit.factory().createHttpServerWithWorkers(this.getHost(),
+                        this.getPort(), this.isManageQueues(), this.getPollTime(), this.getRequestBatchSize(),
+                        this.getFlushInterval(), this.getMaxRequestBatches(), this.getWorkers(), this.getHandlerClass());
+
+                httpServer.setHttpRequestConsumer(this.getHttpRequestConsumer());
+                httpServer.setWebSocketMessageConsumer(this.getWebSocketMessageConsumer());
+                return httpServer;
+            }
         }
     }
 

@@ -5,7 +5,9 @@ import io.advantageous.qbit.Factory;
 import io.advantageous.qbit.client.Client;
 import io.advantageous.qbit.events.EventManager;
 import io.advantageous.qbit.http.HttpClient;
+import io.advantageous.qbit.http.HttpRequest;
 import io.advantageous.qbit.http.HttpServer;
+import io.advantageous.qbit.http.WebSocketMessage;
 import io.advantageous.qbit.json.JsonMapper;
 import io.advantageous.qbit.message.MethodCall;
 import io.advantageous.qbit.message.MethodCallBuilder;
@@ -171,10 +173,20 @@ public class BoonQBitFactory implements Factory {
     }
 
 
+    public HttpServer createHttpServerWithQueue(final String host,
+                                                final int port,
+                                                final int flushInterval,
+                                                final Queue<HttpRequest> requestQueue,
+                                                final Queue<WebSocketMessage> webSocketMessageQueue) {
+
+        return FactorySPI.getHttpServerFactory().createHttpServerWithQueue(host, port,
+                flushInterval, requestQueue, webSocketMessageQueue);
+
+    }
     @Override
-    public HttpServer createHttpServer(String host, int port, boolean manageQueues, int pollTime, int requestBatchSize,
-                                       int flushInterval, int maxRequests, int httpWorkers, Class handler) {
-        return FactorySPI.getHttpServerFactory().create(host, port, manageQueues, pollTime, requestBatchSize,
+    public HttpServer createHttpServerWithWorkers(String host, int port, boolean manageQueues, int pollTime, int requestBatchSize,
+                                                  int flushInterval, int maxRequests, int httpWorkers, Class handler) {
+        return FactorySPI.getHttpServerFactory().createWithWorkers(host, port, manageQueues, pollTime, requestBatchSize,
                 flushInterval, maxRequests, httpWorkers, handler);
     }
 

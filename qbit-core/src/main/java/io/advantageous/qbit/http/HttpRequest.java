@@ -32,7 +32,7 @@ public class HttpRequest implements Request<Object>{
     private final long timestamp;
 
 
-    private  boolean handled;
+    private  volatile boolean handled;
 
     @Override
     public String address() {

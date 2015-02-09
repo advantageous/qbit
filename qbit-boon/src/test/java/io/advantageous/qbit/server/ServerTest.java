@@ -136,7 +136,7 @@ public class ServerTest {
         }
 
 
-        Sys.sleep(2_000);
+        Sys.sleep(3_000);
 
 
         if (!resultsWorked.get()) {

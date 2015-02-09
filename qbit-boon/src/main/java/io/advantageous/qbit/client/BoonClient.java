@@ -63,7 +63,7 @@ import static org.boon.Exceptions.die;
 
 
 /**
- * Factory to create client proxies using interfaces.
+ * Factory to createWithWorkers client proxies using interfaces.
  * Created by Richard on 10/2/14.
  *
  * @author Rick Hightower

@@ -19,6 +19,7 @@ import io.advantageous.qbit.util.ConcurrentHashSet;
 import io.advantageous.qbit.util.Timer;
 import org.boon.Str;
 import org.boon.core.Sys;
+import org.boon.core.reflection.BeanUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -129,7 +130,7 @@ public class ServiceBundleImpl implements ServiceBundle {
 
     /**
      * @param address   root address of client bundle
-     * @param factory   the qbit factory where we can create responses, methods, etc.
+     * @param factory   the qbit factory where we can createWithWorkers responses, methods, etc.
      */
     public ServiceBundleImpl(String address, QueueBuilder queueBuilder,
                              final Factory factory, final boolean asyncCalls,
@@ -211,7 +212,7 @@ public class ServiceBundleImpl implements ServiceBundle {
 
         /** Turn this client object into a client with queues. */
         final Service service = factory.createService(address, serviceAddress,
-                serviceObject, responseQueue,  this.queueBuilder, this.asyncCalls, this.invokeDynamic, false);
+                serviceObject, responseQueue, BeanUtils.copy(this.queueBuilder), this.asyncCalls, this.invokeDynamic, false);
 
         service.start();
 

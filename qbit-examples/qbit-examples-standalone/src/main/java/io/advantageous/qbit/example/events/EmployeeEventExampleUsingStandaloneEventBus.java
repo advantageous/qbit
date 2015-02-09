@@ -181,7 +181,7 @@ public class EmployeeEventExampleUsingStandaloneEventBus {
 
 
 
-        /* Now create your other service POJOs which have no compile time dependencies on QBit. */
+        /* Now createWithWorkers your other service POJOs which have no compile time dependencies on QBit. */
         PayrollService payroll = new PayrollService();
         BenefitsService benefits = new BenefitsService();
         VolunteerService volunteering = new VolunteerService();
@@ -211,7 +211,7 @@ public class EmployeeEventExampleUsingStandaloneEventBus {
         privateEventBus.joinService(employeeBenefitsService);
         privateEventBus.joinService(volunteeringService);
 
-        /** Now create the service proxy like before. */
+        /** Now createWithWorkers the service proxy like before. */
         EmployeeHiringServiceClient employeeHiringServiceClientProxy =
                 employeeHiringService.createProxy(EmployeeHiringServiceClient.class);
 

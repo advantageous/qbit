@@ -83,6 +83,26 @@ public class HttpServerVertx implements HttpServer {
 
 
 
+    public HttpServerVertx(String host, int port, int flushInterval, Queue<HttpRequest> requestQueue,
+                           Queue<WebSocketMessage> webSocketMessageQueue) {
+
+
+        this.port = port;
+        this.host = host;
+        this.vertx = VertxFactory.newVertx();
+        this.manageQueues = true;
+
+        this.flushInterval = flushInterval;
+        httpWorkers = -1;
+        handler = null;
+
+        maxRequestBatches = -1;
+
+        requests = requestQueue;
+        webSocketMessageInQueue = webSocketMessageQueue;
+    }
+
+
 
     public HttpServerVertx(final int port, final String host, boolean manageQueues,
                            final int pollTime,
@@ -154,7 +174,6 @@ public class HttpServerVertx implements HttpServer {
 
 
     private Queue<WebSocketMessage> webSocketMessageInQueue;
-
 
 
     @Override
@@ -337,6 +356,8 @@ public class HttpServerVertx implements HttpServer {
             responseLock = new ReentrantLock();
             requestLock = new ReentrantLock();
             webSocketSendLock = new ReentrantLock();
+
+
 
             requests = new QueueBuilder().setName("HttpServerRequests").setPollWait(pollTime).setSize(maxRequestBatches).setBatchSize(requestBatchSize).build();
 

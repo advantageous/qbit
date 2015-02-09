@@ -49,10 +49,17 @@ public class CPUIntensiveService {
 
 
         final ServiceServer serviceServer = new ServiceServerBuilder()
-                .setQueueBuilder(QueueBuilder.queueBuilder()
+                .setServiceBundleQueueBuilder(QueueBuilder.queueBuilder()
                         .setBatchSize(250).setArrayBlockingQueue().setSize(10_000))
                 .setPort(6060).setFlushInterval(10)
                 .build();
+
+//        final ServiceServer serviceServer = new ServiceServerBuilder()
+//                .setServiceBundleQueueBuilder(QueueBuilder.queueBuilder()
+//                        .setBatchSize(250).setArrayBlockingQueue())
+//                .setPort(6060).setFlushInterval(50)
+//                .build();
+
 
         serviceServer.initServices(new CPUIntensiveService());
         serviceServer.start();

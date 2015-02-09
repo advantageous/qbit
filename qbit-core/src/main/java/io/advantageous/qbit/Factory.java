@@ -3,8 +3,10 @@ package io.advantageous.qbit;
 import io.advantageous.qbit.client.Client;
 import io.advantageous.qbit.events.EventManager;
 import io.advantageous.qbit.http.HttpClient;
+import io.advantageous.qbit.http.HttpRequest;
 import io.advantageous.qbit.http.HttpServer;
 
+import io.advantageous.qbit.http.WebSocketMessage;
 import io.advantageous.qbit.json.JsonMapper;
 import io.advantageous.qbit.message.MethodCall;
 import io.advantageous.qbit.message.Request;
@@ -26,7 +28,7 @@ import io.advantageous.qbit.util.MultiMap;
 import java.util.List;
 
 /**
- * Main factory for QBit. This gets used internally to create / parse methods.
+ * Main factory for QBit. This gets used internally to createWithWorkers / parse methods.
  * @author rhightower
  */
 public interface Factory {
@@ -240,7 +242,7 @@ public interface Factory {
 
     /**
      * Request request
-     * @param request incoming request that we want to create a MethodCall from.
+     * @param request incoming request that we want to createWithWorkers a MethodCall from.
      * @param args args
      * @return request
      */
@@ -269,10 +271,16 @@ public interface Factory {
     }
 
 
-    default HttpServer createHttpServer(String host, int port, boolean manageQueues,
-                                        int pollTime,
-                                        int requestBatchSize,
-                                        int flushInterval, int maxRequests, int httpWorkers, Class handlerClass
+    default HttpServer createHttpServerWithQueue(String host, int port,
+                                                 int flushInterval, Queue<HttpRequest> requestQueue, Queue<WebSocketMessage> webSocketMessageQueue
+    ){
+        throw new UnsupportedOperationException();
+    }
+
+    default HttpServer createHttpServerWithWorkers(String host, int port, boolean manageQueues,
+                                                   int pollTime,
+                                                   int requestBatchSize,
+                                                   int flushInterval, int maxRequests, int httpWorkers, Class handlerClass
     ){
         throw new UnsupportedOperationException();
     }
