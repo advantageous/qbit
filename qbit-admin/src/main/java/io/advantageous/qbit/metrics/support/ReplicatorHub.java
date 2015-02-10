@@ -1,6 +1,6 @@
-package qbit.support;
+package io.advantageous.qbit.metrics.support;
 
-import qbit.StatReplicator;
+import io.advantageous.qbit.metrics.StatReplicator;
 
 import java.util.List;
 
@@ -16,9 +16,9 @@ public class ReplicatorHub implements StatReplicator {
     }
 
     @Override
-    public void record(String name, int count, long now) {
+    public void recordCount(String name, int count, long now) {
         for (StatReplicator replicator : list) {
-            replicator.record(name, count, now);
+            replicator.recordCount(name, count, now);
         }
     }
 

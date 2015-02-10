@@ -1,6 +1,7 @@
-package qbit.support;
+package io.advantageous.qbit.metrics.support;
 
-import qbit.StatRecorder;
+
+import io.advantageous.qbit.metrics.StatRecorder;
 
 import java.util.List;
 

@@ -22,7 +22,7 @@ import org.slf4j.LoggerFactory;
 public class ServiceBuilder {
 
 
-    public static ServiceBuilder serviceBuilder () {return new ServiceBuilder();}
+    public static ServiceBuilder serviceBuilder() {return new ServiceBuilder();}
     private final Logger logger = LoggerFactory.getLogger(ServiceBuilder.class);
     private final boolean debug = logger.isDebugEnabled();
     private ServiceMethodHandler serviceMethodHandler;
@@ -221,7 +221,7 @@ public class ServiceBuilder {
                 this.getServiceObject(),
                 this.getQueueBuilder(),
                 QBit.factory().createServiceMethodHandler(this.isInvokeDynamic()),
-                this.getResponseQueue(), this.isAsyncResponse(), handleCallbacks);
+                this.getResponseQueue(), this.isAsyncResponse(), this.isHandleCallbacks());
 
         return service;
     }

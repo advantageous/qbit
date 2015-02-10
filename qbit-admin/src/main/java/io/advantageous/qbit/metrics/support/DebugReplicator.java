@@ -1,6 +1,7 @@
-package qbit.support;
+package io.advantageous.qbit.metrics.support;
 
-import qbit.StatReplicator;
+
+import io.advantageous.qbit.metrics.StatReplicator;
 
 import static org.boon.Boon.puts;
 
@@ -22,7 +23,7 @@ public class DebugReplicator implements StatReplicator {
 
 
     @Override
-    public void record(String name, int count, long now) {
+    public void recordCount(String name, int count, long now) {
         this.count += count;
         if (out) puts("DEBUG REPLICATOR", name, count, now);
     }

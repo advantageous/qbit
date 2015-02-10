@@ -1,5 +1,6 @@
-package qbit;
+package io.advantageous.qbit.metrics;
 
+import io.advantageous.qbit.metrics.support.*;
 import io.advantageous.qbit.util.Timer;
 import org.boon.primitive.Arry;
 import org.boon.primitive.Int;
@@ -7,7 +8,6 @@ import org.boon.primitive.Lng;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import qbit.support.*;
 
 import static org.boon.Exceptions.die;
 
@@ -37,7 +37,7 @@ public class StatServiceTest {
     @Test
     public void testRecord() throws Exception {
 
-        statService.record("mystat", 1);
+        statService.recordCount("mystat", 1);
 
         ok = replicator.count == 1 || die();
         ok = recorder.count == 0 || die();
@@ -65,7 +65,7 @@ public class StatServiceTest {
         int[] counts = Int.array(1, 2);
         //long[] times = Lng.array(Timer.timer().now(), Timer.timer().now() + 2000);
 
-        statService.recordAll(names, counts);
+        statService.recordAllCounts(Timer.timer().now(), names, counts);
 
         ok = replicator.count == 3 || die(replicator.count);
         ok = recorder.count == 0 || die(recorder.count);
@@ -101,7 +101,7 @@ public class StatServiceTest {
         int[] counts = Int.array(1, 2);
         long[] times = Lng.array(Timer.timer().now(), Timer.timer().now() + 2000);
 
-        statService.recordAllWithTimes(names, counts, times);
+        statService.recordAllCountsWithTimes(names, counts, times);
 
         ok = replicator.count == 6 || die(replicator.count);
         ok = recorder.count == 0 || die(recorder.count);

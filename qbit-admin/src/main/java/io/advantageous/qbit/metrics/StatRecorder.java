@@ -1,6 +1,6 @@
-package qbit;
+package io.advantageous.qbit.metrics;
 
-import qbit.support.MinuteStat;
+import io.advantageous.qbit.metrics.support.MinuteStat;
 
 import java.util.List;
 

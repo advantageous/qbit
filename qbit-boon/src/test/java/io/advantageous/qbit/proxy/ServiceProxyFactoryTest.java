@@ -420,7 +420,7 @@ public class ServiceProxyFactoryTest {
 
         myServiceProxy.methodThrowsExceptionIf5(handler, "hi", 5);
         serviceBundle.flush();
-        Sys.sleep(1000);
+        Sys.sleep(2000);
 
 
         ok = wasError.get() || die();

@@ -6,6 +6,7 @@ include ':qbit-sample-model'
 include ':qbit-sample-client'
 include ':qbit-sample-server'
 include ':qbit-examples-standalone'
+include ':qbit-admin'
 
 
 include ':qbit-perf'
@@ -27,3 +28,5 @@ project(':qbit-sample-model').projectDir = "$rootDir/qbit-examples/qbit-sample-m
 project(':qbit-sample-client').projectDir = "$rootDir/qbit-examples/qbit-sample-client" as File
 project(':qbit-sample-server').projectDir = "$rootDir/qbit-examples/qbit-sample-server" as File
 project(':qbit-examples-standalone').projectDir = "$rootDir/qbit-examples/qbit-examples-standalone" as File
+project(':qbit-admin').projectDir = "$rootDir/qbit-admin" as File
+

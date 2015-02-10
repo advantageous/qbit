@@ -1,7 +1,7 @@
-package qbit;
+package io.advantageous.qbit.metrics;
 
 import io.advantageous.qbit.util.Timer;
-import qbit.support.MinuteStat;
+import io.advantageous.qbit.metrics.support.MinuteStat;
 
 import java.util.ArrayList;
 import java.util.Map;
@@ -26,7 +26,7 @@ public class StatService  {
     }
 
 
-    public void record(String name, int count) {
+    public void recordCount(String name, int count) {
         recordWithTime(name, count, now);
     }
 
@@ -46,18 +46,24 @@ public class StatService  {
 
     public void recordWithTime(String name, int count, long now) {
         oneMinuteOfStats(name).changeBy(count, now);
-        replica.record(name, count, now);
+        replica.recordCount(name, count, now);
     }
 
-    public void recordAll(String[] names, int[] counts) {
+    public void recordAllCounts(final long timestamp,
+                                final String[] names,
+                                final int[] counts) {
         for (int index = 0; index < names.length; index++) {
             String name = names[index];
             int count = counts[index];
-            recordWithTime(name, count, now);
+            recordWithTime(name, count, timestamp);
         }
     }
 
-    public void recordAllWithTimes(String[] names, int[] counts, long[] times) {
+    public void recordAllCountsWithTimes(
+            final String[] names,
+            final int[] counts,
+            final long[] times) {
+
         for (int index = 0; index < names.length; index++) {
             String name = names[index];
             int count = counts[index];

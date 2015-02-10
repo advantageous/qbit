@@ -1,9 +1,8 @@
-package qbit;
+package io.advantageous.qbit.metrics.support;
 
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import qbit.support.MinuteStat;
 
 import static org.boon.Boon.puts;
 import static org.boon.Exceptions.die;

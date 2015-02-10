@@ -1,4 +1,4 @@
-package qbit.support;
+package io.advantageous.qbit.metrics.support;
 
 import java.util.Arrays;
 
