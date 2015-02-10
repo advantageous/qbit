@@ -3,6 +3,7 @@ package io.advantageous.qbit.http;
 import io.advantageous.qbit.server.Server;
 
 import java.util.function.Consumer;
+import java.util.function.Predicate;
 
 /**
  * Represents an HTTP server.
@@ -19,8 +20,13 @@ public interface HttpServer extends Server {
 
     void setHttpRequestConsumer(Consumer<HttpRequest> httpRequestConsumer);
 
+    default void setShouldContinueHttpRequest(Predicate<HttpRequest> predicate) {
+        throw new RuntimeException("Not supported");
+    }
+
     void setHttpRequestsIdleConsumer(Consumer<Void> idleConsumer);
 
     void setWebSocketIdleConsume(Consumer<Void> idleConsumer);
+
 
 }

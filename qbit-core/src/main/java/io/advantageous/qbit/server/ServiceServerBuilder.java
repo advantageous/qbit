@@ -43,6 +43,8 @@ public class ServiceServerBuilder {
     private QueueBuilder webSocketMessageQueueBuilder;
     private QueueBuilder serviceBundleQueueBuilder;
     private boolean eachServiceInItsOwnThread=true;
+    private HttpServer httpServer;
+
     /**
      * Allows interception of method calls before they get sent to a client.
      * This allows us to transform or reject method calls.
@@ -59,6 +61,14 @@ public class ServiceServerBuilder {
     private Transformer<Request, Object> argTransformer = ServiceConstants.NO_OP_ARG_TRANSFORM;
 
 
+    public HttpServer getHttpServer() {
+        return httpServer;
+    }
+
+    public ServiceServerBuilder setHttpServer(HttpServer httpServer) {
+        this.httpServer = httpServer;
+        return this;
+    }
 
     public QueueBuilder getRequestQueueBuilder() {
         return requestQueueBuilder;
@@ -189,7 +199,11 @@ public class ServiceServerBuilder {
     }
 
     public ServiceServer build() {
-        final HttpServer httpServer = createHttpServer();
+
+        if (httpServer==null) {
+            httpServer = createHttpServer();
+        }
+
         final JsonMapper jsonMapper = QBit.factory().createJsonMapper();
         final ProtocolEncoder encoder = QBit.factory().createEncoder();
         if (serviceBundleQueueBuilder ==null) {

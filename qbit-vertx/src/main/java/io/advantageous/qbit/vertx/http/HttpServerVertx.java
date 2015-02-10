@@ -35,8 +35,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Consumer;
-
-import static org.boon.Boon.puts;
+import java.util.function.Predicate;
 
 //import static org.boon.Boon.puts;
 
@@ -82,7 +81,12 @@ public class HttpServerVertx implements HttpServer {
         }
     };
 
-
+    private Predicate<HttpRequest> shouldContinueHttpRequest = new Predicate<HttpRequest>() {
+        @Override
+        public boolean test(HttpRequest httpRequest) {
+            return true;
+        }
+    };
 
     public HttpServerVertx(String host, int port, int flushInterval, Queue<HttpRequest> requestQueue,
                            Queue<WebSocketMessage> webSocketMessageQueue) {
@@ -163,6 +167,7 @@ public class HttpServerVertx implements HttpServer {
     private Consumer<HttpRequest> httpRequestConsumer = request -> logger.debug("HttpServerVertx::DEFAULT HTTP HANDLER CALLED WHICH IS ODD");
 
 
+
     private Queue<HttpRequest> requests;
     private SendQueue<HttpRequest> httpRequestSendQueue;
     private Queue<HttpResponseInternal> responses;
@@ -175,6 +180,15 @@ public class HttpServerVertx implements HttpServer {
 
 
     private Queue<WebSocketMessage> webSocketMessageInQueue;
+
+
+    @Override
+    public void setShouldContinueHttpRequest(final Predicate<HttpRequest> shouldContinueHttpRequest) {
+
+        this.shouldContinueHttpRequest = shouldContinueHttpRequest;
+    }
+
+
 
 
     @Override
@@ -405,9 +419,11 @@ public class HttpServerVertx implements HttpServer {
 
             requests.startListener(new ReceiveQueueListener<HttpRequest>() {
                 @Override
-                public void receive(HttpRequest request) {
+                public void receive(final HttpRequest request) {
 
-                    httpRequestConsumer.accept(request);
+                    if (shouldContinueHttpRequest.test(request)) {
+                        httpRequestConsumer.accept(request);
+                    }
                 }
 
                 @Override
@@ -525,7 +541,10 @@ public class HttpServerVertx implements HttpServer {
                         sendRequestOnQueue(postRequest);
 
                     } else {
-                        this.httpRequestConsumer.accept(postRequest);
+
+                        if (shouldContinueHttpRequest.test(postRequest)) {
+                            this.httpRequestConsumer.accept(postRequest);
+                        }
                     }
 
                 });
@@ -543,7 +562,9 @@ public class HttpServerVertx implements HttpServer {
                     sendRequestOnQueue(getRequest);
 
                 } else {
-                    this.httpRequestConsumer.accept(getRequest);
+                    if (shouldContinueHttpRequest.test(getRequest)) {
+                        this.httpRequestConsumer.accept(getRequest);
+                    }
                 }
 
                 break;

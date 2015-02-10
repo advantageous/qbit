@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+<body>
+
+<p>Input your age and click the button:</p>
+
+<input id="age" value="18" />
+
+<button onclick="myFunction()">Try it</button>
+
+<p id="demo"></p>
+
+<script>
+
+    function httpGet(theUrl)
+    {
+        var xmlHttp = null;
+
+        xmlHttp = new XMLHttpRequest();
+        xmlHttp.open( "GET", theUrl, false );
+        xmlHttp.send( null );
+        return xmlHttp.responseText;
+    }
+
+    function myFunction() {
+
+
+        var json = httpGet("/services/helloservice/hello");
+
+        var helloObject = JSON.parse(json);
+
+        document.getElementById("demo").innerHTML = helloObject.hello;
+    }
+</script>
+
+</body>
+</html>

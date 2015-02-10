@@ -105,7 +105,7 @@ public class FullIntegrationTest {
 
         puts("HERE                        ", callCount, returnCount);
 
-        ok = returnCount == callCount || die();
+        ok = returnCount == callCount || die(callCount);
 
 
 
