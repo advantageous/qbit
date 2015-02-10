@@ -9,6 +9,7 @@ import io.advantageous.qbit.message.Event;
 import io.advantageous.qbit.message.MethodCall;
 import io.advantageous.qbit.message.Request;
 import io.advantageous.qbit.message.Response;
+import io.advantageous.qbit.queue.QueueCallBackHandler;
 import io.advantageous.qbit.queue.SendQueue;
 import io.advantageous.qbit.service.Callback;
 import io.advantageous.qbit.service.ServiceMethodHandler;
@@ -41,12 +42,8 @@ public class BoonServiceMethodCallHandler implements ServiceMethodHandler {
     private ClassMeta<Class<?>> classMeta;
     private Object service;
 
-    private MethodAccess queueStartBatch;
-    private MethodAccess queueInit;
-    private MethodAccess queueEmpty;
-    private MethodAccess queueLimit;
-    private MethodAccess queueShutdown;
-    private MethodAccess queueIdle;
+    private QueueCallBackHandler queueCallBackHandler;
+
 
     private final boolean invokeDynamic;
 
@@ -641,18 +638,13 @@ public class BoonServiceMethodCallHandler implements ServiceMethodHandler {
 
 
     private void initQueueHandlerMethods() {
-        queueLimit = classMeta.method("queueLimit");
-        queueEmpty = classMeta.method("queueEmpty");
-        queueShutdown = classMeta.method("queueShutdown");
-        queueIdle = classMeta.method("queueIdle");
-        queueInit = classMeta.method("queueInit");
-        queueStartBatch = classMeta.method("queueStartBatch");
+
+        this.queueCallBackHandler = QueueCallbackHandlerFactory.createQueueCallbackHandler(service);
+
     }
 
     public void queueStartBatch() {
-        if (queueStartBatch!=null) {
-            queueStartBatch.invoke(service);
-        }
+        queueCallBackHandler.queueStartBatch();
     }
 
     private void readMethodMetaData() {
@@ -759,9 +751,7 @@ public class BoonServiceMethodCallHandler implements ServiceMethodHandler {
     @Override
     public void queueInit() {
 
-        if (queueInit!=null) {
-            queueInit.invoke(this.service);
-        }
+           queueCallBackHandler.queueInit();
 
     }
 
@@ -909,30 +899,23 @@ public class BoonServiceMethodCallHandler implements ServiceMethodHandler {
 
     @Override
     public void empty() {
-        if (queueEmpty != null) {
-            queueEmpty.invoke(service);
-        }
+
+        queueCallBackHandler.queueEmpty();
     }
 
     @Override
     public void limit() {
-        if (queueLimit != null) {
-            queueLimit.invoke(service);
-        }
+        queueCallBackHandler.queueLimit();
     }
 
     @Override
     public void shutdown() {
-        if (queueShutdown != null) {
-            queueShutdown.invoke(service);
-        }
+        queueCallBackHandler.queueShutdown();
     }
 
     @Override
     public void idle() {
-        if (queueIdle != null) {
-            queueIdle.invoke(service);
-        }
+        queueCallBackHandler.queueIdle();
     }
 
     public Map<String, Map<String, Pair<MethodBinding, MethodAccess>>> methodMap() {

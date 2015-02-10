@@ -92,7 +92,7 @@ public class BoonEventManagerTest {
         eventManager.send(rick, "Hello Rick");
         clientProxy.clientProxyFlush();
 
-        Sys.sleep(100);
+        Sys.sleep(1000);
 
         ok = subscribeMessageCount == 2 || die(subscribeMessageCount);
 

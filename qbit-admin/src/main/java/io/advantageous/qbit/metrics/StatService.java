@@ -1,5 +1,6 @@
 package io.advantageous.qbit.metrics;
 
+import io.advantageous.qbit.queue.QueueCallBackHandler;
 import io.advantageous.qbit.util.Timer;
 import io.advantageous.qbit.metrics.support.MinuteStat;
 
@@ -10,7 +11,7 @@ import java.util.concurrent.ConcurrentHashMap;
 /**
  * Created by rhightower on 1/28/15.
  */
-public class StatService  {
+public class StatService  implements QueueCallBackHandler {
     private final StatRecorder recorder;
     private long now;
     private long startMinute;
@@ -82,12 +83,12 @@ public class StatService  {
         return oneMinuteOfStats;
     }
 
-    void queueLimit() {
+    public void queueLimit() {
         now = Timer.timer().now();
         process();
     }
 
-    void queueEmpty() {
+    public void queueEmpty() {
         now = Timer.timer().now();
         process();
     }

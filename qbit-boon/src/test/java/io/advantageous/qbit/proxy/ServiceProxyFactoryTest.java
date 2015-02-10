@@ -406,7 +406,7 @@ public class ServiceProxyFactoryTest {
 
         myServiceProxy.methodThrowsExceptionIf5(handler, "hi", 6);
         serviceBundle.flush();
-        Sys.sleep(1000);
+        Sys.sleep(5000);
 
         ok = ok || die();
 

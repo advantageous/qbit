@@ -1,8 +1,11 @@
 package io.advantageous.qbit.events.impl;
 
 import io.advantageous.qbit.GlobalConstants;
+import io.advantageous.qbit.annotation.QueueCallback;
+import io.advantageous.qbit.annotation.QueueCallbackType;
 import io.advantageous.qbit.events.*;
 import io.advantageous.qbit.message.Event;
+import io.advantageous.qbit.queue.QueueCallBackHandler;
 import io.advantageous.qbit.queue.SendQueue;
 import io.advantageous.qbit.service.Service;
 import io.advantageous.qbit.util.Timer;
@@ -61,6 +64,7 @@ public class BoonEventManager implements EventManager {
         }
     }
 
+    @QueueCallback(QueueCallbackType.IDLE)
     private void queueIdle() {
 
         now = Timer.timer().now();
@@ -73,6 +77,7 @@ public class BoonEventManager implements EventManager {
 
     }
 
+    @QueueCallback(QueueCallbackType.LIMIT)
     private void queueLimit() {
 
 
@@ -95,6 +100,7 @@ public class BoonEventManager implements EventManager {
 
 
 
+    @QueueCallback(QueueCallbackType.EMPTY)
     private void queueEmpty() {
 
 

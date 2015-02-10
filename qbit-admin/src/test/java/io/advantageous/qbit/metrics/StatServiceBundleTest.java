@@ -128,7 +128,7 @@ public class StatServiceBundleTest {
         Sys.sleep(1000);
 
 
-        if (replicator.count < 100_000) {
+        if (replicator.count < 4000) {
             Sys.sleep(1000);
         }
 
@@ -152,7 +152,7 @@ public class StatServiceBundleTest {
         Sys.sleep(1000);
 
         if (replicator.count < 100_000) {
-            Sys.sleep(1000);
+            Sys.sleep(10_000);
         }
 
         ok = replicator.count == 100_000 || die(replicator.count);
