@@ -65,7 +65,7 @@ public class EmployeeEventExampleUsingEventProxyToSendEvents {
         void sendNewEmployee(Employee employee);
 
 
-        @EventChannel(NEW_HIRE_CHANNEL)
+        @EventChannel(PAYROLL_ADJUSTMENT_CHANNEL)
         void sendSalaryChangeEvent(Employee employee, int newSalary);
 
     }
@@ -100,10 +100,9 @@ public class EmployeeEventExampleUsingEventProxyToSendEvents {
 
             //Does stuff to hire employee
 
-            //Sends events
-            final EventManager eventManager = serviceContext().eventManager();
-            eventManager.send(NEW_HIRE_CHANNEL, employee);
-            eventManager.sendArray(PAYROLL_ADJUSTMENT_CHANNEL, employee, salary);
+
+            eventManager.sendNewEmployee( employee);
+            eventManager.sendSalaryChangeEvent( employee, salary );
 
 
         }
