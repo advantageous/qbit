@@ -271,31 +271,27 @@ public class ServiceImpl implements Service {
             @Override
             public void empty() {
                 handle();
+                inputQueueListener.empty();
+                serviceMethodHandler.empty();
             }
 
             @Override
             public void startBatch() {
-                if (inputQueueListener != null) {
-                    inputQueueListener.startBatch();
-                }
+                inputQueueListener.startBatch();
                 serviceMethodHandler.queueStartBatch();
             }
 
             @Override
             public void limit() {
                 handle();
-                if (inputQueueListener != null) {
-                    inputQueueListener.limit();
-                }
+                inputQueueListener.limit();
                 serviceMethodHandler.limit();
             }
 
             @Override
             public void shutdown() {
                 handle();
-                if (inputQueueListener != null) {
-                    inputQueueListener.shutdown();
-                }
+                inputQueueListener.shutdown();
                 serviceMethodHandler.shutdown();
             }
 

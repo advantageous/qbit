@@ -1,6 +1,7 @@
 package io.advantageous.qbit;
 
 import io.advantageous.qbit.client.Client;
+import io.advantageous.qbit.events.EventBusProxyCreator;
 import io.advantageous.qbit.events.EventManager;
 import io.advantageous.qbit.http.HttpClient;
 import io.advantageous.qbit.http.HttpRequest;
@@ -339,6 +340,11 @@ public interface Factory {
 
 
     default void clearEventManagerProxy() {
+    }
+
+    default EventBusProxyCreator eventBusProxyCreator() {
+
+        throw new UnsupportedOperationException();
     }
 
 

@@ -1,40 +1,26 @@
 package io.advantageous.qbit.example.events;
 
 import io.advantageous.qbit.QBit;
+import io.advantageous.qbit.annotation.EventChannel;
+import io.advantageous.qbit.annotation.OnEvent;
+import io.advantageous.qbit.annotation.QueueCallback;
+import io.advantageous.qbit.annotation.QueueCallbackType;
+import io.advantageous.qbit.events.EventBusProxyCreator;
 import io.advantageous.qbit.events.EventManager;
 import io.advantageous.qbit.service.Service;
+import io.advantageous.qbit.service.ServiceProxyUtils;
 import org.boon.core.Sys;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
 
 import static io.advantageous.qbit.service.ServiceBuilder.serviceBuilder;
 import static io.advantageous.qbit.service.ServiceContext.serviceContext;
 import static io.advantageous.qbit.service.ServiceProxyUtils.flushServiceProxy;
-import static org.boon.Boon.puts;
 
 /**
- * Created by rhightower on 2/5/15.
+ * Created by rhightower on 2/11/15.
  */
-public class EmployeeEventExampleUsingStandaloneEventBus {
+public class EmployeeEventExampleUsingEventProxyToSendEvents {
 
-    @Target({ ElementType.METHOD, ElementType.FIELD })
-    @Retention(RetentionPolicy.RUNTIME)
-    public @interface OnEvent {
-
-
-    /* The channel you want to listen to. */;
-        String value() default "";
-
-        /* The consume is the last object listening to this event.
-           An event channel can have many subscribers but only one consume.
-         */
-        boolean consume() default false;
-
-
-    }
 
 
     public static final String NEW_HIRE_CHANNEL = "com.mycompnay.employee.new";
@@ -72,31 +58,37 @@ public class EmployeeEventExampleUsingStandaloneEventBus {
 
     }
 
-    interface EventManagerClient {
 
-        <T> void send(String channel, T event);
+    interface EmployeeEventManager {
 
-        <T> void sendArray(String channel, T... event);
+        @EventChannel(NEW_HIRE_CHANNEL)
+        void sendNewEmployee(Employee employee);
 
-        void clientProxyFlush();
+
+        @EventChannel(NEW_HIRE_CHANNEL)
+        void sendSalaryChangeEvent(Employee employee, int newSalary);
+
     }
-
 
     public static class EmployeeHiringService {
 
-        final EventManagerClient eventManager;
+        final EmployeeEventManager eventManager;
 
-        public EmployeeHiringService (final EventManagerClient eventManager) {
-            this.eventManager = eventManager;
+        public EmployeeHiringService (final EmployeeEventManager employeeEventManager) {
+            this.eventManager = employeeEventManager;
         }
 
-        void queueEmpty() {
-            eventManager.clientProxyFlush();
+
+
+        @QueueCallback(QueueCallbackType.EMPTY)
+        private void noMoreRequests() {
+            flushServiceProxy(eventManager);
         }
 
-        void queueLimit() {
 
-            eventManager.clientProxyFlush();
+        @QueueCallback(QueueCallbackType.LIMIT)
+        private void hitLimitOfRequests() {
+            flushServiceProxy(eventManager);
         }
 
 
@@ -108,6 +100,8 @@ public class EmployeeEventExampleUsingStandaloneEventBus {
 
             //Does stuff to hire employee
 
+            //Sends events
+            final EventManager eventManager = serviceContext().eventManager();
             eventManager.send(NEW_HIRE_CHANNEL, employee);
             eventManager.sendArray(PAYROLL_ADJUSTMENT_CHANNEL, employee, salary);
 
@@ -165,19 +159,20 @@ public class EmployeeEventExampleUsingStandaloneEventBus {
         /* Create a service queue for this event bus. */
         Service privateEventBusService = serviceBuilder()
                 .setServiceObject(privateEventBus)
-                .setInvokeDynamic(false).build().start();
+                .setInvokeDynamic(false).build();
 
-        /*
-         Create a proxy client for the queued event bus service.
-         */
-        EventManagerClient eventBus = privateEventBusService.createProxy(EventManagerClient.class);
+
+        final EventBusProxyCreator eventBusProxyCreator = QBit.factory().eventBusProxyCreator();
+
+        final EmployeeEventManager employeeEventManager =
+                eventBusProxyCreator.createProxy(privateEventBus, EmployeeEventManager.class);
 
 
         /*
         Create your EmployeeHiringService but this time pass the private event bus.
         Note you could easily use Spring or Guice for this wiring.
          */
-        EmployeeHiringService employeeHiring = new EmployeeHiringService(eventBus);
+        EmployeeHiringService employeeHiring = new EmployeeHiringService(employeeEventManager);
 
 
 
@@ -211,23 +206,24 @@ public class EmployeeEventExampleUsingStandaloneEventBus {
         privateEventBus.joinService(employeeBenefitsService);
         privateEventBus.joinService(volunteeringService);
 
-        /** Now createWithWorkers the service proxy like before. */
-        EmployeeHiringServiceClient employeeHiringServiceClientProxy =
-                employeeHiringService.createProxy(EmployeeHiringServiceClient.class);
 
-
+        privateEventBusService.start();
         employeeHiringService.start();
         volunteeringService.start();
         payrollService.start();
         employeeBenefitsService.start();
 
 
+        /** Now createWithWorkers the service proxy like before. */
+        EmployeeHiringServiceClient employeeHiringServiceClientProxy =
+                employeeHiringService.createProxy(EmployeeHiringServiceClient.class);
+
         /** Call the hireEmployee method which triggers the other events. */
         employeeHiringServiceClientProxy.hireEmployee(new Employee("Rick", 1));
 
         flushServiceProxy(employeeHiringServiceClientProxy);
 
-        Sys.sleep(50_000_000);
+        Sys.sleep(5_000);
 
     }
 }

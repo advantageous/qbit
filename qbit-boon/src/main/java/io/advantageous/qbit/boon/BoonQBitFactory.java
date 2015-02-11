@@ -3,7 +3,9 @@ package io.advantageous.qbit.boon;
 import io.advantageous.qbit.BoonJsonMapper;
 import io.advantageous.qbit.Factory;
 import io.advantageous.qbit.client.Client;
+import io.advantageous.qbit.events.EventBusProxyCreator;
 import io.advantageous.qbit.events.EventManager;
+import io.advantageous.qbit.events.impl.BoonEventBusProxyCreator;
 import io.advantageous.qbit.http.HttpClient;
 import io.advantageous.qbit.http.HttpRequest;
 import io.advantageous.qbit.http.HttpServer;
@@ -338,5 +340,12 @@ public class BoonQBitFactory implements Factory {
     @Override
     public ProtocolEncoder createEncoder() {
         return new BoonProtocolEncoder();
+    }
+
+
+
+    public EventBusProxyCreator eventBusProxyCreator() {
+
+        return new BoonEventBusProxyCreator();
     }
 }

@@ -1,0 +1,121 @@
+package io.advantageous.qbit.events.impl;
+
+import io.advantageous.qbit.client.ClientProxy;
+import io.advantageous.qbit.events.EventBusProxyCreator;
+import io.advantageous.qbit.events.EventManager;
+import io.advantageous.qbit.service.ServiceProxyUtils;
+import io.advantageous.qbit.util.Timer;
+import org.boon.Str;
+import org.boon.core.Sys;
+import org.boon.core.reflection.AnnotationData;
+import org.boon.core.reflection.ClassMeta;
+import org.boon.core.reflection.MethodAccess;
+
+import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.Method;
+import java.lang.reflect.Proxy;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+
+import static io.advantageous.qbit.service.ServiceProxyUtils.flushServiceProxy;
+import static org.boon.core.reflection.ClassMeta.*;
+
+/**
+ * Created by rhightower on 2/11/15.
+ */
+public class BoonEventBusProxyCreator implements EventBusProxyCreator{
+
+    /* I don't think anyone will ever want to change this but they can via a system property. */
+    public static final String EVENT_CHANNEL_ANNOTATION_NAME =
+            Sys.sysProp("io.advantageous.qbit.events.EventBusProxyCreator.eventChannelName", "EventChannel");
+
+    @Override
+    public <T> T createProxy(final EventManager eventManager, final Class<T> eventBusProxyInterface) {
+
+        return createProxyWithChannelPrefix(eventManager, eventBusProxyInterface, null);
+    }
+
+    @Override
+    public <T> T createProxyWithChannelPrefix(final EventManager eventManager,
+                                              final Class<T> eventBusProxyInterface,
+                                              final String channelPrefix) {
+
+        if (!eventBusProxyInterface.isInterface()) {
+            throw new IllegalArgumentException("Must be an interface for eventBusProxyInterface argument");
+        }
+        final Map<String, String> methodToChannelMap = createMethodToChannelMap(channelPrefix, eventBusProxyInterface);
+
+        final InvocationHandler invocationHandler = (proxy, method, args) -> {
+
+            if (method.getName().equals("clientProxyFlush")) {
+                flushServiceProxy(eventManager);
+                return null;
+            }
+            final String channelName = methodToChannelMap.get(method.toString());
+            eventManager.sendArray(channelName, args);
+
+            return null;
+        };
+        final Object o = Proxy.newProxyInstance(Thread.currentThread().getContextClassLoader(),
+                new Class[]{eventBusProxyInterface, ClientProxy.class}, invocationHandler
+        );
+        return (T) o;
+
+    }
+
+    private <T> Map<String, String> createMethodToChannelMap(String channelPrefix, Class<T> eventBusProxyInterface) {
+
+        final Map<String, String> methodToChannelMap = new ConcurrentHashMap<>(20);
+        final ClassMeta<T> classMeta =
+                classMeta(eventBusProxyInterface);
+
+        AnnotationData classAnnotation = classMeta.annotation(EVENT_CHANNEL_ANNOTATION_NAME);
+        //They could even use enum as we are getting a string value
+        final String classEventBusName = classAnnotation !=null ?
+                classAnnotation.getValues().get("value").toString() : null;
+
+
+        classMeta.methods().forEach(methodAccess -> {
+
+            AnnotationData methodAnnotation = methodAccess.annotation("EventChannel");
+            final String methodEventBusName = methodAnnotation != null ?
+                    methodAnnotation.getValues().get("value").toString() : null;
+
+
+            final String channelName = createChannelName(channelPrefix, classEventBusName, methodEventBusName);
+            methodToChannelMap.put(methodAccess.method().toString(), channelName);
+        });
+
+        return methodToChannelMap;
+    }
+
+    private String createChannelName(final String channelPrefix,
+                                     final String classChannelNamePart,
+                                     final String methodChannelNamePart) {
+
+        if (methodChannelNamePart == null) {
+            throw new IllegalArgumentException("Each method must have an event bus channel name");
+        }
+
+        //If Channel prefix is null then just use class channel name and method channel name
+        if (channelPrefix==null) {
+
+            //If the class channel name is null just return the method channel name.
+            if (classChannelNamePart==null) {
+                return methodChannelNamePart;
+            } else {
+
+                //Channel name takes the form ${classChannelNamePart.methodChannelNamePart}
+                return Str.join('.', classChannelNamePart, methodChannelNamePart);
+            }
+        } else {
+            //If classChannelNamePart null then channel name takes the form ${channelPrefix.methodChannelNamePart}
+            if (classChannelNamePart==null) {
+                return Str.join('.', channelPrefix, methodChannelNamePart);
+            } else {
+            //Nothing was null so the channel name takes the form ${channelPrefix.classChannelNamePart.methodChannelNamePart}
+                return Str.join('.', channelPrefix, classChannelNamePart, methodChannelNamePart);
+            }
+        }
+    }
+}

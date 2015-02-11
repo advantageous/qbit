@@ -100,7 +100,7 @@ public class FullIntegrationTest {
         Sys.sleep(100);
 
         client.flush();
-        Sys.sleep(300);
+        Sys.sleep(3000);
 
 
         puts("HERE                        ", callCount, returnCount);

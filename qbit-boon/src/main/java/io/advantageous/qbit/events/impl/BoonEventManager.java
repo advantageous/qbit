@@ -309,6 +309,7 @@ public class BoonEventManager implements EventManager {
 
     @Override
     public <T> void sendArray(String channel, T... event) {
+
         this.send(channel, event);
     }
 
