@@ -4,6 +4,7 @@ import io.advantageous.qbit.Factory;
 import io.advantageous.qbit.spi.FactorySPI;
 import io.advantageous.qbit.spi.HttpClientFactory;
 import io.advantageous.qbit.spi.HttpServerFactory;
+import io.advantageous.qbit.system.QBitSystemManager;
 import org.boon.core.Sys;
 import org.junit.Before;
 import org.junit.Test;
@@ -45,8 +46,8 @@ public class HttpServerBuilderTest {
 
             @Override
             public HttpServer createHttpServer(String host, int port, boolean manageQueues, int pollTime, int requestBatchSize, int flushInterval,
-                                               int maxRequests) {
-                return FactorySPI.getHttpServerFactory().create(host, port, manageQueues, pollTime, requestBatchSize, flushInterval, maxRequests);
+                                               int maxRequests, final QBitSystemManager systemManager) {
+                return FactorySPI.getHttpServerFactory().create(host, port, manageQueues, pollTime, requestBatchSize, flushInterval, maxRequests, systemManager);
             }
         });
 
@@ -57,7 +58,7 @@ public class HttpServerBuilderTest {
                                      boolean manageQueues,
                                      int pollTime,
                                      int requestBatchSize,
-                                     int flushInterval, int maxRequests) {
+                                     int flushInterval, int maxRequests, final QBitSystemManager systemManager) {
                 return new HttpServer() {
                     @Override
                     public void setWebSocketMessageConsumer(Consumer<WebSocketMessage> webSocketMessageConsumer) {

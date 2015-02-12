@@ -3,6 +3,7 @@ package io.advantageous.qbit.http;
 import io.advantageous.qbit.QBit;
 import io.advantageous.qbit.queue.Queue;
 import io.advantageous.qbit.queue.QueueBuilder;
+import io.advantageous.qbit.system.QBitSystemManager;
 
 import java.util.function.Consumer;
 
@@ -31,6 +32,18 @@ public class HttpServerBuilder {
     private Consumer<HttpRequest> httpRequestConsumer;
     private QueueBuilder requestQueueBuilder;
     private QueueBuilder webSocketMessageQueueBuilder;
+    private QBitSystemManager qBitSystemManager;
+
+
+    public QBitSystemManager getSystemManager() {
+        return qBitSystemManager;
+    }
+
+    public HttpServerBuilder setSystemManager(QBitSystemManager qBitSystemManager) {
+        this.qBitSystemManager = qBitSystemManager;
+        return this;
+    }
+
 
     public QueueBuilder getRequestQueueBuilder() {
         return requestQueueBuilder;
@@ -162,16 +175,15 @@ public class HttpServerBuilder {
 
     public HttpServer build() {
 
-
+        final HttpServer httpServer;
 
         if (getWorkers() == -1 || getHandlerClass()==null) {
-            final HttpServer httpServer = QBit.factory().createHttpServer(this.getHost(),
+            httpServer = QBit.factory().createHttpServer(this.getHost(),
                     this.getPort(), this.isManageQueues(), this.getPollTime(), this.getRequestBatchSize(),
-                    this.getFlushInterval(), this.getMaxRequestBatches());
+                    this.getFlushInterval(), this.getMaxRequestBatches(), this.getSystemManager());
 
             httpServer.setHttpRequestConsumer(this.getHttpRequestConsumer());
             httpServer.setWebSocketMessageConsumer(this.getWebSocketMessageConsumer());
-            return httpServer;
         } else {
 
             if (webSocketMessageQueueBuilder!=null || requestQueueBuilder!=null) {
@@ -186,23 +198,31 @@ public class HttpServerBuilder {
 
                 final Queue<HttpRequest> requestQueue = requestQueueBuilder.build();
                 final Queue<WebSocketMessage> webSocketMessageQueue = webSocketMessageQueueBuilder.build();
-                final HttpServer httpServer = QBit.factory().createHttpServerWithQueue(this.getHost(),
-                        this.getPort(), this.getFlushInterval(), requestQueue, webSocketMessageQueue);
+                httpServer = QBit.factory().createHttpServerWithQueue(this.getHost(),
+                        this.getPort(), this.getFlushInterval(),
+                        requestQueue, webSocketMessageQueue, getSystemManager());
                 httpServer.setHttpRequestConsumer(this.getHttpRequestConsumer());
                 httpServer.setWebSocketMessageConsumer(this.getWebSocketMessageConsumer());
-                return httpServer;
 
             } else {
 
-                final HttpServer httpServer = QBit.factory().createHttpServerWithWorkers(this.getHost(),
+                httpServer = QBit.factory().createHttpServerWithWorkers(this.getHost(),
                         this.getPort(), this.isManageQueues(), this.getPollTime(), this.getRequestBatchSize(),
-                        this.getFlushInterval(), this.getMaxRequestBatches(), this.getWorkers(), this.getHandlerClass());
+                        this.getFlushInterval(), this.getMaxRequestBatches(), this.getWorkers(),
+                        this.getHandlerClass(), this.getSystemManager());
 
                 httpServer.setHttpRequestConsumer(this.getHttpRequestConsumer());
                 httpServer.setWebSocketMessageConsumer(this.getWebSocketMessageConsumer());
                 return httpServer;
             }
+
         }
+
+
+        if (httpServer!=null && qBitSystemManager!=null) {
+            qBitSystemManager.registerServer(httpServer);
+        }
+        return httpServer;
     }
 
 }

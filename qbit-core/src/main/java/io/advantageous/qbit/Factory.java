@@ -23,6 +23,7 @@ import io.advantageous.qbit.service.ServiceMethodHandler;
 import io.advantageous.qbit.spi.FactorySPI;
 import io.advantageous.qbit.spi.ProtocolEncoder;
 import io.advantageous.qbit.spi.ProtocolParser;
+import io.advantageous.qbit.system.QBitSystemManager;
 import io.advantageous.qbit.transforms.Transformer;
 import io.advantageous.qbit.util.MultiMap;
 
@@ -103,7 +104,9 @@ public interface Factory {
                                               final Factory factory, final boolean asyncCalls,
                                               final BeforeMethodCall beforeMethodCall,
                                               final BeforeMethodCall beforeMethodCallAfterTransform,
-                                              final Transformer<Request, Object> argTransformer, boolean invokeDynamic){
+                                              final Transformer<Request, Object> argTransformer,
+                                              boolean invokeDynamic,
+                                              final QBitSystemManager systemManager){
         throw new UnsupportedOperationException();
     }
 
@@ -127,7 +130,10 @@ public interface Factory {
                                   Object object,
                                   Queue<Response<Object>> responseQueue,
                                   final  QueueBuilder queueBuilder,
-                                  boolean asyncCalls, boolean invokeDynamic, boolean handleCallbacks){
+                                  boolean asyncCalls,
+                                  boolean invokeDynamic,
+                                  boolean handleCallbacks,
+                                  final QBitSystemManager systemManager){
         throw new UnsupportedOperationException();
     }
 
@@ -145,7 +151,9 @@ public interface Factory {
      */
     default Service createService(String rootAddress, String serviceAddress,
                                   Object object,
-                                  Queue<Response<Object>> responseQueue){
+                                  Queue<Response<Object>> responseQueue,
+                                  final QBitSystemManager systemManager)
+    {
         throw new UnsupportedOperationException();
     }
 
@@ -189,15 +197,6 @@ public interface Factory {
      * @return new proxy object
      */
     default <T> T createLocalProxy(Class<T> serviceInterface, String serviceName, ServiceBundle serviceBundle){
-        throw new UnsupportedOperationException();
-    }
-
-    /**
-     * Create a response object from a string (HTTP response, Websocket body)
-     * @param text of response message
-     * @return response object
-     */
-    default Response<Object> createResponse(String text){
         throw new UnsupportedOperationException();
     }
 
@@ -266,14 +265,17 @@ public interface Factory {
     default HttpServer createHttpServer(String host, int port, boolean manageQueues,
                       int pollTime,
                       int requestBatchSize,
-                      int flushInterval, int maxRequests
-                      ){
+                      int flushInterval, int maxRequests,  final QBitSystemManager systemManager
+
+    ){
         throw new UnsupportedOperationException();
     }
 
 
     default HttpServer createHttpServerWithQueue(String host, int port,
-                                                 int flushInterval, Queue<HttpRequest> requestQueue, Queue<WebSocketMessage> webSocketMessageQueue
+                                                 int flushInterval, Queue<HttpRequest> requestQueue,
+                                                 Queue<WebSocketMessage> webSocketMessageQueue,
+                                                 final QBitSystemManager systemManager
     ){
         throw new UnsupportedOperationException();
     }
@@ -281,7 +283,9 @@ public interface Factory {
     default HttpServer createHttpServerWithWorkers(String host, int port, boolean manageQueues,
                                                    int pollTime,
                                                    int requestBatchSize,
-                                                   int flushInterval, int maxRequests, int httpWorkers, Class handlerClass
+                                                   int flushInterval, int maxRequests,
+                                                   int httpWorkers, Class handlerClass,
+                                                   QBitSystemManager systemManager
     ){
         throw new UnsupportedOperationException();
     }
@@ -294,7 +298,9 @@ public interface Factory {
                 int poolSize,
                 boolean autoFlush, int flushRate,
                 boolean keepAlive,
-                boolean pipeline){
+                boolean pipeline
+
+    ){
         throw new UnsupportedOperationException();
     }
 
@@ -317,7 +323,9 @@ public interface Factory {
                                       final int timeOutInSeconds,
                                       final int numberOfOutstandingRequests,
                                       final int batchSize,
-                                      final int flushInterval){
+                                      final int flushInterval,
+                                      final QBitSystemManager systemManager
+                                      ){
         throw new UnsupportedOperationException();
     }
 
@@ -348,4 +356,5 @@ public interface Factory {
     }
 
 
+    default void shutdownSystemEventBus() {}
 }

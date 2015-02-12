@@ -58,7 +58,7 @@ public class StatServiceBundleTest {
                 .setEachServiceInItsOwnThread(true)
                 .setQueueBuilder(queueBuilder)
                 .setInvokeDynamic(false)
-                .build();
+                .buildAndStart();
         serviceBundle.addService(statService);
         serviceBundle.startReturnHandlerProcessor();
         service.start();

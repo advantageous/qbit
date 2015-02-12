@@ -10,6 +10,7 @@ import io.advantageous.qbit.queue.*;
 import io.advantageous.qbit.service.ServiceBundle;
 import io.advantageous.qbit.spi.ProtocolEncoder;
 import io.advantageous.qbit.spi.ProtocolParser;
+import io.advantageous.qbit.system.QBitSystemManager;
 import org.boon.core.Sys;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,6 +28,8 @@ public class ServiceServerImpl implements ServiceServer {
 
     private final Logger logger = LoggerFactory.getLogger(ServiceServerImpl.class);
     private final boolean debug = GlobalConstants.DEBUG;
+
+    private final QBitSystemManager systemManager;
 
 
 
@@ -58,7 +61,10 @@ public class ServiceServerImpl implements ServiceServer {
                              final int timeOutInSeconds,
                              final int numberOfOutstandingRequests,
                              final int batchSize,
-                             final int flushInterval) {
+                             final int flushInterval,
+                             final QBitSystemManager systemManager) {
+
+        this.systemManager = systemManager;
         this.encoder = encoder;
         this.parser = parser;
         this.httpServer = httpServer;
@@ -77,6 +83,7 @@ public class ServiceServerImpl implements ServiceServer {
     @Override
     public void start() {
 
+
         stop.set(false);
 
         httpServer.setHttpRequestConsumer(httpRequestServerHandler::handleRestCall);
@@ -85,16 +92,31 @@ public class ServiceServerImpl implements ServiceServer {
         httpServer.setHttpRequestsIdleConsumer(httpRequestServerHandler::httpRequestQueueIdle);
 
         httpServer.setWebSocketIdleConsume(webSocketHandler::webSocketQueueIdle);
+
+
+        serviceBundle.start();
+        startResponseQueueListener();
         httpServer.start();
 
-
-        startResponseQueueListener();
 
     }
 
     public void stop() {
 
-        serviceBundle.stop();
+        try {
+            serviceBundle.stop();
+        }catch (Exception ex) {
+            if (debug) logger.debug("Unable to cleanly shutdown bundle", ex);
+        }
+
+        try {
+            httpServer.stop();
+        }catch (Exception ex) {
+            if (debug) logger.debug("Unable to cleanly shutdown httpServer", ex);
+        }
+
+
+        if (systemManager!=null) systemManager.serviceShutDown();
 
     }
 

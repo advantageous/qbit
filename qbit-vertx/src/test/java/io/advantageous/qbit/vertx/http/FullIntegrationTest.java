@@ -59,6 +59,7 @@ public class FullIntegrationTest {
             }
         }, "hi");
 
+        ServiceProxyUtils.flushServiceProxy(clientProxy);
 
         while (pongValue.get() == null) {
             Sys.sleep(100);

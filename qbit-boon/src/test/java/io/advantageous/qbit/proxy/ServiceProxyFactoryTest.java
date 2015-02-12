@@ -13,7 +13,6 @@ import io.advantageous.qbit.queue.ReceiveQueue;
 import io.advantageous.qbit.service.ServiceBundle;
 import io.advantageous.qbit.service.ServiceBundleBuilder;
 import io.advantageous.qbit.spi.RegisterBoonWithQBit;
-import org.boon.core.Handler;
 import org.boon.core.Sys;
 import org.junit.Test;
 
@@ -199,7 +198,7 @@ public class ServiceProxyFactoryTest {
             }
         };
 
-        final ServiceBundle bundle = new ServiceBundleBuilder().setAddress("/root").build();
+        final ServiceBundle bundle = new ServiceBundleBuilder().setAddress("/root").buildAndStart();
 
 
 
@@ -242,7 +241,7 @@ public class ServiceProxyFactoryTest {
         SomeInterface myService = new MyServiceClass();
 
 
-        final ServiceBundle bundle = new ServiceBundleBuilder().setAddress("/root").build();
+        final ServiceBundle bundle = new ServiceBundleBuilder().setAddress("/root").buildAndStart();
 
 
         bundle.addService(myService);
@@ -305,7 +304,7 @@ public class ServiceProxyFactoryTest {
 
         SomeInterface myService = new MyServiceClass();
 
-        final ServiceBundle bundle = new ServiceBundleBuilder().setAddress("/root").build();
+        final ServiceBundle bundle = new ServiceBundleBuilder().setAddress("/root").buildAndStart();
 
 
 
@@ -370,7 +369,7 @@ public class ServiceProxyFactoryTest {
 
         MyServiceClass myService = new MyServiceClass();
 
-        final ServiceBundle serviceBundle = new ServiceBundleBuilder().setAddress("/root").build();
+        final ServiceBundle serviceBundle = new ServiceBundleBuilder().setAddress("/root").buildAndStart();
 
 
 

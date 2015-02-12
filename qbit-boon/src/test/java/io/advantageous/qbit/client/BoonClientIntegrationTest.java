@@ -72,7 +72,7 @@ public class BoonClientIntegrationTest {
         client.start();
 
 
-        serviceBundle = new ServiceBundleBuilder().setAddress("/services").build();
+        serviceBundle = new ServiceBundleBuilder().setAddress("/services").buildAndStart();
         serviceBundle.addService(new ServiceMock());
         sum = 0;
 

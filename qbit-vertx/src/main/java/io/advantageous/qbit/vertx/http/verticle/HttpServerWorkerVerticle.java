@@ -122,7 +122,7 @@ public class HttpServerWorkerVerticle extends Verticle {
                                         requestBatchSize,
                                         flushInterval,
                                         maxRequestBatches,
-                                        vertx);
+                                        vertx, null);
 
         beforeStart(httpServerVertx);
 

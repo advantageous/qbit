@@ -39,5 +39,7 @@ public interface ServiceBundle extends EndPoint {
 
     void startReturnHandlerProcessor();
 
+    default void start(){}
+
     <T> T createLocalProxy(Class<T> serviceInterface, String myService);
 }

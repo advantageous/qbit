@@ -17,6 +17,7 @@ import io.advantageous.qbit.service.Callback;
 import io.advantageous.qbit.spi.FactorySPI;
 import io.advantageous.qbit.spi.HttpClientFactory;
 import io.advantageous.qbit.spi.HttpServerFactory;
+import io.advantageous.qbit.system.QBitSystemManager;
 import org.boon.core.Sys;
 
 import java.util.concurrent.TimeUnit;
@@ -193,15 +194,13 @@ public class PerfTestMain {
             }
         });
 
-        FactorySPI.setHttpServerFactory(new HttpServerFactory() {
-            @Override
-            public HttpServer create(String host, int port, boolean manageQueues, int pollTime, int requestBatchSize,
-                                     int flushInterval, int maxRequests) {
-                return new MockHttpServer();
-            }
-        });
-
-
+        FactorySPI.setHttpServerFactory(
+                new HttpServerFactory() {
+                    @Override
+                    public HttpServer create(String host, int port, boolean manageQueues, int pollTime, int requestBatchSize, int flushInterval, int maxRequests, QBitSystemManager systemManager) {
+                        return new MockHttpServer();
+                    }
+                });
 
         ServiceServer server = new ServiceServerBuilder().setRequestBatchSize(10_000).build();
         server.initServices(new AdderService());

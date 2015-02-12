@@ -5,6 +5,7 @@ import io.advantageous.qbit.QBit;
 import io.advantageous.qbit.message.Request;
 import io.advantageous.qbit.queue.QueueBuilder;
 import io.advantageous.qbit.service.impl.ServiceConstants;
+import io.advantageous.qbit.system.QBitSystemManager;
 import io.advantageous.qbit.transforms.Transformer;
 
 /**
@@ -19,12 +20,22 @@ public class ServiceBundleBuilder {
 
     private int pollTime = GlobalConstants.POLL_WAIT;
     private int requestBatchSize = GlobalConstants.BATCH_SIZE;
-
     private boolean invokeDynamic = true;
-
     private  String address = "/services";
-
     private boolean eachServiceInItsOwnThread = true;
+
+    private QBitSystemManager qBitSystemManager;
+
+
+    public QBitSystemManager getSystemManager() {
+        return qBitSystemManager;
+    }
+
+    public ServiceBundleBuilder setSystemManager(QBitSystemManager qBitSystemManager) {
+        this.qBitSystemManager = qBitSystemManager;
+        return this;
+    }
+
 
 
     public boolean isInvokeDynamic() {
@@ -137,6 +148,7 @@ public class ServiceBundleBuilder {
         return this;
     }
 
+
     public ServiceBundle build() {
 
         if (queueBuilder==null) {
@@ -149,10 +161,22 @@ public class ServiceBundleBuilder {
                 queueBuilder,
                 QBit.factory(),
                 eachServiceInItsOwnThread, this.getBeforeMethodCall(), this.getBeforeMethodCallAfterTransform(),
-                this.getArgTransformer(), invokeDynamic);
+                this.getArgTransformer(), invokeDynamic, this.getSystemManager());
+
+
+        if (serviceBundle!=null && qBitSystemManager!=null) {
+            qBitSystemManager.registerServiceBundle(serviceBundle);
+        }
 
         return serviceBundle;
 
+
+    }
+
+    public ServiceBundle buildAndStart() {
+        final ServiceBundle build = build();
+        build.start();
+        return build;
     }
 }
 

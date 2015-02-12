@@ -33,7 +33,7 @@ public class TodoServiceWithQBitServiceTest {
     public void testCallbackWithObjectNameAndMethodName() {
 
 
-        Service service = QBit.factory().createService("/services", "/todo-service", new TodoService(), null).start();
+        Service service = QBit.factory().createService("/services", "/todo-service", new TodoService(), null, null).start();
 
 
         SendQueue<MethodCall<Object>> requests = service.requests();
@@ -78,7 +78,7 @@ public class TodoServiceWithQBitServiceTest {
     public void testCallbackWithAddress() {
 
 
-        Service service = QBit.factory().createService("/services", "/todo-service", new TodoService(), null).start();
+        Service service = QBit.factory().createService("/services", "/todo-service", new TodoService(), null, null).start();
 
         SendQueue<MethodCall<Object>> requests = service.requests();
 

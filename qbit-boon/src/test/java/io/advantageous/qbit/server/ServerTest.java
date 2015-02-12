@@ -48,13 +48,14 @@ public class ServerTest {
 
 
         ServiceServerImpl server = new ServiceServerImpl(httpServer, encoder, parser,
-                serviceBundle, mapper, 30, 100, 30, 10);
+                serviceBundle, mapper, 30, 100, 30, 10, null);
 
         server.initServices(Sets.set(new TodoService()));
 
-        server.start();
 
         final AtomicBoolean resultsWorked = new AtomicBoolean();
+
+        server.start();
 
         httpServer.postRequestObject("/services/todo-manager/todo",
                 new Todo("Call Dad", "Call Dad", new Date()), (code, mimeType, body) -> {
@@ -115,7 +116,7 @@ public class ServerTest {
         JsonMapper mapper = new BoonJsonMapper();
 
 
-        ServiceServerImpl server = new ServiceServerImpl(httpServer, encoder, QBit.factory().createProtocolParser(), serviceBundle, mapper, 1, 100, 30, 10);
+        ServiceServerImpl server = new ServiceServerImpl(httpServer, encoder, QBit.factory().createProtocolParser(), serviceBundle, mapper, 1, 100, 30, 10, null);
 
         server.initServices(Sets.set(new TodoService()));
 
@@ -160,7 +161,7 @@ public class ServerTest {
 
 
         ServiceServerImpl server = new ServiceServerImpl(httpServer, encoder,
-                QBit.factory().createProtocolParser(), serviceBundle, mapper, 1, 100, 30, 10);
+                QBit.factory().createProtocolParser(), serviceBundle, mapper, 1, 100, 30, 10, null);
 
         server.initServices(new TodoService());
 

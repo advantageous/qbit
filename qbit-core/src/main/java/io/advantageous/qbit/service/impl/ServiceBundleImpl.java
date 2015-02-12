@@ -14,6 +14,7 @@ import io.advantageous.qbit.service.Callback;
 import io.advantageous.qbit.service.Service;
 import io.advantageous.qbit.service.ServiceBundle;
 import io.advantageous.qbit.message.impl.ResponseImpl;
+import io.advantageous.qbit.system.QBitSystemManager;
 import io.advantageous.qbit.transforms.Transformer;
 import io.advantageous.qbit.util.ConcurrentHashSet;
 import io.advantageous.qbit.util.Timer;
@@ -39,7 +40,7 @@ public class ServiceBundleImpl implements ServiceBundle {
     private final boolean debug = logger.isDebugEnabled();
     private final boolean asyncCalls;
     private final boolean invokeDynamic;
-
+    private final QBitSystemManager systemManager;
     private final CallbackManager callbackManager = new CallbackManager();
 
     /**
@@ -137,42 +138,23 @@ public class ServiceBundleImpl implements ServiceBundle {
                              final BeforeMethodCall beforeMethodCall,
                              final BeforeMethodCall beforeMethodCallAfterTransform,
                              final Transformer<Request, Object> argTransformer,
-                             final boolean invokeDynamic) {
+                             final boolean invokeDynamic, final QBitSystemManager systemManager) {
 
         this.invokeDynamic = invokeDynamic;
-
-
+        this.systemManager = systemManager;
         if (address.endsWith("/")) {
             address = address.substring(0, address.length() - 1);
         }
-
         this.beforeMethodCall = beforeMethodCall;
         this.beforeMethodCallAfterTransform = beforeMethodCallAfterTransform;
         this.argTransformer = argTransformer;
-
         this.address = address;
-
         this.factory = factory;
-
         this.asyncCalls = asyncCalls;
-
-
         this.queueBuilder = queueBuilder;
-
-
-
         this.methodQueue = queueBuilder.setName("Call Queue " + address).build();
-
         this.responseQueue = queueBuilder.setName("Response Queue " + address).build();
-
-
-
-
-
-
         methodSendQueue = methodQueue.sendQueue();
-
-        start();
     }
 
     /**
@@ -212,7 +194,7 @@ public class ServiceBundleImpl implements ServiceBundle {
 
         /** Turn this client object into a client with queues. */
         final Service service = factory.createService(address, serviceAddress,
-                serviceObject, responseQueue, BeanUtils.copy(this.queueBuilder), this.asyncCalls, this.invokeDynamic, false);
+                serviceObject, responseQueue, BeanUtils.copy(this.queueBuilder), this.asyncCalls, this.invokeDynamic, false, systemManager);
 
         service.start();
 
@@ -285,19 +267,6 @@ public class ServiceBundleImpl implements ServiceBundle {
         methodSendQueue.sendBatch(methodCalls);
     }
 
-
-    public void startReturnHandlerProcessor(ReceiveQueueListener<Response<Object>> listener) {
-
-        responseQueue.startListener(listener);
-
-    }
-
-    /**
-     * Handles responses coming back from services.
-     */
-    public void startReturnHandlerProcessor() {
-        callbackManager.startReturnHandlerProcessor(responseQueue);
-    }
 
     /**
      * Creates a proxy interface to a particular client. Given a particular address.
@@ -484,6 +453,8 @@ public class ServiceBundleImpl implements ServiceBundle {
         for (Service service : services) {
             service.stop();
         }
+
+        if (systemManager!=null) systemManager.serviceShutDown();
     }
 
     /**
@@ -494,10 +465,24 @@ public class ServiceBundleImpl implements ServiceBundle {
         return new ArrayList<>(serviceMapping.keySet());
     }
 
+
+    public void startReturnHandlerProcessor(ReceiveQueueListener<Response<Object>> listener) {
+
+        responseQueue.startListener(listener);
+
+    }
+
+    /**
+     * Handles responses coming back from services.
+     */
+    public void startReturnHandlerProcessor() {
+        callbackManager.startReturnHandlerProcessor(responseQueue);
+    }
+
     /**
      * Start the client bundle.
      */
-    private void start() {
+    public void start() {
         methodQueue.startListener(new ReceiveQueueListener<MethodCall<Object>>() {
 
             long time;

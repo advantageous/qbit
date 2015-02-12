@@ -11,6 +11,7 @@ import io.advantageous.qbit.service.ServiceBundle;
 import io.advantageous.qbit.service.impl.ServiceConstants;
 import io.advantageous.qbit.spi.ProtocolEncoder;
 import io.advantageous.qbit.spi.ProtocolParser;
+import io.advantageous.qbit.system.QBitSystemManager;
 import io.advantageous.qbit.transforms.Transformer;
 
 import static io.advantageous.qbit.http.HttpServerBuilder.httpServerBuilder;
@@ -44,6 +45,19 @@ public class ServiceServerBuilder {
     private QueueBuilder serviceBundleQueueBuilder;
     private boolean eachServiceInItsOwnThread=true;
     private HttpServer httpServer;
+
+    private QBitSystemManager qBitSystemManager;
+
+
+    public QBitSystemManager getSystemManager() {
+        return qBitSystemManager;
+    }
+
+    public ServiceServerBuilder setSystemManager(QBitSystemManager qBitSystemManager) {
+        this.qBitSystemManager = qBitSystemManager;
+        return this;
+    }
+
 
     /**
      * Allows interception of method calls before they get sent to a client.
@@ -214,11 +228,17 @@ public class ServiceServerBuilder {
                 QBit.factory(),
                 eachServiceInItsOwnThread, this.getBeforeMethodCall(),
                 this.getBeforeMethodCallAfterTransform(),
-                this.getArgTransformer(), true);
+                this.getArgTransformer(), true, getSystemManager());
         final ProtocolParser parser = QBit.factory().createProtocolParser();
         final ServiceServer serviceServer = QBit.factory().createServiceServer(httpServer,
                 encoder, parser, serviceBundle, jsonMapper, this.getTimeoutSeconds(),
-                this.getNumberOfOutstandingRequests(), this.getRequestBatchSize(), this.getFlushInterval());
+                this.getNumberOfOutstandingRequests(), this.getRequestBatchSize(),
+                this.getFlushInterval(), this.getSystemManager());
+
+
+        if (serviceServer!=null && qBitSystemManager!=null) {
+            qBitSystemManager.registerServer(serviceServer);
+        }
         return serviceServer;
     }
 
@@ -230,8 +250,10 @@ public class ServiceServerBuilder {
                     .setRequestQueueBuilder(requestQueueBuilder)
                     .setWebSocketMessageQueueBuilder(webSocketMessageQueueBuilder).build();
         } else {
-            return QBit.factory().createHttpServer(host, port, manageQueues, pollTime,
-                    requestBatchSize, flushInterval, maxRequestBatches);
+            return QBit.factory().createHttpServer(this.getHost(), this.getPort(),
+                    this.isManageQueues(), this.getPollTime(),
+                    this.getRequestBatchSize(), this.getFlushInterval(),
+                    this.getMaxRequestBatches(), this.getSystemManager());
         }
     }
 }

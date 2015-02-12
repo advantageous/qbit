@@ -47,7 +47,7 @@ public class ServiceBundleBeforeCallbackTest {
                 beforeHandlerCalled = true;
                 return false;
             }
-        }).build();
+        }).buildAndStart();
 
 
         serviceBundle.addService(new MockServer());
@@ -78,7 +78,7 @@ public class ServiceBundleBeforeCallbackTest {
                 beforeHandlerCalled = true;
                 return true;
             }
-        }).build();
+        }).buildAndStart();
 
 
         serviceBundle.addService(new MockServer());

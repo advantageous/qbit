@@ -31,7 +31,7 @@ public class TodoServiceWithServiceBundleTest {
     @Test
     public void testWithBundleUsingAddress() {
 
-        final ServiceBundle serviceBundle = new ServiceBundleBuilder().setAddress("/services").build();
+        final ServiceBundle serviceBundle = new ServiceBundleBuilder().setAddress("/services").buildAndStart();
 
         serviceBundle.addService(new TodoService());
 
@@ -84,7 +84,7 @@ public class TodoServiceWithServiceBundleTest {
 
     @Test
     public void testWithBundleUsingObjectName() {
-        final ServiceBundle serviceBundle = new ServiceBundleBuilder().setAddress("/services").build();
+        final ServiceBundle serviceBundle = new ServiceBundleBuilder().setAddress("/services").buildAndStart();
 
         serviceBundle.addService(new TodoService());
 
@@ -133,7 +133,7 @@ public class TodoServiceWithServiceBundleTest {
 
     @Test
     public void testWithBundleUsingAddressRequestMappings() {
-        final ServiceBundle serviceBundle = new ServiceBundleBuilder().setAddress("/services").build();
+        final ServiceBundle serviceBundle = new ServiceBundleBuilder().setAddress("/services").buildAndStart();
 
         serviceBundle.addService(new TodoService());
 

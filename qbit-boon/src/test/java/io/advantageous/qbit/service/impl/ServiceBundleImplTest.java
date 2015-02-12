@@ -82,7 +82,7 @@ public class ServiceBundleImplTest {
 
         factory = QBit.factory();
 
-        final ServiceBundle bundle = new ServiceBundleBuilder().setAddress("/foo").build();
+        final ServiceBundle bundle = new ServiceBundleBuilder().setAddress("/foo").buildAndStart();
         serviceBundle = bundle;
         serviceBundleImpl = (ServiceBundleImpl) bundle;
         adderService = new AdderService();

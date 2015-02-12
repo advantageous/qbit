@@ -11,6 +11,7 @@ import io.advantageous.qbit.service.impl.NoOpAfterMethodCall;
 import io.advantageous.qbit.service.impl.NoOpInputMethodCallQueueListener;
 import io.advantageous.qbit.service.impl.ServiceConstants;
 import io.advantageous.qbit.service.impl.ServiceImpl;
+import io.advantageous.qbit.system.QBitSystemManager;
 import io.advantageous.qbit.transforms.NoOpResponseTransformer;
 import io.advantageous.qbit.transforms.Transformer;
 import org.slf4j.Logger;
@@ -41,6 +42,19 @@ public class ServiceBuilder {
     private String rootAddress;
     private String serviceAddress;
     private Object serviceObject;
+
+    private QBitSystemManager qBitSystemManager;
+
+
+    public QBitSystemManager getSystemManager() {
+        return qBitSystemManager;
+    }
+
+    public ServiceBuilder setSystemManager(QBitSystemManager qBitSystemManager) {
+        this.qBitSystemManager = qBitSystemManager;
+        return this;
+    }
+
 
     public QueueBuilder getResponseQueueBuilder() {
         return responseQueueBuilder;
@@ -209,6 +223,11 @@ public class ServiceBuilder {
     }
 
 
+    public Service build(final Object serviceObject) {
+        this.serviceObject = serviceObject;
+        return build();
+    }
+
     public Service build() {
 
         if (this.getResponseQueue()==null) {
@@ -221,7 +240,11 @@ public class ServiceBuilder {
                 this.getServiceObject(),
                 this.getQueueBuilder(),
                 QBit.factory().createServiceMethodHandler(this.isInvokeDynamic()),
-                this.getResponseQueue(), this.isAsyncResponse(), this.isHandleCallbacks());
+                this.getResponseQueue(), this.isAsyncResponse(), this.isHandleCallbacks(), this.getSystemManager());
+
+        if (service != null && qBitSystemManager!=null) {
+            qBitSystemManager.registerService(service);
+        }
 
         return service;
     }

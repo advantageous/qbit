@@ -5,6 +5,7 @@ import io.advantageous.qbit.events.EventManager;
 import io.advantageous.qbit.message.*;
 import io.advantageous.qbit.queue.*;
 import io.advantageous.qbit.service.*;
+import io.advantageous.qbit.system.QBitSystemManager;
 import io.advantageous.qbit.transforms.NoOpResponseTransformer;
 import io.advantageous.qbit.transforms.Transformer;
 import io.advantageous.qbit.util.MultiMap;
@@ -24,9 +25,8 @@ import static io.advantageous.qbit.service.ServiceContext.serviceContext;
 public class ServiceImpl implements Service {
 
 
-    public static Service currentService() {
-        return serviceThreadLocal.get();
-    }
+
+    private final QBitSystemManager systemManager;
     private static ThreadLocal<Service> serviceThreadLocal = new ThreadLocal<>();
     protected ReentrantLock responseLock  = new ReentrantLock();
     protected volatile long lastResponseFlushTime = Timer.timer().now();
@@ -57,7 +57,9 @@ public class ServiceImpl implements Service {
                        final ServiceMethodHandler serviceMethodHandler,
                        final Queue<Response<Object>> responseQueue,
                        final boolean async,
-                       final boolean handleCallbacks) {
+                       final boolean handleCallbacks, final QBitSystemManager systemManager) {
+
+        this.systemManager = systemManager;
         this.handleCallbacks = handleCallbacks;
         this.service = service;
         this.serviceMethodHandler = serviceMethodHandler;
@@ -82,6 +84,10 @@ public class ServiceImpl implements Service {
         responseSendQueue = this.responseQueue.sendQueue();
         serviceMethodHandler.initQueue(responseSendQueue);
 
+    }
+
+    public static Service currentService() {
+        return serviceThreadLocal.get();
     }
 
 
@@ -391,8 +397,21 @@ public class ServiceImpl implements Service {
 
     @Override
     public void stop() {
-        requestQueue.stop();
-        responseQueue.stop();
+
+        try {
+            if (requestQueue!=null) requestQueue.stop();
+        } catch (Exception ex) {
+            if (debug) logger.debug("Unable to stop request queue", ex);
+        }
+
+
+        try {
+            if (responseQueue!=null) responseQueue.stop();
+        } catch (Exception ex) {
+            if (debug) logger.debug("Unable to stop response queues", ex);
+        }
+
+        if (systemManager!=null) this.systemManager.serviceShutDown();
     }
 
     @Override

@@ -78,7 +78,7 @@ public class ServiceServerVerticle extends BaseHttpRelay {
         jsonMapper = QBit.factory().createJsonMapper();
         encoder = QBit.factory().createEncoder();
         parser = QBit.factory().createProtocolParser();
-        serviceBundle = new ServiceBundleBuilder().setAddress(bundleUri).setPollTime(pollTime).setRequestBatchSize(requestBatchSize).build();
+        serviceBundle = new ServiceBundleBuilder().setAddress(bundleUri).setPollTime(pollTime).setRequestBatchSize(requestBatchSize).buildAndStart();
         webSocketHandler = new WebSocketServiceServerHandler(requestBatchSize, serviceBundle, encoder, parser);
         httpRequestServerHandler = new HttpRequestServiceServerHandler(this.timeoutInSeconds, this.encoder, this.parser, serviceBundle, jsonMapper, 1_000_000, 50);
 

@@ -66,7 +66,7 @@ public class SupportingGetAndPostForSameServicesUnderSameURI {
             }
         }, "hi");
 
-        //ServiceProxyUtils.flushServiceProxy(clientProxy);
+        ServiceProxyUtils.flushServiceProxy(clientProxy);
 
 
         while (pongValue.get() == null) {

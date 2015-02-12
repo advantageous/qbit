@@ -24,6 +24,15 @@ public interface EventManager {
     void joinService(Service service);
 
 
+
+    default void joinServices(Service... services) {
+
+        for (Service service : services) {
+            joinService(service);
+        }
+    }
+
+
 //
 //    /**
 //     * ONLY FOR SERVICES

@@ -94,6 +94,11 @@ public class BasicReceiveQueueManager<T> implements ReceiveQueueManager<T> {
                  */
                 listener.idle();
 
+                if (stop.get()) {
+                    listener.shutdown();
+                    return;
+                }
+
 
 
                 if (debug) {

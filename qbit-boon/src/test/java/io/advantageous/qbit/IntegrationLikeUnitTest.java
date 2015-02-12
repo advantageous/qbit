@@ -60,7 +60,7 @@ public class IntegrationLikeUnitTest {
 
         factory = QBit.factory();
 
-        final ServiceBundle bundle = new ServiceBundleBuilder().setAddress("/root").build();
+        final ServiceBundle bundle = new ServiceBundleBuilder().setAddress("/root").buildAndStart();
         serviceBundle = bundle;
         serviceBundleImpl = (ServiceBundleImpl) bundle;
 

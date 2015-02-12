@@ -1,0 +1,139 @@
+package io.advantageous.qbit.system;
+
+import io.advantageous.qbit.GlobalConstants;
+import io.advantageous.qbit.QBit;
+import io.advantageous.qbit.server.Server;
+import io.advantageous.qbit.service.Service;
+import io.advantageous.qbit.service.ServiceBundle;
+import org.boon.core.Sys;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.CountDownLatch;
+import java.util.function.Consumer;
+
+import static org.boon.Boon.puts;
+
+/**
+ * Created by rhightower on 2/11/15.
+ */
+public class QBitSystemManager {
+
+    private final List<Service> serviceList = new CopyOnWriteArrayList<>();
+    private final List<ServiceBundle> serviceBundleList = new CopyOnWriteArrayList<>();
+    private final List<Server> serverList = new CopyOnWriteArrayList<>();
+    private final Logger logger = LoggerFactory.getLogger(QBitSystemManager.class);
+    private final boolean debug = true;// GlobalConstants.DEBUG || logger.isDebugEnabled();
+    private boolean coreSystemShutdown;
+    private volatile int countTracked;
+
+    private CountDownLatch countDownLatch;
+
+    public QBitSystemManager() {
+        this(false);
+    }
+
+    public QBitSystemManager(final boolean coreSystemShutdown) {
+        this.coreSystemShutdown = coreSystemShutdown;
+    }
+
+    public void registerService(final Service service) {
+        if (debug) puts("registerService", service);
+        countTracked++;
+        serviceList.add(service);
+    }
+
+
+
+    public void registerServer(final Server server) {
+        countTracked++;
+        serverList.add(server);
+    }
+
+
+    public void registerServiceBundle(final ServiceBundle bundle) {
+        countTracked++;
+        serviceBundleList.add(bundle);
+    }
+
+    public void shutDown() {
+
+        for (Service service : serviceList) {
+            try {
+                service.stop();
+            } catch (Exception ex) {
+
+                if (debug) {
+                    logger.debug("Unable to shutdown service", ex);
+                }
+            }
+        }
+
+        for (Server server: serverList) {
+            try {
+                server.stop();
+            } catch (Exception ex) {
+
+                if (debug) {
+                    logger.debug("Unable to shutdown server", ex);
+                }
+            }
+        }
+
+
+        for (ServiceBundle bundle : serviceBundleList) {
+            try {
+                bundle.stop();
+            } catch (Exception ex) {
+
+                if (debug) {
+                    logger.debug("Unable to shutdown bundle", ex);
+                }
+            }
+        }
+
+        countTracked = 0;
+
+
+    }
+
+    public void serviceShutDown() {
+
+        countDownLatch.countDown();
+
+        if (debug) puts("serviceShutDown", countDownLatch.getCount());
+    }
+
+    public void waitForShutdown() {
+
+
+        if (countDownLatch==null) {
+            countDownLatch = new CountDownLatch(countTracked);
+
+        }
+        try {
+            countDownLatch.await();
+        } catch (InterruptedException e) {
+            if (debug) logger.debug("done", e);
+        }
+
+        if (coreSystemShutdown) {
+            QBit.factory().shutdownSystemEventBus();
+        }
+
+        if (debug) puts("Shutdown complete!");
+    }
+
+    public void startAll() {
+        serviceList.forEach(Service::start);
+        serverList.forEach(Server::start);
+        serviceBundleList.forEach(ServiceBundle::start);
+        countDownLatch = new CountDownLatch(countTracked);
+
+
+        if (debug) puts("startAll", countDownLatch.getCount());
+        if (debug) puts("startAll", countTracked);
+    }
+}

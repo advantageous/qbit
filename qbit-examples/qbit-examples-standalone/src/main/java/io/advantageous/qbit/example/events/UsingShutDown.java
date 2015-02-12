@@ -8,20 +8,18 @@ import io.advantageous.qbit.annotation.QueueCallbackType;
 import io.advantageous.qbit.events.EventBusProxyCreator;
 import io.advantageous.qbit.events.EventManager;
 import io.advantageous.qbit.service.Service;
-import io.advantageous.qbit.service.ServiceProxyUtils;
+import io.advantageous.qbit.service.ServiceBuilder;
+import io.advantageous.qbit.system.QBitSystemManager;
 import org.boon.core.Sys;
 
-
 import static io.advantageous.qbit.service.ServiceBuilder.serviceBuilder;
-import static io.advantageous.qbit.service.ServiceContext.serviceContext;
 import static io.advantageous.qbit.service.ServiceProxyUtils.flushServiceProxy;
+import static org.boon.Boon.puts;
 
 /**
  * Created by rhightower on 2/11/15.
  */
-public class EmployeeEventExampleUsingEventProxyToSendEvents {
-
-
+public class UsingShutDown {
 
     public static final String NEW_HIRE_CHANNEL = "com.mycompnay.employee.new";
 
@@ -155,17 +153,12 @@ public class EmployeeEventExampleUsingEventProxyToSendEvents {
         /* Create you own private event bus. */
         EventManager privateEventBus = QBit.factory().createEventManager();
 
-        /* Create a service queue for this event bus. */
-        Service privateEventBusService = serviceBuilder()
-                .setServiceObject(privateEventBus)
-                .setInvokeDynamic(false).build();
-
 
         final EventBusProxyCreator eventBusProxyCreator =
-                           QBit.factory().eventBusProxyCreator();
+                QBit.factory().eventBusProxyCreator();
 
         final EmployeeEventManager employeeEventManager =
-                       eventBusProxyCreator.createProxy(privateEventBus, EmployeeEventManager.class);
+                eventBusProxyCreator.createProxy(privateEventBus, EmployeeEventManager.class);
 
         /*
         Create your EmployeeHiringService but this time pass the private event bus.
@@ -175,42 +168,42 @@ public class EmployeeEventExampleUsingEventProxyToSendEvents {
 
 
 
-        /* Now createWithWorkers your other service POJOs which have no compile time dependencies on QBit. */
+        /* Now create your other service POJOs which have no compile time dependencies on QBit. */
         PayrollService payroll = new PayrollService();
         BenefitsService benefits = new BenefitsService();
         VolunteerService volunteering = new VolunteerService();
 
+        final QBitSystemManager systemManager = new QBitSystemManager();
+        ServiceBuilder serviceBuilder = serviceBuilder()
+                .setSystemManager(systemManager)
+                .setInvokeDynamic(false);
 
+
+
+        /* Create a service queue for this event bus. */
+        Service privateEventBusService = serviceBuilder.build(privateEventBus);
 
         /** Employee hiring service. */
-        Service employeeHiringService = serviceBuilder()
-                .setServiceObject(employeeHiring)
-                .setInvokeDynamic(false).build();
+        Service employeeHiringService = serviceBuilder.build(employeeHiring);
+
         /** Payroll service */
-        Service payrollService = serviceBuilder()
-                .setServiceObject(payroll)
-                .setInvokeDynamic(false).build();
+        Service payrollService = serviceBuilder.build(payroll);
+
         /** Employee Benefits service. */
-        Service employeeBenefitsService = serviceBuilder()
-                .setServiceObject(benefits)
-                .setInvokeDynamic(false).build();
+        Service employeeBenefitsService = serviceBuilder.build(benefits);
+
         /* Community outreach program. */
-        Service volunteeringService = serviceBuilder()
-                .setServiceObject(volunteering)
-                .setInvokeDynamic(false).build();
+        Service volunteeringService = serviceBuilder.build(volunteering);
 
 
         /* Now wire in the event bus so it can fire events into the service queues. */
-        privateEventBus.joinService(payrollService);
-        privateEventBus.joinService(employeeBenefitsService);
-        privateEventBus.joinService(volunteeringService);
+        privateEventBus.joinServices(
+                payrollService,
+                employeeBenefitsService,
+                volunteeringService);
 
+        systemManager.startAll();
 
-        privateEventBusService.start();
-        employeeHiringService.start();
-        volunteeringService.start();
-        payrollService.start();
-        employeeBenefitsService.start();
 
 
         /** Now createWithWorkers the service proxy like before. */
@@ -223,6 +216,21 @@ public class EmployeeEventExampleUsingEventProxyToSendEvents {
         flushServiceProxy(employeeHiringServiceClientProxy);
 
         Sys.sleep(5_000);
+
+        Thread thread = new Thread(systemManager::waitForShutdown);
+        thread.start();
+
+        Sys.sleep(1_000);
+
+        systemManager.shutDown();
+
+        puts("Shutdown complete");
+
+
+
+
+
+
 
     }
 }

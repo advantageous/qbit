@@ -7,6 +7,7 @@ import io.advantageous.qbit.queue.Queue;
 import io.advantageous.qbit.queue.QueueBuilder;
 import io.advantageous.qbit.queue.ReceiveQueueListener;
 import io.advantageous.qbit.queue.SendQueue;
+import io.advantageous.qbit.system.QBitSystemManager;
 import io.advantageous.qbit.util.MultiMap;
 import io.advantageous.qbit.util.Timer;
 import io.advantageous.qbit.vertx.MultiMapWrapper;
@@ -49,6 +50,7 @@ public class HttpServerVertx implements HttpServer {
     private final int maxRequestBatches;
     private final int httpWorkers;
     private final Class handler;
+    private final QBitSystemManager systemManager;
 
     /**
      * I am leaving these protected and non-final so subclasses can use injection frameworks for them.
@@ -89,9 +91,10 @@ public class HttpServerVertx implements HttpServer {
     };
 
     public HttpServerVertx(String host, int port, int flushInterval, Queue<HttpRequest> requestQueue,
-                           Queue<WebSocketMessage> webSocketMessageQueue) {
+                           Queue<WebSocketMessage> webSocketMessageQueue, final QBitSystemManager systemManager) {
 
 
+        this.systemManager = systemManager;
         this.port = port;
         this.host = host;
         this.vertx = VertxFactory.newVertx();
@@ -114,8 +117,10 @@ public class HttpServerVertx implements HttpServer {
                            final int requestBatchSize,
                            final int flushInterval,
                            final int maxRequests,
-                           final Vertx vertx) {
+                           final Vertx vertx,
+                           final QBitSystemManager systemManager) {
 
+        this.systemManager = systemManager;
         this.port = port;
         this.host = host;
         this.vertx = vertx;
@@ -136,15 +141,19 @@ public class HttpServerVertx implements HttpServer {
                            final int pollTime,
                            final int requestBatchSize,
                            final int flushInterval,
-                           final int maxRequests) {
+                           final int maxRequests,
+                           final QBitSystemManager systemManager) {
 
 
-        this(port, host, manageQueues, pollTime, requestBatchSize, flushInterval, maxRequests, -1, null);
+        this(port, host, manageQueues, pollTime, requestBatchSize, flushInterval, maxRequests, -1, null, systemManager);
+
 
 
     }
 
-    public HttpServerVertx(int port, String host, boolean manageQueues, int pollTime, int requestBatchSize, int flushInterval, int maxRequests, int httpWorkers, Class handler) {
+    public HttpServerVertx(int port, String host, boolean manageQueues, int pollTime,
+                           int requestBatchSize, int flushInterval, int maxRequests,
+                           int httpWorkers, Class handler, final QBitSystemManager systemManager) {
 
 
         this.port = port;
@@ -157,6 +166,7 @@ public class HttpServerVertx implements HttpServer {
         this.maxRequestBatches = maxRequests;
         this.httpWorkers = httpWorkers;
         this.handler = handler;
+        this.systemManager = systemManager;
     }
 
 
@@ -180,6 +190,7 @@ public class HttpServerVertx implements HttpServer {
 
 
     private Queue<WebSocketMessage> webSocketMessageInQueue;
+
 
 
     @Override
@@ -452,6 +463,7 @@ public class HttpServerVertx implements HttpServer {
 
         manageQueuesStop();
 
+        if (systemManager!=null)systemManager.serviceShutDown();
 
     }
 
