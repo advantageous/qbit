@@ -30,3 +30,5 @@ project(':qbit-sample-server').projectDir = "$rootDir/qbit-examples/qbit-sample-
 project(':qbit-examples-standalone').projectDir = "$rootDir/qbit-examples/qbit-examples-standalone" as File
 project(':qbit-admin').projectDir = "$rootDir/qbit-admin" as File
 
+include 'qbit-servlet'
+
