@@ -9,23 +9,22 @@ import java.util.*;
 public interface MultiMap<K, V> extends Iterable<Map.Entry<K, Collection<V>>>, Map<K, V> {
     Iterator<Entry<K, Collection<V>>> iterator();
 
-    void add(K key, V v);
+    default void add(K key, V v) {{throw new UnsupportedOperationException("add");}}
 
     V getFirst(K key);
 
     Iterable<V> getAll(K key);
 
-    boolean removeValueFrom(K key, V v);
+    default boolean removeValueFrom(K key, V v) {throw new UnsupportedOperationException("removeValueFrom");}
 
-    boolean removeMulti(K key);
+    default boolean removeMulti(K key) {throw new UnsupportedOperationException("removeMulti");}
 
     Iterable<K> keySetMulti();
 
-    Iterable<V> valueMulti();
 
-    void putAll(MultiMap<K, V> params);
+    default void putAll(MultiMap<K, V> params) {throw new UnsupportedOperationException("putAll");}
 
-    Map<? extends K, ? extends Collection<V>> baseMap();
+    default Map<? extends K, ? extends Collection<V>> baseMap() {throw new UnsupportedOperationException("baseMap");}
 
     public V getSingleObject(K name);
 
@@ -151,5 +150,51 @@ public interface MultiMap<K, V> extends Iterable<Map.Entry<K, Collection<V>>>, M
             return empty.entrySet();
         }
     };
+
+
+    @Override
+    default public boolean containsValue(Object value) {
+
+        throw new UnsupportedOperationException("Unsupported");
+
+    }
+
+    default public V put(K key, V value) {
+        throw new UnsupportedOperationException("Unsupported");
+
+    }
+
+
+    default public V remove(Object key) {
+
+        throw new UnsupportedOperationException("Unsupported");
+    }
+
+
+    default void putAll(Map<? extends K, ? extends V> m) {
+        throw new UnsupportedOperationException("Unsupported");
+    }
+
+    @Override
+    default void clear() {
+
+        throw new UnsupportedOperationException("Unsupported");
+    }
+
+    @Override
+    default Collection<V> values() {
+        throw new UnsupportedOperationException("Unsupported");
+    }
+
+    @Override
+    default Set<Entry<K, V>> entrySet() {
+        throw new UnsupportedOperationException("Unsupported");
+    }
+
+
+
+    default Iterable<V> valueMulti() {
+        throw new UnsupportedOperationException("Unsupported");
+    }
 
 }

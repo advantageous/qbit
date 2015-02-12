@@ -44,7 +44,6 @@ public class MultiMapImpl<K, V> implements MultiMap<K, V> {
     private Map<K, Collection<V>> map = new ConcurrentHashMap<>();
     private Class<? extends Collection> collectionClass = ArrayList.class;
 
-
     public MultiMapImpl(Class<? extends Collection> collectionClass, int initialSize) {
         this.collectionClass = collectionClass;
         this.initialSize = initialSize;
