@@ -1,4 +1,4 @@
-package io.advantageous.qbit.example.admin;
+package io.advantageous.qbit.example.hello;
 
 import io.advantageous.qbit.annotation.RequestMapping;
 

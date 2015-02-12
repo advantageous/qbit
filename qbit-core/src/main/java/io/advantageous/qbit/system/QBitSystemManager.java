@@ -9,6 +9,7 @@ import org.boon.core.Sys;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Date;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.CountDownLatch;
@@ -25,18 +26,33 @@ public class QBitSystemManager {
     private final List<ServiceBundle> serviceBundleList = new CopyOnWriteArrayList<>();
     private final List<Server> serverList = new CopyOnWriteArrayList<>();
     private final Logger logger = LoggerFactory.getLogger(QBitSystemManager.class);
-    private final boolean debug = true;// GlobalConstants.DEBUG || logger.isDebugEnabled();
+    private final boolean debug = GlobalConstants.DEBUG || logger.isDebugEnabled();
     private boolean coreSystemShutdown;
     private volatile int countTracked;
 
     private CountDownLatch countDownLatch;
 
     public QBitSystemManager() {
-        this(false);
+        this(true, true);
     }
 
-    public QBitSystemManager(final boolean coreSystemShutdown) {
+    public QBitSystemManager(final boolean coreSystemShutdown, final boolean handleShutDownHook) {
         this.coreSystemShutdown = coreSystemShutdown;
+
+        if (handleShutDownHook) {
+            /* Shutdown gracefully for CTRl-C etc. */
+            Runtime.getRuntime().addShutdownHook(new Thread() {
+                public void run() {
+
+                    logger.info("QBit shutting down gracefully... " + new Date());
+                    shutDown();
+                    waitForShutdown();
+                    if (logger.isInfoEnabled()) {
+                        logger.info("QBit shutdown gracefully " + new Date());
+                    }
+                }
+            });
+        }
     }
 
     public void registerService(final Service service) {

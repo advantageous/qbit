@@ -215,20 +215,20 @@ public class UsingShutDown {
 
         flushServiceProxy(employeeHiringServiceClientProxy);
 
-        Sys.sleep(5_000);
 
-        Thread thread = new Thread(systemManager::waitForShutdown);
+        Thread thread = new Thread(
+                () -> {
+                    Sys.sleep(5_000);
+                    puts("Calling shutdown\n\n");
+                    systemManager.shutDown();
+                }
+
+        );
         thread.start();
 
-        Sys.sleep(1_000);
+        systemManager.waitForShutdown();
 
-        systemManager.shutDown();
-
-        puts("Shutdown complete");
-
-
-
-
+        puts("Shutdown complete from my sample");
 
 
 

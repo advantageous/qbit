@@ -46,6 +46,7 @@ public class Timer {
                     runnable -> {
                         Thread thread = new Thread(runnable);
                         thread.setPriority(Thread.MAX_PRIORITY);
+                        thread.setDaemon(true);
                         thread.setName("Timer OutputQueue Manager");
                         return thread;
                     }

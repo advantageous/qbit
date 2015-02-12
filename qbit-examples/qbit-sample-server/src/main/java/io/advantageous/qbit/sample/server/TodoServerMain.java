@@ -4,6 +4,9 @@ package io.advantageous.qbit.sample.server;
 import io.advantageous.qbit.sample.server.service.TodoService;
 import io.advantageous.qbit.server.ServiceServer;
 import io.advantageous.qbit.server.ServiceServerBuilder;
+import io.advantageous.qbit.system.QBitSystemManager;
+
+import static io.advantageous.qbit.server.ServiceServerBuilder.serviceServerBuilder;
 
 /**
  * Created by rhightower on 11/5/14.
@@ -12,9 +15,15 @@ import io.advantageous.qbit.server.ServiceServerBuilder;
 public class TodoServerMain {
 
     public static void main(String... args) {
-        ServiceServer server = new ServiceServerBuilder().setRequestBatchSize(100).build();
-        server.initServices(new TodoService());
-        server.start();
+
+        QBitSystemManager systemManager = new QBitSystemManager();
+
+        ServiceServer server = serviceServerBuilder()
+                .setSystemManager(systemManager).build()
+                .initServices(new TodoService()).startServer();
+
+        systemManager.waitForShutdown();
+
 
     }
 }
