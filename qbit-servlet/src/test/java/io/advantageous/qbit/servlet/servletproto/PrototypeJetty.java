@@ -1,4 +1,4 @@
-package io.advantageous.qbit.servlet;
+package io.advantageous.qbit.servlet.servletproto;
 
 
 import org.eclipse.jetty.server.Server;
