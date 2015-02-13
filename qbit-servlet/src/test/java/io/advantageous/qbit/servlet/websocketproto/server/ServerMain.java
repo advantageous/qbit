@@ -8,18 +8,11 @@ import org.eclipse.jetty.websocket.jsr356.server.deploy.WebSocketServerContainer
 
 public class ServerMain  {
     public static void main( String... args ) throws Exception {
-        Server server = new Server(8080);
-
-
+        final Server server = new Server(8080);
         final ServletContextHandler context = new ServletContextHandler();
 
-
-
         server.setHandler(context);
-
         final ServerContainer serverContainer = WebSocketServerContainerInitializer.configureContext(context);
-
-
         serverContainer.addEndpoint(new HelloServerConfig());
 
         server.start();
