@@ -25,24 +25,20 @@ public class QBitServletUtil {
 
         final HttpServletRequest request = (HttpServletRequest) asyncContext.getRequest();
         final HttpServletResponse response = (HttpServletResponse) asyncContext.getResponse();
+        final MultiMap<String, String> headers = new HttpServletHeaderMultiMap(request);
+        final MultiMap<String, String> params = new HttpServletParamMultiMap(request);
+        final HttpRequestBuilder httpRequestBuilder =
+                                    httpRequestBuilder().setParams(params)
+                                        .setHeaders(headers).setUri(request.getRequestURI())
+                                        .setMethod(request.getMethod());
 
-        MultiMap<String, String> headers = new HttpServletHeaderMultiMap(request);
-        MultiMap<String, String> params = new HttpServletParamMultiMap(request);
+        setRequestBodyIfNeeded(request, httpRequestBuilder);
+        setupRequestHandler(asyncContext, response, httpRequestBuilder);
+        return httpRequestBuilder.build();
+    }
 
-        final HttpRequestBuilder httpRequestBuilder = httpRequestBuilder().setParams(params).setHeaders(headers)
-                .setMethod(request.getMethod());
-
-        if (request.getMethod().equals("POST") || request.getMethod().equals("PUT")) {
-
-            final String body = readBody(request);
-            if (body!=null) {
-                httpRequestBuilder.setBody(body);
-            }
-        }
-
-        httpRequestBuilder.setUri(request.getRequestURI());
+    private static void setupRequestHandler(AsyncContext asyncContext, HttpServletResponse response, HttpRequestBuilder httpRequestBuilder) {
         httpRequestBuilder.setTextResponse((code, contentType, body) -> {
-
             response.setHeader("Content-Type", contentType);
             try {
                 final ServletOutputStream outputStream = response.getOutputStream();
@@ -52,9 +48,16 @@ public class QBitServletUtil {
             } catch (IOException e) {
                throw new IllegalStateException(e);
             }
-
         });
-        return httpRequestBuilder.build();
+    }
+
+    private static void setRequestBodyIfNeeded(HttpServletRequest request, HttpRequestBuilder httpRequestBuilder) {
+        if (request.getMethod().equals("POST") || request.getMethod().equals("PUT")) {
+            final String body = readBody(request);
+            if (body!=null) {
+                httpRequestBuilder.setBody(body);
+            }
+        }
     }
 
     private static String readBody(HttpServletRequest request) {
