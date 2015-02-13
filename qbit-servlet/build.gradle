@@ -8,6 +8,9 @@ repositories {
 
 dependencies {
     testCompile group: 'junit', name: 'junit', version: '4.11'
+    testCompile 'org.eclipse.jetty:jetty-server:9.3.0.M1'
+    testCompile 'org.eclipse.jetty:jetty-servlet:9.3.0.M1'
+
     compile 'javax.servlet:javax.servlet-api:3.1.0'
     compile project(':qbit-core')
     compile project(':qbit-boon')

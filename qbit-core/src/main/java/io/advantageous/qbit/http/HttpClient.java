@@ -52,7 +52,7 @@ public interface HttpClient {
 
                     @Override
                     public void response(
-                            final int code, final String mimeType,
+                            final int code, final String contentType,
                             final String body, final MultiMap<String, String> headers) {
 
                         httpResponseAtomicReference.set(
@@ -69,7 +69,7 @@ public interface HttpClient {
 
                                     @Override
                                     public String contentType() {
-                                        return mimeType;
+                                        return contentType;
                                     }
 
                                     @Override

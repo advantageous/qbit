@@ -128,4 +128,9 @@ class BasicReceiveQueue<T> implements ReceiveQueue<T> {
     public Iterable<T> readBatch() {
         return readBatch(batchSize);
     }
+
+    @Override
+    public int hashCode() {
+        return queue.hashCode();
+    }
 }

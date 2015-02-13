@@ -30,6 +30,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeoutException;
 
 import static org.boon.Boon.puts;
+import static org.boon.Boon.sputs;
 
 /**
  * Created by rhightower on 1/27/15.
@@ -37,7 +38,7 @@ import static org.boon.Boon.puts;
 public class HttpRequestServiceServerHandler {
 
     private final Logger logger = LoggerFactory.getLogger(HttpRequestServiceServerHandler.class);
-    private final boolean debug = GlobalConstants.DEBUG;
+    private final boolean debug = false || GlobalConstants.DEBUG || logger.isDebugEnabled();
 
     protected final int timeoutInSeconds;
     protected final ProtocolEncoder encoder;
@@ -107,11 +108,18 @@ public class HttpRequestServiceServerHandler {
         final String uri = request.getUri();
 
 
-        Object args = null;
+        if (debug) {
+            logger.info(sputs("handleRestCall()", uri));
+            puts("handleRestCall()", uri, getMethodURIs);
+        }
+
+
+       Object args = null;
 
         switch (request.getMethod()) {
             case "GET":
                 knownURI = getMethodURIs.contains(uri);
+
 
                 if (getMethodURIsWithVoidReturn.contains(uri)) {
                     writeResponse(request.getResponse(), 200, "application/json", "\"success\"", request.getHeaders());
@@ -158,7 +166,8 @@ public class HttpRequestServiceServerHandler {
 
 
         if (debug) {
-            logger.info("Handle REST Call for MethodCall " + methodCall);
+            logger.debug("Handle REST Call for MethodCall " + methodCall);
+            puts("Handle REST Call for MethodCall " + methodCall);
         }
         methodCallSendQueue.send(methodCall);
 
@@ -195,6 +204,11 @@ public class HttpRequestServiceServerHandler {
             methodURI = Str.add("/", method.name());
         }
 
+        if (debug) {
+            final String message = sputs("registerMethodToEndPoint methodURI", methodURI);
+            logger.debug(message);
+            puts(message);
+        }
 
         objectNameAddress = Str.add(baseURI, serviceURI, methodURI);
 
@@ -231,6 +245,7 @@ public class HttpRequestServiceServerHandler {
                 }
                 break;
         }
+
     }
 
     /**
@@ -240,13 +255,32 @@ public class HttpRequestServiceServerHandler {
      * @param serviceURI client URI
      * @param methods    methods
      */
-    private void registerMethodsToEndPoints(String baseURI, String serviceURI, Iterable<MethodAccess> methods) {
+    private void registerMethodsToEndPoints(final String baseURI,
+                                            final String serviceURI,
+                                            final Iterable<MethodAccess> methods) {
         for (MethodAccess method : methods) {
             if (!method.isPublic() || method.method().getName().contains("$")) continue;
 
+            if (debug) {
+                final String message = sputs("registerMethodsToEndPoints serviceURI",
+                        serviceURI, "method name", method.name());
+                logger.debug(message);
+                puts(message);
+            }
 
             registerMethodToEndPoint(baseURI, serviceURI, method);
 
+        }
+
+
+        if (debug) {
+            final String message = sputs("registerMethodsToEndPointS ",
+                    "GET uris", getMethodURIs,
+                    "\nGET URIs no return", getMethodURIsWithVoidReturn,
+                    "\nPOST uris", postMethodURIs,
+                    "\nPOST uris no return", postMethodURIsWithVoidReturn);
+            logger.debug(message);
+            puts(message);
         }
     }
 

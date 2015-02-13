@@ -4,6 +4,7 @@ import io.advantageous.qbit.GlobalConstants;
 import io.advantageous.qbit.queue.ReceiveQueue;
 import io.advantageous.qbit.queue.ReceiveQueueListener;
 import io.advantageous.qbit.queue.ReceiveQueueManager;
+import org.boon.core.Sys;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.locks.LockSupport;
@@ -17,7 +18,7 @@ import static org.boon.Boon.puts;
  */
 public class BasicReceiveQueueManager<T> implements ReceiveQueueManager<T> {
 
-    private final boolean debug = GlobalConstants.DEBUG;
+    private final boolean debug = false || GlobalConstants.DEBUG;
 
 
     //boolean sleepWait = false;
@@ -65,7 +66,8 @@ public class BasicReceiveQueueManager<T> implements ReceiveQueueManager<T> {
             listener.empty();
 
             if (debug) {
-                puts("BasicReceiveQueueManager empty queue count was", count);
+                puts("BasicReceiveQueueManager empty queue count was", count, Thread.currentThread().getName());
+                Sys.sleep(1_000);
             }
 
             count = 0;

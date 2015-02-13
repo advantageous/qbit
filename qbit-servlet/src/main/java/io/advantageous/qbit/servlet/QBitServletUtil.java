@@ -7,7 +7,9 @@ import org.boon.IO;
 
 import javax.servlet.AsyncContext;
 import javax.servlet.ServletInputStream;
+import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -22,6 +24,8 @@ public class QBitServletUtil {
     public static HttpRequest convertRequest(final AsyncContext asyncContext) {
 
         final HttpServletRequest request = (HttpServletRequest) asyncContext.getRequest();
+        final HttpServletResponse response = (HttpServletResponse) asyncContext.getResponse();
+
         MultiMap<String, String> headers = new HttpServletHeaderMultiMap(request);
         MultiMap<String, String> params = new HttpServletParamMultiMap(request);
 
@@ -35,6 +39,21 @@ public class QBitServletUtil {
                 httpRequestBuilder.setBody(body);
             }
         }
+
+        httpRequestBuilder.setUri(request.getRequestURI());
+        httpRequestBuilder.setTextResponse((code, contentType, body) -> {
+
+            response.setHeader("Content-Type", contentType);
+            try {
+                final ServletOutputStream outputStream = response.getOutputStream();
+                IO.write(outputStream, body);
+                outputStream.close();
+                asyncContext.complete();
+            } catch (IOException e) {
+               throw new IllegalStateException(e);
+            }
+
+        });
         return httpRequestBuilder.build();
     }
 

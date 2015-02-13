@@ -17,7 +17,7 @@ public interface HttpResponseReceiver<T> {
     void response(int code, String mimeType, T body);
 
 
-    default void response(int code, String mimeType, T body, MultiMap<String, String> multiMap) {
-        response(code, mimeType, body);
+    default void response(int code, String contentType, T body, MultiMap<String, String> headers) {
+        response(code, contentType, body);
     }
 }

@@ -18,6 +18,8 @@ import org.slf4j.LoggerFactory;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import static org.boon.Boon.puts;
+
 /**
  * Created by rhightower on 10/22/14.
  *
@@ -27,7 +29,7 @@ public class ServiceServerImpl implements ServiceServer {
 
 
     private final Logger logger = LoggerFactory.getLogger(ServiceServerImpl.class);
-    private final boolean debug = GlobalConstants.DEBUG;
+    private final boolean debug = false || GlobalConstants.DEBUG || logger.isDebugEnabled();
 
     private final QBitSystemManager systemManager;
 
@@ -137,10 +139,16 @@ public class ServiceServerImpl implements ServiceServer {
     private ReceiveQueueListener<Response<Object>> createResponseQueueListener() {
         return new ReceiveQueueListener<Response<Object>>() {
 
+
+
             List<Response<Object>> responseBatch = new ArrayList<>();
 
             @Override
             public void receive(final Response<Object> response) {
+
+                if (debug) {
+                    puts("createResponseQueueListener() Received a response", response);
+                }
 
                 responseBatch.add(response);
 

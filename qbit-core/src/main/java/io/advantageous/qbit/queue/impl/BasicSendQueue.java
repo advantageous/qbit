@@ -174,4 +174,10 @@ public class BasicSendQueue<T> implements SendQueue<T> {
         System.arraycopy(array, start, newArray, 0, newLength);
         return newArray;
     }
+
+
+    @Override
+    public int hashCode() {
+        return queue.hashCode();
+    }
 }
