@@ -1,6 +1,7 @@
 package io.advantageous.qbit.http.jetty;
 
 import io.advantageous.qbit.http.HttpClient;
+import io.advantageous.qbit.http.jetty.impl.JettyQBitHttpClient;
 import io.advantageous.qbit.spi.HttpClientFactory;
 
 /**
@@ -12,6 +13,7 @@ public class JettyHttpClientFactory implements HttpClientFactory {
     public HttpClient create(String host, int port, int requestBatchSize, int timeOutInMilliseconds,
                              int poolSize, boolean autoFlush, int flushRate,
                              boolean keepAlive, boolean pipeLine) {
-        return null;
+
+        return new JettyQBitHttpClient(host, port);
     }
 }

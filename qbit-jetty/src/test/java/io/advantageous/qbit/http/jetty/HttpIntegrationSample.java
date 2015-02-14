@@ -21,12 +21,7 @@ public class HttpIntegrationSample {
             request.getResponse().response(200, "text/html", "<html><body>Hello World!</body></html>");
         });
 
-        httpServer.setWebSocketMessageConsumer(new Consumer<WebSocketMessage>() {
-            @Override
-            public void accept(WebSocketMessage webSocketMessage) {
-                webSocketMessage.getSender().send("HI");
-            }
-        });
+        httpServer.setWebSocketMessageConsumer(webSocketMessage -> webSocketMessage.getSender().send("HI"));
         httpServer.start();
     }
 }
