@@ -3,7 +3,6 @@ package io.advantageous.qbit.vertx.http.verticle;
 import io.advantageous.qbit.http.HttpRequest;
 import io.advantageous.qbit.http.HttpServer;
 import io.advantageous.qbit.http.WebSocketMessage;
-import io.advantageous.qbit.queue.Queue;
 import io.advantageous.qbit.vertx.BufferUtils;
 import org.boon.Str;
 import org.vertx.java.core.Handler;
@@ -204,7 +203,7 @@ public class HttpRepeaterBeforeWebServerStartHandler implements Consumer<HttpSer
         final WebSocketMessage webSocketMessage = wsMap.get(remoteAddress);
 
         if (webSocketMessage != null) {
-            webSocketMessage.getSender().send(body);
+            webSocketMessage.getSender().sendText(body);
         }
 
     }

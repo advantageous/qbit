@@ -124,7 +124,7 @@ public class ServiceServerImpl implements ServiceServer {
 
 
     /**
-     * Sets up the response queue listener so we can send responses
+     * Sets up the response queue listener so we can sendText responses
      * to HTTP / WebSocket end points.
      */
     private void startResponseQueueListener() {

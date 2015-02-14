@@ -23,6 +23,14 @@ public class JettyNativeWebSocketHandler extends WebSocketAdapter {
     @Override
     public void onWebSocketClose(int statusCode, String reason) {
 
+        final WebSocketMessage webSocketMessage = webSocketMessageBuilder()
+                .setMessage(reason)
+                .setUri(request.getRequestURI().getPath())
+                .setRemoteAddress(request.getRemoteAddress())
+                .setTimestamp(Timer.timer().now()).build();
+
+
+        httpServer.handleWebSocketClosedMessage(webSocketMessage);
     }
 
     @Override

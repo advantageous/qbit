@@ -35,7 +35,7 @@ public class HttpClientVertxTest {
 
         server.setWebSocketMessageConsumer(webSocketMessage -> {
             if (webSocketMessage.getMessage().equals("What do you want on your cheeseburger?")) {
-                webSocketMessage.getSender().send("Bacon");
+                webSocketMessage.getSender().sendText("Bacon");
                 requestReceived = true;
 
             } else {

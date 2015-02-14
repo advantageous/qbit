@@ -168,7 +168,7 @@ public class BoonClientIntegrationTest {
                 if (response.wasErrors()) {
                     puts("FAILED RESPONSE",response);
                 } else {
-                    webSocketMessage.getSender().send(QBit.factory().createEncoder().encodeAsString(response));
+                    webSocketMessage.getSender().sendText(QBit.factory().createEncoder().encodeAsString(response));
                 }
             } else {
                 puts(response);

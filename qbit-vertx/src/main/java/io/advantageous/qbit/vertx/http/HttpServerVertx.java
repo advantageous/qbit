@@ -648,7 +648,19 @@ public class HttpServerVertx implements HttpServer {
     private WebSocketMessage createWebSocketMessage(final ServerWebSocket serverWebSocket, final Buffer buffer) {
 
 
-        return createWebSocketMessage(serverWebSocket.uri(), serverWebSocket.remoteAddress().toString(), serverWebSocket::writeTextFrame, buffer != null ? buffer.toString("UTF-8"): "");
+        return createWebSocketMessage(serverWebSocket.uri(), serverWebSocket.remoteAddress().toString(),
+
+                new WebSocketSender() {
+                    @Override
+                    public void sendText(String message) {
+                        serverWebSocket.writeTextFrame(message);
+                    }
+                    @Override
+                    public void sendBytes(byte[] message) {
+                        serverWebSocket.writeBinaryFrame(new Buffer(message));
+
+                    }
+                }, buffer != null ? buffer.toString("UTF-8"): "");
     }
 
 

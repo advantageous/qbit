@@ -208,7 +208,7 @@ public class BoonEventManagerTest {
             die("consumerMessageCount", consumerMessageCount);
         }
 
-        puts("Duration to send messages", duration,
+        puts("Duration to sendText messages", duration,
                 "ms. \nconsume message count", consumerMessageCount,
                 "\ntotal message count", consumerMessageCount + subscribeMessageCount);
 

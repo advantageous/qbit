@@ -5,9 +5,6 @@ import io.advantageous.qbit.http.HttpClient;
 import io.advantageous.qbit.http.HttpRequest;
 import io.advantageous.qbit.http.WebSocketMessage;
 import org.boon.Str;
-import org.eclipse.jetty.client.HttpResponse;
-import org.eclipse.jetty.client.api.ContentResponse;
-import org.eclipse.jetty.client.api.Response;
 import org.eclipse.jetty.client.api.Result;
 import org.eclipse.jetty.client.util.BufferingResponseListener;
 import org.eclipse.jetty.http.HttpHeader;
@@ -19,9 +16,7 @@ import org.eclipse.jetty.websocket.client.WebSocketClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.util.function.Consumer;
 
@@ -94,43 +89,7 @@ public class JettyQBitHttpClient implements HttpClient {
 
     private HttpMethod getHttpMethod(HttpRequest request) {
         final String method = request.getMethod();
-        HttpMethod jettyMethod = HttpMethod.GET;
-
-        //return HttpMethod.fromString(method.toUpperCase()); //think this is slower but shorter
-
-        switch (method) {
-            case "GET":
-                jettyMethod = HttpMethod.GET;
-                break;
-            case "POST":
-                jettyMethod = HttpMethod.POST;
-                break;
-            case "HEAD":
-                jettyMethod = HttpMethod.HEAD;
-                break;
-            case "PUT":
-                jettyMethod = HttpMethod.PUT;
-                break;
-            case "OPTIONS":
-                jettyMethod = HttpMethod.OPTIONS;
-                break;
-            case "DELETE":
-                jettyMethod = HttpMethod.DELETE;
-                break;
-            case "TRACE":
-                jettyMethod = HttpMethod.TRACE;
-                break;
-            case "CONNECT":
-                jettyMethod = HttpMethod.CONNECT;
-                break;
-            case "MOVE":
-                jettyMethod = HttpMethod.MOVE;
-                break;
-            case "PROXY":
-                jettyMethod = HttpMethod.PROXY;
-                break;
-        }
-        return jettyMethod;
+        return HttpMethod.fromString(method.toUpperCase());
     }
 
 
@@ -176,7 +135,7 @@ public class JettyQBitHttpClient implements HttpClient {
 
                 if (debug) puts("CLIENT GOT MESSAGE", message);
 
-                webSocketMessage.getSender().send(message);
+                webSocketMessage.getSender().sendText(message);
             }
         };
 

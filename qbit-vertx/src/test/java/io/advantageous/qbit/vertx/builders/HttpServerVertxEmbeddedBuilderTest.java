@@ -12,7 +12,6 @@ import java.util.concurrent.BlockingQueue;
 
 import static org.boon.Boon.puts;
 import static org.boon.Exceptions.die;
-import static org.junit.Assert.*;
 
 public class HttpServerVertxEmbeddedBuilderTest {
 
@@ -44,7 +43,7 @@ public class HttpServerVertxEmbeddedBuilderTest {
 
 
                 puts("GOT WEB_SOCKET", message);
-                message.getSender().send("\"hi websocket\"");
+                message.getSender().sendText("\"hi websocket\"");
             };
         }
 
@@ -114,9 +113,21 @@ public class HttpServerVertxEmbeddedBuilderTest {
 
 
         client.sendWebSocketMessage(new WebSocketMessageBuilder().setUri("/foo").setMessage("HI MOM")
-                .setSender(message -> {
-                    queue.add(message);
-                })
+                .setSender(
+
+                        new WebSocketSender() {
+                            @Override
+                            public void sendText(String textMessage) {
+                                    queue.add(textMessage);
+                            }
+
+                            @Override
+                            public void sendBytes(byte[] message) {
+                                //TODO support binary
+                            }
+                        }
+
+                )
                 .build());
 
 

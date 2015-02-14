@@ -371,7 +371,7 @@ public class ServiceServerImplTest {
 
     class MockWebSocketSender implements WebSocketSender {
         @Override
-        public void send(final String message) {
+        public void sendText(final String message) {
 
             puts("MESSAGE", message);
 
@@ -387,6 +387,11 @@ public class ServiceServerImplTest {
                 }
             }
 
+        }
+
+        @Override
+        public void sendBytes(byte[] message) {
+            //Binary not supported yet
         }
 
 

@@ -231,9 +231,9 @@ public class BoonClient implements Client {
 
     /**
      * Sends a message over websocket.
-     * @param message message to send over WebSocket
+     * @param message message to sendText over WebSocket
      *
-     * @param serviceName message to send over WebSocket
+     * @param serviceName message to sendText over WebSocket
      */
     private void send(String serviceName, String message) {
 
@@ -244,7 +244,17 @@ public class BoonClient implements Client {
         final WebSocketMessage webSocketMessage = new WebSocketMessageBuilder()
                 .setUri(charBuf.toString())
                 .setMessage(message)
-                .setSender(this::handleWebsocketQueueResponses).build();
+                .setSender(
+                        new WebSocketSender() {
+                            @Override
+                            public void sendText(String message) {
+                                handleWebsocketQueueResponses(message);
+                            }
+                            @Override
+                            public void sendBytes(byte[] message) {
+                                 //TODO We don't handle a binary protocol yet....
+                            }
+                        }).build();
         httpServerProxy.sendWebSocketMessage(webSocketMessage);
     }
 

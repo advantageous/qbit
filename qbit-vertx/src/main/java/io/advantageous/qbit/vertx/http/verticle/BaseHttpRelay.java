@@ -165,10 +165,20 @@ public abstract class BaseHttpRelay extends Verticle {
                 .setUri(uri)
                 .setMessageId(messageId)
                 .setTimestamp(timestamp)
-                .setSender(message1 -> {
-                    handleWebSocketReturnCallbackSend(returnEventBusAddress, remoteAddress, message1);
+                .setSender(
+                        new WebSocketSender() {
+                            @Override
+                            public void sendText(String textMessage) {
+                                    handleWebSocketReturnCallbackSend(returnEventBusAddress, remoteAddress, textMessage);
+                            }
 
-                }).build();
+                            @Override
+                            public void sendBytes(byte[] message) {
+                                //TODO support binary for binary protocol
+                            }
+                        }
+
+                ).build();
     }
 
     private void handleWebSocketReturnCallbackSend(String returnEventBusAddress, String remoteAddress, String message1) {

@@ -19,11 +19,8 @@ import static org.boon.Boon.puts;
  * Created by rhightower on 2/12/15.
  */
 public class SimpleHttpServer implements HttpServer {
-
-
     private final Logger logger = LoggerFactory.getLogger(SimpleHttpServer.class);
     private final boolean debug = false || GlobalConstants.DEBUG || logger.isDebugEnabled();
-
     private Consumer<WebSocketMessage> webSocketMessageConsumer = webSocketMessage -> {};
     private Consumer<WebSocketMessage> webSocketCloseMessageConsumer = webSocketMessage -> {};
     private Consumer<HttpRequest> httpRequestConsumer = request -> {};
@@ -49,7 +46,6 @@ public class SimpleHttpServer implements HttpServer {
      * @param request request to handle
      */
     public void handleRequest(final HttpRequest request) {
-
         if (debug) {
             puts("HttpServer::handleRequest", request);
             logger.debug("HttpServer::handleRequest" + request);
@@ -61,8 +57,12 @@ public class SimpleHttpServer implements HttpServer {
 
 
     public void handleWebSocketMessage(final WebSocketMessage webSocketMessage) {
-
         webSocketMessageConsumer.accept(webSocketMessage);
+    }
+
+
+    public void handleWebSocketClosedMessage(WebSocketMessage webSocketMessage) {
+        webSocketCloseMessageConsumer.accept(webSocketMessage);
     }
 
     @Override

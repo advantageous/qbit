@@ -106,7 +106,7 @@ public class WebSocketServiceServerHandler {
             final String textMessage = encoder.encodeAsString((Collection<Message<Object>>) (Object) messages);
 
 
-            serverWebSocket.getSender().send(textMessage);
+            serverWebSocket.getSender().sendText(textMessage);
 
             lastSend = now;
 
@@ -164,12 +164,12 @@ public class WebSocketServiceServerHandler {
                 String responseAsText = encoder.encodeAsString(response);
 
 
-                webSocketMessage.getSender().send(responseAsText);
+                webSocketMessage.getSender().sendText(responseAsText);
             } else {
                 webSocketDelegate.send(response);
             }
         } catch (Exception ex) {
-            logger.warn("websocket unable to send response", ex);
+            logger.warn("websocket unable to sendText response", ex);
         }
     }
 
@@ -194,7 +194,7 @@ public class WebSocketServiceServerHandler {
 
                 final Response<Object> response = ResponseImpl.response(-1, Timer.timer().now(), "SYSTEM", "ERROR", "CAN'T HANDLE CALL", originatingRequest, true);
                 final WebSocketSender sender = webSocketMessage.getSender();
-                sender.send(encoder.encodeAsString(response));
+                sender.sendText(encoder.encodeAsString(response));
 
             }
 

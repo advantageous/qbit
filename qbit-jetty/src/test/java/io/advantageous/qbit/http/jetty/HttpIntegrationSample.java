@@ -1,9 +1,6 @@
 package io.advantageous.qbit.http.jetty;
 import io.advantageous.qbit.http.HttpServer;
-import io.advantageous.qbit.http.WebSocketMessage;
 
-
-import java.util.function.Consumer;
 
 import static io.advantageous.qbit.http.HttpServerBuilder.httpServerBuilder;
 
@@ -21,7 +18,7 @@ public class HttpIntegrationSample {
             request.getResponse().response(200, "text/html", "<html><body>Hello World!</body></html>");
         });
 
-        httpServer.setWebSocketMessageConsumer(webSocketMessage -> webSocketMessage.getSender().send("HI"));
+        httpServer.setWebSocketMessageConsumer(webSocketMessage -> webSocketMessage.getSender().sendText("HI"));
         httpServer.start();
     }
 }

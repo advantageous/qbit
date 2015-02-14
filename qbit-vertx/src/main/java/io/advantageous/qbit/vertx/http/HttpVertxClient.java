@@ -23,7 +23,6 @@ import java.net.ConnectException;
 import java.util.Map;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Consumer;
 
 import static io.advantageous.qbit.concurrent.ScheduledExecutorBuilder.scheduledExecutorBuilder;
@@ -229,7 +228,7 @@ public class HttpVertxClient implements HttpClient {
                         @Override
                         public void handle(Buffer buffer) {
 
-                            webSocketMessage.getSender().send(buffer.toString());
+                            webSocketMessage.getSender().sendText(buffer.toString());
                         }
                     });
 

@@ -41,7 +41,7 @@ public class WebSocketMessageTest  {
         ok |= webSocketMessage.returnAddress().equals("/blah") || die();
         ok |= !webSocketMessage.isHandled() || die();
 
-        webSocketMessage.getSender().send("hello mom");
+        webSocketMessage.getSender().sendText("hello mom");
         webSocketMessage.handled();
 
 
@@ -83,11 +83,16 @@ public class WebSocketMessageTest  {
     public  class WebsSocketSenderMock implements WebSocketSender {
 
         @Override
-        public void send(String message) {
+        public void sendText(String message) {
 
 
             lastMessage = message;
             called = true;
+        }
+
+        @Override
+        public void sendBytes(byte[] message) {
+
         }
     }
 

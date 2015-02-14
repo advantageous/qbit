@@ -14,6 +14,10 @@ import java.util.function.Predicate;
  */
 public interface HttpServer extends Server {
 
+    default void setWebSocketOnOpenConsumer(Consumer<WebSocket> onOpenConsumer) {
+        throw new RuntimeException("Not supported");
+    }
+
     void setWebSocketMessageConsumer(Consumer<WebSocketMessage> webSocketMessageConsumer);
 
     void setWebSocketCloseConsumer(Consumer<WebSocketMessage> webSocketMessageConsumer);
@@ -27,6 +31,7 @@ public interface HttpServer extends Server {
     void setHttpRequestsIdleConsumer(Consumer<Void> idleConsumer);
 
     void setWebSocketIdleConsume(Consumer<Void> idleConsumer);
+
 
 
 }

@@ -37,7 +37,7 @@ public class WebServerRepeaterApplication {
             return message -> {
 
 
-                message.getSender().send("\"hi websocket\"");
+                message.getSender().sendText("\"hi websocket\"");
             };
         }
 
