@@ -1,11 +1,8 @@
 package io.advantageous.qbit.http.jetty;
 
 import io.advantageous.qbit.annotation.RequestMapping;
-import io.advantageous.qbit.http.HttpServer;
-import io.advantageous.qbit.http.jetty.impl.RegisterJettyWithQBit;
 import io.advantageous.qbit.server.ServiceServer;
 
-import static io.advantageous.qbit.http.HttpServerBuilder.httpServerBuilder;
 import static io.advantageous.qbit.server.ServiceServerBuilder.serviceServerBuilder;
 
 /**

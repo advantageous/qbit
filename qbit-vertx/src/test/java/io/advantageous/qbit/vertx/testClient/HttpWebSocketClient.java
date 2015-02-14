@@ -1,4 +1,4 @@
-package io.advantageous.qbit.vertx;
+package io.advantageous.qbit.vertx.testClient;
 
 import io.advantageous.qbit.http.HttpClient;
 import io.advantageous.qbit.http.WebSocketMessage;
@@ -21,12 +21,7 @@ public class HttpWebSocketClient {
 
         httpClient.sendWebSocketMessage(
                 webSocketMessageBuilder().setMessage("Hello").setUri("/hello")
-                        .setSender(new WebSocketSender() {
-                            @Override
-                            public void send(String message) {
-                                puts(message);
-                            }
-                        })
+                        .setSender(message -> puts(message))
                         .build()
         );
 

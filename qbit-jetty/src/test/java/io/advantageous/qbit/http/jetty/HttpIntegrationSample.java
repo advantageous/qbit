@@ -1,7 +1,6 @@
 package io.advantageous.qbit.http.jetty;
 import io.advantageous.qbit.http.HttpServer;
 import io.advantageous.qbit.http.WebSocketMessage;
-import io.advantageous.qbit.http.jetty.impl.RegisterJettyWithQBit;
 
 
 import java.util.function.Consumer;

@@ -1,4 +1,4 @@
-package io.advantageous.qbit.http.jetty.impl;
+package io.advantageous.qbit.http.jetty;
 
 import io.advantageous.qbit.spi.FactorySPI;
 
