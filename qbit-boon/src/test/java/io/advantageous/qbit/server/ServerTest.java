@@ -29,11 +29,6 @@ public class ServerTest {
 
     boolean ok;
 
-    static {
-
-        /** Boon is the default implementation but there can be others. */
-        RegisterBoonWithQBit.registerBoonWithQBit();
-    }
 
     @Test
     public void testServer() {
