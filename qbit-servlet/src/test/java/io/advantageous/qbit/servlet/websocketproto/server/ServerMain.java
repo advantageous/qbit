@@ -1,6 +1,5 @@
 package io.advantageous.qbit.servlet.websocketproto.server;
 
-import io.advantageous.qbit.servlet.websocketproto.server.HelloServerConfig;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.websocket.jsr356.server.ServerContainer;

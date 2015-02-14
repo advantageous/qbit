@@ -32,3 +32,5 @@ project(':qbit-admin').projectDir = "$rootDir/qbit-admin" as File
 
 include 'qbit-servlet'
 
+include 'qbit-jetty'
+

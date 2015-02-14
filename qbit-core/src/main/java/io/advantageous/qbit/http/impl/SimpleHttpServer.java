@@ -5,6 +5,7 @@ import io.advantageous.qbit.concurrent.ExecutorContext;
 import io.advantageous.qbit.http.HttpRequest;
 import io.advantageous.qbit.http.HttpServer;
 import io.advantageous.qbit.http.WebSocketMessage;
+import io.advantageous.qbit.system.QBitSystemManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,7 +31,18 @@ public class SimpleHttpServer implements HttpServer {
     private Consumer<Void> webSocketIdleConsumer = aVoid -> {};
     private Predicate<HttpRequest> shouldContinueHttpRequest = request -> true;
     private ExecutorContext executorContext;
+    private final QBitSystemManager systemManager;
+    private final int flushInterval;
 
+    public SimpleHttpServer(QBitSystemManager systemManager, int flushInterval) {
+        this.systemManager = systemManager;
+        this.flushInterval = flushInterval;
+    }
+
+    public SimpleHttpServer() {
+        this.systemManager = null;
+        flushInterval = 50;
+    }
 
     /**
      * Main entry point.
@@ -89,8 +101,9 @@ public class SimpleHttpServer implements HttpServer {
             logger.debug("HttpServer Started");
         }
         executorContext = scheduledExecutorBuilder()
-                .setThreadName("HttpServer").setInitialDelay(50)
-                .setPeriod(50)
+                .setThreadName("HttpServer")
+                .setInitialDelay(flushInterval)
+                .setPeriod(flushInterval)
                 .setDescription("HttpServer Periodic Flush")
                 .setRunnable(() -> {
                     requestIdleConsumer.accept(null);
@@ -103,6 +116,9 @@ public class SimpleHttpServer implements HttpServer {
 
     @Override
     public void stop() {
+
+
+        if (systemManager!=null) systemManager.serviceShutDown();
 
         if (debug) {
             puts("HttpServer Stopped");
