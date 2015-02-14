@@ -9,14 +9,16 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
+import static org.boon.Boon.sputs;
+
 /**
  * Created by rhightower on 2/13/15.
  */
 public class ScheduledThreadContext implements ExecutorContext{
     private final Logger logger = LoggerFactory.getLogger(ScheduledThreadContext.class);
     private final boolean debug = false || GlobalConstants.DEBUG || logger.isDebugEnabled();
-
-
+    private final int priority;
+    private final boolean daemon;
     private ScheduledExecutorService monitor;
     private ScheduledFuture<?> future;
     private final Runnable runnable;
@@ -34,25 +36,33 @@ public class ScheduledThreadContext implements ExecutorContext{
                                   final int period,
                                   final TimeUnit unit,
                                   final String threadName,
-                                  final String description) {
+                                  final String description, int priority, boolean daemon) {
         this.initialDelay = initialDelay;
         this.period = period;
         this.unit = unit;
         this.runnable = runnable;
         this.threadName = threadName;
         this.description = description;
+        this.priority = priority;
+        this.daemon = daemon;
     }
 
     @Override
     public void start() {
 
+        if (debug) {
+            logger.debug(sputs("Started:", description));
+        }
+
         if (monitor!=null) {
-            throw new IllegalStateException("Must be stopped before it can be started");
+            throw new IllegalStateException(description + " Must be stopped before it can be started");
         }
         monitor = Executors.newScheduledThreadPool(1,
                 runnable -> {
                     Thread thread = new Thread(runnable);
                     thread.setName(threadName);
+                    thread.setPriority(priority);
+                    if (daemon) thread.setDaemon(daemon);
                     return thread;
                 }
         );
@@ -69,6 +79,10 @@ public class ScheduledThreadContext implements ExecutorContext{
 
     @Override
     public void stop() {
+
+        if (debug) {
+            logger.debug(sputs("Stopped:", description));
+        }
 
 
         try {

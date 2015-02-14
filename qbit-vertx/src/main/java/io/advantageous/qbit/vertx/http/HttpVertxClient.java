@@ -1,5 +1,7 @@
 package io.advantageous.qbit.vertx.http;
 
+import io.advantageous.qbit.GlobalConstants;
+import io.advantageous.qbit.concurrent.ExecutorContext;
 import io.advantageous.qbit.http.HttpClient;
 import io.advantageous.qbit.http.HttpRequest;
 import io.advantageous.qbit.http.WebSocketMessage;
@@ -24,7 +26,9 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Consumer;
 
+import static io.advantageous.qbit.concurrent.ScheduledExecutorBuilder.scheduledExecutorBuilder;
 import static org.boon.Boon.puts;
+import static org.boon.Boon.sputs;
 
 /**
  * Created by rhightower on 1/30/15.
@@ -33,10 +37,10 @@ public class HttpVertxClient implements HttpClient {
 
 
     private final Logger logger = LoggerFactory.getLogger(HttpVertxClient.class);
-    private final boolean debug = logger.isDebugEnabled();
+    private final boolean debug = false || logger.isDebugEnabled() || GlobalConstants.DEBUG;
 
 
-    protected ScheduledExecutorService scheduledExecutorService;
+    private ExecutorContext executorContext;
 
     /**
      * I am leaving these protected and non-final so subclasses can use injection frameworks for them.
@@ -156,13 +160,10 @@ public class HttpVertxClient implements HttpClient {
     @Override
     public void stop() {
 
-        try {
-            if (this.scheduledExecutorService!=null)
-                this.scheduledExecutorService.shutdown();
-        } catch (Exception ex) {
-            logger.warn("problem shutting down executor client for Http Client", ex);
+        if (executorContext != null) {
+            executorContext.stop();
+            executorContext=null;
         }
-
 
         try {
             if (httpClient != null) {
@@ -178,14 +179,24 @@ public class HttpVertxClient implements HttpClient {
     private void autoFlush() {
         periodicFlushCallback.accept(null);
     }
+
     @Override
     public HttpClient start() {
         connect();
 
-        scheduledExecutorService = Executors.newScheduledThreadPool(2);
-
         if (autoFlush) {
-            this.scheduledExecutorService.scheduleAtFixedRate(this::autoFlush, 0, flushInterval, TimeUnit.MILLISECONDS);
+
+            if (executorContext != null) {
+                throw new IllegalStateException(sputs("Unable to start up, it is already started"));
+            }
+
+            this.executorContext = scheduledExecutorBuilder()
+                    .setThreadName("HttpClient")
+                    .setInitialDelay(50)
+                    .setPeriod(this.flushInterval).setRunnable(() -> autoFlush())
+                    .build();
+
+            executorContext.start();
         }
         return this;
 

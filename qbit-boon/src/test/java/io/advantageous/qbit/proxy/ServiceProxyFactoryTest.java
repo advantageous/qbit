@@ -12,7 +12,6 @@ import io.advantageous.qbit.message.Response;
 import io.advantageous.qbit.queue.ReceiveQueue;
 import io.advantageous.qbit.service.ServiceBundle;
 import io.advantageous.qbit.service.ServiceBundleBuilder;
-import io.advantageous.qbit.spi.RegisterBoonWithQBit;
 import org.boon.core.Sys;
 import org.junit.Test;
 
@@ -28,10 +27,6 @@ import static org.boon.Exceptions.die;
  */
 public class ServiceProxyFactoryTest {
 
-    static {
-        RegisterBoonWithQBit.registerBoonWithQBit();
-
-    }
     volatile boolean ok;
 
     List<MethodCall<Object>> calls = new ArrayList<>();
@@ -414,7 +409,7 @@ public class ServiceProxyFactoryTest {
         ok = false;
         wasError.set(false);
 
-        Sys.sleep(10);
+        Sys.sleep(100);
 
 
         myServiceProxy.methodThrowsExceptionIf5(handler, "hi", 5);

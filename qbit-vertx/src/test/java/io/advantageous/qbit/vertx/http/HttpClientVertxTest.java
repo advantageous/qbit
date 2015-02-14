@@ -19,7 +19,6 @@ public class HttpClientVertxTest {
     public void connect(int port) {
 
         client = new HttpClientBuilder().setPort(port).build();
-        client.start();
 
         server = new HttpServerBuilder().setPort(port).build();
 

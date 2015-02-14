@@ -1,6 +1,7 @@
 package io.advantageous.qbit.queue.impl;
 
 import io.advantageous.qbit.GlobalConstants;
+import io.advantageous.qbit.concurrent.ExecutorContext;
 import io.advantageous.qbit.queue.*;
 import org.boon.core.reflection.ClassMeta;
 import org.boon.core.reflection.ConstructorAccess;
@@ -9,6 +10,9 @@ import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
+
+import static io.advantageous.qbit.concurrent.ScheduledExecutorBuilder.scheduledExecutorBuilder;
+import static org.boon.Boon.sputs;
 
 /**
  * This is the base for all the queues we use.
@@ -20,24 +24,18 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class BasicQueue<T> implements Queue<T> {
 
     private final BlockingQueue<Object> queue;
-
-
     private final boolean checkIfBusy;
     private final int batchSize;
-    private final AtomicBoolean stop = new AtomicBoolean();
     private final Logger logger = LoggerFactory.getLogger(BasicQueue.class);
     private final ReceiveQueueManager<T> receiveQueueManager;
     private final String name;
     private final int waitTime;
     private final TimeUnit timeUnit;
-
     private final boolean  tryTransfer;
-
     private final boolean debug = GlobalConstants.DEBUG;
-
+    private  AtomicBoolean stop = new AtomicBoolean();
     private final int checkEvery;
-    private ScheduledExecutorService monitor;
-    private ScheduledFuture<?> future;
+    private ExecutorContext executorContext;
 
     public BasicQueue(final String name,
                       final int waitTime,
@@ -106,36 +104,27 @@ public class BasicQueue<T> implements Queue<T> {
 
     @Override
     public void startListener(final ReceiveQueueListener<T> listener) {
-        if (monitor == null) {
-            monitor = Executors.newScheduledThreadPool(1,
-                    runnable -> {
-                        Thread thread = new Thread(runnable);
-                        thread.setName("QueueListener " + name);
-                        return thread;
-                    }
-            );
-        } else {
-            throw new IllegalStateException("Only one BasicQueue listener allowed at a time");
+
+        if (executorContext != null) {
+            throw new IllegalStateException(sputs("Queue.startListener::Unable to start up twice", name));
         }
 
-        future = monitor.scheduleAtFixedRate(() -> {
-            try {
-                manageQueue(listener);
-            } catch (Exception ex) {
-                logger.error("BasicQueue Manager::Problem running queue manager", ex);
-            }
-        }, 50, 50, TimeUnit.MILLISECONDS);
+        this.executorContext = scheduledExecutorBuilder()
+                .setThreadName("QueueListener " + name)
+                .setInitialDelay(50)
+                .setPeriod(50).setRunnable(() -> manageQueue(listener))
+        .build();
+
+        executorContext.start();
     }
 
     @Override
     public void stop() {
-        if (future != null) {
-            future.cancel(true);
-        }
-        if (monitor != null) {
-            monitor.shutdownNow();
-        }
         stop.set(true);
+        if (executorContext!=null) {
+            executorContext.stop();
+        }
+        stop = new AtomicBoolean();
     }
 
     private void manageQueue(ReceiveQueueListener<T> listener) {

@@ -1,11 +1,14 @@
 package io.advantageous.qbit.util;
 
+import io.advantageous.qbit.GlobalConstants;
+import io.advantageous.qbit.concurrent.ExecutorContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
+
+import static io.advantageous.qbit.concurrent.ScheduledExecutorBuilder.scheduledExecutorBuilder;
 
 /**
  * @author rhightower
@@ -14,11 +17,11 @@ public class Timer {
 
     private final Logger logger = LoggerFactory.getLogger(Timer.class);
 
+    private final boolean debug = false || GlobalConstants.DEBUG || logger.isDebugEnabled();
+
     private final AtomicLong time = new AtomicLong(System.nanoTime() / 1_000_000);
 
-    private ScheduledExecutorService monitor;
-
-    private ScheduledFuture<?> future;
+    private  ExecutorContext executorContext;
 
     private static AtomicReference<Timer> timeHolder = new AtomicReference<>();
 
@@ -34,31 +37,38 @@ public class Timer {
     }
 
     public void stop() {
-        future.cancel(true);
-        monitor.shutdownNow();
-        monitor = null;
+
+        if (debug) {
+            logger.debug("timer stopped");
+        }
+
+        if (executorContext!=null) {
+            executorContext.stop();
+        }
+        executorContext = null;
     }
+
 
     private void start() {
 
-        if (monitor == null)
-            monitor = Executors.newScheduledThreadPool(1,
-                    runnable -> {
-                        Thread thread = new Thread(runnable);
-                        thread.setPriority(Thread.MAX_PRIORITY);
-                        thread.setDaemon(true);
-                        thread.setName("Timer OutputQueue Manager");
-                        return thread;
-                    }
-            );
+        if (debug) {
+            logger.debug("timer started");
+        }
 
-        future = monitor.scheduleAtFixedRate(() -> {
-            try {
+        if (executorContext!=null) {
+            throw new IllegalStateException("You can't start a timer twice");
+        }
+
+        executorContext = scheduledExecutorBuilder().setPriority(Thread.MAX_PRIORITY)
+                .setThreadName("Timer OutputQueue Manager").setDaemon(true)
+                .setInitialDelay(50).setPeriod(50).setRunnable(new Runnable() {
+            @Override
+            public void run() {
                 manageTimer();
-            } catch (Exception ex) {
-                logger.error("can't manage timeHolder", ex);
             }
-        }, 50, 50, TimeUnit.MILLISECONDS);
+        }).build();
+        executorContext.start();
+
 
     }
 

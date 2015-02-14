@@ -11,12 +11,32 @@ public class ScheduledExecutorBuilder {
         return new ScheduledExecutorBuilder();
     }
 
-    private int initialDelay;
-    private int period;
+    private int initialDelay=50;
+    private int period=50;
     private TimeUnit unit = TimeUnit.MILLISECONDS;
     private String threadName;
     private String description;
     private  Runnable runnable;
+    private int priority = Thread.NORM_PRIORITY;
+    private  boolean daemon;
+
+    public boolean isDaemon() {
+        return daemon;
+    }
+
+    public ScheduledExecutorBuilder setDaemon(boolean daemon) {
+        this.daemon = daemon;
+        return this;
+    }
+
+    public int getPriority() {
+        return priority;
+    }
+
+    public ScheduledExecutorBuilder setPriority(int priority) {
+        this.priority = priority;
+        return this;
+    }
 
     public Runnable getRunnable() {
         return runnable;
@@ -75,6 +95,7 @@ public class ScheduledExecutorBuilder {
 
     public ExecutorContext build() {
         return new ScheduledThreadContext(this.getRunnable(), this.getInitialDelay(),
-                this.getPeriod(), this.getUnit(), this.getThreadName(), this.getDescription()  );
+                this.getPeriod(), this.getUnit(), this.getThreadName(), this.getDescription(), priority, daemon
+        );
     }
 }
