@@ -1,7 +1,11 @@
 package io.advantageous.qbit.servlet;
 
+import io.advantageous.qbit.GlobalConstants;
 import io.advantageous.qbit.http.HttpRequest;
 import io.advantageous.qbit.http.HttpServer;
+import io.advantageous.qbit.http.impl.SimpleHttpServer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
@@ -19,7 +23,20 @@ import static io.advantageous.qbit.servlet.QBitServletUtil.convertRequest;
 @WebServlet(asyncSupported = true)
 public abstract class QBitHttpServlet extends HttpServlet {
 
-    private final ServletHttpServer httpServer = new ServletHttpServer();
+
+    private final Logger logger = LoggerFactory.getLogger(QBitHttpServlet.class);
+    private final boolean debug = false || GlobalConstants.DEBUG || logger.isDebugEnabled();
+
+    private final SimpleHttpServer httpServer = new SimpleHttpServer();
+
+    @Override
+    public void init(ServletConfig config) throws ServletException {
+        try {
+            wireHttpServer(httpServer, config);
+        }catch (Exception ex) {
+            logger.error("Unable to start QBitHttpServlet servlet", ex);
+        }
+    }
 
     @Override
     public void destroy() {
@@ -29,11 +46,6 @@ public abstract class QBitHttpServlet extends HttpServlet {
 
     protected abstract void stop();
 
-    @Override
-    public void init(ServletConfig config) throws ServletException {
-        httpServer.start();
-        wireHttpServer(httpServer, config);
-    }
 
     protected abstract void wireHttpServer(final HttpServer httpServer, ServletConfig config);
 
