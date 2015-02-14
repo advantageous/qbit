@@ -11,7 +11,12 @@ import org.eclipse.jetty.client.api.Result;
 import org.eclipse.jetty.client.util.BufferingResponseListener;
 import org.eclipse.jetty.http.HttpHeader;
 import org.eclipse.jetty.http.HttpMethod;
+import org.eclipse.jetty.websocket.api.Session;
+import org.eclipse.jetty.websocket.api.WebSocketListener;
+import org.eclipse.jetty.websocket.client.ClientUpgradeRequest;
+import org.eclipse.jetty.websocket.client.WebSocketClient;
 
+import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
@@ -27,6 +32,8 @@ public class JettyQBitHttpClient implements HttpClient {
 
     private final org.eclipse.jetty.client.HttpClient httpClient = new
             org.eclipse.jetty.client.HttpClient();
+    private final WebSocketClient client = new WebSocketClient();
+
 
     private final String host;
     private final int port;
@@ -34,6 +41,12 @@ public class JettyQBitHttpClient implements HttpClient {
     public JettyQBitHttpClient(String host, int port) {
         this.host = host;
         this.port = port;
+
+        try {
+            client.start();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
 
@@ -43,7 +56,6 @@ public class JettyQBitHttpClient implements HttpClient {
 
             final String uri = Str.add("http://", host, ":", Integer.toString(port), request.getUri());
 
-            puts("\n\n", uri, "\n\n");
 
             final String method = request.getMethod();
             HttpMethod jettyMethod=HttpMethod.GET;
@@ -113,8 +125,64 @@ public class JettyQBitHttpClient implements HttpClient {
 
     }
 
+
+
+
     @Override
-    public void sendWebSocketMessage(WebSocketMessage webSocketMessage) {
+    public void sendWebSocketMessage(final WebSocketMessage webSocketMessage) {
+
+        final ClientUpgradeRequest request = new ClientUpgradeRequest();
+        final String uri = Str.add("ws://", host, ":", Integer.toString(port), webSocketMessage.getUri());
+
+
+        WebSocketListener webSocketListener
+        = new WebSocketListener() {
+            Session session;
+            @Override
+            public void onWebSocketBinary(byte[] payload, int offset, int len) {
+
+            }
+
+            @Override
+            public void onWebSocketClose(int statusCode, String reason) {
+                puts("CLIENT WEB_SOCKET CLOSE");
+
+
+            }
+
+            @Override
+            public void onWebSocketConnect(Session session) {
+
+                puts("CLIENT WEB_SOCKET CONNECT");
+                this.session = session;
+                session.getRemote().sendStringByFuture(webSocketMessage.getMessage());
+            }
+
+            @Override
+            public void onWebSocketError(Throwable cause) {
+                puts("CLIENT WEB_SOCKET ERROR", cause);
+
+            }
+
+            @Override
+            public void onWebSocketText(String message) {
+
+                puts("CLIENT GOT MESSAGE", message);
+
+                webSocketMessage.getSender().send(message);
+            }
+        };
+
+        try {
+
+            client.connect(webSocketListener, new URI(uri), request);
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (URISyntaxException e) {
+            e.printStackTrace();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
     }
 
@@ -144,6 +212,7 @@ public class JettyQBitHttpClient implements HttpClient {
 
         try {
             httpClient.stop();
+            client.stop();
         } catch (Exception e) {
             e.printStackTrace();
         }
