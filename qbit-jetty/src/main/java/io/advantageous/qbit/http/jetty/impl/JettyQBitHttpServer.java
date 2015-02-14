@@ -2,18 +2,14 @@ package io.advantageous.qbit.http.jetty.impl;
 
 import io.advantageous.qbit.GlobalConstants;
 import io.advantageous.qbit.http.HttpRequest;
-import io.advantageous.qbit.http.HttpServer;
-import io.advantageous.qbit.http.WebSocketMessage;
 import io.advantageous.qbit.http.impl.SimpleHttpServer;
-import io.advantageous.qbit.queue.Queue;
 import io.advantageous.qbit.system.QBitSystemManager;
 import org.boon.Str;
 import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.handler.AbstractHandler;
-import org.eclipse.jetty.servlet.ServletContextHandler;
-import org.eclipse.jetty.websocket.jsr356.server.ServerContainer;
-import org.eclipse.jetty.websocket.jsr356.server.deploy.WebSocketServerContainerInitializer;
+import org.eclipse.jetty.util.thread.QueuedThreadPool;
+import org.eclipse.jetty.util.thread.ThreadPool;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -21,7 +17,6 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.net.InetAddress;
 import java.net.InetSocketAddress;
 
 import static io.advantageous.qbit.servlet.QBitServletUtil.convertRequest;
@@ -31,13 +26,10 @@ import static io.advantageous.qbit.servlet.QBitServletUtil.convertRequest;
  */
 public class JettyQBitHttpServer extends SimpleHttpServer {
 
-
     private final Logger logger = LoggerFactory.getLogger(SimpleHttpServer.class);
     private final boolean debug = false || GlobalConstants.DEBUG || logger.isDebugEnabled();
-
-
     private final Server server;
-
+    private final QBitWebSocketHandler qBitWebSocketHandler ;
     public JettyQBitHttpServer(final String host,
                                final int port,
                                final int flushInterval,
@@ -52,16 +44,28 @@ public class JettyQBitHttpServer extends SimpleHttpServer {
             this.server = new Server(inetSocketAddress);
         }
 
+        final ThreadPool threadPool = this.server.getThreadPool();
+
+        if (threadPool instanceof QueuedThreadPool) {
+            if (httpWorkers > 4) {
+                ((QueuedThreadPool) threadPool).setMaxThreads(httpWorkers);
+                ((QueuedThreadPool) threadPool).setMinThreads(4);
+            }
+        }
+
+        qBitWebSocketHandler = new QBitWebSocketHandler(this);
         server.setHandler(new AbstractHandler() {
             @Override
-            public void handle(String target, Request baseRequest, HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
-
-
+            public void handle(final String target,
+                               final Request baseRequest,
+                               final HttpServletRequest request,
+                               final HttpServletResponse response)
+                                    throws IOException, ServletException {
+                baseRequest.setAsyncSupported(true);
                 handleRequestInternal(request);
             }
         });
-
-
+        //server.setHandler(qBitWebSocketHandler);
 
 
     }

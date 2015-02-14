@@ -53,46 +53,39 @@ import static io.advantageous.qbit.service.ServiceBuilder.serviceBuilder;
 public class BoonQBitFactory implements Factory {
 
     private AtomicReference<Service> systemEventManager = new AtomicReference<>();
-
     private ThreadLocal<EventManager> eventManagerThreadLocal = new ThreadLocal<>();
 
     @Override
     public EventManager systemEventManager() {
 
         final EventManager eventManager = eventManagerThreadLocal.get();
-
         if (eventManager!=null) {
             return eventManager;
         }
 
         EventManager proxy;
         if (systemEventManager.get() == null) {
-
             final Service service = serviceBuilder().setInvokeDynamic(false)
                     .setServiceObject(createEventManager())
                     .build().start();
 
             systemEventManager.set(service);
             proxy = service.createProxy(EventManager.class);
-
         } else {
             proxy = systemEventManager.get().createProxy(EventManager.class);
         }
 
         eventManagerThreadLocal.set(proxy);
-
         return proxy;
     }
 
 
     @Override
     public void shutdownSystemEventBus() {
-
         final Service service = systemEventManager.get();
         if (service!=null) {
             service.stop();
         }
-
     }
 
     public EventManager eventManagerProxy() {
@@ -241,10 +234,7 @@ public class BoonQBitFactory implements Factory {
                                                                  String methodName,
                                                                  Object body,
                                                                  MultiMap<String, String> params) {
-
-
         MethodCall<Object> parsedMethodCall = null;
-
         if (body != null) {
             ProtocolParser parser = selectProtocolParser(body, params);
 
@@ -255,14 +245,11 @@ public class BoonQBitFactory implements Factory {
             }
         }
 
-
         if (parsedMethodCall!=null) {
             return parsedMethodCall;
         }
 
-
         MethodCallBuilder methodCallBuilder = new MethodCallBuilder();
-
         methodCallBuilder.setName(methodName);
         methodCallBuilder.setBody(body);
         methodCallBuilder.setObjectName(objectName);
@@ -271,9 +258,7 @@ public class BoonQBitFactory implements Factory {
         if (params!=null) {
             methodCallBuilder.setParams(params);
         }
-
         methodCallBuilder.overridesFromParams();
-
         return methodCallBuilder.build();
     }
 

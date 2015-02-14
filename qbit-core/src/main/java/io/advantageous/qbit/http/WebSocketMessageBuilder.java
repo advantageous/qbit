@@ -8,6 +8,10 @@ package io.advantageous.qbit.http;
 public class WebSocketMessageBuilder {
 
 
+    public static  WebSocketMessageBuilder webSocketMessageBuilder() {
+        return new WebSocketMessageBuilder();
+    }
+
     private String uri;
     private String message;
     private WebSocketSender sender;

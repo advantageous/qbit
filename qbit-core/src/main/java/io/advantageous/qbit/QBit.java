@@ -24,6 +24,8 @@ public class QBit {
 
                 } catch (Exception ex) {
 
+                    final Class<?> vertxFactory = Class.forName("io.advantageous.qbit.http.jetty.impl.RegisterJettyWithQBit");
+                    ClassMeta.classMeta(vertxFactory).invokeStatic("registerJettyWithQBit");
                 }
                 return FactorySPI.getFactory();
 

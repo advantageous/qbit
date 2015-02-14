@@ -59,6 +59,12 @@ public class SimpleHttpServer implements HttpServer {
         }
     }
 
+
+    public void handleWebSocketMessage(final WebSocketMessage webSocketMessage) {
+
+        webSocketMessageConsumer.accept(webSocketMessage);
+    }
+
     @Override
     public void setShouldContinueHttpRequest(Predicate<HttpRequest> predicate) {
         this.shouldContinueHttpRequest = predicate;
@@ -129,4 +135,5 @@ public class SimpleHttpServer implements HttpServer {
             executorContext.stop();
         }
     }
+
 }
