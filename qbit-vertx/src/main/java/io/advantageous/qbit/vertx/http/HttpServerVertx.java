@@ -349,6 +349,7 @@ public class HttpServerVertx implements HttpServer {
     private HttpResponseReceiver createResponse(final HttpServerResponse response) {
         return (code, mimeType, body) -> {
 
+                //TODO put the rest of the headers here
                 response.setStatusCode(code).putHeader("Content-Type", mimeType);
                 //response.setStatusCode(code).putHeader("Keep-Alive", "timeout=600");
                 Buffer buffer = createBuffer(body);

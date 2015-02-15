@@ -1,5 +1,6 @@
 package io.advantageous.qbit.http.request;
 
+import io.advantageous.qbit.service.Callback;
 import io.advantageous.qbit.util.MultiMap;
 import io.advantageous.qbit.util.MultiMapImpl;
 import org.boon.Str;
@@ -7,6 +8,7 @@ import org.boon.primitive.ByteBuf;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Set;
+import java.util.function.Consumer;
 
 /**
  *
@@ -33,17 +35,42 @@ public class HttpRequestBuilder {
     private MultiMap<String, String> headers;
     private String body;
     private String method = "GET";
+    private Consumer<Exception> errorHandler;
 
     private HttpResponseReceiver response = (code, mimeType, body1) -> {
     };
+
+
+
+    public Consumer<Exception> getErrorHandler() {
+        return errorHandler;
+    }
+
+    public HttpRequestBuilder setErrorHandler(Consumer<Exception> errorHandler) {
+        this.errorHandler = errorHandler;
+        return this;
+    }
+
 
 
     public HttpRequestBuilder setMethodPost() {
         this.method = "POST";
         return this;
     }
+    public HttpRequestBuilder setMethodOptions() {
+        this.method = "OPTIONS";
+        return this;
+    }
+    public HttpRequestBuilder setMethodGet() {
+        this.method = "GET";
+        return this;
+    }
     public HttpRequestBuilder setMethodPut() {
         this.method = "PUT";
+        return this;
+    }
+    public HttpRequestBuilder setMethodDelete() {
+        this.method = "DELETE";
         return this;
     }
 
@@ -167,6 +194,7 @@ public class HttpRequestBuilder {
             }
         }
 
+        HttpResponseReceiver httpResponse = buildHttpResponseReceiver();
 
 
         if (id == 0) {
@@ -184,7 +212,40 @@ public class HttpRequestBuilder {
         return new HttpRequest(this.getId(), newURI, this.getMethod(), this.getParams(),
                 this.getHeaders(),
                 this.getBody() != null ? this.getBody().getBytes(StandardCharsets.UTF_8) : EMPTY_STRING,
-                this.getRemoteAddress(), this.getContentType(), this.getResponse(), this.getTimestamp());
+                this.getRemoteAddress(), this.getContentType(), httpResponse, this.getTimestamp());
+    }
+
+    private HttpResponseReceiver buildHttpResponseReceiver() {
+        HttpResponseReceiver httpResponse = this.getResponse();
+
+        if (errorHandler!=null) {
+
+            final HttpResponseReceiver innerHttpResponse = this.getResponse();
+            final Consumer<Exception> innerErrorHandler = this.getErrorHandler();
+            httpResponse = new HttpResponseReceiver() {
+                @Override
+                public void response(int code, String contentType, Object body) {
+                    innerHttpResponse.response(code, contentType, body);
+                }
+
+                @Override
+                public boolean isText() {
+                    return innerHttpResponse.isText();
+                }
+
+                @Override
+                public void response(int code, String contentType, Object body, MultiMap headers) {
+                    innerHttpResponse.response(code, contentType, body, headers);
+                }
+
+                @Override
+                public Consumer<Exception> errorHandler() {
+                    return innerErrorHandler;
+                }
+
+            };
+        }
+        return httpResponse;
     }
 
     public String getContentType() {
