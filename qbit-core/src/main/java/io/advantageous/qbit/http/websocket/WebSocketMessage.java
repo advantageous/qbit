@@ -9,20 +9,13 @@ import io.advantageous.qbit.util.MultiMap;
  * @author rhightower
  */
 public class WebSocketMessage implements Request<Object>{
-
     private final String uri;
     private final String message;
     private final WebSocketSender sender;
     private final String remoteAddress;
-
     private final long messageId;
-
     private final long timestamp;
     private boolean handled;
-
-
-    private int handledCount;
-
 
     @Override
     public String address() {

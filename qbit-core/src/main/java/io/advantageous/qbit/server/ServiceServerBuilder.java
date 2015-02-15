@@ -31,7 +31,7 @@ public class ServiceServerBuilder {
 
     private String host;
     private int port = 8080;
-    private boolean manageQueues = true;
+    private boolean manageQueues = false;
     private int pollTime = GlobalConstants.POLL_WAIT;
     private int requestBatchSize = GlobalConstants.BATCH_SIZE;
     private int flushInterval = 200;
