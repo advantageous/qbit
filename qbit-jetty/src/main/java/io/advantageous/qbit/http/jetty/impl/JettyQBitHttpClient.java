@@ -3,6 +3,7 @@ package io.advantageous.qbit.http.jetty.impl;
 import io.advantageous.qbit.GlobalConstants;
 import io.advantageous.qbit.http.client.HttpClient;
 import io.advantageous.qbit.http.request.HttpRequest;
+import io.advantageous.qbit.http.websocket.WebSocket;
 import io.advantageous.qbit.http.websocket.WebSocketMessage;
 import io.advantageous.qbit.util.MultiMap;
 import org.boon.Str;
@@ -26,9 +27,11 @@ import java.nio.charset.StandardCharsets;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
 
 import static org.boon.Boon.puts;
+import static org.boon.Boon.sputs;
 
 /**
  * Created by rhightower on 2/14/15.
@@ -39,7 +42,7 @@ public class JettyQBitHttpClient implements HttpClient {
     private final boolean debug = true || GlobalConstants.DEBUG || logger.isDebugEnabled();
     private final org.eclipse.jetty.client.HttpClient httpClient = new
             org.eclipse.jetty.client.HttpClient();
-    private final WebSocketClient client = new WebSocketClient();
+    private final WebSocketClient webSocketClient = new WebSocketClient();
     private final String host;
     private final int port;
 
@@ -139,60 +142,63 @@ public class JettyQBitHttpClient implements HttpClient {
         return HttpMethod.fromString(method.toUpperCase());
     }
 
+    private Map<String, WebSocket> webSocketMap = new ConcurrentHashMap<>();
 
     @Override
     public void sendWebSocketMessage(final WebSocketMessage webSocketMessage) {
 
-        final ClientUpgradeRequest request = new ClientUpgradeRequest();
-        final String uri = Str.add("ws://", host, ":", Integer.toString(port), webSocketMessage.getUri());
+        /** This is a bad design... the goal is to refactor and get rid of WebSocketMessage.*/
+        WebSocket existingWebSocket = webSocketMap.remove(webSocketMessage.getUri());
 
-
-        WebSocketListener webSocketListener
-                = new WebSocketListener() {
-            private Session session;
-
-            @Override
-            public void onWebSocketBinary(byte[] payload, int offset, int len) {
-
+        if (existingWebSocket!=null && existingWebSocket.isOpen()) {
+            try {
+                existingWebSocket.setTextMessageConsumer(s -> {
+                    webSocketMessage.getSender().sendText(s);
+                });
+                existingWebSocket.setBinaryMessageConsumer(s -> {
+                    webSocketMessage.getSender().sendBytes(s);
+                });
+                existingWebSocket.sendText(webSocketMessage.body().toString());
+                webSocketMap.put(webSocketMessage.getUri(), existingWebSocket);
+            }catch (Exception ex) {
+                logger.debug(
+                        sputs(
+                                "Problem while sending WebSocket message",
+                                host, port, webSocketMessage.getUri()), ex);
+                existingWebSocket = null;
             }
-
-            @Override
-            public void onWebSocketClose(int statusCode, String reason) {
-                if (debug) puts("CLIENT WEB_SOCKET CLOSE");
-
-
-            }
-
-            @Override
-            public void onWebSocketConnect(Session session) {
-
-                if (debug) puts("CLIENT WEB_SOCKET CONNECT");
-                this.session = session;
-                session.getRemote().sendStringByFuture(webSocketMessage.getMessage().toString());
-            }
-
-            @Override
-            public void onWebSocketError(Throwable cause) {
-                if (debug) puts("CLIENT WEB_SOCKET ERROR", cause);
-
-            }
-
-            @Override
-            public void onWebSocketText(String message) {
-
-                if (debug) puts("CLIENT GOT MESSAGE", message);
-
-                webSocketMessage.getSender().sendText(message);
-            }
-        };
-
-        try {
-            client.connect(webSocketListener, new URI(uri), request);
-        } catch (Exception e) {
-
-            logger.error("problem connecting WebSocket " + webSocketMessage.address(), e);
         }
+        openWebSocketAndSendMessage(webSocketMessage, existingWebSocket);
+    }
 
+    private void openWebSocketAndSendMessage(final WebSocketMessage webSocketMessage,
+                                             final WebSocket existingWebSocket) {
+        if (existingWebSocket==null) {
+
+            final ClientUpgradeRequest request = new ClientUpgradeRequest();
+            final String uri = Str.add("ws://", host, ":", Integer.toString(port), webSocketMessage.getUri());
+
+            JettyNativeClientWebSocketHandler webSocketHandler =
+                    new JettyNativeClientWebSocketHandler(webSocketMessage.getUri(),
+                            host, port, webSocket ->
+                    {
+                        webSocket.setTextMessageConsumer(s -> {
+                            webSocketMessage.getSender().sendText(s);
+                        });
+                        webSocket.setBinaryMessageConsumer(s -> {
+                            webSocketMessage.getSender().sendBytes(s);
+                        });
+                        webSocket.sendText(webSocketMessage.getMessage().toString());
+                        webSocketMap.put(webSocketMessage.getUri(), webSocket);
+                    });
+
+            try {
+                webSocketClient.connect(webSocketHandler, new URI(uri), request);
+            } catch (Exception e) {
+
+                logger.error("problem connecting WebSocket " + webSocketMessage.address(), e);
+            }
+        }
     }
 
     @Override
@@ -211,7 +217,7 @@ public class JettyQBitHttpClient implements HttpClient {
 
 
         try {
-            client.start();
+            webSocketClient.start();
         } catch (Exception e) {
             throw new IllegalStateException("Unable to start websocket Jetty support", e);
         }
@@ -229,7 +235,7 @@ public class JettyQBitHttpClient implements HttpClient {
 
         try {
             httpClient.stop();
-            client.stop();
+            webSocketClient.stop();
         } catch (Exception e) {
 
             logger.warn("problem stopping", e);
