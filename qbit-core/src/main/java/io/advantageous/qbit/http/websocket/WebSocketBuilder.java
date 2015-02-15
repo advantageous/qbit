@@ -1,6 +1,6 @@
-package io.advantageous.qbit.http;
+package io.advantageous.qbit.http.websocket;
 
-import io.advantageous.qbit.network.NetworkSender;
+import io.advantageous.qbit.http.server.HttpServer;
 
 
 /**
@@ -10,9 +10,9 @@ public class WebSocketBuilder {
 
     private  String remoteAddress;
     private  String uri;
-    private  WebSocketSender networkSender;
+    private WebSocketSender networkSender;
     private  boolean binary;
-    private  HttpServer server;
+    private HttpServer server;
 
     public HttpServer getServer() {
         return server;

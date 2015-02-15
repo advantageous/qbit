@@ -2,7 +2,7 @@ package io.advantageous.qbit.client;
 
 import io.advantageous.qbit.GlobalConstants;
 import io.advantageous.qbit.QBit;
-import io.advantageous.qbit.http.HttpClient;
+import io.advantageous.qbit.http.client.HttpClient;
 
 /**
  * Client builder is used to createWithWorkers a client programatically.

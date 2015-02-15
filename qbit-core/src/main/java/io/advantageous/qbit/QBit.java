@@ -1,13 +1,6 @@
 package io.advantageous.qbit;
 
-import io.advantageous.qbit.http.HttpClient;
-import io.advantageous.qbit.http.HttpServer;
-import io.advantageous.qbit.http.config.HttpServerOptions;
-import io.advantageous.qbit.queue.QueueBuilder;
 import io.advantageous.qbit.spi.FactorySPI;
-import io.advantageous.qbit.spi.HttpClientFactory;
-import io.advantageous.qbit.spi.HttpServerFactory;
-import io.advantageous.qbit.system.QBitSystemManager;
 import org.boon.core.reflection.ClassMeta;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -74,7 +67,8 @@ public class QBit {
                 ClassMeta.classMeta(vertxFactory).invokeStatic("registerJettyWithQBit");
             }
         } catch (Exception ex) {
-            FactorySPI.setHttpServerFactory((options, requestQueueBuilder, webSocketMessageQueueBuilder, systemManager) -> {
+            FactorySPI.setHttpServerFactory((options, requestQueueBuilder, responseQueueBuilder,
+                                             webSocketMessageQueueBuilder, systemManager) -> {
 
                 throw new IllegalStateException("Unable to load Vertx or Jetty network libs");
             });

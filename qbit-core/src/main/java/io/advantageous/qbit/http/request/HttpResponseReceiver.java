@@ -1,4 +1,4 @@
-package io.advantageous.qbit.http;
+package io.advantageous.qbit.http.request;
 
 
 import io.advantageous.qbit.util.MultiMap;

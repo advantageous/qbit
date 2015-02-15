@@ -1,5 +1,5 @@
 package io.advantageous.qbit.servlet.integrationproto;
-import io.advantageous.qbit.http.HttpServer;
+import io.advantageous.qbit.http.server.HttpServer;
 import io.advantageous.qbit.server.ServiceServer;
 import io.advantageous.qbit.servlet.QBitHttpServlet;
 import org.eclipse.jetty.server.Server;

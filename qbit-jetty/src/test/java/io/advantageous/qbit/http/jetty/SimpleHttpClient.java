@@ -1,8 +1,8 @@
 package io.advantageous.qbit.http.jetty;
 
-import io.advantageous.qbit.http.HttpClient;
+import io.advantageous.qbit.http.client.HttpClient;
 
-import static io.advantageous.qbit.http.HttpClientBuilder.httpClientBuilder;
+import static io.advantageous.qbit.http.client.HttpClientBuilder.httpClientBuilder;
 import static org.boon.Boon.puts;
 
 /**

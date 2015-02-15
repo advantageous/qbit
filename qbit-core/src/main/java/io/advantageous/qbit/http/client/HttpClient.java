@@ -1,5 +1,9 @@
-package io.advantageous.qbit.http;
+package io.advantageous.qbit.http.client;
 
+import io.advantageous.qbit.http.request.HttpRequest;
+import io.advantageous.qbit.http.request.HttpResponse;
+import io.advantageous.qbit.http.request.HttpTextResponse;
+import io.advantageous.qbit.http.websocket.WebSocketMessage;
 import io.advantageous.qbit.util.MultiMap;
 
 import java.util.concurrent.CountDownLatch;
@@ -7,7 +11,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 
-import static io.advantageous.qbit.http.HttpRequestBuilder.httpRequestBuilder;
+import static io.advantageous.qbit.http.request.HttpRequestBuilder.httpRequestBuilder;
 
 /**
  * This is an interface that allows users to send HTTP requests to a server.

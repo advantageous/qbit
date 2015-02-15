@@ -1,4 +1,4 @@
-package io.advantageous.qbit.http;
+package io.advantageous.qbit.http.websocket;
 
 /**
  * Allows one to createWithWorkers a WebSocket message to send.

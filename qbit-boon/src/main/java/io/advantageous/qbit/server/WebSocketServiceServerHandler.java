@@ -1,8 +1,8 @@
 package io.advantageous.qbit.server;
 
 import io.advantageous.qbit.GlobalConstants;
-import io.advantageous.qbit.http.WebSocketMessage;
-import io.advantageous.qbit.http.WebSocketSender;
+import io.advantageous.qbit.http.websocket.WebSocketMessage;
+import io.advantageous.qbit.http.websocket.WebSocketSender;
 import io.advantageous.qbit.message.Message;
 import io.advantageous.qbit.message.MethodCall;
 import io.advantageous.qbit.message.Request;

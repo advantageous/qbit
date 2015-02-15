@@ -1,6 +1,6 @@
 package io.advantageous.qbit.spi;
 
-import io.advantageous.qbit.http.HttpClient;
+import io.advantageous.qbit.http.client.HttpClient;
 
 /**
  * Created by rhightower on 11/13/14.

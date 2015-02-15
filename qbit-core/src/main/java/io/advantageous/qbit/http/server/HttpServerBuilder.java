@@ -1,9 +1,7 @@
-package io.advantageous.qbit.http;
+package io.advantageous.qbit.http.server;
 
 import io.advantageous.qbit.QBit;
 import io.advantageous.qbit.http.config.HttpServerConfig;
-import io.advantageous.qbit.http.config.HttpServerOptions;
-import io.advantageous.qbit.queue.Queue;
 import io.advantageous.qbit.queue.QueueBuilder;
 import io.advantageous.qbit.system.QBitSystemManager;
 
@@ -21,6 +19,8 @@ public class HttpServerBuilder {
     }
     private HttpServerConfig httpServerConfig = new HttpServerConfig();
     private QueueBuilder requestQueueBuilder;
+    private QueueBuilder responseQueueBuilder;
+
     private QueueBuilder webSocketMessageQueueBuilder;
     private QBitSystemManager qBitSystemManager;
     public QBitSystemManager getSystemManager() {
@@ -32,6 +32,24 @@ public class HttpServerBuilder {
         return this;
     }
 
+    public HttpServerConfig getHttpServerConfig() {
+        return httpServerConfig;
+    }
+
+    public HttpServerBuilder setHttpServerConfig(HttpServerConfig httpServerConfig) {
+        this.httpServerConfig = httpServerConfig;
+        return this;
+    }
+
+
+    public QueueBuilder getResponseQueueBuilder() {
+        return responseQueueBuilder;
+    }
+
+    public HttpServerBuilder setResponseQueueBuilder(QueueBuilder responseQueueBuilder) {
+        this.responseQueueBuilder = responseQueueBuilder;
+        return this;
+    }
 
     public QueueBuilder getRequestQueueBuilder() {
         return requestQueueBuilder;
@@ -155,7 +173,8 @@ public class HttpServerBuilder {
     public HttpServer build() {
 
         final HttpServer httpServer = QBit.factory().createHttpServer(
-                 this.getConfig(), this.getRequestQueueBuilder(), this.getWebSocketMessageQueueBuilder(),
+                 this.getConfig(), this.getRequestQueueBuilder(), this.getResponseQueueBuilder(),
+                    this.getWebSocketMessageQueueBuilder(),
                         getSystemManager());
 
         if (qBitSystemManager!=null) {

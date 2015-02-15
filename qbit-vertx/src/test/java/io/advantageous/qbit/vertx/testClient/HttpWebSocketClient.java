@@ -1,12 +1,10 @@
 package io.advantageous.qbit.vertx.testClient;
 
-import io.advantageous.qbit.http.HttpClient;
-import io.advantageous.qbit.http.WebSocketMessage;
-import io.advantageous.qbit.http.WebSocketSender;
+import io.advantageous.qbit.http.client.HttpClient;
 import org.boon.core.Sys;
 
-import static io.advantageous.qbit.http.HttpClientBuilder.httpClientBuilder;
-import static io.advantageous.qbit.http.WebSocketMessageBuilder.webSocketMessageBuilder;
+import static io.advantageous.qbit.http.client.HttpClientBuilder.httpClientBuilder;
+import static io.advantageous.qbit.http.websocket.WebSocketMessageBuilder.webSocketMessageBuilder;
 import static org.boon.Boon.puts;
 
 /**

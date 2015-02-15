@@ -6,10 +6,8 @@ import io.advantageous.qbit.client.Client;
 import io.advantageous.qbit.events.EventBusProxyCreator;
 import io.advantageous.qbit.events.EventManager;
 import io.advantageous.qbit.events.impl.BoonEventBusProxyCreator;
-import io.advantageous.qbit.http.HttpClient;
-import io.advantageous.qbit.http.HttpRequest;
-import io.advantageous.qbit.http.HttpServer;
-import io.advantageous.qbit.http.WebSocketMessage;
+import io.advantageous.qbit.http.client.HttpClient;
+import io.advantageous.qbit.http.server.HttpServer;
 import io.advantageous.qbit.http.config.HttpServerOptions;
 import io.advantageous.qbit.json.JsonMapper;
 import io.advantageous.qbit.message.MethodCall;
@@ -172,10 +170,12 @@ public class BoonQBitFactory implements Factory {
 
     public HttpServer createHttpServer(HttpServerOptions options,
                                 QueueBuilder requestQueueBuilder,
+                                QueueBuilder responseQueueBuilder,
                                 QueueBuilder webSocketMessageQueueBuilder,
                                 QBitSystemManager systemManager) {
 
-        return FactorySPI.getHttpServerFactory().create(options, requestQueueBuilder, webSocketMessageQueueBuilder,
+        return FactorySPI.getHttpServerFactory().create(options, requestQueueBuilder, responseQueueBuilder,
+                webSocketMessageQueueBuilder,
                 systemManager);
     }
 

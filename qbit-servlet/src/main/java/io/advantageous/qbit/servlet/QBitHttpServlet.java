@@ -1,9 +1,9 @@
 package io.advantageous.qbit.servlet;
 
 import io.advantageous.qbit.GlobalConstants;
-import io.advantageous.qbit.http.HttpRequest;
-import io.advantageous.qbit.http.HttpServer;
-import io.advantageous.qbit.http.impl.SimpleHttpServer;
+import io.advantageous.qbit.http.request.HttpRequest;
+import io.advantageous.qbit.http.server.HttpServer;
+import io.advantageous.qbit.http.server.impl.SimpleHttpServer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

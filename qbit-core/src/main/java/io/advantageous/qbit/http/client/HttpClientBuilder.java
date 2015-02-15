@@ -1,4 +1,4 @@
-package io.advantageous.qbit.http;
+package io.advantageous.qbit.http.client;
 
 import io.advantageous.qbit.QBit;
 

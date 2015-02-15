@@ -1,5 +1,7 @@
 package io.advantageous.qbit.http;
 
+import io.advantageous.qbit.http.request.HttpRequest;
+import io.advantageous.qbit.http.request.HttpRequestBuilder;
 import org.junit.Test;
 
 import static org.boon.Boon.puts;

@@ -3,7 +3,8 @@ package io.advantageous.qbit.server;
 import io.advantageous.qbit.GlobalConstants;
 import io.advantageous.qbit.QBit;
 import io.advantageous.qbit.annotation.RequestMethod;
-import io.advantageous.qbit.http.*;
+import io.advantageous.qbit.http.request.HttpRequest;
+import io.advantageous.qbit.http.request.HttpResponseReceiver;
 import io.advantageous.qbit.json.JsonMapper;
 import io.advantageous.qbit.message.MethodCall;
 import io.advantageous.qbit.message.Request;
@@ -27,7 +28,6 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.TimeoutException;
 
 import static org.boon.Boon.puts;
 import static org.boon.Boon.sputs;

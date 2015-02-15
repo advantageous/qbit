@@ -1,12 +1,12 @@
 package io.advantageous.qbit.http.jetty.impl;
-import io.advantageous.qbit.http.WebSocketMessage;
-import io.advantageous.qbit.http.impl.SimpleHttpServer;
+import io.advantageous.qbit.http.websocket.WebSocketMessage;
+import io.advantageous.qbit.http.server.impl.SimpleHttpServer;
 import io.advantageous.qbit.util.Timer;
 import org.eclipse.jetty.websocket.api.Session;
 import org.eclipse.jetty.websocket.api.WebSocketAdapter;
 import org.eclipse.jetty.websocket.servlet.ServletUpgradeRequest;
 
-import static io.advantageous.qbit.http.WebSocketMessageBuilder.webSocketMessageBuilder;
+import static io.advantageous.qbit.http.websocket.WebSocketMessageBuilder.webSocketMessageBuilder;
 
 public class JettyNativeWebSocketHandler extends WebSocketAdapter {
     private Session session;

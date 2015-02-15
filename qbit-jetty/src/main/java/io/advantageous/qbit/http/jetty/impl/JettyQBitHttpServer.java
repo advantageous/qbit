@@ -1,9 +1,9 @@
 package io.advantageous.qbit.http.jetty.impl;
 
 import io.advantageous.qbit.GlobalConstants;
-import io.advantageous.qbit.http.HttpRequest;
+import io.advantageous.qbit.http.request.HttpRequest;
 import io.advantageous.qbit.http.config.HttpServerOptions;
-import io.advantageous.qbit.http.impl.SimpleHttpServer;
+import io.advantageous.qbit.http.server.impl.SimpleHttpServer;
 import io.advantageous.qbit.system.QBitSystemManager;
 import org.boon.core.reflection.BeanUtils;
 import org.eclipse.jetty.server.Request;

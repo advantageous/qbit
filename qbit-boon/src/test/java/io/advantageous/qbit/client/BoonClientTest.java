@@ -1,8 +1,8 @@
 package io.advantageous.qbit.client;
 
-import io.advantageous.qbit.http.HttpClient;
-import io.advantageous.qbit.http.HttpRequest;
-import io.advantageous.qbit.http.WebSocketMessage;
+import io.advantageous.qbit.http.client.HttpClient;
+import io.advantageous.qbit.http.request.HttpRequest;
+import io.advantageous.qbit.http.websocket.WebSocketMessage;
 import io.advantageous.qbit.service.Callback;
 import io.advantageous.qbit.spi.FactorySPI;
 import io.advantageous.qbit.spi.HttpClientFactory;
@@ -15,7 +15,6 @@ import java.util.function.Consumer;
 
 import static org.boon.Boon.puts;
 import static org.boon.Exceptions.die;
-import static org.junit.Assert.*;
 
 public class BoonClientTest {
 

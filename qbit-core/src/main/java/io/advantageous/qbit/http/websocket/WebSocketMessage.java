@@ -1,4 +1,4 @@
-package io.advantageous.qbit.http;
+package io.advantageous.qbit.http.websocket;
 
 import io.advantageous.qbit.message.Request;
 import io.advantageous.qbit.util.MultiMap;

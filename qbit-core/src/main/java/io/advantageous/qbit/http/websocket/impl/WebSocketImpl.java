@@ -1,7 +1,7 @@
-package io.advantageous.qbit.http.impl;
+package io.advantageous.qbit.http.websocket.impl;
 
-import io.advantageous.qbit.http.WebSocket;
-import io.advantageous.qbit.http.WebSocketSender;
+import io.advantageous.qbit.http.websocket.WebSocket;
+import io.advantageous.qbit.http.websocket.WebSocketSender;
 import io.advantageous.qbit.network.impl.NetSocketBase;
 
 /**

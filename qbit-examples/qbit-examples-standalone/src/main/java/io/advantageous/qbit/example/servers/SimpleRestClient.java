@@ -1,10 +1,12 @@
 package io.advantageous.qbit.example.servers;
 
-import io.advantageous.qbit.http.*;
+import io.advantageous.qbit.http.client.HttpClient;
+import io.advantageous.qbit.http.request.HttpRequest;
+import io.advantageous.qbit.http.request.HttpTextResponse;
 import org.boon.core.Sys;
 
-import static io.advantageous.qbit.http.HttpClientBuilder.httpClientBuilder;
-import static io.advantageous.qbit.http.HttpRequestBuilder.httpRequestBuilder;
+import static io.advantageous.qbit.http.client.HttpClientBuilder.httpClientBuilder;
+import static io.advantageous.qbit.http.request.HttpRequestBuilder.httpRequestBuilder;
 import static org.boon.Boon.puts;
 
 

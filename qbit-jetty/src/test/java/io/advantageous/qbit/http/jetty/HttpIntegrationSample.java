@@ -1,8 +1,8 @@
 package io.advantageous.qbit.http.jetty;
-import io.advantageous.qbit.http.HttpServer;
+import io.advantageous.qbit.http.server.HttpServer;
 
 
-import static io.advantageous.qbit.http.HttpServerBuilder.httpServerBuilder;
+import static io.advantageous.qbit.http.server.HttpServerBuilder.httpServerBuilder;
 
 /**
  * Created by rhightower on 2/13/15.

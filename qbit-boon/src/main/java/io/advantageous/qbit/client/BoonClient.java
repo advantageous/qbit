@@ -29,7 +29,10 @@
 package io.advantageous.qbit.client;
 
 import io.advantageous.qbit.QBit;
-import io.advantageous.qbit.http.*;
+import io.advantageous.qbit.http.client.HttpClient;
+import io.advantageous.qbit.http.websocket.WebSocketMessage;
+import io.advantageous.qbit.http.websocket.WebSocketMessageBuilder;
+import io.advantageous.qbit.http.websocket.WebSocketSender;
 import io.advantageous.qbit.message.Message;
 import io.advantageous.qbit.message.MethodCall;
 import io.advantageous.qbit.message.Response;
@@ -55,10 +58,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.*;
-import java.util.function.Consumer;
 
 import static io.advantageous.qbit.service.Protocol.PROTOCOL_ARG_SEPARATOR;
-import static org.boon.Boon.puts;
 import static org.boon.Exceptions.die;
 
 
@@ -250,9 +251,10 @@ public class BoonClient implements Client {
                             public void sendText(String message) {
                                 handleWebsocketQueueResponses(message);
                             }
+
                             @Override
                             public void sendBytes(byte[] message) {
-                                 //TODO We don't handle a binary protocol yet....
+                                //TODO We don't handle a binary protocol yet....
                             }
                         }).build();
         httpServerProxy.sendWebSocketMessage(webSocketMessage);

@@ -1,10 +1,10 @@
 package io.advantageous.qbit.example.hello;
 
-import io.advantageous.qbit.http.HttpServer;
+import io.advantageous.qbit.http.server.HttpServer;
 import io.advantageous.qbit.server.ServiceServer;
 import io.advantageous.qbit.system.QBitSystemManager;
 
-import static io.advantageous.qbit.http.HttpServerBuilder.httpServerBuilder;
+import static io.advantageous.qbit.http.server.HttpServerBuilder.httpServerBuilder;
 import static io.advantageous.qbit.server.ServiceServerBuilder.serviceServerBuilder;
 import static org.boon.Boon.resource;
 

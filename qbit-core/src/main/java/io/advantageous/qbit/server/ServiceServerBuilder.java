@@ -2,7 +2,7 @@ package io.advantageous.qbit.server;
 
 import io.advantageous.qbit.GlobalConstants;
 import io.advantageous.qbit.QBit;
-import io.advantageous.qbit.http.HttpServer;
+import io.advantageous.qbit.http.server.HttpServer;
 import io.advantageous.qbit.json.JsonMapper;
 import io.advantageous.qbit.message.Request;
 import io.advantageous.qbit.queue.QueueBuilder;
@@ -14,7 +14,7 @@ import io.advantageous.qbit.spi.ProtocolParser;
 import io.advantageous.qbit.system.QBitSystemManager;
 import io.advantageous.qbit.transforms.Transformer;
 
-import static io.advantageous.qbit.http.HttpServerBuilder.httpServerBuilder;
+import static io.advantageous.qbit.http.server.HttpServerBuilder.httpServerBuilder;
 
 /**
  *

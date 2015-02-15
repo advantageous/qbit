@@ -1,6 +1,9 @@
 package io.advantageous.qbit.vertx.http;
 
-import io.advantageous.qbit.http.*;
+import io.advantageous.qbit.http.client.HttpClient;
+import io.advantageous.qbit.http.client.HttpClientBuilder;
+import io.advantageous.qbit.http.request.HttpRequest;
+import io.advantageous.qbit.http.request.HttpRequestBuilder;
 import org.boon.core.Sys;
 
 import java.util.ArrayList;

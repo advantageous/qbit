@@ -1,5 +1,8 @@
 package io.advantageous.qbit.http;
 
+import io.advantageous.qbit.http.websocket.WebSocketMessage;
+import io.advantageous.qbit.http.websocket.WebSocketMessageBuilder;
+import io.advantageous.qbit.http.websocket.WebSocketSender;
 import org.boon.core.reflection.BeanUtils;
 import org.junit.Before;
 import org.junit.Test;

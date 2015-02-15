@@ -2,11 +2,13 @@ package io.advantageous.qbit.http;
 
 import io.advantageous.qbit.Factory;
 import io.advantageous.qbit.http.config.HttpServerOptions;
-import io.advantageous.qbit.http.impl.SimpleHttpServer;
+import io.advantageous.qbit.http.request.HttpRequest;
+import io.advantageous.qbit.http.server.impl.SimpleHttpServer;
+import io.advantageous.qbit.http.server.HttpServer;
+import io.advantageous.qbit.http.server.HttpServerBuilder;
+import io.advantageous.qbit.http.websocket.WebSocketMessage;
 import io.advantageous.qbit.queue.QueueBuilder;
 import io.advantageous.qbit.spi.FactorySPI;
-import io.advantageous.qbit.spi.HttpClientFactory;
-import io.advantageous.qbit.spi.HttpServerFactory;
 import io.advantageous.qbit.system.QBitSystemManager;
 import org.boon.core.Sys;
 import org.junit.Before;
@@ -15,7 +17,6 @@ import org.junit.Test;
 import java.util.function.Consumer;
 
 import static org.boon.Exceptions.die;
-import static org.junit.Assert.*;
 
 public class HttpServerBuilderTest {
 
@@ -49,12 +50,14 @@ public class HttpServerBuilderTest {
 
             @Override
             public HttpServer createHttpServer(HttpServerOptions options, QueueBuilder requestQueueBuilder,
+                                               QueueBuilder rspQB,
                                                QueueBuilder webSocketMessageQueueBuilder, QBitSystemManager systemManager) {
                 return null;
             }
         });
 
-        FactorySPI.setHttpServerFactory((options, requestQueueBuilder, webSocketMessageQueueBuilder, systemManager) -> new SimpleHttpServer());
+        FactorySPI.setHttpServerFactory((options, requestQueueBuilder, resQB,
+                                         webSocketMessageQueueBuilder, systemManager) -> new SimpleHttpServer());
 
         Sys.sleep(100);
 

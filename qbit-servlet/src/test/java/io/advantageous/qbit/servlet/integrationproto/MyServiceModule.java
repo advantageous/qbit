@@ -1,6 +1,6 @@
 package io.advantageous.qbit.servlet.integrationproto;
 import io.advantageous.qbit.annotation.RequestMapping;
-import io.advantageous.qbit.http.HttpServer;
+import io.advantageous.qbit.http.server.HttpServer;
 import io.advantageous.qbit.server.ServiceServer;
 import static io.advantageous.qbit.server.ServiceServerBuilder.serviceServerBuilder;
 

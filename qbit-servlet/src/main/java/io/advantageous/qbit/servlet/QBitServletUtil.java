@@ -1,7 +1,7 @@
 package io.advantageous.qbit.servlet;
 
-import io.advantageous.qbit.http.HttpRequest;
-import io.advantageous.qbit.http.HttpRequestBuilder;
+import io.advantageous.qbit.http.request.HttpRequest;
+import io.advantageous.qbit.http.request.HttpRequestBuilder;
 import io.advantageous.qbit.util.MultiMap;
 import org.boon.IO;
 
@@ -14,7 +14,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 
-import static io.advantageous.qbit.http.HttpRequestBuilder.httpRequestBuilder;
+import static io.advantageous.qbit.http.request.HttpRequestBuilder.httpRequestBuilder;
 
 /**
  * Created by rhightower on 2/12/15.

@@ -1,7 +1,7 @@
 package io.advantageous.qbit.spi;
 
 import io.advantageous.qbit.client.Client;
-import io.advantageous.qbit.http.HttpClient;
+import io.advantageous.qbit.http.client.HttpClient;
 
 /**
  * Creates a client.

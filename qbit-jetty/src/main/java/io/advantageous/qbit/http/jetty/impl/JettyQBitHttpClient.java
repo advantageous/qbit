@@ -1,17 +1,15 @@
 package io.advantageous.qbit.http.jetty.impl;
 
 import io.advantageous.qbit.GlobalConstants;
-import io.advantageous.qbit.http.HttpClient;
-import io.advantageous.qbit.http.HttpRequest;
-import io.advantageous.qbit.http.WebSocketMessage;
+import io.advantageous.qbit.http.client.HttpClient;
+import io.advantageous.qbit.http.request.HttpRequest;
+import io.advantageous.qbit.http.websocket.WebSocketMessage;
 import io.advantageous.qbit.util.MultiMap;
 import org.boon.Str;
-import org.eclipse.jetty.client.api.ContentProvider;
 import org.eclipse.jetty.client.api.Request;
 import org.eclipse.jetty.client.api.Result;
 import org.eclipse.jetty.client.util.BufferingResponseListener;
 import org.eclipse.jetty.client.util.BytesContentProvider;
-import org.eclipse.jetty.client.util.StringContentProvider;
 import org.eclipse.jetty.http.HttpFields;
 import org.eclipse.jetty.http.HttpHeader;
 import org.eclipse.jetty.http.HttpMethod;

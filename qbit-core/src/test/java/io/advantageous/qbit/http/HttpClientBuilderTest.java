@@ -1,28 +1,14 @@
 package io.advantageous.qbit.http;
 
 import io.advantageous.qbit.Factory;
-import io.advantageous.qbit.client.Client;
-import io.advantageous.qbit.json.JsonMapper;
-import io.advantageous.qbit.message.MethodCall;
-import io.advantageous.qbit.message.Request;
-import io.advantageous.qbit.message.Response;
-import io.advantageous.qbit.queue.Queue;
-import io.advantageous.qbit.sender.Sender;
-import io.advantageous.qbit.server.ServiceServer;
-import io.advantageous.qbit.service.BeforeMethodCall;
-import io.advantageous.qbit.service.Service;
-import io.advantageous.qbit.service.ServiceBundle;
+import io.advantageous.qbit.http.client.HttpClient;
+import io.advantageous.qbit.http.client.HttpClientBuilder;
 import io.advantageous.qbit.spi.FactorySPI;
 import io.advantageous.qbit.spi.HttpClientFactory;
-import io.advantageous.qbit.spi.ProtocolEncoder;
-import io.advantageous.qbit.spi.ProtocolParser;
-import io.advantageous.qbit.util.MultiMap;
 import org.boon.core.Sys;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-
-import java.util.List;
 
 import static org.boon.Exceptions.die;
 

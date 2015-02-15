@@ -1,6 +1,6 @@
 package io.advantageous.qbit.http.jetty;
 
-import io.advantageous.qbit.http.HttpClient;
+import io.advantageous.qbit.http.client.HttpClient;
 import io.advantageous.qbit.http.jetty.impl.JettyQBitHttpClient;
 import io.advantageous.qbit.spi.HttpClientFactory;
 

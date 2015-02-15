@@ -1,8 +1,7 @@
-package io.advantageous.qbit.http;
+package io.advantageous.qbit.http.request;
 
 import io.advantageous.qbit.message.Request;
 import io.advantageous.qbit.util.MultiMap;
-import org.boon.Str;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;

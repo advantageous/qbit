@@ -4,7 +4,7 @@ import io.advantageous.qbit.annotation.RequestMethod;
 import io.advantageous.qbit.bindings.ArgParamBinding;
 import io.advantageous.qbit.bindings.MethodBinding;
 import io.advantageous.qbit.bindings.RequestParamBinding;
-import io.advantageous.qbit.http.HttpRequest;
+import io.advantageous.qbit.http.request.HttpRequest;
 import io.advantageous.qbit.message.Event;
 import io.advantageous.qbit.message.MethodCall;
 import io.advantageous.qbit.message.Request;

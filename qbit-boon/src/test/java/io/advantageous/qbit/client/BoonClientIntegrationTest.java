@@ -1,9 +1,9 @@
 package io.advantageous.qbit.client;
 
 import io.advantageous.qbit.QBit;
-import io.advantageous.qbit.http.HttpClient;
-import io.advantageous.qbit.http.HttpRequest;
-import io.advantageous.qbit.http.WebSocketMessage;
+import io.advantageous.qbit.http.client.HttpClient;
+import io.advantageous.qbit.http.request.HttpRequest;
+import io.advantageous.qbit.http.websocket.WebSocketMessage;
 import io.advantageous.qbit.message.MethodCall;
 import io.advantageous.qbit.message.Response;
 import io.advantageous.qbit.queue.ReceiveQueueListener;

@@ -1,7 +1,7 @@
 package io.advantageous.qbit.vertx.http;
 
-import io.advantageous.qbit.http.HttpServer;
-import io.advantageous.qbit.http.HttpServerBuilder;
+import io.advantageous.qbit.http.server.HttpServer;
+import io.advantageous.qbit.http.server.HttpServerBuilder;
 import org.boon.core.Sys;
 
 import static org.boon.Boon.puts;

@@ -1,10 +1,10 @@
-package io.advantageous.qbit.http.impl;
+package io.advantageous.qbit.http.server.impl;
 
 import io.advantageous.qbit.GlobalConstants;
 import io.advantageous.qbit.concurrent.ExecutorContext;
-import io.advantageous.qbit.http.HttpRequest;
-import io.advantageous.qbit.http.HttpServer;
-import io.advantageous.qbit.http.WebSocketMessage;
+import io.advantageous.qbit.http.request.HttpRequest;
+import io.advantageous.qbit.http.server.HttpServer;
+import io.advantageous.qbit.http.websocket.WebSocketMessage;
 import io.advantageous.qbit.system.QBitSystemManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

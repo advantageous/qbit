@@ -1,6 +1,12 @@
 package io.advantageous.qbit.vertx.http;
 
-import io.advantageous.qbit.http.*;
+import io.advantageous.qbit.http.client.HttpClient;
+import io.advantageous.qbit.http.client.HttpClientBuilder;
+import io.advantageous.qbit.http.request.HttpRequestBuilder;
+import io.advantageous.qbit.http.server.HttpServer;
+import io.advantageous.qbit.http.server.HttpServerBuilder;
+import io.advantageous.qbit.http.websocket.WebSocketMessage;
+import io.advantageous.qbit.http.websocket.WebSocketMessageBuilder;
 import org.boon.core.Sys;
 import org.junit.Test;
 

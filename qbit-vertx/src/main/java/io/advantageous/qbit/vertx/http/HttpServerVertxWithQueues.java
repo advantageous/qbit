@@ -1,10 +1,13 @@
 package io.advantageous.qbit.vertx.http;
 
-
 import io.advantageous.qbit.GlobalConstants;
-import io.advantageous.qbit.http.*;
 import io.advantageous.qbit.http.config.HttpServerOptions;
-import io.advantageous.qbit.http.impl.SimpleHttpServer;
+import io.advantageous.qbit.http.request.HttpRequest;
+import io.advantageous.qbit.http.request.HttpResponseReceiver;
+import io.advantageous.qbit.http.server.impl.SimpleHttpServer;
+import io.advantageous.qbit.http.server.HttpServer;
+import io.advantageous.qbit.http.websocket.WebSocketMessage;
+import io.advantageous.qbit.http.websocket.WebSocketSender;
 import io.advantageous.qbit.queue.Queue;
 import io.advantageous.qbit.queue.QueueBuilder;
 import io.advantageous.qbit.queue.ReceiveQueueListener;
@@ -34,7 +37,7 @@ import static io.advantageous.qbit.queue.QueueBuilder.queueBuilder;
 
 /**
  */
-public class HttpServerVertx implements HttpServer {
+public class HttpServerVertxWithQueues implements HttpServer {
 
     private final Logger logger = LoggerFactory.getLogger(HttpServerVertx.class);
     private final boolean debug = GlobalConstants.DEBUG || logger.isDebugEnabled();
@@ -65,8 +68,12 @@ public class HttpServerVertx implements HttpServer {
 
 
 
-    public HttpServerVertx(final Vertx vertx, final HttpServerOptions options, final QueueBuilder requestQueueBuilder,
-                           final QueueBuilder webSocketMessageQueueBuilder, final QBitSystemManager systemManager) {
+    public HttpServerVertxWithQueues(final Vertx vertx,
+                                     final HttpServerOptions options,
+                                     final QueueBuilder requestQueueBuilder,
+                                     final QueueBuilder responseQueueBuilder,
+                                     final QueueBuilder webSocketMessageQueueBuilder,
+                                     final QBitSystemManager systemManager) {
 
         this.vertx = vertx;
         this.maxRequestBatches = options.getMaxRequestBatches();
@@ -89,14 +96,18 @@ public class HttpServerVertx implements HttpServer {
 
             if (requestQueueBuilder != null) {
                 this.requestQueueBuilder = BeanUtils.copy(requestQueueBuilder);
-                responseQueueBuilder = BeanUtils.copy(requestQueueBuilder);//TODO FIX THIS, it has to be passed to factory etc
 
             } else {
                 this.requestQueueBuilder =  queueBuilder()
                         .setName("HttpServerRequests").setPollWait(pollTime).setSize(maxRequestBatches)
                         .setBatchSize(requestBatchSize);
 
-                this.responseQueueBuilder = queueBuilder()
+            }
+            if (responseQueueBuilder != null) {
+                this.responseQueueBuilder = BeanUtils.copy(requestQueueBuilder);
+
+            } else {
+                this.responseQueueBuilder =  queueBuilder()
                         .setName("HttpServerResponses").setPollWait(pollTime).setSize(maxRequestBatches)
                         .setBatchSize(requestBatchSize);
 
@@ -115,12 +126,14 @@ public class HttpServerVertx implements HttpServer {
             this.responseQueueBuilder = null;
             this.webSocketMessageQueueBuilder = null;
         }
-
     }
 
 
-    public HttpServerVertx(HttpServerOptions options, QueueBuilder requestQueueBuilder, QueueBuilder webSocketMessageQueueBuilder, QBitSystemManager systemManager) {
-        this(VertxFactory.newVertx(), options, requestQueueBuilder, webSocketMessageQueueBuilder, systemManager);
+    public HttpServerVertxWithQueues(HttpServerOptions options, QueueBuilder requestQueueBuilder,
+                                     final QueueBuilder responseQueueBuilder,
+                                     QueueBuilder webSocketMessageQueueBuilder, QBitSystemManager systemManager) {
+        this(VertxFactory.newVertx(), options, requestQueueBuilder, responseQueueBuilder,
+                webSocketMessageQueueBuilder, systemManager);
     }
 
 
@@ -163,82 +176,82 @@ public class HttpServerVertx implements HttpServer {
     @Override
     public void start() {
 
-            manageQueues();
+        manageQueues();
 
-            if (debug) {
-                vertx.setPeriodic(10_000, new Handler<Long>() {
-                    @Override
-                    public void handle(Long event) {
+        if (debug) {
+            vertx.setPeriodic(10_000, new Handler<Long>() {
+                @Override
+                public void handle(Long event) {
 
-                        logger.info("Exceptions", exceptionCount, "Close Count", closeCount);
+                    logger.info("Exceptions", exceptionCount, "Close Count", closeCount);
+                }
+            });
+        }
+        httpServer = vertx.createHttpServer();
+
+        if (manageQueues) {
+            vertx.setPeriodic(flushInterval, aLong -> {
+
+
+                try {
+                    requestLock.lock();
+                    try {
+                        httpRequestSendQueue.flushSends();
+
+
+                    } finally {
+                        requestLock.unlock();
                     }
-                });
-            }
-            httpServer = vertx.createHttpServer();
 
-            if (manageQueues) {
-                vertx.setPeriodic(flushInterval, aLong -> {
 
+                    responseLock.lock();
+                    try {
+                        httpResponsesSendQueue.flushSends();
+                    } finally {
+                        responseLock.unlock();
+                    }
+
+                    webSocketSendLock.lock();
 
                     try {
-                        requestLock.lock();
-                        try {
-                            httpRequestSendQueue.flushSends();
-
-
-                        } finally {
-                            requestLock.unlock();
-                        }
-
-
-                        responseLock.lock();
-                        try {
-                            httpResponsesSendQueue.flushSends();
-                        } finally {
-                            responseLock.unlock();
-                        }
-
-                        webSocketSendLock.lock();
-
-                        try {
-                            webSocketMessageIncommingSendQueue.flushSends();
-                        } finally {
-                            webSocketSendLock.unlock();
-                        }
-                    } catch (Exception ex) {
-                        logger.error("Unable to flush", ex);
+                        webSocketMessageIncommingSendQueue.flushSends();
+                    } finally {
+                        webSocketSendLock.unlock();
                     }
+                } catch (Exception ex) {
+                    logger.error("Unable to flush", ex);
+                }
 
 
-                });
-            }
-
-
-
-
-            httpServer.setTCPNoDelay(true);//TODO this needs to be in builder
-            httpServer.setSoLinger(0); //TODO this needs to be in builder
-            httpServer.setUsePooledBuffers(true); //TODO this needs to be in builder
-            httpServer.setReuseAddress(true); //TODO this needs to be in builder
-            httpServer.setAcceptBacklog(1_000_000); //TODO this needs to be in builder
-            httpServer.setTCPKeepAlive(true); //TODO this needs to be in builder
-            httpServer.setCompressionSupported(false);//TODO this needs to be in builder
-            httpServer.setMaxWebSocketFrameSize(100_000_000);
-
-
-
-            httpServer.websocketHandler(this::handleWebSocketMessage);
-
-            httpServer.requestHandler(this::handleHttpRequest);
+            });
+        }
 
 
 
 
-            if (Str.isEmpty(host)) {
-                httpServer.listen(port);
-            } else {
-                httpServer.listen(port, host);
-            }
+        httpServer.setTCPNoDelay(true);//TODO this needs to be in builder
+        httpServer.setSoLinger(0); //TODO this needs to be in builder
+        httpServer.setUsePooledBuffers(true); //TODO this needs to be in builder
+        httpServer.setReuseAddress(true); //TODO this needs to be in builder
+        httpServer.setAcceptBacklog(1_000_000); //TODO this needs to be in builder
+        httpServer.setTCPKeepAlive(true); //TODO this needs to be in builder
+        httpServer.setCompressionSupported(false);//TODO this needs to be in builder
+        httpServer.setMaxWebSocketFrameSize(100_000_000);
+
+
+
+        httpServer.websocketHandler(this::handleWebSocketMessage);
+
+        httpServer.requestHandler(this::handleHttpRequest);
+
+
+
+
+        if (Str.isEmpty(host)) {
+            httpServer.listen(port);
+        } else {
+            httpServer.listen(port, host);
+        }
 
 
         logger.info("HTTP SERVER started on port " + port + " host " + host);

@@ -2,26 +2,21 @@ package io.advantageous.qbit.perf;
 
 import io.advantageous.qbit.client.Client;
 import io.advantageous.qbit.client.ClientBuilder;
-import io.advantageous.qbit.http.HttpClient;
-import io.advantageous.qbit.http.HttpRequest;
-import io.advantageous.qbit.http.HttpServer;
-import io.advantageous.qbit.http.WebSocketMessage;
-import io.advantageous.qbit.http.config.HttpServerOptions;
+import io.advantageous.qbit.http.client.HttpClient;
+import io.advantageous.qbit.http.request.HttpRequest;
+import io.advantageous.qbit.http.server.HttpServer;
+import io.advantageous.qbit.http.websocket.WebSocketMessage;
 import io.advantageous.qbit.queue.Queue;
 import io.advantageous.qbit.queue.QueueBuilder;
 import io.advantageous.qbit.queue.ReceiveQueueListener;
 import io.advantageous.qbit.queue.SendQueue;
-import io.advantageous.qbit.queue.impl.BasicQueue;
 import io.advantageous.qbit.server.ServiceServer;
 import io.advantageous.qbit.server.ServiceServerBuilder;
 import io.advantageous.qbit.service.Callback;
 import io.advantageous.qbit.spi.FactorySPI;
 import io.advantageous.qbit.spi.HttpClientFactory;
-import io.advantageous.qbit.spi.HttpServerFactory;
-import io.advantageous.qbit.system.QBitSystemManager;
 import org.boon.core.Sys;
 
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Consumer;
 
@@ -196,7 +191,7 @@ public class PerfTestMain {
         });
 
         FactorySPI.setHttpServerFactory(
-                (options, requestQueueBuilder, webSocketMessageQueueBuilder, systemManager) -> new MockHttpServer()
+                (options, requestQueueBuilder, respQB, webSocketMessageQueueBuilder, systemManager) -> new MockHttpServer()
         );
 
         ServiceServer server = new ServiceServerBuilder().setRequestBatchSize(10_000).build();

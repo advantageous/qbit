@@ -2,9 +2,9 @@ package io.advantageous.qbit.vertx.http;
 
 import io.advantageous.qbit.GlobalConstants;
 import io.advantageous.qbit.concurrent.ExecutorContext;
-import io.advantageous.qbit.http.HttpClient;
-import io.advantageous.qbit.http.HttpRequest;
-import io.advantageous.qbit.http.WebSocketMessage;
+import io.advantageous.qbit.http.client.HttpClient;
+import io.advantageous.qbit.http.request.HttpRequest;
+import io.advantageous.qbit.http.websocket.WebSocketMessage;
 import io.advantageous.qbit.util.MultiMap;
 import io.advantageous.qbit.vertx.MultiMapWrapper;
 import org.boon.core.Sys;
