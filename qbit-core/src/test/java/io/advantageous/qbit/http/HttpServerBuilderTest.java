@@ -1,6 +1,9 @@
 package io.advantageous.qbit.http;
 
 import io.advantageous.qbit.Factory;
+import io.advantageous.qbit.http.config.HttpServerOptions;
+import io.advantageous.qbit.http.impl.SimpleHttpServer;
+import io.advantageous.qbit.queue.QueueBuilder;
 import io.advantageous.qbit.spi.FactorySPI;
 import io.advantageous.qbit.spi.HttpClientFactory;
 import io.advantageous.qbit.spi.HttpServerFactory;
@@ -45,58 +48,13 @@ public class HttpServerBuilderTest {
         FactorySPI.setFactory(new Factory() {
 
             @Override
-            public HttpServer createHttpServer(String host, int port, boolean manageQueues, int pollTime, int requestBatchSize, int flushInterval,
-                                               int maxRequests, final QBitSystemManager systemManager) {
-                return FactorySPI.getHttpServerFactory().create(host, port, manageQueues, pollTime, requestBatchSize, flushInterval, maxRequests, systemManager);
+            public HttpServer createHttpServer(HttpServerOptions options, QueueBuilder requestQueueBuilder,
+                                               QueueBuilder webSocketMessageQueueBuilder, QBitSystemManager systemManager) {
+                return null;
             }
         });
 
-        FactorySPI.setHttpServerFactory(new HttpServerFactory() {
-
-            @Override
-            public HttpServer create(String host, int port,
-                                     boolean manageQueues,
-                                     int pollTime,
-                                     int requestBatchSize,
-                                     int flushInterval, int maxRequests, final QBitSystemManager systemManager) {
-                return new HttpServer() {
-                    @Override
-                    public void setWebSocketMessageConsumer(Consumer<WebSocketMessage> webSocketMessageConsumer) {
-
-                    }
-
-                    @Override
-                    public void setWebSocketCloseConsumer(Consumer<WebSocketMessage> webSocketMessageConsumer) {
-
-                    }
-
-                    @Override
-                    public void setHttpRequestConsumer(Consumer<HttpRequest> httpRequestConsumer) {
-
-                    }
-
-                    @Override
-                    public void setHttpRequestsIdleConsumer(Consumer<Void> idleConsumer) {
-
-                    }
-
-                    @Override
-                    public void setWebSocketIdleConsume(Consumer<Void> idleConsumer) {
-
-                    }
-
-                    @Override
-                    public void start() {
-
-                    }
-
-                    @Override
-                    public void stop() {
-
-                    }
-                };
-            }
-        });
+        FactorySPI.setHttpServerFactory((options, requestQueueBuilder, webSocketMessageQueueBuilder, systemManager) -> new SimpleHttpServer());
 
         Sys.sleep(100);
 
@@ -123,13 +81,6 @@ public class HttpServerBuilderTest {
 
         ok = objectUnderTest.setRequestBatchSize(13).getRequestBatchSize()==13
                 || die();
-
-        ok = objectUnderTest.setHttpRequestConsumer(httpRequestConsumer)
-                .getHttpRequestConsumer()==httpRequestConsumer || die();
-
-
-        ok = objectUnderTest.setWebSocketMessageConsumer(webSocketMessageConsumer)
-                .getWebSocketMessageConsumer()==webSocketMessageConsumer || die();
 
         objectUnderTest.build();
 

@@ -3,6 +3,8 @@ package io.advantageous.qbit.vertx.http;
 
 import io.advantageous.qbit.GlobalConstants;
 import io.advantageous.qbit.http.*;
+import io.advantageous.qbit.http.config.HttpServerOptions;
+import io.advantageous.qbit.http.impl.SimpleHttpServer;
 import io.advantageous.qbit.queue.Queue;
 import io.advantageous.qbit.queue.QueueBuilder;
 import io.advantageous.qbit.queue.ReceiveQueueListener;
@@ -11,12 +13,10 @@ import io.advantageous.qbit.system.QBitSystemManager;
 import io.advantageous.qbit.util.MultiMap;
 import io.advantageous.qbit.util.Timer;
 import io.advantageous.qbit.vertx.MultiMapWrapper;
-import io.advantageous.qbit.vertx.http.verticle.HttpServerWorkerVerticle;
-import org.boon.Lists;
 import org.boon.Str;
+import org.boon.core.reflection.BeanUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.core.AsyncResult;
 import org.vertx.java.core.Handler;
 import org.vertx.java.core.Vertx;
 import org.vertx.java.core.VertxFactory;
@@ -24,160 +24,35 @@ import org.vertx.java.core.buffer.Buffer;
 import org.vertx.java.core.http.HttpServerRequest;
 import org.vertx.java.core.http.HttpServerResponse;
 import org.vertx.java.core.http.ServerWebSocket;
-import org.vertx.java.core.json.JsonObject;
-import org.vertx.java.platform.PlatformLocator;
-import org.vertx.java.platform.PlatformManager;
 
-import java.io.File;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
-//import static org.boon.Boon.puts;
+import static io.advantageous.qbit.queue.QueueBuilder.queueBuilder;
 
 /**
  */
 public class HttpServerVertx implements HttpServer {
 
     private final Logger logger = LoggerFactory.getLogger(HttpServerVertx.class);
-
     private final boolean debug = GlobalConstants.DEBUG || logger.isDebugEnabled();
     private final int maxRequestBatches;
-    private final int httpWorkers;
-    private final Class handler;
     private final QBitSystemManager systemManager;
-
-    /**
-     * I am leaving these protected and non-final so subclasses can use injection frameworks for them.
-     */
-    protected int port;
-    protected String host;
-
-
-    protected  int requestBatchSize = 50;
-    protected  int pollTime = 5;
-
-    protected Vertx vertx;
-
-    protected boolean manageQueues = true;
-    protected  int flushInterval = 100;
-
+    private final SimpleHttpServer simpleHttpServer = new SimpleHttpServer(null, -1);
+    private final int port;
+    private final String host;
+    private final int requestBatchSize;// = 50;
+    private final int pollTime;// = 5;
+    private final Vertx vertx;
+    private final boolean manageQueues;
+    private final int flushInterval;// = 100;
+    private final QueueBuilder responseQueueBuilder;
+    private final QueueBuilder requestQueueBuilder;
+    private final QueueBuilder webSocketMessageQueueBuilder;
 
     private org.vertx.java.core.http.HttpServer httpServer;
-
-    private Consumer<Void> idleRequestConsumer = new Consumer<Void>() {
-        @Override
-        public void accept(Void aVoid) {
-
-        }
-    };
-    private Consumer<Void> idleWebSocketConsumer = new Consumer<Void>() {
-        @Override
-        public void accept(Void aVoid) {
-
-        }
-    };
-
-    private Predicate<HttpRequest> shouldContinueHttpRequest = new Predicate<HttpRequest>() {
-        @Override
-        public boolean test(HttpRequest httpRequest) {
-            return true;
-        }
-    };
-
-    public HttpServerVertx(String host, int port, int flushInterval, Queue<HttpRequest> requestQueue,
-                           Queue<WebSocketMessage> webSocketMessageQueue, final QBitSystemManager systemManager) {
-
-
-        this.systemManager = systemManager;
-        this.port = port;
-        this.host = host;
-        this.vertx = VertxFactory.newVertx();
-        this.manageQueues = true;
-
-        this.flushInterval = flushInterval;
-        httpWorkers = -1;
-        handler = null;
-
-        maxRequestBatches = -1;
-
-        requests = requestQueue;
-        webSocketMessageInQueue = webSocketMessageQueue;
-    }
-
-
-
-    public HttpServerVertx(final int port, final String host, boolean manageQueues,
-                           final int pollTime,
-                           final int requestBatchSize,
-                           final int flushInterval,
-                           final int maxRequests,
-                           final Vertx vertx,
-                           final QBitSystemManager systemManager) {
-
-        this.systemManager = systemManager;
-        this.port = port;
-        this.host = host;
-        this.vertx = vertx;
-        this.manageQueues = manageQueues;
-        this.pollTime = pollTime;
-        this.requestBatchSize = requestBatchSize;
-        this.flushInterval = flushInterval;
-        this.maxRequestBatches = maxRequests;
-        httpWorkers = -1;
-        handler = null;
-
-
-
-    }
-
-
-    public HttpServerVertx(final int port, final String host, boolean manageQueues,
-                           final int pollTime,
-                           final int requestBatchSize,
-                           final int flushInterval,
-                           final int maxRequests,
-                           final QBitSystemManager systemManager) {
-
-
-        this(port, host, manageQueues, pollTime, requestBatchSize, flushInterval, maxRequests, -1, null, systemManager);
-
-
-
-    }
-
-    public HttpServerVertx(int port, String host, boolean manageQueues, int pollTime,
-                           int requestBatchSize, int flushInterval, int maxRequests,
-                           int httpWorkers, Class handler, final QBitSystemManager systemManager) {
-
-
-        this.port = port;
-        this.host = host;
-        this.vertx = VertxFactory.newVertx();
-        this.manageQueues = manageQueues;
-        this.pollTime = pollTime;
-        this.requestBatchSize = requestBatchSize;
-        this.flushInterval = flushInterval;
-        this.maxRequestBatches = maxRequests;
-        this.httpWorkers = httpWorkers;
-        this.handler = handler;
-        this.systemManager = systemManager;
-    }
-
-
-    private Consumer<WebSocketMessage> webSocketMessageConsumer = websocketMessage -> logger.debug("HttpServerVertx::DEFAULT WEB_SOCKET HANDLER CALLED WHICH IS ODD");
-
-    private Consumer<WebSocketMessage> webSocketCloseConsumer = webSocketMessage -> {};
-
-    private Consumer<HttpRequest> httpRequestConsumer = request -> logger.debug("HttpServerVertx::DEFAULT HTTP HANDLER CALLED WHICH IS ODD");
-
-
-
     private Queue<HttpRequest> requests;
     private SendQueue<HttpRequest> httpRequestSendQueue;
     private Queue<HttpResponseInternal> responses;
@@ -185,18 +60,74 @@ public class HttpServerVertx implements HttpServer {
     private SendQueue<WebSocketMessage> webSocketMessageIncommingSendQueue;
     private ReentrantLock requestLock;
     private ReentrantLock responseLock;
-
     private ReentrantLock webSocketSendLock;
-
-
     private Queue<WebSocketMessage> webSocketMessageInQueue;
+
+
+
+    public HttpServerVertx(final Vertx vertx, final HttpServerOptions options, final QueueBuilder requestQueueBuilder,
+                           final QueueBuilder webSocketMessageQueueBuilder, final QBitSystemManager systemManager) {
+
+        this.vertx = vertx;
+        this.maxRequestBatches = options.getMaxRequestBatches();
+        this.systemManager = systemManager;
+        this.port = options.getPort();
+        this.host = options.getHost();
+        this.requestBatchSize = options.getRequestBatchSize();
+        this.pollTime = options.getPollTime();
+        this.flushInterval = options.getFlushInterval();
+
+        if (requestQueueBuilder!=null || webSocketMessageQueueBuilder!=null || options.isManageQueues() ) {
+            this.manageQueues = true;
+
+        } else {
+            this.manageQueues = false;
+        }
+
+
+        if (manageQueues) {
+
+            if (requestQueueBuilder != null) {
+                this.requestQueueBuilder = BeanUtils.copy(requestQueueBuilder);
+                responseQueueBuilder = BeanUtils.copy(requestQueueBuilder);//TODO FIX THIS, it has to be passed to factory etc
+
+            } else {
+                this.requestQueueBuilder =  queueBuilder()
+                        .setName("HttpServerRequests").setPollWait(pollTime).setSize(maxRequestBatches)
+                        .setBatchSize(requestBatchSize);
+
+                this.responseQueueBuilder = queueBuilder()
+                        .setName("HttpServerResponses").setPollWait(pollTime).setSize(maxRequestBatches)
+                        .setBatchSize(requestBatchSize);
+
+            }
+
+            if (webSocketMessageQueueBuilder != null) {
+                this.webSocketMessageQueueBuilder = BeanUtils.copy(webSocketMessageQueueBuilder);
+            } else {
+                this.webSocketMessageQueueBuilder = queueBuilder()
+                        .setName("WebSocket").setPollWait(pollTime).setSize(maxRequestBatches)
+                        .setBatchSize(requestBatchSize);
+            }
+
+        } else {
+            this.requestQueueBuilder = null;
+            this.responseQueueBuilder = null;
+            this.webSocketMessageQueueBuilder = null;
+        }
+
+    }
+
+
+    public HttpServerVertx(HttpServerOptions options, QueueBuilder requestQueueBuilder, QueueBuilder webSocketMessageQueueBuilder, QBitSystemManager systemManager) {
+        this(VertxFactory.newVertx(), options, requestQueueBuilder, webSocketMessageQueueBuilder, systemManager);
+    }
 
 
 
     @Override
     public void setShouldContinueHttpRequest(final Predicate<HttpRequest> shouldContinueHttpRequest) {
-
-        this.shouldContinueHttpRequest = shouldContinueHttpRequest;
+        this.simpleHttpServer.setShouldContinueHttpRequest(shouldContinueHttpRequest);
     }
 
 
@@ -204,69 +135,33 @@ public class HttpServerVertx implements HttpServer {
 
     @Override
     public void setWebSocketMessageConsumer(final Consumer<WebSocketMessage> webSocketMessageConsumer) {
-        this.webSocketMessageConsumer = webSocketMessageConsumer;
+        this.simpleHttpServer.setWebSocketMessageConsumer(webSocketMessageConsumer);
     }
 
     @Override
     public void setWebSocketCloseConsumer(final Consumer<WebSocketMessage> webSocketMessageConsumer) {
-
-        this.webSocketCloseConsumer = webSocketMessageConsumer;
+        this.simpleHttpServer.setWebSocketCloseConsumer(webSocketMessageConsumer);
     }
 
     @Override
     public void setHttpRequestConsumer(final Consumer<HttpRequest> httpRequestConsumer) {
-        this.httpRequestConsumer = httpRequestConsumer;
+        this.simpleHttpServer.setHttpRequestConsumer(httpRequestConsumer);
     }
-
 
     @Override
     public void setHttpRequestsIdleConsumer(Consumer<Void> idleRequestConsumer) {
-        this.idleRequestConsumer = idleRequestConsumer;
-
+        this.simpleHttpServer.setHttpRequestsIdleConsumer(idleRequestConsumer);
     }
 
 
     @Override
     public void setWebSocketIdleConsume(Consumer<Void> idleWebSocketConsumer) {
-        this.idleWebSocketConsumer = idleWebSocketConsumer;
+        this.simpleHttpServer.setWebSocketIdleConsume(idleWebSocketConsumer);
 
     }
 
     @Override
     public void start() {
-
-        if (httpWorkers > 0 && handler!=null) {
-
-
-            PlatformManager platformManager = PlatformLocator.factory.createPlatformManager();
-
-
-
-            JsonObject jsonObject = new JsonObject();
-            jsonObject.putNumber(HttpServerWorkerVerticle.HTTP_SERVER_VERTICLE_PORT, this.port);
-            jsonObject.putNumber(HttpServerWorkerVerticle.HTTP_SERVER_VERTICLE_FLUSH_INTERVAL, this.flushInterval);
-            jsonObject.putBoolean(HttpServerWorkerVerticle.HTTP_SERVER_VERTICLE_MANAGE_QUEUES, this.manageQueues);
-            jsonObject.putNumber(HttpServerWorkerVerticle.HTTP_SERVER_VERTICLE_MAX_REQUEST_BATCHES, this.maxRequestBatches);
-            jsonObject.putNumber(HttpServerWorkerVerticle.HTTP_SERVER_VERTICLE_POLL_TIME, this.pollTime);
-            jsonObject.putString(HttpServerWorkerVerticle.HTTP_SERVER_VERTICLE_HOST, this.host);
-            jsonObject.putNumber(HttpServerWorkerVerticle.HTTP_SERVER_VERTICLE_REQUEST_BATCH_SIZE, this.requestBatchSize);
-            jsonObject.putString(HttpServerWorkerVerticle.HTTP_SERVER_HANDLER, handler.getName());
-
-            URL[] urls = getClasspathUrls();
-
-
-
-            platformManager.deployVerticle(HttpServerWorkerVerticle.class.getName(), jsonObject, urls, httpWorkers, null,
-                    new Handler<AsyncResult<String>>() {
-                        @Override
-                        public void handle(AsyncResult<String> stringAsyncResult) {
-                            if (stringAsyncResult.succeeded()) {
-                                logger.info("Launched verticle");
-                            }
-                        }
-                    }
-            );
-        } else {
 
             manageQueues();
 
@@ -345,7 +240,6 @@ public class HttpServerVertx implements HttpServer {
                 httpServer.listen(port, host);
             }
 
-        }
 
         logger.info("HTTP SERVER started on port " + port + " host " + host);
 
@@ -354,26 +248,6 @@ public class HttpServerVertx implements HttpServer {
 
     }
 
-    private URL[] getClasspathUrls() {
-
-
-        final String classpathString = System.getProperty("java.class.path");
-
-        final List<String> classpathStrings = Lists.list(Str.split(classpathString, ':'));
-
-        final List<URL> urlList = new ArrayList<>(classpathStrings.size());
-
-        for (String path : classpathStrings) {
-            File file = new File(path);
-            try {
-                urlList.add(file.toURI().toURL());
-            } catch (MalformedURLException e) {
-                throw new RuntimeException(e);
-            }
-        }
-
-        return urlList.toArray(new URL[urlList.size()]);
-    }
 
     private void manageQueues() {
 
@@ -383,22 +257,11 @@ public class HttpServerVertx implements HttpServer {
             requestLock = new ReentrantLock();
             webSocketSendLock = new ReentrantLock();
 
-
-
-            requests = new QueueBuilder().setName("HttpServerRequests").setPollWait(pollTime).setSize(maxRequestBatches).setBatchSize(requestBatchSize).build();
-
+            requests = requestQueueBuilder.setName("HTTP Requests").build();
             httpRequestSendQueue = requests.sendQueue();
-            responses = new QueueBuilder().setName("HTTP Responses").setPollWait(pollTime).setBatchSize(requestBatchSize).build();
-
-
+            responses = responseQueueBuilder.setName("HTTP Responses").build();
             httpResponsesSendQueue = responses.sendQueue();
-            webSocketMessageInQueue =
-
-            new QueueBuilder().setName("WebSocketMessagesIn " + host + " " + port)
-                    .setPollWait(pollTime).setBatchSize(requestBatchSize).setSize(maxRequestBatches)
-                    .build();
-
-
+            webSocketMessageInQueue = webSocketMessageQueueBuilder.setName("WebSocketIn").build();
             webSocketMessageIncommingSendQueue = webSocketMessageInQueue.sendQueue();
 
 
@@ -406,16 +269,13 @@ public class HttpServerVertx implements HttpServer {
             webSocketMessageInQueue.startListener(new ReceiveQueueListener<WebSocketMessage>() {
                 @Override
                 public void receive(WebSocketMessage webSocketMessage) {
-
-                    webSocketMessageConsumer.accept(webSocketMessage);
-
-
+                    simpleHttpServer.handleWebSocketMessage(webSocketMessage);
                 }
 
                 @Override
                 public void idle() {
+                    simpleHttpServer.handleWebSocketQueueIdle();
 
-                    idleWebSocketConsumer.accept(null);
                 }
             });
 
@@ -431,16 +291,12 @@ public class HttpServerVertx implements HttpServer {
             requests.startListener(new ReceiveQueueListener<HttpRequest>() {
                 @Override
                 public void receive(final HttpRequest request) {
-
-                    if (shouldContinueHttpRequest.test(request)) {
-                        httpRequestConsumer.accept(request);
-                    }
+                    simpleHttpServer.handleRequest(request);
                 }
 
                 @Override
                 public void idle() {
-
-                    idleRequestConsumer.accept(null);
+                    simpleHttpServer.handleRequestQueueIdle();
                 }
             });
 
@@ -477,6 +333,11 @@ public class HttpServerVertx implements HttpServer {
             if (responses != null) {
                 responses.stop();
             }
+
+            if (webSocketMessageInQueue != null) {
+                webSocketMessageInQueue.stop();
+            }
+
         } catch (Exception ex) {
 
             logger.info("Unable to shutdown queues");
@@ -554,9 +415,8 @@ public class HttpServerVertx implements HttpServer {
 
                     } else {
 
-                        if (shouldContinueHttpRequest.test(postRequest)) {
-                            this.httpRequestConsumer.accept(postRequest);
-                        }
+                        simpleHttpServer.handleRequest(postRequest);
+
                     }
 
                 });
@@ -574,9 +434,7 @@ public class HttpServerVertx implements HttpServer {
                     sendRequestOnQueue(getRequest);
 
                 } else {
-                    if (shouldContinueHttpRequest.test(getRequest)) {
-                        this.httpRequestConsumer.accept(getRequest);
-                    }
+                    simpleHttpServer.handleRequest(getRequest);
                 }
 
                 break;
@@ -625,7 +483,7 @@ public class HttpServerVertx implements HttpServer {
                         sendWebSocketOnQueue(webSocketMessage);
                     } else {
 
-                        this.webSocketMessageConsumer.accept(webSocketMessage);
+                        simpleHttpServer.handleWebSocketMessage(webSocketMessage);
                     }
                 }
         );
@@ -633,12 +491,9 @@ public class HttpServerVertx implements HttpServer {
 
 
         webSocket.closeHandler(event -> {
-
-
             WebSocketMessage webSocketMessage =
                     createWebSocketMessage(webSocket, null);
-
-            webSocketCloseConsumer.accept(webSocketMessage);
+            simpleHttpServer.handleWebSocketClosedMessage(webSocketMessage);
 
         });
 

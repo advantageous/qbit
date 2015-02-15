@@ -10,6 +10,7 @@ import io.advantageous.qbit.http.HttpClient;
 import io.advantageous.qbit.http.HttpRequest;
 import io.advantageous.qbit.http.HttpServer;
 import io.advantageous.qbit.http.WebSocketMessage;
+import io.advantageous.qbit.http.config.HttpServerOptions;
 import io.advantageous.qbit.json.JsonMapper;
 import io.advantageous.qbit.message.MethodCall;
 import io.advantageous.qbit.message.MethodCallBuilder;
@@ -168,30 +169,15 @@ public class BoonQBitFactory implements Factory {
     }
 
 
-    @Override
-    public HttpServer createHttpServer(String host, int port, boolean manageQueues, int pollTime, int requestBatchSize, int flushInterval, int maxRequests, final QBitSystemManager systemManager) {
-        return FactorySPI.getHttpServerFactory().create(host, port, manageQueues, pollTime, requestBatchSize, flushInterval, maxRequests, systemManager);
+
+    public HttpServer createHttpServer(HttpServerOptions options,
+                                QueueBuilder requestQueueBuilder,
+                                QueueBuilder webSocketMessageQueueBuilder,
+                                QBitSystemManager systemManager) {
+
+        return FactorySPI.getHttpServerFactory().create(options, requestQueueBuilder, webSocketMessageQueueBuilder,
+                systemManager);
     }
-
-
-    public HttpServer createHttpServerWithQueue(final String host,
-                                                final int port,
-                                                final int flushInterval,
-                                                final Queue<HttpRequest> requestQueue,
-                                                final Queue<WebSocketMessage> webSocketMessageQueue,
-                                                final QBitSystemManager systemManager) {
-
-        return FactorySPI.getHttpServerFactory().createHttpServerWithQueue(host, port,
-                flushInterval, requestQueue, webSocketMessageQueue, systemManager);
-
-    }
-    @Override
-    public HttpServer createHttpServerWithWorkers(String host, int port, boolean manageQueues, int pollTime, int requestBatchSize,
-                                                  int flushInterval, int maxRequests, int httpWorkers, Class handler, final QBitSystemManager systemManager) {
-        return FactorySPI.getHttpServerFactory().createWithWorkers(host, port, manageQueues, pollTime, requestBatchSize,
-                flushInterval, maxRequests, httpWorkers, handler, systemManager);
-    }
-
 
     @Override
     public HttpClient createHttpClient(String host, int port, int requestBatchSize, int timeOutInMilliseconds, int poolSize, boolean autoFlush, int flushRate, boolean keepAlive, boolean pipeline) {

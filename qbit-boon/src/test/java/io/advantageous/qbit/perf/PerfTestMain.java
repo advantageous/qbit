@@ -6,6 +6,7 @@ import io.advantageous.qbit.http.HttpClient;
 import io.advantageous.qbit.http.HttpRequest;
 import io.advantageous.qbit.http.HttpServer;
 import io.advantageous.qbit.http.WebSocketMessage;
+import io.advantageous.qbit.http.config.HttpServerOptions;
 import io.advantageous.qbit.queue.Queue;
 import io.advantageous.qbit.queue.QueueBuilder;
 import io.advantageous.qbit.queue.ReceiveQueueListener;
@@ -195,12 +196,8 @@ public class PerfTestMain {
         });
 
         FactorySPI.setHttpServerFactory(
-                new HttpServerFactory() {
-                    @Override
-                    public HttpServer create(String host, int port, boolean manageQueues, int pollTime, int requestBatchSize, int flushInterval, int maxRequests, QBitSystemManager systemManager) {
-                        return new MockHttpServer();
-                    }
-                });
+                (options, requestQueueBuilder, webSocketMessageQueueBuilder, systemManager) -> new MockHttpServer()
+        );
 
         ServiceServer server = new ServiceServerBuilder().setRequestBatchSize(10_000).build();
         server.initServices(new AdderService());

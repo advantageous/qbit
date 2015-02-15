@@ -1,6 +1,8 @@
 package io.advantageous.qbit.http;
 
 import io.advantageous.qbit.QBit;
+import io.advantageous.qbit.http.config.HttpServerConfig;
+import io.advantageous.qbit.http.config.HttpServerOptions;
 import io.advantageous.qbit.queue.Queue;
 import io.advantageous.qbit.queue.QueueBuilder;
 import io.advantageous.qbit.system.QBitSystemManager;
@@ -17,24 +19,10 @@ public class HttpServerBuilder {
     public static HttpServerBuilder httpServerBuilder() {
         return new HttpServerBuilder();
     }
-
-    private String host;
-    private int port = 8080;
-    private boolean manageQueues = true;
-    private int maxRequestBatches = 1_000_000;
-    private boolean pipeline = true;
-    private int pollTime = 100;
-    private int requestBatchSize = 10;
-    private int flushInterval = 100;
-    private int workers = -1;
-    private Class<Consumer> handlerClass = null;
-    private Consumer<WebSocketMessage> webSocketMessageConsumer;
-    private Consumer<HttpRequest> httpRequestConsumer;
+    private HttpServerConfig httpServerConfig = new HttpServerConfig();
     private QueueBuilder requestQueueBuilder;
     private QueueBuilder webSocketMessageQueueBuilder;
     private QBitSystemManager qBitSystemManager;
-
-
     public QBitSystemManager getSystemManager() {
         return qBitSystemManager;
     }
@@ -64,162 +52,113 @@ public class HttpServerBuilder {
     }
 
     public int getMaxRequestBatches() {
-        return maxRequestBatches;
+        return httpServerConfig.getMaxRequestBatches();
     }
 
 
 
     public HttpServerBuilder setMaxRequestBatches(int maxRequestBatches) {
-        this.maxRequestBatches = maxRequestBatches;
+        this.httpServerConfig.setMaxRequestBatches(maxRequestBatches);
         return this;
     }
 
     public int getWorkers() {
-        return workers;
+        return httpServerConfig.getWorkers();
     }
 
     public HttpServerBuilder setWorkers(int workers) {
-        this.workers = workers;
+        this.httpServerConfig.setWorkers(workers);
         return this;
     }
 
-    public Class<Consumer> getHandlerClass() {
-        return handlerClass;
-    }
-
-    public HttpServerBuilder setHandlerClass(Class handlerClass) {
-        this.handlerClass = handlerClass;
-        return this;
-    }
 
     public boolean isPipeline() {
-        return pipeline;
+
+        return this.httpServerConfig.isPipeline();
     }
 
     public HttpServerBuilder setPipeline(boolean pipeline) {
-        this.pipeline = pipeline;
+        this.httpServerConfig.setPipeline(pipeline);
         return this;
     }
 
     public String getHost() {
-        return host;
+
+        return this.httpServerConfig.getHost();
     }
 
     public HttpServerBuilder setHost(String host) {
-        this.host = host;
+        this.httpServerConfig.setHost(host);
         return this;
     }
 
     public int getPort() {
-        return port;
+        return this.httpServerConfig.getPort();
     }
 
     public HttpServerBuilder setPort(int port) {
-        this.port = port;
+        this.httpServerConfig.setPort(port);
         return this;
     }
 
     public boolean isManageQueues() {
-        return manageQueues;
+        return this.httpServerConfig.isManageQueues();
     }
 
     public HttpServerBuilder setManageQueues(boolean manageQueues) {
-        this.manageQueues = manageQueues;
+        this.httpServerConfig.setManageQueues(manageQueues);
         return this;
     }
 
     public int getPollTime() {
-        return pollTime;
+        return this.httpServerConfig.getPollTime();
     }
 
     public HttpServerBuilder setPollTime(int pollTime) {
-        this.pollTime = pollTime;
+        this.httpServerConfig.setPollTime(pollTime);
         return this;
     }
 
     public int getRequestBatchSize() {
-        return requestBatchSize;
+        return this.httpServerConfig.getRequestBatchSize();
     }
 
     public HttpServerBuilder setRequestBatchSize(int requestBatchSize) {
-        this.requestBatchSize = requestBatchSize;
+        this.httpServerConfig.setRequestBatchSize(requestBatchSize);
         return this;
     }
 
     public int getFlushInterval() {
-        return flushInterval;
+        return this.httpServerConfig.getFlushInterval();
     }
 
     public HttpServerBuilder setFlushInterval(int flushInterval) {
-        this.flushInterval = flushInterval;
+        this.httpServerConfig.setFlushInterval(flushInterval);
         return this;
     }
 
-    public Consumer<WebSocketMessage> getWebSocketMessageConsumer() {
-        return webSocketMessageConsumer;
+    public HttpServerConfig getConfig() {
+        return httpServerConfig;
     }
 
-    public HttpServerBuilder setWebSocketMessageConsumer(Consumer<WebSocketMessage> webSocketMessageConsumer) {
-        this.webSocketMessageConsumer = webSocketMessageConsumer;
+    public HttpServerBuilder withConfig(Consumer<HttpServerConfig> config) {
+        config.accept(this.httpServerConfig);
         return this;
     }
 
-    public Consumer<HttpRequest> getHttpRequestConsumer() {
-        return httpRequestConsumer;
-    }
-
-    public HttpServerBuilder setHttpRequestConsumer(Consumer<HttpRequest> httpRequestConsumer) {
-        this.httpRequestConsumer = httpRequestConsumer;
+    public HttpServerBuilder setConfig(HttpServerConfig config) {
+        this.httpServerConfig = config;
         return this;
     }
+
 
     public HttpServer build() {
 
-        final HttpServer httpServer;
+        final HttpServer httpServer = QBit.factory().createHttpServer(
+                 this.getConfig(), this.getRequestQueueBuilder(), this.getWebSocketMessageQueueBuilder(),
+                        getSystemManager());
 
-        if (getWorkers() == -1 || getHandlerClass()==null) {
-            httpServer = QBit.factory().createHttpServer(this.getHost(),
-                    this.getPort(), this.isManageQueues(), this.getPollTime(), this.getRequestBatchSize(),
-                    this.getFlushInterval(), this.getMaxRequestBatches(), this.getSystemManager());
-
-            httpServer.setHttpRequestConsumer(this.getHttpRequestConsumer());
-            httpServer.setWebSocketMessageConsumer(this.getWebSocketMessageConsumer());
-        } else {
-
-            if (webSocketMessageQueueBuilder!=null || requestQueueBuilder!=null) {
-
-                if (webSocketMessageQueueBuilder == null) {
-                    webSocketMessageQueueBuilder = requestQueueBuilder;
-                }
-                if (requestQueueBuilder == null) {
-                    requestQueueBuilder = webSocketMessageQueueBuilder;
-
-                }
-
-                final Queue<HttpRequest> requestQueue = requestQueueBuilder.build();
-                final Queue<WebSocketMessage> webSocketMessageQueue = webSocketMessageQueueBuilder.build();
-                httpServer = QBit.factory().createHttpServerWithQueue(this.getHost(),
-                        this.getPort(), this.getFlushInterval(),
-                        requestQueue, webSocketMessageQueue, getSystemManager());
-                httpServer.setHttpRequestConsumer(this.getHttpRequestConsumer());
-                httpServer.setWebSocketMessageConsumer(this.getWebSocketMessageConsumer());
-
-            } else {
-
-                httpServer = QBit.factory().createHttpServerWithWorkers(this.getHost(),
-                        this.getPort(), this.isManageQueues(), this.getPollTime(), this.getRequestBatchSize(),
-                        this.getFlushInterval(), this.getMaxRequestBatches(), this.getWorkers(),
-                        this.getHandlerClass(), this.getSystemManager());
-
-                httpServer.setHttpRequestConsumer(this.getHttpRequestConsumer());
-                httpServer.setWebSocketMessageConsumer(this.getWebSocketMessageConsumer());
-                return httpServer;
-            }
-
-        }
-
-
-        if (httpServer!=null && qBitSystemManager!=null) {
+        if (qBitSystemManager!=null) {
             qBitSystemManager.registerServer(httpServer);
         }
         return httpServer;

@@ -8,6 +8,7 @@ import io.advantageous.qbit.http.HttpRequest;
 import io.advantageous.qbit.http.HttpServer;
 
 import io.advantageous.qbit.http.WebSocketMessage;
+import io.advantageous.qbit.http.config.HttpServerOptions;
 import io.advantageous.qbit.json.JsonMapper;
 import io.advantageous.qbit.message.MethodCall;
 import io.advantageous.qbit.message.Request;
@@ -262,34 +263,6 @@ public interface Factory {
 
 
 
-    default HttpServer createHttpServer(String host, int port, boolean manageQueues,
-                      int pollTime,
-                      int requestBatchSize,
-                      int flushInterval, int maxRequests,  final QBitSystemManager systemManager
-
-    ){
-        throw new UnsupportedOperationException();
-    }
-
-
-    default HttpServer createHttpServerWithQueue(String host, int port,
-                                                 int flushInterval, Queue<HttpRequest> requestQueue,
-                                                 Queue<WebSocketMessage> webSocketMessageQueue,
-                                                 final QBitSystemManager systemManager
-    ){
-        throw new UnsupportedOperationException();
-    }
-
-    default HttpServer createHttpServerWithWorkers(String host, int port, boolean manageQueues,
-                                                   int pollTime,
-                                                   int requestBatchSize,
-                                                   int flushInterval, int maxRequests,
-                                                   int httpWorkers, Class handlerClass,
-                                                   QBitSystemManager systemManager
-    ){
-        throw new UnsupportedOperationException();
-    }
-
     default HttpClient createHttpClient(
                 String host,
                 int port,
@@ -357,4 +330,11 @@ public interface Factory {
 
 
     default void shutdownSystemEventBus() {}
+
+    default HttpServer createHttpServer(HttpServerOptions options,
+                                QueueBuilder requestQueueBuilder,
+                                QueueBuilder webSocketMessageQueueBuilder,
+                                QBitSystemManager systemManager) {
+        throw new UnsupportedOperationException();
+    }
 }

@@ -80,14 +80,15 @@ public class HttpPerfServerTest {
                                     .setManageQueues(true)
                                     .setRequestBatchSize(batchSize)
                                     .setFlushInterval(flushRate)
-                                    .setHttpRequestConsumer(request -> {
-
-                                        if (request.getUri().equals("/perf/")) {
-                                            request.getResponse().response(200, "application/json", "\"ok\"");
-                                        }
-                                    }).build();
+                                    .build();
 
 
+        server.setHttpRequestConsumer(request -> {
+
+            if (request.getUri().equals("/perf/")) {
+                request.getResponse().response(200, "application/json", "\"ok\"");
+            }
+        });
         server.start();
 
 

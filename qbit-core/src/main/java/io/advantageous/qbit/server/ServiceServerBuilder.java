@@ -244,16 +244,15 @@ public class ServiceServerBuilder {
 
     private HttpServer createHttpServer() {
 
-        if (webSocketMessageQueueBuilder !=null || requestQueueBuilder != null) {
             return httpServerBuilder().setPort(port)
-                    .setFlushInterval(flushInterval)
-                    .setRequestQueueBuilder(requestQueueBuilder)
-                    .setWebSocketMessageQueueBuilder(webSocketMessageQueueBuilder).build();
-        } else {
-            return QBit.factory().createHttpServer(this.getHost(), this.getPort(),
-                    this.isManageQueues(), this.getPollTime(),
-                    this.getRequestBatchSize(), this.getFlushInterval(),
-                    this.getMaxRequestBatches(), this.getSystemManager());
-        }
+                    .setHost(host)
+                    .setManageQueues(this.isManageQueues())
+                    .setFlushInterval(this.getFlushInterval())
+                    .setPollTime(this.getPollTime())
+                    .setRequestBatchSize(this.getRequestBatchSize())
+                    .setMaxRequestBatches(this.getMaxRequestBatches())
+                    .setRequestQueueBuilder(this.getRequestQueueBuilder())
+                    .setSystemManager(getSystemManager())
+                    .setWebSocketMessageQueueBuilder(this.getWebSocketMessageQueueBuilder()).build();
     }
 }

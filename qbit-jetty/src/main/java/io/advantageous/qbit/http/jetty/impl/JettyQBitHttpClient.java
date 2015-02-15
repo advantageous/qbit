@@ -4,11 +4,18 @@ import io.advantageous.qbit.GlobalConstants;
 import io.advantageous.qbit.http.HttpClient;
 import io.advantageous.qbit.http.HttpRequest;
 import io.advantageous.qbit.http.WebSocketMessage;
+import io.advantageous.qbit.util.MultiMap;
 import org.boon.Str;
+import org.eclipse.jetty.client.api.ContentProvider;
+import org.eclipse.jetty.client.api.Request;
 import org.eclipse.jetty.client.api.Result;
 import org.eclipse.jetty.client.util.BufferingResponseListener;
+import org.eclipse.jetty.client.util.BytesContentProvider;
+import org.eclipse.jetty.client.util.StringContentProvider;
+import org.eclipse.jetty.http.HttpFields;
 import org.eclipse.jetty.http.HttpHeader;
 import org.eclipse.jetty.http.HttpMethod;
+import org.eclipse.jetty.util.Fields;
 import org.eclipse.jetty.websocket.api.Session;
 import org.eclipse.jetty.websocket.api.WebSocketListener;
 import org.eclipse.jetty.websocket.client.ClientUpgradeRequest;
@@ -18,6 +25,9 @@ import org.slf4j.LoggerFactory;
 
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.Map;
 import java.util.function.Consumer;
 
 import static org.boon.Boon.puts;
@@ -28,7 +38,7 @@ import static org.boon.Boon.puts;
 public class JettyQBitHttpClient implements HttpClient {
 
     private final Logger logger = LoggerFactory.getLogger(JettyQBitHttpClient.class);
-    private final boolean debug = false || GlobalConstants.DEBUG || logger.isDebugEnabled();
+    private final boolean debug = true || GlobalConstants.DEBUG || logger.isDebugEnabled();
     private final org.eclipse.jetty.client.HttpClient httpClient = new
             org.eclipse.jetty.client.HttpClient();
     private final WebSocketClient client = new WebSocketClient();
@@ -39,27 +49,66 @@ public class JettyQBitHttpClient implements HttpClient {
     public JettyQBitHttpClient(final String host, final int port) {
         this.host = host;
         this.port = port;
-
-        try {
-            client.start();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
     }
 
 
     @Override
     public void sendHttpRequest(HttpRequest request) {
-
-
-        final String uri = Str.add("http://", host, ":", Integer.toString(port), request.getUri());
-        HttpMethod jettyMethod = getHttpMethod(request);
-        /* TODO This needs to be settable somewhere. The buffer size. */
-        httpClient.newRequest(uri)
-                .method(jettyMethod).send(createJettyListener(request));
-
+        final Request jettyRequest = createJettyRequest(request);
+        jettyRequest.send(createJettyListener(request));
     }
 
+    private Request createJettyRequest(HttpRequest request) {
+        final String uri = createURIString(request);
+        final HttpMethod jettyMethod = getHttpMethod(request);
+        final Request jettyRequest = httpClient.newRequest(uri)
+                .method(jettyMethod);
+
+        if (jettyMethod==HttpMethod.POST || jettyMethod==HttpMethod.PUT) {
+            jettyRequest.content(new BytesContentProvider(request.getContentType(), request.getBody()));
+        }
+        copyParams(request, jettyRequest);
+        copyHeaders(request, jettyRequest);
+        return jettyRequest;
+    }
+
+    private String createURIString(HttpRequest request) {
+        return Str.add("http://", host, ":", Integer.toString(port), request.getUri());
+    }
+
+    private void copyParams(HttpRequest request, Request jettyRequest) {
+        final MultiMap<String, String> params = request.getParams();
+        final Iterator<Map.Entry<String, Collection<String>>> iterator = params.iterator();
+        final Fields paramFields = jettyRequest.getParams();
+
+        while (iterator.hasNext()) {
+            final Map.Entry<String, Collection<String>> entry = iterator.next();
+            final String paramName = entry.getKey();
+            final Collection<String> values = entry.getValue();
+
+            for (String value : values) {
+                paramFields.add(paramName, value);
+
+                if (debug) puts("Adding Params", paramName, value);
+            }
+        }
+    }
+
+
+    private void copyHeaders(HttpRequest request, Request jettyRequest) {
+        final MultiMap<String, String> headers = request.getHeaders();
+        final Iterator<Map.Entry<String, Collection<String>>> iterator = headers.iterator();
+        final HttpFields headerFields = jettyRequest.getHeaders();
+        while (iterator.hasNext()) {
+            final Map.Entry<String, Collection<String>> entry = iterator.next();
+            final String paramName = entry.getKey();
+            final Collection<String> values = entry.getValue();
+            for (String value : values) {
+                headerFields.add(paramName, value);
+                if (debug) puts("Adding Header", paramName, value);
+            }
+        }
+    }
     private BufferingResponseListener createJettyListener(final HttpRequest request) {
         return new BufferingResponseListener(1_000_000) {
 
@@ -158,7 +207,15 @@ public class JettyQBitHttpClient implements HttpClient {
         try {
             httpClient.start();
         } catch (Exception e) {
-            logger.error("problem starting", e);
+
+            throw new IllegalStateException("Unable to start httpClient Jetty support", e);
+        }
+
+
+        try {
+            client.start();
+        } catch (Exception e) {
+            throw new IllegalStateException("Unable to start websocket Jetty support", e);
         }
 
         return this;

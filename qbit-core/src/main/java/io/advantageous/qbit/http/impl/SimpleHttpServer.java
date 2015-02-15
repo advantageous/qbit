@@ -98,14 +98,20 @@ public class SimpleHttpServer implements HttpServer {
 
     @Override
     public void start() {
-        if (executorContext!=null) {
-            throw new IllegalStateException("Can't call start twice");
-        }
 
         if (debug) {
             puts("HttpServer Started");
             logger.debug("HttpServer Started");
         }
+
+        startPeriodicFlush();
+    }
+
+    private void startPeriodicFlush() {
+        if (executorContext!=null) {
+            throw new IllegalStateException("Can't call start twice");
+        }
+
         executorContext = scheduledExecutorBuilder()
                 .setThreadName("HttpServer")
                 .setInitialDelay(flushInterval)
@@ -136,4 +142,12 @@ public class SimpleHttpServer implements HttpServer {
         }
     }
 
+    public void handleWebSocketQueueIdle() {
+        webSocketIdleConsumer.accept(null);
+    }
+
+
+    public void handleRequestQueueIdle() {
+        requestIdleConsumer.accept(null);
+    }
 }

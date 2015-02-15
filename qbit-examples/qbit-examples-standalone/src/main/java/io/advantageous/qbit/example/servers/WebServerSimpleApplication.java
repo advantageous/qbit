@@ -21,12 +21,12 @@ public class WebServerSimpleApplication {
                 .setPollTime(20)
                 .setRequestBatchSize(40)
                 .setManageQueues(true)
-                .setHttpRequestConsumer(request -> {
-
-                    request.getResponse().response(200, "application/json", "\"ok\"");
-                })
                 .build();
 
+        httpServer.setHttpRequestConsumer(request -> {
+
+            request.getResponse().response(200, "application/json", "\"ok\"");
+        });
         httpServer.start();
 
         Boon.gets();

@@ -177,6 +177,10 @@ public class HttpRequestBuilder {
         if (timestamp == 0) {
             timestamp = io.advantageous.qbit.util.Timer.timer().now();
         }
+
+        if (contentType!=null) {
+            this.addHeader("Content-Type", contentType);
+        }
         return new HttpRequest(this.getId(), newURI, this.getMethod(), this.getParams(),
                 this.getHeaders(),
                 this.getBody() != null ? this.getBody().getBytes(StandardCharsets.UTF_8) : EMPTY_STRING,
@@ -204,7 +208,7 @@ public class HttpRequestBuilder {
 
     public HttpRequestBuilder setJsonContentType() {
 
-        contentType = "application/json";
+        contentType = "application/json; charset=\"UTF-8\"";
         return this;
     }
 

@@ -2,6 +2,8 @@ package io.advantageous.qbit;
 
 import io.advantageous.qbit.http.HttpClient;
 import io.advantageous.qbit.http.HttpServer;
+import io.advantageous.qbit.http.config.HttpServerOptions;
+import io.advantageous.qbit.queue.QueueBuilder;
 import io.advantageous.qbit.spi.FactorySPI;
 import io.advantageous.qbit.spi.HttpClientFactory;
 import io.advantageous.qbit.spi.HttpServerFactory;
@@ -15,18 +17,20 @@ import static org.boon.Boon.puts;
 /**
  * Main interface to QBit.
  * Created by Richard on 9/26/14.
+ *
  * @author rhightower
  */
 public class QBit {
     private Logger logger = LoggerFactory.getLogger(QBit.class);
+
     private final boolean debug = false || GlobalConstants.DEBUG || logger.isDebugEnabled();
 
-    public  static Factory factory() {
-           return new QBit().doGetFactory();
+    public static Factory factory() {
+        return new QBit().doGetFactory();
     }
 
-   public  Factory doGetFactory() {
-        Factory factory =  FactorySPI.getFactory();
+    public Factory doGetFactory() {
+        Factory factory = FactorySPI.getFactory();
 
         if (factory == null) {
 
@@ -51,7 +55,7 @@ public class QBit {
         }
     }
 
-    private  void registerNetworkStack() {
+    private void registerNetworkStack() {
 
         try {
 
@@ -69,11 +73,12 @@ public class QBit {
                 final Class<?> vertxFactory = Class.forName("io.advantageous.qbit.http.jetty.RegisterJettyWithQBit");
                 ClassMeta.classMeta(vertxFactory).invokeStatic("registerJettyWithQBit");
             }
-        }catch (Exception ex) {
-            FactorySPI.setHttpServerFactory((host, port, manageQueues, pollTime, requestBatchSize,
-                                             flushInterval, maxRequests, systemManager) -> {
+        } catch (Exception ex) {
+            FactorySPI.setHttpServerFactory((options, requestQueueBuilder, webSocketMessageQueueBuilder, systemManager) -> {
+
                 throw new IllegalStateException("Unable to load Vertx or Jetty network libs");
             });
+
 
             FactorySPI.setHttpClientFactory((host, port, requestBatchSize, timeOutInMilliseconds, poolSize,
                                              autoFlush, flushRate, keepAlive, pipeLine) -> {
