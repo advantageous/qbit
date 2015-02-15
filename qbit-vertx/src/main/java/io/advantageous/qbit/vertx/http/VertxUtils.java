@@ -2,17 +2,22 @@ package io.advantageous.qbit.vertx.http;
 
 import io.advantageous.qbit.http.request.HttpRequest;
 import io.advantageous.qbit.http.request.HttpResponseReceiver;
+import io.advantageous.qbit.http.websocket.WebSocket;
 import io.advantageous.qbit.http.websocket.WebSocketMessage;
 import io.advantageous.qbit.http.websocket.WebSocketSender;
+import io.advantageous.qbit.network.NetSocket;
 import io.advantageous.qbit.util.MultiMap;
 import io.advantageous.qbit.util.Timer;
 import io.advantageous.qbit.vertx.MultiMapWrapper;
+import org.vertx.java.core.Handler;
 import org.vertx.java.core.buffer.Buffer;
 import org.vertx.java.core.http.HttpServerRequest;
 import org.vertx.java.core.http.HttpServerResponse;
 import org.vertx.java.core.http.ServerWebSocket;
 
 import java.nio.charset.StandardCharsets;
+
+import static io.advantageous.qbit.http.websocket.WebSocketBuilder.webSocketBuilder;
 
 /**
  * Created by rhightower on 2/15/15.
@@ -94,6 +99,59 @@ public class VertxUtils {
     }
 
 
+
+    public WebSocket createWebSocket(final ServerWebSocket vertxServerWebSocket) {
+
+        /* Create a websocket that uses vertxServerWebSocket to send messages. */
+        final WebSocket webSocket = webSocketBuilder().setUri(vertxServerWebSocket.uri())
+                .setRemoteAddress(vertxServerWebSocket.remoteAddress().toString())
+                .setWebSocketSender(new WebSocketSender() {
+                    @Override
+                    public void sendText(String message) {
+                        vertxServerWebSocket.writeTextFrame(message);
+                    }
+
+                    @Override
+                    public void sendBytes(byte[] message) {
+                        vertxServerWebSocket.writeBinaryFrame(new Buffer(message));
+                    }
+
+                    @Override
+                    public void close() {
+                          vertxServerWebSocket.close();
+                    }
+                })
+                .build();
+
+
+        /* Handle open. */
+        webSocket.onOpen();
+
+        /* Handle close. */
+        vertxServerWebSocket.endHandler(event -> {
+            webSocket.close();
+        });
+
+        /* Handle message. */
+        vertxServerWebSocket.dataHandler(buffer -> {
+            final String message = buffer.toString("UTF-8");
+            webSocket.onTextMessage( message );
+        });
+
+        /* Handle error. */
+        vertxServerWebSocket.exceptionHandler(new Handler<Throwable>() {
+            @Override
+            public void handle(Throwable event) {
+                if (event instanceof Exception) {
+                    webSocket.onError((Exception) event);
+                } else {
+                    webSocket.onError(new Exception(event));
+                }
+            }
+        });
+
+        return webSocket;
+    }
 
 
 }
