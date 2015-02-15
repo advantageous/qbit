@@ -1,18 +1,18 @@
 package io.advantageous.qbit.http.jetty.impl;
-import io.advantageous.qbit.http.websocket.WebSocketMessage;
+import io.advantageous.qbit.http.websocket.WebSocket;
 import io.advantageous.qbit.http.server.impl.SimpleHttpServer;
-import io.advantageous.qbit.util.Timer;
+import io.advantageous.qbit.http.websocket.WebSocketSender;
+import org.boon.primitive.Byt;
 import org.eclipse.jetty.websocket.api.Session;
 import org.eclipse.jetty.websocket.api.WebSocketAdapter;
 import org.eclipse.jetty.websocket.servlet.ServletUpgradeRequest;
-
-import static io.advantageous.qbit.http.websocket.WebSocketMessageBuilder.webSocketMessageBuilder;
+import java.nio.ByteBuffer;
+import static io.advantageous.qbit.http.websocket.WebSocketBuilder.webSocketBuilder;
 
 public class JettyNativeWebSocketHandler extends WebSocketAdapter {
-    private Session session;
-
     private final ServletUpgradeRequest request;
     private final SimpleHttpServer httpServer;
+    private WebSocket webSocket;
 
     public JettyNativeWebSocketHandler(final ServletUpgradeRequest request,
                                        final SimpleHttpServer httpServer) {
@@ -22,41 +22,55 @@ public class JettyNativeWebSocketHandler extends WebSocketAdapter {
 
     @Override
     public void onWebSocketClose(int statusCode, String reason) {
+        super.onWebSocketClose(statusCode, reason);
+        webSocket.onClose();
+    }
 
-        final WebSocketMessage webSocketMessage = webSocketMessageBuilder()
-                .setMessage(reason)
-                .setUri(request.getRequestURI().getPath())
+    @Override
+    public void onWebSocketConnect(final Session session) {
+        super.onWebSocketConnect(session);
+        webSocket = webSocketBuilder()
                 .setRemoteAddress(request.getRemoteAddress())
-                .setTimestamp(Timer.timer().now()).build();
+                .setUri(request.getRequestURI().getPath())
+                .setWebSocketSender(new WebSocketSender() {
+                    @Override
+                    public void sendText(String message) {
 
+                        getRemote().sendStringByFuture(message);
+                    }
 
-        httpServer.handleWebSocketClosedMessage(webSocketMessage);
+                    @Override
+                    public void sendBytes(byte[] message) {
+                        getRemote().sendBytesByFuture(ByteBuffer.wrap(message));
+                    }
+
+                    @Override
+                    public void close() {
+                        session.close();
+                    }
+
+                })
+                .build();
+        httpServer.handleOpenWebSocket(webSocket);
+        webSocket.onOpen();
     }
 
     @Override
-    public void onWebSocketConnect(Session session) {
-        this.session = session;
-    }
-
-    @Override
-    public void onWebSocketError(Throwable cause) {
-
-        //do something
+    public void onWebSocketError(final Throwable cause) {
+        if (cause instanceof Exception) {
+            webSocket.onError(((Exception) cause));
+        } else {
+            webSocket.onError(new Exception(cause));
+        }
     }
 
     @Override
     public void onWebSocketText(String webSocketMessageIn) {
-
-        final WebSocketMessage webSocketMessage = webSocketMessageBuilder()
-                .setMessage(webSocketMessageIn)
-                .setUri(request.getRequestURI().getPath())
-                .setRemoteAddress(request.getRemoteAddress())
-                .setTimestamp(Timer.timer().now()).setSender(
-                        message -> {
-                            session.getRemote().sendStringByFuture(message);
-
-                        }).build();
-        httpServer.handleWebSocketMessage(webSocketMessage);
+        webSocket.onTextMessage(webSocketMessageIn);
     }
 
+    @Override
+    public void onWebSocketBinary(byte[] payload, int offset, int len) {
+        webSocket.onBinaryMessage(Byt.sliceOf(payload, offset, offset+len));
+    }
 }

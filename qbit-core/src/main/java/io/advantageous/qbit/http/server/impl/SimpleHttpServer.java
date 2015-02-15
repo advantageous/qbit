@@ -4,16 +4,22 @@ import io.advantageous.qbit.GlobalConstants;
 import io.advantageous.qbit.concurrent.ExecutorContext;
 import io.advantageous.qbit.http.request.HttpRequest;
 import io.advantageous.qbit.http.server.HttpServer;
+import io.advantageous.qbit.http.websocket.WebSocket;
 import io.advantageous.qbit.http.websocket.WebSocketMessage;
+import io.advantageous.qbit.http.websocket.WebSocketSender;
 import io.advantageous.qbit.system.QBitSystemManager;
+import io.advantageous.qbit.util.Timer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.nio.charset.StandardCharsets;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
 import static io.advantageous.qbit.concurrent.ScheduledExecutorBuilder.scheduledExecutorBuilder;
+import static io.advantageous.qbit.http.websocket.WebSocketMessageBuilder.webSocketMessageBuilder;
 import static org.boon.Boon.puts;
+import static org.boon.Boon.sputs;
 
 /**
  * Created by rhightower on 2/12/15.
@@ -25,6 +31,14 @@ public class SimpleHttpServer implements HttpServer {
     private Consumer<WebSocketMessage> webSocketCloseMessageConsumer = webSocketMessage -> {};
     private Consumer<HttpRequest> httpRequestConsumer = request -> {};
     private Consumer<Void> requestIdleConsumer = aVoid -> {};
+
+    private Consumer<WebSocket> webSocketConsumer = webSocket -> {
+
+        defaultWebSocketHandler(webSocket);
+
+    };
+
+
     private Consumer<Void> webSocketIdleConsumer = aVoid -> {};
     private Predicate<HttpRequest> shouldContinueHttpRequest = request -> true;
     private ExecutorContext executorContext;
@@ -149,5 +163,85 @@ public class SimpleHttpServer implements HttpServer {
 
     public void handleRequestQueueIdle() {
         requestIdleConsumer.accept(null);
+    }
+
+    public void handleOpenWebSocket(final WebSocket webSocket) {
+        this.webSocketConsumer.accept(webSocket);
+    }
+
+
+    private void defaultWebSocketHandler(final WebSocket webSocket) {
+
+
+        webSocket.setTextMessageConsumer(webSocketMessageIn -> {
+
+            final WebSocketMessage webSocketMessage = webSocketMessageBuilder()
+                    .setMessage(webSocketMessageIn)
+                    .setUri(webSocket.uri())
+                    .setRemoteAddress(webSocket.remoteAddress())
+                    .setTimestamp(Timer.timer().now()).setSender(
+                            message -> {
+                                if (webSocket.isOpen()) {
+                                    webSocket.sendText(message);
+                                }
+
+                            }).build();
+            handleWebSocketMessage(webSocketMessage);
+
+        });
+
+
+        webSocket.setBinaryMessageConsumer(webSocketMessageIn -> {
+
+            final WebSocketMessage webSocketMessage = webSocketMessageBuilder()
+                    .setMessage(webSocketMessageIn)
+                    .setUri(webSocket.uri())
+                    .setRemoteAddress(webSocket.remoteAddress())
+                    .setTimestamp(Timer.timer().now()).setSender(
+                            new WebSocketSender() {
+                                @Override
+                                public void sendText(String message) {
+                                    webSocket.sendBinary(message.getBytes(StandardCharsets.UTF_8));
+                                }
+
+                                @Override
+                                public void sendBytes(byte[] message) {
+                                    webSocket.sendBinary(message);
+                                }
+                            }
+
+                    ).build();
+            handleWebSocketMessage(webSocketMessage);
+
+        });
+
+
+
+        webSocket.setCloseConsumer(new Consumer<Void>() {
+            @Override
+            public void accept(Void aVoid) {
+
+                long time = Timer.timer().now();
+
+                final WebSocketMessage webSocketMessage = webSocketMessageBuilder()
+
+                        .setUri(webSocket.uri())
+                        .setRemoteAddress(webSocket.remoteAddress())
+                        .setTimestamp(time).build();
+
+
+                handleWebSocketClosedMessage(webSocketMessage);
+
+            }
+        });
+
+
+        webSocket.setErrorConsumer(new Consumer<Exception>() {
+            @Override
+            public void accept(Exception e) {
+                logger.error("Error with WebSocket handling", e);
+            }
+        });
+
     }
 }

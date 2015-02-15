@@ -10,7 +10,7 @@ import io.advantageous.qbit.util.MultiMap;
  */
 public class WebSocketMessage implements Request<Object>{
     private final String uri;
-    private final String message;
+    private final Object message;
     private final WebSocketSender sender;
     private final String remoteAddress;
     private final long messageId;
@@ -94,7 +94,7 @@ public class WebSocketMessage implements Request<Object>{
 
 
     public WebSocketMessage(final long id, final long timestamp,
-            final String uri, final String message, final String remoteAddress, final WebSocketSender sender) {
+            final String uri, final Object message, final String remoteAddress, final WebSocketSender sender) {
         this.uri = uri;
         this.message = message;
         this.sender = sender;
@@ -119,7 +119,7 @@ public class WebSocketMessage implements Request<Object>{
         return uri;
     }
 
-    public String getMessage() {
+    public Object getMessage() {
         return message;
     }
 

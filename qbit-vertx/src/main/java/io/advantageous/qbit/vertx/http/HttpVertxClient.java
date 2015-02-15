@@ -139,7 +139,9 @@ public class HttpVertxClient implements HttpClient {
 
         if (webSocket!=null) {
             try {
-                webSocket.writeTextFrame(webSocketMessage.getMessage());
+
+
+                webSocket.writeTextFrame(webSocketMessage.getMessage().toString());
             } catch (Exception ex) {
                 connectWebSocketAndSend(webSocketMessage);
             }
@@ -270,7 +272,7 @@ public class HttpVertxClient implements HttpClient {
         }
 
         if (webSocket!=null) {
-            webSocket.writeTextFrame(webSocketMessage.getMessage());
+            webSocket.writeTextFrame(webSocketMessage.getMessage().toString());
 
         }
 

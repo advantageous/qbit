@@ -13,7 +13,7 @@ public class WebSocketMessageBuilder {
     }
 
     private String uri;
-    private String message;
+    private Object message;
     private WebSocketSender sender;
     private String remoteAddress;
     private long messageId = -1;
@@ -28,11 +28,11 @@ public class WebSocketMessageBuilder {
         return this;
     }
 
-    public String getMessage() {
+    public Object getMessage() {
         return message;
     }
 
-    public WebSocketMessageBuilder setMessage(String message) {
+    public WebSocketMessageBuilder setMessage(Object message) {
         this.message = message;
         return this;
 

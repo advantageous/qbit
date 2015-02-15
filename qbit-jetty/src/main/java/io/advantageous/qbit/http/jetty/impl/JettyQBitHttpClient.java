@@ -168,7 +168,7 @@ public class JettyQBitHttpClient implements HttpClient {
 
                 if (debug) puts("CLIENT WEB_SOCKET CONNECT");
                 this.session = session;
-                session.getRemote().sendStringByFuture(webSocketMessage.getMessage());
+                session.getRemote().sendStringByFuture(webSocketMessage.getMessage().toString());
             }
 
             @Override
