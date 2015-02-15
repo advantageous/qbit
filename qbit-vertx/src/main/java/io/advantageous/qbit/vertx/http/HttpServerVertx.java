@@ -1,0 +1,361 @@
+package io.advantageous.qbit.vertx.http;
+
+
+import io.advantageous.qbit.GlobalConstants;
+import io.advantageous.qbit.http.config.HttpServerOptions;
+import io.advantageous.qbit.http.request.HttpRequest;
+import io.advantageous.qbit.http.request.HttpResponseReceiver;
+import io.advantageous.qbit.http.server.impl.SimpleHttpServer;
+import io.advantageous.qbit.http.server.HttpServer;
+import io.advantageous.qbit.http.websocket.WebSocketMessage;
+import io.advantageous.qbit.http.websocket.WebSocketSender;
+import io.advantageous.qbit.system.QBitSystemManager;
+import io.advantageous.qbit.util.MultiMap;
+import io.advantageous.qbit.util.Timer;
+import io.advantageous.qbit.vertx.MultiMapWrapper;
+import org.boon.Str;
+import org.boon.core.reflection.BeanUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.vertx.java.core.Handler;
+import org.vertx.java.core.Vertx;
+import org.vertx.java.core.VertxFactory;
+import org.vertx.java.core.buffer.Buffer;
+import org.vertx.java.core.http.HttpServerRequest;
+import org.vertx.java.core.http.HttpServerResponse;
+import org.vertx.java.core.http.ServerWebSocket;
+
+import java.nio.charset.StandardCharsets;
+import java.util.function.Consumer;
+import java.util.function.Predicate;
+
+
+/**
+ */
+public class HttpServerVertx implements HttpServer {
+
+    private final Logger logger = LoggerFactory.getLogger(HttpServerVertx.class);
+    private final boolean debug = GlobalConstants.DEBUG || logger.isDebugEnabled();
+    private final QBitSystemManager systemManager;
+    private final SimpleHttpServer simpleHttpServer;
+    private final int port;
+    private final String host;
+    private final Vertx vertx;
+    private final HttpServerOptions options;
+
+    private org.vertx.java.core.http.HttpServer httpServer;
+
+
+
+    public HttpServerVertx(final Vertx vertx,
+                           final HttpServerOptions options,
+                           final QBitSystemManager systemManager) {
+
+        this.simpleHttpServer = new SimpleHttpServer(null, options.getFlushInterval());
+        this.vertx = vertx;
+        this.systemManager = systemManager;
+        this.port = options.getPort();
+        this.host = options.getHost();
+        this.options = BeanUtils.copy(options);
+
+    }
+
+
+    public HttpServerVertx(HttpServerOptions options,
+                           QBitSystemManager systemManager) {
+        this(VertxFactory.newVertx(), options, systemManager);
+    }
+
+
+
+    @Override
+    public void setShouldContinueHttpRequest(final Predicate<HttpRequest> shouldContinueHttpRequest) {
+        this.simpleHttpServer.setShouldContinueHttpRequest(shouldContinueHttpRequest);
+    }
+
+
+
+
+    @Override
+    public void setWebSocketMessageConsumer(final Consumer<WebSocketMessage> webSocketMessageConsumer) {
+        this.simpleHttpServer.setWebSocketMessageConsumer(webSocketMessageConsumer);
+    }
+
+    @Override
+    public void setWebSocketCloseConsumer(final Consumer<WebSocketMessage> webSocketMessageConsumer) {
+        this.simpleHttpServer.setWebSocketCloseConsumer(webSocketMessageConsumer);
+    }
+
+    @Override
+    public void setHttpRequestConsumer(final Consumer<HttpRequest> httpRequestConsumer) {
+        this.simpleHttpServer.setHttpRequestConsumer(httpRequestConsumer);
+    }
+
+    @Override
+    public void setHttpRequestsIdleConsumer(Consumer<Void> idleRequestConsumer) {
+        this.simpleHttpServer.setHttpRequestsIdleConsumer(idleRequestConsumer);
+    }
+
+
+    @Override
+    public void setWebSocketIdleConsume(Consumer<Void> idleWebSocketConsumer) {
+        this.simpleHttpServer.setWebSocketIdleConsume(idleWebSocketConsumer);
+
+    }
+
+    @Override
+    public void start() {
+
+            simpleHttpServer.start();
+
+            if (debug) {
+                vertx.setPeriodic(10_000, new Handler<Long>() {
+                    @Override
+                    public void handle(Long event) {
+
+                        logger.info("Exceptions", exceptionCount, "Close Count", closeCount);
+                    }
+                });
+            }
+            httpServer = vertx.createHttpServer();
+
+            httpServer.setTCPNoDelay(true);//TODO this needs to be in builder
+            httpServer.setSoLinger(0); //TODO this needs to be in builder
+            httpServer.setUsePooledBuffers(true); //TODO this needs to be in builder
+            httpServer.setReuseAddress(true); //TODO this needs to be in builder
+            httpServer.setAcceptBacklog(1_000_000); //TODO this needs to be in builder
+            httpServer.setTCPKeepAlive(true); //TODO this needs to be in builder
+            httpServer.setCompressionSupported(false);//TODO this needs to be in builder
+            httpServer.setMaxWebSocketFrameSize(100_000_000);
+
+
+
+            httpServer.websocketHandler(this::handleWebSocketMessage);
+
+            httpServer.requestHandler(this::handleHttpRequest);
+
+
+
+
+            if (Str.isEmpty(host)) {
+                httpServer.listen(port);
+            } else {
+                httpServer.listen(port, host);
+            }
+
+
+            logger.info("HTTP SERVER started on port " + port + " host " + host);
+
+
+
+
+    }
+
+
+    @Override
+    public void stop() {
+
+        simpleHttpServer.stop();
+
+        try {
+            if (httpServer!=null) {
+
+                httpServer.close();
+            }
+        } catch (Exception ex) {
+
+            logger.info("HTTP SERVER unable to close " + port + " host " + host);
+        }
+
+        if (systemManager!=null)systemManager.serviceShutDown();
+
+    }
+
+    volatile int exceptionCount;
+    volatile int closeCount;
+
+    private void handleHttpRequest(final HttpServerRequest request) {
+
+        request.exceptionHandler( new Handler<Throwable>() {
+            @Override
+            public void handle(Throwable event) {
+
+                if (debug) {
+                    exceptionCount++;
+                }
+
+                logger.info("EXCEPTION", event);
+
+            }
+        });
+
+        request.bodyHandler(new Handler<Buffer>() {
+            @Override
+            public void handle(Buffer event) {
+
+                //puts("BODY PARAM", request.params().size());
+            }
+        });
+
+        request.dataHandler(new Handler<Buffer>() {
+            @Override
+            public void handle(Buffer event) {
+
+                //puts("DATA PARAM", request.params().size());
+            }
+        });
+
+//        puts("PATH", request.path());
+//
+//        puts("PATH ABS URI", request.absoluteURI());
+
+
+
+        request.endHandler(new Handler<Void>() {
+            @Override
+            public void handle(Void event) {
+
+
+                if (debug) {
+                    closeCount++;
+                }
+
+
+                logger.info("REQUEST OVER");
+            }
+        });
+
+        if (debug) logger.debug("HttpServerVertx::handleHttpRequest::{}:{}", request.method(), request.uri());
+
+        switch (request.method()) {
+
+            case "PUT":
+            case "POST":
+                request.bodyHandler((Buffer buffer) -> {
+                    final HttpRequest postRequest = createRequest(request, buffer);
+
+                        simpleHttpServer.handleRequest(postRequest);
+
+                });
+                break;
+
+
+            case "HEAD":
+            case "OPTIONS":
+            case "DELETE":
+            case "GET":
+                final HttpRequest getRequest;
+                getRequest = createRequest(request, null);
+                simpleHttpServer.handleRequest(getRequest);
+                break;
+
+            default:
+                throw new IllegalStateException("method not supported yet " + request.method());
+
+        }
+
+    }
+
+    private void handleWebSocketMessage(final ServerWebSocket webSocket) {
+
+
+
+
+        webSocket.dataHandler((Buffer buffer) -> {
+                    WebSocketMessage webSocketMessage =
+                            createWebSocketMessage(webSocket, buffer);
+
+
+                    if (debug) logger.debug("HttpServerVertx::handleWebSocketMessage::%s", webSocketMessage);
+
+
+                        simpleHttpServer.handleWebSocketMessage(webSocketMessage);
+
+                }
+        );
+
+
+
+        webSocket.closeHandler(event -> {
+            WebSocketMessage webSocketMessage =
+                    createWebSocketMessage(webSocket, null);
+            simpleHttpServer.handleWebSocketClosedMessage(webSocketMessage);
+
+        });
+
+
+    }
+
+    private WebSocketMessage createWebSocketMessage(final ServerWebSocket serverWebSocket, final Buffer buffer) {
+
+
+        return createWebSocketMessage(serverWebSocket.uri(), serverWebSocket.remoteAddress().toString(),
+
+                new WebSocketSender() {
+                    @Override
+                    public void sendText(String message) {
+                        serverWebSocket.writeTextFrame(message);
+                    }
+                    @Override
+                    public void sendBytes(byte[] message) {
+                        serverWebSocket.writeBinaryFrame(new Buffer(message));
+
+                    }
+                }, buffer != null ? buffer.toString("UTF-8"): "");
+    }
+
+
+    private WebSocketMessage createWebSocketMessage(final String address, final String returnAddress, final WebSocketSender webSocketSender, final String message) {
+
+
+        return new WebSocketMessage(-1L, -1L, address, message, returnAddress, webSocketSender);
+    }
+
+    volatile long id;
+    private HttpRequest createRequest(final HttpServerRequest request, final Buffer buffer) {
+
+        //puts(request.params().size(), request.absoluteURI(), request.params().get("key"), request.params().get("value"));
+
+        final MultiMap<String, String> params = request.params().size() == 0 ? MultiMap.empty() : new MultiMapWrapper(request.params());
+        final MultiMap<String, String> headers = request.headers().size() == 0 ? MultiMap.empty() : new MultiMapWrapper(request.headers());
+        final byte[] body = buffer == null ? "".getBytes(StandardCharsets.UTF_8) : buffer.getBytes();
+
+        final String contentType = request.headers().get("Content-Type");
+
+        return new HttpRequest(id++, request.path(), request.method(), params, headers, body,
+                request.remoteAddress().toString(),
+                contentType, createResponse(request.response()), Timer.timer().now());
+    }
+
+
+    private static Buffer createBuffer(Object body) {
+        Buffer buffer = null;
+
+        if (body instanceof byte[]) {
+
+            byte[] bBody = ((byte[]) body);
+            buffer = new Buffer(bBody);
+
+        } else if (body instanceof String) {
+
+            String sBody = ((String) body);
+            buffer = new Buffer(sBody, "UTF-8");
+        }
+        return buffer;
+    }
+
+
+
+    private HttpResponseReceiver createResponse(final HttpServerResponse response) {
+        return (code, mimeType, body) -> {
+
+                response.setStatusCode(code).putHeader("Content-Type", mimeType);
+                //response.setStatusCode(code).putHeader("Keep-Alive", "timeout=600");
+                Buffer buffer = createBuffer(body);
+                response.end(buffer);
+
+        };
+    }
+
+
+}
