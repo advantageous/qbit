@@ -232,28 +232,7 @@ public class HttpServerVertx implements HttpServer {
     }
 
     private void handleWebSocketMessage(final ServerWebSocket webSocket) {
-
-        webSocket.dataHandler((Buffer buffer) -> {
-                    WebSocketMessage webSocketMessage =
-                            vertxUtils.createWebSocketMessage(webSocket, buffer);
-
-
-                    if (debug) logger.debug("HttpServerVertx::handleWebSocketMessage::%s", webSocketMessage);
-
-
-                        simpleHttpServer.handleWebSocketMessage(webSocketMessage);
-
-                }
-        );
-
-        webSocket.closeHandler(event -> {
-            WebSocketMessage webSocketMessage =
-                    vertxUtils.createWebSocketMessage(webSocket, null);
-            simpleHttpServer.handleWebSocketClosedMessage(webSocketMessage);
-
-        });
-
-
+        simpleHttpServer.handleOpenWebSocket(vertxUtils.createWebSocket(webSocket));
     }
 
 

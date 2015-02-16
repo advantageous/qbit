@@ -8,7 +8,7 @@ import io.advantageous.qbit.util.MultiMap;
  * Created by rhightower on 10/22/14.
  * @author rhightower
  */
-public class WebSocketMessage implements Request<Object>{
+public class WebSocketMessage implements Request<Object>, Cloneable{
     private final String uri;
     private final Object message;
     private final WebSocketSender sender;
@@ -16,6 +16,11 @@ public class WebSocketMessage implements Request<Object>{
     private final long messageId;
     private final long timestamp;
     private boolean handled;
+
+    @Override
+    protected Object clone() throws CloneNotSupportedException {
+        return super.clone();
+    }
 
     @Override
     public String address() {

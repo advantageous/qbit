@@ -129,7 +129,7 @@ public class VertxUtils {
 
         /* Handle close. */
         vertxServerWebSocket.endHandler(event -> {
-            webSocket.close();
+            webSocket.onClose();
         });
 
         /* Handle message. */
