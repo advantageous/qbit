@@ -1,4 +1,4 @@
-package io.advantageous.qbit.http.jetty.impl;
+package io.advantageous.qbit.http.jetty.impl.client;
 
 import io.advantageous.qbit.GlobalConstants;
 import io.advantageous.qbit.http.websocket.WebSocket;
@@ -7,12 +7,9 @@ import org.boon.Str;
 import org.boon.primitive.Byt;
 import org.eclipse.jetty.websocket.api.Session;
 import org.eclipse.jetty.websocket.api.WebSocketAdapter;
-import org.eclipse.jetty.websocket.client.ClientUpgradeRequest;
-import org.eclipse.jetty.websocket.client.WebSocketClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.net.URI;
 import java.nio.ByteBuffer;
 import java.util.function.Consumer;
 

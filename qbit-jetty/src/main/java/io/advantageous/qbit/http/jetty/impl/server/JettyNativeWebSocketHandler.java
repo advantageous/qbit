@@ -1,4 +1,4 @@
-package io.advantageous.qbit.http.jetty.impl;
+package io.advantageous.qbit.http.jetty.impl.server;
 import io.advantageous.qbit.http.websocket.WebSocket;
 import io.advantageous.qbit.http.server.impl.SimpleHttpServer;
 import io.advantageous.qbit.http.websocket.WebSocketSender;

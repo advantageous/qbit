@@ -2,7 +2,7 @@ package io.advantageous.qbit.http.jetty;
 
 import io.advantageous.qbit.http.server.HttpServer;
 import io.advantageous.qbit.http.config.HttpServerOptions;
-import io.advantageous.qbit.http.jetty.impl.JettyQBitHttpServer;
+import io.advantageous.qbit.http.jetty.impl.server.JettyQBitHttpServer;
 import io.advantageous.qbit.queue.QueueBuilder;
 import io.advantageous.qbit.spi.HttpServerFactory;
 import io.advantageous.qbit.system.QBitSystemManager;
