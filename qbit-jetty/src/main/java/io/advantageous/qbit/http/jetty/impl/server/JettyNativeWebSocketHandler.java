@@ -64,6 +64,8 @@ import org.eclipse.jetty.websocket.api.WebSocketAdapter;
 import org.eclipse.jetty.websocket.servlet.ServletUpgradeRequest;
 
 import java.nio.ByteBuffer;
+import java.util.List;
+import java.util.Map;
 
 import static io.advantageous.qbit.http.websocket.WebSocketBuilder.webSocketBuilder;
 
@@ -87,6 +89,10 @@ public class JettyNativeWebSocketHandler extends WebSocketAdapter {
     @Override
     public void onWebSocketConnect(final Session session) {
         super.onWebSocketConnect(session);
+
+        final Map<String, List<String>> headers = session.getUpgradeRequest().getHeaders();
+        final Map<String, List<String>> params = session.getUpgradeRequest().getParameterMap();
+
         webSocket = webSocketBuilder()
                 .setRemoteAddress(request.getRemoteAddress())
                 .setUri(request.getRequestURI().getPath())
@@ -108,7 +114,10 @@ public class JettyNativeWebSocketHandler extends WebSocketAdapter {
                     }
 
                 })
+                .setHeaders(new JettyMultiMapAdapter(headers))
+                .setParams(new JettyMultiMapAdapter(params))
                 .build();
+
         httpServer.handleOpenWebSocket(webSocket);
         webSocket.onOpen();
     }

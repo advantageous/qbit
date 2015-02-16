@@ -57,14 +57,35 @@ package io.advantageous.qbit.http.websocket.impl;
 
 import io.advantageous.qbit.http.websocket.WebSocket;
 import io.advantageous.qbit.http.websocket.WebSocketSender;
+import io.advantageous.qbit.network.NetworkSender;
 import io.advantageous.qbit.network.impl.NetSocketBase;
+import io.advantageous.qbit.util.MultiMap;
 
 /**
  * Created by rhightower on 2/14/15.
  */
 public class WebSocketImpl extends NetSocketBase implements WebSocket {
-    public WebSocketImpl(String remoteAddress, String uri, boolean open,
-                         boolean binary, WebSocketSender webSocketSender) {
-        super(remoteAddress, uri, open, binary, webSocketSender);
+
+    private final MultiMap<String, String> headers;
+    private final MultiMap<String, String> params;
+
+
+    public WebSocketImpl(String remoteAddress, String uri, boolean open, boolean binary,
+                         WebSocketSender networkSender, MultiMap<String, String> headers,
+                         MultiMap<String, String> params) {
+        super(remoteAddress, uri, open, binary, networkSender);
+        this.headers = headers;
+        this.params = params;
     }
+
+    @Override
+    public MultiMap<String, String> headers() {
+        return headers;
+    }
+
+    @Override
+    public MultiMap<String, String> params() {
+        return params;
+    }
+
 }

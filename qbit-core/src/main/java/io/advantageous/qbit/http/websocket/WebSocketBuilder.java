@@ -55,8 +55,8 @@
 
 package io.advantageous.qbit.http.websocket;
 
-import io.advantageous.qbit.http.server.HttpServer;
 import io.advantageous.qbit.http.websocket.impl.WebSocketImpl;
+import io.advantageous.qbit.util.MultiMap;
 
 
 /**
@@ -69,20 +69,33 @@ public class WebSocketBuilder {
     private boolean open;
     private WebSocketSender webSocketSender;
     private boolean binary;
-    private HttpServer server;
+    private MultiMap<String, String> headers =  MultiMap.empty();
+    private MultiMap<String, String> params =   MultiMap.empty();
 
     public static WebSocketBuilder webSocketBuilder() {
         return new WebSocketBuilder();
     }
 
-    public HttpServer getServer() {
-        return server;
+
+
+    public MultiMap<String, String> getHeaders() {
+        return headers;
     }
 
-    public WebSocketBuilder setServer(HttpServer server) {
-        this.server = server;
+    public WebSocketBuilder setHeaders(MultiMap<String, String> headers) {
+        this.headers = headers;
         return this;
     }
+
+    public MultiMap<String, String> getParams() {
+        return params;
+    }
+
+    public WebSocketBuilder setParams(MultiMap<String, String> params) {
+        this.params = params;
+        return this;
+    }
+
 
     public String getRemoteAddress() {
         return remoteAddress;
@@ -131,7 +144,7 @@ public class WebSocketBuilder {
 
     public WebSocket build() {
         return new WebSocketImpl(getRemoteAddress(), getUri(), isOpen(), isBinary(),
-                webSocketSender);
+                webSocketSender, headers, params);
     }
 
 

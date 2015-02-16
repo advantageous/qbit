@@ -105,7 +105,9 @@ public interface MultiMap<K, V> extends Iterable<Map.Entry<K, Collection<V>>>, M
 
         throw new UnsupportedOperationException("Unsupported");
 
-    }    static final MultiMap EMPTY = new MultiMap() {
+    }
+
+    static final MultiMap EMPTY = new MultiMap() {
 
         private Map empty = Collections.emptyMap();
 
@@ -256,7 +258,6 @@ public interface MultiMap<K, V> extends Iterable<Map.Entry<K, Collection<V>>>, M
     default Iterable<V> valueMulti() {
         throw new UnsupportedOperationException("Unsupported");
     }
-
 
 
 

@@ -53,16 +53,76 @@
 
  ******************************************************************************/
 
-package io.advantageous.qbit.http.websocket;
+package io.advantageous.qbit.http.jetty.impl.server;
 
-import io.advantageous.qbit.network.NetSocket;
 import io.advantageous.qbit.util.MultiMap;
 
-/**
- * Created by rhightower on 2/14/15.
- */
-public interface WebSocket extends NetSocket {
+import java.util.*;
 
-    MultiMap<String, String> headers();
-    MultiMap<String, String> params();
+/**
+ * Created by rhightower on 2/16/15.
+ */
+public class JettyMultiMapAdapter implements MultiMap<String, String> {
+
+
+    private final Map<String, List<String>> innerMap;
+
+    public JettyMultiMapAdapter(Map<String, List<String>> innerMap) {
+        this.innerMap = innerMap;
+    }
+
+    @Override
+    public Iterator<Entry<String, Collection<String>>> iterator() {
+        return (Iterator<Entry<String, Collection<String>>>) innerMap.entrySet();
+    }
+
+    @Override
+    public String getFirst(String key) {
+        final List<String> strings = innerMap.get(key);
+        if (strings.size() > 0) {
+            return strings.get(0);
+        } else {
+            return null;
+        }
+    }
+
+    @Override
+    public Iterable<String> getAll(String key) {
+        return innerMap.get(key);
+    }
+
+    @Override
+    public Iterable<String> keySetMulti() {
+        return innerMap.keySet();
+    }
+
+    @Override
+    public String getSingleObject(String name) {
+        return getFirst(name);
+    }
+
+    @Override
+    public int size() {
+        return innerMap.size();
+    }
+
+    @Override
+    public boolean isEmpty() {
+        return innerMap.isEmpty();
+    }
+
+    @Override
+    public boolean containsKey(Object key) {
+        return innerMap.containsKey(key);
+    }
+
+    @Override
+    public String get(Object key) {
+        return getFirst(key.toString());
+    }
+
+    @Override
+    public Set<String> keySet() {
+        return innerMap.keySet();
+    }
 }
