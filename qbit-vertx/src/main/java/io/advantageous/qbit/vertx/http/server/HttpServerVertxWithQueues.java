@@ -1,4 +1,4 @@
-package io.advantageous.qbit.vertx.http;
+package io.advantageous.qbit.vertx.http.server;
 
 import io.advantageous.qbit.GlobalConstants;
 import io.advantageous.qbit.http.config.HttpServerOptions;

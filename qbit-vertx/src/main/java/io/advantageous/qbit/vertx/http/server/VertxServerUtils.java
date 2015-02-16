@@ -1,4 +1,4 @@
-package io.advantageous.qbit.vertx.http;
+package io.advantageous.qbit.vertx.http.server;
 
 import io.advantageous.qbit.http.request.HttpRequest;
 import io.advantageous.qbit.http.request.HttpResponseReceiver;
@@ -22,7 +22,7 @@ import static io.advantageous.qbit.http.websocket.WebSocketBuilder.webSocketBuil
 /**
  * Created by rhightower on 2/15/15.
  */
-public class VertxUtils {
+public class VertxServerUtils {
 
 
     volatile long requestId;
@@ -128,9 +128,17 @@ public class VertxUtils {
         webSocket.onOpen();
 
         /* Handle close. */
-        vertxServerWebSocket.endHandler(event -> {
-            webSocket.onClose();
+        vertxServerWebSocket.closeHandler(new Handler<Void>() {
+            @Override
+            public void handle(Void event) {
+                webSocket.onClose();
+
+            }
         });
+
+//        vertxServerWebSocket.endHandler(event -> {
+//            webSocket.onClose();
+//        });
 
         /* Handle message. */
         vertxServerWebSocket.dataHandler(buffer -> {

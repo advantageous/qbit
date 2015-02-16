@@ -3,6 +3,7 @@ package io.advantageous.qbit.http.client;
 import io.advantageous.qbit.http.request.HttpRequest;
 import io.advantageous.qbit.http.request.HttpResponse;
 import io.advantageous.qbit.http.request.HttpTextResponse;
+import io.advantageous.qbit.http.websocket.WebSocket;
 import io.advantageous.qbit.http.websocket.WebSocketMessage;
 import io.advantageous.qbit.util.MultiMap;
 
@@ -50,14 +51,16 @@ public interface HttpClient {
         final HttpRequest httpRequest = httpRequestBuilder()
                 .setUri(uri).setTextResponse(new HttpTextResponse() {
                     @Override
-                    public void response(int code, String mimeType, String body) {
-                        response(code, mimeType, body, MultiMap.EMPTY);
+                    public void response(int code, String contentType, String body) {
+                        response(code, contentType, body, MultiMap.EMPTY);
                     }
 
                     @Override
                     public void response(
-                            final int code, final String contentType,
-                            final String body, final MultiMap<String, String> headers) {
+                            final int code,
+                            final String contentType,
+                            final String body,
+                            final MultiMap<String, String> headers) {
 
                         httpResponseAtomicReference.set(
                                 new HttpResponse() {
@@ -181,7 +184,12 @@ public interface HttpClient {
         sendHttpRequest(httpRequest);
     }
 
+    @Deprecated
     void sendWebSocketMessage(WebSocketMessage webSocketMessage);
+
+    default WebSocket createWebSocket(String uri) {
+        throw new RuntimeException("New way to send messages");
+    }
 
     void periodicFlushCallback(Consumer<Void> periodicFlushCallback);
 

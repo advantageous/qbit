@@ -26,6 +26,7 @@ public interface NetSocket {
     void setErrorConsumer(Consumer<Exception> exceptionConsumer);
     void close();
     void open();
+    void openAndWait();
 
 
 }

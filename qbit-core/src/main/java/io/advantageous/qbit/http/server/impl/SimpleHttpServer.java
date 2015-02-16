@@ -244,4 +244,10 @@ public class SimpleHttpServer implements HttpServer {
         });
 
     }
+
+
+    @Override
+    public void setWebSocketOnOpenConsumer(Consumer<WebSocket> onOpenConsumer) {
+        this.webSocketConsumer = onOpenConsumer;
+    }
 }

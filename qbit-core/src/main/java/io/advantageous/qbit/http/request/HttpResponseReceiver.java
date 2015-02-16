@@ -17,7 +17,7 @@ public interface HttpResponseReceiver<T> {
 
     default boolean isText(){ return true; }
 
-    void response(int code, String mimeType, T body);
+    void response(int code, String contentType, T body);
 
 
     default void response(int code, String contentType, T body, MultiMap<String, String> headers) {

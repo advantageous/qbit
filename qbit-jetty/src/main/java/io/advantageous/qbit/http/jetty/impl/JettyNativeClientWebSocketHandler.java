@@ -7,9 +7,12 @@ import org.boon.Str;
 import org.boon.primitive.Byt;
 import org.eclipse.jetty.websocket.api.Session;
 import org.eclipse.jetty.websocket.api.WebSocketAdapter;
+import org.eclipse.jetty.websocket.client.ClientUpgradeRequest;
+import org.eclipse.jetty.websocket.client.WebSocketClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.net.URI;
 import java.nio.ByteBuffer;
 import java.util.function.Consumer;
 
@@ -26,13 +29,15 @@ public class JettyNativeClientWebSocketHandler extends WebSocketAdapter {
 
     private final String uri;
     private final Consumer<WebSocket> webSocketConsumer;
+    //private final WebSocketClient webSocketClient;
     private WebSocket webSocket;
     private final String connectUrl;
 
-    public JettyNativeClientWebSocketHandler(
+    public JettyNativeClientWebSocketHandler(//WebSocketClient webSocketClient,
             final String uri, final String host, final int port,
             Consumer<WebSocket> webSocketConsumer) {
 
+        //this.webSocketClient = webSocketClient;
         this.webSocketConsumer = webSocketConsumer;
 
         connectUrl = Str.add("ws://", host, ":", Integer.toString(port), uri);

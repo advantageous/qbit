@@ -96,6 +96,27 @@ public class JettyQBitHttpClient implements HttpClient {
     }
 
 
+//    public WebSocket createWebSocket(final String uri) {
+//
+//
+//
+//        JettyNativeClientWebSocketHandler webSocketHandler =
+//                createNativeHandler(uri);
+//
+//
+//        return null;
+//    }
+//
+//
+//    private JettyNativeClientWebSocketHandler createNativeHandler(final String uri, final WebSocket webSocket) {
+//        return new JettyNativeClientWebSocketHandler(uri, host, port, new Consumer<WebSocket>() {
+//            @Override
+//            public void accept(WebSocket innerWebSocket) {
+//
+//            }
+//        });
+//    }
+
     private void copyHeaders(HttpRequest request, Request jettyRequest) {
         final MultiMap<String, String> headers = request.getHeaders();
         final Iterator<Map.Entry<String, Collection<String>>> iterator = headers.iterator();

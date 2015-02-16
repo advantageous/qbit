@@ -1,4 +1,4 @@
-package io.advantageous.qbit.vertx.http;
+package io.advantageous.qbit.http.jetty.test;
 
 import io.advantageous.qbit.http.client.HttpClient;
 import io.advantageous.qbit.http.client.HttpClientBuilder;
@@ -16,8 +16,10 @@ import java.util.function.Consumer;
 import static org.boon.Boon.puts;
 import static org.boon.Exceptions.die;
 
-public class HttpClientVertxTest {
-
+/**
+ * Created by rhightower on 2/15/15.
+ */
+public class HttpClientServerJettyTest {
     volatile boolean requestReceived;
     volatile boolean responseReceived;
     HttpRequestBuilder requestBuilder = new HttpRequestBuilder();
@@ -36,7 +38,7 @@ public class HttpClientVertxTest {
 
     }
 
-    @Test
+    //@Test NOT DONE
     public void testWebSocket() {
 
         connect(9090);
@@ -75,7 +77,7 @@ public class HttpClientVertxTest {
 
     }
 
-    @Test
+    //@Test NOT DONE
     public void testNewWebSocket() {
 
         connect(9090);
@@ -127,7 +129,7 @@ public class HttpClientVertxTest {
     }
 
 
-    @Test
+    //@Test NOT DONE
     public void testNewOpenWaitWebSocket() {
 
         connect(9090);
@@ -172,7 +174,7 @@ public class HttpClientVertxTest {
 
     }
 
-    @Test
+    //@Test NOT DONE
     public void testNewOpenWaitWebSocketNewServerStuff() {
 
         connect(9090);

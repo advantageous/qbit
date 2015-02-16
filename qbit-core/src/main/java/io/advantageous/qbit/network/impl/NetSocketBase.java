@@ -2,8 +2,11 @@ package io.advantageous.qbit.network.impl;
 
 import io.advantageous.qbit.network.NetSocket;
 import io.advantageous.qbit.network.NetworkSender;
+import org.boon.core.Sys;
+import org.slf4j.LoggerFactory;
 
 import java.util.function.Consumer;
+import java.util.logging.Logger;
 
 /**
  * Created by rhightower on 2/14/15.
@@ -13,13 +16,17 @@ public class NetSocketBase implements NetSocket {
     private final String remoteAddress;
     private final String uri;
     private  NetworkSender networkSender;
-    private boolean open;
+    private volatile boolean open;
     private final boolean binary;
     private Consumer<String> textMessageConsumer = text -> {};
     private Consumer<byte[]> binaryMessageConsumer = bytes -> {};
     private Consumer<Void> closeConsumer = aVoid -> {};
     private Consumer<Void> openConsumer = aVoid -> {};
-    private Consumer<Exception> errorConsumer = e -> {};
+    private Consumer<Exception> errorConsumer = error -> {
+
+        LoggerFactory.getLogger(NetSocketBase.class)
+                .error(error.getMessage(), error);
+    };
 
     public NetSocketBase(String remoteAddress, String uri, boolean open, boolean binary,
                          NetworkSender networkSender) {
@@ -142,6 +149,23 @@ public class NetSocketBase implements NetSocket {
             networkSender.open(this);
         }catch (Exception ex) {
             onError(ex);
+        }
+    }
+
+
+
+    @Override
+    public void openAndWait() {
+
+        open();
+        /* Try to open for three seconds. */
+        int count = 300;
+        while (!open) {
+            Sys.sleep(10);
+            count--;
+            if (count <= 0) {
+                throw new IllegalStateException("Unable to open WebSocket connection");
+            }
         }
     }
 

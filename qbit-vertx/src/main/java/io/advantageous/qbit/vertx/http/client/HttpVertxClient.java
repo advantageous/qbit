@@ -1,12 +1,16 @@
-package io.advantageous.qbit.vertx.http;
+package io.advantageous.qbit.vertx.http.client;
 
 import io.advantageous.qbit.GlobalConstants;
 import io.advantageous.qbit.concurrent.ExecutorContext;
 import io.advantageous.qbit.http.client.HttpClient;
 import io.advantageous.qbit.http.request.HttpRequest;
+import io.advantageous.qbit.http.websocket.WebSocket;
 import io.advantageous.qbit.http.websocket.WebSocketMessage;
+import io.advantageous.qbit.http.websocket.WebSocketSender;
+import io.advantageous.qbit.network.NetSocket;
 import io.advantageous.qbit.util.MultiMap;
 import io.advantageous.qbit.vertx.MultiMapWrapper;
+import org.boon.Str;
 import org.boon.core.Sys;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,7 +21,6 @@ import org.vertx.java.core.buffer.Buffer;
 import org.vertx.java.core.http.HttpClientRequest;
 import org.vertx.java.core.http.HttpClientResponse;
 import org.vertx.java.core.http.HttpHeaders;
-import org.vertx.java.core.http.WebSocket;
 
 import java.net.ConnectException;
 import java.util.Map;
@@ -26,6 +29,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 
 import static io.advantageous.qbit.concurrent.ScheduledExecutorBuilder.scheduledExecutorBuilder;
+import static io.advantageous.qbit.http.websocket.WebSocketBuilder.webSocketBuilder;
 import static org.boon.Boon.puts;
 import static org.boon.Boon.sputs;
 
@@ -56,7 +60,7 @@ public class HttpVertxClient implements HttpClient {
     protected  final int flushInterval;
 
 
-    private final Map<String, WebSocket> webSocketMap = new ConcurrentHashMap<>();
+    private final Map<String, org.vertx.java.core.http.WebSocket> webSocketMap = new ConcurrentHashMap<>();
 
 
 
@@ -131,11 +135,12 @@ public class HttpVertxClient implements HttpClient {
 
     }
 
+    @Deprecated
     @Override
     public void sendWebSocketMessage(final WebSocketMessage webSocketMessage) {
         final String uri = webSocketMessage.getUri();
 
-        WebSocket webSocket = webSocketMap.get(uri);
+        org.vertx.java.core.http.WebSocket webSocket = webSocketMap.get(uri);
 
         if (webSocket!=null) {
             try {
@@ -204,22 +209,91 @@ public class HttpVertxClient implements HttpClient {
     }
 
 
+    @Override
+    public WebSocket createWebSocket(final String uri) {
 
+        final String remoteAddress = Str.add("ws://", host, ":", Integer.toString(port), uri);
+
+        final WebSocket webSocket = webSocketBuilder().setUri(uri).setWebSocketSender(createWebSocketSender(uri))
+                .setRemoteAddress(remoteAddress).build();
+
+
+
+
+
+        return webSocket;
+
+    }
+
+    private WebSocketSender createWebSocketSender(String uri) {
+
+        return new WebSocketSender() {
+
+            volatile org.vertx.java.core.http.WebSocket vertxWebSocket;
+
+            @Override
+            public void sendText(String message) {
+                vertxWebSocket.writeTextFrame(message);
+            }
+
+            @Override
+            public void openWebSocket(WebSocket webSocket) {
+
+                httpClient.connectWebsocket(uri, vertxWebSocket -> {
+                    this.vertxWebSocket = vertxWebSocket;
+
+                    /* Handle on Message. */
+                    vertxWebSocket.dataHandler(buffer -> webSocket.onTextMessage(buffer.toString("UTF-8")));
+
+                    /* Handle onClose */
+                    vertxWebSocket.closeHandler(event -> {
+                        webSocket.onClose();
+                    });
+
+                    /* Handle on Exception. */
+                    vertxWebSocket.exceptionHandler(event -> {
+                        if (event instanceof Exception) {
+                            webSocket.onError((Exception) event);
+                        } else {
+                            webSocket.onError(new Exception(event));
+                        }
+                    });
+
+                    /* Handle onOpen. */
+                    webSocket.onOpen();
+
+                });
+            }
+
+            @Override
+            public void open(NetSocket netSocket) {
+                openWebSocket((WebSocket)netSocket);
+            }
+
+            @Override
+            public void sendBytes(byte[] message) {
+                vertxWebSocket.writeBinaryFrame(new Buffer(message));
+            }
+        };
+
+
+    }
 
     private void connectWebSocketAndSend(final WebSocketMessage webSocketMessage) {
 
 
         final String uri = webSocketMessage.getUri();
 
-        WebSocket webSocket = webSocketMap.get(uri);
+        org.vertx.java.core.http.WebSocket webSocket = webSocketMap.get(uri);
 
         if (webSocket == null) {
 
-            final BlockingQueue<WebSocket> connectQueue = new ArrayBlockingQueue<WebSocket>(1);
+            final BlockingQueue<org.vertx.java.core.http.WebSocket> connectQueue =
+                    new ArrayBlockingQueue<org.vertx.java.core.http.WebSocket>(1);
 
-            httpClient.connectWebsocket(uri, new Handler<WebSocket>(){
+            httpClient.connectWebsocket(uri, new Handler<org.vertx.java.core.http.WebSocket>(){
                 @Override
-                public void handle(final WebSocket webSocket) {
+                public void handle(final org.vertx.java.core.http.WebSocket webSocket) {
 
                     webSocketMap.put(uri, webSocket);
 

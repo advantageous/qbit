@@ -1,7 +1,7 @@
 package io.advantageous.qbit.vertx;
 
 import io.advantageous.qbit.spi.FactorySPI;
-import io.advantageous.qbit.vertx.http.HttpVertxClient;
+import io.advantageous.qbit.vertx.http.client.HttpVertxClient;
 import io.advantageous.qbit.vertx.http.HttpServerVertxFactory;
 
 /**

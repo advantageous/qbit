@@ -5,6 +5,8 @@ import io.advantageous.qbit.http.config.HttpServerOptions;
 import io.advantageous.qbit.queue.QueueBuilder;
 import io.advantageous.qbit.spi.HttpServerFactory;
 import io.advantageous.qbit.system.QBitSystemManager;
+import io.advantageous.qbit.vertx.http.server.HttpServerVertx;
+import io.advantageous.qbit.vertx.http.server.HttpServerVertxWithQueues;
 
 /**
  * Created by rhightower on 1/26/15.

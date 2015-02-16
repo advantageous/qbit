@@ -1,4 +1,4 @@
-package io.advantageous.qbit.vertx.http;
+package io.advantageous.qbit.vertx.http.server;
 
 
 import io.advantageous.qbit.GlobalConstants;
@@ -6,6 +6,7 @@ import io.advantageous.qbit.http.config.HttpServerOptions;
 import io.advantageous.qbit.http.request.HttpRequest;
 import io.advantageous.qbit.http.server.impl.SimpleHttpServer;
 import io.advantageous.qbit.http.server.HttpServer;
+import io.advantageous.qbit.http.websocket.WebSocket;
 import io.advantageous.qbit.http.websocket.WebSocketMessage;
 import io.advantageous.qbit.system.QBitSystemManager;
 import io.advantageous.qbit.util.Timer;
@@ -35,7 +36,7 @@ public class HttpServerVertx implements HttpServer {
     private final String host;
     private final Vertx vertx;
     private final HttpServerOptions options;
-    private final VertxUtils vertxUtils = new VertxUtils();
+    private final VertxServerUtils vertxUtils = new VertxServerUtils();
     private org.vertx.java.core.http.HttpServer httpServer;
 
     /** For Metrics. */
@@ -235,6 +236,12 @@ public class HttpServerVertx implements HttpServer {
         simpleHttpServer.handleOpenWebSocket(vertxUtils.createWebSocket(webSocket));
     }
 
+
+
+    @Override
+    public void setWebSocketOnOpenConsumer(Consumer<WebSocket> onOpenConsumer) {
+        this.simpleHttpServer.setWebSocketOnOpenConsumer(onOpenConsumer);
+    }
 
 
 

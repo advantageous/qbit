@@ -4,6 +4,7 @@ import io.advantageous.qbit.GlobalConstants;
 import io.advantageous.qbit.http.request.HttpRequest;
 import io.advantageous.qbit.http.config.HttpServerOptions;
 import io.advantageous.qbit.http.server.impl.SimpleHttpServer;
+import io.advantageous.qbit.http.websocket.WebSocket;
 import io.advantageous.qbit.system.QBitSystemManager;
 import org.boon.core.reflection.BeanUtils;
 import org.eclipse.jetty.server.Request;
@@ -22,6 +23,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.function.Consumer;
 
 import static io.advantageous.qbit.servlet.QBitServletUtil.convertRequest;
 import static org.boon.Boon.puts;
@@ -149,4 +151,7 @@ public class JettyQBitHttpServer extends SimpleHttpServer {
             logger.error("Unable to shut down Jetty", ex);
         }
     }
+
+
+
 }
