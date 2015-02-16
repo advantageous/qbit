@@ -1,3 +1,56 @@
+/*******************************************************************************
+  * Copyright (c) 2015. Rick Hightower, Geoff Chandler
+  *
+  * Licensed under the Apache License, Version 2.0 (the "License");
+  * you may not use this file except in compliance with the License.
+  * You may obtain a copy of the License at
+  *
+  *  		http://www.apache.org/licenses/LICENSE-2.0
+  *
+  * Unless required by applicable law or agreed to in writing, software
+  * distributed under the License is distributed on an "AS IS" BASIS,
+  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  * See the License for the specific language governing permissions and
+  * limitations under the License.
+  *  ________ __________.______________
+  *  \_____  \\______   \   \__    ___/
+  *   /  / \  \|    |  _/   | |    |  ______
+  *  /   \_/.  \    |   \   | |    | /_____/
+  *  \_____\ \_/______  /___| |____|
+  *         \__>      \/
+  *  ___________.__                  ____.                        _____  .__                                             .__
+  *  \__    ___/|  |__   ____       |    |____ ___  _______      /     \ |__| ___________  ____  ______ ______________  _|__| ____  ____
+  *    |    |   |  |  \_/ __ \      |    \__  \\  \/ /\__  \    /  \ /  \|  |/ ___\_  __ \/  _ \/  ___// __ \_  __ \  \/ /  |/ ___\/ __ \
+  *    |    |   |   Y  \  ___/  /\__|    |/ __ \\   /  / __ \_ /    Y    \  \  \___|  | \(  <_> )___ \\  ___/|  | \/\   /|  \  \__\  ___/
+  *    |____|   |___|  /\___  > \________(____  /\_/  (____  / \____|__  /__|\___  >__|   \____/____  >\___  >__|    \_/ |__|\___  >___  >
+  *                  \/     \/                \/           \/          \/        \/                 \/     \/                    \/    \/
+  *  .____    ._____.
+  *  |    |   |__\_ |__
+  *  |    |   |  || __ \
+  *  |    |___|  || \_\ \
+  *  |_______ \__||___  /
+  *          \/       \/
+  *       ____. _________________    _______         __      __      ___.     _________              __           __      _____________________ ____________________
+  *      |    |/   _____/\_____  \   \      \       /  \    /  \ ____\_ |__  /   _____/ ____   ____ |  | __ _____/  |_    \______   \_   _____//   _____/\__    ___/
+  *      |    |\_____  \  /   |   \  /   |   \      \   \/\/   // __ \| __ \ \_____  \ /  _ \_/ ___\|  |/ // __ \   __\    |       _/|    __)_ \_____  \   |    |
+  *  /\__|    |/        \/    |    \/    |    \      \        /\  ___/| \_\ \/        (  <_> )  \___|    <\  ___/|  |      |    |   \|        \/        \  |    |
+  *  \________/_______  /\_______  /\____|__  / /\    \__/\  /  \___  >___  /_______  /\____/ \___  >__|_ \\___  >__| /\   |____|_  /_______  /_______  /  |____|
+  *                   \/         \/         \/  )/         \/       \/    \/        \/            \/     \/    \/     )/          \/        \/        \/
+  *  __________           __  .__              __      __      ___.
+  *  \______   \ ____   _/  |_|  |__   ____   /  \    /  \ ____\_ |__                                                                                               
+  *  |    |  _// __ \  \   __\  |  \_/ __ \  \   \/\/   // __ \| __ \
+  *   |    |   \  ___/   |  | |   Y  \  ___/   \        /\  ___/| \_\ \
+  *   |______  /\___  >  |__| |___|  /\___  >   \__/\  /  \___  >___  /
+  *          \/     \/             \/     \/         \/       \/    \/
+  *
+  * QBit - The Microservice lib for Java : JSON, WebSocket, REST. Be The Web!
+  *  http://rick-hightower.blogspot.com/2014/12/rise-of-machines-writing-high-speed.html
+  *  http://rick-hightower.blogspot.com/2014/12/quick-guide-to-programming-services-in.html
+  *  http://rick-hightower.blogspot.com/2015/01/quick-start-qbit-programming.html
+  *  http://rick-hightower.blogspot.com/2015/01/high-speed-soa.html
+  *  http://rick-hightower.blogspot.com/2015/02/qbit-event-bus.html
+  ******************************************************************************/
+
 package io.advantageous.qbit.vertx.http.client;
 
 import io.advantageous.qbit.GlobalConstants;
@@ -30,37 +83,37 @@ import static org.boon.Boon.puts;
 import static org.boon.Boon.sputs;
 
 /**
- * Created by rhightower on 1/30/15.
+ * @author  rhightower on 1/30/15.
  */
 public class HttpVertxClient implements HttpClient {
 
-    private final Logger logger = LoggerFactory.getLogger(HttpVertxClient.class);
-    private final boolean debug = false || logger.isDebugEnabled() || GlobalConstants.DEBUG;
-    private ExecutorContext executorContext;
-    /**
-     * I am leaving these protected and non-final so subclasses can use injection frameworks for them.
-     */
-    protected  int port;
-    protected int requestBatchSize=50;
-    protected  String host;
-    protected  int timeOutInMilliseconds;
-    protected  int poolSize;
-    protected org.vertx.java.core.http.HttpClient httpClient;
-    protected Vertx vertx;
     protected final boolean keepAlive;
     protected final boolean pipeline;
-    protected  final int flushInterval;
-    private boolean autoFlush;
+    protected final int flushInterval;
+    private final Logger logger = LoggerFactory.getLogger(HttpVertxClient.class);
+    private final boolean debug = false || logger.isDebugEnabled() || GlobalConstants.DEBUG;
     /**
      * Are we closed.
      */
     private final AtomicBoolean closed = new AtomicBoolean();
+    /**
+     * I am leaving these protected and non-final so subclasses can use injection frameworks for them.
+     */
+    protected int port;
+    protected int requestBatchSize = 50;
+    protected String host;
+    protected int timeOutInMilliseconds;
+    protected int poolSize;
+    protected org.vertx.java.core.http.HttpClient httpClient;
+    protected Vertx vertx;
+    volatile long responseCount = 0;
+    private ExecutorContext executorContext;
+    private boolean autoFlush;
     private Consumer<Void> periodicFlushCallback = aVoid -> {
     };
 
-
     public HttpVertxClient(String host, int port, int requestBatchSize, int timeOutInMilliseconds, int poolSize,
-                                     boolean autoFlush, int flushInterval, boolean keepAlive, boolean pipeline) {
+                           boolean autoFlush, int flushInterval, boolean keepAlive, boolean pipeline) {
 
         this.flushInterval = flushInterval;
         this.port = port;
@@ -70,15 +123,15 @@ public class HttpVertxClient implements HttpClient {
         this.vertx = VertxFactory.newVertx();
         this.requestBatchSize = requestBatchSize;
         this.poolSize = poolSize;
-        this.keepAlive=keepAlive;
-        this.pipeline=pipeline;
+        this.keepAlive = keepAlive;
+        this.pipeline = pipeline;
         this.autoFlush = autoFlush;
 
     }
 
     @Override
     public void sendHttpRequest(final HttpRequest request) {
-        if(debug) logger.debug("HTTP CLIENT: sendHttpRequest:: \n{}\n", request);
+        if (debug) logger.debug("HTTP CLIENT: sendHttpRequest:: \n{}\n", request);
 
 
         final HttpClientRequest httpClientRequest = httpClient.request(
@@ -87,7 +140,7 @@ public class HttpVertxClient implements HttpClient {
 
         final MultiMap<String, String> headers = request.getHeaders();
 
-        if (headers!=null) {
+        if (headers != null) {
 
             for (String key : headers.keySet()) {
                 httpClientRequest.putHeader(key, headers.getAll(key));
@@ -105,7 +158,7 @@ public class HttpVertxClient implements HttpClient {
 
 
             httpClientRequest.putHeader(HttpHeaders.CONTENT_LENGTH, Integer.toString(body.length));
-            if (request.getContentType()!=null) {
+            if (request.getContentType() != null) {
 
 
                 httpClientRequest.putHeader("Content-Type", request.getContentType());
@@ -120,27 +173,24 @@ public class HttpVertxClient implements HttpClient {
 
     }
 
-
     @Override
     public void periodicFlushCallback(Consumer<Void> periodicFlushCallback) {
         this.periodicFlushCallback = periodicFlushCallback;
     }
-
-
 
     @Override
     public void stop() {
 
         if (executorContext != null) {
             executorContext.stop();
-            executorContext=null;
+            executorContext = null;
         }
 
         try {
             if (httpClient != null) {
                 httpClient.close();
             }
-        }catch (Exception ex) {
+        } catch (Exception ex) {
 
             logger.warn("problem shutting down vertx httpClient for QBIT Http Client", ex);
         }
@@ -171,7 +221,6 @@ public class HttpVertxClient implements HttpClient {
         return this;
     }
 
-
     @Override
     public WebSocket createWebSocket(final String uri) {
 
@@ -185,10 +234,12 @@ public class HttpVertxClient implements HttpClient {
     private WebSocketSender createWebSocketSender(String uri) {
         return new WebSocketSender() {
             volatile org.vertx.java.core.http.WebSocket vertxWebSocket;
+
             @Override
             public void sendText(String message) {
                 vertxWebSocket.writeTextFrame(message);
             }
+
             @Override
             public void openWebSocket(WebSocket webSocket) {
 
@@ -222,7 +273,7 @@ public class HttpVertxClient implements HttpClient {
 
             @Override
             public void open(NetSocket netSocket) {
-                openWebSocket((WebSocket)netSocket);
+                openWebSocket((WebSocket) netSocket);
             }
 
             @Override
@@ -232,12 +283,9 @@ public class HttpVertxClient implements HttpClient {
         };
     }
 
-
     @Override
     public void flush() {
     }
-
-    volatile long responseCount=0;
 
     private void handleResponse(final HttpRequest request, final HttpClientResponse httpClientResponse) {
         final int statusCode = httpClientResponse.statusCode();
@@ -260,7 +308,7 @@ public class HttpVertxClient implements HttpClient {
     }
 
     private void handleResponseFromServer(HttpRequest request, int responseStatusCode, MultiMap<String, String> responseHeaders, String body) {
-        if(debug) {
+        if (debug) {
             logger.debug("HttpClientVertx::handleResponseFromServer:: request = {}, response status code = {}, \n" +
                     "response headers = {}, body = {}", request, responseStatusCode, responseHeaders, body);
         }
@@ -279,7 +327,7 @@ public class HttpVertxClient implements HttpClient {
 
         httpClient.setUsePooledBuffers(true);
 
-        if(debug) logger.debug("HTTP CLIENT: connect:: \nhost {} \nport {}\n", host, port);
+        if (debug) logger.debug("HTTP CLIENT: connect:: \nhost {} \nport {}\n", host, port);
 
         httpClient.exceptionHandler(throwable -> {
 

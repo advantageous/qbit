@@ -28,14 +28,17 @@ public class MyServiceSpring {
         puts("created MyServiceSpring");
     }
 
+    public static void main(String[] args) throws Exception {
+        SpringApplication.run(MyServiceSpring.class, args);
+    }
 
-    @RequestMapping(value = "/services/myservice/ping" , produces = "application/json")
+    @RequestMapping(value = "/services/myservice/ping", produces = "application/json")
     @ResponseBody
     List ping() {
         return Collections.singletonList("Hello World!");
     }
 
-    @RequestMapping(value = "/services/myservice/addkey/" , produces = "application/json")
+    @RequestMapping(value = "/services/myservice/addkey/", produces = "application/json")
     @ResponseBody
     synchronized public double addKey(@RequestParam("key") int key, @RequestParam("value") String value) {
 
@@ -49,8 +52,5 @@ public class MyServiceSpring {
 
     private synchronized void write() {
         actualService.write();
-    }
-    public static void main(String[] args) throws Exception {
-        SpringApplication.run(MyServiceSpring.class, args);
     }
 }

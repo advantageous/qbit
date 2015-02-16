@@ -1,13 +1,68 @@
+/*******************************************************************************
+
+  * Copyright (c) 2015. Rick Hightower, Geoff Chandler
+  *
+  * Licensed under the Apache License, Version 2.0 (the "License");
+  * you may not use this file except in compliance with the License.
+  * You may obtain a copy of the License at
+  *
+  *  		http://www.apache.org/licenses/LICENSE-2.0
+  *
+  * Unless required by applicable law or agreed to in writing, software
+  * distributed under the License is distributed on an "AS IS" BASIS,
+  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  * See the License for the specific language governing permissions and
+  * limitations under the License.
+  *  ________ __________.______________
+  *  \_____  \\______   \   \__    ___/
+  *   /  / \  \|    |  _/   | |    |  ______
+  *  /   \_/.  \    |   \   | |    | /_____/
+  *  \_____\ \_/______  /___| |____|
+  *         \__>      \/
+  *  ___________.__                  ____.                        _____  .__                                             .__
+  *  \__    ___/|  |__   ____       |    |____ ___  _______      /     \ |__| ___________  ____  ______ ______________  _|__| ____  ____
+  *    |    |   |  |  \_/ __ \      |    \__  \\  \/ /\__  \    /  \ /  \|  |/ ___\_  __ \/  _ \/  ___// __ \_  __ \  \/ /  |/ ___\/ __ \
+  *    |    |   |   Y  \  ___/  /\__|    |/ __ \\   /  / __ \_ /    Y    \  \  \___|  | \(  <_> )___ \\  ___/|  | \/\   /|  \  \__\  ___/
+  *    |____|   |___|  /\___  > \________(____  /\_/  (____  / \____|__  /__|\___  >__|   \____/____  >\___  >__|    \_/ |__|\___  >___  >
+  *                  \/     \/                \/           \/          \/        \/                 \/     \/                    \/    \/
+  *  .____    ._____.
+  *  |    |   |__\_ |__
+  *  |    |   |  || __ \
+  *  |    |___|  || \_\ \
+  *  |_______ \__||___  /
+  *          \/       \/
+  *       ____. _________________    _______         __      __      ___.     _________              __           __      _____________________ ____________________
+  *      |    |/   _____/\_____  \   \      \       /  \    /  \ ____\_ |__  /   _____/ ____   ____ |  | __ _____/  |_    \______   \_   _____//   _____/\__    ___/
+  *      |    |\_____  \  /   |   \  /   |   \      \   \/\/   // __ \| __ \ \_____  \ /  _ \_/ ___\|  |/ // __ \   __\    |       _/|    __)_ \_____  \   |    |
+  *  /\__|    |/        \/    |    \/    |    \      \        /\  ___/| \_\ \/        (  <_> )  \___|    <\  ___/|  |      |    |   \|        \/        \  |    |
+  *  \________/_______  /\_______  /\____|__  / /\    \__/\  /  \___  >___  /_______  /\____/ \___  >__|_ \\___  >__| /\   |____|_  /_______  /_______  /  |____|
+  *                   \/         \/         \/  )/         \/       \/    \/        \/            \/     \/    \/     )/          \/        \/        \/
+  *  __________           __  .__              __      __      ___.
+  *  \______   \ ____   _/  |_|  |__   ____   /  \    /  \ ____\_ |__                                                                                               
+  *  |    |  _// __ \  \   __\  |  \_/ __ \  \   \/\/   // __ \| __ \
+  *   |    |   \  ___/   |  | |   Y  \  ___/   \        /\  ___/| \_\ \
+  *   |______  /\___  >  |__| |___|  /\___  >   \__/\  /  \___  >___  /
+  *          \/     \/             \/     \/         \/       \/    \/
+  *
+  * QBit - The Microservice lib for Java : JSON, WebSocket, REST. Be The Web!
+  *  http://rick-hightower.blogspot.com/2014/12/rise-of-machines-writing-high-speed.html
+  *  http://rick-hightower.blogspot.com/2014/12/quick-guide-to-programming-services-in.html
+  *  http://rick-hightower.blogspot.com/2015/01/quick-start-qbit-programming.html
+  *  http://rick-hightower.blogspot.com/2015/01/high-speed-soa.html
+  *  http://rick-hightower.blogspot.com/2015/02/qbit-event-bus.html
+
+ ******************************************************************************/
+
 package io.advantageous.qbit.vertx.http.server;
 
 
 import io.advantageous.qbit.GlobalConstants;
 import io.advantageous.qbit.http.config.HttpServerOptions;
 import io.advantageous.qbit.http.request.HttpRequest;
-import io.advantageous.qbit.http.server.impl.SimpleHttpServer;
 import io.advantageous.qbit.http.server.HttpServer;
-import io.advantageous.qbit.http.websocket.WebSocket;
+import io.advantageous.qbit.http.server.impl.SimpleHttpServer;
 import io.advantageous.qbit.http.server.websocket.WebSocketMessage;
+import io.advantageous.qbit.http.websocket.WebSocket;
 import io.advantageous.qbit.system.QBitSystemManager;
 import io.advantageous.qbit.util.Timer;
 import org.boon.Str;
@@ -20,6 +75,7 @@ import org.vertx.java.core.VertxFactory;
 import org.vertx.java.core.buffer.Buffer;
 import org.vertx.java.core.http.HttpServerRequest;
 import org.vertx.java.core.http.ServerWebSocket;
+
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
@@ -39,9 +95,13 @@ public class HttpServerVertx implements HttpServer {
     private final VertxServerUtils vertxUtils = new VertxServerUtils();
     private org.vertx.java.core.http.HttpServer httpServer;
 
-    /** For Metrics. */
+    /**
+     * For Metrics.
+     */
     private volatile int exceptionCount;
-    /** For Metrics. */
+    /**
+     * For Metrics.
+     */
     private volatile int closeCount;
 
 
@@ -63,7 +123,6 @@ public class HttpServerVertx implements HttpServer {
 
         this(VertxFactory.newVertx(), options, systemManager);
     }
-
 
 
     @Override
@@ -116,38 +175,38 @@ public class HttpServerVertx implements HttpServer {
     @Override
     public void start() {
 
-            simpleHttpServer.start();
+        simpleHttpServer.start();
 
-            if (debug) {
-                vertx.setPeriodic(10_000, new Handler<Long>() {
-                    @Override
-                    public void handle(Long event) {
+        if (debug) {
+            vertx.setPeriodic(10_000, new Handler<Long>() {
+                @Override
+                public void handle(Long event) {
 
-                        logger.info("Exceptions", exceptionCount, "Close Count", closeCount);
-                    }
-                });
-            }
-            httpServer = vertx.createHttpServer();
+                    logger.info("Exceptions", exceptionCount, "Close Count", closeCount);
+                }
+            });
+        }
+        httpServer = vertx.createHttpServer();
 
-            httpServer.setTCPNoDelay(true);//TODO this needs to be in builder
-            httpServer.setSoLinger(0); //TODO this needs to be in builder
-            httpServer.setUsePooledBuffers(true); //TODO this needs to be in builder
-            httpServer.setReuseAddress(true); //TODO this needs to be in builder
-            httpServer.setAcceptBacklog(1_000_000); //TODO this needs to be in builder
-            httpServer.setTCPKeepAlive(true); //TODO this needs to be in builder
-            httpServer.setCompressionSupported(false);//TODO this needs to be in builder
-            httpServer.setMaxWebSocketFrameSize(100_000_000);
-            httpServer.websocketHandler(this::handleWebSocketMessage);
-            httpServer.requestHandler(this::handleHttpRequest);
+        httpServer.setTCPNoDelay(true);//TODO this needs to be in builder
+        httpServer.setSoLinger(0); //TODO this needs to be in builder
+        httpServer.setUsePooledBuffers(true); //TODO this needs to be in builder
+        httpServer.setReuseAddress(true); //TODO this needs to be in builder
+        httpServer.setAcceptBacklog(1_000_000); //TODO this needs to be in builder
+        httpServer.setTCPKeepAlive(true); //TODO this needs to be in builder
+        httpServer.setCompressionSupported(false);//TODO this needs to be in builder
+        httpServer.setMaxWebSocketFrameSize(100_000_000);
+        httpServer.websocketHandler(this::handleWebSocketMessage);
+        httpServer.requestHandler(this::handleHttpRequest);
 
 
-            if (Str.isEmpty(host)) {
-                httpServer.listen(port);
-            } else {
-                httpServer.listen(port, host);
-            }
+        if (Str.isEmpty(host)) {
+            httpServer.listen(port);
+        } else {
+            httpServer.listen(port, host);
+        }
 
-            logger.info("HTTP SERVER started on port " + port + " host " + host);
+        logger.info("HTTP SERVER started on port " + port + " host " + host);
 
     }
 
@@ -156,7 +215,7 @@ public class HttpServerVertx implements HttpServer {
     public void stop() {
         simpleHttpServer.stop();
         try {
-            if (httpServer!=null) {
+            if (httpServer != null) {
 
                 httpServer.close();
             }
@@ -164,13 +223,12 @@ public class HttpServerVertx implements HttpServer {
 
             logger.info("HTTP SERVER unable to close " + port + " host " + host);
         }
-        if (systemManager!=null)systemManager.serviceShutDown();
+        if (systemManager != null) systemManager.serviceShutDown();
 
     }
 
 
     private void handleHttpRequest(final HttpServerRequest request) {
-
 
 
         if (debug) {
@@ -185,7 +243,7 @@ public class HttpServerVertx implements HttpServer {
                 request.bodyHandler((Buffer buffer) -> {
                     final HttpRequest postRequest = vertxUtils.createRequest(request, buffer);
 
-                        simpleHttpServer.handleRequest(postRequest);
+                    simpleHttpServer.handleRequest(postRequest);
 
                 });
                 break;
@@ -237,13 +295,10 @@ public class HttpServerVertx implements HttpServer {
     }
 
 
-
     @Override
     public void setWebSocketOnOpenConsumer(Consumer<WebSocket> onOpenConsumer) {
         this.simpleHttpServer.setWebSocketOnOpenConsumer(onOpenConsumer);
     }
-
-
 
 
 }

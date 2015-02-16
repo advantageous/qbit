@@ -24,7 +24,6 @@ public class TodoService {
     }
 
 
-
     @RequestMapping("/todo/")
     public List<TodoItem> list() {
         return items;

@@ -5,7 +5,6 @@ import io.advantageous.qbit.annotation.RequestMapping;
 import io.advantageous.qbit.annotation.RequestParam;
 import io.advantageous.qbit.queue.QueueBuilder;
 import io.advantageous.qbit.server.ServiceServer;
-import io.advantageous.qbit.server.ServiceServerBuilder;
 import org.boon.core.Sys;
 
 import java.util.Collections;
@@ -21,39 +20,10 @@ import static io.advantageous.qbit.server.ServiceServerBuilder.serviceServerBuil
 public class MyServiceQBit {
 
 
-
     ActualService actualService = new ActualService();
     int count = 0;
 
-    @RequestMapping("/ping")
-    public List ping() {
-        return Collections.singletonList("Hello World!");
-    }
-
-    @RequestMapping("/addkey/" )
-    public double addKey(@RequestParam("key") int key, @RequestParam("value") String value) {
-
-        count++;
-        return actualService.addKey(key, value);
-    }
-
-    void queueLimit() {
-        if (count > 5) {
-            count = 0;
-            actualService.write();
-        }
-    }
-
-    void queueEmpty() {
-
-        if (count > 5) {
-            count = 0;
-            actualService.write();
-        }
-    }
-
     public static void main(String... args) throws Exception {
-
 
 
         //86K TPS QBit
@@ -119,7 +89,6 @@ public class MyServiceQBit {
 //                        .setBatchSize(1_000).setLinkTransferQueue().setCheckEvery(1).setTryTransfer(true))
 //                .setPort(6060).setFlushInterval(10)
 //                .build();
-
 
 
 //        //After REFACTOR 82K NO DIF
@@ -228,8 +197,8 @@ Running 10s test @ http://localhost:6060
 //                .setPort(6060).setFlushInterval(10).setRequestBatchSize(100)
 //                .build();
 
-                //50089.54
-                //30360.42
+        //50089.54
+        //30360.42
 
 //        final ServiceServer serviceServer = serviceServerBuilder()
 //                //2,500,000 454,065
@@ -329,10 +298,35 @@ end
         serviceServer.start();
 
 
-
         while (true) Sys.sleep(100_000_000);
     }
 
+    @RequestMapping("/ping")
+    public List ping() {
+        return Collections.singletonList("Hello World!");
+    }
+
+    @RequestMapping("/addkey/")
+    public double addKey(@RequestParam("key") int key, @RequestParam("value") String value) {
+
+        count++;
+        return actualService.addKey(key, value);
+    }
+
+    void queueLimit() {
+        if (count > 5) {
+            count = 0;
+            actualService.write();
+        }
+    }
+
+    void queueEmpty() {
+
+        if (count > 5) {
+            count = 0;
+            actualService.write();
+        }
+    }
 
 
 }

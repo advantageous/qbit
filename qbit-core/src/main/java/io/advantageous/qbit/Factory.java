@@ -1,12 +1,66 @@
+/*******************************************************************************
+
+  * Copyright (c) 2015. Rick Hightower, Geoff Chandler
+  *
+  * Licensed under the Apache License, Version 2.0 (the "License");
+  * you may not use this file except in compliance with the License.
+  * You may obtain a copy of the License at
+  *
+  *  		http://www.apache.org/licenses/LICENSE-2.0
+  *
+  * Unless required by applicable law or agreed to in writing, software
+  * distributed under the License is distributed on an "AS IS" BASIS,
+  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  * See the License for the specific language governing permissions and
+  * limitations under the License.
+  *  ________ __________.______________
+  *  \_____  \\______   \   \__    ___/
+  *   /  / \  \|    |  _/   | |    |  ______
+  *  /   \_/.  \    |   \   | |    | /_____/
+  *  \_____\ \_/______  /___| |____|
+  *         \__>      \/
+  *  ___________.__                  ____.                        _____  .__                                             .__
+  *  \__    ___/|  |__   ____       |    |____ ___  _______      /     \ |__| ___________  ____  ______ ______________  _|__| ____  ____
+  *    |    |   |  |  \_/ __ \      |    \__  \\  \/ /\__  \    /  \ /  \|  |/ ___\_  __ \/  _ \/  ___// __ \_  __ \  \/ /  |/ ___\/ __ \
+  *    |    |   |   Y  \  ___/  /\__|    |/ __ \\   /  / __ \_ /    Y    \  \  \___|  | \(  <_> )___ \\  ___/|  | \/\   /|  \  \__\  ___/
+  *    |____|   |___|  /\___  > \________(____  /\_/  (____  / \____|__  /__|\___  >__|   \____/____  >\___  >__|    \_/ |__|\___  >___  >
+  *                  \/     \/                \/           \/          \/        \/                 \/     \/                    \/    \/
+  *  .____    ._____.
+  *  |    |   |__\_ |__
+  *  |    |   |  || __ \
+  *  |    |___|  || \_\ \
+  *  |_______ \__||___  /
+  *          \/       \/
+  *       ____. _________________    _______         __      __      ___.     _________              __           __      _____________________ ____________________
+  *      |    |/   _____/\_____  \   \      \       /  \    /  \ ____\_ |__  /   _____/ ____   ____ |  | __ _____/  |_    \______   \_   _____//   _____/\__    ___/
+  *      |    |\_____  \  /   |   \  /   |   \      \   \/\/   // __ \| __ \ \_____  \ /  _ \_/ ___\|  |/ // __ \   __\    |       _/|    __)_ \_____  \   |    |
+  *  /\__|    |/        \/    |    \/    |    \      \        /\  ___/| \_\ \/        (  <_> )  \___|    <\  ___/|  |      |    |   \|        \/        \  |    |
+  *  \________/_______  /\_______  /\____|__  / /\    \__/\  /  \___  >___  /_______  /\____/ \___  >__|_ \\___  >__| /\   |____|_  /_______  /_______  /  |____|
+  *                   \/         \/         \/  )/         \/       \/    \/        \/            \/     \/    \/     )/          \/        \/        \/
+  *  __________           __  .__              __      __      ___.
+  *  \______   \ ____   _/  |_|  |__   ____   /  \    /  \ ____\_ |__
+  *  |    |  _// __ \  \   __\  |  \_/ __ \  \   \/\/   // __ \| __ \
+  *   |    |   \  ___/   |  | |   Y  \  ___/   \        /\  ___/| \_\ \
+  *   |______  /\___  >  |__| |___|  /\___  >   \__/\  /  \___  >___  /
+  *          \/     \/             \/     \/         \/       \/    \/
+  *
+  * QBit - The Microservice lib for Java : JSON, WebSocket, REST. Be The Web!
+  *  http://rick-hightower.blogspot.com/2014/12/rise-of-machines-writing-high-speed.html
+  *  http://rick-hightower.blogspot.com/2014/12/quick-guide-to-programming-services-in.html
+  *  http://rick-hightower.blogspot.com/2015/01/quick-start-qbit-programming.html
+  *  http://rick-hightower.blogspot.com/2015/01/high-speed-soa.html
+  *  http://rick-hightower.blogspot.com/2015/02/qbit-event-bus.html
+
+ ******************************************************************************/
+
 package io.advantageous.qbit;
 
 import io.advantageous.qbit.client.Client;
 import io.advantageous.qbit.events.EventBusProxyCreator;
 import io.advantageous.qbit.events.EventManager;
 import io.advantageous.qbit.http.client.HttpClient;
-import io.advantageous.qbit.http.server.HttpServer;
-
 import io.advantageous.qbit.http.config.HttpServerOptions;
+import io.advantageous.qbit.http.server.HttpServer;
 import io.advantageous.qbit.json.JsonMapper;
 import io.advantageous.qbit.message.MethodCall;
 import io.advantageous.qbit.message.Request;
@@ -30,51 +84,55 @@ import java.util.List;
 
 /**
  * Main factory for QBit. This gets used internally to createWithWorkers / parse methods.
+ *
  * @author rhightower
  */
 public interface Factory {
 
     /**
      * Create a method call based on a body that we are parsing from  a POST body or WebSocket message for example.
-     * @param address address of method (this can override what is in the body)
+     *
+     * @param address       address of method (this can override what is in the body)
      * @param returnAddress return address, which is a moniker for where we want to return the results
-     * @param objectName name of the object (optional)
-     * @param methodName name of the method (optional)
-     * @param args arguments and possibly more (could be whole message encoded)
-     * @param params params, usually request parameters
+     * @param objectName    name of the object (optional)
+     * @param methodName    name of the method (optional)
+     * @param args          arguments and possibly more (could be whole message encoded)
+     * @param params        params, usually request parameters
      * @return new method call object returned.
      */
     default MethodCall<Object> createMethodCallToBeParsedFromBody(String address,
-                                                          String returnAddress,
-                                                          String objectName,
-                                                          String methodName,
-                                                          Object args,
-                                                          MultiMap<String, String> params) {
-       throw new UnsupportedOperationException();
-    }
-
-    /**
-     * Create a method call based on a body that we are parsing from  a POST body or WebSocket message for example.
-     * @param address address of method (this can override what is in the body)
-     * @param returnAddress return address, which is a moniker for where we want to return the results
-     * @param args arguments and possibly more (could be whole message encoded)
-     * @param params params, usually request parameters
-     * @return new method call object returned.
-     */
-    default MethodCall<Object> createMethodCallByAddress(String address,
-                                                 String returnAddress,
-                                                 Object args,
-                                                 MultiMap<String, String> params) {
+                                                                  String returnAddress,
+                                                                  String objectName,
+                                                                  String methodName,
+                                                                  Object args,
+                                                                  MultiMap<String, String> params) {
         throw new UnsupportedOperationException();
     }
 
     /**
      * Create a method call based on a body that we are parsing from  a POST body or WebSocket message for example.
-     * @param objectName name of the object (optional)
-     * @param methodName name of the method (optional)
+     *
+     * @param address       address of method (this can override what is in the body)
      * @param returnAddress return address, which is a moniker for where we want to return the results
-     * @param args arguments and possibly more (could be whole message encoded)
-     * @param params params, usually request parameters
+     * @param args          arguments and possibly more (could be whole message encoded)
+     * @param params        params, usually request parameters
+     * @return new method call object returned.
+     */
+    default MethodCall<Object> createMethodCallByAddress(String address,
+                                                         String returnAddress,
+                                                         Object args,
+                                                         MultiMap<String, String> params) {
+        throw new UnsupportedOperationException();
+    }
+
+    /**
+     * Create a method call based on a body that we are parsing from  a POST body or WebSocket message for example.
+     *
+     * @param objectName    name of the object (optional)
+     * @param methodName    name of the method (optional)
+     * @param returnAddress return address, which is a moniker for where we want to return the results
+     * @param args          arguments and possibly more (could be whole message encoded)
+     * @param params        params, usually request parameters
      * @return new method call object returned.
      */
     default MethodCall<Object> createMethodCallByNames(
@@ -94,8 +152,8 @@ public interface Factory {
 
     /**
      * Create a service bundle.
-     * @param address service path to bundle (base URI really)
      *
+     * @param address    service path to bundle (base URI really)
      * @param asyncCalls service calls
      * @return new client bundle
      */
@@ -105,7 +163,7 @@ public interface Factory {
                                               final BeforeMethodCall beforeMethodCallAfterTransform,
                                               final Transformer<Request, Object> argTransformer,
                                               boolean invokeDynamic,
-                                              final QBitSystemManager systemManager){
+                                              final QBitSystemManager systemManager) {
         throw new UnsupportedOperationException();
     }
 
@@ -116,118 +174,118 @@ public interface Factory {
 
     /**
      * Create a client
-     * @param rootAddress base URI
+     *
+     * @param rootAddress    base URI
      * @param serviceAddress client address URI
-     * @param object object that implements the client
-     * @param responseQueue the response queue.
+     * @param object         object that implements the client
+     * @param responseQueue  the response queue.
      * @return new Service that was created
-     *
-     *
-     *
      */
     default Service createService(String rootAddress, String serviceAddress,
                                   Object object,
                                   Queue<Response<Object>> responseQueue,
-                                  final  QueueBuilder queueBuilder,
+                                  final QueueBuilder queueBuilder,
                                   boolean asyncCalls,
                                   boolean invokeDynamic,
                                   boolean handleCallbacks,
-                                  final QBitSystemManager systemManager){
+                                  final QBitSystemManager systemManager) {
         throw new UnsupportedOperationException();
     }
 
 
     /**
      * Create a client
-     * @param rootAddress base URI
+     *
+     * @param rootAddress    base URI
      * @param serviceAddress client address URI
-     * @param object object that implements the client
-     * @param responseQueue the response queue.
+     * @param object         object that implements the client
+     * @param responseQueue  the response queue.
      * @return new Service that was created
-     *
-     *
-     *
      */
     default Service createService(String rootAddress, String serviceAddress,
                                   Object object,
                                   Queue<Response<Object>> responseQueue,
-                                  final QBitSystemManager systemManager)
-    {
+                                  final QBitSystemManager systemManager) {
         throw new UnsupportedOperationException();
     }
 
     /**
      * Create an encoder.
+     *
      * @return encoder.
      */
-    default ProtocolEncoder createEncoder(){
+    default ProtocolEncoder createEncoder() {
         throw new UnsupportedOperationException();
     }
 
     /**
      * Creates a method call to be encoded and sent. This is usually called by a client (local or remote proxy).
-     * @param id id of method call
-     * @param address address of method
+     *
+     * @param id            id of method call
+     * @param address       address of method
      * @param returnAddress return address, which is a moniker for where we want to return the results
-     * @param objectName name of the object (optional)
-     * @param methodName name of the method (optional)
-     * @param timestamp when we sent this message
-     * @param body arguments (could be a list or an array)
-     * @param params additional parameters associated with this method call.
+     * @param objectName    name of the object (optional)
+     * @param methodName    name of the method (optional)
+     * @param timestamp     when we sent this message
+     * @param body          arguments (could be a list or an array)
+     * @param params        additional parameters associated with this method call.
      * @return method call that we are sending
      */
     default MethodCall<Object> createMethodCallToBeEncodedAndSent(long id, String address,
-                                                          String returnAddress,
-                                                          String objectName,
-                                                          String methodName,
-                                                          long timestamp,
-                                                          Object body,
-                                                          MultiMap<String, String> params){
+                                                                  String returnAddress,
+                                                                  String objectName,
+                                                                  String methodName,
+                                                                  long timestamp,
+                                                                  Object body,
+                                                                  MultiMap<String, String> params) {
         throw new UnsupportedOperationException();
     }
 
 
     /**
      * Create a local client proxy
+     *
      * @param serviceInterface client interface to client
-     * @param serviceName name of the client that we are proxying method calls to.
-     * @param serviceBundle name of client bundle
-     * @param <T> type of proxy
+     * @param serviceName      name of the client that we are proxying method calls to.
+     * @param serviceBundle    name of client bundle
+     * @param <T>              type of proxy
      * @return new proxy object
      */
-    default <T> T createLocalProxy(Class<T> serviceInterface, String serviceName, ServiceBundle serviceBundle){
+    default <T> T createLocalProxy(Class<T> serviceInterface, String serviceName, ServiceBundle serviceBundle) {
         throw new UnsupportedOperationException();
     }
 
     /**
      * Create a remote proxy using a sender that knows how to send method body over wire
+     *
      * @param serviceInterface client view of client
-     * @param uri uri of client
-     * @param serviceName name of the client that we are proxying method calls to.
+     * @param uri              uri of client
+     * @param serviceName      name of the client that we are proxying method calls to.
      * @param returnAddressArg return address
-     * @param sender how we are sending the message over the wire
+     * @param sender           how we are sending the message over the wire
      * @param beforeMethodCall before method call
-     * @param <T> type of client
+     * @param <T>              type of client
      * @return remote proxy
      */
     default <T> T createRemoteProxyWithReturnAddress(Class<T> serviceInterface, String uri, String serviceName, String returnAddressArg,
-                                             Sender<String> sender,
-                                             BeforeMethodCall beforeMethodCall,
-                                             int requestBatchSize){
+                                                     Sender<String> sender,
+                                                     BeforeMethodCall beforeMethodCall,
+                                                     int requestBatchSize) {
         throw new UnsupportedOperationException();
     }
 
     /**
      * Parses a method call using an address prefix and a body.
      * Useful for Websocket calls and POST calls (if you don't care about request params).
-     * @param addressPrefix prefix of the address
-     * @param message message that we are sending
+     *
+     * @param addressPrefix      prefix of the address
+     * @param message            message that we are sending
      * @param originatingRequest the request that caused this method to be created
      * @return method call that we just created
      */
     default MethodCall<Object> createMethodCallToBeParsedFromBody(String addressPrefix,
                                                                   Object message,
-                                                                  Request<Object> originatingRequest){
+                                                                  Request<Object> originatingRequest) {
         throw new UnsupportedOperationException();
     }
 
@@ -235,46 +293,46 @@ public interface Factory {
     default List<MethodCall<Object>> createMethodCallListToBeParsedFromBody(
             String addressPrefix,
             Object body,
-            Request<Object> originatingRequest){
+            Request<Object> originatingRequest) {
         throw new UnsupportedOperationException();
     }
 
     /**
      * Request request
+     *
      * @param request incoming request that we want to createWithWorkers a MethodCall from.
-     * @param args args
+     * @param args    args
      * @return request
      */
     default MethodCall<Object> createMethodCallFromHttpRequest(
-            Request<Object> request, Object args){
+            Request<Object> request, Object args) {
         throw new UnsupportedOperationException();
     }
 
 
     /**
      * Creates a JSON Mapper.
+     *
      * @return json mapper
      */
-    default JsonMapper createJsonMapper(){
+    default JsonMapper createJsonMapper() {
         throw new UnsupportedOperationException();
     }
-
 
 
     default HttpClient createHttpClient(
-                String host,
-                int port,
-                int requestBatchSize,
-                int timeOutInMilliseconds,
-                int poolSize,
-                boolean autoFlush, int flushRate,
-                boolean keepAlive,
-                boolean pipeline
+            String host,
+            int port,
+            int requestBatchSize,
+            int timeOutInMilliseconds,
+            int poolSize,
+            boolean autoFlush, int flushRate,
+            boolean keepAlive,
+            boolean pipeline
 
-    ){
+    ) {
         throw new UnsupportedOperationException();
     }
-
 
 
     default EventManager systemEventManager() {
@@ -287,28 +345,26 @@ public interface Factory {
     }
 
     default ServiceServer createServiceServer(final HttpServer httpServer,
-                                      final ProtocolEncoder encoder,
-                                      final ProtocolParser protocolParser,
-                                      final ServiceBundle serviceBundle,
-                                      final JsonMapper jsonMapper,
-                                      final int timeOutInSeconds,
-                                      final int numberOfOutstandingRequests,
-                                      final int batchSize,
-                                      final int flushInterval,
-                                      final QBitSystemManager systemManager
-                                      ){
+                                              final ProtocolEncoder encoder,
+                                              final ProtocolParser protocolParser,
+                                              final ServiceBundle serviceBundle,
+                                              final JsonMapper jsonMapper,
+                                              final int timeOutInSeconds,
+                                              final int numberOfOutstandingRequests,
+                                              final int batchSize,
+                                              final int flushInterval,
+                                              final QBitSystemManager systemManager
+    ) {
         throw new UnsupportedOperationException();
     }
 
 
-
-
-    default Client createClient(String uri, HttpClient httpClient, int requestBatchSize){
+    default Client createClient(String uri, HttpClient httpClient, int requestBatchSize) {
         throw new UnsupportedOperationException();
     }
 
 
-    default ProtocolParser createProtocolParser(){
+    default ProtocolParser createProtocolParser() {
         throw new UnsupportedOperationException();
     }
 
@@ -327,13 +383,14 @@ public interface Factory {
     }
 
 
-    default void shutdownSystemEventBus() {}
+    default void shutdownSystemEventBus() {
+    }
 
     default HttpServer createHttpServer(HttpServerOptions options,
-                                QueueBuilder requestQueueBuilder,
-                                QueueBuilder responseQueueBuilder,
-                                QueueBuilder webSocketMessageQueueBuilder,
-                                QBitSystemManager systemManager) {
+                                        QueueBuilder requestQueueBuilder,
+                                        QueueBuilder responseQueueBuilder,
+                                        QueueBuilder webSocketMessageQueueBuilder,
+                                        QBitSystemManager systemManager) {
         throw new UnsupportedOperationException();
     }
 }

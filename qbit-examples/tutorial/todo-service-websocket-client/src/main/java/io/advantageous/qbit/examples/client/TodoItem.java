@@ -27,21 +27,20 @@ public class TodoItem {
         return description;
     }
 
-    public String getName() {
-        return name;
-    }
-
-    public Date getDue() {
-        return due;
-    }
-
-
     public void setDescription(String description) {
         this.description = description;
     }
 
+    public String getName() {
+        return name;
+    }
+
     public void setName(String name) {
         this.name = name;
+    }
+
+    public Date getDue() {
+        return due;
     }
 
     public void setDue(Date due) {

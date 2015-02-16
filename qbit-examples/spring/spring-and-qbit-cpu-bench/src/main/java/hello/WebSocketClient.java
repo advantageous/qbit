@@ -15,14 +15,7 @@ import static org.boon.Boon.puts;
  */
 public class WebSocketClient {
 
-    interface  SimpleServiceProxy {
-
-        public void addKey(Callback<Double> doubleReturn, int key, String value);
-
-
-    }
-
-    static volatile int count=0;
+    static volatile int count = 0;
 
     public static void main(String... args) {
 
@@ -33,8 +26,7 @@ public class WebSocketClient {
         List<Thread> threads = new ArrayList<>();
 
 
-
-        for (int numThreads=0; numThreads < 10; numThreads++) {
+        for (int numThreads = 0; numThreads < 10; numThreads++) {
             final Client client = new ClientBuilder().setPoolSize(10).setPort(port).setHost(host).setRequestBatchSize(10_000)
                     .build();
 
@@ -42,7 +34,6 @@ public class WebSocketClient {
 
 
             Thread thread = new Thread(new Runnable() {
-
 
 
                 final SimpleServiceProxy myService = client.createProxy(SimpleServiceProxy.class, "myServiceQBit");
@@ -79,10 +70,9 @@ public class WebSocketClient {
         }
 
 
-
         double start = System.currentTimeMillis();
         while (count < 10_000_000) {
-            for (int index = 0; index< 10 ; index++) {
+            for (int index = 0; index < 10; index++) {
                 Sys.sleep(100);
 
                 if (count > 10_000_000) {
@@ -91,10 +81,17 @@ public class WebSocketClient {
             }
             double now = System.currentTimeMillis();
             double c = count;
-            puts(count, (c / (now - start)*1000));
+            puts(count, (c / (now - start) * 1000));
         }
 
         puts("Done");
+    }
+
+    interface SimpleServiceProxy {
+
+        public void addKey(Callback<Double> doubleReturn, int key, String value);
+
+
     }
 
 }

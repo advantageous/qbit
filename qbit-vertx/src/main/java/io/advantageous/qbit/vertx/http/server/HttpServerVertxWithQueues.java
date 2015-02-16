@@ -1,11 +1,66 @@
+/*******************************************************************************
+
+  * Copyright (c) 2015. Rick Hightower, Geoff Chandler
+  *
+  * Licensed under the Apache License, Version 2.0 (the "License");
+  * you may not use this file except in compliance with the License.
+  * You may obtain a copy of the License at
+  *
+  *  		http://www.apache.org/licenses/LICENSE-2.0
+  *
+  * Unless required by applicable law or agreed to in writing, software
+  * distributed under the License is distributed on an "AS IS" BASIS,
+  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  * See the License for the specific language governing permissions and
+  * limitations under the License.
+  *  ________ __________.______________
+  *  \_____  \\______   \   \__    ___/
+  *   /  / \  \|    |  _/   | |    |  ______
+  *  /   \_/.  \    |   \   | |    | /_____/
+  *  \_____\ \_/______  /___| |____|
+  *         \__>      \/
+  *  ___________.__                  ____.                        _____  .__                                             .__
+  *  \__    ___/|  |__   ____       |    |____ ___  _______      /     \ |__| ___________  ____  ______ ______________  _|__| ____  ____
+  *    |    |   |  |  \_/ __ \      |    \__  \\  \/ /\__  \    /  \ /  \|  |/ ___\_  __ \/  _ \/  ___// __ \_  __ \  \/ /  |/ ___\/ __ \
+  *    |    |   |   Y  \  ___/  /\__|    |/ __ \\   /  / __ \_ /    Y    \  \  \___|  | \(  <_> )___ \\  ___/|  | \/\   /|  \  \__\  ___/
+  *    |____|   |___|  /\___  > \________(____  /\_/  (____  / \____|__  /__|\___  >__|   \____/____  >\___  >__|    \_/ |__|\___  >___  >
+  *                  \/     \/                \/           \/          \/        \/                 \/     \/                    \/    \/
+  *  .____    ._____.
+  *  |    |   |__\_ |__
+  *  |    |   |  || __ \
+  *  |    |___|  || \_\ \
+  *  |_______ \__||___  /
+  *          \/       \/
+  *       ____. _________________    _______         __      __      ___.     _________              __           __      _____________________ ____________________
+  *      |    |/   _____/\_____  \   \      \       /  \    /  \ ____\_ |__  /   _____/ ____   ____ |  | __ _____/  |_    \______   \_   _____//   _____/\__    ___/
+  *      |    |\_____  \  /   |   \  /   |   \      \   \/\/   // __ \| __ \ \_____  \ /  _ \_/ ___\|  |/ // __ \   __\    |       _/|    __)_ \_____  \   |    |
+  *  /\__|    |/        \/    |    \/    |    \      \        /\  ___/| \_\ \/        (  <_> )  \___|    <\  ___/|  |      |    |   \|        \/        \  |    |
+  *  \________/_______  /\_______  /\____|__  / /\    \__/\  /  \___  >___  /_______  /\____/ \___  >__|_ \\___  >__| /\   |____|_  /_______  /_______  /  |____|
+  *                   \/         \/         \/  )/         \/       \/    \/        \/            \/     \/    \/     )/          \/        \/        \/
+  *  __________           __  .__              __      __      ___.
+  *  \______   \ ____   _/  |_|  |__   ____   /  \    /  \ ____\_ |__                                                                                               
+  *  |    |  _// __ \  \   __\  |  \_/ __ \  \   \/\/   // __ \| __ \
+  *   |    |   \  ___/   |  | |   Y  \  ___/   \        /\  ___/| \_\ \
+  *   |______  /\___  >  |__| |___|  /\___  >   \__/\  /  \___  >___  /
+  *          \/     \/             \/     \/         \/       \/    \/
+  *
+  * QBit - The Microservice lib for Java : JSON, WebSocket, REST. Be The Web!
+  *  http://rick-hightower.blogspot.com/2014/12/rise-of-machines-writing-high-speed.html
+  *  http://rick-hightower.blogspot.com/2014/12/quick-guide-to-programming-services-in.html
+  *  http://rick-hightower.blogspot.com/2015/01/quick-start-qbit-programming.html
+  *  http://rick-hightower.blogspot.com/2015/01/high-speed-soa.html
+  *  http://rick-hightower.blogspot.com/2015/02/qbit-event-bus.html
+
+ ******************************************************************************/
+
 package io.advantageous.qbit.vertx.http.server;
 
 import io.advantageous.qbit.GlobalConstants;
 import io.advantageous.qbit.http.config.HttpServerOptions;
 import io.advantageous.qbit.http.request.HttpRequest;
 import io.advantageous.qbit.http.request.HttpResponseReceiver;
-import io.advantageous.qbit.http.server.impl.SimpleHttpServer;
 import io.advantageous.qbit.http.server.HttpServer;
+import io.advantageous.qbit.http.server.impl.SimpleHttpServer;
 import io.advantageous.qbit.http.server.websocket.WebSocketMessage;
 import io.advantageous.qbit.http.websocket.WebSocketSender;
 import io.advantageous.qbit.queue.Queue;
@@ -54,7 +109,9 @@ public class HttpServerVertxWithQueues implements HttpServer {
     private final QueueBuilder responseQueueBuilder;
     private final QueueBuilder requestQueueBuilder;
     private final QueueBuilder webSocketMessageQueueBuilder;
-
+    volatile int exceptionCount;
+    volatile int closeCount;
+    volatile long id;
     private org.vertx.java.core.http.HttpServer httpServer;
     private Queue<HttpRequest> requests;
     private SendQueue<HttpRequest> httpRequestSendQueue;
@@ -65,7 +122,6 @@ public class HttpServerVertxWithQueues implements HttpServer {
     private ReentrantLock responseLock;
     private ReentrantLock webSocketSendLock;
     private Queue<WebSocketMessage> webSocketMessageInQueue;
-
 
 
     public HttpServerVertxWithQueues(final Vertx vertx,
@@ -84,7 +140,7 @@ public class HttpServerVertxWithQueues implements HttpServer {
         this.pollTime = options.getPollTime();
         this.flushInterval = options.getFlushInterval();
 
-        if (requestQueueBuilder!=null || webSocketMessageQueueBuilder!=null || options.isManageQueues() ) {
+        if (requestQueueBuilder != null || webSocketMessageQueueBuilder != null || options.isManageQueues()) {
             this.manageQueues = true;
 
         } else {
@@ -98,7 +154,7 @@ public class HttpServerVertxWithQueues implements HttpServer {
                 this.requestQueueBuilder = BeanUtils.copy(requestQueueBuilder);
 
             } else {
-                this.requestQueueBuilder =  queueBuilder()
+                this.requestQueueBuilder = queueBuilder()
                         .setName("HttpServerRequests").setPollWait(pollTime).setSize(maxRequestBatches)
                         .setBatchSize(requestBatchSize);
 
@@ -107,7 +163,7 @@ public class HttpServerVertxWithQueues implements HttpServer {
                 this.responseQueueBuilder = BeanUtils.copy(requestQueueBuilder);
 
             } else {
-                this.responseQueueBuilder =  queueBuilder()
+                this.responseQueueBuilder = queueBuilder()
                         .setName("HttpServerResponses").setPollWait(pollTime).setSize(maxRequestBatches)
                         .setBatchSize(requestBatchSize);
 
@@ -128,7 +184,6 @@ public class HttpServerVertxWithQueues implements HttpServer {
         }
     }
 
-
     public HttpServerVertxWithQueues(HttpServerOptions options, QueueBuilder requestQueueBuilder,
                                      final QueueBuilder responseQueueBuilder,
                                      QueueBuilder webSocketMessageQueueBuilder, QBitSystemManager systemManager) {
@@ -136,15 +191,26 @@ public class HttpServerVertxWithQueues implements HttpServer {
                 webSocketMessageQueueBuilder, systemManager);
     }
 
+    private static Buffer createBuffer(Object body) {
+        Buffer buffer = null;
 
+        if (body instanceof byte[]) {
+
+            byte[] bBody = ((byte[]) body);
+            buffer = new Buffer(bBody);
+
+        } else if (body instanceof String) {
+
+            String sBody = ((String) body);
+            buffer = new Buffer(sBody, "UTF-8");
+        }
+        return buffer;
+    }
 
     @Override
     public void setShouldContinueHttpRequest(final Predicate<HttpRequest> shouldContinueHttpRequest) {
         this.simpleHttpServer.setShouldContinueHttpRequest(shouldContinueHttpRequest);
     }
-
-
-
 
     @Override
     public void setWebSocketMessageConsumer(final Consumer<WebSocketMessage> webSocketMessageConsumer) {
@@ -165,7 +231,6 @@ public class HttpServerVertxWithQueues implements HttpServer {
     public void setHttpRequestsIdleConsumer(Consumer<Void> idleRequestConsumer) {
         this.simpleHttpServer.setHttpRequestsIdleConsumer(idleRequestConsumer);
     }
-
 
     @Override
     public void setWebSocketIdleConsume(Consumer<Void> idleWebSocketConsumer) {
@@ -227,8 +292,6 @@ public class HttpServerVertxWithQueues implements HttpServer {
         }
 
 
-
-
         httpServer.setTCPNoDelay(true);//TODO this needs to be in builder
         httpServer.setSoLinger(0); //TODO this needs to be in builder
         httpServer.setUsePooledBuffers(true); //TODO this needs to be in builder
@@ -239,12 +302,9 @@ public class HttpServerVertxWithQueues implements HttpServer {
         httpServer.setMaxWebSocketFrameSize(100_000_000);
 
 
-
         httpServer.websocketHandler(this::handleWebSocketMessage);
 
         httpServer.requestHandler(this::handleHttpRequest);
-
-
 
 
         if (Str.isEmpty(host)) {
@@ -257,10 +317,7 @@ public class HttpServerVertxWithQueues implements HttpServer {
         logger.info("HTTP SERVER started on port " + port + " host " + host);
 
 
-
-
     }
-
 
     private void manageQueues() {
 
@@ -278,7 +335,6 @@ public class HttpServerVertxWithQueues implements HttpServer {
             webSocketMessageIncommingSendQueue = webSocketMessageInQueue.sendQueue();
 
 
-
             webSocketMessageInQueue.startListener(new ReceiveQueueListener<WebSocketMessage>() {
                 @Override
                 public void receive(WebSocketMessage webSocketMessage) {
@@ -291,7 +347,6 @@ public class HttpServerVertxWithQueues implements HttpServer {
 
                 }
             });
-
 
 
             responses.startListener(new ReceiveQueueListener<HttpResponseInternal>() {
@@ -321,7 +376,7 @@ public class HttpServerVertxWithQueues implements HttpServer {
     public void stop() {
 
         try {
-            if (httpServer!=null) {
+            if (httpServer != null) {
 
                 httpServer.close();
             }
@@ -332,7 +387,7 @@ public class HttpServerVertxWithQueues implements HttpServer {
 
         manageQueuesStop();
 
-        if (systemManager!=null)systemManager.serviceShutDown();
+        if (systemManager != null) systemManager.serviceShutDown();
 
     }
 
@@ -357,12 +412,9 @@ public class HttpServerVertxWithQueues implements HttpServer {
         }
     }
 
-    volatile int exceptionCount;
-    volatile int closeCount;
-
     private void handleHttpRequest(final HttpServerRequest request) {
 
-        request.exceptionHandler( new Handler<Throwable>() {
+        request.exceptionHandler(new Handler<Throwable>() {
             @Override
             public void handle(Throwable event) {
 
@@ -394,7 +446,6 @@ public class HttpServerVertxWithQueues implements HttpServer {
 //        puts("PATH", request.path());
 //
 //        puts("PATH ABS URI", request.absoluteURI());
-
 
 
         request.endHandler(new Handler<Void>() {
@@ -469,7 +520,6 @@ public class HttpServerVertxWithQueues implements HttpServer {
         }
     }
 
-
     private void sendWebSocketOnQueue(WebSocketMessage message) {
 
         webSocketSendLock.lock();
@@ -481,8 +531,6 @@ public class HttpServerVertxWithQueues implements HttpServer {
     }
 
     private void handleWebSocketMessage(final ServerWebSocket webSocket) {
-
-
 
 
         webSocket.dataHandler((Buffer buffer) -> {
@@ -500,7 +548,6 @@ public class HttpServerVertxWithQueues implements HttpServer {
                     }
                 }
         );
-
 
 
         webSocket.closeHandler(event -> {
@@ -523,14 +570,14 @@ public class HttpServerVertxWithQueues implements HttpServer {
                     public void sendText(String message) {
                         serverWebSocket.writeTextFrame(message);
                     }
+
                     @Override
                     public void sendBytes(byte[] message) {
                         serverWebSocket.writeBinaryFrame(new Buffer(message));
 
                     }
-                }, buffer != null ? buffer.toString("UTF-8"): "");
+                }, buffer != null ? buffer.toString("UTF-8") : "");
     }
-
 
     private WebSocketMessage createWebSocketMessage(final String address, final String returnAddress, final WebSocketSender webSocketSender, final String message) {
 
@@ -538,7 +585,6 @@ public class HttpServerVertxWithQueues implements HttpServer {
         return new WebSocketMessage(-1L, -1L, address, message, returnAddress, webSocketSender);
     }
 
-    volatile long id;
     private HttpRequest createRequest(final HttpServerRequest request, final Buffer buffer) {
 
         //puts(request.params().size(), request.absoluteURI(), request.params().get("key"), request.params().get("value"));
@@ -552,46 +598,6 @@ public class HttpServerVertxWithQueues implements HttpServer {
         return new HttpRequest(id++, request.path(), request.method(), params, headers, body,
                 request.remoteAddress().toString(),
                 contentType, createResponse(request.response()), Timer.timer().now());
-    }
-
-
-    private static Buffer createBuffer(Object body) {
-        Buffer buffer = null;
-
-        if (body instanceof byte[]) {
-
-            byte[] bBody = ((byte[]) body);
-            buffer = new Buffer(bBody);
-
-        } else if (body instanceof String) {
-
-            String sBody = ((String) body);
-            buffer = new Buffer(sBody, "UTF-8");
-        }
-        return buffer;
-    }
-
-    private static class HttpResponseInternal {
-        final HttpServerResponse response;
-        final int code;
-        final String mimeType;
-        final Object body;
-
-        private HttpResponseInternal(HttpServerResponse response, int code, String mimeType, Object body) {
-            this.response = response;
-            this.code = code;
-            this.mimeType = mimeType;
-            this.body = body;
-        }
-
-        public void send() {
-            response.setStatusCode(code).putHeader("Content-Type", mimeType);
-            Buffer buffer = createBuffer(body);
-            response.putHeader("Content-Length", Integer.toString(buffer.length()));
-            //response.putHeader("Keep-Alive", "timeout=30");
-            response.end(buffer);
-        }
-
     }
 
     private HttpResponseReceiver createResponse(final HttpServerResponse response) {
@@ -619,6 +625,29 @@ public class HttpServerVertxWithQueues implements HttpServer {
             }
 
         };
+    }
+
+    private static class HttpResponseInternal {
+        final HttpServerResponse response;
+        final int code;
+        final String mimeType;
+        final Object body;
+
+        private HttpResponseInternal(HttpServerResponse response, int code, String mimeType, Object body) {
+            this.response = response;
+            this.code = code;
+            this.mimeType = mimeType;
+            this.body = body;
+        }
+
+        public void send() {
+            response.setStatusCode(code).putHeader("Content-Type", mimeType);
+            Buffer buffer = createBuffer(body);
+            response.putHeader("Content-Length", Integer.toString(buffer.length()));
+            //response.putHeader("Keep-Alive", "timeout=30");
+            response.end(buffer);
+        }
+
     }
 
 

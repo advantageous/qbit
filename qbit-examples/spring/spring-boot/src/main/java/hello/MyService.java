@@ -16,13 +16,13 @@ import java.util.List;
 @EnableAutoConfiguration
 public class MyService {
 
-    @RequestMapping(value = "/services/myservice/ping" , produces = "application/json")
+    public static void main(String[] args) throws Exception {
+        SpringApplication.run(MyService.class, args);
+    }
+
+    @RequestMapping(value = "/services/myservice/ping", produces = "application/json")
     @ResponseBody
     List home() {
         return Collections.singletonList("Hello World!");
-    }
-
-    public static void main(String[] args) throws Exception {
-        SpringApplication.run(MyService.class, args);
     }
 }
