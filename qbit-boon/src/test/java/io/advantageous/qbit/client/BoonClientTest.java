@@ -1,13 +1,10 @@
 package io.advantageous.qbit.client;
 
-import io.advantageous.qbit.QBit;
 import io.advantageous.qbit.http.client.HttpClient;
 import io.advantageous.qbit.http.request.HttpRequest;
 import io.advantageous.qbit.http.websocket.WebSocket;
 import io.advantageous.qbit.http.websocket.WebSocketBuilder;
-import io.advantageous.qbit.http.websocket.WebSocketMessage;
 import io.advantageous.qbit.http.websocket.WebSocketSender;
-import io.advantageous.qbit.message.MethodCall;
 import io.advantageous.qbit.service.Callback;
 import io.advantageous.qbit.spi.FactorySPI;
 import io.advantageous.qbit.spi.HttpClientFactory;
@@ -17,7 +14,6 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.util.List;
 import java.util.function.Consumer;
 
 import static io.advantageous.qbit.http.websocket.WebSocketBuilder.webSocketBuilder;

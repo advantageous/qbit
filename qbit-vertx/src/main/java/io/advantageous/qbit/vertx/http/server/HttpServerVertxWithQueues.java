@@ -6,7 +6,7 @@ import io.advantageous.qbit.http.request.HttpRequest;
 import io.advantageous.qbit.http.request.HttpResponseReceiver;
 import io.advantageous.qbit.http.server.impl.SimpleHttpServer;
 import io.advantageous.qbit.http.server.HttpServer;
-import io.advantageous.qbit.http.websocket.WebSocketMessage;
+import io.advantageous.qbit.http.server.websocket.WebSocketMessage;
 import io.advantageous.qbit.http.websocket.WebSocketSender;
 import io.advantageous.qbit.queue.Queue;
 import io.advantageous.qbit.queue.QueueBuilder;

@@ -6,8 +6,8 @@ import io.advantageous.qbit.http.request.HttpRequestBuilder;
 import io.advantageous.qbit.http.server.HttpServer;
 import io.advantageous.qbit.http.server.HttpServerBuilder;
 import io.advantageous.qbit.http.websocket.WebSocket;
-import io.advantageous.qbit.http.websocket.WebSocketMessage;
-import io.advantageous.qbit.http.websocket.WebSocketMessageBuilder;
+import io.advantageous.qbit.http.server.websocket.WebSocketMessage;
+import io.advantageous.qbit.http.server.websocket.WebSocketMessageBuilder;
 import org.boon.core.Sys;
 import org.junit.Test;
 
@@ -38,45 +38,6 @@ public class HttpClientVertxTest {
 
     @Test
     public void testWebSocket() {
-
-        connect(9090);
-
-
-        server.setWebSocketMessageConsumer(webSocketMessage -> {
-            if (webSocketMessage.getMessage().equals("What do you want on your cheeseburger?")) {
-                webSocketMessage.getSender().sendText("Bacon");
-                requestReceived = true;
-
-            } else {
-                puts("Websocket message", webSocketMessage.getMessage());
-            }
-        });
-
-
-        final WebSocketMessage webSocketMessage = webSocketMessageBuilder.setUri("/services/cheeseburger")
-                .setMessage("What do you want on your cheeseburger?").setSender(
-                        message -> {
-                            if (message.equals("Bacon")) {
-                                responseReceived = true;
-                            }
-                        }
-                ).build();
-
-        run();
-
-        client.sendWebSocketMessage(webSocketMessage);
-        client.flush();
-
-        Sys.sleep(100);
-
-
-        validate();
-        stop();
-
-    }
-
-    @Test
-    public void testNewWebSocket() {
 
         connect(9090);
 

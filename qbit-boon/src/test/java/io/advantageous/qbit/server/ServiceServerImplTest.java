@@ -8,8 +8,8 @@ import io.advantageous.qbit.http.request.HttpRequest;
 import io.advantageous.qbit.http.request.HttpRequestBuilder;
 import io.advantageous.qbit.http.request.HttpTextResponse;
 import io.advantageous.qbit.http.server.HttpServer;
-import io.advantageous.qbit.http.websocket.WebSocketMessage;
-import io.advantageous.qbit.http.websocket.WebSocketMessageBuilder;
+import io.advantageous.qbit.http.server.websocket.WebSocketMessage;
+import io.advantageous.qbit.http.server.websocket.WebSocketMessageBuilder;
 import io.advantageous.qbit.http.websocket.WebSocketSender;
 import io.advantageous.qbit.json.JsonMapper;
 import io.advantageous.qbit.message.Message;
@@ -251,7 +251,7 @@ public class ServiceServerImplTest {
     public void testWesocketCallThatIsCrap() throws Exception {
 
 
-        httpServer.sendWebSocketMessage(new WebSocketMessageBuilder().setMessage("CRAP")
+        httpServer.sendWebSocketServerMessage(new WebSocketMessageBuilder().setMessage("CRAP")
 
                 .setRemoteAddress("/crap/at/crap").setSender(new MockWebSocketSender()).build());
 
@@ -274,7 +274,7 @@ public class ServiceServerImplTest {
 
         final String message = QBit.factory().createEncoder().encodeAsString(Lists.list(methodCall));
 
-        httpServer.sendWebSocketMessage(new WebSocketMessageBuilder()
+        httpServer.sendWebSocketServerMessage(new WebSocketMessageBuilder()
                 .setRemoteAddress("/foo").setMessage(message).setSender(new MockWebSocketSender()).build());
 
 
@@ -330,7 +330,7 @@ public class ServiceServerImplTest {
 
         final String message = QBit.factory().createEncoder().encodeAsString(Lists.list(methodCall));
 
-        httpServer.sendWebSocketMessage(new WebSocketMessageBuilder().setRemoteAddress("/error").setMessage(message).setSender(new MockWebSocketSender()).build());
+        httpServer.sendWebSocketServerMessage(new WebSocketMessageBuilder().setRemoteAddress("/error").setMessage(message).setSender(new MockWebSocketSender()).build());
 
 
 
@@ -409,7 +409,7 @@ public class ServiceServerImplTest {
         private Consumer<Void> idleConsumerRequest;
         private Consumer<Void> idleConsumerWebSocket;
 
-        public void sendWebSocketMessage(WebSocketMessage ws) {
+        public void sendWebSocketServerMessage(WebSocketMessage ws) {
             webSocketMessageConsumer.accept(ws);
             this.idleConsumerWebSocket.accept(null);
 

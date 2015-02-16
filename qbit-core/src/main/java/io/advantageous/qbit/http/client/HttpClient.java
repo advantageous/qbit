@@ -4,7 +4,7 @@ import io.advantageous.qbit.http.request.HttpRequest;
 import io.advantageous.qbit.http.request.HttpResponse;
 import io.advantageous.qbit.http.request.HttpTextResponse;
 import io.advantageous.qbit.http.websocket.WebSocket;
-import io.advantageous.qbit.http.websocket.WebSocketMessage;
+import io.advantageous.qbit.http.server.websocket.WebSocketMessage;
 import io.advantageous.qbit.util.MultiMap;
 
 import java.util.concurrent.CountDownLatch;
@@ -184,8 +184,6 @@ public interface HttpClient {
         sendHttpRequest(httpRequest);
     }
 
-    @Deprecated
-    default void sendWebSocketMessage(WebSocketMessage webSocketMessage) {}
 
     default WebSocket createWebSocket(String uri) {
         throw new RuntimeException("New way to send messages");

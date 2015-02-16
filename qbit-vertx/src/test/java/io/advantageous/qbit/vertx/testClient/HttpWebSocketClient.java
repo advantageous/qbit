@@ -1,10 +1,11 @@
 package io.advantageous.qbit.vertx.testClient;
 
 import io.advantageous.qbit.http.client.HttpClient;
+import io.advantageous.qbit.http.websocket.WebSocket;
 import org.boon.core.Sys;
 
 import static io.advantageous.qbit.http.client.HttpClientBuilder.httpClientBuilder;
-import static io.advantageous.qbit.http.websocket.WebSocketMessageBuilder.webSocketMessageBuilder;
+import static io.advantageous.qbit.http.server.websocket.WebSocketMessageBuilder.webSocketMessageBuilder;
 import static org.boon.Boon.puts;
 
 /**
@@ -17,11 +18,17 @@ public class HttpWebSocketClient {
 
         httpClient.start();
 
-        httpClient.sendWebSocketMessage(
-                webSocketMessageBuilder().setMessage("Hello").setUri("/hello")
-                        .setSender(message -> puts(message))
-                        .build()
+
+        final WebSocket webSocket = httpClient.createWebSocket("/hello");
+
+        webSocket.setTextMessageConsumer(message ->
+                        puts("\n\n\n", message, "\n\n")
         );
+
+        webSocket.openAndWait();
+
+        webSocket.sendText("Hello");
+
 
         Sys.sleep(100000);
     }

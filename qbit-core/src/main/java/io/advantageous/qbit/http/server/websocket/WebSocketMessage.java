@@ -1,5 +1,6 @@
-package io.advantageous.qbit.http.websocket;
+package io.advantageous.qbit.http.server.websocket;
 
+import io.advantageous.qbit.http.websocket.WebSocketSender;
 import io.advantageous.qbit.message.Request;
 import io.advantageous.qbit.util.MultiMap;
 

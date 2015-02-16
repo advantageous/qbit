@@ -31,9 +31,6 @@ package io.advantageous.qbit.client;
 import io.advantageous.qbit.QBit;
 import io.advantageous.qbit.http.client.HttpClient;
 import io.advantageous.qbit.http.websocket.WebSocket;
-import io.advantageous.qbit.http.websocket.WebSocketMessage;
-import io.advantageous.qbit.http.websocket.WebSocketMessageBuilder;
-import io.advantageous.qbit.http.websocket.WebSocketSender;
 import io.advantageous.qbit.message.Message;
 import io.advantageous.qbit.message.MethodCall;
 import io.advantageous.qbit.message.Response;
@@ -51,7 +48,6 @@ import org.boon.core.reflection.ClassMeta;
 import org.boon.core.reflection.MapObjectConversion;
 import org.boon.core.reflection.MethodAccess;
 import org.boon.primitive.Arry;
-import org.boon.primitive.CharBuf;
 
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
@@ -59,9 +55,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.*;
-import java.util.function.Consumer;
 
-import static io.advantageous.qbit.http.websocket.WebSocketBuilder.webSocketBuilder;
 import static io.advantageous.qbit.service.Protocol.PROTOCOL_ARG_SEPARATOR;
 import static org.boon.Boon.sputs;
 import static org.boon.Exceptions.die;

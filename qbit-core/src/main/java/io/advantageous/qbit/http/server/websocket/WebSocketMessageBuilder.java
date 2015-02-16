@@ -1,4 +1,6 @@
-package io.advantageous.qbit.http.websocket;
+package io.advantageous.qbit.http.server.websocket;
+
+import io.advantageous.qbit.http.websocket.WebSocketSender;
 
 /**
  * Allows one to createWithWorkers a WebSocket message to send.

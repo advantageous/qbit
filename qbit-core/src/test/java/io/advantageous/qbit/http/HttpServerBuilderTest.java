@@ -6,7 +6,7 @@ import io.advantageous.qbit.http.request.HttpRequest;
 import io.advantageous.qbit.http.server.impl.SimpleHttpServer;
 import io.advantageous.qbit.http.server.HttpServer;
 import io.advantageous.qbit.http.server.HttpServerBuilder;
-import io.advantageous.qbit.http.websocket.WebSocketMessage;
+import io.advantageous.qbit.http.server.websocket.WebSocketMessage;
 import io.advantageous.qbit.queue.QueueBuilder;
 import io.advantageous.qbit.spi.FactorySPI;
 import io.advantageous.qbit.system.QBitSystemManager;

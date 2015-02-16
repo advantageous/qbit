@@ -4,8 +4,7 @@ import io.advantageous.qbit.GlobalConstants;
 import io.advantageous.qbit.http.client.HttpClient;
 import io.advantageous.qbit.http.request.HttpRequest;
 import io.advantageous.qbit.http.websocket.WebSocket;
-import io.advantageous.qbit.http.websocket.WebSocketMessage;
-import io.advantageous.qbit.http.websocket.WebSocketSender;
+import io.advantageous.qbit.http.server.websocket.WebSocketMessage;
 import io.advantageous.qbit.util.MultiMap;
 import org.boon.Str;
 import org.eclipse.jetty.client.api.Request;
@@ -22,7 +21,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.net.URI;
-import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.util.Collection;
 import java.util.Iterator;
@@ -40,7 +38,7 @@ import static org.boon.Boon.sputs;
 public class JettyQBitHttpClient implements HttpClient {
 
     private final Logger logger = LoggerFactory.getLogger(JettyQBitHttpClient.class);
-    private final boolean debug = true || GlobalConstants.DEBUG || logger.isDebugEnabled();
+    private final boolean debug = false || GlobalConstants.DEBUG || logger.isDebugEnabled();
     private final org.eclipse.jetty.client.HttpClient httpClient = new
             org.eclipse.jetty.client.HttpClient();
     private final WebSocketClient webSocketClient = new WebSocketClient();
@@ -162,64 +160,7 @@ public class JettyQBitHttpClient implements HttpClient {
 
     private Map<String, WebSocket> webSocketMap = new ConcurrentHashMap<>();
 
-    @Override
-    public void sendWebSocketMessage(final WebSocketMessage webSocketMessage) {
 
-        /** This is a bad design... the goal is to refactor and get rid of WebSocketMessage.*/
-        WebSocket existingWebSocket = webSocketMap.remove(webSocketMessage.getUri());
-
-        if (existingWebSocket!=null && existingWebSocket.isOpen()) {
-            try {
-                existingWebSocket.setTextMessageConsumer(s -> {
-                    webSocketMessage.getSender().sendText(s);
-                });
-                existingWebSocket.setBinaryMessageConsumer(s -> {
-                    webSocketMessage.getSender().sendBytes(s);
-                });
-                existingWebSocket.sendText(webSocketMessage.body().toString());
-                webSocketMap.put(webSocketMessage.getUri(), existingWebSocket);
-            }catch (Exception ex) {
-                logger.debug(
-                        sputs(
-                                "Problem while sending WebSocket message",
-                                host, port, webSocketMessage.getUri()), ex);
-                existingWebSocket = null;
-            }
-        }
-        openWebSocketAndSendMessage(webSocketMessage, existingWebSocket);
-    }
-
-
-    @Deprecated
-    private void openWebSocketAndSendMessage(final WebSocketMessage webSocketMessage,
-                                             final WebSocket existingWebSocket) {
-        if (existingWebSocket==null) {
-
-            final ClientUpgradeRequest request = new ClientUpgradeRequest();
-            final String uri = Str.add("ws://", host, ":", Integer.toString(port), webSocketMessage.getUri());
-
-            JettyNativeClientWebSocketHandler webSocketHandler =
-                    new JettyNativeClientWebSocketHandler(webSocketMessage.getUri(),
-                            host, port, webSocket ->
-                    {
-                        webSocket.setTextMessageConsumer(s -> {
-                            webSocketMessage.getSender().sendText(s);
-                        });
-                        webSocket.setBinaryMessageConsumer(s -> {
-                            webSocketMessage.getSender().sendBytes(s);
-                        });
-                        webSocket.sendText(webSocketMessage.getMessage().toString());
-                        webSocketMap.put(webSocketMessage.getUri(), webSocket);
-                    });
-
-            try {
-                webSocketClient.connect(webSocketHandler, new URI(uri), request);
-            } catch (Exception e) {
-
-                logger.error("problem connecting WebSocket " + webSocketMessage.address(), e);
-            }
-        }
-    }
 
     @Override
     public void periodicFlushCallback(Consumer<Void> periodicFlushCallback) {

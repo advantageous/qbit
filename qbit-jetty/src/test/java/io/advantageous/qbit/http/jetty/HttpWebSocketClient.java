@@ -2,10 +2,13 @@ package io.advantageous.qbit.http.jetty;
 
 
 import io.advantageous.qbit.http.client.HttpClient;
+import io.advantageous.qbit.http.websocket.WebSocket;
 import org.boon.core.Sys;
 
+import java.util.function.Consumer;
+
 import static io.advantageous.qbit.http.client.HttpClientBuilder.httpClientBuilder;
-import static io.advantageous.qbit.http.websocket.WebSocketMessageBuilder.webSocketMessageBuilder;
+import static io.advantageous.qbit.http.server.websocket.WebSocketMessageBuilder.webSocketMessageBuilder;
 import static org.boon.Boon.puts;
 
 
@@ -15,15 +18,20 @@ import static org.boon.Boon.puts;
 public class HttpWebSocketClient {
 
     public static void main(String... args) {
-        final HttpClient httpClient = httpClientBuilder().setAutoFlush(true).setPort(9999).build();
 
-        httpClient.start();
+        final HttpClient httpClient = httpClientBuilder()
+                .setPort(9999).build().start();
 
-        httpClient.sendWebSocketMessage(
-                webSocketMessageBuilder().setMessage("Hello").setUri("/hello")
-                        .setSender(message -> puts("\n\n\n", message, "\n\n"))
-                        .build()
+
+        final WebSocket webSocket = httpClient.createWebSocket("/hello");
+
+        webSocket.setTextMessageConsumer(message ->
+            puts("\n\n\n", message, "\n\n")
         );
+
+        webSocket.openAndWait();
+
+        webSocket.sendText("Hello");
 
         Sys.sleep(100000);
     }

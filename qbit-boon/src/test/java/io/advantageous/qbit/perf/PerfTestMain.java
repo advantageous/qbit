@@ -5,7 +5,7 @@ import io.advantageous.qbit.client.ClientBuilder;
 import io.advantageous.qbit.http.client.HttpClient;
 import io.advantageous.qbit.http.request.HttpRequest;
 import io.advantageous.qbit.http.server.HttpServer;
-import io.advantageous.qbit.http.websocket.WebSocketMessage;
+import io.advantageous.qbit.http.server.websocket.WebSocketMessage;
 import io.advantageous.qbit.queue.Queue;
 import io.advantageous.qbit.queue.QueueBuilder;
 import io.advantageous.qbit.queue.ReceiveQueueListener;
@@ -123,17 +123,17 @@ public class PerfTestMain {
 
         }
 
-        @Override
-        public void sendWebSocketMessage(WebSocketMessage webSocketMessage) {
-
-            try {
-                lock.lock();
-
-                sendQueue.send(webSocketMessage);
-            } finally {
-                lock.unlock();
-            }
-        }
+//        @Override
+//        public void zendWebSocketMessage(WebSocketMessage webSocketMessage) {
+//
+//            try {
+//                lock.lock();
+//
+//                sendQueue.send(webSocketMessage);
+//            } finally {
+//                lock.unlock();
+//            }
+//        }
 
         @Override
         public void periodicFlushCallback(Consumer<Void> periodicFlushCallback) {

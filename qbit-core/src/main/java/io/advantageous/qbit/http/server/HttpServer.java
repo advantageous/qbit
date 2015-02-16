@@ -2,7 +2,7 @@ package io.advantageous.qbit.http.server;
 
 import io.advantageous.qbit.http.request.HttpRequest;
 import io.advantageous.qbit.http.websocket.WebSocket;
-import io.advantageous.qbit.http.websocket.WebSocketMessage;
+import io.advantageous.qbit.http.server.websocket.WebSocketMessage;
 import io.advantageous.qbit.server.Server;
 
 import java.util.function.Consumer;

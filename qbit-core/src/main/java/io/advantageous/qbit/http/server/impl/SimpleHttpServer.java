@@ -5,7 +5,7 @@ import io.advantageous.qbit.concurrent.ExecutorContext;
 import io.advantageous.qbit.http.request.HttpRequest;
 import io.advantageous.qbit.http.server.HttpServer;
 import io.advantageous.qbit.http.websocket.WebSocket;
-import io.advantageous.qbit.http.websocket.WebSocketMessage;
+import io.advantageous.qbit.http.server.websocket.WebSocketMessage;
 import io.advantageous.qbit.http.websocket.WebSocketSender;
 import io.advantageous.qbit.system.QBitSystemManager;
 import io.advantageous.qbit.util.Timer;
@@ -17,7 +17,7 @@ import java.util.function.Consumer;
 import java.util.function.Predicate;
 
 import static io.advantageous.qbit.concurrent.ScheduledExecutorBuilder.scheduledExecutorBuilder;
-import static io.advantageous.qbit.http.websocket.WebSocketMessageBuilder.webSocketMessageBuilder;
+import static io.advantageous.qbit.http.server.websocket.WebSocketMessageBuilder.webSocketMessageBuilder;
 import static org.boon.Boon.puts;
 import static org.boon.Boon.sputs;
 

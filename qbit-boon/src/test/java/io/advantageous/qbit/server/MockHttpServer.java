@@ -6,8 +6,8 @@ import io.advantageous.qbit.http.request.HttpRequestBuilder;
 import io.advantageous.qbit.http.request.HttpResponseReceiver;
 import io.advantageous.qbit.http.request.HttpTextResponse;
 import io.advantageous.qbit.http.server.HttpServer;
-import io.advantageous.qbit.http.websocket.WebSocketMessage;
-import io.advantageous.qbit.http.websocket.WebSocketMessageBuilder;
+import io.advantageous.qbit.http.server.websocket.WebSocketMessage;
+import io.advantageous.qbit.http.server.websocket.WebSocketMessageBuilder;
 import io.advantageous.qbit.http.websocket.WebSocketSender;
 import io.advantageous.qbit.message.MethodCall;
 import io.advantageous.qbit.util.MultiMap;
@@ -42,19 +42,19 @@ public class MockHttpServer implements HttpServer {
 
 
 
-    public void sendWebSocketMessage(final String uri, final Object args, WebSocketSender socketSender) {
-
-
-        final MethodCall<Object> methodCall =
-                QBit.factory().createMethodCallToBeEncodedAndSent(messageId++, uri, "client1",
-                        null, null, System.currentTimeMillis(), args, null);
-        final String message = QBit.factory().createEncoder().encodeAsString(methodCall);
-        final WebSocketMessage webSocketMessage = new WebSocketMessageBuilder()
-                .setMessage(message).setSender(socketSender).build();
-        this.webSocketMessageConsumer.accept(webSocketMessage);
-        this.idleWebSocketConsumer.accept(null);
-
-    }
+//    public void zendWebSocketMessage(final String uri, final Object args, WebSocketSender socketSender) {
+//
+//
+//        final MethodCall<Object> methodCall =
+//                QBit.factory().createMethodCallToBeEncodedAndSent(messageId++, uri, "client1",
+//                        null, null, System.currentTimeMillis(), args, null);
+//        final String message = QBit.factory().createEncoder().encodeAsString(methodCall);
+//        final WebSocketMessage webSocketMessage = new WebSocketMessageBuilder()
+//                .setMessage(message).setSender(socketSender).build();
+//        this.webSocketMessageConsumer.accept(webSocketMessage);
+//        this.idleWebSocketConsumer.accept(null);
+//
+//    }
 
 
     public void sendHttpGet(final String uri, final MultiMap<String, String> params, final HttpTextResponse response) {

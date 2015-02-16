@@ -27,7 +27,7 @@ import static org.boon.Boon.puts;
 public class JettyClientWebSocketSender implements WebSocketSender {
 
     private final Logger logger = LoggerFactory.getLogger(JettyClientWebSocketSender.class);
-    private final boolean debug = true || GlobalConstants.DEBUG || logger.isDebugEnabled();
+    private final boolean debug = false || GlobalConstants.DEBUG || logger.isDebugEnabled();
     private final URI connectUri;
     private final WebSocketClient webSocketClient;
     private  Session session;
