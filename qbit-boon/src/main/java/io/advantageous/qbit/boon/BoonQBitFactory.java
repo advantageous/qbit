@@ -1,20 +1,73 @@
+/*******************************************************************************
+ * Copyright (c) 2015. Richard M. Hightower, Geoff Chandler
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *  		http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *  ________ __________.______________
+ *  \_____  \\______   \   \__    ___/
+ *   /  / \  \|    |  _/   | |    |  ______
+ *  /   \_/.  \    |   \   | |    | /_____/
+ *  \_____\ \_/______  /___| |____|
+ *         \__>      \/
+ *  ___________.__                  ____.                        _____  .__                                             .__
+ *  \__    ___/|  |__   ____       |    |____ ___  _______      /     \ |__| ___________  ____  ______ ______________  _|__| ____  ____
+ *    |    |   |  |  \_/ __ \      |    \__  \\  \/ /\__  \    /  \ /  \|  |/ ___\_  __ \/  _ \/  ___// __ \_  __ \  \/ /  |/ ___\/ __ \
+ *    |    |   |   Y  \  ___/  /\__|    |/ __ \\   /  / __ \_ /    Y    \  \  \___|  | \(  <_> )___ \\  ___/|  | \/\   /|  \  \__\  ___/
+ *    |____|   |___|  /\___  > \________(____  /\_/  (____  / \____|__  /__|\___  >__|   \____/____  >\___  >__|    \_/ |__|\___  >___  >
+ *                  \/     \/                \/           \/          \/        \/                 \/     \/                    \/    \/
+ *  .____    ._____.
+ *  |    |   |__\_ |__
+ *  |    |   |  || __ \
+ *  |    |___|  || \_\ \
+ *  |_______ \__||___  /
+ *          \/       \/
+ *       ____. _________________    _______         __      __      ___.     _________              __           __      _____________________ ____________________
+ *      |    |/   _____/\_____  \   \      \       /  \    /  \ ____\_ |__  /   _____/ ____   ____ |  | __ _____/  |_    \______   \_   _____//   _____/\__    ___/
+ *      |    |\_____  \  /   |   \  /   |   \      \   \/\/   // __ \| __ \ \_____  \ /  _ \_/ ___\|  |/ // __ \   __\    |       _/|    __)_ \_____  \   |    |
+ *  /\__|    |/        \/    |    \/    |    \      \        /\  ___/| \_\ \/        (  <_> )  \___|    <\  ___/|  |      |    |   \|        \/        \  |    |
+ *  \________/_______  /\_______  /\____|__  / /\    \__/\  /  \___  >___  /_______  /\____/ \___  >__|_ \\___  >__| /\   |____|_  /_______  /_______  /  |____|
+ *                   \/         \/         \/  )/         \/       \/    \/        \/            \/     \/    \/     )/          \/        \/        \/
+ *  __________           __  .__              __      __      ___.
+ *  \______   \ ____   _/  |_|  |__   ____   /  \    /  \ ____\_ |__
+ *  |    |  _// __ \  \   __\  |  \_/ __ \  \   \/\/   // __ \| __ \
+ *   |    |   \  ___/   |  | |   Y  \  ___/   \        /\  ___/| \_\ \
+ *   |______  /\___  >  |__| |___|  /\___  >   \__/\  /  \___  >___  /
+ *          \/     \/             \/     \/         \/       \/    \/
+ *
+ * QBit - The Microservice lib for Java : JSON, WebSocket, REST. Be The Web!
+ *  http://rick-hightower.blogspot.com/2014/12/rise-of-machines-writing-high-speed.html
+ *  http://rick-hightower.blogspot.com/2014/12/quick-guide-to-programming-services-in.html
+ *  http://rick-hightower.blogspot.com/2015/01/quick-start-qbit-programming.html
+ *  http://rick-hightower.blogspot.com/2015/01/high-speed-soa.html
+ *  http://rick-hightower.blogspot.com/2015/02/qbit-event-bus.html
+ ******************************************************************************/
+
 package io.advantageous.qbit.boon;
 
 import io.advantageous.qbit.BoonJsonMapper;
 import io.advantageous.qbit.Factory;
 import io.advantageous.qbit.client.Client;
+import io.advantageous.qbit.client.ServiceProxyFactory;
 import io.advantageous.qbit.events.EventBusProxyCreator;
 import io.advantageous.qbit.events.EventManager;
 import io.advantageous.qbit.events.impl.BoonEventBusProxyCreator;
 import io.advantageous.qbit.http.client.HttpClient;
-import io.advantageous.qbit.http.server.HttpServer;
 import io.advantageous.qbit.http.config.HttpServerOptions;
+import io.advantageous.qbit.http.server.HttpServer;
 import io.advantageous.qbit.json.JsonMapper;
 import io.advantageous.qbit.message.MethodCall;
 import io.advantageous.qbit.message.MethodCallBuilder;
 import io.advantageous.qbit.message.Request;
 import io.advantageous.qbit.message.Response;
-import io.advantageous.qbit.client.ServiceProxyFactory;
 import io.advantageous.qbit.queue.Queue;
 import io.advantageous.qbit.queue.QueueBuilder;
 import io.advantageous.qbit.sender.Sender;
@@ -51,22 +104,33 @@ import static io.advantageous.qbit.service.ServiceBuilder.serviceBuilder;
  */
 public class BoonQBitFactory implements Factory {
 
+    private final Logger logger = LoggerFactory.getLogger(BoonQBitFactory.class);
     private AtomicReference<Service> systemEventManager = new AtomicReference<>();
     private ThreadLocal<EventManager> eventManagerThreadLocal = new ThreadLocal<>();
+    private ProtocolParser defaultProtocol = new BoonProtocolParser();
+    private ServiceProxyFactory serviceProxyFactory = new BoonServiceProxyFactory(this);
+    private ServiceProxyFactory remoteServiceProxyFactory = new BoonServiceProxyFactory(this);
+    private ThreadLocal<List<ProtocolParser>> protocolParserListRef = new ThreadLocal<List<ProtocolParser>>() {
+
+        @Override
+        protected List<ProtocolParser> initialValue() {
+            ArrayList<ProtocolParser> list = new ArrayList<>();
+            list.add(createProtocolParser());
+            return list;
+        }
+    };
 
     @Override
     public EventManager systemEventManager() {
 
         final EventManager eventManager = eventManagerThreadLocal.get();
-        if (eventManager!=null) {
+        if ( eventManager != null ) {
             return eventManager;
         }
 
         EventManager proxy;
-        if (systemEventManager.get() == null) {
-            final Service service = serviceBuilder().setInvokeDynamic(false)
-                    .setServiceObject(createEventManager())
-                    .build().start();
+        if ( systemEventManager.get() == null ) {
+            final Service service = serviceBuilder().setInvokeDynamic(false).setServiceObject(createEventManager()).build().start();
 
             systemEventManager.set(service);
             proxy = service.createProxy(EventManager.class);
@@ -78,11 +142,10 @@ public class BoonQBitFactory implements Factory {
         return proxy;
     }
 
-
     @Override
     public void shutdownSystemEventBus() {
         final Service service = systemEventManager.get();
-        if (service!=null) {
+        if ( service != null ) {
             service.stop();
         }
     }
@@ -91,9 +154,8 @@ public class BoonQBitFactory implements Factory {
         return eventManagerThreadLocal.get();
     }
 
-
     public void clearEventManagerProxy() {
-         eventManagerThreadLocal.set(null);
+        eventManagerThreadLocal.set(null);
     }
 
     @Override
@@ -101,40 +163,14 @@ public class BoonQBitFactory implements Factory {
         return FactorySPI.getEventManagerFactory().createEventManager();
     }
 
-    private ProtocolParser defaultProtocol = new BoonProtocolParser();
-    private ServiceProxyFactory serviceProxyFactory = new BoonServiceProxyFactory(this);
-
-    private ServiceProxyFactory remoteServiceProxyFactory = new BoonServiceProxyFactory(this);
-
-
-    private final Logger logger = LoggerFactory.getLogger(BoonQBitFactory.class);
-
-    private ThreadLocal<List<ProtocolParser>> protocolParserListRef = new ThreadLocal<List<ProtocolParser>>(){
-
-        @Override
-        protected List<ProtocolParser> initialValue() {
-            ArrayList<ProtocolParser> list = new ArrayList<>();
-            list.add(createProtocolParser());
-            return list;
-        }
-    };
-
     @Override
-    public MethodCall<Object> createMethodCallToBeEncodedAndSent(long id, String address,
-                                                                 String returnAddress,
-                                                                 String objectName,
-                                                                 String methodName,
-                                                                 long timestamp,
-                                                                 Object body,
-                                                                 MultiMap<String, String> params) {
+    public MethodCall<Object> createMethodCallToBeEncodedAndSent(long id, String address, String returnAddress, String objectName, String methodName, long timestamp, Object body, MultiMap<String, String> params) {
 
         return MethodCallBuilder.createMethodCallToBeEncodedAndSent(id, address, returnAddress, objectName, methodName, timestamp, body, params);
     }
 
     @Override
-    public <T> T createLocalProxy(Class<T> serviceInterface,
-                                  String serviceName,
-                                  ServiceBundle serviceBundle) {
+    public <T> T createLocalProxy(Class<T> serviceInterface, String serviceName, ServiceBundle serviceBundle) {
 
         return this.serviceProxyFactory.createProxy(serviceInterface, serviceName, serviceBundle);
     }
@@ -142,8 +178,7 @@ public class BoonQBitFactory implements Factory {
 
     @Override
     public <T> T createRemoteProxyWithReturnAddress(Class<T> serviceInterface, String address, String serviceName, String returnAddressArg, Sender<String> sender, BeforeMethodCall beforeMethodCall, int requestBatchSize) {
-        return remoteServiceProxyFactory.createProxyWithReturnAddress(serviceInterface, serviceName, returnAddressArg,
-                new SenderEndPoint(this.createEncoder(), address, sender, beforeMethodCall, requestBatchSize));
+        return remoteServiceProxyFactory.createProxyWithReturnAddress(serviceInterface, serviceName, returnAddressArg, new SenderEndPoint(this.createEncoder(), address, sender, beforeMethodCall, requestBatchSize));
     }
 
 
@@ -167,16 +202,9 @@ public class BoonQBitFactory implements Factory {
     }
 
 
+    public HttpServer createHttpServer(HttpServerOptions options, QueueBuilder requestQueueBuilder, QueueBuilder responseQueueBuilder, QueueBuilder webSocketMessageQueueBuilder, QBitSystemManager systemManager) {
 
-    public HttpServer createHttpServer(HttpServerOptions options,
-                                QueueBuilder requestQueueBuilder,
-                                QueueBuilder responseQueueBuilder,
-                                QueueBuilder webSocketMessageQueueBuilder,
-                                QBitSystemManager systemManager) {
-
-        return FactorySPI.getHttpServerFactory().create(options, requestQueueBuilder, responseQueueBuilder,
-                webSocketMessageQueueBuilder,
-                systemManager);
+        return FactorySPI.getHttpServerFactory().create(options, requestQueueBuilder, responseQueueBuilder, webSocketMessageQueueBuilder, systemManager);
     }
 
     @Override
@@ -185,21 +213,9 @@ public class BoonQBitFactory implements Factory {
     }
 
     @Override
-    public ServiceServer createServiceServer(
-            final HttpServer httpServer,
-            final ProtocolEncoder encoder,
-            final ProtocolParser protocolParser,
-            final ServiceBundle serviceBundle,
-            final JsonMapper jsonMapper,
-            final int timeOutInSeconds,
-            final int numberOfOutstandingRequests,
-            final int batchSize,
-            final int flushInterval,
-            final QBitSystemManager systemManager) {
-        return new ServiceServerImpl(httpServer, encoder, protocolParser, serviceBundle,
-                jsonMapper, timeOutInSeconds, numberOfOutstandingRequests, batchSize, flushInterval, systemManager);
+    public ServiceServer createServiceServer(final HttpServer httpServer, final ProtocolEncoder encoder, final ProtocolParser protocolParser, final ServiceBundle serviceBundle, final JsonMapper jsonMapper, final int timeOutInSeconds, final int numberOfOutstandingRequests, final int batchSize, final int flushInterval, final QBitSystemManager systemManager) {
+        return new ServiceServerImpl(httpServer, encoder, protocolParser, serviceBundle, jsonMapper, timeOutInSeconds, numberOfOutstandingRequests, batchSize, flushInterval, systemManager);
     }
-
 
 
     @Override
@@ -214,24 +230,19 @@ public class BoonQBitFactory implements Factory {
 
 
     @Override
-    public MethodCall<Object> createMethodCallToBeParsedFromBody(String address,
-                                                                 String returnAddress,
-                                                                 String objectName,
-                                                                 String methodName,
-                                                                 Object body,
-                                                                 MultiMap<String, String> params) {
+    public MethodCall<Object> createMethodCallToBeParsedFromBody(String address, String returnAddress, String objectName, String methodName, Object body, MultiMap<String, String> params) {
         MethodCall<Object> parsedMethodCall = null;
-        if (body != null) {
+        if ( body != null ) {
             ProtocolParser parser = selectProtocolParser(body, params);
 
-            if (parser != null) {
-                parsedMethodCall= parser.parseMethodCall(body);
+            if ( parser != null ) {
+                parsedMethodCall = parser.parseMethodCall(body);
             } else {
                 parsedMethodCall = defaultProtocol.parseMethodCall(body);
             }
         }
 
-        if (parsedMethodCall!=null) {
+        if ( parsedMethodCall != null ) {
             return parsedMethodCall;
         }
 
@@ -241,7 +252,7 @@ public class BoonQBitFactory implements Factory {
         methodCallBuilder.setObjectName(objectName);
         methodCallBuilder.setAddress(address);
         methodCallBuilder.setReturnAddress(returnAddress);
-        if (params!=null) {
+        if ( params != null ) {
             methodCallBuilder.setParams(params);
         }
         methodCallBuilder.overridesFromParams();
@@ -259,8 +270,8 @@ public class BoonQBitFactory implements Factory {
     }
 
     private ProtocolParser selectProtocolParser(Object args, MultiMap<String, String> params) {
-        for (ProtocolParser parser : protocolParserListRef.get()) {
-            if (parser.supports(args, params)) {
+        for ( ProtocolParser parser : protocolParserListRef.get() ) {
+            if ( parser.supports(args, params) ) {
                 return parser;
             }
         }
@@ -268,50 +279,25 @@ public class BoonQBitFactory implements Factory {
     }
 
 
-
     @Override
-    public Service createService(final String rootAddress,
-                                 final String serviceAddress,
-                                 final Object service,
-                                 final Queue<Response<Object>> responseQueue,
-                                 final QBitSystemManager systemManager) {
+    public Service createService(final String rootAddress, final String serviceAddress, final Object service, final Queue<Response<Object>> responseQueue, final QBitSystemManager systemManager) {
 
 
-        return new ServiceImpl(rootAddress,
-                serviceAddress, service, null, new BoonServiceMethodCallHandler(true), responseQueue, true, false, systemManager);
+        return new ServiceImpl(rootAddress, serviceAddress, service, null, new BoonServiceMethodCallHandler(true), responseQueue, true, false, systemManager);
 
     }
 
     @Override
-    public Service createService(String rootAddress,
-                                 String serviceAddress,
-                                 Object object,
-                                 Queue<Response<Object>> responseQueue,
-                                 final QueueBuilder queueBuilder,
-                                 boolean async, boolean invokeDynamic, boolean handleCallbacks, final QBitSystemManager systemManager) {
+    public Service createService(String rootAddress, String serviceAddress, Object object, Queue<Response<Object>> responseQueue, final QueueBuilder queueBuilder, boolean async, boolean invokeDynamic, boolean handleCallbacks, final QBitSystemManager systemManager) {
 
-        return new ServiceImpl(
-                rootAddress,
-                serviceAddress,
-                object,
-                queueBuilder,
-                new BoonServiceMethodCallHandler(invokeDynamic),
-                responseQueue, async, handleCallbacks, systemManager
-        );
+        return new ServiceImpl(rootAddress, serviceAddress, object, queueBuilder, new BoonServiceMethodCallHandler(invokeDynamic), responseQueue, async, handleCallbacks, systemManager);
 
     }
 
 
     @Override
-    public ServiceBundle createServiceBundle(String address, QueueBuilder queueBuilder,
-                                      final Factory factory, final boolean asyncCalls,
-                                      final BeforeMethodCall beforeMethodCall,
-                                      final BeforeMethodCall beforeMethodCallAfterTransform,
-                                      final Transformer<Request, Object> argTransformer,
-                                      boolean invokeDynamic,
-                                      final QBitSystemManager systemManager){
-        return new ServiceBundleImpl(address, queueBuilder, factory,
-                asyncCalls, beforeMethodCall, beforeMethodCallAfterTransform, argTransformer, invokeDynamic, systemManager);
+    public ServiceBundle createServiceBundle(String address, QueueBuilder queueBuilder, final Factory factory, final boolean asyncCalls, final BeforeMethodCall beforeMethodCall, final BeforeMethodCall beforeMethodCallAfterTransform, final Transformer<Request, Object> argTransformer, boolean invokeDynamic, final QBitSystemManager systemManager) {
+        return new ServiceBundleImpl(address, queueBuilder, factory, asyncCalls, beforeMethodCall, beforeMethodCallAfterTransform, argTransformer, invokeDynamic, systemManager);
     }
 
 
@@ -326,7 +312,6 @@ public class BoonQBitFactory implements Factory {
     public ProtocolEncoder createEncoder() {
         return new BoonProtocolEncoder();
     }
-
 
 
     public EventBusProxyCreator eventBusProxyCreator() {

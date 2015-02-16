@@ -1,3 +1,58 @@
+/*******************************************************************************
+
+ * Copyright (c) 2015. Rick Hightower, Geoff Chandler
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *  		http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *  ________ __________.______________
+ *  \_____  \\______   \   \__    ___/
+ *   /  / \  \|    |  _/   | |    |  ______
+ *  /   \_/.  \    |   \   | |    | /_____/
+ *  \_____\ \_/______  /___| |____|
+ *         \__>      \/
+ *  ___________.__                  ____.                        _____  .__                                             .__
+ *  \__    ___/|  |__   ____       |    |____ ___  _______      /     \ |__| ___________  ____  ______ ______________  _|__| ____  ____
+ *    |    |   |  |  \_/ __ \      |    \__  \\  \/ /\__  \    /  \ /  \|  |/ ___\_  __ \/  _ \/  ___// __ \_  __ \  \/ /  |/ ___\/ __ \
+ *    |    |   |   Y  \  ___/  /\__|    |/ __ \\   /  / __ \_ /    Y    \  \  \___|  | \(  <_> )___ \\  ___/|  | \/\   /|  \  \__\  ___/
+ *    |____|   |___|  /\___  > \________(____  /\_/  (____  / \____|__  /__|\___  >__|   \____/____  >\___  >__|    \_/ |__|\___  >___  >
+ *                  \/     \/                \/           \/          \/        \/                 \/     \/                    \/    \/
+ *  .____    ._____.
+ *  |    |   |__\_ |__
+ *  |    |   |  || __ \
+ *  |    |___|  || \_\ \
+ *  |_______ \__||___  /
+ *          \/       \/
+ *       ____. _________________    _______         __      __      ___.     _________              __           __      _____________________ ____________________
+ *      |    |/   _____/\_____  \   \      \       /  \    /  \ ____\_ |__  /   _____/ ____   ____ |  | __ _____/  |_    \______   \_   _____//   _____/\__    ___/
+ *      |    |\_____  \  /   |   \  /   |   \      \   \/\/   // __ \| __ \ \_____  \ /  _ \_/ ___\|  |/ // __ \   __\    |       _/|    __)_ \_____  \   |    |
+ *  /\__|    |/        \/    |    \/    |    \      \        /\  ___/| \_\ \/        (  <_> )  \___|    <\  ___/|  |      |    |   \|        \/        \  |    |
+ *  \________/_______  /\_______  /\____|__  / /\    \__/\  /  \___  >___  /_______  /\____/ \___  >__|_ \\___  >__| /\   |____|_  /_______  /_______  /  |____|
+ *                   \/         \/         \/  )/         \/       \/    \/        \/            \/     \/    \/     )/          \/        \/        \/
+ *  __________           __  .__              __      __      ___.
+ *  \______   \ ____   _/  |_|  |__   ____   /  \    /  \ ____\_ |__
+ *  |    |  _// __ \  \   __\  |  \_/ __ \  \   \/\/   // __ \| __ \
+ *   |    |   \  ___/   |  | |   Y  \  ___/   \        /\  ___/| \_\ \
+ *   |______  /\___  >  |__| |___|  /\___  >   \__/\  /  \___  >___  /
+ *          \/     \/             \/     \/         \/       \/    \/
+ *
+ * QBit - The Microservice lib for Java : JSON, WebSocket, REST. Be The Web!
+ *  http://rick-hightower.blogspot.com/2014/12/rise-of-machines-writing-high-speed.html
+ *  http://rick-hightower.blogspot.com/2014/12/quick-guide-to-programming-services-in.html
+ *  http://rick-hightower.blogspot.com/2015/01/quick-start-qbit-programming.html
+ *  http://rick-hightower.blogspot.com/2015/01/high-speed-soa.html
+ *  http://rick-hightower.blogspot.com/2015/02/qbit-event-bus.html
+
+ ******************************************************************************/
+
 package io.advantageous.qbit.server;
 
 import io.advantageous.qbit.GlobalConstants;
@@ -24,7 +79,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.nio.charset.StandardCharsets;
-import java.util.*;
+import java.util.LinkedHashSet;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -33,26 +90,18 @@ import static org.boon.Boon.puts;
 import static org.boon.Boon.sputs;
 
 /**
- * Created by rhightower on 1/27/15.
+ * @author rhightower on 1/27/15.
  */
 public class HttpRequestServiceServerHandler {
-
-    private final Logger logger = LoggerFactory.getLogger(HttpRequestServiceServerHandler.class);
-    private final boolean debug = false || GlobalConstants.DEBUG || logger.isDebugEnabled();
 
     protected final int timeoutInSeconds;
     protected final ProtocolEncoder encoder;
     protected final ProtocolParser parser;
     protected final JsonMapper jsonMapper;
-    private final SendQueue<MethodCall<Object>> methodCallSendQueue;
-    protected volatile long lastTimeoutCheckTime;
-
-
     protected final long flushInterval;
-    protected volatile long lastFlushTime = 0;
-
-
-
+    private final Logger logger = LoggerFactory.getLogger(HttpRequestServiceServerHandler.class);
+    private final boolean debug = false || GlobalConstants.DEBUG || logger.isDebugEnabled();
+    private final SendQueue<MethodCall<Object>> methodCallSendQueue;
     private final Set<String> getMethodURIs = new LinkedHashSet<>();
     private final Set<String> postMethodURIs = new LinkedHashSet<>();
     private final Set<String> objectNameAddressURIWithVoidReturn = new LinkedHashSet<>();
@@ -61,24 +110,11 @@ public class HttpRequestServiceServerHandler {
     private final Map<String, Request<Object>> outstandingRequestMap = new ConcurrentHashMap<>(100_000);
     private final int numberOfOutstandingRequests;
     private final ExecutorService executorService = Executors.newFixedThreadPool(5);
+    protected volatile long lastTimeoutCheckTime;
+    protected volatile long lastFlushTime = 0;
 
 
-
-
-    public void httpRequestQueueIdle(Void v) {
-        long lastFlush = lastFlushTime;
-        long now = Timer.timer().now();
-        long duration =  now - lastFlush;
-
-        if (duration > flushInterval) {
-            lastFlushTime = now;
-            methodCallSendQueue.flushSends();
-        }
-    }
-
-    public HttpRequestServiceServerHandler(int timeoutInSeconds, ProtocolEncoder encoder, ProtocolParser parser, ServiceBundle serviceBundle, JsonMapper jsonMapper,
-                                           final int numberOfOutstandingRequests, int flushInterval
-    ) {
+    public HttpRequestServiceServerHandler(int timeoutInSeconds, ProtocolEncoder encoder, ProtocolParser parser, ServiceBundle serviceBundle, JsonMapper jsonMapper, final int numberOfOutstandingRequests, int flushInterval) {
         this.timeoutInSeconds = timeoutInSeconds;
         lastTimeoutCheckTime = Timer.timer().now() + ( timeoutInSeconds * 1000 );
         this.encoder = encoder;
@@ -91,8 +127,16 @@ public class HttpRequestServiceServerHandler {
 
     }
 
+    public void httpRequestQueueIdle(Void v) {
+        long lastFlush = lastFlushTime;
+        long now = Timer.timer().now();
+        long duration = now - lastFlush;
 
-
+        if ( duration > flushInterval ) {
+            lastFlushTime = now;
+            methodCallSendQueue.flushSends();
+        }
+    }
 
     /**
      * All REST calls come through here.
@@ -108,24 +152,24 @@ public class HttpRequestServiceServerHandler {
         final String uri = request.getUri();
 
 
-        if (debug) {
+        if ( debug ) {
             logger.info(sputs("handleRestCall()", uri));
             puts("handleRestCall()", uri, getMethodURIs);
         }
 
 
-       Object args = null;
+        Object args = null;
 
-        switch (request.getMethod()) {
+        switch ( request.getMethod() ) {
             case "GET":
                 knownURI = getMethodURIs.contains(uri);
 
 
-                if (getMethodURIsWithVoidReturn.contains(uri)) {
+                if ( getMethodURIsWithVoidReturn.contains(uri) ) {
                     writeResponse(request.getResponse(), 200, "application/json", "\"success\"", request.getHeaders());
 
                 } else {
-                    if (!addRequestToCheckForTimeouts(request)) {
+                    if ( !addRequestToCheckForTimeouts(request) ) {
 
                         writeResponse(request.getResponse(), 429, "application/json", "\"too many outstanding requests\"", request.getHeaders());
                         return;
@@ -135,37 +179,35 @@ public class HttpRequestServiceServerHandler {
 
             case "POST":
                 knownURI = postMethodURIs.contains(uri);
-                if (postMethodURIsWithVoidReturn.contains(uri)) {
+                if ( postMethodURIsWithVoidReturn.contains(uri) ) {
                     writeResponse(request.getResponse(), 200, "application/json", "\"success\"", request.getHeaders());
                 } else {
-                    if (!addRequestToCheckForTimeouts(request)) {
+                    if ( !addRequestToCheckForTimeouts(request) ) {
 
                         writeResponse(request.getResponse(), 429, "application/json", "\"too many outstanding requests\"", request.getHeaders());
                         return;
                     }
                 }
-                if (!Str.isEmpty(request.getBody())) {
+                if ( !Str.isEmpty(request.getBody()) ) {
                     args = jsonMapper.fromJson(new String(request.getBody(), StandardCharsets.UTF_8));
                 }
                 break;
         }
 
 
-        if (!knownURI) {
+        if ( !knownURI ) {
             request.handled(); //Mark the request as handled.
 
-            writeResponse(request.getResponse(), 404, "application/json",
-                    Str.add("\"No service method for URI ", request.getUri(), "\""), request.getHeaders());
+            writeResponse(request.getResponse(), 404, "application/json", Str.add("\"No service method for URI ", request.getUri(), "\""), request.getHeaders());
 
             return;
 
         }
 
-        final MethodCall<Object> methodCall =
-                QBit.factory().createMethodCallFromHttpRequest(request, args);
+        final MethodCall<Object> methodCall = QBit.factory().createMethodCallFromHttpRequest(request, args);
 
 
-        if (debug) {
+        if ( debug ) {
             logger.debug("Handle REST Call for MethodCall " + methodCall);
             puts("Handle REST Call for MethodCall " + methodCall);
         }
@@ -188,11 +230,11 @@ public class HttpRequestServiceServerHandler {
         String objectNameAddress;
 
 
-        if (data != null) {
+        if ( data != null ) {
             final Map<String, Object> methodValuesForAnnotation = data.getValues();
             methodURI = extractMethodURI(methodValuesForAnnotation);
 
-            if (methodURI==null) {
+            if ( methodURI == null ) {
                 methodURI = Str.add("/", method.name());
             }
             httpMethod = extractHttpMethod(methodValuesForAnnotation);
@@ -204,7 +246,7 @@ public class HttpRequestServiceServerHandler {
             methodURI = Str.add("/", method.name());
         }
 
-        if (debug) {
+        if ( debug ) {
             final String message = sputs("registerMethodToEndPoint methodURI", methodURI);
             logger.debug(message);
             puts(message);
@@ -215,19 +257,19 @@ public class HttpRequestServiceServerHandler {
         final boolean voidReturn = method.returnType() == void.class;
 
 
-        if (voidReturn) {
+        if ( voidReturn ) {
             objectNameAddressURIWithVoidReturn.add(objectNameAddress);
             objectNameAddressURIWithVoidReturn.add(Str.add(baseURI, serviceURI, "/", method.name()));
 
         }
 
 
-        switch (httpMethod) {
+        switch ( httpMethod ) {
             case GET:
                 getMethodURIs.add(objectNameAddress);
 
                 getMethodURIs.add(objectNameAddress.toLowerCase());
-                if (voidReturn) {
+                if ( voidReturn ) {
                     getMethodURIsWithVoidReturn.add(objectNameAddress);
 
                     getMethodURIsWithVoidReturn.add(Str.add(baseURI, serviceURI, "/", method.name()));
@@ -238,7 +280,7 @@ public class HttpRequestServiceServerHandler {
             case POST:
                 postMethodURIs.add(objectNameAddress);
                 postMethodURIs.add(objectNameAddress.toLowerCase());
-                if (voidReturn) {
+                if ( voidReturn ) {
                     postMethodURIsWithVoidReturn.add(objectNameAddress);
                     postMethodURIsWithVoidReturn.add(Str.add(baseURI, serviceURI, "/", method.name()));
 
@@ -255,15 +297,12 @@ public class HttpRequestServiceServerHandler {
      * @param serviceURI client URI
      * @param methods    methods
      */
-    private void registerMethodsToEndPoints(final String baseURI,
-                                            final String serviceURI,
-                                            final Iterable<MethodAccess> methods) {
-        for (MethodAccess method : methods) {
-            if (!method.isPublic() || method.method().getName().contains("$")) continue;
+    private void registerMethodsToEndPoints(final String baseURI, final String serviceURI, final Iterable<MethodAccess> methods) {
+        for ( MethodAccess method : methods ) {
+            if ( !method.isPublic() || method.method().getName().contains("$") ) continue;
 
-            if (debug) {
-                final String message = sputs("registerMethodsToEndPoints serviceURI",
-                        serviceURI, "method name", method.name());
+            if ( debug ) {
+                final String message = sputs("registerMethodsToEndPoints serviceURI", serviceURI, "method name", method.name());
                 logger.debug(message);
                 puts(message);
             }
@@ -273,12 +312,8 @@ public class HttpRequestServiceServerHandler {
         }
 
 
-        if (debug) {
-            final String message = sputs("registerMethodsToEndPointS ",
-                    "GET uris", getMethodURIs,
-                    "\nGET URIs no return", getMethodURIsWithVoidReturn,
-                    "\nPOST uris", postMethodURIs,
-                    "\nPOST uris no return", postMethodURIsWithVoidReturn);
+        if ( debug ) {
+            final String message = sputs("registerMethodsToEndPointS ", "GET uris", getMethodURIs, "\nGET URIs no return", getMethodURIsWithVoidReturn, "\nPOST uris", postMethodURIs, "\nPOST uris no return", postMethodURIsWithVoidReturn);
             logger.debug(message);
             puts(message);
         }
@@ -293,7 +328,7 @@ public class HttpRequestServiceServerHandler {
      */
     public void addRestSupportFor(Class cls, String baseURI) {
 
-        if (debug) logger.debug("addRestSupportFor " + cls.getName());
+        if ( debug ) logger.debug("addRestSupportFor " + cls.getName());
 
         ClassMeta classMeta = ClassMeta.classMeta(cls);
 
@@ -301,13 +336,13 @@ public class HttpRequestServiceServerHandler {
 
         final AnnotationData mapping = classMeta.annotation("RequestMapping");
 
-        if (mapping != null) {
+        if ( mapping != null ) {
 
 
             Map<String, Object> requestMapping = mapping.getValues();
 
 
-            String serviceURI = ((String[]) requestMapping.get("value"))[0];
+            String serviceURI = ( ( String[] ) requestMapping.get("value") )[ 0 ];
 
 
             registerMethodsToEndPoints(baseURI, serviceURI, methods);
@@ -315,15 +350,12 @@ public class HttpRequestServiceServerHandler {
         } else {
 
 
-            registerMethodsToEndPoints(baseURI, "/" + Str.uncapitalize(classMeta.name()),
-                    methods);
+            registerMethodsToEndPoints(baseURI, "/" + Str.uncapitalize(classMeta.name()), methods);
 
         }
 
 
     }
-
-
 
 
     /**
@@ -335,10 +367,10 @@ public class HttpRequestServiceServerHandler {
     private RequestMethod extractHttpMethod(Map<String, Object> methodValuesForAnnotation) {
         RequestMethod httpMethod = null;
 
-        RequestMethod[] httpMethods = (RequestMethod[]) methodValuesForAnnotation.get("method");
+        RequestMethod[] httpMethods = ( RequestMethod[] ) methodValuesForAnnotation.get("method");
 
-        if (httpMethods != null && httpMethods.length > 0) {
-            httpMethod = httpMethods[0];
+        if ( httpMethods != null && httpMethods.length > 0 ) {
+            httpMethod = httpMethods[ 0 ];
 
         }
 
@@ -356,14 +388,14 @@ public class HttpRequestServiceServerHandler {
     private String extractMethodURI(Map<String, Object> methodValuesForAnnotation) {
 
 
-        String[] values = (String[]) methodValuesForAnnotation.get("value");
+        String[] values = ( String[] ) methodValuesForAnnotation.get("value");
 
-        if (values == null || values.length ==0) {
+        if ( values == null || values.length == 0 ) {
             return null;
         }
-        String methodURI = values[0];
-        if (methodURI.contains("{")) {
-            methodURI = StringScanner.split(methodURI, '{', 1)[0];
+        String methodURI = values[ 0 ];
+        if ( methodURI.contains("{") ) {
+            methodURI = StringScanner.split(methodURI, '{', 1)[ 0 ];
         }
 
         return methodURI;
@@ -384,7 +416,6 @@ public class HttpRequestServiceServerHandler {
     }
 
 
-
     /**
      *
      */
@@ -396,13 +427,12 @@ public class HttpRequestServiceServerHandler {
         final boolean timedOut = durationSinceLastCheck > timeoutInMS;
 
 
-        if (!(timedOut)) {
+        if ( !( timedOut ) ) {
             return;
         }
 
 
-
-        if (debug) {
+        if ( debug ) {
             puts("Checking for timeout.", "duration", durationSinceLastCheck, "ms timeout", timeoutInMS);
         }
 
@@ -414,13 +444,13 @@ public class HttpRequestServiceServerHandler {
 
                 final Set<Map.Entry<String, Request<Object>>> entries = outstandingRequestMap.entrySet();
 
-                for(Map.Entry<String, Request<Object>> requestEntry : entries) {
+                for ( Map.Entry<String, Request<Object>> requestEntry : entries ) {
                     final Request<Object> request = requestEntry.getValue();
                     duration = now - request.timestamp();
 
-                    if (duration > timeoutInMS) {
-                        if (!request.isHandled()) {
-                            if (debug) {
+                    if ( duration > timeoutInMS ) {
+                        if ( !request.isHandled() ) {
+                            if ( debug ) {
                                 puts("Request timed out.", "duration", duration, "ms timeout", timeoutInMS);
                             }
                             handleMethodTimedOut(requestEntry.getKey(), request);
@@ -435,7 +465,6 @@ public class HttpRequestServiceServerHandler {
     }
 
 
-
     /**
      * Handle a method timeout.
      *
@@ -443,32 +472,29 @@ public class HttpRequestServiceServerHandler {
      */
     private void handleMethodTimedOut(String key, final Request<Object> request) {
         this.outstandingRequestMap.remove(key);
-        if (request.isHandled()) {
+        if ( request.isHandled() ) {
             return;
         }
         request.handled();
 
-        final HttpResponseReceiver httpResponse = ((HttpRequest) request).getResponse();
+        final HttpResponseReceiver httpResponse = ( ( HttpRequest ) request ).getResponse();
 
         try {
-                httpResponse.response(408, "application/json", "\"timed out\"");
-        } catch (Exception ex) {
-                logger.debug("Response not marked handled and it timed out, but could not be written " + request, ex);
+            httpResponse.response(408, "application/json", "\"timed out\"");
+        } catch ( Exception ex ) {
+            logger.debug("Response not marked handled and it timed out, but could not be written " + request, ex);
         }
     }
 
 
     private void writeResponse(HttpResponseReceiver response, int code, String mimeType, String responseString, MultiMap<String, String> headers) {
 
-        if (response.isText()) {
+        if ( response.isText() ) {
             response.response(code, mimeType, responseString, headers);
         } else {
             response.response(code, mimeType, responseString.getBytes(StandardCharsets.UTF_8), headers);
         }
     }
-
-
-
 
 
     public void handleResponseFromServiceToHttpResponse(Response<Object> response, HttpRequest originatingRequest) {
@@ -479,7 +505,7 @@ public class HttpRequestServiceServerHandler {
 
         final HttpRequest httpRequest = originatingRequest;
 
-        if (response.wasErrors()) {
+        if ( response.wasErrors() ) {
             writeResponse(httpRequest.getResponse(), 500, "application/json", jsonMapper.toJson(response.body()), httpRequest.getHeaders());
         } else {
             writeResponse(httpRequest.getResponse(), 200, "application/json", jsonMapper.toJson(response.body()), httpRequest.getHeaders());

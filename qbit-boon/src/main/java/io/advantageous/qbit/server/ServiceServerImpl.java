@@ -1,3 +1,58 @@
+/*******************************************************************************
+
+ * Copyright (c) 2015. Rick Hightower, Geoff Chandler
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *  		http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *  ________ __________.______________
+ *  \_____  \\______   \   \__    ___/
+ *   /  / \  \|    |  _/   | |    |  ______
+ *  /   \_/.  \    |   \   | |    | /_____/
+ *  \_____\ \_/______  /___| |____|
+ *         \__>      \/
+ *  ___________.__                  ____.                        _____  .__                                             .__
+ *  \__    ___/|  |__   ____       |    |____ ___  _______      /     \ |__| ___________  ____  ______ ______________  _|__| ____  ____
+ *    |    |   |  |  \_/ __ \      |    \__  \\  \/ /\__  \    /  \ /  \|  |/ ___\_  __ \/  _ \/  ___// __ \_  __ \  \/ /  |/ ___\/ __ \
+ *    |    |   |   Y  \  ___/  /\__|    |/ __ \\   /  / __ \_ /    Y    \  \  \___|  | \(  <_> )___ \\  ___/|  | \/\   /|  \  \__\  ___/
+ *    |____|   |___|  /\___  > \________(____  /\_/  (____  / \____|__  /__|\___  >__|   \____/____  >\___  >__|    \_/ |__|\___  >___  >
+ *                  \/     \/                \/           \/          \/        \/                 \/     \/                    \/    \/
+ *  .____    ._____.
+ *  |    |   |__\_ |__
+ *  |    |   |  || __ \
+ *  |    |___|  || \_\ \
+ *  |_______ \__||___  /
+ *          \/       \/
+ *       ____. _________________    _______         __      __      ___.     _________              __           __      _____________________ ____________________
+ *      |    |/   _____/\_____  \   \      \       /  \    /  \ ____\_ |__  /   _____/ ____   ____ |  | __ _____/  |_    \______   \_   _____//   _____/\__    ___/
+ *      |    |\_____  \  /   |   \  /   |   \      \   \/\/   // __ \| __ \ \_____  \ /  _ \_/ ___\|  |/ // __ \   __\    |       _/|    __)_ \_____  \   |    |
+ *  /\__|    |/        \/    |    \/    |    \      \        /\  ___/| \_\ \/        (  <_> )  \___|    <\  ___/|  |      |    |   \|        \/        \  |    |
+ *  \________/_______  /\_______  /\____|__  / /\    \__/\  /  \___  >___  /_______  /\____/ \___  >__|_ \\___  >__| /\   |____|_  /_______  /_______  /  |____|
+ *                   \/         \/         \/  )/         \/       \/    \/        \/            \/     \/    \/     )/          \/        \/        \/
+ *  __________           __  .__              __      __      ___.
+ *  \______   \ ____   _/  |_|  |__   ____   /  \    /  \ ____\_ |__
+ *  |    |  _// __ \  \   __\  |  \_/ __ \  \   \/\/   // __ \| __ \
+ *   |    |   \  ___/   |  | |   Y  \  ___/   \        /\  ___/| \_\ \
+ *   |______  /\___  >  |__| |___|  /\___  >   \__/\  /  \___  >___  /
+ *          \/     \/             \/     \/         \/       \/    \/
+ *
+ * QBit - The Microservice lib for Java : JSON, WebSocket, REST. Be The Web!
+ *  http://rick-hightower.blogspot.com/2014/12/rise-of-machines-writing-high-speed.html
+ *  http://rick-hightower.blogspot.com/2014/12/quick-guide-to-programming-services-in.html
+ *  http://rick-hightower.blogspot.com/2015/01/quick-start-qbit-programming.html
+ *  http://rick-hightower.blogspot.com/2015/01/high-speed-soa.html
+ *  http://rick-hightower.blogspot.com/2015/02/qbit-event-bus.html
+
+ ******************************************************************************/
+
 package io.advantageous.qbit.server;
 
 import io.advantageous.qbit.GlobalConstants;
@@ -8,7 +63,7 @@ import io.advantageous.qbit.json.JsonMapper;
 import io.advantageous.qbit.message.MethodCall;
 import io.advantageous.qbit.message.Request;
 import io.advantageous.qbit.message.Response;
-import io.advantageous.qbit.queue.*;
+import io.advantageous.qbit.queue.ReceiveQueueListener;
 import io.advantageous.qbit.service.ServiceBundle;
 import io.advantageous.qbit.spi.ProtocolEncoder;
 import io.advantageous.qbit.spi.ProtocolParser;
@@ -17,7 +72,8 @@ import org.boon.core.Sys;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import static org.boon.Boon.puts;
@@ -30,18 +86,13 @@ import static org.boon.Boon.puts;
 public class ServiceServerImpl implements ServiceServer {
 
 
+    protected final int batchSize;
     private final Logger logger = LoggerFactory.getLogger(ServiceServerImpl.class);
     private final boolean debug = false || GlobalConstants.DEBUG || logger.isDebugEnabled();
-
     private final QBitSystemManager systemManager;
-
-
-
     protected WebSocketServiceServerHandler webSocketHandler;
     protected HttpRequestServiceServerHandler httpRequestServerHandler;
-
     protected int timeoutInSeconds = 30;
-    protected final int batchSize;
     protected ProtocolEncoder encoder;
     protected HttpServer httpServer;
     protected ServiceBundle serviceBundle;
@@ -50,23 +101,10 @@ public class ServiceServerImpl implements ServiceServer {
     protected Object context = Sys.contextToHold();
 
 
-
-
     private AtomicBoolean stop = new AtomicBoolean();
 
 
-
-
-    public ServiceServerImpl(final HttpServer httpServer,
-                             final ProtocolEncoder encoder,
-                             final ProtocolParser parser,
-                             final ServiceBundle serviceBundle,
-                             final JsonMapper jsonMapper,
-                             final int timeOutInSeconds,
-                             final int numberOfOutstandingRequests,
-                             final int batchSize,
-                             final int flushInterval,
-                             final QBitSystemManager systemManager) {
+    public ServiceServerImpl(final HttpServer httpServer, final ProtocolEncoder encoder, final ProtocolParser parser, final ServiceBundle serviceBundle, final JsonMapper jsonMapper, final int timeOutInSeconds, final int numberOfOutstandingRequests, final int batchSize, final int flushInterval, final QBitSystemManager systemManager) {
 
         this.systemManager = systemManager;
         this.encoder = encoder;
@@ -80,8 +118,6 @@ public class ServiceServerImpl implements ServiceServer {
         webSocketHandler = new WebSocketServiceServerHandler(batchSize, serviceBundle, encoder, parser);
         httpRequestServerHandler = new HttpRequestServiceServerHandler(this.timeoutInSeconds, this.encoder, this.parser, serviceBundle, jsonMapper, numberOfOutstandingRequests, flushInterval);
     }
-
-
 
 
     @Override
@@ -109,18 +145,18 @@ public class ServiceServerImpl implements ServiceServer {
 
         try {
             serviceBundle.stop();
-        }catch (Exception ex) {
-            if (debug) logger.debug("Unable to cleanly shutdown bundle", ex);
+        } catch ( Exception ex ) {
+            if ( debug ) logger.debug("Unable to cleanly shutdown bundle", ex);
         }
 
         try {
             httpServer.stop();
-        }catch (Exception ex) {
-            if (debug) logger.debug("Unable to cleanly shutdown httpServer", ex);
+        } catch ( Exception ex ) {
+            if ( debug ) logger.debug("Unable to cleanly shutdown httpServer", ex);
         }
 
 
-        if (systemManager!=null) systemManager.serviceShutDown();
+        if ( systemManager != null ) systemManager.serviceShutDown();
 
     }
 
@@ -142,19 +178,18 @@ public class ServiceServerImpl implements ServiceServer {
         return new ReceiveQueueListener<Response<Object>>() {
 
 
-
             List<Response<Object>> responseBatch = new ArrayList<>();
 
             @Override
             public void receive(final Response<Object> response) {
 
-                if (debug) {
+                if ( debug ) {
                     puts("createResponseQueueListener() Received a response", response);
                 }
 
                 responseBatch.add(response);
 
-                if (responseBatch.size() >= batchSize) {
+                if ( responseBatch.size() >= batchSize ) {
                     handleResponseFromServiceBundle(new ArrayList<>(responseBatch));
                     responseBatch.clear();
                 }
@@ -164,7 +199,6 @@ public class ServiceServerImpl implements ServiceServer {
 
             @Override
             public void limit() {
-
 
 
                 handleResponseFromServiceBundle(new ArrayList<>(responseBatch));
@@ -198,7 +232,6 @@ public class ServiceServerImpl implements ServiceServer {
     }
 
 
-
     /**
      * Handle a response from the server.
      *
@@ -207,15 +240,14 @@ public class ServiceServerImpl implements ServiceServer {
     private void handleResponseFromServiceBundle(final List<Response<Object>> responses) {
 
 
-
-        for (Response<Object> response : responses) {
+        for ( Response<Object> response : responses ) {
 
             final Request<Object> request = response.request();
 
-            if (request instanceof MethodCall) {
+            if ( request instanceof MethodCall ) {
 
 
-                final MethodCall<Object> methodCall = ((MethodCall<Object>) request);
+                final MethodCall<Object> methodCall = ( ( MethodCall<Object> ) request );
                 final Request<Object> originatingRequest = methodCall.originatingRequest();
 
                 handleResponseFromServiceBundle(response, originatingRequest);
@@ -229,20 +261,19 @@ public class ServiceServerImpl implements ServiceServer {
 
         /* TODO Since websockets can be for many requests, we need a counter of some sort. */
 
-        if (originatingRequest instanceof HttpRequest) {
+        if ( originatingRequest instanceof HttpRequest ) {
 
-            if (originatingRequest.isHandled()) {
+            if ( originatingRequest.isHandled() ) {
                 return; // the operation timed out
             }
             originatingRequest.handled(); //Let others know that it is handled.
 
 
-
-            httpRequestServerHandler.handleResponseFromServiceToHttpResponse(response, (HttpRequest) originatingRequest);
-        } else if (originatingRequest instanceof WebSocketMessage) {
+            httpRequestServerHandler.handleResponseFromServiceToHttpResponse(response, ( HttpRequest ) originatingRequest);
+        } else if ( originatingRequest instanceof WebSocketMessage ) {
             originatingRequest.handled(); //Let others know that it is handled.
 
-            webSocketHandler.handleResponseFromServiceBundleToWebSocketSender(response, (WebSocketMessage) originatingRequest);
+            webSocketHandler.handleResponseFromServiceBundleToWebSocketSender(response, ( WebSocketMessage ) originatingRequest);
         } else {
 
             throw new IllegalStateException("Unknown response " + response);
@@ -256,13 +287,12 @@ public class ServiceServerImpl implements ServiceServer {
     }
 
 
-
     @Override
     public ServiceServer initServices(Iterable services) {
 
 
-        for (Object service : services) {
-            if (debug) logger.debug("registering service: " + service.getClass().getName());
+        for ( Object service : services ) {
+            if ( debug ) logger.debug("registering service: " + service.getClass().getName());
             serviceBundle.addService(service);
             httpRequestServerHandler.addRestSupportFor(service.getClass(), serviceBundle.address());
         }
@@ -276,8 +306,8 @@ public class ServiceServerImpl implements ServiceServer {
     public ServiceServer initServices(Object... services) {
 
 
-        for (Object service : services) {
-            if (debug) logger.debug("registering service: " + service.getClass().getName());
+        for ( Object service : services ) {
+            if ( debug ) logger.debug("registering service: " + service.getClass().getName());
             serviceBundle.addService(service);
             httpRequestServerHandler.addRestSupportFor(service.getClass(), serviceBundle.address());
         }

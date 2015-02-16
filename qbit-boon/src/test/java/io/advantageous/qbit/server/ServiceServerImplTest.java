@@ -1,3 +1,58 @@
+/*******************************************************************************
+
+  * Copyright (c) 2015. Rick Hightower, Geoff Chandler
+  *
+  * Licensed under the Apache License, Version 2.0 (the "License");
+  * you may not use this file except in compliance with the License.
+  * You may obtain a copy of the License at
+  *
+  *  		http://www.apache.org/licenses/LICENSE-2.0
+  *
+  * Unless required by applicable law or agreed to in writing, software
+  * distributed under the License is distributed on an "AS IS" BASIS,
+  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  * See the License for the specific language governing permissions and
+  * limitations under the License.
+  *  ________ __________.______________
+  *  \_____  \\______   \   \__    ___/
+  *   /  / \  \|    |  _/   | |    |  ______
+  *  /   \_/.  \    |   \   | |    | /_____/
+  *  \_____\ \_/______  /___| |____|
+  *         \__>      \/
+  *  ___________.__                  ____.                        _____  .__                                             .__
+  *  \__    ___/|  |__   ____       |    |____ ___  _______      /     \ |__| ___________  ____  ______ ______________  _|__| ____  ____
+  *    |    |   |  |  \_/ __ \      |    \__  \\  \/ /\__  \    /  \ /  \|  |/ ___\_  __ \/  _ \/  ___// __ \_  __ \  \/ /  |/ ___\/ __ \
+  *    |    |   |   Y  \  ___/  /\__|    |/ __ \\   /  / __ \_ /    Y    \  \  \___|  | \(  <_> )___ \\  ___/|  | \/\   /|  \  \__\  ___/
+  *    |____|   |___|  /\___  > \________(____  /\_/  (____  / \____|__  /__|\___  >__|   \____/____  >\___  >__|    \_/ |__|\___  >___  >
+  *                  \/     \/                \/           \/          \/        \/                 \/     \/                    \/    \/
+  *  .____    ._____.
+  *  |    |   |__\_ |__
+  *  |    |   |  || __ \
+  *  |    |___|  || \_\ \
+  *  |_______ \__||___  /
+  *          \/       \/
+  *       ____. _________________    _______         __      __      ___.     _________              __           __      _____________________ ____________________
+  *      |    |/   _____/\_____  \   \      \       /  \    /  \ ____\_ |__  /   _____/ ____   ____ |  | __ _____/  |_    \______   \_   _____//   _____/\__    ___/
+  *      |    |\_____  \  /   |   \  /   |   \      \   \/\/   // __ \| __ \ \_____  \ /  _ \_/ ___\|  |/ // __ \   __\    |       _/|    __)_ \_____  \   |    |
+  *  /\__|    |/        \/    |    \/    |    \      \        /\  ___/| \_\ \/        (  <_> )  \___|    <\  ___/|  |      |    |   \|        \/        \  |    |
+  *  \________/_______  /\_______  /\____|__  / /\    \__/\  /  \___  >___  /_______  /\____/ \___  >__|_ \\___  >__| /\   |____|_  /_______  /_______  /  |____|
+  *                   \/         \/         \/  )/         \/       \/    \/        \/            \/     \/    \/     )/          \/        \/        \/
+  *  __________           __  .__              __      __      ___.
+  *  \______   \ ____   _/  |_|  |__   ____   /  \    /  \ ____\_ |__
+  *  |    |  _// __ \  \   __\  |  \_/ __ \  \   \/\/   // __ \| __ \
+  *   |    |   \  ___/   |  | |   Y  \  ___/   \        /\  ___/| \_\ \
+  *   |______  /\___  >  |__| |___|  /\___  >   \__/\  /  \___  >___  /
+  *          \/     \/             \/     \/         \/       \/    \/
+  *
+  * QBit - The Microservice lib for Java : JSON, WebSocket, REST. Be The Web!
+  *  http://rick-hightower.blogspot.com/2014/12/rise-of-machines-writing-high-speed.html
+  *  http://rick-hightower.blogspot.com/2014/12/quick-guide-to-programming-services-in.html
+  *  http://rick-hightower.blogspot.com/2015/01/quick-start-qbit-programming.html
+  *  http://rick-hightower.blogspot.com/2015/01/high-speed-soa.html
+  *  http://rick-hightower.blogspot.com/2015/02/qbit-event-bus.html
+
+ ******************************************************************************/
+
 package io.advantageous.qbit.server;
 
 import io.advantageous.qbit.Factory;
@@ -34,30 +89,234 @@ import static org.boon.Exceptions.die;
 
 public class ServiceServerImplTest {
 
+    static AtomicInteger timeOutCounter = new AtomicInteger();
+    volatile int callMeCounter = 0;
+    volatile int responseCounter = 0;
+    volatile int failureCounter = 0;
+    volatile String lastResponse = "";
     private ServiceServer objectUnderTest;
     private ServiceServerImpl serviceServerImpl;
     private HttpServerMock httpServer;
     private boolean ok = true;
 
+    @Before
+    public void setup() {
+        final Factory factory = QBit.factory();
+        final ProtocolParser protocolParser = factory.createProtocolParser();
+        final ProtocolEncoder encoder = factory.createEncoder();
 
-    volatile int callMeCounter = 0;
-
-    volatile int responseCounter = 0;
-
-
-    volatile int failureCounter = 0;
+        final ServiceBundle serviceBundle = new ServiceBundleBuilder().setAddress("/services").build();
+        final JsonMapper mapper = factory.createJsonMapper();
 
 
-    static AtomicInteger  timeOutCounter = new AtomicInteger();
+        httpServer = new HttpServerMock();
+        serviceServerImpl = new ServiceServerImpl(httpServer, encoder, protocolParser, serviceBundle, mapper, 1, 100, 30, 10, null);
 
-    volatile String lastResponse = "";
+
+        callMeCounter = 0;
+        responseCounter = 0;
+        serviceServerImpl.initServices(new ServiceMockObject());
+        serviceServerImpl.start();
+
+        Sys.sleep(500);
+
+
+    }
+
+    @Test
+    public void testSimpleHTTPRequest() throws Exception {
+
+        final HttpRequest request = new HttpRequestBuilder().setUri("/services/mock/callme").setTextResponse(new MockResponse()).setBody("").build();
+
+        httpServer.sendRequest(request);
+
+
+        Sys.sleep(200);
+        serviceServerImpl.flush();
+        Sys.sleep(200);
+
+        ok |= responseCounter == 1 || die();
+        ok |= callMeCounter == 1 || die();
+
+
+    }
+
+    @Test
+    public void testTimeOut() throws Exception {
+
+        timeOutCounter.set(0);
+        Sys.sleep(10);
+
+        final HttpRequest request = new HttpRequestBuilder().setUri("/services/mock/timeOut").setTextResponse(new MockResponse()).setBody("").build();
+
+        httpServer.sendRequest(request);
+
+
+        Sys.sleep(3000);
+
+
+        ok |= responseCounter == 0 || die();
+        ok |= callMeCounter == 0 || die();
+        ok |= timeOutCounter.get() >= 1 || die(); //TODO fix
+
+
+    }
+
+    @Test
+    public void testSimplePOST_HTTPRequest() throws Exception {
+
+        final HttpRequest request = new HttpRequestBuilder().setUri("/services/mock/callPost").setTextResponse(new MockResponse()).setMethod("POST").setBody("[]").build();
+
+        httpServer.sendRequest(request);
+
+        Sys.sleep(200);
+
+        serviceServerImpl.flush();
+
+        Sys.sleep(200);
+
+
+        ok |= responseCounter == 1 || die();
+        ok |= callMeCounter == 1 || die();
+
+        ok |= lastResponse.equals("\"baconPOST\"") || die();
+
+
+    }
+
+    @Test
+    public void testSimplePOST_HTTPRequest_ErrorWrongHttpMethod() throws Exception {
+
+        final HttpRequest request = new HttpRequestBuilder().setUri("/services/mock/callPost").setTextResponse(new MockResponse()).setBody("[]").build();
+
+        httpServer.sendRequest(request);
+
+        Sys.sleep(200);
+
+
+        ok |= failureCounter == 1 || die();
+        ok |= callMeCounter == 0 || die();
+
+        ok |= responseCounter == 0 || die();
+        puts(lastResponse);
+
+
+    }
+
+    @Test
+    public void testAsyncCallHttp() throws Exception {
+
+        final HttpRequest request = new HttpRequestBuilder().setUri("/services/mock/callWithReturn").setTextResponse(new MockResponse()).setBody("").build();
+
+        httpServer.sendRequest(request);
+
+        Sys.sleep(200);
+        serviceServerImpl.flush();
+
+        Sys.sleep(200);
+
+
+        ok |= responseCounter == 1 || die();
+        ok |= callMeCounter == 1 || die();
+        ok |= lastResponse.equals("\"bacon\"") || die();
+
+
+    }
+
+    @Test
+    public void testWesocketCallThatIsCrap() throws Exception {
+
+
+        httpServer.sendWebSocketServerMessage(new WebSocketMessageBuilder().setMessage("CRAP")
+
+                .setRemoteAddress("/crap/at/crap").setSender(new MockWebSocketSender()).build());
+
+
+        Sys.sleep(200);
+        serviceServerImpl.flush();
+
+        Sys.sleep(200);
+
+
+        ok |= responseCounter == 1 || die();
+        ok |= failureCounter == 1 || die();
+
+    }
+
+    @Test
+    public void testWebSocketCall() throws Exception {
+
+        final MethodCall<Object> methodCall = new MethodCallBuilder().setObjectName("serviceMockObject").setName("callWithReturn").setBody(null).build();
+
+        final String message = QBit.factory().createEncoder().encodeAsString(Lists.list(methodCall));
+
+        httpServer.sendWebSocketServerMessage(new WebSocketMessageBuilder().setRemoteAddress("/foo").setMessage(message).setSender(new MockWebSocketSender()).build());
+
+
+        Sys.sleep(200);
+
+
+        serviceServerImpl.flush();
+
+        Sys.sleep(200);
+
+
+        ok |= responseCounter == 1 || die();
+        ok |= failureCounter == 0 || die();
+
+    }
+
+    @Test
+    public void testExceptionCall() throws Exception {
+
+        final HttpRequest request = new HttpRequestBuilder().setUri("/services/mock/exceptionCall").setTextResponse(new MockResponse()).setBody("").build();
+
+        httpServer.sendRequest(request);
+
+        Sys.sleep(200);
+
+
+        serviceServerImpl.flush();
+
+        Sys.sleep(200);
+
+
+        ok |= failureCounter == 1 || die();
+        ok |= callMeCounter == 1 || die();
+        ok |= lastResponse.equals("\"java.lang.RuntimeException: EXCEPTION_CALL\"") || die();
+
+
+    }
+
+    @Test
+    public void testExceptionCallWebSocket() throws Exception {
+
+        final MethodCall<Object> methodCall = new MethodCallBuilder().setObjectName("serviceMockObject").setName("exceptionCall").setBody(null).build();
+
+        final String message = QBit.factory().createEncoder().encodeAsString(Lists.list(methodCall));
+
+        httpServer.sendWebSocketServerMessage(new WebSocketMessageBuilder().setRemoteAddress("/error").setMessage(message).setSender(new MockWebSocketSender()).build());
+
+
+        Sys.sleep(200);
+
+
+        serviceServerImpl.flush();
+
+        Sys.sleep(200);
+
+
+        ok |= failureCounter == 1 || die();
+        ok |= callMeCounter == 1 || die();
+
+    }
 
     @RequestMapping("/mock")
-    public  class ServiceMockObject {
+    public class ServiceMockObject {
 
         @RequestMapping("/callme")
         public void callMe() {
-           callMeCounter++;
+            callMeCounter++;
         }
 
         @RequestMapping("/timeOut")
@@ -91,268 +350,6 @@ public class ServiceServerImplTest {
         }
     }
 
-    @Before
-    public void setup() {
-        final Factory factory = QBit.factory();
-        final ProtocolParser protocolParser = factory.createProtocolParser();
-        final ProtocolEncoder encoder = factory.createEncoder();
-
-        final ServiceBundle serviceBundle = new ServiceBundleBuilder().setAddress("/services").build();
-        final JsonMapper mapper = factory.createJsonMapper();
-
-
-
-        httpServer = new HttpServerMock();
-        serviceServerImpl = new ServiceServerImpl(httpServer,
-                                encoder,
-                                protocolParser,
-                                serviceBundle,
-                                mapper,
-                                1, 100, 30, 10, null);
-
-
-        callMeCounter = 0;
-        responseCounter = 0;
-        serviceServerImpl.initServices(new ServiceMockObject());
-        serviceServerImpl.start();
-
-        Sys.sleep(500);
-
-
-
-
-
-    }
-
-    @Test
-    public void testSimpleHTTPRequest() throws Exception {
-
-        final HttpRequest request = new HttpRequestBuilder()
-                .setUri("/services/mock/callme")
-                .setTextResponse(new MockResponse())
-                .setBody("").build();
-
-        httpServer.sendRequest(request);
-
-
-        Sys.sleep(200);
-        serviceServerImpl.flush();
-        Sys.sleep(200);
-
-        ok |= responseCounter == 1 || die();
-        ok |= callMeCounter == 1 || die();
-
-
-
-    }
-
-    @Test
-    public void testTimeOut() throws Exception {
-
-        timeOutCounter.set(0);
-        Sys.sleep(10);
-
-        final HttpRequest request = new HttpRequestBuilder()
-                .setUri("/services/mock/timeOut")
-                .setTextResponse(new MockResponse())
-                .setBody("").build();
-
-        httpServer.sendRequest(request);
-
-
-        Sys.sleep(3000);
-
-
-        ok |= responseCounter == 0 || die();
-        ok |= callMeCounter == 0 || die();
-        ok |= timeOutCounter.get() >= 1 || die(); //TODO fix
-
-
-
-
-    }
-
-    @Test
-    public void testSimplePOST_HTTPRequest() throws Exception {
-
-        final HttpRequest request = new HttpRequestBuilder()
-                .setUri("/services/mock/callPost")
-                .setTextResponse(new MockResponse()).setMethod("POST")
-                .setBody("[]").build();
-
-        httpServer.sendRequest(request);
-
-        Sys.sleep(200);
-
-        serviceServerImpl.flush();
-
-        Sys.sleep(200);
-
-
-        ok |= responseCounter == 1 || die();
-        ok |= callMeCounter == 1 || die();
-
-        ok |= lastResponse.equals("\"baconPOST\"") || die();
-
-
-
-    }
-
-
-    @Test
-    public void testSimplePOST_HTTPRequest_ErrorWrongHttpMethod() throws Exception {
-
-        final HttpRequest request = new HttpRequestBuilder()
-                .setUri("/services/mock/callPost")
-                .setTextResponse(new MockResponse())
-                .setBody("[]").build();
-
-        httpServer.sendRequest(request);
-
-        Sys.sleep(200);
-
-
-
-        ok |= failureCounter == 1 || die();
-        ok |= callMeCounter == 0 || die();
-
-        ok |= responseCounter == 0 || die();
-        puts(lastResponse);
-
-
-    }
-
-    @Test
-    public void testAsyncCallHttp() throws Exception {
-
-        final HttpRequest request = new HttpRequestBuilder()
-                .setUri("/services/mock/callWithReturn")
-                .setTextResponse(new MockResponse())
-                .setBody("").build();
-
-        httpServer.sendRequest(request);
-
-        Sys.sleep(200);
-        serviceServerImpl.flush();
-
-        Sys.sleep(200);
-
-
-
-        ok |= responseCounter == 1 || die();
-        ok |= callMeCounter == 1 || die();
-        ok |= lastResponse.equals("\"bacon\"") || die();
-
-
-
-    }
-
-    @Test
-    public void testWesocketCallThatIsCrap() throws Exception {
-
-
-        httpServer.sendWebSocketServerMessage(new WebSocketMessageBuilder().setMessage("CRAP")
-
-                .setRemoteAddress("/crap/at/crap").setSender(new MockWebSocketSender()).build());
-
-
-        Sys.sleep(200);
-        serviceServerImpl.flush();
-
-        Sys.sleep(200);
-
-
-        ok |= responseCounter == 1 || die();
-        ok |= failureCounter == 1 || die();
-
-    }
-
-    @Test
-    public void testWebSocketCall() throws Exception {
-
-        final MethodCall<Object> methodCall = new MethodCallBuilder().setObjectName("serviceMockObject").setName("callWithReturn").setBody(null).build();
-
-        final String message = QBit.factory().createEncoder().encodeAsString(Lists.list(methodCall));
-
-        httpServer.sendWebSocketServerMessage(new WebSocketMessageBuilder()
-                .setRemoteAddress("/foo").setMessage(message).setSender(new MockWebSocketSender()).build());
-
-
-
-        Sys.sleep(200);
-
-
-        serviceServerImpl.flush();
-
-        Sys.sleep(200);
-
-
-
-        ok |= responseCounter == 1 || die();
-        ok |= failureCounter == 0 || die();
-
-    }
-
-
-
-    @Test
-    public void testExceptionCall() throws Exception {
-
-        final HttpRequest request = new HttpRequestBuilder()
-                .setUri("/services/mock/exceptionCall")
-                .setTextResponse(new MockResponse())
-                .setBody("").build();
-
-        httpServer.sendRequest(request);
-
-        Sys.sleep(200);
-
-
-        serviceServerImpl.flush();
-
-        Sys.sleep(200);
-
-
-
-
-        ok |= failureCounter == 1 || die();
-        ok |= callMeCounter == 1 || die();
-        ok |= lastResponse.equals("\"java.lang.RuntimeException: EXCEPTION_CALL\"") || die();
-
-
-
-    }
-
-    @Test
-    public void testExceptionCallWebSocket() throws Exception {
-
-        final MethodCall<Object> methodCall = new MethodCallBuilder().setObjectName("serviceMockObject").setName("exceptionCall").setBody(null).build();
-
-        final String message = QBit.factory().createEncoder().encodeAsString(Lists.list(methodCall));
-
-        httpServer.sendWebSocketServerMessage(new WebSocketMessageBuilder().setRemoteAddress("/error").setMessage(message).setSender(new MockWebSocketSender()).build());
-
-
-
-        Sys.sleep(200);
-
-
-        serviceServerImpl.flush();
-
-        Sys.sleep(200);
-
-
-
-
-        ok |= failureCounter == 1 || die();
-        ok |= callMeCounter == 1 || die();
-
-    }
-
-
-
-
-
     class MockResponse implements HttpTextResponse {
 
         @Override
@@ -361,13 +358,12 @@ public class ServiceServerImplTest {
             puts("RESPONSE", code, mimeType, body);
             lastResponse = body;
 
-            if (code==200) {
+            if ( code == 200 ) {
                 responseCounter++;
-            } else if (code == 408) {
+            } else if ( code == 408 ) {
                 timeOutCounter.incrementAndGet();
                 puts("GOT TIME OUT 408", timeOutCounter);
-            }
-            else {
+            } else {
                 failureCounter++;
                 puts("FAILURE", code, mimeType, body);
             }
@@ -383,12 +379,12 @@ public class ServiceServerImplTest {
 
             final List<Message<Object>> messages = QBit.factory().createProtocolParser().parse("", message);
 
-            if (messages.size() == 1) {
+            if ( messages.size() == 1 ) {
 
 
                 responseCounter++;
-                final Response<Object> response = (Response<Object>) messages.get(0);
-                if (response.wasErrors()) {
+                final Response<Object> response = ( Response<Object> ) messages.get(0);
+                if ( response.wasErrors() ) {
                     failureCounter++;
                 }
             }

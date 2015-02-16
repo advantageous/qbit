@@ -1,5 +1,6 @@
-/*
- * Copyright 2013-2014 Richard M. Hightower
+/*******************************************************************************
+ * Copyright (c) 2015. Rick Hightower, Geoff Chandler
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -11,21 +12,44 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
+ *  ________ __________.______________
+ *  \_____  \\______   \   \__    ___/
+ *   /  / \  \|    |  _/   | |    |  ______
+ *  /   \_/.  \    |   \   | |    | /_____/
+ *  \_____\ \_/______  /___| |____|
+ *         \__>      \/
+ *  ___________.__                  ____.                        _____  .__                                             .__
+ *  \__    ___/|  |__   ____       |    |____ ___  _______      /     \ |__| ___________  ____  ______ ______________  _|__| ____  ____
+ *    |    |   |  |  \_/ __ \      |    \__  \\  \/ /\__  \    /  \ /  \|  |/ ___\_  __ \/  _ \/  ___// __ \_  __ \  \/ /  |/ ___\/ __ \
+ *    |    |   |   Y  \  ___/  /\__|    |/ __ \\   /  / __ \_ /    Y    \  \  \___|  | \(  <_> )___ \\  ___/|  | \/\   /|  \  \__\  ___/
+ *    |____|   |___|  /\___  > \________(____  /\_/  (____  / \____|__  /__|\___  >__|   \____/____  >\___  >__|    \_/ |__|\___  >___  >
+ *                  \/     \/                \/           \/          \/        \/                 \/     \/                    \/    \/
+ *  .____    ._____.
+ *  |    |   |__\_ |__
+ *  |    |   |  || __ \
+ *  |    |___|  || \_\ \
+ *  |_______ \__||___  /
+ *          \/       \/
+ *       ____. _________________    _______         __      __      ___.     _________              __           __      _____________________ ____________________
+ *      |    |/   _____/\_____  \   \      \       /  \    /  \ ____\_ |__  /   _____/ ____   ____ |  | __ _____/  |_    \______   \_   _____//   _____/\__    ___/
+ *      |    |\_____  \  /   |   \  /   |   \      \   \/\/   // __ \| __ \ \_____  \ /  _ \_/ ___\|  |/ // __ \   __\    |       _/|    __)_ \_____  \   |    |
+ *  /\__|    |/        \/    |    \/    |    \      \        /\  ___/| \_\ \/        (  <_> )  \___|    <\  ___/|  |      |    |   \|        \/        \  |    |
+ *  \________/_______  /\_______  /\____|__  / /\    \__/\  /  \___  >___  /_______  /\____/ \___  >__|_ \\___  >__| /\   |____|_  /_______  /_______  /  |____|
+ *                   \/         \/         \/  )/         \/       \/    \/        \/            \/     \/    \/     )/          \/        \/        \/
+ *  __________           __  .__              __      __      ___.
+ *  \______   \ ____   _/  |_|  |__   ____   /  \    /  \ ____\_ |__
+ *  |    |  _// __ \  \   __\  |  \_/ __ \  \   \/\/   // __ \| __ \
+ *   |    |   \  ___/   |  | |   Y  \  ___/   \        /\  ___/| \_\ \
+ *   |______  /\___  >  |__| |___|  /\___  >   \__/\  /  \___  >___  /
+ *          \/     \/             \/     \/         \/       \/    \/
  *
- * __________                              _____          __   .__
- * \______   \ ____   ____   ____   /\    /     \ _____  |  | _|__| ____    ____
- *  |    |  _//  _ \ /  _ \ /    \  \/   /  \ /  \\__  \ |  |/ /  |/    \  / ___\
- *  |    |   (  <_> |  <_> )   |  \ /\  /    Y    \/ __ \|    <|  |   |  \/ /_/  >
- *  |______  /\____/ \____/|___|  / \/  \____|__  (____  /__|_ \__|___|  /\___  /
- *         \/                   \/              \/     \/     \/       \//_____/
- *      ____.                     ___________   _____    ______________.___.
- *     |    |____ ___  _______    \_   _____/  /  _  \  /   _____/\__  |   |
- *     |    \__  \\  \/ /\__  \    |    __)_  /  /_\  \ \_____  \  /   |   |
- * /\__|    |/ __ \\   /  / __ \_  |        \/    |    \/        \ \____   |
- * \________(____  /\_/  (____  / /_______  /\____|__  /_______  / / ______|
- *               \/           \/          \/         \/        \/  \/
- */
-
+ * QBit - The Microservice lib for Java : JSON, WebSocket, REST. Be The Web!
+ *  http://rick-hightower.blogspot.com/2014/12/rise-of-machines-writing-high-speed.html
+ *  http://rick-hightower.blogspot.com/2014/12/quick-guide-to-programming-services-in.html
+ *  http://rick-hightower.blogspot.com/2015/01/quick-start-qbit-programming.html
+ *  http://rick-hightower.blogspot.com/2015/01/high-speed-soa.html
+ *  http://rick-hightower.blogspot.com/2015/02/qbit-event-bus.html
+ ******************************************************************************/
 package io.advantageous.qbit.client;
 
 import io.advantageous.qbit.QBit;
@@ -34,10 +58,9 @@ import io.advantageous.qbit.http.websocket.WebSocket;
 import io.advantageous.qbit.message.Message;
 import io.advantageous.qbit.message.MethodCall;
 import io.advantageous.qbit.message.Response;
-
+import io.advantageous.qbit.message.impl.MethodCallImpl;
 import io.advantageous.qbit.service.BeforeMethodCall;
 import io.advantageous.qbit.service.Callback;
-import io.advantageous.qbit.message.impl.MethodCallImpl;
 import org.boon.Boon;
 import org.boon.Logger;
 import org.boon.Str;
@@ -54,7 +77,8 @@ import java.lang.reflect.Type;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-import java.util.concurrent.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import static io.advantageous.qbit.service.Protocol.PROTOCOL_ARG_SEPARATOR;
 import static org.boon.Boon.sputs;
@@ -71,6 +95,18 @@ public class BoonClient implements Client {
 
     private final String uri;
     /**
+     * The server we are calling.
+     */
+    private final HttpClient httpServerProxy;
+    /**
+     * Request batch size for queing.
+     */
+    private final int requestBatchSize;
+    /**
+     * Holds on to Boon cache so we don't have to recreate reflected gak.
+     */
+    Object context = Sys.contextToHold();
+    /**
      * Map of handlers so we can do the whole async call back thing.
      */
     private Map<HandlerKey, Callback<Object>> handlers = new ConcurrentHashMap<>();
@@ -78,20 +114,15 @@ public class BoonClient implements Client {
      * Logger.
      */
     private Logger logger = Boon.logger(BoonClient.class);
-    /** The server we are calling. */
-    private final HttpClient httpServerProxy;
-    /** List of client proxies that we are managing for periodic flush. */
+    /**
+     * List of client proxies that we are managing for periodic flush.
+     */
     private List<ClientProxy> clientProxies = new CopyOnWriteArrayList<>();
-    /** Request batch size for queing. */
-    private final int requestBatchSize;
-    /** Holds on to Boon cache so we don't have to recreate reflected gak. */
-    Object context = Sys.contextToHold();
     private WebSocket webSocket;
 
     /**
-     *
      * @param httpClient httpClient
-     * @param uri uri
+     * @param uri        uri
      */
     public BoonClient(String uri, HttpClient httpClient, int requestBatchSize) {
 
@@ -107,10 +138,10 @@ public class BoonClient implements Client {
     public void stop() {
         flush();
         Sys.sleep(100); //TODO really? Get rid of this and retest
-        if (httpServerProxy !=null) {
+        if ( httpServerProxy != null ) {
             try {
                 httpServerProxy.stop();
-            } catch (Exception ex) {
+            } catch ( Exception ex ) {
 
                 logger.warn(ex, "Problem closing httpServerProxy ");
             }
@@ -128,20 +159,17 @@ public class BoonClient implements Client {
     private void handleWebSocketReplyMessage(final String websocketText) {
 
 
-        final List<Message<Object>> messages =
-                QBit.factory().createProtocolParser().parse("", websocketText);
+        final List<Message<Object>> messages = QBit.factory().createProtocolParser().parse("", websocketText);
 
 
-        for (Message<Object> message : messages) {
-            if (message instanceof Response) {
-                final Response<Object> response = ((Response) message);
-                final String[] split = StringScanner.split(response.returnAddress(),
-                        (char) PROTOCOL_ARG_SEPARATOR);
-                final HandlerKey key = split.length == 2 ? new HandlerKey(split[1], response.id()) :
-                        new HandlerKey(split[0], response.id());
-                final Callback<Object>  handler = handlers.get(key);
+        for ( Message<Object> message : messages ) {
+            if ( message instanceof Response ) {
+                final Response<Object> response = ( ( Response ) message );
+                final String[] split = StringScanner.split(response.returnAddress(), ( char ) PROTOCOL_ARG_SEPARATOR);
+                final HandlerKey key = split.length == 2 ? new HandlerKey(split[ 1 ], response.id()) : new HandlerKey(split[ 0 ], response.id());
+                final Callback<Object> handler = handlers.get(key);
 
-                if (handler != null) {
+                if ( handler != null ) {
                     handleAsyncCallback(response, handler);
                     handlers.remove(key);
                 } // else there was no handler, it was a one way method.
@@ -153,75 +181,37 @@ public class BoonClient implements Client {
      * Handles an async callback.
      */
     private void handleAsyncCallback(final Response<Object> response, final Callback<Object> handler) {
-            if (response.wasErrors()) {
-                handler.onError(new Exception(response.body().toString()));
-            } else {
-                handler.accept(response.body());
-            }
+        if ( response.wasErrors() ) {
+            handler.onError(new Exception(response.body().toString()));
+        } else {
+            handler.accept(response.body());
+        }
     }
 
-    /** Flush the calls and flush the proxy. */
+    /**
+     * Flush the calls and flush the proxy.
+     */
     public void flush() {
-        for (ClientProxy clientProxy : clientProxies) {
+        for ( ClientProxy clientProxy : clientProxies ) {
             clientProxy.clientProxyFlush();
         }
         httpServerProxy.flush();
     }
 
-
-    /**
-     * Key to store callback in call back map.
-     */
-    private class HandlerKey {
-        /**
-         * Return address
-         */
-        final String returnAddress;
-        /**
-         * Message id
-         */
-        final long messageId;
-
-        private HandlerKey(String returnAddress, long messageId) {
-            this.returnAddress = returnAddress;
-            this.messageId = messageId;
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
-            HandlerKey that = (HandlerKey) o;
-            return messageId == that.messageId
-                    && !(returnAddress != null
-                    ? !returnAddress.equals(that.returnAddress)
-                    : that.returnAddress != null);
-        }
-
-        @Override
-        public int hashCode() {
-            int result = returnAddress != null ? returnAddress.hashCode() : 0;
-            result = 31 * result + (int) (messageId ^ (messageId >>> 32));
-            return result;
-        }
-    }
-
-
-
     /**
      * Sends a message over websocket.
-     * @param message message to sendText over WebSocket
      *
+     * @param message     message to sendText over WebSocket
      * @param serviceName message to sendText over WebSocket
      */
     private void send(final String serviceName, final String message) {
 
-        if (webSocket == null) {
+        if ( webSocket == null ) {
             this.webSocket = httpServerProxy.createWebSocket(Str.add(uri, "/", serviceName));
             wireWebSocket(serviceName, message);
             this.webSocket.openAndWait();
         } else {
-            if (webSocket.isClosed()) {
+            if ( webSocket.isClosed() ) {
                 this.webSocket.openAndWait();
             }
         }
@@ -232,19 +222,10 @@ public class BoonClient implements Client {
 
     private void wireWebSocket(final String serviceName, final String message) {
 
-        this.webSocket.setErrorConsumer( error ->
-                logger.error(sputs(
-                        this.getClass().getName(),
-                        "::Exception calling WebSocket from client proxy",
-                        "\nService Name", serviceName,
-                        "\nMessage", message
-                        ), error)
-        );
+        this.webSocket.setErrorConsumer(error -> logger.error(sputs(this.getClass().getName(), "::Exception calling WebSocket from client proxy", "\nService Name", serviceName, "\nMessage", message), error));
 
-        this.webSocket.setTextMessageConsumer(messageFromServer ->
-                handleWebSocketReplyMessage(messageFromServer));
+        this.webSocket.setTextMessageConsumer(messageFromServer -> handleWebSocketReplyMessage(messageFromServer));
     }
-
 
     /**
      * Creates a new client proxy given a client interface.
@@ -254,13 +235,10 @@ public class BoonClient implements Client {
      * @param <T>              class type of interface
      * @return new client proxy.. calling methods on this proxy marshals method calls to httpServerProxy.
      */
-    public <T> T createProxy(final Class<T> serviceInterface,
-                             final String serviceName) {
+    public <T> T createProxy(final Class<T> serviceInterface, final String serviceName) {
 
 
-        return createProxy(serviceInterface, serviceName,
-                Str.join('-', uri, serviceName,
-                        UUID.randomUUID().toString()));
+        return createProxy(serviceInterface, serviceName, Str.join('-', uri, serviceName, UUID.randomUUID().toString()));
     }
 
     /**
@@ -270,12 +248,9 @@ public class BoonClient implements Client {
      * @param <T>              class type of client interface
      * @return proxy object
      */
-    public <T> T createProxy(final Class<T> serviceInterface,
-                             final String serviceName,
-                             final String returnAddressArg
-    ) {
+    public <T> T createProxy(final Class<T> serviceInterface, final String serviceName, final String returnAddressArg) {
 
-        if (!serviceInterface.isInterface()) {
+        if ( !serviceInterface.isInterface() ) {
             die("QBitClient:: The service interface must be an interface");
         }
 
@@ -285,25 +260,24 @@ public class BoonClient implements Client {
             public boolean before(final MethodCall call) {
 
                 final Object body = call.body();
-                if (body instanceof Object[]) {
+                if ( body instanceof Object[] ) {
 
-                    Object[] list = (Object[]) body;
+                    Object[] list = ( Object[] ) body;
 
-                    if (list.length > 0) {
-                        final Object o = list[0];
-                        if (o instanceof Callback) {
-                            handlers.put(new HandlerKey(call.returnAddress(), call.id()),
-                                    createHandler(serviceInterface, call, (Callback) o));
+                    if ( list.length > 0 ) {
+                        final Object o = list[ 0 ];
+                        if ( o instanceof Callback ) {
+                            handlers.put(new HandlerKey(call.returnAddress(), call.id()), createHandler(serviceInterface, call, ( Callback ) o));
 
-                            if (list.length - 1 == 0) {
-                                list = new Object[0];
+                            if ( list.length - 1 == 0 ) {
+                                list = new Object[ 0 ];
                             } else {
                                 list = Arry.slc(list, 1); //Skip first arg it was a handler.
                             }
 
                         }
-                        if (call instanceof MethodCallImpl) {
-                            MethodCallImpl impl = (MethodCallImpl) call;
+                        if ( call instanceof MethodCallImpl ) {
+                            MethodCallImpl impl = ( MethodCallImpl ) call;
                             impl.setBody(list);
                         }
 
@@ -313,13 +287,10 @@ public class BoonClient implements Client {
                 return true;
             }
         };
-        T proxy = QBit.factory().createRemoteProxyWithReturnAddress(serviceInterface,
-                uri,
-                serviceName, returnAddressArg, (returnAddress, buffer) -> BoonClient.this.send(serviceName, buffer), beforeMethodCall, requestBatchSize
-        );
+        T proxy = QBit.factory().createRemoteProxyWithReturnAddress(serviceInterface, uri, serviceName, returnAddressArg, (returnAddress, buffer) -> BoonClient.this.send(serviceName, buffer), beforeMethodCall, requestBatchSize);
 
-        if (proxy instanceof ClientProxy) {
-            clientProxies.add((ClientProxy) proxy);
+        if ( proxy instanceof ClientProxy ) {
+            clientProxies.add(( ClientProxy ) proxy);
         }
 
         return proxy;
@@ -342,22 +313,21 @@ public class BoonClient implements Client {
         Class<?> returnType = null;
 
         Class<?> compType = null;
-        if (method.parameterTypes().length > 0) {
+        if ( method.parameterTypes().length > 0 ) {
             Type[] genericParameterTypes = method.getGenericParameterTypes();
-            ParameterizedType parameterizedType = genericParameterTypes.length > 0 ?
-                    (ParameterizedType) genericParameterTypes[0] : null;
+            ParameterizedType parameterizedType = genericParameterTypes.length > 0 ? ( ParameterizedType ) genericParameterTypes[ 0 ] : null;
 
-            Type type = (parameterizedType.getActualTypeArguments().length > 0 ? parameterizedType.getActualTypeArguments()[0] : null);
+            Type type = ( parameterizedType.getActualTypeArguments().length > 0 ? parameterizedType.getActualTypeArguments()[ 0 ] : null );
 
-            if (type instanceof ParameterizedType) {
-                returnType = (Class) ((ParameterizedType) type).getRawType();
-                final Type type1 = ((ParameterizedType) type).getActualTypeArguments()[0];
+            if ( type instanceof ParameterizedType ) {
+                returnType = ( Class ) ( ( ParameterizedType ) type ).getRawType();
+                final Type type1 = ( ( ParameterizedType ) type ).getActualTypeArguments()[ 0 ];
 
-                if (type1 instanceof Class) {
-                    compType = (Class) type1;
+                if ( type1 instanceof Class ) {
+                    compType = ( Class ) type1;
                 }
-            } else if (type instanceof Class) {
-                returnType = (Class<?>) type;
+            } else if ( type instanceof Class ) {
+                returnType = ( Class<?> ) type;
             }
 
         }
@@ -370,16 +340,16 @@ public class BoonClient implements Client {
             @Override
             public void accept(Object event) {
 
-                if (actualReturnType != null) {
+                if ( actualReturnType != null ) {
 
                     if ( componentClass != null && actualReturnType == List.class ) {
 
                         try {
-                            event = MapObjectConversion.convertListOfMapsToObjects(componentClass, (List) event);
-                        } catch (Exception ex) {
-                            if (event instanceof CharSequence) {
+                            event = MapObjectConversion.convertListOfMapsToObjects(componentClass, ( List ) event);
+                        } catch ( Exception ex ) {
+                            if ( event instanceof CharSequence ) {
                                 String errorMessage = event.toString();
-                                if (errorMessage.startsWith("java.lang.IllegalState")) {
+                                if ( errorMessage.startsWith("java.lang.IllegalState") ) {
                                     handler.onError(new IllegalStateException(errorMessage));
                                     return;
                                 } else {
@@ -401,13 +371,8 @@ public class BoonClient implements Client {
         };
 
 
-
         return returnHandler;
     }
-
-
-
-
 
     public void start() {
 
@@ -418,5 +383,39 @@ public class BoonClient implements Client {
         });
 
         this.httpServerProxy.start();
+    }
+
+    /**
+     * Key to store callback in call back map.
+     */
+    private class HandlerKey {
+        /**
+         * Return address
+         */
+        final String returnAddress;
+        /**
+         * Message id
+         */
+        final long messageId;
+
+        private HandlerKey(String returnAddress, long messageId) {
+            this.returnAddress = returnAddress;
+            this.messageId = messageId;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if ( this == o ) return true;
+            if ( o == null || getClass() != o.getClass() ) return false;
+            HandlerKey that = ( HandlerKey ) o;
+            return messageId == that.messageId && !( returnAddress != null ? !returnAddress.equals(that.returnAddress) : that.returnAddress != null );
+        }
+
+        @Override
+        public int hashCode() {
+            int result = returnAddress != null ? returnAddress.hashCode() : 0;
+            result = 31 * result + ( int ) ( messageId ^ ( messageId >>> 32 ) );
+            return result;
+        }
     }
 }
