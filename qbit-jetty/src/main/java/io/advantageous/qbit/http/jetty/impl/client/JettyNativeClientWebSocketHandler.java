@@ -19,6 +19,7 @@ import static org.boon.Boon.puts;
 /**
  * Created by rhightower on 2/15/15.
  */
+@Deprecated
 public class JettyNativeClientWebSocketHandler extends WebSocketAdapter {
 
     private final Logger logger = LoggerFactory.getLogger(JettyQBitHttpClient.class);

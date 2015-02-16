@@ -38,7 +38,7 @@ public class HttpClientServerJettyTest {
 
     }
 
-    //@Test NOT DONE
+    @Test //NOT DONE
     public void testWebSocket() {
 
         connect(9090);
@@ -77,7 +77,7 @@ public class HttpClientServerJettyTest {
 
     }
 
-    //@Test NOT DONE
+    @Test //NOT DONE
     public void testNewWebSocket() {
 
         connect(9090);
@@ -129,7 +129,7 @@ public class HttpClientServerJettyTest {
     }
 
 
-    //@Test NOT DONE
+    @Test //NOT DONE
     public void testNewOpenWaitWebSocket() {
 
         connect(9090);
@@ -174,7 +174,7 @@ public class HttpClientServerJettyTest {
 
     }
 
-    //@Test NOT DONE
+    @Test //NOT DONE
     public void testNewOpenWaitWebSocketNewServerStuff() {
 
         connect(9090);

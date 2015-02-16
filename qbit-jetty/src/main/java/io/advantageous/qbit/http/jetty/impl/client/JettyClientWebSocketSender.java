@@ -32,20 +32,19 @@ public class JettyClientWebSocketSender implements WebSocketSender {
     private final WebSocketClient webSocketClient;
     private  Session session;
 
-    public JettyClientWebSocketSender(final String host,
+    public JettyClientWebSocketSender(
+                                      final String host,
                                       final int port,
                                       final String uri,
-                                      final WebSocketClient client
-                                      ) {
-
+                                      final WebSocketClient client ) {
         this.webSocketClient = client;
         try {
             connectUri = new URI(Str.add("ws://", host, ":", Integer.toString(port), uri));
         } catch (URISyntaxException e) {
             throw new IllegalStateException(e);
         }
-
     }
+
     @Override
     public void sendText(String message) {
         if (session==null) throw new IllegalStateException("WebSocket not open");
@@ -60,8 +59,10 @@ public class JettyClientWebSocketSender implements WebSocketSender {
 
     @Override
     public void close() {
-        session.close();
-        session = null;
+        if (session!=null) {
+            session.close();
+            session = null;
+        }
     }
 
     @Override
@@ -131,5 +132,9 @@ public class JettyClientWebSocketSender implements WebSocketSender {
         } catch (IOException e) {
             throw new IllegalStateException(e);
         }
+    }
+
+    public URI getConnectUri() {
+        return connectUri;
     }
 }

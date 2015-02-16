@@ -5,6 +5,7 @@ import io.advantageous.qbit.http.client.HttpClient;
 import io.advantageous.qbit.http.request.HttpRequest;
 import io.advantageous.qbit.http.websocket.WebSocket;
 import io.advantageous.qbit.http.websocket.WebSocketMessage;
+import io.advantageous.qbit.http.websocket.WebSocketSender;
 import io.advantageous.qbit.util.MultiMap;
 import org.boon.Str;
 import org.eclipse.jetty.client.api.Request;
@@ -21,6 +22,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.net.URI;
+import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.util.Collection;
 import java.util.Iterator;
@@ -28,6 +30,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
 
+import static io.advantageous.qbit.http.websocket.WebSocketBuilder.webSocketBuilder;
 import static org.boon.Boon.puts;
 import static org.boon.Boon.sputs;
 
@@ -94,26 +97,22 @@ public class JettyQBitHttpClient implements HttpClient {
     }
 
 
-//    public WebSocket createWebSocket(final String uri) {
-//
-//
-//
-//        JettyNativeClientWebSocketHandler webSocketHandler =
-//                createNativeHandler(uri);
-//
-//
-//        return null;
-//    }
-//
-//
-//    private JettyNativeClientWebSocketHandler createNativeHandler(final String uri, final WebSocket webSocket) {
-//        return new JettyNativeClientWebSocketHandler(uri, host, port, new Consumer<WebSocket>() {
-//            @Override
-//            public void accept(WebSocket innerWebSocket) {
-//
-//            }
-//        });
-//    }
+    public WebSocket createWebSocket(final String uri) {
+        JettyClientWebSocketSender webSocketSender =
+                new JettyClientWebSocketSender(
+                    host, port, uri, webSocketClient
+                    );
+
+        WebSocket webSocket = webSocketBuilder()
+                .setUri(uri)
+                .setRemoteAddress(webSocketSender.getConnectUri().toString())
+                .setWebSocketSender(webSocketSender)
+                .build();
+
+        return webSocket;
+    }
+
+
 
     private void copyHeaders(HttpRequest request, Request jettyRequest) {
         final MultiMap<String, String> headers = request.getHeaders();
@@ -190,6 +189,8 @@ public class JettyQBitHttpClient implements HttpClient {
         openWebSocketAndSendMessage(webSocketMessage, existingWebSocket);
     }
 
+
+    @Deprecated
     private void openWebSocketAndSendMessage(final WebSocketMessage webSocketMessage,
                                              final WebSocket existingWebSocket) {
         if (existingWebSocket==null) {
