@@ -1,5 +1,4 @@
 /*******************************************************************************
-
   * Copyright (c) 2015. Rick Hightower, Geoff Chandler
   *
   * Licensed under the Apache License, Version 2.0 (the "License");
@@ -50,8 +49,7 @@
   *  http://rick-hightower.blogspot.com/2015/01/quick-start-qbit-programming.html
   *  http://rick-hightower.blogspot.com/2015/01/high-speed-soa.html
   *  http://rick-hightower.blogspot.com/2015/02/qbit-event-bus.html
-
- ******************************************************************************/
+  ******************************************************************************/
 
 package io.advantageous.qbit.vertx.http.server;
 
@@ -178,24 +176,18 @@ public class HttpServerVertx implements HttpServer {
         simpleHttpServer.start();
 
         if (debug) {
-            vertx.setPeriodic(10_000, new Handler<Long>() {
-                @Override
-                public void handle(Long event) {
-
-                    logger.info("Exceptions", exceptionCount, "Close Count", closeCount);
-                }
-            });
+            vertx.setPeriodic(10_000, event -> logger.info("Exceptions", exceptionCount, "Close Count", closeCount));
         }
         httpServer = vertx.createHttpServer();
 
-        httpServer.setTCPNoDelay(true);//TODO this needs to be in builder
-        httpServer.setSoLinger(0); //TODO this needs to be in builder
-        httpServer.setUsePooledBuffers(true); //TODO this needs to be in builder
-        httpServer.setReuseAddress(true); //TODO this needs to be in builder
-        httpServer.setAcceptBacklog(1_000_000); //TODO this needs to be in builder
-        httpServer.setTCPKeepAlive(true); //TODO this needs to be in builder
-        httpServer.setCompressionSupported(false);//TODO this needs to be in builder
-        httpServer.setMaxWebSocketFrameSize(100_000_000);
+        httpServer.setTCPNoDelay(options.isTcpNoDelay());
+        httpServer.setSoLinger(options.getSoLinger());
+        httpServer.setUsePooledBuffers(options.isUsePooledBuffers());
+        httpServer.setReuseAddress(options.isReuseAddress());
+        httpServer.setAcceptBacklog(options.getAcceptBackLog());
+        httpServer.setTCPKeepAlive(options.isKeepAlive());
+        httpServer.setCompressionSupported(options.isCompressionSupport());
+        httpServer.setMaxWebSocketFrameSize(options.getMaxWebSocketFrameSize());
         httpServer.websocketHandler(this::handleWebSocketMessage);
         httpServer.requestHandler(this::handleHttpRequest);
 

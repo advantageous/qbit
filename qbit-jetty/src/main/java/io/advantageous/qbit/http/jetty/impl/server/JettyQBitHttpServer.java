@@ -103,13 +103,14 @@ public class JettyQBitHttpServer extends SimpleHttpServer {
             puts(options);
         }
         this.server = new Server();
-        configureServer(server);
+        configureServer();
         webSocketServletFactory = webSocketServletFactory();
 
 
     }
 
-    private void configureServer(Server server) {
+    private void configureServer() {
+
         configureThreadPool(options);
         configureConnector(options);
         configureHandler();
@@ -148,6 +149,11 @@ public class JettyQBitHttpServer extends SimpleHttpServer {
     private void configureConnector(HttpServerOptions options) {
         ServerConnector connector = new ServerConnector(server);
         connector.setPort(options.getPort());
+
+        connector.setAcceptQueueSize(options.getAcceptBackLog());
+        connector.setReuseAddress(options.isReuseAddress());
+        connector.setSoLingerTime(options.getSoLinger());
+        connector.setIdleTimeout(options.getIdleTimeout());
         if (options.getHost() != null) {
             connector.setHost(options.getHost());
         }

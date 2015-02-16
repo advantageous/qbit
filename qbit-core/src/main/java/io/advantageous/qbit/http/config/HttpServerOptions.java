@@ -1,5 +1,4 @@
 /*******************************************************************************
-
   * Copyright (c) 2015. Rick Hightower, Geoff Chandler
   *
   * Licensed under the Apache License, Version 2.0 (the "License");
@@ -50,13 +49,13 @@
   *  http://rick-hightower.blogspot.com/2015/01/quick-start-qbit-programming.html
   *  http://rick-hightower.blogspot.com/2015/01/high-speed-soa.html
   *  http://rick-hightower.blogspot.com/2015/02/qbit-event-bus.html
-
- ******************************************************************************/
+  ******************************************************************************/
 
 package io.advantageous.qbit.http.config;
 
 /**
- * Created by rhightower on 2/14/15.
+ * @author  rhightower
+ * on 2/14/15.
  */
 public class HttpServerOptions implements Cloneable {
 
@@ -69,17 +68,16 @@ public class HttpServerOptions implements Cloneable {
     protected int requestBatchSize = 10;
     protected int flushInterval = 100;
     protected int workers = -1;
+    protected boolean tcpNoDelay = true;
+    protected int soLinger = 0;
+    protected boolean usePooledBuffers = true;
+    protected int acceptBackLog = 1_000_000;
+    protected boolean keepAlive = true;
+    protected int maxWebSocketFrameSize = 100_000_000;
+    protected boolean compressionSupport = false;
+    protected boolean reuseAddress = true;
+    protected int idleTimeout = 30_000;
 
-
-//TODO add these and then use them from Jetty.
-//    httpServer.setTCPNoDelay(true);//TODO this needs to be in builder
-//    httpServer.setSoLinger(0); //TODO this needs to be in builder
-//    httpServer.setUsePooledBuffers(true); //TODO this needs to be in builder
-//    httpServer.setReuseAddress(true); //TODO this needs to be in builder
-//    httpServer.setAcceptBacklog(1_000_000); //TODO this needs to be in builder
-//    httpServer.setTCPKeepAlive(true); //TODO this needs to be in builder
-//    httpServer.setCompressionSupported(false);//TODO this needs to be in builder
-//    httpServer.setMaxWebSocketFrameSize(100_000_000);
 
     public HttpServerOptions() {
 
@@ -91,10 +89,9 @@ public class HttpServerOptions implements Cloneable {
         return super.clone();
     }
 
-    public int getWorkers() {
-        return workers;
-    }
-
+    /*
+     * Getter Methods
+     */
     public String getHost() {
         return host;
     }
@@ -127,6 +124,47 @@ public class HttpServerOptions implements Cloneable {
         return flushInterval;
     }
 
+    public int getWorkers() {
+        return workers;
+    }
+
+    public boolean isTcpNoDelay() {
+        return tcpNoDelay;
+    }
+
+    public int getSoLinger() {
+        return soLinger;
+    }
+
+    public boolean isUsePooledBuffers() {
+        return usePooledBuffers;
+    }
+
+    public int getAcceptBackLog() {
+        return acceptBackLog;
+    }
+
+    public boolean isKeepAlive() {
+        return keepAlive;
+    }
+
+    public int getMaxWebSocketFrameSize() {
+        return maxWebSocketFrameSize;
+    }
+
+    public boolean isCompressionSupport() {
+        return compressionSupport;
+    }
+
+    public boolean isReuseAddress() {
+        return reuseAddress;
+    }
+
+
+    public int getIdleTimeout() {
+        return idleTimeout;
+    }
+
     @Override
     public String toString() {
         return "HttpServerOptions{" +
@@ -139,6 +177,14 @@ public class HttpServerOptions implements Cloneable {
                 ", requestBatchSize=" + requestBatchSize +
                 ", flushInterval=" + flushInterval +
                 ", workers=" + workers +
+                ", tcpNoDelay=" + tcpNoDelay +
+                ", soLinger=" + soLinger +
+                ", usePooledBuffers=" + usePooledBuffers +
+                ", acceptBackLog=" + acceptBackLog +
+                ", keepAlive=" + keepAlive +
+                ", maxWebSocketFrameSize=" + maxWebSocketFrameSize +
+                ", compressionSupport=" + compressionSupport +
+                ", reuseAddress=" + reuseAddress +
                 '}';
     }
 }

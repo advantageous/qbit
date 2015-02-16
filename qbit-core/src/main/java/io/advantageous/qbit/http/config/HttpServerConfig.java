@@ -97,5 +97,43 @@ public class HttpServerConfig extends HttpServerOptions {
         this.workers = workers;
     }
 
+    public void setTcpNoDelay(boolean tcpNoDelay) {
+        this.tcpNoDelay = tcpNoDelay;
+    }
+
+    public void setSoLinger(int soLinger) {
+        this.soLinger = soLinger;
+    }
+
+    public void setUsePooledBuffers(boolean usePooledBuffers) {
+        this.usePooledBuffers = usePooledBuffers;
+    }
+
+    public void setAcceptBackLog(int acceptBackLog) {
+        this.acceptBackLog = acceptBackLog;
+    }
+
+    public void setKeepAlive(boolean keepAlive) {
+        this.keepAlive = keepAlive;
+    }
+
+    public void setMaxWebSocketFrameSize(int maxWebSocketFrameSize) {
+        this.maxWebSocketFrameSize = maxWebSocketFrameSize;
+    }
+
+    public void setCompressionSupport(boolean compressionSupport) {
+        this.compressionSupport = compressionSupport;
+    }
+
+    public void setReuseAddress(boolean reuseAddress) {
+        this.reuseAddress = reuseAddress;
+    }
+
+    public void setIdleTimeout(int idleTimeout) {
+        this.idleTimeout = idleTimeout;
+    }
+
+
+
 
 }
