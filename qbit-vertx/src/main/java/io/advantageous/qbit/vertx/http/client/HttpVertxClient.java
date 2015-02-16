@@ -243,7 +243,9 @@ public class HttpVertxClient implements HttpClient {
                     this.vertxWebSocket = vertxWebSocket;
 
                     /* Handle on Message. */
-                    vertxWebSocket.dataHandler(buffer -> webSocket.onTextMessage(buffer.toString("UTF-8")));
+                    vertxWebSocket.dataHandler(
+                            buffer -> webSocket.onTextMessage(buffer.toString("UTF-8"))
+                    );
 
                     /* Handle onClose */
                     vertxWebSocket.closeHandler(event -> {

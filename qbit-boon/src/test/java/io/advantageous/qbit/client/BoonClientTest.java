@@ -1,18 +1,26 @@
 package io.advantageous.qbit.client;
 
+import io.advantageous.qbit.QBit;
 import io.advantageous.qbit.http.client.HttpClient;
 import io.advantageous.qbit.http.request.HttpRequest;
+import io.advantageous.qbit.http.websocket.WebSocket;
+import io.advantageous.qbit.http.websocket.WebSocketBuilder;
 import io.advantageous.qbit.http.websocket.WebSocketMessage;
+import io.advantageous.qbit.http.websocket.WebSocketSender;
+import io.advantageous.qbit.message.MethodCall;
 import io.advantageous.qbit.service.Callback;
 import io.advantageous.qbit.spi.FactorySPI;
 import io.advantageous.qbit.spi.HttpClientFactory;
 import org.boon.core.Sys;
+import org.boon.core.reflection.BeanUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.util.List;
 import java.util.function.Consumer;
 
+import static io.advantageous.qbit.http.websocket.WebSocketBuilder.webSocketBuilder;
 import static org.boon.Boon.puts;
 import static org.boon.Exceptions.die;
 
@@ -20,19 +28,11 @@ public class BoonClientTest {
 
     Client client;
     boolean httpStopCalled;
-
     boolean httpStartCalled;
-
-
     boolean httpSendWebSocketCalled;
-
     boolean httpFlushCalled;
-
     boolean httpPeriodicFlushCallbackCalled;
-
     boolean ok;
-
-
     volatile int sum;
 
     public static interface ServiceMock {
@@ -43,9 +43,7 @@ public class BoonClientTest {
 
     @Before
     public void setUp() throws Exception {
-
         client = new BoonClientFactory().create("/uri", new HttpClientMock() , 10);
-
         FactorySPI.setHttpClientFactory(new HttpClientFactory() {
 
             @Override
@@ -173,21 +171,40 @@ public class BoonClientTest {
         ok = httpStartCalled || die();
     }
 
+
     private class HttpClientMock implements HttpClient {
 
         Consumer<Void> periodicFlushCallback;
+
 
         @Override
         public void sendHttpRequest(HttpRequest request) {
 
         }
 
-        @Override
-        public void sendWebSocketMessage(WebSocketMessage webSocketMessage) {
 
-            httpSendWebSocketCalled = true;
-            puts(webSocketMessage);
-            periodicFlushCallback.accept(null);
+        @Override
+        public WebSocket createWebSocket(final String uri) {
+
+            final WebSocketBuilder webSocketBuilder = webSocketBuilder().setRemoteAddress("test").setUri(uri).setBinary(false).setOpen(true);
+
+            final WebSocket webSocket = webSocketBuilder.build();
+
+            final WebSocketSender webSocketSender = new WebSocketSender() {
+                @Override
+                public void sendText(final String body) {
+
+
+                    httpSendWebSocketCalled = true;
+                    periodicFlushCallback.accept(null);
+                    Sys.sleep(100);
+
+                }
+            };
+
+            BeanUtils.idx(webSocket, "networkSender", webSocketSender);
+
+            return webSocket;
         }
 
         @Override
@@ -201,6 +218,7 @@ public class BoonClientTest {
         public HttpClient start() {
             httpStartCalled = true;
             return this;
+
         }
 
         @Override

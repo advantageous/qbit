@@ -30,6 +30,7 @@ package io.advantageous.qbit.client;
 
 import io.advantageous.qbit.QBit;
 import io.advantageous.qbit.http.client.HttpClient;
+import io.advantageous.qbit.http.websocket.WebSocket;
 import io.advantageous.qbit.http.websocket.WebSocketMessage;
 import io.advantageous.qbit.http.websocket.WebSocketMessageBuilder;
 import io.advantageous.qbit.http.websocket.WebSocketSender;
@@ -58,8 +59,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.*;
+import java.util.function.Consumer;
 
+import static io.advantageous.qbit.http.websocket.WebSocketBuilder.webSocketBuilder;
 import static io.advantageous.qbit.service.Protocol.PROTOCOL_ARG_SEPARATOR;
+import static org.boon.Boon.sputs;
 import static org.boon.Exceptions.die;
 
 
@@ -80,15 +84,15 @@ public class BoonClient implements Client {
      * Logger.
      */
     private Logger logger = Boon.logger(BoonClient.class);
-
-
+    /** The server we are calling. */
     private final HttpClient httpServerProxy;
-
+    /** List of client proxies that we are managing for periodic flush. */
     private List<ClientProxy> clientProxies = new CopyOnWriteArrayList<>();
-
+    /** Request batch size for queing. */
     private final int requestBatchSize;
-
+    /** Holds on to Boon cache so we don't have to recreate reflected gak. */
     Object context = Sys.contextToHold();
+    private WebSocket webSocket;
 
     /**
      *
@@ -107,12 +111,8 @@ public class BoonClient implements Client {
      * Stop client. Stops processing call backs.
      */
     public void stop() {
-
         flush();
-
-        Sys.sleep(100);
-
-
+        Sys.sleep(100); //TODO really? Get rid of this and retest
         if (httpServerProxy !=null) {
             try {
                 httpServerProxy.stop();
@@ -131,36 +131,27 @@ public class BoonClient implements Client {
      *
      * @param websocketText websocket text
      */
-    private void handleWebsocketQueueResponses(final String websocketText) {
+    private void handleWebSocketReplyMessage(final String websocketText) {
 
 
-        final List<Message<Object>> messages = QBit.factory().createProtocolParser().parse("", websocketText);
+        final List<Message<Object>> messages =
+                QBit.factory().createProtocolParser().parse("", websocketText);
 
 
         for (Message<Object> message : messages) {
-
             if (message instanceof Response) {
-
-                Response<Object> response = ((Response) message);
-
+                final Response<Object> response = ((Response) message);
                 final String[] split = StringScanner.split(response.returnAddress(),
                         (char) PROTOCOL_ARG_SEPARATOR);
-
-                HandlerKey key = split.length == 2 ? new HandlerKey(split[1], response.id()) :
+                final HandlerKey key = split.length == 2 ? new HandlerKey(split[1], response.id()) :
                         new HandlerKey(split[0], response.id());
-
-
-
                 final Callback<Object>  handler = handlers.get(key);
 
                 if (handler != null) {
-
                     handleAsyncCallback(response, handler);
                     handlers.remove(key);
-                }
-
+                } // else there was no handler, it was a one way method.
             }
-
         }
     }
 
@@ -168,7 +159,6 @@ public class BoonClient implements Client {
      * Handles an async callback.
      */
     private void handleAsyncCallback(final Response<Object> response, final Callback<Object> handler) {
-
             if (response.wasErrors()) {
                 handler.onError(new Exception(response.body().toString()));
             } else {
@@ -176,8 +166,8 @@ public class BoonClient implements Client {
             }
     }
 
+    /** Flush the calls and flush the proxy. */
     public void flush() {
-
         for (ClientProxy clientProxy : clientProxies) {
             clientProxy.clientProxyFlush();
         }
@@ -223,12 +213,6 @@ public class BoonClient implements Client {
     }
 
 
-    ThreadLocal <CharBuf> charBufRef = new ThreadLocal<CharBuf>(){
-        @Override
-        protected CharBuf initialValue() {
-            return CharBuf.create(100);
-        }
-    };
 
     /**
      * Sends a message over websocket.
@@ -236,28 +220,35 @@ public class BoonClient implements Client {
      *
      * @param serviceName message to sendText over WebSocket
      */
-    private void send(String serviceName, String message) {
+    private void send(final String serviceName, final String message) {
 
-        final CharBuf charBuf = charBufRef.get();
-        charBuf.recycle();
-        charBuf.add(uri).add( "/").add(serviceName);
+        if (webSocket == null) {
+            this.webSocket = httpServerProxy.createWebSocket(Str.add(uri, "/", serviceName));
+            wireWebSocket(serviceName, message);
+            this.webSocket.openAndWait();
+        } else {
+            if (webSocket.isClosed()) {
+                this.webSocket.openAndWait();
+            }
+        }
 
-        final WebSocketMessage webSocketMessage = new WebSocketMessageBuilder()
-                .setUri(charBuf.toString())
-                .setMessage(message)
-                .setSender(
-                        new WebSocketSender() {
-                            @Override
-                            public void sendText(String message) {
-                                handleWebsocketQueueResponses(message);
-                            }
+        /* By this point we should be open. */
+        webSocket.sendText(message);
+    }
 
-                            @Override
-                            public void sendBytes(byte[] message) {
-                                //TODO We don't handle a binary protocol yet....
-                            }
-                        }).build();
-        httpServerProxy.sendWebSocketMessage(webSocketMessage);
+    private void wireWebSocket(final String serviceName, final String message) {
+
+        this.webSocket.setErrorConsumer( error ->
+                logger.error(sputs(
+                        this.getClass().getName(),
+                        "::Exception calling WebSocket from client proxy",
+                        "\nService Name", serviceName,
+                        "\nMessage", message
+                        ), error)
+        );
+
+        this.webSocket.setTextMessageConsumer(messageFromServer ->
+                handleWebSocketReplyMessage(messageFromServer));
     }
 
 

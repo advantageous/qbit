@@ -185,7 +185,7 @@ public interface HttpClient {
     }
 
     @Deprecated
-    void sendWebSocketMessage(WebSocketMessage webSocketMessage);
+    default void sendWebSocketMessage(WebSocketMessage webSocketMessage) {}
 
     default WebSocket createWebSocket(String uri) {
         throw new RuntimeException("New way to send messages");
