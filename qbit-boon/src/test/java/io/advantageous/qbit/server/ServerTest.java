@@ -114,7 +114,7 @@ public class ServerTest {
                 });
 
 
-        Sys.sleep(1_000);
+        Sys.sleep(3_000);
 
 
         if ( !resultsWorked.get() ) {
@@ -140,7 +140,7 @@ public class ServerTest {
         server.flush();
 
 
-        Sys.sleep(1_000);
+        Sys.sleep(3_000);
 
         if ( !resultsWorked.get() ) {
             die("List operation did not work");
@@ -180,7 +180,7 @@ public class ServerTest {
         }
 
 
-        Sys.sleep(3_000);
+        Sys.sleep(4_000);
 
 
         if ( !resultsWorked.get() ) {
@@ -223,7 +223,7 @@ public class ServerTest {
                 });
 
 
-        Sys.sleep(1_000);
+        Sys.sleep(2_000);
 
 
         if ( !resultsWorked.get() ) {
