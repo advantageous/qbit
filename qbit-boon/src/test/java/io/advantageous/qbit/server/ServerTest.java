@@ -72,7 +72,10 @@ import org.junit.Test;
 
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.Predicate;
 
 import static org.boon.Boon.puts;
 import static org.boon.Exceptions.die;
@@ -81,10 +84,15 @@ public class ServerTest {
 
 
     boolean ok;
+    CountDownLatch latch = new CountDownLatch(1);
+
 
 
     @Test
     public void testServer() {
+
+        latch = new CountDownLatch(1);
+
 
         ProtocolEncoder encoder = QBit.factory().createEncoder();
 
@@ -114,7 +122,7 @@ public class ServerTest {
                 });
 
 
-        Sys.sleep(3_000);
+        waitForTrigger(20, o -> resultsWorked.get());
 
 
         if ( !resultsWorked.get() ) {
@@ -140,7 +148,8 @@ public class ServerTest {
         server.flush();
 
 
-        Sys.sleep(3_000);
+
+        waitForTrigger(20, o -> resultsWorked.get());
 
         if ( !resultsWorked.get() ) {
             die("List operation did not work");
@@ -180,7 +189,8 @@ public class ServerTest {
         }
 
 
-        Sys.sleep(4_000);
+
+        waitForTrigger(8, o -> resultsWorked.get());
 
 
         if ( !resultsWorked.get() ) {
@@ -223,7 +233,8 @@ public class ServerTest {
                 });
 
 
-        Sys.sleep(2_000);
+
+        waitForTrigger(20, o -> resultsWorked.get());
 
 
         if ( !resultsWorked.get() ) {
@@ -233,4 +244,33 @@ public class ServerTest {
         resultsWorked.set(false);
 
     }
+
+    private void waitForTrigger(int seconds, Predicate predicate) {
+
+        triggerLatchWhen(predicate);
+        waitForLatch(seconds);
+    }
+
+    private void triggerLatchWhen(Predicate predicate) {
+
+        Thread thread = new Thread(() -> {
+
+            if (predicate.test(null)) {
+                latch.countDown();
+            }
+        });
+
+        thread.start();
+
+    }
+
+    private void waitForLatch(int seconds) {
+
+        try {
+            latch.await(seconds, TimeUnit.SECONDS);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+
 }

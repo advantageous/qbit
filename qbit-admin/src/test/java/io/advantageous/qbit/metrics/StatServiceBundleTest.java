@@ -19,6 +19,10 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
+import java.util.function.Predicate;
+
 import static io.advantageous.qbit.service.ServiceBuilder.serviceBuilder;
 import static org.boon.Boon.puts;
 import static org.boon.Exceptions.die;
@@ -37,10 +41,13 @@ public class StatServiceBundleTest {
     ServiceBundle serviceBundle;
 
     protected static Object context = Sys.contextToHold();
+    CountDownLatch latch = new CountDownLatch(1);
+
     Service service;
 
     @Before
     public void setUp() throws Exception {
+        latch = new CountDownLatch(1);
         recorder = new DebugRecorder();
         replicator = new DebugReplicator();
         statService = new StatServiceBuilder().setRecorder(recorder).setReplicator(replicator).build();
@@ -77,7 +84,11 @@ public class StatServiceBundleTest {
 
         statServiceClient.recordCount("mystat", 1);
         serviceBundle.flush();
-        Sys.sleep(100);
+
+
+
+        triggerLatchWhen(o -> replicator.count == 1);
+        waitForLatch(20);
 
         ok = replicator.count == 1 || die();
 
@@ -92,8 +103,10 @@ public class StatServiceBundleTest {
 
         statServiceClient.recordAllCounts(Timer.timer().now(), names, counts);
         serviceBundle.flush();
-        Sys.sleep(100);
 
+
+        triggerLatchWhen(o -> replicator.count == 3);
+        waitForLatch(20);
         ok = replicator.count == 3 || die(replicator.count);
 
 
@@ -102,15 +115,44 @@ public class StatServiceBundleTest {
 
     @Test
     public void testRecord1Thousand() throws Exception {
+
+
         for (int index=0; index< 1_000; index++) {
             statServiceClient.recordCount("mystat", 1);
 
         }
         serviceBundle.flush();
-        Sys.sleep(400);
+
+
+        triggerLatchWhen(o -> replicator.count == 1000);
+
+        waitForLatch(20);
 
         ok = replicator.count == 1000 || die(replicator.count);
 
+    }
+
+
+    private void triggerLatchWhen(Predicate predicate) {
+
+        Thread thread = new Thread(() -> {
+
+            if (predicate.test(null)) {
+                latch.countDown();
+            }
+        });
+
+        thread.start();
+
+    }
+
+    private void waitForLatch(int seconds) {
+
+        try {
+            latch.await(seconds, TimeUnit.SECONDS);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 
 
@@ -125,12 +167,11 @@ public class StatServiceBundleTest {
 
         }
         serviceBundle.flush();
-        Sys.sleep(1000);
 
 
-        if (replicator.count < 4000) {
-            Sys.sleep(1000);
-        }
+        triggerLatchWhen(o -> replicator.count == 4000);
+        waitForLatch(20);
+
 
 
         ok = replicator.count == 4000 || die(replicator.count);
@@ -149,11 +190,10 @@ public class StatServiceBundleTest {
 
         }
         serviceBundle.flush();
-        Sys.sleep(1000);
 
-        if (replicator.count < 100_000) {
-            Sys.sleep(10_000);
-        }
+
+        triggerLatchWhen(o -> replicator.count == 100_000);
+        waitForLatch(60);
 
         ok = replicator.count == 100_000 || die(replicator.count);
 
