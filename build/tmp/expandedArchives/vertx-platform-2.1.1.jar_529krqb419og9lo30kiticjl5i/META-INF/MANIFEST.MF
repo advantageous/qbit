@@ -1,5 +1,0 @@
-Manifest-Version: 1.0
-Main-Class: org.vertx.java.deploy.impl.cli.Starter
-Implementation-Title: Vertx (see http://vertx.io/)
-Vertx-Version: 2.1.1 (built 2014-06-18 13:58:41)
-

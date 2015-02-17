@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="io.advantageous.qbit.bindings.MethodBindingTest" tests="1" skipped="0" failures="0" errors="0" timestamp="2014-11-20T03:30:16" hostname="gcc-home.local" time="0.029">
-  <properties/>
-  <testcase name="test" classname="io.advantageous.qbit.bindings.MethodBindingTest" time="0.029"/>
-  <system-out><![CDATA[MethodBinding{hasURIParams=true, methodName='bob', address='/hi/how/', parameters=[ArgParamBinding{methodParamPosition=-1, uriPosition=3, methodParamName='are'}, ArgParamBinding{methodParamPosition=1, uriPosition=4, methodParamName=''}]} 
-]]></system-out>
-  <system-err><![CDATA[]]></system-err>
-</testsuite>
