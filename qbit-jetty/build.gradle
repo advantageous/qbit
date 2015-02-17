@@ -76,4 +76,6 @@ dependencies {
     compile project(':qbit-core')
     compile project(':qbit-boon')
 
+    testCompile project(':qbit-test')
+
 }

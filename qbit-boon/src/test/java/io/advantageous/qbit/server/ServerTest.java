@@ -65,6 +65,7 @@ import io.advantageous.qbit.service.bundle.example.todo.Todo;
 import io.advantageous.qbit.service.bundle.example.todo.TodoService;
 import io.advantageous.qbit.spi.ProtocolEncoder;
 import io.advantageous.qbit.spi.ProtocolParser;
+import io.advantageous.qbit.test.TimedTesting;
 import org.boon.Boon;
 import org.boon.Sets;
 import org.boon.core.Sys;
@@ -80,19 +81,17 @@ import java.util.function.Predicate;
 import static org.boon.Boon.puts;
 import static org.boon.Exceptions.die;
 
-public class ServerTest {
+public class ServerTest extends TimedTesting {
 
 
-    boolean ok;
-    CountDownLatch latch = new CountDownLatch(1);
 
 
 
     @Test
     public void testServer() {
 
-        latch = new CountDownLatch(1);
 
+        super.setupLatch();
 
         ProtocolEncoder encoder = QBit.factory().createEncoder();
 
@@ -243,34 +242,6 @@ public class ServerTest {
 
         resultsWorked.set(false);
 
-    }
-
-    private void waitForTrigger(int seconds, Predicate predicate) {
-
-        triggerLatchWhen(predicate);
-        waitForLatch(seconds);
-    }
-
-    private void triggerLatchWhen(Predicate predicate) {
-
-        Thread thread = new Thread(() -> {
-
-            if (predicate.test(null)) {
-                latch.countDown();
-            }
-        });
-
-        thread.start();
-
-    }
-
-    private void waitForLatch(int seconds) {
-
-        try {
-            latch.await(seconds, TimeUnit.SECONDS);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
     }
 
 }

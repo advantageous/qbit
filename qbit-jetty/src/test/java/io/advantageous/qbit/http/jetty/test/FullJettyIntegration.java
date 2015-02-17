@@ -68,6 +68,7 @@ import io.advantageous.qbit.server.ServiceServer;
 import io.advantageous.qbit.server.ServiceServerBuilder;
 import io.advantageous.qbit.service.Callback;
 import io.advantageous.qbit.service.ServiceProxyUtils;
+import io.advantageous.qbit.test.TimedTesting;
 import org.boon.core.Sys;
 import org.junit.After;
 import org.junit.Before;
@@ -81,7 +82,7 @@ import static org.boon.Exceptions.die;
 /**
  * @author  rhightower on 2/14/15.
  */
-public class FullJettyIntegration {
+public class FullJettyIntegration extends TimedTesting {
 
 
     static volatile int port = 7777;
@@ -97,19 +98,15 @@ public class FullJettyIntegration {
     @Test
     public void testWebSocket() throws Exception {
 
-        clientProxy.ping(new Callback<String>() {
-            @Override
-            public void accept(String s) {
-                puts(s);
-                pongValue.set(s);
-            }
+        clientProxy.ping(s -> {
+            puts(s);
+            pongValue.set(s);
         }, "hi");
 
         ServiceProxyUtils.flushServiceProxy(clientProxy);
 
-        while (pongValue.get() == null) {
-            Sys.sleep(100);
-        }
+        waitForTrigger(20, o -> this.pongValue.get()!=null);
+
 
         final String pongValue = this.pongValue.get();
         ok = pongValue.equals("hi pong") || die();
@@ -120,18 +117,15 @@ public class FullJettyIntegration {
     public void testWebSocketFlushHappy() throws Exception {
 
 
-        final Callback<String> callback = new Callback<String>() {
-            @Override
-            public void accept(String s) {
-                returnCount++;
+        final Callback<String> callback = s -> {
+            returnCount++;
 
-                if (returnCount % 2 == 0) {
-                    puts("return count", returnCount);
-                }
-
-                puts("                     PONG");
-                pongValue.set(s);
+            if (returnCount % 2 == 0) {
+                puts("return count", returnCount);
             }
+
+            puts("                     PONG");
+            pongValue.set(s);
         };
 
         for (int index = 0; index < 11; index++) {
@@ -141,11 +135,13 @@ public class FullJettyIntegration {
         }
 
         ServiceProxyUtils.flushServiceProxy(clientProxy);
-        Sys.sleep(1000);
+        Sys.sleep(100);
 
         client.flush();
-        Sys.sleep(5000);
+        Sys.sleep(100);
 
+
+        waitForTrigger(20, o -> returnCount == callCount-1);
 
         puts("HERE                        ", callCount, returnCount);
 
@@ -158,18 +154,15 @@ public class FullJettyIntegration {
     public void testWebSocketSend10() throws Exception {
 
 
-        final Callback<String> callback = new Callback<String>() {
-            @Override
-            public void accept(String s) {
-                returnCount++;
+        final Callback<String> callback = s -> {
+            returnCount++;
 
-                if (returnCount % 2 == 0) {
-                    puts("return count", returnCount);
-                }
-
-                puts("                     PONG");
-                pongValue.set(s);
+            if (returnCount % 2 == 0) {
+                puts("return count", returnCount);
             }
+
+            puts("                     PONG");
+            pongValue.set(s);
         };
 
         for (int index = 0; index < 10; index++) {
@@ -183,8 +176,10 @@ public class FullJettyIntegration {
 
 
         client.flush();
-        Sys.sleep(500);
+        Sys.sleep(100);
 
+
+        waitForTrigger(20, o -> returnCount == callCount);
 
         puts("HERE                        ", callCount, returnCount);
 
@@ -217,10 +212,8 @@ public class FullJettyIntegration {
 
         httpClient.flush();
 
+        waitForTrigger(20, o -> this.pongValue.get()!=null);
 
-        while (pongValue.get() == null) {
-            Sys.sleep(100);
-        }
 
 
         final String pongValue = this.pongValue.get();
@@ -230,6 +223,8 @@ public class FullJettyIntegration {
 
     @Before
     public synchronized void setup() throws Exception {
+
+        super.setupLatch();
 
         port += 10;
         pongValue = new AtomicReference<>();

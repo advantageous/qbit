@@ -9,6 +9,7 @@ import static io.advantageous.qbit.queue.QueueBuilder.queueBuilder;
 import io.advantageous.qbit.service.Service;
 import io.advantageous.qbit.service.ServiceBundle;
 import io.advantageous.qbit.service.ServiceBundleBuilder;
+import io.advantageous.qbit.test.TimedTesting;
 import io.advantageous.qbit.util.Timer;
 import org.boon.core.Sys;
 import org.boon.core.reflection.ClassMeta;
@@ -30,7 +31,7 @@ import static org.boon.Exceptions.die;
 /**
  * Created by rhightower on 1/28/15.
  */
-public class StatServiceBundleTest {
+public class StatServiceBundleTest extends TimedTesting {
 
 
     boolean ok;
@@ -41,13 +42,12 @@ public class StatServiceBundleTest {
     ServiceBundle serviceBundle;
 
     protected static Object context = Sys.contextToHold();
-    CountDownLatch latch = new CountDownLatch(1);
 
     Service service;
 
     @Before
     public void setUp() throws Exception {
-        latch = new CountDownLatch(1);
+        super.setupLatch();
         recorder = new DebugRecorder();
         replicator = new DebugReplicator();
         statService = new StatServiceBuilder().setRecorder(recorder).setReplicator(replicator).build();
@@ -130,29 +130,6 @@ public class StatServiceBundleTest {
 
         ok = replicator.count == 1000 || die(replicator.count);
 
-    }
-
-
-    private void triggerLatchWhen(Predicate predicate) {
-
-        Thread thread = new Thread(() -> {
-
-            if (predicate.test(null)) {
-                latch.countDown();
-            }
-        });
-
-        thread.start();
-
-    }
-
-    private void waitForLatch(int seconds) {
-
-        try {
-            latch.await(seconds, TimeUnit.SECONDS);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
     }
 
 

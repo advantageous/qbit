@@ -31,3 +31,5 @@ project(':qbit-examples-standalone').projectDir = "$rootDir/qbit-examples/qbit-e
 project(':qbit-admin').projectDir = "$rootDir/qbit-admin" as File
 
 
+include 'qbit-test'
+

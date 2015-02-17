@@ -68,6 +68,7 @@ import io.advantageous.qbit.server.ServiceServer;
 import io.advantageous.qbit.server.ServiceServerBuilder;
 import io.advantageous.qbit.service.Callback;
 import io.advantageous.qbit.service.ServiceProxyUtils;
+import io.advantageous.qbit.test.TimedTesting;
 import org.boon.core.Sys;
 import org.junit.After;
 import org.junit.Before;
@@ -81,7 +82,7 @@ import static org.boon.Exceptions.die;
 /**
  * Created by rhightower on 1/19/15.
  */
-public class SupportingGetAndPostForSameServicesUnderSameURI {
+public class SupportingGetAndPostForSameServicesUnderSameURI extends TimedTesting {
 
     Client client;
     ServiceServer server;
@@ -105,10 +106,8 @@ public class SupportingGetAndPostForSameServicesUnderSameURI {
 
         ServiceProxyUtils.flushServiceProxy(clientProxy);
 
+        waitForTrigger(20, o -> this.pongValue.get()!=null);
 
-        while (pongValue.get() == null) {
-            Sys.sleep(100);
-        }
 
         final String pongValue = this.pongValue.get();
         ok = pongValue.equals("hi pong") || die();
@@ -139,10 +138,8 @@ public class SupportingGetAndPostForSameServicesUnderSameURI {
 
         httpClient.flush();
 
+        waitForTrigger(20, o -> this.pongValue.get()!=null);
 
-        while (pongValue.get() == null) {
-            Sys.sleep(100);
-        }
 
 
         final String pongValue = this.pongValue.get();
@@ -175,9 +172,7 @@ public class SupportingGetAndPostForSameServicesUnderSameURI {
         httpClient.flush();
 
 
-        while (pongValue.get() == null) {
-            Sys.sleep(100);
-        }
+        waitForTrigger(20, o -> this.pongValue.get()!=null);
 
 
         final String pongValue = this.pongValue.get();
@@ -187,6 +182,8 @@ public class SupportingGetAndPostForSameServicesUnderSameURI {
 
     @Before
     public void setup() throws Exception {
+        super.setupLatch();
+
         pongValue = new AtomicReference<>();
 
         httpClient = new HttpClientBuilder().setPort(port).build();
