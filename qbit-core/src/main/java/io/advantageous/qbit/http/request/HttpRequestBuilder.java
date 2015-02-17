@@ -81,7 +81,7 @@ public class HttpRequestBuilder {
             return new RequestIdGenerator();
         }
     };
-    private String uri;
+    private String uri = "/";
     private long id;
     private long timestamp;
     private String contentType;
@@ -216,7 +216,7 @@ public class HttpRequestBuilder {
         return this;
     }
 
-    public HttpRequest build() {
+    public HttpRequest buildClientRequest() {
 
         String newURI = uri;
 
@@ -257,6 +257,33 @@ public class HttpRequestBuilder {
                 this.getBody() != null ? this.getBody().getBytes(StandardCharsets.UTF_8) : EMPTY_STRING,
                 this.getRemoteAddress(), this.getContentType(), httpResponse, this.getTimestamp());
     }
+
+
+    public HttpRequest build() {
+
+        String newURI = uri;
+
+        HttpResponseReceiver httpResponse = buildHttpResponseReceiver();
+
+
+        if (id == 0) {
+
+            this.id = idGen.get().inc();
+        }
+
+        if (timestamp == 0) {
+            timestamp = io.advantageous.qbit.util.Timer.timer().now();
+        }
+
+        if (contentType != null) {
+            this.addHeader("Content-Type", contentType);
+        }
+        return new HttpRequest(this.getId(), newURI, this.getMethod(), this.getParams(),
+                this.getHeaders(),
+                this.getBody() != null ? this.getBody().getBytes(StandardCharsets.UTF_8) : EMPTY_STRING,
+                this.getRemoteAddress(), this.getContentType(), httpResponse, this.getTimestamp());
+    }
+
 
     private HttpResponseReceiver buildHttpResponseReceiver() {
         HttpResponseReceiver httpResponse = this.getReceiver();

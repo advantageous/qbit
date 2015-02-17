@@ -100,8 +100,8 @@ public class EchoHttp {
         HttpClient httpClient = httpClientBuilder().setHost("localhost").setPort(8080).build();
         httpClient.start();
 
-        //sendGets(httpClient);
-        //sendPosts(httpClient);
+        sendGets(httpClient);
+        sendPosts(httpClient);
         sendPuts(httpClient);
 
 

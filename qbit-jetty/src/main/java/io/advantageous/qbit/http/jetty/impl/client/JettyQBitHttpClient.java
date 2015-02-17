@@ -93,8 +93,6 @@ public class JettyQBitHttpClient implements HttpClient {
     private final WebSocketClient webSocketClient = new WebSocketClient();
     private final String host;
     private final int port;
-    private Map<String, WebSocket> webSocketMap = new ConcurrentHashMap<>();
-
 
     public JettyQBitHttpClient(final String host, final int port) {
         this.host = host;
@@ -128,7 +126,6 @@ public class JettyQBitHttpClient implements HttpClient {
     private void copyParams(HttpRequest request, Request jettyRequest) {
         final MultiMap<String, String> params = request.getParams();
         final Iterator<Map.Entry<String, Collection<String>>> iterator = params.iterator();
-        final Fields paramFields = jettyRequest.getParams();
 
         while (iterator.hasNext()) {
             final Map.Entry<String, Collection<String>> entry = iterator.next();
@@ -136,8 +133,7 @@ public class JettyQBitHttpClient implements HttpClient {
             final Collection<String> values = entry.getValue();
 
             for (String value : values) {
-                paramFields.add(paramName, value);
-
+                jettyRequest.param(paramName, value);
                 if (debug) puts("Adding Params", paramName, value);
             }
         }
@@ -149,7 +145,7 @@ public class JettyQBitHttpClient implements HttpClient {
                         host, port, uri, webSocketClient
                 );
 
-        WebSocket webSocket = webSocketBuilder()
+        final WebSocket webSocket = webSocketBuilder()
                 .setUri(uri)
                 .setRemoteAddress(webSocketSender.getConnectUri().toString())
                 .setWebSocketSender(webSocketSender)

@@ -390,7 +390,8 @@ public interface HttpClient {
                                              final HttpTextReceiver httpTextReceiver) {
         final HttpRequest httpRequest = httpRequestBuilder()
                 .setMethod(method)
-                .setUri(uri).setTextReceiver(httpTextReceiver)
+                .setUri(uri)
+                .setTextReceiver(httpTextReceiver)
                 .addParam(paramName0, value0 == null ? "" : value0.toString())
                 .addParam(paramName1, value1 == null ? "" : value1.toString())
                 .addParam(paramName2, value2 == null ? "" : value2.toString())

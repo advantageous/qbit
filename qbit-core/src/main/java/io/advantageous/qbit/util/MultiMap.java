@@ -252,7 +252,8 @@ public interface MultiMap<K, V> extends Iterable<Map.Entry<K, Collection<V>>>, M
 
     @Override
     default Set<Entry<K, V>> entrySet() {
-        throw new UnsupportedOperationException("Unsupported");
+
+        return Collections.emptySet();
     }
 
     default Iterable<V> valueMulti() {

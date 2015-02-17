@@ -58,6 +58,7 @@ package io.advantageous.qbit.http.jetty;
 import io.advantageous.qbit.http.client.HttpClient;
 import io.advantageous.qbit.http.request.HttpRequest;
 import io.advantageous.qbit.http.request.HttpResponse;
+import io.advantageous.qbit.http.request.HttpTextReceiver;
 import io.advantageous.qbit.http.server.HttpServer;
 import org.boon.Boon;
 import org.boon.core.Sys;
@@ -74,7 +75,7 @@ import static org.boon.Boon.puts;
 /**
  * Created by rhightower on 2/16/15.
  */
-public class EchoHttp {
+public class EchoHttpJetty {
 
     public static void main(String... args) {
 
@@ -115,7 +116,7 @@ public class EchoHttp {
     }
 
     private static void sendGets(HttpClient httpClient) {
-    /* Send no param get. */
+        /* Send no param get. */
         HttpResponse httpResponse = httpClient.get( "/hello/mom" );
         puts( httpResponse );
 
@@ -285,7 +286,7 @@ public class EchoHttp {
 
         /* Send six params with post. */
 
-        final HttpRequest httpRequest = httpRequestBuilder()
+        HttpRequest httpRequest = httpRequestBuilder()
                 .setUri("/sixPost")
                 .setMethod("POST")
                 .addParam("hi", "mom")
@@ -371,6 +372,20 @@ public class EchoHttp {
                 });
 
         Sys.sleep(100);
+
+
+        httpRequest = httpRequestBuilder().addParam("hi", "mom")
+                .addParam("hello", "dad")
+                .addParam("greetings", "kids")
+                .addParam("yo", "pets")
+                .addParam("hola", "pets")
+                .addParam("salutations", "all")
+                .setTextReceiver((code, contentType, body) -> puts(code, contentType, body))
+                .build();
+
+        httpClient.sendHttpRequest(httpRequest);
+        puts("6 asycn params", httpResponse );
+
 
 
     }

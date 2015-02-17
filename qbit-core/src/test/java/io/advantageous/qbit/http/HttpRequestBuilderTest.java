@@ -75,7 +75,7 @@ public class HttpRequestBuilderTest {
         requestBuilder.addParam("password", "duck soup");
 
 
-        final HttpRequest request = requestBuilder.build();
+        final HttpRequest request = requestBuilder.buildClientRequest();
 
 
         ok = "foo/bar/baz?password=duck+soup&user=rick".equals(request.getUri())
@@ -124,7 +124,7 @@ public class HttpRequestBuilderTest {
         requestBuilder.setMethod("POST");
 
 
-        final HttpRequest request = requestBuilder.build();
+        final HttpRequest request = requestBuilder.buildClientRequest();
 
 
         ok = "password=duck+soup&user=rick".equals(request.getBodyAsString())

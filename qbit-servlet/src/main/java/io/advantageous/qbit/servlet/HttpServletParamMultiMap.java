@@ -153,4 +153,15 @@ public class HttpServletParamMultiMap implements MultiMap<String, String> {
         };
     }
 
+
+    @Override
+    public Set<Entry<String, String>> entrySet() {
+
+        Map<String, String> map = new HashMap<>(this.size());
+
+        for (String key : keySet()) {
+            map.put(key, this.getFirst(key));
+        }
+        return map.entrySet();
+    }
 }

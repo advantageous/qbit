@@ -67,6 +67,7 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 
 import static io.advantageous.qbit.http.request.HttpRequestBuilder.httpRequestBuilder;
+import static org.boon.Boon.puts;
 
 /**
  * @author rhightower on 2/12/15.
@@ -79,9 +80,11 @@ public class QBitServletUtil {
         final HttpServletResponse response = (HttpServletResponse) asyncContext.getResponse();
         final MultiMap<String, String> headers = new HttpServletHeaderMultiMap(request);
         final MultiMap<String, String> params = new HttpServletParamMultiMap(request);
+
+
         final HttpRequestBuilder httpRequestBuilder =
                 httpRequestBuilder().setParams(params)
-                        .setHeaders(headers).setUri(request.getRequestURI())
+                        .setHeaders(headers).setUri(request.getPathInfo())
                         .setMethod(request.getMethod());
 
         setRequestBodyIfNeeded(request, httpRequestBuilder);

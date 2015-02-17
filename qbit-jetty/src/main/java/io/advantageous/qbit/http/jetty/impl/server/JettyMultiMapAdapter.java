@@ -125,4 +125,16 @@ public class JettyMultiMapAdapter implements MultiMap<String, String> {
     public Set<String> keySet() {
         return innerMap.keySet();
     }
+
+    @Override
+    public Set<Entry<String, String>> entrySet() {
+
+        Map<String, String> map = new HashMap<>(this.size());
+
+        for (String key : keySet()) {
+            map.put(key, this.getFirst(key));
+        }
+        return map.entrySet();
+
+    }
 }

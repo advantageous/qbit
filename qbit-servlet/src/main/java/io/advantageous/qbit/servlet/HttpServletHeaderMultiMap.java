@@ -57,10 +57,7 @@ import org.boon.Lists;
 import org.boon.Sets;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.Collection;
-import java.util.Enumeration;
-import java.util.Iterator;
-import java.util.Set;
+import java.util.*;
 
 /**
  * @author  rhightower on 2/12/15.
@@ -155,4 +152,14 @@ public class HttpServletHeaderMultiMap implements MultiMap<String, String> {
         return Sets.set(request.getHeaderNames());
     }
 
+    @Override
+    public Set<Entry<String, String>> entrySet() {
+
+        Map<String, String> map = new HashMap<>(this.size());
+
+        for (String key : keySet()) {
+            map.put(key, this.getFirst(key));
+        }
+        return map.entrySet();
+    }
 }
