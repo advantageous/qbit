@@ -1,0 +1,55 @@
+Manifest-Version: 1.0
+Export-Package: com.fasterxml.jackson.databind;version="2.2.2",com.fas
+ terxml.jackson.databind.annotation;version="2.2.2",com.fasterxml.jack
+ son.databind.cfg;version="2.2.2",com.fasterxml.jackson.databind.deser
+ ;version="2.2.2",com.fasterxml.jackson.databind.deser.impl;version="2
+ .2.2",com.fasterxml.jackson.databind.deser.std;version="2.2.2",com.fa
+ sterxml.jackson.databind.exc;version="2.2.2",com.fasterxml.jackson.da
+ tabind.ext;version="2.2.2",com.fasterxml.jackson.databind.introspect;
+ version="2.2.2",com.fasterxml.jackson.databind.jsonschema;version="2.
+ 2.2",com.fasterxml.jackson.databind.jsonFormatVisitors;version="2.2.2
+ ",com.fasterxml.jackson.databind.jsontype;version="2.2.2",com.fasterx
+ ml.jackson.databind.jsontype.impl;version="2.2.2",com.fasterxml.jacks
+ on.databind.module;version="2.2.2",com.fasterxml.jackson.databind.nod
+ e;version="2.2.2",com.fasterxml.jackson.databind.ser;version="2.2.2",
+ com.fasterxml.jackson.databind.ser.impl;version="2.2.2",com.fasterxml
+ .jackson.databind.ser.std;version="2.2.2",com.fasterxml.jackson.datab
+ ind.type;version="2.2.2",com.fasterxml.jackson.databind.util;version=
+ "2.2.2"
+Implementation-Title: jackson-databind
+Built-By: tsaloranta
+Implementation-Build-Date: 2013-05-26 22:24:50-0700
+Tool: Bnd-1.50.0
+Implementation-Vendor: FasterXML
+Implementation-Vendor-Id: com.fasterxml.jackson.core
+Specification-Title: jackson-databind
+Bundle-License: http://www.apache.org/licenses/LICENSE-2.0.txt, http:/
+ /www.gnu.org/licenses/lgpl-2.1.html
+Bundle-SymbolicName: com.fasterxml.jackson.core.jackson-databind
+X-Compile-Target-JDK: 1.6
+Implementation-Version: 2.2.2
+Specification-Vendor: FasterXML
+Bundle-Name: jackson-databind
+Created-By: Apache Maven Bundle Plugin
+X-Compile-Source-JDK: 1.6
+Bundle-Vendor: FasterXML
+Build-Jdk: 1.7.0_10-ea
+Bundle-Version: 2.2.2
+Bnd-LastModified: 1369632316616
+Bundle-ManifestVersion: 2
+Bundle-Description: General data-binding functionality for Jackson: wo
+ rks on core streaming API
+Bundle-DocURL: http://wiki.fasterxml.com/JacksonHome
+Import-Package: com.fasterxml.jackson.annotation,com.fasterxml.jackson
+ .core,com.fasterxml.jackson.core.base,com.fasterxml.jackson.core.form
+ at,com.fasterxml.jackson.core.io,com.fasterxml.jackson.core.json,com.
+ fasterxml.jackson.core.type,com.fasterxml.jackson.core.util,javax.xml
+ .datatype,javax.xml.namespace,javax.xml.parsers,org.w3c.dom,org.w3c.d
+ om.bootstrap,org.w3c.dom.ls,org.xml.sax
+Include-Resource: META-INF/LICENSE=src/main/resources/META-INF/LICENSE
+ ,META-INF/NOTICE=src/main/resources/META-INF/NOTICE,META-INF/services
+ /com.fasterxml.jackson.core.ObjectCodec=src/main/resources/META-INF/s
+ ervices/com.fasterxml.jackson.core.ObjectCodec
+Specification-Version: 2.2.2
+Archiver-Version: Plexus Archiver
+

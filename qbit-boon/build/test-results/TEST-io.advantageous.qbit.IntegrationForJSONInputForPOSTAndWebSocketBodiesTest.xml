@@ -1,0 +1,206 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="io.advantageous.qbit.IntegrationForJSONInputForPOSTAndWebSocketBodiesTest" tests="2" skipped="0" failures="0" errors="0" timestamp="2014-11-20T03:29:51" hostname="gcc-home.local" time="0.931">
+  <properties/>
+  <testcase name="testBasic" classname="io.advantageous.qbit.IntegrationForJSONInputForPOSTAndWebSocketBodiesTest" time="0.293"/>
+  <testcase name="testBasicCrud" classname="io.advantageous.qbit.IntegrationForJSONInputForPOSTAndWebSocketBodiesTest" time="0.637"/>
+  <system-out><![CDATA[19:29:51.957 [Test worker] DEBUG i.a.q.service.impl.ServiceBundleImpl - io.advantageous.qbit.service.impl.ServiceBundleImpl serviceAddress /empservice/ service object io.advantageous.qbit.IntegrationForJSONInputForPOSTAndWebSocketBodiesTest$EmployeeService@15e29c48
+19:29:51.978 [Test worker] DEBUG i.a.qbit.service.impl.ServiceImpl - ServiceImpl<<constr>> /root /empservice/  io.advantageous.qbit.IntegrationForJSONInputForPOSTAndWebSocketBodiesTest$EmployeeService@15e29c48 5 MILLISECONDS 50 io.advantageous.qbit.service.impl.BoonServiceMethodCallHandler@71f3c94a io.advantageous.qbit.queue.impl.BasicQueue@30b83e2a
+19:29:52.036 [Test worker] DEBUG i.a.q.service.impl.ServiceBundleImpl - io.advantageous.qbit.service.impl.ServiceBundleImpl addresses: [/root/empservice/ADDEMPLOYEE, /root/empservice/PROMOTEEMPLOYEE, /root/empservice/READEMPLOYEE, /root/empservice/REMOVEEMPLOYEE, /root/empservice/addEmployee, /root/empservice/addemployee, /root/empservice/promoteEmployee, /root/empservice/promoteemployee, /root/empservice/readEmployee, /root/empservice/reademployee, /root/empservice/removeEmployee, /root/empservice/removeemployee]
+
+PROTOCOL
+ ?a
+0
+/root/empservice/addEmployee
+clientIdAkaReturnAddress
+
+
+
+
+25874962
+{"firstName":"Rick","lastName":"Hightower","salary":100,"active":true,"id":10} 
+PROTOCOL END
+ 
+19:29:52.085 [Test worker] DEBUG i.a.q.service.impl.ServiceBundleImpl - io.advantageous.qbit.service.impl.ServiceBundleImpl::call()   /root/empservice/addEmployee
+MethodCallImpl{name='', address='/root/empservice/addEmployee', params=null, body=[{active=true, firstName=Rick, id=10, lastName=Hightower, salary=100}], timestamp=25874962, id=1, objectName='', returnAddress='clientIdAkaReturnAddress'}
+19:29:52.086 [QueueListener Send Queue /root] DEBUG i.a.q.service.impl.ServiceBundleImpl - io.advantageous.qbit.service.impl.ServiceBundleImpl::doCall()   /root/empservice/addEmployee
+MethodCallImpl{name='', address='/root/empservice/addEmployee', params=null, body=[{active=true, firstName=Rick, id=10, lastName=Hightower, salary=100}], timestamp=25874962, id=1, objectName='', returnAddress='clientIdAkaReturnAddress'}
+19:29:52.127 [QueueListener Request Queue /root/empservice] DEBUG i.a.qbit.service.impl.ServiceImpl - ServiceImpl::doHandleMethodCall() METHOD CALLMethodCallImpl{name='', address='/root/empservice/addEmployee', params=null, body=[{active=true, firstName=Rick, id=10, lastName=Hightower, salary=100}], timestamp=25874962, id=1, objectName='', returnAddress='clientIdAkaReturnAddress'}
+19:29:52.136 [QueueListener Request Queue /root/empservice] DEBUG i.a.qbit.service.impl.ServiceImpl - ServiceImpl::receive() 
+RESPONSE
+ResponseImpl{address='', params=null, body=true}
+FROM CALL
+MethodCallImpl{name='', address='/root/empservice/addEmployee', params=null, body=[{active=true, firstName=Rick, id=10, lastName=Hightower, salary=100}], timestamp=25874962, id=1, objectName='', returnAddress='clientIdAkaReturnAddress'}
+
+
+19:29:52.187 [Test worker] DEBUG i.a.q.service.impl.ServiceBundleImpl - io.advantageous.qbit.service.impl.ServiceBundleImpl serviceAddress /empservice/ service object io.advantageous.qbit.IntegrationForJSONInputForPOSTAndWebSocketBodiesTest$EmployeeService@75bda75
+19:29:52.187 [Test worker] DEBUG i.a.qbit.service.impl.ServiceImpl - ServiceImpl<<constr>> /root /empservice/  io.advantageous.qbit.IntegrationForJSONInputForPOSTAndWebSocketBodiesTest$EmployeeService@75bda75 5 MILLISECONDS 50 io.advantageous.qbit.service.impl.BoonServiceMethodCallHandler@4252587e io.advantageous.qbit.queue.impl.BasicQueue@776ad03b
+19:29:52.188 [Test worker] DEBUG i.a.q.service.impl.ServiceBundleImpl - io.advantageous.qbit.service.impl.ServiceBundleImpl addresses: [/root/empservice/ADDEMPLOYEE, /root/empservice/PROMOTEEMPLOYEE, /root/empservice/READEMPLOYEE, /root/empservice/REMOVEEMPLOYEE, /root/empservice/addEmployee, /root/empservice/addemployee, /root/empservice/promoteEmployee, /root/empservice/promoteemployee, /root/empservice/readEmployee, /root/empservice/reademployee, /root/empservice/removeEmployee, /root/empservice/removeemployee]
+
+PROTOCOL
+ ?a
+3
+/root/empservice/addEmployee
+clientIdAkaReturnAddress
+
+
+
+
+25875072
+{"firstName":"Rick","lastName":"Hightower","salary":100,"active":true,"id":10} 
+PROTOCOL END
+ 
+19:29:52.192 [Test worker] DEBUG i.a.q.service.impl.ServiceBundleImpl - io.advantageous.qbit.service.impl.ServiceBundleImpl::call()   /root/empservice/addEmployee
+MethodCallImpl{name='', address='/root/empservice/addEmployee', params=null, body=[{active=true, firstName=Rick, id=10, lastName=Hightower, salary=100}], timestamp=25875077, id=4, objectName='', returnAddress='clientIdAkaReturnAddress'}
+19:29:52.239 [QueueListener Send Queue /root] DEBUG i.a.q.service.impl.ServiceBundleImpl - io.advantageous.qbit.service.impl.ServiceBundleImpl::doCall()   /root/empservice/addEmployee
+MethodCallImpl{name='', address='/root/empservice/addEmployee', params=null, body=[{active=true, firstName=Rick, id=10, lastName=Hightower, salary=100}], timestamp=25875077, id=4, objectName='', returnAddress='clientIdAkaReturnAddress'}
+19:29:52.242 [QueueListener Request Queue /root/empservice] DEBUG i.a.qbit.service.impl.ServiceImpl - ServiceImpl::doHandleMethodCall() METHOD CALLMethodCallImpl{name='', address='/root/empservice/addEmployee', params=null, body=[{active=true, firstName=Rick, id=10, lastName=Hightower, salary=100}], timestamp=25875077, id=4, objectName='', returnAddress='clientIdAkaReturnAddress'}
+19:29:52.243 [QueueListener Request Queue /root/empservice] DEBUG i.a.qbit.service.impl.ServiceImpl - ServiceImpl::receive() 
+RESPONSE
+ResponseImpl{address='', params=null, body=true}
+FROM CALL
+MethodCallImpl{name='', address='/root/empservice/addEmployee', params=null, body=[{active=true, firstName=Rick, id=10, lastName=Hightower, salary=100}], timestamp=25875077, id=4, objectName='', returnAddress='clientIdAkaReturnAddress'}
+
+
+
+PROTOCOL
+ ?a
+5
+/root/empservice/readEmployee
+clientIdAkaReturnAddress
+
+
+
+
+25875162
+10
+ 
+PROTOCOL END
+ 
+19:29:52.296 [Test worker] DEBUG i.a.q.service.impl.ServiceBundleImpl - io.advantageous.qbit.service.impl.ServiceBundleImpl::call()   /root/empservice/readEmployee
+MethodCallImpl{name='', address='/root/empservice/readEmployee', params=null, body=[10], timestamp=25875162, id=6, objectName='', returnAddress='clientIdAkaReturnAddress'}
+19:29:52.297 [QueueListener Send Queue /root] DEBUG i.a.q.service.impl.ServiceBundleImpl - io.advantageous.qbit.service.impl.ServiceBundleImpl::doCall()   /root/empservice/readEmployee
+MethodCallImpl{name='', address='/root/empservice/readEmployee', params=null, body=[10], timestamp=25875162, id=6, objectName='', returnAddress='clientIdAkaReturnAddress'}
+19:29:52.303 [QueueListener Request Queue /root/empservice] DEBUG i.a.qbit.service.impl.ServiceImpl - ServiceImpl::doHandleMethodCall() METHOD CALLMethodCallImpl{name='', address='/root/empservice/readEmployee', params=null, body=[10], timestamp=25875162, id=6, objectName='', returnAddress='clientIdAkaReturnAddress'}
+19:29:52.303 [QueueListener Request Queue /root/empservice] DEBUG i.a.qbit.service.impl.ServiceImpl - ServiceImpl::receive() 
+RESPONSE
+ResponseImpl{address='', params=null, body=io.advantageous.qbit.IntegrationForJSONInputForPOSTAndWebSocketBodiesTest$Employee@5ed5ad41}
+FROM CALL
+MethodCallImpl{name='', address='/root/empservice/readEmployee', params=null, body=[10], timestamp=25875162, id=6, objectName='', returnAddress='clientIdAkaReturnAddress'}
+
+
+io.advantageous.qbit.IntegrationForJSONInputForPOSTAndWebSocketBodiesTest$Employee@5ed5ad41 
+
+PROTOCOL
+ ?a
+7
+/root/empservice/promoteEmployee
+clientIdAkaReturnAddress
+
+
+
+
+25875252
+{"firstName":"Rick","lastName":"Hightower","salary":100,"active":true,"id":10}
+100
+ 
+PROTOCOL END
+ 
+19:29:52.404 [Test worker] DEBUG i.a.q.service.impl.ServiceBundleImpl - io.advantageous.qbit.service.impl.ServiceBundleImpl::call()   /root/empservice/promoteEmployee
+MethodCallImpl{name='', address='/root/empservice/promoteEmployee', params=null, body=[{active=true, firstName=Rick, id=10, lastName=Hightower, salary=100}, 100], timestamp=25875252, id=8, objectName='', returnAddress='clientIdAkaReturnAddress'}
+19:29:52.404 [QueueListener Send Queue /root] DEBUG i.a.q.service.impl.ServiceBundleImpl - io.advantageous.qbit.service.impl.ServiceBundleImpl::doCall()   /root/empservice/promoteEmployee
+MethodCallImpl{name='', address='/root/empservice/promoteEmployee', params=null, body=[{active=true, firstName=Rick, id=10, lastName=Hightower, salary=100}, 100], timestamp=25875252, id=8, objectName='', returnAddress='clientIdAkaReturnAddress'}
+19:29:52.434 [QueueListener Request Queue /root/empservice] DEBUG i.a.qbit.service.impl.ServiceImpl - ServiceImpl::doHandleMethodCall() METHOD CALLMethodCallImpl{name='', address='/root/empservice/promoteEmployee', params=null, body=[{active=true, firstName=Rick, id=10, lastName=Hightower, salary=100}, 100], timestamp=25875252, id=8, objectName='', returnAddress='clientIdAkaReturnAddress'}
+19:29:52.435 [QueueListener Request Queue /root/empservice] DEBUG i.a.qbit.service.impl.ServiceImpl - ServiceImpl::receive() 
+RESPONSE
+ResponseImpl{address='', params=null, body=true}
+FROM CALL
+MethodCallImpl{name='', address='/root/empservice/promoteEmployee', params=null, body=[{active=true, firstName=Rick, id=10, lastName=Hightower, salary=100}, 100], timestamp=25875252, id=8, objectName='', returnAddress='clientIdAkaReturnAddress'}
+
+
+true 
+
+PROTOCOL
+ ?a
+9
+/root/empservice/readEmployee
+clientIdAkaReturnAddress
+
+
+
+
+25875342
+10
+ 
+PROTOCOL END
+ 
+19:29:52.508 [Test worker] DEBUG i.a.q.service.impl.ServiceBundleImpl - io.advantageous.qbit.service.impl.ServiceBundleImpl::call()   /root/empservice/readEmployee
+MethodCallImpl{name='', address='/root/empservice/readEmployee', params=null, body=[10], timestamp=25875342, id=10, objectName='', returnAddress='clientIdAkaReturnAddress'}
+19:29:52.509 [QueueListener Send Queue /root] DEBUG i.a.q.service.impl.ServiceBundleImpl - io.advantageous.qbit.service.impl.ServiceBundleImpl::doCall()   /root/empservice/readEmployee
+MethodCallImpl{name='', address='/root/empservice/readEmployee', params=null, body=[10], timestamp=25875342, id=10, objectName='', returnAddress='clientIdAkaReturnAddress'}
+19:29:52.566 [QueueListener Request Queue /root/empservice] DEBUG i.a.qbit.service.impl.ServiceImpl - ServiceImpl::doHandleMethodCall() METHOD CALLMethodCallImpl{name='', address='/root/empservice/readEmployee', params=null, body=[10], timestamp=25875342, id=10, objectName='', returnAddress='clientIdAkaReturnAddress'}
+19:29:52.567 [QueueListener Request Queue /root/empservice] DEBUG i.a.qbit.service.impl.ServiceImpl - ServiceImpl::receive() 
+RESPONSE
+ResponseImpl{address='', params=null, body=io.advantageous.qbit.IntegrationForJSONInputForPOSTAndWebSocketBodiesTest$Employee@5ed5ad41}
+FROM CALL
+MethodCallImpl{name='', address='/root/empservice/readEmployee', params=null, body=[10], timestamp=25875342, id=10, objectName='', returnAddress='clientIdAkaReturnAddress'}
+
+
+io.advantageous.qbit.IntegrationForJSONInputForPOSTAndWebSocketBodiesTest$Employee@5ed5ad41 
+
+PROTOCOL
+ ?a
+11
+/root/empservice/removeEmployee
+clientIdAkaReturnAddress
+
+
+
+
+25875432
+10
+ 
+PROTOCOL END
+ 
+19:29:52.615 [Test worker] DEBUG i.a.q.service.impl.ServiceBundleImpl - io.advantageous.qbit.service.impl.ServiceBundleImpl::call()   /root/empservice/removeEmployee
+MethodCallImpl{name='', address='/root/empservice/removeEmployee', params=null, body=[10], timestamp=25875432, id=12, objectName='', returnAddress='clientIdAkaReturnAddress'}
+19:29:52.616 [QueueListener Send Queue /root] DEBUG i.a.q.service.impl.ServiceBundleImpl - io.advantageous.qbit.service.impl.ServiceBundleImpl::doCall()   /root/empservice/removeEmployee
+MethodCallImpl{name='', address='/root/empservice/removeEmployee', params=null, body=[10], timestamp=25875432, id=12, objectName='', returnAddress='clientIdAkaReturnAddress'}
+19:29:52.631 [QueueListener Request Queue /root/empservice] DEBUG i.a.qbit.service.impl.ServiceImpl - ServiceImpl::doHandleMethodCall() METHOD CALLMethodCallImpl{name='', address='/root/empservice/removeEmployee', params=null, body=[10], timestamp=25875432, id=12, objectName='', returnAddress='clientIdAkaReturnAddress'}
+19:29:52.631 [QueueListener Request Queue /root/empservice] DEBUG i.a.qbit.service.impl.ServiceImpl - ServiceImpl::receive() 
+RESPONSE
+ResponseImpl{address='', params=null, body=true}
+FROM CALL
+MethodCallImpl{name='', address='/root/empservice/removeEmployee', params=null, body=[10], timestamp=25875432, id=12, objectName='', returnAddress='clientIdAkaReturnAddress'}
+
+
+
+PROTOCOL
+ ?a
+13
+/root/empservice/readEmployee
+clientIdAkaReturnAddress
+
+
+
+
+25875666
+10
+ 
+PROTOCOL END
+ 
+19:29:52.721 [Test worker] DEBUG i.a.q.service.impl.ServiceBundleImpl - io.advantageous.qbit.service.impl.ServiceBundleImpl::call()   /root/empservice/readEmployee
+MethodCallImpl{name='', address='/root/empservice/readEmployee', params=null, body=[10], timestamp=25875666, id=14, objectName='', returnAddress='clientIdAkaReturnAddress'}
+19:29:52.721 [QueueListener Send Queue /root] DEBUG i.a.q.service.impl.ServiceBundleImpl - io.advantageous.qbit.service.impl.ServiceBundleImpl::doCall()   /root/empservice/readEmployee
+MethodCallImpl{name='', address='/root/empservice/readEmployee', params=null, body=[10], timestamp=25875666, id=14, objectName='', returnAddress='clientIdAkaReturnAddress'}
+19:29:52.721 [QueueListener Request Queue /root/empservice] DEBUG i.a.qbit.service.impl.ServiceImpl - ServiceImpl::doHandleMethodCall() METHOD CALLMethodCallImpl{name='', address='/root/empservice/readEmployee', params=null, body=[10], timestamp=25875666, id=14, objectName='', returnAddress='clientIdAkaReturnAddress'}
+19:29:52.722 [QueueListener Request Queue /root/empservice] DEBUG i.a.qbit.service.impl.ServiceImpl - ServiceImpl::receive() 
+RESPONSE
+ResponseImpl{address='', params=null, body=null}
+FROM CALL
+MethodCallImpl{name='', address='/root/empservice/readEmployee', params=null, body=[10], timestamp=25875666, id=14, objectName='', returnAddress='clientIdAkaReturnAddress'}
+
+
+<NULL> 
+]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

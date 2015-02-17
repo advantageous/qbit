@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta http-equiv="x-ua-compatible" content="IE=edge"/>
+<title>Test results - Class io.advantageous.qbit.service.bundle.example.todo.TodoServiceWithServiceBundleTest</title>
+<link href="../css/base-style.css" rel="stylesheet" type="text/css"/>
+<link href="../css/style.css" rel="stylesheet" type="text/css"/>
+<script src="../js/report.js" type="text/javascript"></script>
+</head>
+<body>
+<div id="content">
+<h1>Class io.advantageous.qbit.service.bundle.example.todo.TodoServiceWithServiceBundleTest</h1>
+<div class="breadcrumbs">
+<a href="../index.html">all</a> &gt; 
+<a href="../packages/io.advantageous.qbit.service.bundle.example.todo.html">io.advantageous.qbit.service.bundle.example.todo</a> &gt; TodoServiceWithServiceBundleTest</div>
+<div id="summary">
+<table>
+<tr>
+<td>
+<div class="summaryGroup">
+<table>
+<tr>
+<td>
+<div class="infoBox" id="tests">
+<div class="counter">3</div>
+<p>tests</p>
+</div>
+</td>
+<td>
+<div class="infoBox" id="failures">
+<div class="counter">0</div>
+<p>failures</p>
+</div>
+</td>
+<td>
+<div class="infoBox" id="ignored">
+<div class="counter">0</div>
+<p>ignored</p>
+</div>
+</td>
+<td>
+<div class="infoBox" id="duration">
+<div class="counter">0.319s</div>
+<p>duration</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+</td>
+<td>
+<div class="infoBox success" id="successRate">
+<div class="percent">100%</div>
+<p>successful</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div id="tabs">
+<ul class="tabLinks">
+<li>
+<a href="#tab0">Tests</a>
+</li>
+<li>
+<a href="#tab1">Standard output</a>
+</li>
+</ul>
+<div id="tab0" class="tab">
+<h2>Tests</h2>
+<table>
+<thead>
+<tr>
+<th>Test</th>
+<th>Duration</th>
+<th>Result</th>
+</tr>
+</thead>
+<tr>
+<td class="success">testWithBundleUsingAddress</td>
+<td>0.107s</td>
+<td class="success">passed</td>
+</tr>
+<tr>
+<td class="success">testWithBundleUsingAddressRequestMappings</td>
+<td>0.105s</td>
+<td class="success">passed</td>
+</tr>
+<tr>
+<td class="success">testWithBundleUsingObjectName</td>
+<td>0.107s</td>
+<td class="success">passed</td>
+</tr>
+</table>
+</div>
+<div id="tab1" class="tab">
+<h2>Standard output</h2>
+<span class="code">
+<pre>19:30:06.964 [Test worker] DEBUG i.a.q.service.impl.ServiceBundleImpl - io.advantageous.qbit.service.impl.ServiceBundleImpl serviceAddress null service object io.advantageous.qbit.service.bundle.example.todo.TodoService@6a43c4f3
+19:30:06.964 [Test worker] DEBUG i.a.qbit.service.impl.ServiceImpl - ServiceImpl&lt;&lt;constr&gt;&gt; /services null  io.advantageous.qbit.service.bundle.example.todo.TodoService@6a43c4f3 5 MILLISECONDS 50 io.advantageous.qbit.service.impl.BoonServiceMethodCallHandler@3f5b77c3 io.advantageous.qbit.queue.impl.BasicQueue@1583980b
+19:30:06.964 [Test worker] DEBUG i.a.q.service.impl.ServiceBundleImpl - io.advantageous.qbit.service.impl.ServiceBundleImpl addresses: [/services/todo-manager/ADD, /services/todo-manager/LIST, /services/todo-manager/TIMEOUT, /services/todo-manager/add, /services/todo-manager/list, /services/todo-manager/timeout, /services/todo-manager/todo, /services/todo-manager/todo/list/]
+19:30:06.964 [Test worker] DEBUG i.a.q.service.impl.ServiceBundleImpl - io.advantageous.qbit.service.impl.ServiceBundleImpl::call()   /services/todo-manager/add
+MethodCallImpl{name='', address='/services/todo-manager/add', params=null, body=TodoItem{name='call mom', description='give mom a call', dueDate=Wed Nov 19 19:30:06 PST 2014}, timestamp=25889855, id=46, objectName='', returnAddress='client1'}
+19:30:06.964 [Test worker] DEBUG i.a.q.service.impl.ServiceBundleImpl - io.advantageous.qbit.service.impl.ServiceBundleImpl::call()   /services/todo-manager/list
+MethodCallImpl{name='', address='/services/todo-manager/list', params=null, body=null, timestamp=25889855, id=47, objectName='', returnAddress='client1'}
+19:30:07.015 [QueueListener Send Queue /services] DEBUG i.a.q.service.impl.ServiceBundleImpl - io.advantageous.qbit.service.impl.ServiceBundleImpl::doCall()   /services/todo-manager/add
+MethodCallImpl{name='', address='/services/todo-manager/add', params=null, body=TodoItem{name='call mom', description='give mom a call', dueDate=Wed Nov 19 19:30:06 PST 2014}, timestamp=25889855, id=46, objectName='', returnAddress='client1'}
+19:30:07.015 [QueueListener Send Queue /services] DEBUG i.a.q.service.impl.ServiceBundleImpl - io.advantageous.qbit.service.impl.ServiceBundleImpl::doCall()   /services/todo-manager/list
+MethodCallImpl{name='', address='/services/todo-manager/list', params=null, body=null, timestamp=25889855, id=47, objectName='', returnAddress='client1'}
+19:30:07.015 [QueueListener Request Queue /services/todo-manager] DEBUG i.a.qbit.service.impl.ServiceImpl - ServiceImpl::doHandleMethodCall() METHOD CALLMethodCallImpl{name='', address='/services/todo-manager/add', params=null, body=TodoItem{name='call mom', description='give mom a call', dueDate=Wed Nov 19 19:30:06 PST 2014}, timestamp=25889855, id=46, objectName='', returnAddress='client1'}
+add method was called TodoItem{name='call mom', description='give mom a call', dueDate=Wed Nov 19 19:30:06 PST 2014} 
+add method AFTER called [TodoItem{name='call mom', description='give mom a call', dueDate=Wed Nov 19 19:30:06 PST 2014}] 
+19:30:07.016 [QueueListener Request Queue /services/todo-manager] DEBUG i.a.qbit.service.impl.ServiceImpl - ServiceImpl::receive() 
+RESPONSE
+io.advantageous.qbit.service.impl.ServiceConstants$1@22f22b44
+FROM CALL
+MethodCallImpl{name='', address='/services/todo-manager/add', params=null, body=TodoItem{name='call mom', description='give mom a call', dueDate=Wed Nov 19 19:30:06 PST 2014}, timestamp=25889855, id=46, objectName='', returnAddress='client1'}
+
+
+19:30:07.016 [QueueListener Request Queue /services/todo-manager] DEBUG i.a.qbit.service.impl.ServiceImpl - ServiceImpl::doHandleMethodCall() METHOD CALLMethodCallImpl{name='', address='/services/todo-manager/list', params=null, body=null, timestamp=25889855, id=47, objectName='', returnAddress='client1'}
+List method was called [TodoItem{name='call mom', description='give mom a call', dueDate=Wed Nov 19 19:30:06 PST 2014}] 
+19:30:07.016 [QueueListener Request Queue /services/todo-manager] DEBUG i.a.qbit.service.impl.ServiceImpl - ServiceImpl::receive() 
+RESPONSE
+ResponseImpl{address='', params=null, body=[TodoItem{name='call mom', description='give mom a call', dueDate=Wed Nov 19 19:30:06 PST 2014}]}
+FROM CALL
+MethodCallImpl{name='', address='/services/todo-manager/list', params=null, body=null, timestamp=25889855, id=47, objectName='', returnAddress='client1'}
+
+
+19:30:07.070 [Test worker] DEBUG i.a.q.service.impl.ServiceBundleImpl - io.advantageous.qbit.service.impl.ServiceBundleImpl serviceAddress null service object io.advantageous.qbit.service.bundle.example.todo.TodoService@2ce4b6a5
+19:30:07.071 [Test worker] DEBUG i.a.qbit.service.impl.ServiceImpl - ServiceImpl&lt;&lt;constr&gt;&gt; /services null  io.advantageous.qbit.service.bundle.example.todo.TodoService@2ce4b6a5 5 MILLISECONDS 50 io.advantageous.qbit.service.impl.BoonServiceMethodCallHandler@109173d2 io.advantageous.qbit.queue.impl.BasicQueue@44d006ec
+19:30:07.071 [Test worker] DEBUG i.a.q.service.impl.ServiceBundleImpl - io.advantageous.qbit.service.impl.ServiceBundleImpl addresses: [/services/todo-manager/ADD, /services/todo-manager/LIST, /services/todo-manager/TIMEOUT, /services/todo-manager/add, /services/todo-manager/list, /services/todo-manager/timeout, /services/todo-manager/todo, /services/todo-manager/todo/list/]
+19:30:07.072 [Test worker] DEBUG i.a.q.service.impl.ServiceBundleImpl - io.advantageous.qbit.service.impl.ServiceBundleImpl::call() add  
+MethodCallImpl{name='add', address='', params=null, body=TodoItem{name='call mom', description='give mom a call', dueDate=Wed Nov 19 19:30:07 PST 2014}, timestamp=25889945, id=48, objectName='/services/todo-manager', returnAddress='call1:localhost'}
+19:30:07.072 [Test worker] DEBUG i.a.q.service.impl.ServiceBundleImpl - io.advantageous.qbit.service.impl.ServiceBundleImpl::call() list  
+MethodCallImpl{name='list', address='', params=null, body=TodoItem{name='call mom', description='give mom a call', dueDate=Wed Nov 19 19:30:07 PST 2014}, timestamp=25889945, id=49, objectName='/services/todo-manager', returnAddress='call2:localhost'}
+19:30:07.125 [QueueListener Send Queue /services] DEBUG i.a.q.service.impl.ServiceBundleImpl - io.advantageous.qbit.service.impl.ServiceBundleImpl::doCall() add  
+MethodCallImpl{name='add', address='', params=null, body=TodoItem{name='call mom', description='give mom a call', dueDate=Wed Nov 19 19:30:07 PST 2014}, timestamp=25889945, id=48, objectName='/services/todo-manager', returnAddress='call1:localhost'}
+19:30:07.125 [QueueListener Send Queue /services] DEBUG i.a.q.service.impl.ServiceBundleImpl - io.advantageous.qbit.service.impl.ServiceBundleImpl::doCall() list  
+MethodCallImpl{name='list', address='', params=null, body=TodoItem{name='call mom', description='give mom a call', dueDate=Wed Nov 19 19:30:07 PST 2014}, timestamp=25889945, id=49, objectName='/services/todo-manager', returnAddress='call2:localhost'}
+19:30:07.125 [QueueListener Request Queue /services/todo-manager] DEBUG i.a.qbit.service.impl.ServiceImpl - ServiceImpl::doHandleMethodCall() METHOD CALLMethodCallImpl{name='add', address='', params=null, body=TodoItem{name='call mom', description='give mom a call', dueDate=Wed Nov 19 19:30:07 PST 2014}, timestamp=25889945, id=48, objectName='/services/todo-manager', returnAddress='call1:localhost'}
+add method was called TodoItem{name='call mom', description='give mom a call', dueDate=Wed Nov 19 19:30:07 PST 2014} 
+add method AFTER called [TodoItem{name='call mom', description='give mom a call', dueDate=Wed Nov 19 19:30:07 PST 2014}] 
+19:30:07.126 [QueueListener Request Queue /services/todo-manager] DEBUG i.a.qbit.service.impl.ServiceImpl - ServiceImpl::receive() 
+RESPONSE
+io.advantageous.qbit.service.impl.ServiceConstants$1@22f22b44
+FROM CALL
+MethodCallImpl{name='add', address='', params=null, body=TodoItem{name='call mom', description='give mom a call', dueDate=Wed Nov 19 19:30:07 PST 2014}, timestamp=25889945, id=48, objectName='/services/todo-manager', returnAddress='call1:localhost'}
+
+
+19:30:07.126 [QueueListener Request Queue /services/todo-manager] DEBUG i.a.qbit.service.impl.ServiceImpl - ServiceImpl::doHandleMethodCall() METHOD CALLMethodCallImpl{name='list', address='', params=null, body=TodoItem{name='call mom', description='give mom a call', dueDate=Wed Nov 19 19:30:07 PST 2014}, timestamp=25889945, id=49, objectName='/services/todo-manager', returnAddress='call2:localhost'}
+List method was called [TodoItem{name='call mom', description='give mom a call', dueDate=Wed Nov 19 19:30:07 PST 2014}] 
+19:30:07.127 [QueueListener Request Queue /services/todo-manager] DEBUG i.a.qbit.service.impl.ServiceImpl - ServiceImpl::receive() 
+RESPONSE
+ResponseImpl{address='list', params=null, body=[TodoItem{name='call mom', description='give mom a call', dueDate=Wed Nov 19 19:30:07 PST 2014}]}
+FROM CALL
+MethodCallImpl{name='list', address='', params=null, body=TodoItem{name='call mom', description='give mom a call', dueDate=Wed Nov 19 19:30:07 PST 2014}, timestamp=25889945, id=49, objectName='/services/todo-manager', returnAddress='call2:localhost'}
+
+
+19:30:07.178 [Test worker] DEBUG i.a.q.service.impl.ServiceBundleImpl - io.advantageous.qbit.service.impl.ServiceBundleImpl serviceAddress null service object io.advantageous.qbit.service.bundle.example.todo.TodoService@72bc5d10
+19:30:07.178 [Test worker] DEBUG i.a.qbit.service.impl.ServiceImpl - ServiceImpl&lt;&lt;constr&gt;&gt; /services null  io.advantageous.qbit.service.bundle.example.todo.TodoService@72bc5d10 5 MILLISECONDS 50 io.advantageous.qbit.service.impl.BoonServiceMethodCallHandler@54b8a044 io.advantageous.qbit.queue.impl.BasicQueue@4e31ac20
+19:30:07.179 [Test worker] DEBUG i.a.q.service.impl.ServiceBundleImpl - io.advantageous.qbit.service.impl.ServiceBundleImpl addresses: [/services/todo-manager/ADD, /services/todo-manager/LIST, /services/todo-manager/TIMEOUT, /services/todo-manager/add, /services/todo-manager/list, /services/todo-manager/timeout, /services/todo-manager/todo, /services/todo-manager/todo/list/]
+19:30:07.179 [Test worker] DEBUG i.a.q.service.impl.ServiceBundleImpl - io.advantageous.qbit.service.impl.ServiceBundleImpl::call()   /services/todo-manager/todo
+MethodCallImpl{name='', address='/services/todo-manager/todo', params=null, body=TodoItem{name='call mom', description='give mom a call', dueDate=Wed Nov 19 19:30:07 PST 2014}, timestamp=25890035, id=50, objectName='', returnAddress='client1'}
+19:30:07.179 [Test worker] DEBUG i.a.q.service.impl.ServiceBundleImpl - io.advantageous.qbit.service.impl.ServiceBundleImpl::call()   /services/todo-manager/todo/list/
+MethodCallImpl{name='', address='/services/todo-manager/todo/list/', params=null, body=null, timestamp=25890035, id=51, objectName='', returnAddress='client1'}
+19:30:07.232 [QueueListener Send Queue /services] DEBUG i.a.q.service.impl.ServiceBundleImpl - io.advantageous.qbit.service.impl.ServiceBundleImpl::doCall()   /services/todo-manager/todo
+MethodCallImpl{name='', address='/services/todo-manager/todo', params=null, body=TodoItem{name='call mom', description='give mom a call', dueDate=Wed Nov 19 19:30:07 PST 2014}, timestamp=25890035, id=50, objectName='', returnAddress='client1'}
+19:30:07.232 [QueueListener Send Queue /services] DEBUG i.a.q.service.impl.ServiceBundleImpl - io.advantageous.qbit.service.impl.ServiceBundleImpl::doCall()   /services/todo-manager/todo/list/
+MethodCallImpl{name='', address='/services/todo-manager/todo/list/', params=null, body=null, timestamp=25890035, id=51, objectName='', returnAddress='client1'}
+19:30:07.232 [QueueListener Request Queue /services/todo-manager] DEBUG i.a.qbit.service.impl.ServiceImpl - ServiceImpl::doHandleMethodCall() METHOD CALLMethodCallImpl{name='', address='/services/todo-manager/todo', params=null, body=TodoItem{name='call mom', description='give mom a call', dueDate=Wed Nov 19 19:30:07 PST 2014}, timestamp=25890035, id=50, objectName='', returnAddress='client1'}
+add method was called TodoItem{name='call mom', description='give mom a call', dueDate=Wed Nov 19 19:30:07 PST 2014} 
+add method AFTER called [TodoItem{name='call mom', description='give mom a call', dueDate=Wed Nov 19 19:30:07 PST 2014}] 
+19:30:07.233 [QueueListener Request Queue /services/todo-manager] DEBUG i.a.qbit.service.impl.ServiceImpl - ServiceImpl::receive() 
+RESPONSE
+io.advantageous.qbit.service.impl.ServiceConstants$1@22f22b44
+FROM CALL
+MethodCallImpl{name='', address='/services/todo-manager/todo', params=null, body=TodoItem{name='call mom', description='give mom a call', dueDate=Wed Nov 19 19:30:07 PST 2014}, timestamp=25890035, id=50, objectName='', returnAddress='client1'}
+
+
+19:30:07.233 [QueueListener Request Queue /services/todo-manager] DEBUG i.a.qbit.service.impl.ServiceImpl - ServiceImpl::doHandleMethodCall() METHOD CALLMethodCallImpl{name='', address='/services/todo-manager/todo/list/', params=null, body=null, timestamp=25890035, id=51, objectName='', returnAddress='client1'}
+List method was called [TodoItem{name='call mom', description='give mom a call', dueDate=Wed Nov 19 19:30:07 PST 2014}] 
+19:30:07.233 [QueueListener Request Queue /services/todo-manager] DEBUG i.a.qbit.service.impl.ServiceImpl - ServiceImpl::receive() 
+RESPONSE
+ResponseImpl{address='', params=null, body=[TodoItem{name='call mom', description='give mom a call', dueDate=Wed Nov 19 19:30:07 PST 2014}]}
+FROM CALL
+MethodCallImpl{name='', address='/services/todo-manager/todo/list/', params=null, body=null, timestamp=25890035, id=51, objectName='', returnAddress='client1'}
+
+
+</pre>
+</span>
+</div>
+</div>
+<div id="footer">
+<p>Generated by 
+<a href="http://www.gradle.org">Gradle 2.1</a> at Nov 19, 2014 7:30:12 PM</p>
+</div>
+</div>
+</body>

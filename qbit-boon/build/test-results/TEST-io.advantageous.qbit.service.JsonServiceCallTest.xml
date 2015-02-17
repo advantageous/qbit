@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="io.advantageous.qbit.service.JsonServiceCallTest" tests="3" skipped="0" failures="0" errors="0" timestamp="2014-11-20T03:30:06" hostname="gcc-home.local" time="0.171">
+  <properties/>
+  <testcase name="test" classname="io.advantageous.qbit.service.JsonServiceCallTest" time="0.058"/>
+  <testcase name="testMany" classname="io.advantageous.qbit.service.JsonServiceCallTest" time="0.058"/>
+  <testcase name="testBatch" classname="io.advantageous.qbit.service.JsonServiceCallTest" time="0.055"/>
+  <system-out><![CDATA[19:30:06.791 [Test worker] DEBUG i.a.qbit.service.impl.ServiceImpl - ServiceImpl<<constr>> null test  io.advantageous.qbit.service.JsonServiceCallTest$Adder@57953d56 1000 MILLISECONDS 100 io.advantageous.qbit.service.impl.BoonServiceMethodCallHandler@7851b2ca null
+19:30:06.792 [Test worker] DEBUG i.a.qbit.service.impl.ServiceImpl - RESPONSE QUEUE WAS NULL CREATING ONE
+19:30:06.847 [QueueListener Request Queue test] DEBUG i.a.qbit.service.impl.ServiceImpl - ServiceImpl::doHandleMethodCall() METHOD CALLMethodCallImpl{name='add', address='', params=io.advantageous.qbit.util.MultiMap$1@368b9426, body=[[1,2]], timestamp=25889715, id=40, objectName='null', returnAddress='null'}
+19:30:06.847 [QueueListener Request Queue test] DEBUG i.a.qbit.service.impl.ServiceImpl - ServiceImpl::receive() 
+RESPONSE
+ResponseImpl{address='add', params=null, body=3}
+FROM CALL
+MethodCallImpl{name='add', address='', params=io.advantageous.qbit.util.MultiMap$1@368b9426, body=[1, 2], timestamp=25889715, id=40, objectName='null', returnAddress='null'}
+
+
+19:30:06.847 [QueueListener Request Queue test] DEBUG i.a.qbit.service.impl.ServiceImpl - ServiceImpl::doHandleMethodCall() METHOD CALLMethodCallImpl{name='add', address='', params=io.advantageous.qbit.util.MultiMap$1@368b9426, body=[[4,5]], timestamp=25889715, id=41, objectName='null', returnAddress='null'}
+19:30:06.848 [QueueListener Request Queue test] DEBUG i.a.qbit.service.impl.ServiceImpl - ServiceImpl::receive() 
+RESPONSE
+ResponseImpl{address='add', params=null, body=9}
+FROM CALL
+MethodCallImpl{name='add', address='', params=io.advantageous.qbit.util.MultiMap$1@368b9426, body=[4, 5], timestamp=25889715, id=41, objectName='null', returnAddress='null'}
+
+
+19:30:06.848 [Test worker] DEBUG i.a.qbit.service.impl.ServiceImpl - ServiceImpl<<constr>> null test  io.advantageous.qbit.service.JsonServiceCallTest$Adder@69f8f383 1000 MILLISECONDS 100 io.advantageous.qbit.service.impl.BoonServiceMethodCallHandler@74adbe07 null
+19:30:06.849 [Test worker] DEBUG i.a.qbit.service.impl.ServiceImpl - RESPONSE QUEUE WAS NULL CREATING ONE
+19:30:06.904 [QueueListener Request Queue test] DEBUG i.a.qbit.service.impl.ServiceImpl - ServiceImpl::doHandleMethodCall() METHOD CALLMethodCallImpl{name='add', address='', params=io.advantageous.qbit.util.MultiMap$1@368b9426, body=[[1,2]], timestamp=25889760, id=42, objectName='null', returnAddress='null'}
+19:30:06.905 [QueueListener Request Queue test] DEBUG i.a.qbit.service.impl.ServiceImpl - ServiceImpl::receive() 
+RESPONSE
+ResponseImpl{address='add', params=null, body=3}
+FROM CALL
+MethodCallImpl{name='add', address='', params=io.advantageous.qbit.util.MultiMap$1@368b9426, body=[1, 2], timestamp=25889760, id=42, objectName='null', returnAddress='null'}
+
+
+19:30:06.905 [QueueListener Request Queue test] DEBUG i.a.qbit.service.impl.ServiceImpl - ServiceImpl::doHandleMethodCall() METHOD CALLMethodCallImpl{name='add', address='', params=io.advantageous.qbit.util.MultiMap$1@368b9426, body=[[4,5]], timestamp=25889760, id=43, objectName='null', returnAddress='null'}
+19:30:06.905 [QueueListener Request Queue test] DEBUG i.a.qbit.service.impl.ServiceImpl - ServiceImpl::receive() 
+RESPONSE
+ResponseImpl{address='add', params=null, body=9}
+FROM CALL
+MethodCallImpl{name='add', address='', params=io.advantageous.qbit.util.MultiMap$1@368b9426, body=[4, 5], timestamp=25889760, id=43, objectName='null', returnAddress='null'}
+
+
+19:30:06.906 [Test worker] DEBUG i.a.qbit.service.impl.ServiceImpl - ServiceImpl<<constr>> null test  io.advantageous.qbit.service.JsonServiceCallTest$Adder@6f1feabb 1000 MILLISECONDS 100 io.advantageous.qbit.service.impl.BoonServiceMethodCallHandler@41d57830 null
+19:30:06.906 [Test worker] DEBUG i.a.qbit.service.impl.ServiceImpl - RESPONSE QUEUE WAS NULL CREATING ONE
+19:30:06.960 [QueueListener Request Queue test] DEBUG i.a.qbit.service.impl.ServiceImpl - ServiceImpl::doHandleMethodCall() METHOD CALLMethodCallImpl{name='add', address='', params=io.advantageous.qbit.util.MultiMap$1@368b9426, body=[[1,2]], timestamp=25889810, id=44, objectName='null', returnAddress='null'}
+19:30:06.960 [QueueListener Request Queue test] DEBUG i.a.qbit.service.impl.ServiceImpl - ServiceImpl::receive() 
+RESPONSE
+ResponseImpl{address='add', params=null, body=3}
+FROM CALL
+MethodCallImpl{name='add', address='', params=io.advantageous.qbit.util.MultiMap$1@368b9426, body=[1, 2], timestamp=25889810, id=44, objectName='null', returnAddress='null'}
+
+
+19:30:06.961 [QueueListener Request Queue test] DEBUG i.a.qbit.service.impl.ServiceImpl - ServiceImpl::doHandleMethodCall() METHOD CALLMethodCallImpl{name='add', address='', params=io.advantageous.qbit.util.MultiMap$1@368b9426, body=[[4,5]], timestamp=25889810, id=45, objectName='null', returnAddress='null'}
+19:30:06.961 [QueueListener Request Queue test] DEBUG i.a.qbit.service.impl.ServiceImpl - ServiceImpl::receive() 
+RESPONSE
+ResponseImpl{address='add', params=null, body=9}
+FROM CALL
+MethodCallImpl{name='add', address='', params=io.advantageous.qbit.util.MultiMap$1@368b9426, body=[4, 5], timestamp=25889810, id=45, objectName='null', returnAddress='null'}
+
+
+]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

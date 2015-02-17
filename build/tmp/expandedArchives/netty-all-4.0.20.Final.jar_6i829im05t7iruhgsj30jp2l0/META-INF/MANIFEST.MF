@@ -1,0 +1,10 @@
+Manifest-Version: 1.0
+Implementation-Vendor: The Netty Project
+Implementation-Title: Netty/All-in-One
+Implementation-Version: 4.0.20.Final
+Implementation-Vendor-Id: io.netty
+Built-By: norman
+Build-Jdk: 1.7.0_51
+Created-By: Apache Maven 3.2.1
+Archiver-Version: Plexus Archiver
+

@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="io.advantageous.qbit.spi.ProtocolParserVersion1Test" tests="5" skipped="0" failures="0" errors="0" timestamp="2014-11-20T03:30:11" hostname="gcc-home.local" time="0.004">
+  <properties/>
+  <testcase name="test" classname="io.advantageous.qbit.spi.ProtocolParserVersion1Test" time="0.0"/>
+  <testcase name="testEncodeParseResponse" classname="io.advantageous.qbit.spi.ProtocolParserVersion1Test" time="0.001"/>
+  <testcase name="testEncodeDecodeManyMethods" classname="io.advantageous.qbit.spi.ProtocolParserVersion1Test" time="0.002"/>
+  <testcase name="testEncodeDecodeMap" classname="io.advantageous.qbit.spi.ProtocolParserVersion1Test" time="0.001"/>
+  <testcase name="testEncodeDecode" classname="io.advantageous.qbit.spi.ProtocolParserVersion1Test" time="0.0"/>
+  <system-out><![CDATA[?r?1?addr?Raddr?????2?"body" 
+?g?r?1?addr?__RETURNaddr__?????100?"java.lang.Exception"??a?1069?bar1??fruit?apple?pair?watermelon??veggies?yuck???fruit?apple?pair?watermelon??veggies?yuck????foo1?25894698?"somebody1"??a?1?addr?__RETURNaddr__??fruit?apple?pair?watermelon??veggies?yuck???__objectNAME__?__MEHTOD_NAME__?100?"ARGS"??a?1070?bar3???fruit?apple?pair?watermelon??veggies?yuck????foo3?25894698?"somebody3"??r?1071?bar4??????25894698?"java.lang.Exception"? 
+[ResponseImpl{address='addr', params=null, body=java.lang.Exception}, MethodCallImpl{name='foo1', address='bar1', params=io.advantageous.qbit.util.MultiMapImpl@2ebd09b7, body=[somebody1], timestamp=25894698, id=1069, objectName='', returnAddress=''}, MethodCallImpl{name='__MEHTOD_NAME__', address='addr', params=io.advantageous.qbit.util.MultiMapImpl@6aba0d4a, body=[ARGS], timestamp=100, id=1, objectName='__objectNAME__', returnAddress='__RETURNaddr__'}, MethodCallImpl{name='foo3', address='bar3', params=io.advantageous.qbit.util.MultiMapImpl@ad60c3e, body=[somebody3], timestamp=25894698, id=1070, objectName='', returnAddress=''}, ResponseImpl{address='bar4', params=null, body=java.lang.Exception}] 
+?a?1072?bar???fruit?apple?pair?watermelon??veggies?yuck????foo?25894698?"" 
+?a?99?addr_?return_???oname_?mname_?25894698?"args_" 
+MethodCallImpl{name='mname_', address='addr_', params=null, body=args_, timestamp=25894698, id=99, objectName='oname_', returnAddress='return_'} 
+[args_] args_ 
+[args_] 
+]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

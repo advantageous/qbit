@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta http-equiv="x-ua-compatible" content="IE=edge"/>
+<title>Test results - Class io.advantageous.qbit.service.impl.ServiceBundleImplTest</title>
+<link href="../css/base-style.css" rel="stylesheet" type="text/css"/>
+<link href="../css/style.css" rel="stylesheet" type="text/css"/>
+<script src="../js/report.js" type="text/javascript"></script>
+</head>
+<body>
+<div id="content">
+<h1>Class io.advantageous.qbit.service.impl.ServiceBundleImplTest</h1>
+<div class="breadcrumbs">
+<a href="../index.html">all</a> &gt; 
+<a href="../packages/io.advantageous.qbit.service.impl.html">io.advantageous.qbit.service.impl</a> &gt; ServiceBundleImplTest</div>
+<div id="summary">
+<table>
+<tr>
+<td>
+<div class="summaryGroup">
+<table>
+<tr>
+<td>
+<div class="infoBox" id="tests">
+<div class="counter">4</div>
+<p>tests</p>
+</div>
+</td>
+<td>
+<div class="infoBox" id="failures">
+<div class="counter">0</div>
+<p>failures</p>
+</div>
+</td>
+<td>
+<div class="infoBox" id="ignored">
+<div class="counter">0</div>
+<p>ignored</p>
+</div>
+</td>
+<td>
+<div class="infoBox" id="duration">
+<div class="counter">1.009s</div>
+<p>duration</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+</td>
+<td>
+<div class="infoBox success" id="successRate">
+<div class="percent">100%</div>
+<p>successful</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div id="tabs">
+<ul class="tabLinks">
+<li>
+<a href="#tab0">Tests</a>
+</li>
+<li>
+<a href="#tab1">Standard output</a>
+</li>
+</ul>
+<div id="tab0" class="tab">
+<h2>Tests</h2>
+<table>
+<thead>
+<tr>
+<th>Test</th>
+<th>Duration</th>
+<th>Result</th>
+</tr>
+</thead>
+<tr>
+<td class="success">testAddService</td>
+<td>0.003s</td>
+<td class="success">passed</td>
+</tr>
+<tr>
+<td class="success">testAddress</td>
+<td>0.001s</td>
+<td class="success">passed</td>
+</tr>
+<tr>
+<td class="success">testCall</td>
+<td>0.001s</td>
+<td class="success">passed</td>
+</tr>
+<tr>
+<td class="success">testResponses</td>
+<td>1.004s</td>
+<td class="success">passed</td>
+</tr>
+</table>
+</div>
+<div id="tab1" class="tab">
+<h2>Standard output</h2>
+<span class="code">
+<pre>19:30:10.581 [Test worker] DEBUG i.a.q.service.impl.ServiceBundleImpl - io.advantageous.qbit.service.impl.ServiceBundleImpl serviceAddress /adder service object io.advantageous.qbit.service.impl.ServiceBundleImplTest$AdderService@233822d4
+19:30:10.582 [Test worker] DEBUG i.a.qbit.service.impl.ServiceImpl - ServiceImpl&lt;&lt;constr&gt;&gt; /foo /adder  io.advantageous.qbit.service.impl.ServiceBundleImplTest$AdderService@233822d4 5 MILLISECONDS 50 io.advantageous.qbit.service.impl.BoonServiceMethodCallHandler@405bf930 io.advantageous.qbit.queue.impl.BasicQueue@6effce39
+19:30:10.584 [Test worker] DEBUG i.a.q.service.impl.ServiceBundleImpl - io.advantageous.qbit.service.impl.ServiceBundleImpl addresses: [/foo/adder/ADD, /foo/adder/add]
+[/adder, /foo/adder, /foo/adder/ADD, /foo/adder/add] 
+19:30:10.585 [Test worker] DEBUG i.a.q.service.impl.ServiceBundleImpl - io.advantageous.qbit.service.impl.ServiceBundleImpl serviceAddress /adder service object io.advantageous.qbit.service.impl.ServiceBundleImplTest$AdderService@6b91938e
+19:30:10.585 [Test worker] DEBUG i.a.qbit.service.impl.ServiceImpl - ServiceImpl&lt;&lt;constr&gt;&gt; /foo /adder  io.advantageous.qbit.service.impl.ServiceBundleImplTest$AdderService@6b91938e 5 MILLISECONDS 50 io.advantageous.qbit.service.impl.BoonServiceMethodCallHandler@b3e32c1 io.advantageous.qbit.queue.impl.BasicQueue@1a6c0a19
+19:30:10.585 [Test worker] DEBUG i.a.q.service.impl.ServiceBundleImpl - io.advantageous.qbit.service.impl.ServiceBundleImpl addresses: [/foo/adder/ADD, /foo/adder/add]
+19:30:10.585 [Test worker] DEBUG i.a.q.service.impl.ServiceBundleImpl - io.advantageous.qbit.service.impl.ServiceBundleImpl::call()   /foo/adder/add
+MethodCallImpl{name='', address='/foo/adder/add', params=null, body=[1, 2], timestamp=25893473, id=1064, objectName='', returnAddress=''}
+19:30:10.638 [QueueListener Send Queue /foo] DEBUG i.a.q.service.impl.ServiceBundleImpl - io.advantageous.qbit.service.impl.ServiceBundleImpl::doCall()   /foo/adder/add
+MethodCallImpl{name='', address='/foo/adder/add', params=null, body=[1, 2], timestamp=25893473, id=1064, objectName='', returnAddress=''}
+19:30:10.638 [QueueListener Request Queue /foo/adder] DEBUG i.a.qbit.service.impl.ServiceImpl - ServiceImpl::doHandleMethodCall() METHOD CALLMethodCallImpl{name='', address='/foo/adder/add', params=null, body=[1, 2], timestamp=25893473, id=1064, objectName='', returnAddress=''}
+ADDER SERVICE CALLED 1 2 
+19:30:10.638 [QueueListener Request Queue /foo/adder] DEBUG i.a.qbit.service.impl.ServiceImpl - ServiceImpl::receive() 
+RESPONSE
+ResponseImpl{address='', params=null, body=3}
+FROM CALL
+MethodCallImpl{name='', address='/foo/adder/add', params=null, body=[1, 2], timestamp=25893473, id=1064, objectName='', returnAddress=''}
+
+
+Queue Idle 
+Queue Empty 
+Queue Idle 
+Queue Empty 
+Queue Idle 
+Queue Empty 
+19:30:11.588 [Test worker] DEBUG i.a.q.service.impl.ServiceBundleImpl - io.advantageous.qbit.service.impl.ServiceBundleImpl
+</pre>
+</span>
+</div>
+</div>
+<div id="footer">
+<p>Generated by 
+<a href="http://www.gradle.org">Gradle 2.1</a> at Nov 19, 2014 7:30:12 PM</p>
+</div>
+</div>
+</body>

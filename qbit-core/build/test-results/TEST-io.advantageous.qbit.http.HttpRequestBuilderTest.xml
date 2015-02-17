@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="io.advantageous.qbit.http.HttpRequestBuilderTest" tests="3" skipped="0" failures="0" errors="0" timestamp="2014-11-20T03:30:16" hostname="gcc-home.local" time="0.079">
+  <properties/>
+  <testcase name="testGetWithParams" classname="io.advantageous.qbit.http.HttpRequestBuilderTest" time="0.078"/>
+  <testcase name="testFormPost" classname="io.advantageous.qbit.http.HttpRequestBuilderTest" time="0.001"/>
+  <testcase name="testFormJsonPost" classname="io.advantageous.qbit.http.HttpRequestBuilderTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

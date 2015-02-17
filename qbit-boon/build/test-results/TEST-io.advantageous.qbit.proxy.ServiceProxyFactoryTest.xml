@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="io.advantageous.qbit.proxy.ServiceProxyFactoryTest" tests="7" skipped="0" failures="0" errors="0" timestamp="2014-11-20T03:29:56" hostname="gcc-home.local" time="5.047">
+  <properties/>
+  <testcase name="testProxySimpleNoArg" classname="io.advantageous.qbit.proxy.ServiceProxyFactoryTest" time="0.002"/>
+  <testcase name="testProxySimpleTwoArg" classname="io.advantageous.qbit.proxy.ServiceProxyFactoryTest" time="0.001"/>
+  <testcase name="testProxySimpleServiceBundle" classname="io.advantageous.qbit.proxy.ServiceProxyFactoryTest" time="0.0"/>
+  <testcase name="callingActualService" classname="io.advantageous.qbit.proxy.ServiceProxyFactoryTest" time="1.014"/>
+  <testcase name="callingActualServiceWithReturn" classname="io.advantageous.qbit.proxy.ServiceProxyFactoryTest" time="1.007"/>
+  <testcase name="callingActualServiceWithReturnDifferentInterfaces" classname="io.advantageous.qbit.proxy.ServiceProxyFactoryTest" time="1.012"/>
+  <testcase name="callingServicesThatThrowExceptions" classname="io.advantageous.qbit.proxy.ServiceProxyFactoryTest" time="2.01"/>
+  <system-out><![CDATA[[Hello, 5] 
+19:29:56.704 [Test worker] DEBUG i.a.q.service.impl.ServiceBundleImpl - io.advantageous.qbit.service.impl.ServiceBundleImpl serviceAddress null service object io.advantageous.qbit.proxy.ServiceProxyFactoryTest$2@32ff417e
+19:29:56.704 [Test worker] DEBUG i.a.qbit.service.impl.ServiceImpl - ServiceImpl<<constr>> /root null  io.advantageous.qbit.proxy.ServiceProxyFactoryTest$2@32ff417e 5 MILLISECONDS 50 io.advantageous.qbit.service.impl.BoonServiceMethodCallHandler@518c9f4d io.advantageous.qbit.queue.impl.BasicQueue@6ebe699f
+19:29:56.706 [Test worker] DEBUG i.a.q.service.impl.ServiceBundleImpl - io.advantageous.qbit.service.impl.ServiceBundleImpl addresses: [/root//METHOD1, /root//METHOD2, /root//METHOD3, /root//method1, /root//method2, /root//method3]
+19:29:56.707 [Test worker] DEBUG i.a.q.service.impl.ServiceBundleImpl - io.advantageous.qbit.service.impl.ServiceBundleImpl::call() method2  /root/myService/method2
+MethodCallImpl{name='method2', address='/root/myService/method2', params=null, body=[Ljava.lang.Object;@23689f51, timestamp=25879584, id=4000000000, objectName='/root/myService', returnAddress=''}
+19:29:56.752 [QueueListener Send Queue /root] DEBUG i.a.q.service.impl.ServiceBundleImpl - io.advantageous.qbit.service.impl.ServiceBundleImpl::doCall() method2  /root/myService/method2
+MethodCallImpl{name='method2', address='/root/myService/method2', params=null, body=[Ljava.lang.Object;@23689f51, timestamp=25879584, id=4000000000, objectName='/root/myService', returnAddress=''}
+19:29:56.753 [QueueListener Send Queue /root] ERROR i.a.q.service.impl.ServiceBundleImpl - No service at method address /root/myService/method2 method name method2 object name /root/myService
+
+19:29:56.754 [QueueListener Send Queue /root] ERROR i.a.q.service.impl.ServiceBundleImpl - known URI path /root/
+19:29:56.754 [QueueListener Send Queue /root] ERROR i.a.q.service.impl.ServiceBundleImpl - known URI path /root//METHOD1
+19:29:56.754 [QueueListener Send Queue /root] ERROR i.a.q.service.impl.ServiceBundleImpl - known URI path /root//method2
+19:29:56.754 [QueueListener Send Queue /root] ERROR i.a.q.service.impl.ServiceBundleImpl - known URI path /root//method3
+19:29:56.754 [QueueListener Send Queue /root] ERROR i.a.q.service.impl.ServiceBundleImpl - known URI path /root//method1
+19:29:56.754 [QueueListener Send Queue /root] ERROR i.a.q.service.impl.ServiceBundleImpl - known URI path /root//METHOD3
+19:29:56.754 [QueueListener Send Queue /root] ERROR i.a.q.service.impl.ServiceBundleImpl - known URI path /root//METHOD2
+19:29:57.714 [Test worker] DEBUG i.a.q.service.impl.ServiceBundleImpl - io.advantageous.qbit.service.impl.ServiceBundleImpl serviceAddress null service object io.advantageous.qbit.proxy.ServiceProxyFactoryTest$1MyServiceClass@3a09d4b2
+19:29:57.714 [Test worker] DEBUG i.a.qbit.service.impl.ServiceImpl - ServiceImpl<<constr>> /root null  io.advantageous.qbit.proxy.ServiceProxyFactoryTest$1MyServiceClass@3a09d4b2 5 MILLISECONDS 50 io.advantageous.qbit.service.impl.BoonServiceMethodCallHandler@5d7c46b5 io.advantageous.qbit.queue.impl.BasicQueue@773e8d04
+19:29:57.715 [Test worker] DEBUG i.a.q.service.impl.ServiceBundleImpl - io.advantageous.qbit.service.impl.ServiceBundleImpl addresses: [/root/myService/METHOD1, /root/myService/METHOD2, /root/myService/METHOD3, /root/myService/method1, /root/myService/method2, /root/myService/method3]
+19:29:57.716 [Test worker] DEBUG i.a.q.service.impl.ServiceBundleImpl - io.advantageous.qbit.service.impl.ServiceBundleImpl::call() method3  /root/myService/method3
+MethodCallImpl{name='method3', address='/root/myService/method3', params=null, body=[Ljava.lang.Object;@4bda6e10, timestamp=25880634, id=5000000000, objectName='/root/myService', returnAddress=''}
+19:29:57.767 [QueueListener Send Queue /root] DEBUG i.a.q.service.impl.ServiceBundleImpl - io.advantageous.qbit.service.impl.ServiceBundleImpl::doCall() method3  /root/myService/method3
+MethodCallImpl{name='method3', address='/root/myService/method3', params=null, body=[Ljava.lang.Object;@4bda6e10, timestamp=25880634, id=5000000000, objectName='/root/myService', returnAddress=''}
+19:29:57.768 [QueueListener Request Queue /root/myService] DEBUG i.a.qbit.service.impl.ServiceImpl - ServiceImpl::doHandleMethodCall() METHOD CALLMethodCallImpl{name='method3', address='/root/myService/method3', params=null, body=[Ljava.lang.Object;@4bda6e10, timestamp=25880634, id=5000000000, objectName='/root/myService', returnAddress=''}
+19:29:57.768 [QueueListener Request Queue /root/myService] DEBUG i.a.qbit.service.impl.ServiceImpl - ServiceImpl::receive() 
+RESPONSE
+ResponseImpl{address='method3', params=null, body=Hihi 5}
+FROM CALL
+MethodCallImpl{name='method3', address='/root/myService/method3', params=null, body=[Ljava.lang.Object;@4bda6e10, timestamp=25880634, id=5000000000, objectName='/root/myService', returnAddress=''}
+
+
+Hihi 5 
+19:29:58.721 [Test worker] DEBUG i.a.q.service.impl.ServiceBundleImpl - io.advantageous.qbit.service.impl.ServiceBundleImpl serviceAddress null service object io.advantageous.qbit.proxy.ServiceProxyFactoryTest$2MyServiceClass@2acf921
+19:29:58.721 [Test worker] DEBUG i.a.qbit.service.impl.ServiceImpl - ServiceImpl<<constr>> /root null  io.advantageous.qbit.proxy.ServiceProxyFactoryTest$2MyServiceClass@2acf921 5 MILLISECONDS 50 io.advantageous.qbit.service.impl.BoonServiceMethodCallHandler@1a9ebd8a io.advantageous.qbit.queue.impl.BasicQueue@613ec35d
+19:29:58.723 [Test worker] DEBUG i.a.q.service.impl.ServiceBundleImpl - io.advantageous.qbit.service.impl.ServiceBundleImpl addresses: [/root/myService/METHOD1, /root/myService/METHOD2, /root/myService/METHOD3, /root/myService/method1, /root/myService/method2, /root/myService/method3]
+19:29:58.727 [Test worker] DEBUG i.a.q.service.impl.ServiceBundleImpl - io.advantageous.qbit.service.impl.ServiceBundleImpl::call() method3  /root/myService/method3
+MethodCallImpl{name='method3', address='/root/myService/method3', params=null, body=[Ljava.lang.Object;@3cf3acb9, timestamp=25881682, id=6000000000, objectName='/root/myService', returnAddress=''}
+19:29:58.771 [QueueListener Send Queue /root] DEBUG i.a.q.service.impl.ServiceBundleImpl - io.advantageous.qbit.service.impl.ServiceBundleImpl::doCall() method3  /root/myService/method3
+MethodCallImpl{name='method3', address='/root/myService/method3', params=null, body=[Ljava.lang.Object;@3cf3acb9, timestamp=25881682, id=6000000000, objectName='/root/myService', returnAddress=''}
+19:29:58.778 [QueueListener Request Queue /root/myService] DEBUG i.a.qbit.service.impl.ServiceImpl - ServiceImpl::doHandleMethodCall() METHOD CALLMethodCallImpl{name='method3', address='/root/myService/method3', params=null, body=[Ljava.lang.Object;@3cf3acb9, timestamp=25881682, id=6000000000, objectName='/root/myService', returnAddress=''}
+19:29:58.778 [QueueListener Request Queue /root/myService] DEBUG i.a.qbit.service.impl.ServiceImpl - ServiceImpl::receive() 
+RESPONSE
+ResponseImpl{address='method3', params=null, body=Hihi 5}
+FROM CALL
+MethodCallImpl{name='method3', address='/root/myService/method3', params=null, body=[Ljava.lang.Object;@3cf3acb9, timestamp=25881682, id=6000000000, objectName='/root/myService', returnAddress=''}
+
+
+We got Hihi 5 
+19:29:59.733 [Test worker] DEBUG i.a.q.service.impl.ServiceBundleImpl - io.advantageous.qbit.service.impl.ServiceBundleImpl serviceAddress null service object io.advantageous.qbit.proxy.ServiceProxyFactoryTest$3MyServiceClass@7512e36d
+19:29:59.733 [Test worker] DEBUG i.a.qbit.service.impl.ServiceImpl - ServiceImpl<<constr>> /root null  io.advantageous.qbit.proxy.ServiceProxyFactoryTest$3MyServiceClass@7512e36d 5 MILLISECONDS 50 io.advantageous.qbit.service.impl.BoonServiceMethodCallHandler@4c123d96 io.advantageous.qbit.queue.impl.BasicQueue@61bfd904
+19:29:59.735 [Test worker] DEBUG i.a.q.service.impl.ServiceBundleImpl - io.advantageous.qbit.service.impl.ServiceBundleImpl addresses: [/root/myService/METHODTHROWSEXCEPTIONIF5, /root/myService/methodThrowsExceptionIf5, /root/myService/methodthrowsexceptionif5]
+19:29:59.737 [Test worker] DEBUG i.a.q.service.impl.ServiceBundleImpl - io.advantageous.qbit.service.impl.ServiceBundleImpl::call() methodThrowsExceptionIf5  /root/myService/methodThrowsExceptionIf5
+MethodCallImpl{name='methodThrowsExceptionIf5', address='/root/myService/methodThrowsExceptionIf5', params=null, body=[Ljava.lang.Object;@2179aea5, timestamp=25882619, id=7000000000, objectName='/root/myService', returnAddress=''}
+19:29:59.787 [QueueListener Send Queue /root] DEBUG i.a.q.service.impl.ServiceBundleImpl - io.advantageous.qbit.service.impl.ServiceBundleImpl::doCall() methodThrowsExceptionIf5  /root/myService/methodThrowsExceptionIf5
+MethodCallImpl{name='methodThrowsExceptionIf5', address='/root/myService/methodThrowsExceptionIf5', params=null, body=[Ljava.lang.Object;@2179aea5, timestamp=25882619, id=7000000000, objectName='/root/myService', returnAddress=''}
+19:29:59.788 [QueueListener Request Queue /root/myService] DEBUG i.a.qbit.service.impl.ServiceImpl - ServiceImpl::doHandleMethodCall() METHOD CALLMethodCallImpl{name='methodThrowsExceptionIf5', address='/root/myService/methodThrowsExceptionIf5', params=null, body=[Ljava.lang.Object;@2179aea5, timestamp=25882619, id=7000000000, objectName='/root/myService', returnAddress=''}
+19:29:59.788 [QueueListener Request Queue /root/myService] DEBUG i.a.qbit.service.impl.ServiceImpl - ServiceImpl::receive() 
+RESPONSE
+ResponseImpl{address='methodThrowsExceptionIf5', params=null, body=Hi hi 6}
+FROM CALL
+MethodCallImpl{name='methodThrowsExceptionIf5', address='/root/myService/methodThrowsExceptionIf5', params=null, body=[Ljava.lang.Object;@2179aea5, timestamp=25882619, id=7000000000, objectName='/root/myService', returnAddress=''}
+
+
+19:30:00.738 [Test worker] DEBUG i.a.q.service.impl.ServiceBundleImpl - io.advantageous.qbit.service.impl.ServiceBundleImpl::call() methodThrowsExceptionIf5  /root/myService/methodThrowsExceptionIf5
+MethodCallImpl{name='methodThrowsExceptionIf5', address='/root/myService/methodThrowsExceptionIf5', params=null, body=[Ljava.lang.Object;@26301525, timestamp=25882620, id=7000000001, objectName='/root/myService', returnAddress=''}
+19:30:00.739 [QueueListener Send Queue /root] DEBUG i.a.q.service.impl.ServiceBundleImpl - io.advantageous.qbit.service.impl.ServiceBundleImpl::doCall() methodThrowsExceptionIf5  /root/myService/methodThrowsExceptionIf5
+MethodCallImpl{name='methodThrowsExceptionIf5', address='/root/myService/methodThrowsExceptionIf5', params=null, body=[Ljava.lang.Object;@26301525, timestamp=25882620, id=7000000001, objectName='/root/myService', returnAddress=''}
+19:30:00.805 [QueueListener Request Queue /root/myService] DEBUG i.a.qbit.service.impl.ServiceImpl - ServiceImpl::doHandleMethodCall() METHOD CALLMethodCallImpl{name='methodThrowsExceptionIf5', address='/root/myService/methodThrowsExceptionIf5', params=null, body=[Ljava.lang.Object;@26301525, timestamp=25882620, id=7000000001, objectName='/root/myService', returnAddress=''}
+19:30:00.805 [QueueListener Request Queue /root/myService] DEBUG i.a.qbit.service.impl.ServiceImpl - ServiceImpl::receive() 
+RESPONSE
+ResponseImpl{address='/root/myService/methodThrowsExceptionIf5', params=null, body={Details=org.boon.Exceptions$SoftenedException: Hi hi 5, Message=Problem while calling method methodThrowsExceptionIf5, Cause=null, Error=Hi hi 5}}
+FROM CALL
+MethodCallImpl{name='methodThrowsExceptionIf5', address='/root/myService/methodThrowsExceptionIf5', params=null, body=[Ljava.lang.Object;@26301525, timestamp=25882620, id=7000000001, objectName='/root/myService', returnAddress=''}
+
+
+19:30:00.811 [QueueListener Response Queue /root] ERROR i.a.q.service.impl.ServiceBundleImpl - Service threw an exception address
+org.boon.Exceptions$SoftenedException: Hi hi 5
+	at org.boon.Exceptions.die(Exceptions.java:97) ~[boon-0.30.jar:na]
+	at io.advantageous.qbit.proxy.ServiceProxyFactoryTest$3MyServiceClass.methodThrowsExceptionIf5(ServiceProxyFactoryTest.java:346) ~[test/:na]
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method) ~[na:1.8.0_20]
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62) ~[na:1.8.0_20]
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43) ~[na:1.8.0_20]
+	at java.lang.reflect.Method.invoke(Method.java:483) ~[na:1.8.0_20]
+	at org.boon.core.reflection.impl.MethodAccessImpl.invoke(MethodAccessImpl.java:273) ~[boon-0.30.jar:na]
+	at org.boon.core.reflection.impl.MethodAccessImpl.invokeDynamic(MethodAccessImpl.java:256) ~[boon-0.30.jar:na]
+	at org.boon.core.reflection.impl.MethodAccessImpl.invokeDynamicList(MethodAccessImpl.java:200) ~[boon-0.30.jar:na]
+	at org.boon.core.reflection.impl.MethodAccessImpl.invokeDynamicObject(MethodAccessImpl.java:206) ~[boon-0.30.jar:na]
+	at io.advantageous.qbit.service.impl.BoonServiceMethodCallHandler.mapArgsAsyncHandlersAndInvoke(BoonServiceMethodCallHandler.java:258) ~[main/:na]
+	at io.advantageous.qbit.service.impl.BoonServiceMethodCallHandler.invokeByName(BoonServiceMethodCallHandler.java:367) ~[main/:na]
+	at io.advantageous.qbit.service.impl.BoonServiceMethodCallHandler.receiveMethodCall(BoonServiceMethodCallHandler.java:54) ~[main/:na]
+	at io.advantageous.qbit.service.impl.ServiceImpl.doHandleMethodCall(ServiceImpl.java:89) ~[qbit-core-0.1.0.jar:na]
+	at io.advantageous.qbit.service.impl.ServiceImpl.access$000(ServiceImpl.java:27) ~[qbit-core-0.1.0.jar:na]
+	at io.advantageous.qbit.service.impl.ServiceImpl$1.receive(ServiceImpl.java:162) ~[qbit-core-0.1.0.jar:na]
+	at io.advantageous.qbit.service.impl.ServiceImpl$1.receive(ServiceImpl.java:159) ~[qbit-core-0.1.0.jar:na]
+	at io.advantageous.qbit.queue.impl.BasicReceiveQueueManager.manageQueue(BasicReceiveQueueManager.java:35) [qbit-core-0.1.0.jar:na]
+	at io.advantageous.qbit.queue.impl.BasicQueue.manageQueue(BasicQueue.java:100) [qbit-core-0.1.0.jar:na]
+	at io.advantageous.qbit.queue.impl.BasicQueue.lambda$startListener$1(BasicQueue.java:81) [qbit-core-0.1.0.jar:na]
+	at io.advantageous.qbit.queue.impl.BasicQueue$$Lambda$2/418685920.run(Unknown Source) [qbit-core-0.1.0.jar:na]
+	at java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:511) [na:1.8.0_20]
+	at java.util.concurrent.FutureTask.runAndReset(FutureTask.java:308) [na:1.8.0_20]
+	at java.util.concurrent.ScheduledThreadPoolExecutor$ScheduledFutureTask.access$301(ScheduledThreadPoolExecutor.java:180) [na:1.8.0_20]
+	at java.util.concurrent.ScheduledThreadPoolExecutor$ScheduledFutureTask.run(ScheduledThreadPoolExecutor.java:294) [na:1.8.0_20]
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1142) [na:1.8.0_20]
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:617) [na:1.8.0_20]
+	at java.lang.Thread.run(Thread.java:745) [na:1.8.0_20]
+We got Hi hi 5 
+]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

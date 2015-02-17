@@ -1,0 +1,38 @@
+Manifest-Version: 1.0
+Export-Package: com.fasterxml.jackson.core;version="2.2.2",com.fasterx
+ ml.jackson.core.io;version="2.2.2",com.fasterxml.jackson.core.json;ve
+ rsion="2.2.2",com.fasterxml.jackson.core.util;version="2.2.2",com.fas
+ terxml.jackson.core.base;version="2.2.2",com.fasterxml.jackson.core.s
+ ym;version="2.2.2",com.fasterxml.jackson.core.type;version="2.2.2",co
+ m.fasterxml.jackson.core.format;version="2.2.2"
+Implementation-Title: Jackson-core
+Built-By: tsaloranta
+Implementation-Build-Date: 2013-05-26 22:19:10-0700
+Tool: Bnd-1.50.0
+Implementation-Vendor: FasterXML
+Implementation-Vendor-Id: com.fasterxml.jackson.core
+Specification-Title: Jackson-core
+Bundle-License: http://www.apache.org/licenses/LICENSE-2.0.txt, http:/
+ /www.gnu.org/licenses/lgpl-2.1.html
+Bundle-SymbolicName: com.fasterxml.jackson.core.jackson-core
+X-Compile-Target-JDK: 1.6
+Implementation-Version: 2.2.2
+Specification-Vendor: FasterXML
+Bundle-Name: Jackson-core
+Created-By: Apache Maven Bundle Plugin
+X-Compile-Source-JDK: 1.6
+Bundle-Vendor: FasterXML
+Build-Jdk: 1.7.0_10-ea
+Bundle-Version: 2.2.2
+Bnd-LastModified: 1369631964176
+Bundle-ManifestVersion: 2
+Bundle-Description: Core Jackson abstractions, basic JSON streaming AP
+ I implementation
+Bundle-DocURL: http://wiki.fasterxml.com/JacksonHome
+Include-Resource: META-INF/LICENSE=src/main/resources/META-INF/LICENSE
+ ,META-INF/NOTICE=src/main/resources/META-INF/NOTICE,META-INF/services
+ /com.fasterxml.jackson.core.JsonFactory=src/main/resources/META-INF/s
+ ervices/com.fasterxml.jackson.core.JsonFactory
+Specification-Version: 2.2.2
+Archiver-Version: Plexus Archiver
+

@@ -1,0 +1,56 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+    <title>${packageDoc.nameWithDots()}</title>
+    <%
+    // TODO enable errors(), enums() etc in SimpleGroovyPackageDoc then replace closures below
+    def classTypes = [
+    "Interface" : { it.isInterface() },
+    "Trait" : { it.isTrait() },
+    "Class" : { it.isClass() && !it.parentClasses*.qualifiedTypeName().contains('java.lang.Throwable') },
+    "Enum" : { it.isEnum() },
+    "Exception" : { it.isClass() && it.parentClasses*.qualifiedTypeName().contains('java.lang.Exception') },
+    "Error" : { it.isClass() && it.parentClasses*.qualifiedTypeName().contains('java.lang.Error') },
+    "Annotation Type" : { it.isAnnotationType() },
+    "Script" : { it.isScript() }
+    ]
+    def pluralize = { name -> name + (name.endsWith("s") ? "es" : "s") }
+    %>
+    <meta http-equiv="Content-Type" content="text/html; charset=${props.charset}">
+    <meta name="keywords" CONTENT="${packageDoc.name()} package">
+
+    <link href="groovy.ico" type="image/x-icon" rel="shortcut icon">
+    <link href="groovy.ico" type="image/x-icon" rel="icon">
+    <link rel="stylesheet" type="text/css" href="${packageDoc.relativeRootPath}stylesheet.css" title="Style">
+</head>
+
+<body class="left">
+<div class="indexHeader">
+    <b><a href="package-summary.html" target="classFrame">${packageDoc.nameWithDots()}</a></b>
+</div>
+
+<%
+def isVisible = { it.isPublic() || (it.isProtected() && props.protectedScope == 'true') || (!it.isProtected() && !it.isPrivate() && props.packageScope == 'true') || props.privateScope == 'true' }
+classTypes.each { k, v ->
+if (packageDoc.allClasses().any{ isVisible(it) && v(it) }) {
+%>
+
+<div class="indexContainer">
+    <h2>${pluralize(k)}</h2>
+    <ul>
+        <%
+        for (classDoc in packageDoc.allClasses().findAll{ isVisible(it) && v(it) }) {
+        %><li><a href="${classDoc.name()}.html" title="${k.toLowerCase()} in ${packageDoc.nameWithDots()}" target="classFrame"><%
+        if (classDoc.isInterface() || classDoc.isTrait()) { %><em><% }
+            %>${classDoc.name()}<%
+            if (classDoc.isInterface() || classDoc.isTrait()) { %></em><% }
+        %></a></li><%
+        }
+        %>
+    </ul>
+</div>
+<% } %>
+<% } %>
+
+</body>
+</html>

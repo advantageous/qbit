@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="io.advantageous.qbit.server.ServerTest" tests="3" skipped="0" failures="0" errors="0" timestamp="2014-11-20T03:30:01" hostname="gcc-home.local" time="5.042">
+  <properties/>
+  <testcase name="testServer" classname="io.advantageous.qbit.server.ServerTest" time="2.029"/>
+  <testcase name="testServerTimeout" classname="io.advantageous.qbit.server.ServerTest" time="2.006"/>
+  <testcase name="testNoMethodCallFound" classname="io.advantageous.qbit.server.ServerTest" time="1.006"/>
+  <system-out><![CDATA[19:30:01.750 [Test worker] DEBUG i.a.qbit.server.ServiceServerImpl - registering service: io.advantageous.qbit.service.bundle.example.todo.TodoService
+19:30:01.750 [Test worker] DEBUG i.a.q.service.impl.ServiceBundleImpl - io.advantageous.qbit.service.impl.ServiceBundleImpl serviceAddress null service object io.advantageous.qbit.service.bundle.example.todo.TodoService@9e7bc4f
+19:30:01.750 [Test worker] DEBUG i.a.qbit.service.impl.ServiceImpl - ServiceImpl<<constr>> /services null  io.advantageous.qbit.service.bundle.example.todo.TodoService@9e7bc4f 5 MILLISECONDS 50 io.advantageous.qbit.service.impl.BoonServiceMethodCallHandler@4a1fa12b io.advantageous.qbit.queue.impl.BasicQueue@61db3ef5
+19:30:01.753 [Test worker] DEBUG i.a.q.service.impl.ServiceBundleImpl - io.advantageous.qbit.service.impl.ServiceBundleImpl addresses: [/services/todo-manager/ADD, /services/todo-manager/LIST, /services/todo-manager/TIMEOUT, /services/todo-manager/add, /services/todo-manager/list, /services/todo-manager/timeout, /services/todo-manager/todo, /services/todo-manager/todo/list/]
+19:30:01.753 [Test worker] DEBUG i.a.qbit.server.ServiceServerImpl - addRestSupportFor io.advantageous.qbit.service.bundle.example.todo.TodoService
+CALL CALLED "success" 
+
+ 
+19:30:01.767 [Test worker] INFO  i.a.qbit.server.ServiceServerImpl - Handle REST Call for MethodCall MethodCallImpl{name='null', address='/services/todo-manager/todo', params=null, body={dueDate=1416454201757, description=Call Dad, name=Call Dad}, timestamp=25884721, id=39, objectName='null', returnAddress='localhost:9999'}
+19:30:01.768 [Test worker] DEBUG i.a.q.service.impl.ServiceBundleImpl - io.advantageous.qbit.service.impl.ServiceBundleImpl::call() null  /services/todo-manager/todo
+MethodCallImpl{name='null', address='/services/todo-manager/todo', params=null, body={dueDate=1416454201757, description=Call Dad, name=Call Dad}, timestamp=25884721, id=39, objectName='null', returnAddress='localhost:9999'}
+19:30:01.800 [QueueListener Send Queue /services] DEBUG i.a.q.service.impl.ServiceBundleImpl - io.advantageous.qbit.service.impl.ServiceBundleImpl::doCall() null  /services/todo-manager/todo
+MethodCallImpl{name='null', address='/services/todo-manager/todo', params=null, body={dueDate=1416454201757, description=Call Dad, name=Call Dad}, timestamp=25884721, id=39, objectName='null', returnAddress='localhost:9999'}
+19:30:01.807 [QueueListener Request Queue /services/todo-manager] DEBUG i.a.qbit.service.impl.ServiceImpl - ServiceImpl::doHandleMethodCall() METHOD CALLMethodCallImpl{name='null', address='/services/todo-manager/todo', params=null, body={dueDate=1416454201757, description=Call Dad, name=Call Dad}, timestamp=25884721, id=39, objectName='null', returnAddress='localhost:9999'}
+add method was called TodoItem{name='Call Dad', description='Call Dad', dueDate=Wed Nov 19 19:30:01 PST 2014} 
+add method AFTER called [TodoItem{name='Call Dad', description='Call Dad', dueDate=Wed Nov 19 19:30:01 PST 2014}] 
+19:30:01.810 [QueueListener Request Queue /services/todo-manager] DEBUG i.a.qbit.service.impl.ServiceImpl - ServiceImpl::receive() 
+RESPONSE
+io.advantageous.qbit.service.impl.ServiceConstants$1@22f22b44
+FROM CALL
+MethodCallImpl{name='null', address='/services/todo-manager/todo', params=null, body={dueDate=1416454201757, description=Call Dad, name=Call Dad}, timestamp=25884721, id=39, objectName='null', returnAddress='localhost:9999'}
+
+
+19:30:02.771 [Test worker] INFO  i.a.qbit.server.ServiceServerImpl - Handle REST Call for MethodCall MethodCallImpl{name='null', address='/services/todo-manager/todo/list/', params=null, body=null, timestamp=25885654, id=1, objectName='null', returnAddress='localhost:9999'}
+19:30:02.771 [Test worker] DEBUG i.a.q.service.impl.ServiceBundleImpl - io.advantageous.qbit.service.impl.ServiceBundleImpl::call() null  /services/todo-manager/todo/list/
+MethodCallImpl{name='null', address='/services/todo-manager/todo/list/', params=null, body=null, timestamp=25885654, id=1, objectName='null', returnAddress='localhost:9999'}
+19:30:02.771 [QueueListener Send Queue /services] DEBUG i.a.q.service.impl.ServiceBundleImpl - io.advantageous.qbit.service.impl.ServiceBundleImpl::doCall() null  /services/todo-manager/todo/list/
+MethodCallImpl{name='null', address='/services/todo-manager/todo/list/', params=null, body=null, timestamp=25885654, id=1, objectName='null', returnAddress='localhost:9999'}
+19:30:02.838 [QueueListener Request Queue /services/todo-manager] DEBUG i.a.qbit.service.impl.ServiceImpl - ServiceImpl::doHandleMethodCall() METHOD CALLMethodCallImpl{name='null', address='/services/todo-manager/todo/list/', params=null, body=null, timestamp=25885654, id=1, objectName='null', returnAddress='localhost:9999'}
+List method was called [TodoItem{name='Call Dad', description='Call Dad', dueDate=Wed Nov 19 19:30:01 PST 2014}] 
+19:30:02.838 [QueueListener Request Queue /services/todo-manager] DEBUG i.a.qbit.service.impl.ServiceImpl - ServiceImpl::receive() 
+RESPONSE
+ResponseImpl{address='null', params=null, body=[TodoItem{name='Call Dad', description='Call Dad', dueDate=Wed Nov 19 19:30:01 PST 2014}]}
+FROM CALL
+MethodCallImpl{name='null', address='/services/todo-manager/todo/list/', params=null, body=null, timestamp=25885654, id=1, objectName='null', returnAddress='localhost:9999'}
+
+
+ADD CALL RESPONSE code  200  mimeType  application/json  body  [{"name":"Call Dad","description":"Call Dad","dueDate":1416454201757}] 
+19:30:03.775 [Test worker] DEBUG i.a.qbit.server.ServiceServerImpl - registering service: io.advantageous.qbit.service.bundle.example.todo.TodoService
+19:30:03.776 [Test worker] DEBUG i.a.q.service.impl.ServiceBundleImpl - io.advantageous.qbit.service.impl.ServiceBundleImpl serviceAddress null service object io.advantageous.qbit.service.bundle.example.todo.TodoService@4eb34629
+19:30:03.776 [Test worker] DEBUG i.a.qbit.service.impl.ServiceImpl - ServiceImpl<<constr>> /services null  io.advantageous.qbit.service.bundle.example.todo.TodoService@4eb34629 5 MILLISECONDS 50 io.advantageous.qbit.service.impl.BoonServiceMethodCallHandler@6c73b13d io.advantageous.qbit.queue.impl.BasicQueue@605c3e94
+19:30:03.776 [Test worker] DEBUG i.a.q.service.impl.ServiceBundleImpl - io.advantageous.qbit.service.impl.ServiceBundleImpl addresses: [/services/todo-manager/ADD, /services/todo-manager/LIST, /services/todo-manager/TIMEOUT, /services/todo-manager/add, /services/todo-manager/list, /services/todo-manager/timeout, /services/todo-manager/todo, /services/todo-manager/todo/list/]
+19:30:03.777 [Test worker] DEBUG i.a.qbit.server.ServiceServerImpl - addRestSupportFor io.advantageous.qbit.service.bundle.example.todo.TodoService
+19:30:03.778 [Test worker] INFO  i.a.qbit.server.ServiceServerImpl - Handle REST Call for MethodCall MethodCallImpl{name='null', address='/services/todo-manager/timeout', params=null, body=null, timestamp=25886694, id=2, objectName='null', returnAddress='localhost:9999'}
+19:30:03.778 [Test worker] DEBUG i.a.q.service.impl.ServiceBundleImpl - io.advantageous.qbit.service.impl.ServiceBundleImpl::call() null  /services/todo-manager/timeout
+MethodCallImpl{name='null', address='/services/todo-manager/timeout', params=null, body=null, timestamp=25886694, id=2, objectName='null', returnAddress='localhost:9999'}
+19:30:03.829 [QueueListener Send Queue /services] DEBUG i.a.q.service.impl.ServiceBundleImpl - io.advantageous.qbit.service.impl.ServiceBundleImpl::doCall() null  /services/todo-manager/timeout
+MethodCallImpl{name='null', address='/services/todo-manager/timeout', params=null, body=null, timestamp=25886694, id=2, objectName='null', returnAddress='localhost:9999'}
+19:30:03.831 [QueueListener Request Queue /services/todo-manager] DEBUG i.a.qbit.service.impl.ServiceImpl - ServiceImpl::doHandleMethodCall() METHOD CALLMethodCallImpl{name='null', address='/services/todo-manager/timeout', params=null, body=null, timestamp=25886694, id=2, objectName='null', returnAddress='localhost:9999'}
+19:30:05.782 [Test worker] DEBUG i.a.qbit.server.ServiceServerImpl - registering service: io.advantageous.qbit.service.bundle.example.todo.TodoService
+19:30:05.783 [Test worker] DEBUG i.a.q.service.impl.ServiceBundleImpl - io.advantageous.qbit.service.impl.ServiceBundleImpl serviceAddress null service object io.advantageous.qbit.service.bundle.example.todo.TodoService@730c8fea
+19:30:05.783 [Test worker] DEBUG i.a.qbit.service.impl.ServiceImpl - ServiceImpl<<constr>> /services null  io.advantageous.qbit.service.bundle.example.todo.TodoService@730c8fea 5 MILLISECONDS 50 io.advantageous.qbit.service.impl.BoonServiceMethodCallHandler@6a03dc8d io.advantageous.qbit.queue.impl.BasicQueue@68e7eb2f
+19:30:05.783 [Test worker] DEBUG i.a.q.service.impl.ServiceBundleImpl - io.advantageous.qbit.service.impl.ServiceBundleImpl addresses: [/services/todo-manager/ADD, /services/todo-manager/LIST, /services/todo-manager/TIMEOUT, /services/todo-manager/add, /services/todo-manager/list, /services/todo-manager/timeout, /services/todo-manager/todo, /services/todo-manager/todo/list/]
+19:30:05.784 [Test worker] DEBUG i.a.qbit.server.ServiceServerImpl - addRestSupportFor io.advantageous.qbit.service.bundle.example.todo.TodoService
+19:30:05.785 [Test worker] INFO  i.a.qbit.server.ServiceServerImpl - Handle REST Call for MethodCall MethodCallImpl{name='null', address='/services/todo-manager/testNoMethodCallFound', params=null, body=null, timestamp=25888673, id=3, objectName='null', returnAddress='localhost:9999'}
+19:30:05.785 [Test worker] DEBUG i.a.q.service.impl.ServiceBundleImpl - io.advantageous.qbit.service.impl.ServiceBundleImpl::call() null  /services/todo-manager/testNoMethodCallFound
+MethodCallImpl{name='null', address='/services/todo-manager/testNoMethodCallFound', params=null, body=null, timestamp=25888673, id=3, objectName='null', returnAddress='localhost:9999'}
+19:30:05.835 [QueueListener Send Queue /services] DEBUG i.a.q.service.impl.ServiceBundleImpl - io.advantageous.qbit.service.impl.ServiceBundleImpl::doCall() null  /services/todo-manager/testNoMethodCallFound
+MethodCallImpl{name='null', address='/services/todo-manager/testNoMethodCallFound', params=null, body=null, timestamp=25888673, id=3, objectName='null', returnAddress='localhost:9999'}
+19:30:05.835 [QueueListener Send Queue /services] ERROR i.a.q.service.impl.ServiceBundleImpl - No service at method address /services/todo-manager/testNoMethodCallFound method name null object name null
+
+19:30:05.835 [QueueListener Send Queue /services] ERROR i.a.q.service.impl.ServiceBundleImpl - known URI path /services/todo-manager/todo/list/
+19:30:05.835 [QueueListener Send Queue /services] ERROR i.a.q.service.impl.ServiceBundleImpl - known URI path /services/todo-manager/LIST
+19:30:05.835 [QueueListener Send Queue /services] ERROR i.a.q.service.impl.ServiceBundleImpl - known URI path /services/todo-manager/list
+19:30:05.835 [QueueListener Send Queue /services] ERROR i.a.q.service.impl.ServiceBundleImpl - known URI path /services/todo-manager/ADD
+19:30:05.835 [QueueListener Send Queue /services] ERROR i.a.q.service.impl.ServiceBundleImpl - known URI path /services/todo-manager/add
+19:30:05.835 [QueueListener Send Queue /services] ERROR i.a.q.service.impl.ServiceBundleImpl - known URI path /services/todo-manager/TIMEOUT
+19:30:05.835 [QueueListener Send Queue /services] ERROR i.a.q.service.impl.ServiceBundleImpl - known URI path /services/todo-manager
+19:30:05.835 [QueueListener Send Queue /services] ERROR i.a.q.service.impl.ServiceBundleImpl - known URI path /services/todo-manager/todo
+19:30:05.835 [QueueListener Send Queue /services] ERROR i.a.q.service.impl.ServiceBundleImpl - known URI path /services/todo-manager/timeout
+]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>
