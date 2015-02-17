@@ -65,9 +65,12 @@ import io.advantageous.qbit.events.EventSubscriber;
 import io.advantageous.qbit.message.Event;
 import io.advantageous.qbit.service.Service;
 import io.advantageous.qbit.service.ServiceProxyUtils;
+import io.advantageous.qbit.test.TimedTesting;
 import org.boon.core.Sys;
 import org.junit.Before;
 import org.junit.Test;
+
+import java.util.function.Predicate;
 
 import static io.advantageous.qbit.events.EventUtils.callbackEventListener;
 import static io.advantageous.qbit.service.ServiceBuilder.serviceBuilder;
@@ -75,7 +78,7 @@ import static io.advantageous.qbit.service.ServiceContext.serviceContext;
 import static org.boon.Boon.puts;
 import static org.boon.Exceptions.die;
 
-public class BoonEventManagerTest {
+public class BoonEventManagerTest extends TimedTesting {
 
     EventManager eventManager;
 
@@ -89,6 +92,8 @@ public class BoonEventManagerTest {
 
     @Before
     public void setup() {
+
+        super.setupLatch();
         eventManager = QBit.factory().systemEventManager();
         clientProxy = ( ClientProxy ) eventManager;
         subscribeMessageCount = 0;
@@ -201,12 +206,7 @@ public class BoonEventManagerTest {
 
         String rick = "rick";
 
-        eventManager.register(rick, new EventConsumer<Object>() {
-            @Override
-            public void listen(Event<Object> event) {
-                consumerMessageCount++;
-            }
-        });
+        eventManager.register(rick, event -> consumerMessageCount++);
 
 
         eventManager.register(rick, callbackEventListener(event -> {
@@ -219,7 +219,7 @@ public class BoonEventManagerTest {
 
         long start = System.currentTimeMillis();
 
-        for ( int index = 0; index < 1_000_000; index++ ) {
+        for ( int index = 0; index < 100_000; index++ ) {
             eventManager.send(rick, "PERF");
 
         }
@@ -229,19 +229,7 @@ public class BoonEventManagerTest {
         Sys.sleep(100);
 
 
-        while ( true ) {
-
-            Sys.sleep(10);
-
-
-            if ( consumerMessageCount >= 900_000 ) {
-                break;
-            }
-
-            if ( start - System.currentTimeMillis() > 3_000 ) {
-                break;
-            }
-        }
+        super.waitForTrigger(60, o -> consumerMessageCount >= 90_000);
 
 
         long stop = System.currentTimeMillis();
@@ -255,7 +243,7 @@ public class BoonEventManagerTest {
         }
 
 
-        if ( consumerMessageCount < 900_000 ) {
+        if ( consumerMessageCount < 90_000 ) {
             die("consumerMessageCount", consumerMessageCount);
         }
 
@@ -302,7 +290,7 @@ public class BoonEventManagerTest {
 
         @OnEvent("rick")
         private void listen(String message) {
-            puts(message);
+            //puts(message);
             callCount++;
         }
 

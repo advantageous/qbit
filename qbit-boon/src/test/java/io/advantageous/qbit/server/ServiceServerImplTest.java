@@ -75,6 +75,7 @@ import io.advantageous.qbit.service.ServiceBundle;
 import io.advantageous.qbit.service.ServiceBundleBuilder;
 import io.advantageous.qbit.spi.ProtocolEncoder;
 import io.advantageous.qbit.spi.ProtocolParser;
+import io.advantageous.qbit.test.TimedTesting;
 import org.boon.Lists;
 import org.boon.core.Sys;
 import org.junit.Before;
@@ -83,11 +84,12 @@ import org.junit.Test;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
+import java.util.function.Predicate;
 
 import static org.boon.Boon.puts;
 import static org.boon.Exceptions.die;
 
-public class ServiceServerImplTest {
+public class ServiceServerImplTest extends TimedTesting {
 
     static AtomicInteger timeOutCounter = new AtomicInteger();
     volatile int callMeCounter = 0;
@@ -101,6 +103,7 @@ public class ServiceServerImplTest {
 
     @Before
     public void setup() {
+        super.setupLatch();
         final Factory factory = QBit.factory();
         final ProtocolParser protocolParser = factory.createProtocolParser();
         final ProtocolEncoder encoder = factory.createEncoder();
@@ -131,9 +134,11 @@ public class ServiceServerImplTest {
         httpServer.sendRequest(request);
 
 
-        Sys.sleep(200);
+        Sys.sleep(10);
         serviceServerImpl.flush();
-        Sys.sleep(200);
+        Sys.sleep(10);
+
+        waitForTrigger(20, o -> responseCounter == 1 && callMeCounter==1);
 
         ok |= responseCounter == 1 || die();
         ok |= callMeCounter == 1 || die();
@@ -152,7 +157,8 @@ public class ServiceServerImplTest {
         httpServer.sendRequest(request);
 
 
-        Sys.sleep(3000);
+        waitForTrigger(20, o -> timeOutCounter.get() >= 1);
+
 
 
         ok |= responseCounter == 0 || die();
@@ -169,11 +175,16 @@ public class ServiceServerImplTest {
 
         httpServer.sendRequest(request);
 
-        Sys.sleep(200);
+        Sys.sleep(10);
 
         serviceServerImpl.flush();
 
-        Sys.sleep(200);
+        Sys.sleep(10);
+
+
+        waitForTrigger(20, o -> responseCounter == 1 && callMeCounter==1);
+
+        Sys.sleep(10);
 
 
         ok |= responseCounter == 1 || die();
@@ -191,7 +202,8 @@ public class ServiceServerImplTest {
 
         httpServer.sendRequest(request);
 
-        Sys.sleep(200);
+        waitForTrigger(20, o -> failureCounter == 1);
+
 
 
         ok |= failureCounter == 1 || die();
@@ -210,10 +222,13 @@ public class ServiceServerImplTest {
 
         httpServer.sendRequest(request);
 
-        Sys.sleep(200);
+        Sys.sleep(10);
         serviceServerImpl.flush();
 
-        Sys.sleep(200);
+        Sys.sleep(10);
+
+
+        waitForTrigger(20, o -> responseCounter == 1 && callMeCounter==1);
 
 
         ok |= responseCounter == 1 || die();
@@ -232,11 +247,13 @@ public class ServiceServerImplTest {
                 .setRemoteAddress("/crap/at/crap").setSender(new MockWebSocketSender()).build());
 
 
-        Sys.sleep(200);
+        Sys.sleep(10);
         serviceServerImpl.flush();
 
-        Sys.sleep(200);
+        Sys.sleep(10);
 
+
+        waitForTrigger(20, o -> responseCounter == 1 && failureCounter==1);
 
         ok |= responseCounter == 1 || die();
         ok |= failureCounter == 1 || die();
@@ -253,13 +270,18 @@ public class ServiceServerImplTest {
         httpServer.sendWebSocketServerMessage(new WebSocketMessageBuilder().setRemoteAddress("/foo").setMessage(message).setSender(new MockWebSocketSender()).build());
 
 
-        Sys.sleep(200);
+        Sys.sleep(10);
 
 
         serviceServerImpl.flush();
 
-        Sys.sleep(200);
+        Sys.sleep(10);
 
+
+
+        waitForTrigger(20, o -> responseCounter == 1);
+
+        Sys.sleep(10);
 
         ok |= responseCounter == 1 || die();
         ok |= failureCounter == 0 || die();
@@ -273,13 +295,15 @@ public class ServiceServerImplTest {
 
         httpServer.sendRequest(request);
 
-        Sys.sleep(200);
+        Sys.sleep(10);
 
 
         serviceServerImpl.flush();
 
-        Sys.sleep(200);
+        Sys.sleep(10);
 
+
+        waitForTrigger(20, o -> callMeCounter == 1 && failureCounter==1);
 
         ok |= failureCounter == 1 || die();
         ok |= callMeCounter == 1 || die();
@@ -298,14 +322,16 @@ public class ServiceServerImplTest {
         httpServer.sendWebSocketServerMessage(new WebSocketMessageBuilder().setRemoteAddress("/error").setMessage(message).setSender(new MockWebSocketSender()).build());
 
 
-        Sys.sleep(200);
+        Sys.sleep(5);
 
 
         serviceServerImpl.flush();
 
-        Sys.sleep(200);
+        Sys.sleep(5);
 
 
+
+        waitForTrigger(20, o -> callMeCounter == 1 && failureCounter==1);
         ok |= failureCounter == 1 || die();
         ok |= callMeCounter == 1 || die();
 
