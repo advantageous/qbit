@@ -89,17 +89,317 @@ public interface HttpClient {
         final HttpRequest httpRequest = httpRequestBuilder()
                 .setUri(uri)
                 .build();
-
         sendHttpRequest(httpRequest);
     }
 
 
-    default void getTextAsync(final String uri, final HttpTextReceiver httpTextReceiver) {
+    default void getAsync(final String uri, final HttpTextReceiver httpTextReceiver) {
         final HttpRequest httpRequest = httpRequestBuilder()
                 .setUri(uri).setTextReceiver(httpTextReceiver)
                 .build();
         sendHttpRequest(httpRequest);
     }
+
+
+    default void getAsyncWith1Param(final String uri,
+                              String paramName0, Object value0,
+                              final HttpTextReceiver httpTextReceiver) {
+        sendAsyncRequestWith1Param(uri, "GET", paramName0, value0, httpTextReceiver);
+    }
+
+    default void getAsyncWith2Params(final String uri,
+                                        String paramName0, Object value0,
+                                        String paramName1, Object value1,
+                                        final HttpTextReceiver httpTextReceiver) {
+
+        sendAsyncRequestWith2Params(uri, "GET",
+                paramName0, value0,
+                paramName1, value1,
+                httpTextReceiver);
+    }
+
+    default void getAsyncWith3Params(final String uri,
+                                         String paramName0, Object value0,
+                                         String paramName1, Object value1,
+                                         String paramName2, Object value2,
+                                         final HttpTextReceiver httpTextReceiver) {
+
+
+        sendAsyncRequestWith3Params(uri, "GET",
+                paramName0, value0,
+                paramName1, value1,
+                paramName2, value2,
+                httpTextReceiver);
+    }
+
+
+    default void getAsyncWith4Params(final String uri,
+                                         String paramName0, Object value0,
+                                         String paramName1, Object value1,
+                                         String paramName2, Object value2,
+                                         String paramName3, Object value3,
+                                         final HttpTextReceiver httpTextReceiver) {
+
+
+        sendAsyncRequestWith4Params(uri, "GET",
+                paramName0, value0,
+                paramName1, value1,
+                paramName2, value2,
+                paramName3, value3,
+                httpTextReceiver);
+    }
+
+
+    default void getAsyncWith5Params(final String uri,
+                                         String paramName0, Object value0,
+                                         String paramName1, Object value1,
+                                         String paramName2, Object value2,
+                                         String paramName3, Object value3,
+                                         String paramName4, Object value4,
+                                         final HttpTextReceiver httpTextReceiver) {
+
+
+        sendAsyncRequestWith5Params(uri, "GET",
+                paramName0, value0,
+                paramName1, value1,
+                paramName2, value2,
+                paramName3, value3,
+                paramName4, value4,
+                httpTextReceiver);
+    }
+
+
+    default void postAsync(final String uri, final HttpTextReceiver httpTextReceiver) {
+        final HttpRequest httpRequest = httpRequestBuilder()
+                .setUri(uri).setTextReceiver(httpTextReceiver)
+                .setMethod("POST")
+                .build();
+        sendHttpRequest(httpRequest);
+    }
+
+
+    default void postFormAsyncWith1Param(final String uri,
+                                        String paramName0, Object value0,
+                                        final HttpTextReceiver httpTextReceiver) {
+        sendAsyncRequestWith1Param(uri, "POST", paramName0, value0, httpTextReceiver);
+    }
+
+    default void postFormAsyncWith2Params(final String uri,
+                                         String paramName0, Object value0,
+                                         String paramName1, Object value1,
+                                         final HttpTextReceiver httpTextReceiver) {
+
+        sendAsyncRequestWith2Params(uri, "POST",
+                paramName0, value0,
+                paramName1, value1,
+                httpTextReceiver);
+    }
+
+    default void postFormAsyncWith3Params(final String uri,
+                                         String paramName0, Object value0,
+                                         String paramName1, Object value1,
+                                         String paramName2, Object value2,
+                                         final HttpTextReceiver httpTextReceiver) {
+
+
+        sendAsyncRequestWith3Params(uri, "POST",
+                paramName0, value0,
+                paramName1, value1,
+                paramName2, value2,
+                httpTextReceiver);
+    }
+
+
+    default void postFormAsyncWith4Params(final String uri,
+                                         String paramName0, Object value0,
+                                         String paramName1, Object value1,
+                                         String paramName2, Object value2,
+                                         String paramName3, Object value3,
+                                         final HttpTextReceiver httpTextReceiver) {
+
+
+        sendAsyncRequestWith4Params(uri, "POST",
+                paramName0, value0,
+                paramName1, value1,
+                paramName2, value2,
+                paramName3, value3,
+                httpTextReceiver);
+    }
+
+
+    default void postFormAsyncWith5Params(final String uri,
+                                         String paramName0, Object value0,
+                                         String paramName1, Object value1,
+                                         String paramName2, Object value2,
+                                         String paramName3, Object value3,
+                                         String paramName4, Object value4,
+                                         final HttpTextReceiver httpTextReceiver) {
+
+
+        sendAsyncRequestWith5Params(uri, "POST",
+                paramName0, value0,
+                paramName1, value1,
+                paramName2, value2,
+                paramName3, value3,
+                paramName4, value4,
+                httpTextReceiver);
+    }
+
+
+    default void putAsync(final String uri, final HttpTextReceiver httpTextReceiver) {
+        final HttpRequest httpRequest = httpRequestBuilder()
+                .setUri(uri).setTextReceiver(httpTextReceiver)
+                .setMethod("PUT")
+                .build();
+        sendHttpRequest(httpRequest);
+    }
+
+
+    default void putFormAsyncWith1Param(final String uri,
+                                         String paramName0, Object value0,
+                                         final HttpTextReceiver httpTextReceiver) {
+        sendAsyncRequestWith1Param(uri, "PUT", paramName0, value0, httpTextReceiver);
+    }
+
+    default void putFormAsyncWith2Params(final String uri,
+                                          String paramName0, Object value0,
+                                          String paramName1, Object value1,
+                                          final HttpTextReceiver httpTextReceiver) {
+
+        sendAsyncRequestWith2Params(uri, "PUT",
+                paramName0, value0,
+                paramName1, value1,
+                httpTextReceiver);
+    }
+
+    default void putFormAsyncWith3Params(final String uri,
+                                          String paramName0, Object value0,
+                                          String paramName1, Object value1,
+                                          String paramName2, Object value2,
+                                          final HttpTextReceiver httpTextReceiver) {
+
+
+        sendAsyncRequestWith3Params(uri, "PUT",
+                paramName0, value0,
+                paramName1, value1,
+                paramName2, value2,
+                httpTextReceiver);
+    }
+
+
+    default void putFormAsyncWith4Params(final String uri,
+                                          String paramName0, Object value0,
+                                          String paramName1, Object value1,
+                                          String paramName2, Object value2,
+                                          String paramName3, Object value3,
+                                          final HttpTextReceiver httpTextReceiver) {
+
+
+        sendAsyncRequestWith4Params(uri, "PUT",
+                paramName0, value0,
+                paramName1, value1,
+                paramName2, value2,
+                paramName3, value3,
+                httpTextReceiver);
+    }
+
+
+    default void putFormAsyncWith5Params(final String uri,
+                                          String paramName0, Object value0,
+                                          String paramName1, Object value1,
+                                          String paramName2, Object value2,
+                                          String paramName3, Object value3,
+                                          String paramName4, Object value4,
+                                          final HttpTextReceiver httpTextReceiver) {
+
+
+        sendAsyncRequestWith5Params(uri, "PUT",
+                paramName0, value0,
+                paramName1, value1,
+                paramName2, value2,
+                paramName3, value3,
+                paramName4, value4,
+                httpTextReceiver);
+    }
+
+    default void sendAsyncRequestWith1Param(final String uri, String method,
+                                  String paramName0, Object value0,
+                                  final HttpTextReceiver httpTextReceiver) {
+        final HttpRequest httpRequest = httpRequestBuilder()
+                .setMethod(method)
+                .setUri(uri).setTextReceiver(httpTextReceiver)
+                .addParam(paramName0, value0 == null ? "" : value0.toString())
+                .build();
+
+        sendHttpRequest(httpRequest);
+
+    }
+
+    default void sendAsyncRequestWith2Params(final String uri, String method,
+                                  String paramName0, Object value0,
+                                  String paramName1, Object value1,
+                                  final HttpTextReceiver httpTextReceiver) {
+        final HttpRequest httpRequest = httpRequestBuilder()
+                .setMethod(method)
+                .setUri(uri).setTextReceiver(httpTextReceiver)
+                .addParam(paramName0, value0 == null ? "" : value0.toString())
+                .addParam(paramName1, value1 == null ? "" : value1.toString())
+                .build();
+        sendHttpRequest(httpRequest);
+    }
+
+    default void sendAsyncRequestWith3Params(final String uri, String method,
+                                  String paramName0, Object value0,
+                                  String paramName1, Object value1,
+                                  String paramName2, Object value2,
+                                  final HttpTextReceiver httpTextReceiver) {
+        final HttpRequest httpRequest = httpRequestBuilder()
+                .setMethod(method)
+                .setUri(uri).setTextReceiver(httpTextReceiver)
+                .addParam(paramName0, value0 == null ? "" : value0.toString())
+                .addParam(paramName1, value1 == null ? "" : value1.toString())
+                .addParam(paramName2, value2 == null ? "" : value2.toString())
+                .build();
+        sendHttpRequest(httpRequest);
+    }
+
+    default void sendAsyncRequestWith4Params(final String uri, String method,
+                                             String paramName0, Object value0,
+                                             String paramName1, Object value1,
+                                             String paramName2, Object value2,
+                                             String paramName3, Object value3,
+                                             final HttpTextReceiver httpTextReceiver) {
+        final HttpRequest httpRequest = httpRequestBuilder()
+                .setMethod(method)
+                .setUri(uri).setTextReceiver(httpTextReceiver)
+                .addParam(paramName0, value0 == null ? "" : value0.toString())
+                .addParam(paramName1, value1 == null ? "" : value1.toString())
+                .addParam(paramName2, value2 == null ? "" : value2.toString())
+                .addParam(paramName3, value3 == null ? "" : value3.toString())
+                .build();
+        sendHttpRequest(httpRequest);
+    }
+
+
+    default void sendAsyncRequestWith5Params(final String uri, String method,
+                                             String paramName0, Object value0,
+                                             String paramName1, Object value1,
+                                             String paramName2, Object value2,
+                                             String paramName3, Object value3,
+                                             String paramName4, Object value4,
+                                             final HttpTextReceiver httpTextReceiver) {
+        final HttpRequest httpRequest = httpRequestBuilder()
+                .setMethod(method)
+                .setUri(uri).setTextReceiver(httpTextReceiver)
+                .addParam(paramName0, value0 == null ? "" : value0.toString())
+                .addParam(paramName1, value1 == null ? "" : value1.toString())
+                .addParam(paramName2, value2 == null ? "" : value2.toString())
+                .addParam(paramName3, value3 == null ? "" : value3.toString())
+                .addParam(paramName4, value4 == null ? "" : value4.toString())
+                .build();
+        sendHttpRequest(httpRequest);
+    }
+
 
     default void getBinaryAsync(final String uri, final HttpBinaryReceiver binaryReceiver) {
         final HttpRequest httpRequest = httpRequestBuilder()
@@ -202,6 +502,29 @@ public interface HttpClient {
         return sendRequestAndWait(httpRequest, time, unit);
     }
 
+
+    default HttpResponse post(String uri) {
+        return postWithTimeout(uri, HTTP_CLIENT_DEFAULT_TIMEOUT, TimeUnit.SECONDS);
+    }
+
+    default HttpResponse postWithTimeout(String uri, long time, TimeUnit unit) {
+        final HttpRequest httpRequest = httpRequestBuilder().setMethod("PUT")
+                .setUri(uri).build();
+        return sendRequestAndWait(httpRequest, time, unit);
+    }
+
+
+    default HttpResponse put(String uri) {
+        return postWithTimeout(uri, HTTP_CLIENT_DEFAULT_TIMEOUT, TimeUnit.SECONDS);
+    }
+
+    default HttpResponse putWithTimeout(String uri, long time, TimeUnit unit) {
+        final HttpRequest httpRequest = httpRequestBuilder().setMethod("PUT")
+                .setUri(uri).build();
+        return sendRequestAndWait(httpRequest, time, unit);
+    }
+
+
     default HttpResponse getWith1ParamWithTimeout(String uri, String key, Object value,
                                                   final long time,
                                                   final TimeUnit timeUnit) {
@@ -215,6 +538,38 @@ public interface HttpClient {
     default HttpResponse getWith1Param(String uri, String key, Object value) {
 
         return getWith1ParamWithTimeout(uri, key, value, HTTP_CLIENT_DEFAULT_TIMEOUT, TimeUnit.SECONDS);
+    }
+
+
+
+    default HttpResponse postWith1ParamWithTimeout(String uri, String key, Object value,
+                                                  final long time,
+                                                  final TimeUnit timeUnit) {
+
+        final HttpRequest httpRequest = httpRequestBuilder().setMethod("POST")
+                .setUri(uri).addParam(key, value == null ? "" : value.toString())
+                .build();
+
+        return sendRequestAndWait(httpRequest, time, timeUnit);
+    }
+    default HttpResponse postWith1Param(String uri, String key, Object value) {
+
+        return postWith1ParamWithTimeout(uri, key, value, HTTP_CLIENT_DEFAULT_TIMEOUT, TimeUnit.SECONDS);
+    }
+
+    default HttpResponse putWith1ParamWithTimeout(String uri, String key, Object value,
+                                                   final long time,
+                                                   final TimeUnit timeUnit) {
+
+        final HttpRequest httpRequest = httpRequestBuilder().setMethod("PUT")
+                .setUri(uri).addParam(key, value == null ? "" : value.toString())
+                .build();
+
+        return sendRequestAndWait(httpRequest, time, timeUnit);
+    }
+    default HttpResponse putWith1Param(String uri, String key, Object value) {
+
+        return putWith1ParamWithTimeout(uri, key, value, HTTP_CLIENT_DEFAULT_TIMEOUT, TimeUnit.SECONDS);
     }
 
 
@@ -243,6 +598,59 @@ public interface HttpClient {
     }
 
 
+    default HttpResponse postWith2ParamsWithTimeout(String uri,
+                                                   String key, Object value,
+                                                   String key1, Object value1,
+                                                   final long time,
+                                                   final TimeUnit timeUnit) {
+
+        final HttpRequest httpRequest = httpRequestBuilder()
+                .setMethod("POST")
+                .setUri(uri)
+                .addParam(key, value == null ? "" : value.toString())
+                .addParam(key1, value1 == null ? "" : value1.toString())
+                .build();
+
+        return sendRequestAndWait(httpRequest, time, timeUnit);
+    }
+
+
+    default HttpResponse postWith2Params(String uri,
+                                        String key, Object value,
+                                        String key1, Object value1
+    ) {
+
+        return postWith2ParamsWithTimeout(uri, key, value, key1, value1, HTTP_CLIENT_DEFAULT_TIMEOUT, TimeUnit.SECONDS);
+    }
+
+
+
+    default HttpResponse putWith2ParamsWithTimeout(String uri,
+                                                    String key, Object value,
+                                                    String key1, Object value1,
+                                                    final long time,
+                                                    final TimeUnit timeUnit) {
+
+        final HttpRequest httpRequest = httpRequestBuilder()
+                .setMethod("PUT")
+                .setUri(uri)
+                .addParam(key, value == null ? "" : value.toString())
+                .addParam(key1, value1 == null ? "" : value1.toString())
+                .build();
+
+        return sendRequestAndWait(httpRequest, time, timeUnit);
+    }
+
+
+    default HttpResponse putWith2Params(String uri,
+                                         String key, Object value,
+                                         String key1, Object value1
+    ) {
+
+        return putWith2ParamsWithTimeout(uri, key, value, key1, value1, HTTP_CLIENT_DEFAULT_TIMEOUT, TimeUnit.SECONDS);
+    }
+
+
     default HttpResponse getWith3ParamsWithTimeout(String uri,
                                                    String key, Object value,
                                                    String key1, Object value1,
@@ -267,6 +675,73 @@ public interface HttpClient {
                                         String key2, Object value2) {
 
         return getWith3ParamsWithTimeout(uri,
+                key, value,
+                key1, value1,
+                key2, value2,
+                HTTP_CLIENT_DEFAULT_TIMEOUT,
+                TimeUnit.SECONDS);
+    }
+
+
+
+    default HttpResponse postWith3ParamsWithTimeout(String uri,
+                                                   String key, Object value,
+                                                   String key1, Object value1,
+                                                   String key2, Object value2,
+                                                   final long time,
+                                                   final TimeUnit timeUnit) {
+
+        final HttpRequest httpRequest = httpRequestBuilder()
+                .setMethod("POST")
+                .setUri(uri)
+                .addParam(key, value == null ? "" : value.toString())
+                .addParam(key1, value1 == null ? "" : value1.toString())
+                .addParam(key2, value2 == null ? "" : value2.toString())
+                .build();
+
+        return sendRequestAndWait(httpRequest, time, timeUnit);
+    }
+
+
+    default HttpResponse postWith3Params(String uri,
+                                        String key, Object value,
+                                        String key1, Object value1,
+                                        String key2, Object value2) {
+
+        return postWith3ParamsWithTimeout(uri,
+                key, value,
+                key1, value1,
+                key2, value2,
+                HTTP_CLIENT_DEFAULT_TIMEOUT,
+                TimeUnit.SECONDS);
+    }
+
+
+    default HttpResponse putWith3ParamsWithTimeout(String uri,
+                                                    String key, Object value,
+                                                    String key1, Object value1,
+                                                    String key2, Object value2,
+                                                    final long time,
+                                                    final TimeUnit timeUnit) {
+
+        final HttpRequest httpRequest = httpRequestBuilder()
+                .setMethod("PUT")
+                .setUri(uri)
+                .addParam(key, value == null ? "" : value.toString())
+                .addParam(key1, value1 == null ? "" : value1.toString())
+                .addParam(key2, value2 == null ? "" : value2.toString())
+                .build();
+
+        return sendRequestAndWait(httpRequest, time, timeUnit);
+    }
+
+
+    default HttpResponse putWith3Params(String uri,
+                                         String key, Object value,
+                                         String key1, Object value1,
+                                         String key2, Object value2) {
+
+        return putWith3ParamsWithTimeout(uri,
                 key, value,
                 key1, value1,
                 key2, value2,
@@ -310,6 +785,78 @@ public interface HttpClient {
     }
 
 
+
+    default HttpResponse postWith4ParamsWithTimeout(String uri,
+                                                   String key, Object value,
+                                                   String key1, Object value1,
+                                                   String key2, Object value2,
+                                                   String key3, Object value3,
+                                                   final long time,
+                                                   final TimeUnit timeUnit) {
+
+        final HttpRequest httpRequest = httpRequestBuilder()
+                .setMethod("POST")
+                .setUri(uri)
+                .addParam(key, value == null ? "" : value.toString())
+                .addParam(key1, value1 == null ? "" : value1.toString())
+                .addParam(key2, value2 == null ? "" : value2.toString())
+                .addParam(key3, value3 == null ? "" : value3.toString())
+                .build();
+
+        return sendRequestAndWait(httpRequest, time, timeUnit);
+    }
+
+
+    default HttpResponse postWith4Params(String uri,
+                                        String key, Object value,
+                                        String key1, Object value1,
+                                        String key2, Object value2,
+                                        String key3, Object value3) {
+
+        return postWith4ParamsWithTimeout(uri,
+                key, value,
+                key1, value1,
+                key2, value2,
+                key3, value3,
+                HTTP_CLIENT_DEFAULT_TIMEOUT, TimeUnit.SECONDS);
+    }
+
+
+    default HttpResponse putWith4ParamsWithTimeout(String uri,
+                                                    String key, Object value,
+                                                    String key1, Object value1,
+                                                    String key2, Object value2,
+                                                    String key3, Object value3,
+                                                    final long time,
+                                                    final TimeUnit timeUnit) {
+
+        final HttpRequest httpRequest = httpRequestBuilder()
+                .setMethod("PUT")
+                .setUri(uri)
+                .addParam(key, value == null ? "" : value.toString())
+                .addParam(key1, value1 == null ? "" : value1.toString())
+                .addParam(key2, value2 == null ? "" : value2.toString())
+                .addParam(key3, value3 == null ? "" : value3.toString())
+                .build();
+
+        return sendRequestAndWait(httpRequest, time, timeUnit);
+    }
+
+
+    default HttpResponse putWith4Params(String uri,
+                                         String key, Object value,
+                                         String key1, Object value1,
+                                         String key2, Object value2,
+                                         String key3, Object value3) {
+
+        return putWith4ParamsWithTimeout(uri,
+                key, value,
+                key1, value1,
+                key2, value2,
+                key3, value3,
+                HTTP_CLIENT_DEFAULT_TIMEOUT, TimeUnit.SECONDS);
+    }
+
     default HttpResponse getWith5ParamsWithTimeout(String uri,
                                                    String key, Object value,
                                                    String key1, Object value1,
@@ -340,6 +887,86 @@ public interface HttpClient {
                                         String key4, Object value4) {
 
         return getWith5ParamsWithTimeout(uri,
+                key, value,
+                key1, value1,
+                key2, value2,
+                key3, value3,
+                key4, value4,
+                HTTP_CLIENT_DEFAULT_TIMEOUT, TimeUnit.SECONDS);
+    }
+
+
+    default HttpResponse postWith5ParamsWithTimeout(String uri,
+                                                   String key, Object value,
+                                                   String key1, Object value1,
+                                                   String key2, Object value2,
+                                                   String key3, Object value3,
+                                                   String key4, Object value4,
+                                                   final long time,
+                                                   final TimeUnit timeUnit) {
+
+        final HttpRequest httpRequest = httpRequestBuilder()
+                .setUri(uri)
+                .setMethod("POST")
+                .addParam(key, value == null ? "" : value.toString())
+                .addParam(key1, value1 == null ? "" : value1.toString())
+                .addParam(key2, value2 == null ? "" : value2.toString())
+                .addParam(key3, value3 == null ? "" : value3.toString())
+                .addParam(key4, value4 == null ? "" : value4.toString())
+                .build();
+
+        return sendRequestAndWait(httpRequest, time, timeUnit);
+    }
+
+
+    default HttpResponse postWith5Params(String uri,
+                                        String key, Object value,
+                                        String key1, Object value1,
+                                        String key2, Object value2,
+                                        String key3, Object value3,
+                                        String key4, Object value4) {
+
+        return postWith5ParamsWithTimeout(uri,
+                key, value,
+                key1, value1,
+                key2, value2,
+                key3, value3,
+                key4, value4,
+                HTTP_CLIENT_DEFAULT_TIMEOUT, TimeUnit.SECONDS);
+    }
+
+
+    default HttpResponse putWith5ParamsWithTimeout(String uri,
+                                                    String key, Object value,
+                                                    String key1, Object value1,
+                                                    String key2, Object value2,
+                                                    String key3, Object value3,
+                                                    String key4, Object value4,
+                                                    final long time,
+                                                    final TimeUnit timeUnit) {
+
+        final HttpRequest httpRequest = httpRequestBuilder()
+                .setUri(uri)
+                .setMethod("PUT")
+                .addParam(key, value == null ? "" : value.toString())
+                .addParam(key1, value1 == null ? "" : value1.toString())
+                .addParam(key2, value2 == null ? "" : value2.toString())
+                .addParam(key3, value3 == null ? "" : value3.toString())
+                .addParam(key4, value4 == null ? "" : value4.toString())
+                .build();
+
+        return sendRequestAndWait(httpRequest, time, timeUnit);
+    }
+
+
+    default HttpResponse putWith5Params(String uri,
+                                         String key, Object value,
+                                         String key1, Object value1,
+                                         String key2, Object value2,
+                                         String key3, Object value3,
+                                         String key4, Object value4) {
+
+        return putWith5ParamsWithTimeout(uri,
                 key, value,
                 key1, value1,
                 key2, value2,

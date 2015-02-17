@@ -1,4 +1,5 @@
 /*******************************************************************************
+
   * Copyright (c) 2015. Rick Hightower, Geoff Chandler
   *
   * Licensed under the Apache License, Version 2.0 (the "License");
@@ -38,7 +39,7 @@
   *                   \/         \/         \/  )/         \/       \/    \/        \/            \/     \/    \/     )/          \/        \/        \/
   *  __________           __  .__              __      __      ___.
   *  \______   \ ____   _/  |_|  |__   ____   /  \    /  \ ____\_ |__
-  *  |    |  _// __ \  \   __\  |  \_/ __ \  \   \/\/   // __ \| __ \                                                                                              
+  *  |    |  _// __ \  \   __\  |  \_/ __ \  \   \/\/   // __ \| __ \
   *   |    |   \  ___/   |  | |   Y  \  ___/   \        /\  ___/| \_\ \
   *   |______  /\___  >  |__| |___|  /\___  >   \__/\  /  \___  >___  /
   *          \/     \/             \/     \/         \/       \/    \/
@@ -49,9 +50,10 @@
   *  http://rick-hightower.blogspot.com/2015/01/quick-start-qbit-programming.html
   *  http://rick-hightower.blogspot.com/2015/01/high-speed-soa.html
   *  http://rick-hightower.blogspot.com/2015/02/qbit-event-bus.html
-  ******************************************************************************/
 
-package io.advantageous.qbit.example.servers;
+ ******************************************************************************/
+
+package io.advantageous.qbit.http.jetty;
 
 import io.advantageous.qbit.http.client.HttpClient;
 import io.advantageous.qbit.http.request.HttpRequest;
@@ -67,6 +69,7 @@ import static io.advantageous.qbit.http.client.HttpClientBuilder.httpClientBuild
 import static io.advantageous.qbit.http.request.HttpRequestBuilder.httpRequestBuilder;
 import static io.advantageous.qbit.http.server.HttpServerBuilder.httpServerBuilder;
 import static org.boon.Boon.puts;
+
 
 /**
  * Created by rhightower on 2/16/15.
@@ -100,8 +103,8 @@ public class EchoHttp {
         HttpClient httpClient = httpClientBuilder().setHost("localhost").setPort(8080).build();
         httpClient.start();
 
-        //sendGets(httpClient);
-        //sendPosts(httpClient);
+        sendGets(httpClient);
+        sendPosts(httpClient);
         sendPuts(httpClient);
 
 
