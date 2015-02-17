@@ -56,7 +56,7 @@ project(':qbit-core') {
 
     dependencies {
         testCompile group: 'junit', name: 'junit', version: '4.10'
-        compile group: 'io.fastjson', name: 'boon', version: '0.31-SNAPSHOT'
+        compile group: 'io.fastjson', name: 'boon', version: '0.31'
         compile "org.slf4j:slf4j-api:[1.7,1.8)"
         testCompile 'ch.qos.logback:logback-classic:1.1.2'
     }
@@ -137,7 +137,7 @@ project(':qbit-boon') {
     sourceSets.main.resources.srcDir 'src/main/java'
     dependencies {
         compile project(':qbit-core')
-        compile group: 'io.fastjson', name: 'boon', version: '0.31-SNAPSHOT'
+        compile group: 'io.fastjson', name: 'boon', version: '0.31'
         compile "org.slf4j:slf4j-api:[1.7,1.8)"
         testCompile 'ch.qos.logback:logback-classic:1.1.2'
         testCompile group: 'junit', name: 'junit', version: '4.10'
@@ -265,7 +265,7 @@ project(':qbit-perf-client') {
     dependencies {
         compile project(':qbit-vertx')
         compile project(':qbit-boon')
-        compile group: 'io.fastjson', name: 'boon', version: '0.31-SNAPSHOT'
+        compile group: 'io.fastjson', name: 'boon', version: '0.31'
         compile "org.slf4j:slf4j-api:[1.7,1.8)"
         compile 'ch.qos.logback:logback-classic:1.1.2'
 
