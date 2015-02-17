@@ -89,7 +89,7 @@ public class HelloWorldRestServer {
             /* read the page from the file system or classpath. */
             final String helloWorldWebPage = resource(HTML_HELLO_PAGE);
             /* Send the HTML file out to the browser. */
-            httpRequest.getResponse().response(200, "text/html", helloWorldWebPage);
+            httpRequest.getReceiver().response(200, "text/html", helloWorldWebPage);
             return false;
         });
 

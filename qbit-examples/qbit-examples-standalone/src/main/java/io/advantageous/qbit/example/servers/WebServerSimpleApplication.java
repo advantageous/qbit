@@ -78,7 +78,7 @@ public class WebServerSimpleApplication {
 
         httpServer.setHttpRequestConsumer(request -> {
 
-            request.getResponse().response(200, "application/json", "\"ok\"");
+            request.getReceiver().response(200, "application/json", "\"ok\"");
         });
         httpServer.start();
 

@@ -70,7 +70,7 @@ public class HttpIntegrationSample {
         final HttpServer httpServer = httpServerBuilder().setPort(9999).build();
 
         httpServer.setHttpRequestConsumer(request -> {
-            request.getResponse().response(200, "text/html", "<html><body>Hello World!</body></html>");
+            request.getReceiver().response(200, "text/html", "<html><body>Hello World!</body></html>");
         });
 
         httpServer.setWebSocketMessageConsumer(webSocketMessage -> webSocketMessage.getSender().sendText("HI"));

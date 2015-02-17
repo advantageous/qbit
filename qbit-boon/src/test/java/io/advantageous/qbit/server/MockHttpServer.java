@@ -58,7 +58,7 @@ package io.advantageous.qbit.server;
 import io.advantageous.qbit.http.request.HttpRequest;
 import io.advantageous.qbit.http.request.HttpRequestBuilder;
 import io.advantageous.qbit.http.request.HttpResponseReceiver;
-import io.advantageous.qbit.http.request.HttpTextResponse;
+import io.advantageous.qbit.http.request.HttpTextReceiver;
 import io.advantageous.qbit.http.server.HttpServer;
 import io.advantageous.qbit.http.server.websocket.WebSocketMessage;
 import io.advantageous.qbit.util.MultiMap;
@@ -84,7 +84,7 @@ public class MockHttpServer implements HttpServer {
     public void postRequestObject(final String uri, final Object body, final HttpResponseReceiver response) {
 
         final String json = Boon.toJson(body);
-        final HttpRequest request = new HttpRequestBuilder().setUri(uri).setBody(json).setMethod("POST").response(response).setRemoteAddress("localhost:9999").build();
+        final HttpRequest request = new HttpRequestBuilder().setUri(uri).setBody(json).setMethod("POST").receiver(response).setRemoteAddress("localhost:9999").build();
         this.httpRequestConsumer.accept(request);
 
 
@@ -106,9 +106,9 @@ public class MockHttpServer implements HttpServer {
 //    }
 
 
-    public void sendHttpGet(final String uri, final MultiMap<String, String> params, final HttpTextResponse response) {
+    public void sendHttpGet(final String uri, final MultiMap<String, String> params, final HttpTextReceiver response) {
 
-        final HttpRequest request = new HttpRequestBuilder().setUri(uri).setParams(params).setMethod("GET").setTextResponse(response).setRemoteAddress("localhost:9999").build();
+        final HttpRequest request = new HttpRequestBuilder().setUri(uri).setParams(params).setMethod("GET").setTextReceiver(response).setRemoteAddress("localhost:9999").build();
         this.httpRequestConsumer.accept(request);
         this.idleHttpRequestConsumer.accept(null);
 

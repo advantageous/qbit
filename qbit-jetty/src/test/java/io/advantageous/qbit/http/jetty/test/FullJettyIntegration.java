@@ -63,7 +63,7 @@ import io.advantageous.qbit.http.client.HttpClient;
 import io.advantageous.qbit.http.client.HttpClientBuilder;
 import io.advantageous.qbit.http.request.HttpRequest;
 import io.advantageous.qbit.http.request.HttpRequestBuilder;
-import io.advantageous.qbit.http.request.HttpTextResponse;
+import io.advantageous.qbit.http.request.HttpTextReceiver;
 import io.advantageous.qbit.server.ServiceServer;
 import io.advantageous.qbit.server.ServiceServerBuilder;
 import io.advantageous.qbit.service.Callback;
@@ -199,7 +199,7 @@ public class FullJettyIntegration {
         final HttpRequest request = new HttpRequestBuilder()
                 .setUri("/services/mockservice/ping")
                 .setJsonBodyForPost("\"hello\"")
-                .setTextResponse(new HttpTextResponse() {
+                .setTextReceiver(new HttpTextReceiver() {
                     @Override
                     public void response(int code, String mimeType, String body) {
                         if (code == 200) {

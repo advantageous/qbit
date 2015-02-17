@@ -61,7 +61,7 @@ import io.advantageous.qbit.annotation.RequestMapping;
 import io.advantageous.qbit.annotation.RequestMethod;
 import io.advantageous.qbit.http.request.HttpRequest;
 import io.advantageous.qbit.http.request.HttpRequestBuilder;
-import io.advantageous.qbit.http.request.HttpTextResponse;
+import io.advantageous.qbit.http.request.HttpTextReceiver;
 import io.advantageous.qbit.http.server.HttpServer;
 import io.advantageous.qbit.http.server.websocket.WebSocketMessage;
 import io.advantageous.qbit.http.server.websocket.WebSocketMessageBuilder;
@@ -126,7 +126,7 @@ public class ServiceServerImplTest {
     @Test
     public void testSimpleHTTPRequest() throws Exception {
 
-        final HttpRequest request = new HttpRequestBuilder().setUri("/services/mock/callme").setTextResponse(new MockResponse()).setBody("").build();
+        final HttpRequest request = new HttpRequestBuilder().setUri("/services/mock/callme").setTextReceiver(new MockReceiver()).setBody("").build();
 
         httpServer.sendRequest(request);
 
@@ -147,7 +147,7 @@ public class ServiceServerImplTest {
         timeOutCounter.set(0);
         Sys.sleep(10);
 
-        final HttpRequest request = new HttpRequestBuilder().setUri("/services/mock/timeOut").setTextResponse(new MockResponse()).setBody("").build();
+        final HttpRequest request = new HttpRequestBuilder().setUri("/services/mock/timeOut").setTextReceiver(new MockReceiver()).setBody("").build();
 
         httpServer.sendRequest(request);
 
@@ -165,7 +165,7 @@ public class ServiceServerImplTest {
     @Test
     public void testSimplePOST_HTTPRequest() throws Exception {
 
-        final HttpRequest request = new HttpRequestBuilder().setUri("/services/mock/callPost").setTextResponse(new MockResponse()).setMethod("POST").setBody("[]").build();
+        final HttpRequest request = new HttpRequestBuilder().setUri("/services/mock/callPost").setTextReceiver(new MockReceiver()).setMethod("POST").setBody("[]").build();
 
         httpServer.sendRequest(request);
 
@@ -187,7 +187,7 @@ public class ServiceServerImplTest {
     @Test
     public void testSimplePOST_HTTPRequest_ErrorWrongHttpMethod() throws Exception {
 
-        final HttpRequest request = new HttpRequestBuilder().setUri("/services/mock/callPost").setTextResponse(new MockResponse()).setBody("[]").build();
+        final HttpRequest request = new HttpRequestBuilder().setUri("/services/mock/callPost").setTextReceiver(new MockReceiver()).setBody("[]").build();
 
         httpServer.sendRequest(request);
 
@@ -206,7 +206,7 @@ public class ServiceServerImplTest {
     @Test
     public void testAsyncCallHttp() throws Exception {
 
-        final HttpRequest request = new HttpRequestBuilder().setUri("/services/mock/callWithReturn").setTextResponse(new MockResponse()).setBody("").build();
+        final HttpRequest request = new HttpRequestBuilder().setUri("/services/mock/callWithReturn").setTextReceiver(new MockReceiver()).setBody("").build();
 
         httpServer.sendRequest(request);
 
@@ -269,7 +269,7 @@ public class ServiceServerImplTest {
     @Test
     public void testExceptionCall() throws Exception {
 
-        final HttpRequest request = new HttpRequestBuilder().setUri("/services/mock/exceptionCall").setTextResponse(new MockResponse()).setBody("").build();
+        final HttpRequest request = new HttpRequestBuilder().setUri("/services/mock/exceptionCall").setTextReceiver(new MockReceiver()).setBody("").build();
 
         httpServer.sendRequest(request);
 
@@ -350,7 +350,7 @@ public class ServiceServerImplTest {
         }
     }
 
-    class MockResponse implements HttpTextResponse {
+    class MockReceiver implements HttpTextReceiver {
 
         @Override
         public void response(int code, String mimeType, String body) {

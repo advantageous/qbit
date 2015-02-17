@@ -92,7 +92,7 @@ public class HttpRequestBuilder {
     private String method = "GET";
     private Consumer<Exception> errorHandler;
 
-    private HttpResponseReceiver response = (code, mimeType, body1) -> {
+    private HttpResponseReceiver receiver = (code, mimeType, body1) -> {
     };
 
     public static HttpRequestBuilder httpRequestBuilder() {
@@ -197,22 +197,22 @@ public class HttpRequestBuilder {
         return this;
     }
 
-    public HttpResponseReceiver getResponse() {
-        return response;
+    public HttpResponseReceiver getReceiver() {
+        return receiver;
     }
 
-    public HttpRequestBuilder response(HttpResponseReceiver response) {
-        this.response = response;
+    public HttpRequestBuilder receiver(HttpResponseReceiver receiver) {
+        this.receiver = receiver;
         return this;
     }
 
-    public HttpRequestBuilder setTextResponse(HttpTextResponse response) {
-        this.response = response;
+    public HttpRequestBuilder setTextReceiver(HttpTextReceiver response) {
+        this.receiver = response;
         return this;
     }
 
-    public HttpRequestBuilder setBinaryResponse(HttpBinaryResponse response) {
-        this.response = response;
+    public HttpRequestBuilder setBinaryReceiver(HttpBinaryReceiver response) {
+        this.receiver = response;
         return this;
     }
 
@@ -259,11 +259,11 @@ public class HttpRequestBuilder {
     }
 
     private HttpResponseReceiver buildHttpResponseReceiver() {
-        HttpResponseReceiver httpResponse = this.getResponse();
+        HttpResponseReceiver httpResponse = this.getReceiver();
 
         if (errorHandler != null) {
 
-            final HttpResponseReceiver innerHttpResponse = this.getResponse();
+            final HttpResponseReceiver innerHttpResponse = this.getReceiver();
             final Consumer<Exception> innerErrorHandler = this.getErrorHandler();
             httpResponse = new HttpResponseReceiver() {
                 @Override

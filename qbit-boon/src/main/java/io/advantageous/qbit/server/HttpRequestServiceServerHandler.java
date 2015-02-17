@@ -166,12 +166,12 @@ public class HttpRequestServiceServerHandler {
 
 
                 if ( getMethodURIsWithVoidReturn.contains(uri) ) {
-                    writeResponse(request.getResponse(), 200, "application/json", "\"success\"", request.getHeaders());
+                    writeResponse(request.getReceiver(), 200, "application/json", "\"success\"", request.getHeaders());
 
                 } else {
                     if ( !addRequestToCheckForTimeouts(request) ) {
 
-                        writeResponse(request.getResponse(), 429, "application/json", "\"too many outstanding requests\"", request.getHeaders());
+                        writeResponse(request.getReceiver(), 429, "application/json", "\"too many outstanding requests\"", request.getHeaders());
                         return;
                     }
                 }
@@ -180,11 +180,11 @@ public class HttpRequestServiceServerHandler {
             case "POST":
                 knownURI = postMethodURIs.contains(uri);
                 if ( postMethodURIsWithVoidReturn.contains(uri) ) {
-                    writeResponse(request.getResponse(), 200, "application/json", "\"success\"", request.getHeaders());
+                    writeResponse(request.getReceiver(), 200, "application/json", "\"success\"", request.getHeaders());
                 } else {
                     if ( !addRequestToCheckForTimeouts(request) ) {
 
-                        writeResponse(request.getResponse(), 429, "application/json", "\"too many outstanding requests\"", request.getHeaders());
+                        writeResponse(request.getReceiver(), 429, "application/json", "\"too many outstanding requests\"", request.getHeaders());
                         return;
                     }
                 }
@@ -198,7 +198,7 @@ public class HttpRequestServiceServerHandler {
         if ( !knownURI ) {
             request.handled(); //Mark the request as handled.
 
-            writeResponse(request.getResponse(), 404, "application/json", Str.add("\"No service method for URI ", request.getUri(), "\""), request.getHeaders());
+            writeResponse(request.getReceiver(), 404, "application/json", Str.add("\"No service method for URI ", request.getUri(), "\""), request.getHeaders());
 
             return;
 
@@ -477,7 +477,7 @@ public class HttpRequestServiceServerHandler {
         }
         request.handled();
 
-        final HttpResponseReceiver httpResponse = ( ( HttpRequest ) request ).getResponse();
+        final HttpResponseReceiver httpResponse = ( ( HttpRequest ) request ).getReceiver();
 
         try {
             httpResponse.response(408, "application/json", "\"timed out\"");
@@ -506,9 +506,9 @@ public class HttpRequestServiceServerHandler {
         final HttpRequest httpRequest = originatingRequest;
 
         if ( response.wasErrors() ) {
-            writeResponse(httpRequest.getResponse(), 500, "application/json", jsonMapper.toJson(response.body()), httpRequest.getHeaders());
+            writeResponse(httpRequest.getReceiver(), 500, "application/json", jsonMapper.toJson(response.body()), httpRequest.getHeaders());
         } else {
-            writeResponse(httpRequest.getResponse(), 200, "application/json", jsonMapper.toJson(response.body()), httpRequest.getHeaders());
+            writeResponse(httpRequest.getReceiver(), 200, "application/json", jsonMapper.toJson(response.body()), httpRequest.getHeaders());
         }
     }
 

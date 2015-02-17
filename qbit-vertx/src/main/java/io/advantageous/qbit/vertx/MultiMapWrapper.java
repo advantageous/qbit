@@ -57,11 +57,9 @@ package io.advantageous.qbit.vertx;
 
 import io.advantageous.qbit.util.MultiMap;
 
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
+import static org.boon.Boon.sputs;
 import static org.boon.Exceptions.die;
 
 /**
@@ -241,6 +239,17 @@ public class MultiMapWrapper implements MultiMap<String, String> {
 
     @Override
     public Set<Entry<String, String>> entrySet() {
-        return die(Set.class, "Not supported");
+
+        Map<String, String> map = new HashMap<>(this.size());
+
+        for (String key : keySet()) {
+            map.put(key, this.getFirst(key));
+        }
+        return map.entrySet();
+    }
+
+    @Override
+    public String toString() {
+        return sputs("Vertx MultiMap Wrapper", this.entrySet());
     }
 }

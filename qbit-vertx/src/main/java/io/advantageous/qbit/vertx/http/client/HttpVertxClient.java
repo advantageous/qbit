@@ -64,6 +64,7 @@ import io.advantageous.qbit.util.MultiMap;
 import io.advantageous.qbit.vertx.MultiMapWrapper;
 import org.boon.Str;
 import org.boon.core.Sys;
+import org.boon.primitive.CharBuf;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.vertx.java.core.Vertx;
@@ -73,7 +74,12 @@ import org.vertx.java.core.http.HttpClientRequest;
 import org.vertx.java.core.http.HttpClientResponse;
 import org.vertx.java.core.http.HttpHeaders;
 
+import java.io.UnsupportedEncodingException;
 import java.net.ConnectException;
+import java.net.URLEncoder;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 
@@ -131,11 +137,17 @@ public class HttpVertxClient implements HttpClient {
 
     @Override
     public void sendHttpRequest(final HttpRequest request) {
-        if (debug) logger.debug("HTTP CLIENT: sendHttpRequest:: \n{}\n", request);
+        if (debug) {
+            puts("HTTP CLIENT: sendHttpRequest:: \n{}\n", request, "\nparams\n", request.params());
+        }
+
+
+        String uri = getURICreateParamsIfNeeded(request);
+
 
 
         final HttpClientRequest httpClientRequest = httpClient.request(
-                request.getMethod(), request.getUri(),
+                request.getMethod(), uri,
                 httpClientResponse -> handleResponse(request, httpClientResponse));
 
         final MultiMap<String, String> headers = request.getHeaders();
@@ -171,6 +183,43 @@ public class HttpVertxClient implements HttpClient {
 
         if (debug) logger.debug("HttpClientVertx::SENT \n{}", request);
 
+    }
+
+    private String getURICreateParamsIfNeeded(HttpRequest request) {
+
+        String uri = request.getUri();
+
+        final MultiMap<String, String> params = request.params();
+
+        if (params!=null && params.size() > 0) {
+            CharBuf charBuf = CharBuf.create(request.getUri().length() + params.size()*10);
+
+            charBuf.add(request.getUri()).add("?");
+
+            final Iterator<Map.Entry<String, Collection<String>>> iterator = params.iterator();
+
+            while (iterator.hasNext()) {
+                final Map.Entry<String, Collection<String>> entry = iterator.next();
+
+                try {
+                    String key = URLEncoder.encode(entry.getKey(), "UTF-8");
+
+                    final Collection<String> values = entry.getValue();
+
+                    for (String val : values) {
+                        val = URLEncoder.encode(val, "UTF-8");
+
+                        charBuf.addString(key).add('=').addString(val).add('&');
+                    }
+                } catch (UnsupportedEncodingException e) {
+                    throw new IllegalStateException(e);
+                }
+            }
+
+            charBuf.removeLastChar();
+            uri = charBuf.toString();
+        }
+        return uri;
     }
 
     @Override
@@ -312,7 +361,7 @@ public class HttpVertxClient implements HttpClient {
             logger.debug("HttpClientVertx::handleResponseFromServer:: request = {}, response status code = {}, \n" +
                     "response headers = {}, body = {}", request, responseStatusCode, responseHeaders, body);
         }
-        request.getResponse().response(responseStatusCode, responseHeaders.get("Content-Type"), body);
+        request.getReceiver().response(responseStatusCode, responseHeaders.get("Content-Type"), body);
     }
 
     private void connect() {

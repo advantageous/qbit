@@ -57,7 +57,7 @@ package io.advantageous.qbit.example.servers;
 
 import io.advantageous.qbit.http.client.HttpClient;
 import io.advantageous.qbit.http.request.HttpRequest;
-import io.advantageous.qbit.http.request.HttpTextResponse;
+import io.advantageous.qbit.http.request.HttpTextReceiver;
 
 import static io.advantageous.qbit.http.client.HttpClientBuilder.httpClientBuilder;
 import static io.advantageous.qbit.http.request.HttpRequestBuilder.httpRequestBuilder;
@@ -89,7 +89,7 @@ public class CPUIntensiveServerClient {
 
             final String key = "" + (index % 10);
 
-            final HttpRequest httpRequestCPUKey1 = httpRequestBuilder().setUri("/services/myservice/addkey/").setTextResponse(new HttpTextResponse() {
+            final HttpRequest httpRequestCPUKey1 = httpRequestBuilder().setUri("/services/myservice/addkey/").setTextReceiver(new HttpTextReceiver() {
                 @Override
                 public void response(int code, String mimeType, String body) {
 

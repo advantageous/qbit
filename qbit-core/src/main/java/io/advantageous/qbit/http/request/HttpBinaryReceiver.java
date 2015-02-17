@@ -1,5 +1,4 @@
 /*******************************************************************************
-
   * Copyright (c) 2015. Rick Hightower, Geoff Chandler
   *
   * Licensed under the Apache License, Version 2.0 (the "License");
@@ -50,13 +49,18 @@
   *  http://rick-hightower.blogspot.com/2015/01/quick-start-qbit-programming.html
   *  http://rick-hightower.blogspot.com/2015/01/high-speed-soa.html
   *  http://rick-hightower.blogspot.com/2015/02/qbit-event-bus.html
-
- ******************************************************************************/
+  ******************************************************************************/
 
 package io.advantageous.qbit.http.request;
 
 /**
- * Created by rhightower on 1/15/15.
+ * @author  rhightower on 1/15/15.
  */
-public interface HttpTextResponse extends HttpResponseReceiver<String> {
+public interface HttpBinaryReceiver extends HttpResponseReceiver<byte[]> {
+
+    default boolean isText() {
+        return false;
+    }
+
+
 }

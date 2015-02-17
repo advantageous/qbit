@@ -1,5 +1,4 @@
 /*******************************************************************************
-
   * Copyright (c) 2015. Rick Hightower, Geoff Chandler
   *
   * Licensed under the Apache License, Version 2.0 (the "License");
@@ -50,16 +49,18 @@
   *  http://rick-hightower.blogspot.com/2015/01/quick-start-qbit-programming.html
   *  http://rick-hightower.blogspot.com/2015/01/high-speed-soa.html
   *  http://rick-hightower.blogspot.com/2015/02/qbit-event-bus.html
-
- ******************************************************************************/
+  ******************************************************************************/
 
 package io.advantageous.qbit.http.client;
 
+import io.advantageous.qbit.http.request.HttpBinaryReceiver;
 import io.advantageous.qbit.http.request.HttpRequest;
 import io.advantageous.qbit.http.request.HttpResponse;
-import io.advantageous.qbit.http.request.HttpTextResponse;
+import io.advantageous.qbit.http.request.HttpTextReceiver;
 import io.advantageous.qbit.http.websocket.WebSocket;
 import io.advantageous.qbit.util.MultiMap;
+import org.boon.core.Sys;
+import org.boon.core.reflection.BeanUtils;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -67,6 +68,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 
 import static io.advantageous.qbit.http.request.HttpRequestBuilder.httpRequestBuilder;
+import static org.boon.Boon.sputs;
 
 /**
  * This is an interface that allows users to send HTTP requests to a server.
@@ -76,6 +78,9 @@ import static io.advantageous.qbit.http.request.HttpRequestBuilder.httpRequestBu
  * @author rhightower
  */
 public interface HttpClient {
+
+    public static int HTTP_CLIENT_DEFAULT_TIMEOUT = Sys.sysProp(
+            "io.advantageous.qbit.http.client.HttpClient.timeout", 30);
 
     void sendHttpRequest(HttpRequest request);
 
@@ -88,61 +93,33 @@ public interface HttpClient {
         sendHttpRequest(httpRequest);
     }
 
-    default HttpResponse get(String uri) {
-        return sendGetRequestAndWait(uri, 30, TimeUnit.SECONDS);
+
+    default void getTextAsync(final String uri, final HttpTextReceiver httpTextReceiver) {
+        final HttpRequest httpRequest = httpRequestBuilder()
+                .setUri(uri).setTextReceiver(httpTextReceiver)
+                .build();
+        sendHttpRequest(httpRequest);
     }
 
-    default HttpResponse sendGetRequestAndWait(String uri) {
-        return sendGetRequestAndWait(uri, 30, TimeUnit.SECONDS);
+    default void getBinaryAsync(final String uri, final HttpBinaryReceiver binaryReceiver) {
+        final HttpRequest httpRequest = httpRequestBuilder()
+                .setUri(uri).setBinaryReceiver(binaryReceiver)
+                .build();
+        sendHttpRequest(httpRequest);
     }
 
-    default HttpResponse sendGetRequestAndWait(String uri, long wait, TimeUnit timeUnit) {
+    default HttpResponse sendRequestAndWait(final HttpRequest httpRequest) {
+        return sendRequestAndWait(httpRequest, HTTP_CLIENT_DEFAULT_TIMEOUT, TimeUnit.SECONDS);
+    }
+
+    default HttpResponse sendRequestAndWait(final HttpRequest httpRequest, long wait, TimeUnit timeUnit) {
 
 
         final CountDownLatch countDownLatch = new CountDownLatch(1);
         final AtomicReference<HttpResponse> httpResponseAtomicReference = new AtomicReference<>();
 
-        final HttpRequest httpRequest = httpRequestBuilder()
-                .setUri(uri).setTextResponse(new HttpTextResponse() {
-                    @Override
-                    public void response(int code, String contentType, String body) {
-                        response(code, contentType, body, MultiMap.EMPTY);
-                    }
 
-                    @Override
-                    public void response(
-                            final int code,
-                            final String contentType,
-                            final String body,
-                            final MultiMap<String, String> headers) {
-
-                        httpResponseAtomicReference.set(
-                                new HttpResponse() {
-                                    @Override
-                                    public MultiMap<String, String> headers() {
-                                        return headers;
-                                    }
-
-                                    @Override
-                                    public int code() {
-                                        return code;
-                                    }
-
-                                    @Override
-                                    public String contentType() {
-                                        return contentType;
-                                    }
-
-                                    @Override
-                                    public String body() {
-                                        return body;
-                                    }
-                                }
-                        );
-                        countDownLatch.countDown();
-                    }
-                })
-                .build();
+        _createHttpTextReceiver(httpRequest, countDownLatch, httpResponseAtomicReference);
 
         sendHttpRequest(httpRequest);
 
@@ -157,63 +134,219 @@ public interface HttpClient {
 
     }
 
+    public static void _createHttpTextReceiver(final HttpRequest httpRequest,
+                                                           final CountDownLatch countDownLatch,
+                                                           final AtomicReference<HttpResponse> httpResponseAtomicReference) {
 
-    default void sendGetRequest1Param(String uri, String key, Object value) {
+        final HttpTextReceiver httpTextReceiver = new HttpTextReceiver() {
+            @Override
+            public void response(int code, String contentType, String body) {
+                response(code, contentType, body, MultiMap.EMPTY);
+            }
+
+            @Override
+            public void response(
+                    final int code,
+                    final String contentType,
+                    final String body,
+                    final MultiMap<String, String> headers) {
+
+                httpResponseAtomicReference.set(
+                        new HttpResponse() {
+                            @Override
+                            public MultiMap<String, String> headers() {
+                                return headers;
+                            }
+
+                            @Override
+                            public int code() {
+                                return code;
+                            }
+
+                            @Override
+                            public String contentType() {
+                                return contentType;
+                            }
+
+                            @Override
+                            public String body() {
+                                return body;
+                            }
+
+                            public String toString() {
+                                return sputs("HttpResponse(", "code:", code,
+                                        "contentType:", contentType,
+                                        "\nbody:\n",
+                                        body, "\n)"
+                                );
+                            }
+
+                        }
+                );
+                countDownLatch.countDown();
+            }
+        };
+
+        BeanUtils.idx(httpRequest, "receiver", httpTextReceiver);
+    }
+
+
+
+    default HttpResponse get(String uri) {
+        return getWithTimeout(uri, HTTP_CLIENT_DEFAULT_TIMEOUT, TimeUnit.SECONDS);
+    }
+
+    default HttpResponse getWithTimeout(String uri, long time, TimeUnit unit) {
+        final HttpRequest httpRequest = httpRequestBuilder()
+                .setUri(uri).build();
+        return sendRequestAndWait(httpRequest, time, unit);
+    }
+
+    default HttpResponse getWith1ParamWithTimeout(String uri, String key, Object value,
+                                                  final long time,
+                                                  final TimeUnit timeUnit) {
 
         final HttpRequest httpRequest = httpRequestBuilder()
                 .setUri(uri).addParam(key, value == null ? "" : value.toString())
                 .build();
 
-        sendHttpRequest(httpRequest);
+        return sendRequestAndWait(httpRequest, time, timeUnit);
+    }
+    default HttpResponse getWith1Param(String uri, String key, Object value) {
+
+        return getWith1ParamWithTimeout(uri, key, value, HTTP_CLIENT_DEFAULT_TIMEOUT, TimeUnit.SECONDS);
     }
 
 
-    default void sendGetRequest2Params(String uri,
-                                       String key, Object value,
-                                       String key1, Object value1) {
-
-        final HttpRequest httpRequest = httpRequestBuilder()
-                .setUri(uri)
-                .addParam(key, value == null ? "" : value.toString())
-                .addParam(key1, value1 == null ? "" : value1.toString())
-                .build();
-
-        sendHttpRequest(httpRequest);
-    }
-
-
-    default void sendGetRequest3Params(String uri,
+    default HttpResponse getWith2ParamsWithTimeout(String uri,
                                        String key, Object value,
                                        String key1, Object value1,
-                                       String key2, Object value2) {
+                                       final long time,
+                                       final TimeUnit timeUnit) {
 
         final HttpRequest httpRequest = httpRequestBuilder()
                 .setUri(uri)
                 .addParam(key, value == null ? "" : value.toString())
                 .addParam(key1, value1 == null ? "" : value1.toString())
-                .addParam(key2, value1 == null ? "" : value2.toString())
                 .build();
 
-        sendHttpRequest(httpRequest);
+        return sendRequestAndWait(httpRequest, time, timeUnit);
     }
 
-    default void sendGetRequest4Params(String uri,
-                                       String key, Object value,
-                                       String key1, Object value1,
-                                       String key2, Object value2,
-                                       String key3, Object value3) {
+
+    default HttpResponse getWith2Params(String uri,
+                                                   String key, Object value,
+                                                   String key1, Object value1
+                                               ) {
+
+        return getWith2ParamsWithTimeout(uri, key, value, key1, value1, HTTP_CLIENT_DEFAULT_TIMEOUT, TimeUnit.SECONDS);
+    }
+
+
+    default HttpResponse getWith3ParamsWithTimeout(String uri,
+                                                   String key, Object value,
+                                                   String key1, Object value1,
+                                                   String key2, Object value2,
+                                                   final long time,
+                                                   final TimeUnit timeUnit) {
 
         final HttpRequest httpRequest = httpRequestBuilder()
                 .setUri(uri)
                 .addParam(key, value == null ? "" : value.toString())
                 .addParam(key1, value1 == null ? "" : value1.toString())
-                .addParam(key2, value1 == null ? "" : value2.toString())
-                .addParam(key2, value3 == null ? "" : value3.toString())
+                .addParam(key2, value2 == null ? "" : value2.toString())
                 .build();
 
-        sendHttpRequest(httpRequest);
+        return sendRequestAndWait(httpRequest, time, timeUnit);
     }
 
+
+    default HttpResponse getWith3Params(String uri,
+                                        String key, Object value,
+                                        String key1, Object value1,
+                                        String key2, Object value2) {
+
+        return getWith3ParamsWithTimeout(uri,
+                key, value,
+                key1, value1,
+                key2, value2,
+                HTTP_CLIENT_DEFAULT_TIMEOUT,
+                TimeUnit.SECONDS);
+    }
+
+
+
+    default HttpResponse getWith4ParamsWithTimeout(String uri,
+                                                   String key, Object value,
+                                                   String key1, Object value1,
+                                                   String key2, Object value2,
+                                                   String key3, Object value3,
+                                                   final long time,
+                                                   final TimeUnit timeUnit) {
+
+        final HttpRequest httpRequest = httpRequestBuilder()
+                .setUri(uri)
+                .addParam(key, value == null ? "" : value.toString())
+                .addParam(key1, value1 == null ? "" : value1.toString())
+                .addParam(key2, value2 == null ? "" : value2.toString())
+                .addParam(key3, value3 == null ? "" : value3.toString())
+                .build();
+
+        return sendRequestAndWait(httpRequest, time, timeUnit);
+    }
+
+
+    default HttpResponse getWith4Params(String uri,
+                                        String key, Object value,
+                                        String key1, Object value1,
+                                        String key2, Object value2,
+                                        String key3, Object value3) {
+
+        return getWith4ParamsWithTimeout(uri,
+                key, value,
+                key1, value1, key2, value2,
+                key3, value3,
+                HTTP_CLIENT_DEFAULT_TIMEOUT, TimeUnit.SECONDS);
+    }
+
+
+    default HttpResponse getWith5ParamsWithTimeout(String uri,
+                                                   String key, Object value,
+                                                   String key1, Object value1,
+                                                   String key2, Object value2,
+                                                   String key3, Object value3,
+                                                   String key4, Object value4,
+                                                   final long time,
+                                                   final TimeUnit timeUnit) {
+
+        final HttpRequest httpRequest = httpRequestBuilder()
+                .setUri(uri)
+                .addParam(key, value == null ? "" : value.toString())
+                .addParam(key1, value1 == null ? "" : value1.toString())
+                .addParam(key2, value2 == null ? "" : value2.toString())
+                .addParam(key3, value3 == null ? "" : value3.toString())
+                .addParam(key4, value4 == null ? "" : value4.toString())
+                .build();
+
+        return sendRequestAndWait(httpRequest, time, timeUnit);
+    }
+
+
+    default HttpResponse getWith5Params(String uri,
+                                        String key, Object value,
+                                        String key1, Object value1,
+                                        String key2, Object value2,
+                                        String key3, Object value3,
+                                        String key4, Object value4) {
+
+        return getWith5ParamsWithTimeout(uri,
+                key, value,
+                key1, value1,
+                key2, value2,
+                key3, value3,
+                key4, value4,
+                HTTP_CLIENT_DEFAULT_TIMEOUT, TimeUnit.SECONDS);
+    }
 
     default void sendPost(final String uri,
                           final String contentType,

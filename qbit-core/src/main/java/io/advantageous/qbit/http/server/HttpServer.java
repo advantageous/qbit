@@ -91,5 +91,10 @@ public interface HttpServer extends Server {
 
     void setWebSocketIdleConsume(Consumer<Void> idleConsumer);
 
+    default HttpServer startServer() {
+        start();
+        return this;
+    }
+
 
 }

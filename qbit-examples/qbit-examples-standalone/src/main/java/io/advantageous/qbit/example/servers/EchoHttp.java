@@ -38,7 +38,7 @@
   *                   \/         \/         \/  )/         \/       \/    \/        \/            \/     \/    \/     )/          \/        \/        \/
   *  __________           __  .__              __      __      ___.
   *  \______   \ ____   _/  |_|  |__   ____   /  \    /  \ ____\_ |__
-  *  |    |  _// __ \  \   __\  |  \_/ __ \  \   \/\/   // __ \| __ \
+  *  |    |  _// __ \  \   __\  |  \_/ __ \  \   \/\/   // __ \| __ \                                                                                              
   *   |    |   \  ___/   |  | |   Y  \  ___/   \        /\  ___/| \_\ \
   *   |______  /\___  >  |__| |___|  /\___  >   \__/\  /  \___  >___  /
   *          \/     \/             \/     \/         \/       \/    \/
@@ -51,74 +51,109 @@
   *  http://rick-hightower.blogspot.com/2015/02/qbit-event-bus.html
   ******************************************************************************/
 
-package io.advantageous.qbit.servlet;
+package io.advantageous.qbit.example.servers;
 
+import io.advantageous.qbit.http.client.HttpClient;
 import io.advantageous.qbit.http.request.HttpRequest;
-import io.advantageous.qbit.http.request.HttpRequestBuilder;
-import io.advantageous.qbit.util.MultiMap;
-import org.boon.IO;
+import io.advantageous.qbit.http.request.HttpResponse;
+import io.advantageous.qbit.http.server.HttpServer;
+import org.boon.Boon;
 
-import javax.servlet.AsyncContext;
-import javax.servlet.ServletInputStream;
-import javax.servlet.ServletOutputStream;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
+import java.util.Map;
 
+import static io.advantageous.qbit.http.client.HttpClientBuilder.httpClientBuilder;
 import static io.advantageous.qbit.http.request.HttpRequestBuilder.httpRequestBuilder;
+import static io.advantageous.qbit.http.server.HttpServerBuilder.httpServerBuilder;
+import static org.boon.Boon.puts;
 
 /**
- * @author rhightower on 2/12/15.
+ * Created by rhightower on 2/16/15.
  */
-public class QBitServletUtil {
+public class EchoHttp {
 
-    public static HttpRequest convertRequest(final AsyncContext asyncContext) {
+    public static void main(String... args) {
 
-        final HttpServletRequest request = (HttpServletRequest) asyncContext.getRequest();
-        final HttpServletResponse response = (HttpServletResponse) asyncContext.getResponse();
-        final MultiMap<String, String> headers = new HttpServletHeaderMultiMap(request);
-        final MultiMap<String, String> params = new HttpServletParamMultiMap(request);
-        final HttpRequestBuilder httpRequestBuilder =
-                httpRequestBuilder().setParams(params)
-                        .setHeaders(headers).setUri(request.getRequestURI())
-                        .setMethod(request.getMethod());
 
-        setRequestBodyIfNeeded(request, httpRequestBuilder);
-        setupRequestHandler(asyncContext, response, httpRequestBuilder);
-        return httpRequestBuilder.build();
-    }
+        /* Create an HTTP server. */
+        HttpServer httpServer = httpServerBuilder()
+                .setPort(8080).build();
 
-    private static void setupRequestHandler(AsyncContext asyncContext, HttpServletResponse response, HttpRequestBuilder httpRequestBuilder) {
-        httpRequestBuilder.setTextReceiver((code, contentType, body) -> {
-            response.setHeader("Content-Type", contentType);
-            try {
-                final ServletOutputStream outputStream = response.getOutputStream();
-                IO.write(outputStream, body);
-                outputStream.close();
-                asyncContext.complete();
-            } catch (IOException e) {
-                throw new IllegalStateException(e);
-            }
+        /* Setting up a request Consumer with Java 8 Lambda expression. */
+        httpServer.setHttpRequestConsumer(httpRequest -> {
+
+            Map<String, Object> results = new HashMap<>();
+            results.put("method", httpRequest.getMethod());
+            results.put("uri", httpRequest.getUri());
+            results.put("body", httpRequest.getBodyAsString());
+            results.put("headers", httpRequest.getHeaders());
+            results.put("params", httpRequest.getParams());
+            httpRequest.getReceiver().response(200, "application/json", Boon.toJson(results));
         });
-    }
 
-    private static void setRequestBodyIfNeeded(HttpServletRequest request, HttpRequestBuilder httpRequestBuilder) {
-        if (request.getMethod().equals("POST") || request.getMethod().equals("PUT")) {
-            final String body = readBody(request);
-            if (body != null) {
-                httpRequestBuilder.setBody(body);
-            }
-        }
-    }
+        /* Start the server. */
+        httpServer.start();
 
-    private static String readBody(HttpServletRequest request) {
-        try {
-            final ServletInputStream inputStream = request.getInputStream();
-            final String body = IO.read(inputStream, StandardCharsets.UTF_8);
-            return body;
-        } catch (IOException e) {
-            throw new IllegalStateException(e);
-        }
+
+        /* Setup an httpClient. */
+        HttpClient httpClient = httpClientBuilder().setHost("localhost").setPort(8080).build();
+        httpClient.start();
+
+        /* Send no param get. */
+        HttpResponse httpResponse = httpClient.get( "/hello/mom" );
+        puts( httpResponse );
+
+
+        /* Send one param get. */
+        httpResponse = httpClient.getWith1Param("/hello/singleParam", "hi", "mom");
+        puts("single param", httpResponse );
+
+
+        /* Send two param get. */
+        httpResponse = httpClient.getWith2Params("/hello/twoParams",
+                "hi", "mom", "hello", "dad");
+        puts("two params", httpResponse );
+
+
+        /* Send two param get. */
+        httpResponse = httpClient.getWith3Params("/hello/3params",
+                "hi", "mom",
+                "hello", "dad",
+                "greetings", "kids");
+        puts("three params", httpResponse );
+
+
+        /* Send four param get. */
+        httpResponse = httpClient.getWith4Params("/hello/4params",
+                "hi", "mom",
+                "hello", "dad",
+                "greetings", "kids",
+                "yo", "pets");
+        puts("4 params", httpResponse );
+
+        /* Send five param get. */
+        httpResponse = httpClient.getWith5Params("/hello/5params",
+                "hi", "mom",
+                "hello", "dad",
+                "greetings", "kids",
+                "yo", "pets",
+                "hola", "neighbors");
+        puts("5 params", httpResponse );
+
+
+        /* Send six params with get. */
+
+        final HttpRequest httpRequest = httpRequestBuilder().addParam("hi", "mom")
+                .addParam("hello", "dad")
+                .addParam("greetings", "kids")
+                .addParam("yo", "pets")
+                .addParam("hola", "pets")
+                .addParam("salutations", "all").build();
+
+        httpResponse = httpClient.sendRequestAndWait(httpRequest);
+        puts("6 params", httpResponse );
+
+        httpServer.stop();
+        httpClient.stop();
     }
 }

@@ -238,14 +238,14 @@ public class HttpClientVertxTest {
         server.setHttpRequestConsumer(request -> {
             requestReceived = true;
             puts("SERVER", request.getUri(), request.getBody());
-            request.getResponse().response(200, "application/json", "\"ok\"");
+            request.getReceiver().response(200, "application/json", "\"ok\"");
         });
 
         run();
 
         requestBuilder.setRemoteAddress("localhost").setMethod("GET").setUri("/client/foo");
 
-        requestBuilder.setTextResponse((code, mimeType, body) -> {
+        requestBuilder.setTextReceiver((code, mimeType, body) -> {
             responseReceived = true;
 
             puts("CLIENT", code, mimeType, body);

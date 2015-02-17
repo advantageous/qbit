@@ -182,14 +182,14 @@ public class JettyQBitHttpClient implements HttpClient {
                 if (!result.isFailed()) {
                     byte[] responseContent = getContent();
 
-                    if (request.getResponse().isText()) {
+                    if (request.getReceiver().isText()) {
                         String responseString = new String(responseContent, StandardCharsets.UTF_8);
 
-                        request.getResponse().response(result.getResponse().getStatus(),
+                        request.getReceiver().response(result.getResponse().getStatus(),
                                 result.getResponse().getHeaders().get(HttpHeader.CONTENT_TYPE),
                                 responseString);
                     } else {
-                        request.getResponse().response(result.getResponse().getStatus(),
+                        request.getReceiver().response(result.getResponse().getStatus(),
                                 result.getResponse().getHeaders().get(HttpHeader.CONTENT_TYPE),
                                 responseContent);
 

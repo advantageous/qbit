@@ -400,4 +400,12 @@ public class MultiMapImpl<K, V> implements MultiMap<K, V> {
 
     }
 
+    @Override
+    public String toString() {
+        return "MultiMapImpl{" +
+                "initialSize=" + initialSize +
+                ", map=" + map +
+                ", collectionClass=" + collectionClass +
+                '}';
+    }
 }

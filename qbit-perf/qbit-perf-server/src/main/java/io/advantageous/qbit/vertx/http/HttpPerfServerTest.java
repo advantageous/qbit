@@ -135,7 +135,7 @@ public class HttpPerfServerTest {
         server.setHttpRequestConsumer(request -> {
 
             if (request.getUri().equals("/perf/")) {
-                request.getResponse().response(200, "application/json", "\"ok\"");
+                request.getReceiver().response(200, "application/json", "\"ok\"");
             }
         });
         server.start();

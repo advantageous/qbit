@@ -57,7 +57,7 @@ package io.advantageous.qbit.example.servers;
 
 import io.advantageous.qbit.http.client.HttpClient;
 import io.advantageous.qbit.http.request.HttpRequest;
-import io.advantageous.qbit.http.request.HttpTextResponse;
+import io.advantageous.qbit.http.request.HttpTextReceiver;
 import org.boon.core.Sys;
 
 import static io.advantageous.qbit.http.client.HttpClientBuilder.httpClientBuilder;
@@ -103,7 +103,7 @@ public class SimpleRestClient {
         final long start = System.currentTimeMillis();
 
 
-        final HttpRequest httpRequest = httpRequestBuilder().setUri("/services/myservice/ping").setTextResponse(new HttpTextResponse() {
+        final HttpRequest httpRequest = httpRequestBuilder().setUri("/services/myservice/ping").setTextReceiver(new HttpTextReceiver() {
             @Override
             public void response(int code, String mimeType, String body) {
                 count++;

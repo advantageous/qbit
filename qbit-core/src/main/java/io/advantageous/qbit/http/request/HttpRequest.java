@@ -74,19 +74,13 @@ public class HttpRequest implements Request<Object> {
     private final String uri;
     private final String remoteAddress;
     private final MultiMap<String, String> params;
-
     private final MultiMap<String, String> headers;
     private final byte[] body;
     private final String contentType;
-
     private final String method;
-    private final HttpResponseReceiver response;
-
+    private final HttpResponseReceiver receiver;
     private final long messageId;
-
     private final long timestamp;
-
-
     private volatile boolean handled;
 
     public HttpRequest(long id, final String uri, final String method, final MultiMap<String, String> params,
@@ -99,7 +93,7 @@ public class HttpRequest implements Request<Object> {
         this.body = body;
         this.method = method;
         this.contentType = contentType;
-        this.response = response;
+        this.receiver = response;
         this.remoteAddress = remoteAddress;
         this.headers = headers;
         this.timestamp = timestamp;
@@ -186,8 +180,8 @@ public class HttpRequest implements Request<Object> {
     }
 
 
-    public HttpResponseReceiver getResponse() {
-        return response;
+    public HttpResponseReceiver<Object> getReceiver() {
+        return receiver;
     }
 
     public String getRemoteAddress() {
@@ -255,7 +249,7 @@ public class HttpRequest implements Request<Object> {
                 ", body=" + Arrays.toString(body) +
                 ", contentType='" + contentType + '\'' +
                 ", method='" + method + '\'' +
-                ", response=" + response +
+                ", receiver=" + receiver +
                 ", messageId=" + messageId +
                 ", timestamp=" + timestamp +
                 ", handled=" + handled +
