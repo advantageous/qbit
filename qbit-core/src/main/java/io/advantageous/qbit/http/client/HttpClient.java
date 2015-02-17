@@ -998,6 +998,66 @@ public interface HttpClient {
         sendHttpRequest(httpRequest);
     }
 
+    default HttpResponse postJson(final String uri,
+                              final String body) {
+
+        final HttpRequest httpRequest = httpRequestBuilder()
+                .setUri(uri).setJsonBodyForPost(body).setMethodPost()
+                .build();
+
+        return sendRequestAndWait(httpRequest);
+    }
+
+
+    default HttpResponse putJson(final String uri,
+                                  final String body) {
+
+        final HttpRequest httpRequest = httpRequestBuilder()
+                .setUri(uri).setJsonBodyForPost(body).setMethodPost()
+                .build();
+
+        return sendRequestAndWait(httpRequest);
+    }
+
+
+
+
+    default void sendJsonPut(final String uri,
+                              final String body) {
+
+        final HttpRequest httpRequest = httpRequestBuilder()
+                .setUri(uri).setJsonBodyForPost(body).setMethodPut()
+                .build();
+
+        sendHttpRequest(httpRequest);
+    }
+
+    default void sendJsonPostAsync(final String uri,
+                              final String body,
+                              final HttpTextReceiver receiver) {
+
+        final HttpRequest httpRequest = httpRequestBuilder()
+                .setUri(uri).setJsonBodyForPost(body).setMethodPost()
+                .setTextReceiver(receiver)
+                .build();
+
+        sendHttpRequest(httpRequest);
+    }
+
+
+    default void sendJsonPutAsync(final String uri,
+                             final String body,
+                             final HttpTextReceiver receiver) {
+
+        final HttpRequest httpRequest = httpRequestBuilder()
+                .setUri(uri).setJsonBodyForPost(body).setMethodPut()
+                .setTextReceiver(receiver)
+                .build();
+
+        sendHttpRequest(httpRequest);
+    }
+
+
 
     default WebSocket createWebSocket(String uri) {
         throw new RuntimeException("New way to send messages");

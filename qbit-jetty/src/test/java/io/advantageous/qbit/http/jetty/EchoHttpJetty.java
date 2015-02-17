@@ -69,7 +69,9 @@ import java.util.Map;
 import static io.advantageous.qbit.http.client.HttpClientBuilder.httpClientBuilder;
 import static io.advantageous.qbit.http.request.HttpRequestBuilder.httpRequestBuilder;
 import static io.advantageous.qbit.http.server.HttpServerBuilder.httpServerBuilder;
+import static org.boon.Boon.fromJson;
 import static org.boon.Boon.puts;
+import static org.boon.Boon.toJson;
 
 
 /**
@@ -93,7 +95,7 @@ public class EchoHttpJetty {
             results.put("body", httpRequest.getBodyAsString());
             results.put("headers", httpRequest.getHeaders());
             results.put("params", httpRequest.getParams());
-            httpRequest.getReceiver().response(200, "application/json", Boon.toJson(results));
+            httpRequest.getReceiver().response(200, "application/json", toJson(results));
         });
 
         /* Start the server. */
@@ -104,9 +106,47 @@ public class EchoHttpJetty {
         HttpClient httpClient = httpClientBuilder().setHost("localhost").setPort(8080).build();
         httpClient.start();
 
-        sendGets(httpClient);
-        sendPosts(httpClient);
-        sendPuts(httpClient);
+        //sendGets(httpClient);
+        //sendPosts(httpClient);
+        //sendPuts(httpClient);
+
+        //POST JSON
+
+        httpClient.sendJsonPost("/foo/json/", toJson(new Employee("Rick", "Smith")));
+
+
+        httpClient.sendJsonPostAsync("/foo/json/", toJson(new Employee("Rick", "Smith")),
+                (code, contentType, body) -> puts ("ASYNC POST", code, contentType, fromJson(body)));
+
+
+        httpClient.sendJsonPostAsync("/foo/json/", toJson(new Employee("Rick", "Smith")),
+                new HttpTextReceiver() {
+                    @Override
+                    public void response(int code, String contentType, String body) {
+                        puts(code, contentType, body);
+                    }
+                });
+
+        HttpResponse httpResponse = httpClient.postJson("/foo/json/sync",
+                toJson(new Employee("Rick", "Smith")));
+
+        puts("POST JSON RESPONSE", httpResponse);
+
+        //PUT JSON
+
+        httpClient.sendJsonPut("/foo/json/", toJson(new Employee("Rick", "Smith")));
+
+
+        httpClient.sendJsonPutAsync("/foo/json/", toJson(new Employee("Rick", "Smith")),
+                (code, contentType, body) -> puts("ASYNC PUT", code, contentType, fromJson(body)));
+
+
+        httpResponse = httpClient.putJson("/foo/json/sync", toJson(new Employee("Rick", "Smith")));
+
+        puts("PUT JSON RESPONSE", httpResponse);
+
+
+
 
 
         Sys.sleep(1000);
@@ -384,7 +424,7 @@ public class EchoHttpJetty {
                 .build();
 
         httpClient.sendHttpRequest(httpRequest);
-        puts("6 asycn params", httpResponse );
+        puts("6 async params", httpResponse );
 
 
 
@@ -527,5 +567,16 @@ public class EchoHttpJetty {
         Sys.sleep(100);
 
 
+
+    }
+
+    static class Employee {
+        final String firstName;
+        final String lastName;
+
+        Employee(String firstName, String lastName) {
+            this.firstName = firstName;
+            this.lastName = lastName;
+        }
     }
 }
