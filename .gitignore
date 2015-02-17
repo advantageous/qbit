@@ -11,6 +11,8 @@ settings.gradle~
 
 #Build targets and binaries
 target/
+build/
+*/build/
 out/
 lib/
 *.class
