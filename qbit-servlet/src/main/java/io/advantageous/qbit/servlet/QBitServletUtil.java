@@ -44,12 +44,9 @@ public class QBitServletUtil {
         final HttpServletResponse response = (HttpServletResponse) asyncContext.getResponse();
         final MultiMap<String, String> headers = new HttpServletHeaderMultiMap(request);
         final MultiMap<String, String> params = new HttpServletParamMultiMap(request);
-
-
-        final HttpRequestBuilder httpRequestBuilder =
-                httpRequestBuilder().setParams(params)
-                        .setHeaders(headers).setUri(request.getPathInfo())
-                        .setMethod(request.getMethod());
+        final HttpRequestBuilder httpRequestBuilder = httpRequestBuilder().setParams(params)
+                .setHeaders(headers).setUri(request.getPathInfo())
+                .setMethod(request.getMethod());
 
         setRequestBodyIfNeeded(request, httpRequestBuilder);
         setupRequestHandler(asyncContext, response, httpRequestBuilder);
@@ -67,13 +64,15 @@ public class QBitServletUtil {
                 outputStream.write(body.getBytes(StandardCharsets.UTF_8));
                 outputStream.close();
                 asyncContext.complete();
-            } catch (IOException e) {
+            } catch (final IOException e) {
                 throw new IllegalStateException(e);
             }
         });
     }
 
-    private static void setRequestBodyIfNeeded(HttpServletRequest request, HttpRequestBuilder httpRequestBuilder) {
+    private static void setRequestBodyIfNeeded(final HttpServletRequest request,
+                                               final HttpRequestBuilder httpRequestBuilder) {
+
         if (request.getMethod().equals("POST") || request.getMethod().equals("PUT")) {
             final String body = readBody(request);
             if (body != null) {
@@ -82,11 +81,11 @@ public class QBitServletUtil {
         }
     }
 
-    private static String readBody(HttpServletRequest request) {
+    private static String readBody(final HttpServletRequest request) {
         try {
             final ServletInputStream inputStream = request.getInputStream();
             return IO.read(inputStream, StandardCharsets.UTF_8);
-        } catch (IOException e) {
+        } catch (final IOException e) {
             throw new IllegalStateException(e);
         }
     }
