@@ -50,6 +50,11 @@ public interface HttpServer extends Server {
         throw new RuntimeException("Not supported");
     }
 
+
+    default void setShouldContinueWebSocket(Predicate<WebSocket> predicate) {
+        throw new RuntimeException("Not supported");
+    }
+
     void setHttpRequestsIdleConsumer(Consumer<Void> idleConsumer);
 
     void setWebSocketIdleConsume(Consumer<Void> idleConsumer);

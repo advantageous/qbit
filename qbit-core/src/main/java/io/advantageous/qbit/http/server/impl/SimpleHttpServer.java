@@ -39,7 +39,7 @@ import static io.advantageous.qbit.http.server.websocket.WebSocketMessageBuilder
 import static org.boon.Boon.puts;
 
 /**
- * Created by rhightower on 2/12/15.
+ * @author  rhightower on 2/12/15.
  */
 public class SimpleHttpServer implements HttpServer {
     private final Logger logger = LoggerFactory.getLogger(SimpleHttpServer.class);
@@ -58,7 +58,9 @@ public class SimpleHttpServer implements HttpServer {
     private Consumer<Void> webSocketIdleConsumer = aVoid -> {
     };
     private Predicate<HttpRequest> shouldContinueHttpRequest = request -> true;
+
     private ExecutorContext executorContext;
+    private Predicate<WebSocket> shouldContinueWebSocket = webSocket -> true;
 
     public SimpleHttpServer(QBitSystemManager systemManager, int flushInterval) {
         this.systemManager = systemManager;
@@ -99,6 +101,13 @@ public class SimpleHttpServer implements HttpServer {
     public void setShouldContinueHttpRequest(Predicate<HttpRequest> predicate) {
         this.shouldContinueHttpRequest = predicate;
     }
+
+
+
+    public void setShouldContinueWebSocket(Predicate<WebSocket> predicate) {
+        this.shouldContinueWebSocket = predicate;
+    }
+
 
     @Override
     public void setWebSocketMessageConsumer(final Consumer<WebSocketMessage> webSocketMessageConsumer) {
@@ -182,7 +191,9 @@ public class SimpleHttpServer implements HttpServer {
     }
 
     public void handleOpenWebSocket(final WebSocket webSocket) {
-        this.webSocketConsumer.accept(webSocket);
+        if (this.shouldContinueWebSocket.test(webSocket)) {
+            this.webSocketConsumer.accept(webSocket);
+        }
     }
 
 
@@ -232,31 +243,23 @@ public class SimpleHttpServer implements HttpServer {
         });
 
 
-        webSocket.setCloseConsumer(new Consumer<Void>() {
-            @Override
-            public void accept(Void aVoid) {
+        webSocket.setCloseConsumer(aVoid -> {
 
-                long time = Timer.timer().now();
+            long time = Timer.timer().now();
 
-                final WebSocketMessage webSocketMessage = webSocketMessageBuilder()
+            final WebSocketMessage webSocketMessage = webSocketMessageBuilder()
 
-                        .setUri(webSocket.uri())
-                        .setRemoteAddress(webSocket.remoteAddress())
-                        .setTimestamp(time).build();
+                    .setUri(webSocket.uri())
+                    .setRemoteAddress(webSocket.remoteAddress())
+                    .setTimestamp(time).build();
 
 
-                handleWebSocketClosedMessage(webSocketMessage);
+            handleWebSocketClosedMessage(webSocketMessage);
 
-            }
         });
 
 
-        webSocket.setErrorConsumer(new Consumer<Exception>() {
-            @Override
-            public void accept(Exception e) {
-                logger.error("Error with WebSocket handling", e);
-            }
-        });
+        webSocket.setErrorConsumer(e -> logger.error("Error with WebSocket handling", e));
 
     }
 
