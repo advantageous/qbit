@@ -98,4 +98,9 @@ public interface Service {
     default Service start() {
         return this;
     }
+
+
+    default Service start(boolean joinEventManager) {
+        return this;
+    }
 }

@@ -112,7 +112,12 @@ public class ServiceImpl implements Service {
 
     @Override
     public Service start() {
-        start(serviceMethodHandler);
+        start(serviceMethodHandler, true);
+        return this;
+    }
+
+    public Service start(boolean joinEventManager) {
+        start(serviceMethodHandler, joinEventManager);
         return this;
     }
 
@@ -266,7 +271,7 @@ public class ServiceImpl implements Service {
     }
 
 
-    private void start(final ServiceMethodHandler serviceMethodHandler) {
+    private void start(final ServiceMethodHandler serviceMethodHandler, boolean joinEventManager) {
 
         final ReceiveQueue<Response<Object>> responseReceiveQueue =
                 this.handleCallbacks ?
@@ -282,7 +287,9 @@ public class ServiceImpl implements Service {
         serviceThreadLocal.set(ServiceImpl.this);
 
         if (!(service instanceof EventManager)) {
-            serviceContext().joinEventManager();
+            if (joinEventManager) {
+                serviceContext().joinEventManager();
+            }
         }
         serviceMethodHandler.queueInit();
         flushEventManagerCalls();

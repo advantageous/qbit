@@ -67,25 +67,26 @@ public class SimpleRestServerWithURIParamsMain {
        /* Call the service */
         adderService.add(System.out::println, 1, 2);
 
-        flushServiceProxy(adderService);
 
 
-        HttpClient httpClient = httpClientBuilder().setPort(7000).build();
+        HttpClient httpClient = httpClientBuilder()
+                .setHost("localhost")
+                .setPort(7000).build();
 
         httpClient.start();
         String results = httpClient.get("/services/adder-service/add/2/2").body();
         System.out.println(results);
 
 
-        HttpResponse httpResponse = httpClient.get("/services/adder-service/foo/randomcrap/2");
-        System.out.println(httpResponse);
+//        HttpResponse httpResponse = httpClient.get("/services/adder-service/foo/randomcrap/2");
+//        //System.out.println(httpResponse);
+//
+//
+//        httpResponse = httpClient.get("/services/adder-bs/foo/randomcrap/2");
+//        //System.out.println(httpResponse);
 
 
-        httpResponse = httpClient.get("/services/adder-bs/foo/randomcrap/2");
-        System.out.println(httpResponse);
-
-
-        Sys.sleep(1000);
+        Sys.sleep(1000000);
 
         client.stop();
         systemManager.shutDown();
@@ -98,11 +99,11 @@ public class SimpleRestServerWithURIParamsMain {
         void add(Callback<Integer> callback, int a, int b);
     }
 
-    @RequestMapping("adder-service")
+    @RequestMapping("/adder-service")
     public static class AdderService {
 
 
-        @RequestMapping("add/{0}/{1}")
+        @RequestMapping("/add/{0}/{1}")
         public int add(@PathVariable int a, @PathVariable int b) {
 
             return a + b;

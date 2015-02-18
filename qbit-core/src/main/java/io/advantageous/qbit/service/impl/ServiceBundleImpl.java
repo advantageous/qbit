@@ -206,7 +206,7 @@ public class ServiceBundleImpl implements ServiceBundle {
         final Service service = factory.createService(address, serviceAddress,
                 serviceObject, responseQueue, BeanUtils.copy(this.queueBuilder), this.asyncCalls, this.invokeDynamic, false, systemManager);
 
-        service.start();
+        service.start(false);
 
 
         /** add to our list of services. */

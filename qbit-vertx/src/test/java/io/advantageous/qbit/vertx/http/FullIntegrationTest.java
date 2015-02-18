@@ -57,6 +57,11 @@ public class FullIntegrationTest extends TimedTesting {
     boolean ok;
     private volatile int returnCount;
 
+    /**
+     * Holds on to Boon cache so we don't have to recreate reflected gak.
+     */
+    Object context = Sys.contextToHold();
+
     @Test
     public void testWebSocket() throws Exception {
 
@@ -242,10 +247,6 @@ public class FullIntegrationTest extends TimedTesting {
         System.gc();
         Sys.sleep(1000);
 
-    }
-
-    static interface ClientServiceInterface {
-        String ping(Callback<String> callback, String ping);
     }
 
     class MockService {
