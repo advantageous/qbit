@@ -19,7 +19,6 @@
 package io.advantageous.qbit.servlet;
 
 import io.advantageous.qbit.util.MultiMap;
-import org.boon.Lists;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.*;
@@ -45,19 +44,23 @@ public class HttpServletParamMultiMap implements MultiMap<String, String> {
 
     @Override
     public Iterable<String> getAll(String key) {
-        return Lists.list(request.getParameterValues(key));
+        return new ArrayList<>(Arrays.asList(request.getParameterValues(key)));
     }
 
     @Override
     public Iterable<String> keySetMulti() {
-        return Lists.list(request.getParameterNames());
+        final Enumeration<String> enumeration = request.getParameterNames();
+        final List<String> list = new ArrayList<>();
+        while (enumeration.hasMoreElements()) {
+            list.add(enumeration.nextElement());
+        }
+        return list;
     }
 
     @Override
     public String getSingleObject(String name) {
         return getFirst(name);
     }
-
 
     @Override
     public int size() {
@@ -66,7 +69,7 @@ public class HttpServletParamMultiMap implements MultiMap<String, String> {
 
     @Override
     public boolean isEmpty() {
-        return Lists.list(request.getParameterNames()).size() == 0;
+        return new ArrayList<>(Arrays.asList(request.getParameterNames())).size() == 0;
     }
 
     @Override
