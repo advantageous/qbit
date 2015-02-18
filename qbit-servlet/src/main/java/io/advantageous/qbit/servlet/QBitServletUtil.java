@@ -85,8 +85,7 @@ public class QBitServletUtil {
     private static String readBody(HttpServletRequest request) {
         try {
             final ServletInputStream inputStream = request.getInputStream();
-            final String body = IO.read(inputStream, StandardCharsets.UTF_8);
-            return body;
+            return IO.read(inputStream, StandardCharsets.UTF_8);
         } catch (IOException e) {
             throw new IllegalStateException(e);
         }
