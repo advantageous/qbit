@@ -152,9 +152,7 @@ public class InProcExample {
 
         System.out.printf("This is the count back from the service %d\n", countTracker.get());
 
-        todoManager.list(todos -> {
-            todos.forEach(item -> System.out.println(item));
-        });
+        todoManager.list(todos -> todos.forEach(System.out::println));
 
     }
 
