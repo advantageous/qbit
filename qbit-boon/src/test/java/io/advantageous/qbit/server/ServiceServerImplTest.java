@@ -165,14 +165,14 @@ public class ServiceServerImplTest extends TimedTesting {
 
         httpServer.sendRequest(request);
 
-        waitForTrigger(20, o -> failureCounter == 1);
+        waitForTrigger(20, o -> responseCounter == 1);
 
 
 
-        ok |= failureCounter == 1 || die();
-        ok |= callMeCounter == 0 || die();
+        ok |= failureCounter == 0 || die();
+        ok |= callMeCounter == 1 || die();
 
-        ok |= responseCounter == 0 || die();
+        ok |= responseCounter == 1 || die();
         puts(lastResponse);
 
 

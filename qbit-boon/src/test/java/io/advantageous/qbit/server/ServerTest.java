@@ -189,7 +189,7 @@ public class ServerTest extends TimedTesting {
         httpServer.sendHttpGet("/services/todo-manager/testNoMethodCallFound", null, (code, mimeType, body) -> {
 
 
-                    if ( code == 404 && body != null && body.startsWith("\"No service method for URI") ) {
+                    if ( code == 404  ) {
                         resultsWorked.set(true);
                     }
                 });
