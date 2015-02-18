@@ -21,6 +21,9 @@ package io.advantageous.qbit.server;
 import io.advantageous.qbit.GlobalConstants;
 import io.advantageous.qbit.QBit;
 import io.advantageous.qbit.annotation.RequestMethod;
+import static io.advantageous.qbit.bindings.HttpMethod.*;
+
+import io.advantageous.qbit.bindings.HttpMethod;
 import io.advantageous.qbit.http.request.HttpRequest;
 import io.advantageous.qbit.http.request.HttpResponseReceiver;
 import io.advantageous.qbit.json.JsonMapper;
@@ -61,21 +64,42 @@ public class HttpRequestServiceServerHandler {
     protected final int timeoutInSeconds;
     protected final ProtocolEncoder encoder;
     protected final ProtocolParser parser;
-    protected final JsonMapper jsonMapper;
+    protected final JsonMapper jsonMapper; //TODO make this a TLV and use a thread pool just in case we have large JSON payloads
     protected final long flushInterval;
     private final Logger logger = LoggerFactory.getLogger(HttpRequestServiceServerHandler.class);
     private final boolean debug = false || GlobalConstants.DEBUG || logger.isDebugEnabled();
     private final SendQueue<MethodCall<Object>> methodCallSendQueue;
-    private final Set<String> getMethodURIs = new LinkedHashSet<>();
-    private final Set<String> postMethodURIs = new LinkedHashSet<>();
     private final Set<String> objectNameAddressURIWithVoidReturn = new LinkedHashSet<>();
-    private final Set<String> getMethodURIsWithVoidReturn = new LinkedHashSet<>();
-    private final Set<String> postMethodURIsWithVoidReturn = new LinkedHashSet<>();
     private final Map<String, Request<Object>> outstandingRequestMap = new ConcurrentHashMap<>(100_000);
     private final int numberOfOutstandingRequests;
     private final ExecutorService executorService = Executors.newFixedThreadPool(5);
     protected volatile long lastTimeoutCheckTime;
     protected volatile long lastFlushTime = 0;
+
+    private Map<String, HttpMethodHandlerInfo> httpMethodHandlerInfoMap = new ConcurrentHashMap<>(8);
+
+
+    static class HttpMethodHandlerInfo {
+        private final HttpMethod method;
+        private final boolean hasRequestBody;
+        private final Set<String> serviceURIs = new LinkedHashSet<>();
+        private final Set<String> serviceMethodURIsWithVoidReturn = new LinkedHashSet<>();
+
+        HttpMethodHandlerInfo(HttpMethod method, boolean hasRequestBody) {
+            this.method = method;
+            this.hasRequestBody = hasRequestBody;
+        }
+
+        @Override
+        public String toString() {
+            return "HttpMethodHandlerInfo{" +
+                    "method=" + method +
+                    ", hasRequestBody=" + hasRequestBody +
+                    ", serviceURIs=" + serviceURIs +
+                    ", serviceMethodURIsWithVoidReturn=" + serviceMethodURIsWithVoidReturn +
+                    '}';
+        }
+    }
 
 
     public HttpRequestServiceServerHandler(int timeoutInSeconds, ProtocolEncoder encoder, ProtocolParser parser, ServiceBundle serviceBundle, JsonMapper jsonMapper, final int numberOfOutstandingRequests, int flushInterval) {
@@ -88,6 +112,17 @@ public class HttpRequestServiceServerHandler {
 
         this.methodCallSendQueue = serviceBundle.methodSendQueue();
         this.flushInterval = flushInterval;
+
+        httpMethodHandlerInfoMap.put(GET.name(), new HttpMethodHandlerInfo(GET, false));
+        httpMethodHandlerInfoMap.put(HEAD.name(), new HttpMethodHandlerInfo(HEAD, false));
+        httpMethodHandlerInfoMap.put(TRACE.name(), new HttpMethodHandlerInfo(TRACE, false)); //You can ignore with 404 if it has a body according to RFC
+
+        httpMethodHandlerInfoMap.put(OPTIONS.name(), new HttpMethodHandlerInfo(OPTIONS, true)); //Collect meta-data, body not defined but not forbidden
+        httpMethodHandlerInfoMap.put(DELETE.name(), new HttpMethodHandlerInfo(DELETE, true)); //Body not forbidden
+        httpMethodHandlerInfoMap.put(PUT.name(), new HttpMethodHandlerInfo(PUT, true));
+        httpMethodHandlerInfoMap.put(POST.name(), new HttpMethodHandlerInfo(POST, true));
+        httpMethodHandlerInfoMap.put(CONNECT.name(), new HttpMethodHandlerInfo(CONNECT, true));
+
 
     }
 
@@ -118,46 +153,29 @@ public class HttpRequestServiceServerHandler {
 
         if ( debug ) {
             logger.info(sputs("handleRestCall()", uri));
-            puts("handleRestCall()", uri, getMethodURIs);
         }
 
 
         Object args = null;
 
-        switch ( request.getMethod() ) {
-            case "GET":
-                knownURI = getMethodURIs.contains(uri);
+        final HttpMethodHandlerInfo httpMethodHandlerInfo = httpMethodHandlerInfoMap.get(request.getMethod());
 
+        if (httpMethodHandlerInfo.serviceMethodURIsWithVoidReturn.contains(uri)) {
+            writeResponse(request.getReceiver(), 200,
+                    "application/json", "\"success\"", request.getHeaders());
+        } else {
+            if ( !addRequestToCheckForTimeouts(request) ) {
 
-                if ( getMethodURIsWithVoidReturn.contains(uri) ) {
-                    writeResponse(request.getReceiver(), 200, "application/json", "\"success\"", request.getHeaders());
-
-                } else {
-                    if ( !addRequestToCheckForTimeouts(request) ) {
-
-                        writeResponse(request.getReceiver(), 429, "application/json", "\"too many outstanding requests\"", request.getHeaders());
-                        return;
-                    }
-                }
-                break;
-
-            case "POST":
-                knownURI = postMethodURIs.contains(uri);
-                if ( postMethodURIsWithVoidReturn.contains(uri) ) {
-                    writeResponse(request.getReceiver(), 200, "application/json", "\"success\"", request.getHeaders());
-                } else {
-                    if ( !addRequestToCheckForTimeouts(request) ) {
-
-                        writeResponse(request.getReceiver(), 429, "application/json", "\"too many outstanding requests\"", request.getHeaders());
-                        return;
-                    }
-                }
-                if ( !Str.isEmpty(request.getBody()) ) {
-                    args = jsonMapper.fromJson(new String(request.getBody(), StandardCharsets.UTF_8));
-                }
-                break;
+                writeResponse(request.getReceiver(), 429, "application/json",
+                        "\"too many outstanding requests\"", request.getHeaders());
+                return;
+            }
         }
 
+        /* If there is a body parse JSON. */
+        if ( request.getBody()!=null && request.getBody().length > 0  ) {
+            args = jsonMapper.fromJson(new String(request.getBody(), StandardCharsets.UTF_8));
+        }
 
         final MethodCall<Object> methodCall = QBit.factory().createMethodCallFromHttpRequest(request, args);
 
@@ -219,28 +237,26 @@ public class HttpRequestServiceServerHandler {
         }
 
 
-        switch ( httpMethod ) {
-            case GET:
-                getMethodURIs.add(objectNameAddress);
 
-                getMethodURIs.add(objectNameAddress.toLowerCase());
-                if ( voidReturn ) {
-                    getMethodURIsWithVoidReturn.add(objectNameAddress);
+        final HttpMethodHandlerInfo httpMethodHandlerInfo = httpMethodHandlerInfoMap.get(httpMethod.name());
 
-                    getMethodURIsWithVoidReturn.add(Str.add(baseURI, serviceURI, "/", method.name()));
+        httpMethodHandlerInfo.serviceURIs.add(objectNameAddress);
+
+        httpMethodHandlerInfo.serviceURIs.add(objectNameAddress.toLowerCase());
+
+        if ( voidReturn ) {
+            httpMethodHandlerInfo.serviceMethodURIsWithVoidReturn
+                    .add(objectNameAddress);
+
+            httpMethodHandlerInfo.serviceMethodURIsWithVoidReturn.
+                    add(Str.add(baseURI, serviceURI, "/", method.name()));
+        }
 
 
-                }
-                break;
-            case POST:
-                postMethodURIs.add(objectNameAddress);
-                postMethodURIs.add(objectNameAddress.toLowerCase());
-                if ( voidReturn ) {
-                    postMethodURIsWithVoidReturn.add(objectNameAddress);
-                    postMethodURIsWithVoidReturn.add(Str.add(baseURI, serviceURI, "/", method.name()));
-
-                }
-                break;
+        if ( debug ) {
+            final String message = sputs("registerMethodToEndPoint::", httpMethodHandlerInfo);
+            logger.debug(message);
+            puts(message);
         }
 
     }
@@ -267,11 +283,7 @@ public class HttpRequestServiceServerHandler {
         }
 
 
-        if ( debug ) {
-            final String message = sputs("registerMethodsToEndPointS ", "GET uris", getMethodURIs, "\nGET URIs no return", getMethodURIsWithVoidReturn, "\nPOST uris", postMethodURIs, "\nPOST uris no return", postMethodURIsWithVoidReturn);
-            logger.debug(message);
-            puts(message);
-        }
+
     }
 
 
@@ -442,7 +454,8 @@ public class HttpRequestServiceServerHandler {
     }
 
 
-    private void writeResponse(HttpResponseReceiver response, int code, String mimeType, String responseString, MultiMap<String, String> headers) {
+    private void writeResponse(HttpResponseReceiver response, int code, String mimeType, String responseString,
+                               MultiMap<String, String> headers) {
 
         if ( response.isText() ) {
             response.response(code, mimeType, responseString, headers);

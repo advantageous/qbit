@@ -74,7 +74,9 @@ public class SimpleRestServerWithURIParamsMain {
                 .setPort(7000).build();
 
         httpClient.start();
-        String results = httpClient.get("/services/adder-service/add/2/2").body();
+        String results = httpClient
+                .get("/services/adder-service/add/2/2")
+                .body();
         System.out.println(results);
 
 
@@ -86,9 +88,10 @@ public class SimpleRestServerWithURIParamsMain {
 //        //System.out.println(httpResponse);
 
 
-        Sys.sleep(1000000);
+        Sys.sleep(100);
 
         client.stop();
+        httpClient.stop();
         systemManager.shutDown();
 
 

@@ -26,5 +26,11 @@ package io.advantageous.qbit.bindings;
  */
 public enum HttpMethod {
     POST,
-    GET
+    GET,
+    PUT,
+    DELETE,
+    HEAD,
+    TRACE,
+    CONNECT,
+    OPTIONS
 }
