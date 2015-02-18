@@ -56,12 +56,15 @@ public class QBitServletUtil {
         return httpRequestBuilder.build();
     }
 
-    private static void setupRequestHandler(AsyncContext asyncContext, HttpServletResponse response, HttpRequestBuilder httpRequestBuilder) {
+    private static void setupRequestHandler(final AsyncContext asyncContext,
+                                            final HttpServletResponse response,
+                                            final HttpRequestBuilder httpRequestBuilder) {
+
         httpRequestBuilder.setTextReceiver((code, contentType, body) -> {
             response.setHeader("Content-Type", contentType);
             try {
                 final ServletOutputStream outputStream = response.getOutputStream();
-                IO.write(outputStream, body);
+                outputStream.write(body.getBytes(StandardCharsets.UTF_8));
                 outputStream.close();
                 asyncContext.complete();
             } catch (IOException e) {

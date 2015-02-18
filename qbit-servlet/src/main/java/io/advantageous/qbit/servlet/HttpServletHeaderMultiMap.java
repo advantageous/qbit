@@ -19,8 +19,6 @@
 package io.advantageous.qbit.servlet;
 
 import io.advantageous.qbit.util.MultiMap;
-import org.boon.Lists;
-import org.boon.Sets;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.*;
@@ -48,7 +46,7 @@ public class HttpServletHeaderMultiMap implements MultiMap<String, String> {
 
             @Override
             public Entry<String, Collection<String>> next() {
-                String currentName = headerNames.nextElement();
+                final String currentName = headerNames.nextElement();
                 return new Entry<String, Collection<String>>() {
                     @Override
                     public String getKey() {
@@ -57,7 +55,12 @@ public class HttpServletHeaderMultiMap implements MultiMap<String, String> {
 
                     @Override
                     public Collection<String> getValue() {
-                        return Lists.list(request.getHeaders(currentName));
+                        final Enumeration<String> enumeration = request.getHeaders(currentName);
+                        final List<String> list = new ArrayList<>();
+                        while (enumeration.hasMoreElements()) {
+                            list.add(enumeration.nextElement());
+                        }
+                        return list;
                     }
 
                     @Override
@@ -77,15 +80,18 @@ public class HttpServletHeaderMultiMap implements MultiMap<String, String> {
 
     @Override
     public Iterable<String> getAll(final String key) {
-        return Lists.list(request.getHeader(key));
+        return new ArrayList<>(Arrays.asList(new String[]{request.getHeader(key)}));
     }
-
 
     @Override
     public Iterable<String> keySetMulti() {
-        return Lists.list(request.getHeaderNames());
+        final Enumeration<String> enumeration = request.getHeaderNames();
+        final List<String> list = new ArrayList<>();
+        while (enumeration.hasMoreElements()) {
+            list.add(enumeration.nextElement());
+        }
+        return list;
     }
-
 
     @Override
     public String getSingleObject(String name) {
@@ -94,7 +100,7 @@ public class HttpServletHeaderMultiMap implements MultiMap<String, String> {
 
     @Override
     public int size() {
-        return Lists.list(request.getHeaderNames()).size();
+        return Arrays.asList(request.getHeaderNames()).size();
     }
 
     @Override
@@ -112,17 +118,19 @@ public class HttpServletHeaderMultiMap implements MultiMap<String, String> {
         return getFirst(key.toString());
     }
 
-
     @Override
     public Set<String> keySet() {
-        return Sets.set(request.getHeaderNames());
+        final Enumeration<String> enumeration = request.getHeaderNames();
+        final Set<String> set = new LinkedHashSet<>();
+        while (enumeration.hasMoreElements()) {
+            set.add(enumeration.nextElement());
+        }
+        return set;
     }
 
     @Override
     public Set<Entry<String, String>> entrySet() {
-
-        Map<String, String> map = new HashMap<>(this.size());
-
+        final Map<String, String> map = new HashMap<>(this.size());
         for (String key : keySet()) {
             map.put(key, this.getFirst(key));
         }
