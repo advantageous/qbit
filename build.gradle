@@ -6,11 +6,10 @@ allprojects {
     apply plugin: 'maven'
     apply plugin: 'application'
 
-    version = '0.5.2-SNAPSHOT'
+    version = '0.6'
 
     test.onlyIf { !Boolean.getBoolean('skip.tests') }
 }
-
 
 subprojects {
 
@@ -21,7 +20,6 @@ subprojects {
 
     sourceCompatibility = JavaVersion.VERSION_1_8
     targetCompatibility = JavaVersion.VERSION_1_8
-
 
     task buildDockerfile(type: Dockerfile) {
         dependsOn distTar
@@ -467,7 +465,6 @@ project(':qbit-sample-client') {
     }
 }
 
-
 project(':qbit-sample-model') {
     sourceSets.main.resources.srcDir 'src/main/java'
     dependencies {
@@ -478,87 +475,3 @@ project(':qbit-sample-model') {
         testCompile group: 'junit', name: 'junit', version: '4.10'
     }
 }
-
-
-
-
-/*
- * Copyright (c) 2015. Rick Hightower, Geoff Chandler
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *  		http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *
- * QBit - The Microservice lib for Java : JSON, WebSocket, REST. Be The Web!
- */
-
-class Dockerfile extends DefaultTask {
-    def dockerfileInfo = ""
-    def dockerDir = "$project.buildDir/docker"
-    def dockerfileDestination = "$project.buildDir/docker/Dockerfile"
-    def filesToCopy = []
-
-    File getDockerfileDestination() {
-        project.file(dockerfileDestination)
-    }
-
-    def from(image = "java") {
-        dockerfileInfo += "FROM $image\r\n"
-    }
-
-    def maintainer(contact) {
-        maintainer += "MAINTAINER $contact\r\n"
-    }
-
-    def add(sourceLocation, targetLocation) {
-        filesToCopy << sourceLocation
-        def file = project.file(sourceLocation)
-        dockerfileInfo += "ADD $file.name ${targetLocation}\r\n"
-    }
-
-    def run(command) {
-        dockerfileInfo += "RUN $command\r\n"
-    }
-
-    def env(var, value) {
-        dockerfileInfo += "ENV $var $value\r\n"
-    }
-
-    def expose(port) {
-        dockerfileInfo += "EXPOSE $port\r\n"
-    }
-
-    def workdir(dir) {
-        dockerfileInfo += "WORKDIR $dir\r\n"
-    }
-
-    def cmd(command) {
-        dockerfileInfo += "CMD $command\r\n"
-    }
-
-    def entrypoint(command) {
-        dockerfileInfo += "ENTRYPOINT $command\r\n"
-    }
-
-    @TaskAction
-    def writeDockerfile() {
-        for (fileName in filesToCopy) {
-            def source = project.file(fileName)
-            def target = project.file("$dockerDir/$source.name")
-            target.parentFile.mkdirs()
-            target << source.bytes
-        }
-        def file = getDockerfileDestination()
-        file.parentFile.mkdirs()
-        file.write dockerfileInfo
-    }
-}
-
