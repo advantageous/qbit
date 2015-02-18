@@ -32,6 +32,7 @@ import io.advantageous.qbit.queue.SendQueue;
 import io.advantageous.qbit.service.BeforeMethodCall;
 import io.advantageous.qbit.service.Service;
 import io.advantageous.qbit.service.ServiceBundle;
+import io.advantageous.qbit.service.ServiceMethodNotFoundException;
 import io.advantageous.qbit.system.QBitSystemManager;
 import io.advantageous.qbit.transforms.Transformer;
 import io.advantageous.qbit.util.ConcurrentHashSet;
@@ -378,8 +379,8 @@ public class ServiceBundleImpl implements ServiceBundle {
                 logger.error("known URI path " + it);
             });
 
-            throw new IllegalStateException("there is no object at this address: " + methodCall.address()
-                    + "\n method name=" + methodCall.name() + "\n objectName=" + methodCall.objectName());
+            throw new ServiceMethodNotFoundException("there is no object at this address: " + methodCall.address()
+                    + "\n method name=" + methodCall.name() + "\n objectName=" + methodCall.objectName(), methodCall.address());
         }
         return sendQueue;
     }

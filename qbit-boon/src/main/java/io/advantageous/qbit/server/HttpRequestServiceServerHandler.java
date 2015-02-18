@@ -29,6 +29,7 @@ import io.advantageous.qbit.message.Request;
 import io.advantageous.qbit.message.Response;
 import io.advantageous.qbit.queue.SendQueue;
 import io.advantageous.qbit.service.ServiceBundle;
+import io.advantageous.qbit.service.ServiceMethodNotFoundException;
 import io.advantageous.qbit.spi.ProtocolEncoder;
 import io.advantageous.qbit.spi.ProtocolParser;
 import io.advantageous.qbit.util.MultiMap;
@@ -157,15 +158,6 @@ public class HttpRequestServiceServerHandler {
                 break;
         }
 
-
-        if ( !knownURI ) {
-            request.handled(); //Mark the request as handled.
-
-            writeResponse(request.getReceiver(), 404, "application/json", Str.add("\"No service method for URI ", request.getUri(), "\""), request.getHeaders());
-
-            return;
-
-        }
 
         final MethodCall<Object> methodCall = QBit.factory().createMethodCallFromHttpRequest(request, args);
 
@@ -463,13 +455,23 @@ public class HttpRequestServiceServerHandler {
     public void handleResponseFromServiceToHttpResponse(Response<Object> response, HttpRequest originatingRequest) {
 
 
+
         String key = Str.add("" + originatingRequest.id(), "|", originatingRequest.returnAddress());
         this.outstandingRequestMap.remove(key);
 
         final HttpRequest httpRequest = originatingRequest;
 
         if ( response.wasErrors() ) {
-            writeResponse(httpRequest.getReceiver(), 500, "application/json", jsonMapper.toJson(response.body()), httpRequest.getHeaders());
+
+            Object obj =  response.body();
+
+            if (obj instanceof ServiceMethodNotFoundException) {
+                writeResponse(httpRequest.getReceiver(), 404, "application/json", jsonMapper.toJson(response.body()), httpRequest.getHeaders());
+
+            } else {
+                writeResponse(httpRequest.getReceiver(), 500, "application/json", jsonMapper.toJson(response.body()), httpRequest.getHeaders());
+
+            }
         } else {
             writeResponse(httpRequest.getReceiver(), 200, "application/json", jsonMapper.toJson(response.body()), httpRequest.getHeaders());
         }

@@ -53,100 +53,35 @@
 
  ******************************************************************************/
 
-package io.advantageous.qbit.example.servers;
-
-import io.advantageous.qbit.annotation.PathVariable;
-import io.advantageous.qbit.annotation.RequestMapping;
-import io.advantageous.qbit.client.Client;
-import io.advantageous.qbit.http.client.HttpClient;
-import io.advantageous.qbit.http.request.HttpResponse;
-import io.advantageous.qbit.server.ServiceServer;
-import io.advantageous.qbit.service.Callback;
-import io.advantageous.qbit.system.QBitSystemManager;
-import org.boon.core.Sys;
-
-import static io.advantageous.qbit.client.ClientBuilder.clientBuilder;
-import static io.advantageous.qbit.http.client.HttpClientBuilder.httpClientBuilder;
-import static io.advantageous.qbit.server.ServiceServerBuilder.serviceServerBuilder;
-import static io.advantageous.qbit.service.ServiceProxyUtils.flushServiceProxy;
+package io.advantageous.qbit.service;
 
 /**
- * @author  rhightower
- * on 2/17/15.
+ * Created by rhightower on 2/17/15.
  */
-public class SimpleRestServerWithURIParamsMain {
+public class ServiceMethodNotFoundException extends IllegalStateException {
 
+    private final String address;
 
-    @RequestMapping("adder-service")
-    public static class AdderService {
-
-
-        @RequestMapping("add/{0}/{1}")
-        public int add(@PathVariable int a, @PathVariable int b) {
-
-            return a + b;
-        }
+    public ServiceMethodNotFoundException(String address) {
+        this.address = address;
     }
 
-    interface AdderServiceClientInterface {
-
-        void add(Callback<Integer> callback, int a, int b);
+    public ServiceMethodNotFoundException(String message, String address) {
+        super(message + " Service Address not found");
+        this.address = address;
     }
 
+    public ServiceMethodNotFoundException(String message, String address, Throwable cause) {
+        super(message, cause);
+        this.address = address;
+    }
 
-   public static void main(String... args) throws Exception {
+    public ServiceMethodNotFoundException(String address, Throwable cause) {
+        super(cause);
+        this.address = address;
+    }
 
-       QBitSystemManager systemManager = new QBitSystemManager();
-
-       /* Start Service server. */
-       final ServiceServer server = serviceServerBuilder()
-                .setSystemManager(systemManager)
-                .setPort(7000).build();
-
-       server.initServices(new AdderService());
-       server.start();
-
-       /* Start QBit client for WebSocket calls. */
-       final Client client = clientBuilder().setPort(7000).setRequestBatchSize(1).build();
-
-
-       /* Create a proxy to the service. */
-       final AdderServiceClientInterface adderService =
-               client.createProxy(AdderServiceClientInterface.class, "adder-service");
-
-       client.start();
-
-
-
-       /* Call the service */
-       adderService.add(System.out::println, 1, 2);
-
-       flushServiceProxy(adderService);
-
-
-       HttpClient httpClient = httpClientBuilder().setPort(7000).build();
-
-       httpClient.start();
-       String results = httpClient.get("/services/adder-service/add/2/2").body();
-       System.out.println(results);
-
-
-       HttpResponse httpResponse = httpClient.get("/services/adder-service/foo/randomcrap/2");
-       System.out.println( httpResponse );
-
-
-       httpResponse = httpClient.get("/services/adder-bs/foo/randomcrap/2");
-       System.out.println( httpResponse );
-
-
-       Sys.sleep(1000);
-
-       client.stop();
-       systemManager.shutDown();
-
-
-
-   }
-
-
+    public String getAddress() {
+        return address;
+    }
 }
