@@ -19,13 +19,43 @@
 
 
 apply plugin: 'java'
-apply plugin: 'jetty'
 
 repositories {
     mavenLocal()
     mavenCentral()
 }
 
+
+sourceSets.main.resources.srcDir 'src/main/java'
+apply plugin: 'signing'
+
+task javadocJar(type: Jar, dependsOn: javadoc) {
+    classifier = 'javadoc'
+    from 'build/docs/javadoc'
+}
+
+task sourcesJar(type: Jar) {
+    from sourceSets.main.allSource
+    classifier = 'sources'
+}
+
+artifacts {
+    archives jar
+    archives javadocJar
+    archives sourcesJar
+}
+
+signing {
+    required false
+    sign configurations.archives
+}
+
+jar {
+    manifest {
+        attributes 'Main-Class': 'io.rd.cognizance.example.SampleService'
+    }
+    from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
+}
 dependencies {
     testCompile group: 'junit', name: 'junit', version: '4.11'
     testCompile 'org.eclipse.jetty:jetty-server:9.3.0.M1'
@@ -39,4 +69,52 @@ dependencies {
     compile project(':qbit-boon')
 
 
+}
+
+
+uploadArchives {
+    repositories {
+        mavenDeployer {
+            beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
+
+            repository(url: "https://oss.sonatype.org/service/local/staging/deploy/maven2/") {
+                try {
+                    authentication(userName: sonatypeUsername, password: sonatypePassword)
+                } catch (MissingPropertyException ignore) {
+                }
+            }
+
+            pom.project {
+                name 'qbit-vertx'
+                packaging 'jar'
+                description 'Go Channels inspired Java lib'
+                url 'https://github.com/advantageous/qbit'
+
+                scm {
+                    url 'scm:git@github.com:advantageous/qbit.git'
+                    connection 'scm:git@github.com:advantageous/qbit.git'
+                    developerConnection 'scm:git@github.com:advantageous/qbit.git'
+                }
+
+                licenses {
+                    license {
+                        name 'The Apache Software License, Version 2.0'
+                        url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                        distribution 'repo'
+                    }
+                }
+
+                developers {
+                    developer {
+                        id 'richardHightower'
+                        name 'Richard Hightower'
+                    }
+                    developer {
+                        id 'sailorgeoffrey'
+                        name 'Geoffrey Chandler'
+                    }
+                }
+            }
+        }
+    }
 }

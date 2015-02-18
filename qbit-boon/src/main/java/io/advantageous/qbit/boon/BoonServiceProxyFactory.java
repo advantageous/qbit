@@ -113,7 +113,7 @@ public class BoonServiceProxyFactory implements ServiceProxyFactory {
             }
         };
 
-        final Object o = Proxy.newProxyInstance(Thread.currentThread().getContextClassLoader(), new Class[]{serviceInterface, ClientProxy.class}, invocationHandler);
+        final Object o = Proxy.newProxyInstance(serviceInterface.getClassLoader(), new Class[]{serviceInterface, ClientProxy.class}, invocationHandler);
 
 
         return ( T ) o;

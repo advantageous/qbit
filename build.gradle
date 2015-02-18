@@ -48,6 +48,7 @@ subprojects {
     }
 }
 
+
 project(':qbit-core') {
 
     apply plugin: 'signing'
@@ -178,6 +179,100 @@ project(':qbit-boon') {
 
                 pom.project {
                     name 'qbit-boon'
+                    packaging 'jar'
+                    description 'Go Channels inspired Java lib'
+                    url 'https://github.com/advantageous/qbit'
+
+                    scm {
+                        url 'scm:git@github.com:advantageous/qbit.git'
+                        connection 'scm:git@github.com:advantageous/qbit.git'
+                        developerConnection 'scm:git@github.com:advantageous/qbit.git'
+                    }
+
+                    licenses {
+                        license {
+                            name 'The Apache Software License, Version 2.0'
+                            url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                            distribution 'repo'
+                        }
+                    }
+
+                    developers {
+                        developer {
+                            id 'richardHightower'
+                            name 'Richard Hightower'
+                        }
+                        developer {
+                            id 'sailorgeoffrey'
+                            name 'Geoffrey Chandler'
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+
+project(':qbit-vertx') {
+
+    sourceSets.main.resources.srcDir 'src/main/java'
+    apply plugin: 'signing'
+
+    task javadocJar(type: Jar, dependsOn: javadoc) {
+        classifier = 'javadoc'
+        from 'build/docs/javadoc'
+    }
+
+    task sourcesJar(type: Jar) {
+        from sourceSets.main.allSource
+        classifier = 'sources'
+    }
+
+    artifacts {
+        archives jar
+        archives javadocJar
+        archives sourcesJar
+    }
+
+    signing {
+        required false
+        sign configurations.archives
+    }
+
+    jar {
+        manifest {
+            attributes 'Main-Class': 'io.rd.cognizance.example.SampleService'
+        }
+        from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
+    }
+    dependencies {
+        compile project(':qbit-core')
+        compile project(':qbit-boon')
+        compile group: 'io.vertx', name: 'vertx-core', version: vertxVersion
+        compile group: 'io.vertx', name: 'vertx-platform', version: vertxVersion
+        compile "org.slf4j:slf4j-api:[1.7,1.8)"
+        testCompile 'ch.qos.logback:logback-classic:1.1.2'
+        testCompile group: 'junit', name: 'junit', version: '4.10'
+        testCompile project(':qbit-test')
+
+
+    }
+
+    uploadArchives {
+        repositories {
+            mavenDeployer {
+                beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
+
+                repository(url: "https://oss.sonatype.org/service/local/staging/deploy/maven2/") {
+                    try {
+                        authentication(userName: sonatypeUsername, password: sonatypePassword)
+                    } catch (MissingPropertyException ignore) {
+                    }
+                }
+
+                pom.project {
+                    name 'qbit-vertx'
                     packaging 'jar'
                     description 'Go Channels inspired Java lib'
                     url 'https://github.com/advantageous/qbit'
@@ -384,99 +479,8 @@ project(':qbit-sample-model') {
     }
 }
 
-project(':qbit-vertx') {
-
-    apply plugin: 'signing'
-
-    task javadocJar(type: Jar, dependsOn: javadoc) {
-        classifier = 'javadoc'
-        from 'build/docs/javadoc'
-    }
-
-    task sourcesJar(type: Jar) {
-        from sourceSets.main.allSource
-        classifier = 'sources'
-    }
-
-    artifacts {
-        archives jar
-        archives javadocJar
-        archives sourcesJar
-    }
-
-    signing {
-        required false
-        sign configurations.archives
-    }
-
-    jar {
-        manifest {
-            attributes 'Main-Class': 'io.rd.cognizance.example.SampleService'
-        }
-        from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
-    }
-    sourceSets.main.resources.srcDir 'src/main/java'
-    dependencies {
-        compile project(':qbit-core')
-        compile project(':qbit-boon')
-        compile group: 'io.vertx', name: 'vertx-core', version: vertxVersion
-        compile group: 'io.vertx', name: 'vertx-platform', version: vertxVersion
-        compile group: 'io.vertx', name: 'lang-groovy', version: vertxVersion
-        compile "org.slf4j:slf4j-api:[1.7,1.8)"
-        testCompile 'ch.qos.logback:logback-classic:1.1.2'
-        testCompile group: 'junit', name: 'junit', version: '4.10'
-        testCompile project(':qbit-test')
 
 
-    }
-
-    uploadArchives {
-        repositories {
-            mavenDeployer {
-                beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
-
-                repository(url: "https://oss.sonatype.org/service/local/staging/deploy/maven2/") {
-                    try {
-                        authentication(userName: sonatypeUsername, password: sonatypePassword)
-                    } catch (MissingPropertyException ignore) {
-                    }
-                }
-
-                pom.project {
-                    name 'qbit-vertx'
-                    packaging 'jar'
-                    description 'Go Channels inspired Java lib'
-                    url 'https://github.com/advantageous/qbit'
-
-                    scm {
-                        url 'scm:git@github.com:advantageous/qbit.git'
-                        connection 'scm:git@github.com:advantageous/qbit.git'
-                        developerConnection 'scm:git@github.com:advantageous/qbit.git'
-                    }
-
-                    licenses {
-                        license {
-                            name 'The Apache Software License, Version 2.0'
-                            url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
-                            distribution 'repo'
-                        }
-                    }
-
-                    developers {
-                        developer {
-                            id 'richardHightower'
-                            name 'Richard Hightower'
-                        }
-                        developer {
-                            id 'sailorgeoffrey'
-                            name 'Geoffrey Chandler'
-                        }
-                    }
-                }
-            }
-        }
-    }
-}
 
 /*
  * Copyright (c) 2015. Rick Hightower, Geoff Chandler
