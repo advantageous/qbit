@@ -37,7 +37,7 @@ import java.util.Collection;
  */
 public interface ServiceMethodHandler extends ReceiveQueueListener<MethodCall<Object>> {
 
-    void init(Object service, String rootAddress, String serviceAddress);
+    void init(Object service, String rootAddress, String serviceAddress, SendQueue<Response<Object>> responseSendQueue);
 
     Response<Object> receiveMethodCall(MethodCall<Object> methodCall);
 
@@ -48,7 +48,6 @@ public interface ServiceMethodHandler extends ReceiveQueueListener<MethodCall<Ob
 
     Collection<String> addresses();
 
-    void initQueue(SendQueue<Response<Object>> responseSendQueue);
 
     void queueInit();
 

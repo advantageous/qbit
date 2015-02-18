@@ -31,7 +31,7 @@ import java.util.Collection;
  *
  * @author rhightower
  */
-public interface Service {
+public interface Service extends Stoppable, ServiceFlushable {
 
     Object service();
 

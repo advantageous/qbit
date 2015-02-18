@@ -18,6 +18,8 @@
 
 package io.advantageous.qbit.client;
 
+import io.advantageous.qbit.service.Stoppable;
+
 /**
  * This is the main interface for accessing the server from a client perspective.
  * With this interface you can createWithWorkers a client proxy.
@@ -25,7 +27,7 @@ package io.advantageous.qbit.client;
  *
  * @author rhightower
  */
-public interface Client {
+public interface Client extends Stoppable {
 
 
     /**

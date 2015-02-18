@@ -18,6 +18,12 @@
 
 package io.advantageous.qbit.server;
 
+import io.advantageous.qbit.message.MethodCall;
+import io.advantageous.qbit.service.Service;
+import io.advantageous.qbit.service.ServiceBundle;
+
+import java.util.function.Consumer;
+
 /**
  * Represents a server that marshals method calls to a service.
  * Created by Richard on 11/14/14.
@@ -30,6 +36,28 @@ public interface ServiceServer extends Server {
 
     default ServiceServer initServices(Iterable services) {
         throw new IllegalStateException("Not implemented");
+    }
+
+
+    default ServiceBundle serviceBundle() {
+        throw new IllegalStateException("Not implemented");
+
+    }
+
+    default ServiceServer addService(String address, Service service) {
+        serviceBundle().addServiceObject(address, service);
+        return this;
+    }
+
+    default ServiceServer addServiceConsumer(String address, Consumer<MethodCall<Object>> service) {
+        serviceBundle().addServiceObject(address, service);
+        return this;
+    }
+
+
+    default ServiceServer addServiceObject(String address, Object serviceObject) {
+        serviceBundle().addServiceObject(address, serviceObject);
+        return this;
     }
 
     default ServiceServer flush() {

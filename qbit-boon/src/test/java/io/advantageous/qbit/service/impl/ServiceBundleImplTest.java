@@ -124,7 +124,7 @@ public class ServiceBundleImplTest {
     @Test
     public void testAddService() throws Exception {
 
-        serviceBundle.addService("/adder", adderService);
+        serviceBundle.addServiceObject("/adder", adderService);
         final List<String> endPoints = serviceBundle.endPoints();
         puts(endPoints);
         endPoints.contains("/foo/adder");
@@ -134,7 +134,7 @@ public class ServiceBundleImplTest {
     public void testResponses() throws Exception {
 
         call = factory.createMethodCallByAddress("/foo/adder/add", "", Lists.list(1, 2), params);
-        serviceBundle.addService("/adder", adderService);
+        serviceBundle.addServiceObject("/adder", adderService);
 
         serviceBundle.call(call);
 

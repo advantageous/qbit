@@ -58,8 +58,8 @@ public class ServiceProxyFactoryTest {
         }
 
         @Override
-        public void addService(String address, Object object) {
-
+        public ServiceBundle addServiceObject(String address, Object object) {
+            return null;
         }
 
         @Override

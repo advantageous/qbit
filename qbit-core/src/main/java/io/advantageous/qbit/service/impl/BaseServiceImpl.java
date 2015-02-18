@@ -1,20 +1,47 @@
-/*
- * Copyright (c) 2015. Rick Hightower, Geoff Chandler
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *  		http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *
- * QBit - The Microservice lib for Java : JSON, WebSocket, REST. Be The Web!
- */
+/*******************************************************************************
+  * Copyright (c) 2015. Rick Hightower, Geoff Chandler
+  *
+  * Licensed under the Apache License, Version 2.0 (the "License");
+  * you may not use this file except in compliance with the License.
+  * You may obtain a copy of the License at
+  *
+  *  		http://www.apache.org/licenses/LICENSE-2.0
+  *
+  * Unless required by applicable law or agreed to in writing, software
+  * distributed under the License is distributed on an "AS IS" BASIS,
+  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  * See the License for the specific language governing permissions and
+  * limitations under the License.
+  *  __          __  _     _____            _        _
+  *  \ \        / / | |   / ____|          | |      | |
+  *   \ \  /\  / /__| |__| (___   ___   ___| | _____| |_
+  *   \ \/  \/ / _ \ '_ \\___ \ / _ \ / __| |/ / _ \ __|
+  *   \  /\  /  __/ |_) |___) | (_) | (__|   <  __/ |_
+  *    \/  \/ \___|_.__/_____/ \___/ \___|_|\_\___|\__|
+  *       _  _____  ____  _   _
+  *      | |/ ____|/ __ \| \ | |
+  *      | | (___ | |  | |  \| |
+  *  _   | |\___ \| |  | | . ` |
+  * | |__| |____) | |__| | |\  |
+  * \____/|_____/ \____/|_|_\_|_
+  * |  __ \|  ____|/ ____|__   __|
+  * | |__) | |__  | (___    | |
+  * |  _  /|  __|  \___ \   | |
+  * | | \ \| |____ ____) |  | |
+  * |_|  \_\______|_____/   |_|___                 _
+  * |  \/  (_)              / ____|               (_)
+  * | \  / |_  ___ _ __ ___| (___   ___ _ ____   ___  ___ ___
+  * | |\/| | |/ __| '__/ _ \\___ \ / _ \ '__\ \ / / |/ __/ _ \
+  * | |  | | | (__| | | (_) |___) |  __/ |   \ V /| | (_|  __/
+  * |_|  |_|_|\___|_|  \___/_____/ \___|_|    \_/ |_|\___\___|
+  *
+  * QBit - The Microservice lib for Java : JSON, WebSocket, REST. Be The Web!
+  *  http://rick-hightower.blogspot.com/2014/12/rise-of-machines-writing-high-speed.html
+  *  http://rick-hightower.blogspot.com/2014/12/quick-guide-to-programming-services-in.html
+  *  http://rick-hightower.blogspot.com/2015/01/quick-start-qbit-programming.html
+  *  http://rick-hightower.blogspot.com/2015/01/high-speed-soa.html
+  *  http://rick-hightower.blogspot.com/2015/02/qbit-event-bus.html
+  ******************************************************************************/
 
 package io.advantageous.qbit.service.impl;
 
@@ -41,23 +68,24 @@ import java.util.concurrent.locks.ReentrantLock;
 import static io.advantageous.qbit.QBit.factory;
 import static io.advantageous.qbit.service.ServiceContext.serviceContext;
 
-
-public class ServiceImpl implements Service {
-
-
+/**
+ * @author  rhightower on 2/18/15.
+ */
+public class BaseServiceImpl implements Service {
     private static ThreadLocal<Service> serviceThreadLocal = new ThreadLocal<>();
-    private final QBitSystemManager systemManager;
-    private final Logger logger = LoggerFactory.getLogger(ServiceImpl.class);
-    private final boolean debug = logger.isDebugEnabled();
-    private final Object service;
-    private final Queue<Response<Object>> responseQueue;
-    private final Queue<MethodCall<Object>> requestQueue;
-    private final Queue<Event<Object>> eventQueue;
-    private final QueueBuilder queueBuilder;
-    private final boolean handleCallbacks;
+    protected final QBitSystemManager systemManager;
+    protected final Logger logger = LoggerFactory.getLogger(ServiceImpl.class);
+    protected final boolean debug = logger.isDebugEnabled();
+    protected final Object service;
+    protected final Queue<Response<Object>> responseQueue;
+    protected final Queue<MethodCall<Object>> requestQueue;
+    protected final Queue<Event<Object>> eventQueue;
+    protected final QueueBuilder queueBuilder;
+    protected final boolean handleCallbacks;
     protected ReentrantLock responseLock = new ReentrantLock();
     protected volatile long lastResponseFlushTime = Timer.timer().now();
-    private ServiceMethodHandler serviceMethodHandler;
+    protected ServiceMethodHandler serviceMethodHandler;
+    protected SendQueue<Response<Object>> responseSendQueue;
     private BeforeMethodCall beforeMethodCall = ServiceConstants.NO_OP_BEFORE_METHOD_CALL;
     private BeforeMethodCall beforeMethodCallAfterTransform = ServiceConstants.NO_OP_BEFORE_METHOD_CALL;
     private AfterMethodCall afterMethodCall = new NoOpAfterMethodCall();
@@ -65,29 +93,25 @@ public class ServiceImpl implements Service {
     private ReceiveQueueListener<MethodCall<Object>> inputQueueListener = new NoOpInputMethodCallQueueListener();
     private Transformer<Request, Object> requestObjectTransformer = ServiceConstants.NO_OP_ARG_TRANSFORM;
     private Transformer<Response<Object>, Response> responseObjectTransformer = new NoOpResponseTransformer();
-    private SendQueue<Response<Object>> responseSendQueue;
     private CallbackManager callbackManager;
 
+    public BaseServiceImpl(final String rootAddress,
+                           final String serviceAddress,
+                           final Object service,
+                           final QueueBuilder queueBuilder,
+                           final ServiceMethodHandler serviceMethodHandler,
+                           final Queue<Response<Object>> responseQueue,
+                           final boolean async,
+                           final boolean handleCallbacks,
+                           final QBitSystemManager systemManager
+                          ) {
 
-    public ServiceImpl(final String rootAddress,
-                       final String serviceAddress,
-                       final Object service,
-                       final QueueBuilder queueBuilder,
-                       final ServiceMethodHandler serviceMethodHandler,
-                       final Queue<Response<Object>> responseQueue,
-                       final boolean async,
-                       final boolean handleCallbacks, final QBitSystemManager systemManager) {
-
-        this.systemManager = systemManager;
-        this.handleCallbacks = handleCallbacks;
-        this.service = service;
-        this.serviceMethodHandler = serviceMethodHandler;
-        serviceMethodHandler.init(service, rootAddress, serviceAddress);
         if (queueBuilder == null) {
             this.queueBuilder = new QueueBuilder();
         } else {
             this.queueBuilder = BeanUtils.copy(queueBuilder);
         }
+
         if (responseQueue == null) {
             if (debug) {
                 logger.debug("RESPONSE QUEUE WAS NULL CREATING ONE");
@@ -98,17 +122,23 @@ public class ServiceImpl implements Service {
         }
 
 
-        eventQueue = this.queueBuilder.setName("Event Queue" + serviceMethodHandler.address()).build();
-        requestQueue = initRequestQueue(serviceMethodHandler, async);
-        responseSendQueue = this.responseQueue.sendQueue();
-        serviceMethodHandler.initQueue(responseSendQueue);
+        this.responseSendQueue = this.responseQueue.sendQueue();
+        this.service = service;
+        this.serviceMethodHandler = serviceMethodHandler;
+        this.serviceMethodHandler.init(service, rootAddress, serviceAddress, responseSendQueue);
+        this.eventQueue = this.queueBuilder.setName("Event Queue" + serviceMethodHandler.address()).build();
+        this.handleCallbacks = handleCallbacks;
+        this.requestQueue = initRequestQueue(serviceMethodHandler, async);
+        this.systemManager = systemManager;
+
+
+
 
     }
 
     public static Service currentService() {
         return serviceThreadLocal.get();
     }
-
 
     @Override
     public Service start() {
@@ -121,8 +151,7 @@ public class ServiceImpl implements Service {
         return this;
     }
 
-
-    private Queue<MethodCall<Object>> initRequestQueue(final ServiceMethodHandler serviceMethodHandler, boolean async) {
+    protected Queue<MethodCall<Object>> initRequestQueue(final ServiceMethodHandler serviceMethodHandler, boolean async) {
         Queue<MethodCall<Object>> requestQueue;
         if (async) {
             requestQueue = this.queueBuilder.setName("Send Queue  " + serviceMethodHandler.address()).build();
@@ -203,7 +232,6 @@ public class ServiceImpl implements Service {
         return requestQueue;
     }
 
-
     public Service startCallBackHandler() {
         if (!handleCallbacks) {
             callbackManager = new CallbackManager();
@@ -214,13 +242,12 @@ public class ServiceImpl implements Service {
         }
     }
 
-
-    public ServiceImpl requestObjectTransformer(Transformer<Request, Object> requestObjectTransformer) {
+    public BaseServiceImpl requestObjectTransformer(Transformer<Request, Object> requestObjectTransformer) {
         this.requestObjectTransformer = requestObjectTransformer;
         return this;
     }
 
-    public ServiceImpl responseObjectTransformer(Transformer<Response<Object>, Response> responseObjectTransformer) {
+    public BaseServiceImpl responseObjectTransformer(Transformer<Response<Object>, Response> responseObjectTransformer) {
         this.responseObjectTransformer = responseObjectTransformer;
         return this;
     }
@@ -270,7 +297,6 @@ public class ServiceImpl implements Service {
         }
     }
 
-
     private void start(final ServiceMethodHandler serviceMethodHandler, boolean joinEventManager) {
 
         final ReceiveQueue<Response<Object>> responseReceiveQueue =
@@ -284,7 +310,7 @@ public class ServiceImpl implements Service {
         final ReceiveQueue<Event<Object>> eventReceiveQueue =
                 eventQueue.receiveQueue();
 
-        serviceThreadLocal.set(ServiceImpl.this);
+        serviceThreadLocal.set(BaseServiceImpl.this);
 
         if (!(service instanceof EventManager)) {
             if (joinEventManager) {
@@ -410,7 +436,6 @@ public class ServiceImpl implements Service {
     public ReceiveQueue<Response<Object>> responses() {
         return responseQueue.receiveQueue();
     }
-
 
     @Override
     public String name() {

@@ -540,8 +540,15 @@ public class BoonServiceMethodCallHandler implements ServiceMethodHandler {
         return mapArgsAsyncHandlersAndInvoke(methodCall, method);
     }
 
-    public void init(Object service, String rootAddress, String serviceAddress) {
 
+    @Override
+    public void init(
+                     Object service,
+                     String rootAddress,
+                     String serviceAddress,
+                     SendQueue<Response<Object>> responseSendQueue) {
+
+        this.responseSendQueue = responseSendQueue;
         this.service = service;
         classMeta = (ClassMeta<Class<?>>) (Object) ClassMeta.classMeta(service.getClass());
         if (Str.isEmpty(serviceAddress)) {
@@ -699,10 +706,6 @@ public class BoonServiceMethodCallHandler implements ServiceMethodHandler {
         return addresses;
     }
 
-    @Override
-    public void initQueue(SendQueue<Response<Object>> responseSendQueue) {
-        this.responseSendQueue = responseSendQueue;
-    }
 
     @Override
     public void queueInit() {

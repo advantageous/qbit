@@ -55,10 +55,6 @@ import static org.boon.Exceptions.die;
 public class IntegrationTestForRESTStyleCallsTest {
 
 
-    static {
-        RegisterBoonWithQBit.registerBoonWithQBit();
-
-    }
 
 
     EmployeeService employeeService;
@@ -354,9 +350,10 @@ public class IntegrationTestForRESTStyleCallsTest {
 
         Exceptions.requireNonNull(response);
 
-        ok = !response.wasErrors() || die();
 
         puts(response.body());
+
+        ok = !response.wasErrors() || die();
 
         Boon.equalsOrDie("hi mom", response.body());
 

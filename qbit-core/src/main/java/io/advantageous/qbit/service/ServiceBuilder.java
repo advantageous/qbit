@@ -252,12 +252,18 @@ public class ServiceBuilder {
             this.setResponseQueue(responseQueueBuilder.build());
         }
 
-        Service service = new ServiceImpl(this.getRootAddress(),
+
+
+
+            Service service = new ServiceImpl(this.getRootAddress(),
                 this.getServiceAddress(),
                 this.getServiceObject(),
                 this.getQueueBuilder(),
                 QBit.factory().createServiceMethodHandler(this.isInvokeDynamic()),
-                this.getResponseQueue(), this.isAsyncResponse(), this.isHandleCallbacks(), this.getSystemManager());
+                this.getResponseQueue(),
+                this.isAsyncResponse(),
+                this.isHandleCallbacks(),
+                this.getSystemManager());
 
         if (service != null && qBitSystemManager != null) {
             qBitSystemManager.registerService(service);

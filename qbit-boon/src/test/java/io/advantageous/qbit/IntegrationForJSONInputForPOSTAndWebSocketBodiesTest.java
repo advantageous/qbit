@@ -127,7 +127,7 @@ public class IntegrationForJSONInputForPOSTAndWebSocketBodiesTest {
         String addressToMethodCall = "/root/empservice/addEmployee";
 
         /* Create employee client */
-        serviceBundle.addService("/empservice/", employeeService);
+        serviceBundle.addServiceObject("/empservice/", employeeService);
 
 
         call = factory.createMethodCallByAddress(addressToMethodCall, returnAddress, rick, params);
@@ -149,7 +149,7 @@ public class IntegrationForJSONInputForPOSTAndWebSocketBodiesTest {
         String addressToMethodCall = "/root/empservice/addEmployee";
 
         /* Create employee client */
-        serviceBundle.addService("/empservice/", employeeService);
+        serviceBundle.addServiceObject("/empservice/", employeeService);
 
 
         call = factory.createMethodCallByAddress(addressToMethodCall, returnAddress, rick, params);

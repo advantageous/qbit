@@ -36,7 +36,12 @@ import io.advantageous.qbit.transforms.Transformer;
  */
 public class ServiceBundleBuilder {
 
-    QueueBuilder queueBuilder;
+
+    public static ServiceBundleBuilder serviceBundleBuilder() {
+        return new ServiceBundleBuilder();
+    }
+
+    private QueueBuilder queueBuilder;
     private int pollTime = GlobalConstants.POLL_WAIT;
     private int requestBatchSize = GlobalConstants.BATCH_SIZE;
     private boolean invokeDynamic = true;

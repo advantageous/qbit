@@ -25,6 +25,7 @@ import io.advantageous.qbit.queue.ReceiveQueueListener;
 import io.advantageous.qbit.queue.SendQueue;
 
 import java.util.List;
+import java.util.function.Consumer;
 
 /**
  * A client bundle is a collection of services.
@@ -37,10 +38,25 @@ public interface ServiceBundle extends EndPoint {
 
     String address();
 
-    void addService(String address, Object object);
+
+
+    ServiceBundle addServiceObject(String address, Object object);
+
+
+    default ServiceBundle addService(String address, Service service) {
+        this.addServiceObject(address, service);
+        return this;
+    }
+
+    default ServiceBundle addServiceConsumer(String address, Consumer<MethodCall<Object>> service) {
+        this.addServiceObject(address, service);
+        return this;
+    }
+
 
 
     void addService(Object object);
+
 
     Queue<Response<Object>> responses();
 

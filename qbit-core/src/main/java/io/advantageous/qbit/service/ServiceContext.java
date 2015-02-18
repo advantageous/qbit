@@ -20,7 +20,7 @@ package io.advantageous.qbit.service;
 
 import io.advantageous.qbit.QBit;
 import io.advantageous.qbit.events.EventManager;
-import io.advantageous.qbit.service.impl.ServiceImpl;
+import io.advantageous.qbit.service.impl.BaseServiceImpl;
 
 /**
  * Created by rhightower on 2/4/15.
@@ -42,7 +42,7 @@ public class ServiceContext {
      * @return
      */
     public Service currentService() {
-        return ServiceImpl.currentService();
+        return BaseServiceImpl.currentService();
     }
 
     public EventManager eventManager() {

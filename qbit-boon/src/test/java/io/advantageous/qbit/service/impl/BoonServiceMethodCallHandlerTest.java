@@ -44,18 +44,13 @@ import static org.boon.Exceptions.die;
 public class BoonServiceMethodCallHandlerTest {
 
 
-    static {
-        RegisterBoonWithQBit.registerBoonWithQBit();
-
-    }
-
     boolean methodCalled;
     boolean ok;
 
     @Test
     public void test() {
         BoonServiceMethodCallHandler impl = new BoonServiceMethodCallHandler(true);
-        impl.init(new Foo(), "", "");
+        impl.init(new Foo(), "", "", null);
 
         final String address = impl.address();
         Str.equalsOrDie("/boo/baz", address);
@@ -86,7 +81,7 @@ public class BoonServiceMethodCallHandlerTest {
     public void testTwoBasicArgsNotDynamic() {
 
         BoonServiceMethodCallHandler impl = new BoonServiceMethodCallHandler(false);
-        impl.init(new Foo(), "", "");
+        impl.init(new Foo(), "", "", null);
 
         final Factory factory = QBit.factory();
 
@@ -103,7 +98,7 @@ public class BoonServiceMethodCallHandlerTest {
     public void testTwoBasicArgs() {
 
         BoonServiceMethodCallHandler impl = new BoonServiceMethodCallHandler(true);
-        impl.init(new Foo(), "", "");
+        impl.init(new Foo(), "", "", null);
 
         final Factory factory = QBit.factory();
 
@@ -120,7 +115,7 @@ public class BoonServiceMethodCallHandlerTest {
     public void testTwoBasicArgsInURIParams() {
 
         BoonServiceMethodCallHandler impl = new BoonServiceMethodCallHandler(true);
-        impl.init(new Foo(), "", "");
+        impl.init(new Foo(), "", "", null);
 
         final Factory factory = QBit.factory();
 
@@ -137,7 +132,7 @@ public class BoonServiceMethodCallHandlerTest {
     public void someMethod2() {
 
         BoonServiceMethodCallHandler impl = new BoonServiceMethodCallHandler(true);
-        impl.init(new Foo(), null, null);
+        impl.init(new Foo(), null, null,null);
 
         final Factory factory = QBit.factory();
 
@@ -159,7 +154,7 @@ public class BoonServiceMethodCallHandlerTest {
     public void someMethod3() {
 
         BoonServiceMethodCallHandler impl = new BoonServiceMethodCallHandler(true);
-        impl.init(new Foo(), "/root", "/service");
+        impl.init(new Foo(), "/root", "/service", null);
 
 
         final String address = impl.address();
@@ -186,7 +181,7 @@ public class BoonServiceMethodCallHandlerTest {
     public void someMethod4() {
 
         BoonServiceMethodCallHandler impl = new BoonServiceMethodCallHandler(true);
-        impl.init(new Foo(), "/root", "/service");
+        impl.init(new Foo(), "/root", "/service", null);
 
 
         final String address = impl.address();
@@ -216,7 +211,7 @@ public class BoonServiceMethodCallHandlerTest {
     public void someMethod4NotDynamic() {
 
         BoonServiceMethodCallHandler impl = new BoonServiceMethodCallHandler(false);
-        impl.init(new Foo(), "/root", "/service");
+        impl.init(new Foo(), "/root", "/service", null);
 
 
         final String address = impl.address();
