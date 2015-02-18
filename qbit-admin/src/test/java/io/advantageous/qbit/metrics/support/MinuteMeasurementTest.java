@@ -1,3 +1,21 @@
+/*
+ * Copyright (c) 2015. Rick Hightower, Geoff Chandler
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *  		http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * QBit - The Microservice lib for Java : JSON, WebSocket, REST. Be The Web!
+ */
+
 package io.advantageous.qbit.metrics.support;
 
 import org.junit.After;
@@ -29,16 +47,16 @@ public class MinuteMeasurementTest {
 
 
         measurement.changeBy(1, time);
-        measurement.changeBy(2, time+1000);
+        measurement.changeBy(2, time + 1000);
 
-        measurement.changeBy(3, time+5000);
-        measurement.changeBy(4, time+40000);
+        measurement.changeBy(3, time + 5000);
+        measurement.changeBy(4, time + 40000);
 
-        measurement.changeBy(5, time+50000);
+        measurement.changeBy(5, time + 50000);
 
-        measurement.changeBy(6, time+59000);
+        measurement.changeBy(6, time + 59000);
 
-        int status = measurement.changeBy(7, time+61000);
+        int status = measurement.changeBy(7, time + 61000);
 
         final int[] secondCounts = measurement.getSecondCounts();
 

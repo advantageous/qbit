@@ -1,55 +1,20 @@
-/*******************************************************************************
-  * Copyright (c) 2015. Rick Hightower, Geoff Chandler
-  *
-  * Licensed under the Apache License, Version 2.0 (the "License");
-  * you may not use this file except in compliance with the License.
-  * You may obtain a copy of the License at
-  *
-  *  		http://www.apache.org/licenses/LICENSE-2.0
-  *
-  * Unless required by applicable law or agreed to in writing, software
-  * distributed under the License is distributed on an "AS IS" BASIS,
-  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-  * See the License for the specific language governing permissions and
-  * limitations under the License.
-  *  ________ __________.______________
-  *  \_____  \\______   \   \__    ___/
-  *   /  / \  \|    |  _/   | |    |  ______
-  *  /   \_/.  \    |   \   | |    | /_____/
-  *  \_____\ \_/______  /___| |____|
-  *         \__>      \/
-  *  ___________.__                  ____.                        _____  .__                                             .__
-  *  \__    ___/|  |__   ____       |    |____ ___  _______      /     \ |__| ___________  ____  ______ ______________  _|__| ____  ____
-  *    |    |   |  |  \_/ __ \      |    \__  \\  \/ /\__  \    /  \ /  \|  |/ ___\_  __ \/  _ \/  ___// __ \_  __ \  \/ /  |/ ___\/ __ \
-  *    |    |   |   Y  \  ___/  /\__|    |/ __ \\   /  / __ \_ /    Y    \  \  \___|  | \(  <_> )___ \\  ___/|  | \/\   /|  \  \__\  ___/
-  *    |____|   |___|  /\___  > \________(____  /\_/  (____  / \____|__  /__|\___  >__|   \____/____  >\___  >__|    \_/ |__|\___  >___  >
-  *                  \/     \/                \/           \/          \/        \/                 \/     \/                    \/    \/
-  *  .____    ._____.
-  *  |    |   |__\_ |__
-  *  |    |   |  || __ \
-  *  |    |___|  || \_\ \
-  *  |_______ \__||___  /
-  *          \/       \/
-  *       ____. _________________    _______         __      __      ___.     _________              __           __      _____________________ ____________________
-  *      |    |/   _____/\_____  \   \      \       /  \    /  \ ____\_ |__  /   _____/ ____   ____ |  | __ _____/  |_    \______   \_   _____//   _____/\__    ___/
-  *      |    |\_____  \  /   |   \  /   |   \      \   \/\/   // __ \| __ \ \_____  \ /  _ \_/ ___\|  |/ // __ \   __\    |       _/|    __)_ \_____  \   |    |
-  *  /\__|    |/        \/    |    \/    |    \      \        /\  ___/| \_\ \/        (  <_> )  \___|    <\  ___/|  |      |    |   \|        \/        \  |    |
-  *  \________/_______  /\_______  /\____|__  / /\    \__/\  /  \___  >___  /_______  /\____/ \___  >__|_ \\___  >__| /\   |____|_  /_______  /_______  /  |____|
-  *                   \/         \/         \/  )/         \/       \/    \/        \/            \/     \/    \/     )/          \/        \/        \/
-  *  __________           __  .__              __      __      ___.
-  *  \______   \ ____   _/  |_|  |__   ____   /  \    /  \ ____\_ |__
-  *  |    |  _// __ \  \   __\  |  \_/ __ \  \   \/\/   // __ \| __ \                                                                                              
-  *   |    |   \  ___/   |  | |   Y  \  ___/   \        /\  ___/| \_\ \
-  *   |______  /\___  >  |__| |___|  /\___  >   \__/\  /  \___  >___  /
-  *          \/     \/             \/     \/         \/       \/    \/
-  *
-  * QBit - The Microservice lib for Java : JSON, WebSocket, REST. Be The Web!
-  *  http://rick-hightower.blogspot.com/2014/12/rise-of-machines-writing-high-speed.html
-  *  http://rick-hightower.blogspot.com/2014/12/quick-guide-to-programming-services-in.html
-  *  http://rick-hightower.blogspot.com/2015/01/quick-start-qbit-programming.html
-  *  http://rick-hightower.blogspot.com/2015/01/high-speed-soa.html
-  *  http://rick-hightower.blogspot.com/2015/02/qbit-event-bus.html
-  ******************************************************************************/
+/*
+ * Copyright (c) 2015. Rick Hightower, Geoff Chandler
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *  		http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * QBit - The Microservice lib for Java : JSON, WebSocket, REST. Be The Web!
+ */
 
 package io.advantageous.qbit.example.servers;
 
@@ -113,19 +78,19 @@ public class EchoHttp {
 
     private static void sendGets(HttpClient httpClient) {
     /* Send no param get. */
-        HttpResponse httpResponse = httpClient.get( "/hello/mom" );
-        puts( httpResponse );
+        HttpResponse httpResponse = httpClient.get("/hello/mom");
+        puts(httpResponse);
 
 
         /* Send one param get. */
         httpResponse = httpClient.getWith1Param("/hello/singleParam", "hi", "mom");
-        puts("single param", httpResponse );
+        puts("single param", httpResponse);
 
 
         /* Send two param get. */
         httpResponse = httpClient.getWith2Params("/hello/twoParams",
                 "hi", "mom", "hello", "dad");
-        puts("two params", httpResponse );
+        puts("two params", httpResponse);
 
 
         /* Send two param get. */
@@ -133,7 +98,7 @@ public class EchoHttp {
                 "hi", "mom",
                 "hello", "dad",
                 "greetings", "kids");
-        puts("three params", httpResponse );
+        puts("three params", httpResponse);
 
 
         /* Send four param get. */
@@ -142,7 +107,7 @@ public class EchoHttp {
                 "hello", "dad",
                 "greetings", "kids",
                 "yo", "pets");
-        puts("4 params", httpResponse );
+        puts("4 params", httpResponse);
 
         /* Send five param get. */
         httpResponse = httpClient.getWith5Params("/hello/5params",
@@ -151,7 +116,7 @@ public class EchoHttp {
                 "greetings", "kids",
                 "yo", "pets",
                 "hola", "neighbors");
-        puts("5 params", httpResponse );
+        puts("5 params", httpResponse);
 
 
         /* Send six params with get. */
@@ -164,7 +129,7 @@ public class EchoHttp {
                 .addParam("salutations", "all").build();
 
         httpResponse = httpClient.sendRequestAndWait(httpRequest);
-        puts("6 params", httpResponse );
+        puts("6 params", httpResponse);
 
 
         /* Using Async support with lambda. */
@@ -239,19 +204,19 @@ public class EchoHttp {
     private static void sendPosts(HttpClient httpClient) {
 
         /* Send no param post. */
-        HttpResponse httpResponse = httpClient.post( "/hello/mom" );
-        puts( httpResponse );
+        HttpResponse httpResponse = httpClient.post("/hello/mom");
+        puts(httpResponse);
 
 
         /* Send one param post. */
         httpResponse = httpClient.postWith1Param("/hello/singleParam", "hi", "mom");
-        puts("single param", httpResponse );
+        puts("single param", httpResponse);
 
 
         /* Send two param post. */
         httpResponse = httpClient.postWith2Params("/hello/twoParams",
                 "hi", "mom", "hello", "dad");
-        puts("two params", httpResponse );
+        puts("two params", httpResponse);
 
 
         /* Send two param post. */
@@ -259,7 +224,7 @@ public class EchoHttp {
                 "hi", "mom",
                 "hello", "dad",
                 "greetings", "kids");
-        puts("three params", httpResponse );
+        puts("three params", httpResponse);
 
 
         /* Send four param post. */
@@ -268,7 +233,7 @@ public class EchoHttp {
                 "hello", "dad",
                 "greetings", "kids",
                 "yo", "pets");
-        puts("4 params", httpResponse );
+        puts("4 params", httpResponse);
 
         /* Send five param post. */
         httpResponse = httpClient.postWith5Params("/hello/5params",
@@ -277,7 +242,7 @@ public class EchoHttp {
                 "greetings", "kids",
                 "yo", "pets",
                 "hola", "neighbors");
-        puts("5 params", httpResponse );
+        puts("5 params", httpResponse);
 
 
         /* Send six params with post. */
@@ -294,7 +259,7 @@ public class EchoHttp {
 
 
         httpResponse = httpClient.sendRequestAndWait(httpRequest);
-        puts("6 params", httpResponse );
+        puts("6 params", httpResponse);
 
 
         //////////////////
@@ -378,19 +343,19 @@ public class EchoHttp {
 
 
         /* Send no param post. */
-        HttpResponse httpResponse = httpClient.put( "/hello/mom" );
-        puts( httpResponse );
+        HttpResponse httpResponse = httpClient.put("/hello/mom");
+        puts(httpResponse);
 
 
         /* Send one param post. */
         httpResponse = httpClient.putWith1Param("/hello/singleParam", "hi", "mom");
-        puts("single param", httpResponse );
+        puts("single param", httpResponse);
 
 
         /* Send two param post. */
         httpResponse = httpClient.putWith2Params("/hello/twoParams",
                 "hi", "mom", "hello", "dad");
-        puts("two params", httpResponse );
+        puts("two params", httpResponse);
 
 
         /* Send two param post. */
@@ -398,7 +363,7 @@ public class EchoHttp {
                 "hi", "mom",
                 "hello", "dad",
                 "greetings", "kids");
-        puts("three params", httpResponse );
+        puts("three params", httpResponse);
 
 
         /* Send four param post. */
@@ -407,7 +372,7 @@ public class EchoHttp {
                 "hello", "dad",
                 "greetings", "kids",
                 "yo", "pets");
-        puts("4 params", httpResponse );
+        puts("4 params", httpResponse);
 
         /* Send five param post. */
         httpResponse = httpClient.putWith5Params("/hello/5params",
@@ -416,7 +381,7 @@ public class EchoHttp {
                 "greetings", "kids",
                 "yo", "pets",
                 "hola", "neighbors");
-        puts("5 params", httpResponse );
+        puts("5 params", httpResponse);
 
 
         /* Send six params with post. */
@@ -433,7 +398,7 @@ public class EchoHttp {
 
 
         httpResponse = httpClient.sendRequestAndWait(httpRequest);
-        puts("6 params", httpResponse );
+        puts("6 params", httpResponse);
 
 
         //////////////////

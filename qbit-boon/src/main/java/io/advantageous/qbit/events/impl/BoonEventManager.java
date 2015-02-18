@@ -1,3 +1,21 @@
+/*
+ * Copyright (c) 2015. Rick Hightower, Geoff Chandler
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *  		http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * QBit - The Microservice lib for Java : JSON, WebSocket, REST. Be The Web!
+ */
+
 package io.advantageous.qbit.events.impl;
 
 import io.advantageous.qbit.GlobalConstants;
@@ -43,32 +61,32 @@ public class BoonEventManager implements EventManager {
         lastFlushTime = now;
         messageCountSinceLastFlush = 0;
 
-        if ( debug ) {
+        if (debug) {
             puts("BoonEventManager flushCount", flushCount);
         }
 
 
         final Set<Map.Entry<String, List<Object>>> entries = eventMap.entrySet();
-        for ( Map.Entry<String, List<Object>> entry : entries ) {
+        for (Map.Entry<String, List<Object>> entry : entries) {
             String channelName = entry.getKey();
             final List<Object> events = entry.getValue();
-            for ( Object event : events ) {
+            for (Object event : events) {
                 eventBus.send(channelName, event);
             }
             events.clear();
         }
 
-        for ( SendQueue<Event<Object>> sendQueue : queuesToFlush ) {
+        for (SendQueue<Event<Object>> sendQueue : queuesToFlush) {
             sendQueue.flushSends();
         }
     }
 
-    @QueueCallback( QueueCallbackType.IDLE )
+    @QueueCallback(QueueCallbackType.IDLE)
     private void queueIdle() {
 
         now = Timer.timer().now();
 
-        if ( messageCountSinceLastFlush > 0 ) {
+        if (messageCountSinceLastFlush > 0) {
 
             sendMessages();
             return;
@@ -76,11 +94,11 @@ public class BoonEventManager implements EventManager {
 
     }
 
-    @QueueCallback( QueueCallbackType.LIMIT )
+    @QueueCallback(QueueCallbackType.LIMIT)
     private void queueLimit() {
 
 
-        if ( messageCountSinceLastFlush > 100_000 ) {
+        if (messageCountSinceLastFlush > 100_000) {
 
             now = Timer.timer().now();
             sendMessages();
@@ -90,18 +108,18 @@ public class BoonEventManager implements EventManager {
         now = Timer.timer().now();
         long duration = now - lastFlushTime;
 
-        if ( duration > 50 && messageCountSinceLastFlush > 0 ) {
+        if (duration > 50 && messageCountSinceLastFlush > 0) {
             sendMessages();
         }
 
     }
 
 
-    @QueueCallback( QueueCallbackType.EMPTY )
+    @QueueCallback(QueueCallbackType.EMPTY)
     private void queueEmpty() {
 
 
-        if ( messageCountSinceLastFlush > 100 ) {
+        if (messageCountSinceLastFlush > 100) {
 
             now = Timer.timer().now();
             sendMessages();
@@ -112,7 +130,7 @@ public class BoonEventManager implements EventManager {
         now = Timer.timer().now();
         long duration = now - lastFlushTime;
 
-        if ( duration > 50 && messageCountSinceLastFlush > 0 ) {
+        if (duration > 50 && messageCountSinceLastFlush > 0) {
             sendMessages();
         }
 
@@ -122,12 +140,12 @@ public class BoonEventManager implements EventManager {
     @Override
     public void joinService(Service service) {
 
-        if ( debug ) {
+        if (debug) {
 
             puts("Joined", service);
         }
 
-        if ( service == null ) {
+        if (service == null) {
             throw new IllegalStateException("Must be called from inside of a Service");
         }
 
@@ -139,7 +157,7 @@ public class BoonEventManager implements EventManager {
     public void leave() {
 
         final Service service = serviceContext().currentService();
-        if ( service == null ) {
+        if (service == null) {
             throw new IllegalStateException("Must be called from inside of a Service");
         }
 
@@ -156,16 +174,16 @@ public class BoonEventManager implements EventManager {
 
     private void doListen(final Object listener, final Service service) {
 
-        if ( debug ) {
+        if (debug) {
             puts("BoonEventManager registering listener", listener, service);
         }
         final ClassMeta<?> classMeta = ClassMeta.classMeta(listener.getClass());
         final Iterable<MethodAccess> methods = classMeta.methods();
 
-        for ( final MethodAccess methodAccess : methods ) {
+        for (final MethodAccess methodAccess : methods) {
             AnnotationData listen = getListenAnnotation(methodAccess);
 
-            if ( listen == null ) continue;
+            if (listen == null) continue;
             extractEventListenerFromMethod(listener, methodAccess, listen, service);
         }
     }
@@ -173,10 +191,10 @@ public class BoonEventManager implements EventManager {
 
     private void extractEventListenerFromMethod(final Object listener, final MethodAccess methodAccess, final AnnotationData listen, final Service service) {
         final String channel = listen.getValues().get("value").toString();
-        final boolean consume = ( boolean ) listen.getValues().get("consume");
+        final boolean consume = (boolean) listen.getValues().get("consume");
 
 
-        if ( service == null ) {
+        if (service == null) {
             extractListenerForRegularObject(listener, methodAccess, channel, consume);
         } else {
             extractListenerForService(service, methodAccess, channel, consume);
@@ -187,7 +205,7 @@ public class BoonEventManager implements EventManager {
     private void extractListenerForService(Service service, final MethodAccess methodAccess, final String channel, final boolean consume) {
 
         final SendQueue<Event<Object>> events = service.events();
-        if ( consume ) {
+        if (consume) {
 
             this.subscribe(channel, events);
         } else {
@@ -198,7 +216,7 @@ public class BoonEventManager implements EventManager {
 
 
     private void extractListenerForRegularObject(final Object listener, final MethodAccess methodAccess, final String channel, final boolean consume) {
-        if ( consume ) {
+        if (consume) {
 
             /* Do not use Lambda, this has to be a consume! */
             this.register(channel, new EventConsumer<Object>() {
@@ -221,11 +239,11 @@ public class BoonEventManager implements EventManager {
     }
 
     private void invokeEventMethod(Event<Object> event, MethodAccess methodAccess, Object listener) {
-        if ( event.body() instanceof Object[] ) {
-            methodAccess.invokeDynamic(listener, ( Object[] ) event.body());
-        } else if ( event.body() instanceof List ) {
-            final List body = ( List ) event.body();
-            methodAccess.invokeDynamic(listener, body.toArray(new Object[ body.size() ]));
+        if (event.body() instanceof Object[]) {
+            methodAccess.invokeDynamic(listener, (Object[]) event.body());
+        } else if (event.body() instanceof List) {
+            final List body = (List) event.body();
+            methodAccess.invokeDynamic(listener, body.toArray(new Object[body.size()]));
 
         } else {
             methodAccess.invokeDynamic(listener, event.body());
@@ -237,9 +255,9 @@ public class BoonEventManager implements EventManager {
         final ClassMeta<?> classMeta = ClassMeta.classMeta(listener.getClass());
         final Iterable<MethodAccess> methods = classMeta.methods();
 
-        for ( final MethodAccess methodAccess : methods ) {
+        for (final MethodAccess methodAccess : methods) {
             final AnnotationData listen = getListenAnnotation(methodAccess);
-            if ( listen == null ) continue;
+            if (listen == null) continue;
             stopListeningToMethodEventListeners(listener, methodAccess, listen);
         }
 
@@ -302,7 +320,7 @@ public class BoonEventManager implements EventManager {
     private List<Object> events(String channel) {
         List<Object> events = this.eventMap.get(channel);
 
-        if ( events == null ) {
+        if (events == null) {
             events = new ArrayList<>(100);
             this.eventMap.put(channel, events);
         }

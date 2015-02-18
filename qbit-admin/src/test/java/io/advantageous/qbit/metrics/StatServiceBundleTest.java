@@ -1,11 +1,27 @@
+/*
+ * Copyright (c) 2015. Rick Hightower, Geoff Chandler
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *  		http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * QBit - The Microservice lib for Java : JSON, WebSocket, REST. Be The Web!
+ */
+
 package io.advantageous.qbit.metrics;
 
 import io.advantageous.qbit.metrics.support.DebugRecorder;
 import io.advantageous.qbit.metrics.support.DebugReplicator;
 import io.advantageous.qbit.metrics.support.StatServiceBuilder;
 import io.advantageous.qbit.queue.QueueBuilder;
-import static io.advantageous.qbit.queue.QueueBuilder.queueBuilder;
-
 import io.advantageous.qbit.service.Service;
 import io.advantageous.qbit.service.ServiceBundle;
 import io.advantageous.qbit.service.ServiceBundleBuilder;
@@ -20,10 +36,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
-import java.util.function.Predicate;
-
+import static io.advantageous.qbit.queue.QueueBuilder.queueBuilder;
 import static io.advantageous.qbit.service.ServiceBuilder.serviceBuilder;
 import static org.boon.Boon.puts;
 import static org.boon.Exceptions.die;
@@ -34,15 +47,13 @@ import static org.boon.Exceptions.die;
 public class StatServiceBundleTest extends TimedTesting {
 
 
+    protected static Object context = Sys.contextToHold();
     boolean ok;
     StatServiceClientInterface statServiceClient;
     StatService statService;
     DebugRecorder recorder;
     DebugReplicator replicator;
     ServiceBundle serviceBundle;
-
-    protected static Object context = Sys.contextToHold();
-
     Service service;
 
     @Before
@@ -86,7 +97,6 @@ public class StatServiceBundleTest extends TimedTesting {
         serviceBundle.flush();
 
 
-
         triggerLatchWhen(o -> replicator.count == 1);
         waitForLatch(20);
 
@@ -117,7 +127,7 @@ public class StatServiceBundleTest extends TimedTesting {
     public void testRecord1Thousand() throws Exception {
 
 
-        for (int index=0; index< 1_000; index++) {
+        for (int index = 0; index < 1_000; index++) {
             statServiceClient.recordCount("mystat", 1);
 
         }
@@ -135,7 +145,7 @@ public class StatServiceBundleTest extends TimedTesting {
 
     @Test
     public void testRecord4Thousand() throws Exception {
-        for (int index=0; index< 4_000; index++) {
+        for (int index = 0; index < 4_000; index++) {
             statServiceClient.recordCount("mystat", 1);
 
             if (index % 1000 == 0) {
@@ -150,7 +160,6 @@ public class StatServiceBundleTest extends TimedTesting {
         waitForLatch(20);
 
 
-
         ok = replicator.count == 4000 || die(replicator.count);
 
     }
@@ -158,7 +167,7 @@ public class StatServiceBundleTest extends TimedTesting {
 
     @Test
     public void testRecord100Thousand() throws Exception {
-        for (int index=0; index< 100_000; index++) {
+        for (int index = 0; index < 100_000; index++) {
             statServiceClient.recordCount("mystat", 1);
 
             if (index % 10_000 == 0) {
@@ -177,7 +186,6 @@ public class StatServiceBundleTest extends TimedTesting {
     }
 
 
-
     //@Test
     public void testRecord16Million() throws Exception {
 
@@ -185,7 +193,7 @@ public class StatServiceBundleTest extends TimedTesting {
 
         final long start = System.currentTimeMillis();
 
-        for (int index=0; index< 16_000_000; index++) {
+        for (int index = 0; index < 16_000_000; index++) {
             statServiceClient.recordCount("mystat", 1);
 
             if (index % 1_000_000 == 0) {
@@ -210,7 +218,7 @@ public class StatServiceBundleTest extends TimedTesting {
         final long end = System.currentTimeMillis();
 
 
-        puts(replicator.count, end-start);
+        puts(replicator.count, end - start);
 
 
     }
@@ -262,7 +270,7 @@ public class StatServiceBundleTest extends TimedTesting {
         statServiceClient = service.createProxy(StatServiceClientInterface.class);
         final long start = System.currentTimeMillis();
 
-        for (int index=0; index< count; index++) {
+        for (int index = 0; index < count; index++) {
             statServiceClient.recordCount("mystat", 1);
 
             if (index % 1_000 == 0) {
@@ -290,7 +298,7 @@ public class StatServiceBundleTest extends TimedTesting {
         final long end = System.currentTimeMillis();
 
 
-        puts(replicator.count, end-start);
+        puts(replicator.count, end - start);
 
     }
 
@@ -301,7 +309,7 @@ public class StatServiceBundleTest extends TimedTesting {
 
         final long start = System.currentTimeMillis();
 
-        for (int index=0; index< 16_000_000; index++) {
+        for (int index = 0; index < 16_000_000; index++) {
             statService.recordCount("mystat", 1);
 
         }
@@ -316,7 +324,7 @@ public class StatServiceBundleTest extends TimedTesting {
         final long end = System.currentTimeMillis();
 
 
-        puts(replicator.count, end-start);
+        puts(replicator.count, end - start);
 
 
     }
@@ -333,7 +341,7 @@ public class StatServiceBundleTest extends TimedTesting {
         final MethodAccess record = statServiceClassMeta.method("recordCount");
 
 
-        for (int index=0; index< 16_000_000; index++) {
+        for (int index = 0; index < 16_000_000; index++) {
             record.invoke(statService, "mystat", 1);
         }
         for (int index = 0; index < 10; index++) {
@@ -347,7 +355,7 @@ public class StatServiceBundleTest extends TimedTesting {
         final long end = System.currentTimeMillis();
 
 
-        puts(replicator.count, end-start);
+        puts(replicator.count, end - start);
 
 
     }
