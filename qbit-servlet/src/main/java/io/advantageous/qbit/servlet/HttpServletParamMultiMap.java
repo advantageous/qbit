@@ -69,7 +69,7 @@ public class HttpServletParamMultiMap implements MultiMap<String, String> {
 
     @Override
     public boolean isEmpty() {
-        return new ArrayList<>(Arrays.asList(request.getParameterNames())).size() == 0;
+        return Arrays.asList(request.getParameterNames()).size() == 0;
     }
 
     @Override
