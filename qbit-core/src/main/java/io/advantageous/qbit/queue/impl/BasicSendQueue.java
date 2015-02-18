@@ -165,6 +165,7 @@ public class BasicSendQueue<T> implements SendQueue<T> {
     }
 
     private void sendLocalQueue() {
+
         final Object[] copy = fastObjectArraySlice(queueLocal, 0, index);
         sendArray(copy);
         index = 0;
@@ -172,6 +173,7 @@ public class BasicSendQueue<T> implements SendQueue<T> {
 
     private void sendArray(
             final Object[] array) {
+
 
         if (checkBusy) {
             transferQueue.offer(array);

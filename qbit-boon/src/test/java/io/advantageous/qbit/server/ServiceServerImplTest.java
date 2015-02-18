@@ -202,7 +202,7 @@ public class ServiceServerImplTest extends TimedTesting {
     }
 
     @Test
-    public void testWesocketCallThatIsCrap() throws Exception {
+    public void testWeSocketCallThatIsCrap() throws Exception {
 
 
         httpServer.sendWebSocketServerMessage(new WebSocketMessageBuilder().setMessage("CRAP")

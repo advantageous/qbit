@@ -26,6 +26,8 @@ import java.util.List;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.TimeUnit;
 
+import static org.boon.Boon.puts;
+
 
 /**
  * This is not thread safe.
@@ -69,6 +71,11 @@ class BasicReceiveQueue<T> implements ReceiveQueue<T> {
 
 
     private T getItemFromLocalQueue() {
+
+        if (lastQueue.length==0) {
+            return null;
+        }
+
         T item = (T) lastQueue[lastQueueIndex];
         lastQueueIndex++;
 
@@ -77,6 +84,7 @@ class BasicReceiveQueue<T> implements ReceiveQueue<T> {
             lastQueue = null;
         }
         return item;
+
     }
 
 
