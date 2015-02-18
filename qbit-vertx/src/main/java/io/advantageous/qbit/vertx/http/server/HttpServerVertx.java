@@ -67,7 +67,6 @@ import org.boon.Str;
 import org.boon.core.reflection.BeanUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.core.Handler;
 import org.vertx.java.core.Vertx;
 import org.vertx.java.core.VertxFactory;
 import org.vertx.java.core.buffer.Buffer;
@@ -210,6 +209,10 @@ public class HttpServerVertx implements HttpServer {
             if (httpServer != null) {
 
                 httpServer.close();
+            }
+
+            if (vertx!=null) {
+                vertx.stop();
             }
         } catch (Exception ex) {
 

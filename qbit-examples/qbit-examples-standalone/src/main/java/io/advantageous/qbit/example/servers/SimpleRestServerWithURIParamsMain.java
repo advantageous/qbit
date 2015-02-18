@@ -38,8 +38,8 @@
   *  \________/_______  /\_______  /\____|__  / /\    \__/\  /  \___  >___  /_______  /\____/ \___  >__|_ \\___  >__| /\   |____|_  /_______  /_______  /  |____|
   *                   \/         \/         \/  )/         \/       \/    \/        \/            \/     \/    \/     )/          \/        \/        \/
   *  __________           __  .__              __      __      ___.
-  *   \______   \ ____   _/  |_|  |__   ____   /  \    /  \ ____\_ |__
-  *   |    |  _// __ \  \   __\  |  \_/ __ \  \   \/\/   // __ \| __ \
+  *  \______   \ ____   _/  |_|  |__   ____   /  \    /  \ ____\_ |__
+  *  |    |  _// __ \  \   __\  |  \_/ __ \  \   \/\/   // __ \| __ \
   *   |    |   \  ___/   |  | |   Y  \  ___/   \        /\  ___/| \_\ \
   *   |______  /\___  >  |__| |___|  /\___  >   \__/\  /  \___  >___  /
   *          \/     \/             \/     \/         \/       \/    \/
@@ -53,33 +53,80 @@
 
  ******************************************************************************/
 
-package io.advantageous.qbit.sample.server;
+package io.advantageous.qbit.example.servers;
 
-
-import io.advantageous.qbit.sample.server.service.TodoService;
+import io.advantageous.qbit.annotation.PathVariable;
+import io.advantageous.qbit.annotation.RequestMapping;
+import io.advantageous.qbit.client.Client;
 import io.advantageous.qbit.server.ServiceServer;
+import io.advantageous.qbit.service.Callback;
 import io.advantageous.qbit.system.QBitSystemManager;
+import org.boon.core.Sys;
 
+import static io.advantageous.qbit.client.ClientBuilder.clientBuilder;
 import static io.advantageous.qbit.server.ServiceServerBuilder.serviceServerBuilder;
+import static io.advantageous.qbit.service.ServiceProxyUtils.flushServiceProxy;
 
 /**
- * Created by rhightower on 11/5/14.
- *
- * @author Rick Hightower
+ * @author  rhightower
+ * on 2/17/15.
  */
-public class TodoServerMain {
-
-    public static void main(String... args) {
-
-        QBitSystemManager systemManager = new QBitSystemManager();
-
-        serviceServerBuilder()
-                .setSystemManager(systemManager).build()
-                .initServices(new TodoService()).start();
+public class SimpleRestServerWithURIParamsMain {
 
 
-        systemManager.waitForShutdown();
+    @RequestMapping("adder-service")
+    public static class AdderService {
 
+        public int add(@PathVariable int a, @PathVariable int b) {
 
+            return a + b;
+        }
     }
+
+    interface AdderServiceClientInterface {
+
+        void add(Callback<Integer> callback, int a, int b);
+    }
+
+
+   public static void main(String... args) throws Exception {
+
+       QBitSystemManager systemManager = new QBitSystemManager();
+
+       /* Start Service server. */
+       final ServiceServer server = serviceServerBuilder()
+                .setSystemManager(systemManager)
+                .setPort(7000).build();
+
+       server.initServices(new AdderService());
+       server.start();
+
+//       /* Start QBit client for WebSocket calls. */
+//       final Client client = clientBuilder().setPort(7000).setRequestBatchSize(1).build();
+//
+//
+//       /* Create a proxy to the service. */
+//       final AdderServiceClientInterface adderService =
+//               client.createProxy(AdderServiceClientInterface.class, "adder-service");
+//
+//       client.start();
+//
+//
+//
+//       /* Call the service */
+//       adderService.add(System.out::println, 1, 2);
+//
+//
+//
+//       client.stop();
+
+       Sys.sleep(1000);
+
+       systemManager.shutDown();
+
+
+
+   }
+
+
 }
