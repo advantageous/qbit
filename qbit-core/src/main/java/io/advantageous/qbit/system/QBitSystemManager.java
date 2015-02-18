@@ -128,11 +128,20 @@ public class QBitSystemManager {
         countTracked = 0;
 
 
+        if (coreSystemShutdown) {
+            QBit.factory().shutdownSystemEventBus();
+        }
+
+
+
     }
 
     public void serviceShutDown() {
 
-        countDownLatch.countDown();
+
+        if (countDownLatch!=null) {
+            countDownLatch.countDown();
+        }
 
         if (debug) puts("serviceShutDown", countDownLatch.getCount());
     }

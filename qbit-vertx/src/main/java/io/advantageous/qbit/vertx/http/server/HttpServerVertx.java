@@ -175,6 +175,10 @@ public class HttpServerVertx implements HttpServer {
 
                 httpServer.close();
             }
+
+            if (vertx!=null) {
+                vertx.stop();
+            }
         } catch (Exception ex) {
 
             logger.info("HTTP SERVER unable to close " + port + " host " + host);
