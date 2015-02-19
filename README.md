@@ -797,10 +797,173 @@ Find more details here:
 
 
 ## Private event bus and event bus proxies
-## Workers
-## Sharded Workers
+## Workers - pools and shards
+
+```java
+public class ServiceWorkers {
+
+    public static RoundRobinServiceDispatcher workers() {...
+
+    public static ShardedMethodDispatcher shardedWorkers(final ShardRule shardRule) {...
+```
+
+You can compose sharded workers (for in-memory, thread safe, CPU intensive services), or workers for IO or talking to foreign services or foreign buses.
+
+Here is an example that uses a worker pool with three service workers in it:
+
+Let's say you have a service that does something:
+
+```java
+
+    //Your POJO
+    public  class MultiWorker {
+
+        void doSomeWork(...) {
+           ...
+        }
+
+    }
+
+```
+
+Now this does some sort of IO and you want to have a bank of these running not just one so you can do IO in parallel. After some performance testing, you found out that three is the magic number.
+
+You want to use your API for accessin this service:
+
+```java
+    public  interface MultiWorkerClient {
+        void doSomeWork(...);
+    }
+
+```
+
+Now let's create a bank of these and use it.
+
+First create the QBit services which add the thread/queue/microbatch.
+
+```java
+
+        /* Create a service builder. */
+        final ServiceBuilder serviceBuilder = serviceBuilder();
+
+        /* Create some qbit services. */
+        final Service service1 = serviceBuilder.setServiceObject(new MultiWorker()).build();
+        final Service service2 = serviceBuilder.setServiceObject(new MultiWorker()).build();
+        final Service service3 = serviceBuilder.setServiceObject(new MultiWorker()).build();
+```
+
+Now add them to a ServiceWorkers object.
+
+```java
+
+        ServiceWorkers dispatcher;
+        dispatcher = workers(); //Create a round robin service dispatcher
+        dispatcher.addServices(service1, service2, service3);
+        dispatcher.start(); // start up the workers
+
+```
+
+You can add services, POJOs and method consumers, method dispatchers to a service bundle.
+The service bundle is an integration point into QBit.
+
+Let's add our new Service workers. ServiceWorkers is a ServiceMethodDispatcher.
+
+```Java
+        /* Add the dispatcher to a service bundle. */
+        bundle = serviceBundleBuilder().setAddress("/root").build();
+        bundle.addServiceConsumer("/workers", dispatcher);
+        bundle.start();
+```
+
+We are probably going to add a helper method to the service bundle so most of this can happen in a single call.
+
+Now you can start using your workers.
+
+```java
+
+        /* Start using the workers. */
+        final MultiWorkerClient worker = bundle.createLocalProxy(MultiWorkerClient.class, "/workers");
+
+```
+
+Now you could use Spring or Guice to configure the builders and the service bundle.
+But you can just do it like the above which is good for testing and understanding QBit internals.
+
+QBit also supports the concept of sharded services which is good for sharding resoruces like CPU (run a rules engine on each CPU core for a user recommendation enigne). 
+
+QBit does not know how to shard your services, you have to give it a hint.
+You do this through a shard rule.
+
+```java
+public interface ShardRule {
+    int shard(String methodName, Object[] args, int numWorkers);
+}
+```
+We worked on an app where the first argument to the services was the username, and then we used that to shard calls to a CPU intensive in-memory rules engine. This technique works. :)
+
+The ServiceWorkers class has a method for creating a sharded worker pool.
+
+```java
+
+    public static ShardedMethodDispatcher shardedWorkers(final ShardRule shardRule) {
+        ...
+    }
+
+```
+
+To use you just pass a shard key when you create the service workers.
+
+```java
+
+
+        dispatcher = shardedWorkers((methodName, methodArgs, numWorkers) -> {
+            String userName = methodArgs[0].toString();
+            int shardKey =  userName.hashCode() % numWorkers;
+            return shardKey;
+        });
+
+```
+
+Then add your services to the ServiceWorkers composition.
+```java
+        int workerCount = Runtime.getRuntime().availableProcessors();
+
+        for (int index = 0; index < workerCount; index++) {
+            final Service service = serviceBuilder
+                    .setServiceObject(new ContentRulesEngine()).build();
+            dispatcher.addServices(service);
+
+        }
+```
+
+Then add it to the service bundle as before.
+```java
+
+        dispatcher.start();
+
+        bundle = serviceBundleBuilder().setAddress("/root").build();
+
+        bundle.addServiceConsumer("/workers", dispatcher);
+        bundle.start();
+```
+
+Then just use it:
+
+```java
+        final MultiWorkerClient worker = bundle.createLocalProxy(MultiWorkerClient.class, "/workers");
+
+        for (int index = 0; index < 100; index++) {
+            String userName = "rickhigh" + index;
+            worker.pickSuggestions(userName);
+        }
+
+```
+
+
 ## More
+TBD
 ## Road map
+TBD
 
 You can find a lot more in the wiki. Also follow the commits.
 We have been busy beavers.
