@@ -24,7 +24,7 @@ Apache 2
 
 QBit philosiphy:
 ====
-At the end of the day QBit is a simpley library not a framework. 
+At the end of the day QBit is a simple library not a framework. 
 Your app is not a QBit app but a Java app that uses the QBit lib.
 QBit allows you to work with Java UTIL concurrent, and does not endeavor to hide it from you.
 Just trying to take the sting out of it. 
@@ -34,12 +34,6 @@ Does it work
 We have used techniques in Boon and QBit with great success in high-end, high-performance, high-scalable apps. 
 We helped clients handle 10x the load with 1/10th the servers of their competitors using techniques in QBit.
 QBit is us being sick of hand tuning queue access and threads.
-
-
-
-Single Writer, Mulit Write with CPU bound writer do this, this and this.
-Single Writer, Multi Writer with IO bound writer do this, this and this.
-and so on and so on...
 
 
 Boon and QBit humility policy
@@ -52,29 +46,33 @@ If you have an idea or technique you want to share, we listen.
 Inspiration
 ====
 
-A big inspireation for Boon/QBit was Akka, Go Channels, Active Objects, Apartment Model Threading, Actor, and Mechnical Sympathy papers.
+A big inspireation for Boon/QBit was Akka, Go Channels, Active Objects, Apartment Model Threading, Actor, and the Mechnical Sympathy papers.
 
 "I have read the AKKA in Action Book. It was inpsiring, but not the only inspiration for QBit.".
 "I have written apps where I promised a lot of performance and the techniques from QBit is how I got it."
  - Rick Hightower
  
 QBit has ideas that are similar to many frameworks. We are all reading the same papers. 
-Most of the inpiration for QBit was the LMAX disruptor papers and this blog http://php.sabscape.com/blog/?p=557.
-We had some theories about queues that this blog post (http://php.sabscape.com/blog/?p=557) inprired us to try out. Some of these theories are deployed at some of the biggest middleware backends and whose name brands are known around the world. 
+QBit got inspiration from the LMAX disruptor papers and this blog post about [link transfer queue versus disruptor](http://php.sabscape.com/blog/?p=557). We had some theories about queues that blog post insprired us to try them out. Some of these theories are deployed at some of the biggest middleware backends and whose name brands are known around the world. And thus QBit was born. QBit also took an lot of inspiration by the great work done
+by Tim Fox on Vertx. The first project using something that could actually be called QBit (albiet early QBit) was
+using Vertx on an web/mobile microserivce for an app that could potentially have 80 million users. It was this
+experience with Vertx and early QBit that led to QBit development and evolution. QBit is built on the shoulders of giants.
  
 Does QBit compete with...
 ====
 Spring Disruptor: No. You could use QBit to write plugins for Spring Disruptor I suppose, but QBit does not compete with Spring Disruptor.
-Akka: No. Ditto
-LMAX Disruptor: No.
+Spring Boot/Spring MVC: No. We use the same annotations but QBit is geared for high-speed in-memory microservices. It is more like Akka than Spring Boot. QBit has a subset of the features of Spring MVC geared only for microservices, i.e., WebSocket RPC, REST, JSON marshaling, etc.
+Akka: No. Well Maybe. Akka has similar concepts but they take a different approach. QBit is more focused on Java, and microservices (REST, JSON, WebSocket) than Akka. 
+LMAX Disruptor: No. In fact, we can use disruptor as on of the queues that QBit uses underneath the covers. 
 
-(Early benchmarks have been removed. QBit got a lot faster.)
+
+(Early benchmarks have been removed. They were here. QBit got a lot faster. Links and reports will be created.)
 
 
 Code Examples
 
 
-## Basic Queue example:
+## Basic Queue example (REST style services is further down)
 
 ====
 
@@ -103,11 +101,11 @@ Code Examples
 
 ### What is QBit again?
 
-QBit is a queuing library for microservices. It is similar to many other projects like Akka, Spring Reactor, etc. QBit is just a library not a platform. QBit has libraries to put a service behind a queue. You can use QBit queues directly or you can create a service. QBit services can be exposed by WebSocket, HTTP, HTTP pipeline, and other types of remoting. A service in QBit is a Java class whose methods are executed behind service queues. QBit implements apartment model threading and is similar to the Actor model or a better description would be Active Objects. QBit does not use a disruptor. It uses regular Java Queues. QBit can do north of 100 million ping pong calls per second which is an amazing speed (seen as high as 200M). QBit also supports calling services via REST, and WebSocket. QBit is microservices in the pure Web sense: JSON, HTTP, WebSocket, etc. 
+QBit is a queuing library for microservices. It is similar to many other projects like Akka, Spring Reactor, etc. QBit is just a library not a platform. QBit has libraries to put a service behind a queue. You can use QBit queues directly or you can create a service. QBit services can be exposed by WebSocket, HTTP, HTTP pipeline, and other types of remoting. A service in QBit is a Java class whose methods are executed behind service queues. QBit implements apartment model threading and is similar to the Actor model or a better description would be Active Objects. QBit does not use a disruptor. It uses regular Java Queues. QBit can do north of 100 million ping pong calls per second which is an amazing speed (seen as high as 200M). QBit also supports calling services via REST, and WebSocket. QBit is microservices in the pure Web sense: JSON, HTTP, WebSocket, etc. QBit uses micro batching to push messages through the pipe (queue, IO, etc.) faster to reduce thread hand-off.
 
 ### QBit lingo
 
-QBit is a Java microservice lib supporting REST, JSON and WebSocket. It is written in Java but I might one day write a version in Rust or Go or C# (but that would require a large payday).
+QBit is a Java microservice lib supporting REST, JSON and WebSocket. It is written in Java but we could one day write a version in Rust or Go or C# (but that would require a large payday).
 
 **Service** 
 POJO (plain old Java object) behind a queue that can receive method calls via proxy calls or events (May have one thread managing events, method calls, and responses or two one for method calls and events and the other for responses so response handlers do not block service. One is faster unless responses block). Services can use Spring MVC style REST annotations to expose themselves to the outside world via REST and WebSocket. 
@@ -116,31 +114,37 @@ POJO (plain old Java object) behind a queue that can receive method calls via pr
 Many POJOs behind one response queue and many receive queues. There may be one thread for all responses or not. They also can be one receive queue. 
 
 **Queue**
-A thread managing a queue. It supports batching. It has events for empty, reachedLimit, startedBatch, idle. You can listen to these events from services that sit behind a queue. You don't have to use Services. You can use Queue's direct.
+A thread managing a queue. It supports batching. It has events for empty, reachedLimit, startedBatch, idle. You can listen to these events from services that sit behind a queue. You don't have to use Services. You can use Queue's direct. In QBit, you have sender queues and recievers queues. They are seperated to support micro-batching.
 
 **ServiceServer**
-ServiceBundle that is exposed to REST and WebSocket communication
+ServiceBundle that is exposed to REST and WebSocket communication.
 
 **EventBus**
-EventBus is a way to send a lot of messages to services that may be loosely coupled
+EventBus is a way to send a lot of messages to services that may be loosely coupled.
 
 **ClientProxy** 
-Way to invoke service through async interface, service can be inproc (same process) or remoted over WebSocket.
+ClientProxy is a way to invoke service through async interface, service can be inproc (same process) or remoted over WebSocket.
 
 **Non-blocking**
 QBit is a non-blocking lib. You use CallBacks via Java 8 Lambdas. You can also send event messages and get replies. Messaging is built into the system so you can easily coordinate complex tasks. 
+QBit takes an object-oriented approach to service development so services look like normal Java services that you 
+already write, but the services live behind a queue/thread. This is not a new concept. Micorsoft did this with DCOM/COM and called it active objects. Akka does it with actors and called them strongly typed Actors. 
+The important concepts is that you get the speed of reactive and actor style messaging but you develop in a natural
+OOP approach. QBit is not the first. QBit is not the only. 
 
 
 **Speed**
-There is a lot of room for improvement with Speed. But already QBit is VERY fast.
- 200M+ TPS inproc ping pong, 10M-20M+ TPS event bus, 500K TPS RPC calls over WebSocket/JSON, etc.
-More work needs to be done to improve speed, but now it is fast enough where I am working more with usability.
+QBit is VERY fast. There is a of course a lot of room for improvement. But already 200M+ TPS inproc ping pong, 10M-20M+ TPS event bus, 500K TPS RPC calls over WebSocket/JSON, etc.
+More work needs to be done to improve speed, but now it is fast enough where we are focusing more on usability.
+The JSON support uses Boon by default which is up to 4x faster than other JSON parsers for the REST/JSON, WebSocket/JSON use case.
 
 
-### QBit CURLable REST services example
+### CURLable REST services example 
 
 Talk is cheap. Let's look at some code. You can get a detailed walk through in the Wiki.
 We have a lot of documentation already.
+
+We will create a service that is exposed through REST/JSON.
 
 To query the size of the todo list:
 
@@ -151,7 +155,7 @@ curl localhost:8080/services/todo-service/todo/count
 To add a new TODO item.
 
 ```bash
-curl -X POST -H "Content-Type: application/json" -d '{"name":"xyz","decription":"xyz"}' http://localhost:8080/services/todo-service/todo 
+curl -X POST -H "Content-Type: application/json" -d '{"name":"xyz","description":"xyz"}' http://localhost:8080/services/todo-service/todo 
 ```
 
 To get a list of TODO items
@@ -159,7 +163,9 @@ To get a list of TODO items
 curl http://localhost:8080/services/todo-service/todo/
 ```
 
-#### Todo POJO sans getter
+The TODO example will use and track Todo items.
+
+#### Todo item POJO sans getter
 
 ```java
 package io.advantageous.qbit.examples;
@@ -175,6 +181,8 @@ public class TodoItem {
     private final Date due;
 
 ```
+
+The TodoService uses Spring MVC style annotations.
 
 #### Todo Service
 ```java
@@ -208,6 +216,12 @@ public class TodoService {
 
 ```
 
+#### Side note Why Spring style annotations?
+Why did we pick Spring sytle annotations?
+1) Spring is not a standard and neither is QBit. 2) We found the Spring annotations to be less verbose.
+3) More people use Spring than Java EE. We wrote QBit for people to use.
+We could easily support JAX-RS style annotaitons, and we probably will. 
+Since QBit focuses on JSON, we do not need all of the complexity of JAX-RS or even all the features of the Spring MVC annotations. Also we can literally use the actual Spring annotations. QBit and Boon use a non-type safe mechanism for annotations which means they are not tied to a particular lib. You can define your own. I hate vendor tie-in even if it is an open source vendor. 
 
 Now just start it up.
 
