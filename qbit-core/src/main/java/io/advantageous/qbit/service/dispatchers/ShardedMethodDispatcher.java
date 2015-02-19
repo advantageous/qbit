@@ -30,7 +30,7 @@ import io.advantageous.qbit.queue.SendQueue;
  * @author  rhightower
  * on 2/18/15.
  */
-public class ShardedMethodDispatcher extends ServicePool implements ServiceMethodDispatcher {
+public class ShardedMethodDispatcher extends ServiceWorkers implements ServiceMethodDispatcher {
 
 
     private final ShardRule shardRule;
@@ -46,7 +46,8 @@ public class ShardedMethodDispatcher extends ServicePool implements ServiceMetho
         Object[] args = methodCall.args();
 
 
-        final SendQueue<MethodCall<Object>> methodCallSendQueue = sendQueues.get(shardRule.shard(methodCall.name(), args));
+        final SendQueue<MethodCall<Object>> methodCallSendQueue =
+                sendQueues.get(shardRule.shard(methodCall.name(), args));
         methodCallSendQueue.sendAndFlush(methodCall);
     }
 }

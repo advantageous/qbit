@@ -28,7 +28,7 @@ package io.advantageous.qbit.service.dispatchers;
  * @author  rhightower
  * on 2/18/15.
  */
-public class RoundRobinServiceDispatcher extends ServicePool implements ServiceMethodDispatcher {
+public class RoundRobinServiceDispatcher extends ServiceWorkers implements ServiceMethodDispatcher {
 
 
 

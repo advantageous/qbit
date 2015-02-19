@@ -68,7 +68,7 @@ import java.util.function.Predicate;
 import static io.advantageous.qbit.queue.QueueBuilder.queueBuilder;
 import static io.advantageous.qbit.service.ServiceBuilder.serviceBuilder;
 import static io.advantageous.qbit.service.ServiceBundleBuilder.serviceBundleBuilder;
-import static io.advantageous.qbit.service.dispatchers.ServicePool.workers;
+import static io.advantageous.qbit.service.dispatchers.ServiceWorkers.workers;
 import static org.boon.Boon.puts;
 import static org.boon.Exceptions.die;
 
@@ -146,13 +146,13 @@ public class RoundRobinServiceDispatcherTest extends TimedTesting{
         super.waitForTrigger(20, new Predicate() {
             @Override
             public boolean test(Object o) {
-                return MultiWorker.totalCount >=99;
+                return MultiWorker.totalCount >=90;
             }
         });
 
 
 
-        ok = MultiWorker.totalCount >=99 || die(MultiWorker.totalCount);
+        ok = MultiWorker.totalCount >=90 || die(MultiWorker.totalCount);
 
 
     }

@@ -1,5 +1,4 @@
 /*******************************************************************************
-
   * Copyright (c) 2015. Rick Hightower, Geoff Chandler
   *
   * Licensed under the Apache License, Version 2.0 (the "License");
@@ -50,7 +49,6 @@
   *  http://rick-hightower.blogspot.com/2015/01/quick-start-qbit-programming.html
   *  http://rick-hightower.blogspot.com/2015/01/high-speed-soa.html
   *  http://rick-hightower.blogspot.com/2015/02/qbit-event-bus.html
-
  ******************************************************************************/
 
 package io.advantageous.qbit.service.dispatchers;
@@ -65,38 +63,44 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
- * Created by rhightower on 2/18/15.
+ * @author  rhightower
+ * on 2/18/15.
  */
-public class ServicePool {
+public class ServiceWorkers {
+
+
+
+    public static RoundRobinServiceDispatcher workers() {
+        return new RoundRobinServiceDispatcher();
+    }
+
+    public static ShardedMethodDispatcher shardedWorkers(final ShardRule shardRule) {
+        return new ShardedMethodDispatcher(shardRule);
+    }
+
+
     protected final boolean startServices;
     protected List<Service> services = new ArrayList<>();
     protected List<SendQueue<MethodCall<Object>>> sendQueues = new ArrayList<>();
     protected AtomicInteger index = new AtomicInteger();
 
 
-    public ServicePool(boolean startServices) {
+    public ServiceWorkers(boolean startServices) {
         this.startServices = startServices;
     }
 
 
-    public ServicePool() {
+    public ServiceWorkers() {
         this.startServices = true;
     }
 
-    public static RoundRobinServiceDispatcher roundRobinServiceDispatcher() {
-        return new RoundRobinServiceDispatcher();
-    }
 
-    public static RoundRobinServiceDispatcher workers() {
-        return new RoundRobinServiceDispatcher();
-    }
-
-    public ServicePool addService(Service service) {
+    public ServiceWorkers addService(Service service) {
         services.add(service);
         return this;
     }
 
-    public ServicePool addServices(Service... servicesArray) {
+    public ServiceWorkers addServices(Service... servicesArray) {
 
         for (Service service : servicesArray) {
             addService(service);
@@ -104,7 +108,7 @@ public class ServicePool {
         return this;
     }
 
-    public ServicePool start() {
+    public ServiceWorkers start() {
 
         services = Collections.unmodifiableList(services);
 
