@@ -220,10 +220,115 @@ Now just start it up.
     }
 ```
 
+
+
 That is it. There is also out of the box WebSocket support with client side proxy generation so you can call into services at the rate of millions of calls per second.
+
+## Using URI Params for QBit microservice
+
+```java
+
+    @RequestMapping("/adder-service")
+    public class AdderService {
+
+
+        @RequestMapping("/add/{0}/{1}")
+        public int add(@PathVariable int a, @PathVariable int b) {
+
+            return a + b;
+        }
+    }
+
+```
+
+## WebSocket
+You can always invoke QBit services via a WebSocket proxy. 
+The advantage of a WebSocket proxy is it allows you execute 1M RPC+ a second (1 million remote calls every second).
+
+
+#### Using a microservice remotely with WebSocket
+```java
+       /* Start QBit client for WebSocket calls. */
+        final Client client = clientBuilder()
+                   .setPort(7000).setRequestBatchSize(1).build();
+
+
+       /* Create a proxy to the service. */
+        final AdderServiceClientInterface adderService =
+                client.createProxy(AdderServiceClientInterface.class, 
+                "adder-service");
+
+        client.start();
+
+
+
+       /* Call the service */
+        adderService.add(System.out::println, 1, 2);
+
+```
+
+The output is 3.
+
+```output
+3
+```
+
+
+The above uses a WebSocket proxy interface to call the service async. 
+
+```java
+
+    interface AdderServiceClientInterface {
+
+        void add(Callback<Integer> callback, int a, int b);
+    }
+```
+
+## REST call with URI params
+
+The last client example uses WebSocket. You could also just use REST, and actually use the URI params that we setup.
+REST is nice but it is going to be slower than WebSocket support. 
+
+QBit ships with a nice little HTTP client. We can use it.
+
+You can use it to send async calls and websocket messages with the HTTP client.
+
+
+Here we will use the http client to invoke our remote method:
+
+#### Using a microservice remotely with REST QBit microservice client
+```java
+
+
+        HttpClient httpClient = httpClientBuilder()
+                .setHost("localhost")
+                .setPort(7000).build();
+
+        httpClient.start();
+        String results = httpClient
+                   .get("/services/adder-service/add/2/2").body();
+        System.out.println(results);
+
+```
+
+
+The output is 4.
+
+```output
+4
+```
+
+## Accessing The URI Param example with CURL
+
+You can also access the service from curl.
+
+```bash
+$ curl http://localhost:7000/services/adder-service/add/2/2
+```
 
 See this full example here: [QBit microservice getting started tutorial](https://github.com/advantageous/qbit/wiki/%5BDetailed-Tutorial%5D-------------QBit-microservice-example).
 
+[QBit URI params and WebSocket proxy client](https://github.com/advantageous/qbit/wiki/%5BRough-Cut%5D-Using-QBit-microservice-lib's-REST-support-with-URI-Params)
 
 ## Working with WebSocket, HttpClient etc.
 
@@ -403,22 +508,7 @@ There are helper methods for sync HTTP GET calls.
                 "hi", "mom", "hello", "dad");
         puts("two params", httpResponse );
 
-
-        /* Send two param get. */
-        httpResponse = httpClient.getWith3Params("/hello/3params",
-                "hi", "mom",
-                "hello", "dad",
-                "greetings", "kids");
-        puts("three params", httpResponse );
-
-
-        /* Send four param get. */
-        httpResponse = httpClient.getWith4Params("/hello/4params",
-                "hi", "mom",
-                "hello", "dad",
-                "greetings", "kids",
-                "yo", "pets");
-        puts("4 params", httpResponse );
+...
 
         /* Send five param get. */
         httpResponse = httpClient.getWith5Params("/hello/5params",
@@ -453,7 +543,7 @@ The first five params are covered. Beyond five, you have to use the HttpBuilder.
         puts("6 params", httpResponse );
 ```
 
-## Http Async
+## Http Async HTTP Client
 
 There are async calls for GET as well.
 
@@ -489,33 +579,7 @@ There are async calls for GET as well.
         Sys.sleep(100);
 
 
-
-
-        /* Using Async support with lambda. */
-        httpClient.getAsyncWith3Params("/hi/async",
-                "p1", "v1",
-                "p2", "v2",
-                "p3", "v3",
-                (code, contentType, body) -> {
-                    puts("Async text with lambda 3 params\n", body);
-                });
-
-        Sys.sleep(100);
-
-
-        /* Using Async support with lambda. */
-        httpClient.getAsyncWith4Params("/hi/async",
-                "p1", "v1",
-                "p2", "v2",
-                "p3", "v3",
-                "p4", "v4",
-                (code, contentType, body) -> {
-                    puts("Async text with lambda 4 params\n", body);
-                });
-
-        Sys.sleep(100);
-
-
+...
         /* Using Async support with lambda. */
         httpClient.getAsyncWith5Params("/hi/async",
                 "p1", "v1",
@@ -533,6 +597,167 @@ There are async calls for GET as well.
 
 [Find more about the easy to use, fast microservice HTTP client here](https://github.com/advantageous/qbit/wiki/%5BDoc%5D-Using-QBit-microservice-lib's-HttpClient-GET,-POST,-et-al,-JSON,-Java-8-Lambda).
 
+## InProc QBit services
+
+QBit allows for services behind queues to be run in-proc as well.
+
+```java
+
+        /* POJO service. */
+        final TodoManager todoManagerImpl = new TodoManager();
+
+        /*
+        Create the service which manages async calls to todoManagerImpl.
+         */
+        final Service service = serviceBuilder()
+                .setServiceObject(todoManagerImpl)
+                .build().start();
+
+
+        /* Create Asynchronous proxy over Synchronous service. */
+        final TodoManagerClientInterface todoManager = 
+              service.createProxy(TodoManagerClientInterface.class);
+
+        service.startCallBackHandler();
+
+
+        System.out.println("This is an async call");
+        /* Asynchronous method call. */
+        todoManager.add(new Todo("Call Mom", "Give Mom a call"));
+
+
+        AtomicInteger countTracker = new AtomicInteger(); 
+        //Hold count from async call to service... for testing and showing it is an async callback
+
+        System.out.println("This is an async call to count");
+
+        todoManager.count(count -> {
+            System.out.println("This lambda expression is the callback " + count);
+
+            countTracker.set(count);
+        });
+
+
+        todoManager.clientProxyFlush(); //Flush all methods. It batches calls.
+
+        Sys.sleep(100);
+
+        System.out.printf("This is the count back from the server %d\n", countTracker.get());
+
+```
+
+[Detailed tutorial on in-proc services is being written.](https://github.com/advantageous/qbit/wiki/%5BDetailed-Tutorial%5D-Working-with-inproc-MicroServices-within-QBit.)
+
+
+## QBit Event Bus
+
+[QBit Event Bus more detailed example](https://github.com/advantageous/qbit/wiki/%5BRough-Cut%5D-Working-with-event-bus-for-QBit-the-microservice-engine)
+
+QBit also has a service event bus. This example is a an employee benefits services example.
+
+We have two channels.
+
+```
+public static final String NEW_HIRE_CHANNEL = "com.mycompnay.employee.new";
+
+public static final String PAYROLL_ADJUSTMENT_CHANNEL = "com.mycompnay.employee.payroll";
+```
+
+An employee object looks like this:
+
+```java
+
+public static class Employee {
+       final String firstName;
+       final int employeeId;
+```
+
+
+This example has three services: EmployeeHiringService, BenefitsService, and PayrollService.
+
+These services are inproc services. QBit supports WebSocket, HTTP and REST remote services as well, but for now, let's focus on inproc services. If you understand inproc then you will understand remote.
+
+The EmployeeHiringService actually fires off the events to other two services.
+
+```java
+public class EmployeeHiringService {
+
+
+    public void hireEmployee(final Employee employee) {
+
+           int salary = 100;
+           System.out.printf("Hired employee %s\n", employee);
+
+           //Does stuff to hire employee
+
+           //Sends events
+           final EventManager eventManager = 
+                               serviceContext().eventManager();
+           eventManager.send(NEW_HIRE_CHANNEL, employee);
+           
+           eventManager.sendArray(PAYROLL_ADJUSTMENT_CHANNEL, 
+                                     employee, salary);
+
+
+    }
+
+   }
+```
+
+
+Notice that we call sendArray so we can send the employee and their salary. The listener for PAYROLL_ADJUSTMENT_CHANNEL will have to handle both an employee and an int that represents the new employees salary.
+You can also use event bus proxies so you do not have to call into the event bus at all.
+
+The BenefitsService listens for new employees being hired so it can enroll them into the benefits system.
+
+```java
+public static class BenefitsService {
+
+       @OnEvent(NEW_HIRE_CHANNEL)
+       public void enroll(final Employee employee) {
+
+           System.out.printf("Employee enrolled into benefits system employee %s %d\n",
+                   employee.getFirstName(), employee.getEmployeeId());
+
+       }
+
+```
+
+Daddy needs to get paid.
+
+```java
+    public static class PayrollService {
+
+        @OnEvent(PAYROLL_ADJUSTMENT_CHANNEL)
+        public void addEmployeeToPayroll(final Employee employee, int salary) {
+
+            System.out.printf("Employee added to payroll  %s %d %d\n",
+                    employee.getFirstName(), employee.getEmployeeId(), salary);
+
+        }
+
+    }
+
+```
+
+The employee is the employee object from the EmployeeHiringService.
+
+so you can get your benefits, and paid!
+
+Find more details here:
+
+[QBit Event Bus more detailed example](https://github.com/advantageous/qbit/wiki/%5BRough-Cut%5D-Working-with-event-bus-for-QBit-the-microservice-engine)
+
+
+## Private event bus and event bus proxies
+## Workers
+## Sharded Workers
+## More
+## Road map
+
+You can find a lot more in the wiki. Also follow the commits.
+We have been busy beavers.
+[QBit the microservice lib for Java - JSON, REST, WebSocket](https://github.com/advantageous/qbit/wiki).
 
 
 
