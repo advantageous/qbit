@@ -30,6 +30,8 @@ public class TodoService {
     public List<TodoItem> list() {...
 ```
 
+
+#### Adder Service using URI params
 ```java
 
     @RequestMapping("/adder-service")
