@@ -11,7 +11,7 @@ QBit is FAST!
 
 ![QBit the microservice framework for java](https://docs.google.com/spreadsheets/d/1kd3gjyyz1MyTJvNLJ-BC0YIkzIU-8YYLLrxpjUl0TBQ/pubchart?oid=781959089&format=image)
 
-## Microserver Lib
+## Java Microservice Lib
 
 QBit has inproc services, REST microservices and WebSocket microservices as well as an in-proc service event bus (which can be per module or per app). It supports workers and in-memory services. 
 
