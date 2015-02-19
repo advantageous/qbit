@@ -1,4 +1,5 @@
 /*******************************************************************************
+
   * Copyright (c) 2015. Rick Hightower, Geoff Chandler
   *
   * Licensed under the Apache License, Version 2.0 (the "License");
@@ -49,104 +50,118 @@
   *  http://rick-hightower.blogspot.com/2015/01/quick-start-qbit-programming.html
   *  http://rick-hightower.blogspot.com/2015/01/high-speed-soa.html
   *  http://rick-hightower.blogspot.com/2015/02/qbit-event-bus.html
+
  ******************************************************************************/
 
-package io.advantageous.qbit.service.dispatchers;
+package io.advantageous.qbit.service;
 
-import io.advantageous.qbit.message.MethodCall;
-import io.advantageous.qbit.queue.SendQueue;
-import io.advantageous.qbit.service.Service;
+import io.advantageous.qbit.queue.QueueBuilder;
+import io.advantageous.qbit.service.dispatchers.*;
+import io.advantageous.qbit.test.TimedTesting;
+import org.boon.core.Sys;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Predicate;
+
+import static io.advantageous.qbit.queue.QueueBuilder.queueBuilder;
+import static io.advantageous.qbit.service.ServiceBuilder.serviceBuilder;
+import static io.advantageous.qbit.service.ServiceBundleBuilder.serviceBundleBuilder;
+import static io.advantageous.qbit.service.dispatchers.ServiceWorkers.shardedWorkers;
+import static io.advantageous.qbit.service.dispatchers.ServiceWorkers.workers;
+import static org.boon.Boon.puts;
+import static org.boon.Exceptions.die;
 
 /**
- * @author  rhightower
- * on 2/18/15.
+ * @author rhightower
+ * on 2/19/15.
  */
-public class ServiceWorkers implements ServiceMethodDispatcher {
+public class ShardedMethodDispatcherTest extends TimedTesting {
 
 
+    ServiceBundle bundle;
 
-    public static RoundRobinServiceDispatcher workers() {
-        return new RoundRobinServiceDispatcher();
-    }
+    ServiceWorkers dispatcher;
+    boolean ok = true;
 
-    public static ShardedMethodDispatcher shardedWorkers(final ShardRule shardRule) {
-        return new ShardedMethodDispatcher(shardRule);
-    }
+    public static class ContentRulesEngine {
 
+        static volatile int totalCount;
 
-    protected final boolean startServices;
-    protected List<Service> services = new ArrayList<>();
-    protected List<SendQueue<MethodCall<Object>>> sendQueues = new ArrayList<>();
-    protected AtomicInteger index = new AtomicInteger();
-
-
-    public ServiceWorkers(boolean startServices) {
-        this.startServices = startServices;
-    }
-
-
-    public ServiceWorkers() {
-        this.startServices = true;
-    }
-
-
-    public ServiceWorkers addService(Service service) {
-        services.add(service);
-        return this;
-    }
-
-    public ServiceWorkers addServices(Service... servicesArray) {
-
-        for (Service service : servicesArray) {
-            addService(service);
-        }
-        return this;
-    }
-
-    public ServiceWorkers start() {
-
-        services = Collections.unmodifiableList(services);
-
-
-
-        if (startServices) {
-            for (Service service : services) {
-                service.start();
-            }
+        int count;
+        void pickSuggestions(String username) {
+            count++;
+            totalCount++;
         }
 
-        for (Service service : services) {
-            sendQueues.add(service.requests());
+    }
+
+
+    public static interface MultiWorkerClient {
+        void pickSuggestions(String username);
+    }
+
+    @Before
+    public void setup() {
+
+        super.setupLatch();
+        QueueBuilder queueBuilder = queueBuilder().setBatchSize(1);
+
+        int workerCount = Runtime.getRuntime().availableProcessors();
+
+        dispatcher = shardedWorkers((methodName, methodArgs, numWorkers) -> {
+            String userName = methodArgs[0].toString();
+            int shardKey =  userName.hashCode() % numWorkers;
+            return shardKey;
+        });
+
+
+        final ServiceBuilder serviceBuilder = serviceBuilder()
+                .setQueueBuilder(queueBuilder).setResponseQueueBuilder(queueBuilder);
+
+        for (int index = 0; index < workerCount; index++) {
+            final Service service = serviceBuilder
+                    .setServiceObject(new ContentRulesEngine()).build();
+            dispatcher.addServices(service);
+
         }
 
-        return this;
-    }
+        dispatcher.start();
 
-    public void accept(MethodCall<Object> methodCall) {
+        bundle = serviceBundleBuilder().setAddress("/root").build();
 
-
-        int localIndex = index.getAndIncrement() % services.size();
-
-        final SendQueue<MethodCall<Object>> methodCallSendQueue = sendQueues.get(localIndex);
-        methodCallSendQueue.send(methodCall);
+        bundle.addServiceConsumer("/workers", dispatcher);
+        bundle.start();
 
     }
 
-    public void flush() {
-        for (Service service : services) {
-            service.flush();
+
+    @After
+    public void tearDown() {
+        bundle.stop();
+
+    }
+
+    @Test
+    public void test() {
+
+        final MultiWorkerClient worker = bundle.createLocalProxy(MultiWorkerClient.class, "/workers");
+
+        for (int index = 0; index < 100; index++) {
+            worker.pickSuggestions("rickhigh" + index);
+
         }
+
+        ServiceProxyUtils.flushServiceProxy(worker);
+        super.waitForTrigger(20, o -> ContentRulesEngine.totalCount >=90);
+
+
+
+        ok = ContentRulesEngine.totalCount >=90 || die(ContentRulesEngine.totalCount);
+
+
     }
 
-    public void stop() {
 
-        for (Service service : services) {
-            service.stop();
-        }
-    }
 }
