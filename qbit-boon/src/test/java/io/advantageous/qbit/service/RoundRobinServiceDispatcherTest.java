@@ -56,28 +56,38 @@
 package io.advantageous.qbit.service;
 
 import io.advantageous.qbit.queue.QueueBuilder;
+import io.advantageous.qbit.test.TimedTesting;
 import org.boon.core.Sys;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.util.function.Predicate;
+
 import static io.advantageous.qbit.queue.QueueBuilder.queueBuilder;
 import static io.advantageous.qbit.service.ServiceBuilder.serviceBuilder;
 import static io.advantageous.qbit.service.ServiceBundleBuilder.serviceBundleBuilder;
 import static org.boon.Boon.puts;
+import static org.boon.Exceptions.die;
 
-public class RoundRobinServiceDispatcherTest {
+public class RoundRobinServiceDispatcherTest extends TimedTesting{
+
 
     ServiceBundle bundle;
     RoundRobinServiceDispatcher dispatcher;
+    boolean ok = true;
 
     public static class MultiWorker {
 
-        volatile int count;
+        static volatile int totalCount;
+
+        int count;
         void doSomeWork() {
             count++;
-            puts(count);
+            totalCount++;
+            puts(count, totalCount);
         }
+
     }
 
 
@@ -88,6 +98,7 @@ public class RoundRobinServiceDispatcherTest {
     @Before
     public void setup() {
 
+        super.setupLatch();
         QueueBuilder queueBuilder = queueBuilder().setBatchSize(1);
 
         RoundRobinServiceDispatcher dispatcher = new RoundRobinServiceDispatcher();
@@ -127,11 +138,19 @@ public class RoundRobinServiceDispatcherTest {
         }
 
         ServiceProxyUtils.flushServiceProxy(worker);
+        super.waitForTrigger(20, new Predicate() {
+            @Override
+            public boolean test(Object o) {
+                return MultiWorker.totalCount >=99;
+            }
+        });
 
-        Sys.sleep(2000);
+
+
+        ok = MultiWorker.totalCount >=99 || die(MultiWorker.totalCount);
+
 
     }
-
 
 
 }

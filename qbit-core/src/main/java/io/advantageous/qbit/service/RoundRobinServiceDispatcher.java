@@ -25,10 +25,12 @@ package io.advantageous.qbit.service;
 
 
 import io.advantageous.qbit.message.MethodCall;
+import io.advantageous.qbit.queue.SendQueue;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 
 /**
@@ -39,7 +41,10 @@ public class RoundRobinServiceDispatcher implements Consumer<MethodCall<Object>>
 
     private List<Service> services = new ArrayList<>();
 
-    private volatile int index = 0;
+
+    private List<SendQueue<MethodCall<Object>>> sendQueues = new ArrayList<>();
+
+    private AtomicInteger index = new AtomicInteger();
 
     private final boolean startServices;
 
@@ -62,11 +67,18 @@ public class RoundRobinServiceDispatcher implements Consumer<MethodCall<Object>>
 
         services = Collections.unmodifiableList(services);
 
+
+
         if (startServices) {
             for (Service service : services) {
                 service.start();
             }
         }
+
+        for (Service service : services) {
+            sendQueues.add(service.requests());
+        }
+
         return this;
     }
 
@@ -74,12 +86,11 @@ public class RoundRobinServiceDispatcher implements Consumer<MethodCall<Object>>
     public void accept(MethodCall<Object> methodCall) {
 
 
-        if (index == services.size()) {
-            index=0;
-        }
-        final Service service = services.get(services.size());
-        //LEFT OFF HERE
-        index++;
+        int localIndex = index.getAndIncrement() % services.size();
+
+        final SendQueue<MethodCall<Object>> methodCallSendQueue = sendQueues.get(localIndex);
+        methodCallSendQueue.sendAndFlush(methodCall);
+
     }
 
     @Override
