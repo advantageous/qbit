@@ -155,7 +155,9 @@ curl localhost:8080/services/todo-service/todo/count
 To add a new TODO item.
 
 ```bash
-curl -X POST -H "Content-Type: application/json" -d '{"name":"xyz","description":"xyz"}' http://localhost:8080/services/todo-service/todo 
+curl -X POST -H "Content-Type: application/json" -d \
+'{"name":"xyz","description":"xyz"}' \
+http://localhost:8080/services/todo-service/todo 
 ```
 
 To get a list of TODO items
