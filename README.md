@@ -11,6 +11,35 @@ QBit is FAST!
 
 ![QBit the microservice framework for java](https://docs.google.com/spreadsheets/d/1kd3gjyyz1MyTJvNLJ-BC0YIkzIU-8YYLLrxpjUl0TBQ/pubchart?oid=781959089&format=image)
 
+## Microserver Lib
+
+QBit has inproc services, REST microservices and WebSocket microservices as well as an in-proc service event bus (which can be per module or per app). It supports workers and in-memory services. 
+
+Before we descibe more, here are two sample services.
+
+#### Todo Service
+```java
+
+@RequestMapping("/todo-service")
+public class TodoService {
+
+    @RequestMapping("/todo/count")
+    public int size() {...
+
+    @RequestMapping("/todo/")
+    public List<TodoItem> list() {...
+```
+
+```java
+
+    @RequestMapping("/adder-service")
+    public class AdderService {
+
+        @RequestMapping("/add/{0}/{1}")
+        public int add(@PathVariable int a, @PathVariable int b) {...
+    }
+```
+
 Status
 =====
 Lot's of progress. More people are helping out. 
