@@ -16,7 +16,7 @@
   *  ________ __________.______________
   *  \_____  \\______   \   \__    ___/
   *   /  / \  \|    |  _/   | |    |  ______
-  *  /   \_/.  \    |   \   | |    | /_____/                                                                                                                        
+  *  /   \_/.  \    |   \   | |    | /_____/
   *  \_____\ \_/______  /___| |____|
   *         \__>      \/
   *  ___________.__                  ____.                        _____  .__                                             .__
@@ -53,109 +53,96 @@
 
  ******************************************************************************/
 
-package io.advantageous.qbit.service;
+package io.advantageous.qbit.service.dispatchers;
 
-import io.advantageous.qbit.queue.QueueBuilder;
-import io.advantageous.qbit.service.dispatchers.RoundRobinServiceDispatcher;
-import io.advantageous.qbit.service.dispatchers.ServiceMethodDispatcher;
-import io.advantageous.qbit.test.TimedTesting;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import io.advantageous.qbit.message.MethodCall;
+import io.advantageous.qbit.queue.SendQueue;
+import io.advantageous.qbit.service.Service;
 
-import java.util.function.Predicate;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
-import static io.advantageous.qbit.queue.QueueBuilder.queueBuilder;
-import static io.advantageous.qbit.service.ServiceBuilder.serviceBuilder;
-import static io.advantageous.qbit.service.ServiceBundleBuilder.serviceBundleBuilder;
-import static io.advantageous.qbit.service.dispatchers.ServicePool.workers;
-import static org.boon.Boon.puts;
-import static org.boon.Exceptions.die;
+/**
+ * Created by rhightower on 2/18/15.
+ */
+public class ServicePool {
+    protected final boolean startServices;
+    protected List<Service> services = new ArrayList<>();
+    protected List<SendQueue<MethodCall<Object>>> sendQueues = new ArrayList<>();
+    protected AtomicInteger index = new AtomicInteger();
 
-public class RoundRobinServiceDispatcherTest extends TimedTesting{
+
+    public ServicePool(boolean startServices) {
+        this.startServices = startServices;
+    }
 
 
-    ServiceBundle bundle;
+    public ServicePool() {
+        this.startServices = true;
+    }
 
-    RoundRobinServiceDispatcher rrDispatcher;
-    ServiceMethodDispatcher dispatcher;
-    boolean ok = true;
+    public static RoundRobinServiceDispatcher roundRobinServiceDispatcher() {
+        return new RoundRobinServiceDispatcher();
+    }
 
-    public static class MultiWorker {
+    public static RoundRobinServiceDispatcher workers() {
+        return new RoundRobinServiceDispatcher();
+    }
 
-        static volatile int totalCount;
+    public ServicePool addService(Service service) {
+        services.add(service);
+        return this;
+    }
 
-        int count;
-        void doSomeWork() {
-            count++;
-            totalCount++;
-            puts(count, totalCount);
+    public ServicePool addServices(Service... servicesArray) {
+
+        for (Service service : servicesArray) {
+            addService(service);
         }
-
+        return this;
     }
 
+    public ServicePool start() {
 
-    public static interface MultiWorkerClient {
-        void doSomeWork();
-    }
-
-    @Before
-    public void setup() {
-
-        super.setupLatch();
-        QueueBuilder queueBuilder = queueBuilder().setBatchSize(1);
-
-        dispatcher = workers();
-        rrDispatcher = (RoundRobinServiceDispatcher) dispatcher;
-
-        final ServiceBuilder serviceBuilder = serviceBuilder()
-                .setQueueBuilder(queueBuilder).setResponseQueueBuilder(queueBuilder);
-
-        final Service service1 = serviceBuilder.setServiceObject(new MultiWorker()).build();
-        final Service service2 = serviceBuilder.setServiceObject(new MultiWorker()).build();
-        final Service service3 = serviceBuilder.setServiceObject(new MultiWorker()).build();
+        services = Collections.unmodifiableList(services);
 
 
-        rrDispatcher.addServices(service1, service2, service3);
-        rrDispatcher.start();
 
-        bundle = serviceBundleBuilder().setAddress("/root").build();
-
-        bundle.addServiceConsumer("/workers", dispatcher);
-        bundle.start();
-
-    }
-
-
-    @After
-    public void tearDown() {
-        bundle.stop();
-
-    }
-
-    @Test
-    public void test() {
-
-        final MultiWorkerClient worker = bundle.createLocalProxy(MultiWorkerClient.class, "/workers");
-
-        for (int index = 0; index < 100; index++) {
-            worker.doSomeWork();
-        }
-
-        ServiceProxyUtils.flushServiceProxy(worker);
-        super.waitForTrigger(20, new Predicate() {
-            @Override
-            public boolean test(Object o) {
-                return MultiWorker.totalCount >=99;
+        if (startServices) {
+            for (Service service : services) {
+                service.start();
             }
-        });
+        }
+
+        for (Service service : services) {
+            sendQueues.add(service.requests());
+        }
+
+        return this;
+    }
+
+    public void accept(MethodCall<Object> methodCall) {
 
 
+        int localIndex = index.getAndIncrement() % services.size();
 
-        ok = MultiWorker.totalCount >=99 || die(MultiWorker.totalCount);
-
+        final SendQueue<MethodCall<Object>> methodCallSendQueue = sendQueues.get(localIndex);
+        methodCallSendQueue.sendAndFlush(methodCall);
 
     }
 
+    public void flush() {
+        for (Service service : services) {
+            service.flush();
+        }
+    }
 
+    public void stop() {
+
+        for (Service service : services) {
+            service.stop();
+        }
+    }
 }

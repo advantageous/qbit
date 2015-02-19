@@ -16,7 +16,7 @@
   *  ________ __________.______________
   *  \_____  \\______   \   \__    ___/
   *   /  / \  \|    |  _/   | |    |  ______
-  *  /   \_/.  \    |   \   | |    | /_____/                                                                                                                        
+  *  /   \_/.  \    |   \   | |    | /_____/
   *  \_____\ \_/______  /___| |____|
   *         \__>      \/
   *  ___________.__                  ____.                        _____  .__                                             .__
@@ -53,109 +53,13 @@
 
  ******************************************************************************/
 
-package io.advantageous.qbit.service;
+package io.advantageous.qbit.service.dispatchers;
 
-import io.advantageous.qbit.queue.QueueBuilder;
-import io.advantageous.qbit.service.dispatchers.RoundRobinServiceDispatcher;
-import io.advantageous.qbit.service.dispatchers.ServiceMethodDispatcher;
-import io.advantageous.qbit.test.TimedTesting;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-
-import java.util.function.Predicate;
-
-import static io.advantageous.qbit.queue.QueueBuilder.queueBuilder;
-import static io.advantageous.qbit.service.ServiceBuilder.serviceBuilder;
-import static io.advantageous.qbit.service.ServiceBundleBuilder.serviceBundleBuilder;
-import static io.advantageous.qbit.service.dispatchers.ServicePool.workers;
-import static org.boon.Boon.puts;
-import static org.boon.Exceptions.die;
-
-public class RoundRobinServiceDispatcherTest extends TimedTesting{
+/**
+ * Created by rhightower on 2/18/15.
+ */
+public interface ShardRule {
 
 
-    ServiceBundle bundle;
-
-    RoundRobinServiceDispatcher rrDispatcher;
-    ServiceMethodDispatcher dispatcher;
-    boolean ok = true;
-
-    public static class MultiWorker {
-
-        static volatile int totalCount;
-
-        int count;
-        void doSomeWork() {
-            count++;
-            totalCount++;
-            puts(count, totalCount);
-        }
-
-    }
-
-
-    public static interface MultiWorkerClient {
-        void doSomeWork();
-    }
-
-    @Before
-    public void setup() {
-
-        super.setupLatch();
-        QueueBuilder queueBuilder = queueBuilder().setBatchSize(1);
-
-        dispatcher = workers();
-        rrDispatcher = (RoundRobinServiceDispatcher) dispatcher;
-
-        final ServiceBuilder serviceBuilder = serviceBuilder()
-                .setQueueBuilder(queueBuilder).setResponseQueueBuilder(queueBuilder);
-
-        final Service service1 = serviceBuilder.setServiceObject(new MultiWorker()).build();
-        final Service service2 = serviceBuilder.setServiceObject(new MultiWorker()).build();
-        final Service service3 = serviceBuilder.setServiceObject(new MultiWorker()).build();
-
-
-        rrDispatcher.addServices(service1, service2, service3);
-        rrDispatcher.start();
-
-        bundle = serviceBundleBuilder().setAddress("/root").build();
-
-        bundle.addServiceConsumer("/workers", dispatcher);
-        bundle.start();
-
-    }
-
-
-    @After
-    public void tearDown() {
-        bundle.stop();
-
-    }
-
-    @Test
-    public void test() {
-
-        final MultiWorkerClient worker = bundle.createLocalProxy(MultiWorkerClient.class, "/workers");
-
-        for (int index = 0; index < 100; index++) {
-            worker.doSomeWork();
-        }
-
-        ServiceProxyUtils.flushServiceProxy(worker);
-        super.waitForTrigger(20, new Predicate() {
-            @Override
-            public boolean test(Object o) {
-                return MultiWorker.totalCount >=99;
-            }
-        });
-
-
-
-        ok = MultiWorker.totalCount >=99 || die(MultiWorker.totalCount);
-
-
-    }
-
-
+    int shard(String methodName, Object[] args);
 }
