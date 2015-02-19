@@ -61,5 +61,5 @@ package io.advantageous.qbit.service.dispatchers;
 public interface ShardRule {
 
 
-    int shard(String methodName, Object[] args);
+    int shard(String methodName, Object[] args, int numWorkers);
 }

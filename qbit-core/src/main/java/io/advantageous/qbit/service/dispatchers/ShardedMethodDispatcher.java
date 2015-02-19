@@ -36,18 +36,17 @@ public class ShardedMethodDispatcher extends ServiceWorkers implements ServiceMe
     private final ShardRule shardRule;
 
 
-    public ShardedMethodDispatcher(ShardRule shardRule) {
+    public ShardedMethodDispatcher(final ShardRule shardRule) {
         this.shardRule = shardRule;
     }
 
     @Override
-    public void accept(MethodCall<Object> methodCall) {
+    public void accept(final MethodCall<Object> methodCall) {
 
-        Object[] args = methodCall.args();
+        final Object[] args = methodCall.args();
+        final int shard = shardRule.shard(methodCall.name(), args, services.size());
+        final SendQueue<MethodCall<Object>> methodCallSendQueue = sendQueues.get(shard);
 
-
-        final SendQueue<MethodCall<Object>> methodCallSendQueue =
-                sendQueues.get(shardRule.shard(methodCall.name(), args));
         methodCallSendQueue.sendAndFlush(methodCall);
     }
 }
