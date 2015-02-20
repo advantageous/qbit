@@ -44,8 +44,10 @@ public class QBitServletUtil {
         final HttpServletResponse response = (HttpServletResponse) asyncContext.getResponse();
         final MultiMap<String, String> headers = new HttpServletHeaderMultiMap(request);
         final MultiMap<String, String> params = new HttpServletParamMultiMap(request);
+
+
         final HttpRequestBuilder httpRequestBuilder = httpRequestBuilder().setParams(params)
-                .setHeaders(headers).setUri(request.getPathInfo())
+                .setHeaders(headers).setUri(request.getRequestURI())
                 .setMethod(request.getMethod());
 
         setRequestBodyIfNeeded(request, httpRequestBuilder);
