@@ -56,6 +56,7 @@ package io.advantageous.qbit.service.dispatchers;
 import io.advantageous.qbit.message.MethodCall;
 import io.advantageous.qbit.queue.SendQueue;
 import io.advantageous.qbit.service.Service;
+import org.boon.core.reflection.BeanUtils;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -77,6 +78,57 @@ public class ServiceWorkers implements ServiceMethodDispatcher {
     public static ShardedMethodDispatcher shardedWorkers(final ShardRule shardRule) {
         return new ShardedMethodDispatcher(shardRule);
     }
+
+
+    public static ShardedMethodDispatcher shardOnFirstArgumentWorkers() {
+        return new ShardedMethodDispatcher((methodName, methodArgs, numWorkers) -> {
+            int shardKey =  methodArgs[0].hashCode() % numWorkers;
+            return shardKey;
+        });
+    }
+
+
+    public static ShardedMethodDispatcher shardOnSecondArgumentWorkers() {
+        return new ShardedMethodDispatcher((methodName, methodArgs, numWorkers) -> {
+            int shardKey =  methodArgs[1].hashCode() % numWorkers;
+            return shardKey;
+        });
+    }
+
+
+    public static ShardedMethodDispatcher shardOnThirdArgumentWorkers() {
+        return new ShardedMethodDispatcher((methodName, methodArgs, numWorkers) -> {
+            int shardKey =  methodArgs[2].hashCode() % numWorkers;
+            return shardKey;
+        });
+    }
+
+
+    public static ShardedMethodDispatcher shardOnFourthArgumentWorkers() {
+        return new ShardedMethodDispatcher((methodName, methodArgs, numWorkers) -> {
+            int shardKey =  methodArgs[3].hashCode() % numWorkers;
+            return shardKey;
+        });
+    }
+
+
+    public static ShardedMethodDispatcher shardOnFifthArgumentWorkers() {
+        return new ShardedMethodDispatcher((methodName, methodArgs, numWorkers) -> {
+            int shardKey =  methodArgs[4].hashCode() % numWorkers;
+            return shardKey;
+        });
+    }
+
+
+    public static ShardedMethodDispatcher shardOnBeanPath(final String beanPath) {
+        return new ShardedMethodDispatcher((methodName, methodArgs, numWorkers) -> {
+            int shardKey =  BeanUtils.idx(methodArgs, beanPath).hashCode() % numWorkers;
+            return shardKey;
+        });
+    }
+
+
+
 
 
     protected final boolean startServices;
