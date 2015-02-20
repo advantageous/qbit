@@ -28,7 +28,7 @@ import io.advantageous.qbit.queue.ReceiveQueueListener;
 import io.advantageous.qbit.service.impl.NoOpAfterMethodCall;
 import io.advantageous.qbit.service.impl.NoOpInputMethodCallQueueListener;
 import io.advantageous.qbit.service.impl.ServiceConstants;
-import io.advantageous.qbit.service.impl.ServiceImpl;
+import io.advantageous.qbit.service.impl.ServiceQueueImpl;
 import io.advantageous.qbit.system.QBitSystemManager;
 import io.advantageous.qbit.transforms.NoOpResponseTransformer;
 import io.advantageous.qbit.transforms.Transformer;
@@ -240,12 +240,12 @@ public class ServiceBuilder {
     }
 
 
-    public Service build(final Object serviceObject) {
+    public ServiceQueue build(final Object serviceObject) {
         this.serviceObject = serviceObject;
         return build();
     }
 
-    public Service build() {
+    public ServiceQueue build() {
 
         if (this.getResponseQueue() == null) {
 
@@ -255,7 +255,7 @@ public class ServiceBuilder {
 
 
 
-            Service service = new ServiceImpl(this.getRootAddress(),
+            ServiceQueue serviceQueue = new ServiceQueueImpl(this.getRootAddress(),
                 this.getServiceAddress(),
                 this.getServiceObject(),
                 this.getQueueBuilder(),
@@ -265,14 +265,14 @@ public class ServiceBuilder {
                 this.isHandleCallbacks(),
                 this.getSystemManager());
 
-        if (service != null && qBitSystemManager != null) {
-            qBitSystemManager.registerService(service);
+        if (serviceQueue != null && qBitSystemManager != null) {
+            qBitSystemManager.registerService(serviceQueue);
         }
 
-        return service;
+        return serviceQueue;
     }
 
-    public Service buildAndStart() {
+    public ServiceQueue buildAndStart() {
 
         return build().start();
     }

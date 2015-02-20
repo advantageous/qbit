@@ -20,7 +20,7 @@ package io.advantageous.qbit.service;
 
 import io.advantageous.qbit.QBit;
 import io.advantageous.qbit.events.EventManager;
-import io.advantageous.qbit.service.impl.BaseServiceImpl;
+import io.advantageous.qbit.service.impl.BaseServiceQueueImpl;
 
 /**
  * Created by rhightower on 2/4/15.
@@ -41,8 +41,8 @@ public class ServiceContext {
      *
      * @return
      */
-    public Service currentService() {
-        return BaseServiceImpl.currentService();
+    public ServiceQueue currentService() {
+        return BaseServiceQueueImpl.currentService();
     }
 
     public EventManager eventManager() {
@@ -52,8 +52,8 @@ public class ServiceContext {
     public void joinEventManager() {
 
         final EventManager eventManager = eventManager();
-        Service service = currentService();
-        eventManager.joinService(service);
+        ServiceQueue serviceQueue = currentService();
+        eventManager.joinService(serviceQueue);
     }
 
     public <T> void send(String channel, T message) {

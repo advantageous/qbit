@@ -26,8 +26,6 @@ package io.advantageous.qbit.service.dispatchers;
 import io.advantageous.qbit.message.MethodCall;
 import io.advantageous.qbit.queue.SendQueue;
 
-import static org.boon.Boon.puts;
-
 /**
  * @author  rhightower
  * on 2/18/15.
@@ -46,7 +44,7 @@ public class ShardedMethodDispatcher extends ServiceWorkers {
     public void accept(final MethodCall<Object> methodCall) {
 
         final Object[] args = methodCall.args();
-        final int shard = shardRule.shard(methodCall.name(), args, services.size());
+        final int shard = shardRule.shard(methodCall.name(), args, serviceQueues.size());
 
         final SendQueue<MethodCall<Object>> methodCallSendQueue =
                 shard < 0 ?

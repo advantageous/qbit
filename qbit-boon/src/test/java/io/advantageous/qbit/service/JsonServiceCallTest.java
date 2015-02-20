@@ -44,10 +44,10 @@ public class JsonServiceCallTest {
     public void test() {
 
         Adder adder = new Adder();
-        Service service = Services.jsonService("test", adder, 1000, TimeUnit.MILLISECONDS, 100);
+        ServiceQueue serviceQueue = Services.jsonService("test", adder, 1000, TimeUnit.MILLISECONDS, 100);
 
-        ReceiveQueue<Response<Object>> responses = service.responses();
-        SendQueue<MethodCall<Object>> requests = service.requests();
+        ReceiveQueue<Response<Object>> responses = serviceQueue.responses();
+        SendQueue<MethodCall<Object>> requests = serviceQueue.requests();
 
 
         requests.send(MethodCallBuilder.method("add", "[1,2]"));
@@ -81,10 +81,10 @@ public class JsonServiceCallTest {
 
         Adder adder = new Adder();
 
-        Service service = Services.jsonService("test", adder, 1000, TimeUnit.MILLISECONDS, 100);
+        ServiceQueue serviceQueue = Services.jsonService("test", adder, 1000, TimeUnit.MILLISECONDS, 100);
 
-        ReceiveQueue<Response<Object>> responses = service.responses();
-        SendQueue<MethodCall<Object>> requests = service.requests();
+        ReceiveQueue<Response<Object>> responses = serviceQueue.responses();
+        SendQueue<MethodCall<Object>> requests = serviceQueue.requests();
 
 
         requests.sendMany(MethodCallBuilder.method("add", "[1,2]"), MethodCallBuilder.method("add", "[4,5]"));
@@ -115,10 +115,10 @@ public class JsonServiceCallTest {
 
         Adder adder = new Adder();
 
-        Service service = Services.jsonService("test", adder, 1000, TimeUnit.MILLISECONDS, 100);
+        ServiceQueue serviceQueue = Services.jsonService("test", adder, 1000, TimeUnit.MILLISECONDS, 100);
 
-        ReceiveQueue<Response<Object>> responses = service.responses();
-        SendQueue<MethodCall<Object>> requests = service.requests();
+        ReceiveQueue<Response<Object>> responses = serviceQueue.responses();
+        SendQueue<MethodCall<Object>> requests = serviceQueue.requests();
 
         List<MethodCall<Object>> methods = Lists.list(MethodCallBuilder.method("add", "[1,2]"), MethodCallBuilder.method("add", "[4,5]"));
 

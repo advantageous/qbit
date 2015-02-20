@@ -20,7 +20,7 @@ package io.advantageous.qbit.example.events;
 
 import io.advantageous.qbit.annotation.OnEvent;
 import io.advantageous.qbit.events.EventManager;
-import io.advantageous.qbit.service.Service;
+import io.advantageous.qbit.service.ServiceQueue;
 import org.boon.core.Sys;
 
 import static io.advantageous.qbit.service.ServiceBuilder.serviceBuilder;
@@ -45,26 +45,26 @@ public class EmployeeEventExampleUsingSystemEventBus {
         VolunteerService volunteering = new VolunteerService();
 
 
-        Service employeeHiringService = serviceBuilder()
+        ServiceQueue employeeHiringServiceQueue = serviceBuilder()
                 .setServiceObject(employeeHiring)
                 .setInvokeDynamic(false).build().start();
 
 
-        Service payrollService = serviceBuilder()
+        ServiceQueue payrollServiceQueue = serviceBuilder()
                 .setServiceObject(payroll)
                 .setInvokeDynamic(false).build().start();
 
 
-        Service employeeBenefitsService = serviceBuilder()
+        ServiceQueue employeeBenefitsServiceQueue = serviceBuilder()
                 .setServiceObject(benefits)
                 .setInvokeDynamic(false).build().start();
 
 
-        Service volunteeringService = serviceBuilder()
+        ServiceQueue volunteeringServiceQueue = serviceBuilder()
                 .setServiceObject(volunteering)
                 .setInvokeDynamic(false).build().start();
 
-        EmployeeHiringServiceClient employeeHiringServiceClientProxy = employeeHiringService.createProxy(EmployeeHiringServiceClient.class);
+        EmployeeHiringServiceClient employeeHiringServiceClientProxy = employeeHiringServiceQueue.createProxy(EmployeeHiringServiceClient.class);
 
         employeeHiringServiceClientProxy.hireEmployee(new Employee("Rick", 1));
 

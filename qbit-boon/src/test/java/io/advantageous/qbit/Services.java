@@ -20,9 +20,9 @@ package io.advantageous.qbit;
 
 import io.advantageous.qbit.json.JsonMapper;
 import io.advantageous.qbit.queue.QueueBuilder;
-import io.advantageous.qbit.service.Service;
+import io.advantageous.qbit.service.ServiceQueue;
 import io.advantageous.qbit.service.impl.BoonServiceMethodCallHandler;
-import io.advantageous.qbit.service.impl.ServiceImpl;
+import io.advantageous.qbit.service.impl.ServiceQueueImpl;
 import io.advantageous.qbit.transforms.JsonRequestBodyToArgListTransformer;
 import io.advantageous.qbit.transforms.JsonResponseTransformer;
 
@@ -33,18 +33,18 @@ import java.util.concurrent.TimeUnit;
  */
 public class Services {
 
-    public static Service jsonService(final String name, Object service, int waitTime, TimeUnit timeUnit, int batchSize) {
+    public static ServiceQueue jsonService(final String name, Object service, int waitTime, TimeUnit timeUnit, int batchSize) {
         JsonMapper mapper = new BoonJsonMapper();
 
 
-        ServiceImpl serviceQueue = new ServiceImpl(null, name, service, new QueueBuilder(), new BoonServiceMethodCallHandler(true), null, true, false, null);
+        ServiceQueueImpl serviceQueue = new ServiceQueueImpl(null, name, service, new QueueBuilder(), new BoonServiceMethodCallHandler(true), null, true, false, null);
         serviceQueue.requestObjectTransformer(new JsonRequestBodyToArgListTransformer(mapper));
         serviceQueue.responseObjectTransformer(new JsonResponseTransformer(mapper));
         serviceQueue.start();
         return serviceQueue;
     }
 
-    public static Service regularService(final String name, Object service, int waitTime, TimeUnit timeUnit, int batchSize) {
-        return new ServiceImpl(null, name, service, new QueueBuilder(), new BoonServiceMethodCallHandler(true), null, true, false, null).start();
+    public static ServiceQueue regularService(final String name, Object service, int waitTime, TimeUnit timeUnit, int batchSize) {
+        return new ServiceQueueImpl(null, name, service, new QueueBuilder(), new BoonServiceMethodCallHandler(true), null, true, false, null).start();
     }
 }

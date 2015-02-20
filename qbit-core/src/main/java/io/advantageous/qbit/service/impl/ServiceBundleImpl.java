@@ -207,13 +207,13 @@ public class ServiceBundleImpl implements ServiceBundle {
             logger.debug(ServiceBundleImpl.class.getName() + " serviceAddress " + serviceAddress + " service object " + serviceObject);
         }
 
-        if (serviceObject instanceof  Service) {
-            addServiceService(serviceAddress, (Service) serviceObject);
+        if (serviceObject instanceof ServiceQueue) {
+            addServiceService(serviceAddress, (ServiceQueue) serviceObject);
 
         }
 
         /** Turn this client object into a client with queues. */
-        final Service service = factory.createService(address, serviceAddress,
+        final ServiceQueue serviceQueue = factory.createService(address, serviceAddress,
                 serviceObject, responseQueue,
                 BeanUtils.copy(this.queueBuilder),
                 this.asyncCalls,
@@ -221,7 +221,7 @@ public class ServiceBundleImpl implements ServiceBundle {
                 false, systemManager);
 
 
-        addServiceService(serviceAddress, service);
+        addServiceService(serviceAddress, serviceQueue);
         return this;
     }
 
@@ -249,17 +249,17 @@ public class ServiceBundleImpl implements ServiceBundle {
     }
 
 
-    public void addServiceService(final String serviceAddress, final Service service) {
+    public void addServiceService(final String serviceAddress, final ServiceQueue serviceQueue) {
 
-        service.start(false); //Don't like this.. REFACTOR
+        serviceQueue.start(false); //Don't like this.. REFACTOR
 
 
         /** add to our list of servicesToStop. */
-        servicesToStop.add(service);
-        servicesToFlush.add(service);
+        servicesToStop.add(serviceQueue);
+        servicesToFlush.add(serviceQueue);
 
         /* Create an send queue for this client. which we access from a single thread. */
-        final SendQueue<MethodCall<Object>> requests = service.requests();
+        final SendQueue<MethodCall<Object>> requests = serviceQueue.requests();
 
         Consumer<MethodCall<Object>> dispatch = new Consumer<MethodCall<Object>>() {
             @Override
@@ -275,14 +275,14 @@ public class ServiceBundleImpl implements ServiceBundle {
         }
 
         /** Put the client incoming requests in our client name, request queue mapping. */
-        serviceMapping.put(service.name(), dispatch);
-        serviceMapping.put(service.address(), dispatch);
+        serviceMapping.put(serviceQueue.name(), dispatch);
+        serviceMapping.put(serviceQueue.address(), dispatch);
 
         /** Add the request queue to our set of request queues. */
         sendQueues.add(requests);
 
         /** Generate a list of end point addresses based on the client bundle root address. */
-        final Collection<String> addresses = service.addresses(this.address);
+        final Collection<String> addresses = serviceQueue.addresses(this.address);
 
         if (debug) {
             puts("ServiceBundleImpl::addServiceObject(object)- addresses: ", addresses);

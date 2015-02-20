@@ -20,7 +20,7 @@ package io.advantageous.qbit.service.impl;
 
 import io.advantageous.qbit.QBit;
 import io.advantageous.qbit.service.Callback;
-import io.advantageous.qbit.service.Service;
+import io.advantageous.qbit.service.ServiceQueue;
 import io.advantageous.qbit.service.ServiceBuilder;
 import org.boon.core.Sys;
 import org.junit.After;
@@ -35,16 +35,16 @@ import static org.boon.Exceptions.die;
 
 public class ServiceImplTest {
 
-    Service service;
+    ServiceQueue serviceQueue;
     volatile int callCount = 0;
     MockServiceInterface proxy;
     boolean ok;
 
     @Before
     public void setup() {
-        service = new ServiceBuilder().setServiceObject(new MockService()).setInvokeDynamic(false).build().start();
+        serviceQueue = new ServiceBuilder().setServiceObject(new MockService()).setInvokeDynamic(false).build().start();
 
-        proxy = service.createProxy(MockServiceInterface.class);
+        proxy = serviceQueue.createProxy(MockServiceInterface.class);
         ok = true;
 
 
@@ -66,7 +66,7 @@ public class ServiceImplTest {
     public void testCallback() throws Exception {
 
 
-        service.startCallBackHandler();
+        serviceQueue.startCallBackHandler();
         Sys.sleep(100);
         AtomicInteger returnValue = new AtomicInteger();
         proxy.method2(integer -> {
@@ -90,7 +90,7 @@ public class ServiceImplTest {
 
 
         AtomicReference<String> returnString = new AtomicReference<>();
-        service.startCallBackHandler();
+        serviceQueue.startCallBackHandler();
         Sys.sleep(100);
         AtomicInteger returnValue = new AtomicInteger();
         proxy.methodWithCallBack(new Callback<String>() {

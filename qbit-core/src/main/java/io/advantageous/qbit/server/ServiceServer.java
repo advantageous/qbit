@@ -19,7 +19,7 @@
 package io.advantageous.qbit.server;
 
 import io.advantageous.qbit.message.MethodCall;
-import io.advantageous.qbit.service.Service;
+import io.advantageous.qbit.service.ServiceQueue;
 import io.advantageous.qbit.service.ServiceBundle;
 
 import java.util.function.Consumer;
@@ -44,8 +44,8 @@ public interface ServiceServer extends Server {
 
     }
 
-    default ServiceServer addService(String address, Service service) {
-        serviceBundle().addServiceObject(address, service);
+    default ServiceServer addService(String address, ServiceQueue serviceQueue) {
+        serviceBundle().addServiceObject(address, serviceQueue);
         return this;
     }
 

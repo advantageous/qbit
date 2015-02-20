@@ -22,7 +22,7 @@ import io.advantageous.qbit.metrics.support.DebugRecorder;
 import io.advantageous.qbit.metrics.support.DebugReplicator;
 import io.advantageous.qbit.metrics.support.StatServiceBuilder;
 import io.advantageous.qbit.queue.QueueBuilder;
-import io.advantageous.qbit.service.Service;
+import io.advantageous.qbit.service.ServiceQueue;
 import io.advantageous.qbit.service.ServiceBundle;
 import io.advantageous.qbit.service.ServiceBundleBuilder;
 import io.advantageous.qbit.test.TimedTesting;
@@ -54,7 +54,7 @@ public class StatServiceBundleTest extends TimedTesting {
     DebugRecorder recorder;
     DebugReplicator replicator;
     ServiceBundle serviceBundle;
-    Service service;
+    ServiceQueue serviceQueue;
 
     @Before
     public void setUp() throws Exception {
@@ -64,7 +64,7 @@ public class StatServiceBundleTest extends TimedTesting {
         statService = new StatServiceBuilder().setRecorder(recorder).setReplicator(replicator).build();
         QueueBuilder queueBuilder = queueBuilder()
                 .setPollWait(40).setBatchSize(100_000).setLinkTransferQueue().setCheckEvery(1000);
-        service = serviceBuilder()
+        serviceQueue = serviceBuilder()
                 .setRootAddress("/root")
                 .setServiceAddress("/serviceAddress")
                 .setServiceObject(statService)
@@ -79,7 +79,7 @@ public class StatServiceBundleTest extends TimedTesting {
                 .buildAndStart();
         serviceBundle.addService(statService);
         serviceBundle.startReturnHandlerProcessor();
-        service.start();
+        serviceQueue.start();
         statServiceClient = serviceBundle.createLocalProxy(StatServiceClientInterface.class, "statService");
     }
 
@@ -267,7 +267,7 @@ public class StatServiceBundleTest extends TimedTesting {
 
     private void runPerfTestService(final int count) {
 
-        statServiceClient = service.createProxy(StatServiceClientInterface.class);
+        statServiceClient = serviceQueue.createProxy(StatServiceClientInterface.class);
         final long start = System.currentTimeMillis();
 
         for (int index = 0; index < count; index++) {

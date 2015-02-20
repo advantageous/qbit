@@ -34,7 +34,7 @@ import io.advantageous.qbit.queue.QueueBuilder;
 import io.advantageous.qbit.sender.Sender;
 import io.advantageous.qbit.server.ServiceServer;
 import io.advantageous.qbit.service.BeforeMethodCall;
-import io.advantageous.qbit.service.Service;
+import io.advantageous.qbit.service.ServiceQueue;
 import io.advantageous.qbit.service.ServiceBundle;
 import io.advantageous.qbit.service.ServiceMethodHandler;
 import io.advantageous.qbit.spi.FactorySPI;
@@ -145,7 +145,7 @@ public interface Factory {
      * @param responseQueue  the response queue.
      * @return new Service that was created
      */
-    default Service createService(String rootAddress, String serviceAddress,
+    default ServiceQueue createService(String rootAddress, String serviceAddress,
                                   Object object,
                                   Queue<Response<Object>> responseQueue,
                                   final QueueBuilder queueBuilder,
@@ -166,7 +166,7 @@ public interface Factory {
      * @param responseQueue  the response queue.
      * @return new Service that was created
      */
-    default Service createService(String rootAddress, String serviceAddress,
+    default ServiceQueue createService(String rootAddress, String serviceAddress,
                                   Object object,
                                   Queue<Response<Object>> responseQueue,
                                   final QBitSystemManager systemManager) {

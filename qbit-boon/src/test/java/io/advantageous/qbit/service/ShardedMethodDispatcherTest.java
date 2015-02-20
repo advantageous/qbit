@@ -62,8 +62,6 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.util.function.Predicate;
-
 import static io.advantageous.qbit.queue.QueueBuilder.queueBuilder;
 import static io.advantageous.qbit.service.ServiceBuilder.serviceBuilder;
 import static io.advantageous.qbit.service.ServiceBundleBuilder.serviceBundleBuilder;
@@ -118,9 +116,9 @@ public class ShardedMethodDispatcherTest extends TimedTesting {
                 .setQueueBuilder(queueBuilder).setResponseQueueBuilder(queueBuilder);
 
         for (int index = 0; index < workerCount; index++) {
-            final Service service = serviceBuilder
+            final ServiceQueue serviceQueue = serviceBuilder
                     .setServiceObject(new ContentRulesEngine()).build();
-            dispatcher.addServices(service);
+            dispatcher.addServices(serviceQueue);
 
         }
 

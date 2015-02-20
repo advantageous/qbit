@@ -46,7 +46,6 @@
 package io.advantageous.qbit.service.impl;
 
 import io.advantageous.qbit.GlobalConstants;
-import io.advantageous.qbit.QBit;
 import io.advantageous.qbit.client.ClientProxy;
 import io.advantageous.qbit.events.EventManager;
 import io.advantageous.qbit.message.*;
@@ -76,10 +75,10 @@ import static org.boon.Boon.sputs;
 /**
  * @author  rhightower on 2/18/15.
  */
-public class BaseServiceImpl implements Service {
-    private static ThreadLocal<Service> serviceThreadLocal = new ThreadLocal<>();
+public class BaseServiceQueueImpl implements ServiceQueue {
+    private static ThreadLocal<ServiceQueue> serviceThreadLocal = new ThreadLocal<>();
     protected final QBitSystemManager systemManager;
-    protected final Logger logger = LoggerFactory.getLogger(ServiceImpl.class);
+    protected final Logger logger = LoggerFactory.getLogger(ServiceQueueImpl.class);
     protected final boolean debug = false || GlobalConstants.DEBUG || logger.isDebugEnabled();
     protected final Object service;
     protected final Queue<Response<Object>> responseQueue;
@@ -100,16 +99,16 @@ public class BaseServiceImpl implements Service {
     private Transformer<Response<Object>, Response> responseObjectTransformer = new NoOpResponseTransformer();
     private CallbackManager callbackManager;
 
-    public BaseServiceImpl(final String rootAddress,
-                           final String serviceAddress,
-                           final Object service,
-                           final QueueBuilder queueBuilder,
-                           final ServiceMethodHandler serviceMethodHandler,
-                           final Queue<Response<Object>> responseQueue,
-                           final boolean async,
-                           final boolean handleCallbacks,
-                           final QBitSystemManager systemManager
-                          ) {
+    public BaseServiceQueueImpl(final String rootAddress,
+                                final String serviceAddress,
+                                final Object service,
+                                final QueueBuilder queueBuilder,
+                                final ServiceMethodHandler serviceMethodHandler,
+                                final Queue<Response<Object>> responseQueue,
+                                final boolean async,
+                                final boolean handleCallbacks,
+                                final QBitSystemManager systemManager
+    ) {
 
         if (queueBuilder == null) {
             this.queueBuilder = new QueueBuilder();
@@ -141,18 +140,18 @@ public class BaseServiceImpl implements Service {
 
     }
 
-    public static Service currentService() {
+    public static ServiceQueue currentService() {
         return serviceThreadLocal.get();
     }
 
     @Override
-    public Service start() {
+    public ServiceQueue start() {
 
         start(serviceMethodHandler, true);
         return this;
     }
 
-    public Service start(boolean joinEventManager) {
+    public ServiceQueue start(boolean joinEventManager) {
         start(serviceMethodHandler, joinEventManager);
         return this;
     }
@@ -238,7 +237,7 @@ public class BaseServiceImpl implements Service {
         return requestQueue;
     }
 
-    public Service startCallBackHandler() {
+    public ServiceQueue startCallBackHandler() {
         if (!handleCallbacks) {
             callbackManager = new CallbackManager();
             callbackManager.startReturnHandlerProcessor(this.responseQueue);
@@ -248,12 +247,12 @@ public class BaseServiceImpl implements Service {
         }
     }
 
-    public BaseServiceImpl requestObjectTransformer(Transformer<Request, Object> requestObjectTransformer) {
+    public BaseServiceQueueImpl requestObjectTransformer(Transformer<Request, Object> requestObjectTransformer) {
         this.requestObjectTransformer = requestObjectTransformer;
         return this;
     }
 
-    public BaseServiceImpl responseObjectTransformer(Transformer<Response<Object>, Response> responseObjectTransformer) {
+    public BaseServiceQueueImpl responseObjectTransformer(Transformer<Response<Object>, Response> responseObjectTransformer) {
         this.responseObjectTransformer = responseObjectTransformer;
         return this;
     }
@@ -316,7 +315,7 @@ public class BaseServiceImpl implements Service {
         final ReceiveQueue<Event<Object>> eventReceiveQueue =
                 eventQueue.receiveQueue();
 
-        serviceThreadLocal.set(BaseServiceImpl.this);
+        serviceThreadLocal.set(BaseServiceQueueImpl.this);
 
         if (!(service instanceof EventManager)) {
             if (joinEventManager) {

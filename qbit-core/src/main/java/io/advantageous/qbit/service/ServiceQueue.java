@@ -31,7 +31,7 @@ import java.util.Collection;
  *
  * @author rhightower
  */
-public interface Service extends Stoppable, ServiceFlushable {
+public interface ServiceQueue extends Stoppable, ServiceFlushable {
 
     Object service();
 
@@ -78,7 +78,7 @@ public interface Service extends Stoppable, ServiceFlushable {
     void stop();
 
 
-    Service startCallBackHandler();
+    ServiceQueue startCallBackHandler();
 
     /**
      * Return a list of addresses.
@@ -95,12 +95,12 @@ public interface Service extends Stoppable, ServiceFlushable {
     void flush();
 
 
-    default Service start() {
+    default ServiceQueue start() {
         return this;
     }
 
 
-    default Service start(boolean joinEventManager) {
+    default ServiceQueue start(boolean joinEventManager) {
         return this;
     }
 }

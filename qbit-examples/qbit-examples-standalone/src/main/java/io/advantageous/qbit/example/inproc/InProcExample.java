@@ -19,7 +19,7 @@
 package io.advantageous.qbit.example.inproc;
 
 import io.advantageous.qbit.service.Callback;
-import io.advantageous.qbit.service.Service;
+import io.advantageous.qbit.service.ServiceQueue;
 import org.boon.core.Sys;
 
 import java.util.ArrayList;
@@ -54,15 +54,15 @@ public class InProcExample {
         /*
         Create the service which manages async calls to todoManagerImpl.
          */
-        final Service service = serviceBuilder()
+        final ServiceQueue serviceQueue = serviceBuilder()
                 .setServiceObject(todoManagerImpl)
                 .build().start();
 
 
         /* Create Asynchronous proxy over Synchronous service. */
-        final TodoManagerClientInterface todoManager = service.createProxy(TodoManagerClientInterface.class);
+        final TodoManagerClientInterface todoManager = serviceQueue.createProxy(TodoManagerClientInterface.class);
 
-        service.startCallBackHandler();
+        serviceQueue.startCallBackHandler();
 
 
         System.out.println("This is an async call");
@@ -115,16 +115,16 @@ public class InProcExample {
         and WebSocket calls.
         This means that you can execute the service more efficiently when it is in proc.
          */
-        final Service service = serviceBuilder()
+        final ServiceQueue serviceQueue = serviceBuilder()
                 .setQueueBuilder(queueBuilder().setBatchSize(1))
                 .setServiceObject(todoManagerImpl).setInvokeDynamic(false)
                 .build().start();
 
 
         /* Create Asynchronous proxy over Synchronous service. */
-        final TodoManagerClientInterface todoManager = service.createProxy(TodoManagerClientInterface.class);
+        final TodoManagerClientInterface todoManager = serviceQueue.createProxy(TodoManagerClientInterface.class);
 
-        service.startCallBackHandler();
+        serviceQueue.startCallBackHandler();
 
 
         System.out.println("This is an async call");

@@ -24,18 +24,18 @@ import io.advantageous.qbit.service.*;
 import io.advantageous.qbit.system.QBitSystemManager;
 
 
-public class ServiceImpl extends BaseServiceImpl {
+public class ServiceQueueImpl extends BaseServiceQueueImpl {
 
 
-    public ServiceImpl(final String rootAddress,
-                       final String serviceAddress,
-                       final Object service,
-                       final QueueBuilder queueBuilder,
-                       final ServiceMethodHandler serviceMethodHandler,
-                       final Queue<Response<Object>> responseQueue,
-                       final boolean async,
-                       final boolean handleCallbacks,
-                       final QBitSystemManager systemManager) {
+    public ServiceQueueImpl(final String rootAddress,
+                            final String serviceAddress,
+                            final Object service,
+                            final QueueBuilder queueBuilder,
+                            final ServiceMethodHandler serviceMethodHandler,
+                            final Queue<Response<Object>> responseQueue,
+                            final boolean async,
+                            final boolean handleCallbacks,
+                            final QBitSystemManager systemManager) {
         super(rootAddress, serviceAddress, service, queueBuilder, serviceMethodHandler, responseQueue,
                 async, handleCallbacks, systemManager);
     }

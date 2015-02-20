@@ -20,7 +20,7 @@ package io.advantageous.qbit.events;
 
 import io.advantageous.qbit.message.Event;
 import io.advantageous.qbit.queue.SendQueue;
-import io.advantageous.qbit.service.Service;
+import io.advantageous.qbit.service.ServiceQueue;
 
 /**
  * Created by rhightower on 2/3/15.
@@ -37,13 +37,13 @@ public interface EventManager {
      * EVENTS COME IN ON THE SAME QUEUE AS THE METHOD CALLS
      * (or another queue managed by the same thread depending on the implementation).
      */
-    void joinService(Service service);
+    void joinService(ServiceQueue serviceQueue);
 
 
-    default void joinServices(Service... services) {
+    default void joinServices(ServiceQueue... serviceQueues) {
 
-        for (Service service : services) {
-            joinService(service);
+        for (ServiceQueue serviceQueue : serviceQueues) {
+            joinService(serviceQueue);
         }
     }
 

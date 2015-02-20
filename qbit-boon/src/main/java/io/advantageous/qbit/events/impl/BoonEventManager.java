@@ -24,7 +24,7 @@ import io.advantageous.qbit.annotation.QueueCallbackType;
 import io.advantageous.qbit.events.*;
 import io.advantageous.qbit.message.Event;
 import io.advantageous.qbit.queue.SendQueue;
-import io.advantageous.qbit.service.Service;
+import io.advantageous.qbit.service.ServiceQueue;
 import io.advantageous.qbit.util.Timer;
 import org.boon.core.reflection.AnnotationData;
 import org.boon.core.reflection.BeanUtils;
@@ -138,31 +138,31 @@ public class BoonEventManager implements EventManager {
 
 
     @Override
-    public void joinService(Service service) {
+    public void joinService(ServiceQueue serviceQueue) {
 
         if (debug) {
 
-            puts("Joined", service);
+            puts("Joined", serviceQueue);
         }
 
-        if (service == null) {
+        if (serviceQueue == null) {
             throw new IllegalStateException("Must be called from inside of a Service");
         }
 
-        doListen(service.service(), service);
+        doListen(serviceQueue.service(), serviceQueue);
     }
 
 
     @Override
     public void leave() {
 
-        final Service service = serviceContext().currentService();
-        if (service == null) {
+        final ServiceQueue serviceQueue = serviceContext().currentService();
+        if (serviceQueue == null) {
             throw new IllegalStateException("Must be called from inside of a Service");
         }
 
 
-        stopListening(service.service());
+        stopListening(serviceQueue.service());
     }
 
 
@@ -172,10 +172,10 @@ public class BoonEventManager implements EventManager {
 
     }
 
-    private void doListen(final Object listener, final Service service) {
+    private void doListen(final Object listener, final ServiceQueue serviceQueue) {
 
         if (debug) {
-            puts("BoonEventManager registering listener", listener, service);
+            puts("BoonEventManager registering listener", listener, serviceQueue);
         }
         final ClassMeta<?> classMeta = ClassMeta.classMeta(listener.getClass());
         final Iterable<MethodAccess> methods = classMeta.methods();
@@ -184,27 +184,27 @@ public class BoonEventManager implements EventManager {
             AnnotationData listen = getListenAnnotation(methodAccess);
 
             if (listen == null) continue;
-            extractEventListenerFromMethod(listener, methodAccess, listen, service);
+            extractEventListenerFromMethod(listener, methodAccess, listen, serviceQueue);
         }
     }
 
 
-    private void extractEventListenerFromMethod(final Object listener, final MethodAccess methodAccess, final AnnotationData listen, final Service service) {
+    private void extractEventListenerFromMethod(final Object listener, final MethodAccess methodAccess, final AnnotationData listen, final ServiceQueue serviceQueue) {
         final String channel = listen.getValues().get("value").toString();
         final boolean consume = (boolean) listen.getValues().get("consume");
 
 
-        if (service == null) {
+        if (serviceQueue == null) {
             extractListenerForRegularObject(listener, methodAccess, channel, consume);
         } else {
-            extractListenerForService(service, methodAccess, channel, consume);
+            extractListenerForService(serviceQueue, methodAccess, channel, consume);
         }
     }
 
 
-    private void extractListenerForService(Service service, final MethodAccess methodAccess, final String channel, final boolean consume) {
+    private void extractListenerForService(ServiceQueue serviceQueue, final MethodAccess methodAccess, final String channel, final boolean consume) {
 
-        final SendQueue<Event<Object>> events = service.events();
+        final SendQueue<Event<Object>> events = serviceQueue.events();
         if (consume) {
 
             this.subscribe(channel, events);

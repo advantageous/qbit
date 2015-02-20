@@ -25,7 +25,7 @@ import io.advantageous.qbit.annotation.QueueCallback;
 import io.advantageous.qbit.annotation.QueueCallbackType;
 import io.advantageous.qbit.events.EventBusProxyCreator;
 import io.advantageous.qbit.events.EventManager;
-import io.advantageous.qbit.service.Service;
+import io.advantageous.qbit.service.ServiceQueue;
 import io.advantageous.qbit.service.ServiceBuilder;
 import io.advantageous.qbit.system.QBitSystemManager;
 import org.boon.core.Sys;
@@ -77,33 +77,33 @@ public class UsingShutDown {
 
 
         /* Create a service queue for this event bus. */
-        Service privateEventBusService = serviceBuilder.build(privateEventBus);
+        ServiceQueue privateEventBusServiceQueue = serviceBuilder.build(privateEventBus);
 
         /** Employee hiring service. */
-        Service employeeHiringService = serviceBuilder.build(employeeHiring);
+        ServiceQueue employeeHiringServiceQueue = serviceBuilder.build(employeeHiring);
 
         /** Payroll service */
-        Service payrollService = serviceBuilder.build(payroll);
+        ServiceQueue payrollServiceQueue = serviceBuilder.build(payroll);
 
         /** Employee Benefits service. */
-        Service employeeBenefitsService = serviceBuilder.build(benefits);
+        ServiceQueue employeeBenefitsServiceQueue = serviceBuilder.build(benefits);
 
         /* Community outreach program. */
-        Service volunteeringService = serviceBuilder.build(volunteering);
+        ServiceQueue volunteeringServiceQueue = serviceBuilder.build(volunteering);
 
 
         /* Now wire in the event bus so it can fire events into the service queues. */
         privateEventBus.joinServices(
-                payrollService,
-                employeeBenefitsService,
-                volunteeringService);
+                payrollServiceQueue,
+                employeeBenefitsServiceQueue,
+                volunteeringServiceQueue);
 
         systemManager.startAll();
 
 
         /** Now createWithWorkers the service proxy like before. */
         EmployeeHiringServiceClient employeeHiringServiceClientProxy =
-                employeeHiringService.createProxy(EmployeeHiringServiceClient.class);
+                employeeHiringServiceQueue.createProxy(EmployeeHiringServiceClient.class);
 
         /** Call the hireEmployee method which triggers the other events. */
         employeeHiringServiceClientProxy.hireEmployee(new Employee("Rick", 1));

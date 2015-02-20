@@ -23,7 +23,7 @@ import io.advantageous.qbit.message.MethodCall;
 import io.advantageous.qbit.message.Response;
 import io.advantageous.qbit.queue.ReceiveQueue;
 import io.advantageous.qbit.queue.SendQueue;
-import io.advantageous.qbit.service.Service;
+import io.advantageous.qbit.service.ServiceQueue;
 import io.advantageous.qbit.spi.RegisterBoonWithQBit;
 import org.boon.core.Sys;
 import org.junit.Test;
@@ -52,10 +52,10 @@ public class TodoServiceWithQBitServiceTest {
     public void testCallbackWithObjectNameAndMethodName() {
 
 
-        Service service = QBit.factory().createService("/services", "/todo-service", new TodoService(), null, null).start();
+        ServiceQueue serviceQueue = QBit.factory().createService("/services", "/todo-service", new TodoService(), null, null).start();
 
 
-        SendQueue<MethodCall<Object>> requests = service.requests();
+        SendQueue<MethodCall<Object>> requests = serviceQueue.requests();
 
         TodoItem todoItem = new TodoItem("call mom", "give mom a call", new Date());
         MethodCall<Object> addMethodCall = QBit.factory().createMethodCallByNames("add", "/todo-service", "call1:localhost", todoItem, null);
@@ -69,7 +69,7 @@ public class TodoServiceWithQBitServiceTest {
 
         Sys.sleep(100);
 
-        ReceiveQueue<Response<Object>> responses = service.responses();
+        ReceiveQueue<Response<Object>> responses = serviceQueue.responses();
 
         Response<Object> response = responses.take();
 
@@ -95,9 +95,9 @@ public class TodoServiceWithQBitServiceTest {
     public void testCallbackWithAddress() {
 
 
-        Service service = QBit.factory().createService("/services", "/todo-service", new TodoService(), null, null).start();
+        ServiceQueue serviceQueue = QBit.factory().createService("/services", "/todo-service", new TodoService(), null, null).start();
 
-        SendQueue<MethodCall<Object>> requests = service.requests();
+        SendQueue<MethodCall<Object>> requests = serviceQueue.requests();
 
         TodoItem todoItem = new TodoItem("call mom", "give mom a call", new Date());
         MethodCall<Object> addMethodCall = QBit.factory().createMethodCallByAddress("/services/todo-service/add", "call1:localhost", todoItem, null);
@@ -111,7 +111,7 @@ public class TodoServiceWithQBitServiceTest {
 
         Sys.sleep(100);
 
-        ReceiveQueue<Response<Object>> responses = service.responses();
+        ReceiveQueue<Response<Object>> responses = serviceQueue.responses();
 
         Response<Object> response = responses.take();
 

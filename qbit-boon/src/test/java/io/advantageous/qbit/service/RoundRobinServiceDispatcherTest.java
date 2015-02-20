@@ -111,12 +111,12 @@ public class RoundRobinServiceDispatcherTest extends TimedTesting{
         final ServiceBuilder serviceBuilder = serviceBuilder()
                 .setQueueBuilder(queueBuilder).setResponseQueueBuilder(queueBuilder);
 
-        final Service service1 = serviceBuilder.setServiceObject(new MultiWorker()).build();
-        final Service service2 = serviceBuilder.setServiceObject(new MultiWorker()).build();
-        final Service service3 = serviceBuilder.setServiceObject(new MultiWorker()).build();
+        final ServiceQueue serviceQueue1 = serviceBuilder.setServiceObject(new MultiWorker()).build();
+        final ServiceQueue serviceQueue2 = serviceBuilder.setServiceObject(new MultiWorker()).build();
+        final ServiceQueue serviceQueue3 = serviceBuilder.setServiceObject(new MultiWorker()).build();
 
 
-        rrDispatcher.addServices(service1, service2, service3);
+        rrDispatcher.addServices(serviceQueue1, serviceQueue2, serviceQueue3);
         rrDispatcher.start();
 
         bundle = serviceBundleBuilder().setAddress("/root").build();

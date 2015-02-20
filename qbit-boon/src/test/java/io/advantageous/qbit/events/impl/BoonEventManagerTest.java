@@ -26,7 +26,7 @@ import io.advantageous.qbit.events.EventConsumer;
 import io.advantageous.qbit.events.EventManager;
 import io.advantageous.qbit.events.EventSubscriber;
 import io.advantageous.qbit.message.Event;
-import io.advantageous.qbit.service.Service;
+import io.advantageous.qbit.service.ServiceQueue;
 import io.advantageous.qbit.service.ServiceProxyUtils;
 import io.advantageous.qbit.test.TimedTesting;
 import org.boon.core.Sys;
@@ -101,7 +101,7 @@ public class BoonEventManagerTest extends TimedTesting {
 
         final MyService myService = new MyService();
 
-        Service consumerService = serviceBuilder().setServiceObject(myServiceConsumer).setInvokeDynamic(false).build().start();
+        ServiceQueue consumerServiceQueue = serviceBuilder().setServiceObject(myServiceConsumer).setInvokeDynamic(false).build().start();
 
         clientProxy.clientProxyFlush();
 
@@ -124,9 +124,9 @@ public class BoonEventManagerTest extends TimedTesting {
 
 
         Sys.sleep(100);
-        Service senderService = serviceBuilder().setServiceObject(myService).setInvokeDynamic(false).build().start();
+        ServiceQueue senderServiceQueue = serviceBuilder().setServiceObject(myService).setInvokeDynamic(false).build().start();
 
-        final MyServiceClient clientProxy = senderService.createProxy(MyServiceClient.class);
+        final MyServiceClient clientProxy = senderServiceQueue.createProxy(MyServiceClient.class);
 
         clientProxy.sendHi("Hello");
         ServiceProxyUtils.flushServiceProxy(clientProxy);

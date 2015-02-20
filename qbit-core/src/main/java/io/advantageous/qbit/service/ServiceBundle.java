@@ -43,8 +43,8 @@ public interface ServiceBundle extends EndPoint {
     ServiceBundle addServiceObject(String address, Object object);
 
 
-    default ServiceBundle addService(String address, Service service) {
-        this.addServiceObject(address, service);
+    default ServiceBundle addService(String address, ServiceQueue serviceQueue) {
+        this.addServiceObject(address, serviceQueue);
         return this;
     }
 

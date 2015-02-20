@@ -20,7 +20,7 @@ package io.advantageous.qbit.example.events;
 
 import io.advantageous.qbit.QBit;
 import io.advantageous.qbit.events.EventManager;
-import io.advantageous.qbit.service.Service;
+import io.advantageous.qbit.service.ServiceQueue;
 import org.boon.core.Sys;
 
 import java.lang.annotation.ElementType;
@@ -46,14 +46,14 @@ public class EmployeeEventExampleUsingStandaloneEventBus {
         EventManager privateEventBus = QBit.factory().createEventManager();
 
         /* Create a service queue for this event bus. */
-        Service privateEventBusService = serviceBuilder()
+        ServiceQueue privateEventBusServiceQueue = serviceBuilder()
                 .setServiceObject(privateEventBus)
                 .setInvokeDynamic(false).build().start();
 
         /*
          Create a proxy client for the queued event bus service.
          */
-        EventManagerClient eventBus = privateEventBusService.createProxy(EventManagerClient.class);
+        EventManagerClient eventBus = privateEventBusServiceQueue.createProxy(EventManagerClient.class);
 
 
         /*
@@ -71,37 +71,37 @@ public class EmployeeEventExampleUsingStandaloneEventBus {
 
 
         /** Employee hiring service. */
-        Service employeeHiringService = serviceBuilder()
+        ServiceQueue employeeHiringServiceQueue = serviceBuilder()
                 .setServiceObject(employeeHiring)
                 .setInvokeDynamic(false).build();
         /** Payroll service */
-        Service payrollService = serviceBuilder()
+        ServiceQueue payrollServiceQueue = serviceBuilder()
                 .setServiceObject(payroll)
                 .setInvokeDynamic(false).build();
         /** Employee Benefits service. */
-        Service employeeBenefitsService = serviceBuilder()
+        ServiceQueue employeeBenefitsServiceQueue = serviceBuilder()
                 .setServiceObject(benefits)
                 .setInvokeDynamic(false).build();
         /* Community outreach program. */
-        Service volunteeringService = serviceBuilder()
+        ServiceQueue volunteeringServiceQueue = serviceBuilder()
                 .setServiceObject(volunteering)
                 .setInvokeDynamic(false).build();
 
 
         /* Now wire in the event bus so it can fire events into the service queues. */
-        privateEventBus.joinService(payrollService);
-        privateEventBus.joinService(employeeBenefitsService);
-        privateEventBus.joinService(volunteeringService);
+        privateEventBus.joinService(payrollServiceQueue);
+        privateEventBus.joinService(employeeBenefitsServiceQueue);
+        privateEventBus.joinService(volunteeringServiceQueue);
 
         /** Now createWithWorkers the service proxy like before. */
         EmployeeHiringServiceClient employeeHiringServiceClientProxy =
-                employeeHiringService.createProxy(EmployeeHiringServiceClient.class);
+                employeeHiringServiceQueue.createProxy(EmployeeHiringServiceClient.class);
 
 
-        employeeHiringService.start();
-        volunteeringService.start();
-        payrollService.start();
-        employeeBenefitsService.start();
+        employeeHiringServiceQueue.start();
+        volunteeringServiceQueue.start();
+        payrollServiceQueue.start();
+        employeeBenefitsServiceQueue.start();
 
 
         /** Call the hireEmployee method which triggers the other events. */

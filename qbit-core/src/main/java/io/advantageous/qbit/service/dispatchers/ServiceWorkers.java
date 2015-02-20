@@ -55,7 +55,7 @@ package io.advantageous.qbit.service.dispatchers;
 
 import io.advantageous.qbit.message.MethodCall;
 import io.advantageous.qbit.queue.SendQueue;
-import io.advantageous.qbit.service.Service;
+import io.advantageous.qbit.service.ServiceQueue;
 import org.boon.core.reflection.BeanUtils;
 
 import java.util.ArrayList;
@@ -132,7 +132,7 @@ public class ServiceWorkers implements ServiceMethodDispatcher {
 
 
     protected final boolean startServices;
-    protected List<Service> services = new ArrayList<>();
+    protected List<ServiceQueue> serviceQueues = new ArrayList<>();
     protected List<SendQueue<MethodCall<Object>>> sendQueues = new ArrayList<>();
     protected AtomicInteger index = new AtomicInteger();
 
@@ -147,33 +147,33 @@ public class ServiceWorkers implements ServiceMethodDispatcher {
     }
 
 
-    public ServiceWorkers addService(Service service) {
-        services.add(service);
+    public ServiceWorkers addService(ServiceQueue serviceQueue) {
+        serviceQueues.add(serviceQueue);
         return this;
     }
 
-    public ServiceWorkers addServices(Service... servicesArray) {
+    public ServiceWorkers addServices(ServiceQueue... servicesArray) {
 
-        for (Service service : servicesArray) {
-            addService(service);
+        for (ServiceQueue serviceQueue : servicesArray) {
+            addService(serviceQueue);
         }
         return this;
     }
 
     public ServiceWorkers start() {
 
-        services = Collections.unmodifiableList(services);
+        serviceQueues = Collections.unmodifiableList(serviceQueues);
 
 
 
         if (startServices) {
-            for (Service service : services) {
-                service.start();
+            for (ServiceQueue serviceQueue : serviceQueues) {
+                serviceQueue.start();
             }
         }
 
-        for (Service service : services) {
-            sendQueues.add(service.requests());
+        for (ServiceQueue serviceQueue : serviceQueues) {
+            sendQueues.add(serviceQueue.requests());
         }
 
         return this;
@@ -182,7 +182,7 @@ public class ServiceWorkers implements ServiceMethodDispatcher {
     public void accept(MethodCall<Object> methodCall) {
 
 
-        int localIndex = index.getAndIncrement() % services.size();
+        int localIndex = index.getAndIncrement() % serviceQueues.size();
 
         final SendQueue<MethodCall<Object>> methodCallSendQueue = sendQueues.get(localIndex);
         methodCallSendQueue.send(methodCall);
@@ -190,15 +190,15 @@ public class ServiceWorkers implements ServiceMethodDispatcher {
     }
 
     public void flush() {
-        for (Service service : services) {
-            service.flush();
+        for (ServiceQueue serviceQueue : serviceQueues) {
+            serviceQueue.flush();
         }
     }
 
     public void stop() {
 
-        for (Service service : services) {
-            service.stop();
+        for (ServiceQueue serviceQueue : serviceQueues) {
+            serviceQueue.stop();
         }
     }
 }

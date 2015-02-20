@@ -41,12 +41,12 @@ import io.advantageous.qbit.sender.SenderEndPoint;
 import io.advantageous.qbit.server.ServiceServer;
 import io.advantageous.qbit.server.ServiceServerImpl;
 import io.advantageous.qbit.service.BeforeMethodCall;
-import io.advantageous.qbit.service.Service;
+import io.advantageous.qbit.service.ServiceQueue;
 import io.advantageous.qbit.service.ServiceBundle;
 import io.advantageous.qbit.service.ServiceMethodHandler;
 import io.advantageous.qbit.service.impl.BoonServiceMethodCallHandler;
 import io.advantageous.qbit.service.impl.ServiceBundleImpl;
-import io.advantageous.qbit.service.impl.ServiceImpl;
+import io.advantageous.qbit.service.impl.ServiceQueueImpl;
 import io.advantageous.qbit.spi.*;
 import io.advantageous.qbit.system.QBitSystemManager;
 import io.advantageous.qbit.transforms.Transformer;
@@ -71,7 +71,7 @@ import static io.advantageous.qbit.service.ServiceBuilder.serviceBuilder;
 public class BoonQBitFactory implements Factory {
 
     private final Logger logger = LoggerFactory.getLogger(BoonQBitFactory.class);
-    private AtomicReference<Service> systemEventManager = new AtomicReference<>();
+    private AtomicReference<ServiceQueue> systemEventManager = new AtomicReference<>();
     private ThreadLocal<EventManager> eventManagerThreadLocal = new ThreadLocal<>();
     private ProtocolParser defaultProtocol = new BoonProtocolParser();
     private ServiceProxyFactory serviceProxyFactory = new BoonServiceProxyFactory(this);
@@ -96,10 +96,10 @@ public class BoonQBitFactory implements Factory {
 
         EventManager proxy;
         if ( systemEventManager.get() == null ) {
-            final Service service = serviceBuilder().setInvokeDynamic(false).setServiceObject(createEventManager()).build().start();
+            final ServiceQueue serviceQueue = serviceBuilder().setInvokeDynamic(false).setServiceObject(createEventManager()).build().start();
 
-            systemEventManager.set(service);
-            proxy = service.createProxy(EventManager.class);
+            systemEventManager.set(serviceQueue);
+            proxy = serviceQueue.createProxy(EventManager.class);
         } else {
             proxy = systemEventManager.get().createProxy(EventManager.class);
         }
@@ -110,9 +110,9 @@ public class BoonQBitFactory implements Factory {
 
     @Override
     public void shutdownSystemEventBus() {
-        final Service service = systemEventManager.get();
-        if ( service != null ) {
-            service.stop();
+        final ServiceQueue serviceQueue = systemEventManager.get();
+        if ( serviceQueue != null ) {
+            serviceQueue.stop();
         }
     }
 
@@ -246,17 +246,17 @@ public class BoonQBitFactory implements Factory {
 
 
     @Override
-    public Service createService(final String rootAddress, final String serviceAddress, final Object service, final Queue<Response<Object>> responseQueue, final QBitSystemManager systemManager) {
+    public ServiceQueue createService(final String rootAddress, final String serviceAddress, final Object service, final Queue<Response<Object>> responseQueue, final QBitSystemManager systemManager) {
 
 
-        return new ServiceImpl(rootAddress, serviceAddress, service, null, new BoonServiceMethodCallHandler(true), responseQueue, true, false, systemManager);
+        return new ServiceQueueImpl(rootAddress, serviceAddress, service, null, new BoonServiceMethodCallHandler(true), responseQueue, true, false, systemManager);
 
     }
 
     @Override
-    public Service createService(String rootAddress, String serviceAddress, Object object, Queue<Response<Object>> responseQueue, final QueueBuilder queueBuilder, boolean async, boolean invokeDynamic, boolean handleCallbacks, final QBitSystemManager systemManager) {
+    public ServiceQueue createService(String rootAddress, String serviceAddress, Object object, Queue<Response<Object>> responseQueue, final QueueBuilder queueBuilder, boolean async, boolean invokeDynamic, boolean handleCallbacks, final QBitSystemManager systemManager) {
 
-        return new ServiceImpl(rootAddress, serviceAddress, object, queueBuilder, new BoonServiceMethodCallHandler(invokeDynamic), responseQueue, async, handleCallbacks, systemManager);
+        return new ServiceQueueImpl(rootAddress, serviceAddress, object, queueBuilder, new BoonServiceMethodCallHandler(invokeDynamic), responseQueue, async, handleCallbacks, systemManager);
 
     }
 
