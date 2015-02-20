@@ -5,6 +5,7 @@ import io.advantageous.qbit.annotation.QueueCallback;
 import io.advantageous.qbit.annotation.QueueCallbackType;
 import io.advantageous.qbit.annotation.Service;
 import io.advantageous.qbit.service.Callback;
+import io.advantageous.qbit.service.ServiceProxyUtils;
 import org.boon.Lists;
 import org.boon.cache.SimpleCache;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,8 +43,16 @@ public class RecommendationService {
         User user = users.get(userName);
 
         if (user == null) {
+
+            // Shortcut for testing... callbacks.add(() -> recommendationsCallback.accept(runRulesEngineAgainstUser(new User("Bobby"))));
+
             userDataService.loadUser(
-                    loadedUser -> handleLoadFromUserDataService(loadedUser, recommendationsCallback), userName);
+                    loadedUser -> {
+
+                        System.out.println("GOT CALL BACK FROM SERVICE");
+                        handleLoadFromUserDataService(loadedUser, recommendationsCallback);
+
+                    }, userName);
         } else {
             recommendationsCallback.accept(runRulesEngineAgainstUser(user));
         }
@@ -69,8 +78,11 @@ public class RecommendationService {
     }
 
     private void handleCallbacks() {
+
+        ServiceProxyUtils.flushServiceProxy(userDataService);
         if (callbacks.size() > 0) {
             callbacks.forEach(Runnable::run);
+            callbacks.clear();
         }
     }
 
@@ -90,8 +102,4 @@ public class RecommendationService {
     }
 
 
-    //Next example
-//    public void moreRecommendationsPlease(final String userName, int numberOfRecommendations) {
-//
-//    }
 }

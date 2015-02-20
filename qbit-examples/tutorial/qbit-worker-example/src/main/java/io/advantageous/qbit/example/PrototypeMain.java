@@ -26,6 +26,8 @@ public class PrototypeMain {
                                     .setServiceObject(new UserDataService())
                                     .build().start();
 
+        userDataService.startCallBackHandler();
+
         UserDataServiceClient userDataServiceClient = userDataService
                                 .createProxy(UserDataServiceClient.class);
 

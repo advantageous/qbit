@@ -8,9 +8,9 @@ import io.advantageous.qbit.service.Callback;
 import org.boon.core.Sys;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
+
+import static org.boon.Boon.puts;
 
 
 @Service
@@ -20,7 +20,16 @@ public class UserDataService {
     private final List<Runnable> userLoadCallBacks = new ArrayList<>(1_000);
 
     public void loadUser(final Callback<User> callBack, final String userId) {
-        userLoadCallBacks.add(() -> callBack.accept(new User(userId)));
+
+        puts("UserDataService :: loadUser called", userId);
+        userLoadCallBacks.add(
+                new Runnable() {
+                    @Override
+                    public void run() {
+                        callBack.accept(new User(userId));
+                    }
+                });
+
     }
 
     @QueueCallback(QueueCallbackType.EMPTY)
@@ -39,7 +48,13 @@ public class UserDataService {
     public void pretendToDoIO() {
         Sys.sleep(100);
 
-        userLoadCallBacks.forEach(Runnable::run);
+        if (userLoadCallBacks.size()==0) {
+            return;
+        }
+
+        for (Runnable runnable : userLoadCallBacks) {
+            runnable.run();
+        }
 
         userLoadCallBacks.clear();
 
