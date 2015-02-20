@@ -50,6 +50,8 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 import static io.advantageous.qbit.annotation.AnnotationUtils.getListenAnnotation;
+import static org.boon.Boon.puts;
+import static org.boon.Boon.sputs;
 import static org.boon.Exceptions.die;
 
 /**
@@ -354,11 +356,11 @@ public class BoonServiceMethodCallHandler implements ServiceMethodHandler {
             extractHandlersFromArgumentListBodyIsList(method, argsList, list);
 
         } else if (body instanceof Object[]) {
-            extactHandlersFromArgumentListArrayCase(method, (Object[]) body, argsList);
+            extractHandlersFromArgumentListArrayCase(method, (Object[]) body, argsList);
         }
     }
 
-    private void extactHandlersFromArgumentListArrayCase(MethodAccess method, Object[] array, List<Object> argsList) {
+    private void extractHandlersFromArgumentListArrayCase(MethodAccess method, Object[] array, List<Object> argsList) {
 
         if (array.length - 1 == method.parameterTypes().length) {
             if (array[0] instanceof Callback) {
@@ -367,7 +369,7 @@ public class BoonServiceMethodCallHandler implements ServiceMethodHandler {
         }
 
 
-        for (int index = 0, arrayIndex = 0; index < argsList.size(); index++) {
+        for (int index = 0, arrayIndex = 0; index < argsList.size(); index++, arrayIndex++) {
 
             final Object o = argsList.get(index);
             if (o instanceof Callback) {
@@ -381,7 +383,6 @@ public class BoonServiceMethodCallHandler implements ServiceMethodHandler {
 
 
             argsList.set(index, array[arrayIndex]);
-            arrayIndex++;
 
         }
     }
@@ -537,7 +538,32 @@ public class BoonServiceMethodCallHandler implements ServiceMethodHandler {
 
     private Response<Object> invokeByName(MethodCall<Object> methodCall) {
         final MethodAccess method = classMeta.method(methodCall.name());
-        return mapArgsAsyncHandlersAndInvoke(methodCall, method);
+
+        if (method != null) {
+            return mapArgsAsyncHandlersAndInvoke(methodCall, method);
+        } else {
+
+           if (methodCall.name().equals("toString")){
+               puts("Method Call toString was called", methodCall.objectName(), methodCall.name(), methodCall.address());
+
+               return ResponseImpl.response(
+                       methodCall.id(),
+                       methodCall.timestamp(),
+                       methodCall.address(),
+                       methodCall.returnAddress(),
+                       sputs("Method Call toString was called", methodCall.objectName(), methodCall.name(), methodCall.address()),
+                       methodCall, false);
+
+           } else {
+               return ResponseImpl.response(
+                       methodCall.id(),
+                       methodCall.timestamp(),
+                       methodCall.address(),
+                       methodCall.returnAddress(),
+                       new Exception("Unable to find method"),
+                       methodCall, true);
+           }
+        }
     }
 
 

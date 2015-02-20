@@ -1,8 +1,11 @@
 package io.advantageous.qbit.example;
 
+import io.advantageous.qbit.QBit;
 import io.advantageous.qbit.service.Callback;
 import io.advantageous.qbit.service.Service;
+import io.advantageous.qbit.service.ServiceProxyUtils;
 import org.boon.Lists;
+import org.boon.core.Sys;
 
 import java.util.List;
 
@@ -15,9 +18,13 @@ public class PrototypeMain {
 
     public static void main(String... args) {
 
+
+        QBit.factory().systemEventManager();
+
+
         Service userDataService = serviceBuilder()
                                     .setServiceObject(new UserDataService())
-                                    .build();
+                                    .build().start();
 
         UserDataServiceClient userDataServiceClient = userDataService
                                 .createProxy(UserDataServiceClient.class);
@@ -29,26 +36,44 @@ public class PrototypeMain {
 
         Service recommendationService = serviceBuilder()
                 .setServiceObject(recommendationServiceImpl)
-                .build();
+                .build().start();
+
+        recommendationService.startCallBackHandler();
 
 
         RecommendationServiceClient recommendationServiceClient =
                 recommendationService.createProxy(RecommendationServiceClient.class);
 
+        Callback<List<Recommendation>> callback = new Callback<List<Recommendation>>() {
+            @Override
+            public void accept(List<Recommendation> recommendations) {
+                System.out.println("recommendations" + recommendations);
+            }
 
-        userDataService.startCallBackHandler();
-        recommendationService.startCallBackHandler();
+            @Override
+            public void onError(Throwable error) {
+                error.printStackTrace();
+            }
+        };
 
+        recommendationServiceClient.recommend(callback, "Rick");
 
-        List<String> userNames = Lists.list("Bob", "Joe", "Scott", "William");
+        ServiceProxyUtils.flushServiceProxy(recommendationServiceClient);
+        Sys.sleep(1000);
 
-        userNames.forEach( userName->
-                recommendationServiceClient.recommend(recommendations -> {
-                    System.out.println("Recommendations for:" + userName);
-                    recommendations.forEach(recommendation->
-                            System.out.println("\t" + recommendation));
-                }, userName)
-        );
+//        List<String> userNames = Lists.list("Bob", "Joe", "Scott", "William");
+//
+//        userNames.forEach( userName->
+//                recommendationServiceClient.recommend(recommendations -> {
+//                    System.out.println("Recommendations for:" + userName);
+//                    recommendations.forEach(recommendation->
+//                            System.out.println("\t" + recommendation));
+//                }, userName)
+//        );
+
+        ServiceProxyUtils.flushServiceProxy(recommendationServiceClient);
+
+        Sys.sleep(1000);
 
     }
 }

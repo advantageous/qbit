@@ -36,6 +36,7 @@ public class RecommendationService {
                           final String userName) {
 
 
+        System.out.println("recommend called");
         handleCallbacks();
 
         User user = users.get(userName);

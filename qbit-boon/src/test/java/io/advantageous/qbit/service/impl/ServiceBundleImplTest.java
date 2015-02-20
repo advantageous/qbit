@@ -37,6 +37,7 @@ import org.junit.Test;
 
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
 
 import static org.boon.Boon.puts;
 import static org.boon.Exceptions.die;
@@ -114,6 +115,35 @@ public class ServiceBundleImplTest {
         ok = returnValue.get() == 1 || die(returnValue.get());
     }
 
+
+    @Test
+    public void testCallbackWithCallBackInService() throws Exception {
+
+
+        serviceBundle.addService(new MockService());
+        proxy = serviceBundle.createLocalProxy(MockServiceInterface.class, "mockService");
+        serviceBundle.startReturnHandlerProcessor();
+
+        AtomicReference<String> str = new AtomicReference<>();
+
+        AtomicInteger returnValue = new AtomicInteger();
+        proxy.methodWithCallBack(new Callback<String>() {
+            @Override
+            public void accept(String s) {
+                puts("###############", s);
+                str.set(s);
+            }
+        });
+        proxy.clientProxyFlush();
+
+
+        Sys.sleep(1000);
+
+        ok = callCount == 1 || die();
+
+        ok = str.get().equals("hello") || die();
+    }
+
     @Test
     public void testAddress() throws Exception {
 
@@ -172,6 +202,9 @@ public class ServiceBundleImplTest {
 
         void clientProxyFlush();
 
+        void methodWithCallBack(Callback<String> callback);
+
+
     }
 
     public static class AdderService {
@@ -188,6 +221,11 @@ public class ServiceBundleImplTest {
     class MockService {
         public void method1() {
             callCount++;
+        }
+
+        public void methodWithCallBack(Callback<String> callback) {
+            callCount++;
+            callback.accept("hello");
         }
 
         public int method2() {

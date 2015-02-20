@@ -45,6 +45,8 @@
 
 package io.advantageous.qbit.service.impl;
 
+import io.advantageous.qbit.GlobalConstants;
+import io.advantageous.qbit.QBit;
 import io.advantageous.qbit.client.ClientProxy;
 import io.advantageous.qbit.events.EventManager;
 import io.advantageous.qbit.message.*;
@@ -63,10 +65,13 @@ import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.util.Collection;
+import java.util.UUID;
 import java.util.concurrent.locks.ReentrantLock;
 
 import static io.advantageous.qbit.QBit.factory;
 import static io.advantageous.qbit.service.ServiceContext.serviceContext;
+import static org.boon.Boon.puts;
+import static org.boon.Boon.sputs;
 
 /**
  * @author  rhightower on 2/18/15.
@@ -75,7 +80,7 @@ public class BaseServiceImpl implements Service {
     private static ThreadLocal<Service> serviceThreadLocal = new ThreadLocal<>();
     protected final QBitSystemManager systemManager;
     protected final Logger logger = LoggerFactory.getLogger(ServiceImpl.class);
-    protected final boolean debug = logger.isDebugEnabled();
+    protected final boolean debug = false || GlobalConstants.DEBUG || logger.isDebugEnabled();
     protected final Object service;
     protected final Queue<Response<Object>> responseQueue;
     protected final Queue<MethodCall<Object>> requestQueue;
@@ -114,7 +119,7 @@ public class BaseServiceImpl implements Service {
 
         if (responseQueue == null) {
             if (debug) {
-                logger.debug("RESPONSE QUEUE WAS NULL CREATING ONE");
+                puts("RESPONSE QUEUE WAS NULL CREATING ONE");
             }
             this.responseQueue = this.queueBuilder.setName("Response Queue  " + serviceMethodHandler.address()).build();
         } else {
@@ -142,6 +147,7 @@ public class BaseServiceImpl implements Service {
 
     @Override
     public Service start() {
+
         start(serviceMethodHandler, true);
         return this;
     }
@@ -270,12 +276,12 @@ public class BaseServiceImpl implements Service {
         final boolean continueFlag[] = new boolean[1];
         methodCall = beforeMethodProcessing(methodCall, continueFlag);
         if (continueFlag[0]) {
-            if (debug) logger.info("ServiceImpl::doHandleMethodCall() before handling stopped processing");
+            if (debug) puts("ServiceImpl::doHandleMethodCall() before handling stopped processing");
             return;
         }
         Response<Object> response = serviceMethodHandler.receiveMethodCall(methodCall);
         if (debug) {
-            logger.debug("ServiceImpl::receive() \nRESPONSE\n" + response + "\nFROM CALL\n" + methodCall + "\n\n");
+            puts("ServiceImpl::receive() \nRESPONSE\n" + response + "\nFROM CALL\n" + methodCall + " name " + methodCall.name() + "\n\n");
         }
         if (response != ServiceConstants.VOID) {
 
@@ -482,18 +488,31 @@ public class BaseServiceImpl implements Service {
     }
 
     public <T> T createProxy(Class<T> serviceInterface) {
+
+        final String uuid = UUID.randomUUID().toString();
+
+
+
         final SendQueue<MethodCall<Object>> methodCallSendQueue = requestQueue.sendQueue();
+
         InvocationHandler invocationHandler = new InvocationHandler() {
+
+            private long messageId = 0;
             private long timestamp = Timer.timer().now();
             private int times = 10;
 
             @Override
             public Object invoke(final Object proxy, final Method method, final Object[] args) throws Throwable {
 
+                if (method.getName().equals("toString")) {
+
+                    return sputs("PROXY OBJECT", address());
+                }
                 if (method.getName().equals("clientProxyFlush")) {
                     methodCallSendQueue.flushSends();
                     return null;
                 }
+                messageId++;
                 times--;
                 if (times == 0) {
                     timestamp = Timer.timer().now();
@@ -501,7 +520,7 @@ public class BaseServiceImpl implements Service {
                 } else {
                     timestamp++;
                 }
-                final MethodCallLocal call = new MethodCallLocal(method.getName(), timestamp, args);
+                final MethodCallLocal call = new MethodCallLocal(method.getName(), uuid, timestamp, messageId, args);
                 methodCallSendQueue.send(call);
                 return null;
             }
@@ -531,10 +550,15 @@ public class BaseServiceImpl implements Service {
         private final long timestamp;
         private final Object[] arguments;
 
-        public MethodCallLocal(String name, long timestamp, Object[] args) {
+        private final String uuid;
+        private final long messageId;
+
+        public MethodCallLocal(String name, final String uuid, long timestamp, long messageId, Object[] args) {
             this.name = name;
             this.timestamp = timestamp;
             this.arguments = args;
+            this.uuid = uuid;
+            this.messageId = messageId;
         }
 
         @Override
@@ -544,12 +568,12 @@ public class BaseServiceImpl implements Service {
 
         @Override
         public String address() {
-            return "";
+            return name;
         }
 
         @Override
         public String returnAddress() {
-            return "";
+            return uuid;
         }
 
         @Override
@@ -598,7 +622,7 @@ public class BaseServiceImpl implements Service {
 
         @Override
         public long id() {
-            return timestamp;
+            return messageId;
         }
 
         @Override

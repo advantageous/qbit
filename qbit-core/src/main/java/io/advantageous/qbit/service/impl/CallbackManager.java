@@ -91,6 +91,11 @@ public class CallbackManager {
 
     public void handleResponse(Response<Object> response) {
         final Callback<Object> handler = handlers.get(new HandlerKey(response.returnAddress(), response.id()));
+
+        if (handler==null) {
+            return;
+        }
+
         if (response.wasErrors()) {
             if (response.body() instanceof Throwable) {
                 logger.error("Service threw an exception address", response.address(),

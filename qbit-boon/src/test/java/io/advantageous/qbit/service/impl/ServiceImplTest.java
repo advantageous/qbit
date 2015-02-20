@@ -18,6 +18,7 @@
 
 package io.advantageous.qbit.service.impl;
 
+import io.advantageous.qbit.QBit;
 import io.advantageous.qbit.service.Callback;
 import io.advantageous.qbit.service.Service;
 import io.advantageous.qbit.service.ServiceBuilder;
@@ -27,7 +28,9 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
 
+import static org.boon.Boon.puts;
 import static org.boon.Exceptions.die;
 
 public class ServiceImplTest {
@@ -79,6 +82,34 @@ public class ServiceImplTest {
         ok = returnValue.get() == 1 || die(returnValue.get());
     }
 
+
+    @Test
+    public void testServiceCallback() throws Exception {
+
+        QBit.factory().systemEventManager();
+
+
+        AtomicReference<String> returnString = new AtomicReference<>();
+        service.startCallBackHandler();
+        Sys.sleep(100);
+        AtomicInteger returnValue = new AtomicInteger();
+        proxy.methodWithCallBack(new Callback<String>() {
+            @Override
+            public void accept(String s) {
+                puts("#################", s);
+                returnString.set(s);
+            }
+        }, "hello");
+        proxy.clientProxyFlush();
+
+
+        Sys.sleep(1000);
+
+        ok = callCount == 1 || die();
+
+        ok = returnString.get().equals("hello") || die();
+    }
+
     @After
     public void tearDown() {
         callCount = 0;
@@ -90,6 +121,9 @@ public class ServiceImplTest {
 
         void method2(Callback<Integer> count);
 
+
+        void methodWithCallBack(Callback<String> callback, String hi) ;
+
         void clientProxyFlush();
 
     }
@@ -97,6 +131,12 @@ public class ServiceImplTest {
     class MockService {
         public void method1() {
             callCount++;
+        }
+
+
+        public void methodWithCallBack(Callback<String> callback, String hi) {
+            callCount++;
+            callback.accept(hi);
         }
 
         public int method2() {

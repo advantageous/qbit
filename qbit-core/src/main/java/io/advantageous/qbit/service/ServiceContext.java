@@ -52,7 +52,8 @@ public class ServiceContext {
     public void joinEventManager() {
 
         final EventManager eventManager = eventManager();
-        eventManager.joinService(currentService());
+        Service service = currentService();
+        eventManager.joinService(service);
     }
 
     public <T> void send(String channel, T message) {

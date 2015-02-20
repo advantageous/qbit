@@ -368,7 +368,18 @@ public class IntegrationTestForRESTStyleCallsTest {
         /* Create employee client */
         serviceBundle.addService(employeeService);
 
-        call = factory.createMethodCallByAddress(addressToMethodCall, returnAddress, "World", params);
+
+        call = factory.createMethodCallByAddress(addressToMethodCall, returnAddress,
+
+                new Object[]{
+                        new Callback<String>() {
+
+                            @Override
+                            public void accept(String s) {
+                                puts("$$$$$$$$$$$$$$$$$$" + s);
+                            }
+                        },
+                        "World"}, params);
 
         doCall();
 
@@ -382,7 +393,6 @@ public class IntegrationTestForRESTStyleCallsTest {
 
 
         puts(response.body());
-
         Boon.equalsOrDie("Hello World", response.body());
 
     }
@@ -508,6 +518,7 @@ public class IntegrationTestForRESTStyleCallsTest {
 
         @RequestMapping( "/asyncHelloWorld/" )
         public void asyncHelloWorld(Callback<String> handler, String arg) {
+
             handler.accept("Hello " + arg);
         }
 
