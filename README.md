@@ -961,6 +961,58 @@ Then just use it:
 
 ```
 
+### Built in shard rules
+
+```java
+
+
+public class ServiceWorkers {
+...
+    public static ShardedMethodDispatcher shardOnFirstArgumentWorkers() {
+       ...
+    }
+
+
+    public static ShardedMethodDispatcher shardOnSecondArgumentWorkers() {
+        ...
+    }
+
+
+    public static ShardedMethodDispatcher shardOnThirdArgumentWorkers() {
+        ...
+    }
+
+
+    public static ShardedMethodDispatcher shardOnFourthArgumentWorkers() {
+         ...
+    }
+
+
+    public static ShardedMethodDispatcher shardOnFifthArgumentWorkers() {
+         ...
+    }
+
+
+    public static ShardedMethodDispatcher shardOnBeanPath(final String beanPath) {
+        ...
+    }
+
+```
+
+The shardOnBeanPath allows you to create a complex bean path navigation call and use its property to shard on.
+
+```java
+
+     /* shard on 2nd arg which is an employee
+       Use the employees department's id property. */
+     dispatcher = shardOnBeanPath("[1].department.id"); 
+
+     /* Same as above. */
+     dispatcher = shardOnBeanPath("1/department/id"); 
+
+```
+
+
 
 ## More
 TBD
