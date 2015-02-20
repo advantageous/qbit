@@ -60,7 +60,10 @@ public class QBitServletUtil {
                                             final HttpRequestBuilder httpRequestBuilder) {
 
         httpRequestBuilder.setTextReceiver((code, contentType, body) -> {
+
+
             response.setHeader("Content-Type", contentType);
+            response.setStatus(code);
             try {
                 final ServletOutputStream outputStream = response.getOutputStream();
                 outputStream.write(body.getBytes(StandardCharsets.UTF_8));
