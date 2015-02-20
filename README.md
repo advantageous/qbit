@@ -972,21 +972,7 @@ public class ServiceWorkers {
        ...
     }
 
-
-    public static ShardedMethodDispatcher shardOnSecondArgumentWorkers() {
-        ...
-    }
-
-
-    public static ShardedMethodDispatcher shardOnThirdArgumentWorkers() {
-        ...
-    }
-
-
-    public static ShardedMethodDispatcher shardOnFourthArgumentWorkers() {
-         ...
-    }
-
+...
 
     public static ShardedMethodDispatcher shardOnFifthArgumentWorkers() {
          ...
@@ -1012,7 +998,7 @@ The shardOnBeanPath allows you to create a complex bean path navigation call and
 
 ```
 
-
+[Read more about Service sharding and service workers here](https://github.com/advantageous/qbit/wiki/%5BRough-Cut%5D-QBit-Microservices-using-Service-Workers-and-sharded-service-workers)
 
 ## More
 TBD
