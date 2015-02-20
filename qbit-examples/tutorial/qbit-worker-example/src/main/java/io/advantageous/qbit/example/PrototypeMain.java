@@ -63,18 +63,19 @@ public class PrototypeMain {
         ServiceProxyUtils.flushServiceProxy(recommendationServiceClient);
         Sys.sleep(1000);
 
-//        List<String> userNames = Lists.list("Bob", "Joe", "Scott", "William");
-//
-//        userNames.forEach( userName->
-//                recommendationServiceClient.recommend(recommendations -> {
-//                    System.out.println("Recommendations for:" + userName);
-//                    recommendations.forEach(recommendation->
-//                            System.out.println("\t" + recommendation));
-//                }, userName)
-//        );
+        List<String> userNames = Lists.list("Bob", "Joe", "Scott", "William");
+
+        userNames.forEach( userName->
+                recommendationServiceClient.recommend(recommendations -> {
+                    System.out.println("Recommendations for:" + userName);
+                    recommendations.forEach(recommendation->
+                            System.out.println("\t" + recommendation));
+                }, userName)
+        );
+
+
 
         ServiceProxyUtils.flushServiceProxy(recommendationServiceClient);
-
         Sys.sleep(1000);
 
     }
