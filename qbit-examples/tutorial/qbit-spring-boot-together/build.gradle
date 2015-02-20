@@ -1,0 +1,27 @@
+
+apply plugin: 'idea'
+apply plugin: 'java'
+apply plugin: 'application'
+
+
+sourceCompatibility = 1.8
+version = '1.0'
+
+repositories {
+    mavenLocal()
+    mavenCentral()
+}
+
+
+dependencies {
+    compile group: 'io.advantageous.qbit', name: 'qbit-servlet', version: '0.6.1-SNAPSHOT'
+    compile group: 'javax.inject', name: 'javax.inject', version: '1'
+    compile('org.springframework.boot:spring-boot-starter-web:1.2.1.RELEASE') {
+        exclude module: 'spring-boot-starter-tomcat'
+    }
+    compile 'org.eclipse.jetty:jetty-webapp:9.+'
+    compile 'org.eclipse.jetty:jetty-jsp:9.+'
+
+    testCompile "junit:junit:4.11"
+    testCompile "org.slf4j:slf4j-simple:[1.7,1.8)"
+}
