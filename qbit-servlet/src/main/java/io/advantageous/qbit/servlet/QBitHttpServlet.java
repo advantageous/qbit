@@ -18,6 +18,7 @@
 
 package io.advantageous.qbit.servlet;
 
+import io.advantageous.qbit.http.HttpTransport;
 import io.advantageous.qbit.http.request.HttpRequest;
 import io.advantageous.qbit.http.server.HttpServer;
 import io.advantageous.qbit.http.server.impl.SimpleHttpServer;
@@ -61,7 +62,8 @@ public abstract class QBitHttpServlet extends HttpServlet {
 
     protected abstract void stop();
 
-    protected abstract void wireHttpServer(final HttpServer httpServer, ServletConfig config);
+    protected abstract void wireHttpServer(final HttpTransport httpTransport,
+                                           final ServletConfig config);
 
     @Override
     protected void service(final HttpServletRequest request, final HttpServletResponse response)

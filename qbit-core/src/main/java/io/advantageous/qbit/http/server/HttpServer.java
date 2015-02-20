@@ -18,6 +18,7 @@
 
 package io.advantageous.qbit.http.server;
 
+import io.advantageous.qbit.http.HttpTransport;
 import io.advantageous.qbit.http.request.HttpRequest;
 import io.advantageous.qbit.http.server.websocket.WebSocketMessage;
 import io.advantageous.qbit.http.websocket.WebSocket;
@@ -34,30 +35,7 @@ import java.util.function.Predicate;
  *
  * @author rhightower
  */
-public interface HttpServer extends Server {
-
-    default void setWebSocketOnOpenConsumer(Consumer<WebSocket> onOpenConsumer) {
-        throw new RuntimeException("Not supported");
-    }
-
-    void setWebSocketMessageConsumer(Consumer<WebSocketMessage> webSocketMessageConsumer);
-
-    void setWebSocketCloseConsumer(Consumer<WebSocketMessage> webSocketMessageConsumer);
-
-    void setHttpRequestConsumer(Consumer<HttpRequest> httpRequestConsumer);
-
-    default void setShouldContinueHttpRequest(Predicate<HttpRequest> predicate) {
-        throw new RuntimeException("Not supported");
-    }
-
-
-    default void setShouldContinueWebSocket(Predicate<WebSocket> predicate) {
-        throw new RuntimeException("Not supported");
-    }
-
-    void setHttpRequestsIdleConsumer(Consumer<Void> idleConsumer);
-
-    void setWebSocketIdleConsume(Consumer<Void> idleConsumer);
+public interface HttpServer extends Server, HttpTransport {
 
     default HttpServer startServer() {
         start();

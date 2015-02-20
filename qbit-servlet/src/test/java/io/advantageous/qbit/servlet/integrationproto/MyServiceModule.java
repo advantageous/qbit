@@ -19,25 +19,27 @@
 package io.advantageous.qbit.servlet.integrationproto;
 
 import io.advantageous.qbit.annotation.RequestMapping;
+import io.advantageous.qbit.http.HttpTransport;
 import io.advantageous.qbit.http.server.HttpServer;
 import io.advantageous.qbit.server.ServiceServer;
 
 import static io.advantageous.qbit.server.ServiceServerBuilder.serviceServerBuilder;
 
 /**
- * @author rhightower on 2/12/15.
+ * @author rhightower
+ * on 2/12/15.
  */
 public class MyServiceModule {
-    public static ServiceServer configureApp(final HttpServer server) {
-        return serviceServerBuilder().setHttpServer(server)
+    public static ServiceServer configureApp(final HttpTransport httpTransport) {
+        return serviceServerBuilder().setHttpTransport(httpTransport)
                 .build().initServices(new PingService()).startServer();
     }
 
     @RequestMapping("/ping")
     public static class PingService {
 
-        @RequestMapping("/ping")
-        public String ping() {
+    @RequestMapping("/ping")
+    public String ping() {
             return "ok";
         }
     }

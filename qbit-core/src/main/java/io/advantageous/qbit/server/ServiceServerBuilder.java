@@ -20,6 +20,7 @@ package io.advantageous.qbit.server;
 
 import io.advantageous.qbit.GlobalConstants;
 import io.advantageous.qbit.QBit;
+import io.advantageous.qbit.http.HttpTransport;
 import io.advantageous.qbit.http.server.HttpServer;
 import io.advantageous.qbit.json.JsonMapper;
 import io.advantageous.qbit.message.Request;
@@ -58,7 +59,7 @@ public class ServiceServerBuilder {
     private QueueBuilder webSocketMessageQueueBuilder;
     private QueueBuilder serviceBundleQueueBuilder;
     private boolean eachServiceInItsOwnThread = true;
-    private HttpServer httpServer;
+    private HttpTransport httpServer;
     private QBitSystemManager qBitSystemManager;
     /**
      * Allows interception of method calls before they get sent to a client.
@@ -88,12 +89,23 @@ public class ServiceServerBuilder {
         return this;
     }
 
-    public HttpServer getHttpServer() {
+    public HttpTransport getHttpServer() {
+        return httpServer;
+    }
+
+
+    public HttpTransport getHttpTransport() {
         return httpServer;
     }
 
     public ServiceServerBuilder setHttpServer(HttpServer httpServer) {
         this.httpServer = httpServer;
+        return this;
+    }
+
+
+    public ServiceServerBuilder setHttpTransport(HttpTransport httpTransport) {
+        this.httpServer = httpTransport;
         return this;
     }
 

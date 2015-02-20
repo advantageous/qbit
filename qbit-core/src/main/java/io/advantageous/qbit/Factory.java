@@ -21,6 +21,7 @@ package io.advantageous.qbit;
 import io.advantageous.qbit.client.Client;
 import io.advantageous.qbit.events.EventBusProxyCreator;
 import io.advantageous.qbit.events.EventManager;
+import io.advantageous.qbit.http.HttpTransport;
 import io.advantageous.qbit.http.client.HttpClient;
 import io.advantageous.qbit.http.config.HttpServerOptions;
 import io.advantageous.qbit.http.server.HttpServer;
@@ -307,7 +308,7 @@ public interface Factory {
         return FactorySPI.getEventManagerFactory().createEventManager();
     }
 
-    default ServiceServer createServiceServer(final HttpServer httpServer,
+    default ServiceServer createServiceServer(final HttpTransport httpServer,
                                               final ProtocolEncoder encoder,
                                               final ProtocolParser protocolParser,
                                               final ServiceBundle serviceBundle,

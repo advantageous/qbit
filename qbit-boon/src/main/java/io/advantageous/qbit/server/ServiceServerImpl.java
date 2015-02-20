@@ -19,6 +19,7 @@
 package io.advantageous.qbit.server;
 
 import io.advantageous.qbit.GlobalConstants;
+import io.advantageous.qbit.http.HttpTransport;
 import io.advantageous.qbit.http.request.HttpRequest;
 import io.advantageous.qbit.http.server.HttpServer;
 import io.advantageous.qbit.http.server.websocket.WebSocketMessage;
@@ -28,6 +29,7 @@ import io.advantageous.qbit.message.Request;
 import io.advantageous.qbit.message.Response;
 import io.advantageous.qbit.queue.ReceiveQueueListener;
 import io.advantageous.qbit.service.ServiceBundle;
+import io.advantageous.qbit.service.Stoppable;
 import io.advantageous.qbit.spi.ProtocolEncoder;
 import io.advantageous.qbit.spi.ProtocolParser;
 import io.advantageous.qbit.system.QBitSystemManager;
@@ -57,7 +59,7 @@ public class ServiceServerImpl implements ServiceServer {
     protected HttpRequestServiceServerHandler httpRequestServerHandler;
     protected int timeoutInSeconds = 30;
     protected ProtocolEncoder encoder;
-    protected HttpServer httpServer;
+    protected HttpTransport httpServer;
     protected ServiceBundle serviceBundle;
     protected JsonMapper jsonMapper;
     protected ProtocolParser parser;
@@ -67,7 +69,7 @@ public class ServiceServerImpl implements ServiceServer {
     private AtomicBoolean stop = new AtomicBoolean();
 
 
-    public ServiceServerImpl(final HttpServer httpServer, final ProtocolEncoder encoder, final ProtocolParser parser, final ServiceBundle serviceBundle, final JsonMapper jsonMapper, final int timeOutInSeconds, final int numberOfOutstandingRequests, final int batchSize, final int flushInterval, final QBitSystemManager systemManager) {
+    public ServiceServerImpl(final HttpTransport httpServer, final ProtocolEncoder encoder, final ProtocolParser parser, final ServiceBundle serviceBundle, final JsonMapper jsonMapper, final int timeOutInSeconds, final int numberOfOutstandingRequests, final int batchSize, final int flushInterval, final QBitSystemManager systemManager) {
 
         this.systemManager = systemManager;
         this.encoder = encoder;
@@ -113,7 +115,10 @@ public class ServiceServerImpl implements ServiceServer {
         }
 
         try {
-            httpServer.stop();
+            if (httpServer instanceof Stoppable) {
+                ((Stoppable) httpServer)
+                        .stop();
+            }
         } catch ( Exception ex ) {
             if ( debug ) logger.debug("Unable to cleanly shutdown httpServer", ex);
         }

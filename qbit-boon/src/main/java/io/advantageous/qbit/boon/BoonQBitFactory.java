@@ -25,6 +25,7 @@ import io.advantageous.qbit.client.ServiceProxyFactory;
 import io.advantageous.qbit.events.EventBusProxyCreator;
 import io.advantageous.qbit.events.EventManager;
 import io.advantageous.qbit.events.impl.BoonEventBusProxyCreator;
+import io.advantageous.qbit.http.HttpTransport;
 import io.advantageous.qbit.http.client.HttpClient;
 import io.advantageous.qbit.http.config.HttpServerOptions;
 import io.advantageous.qbit.http.server.HttpServer;
@@ -178,7 +179,7 @@ public class BoonQBitFactory implements Factory {
     }
 
     @Override
-    public ServiceServer createServiceServer(final HttpServer httpServer, final ProtocolEncoder encoder, final ProtocolParser protocolParser, final ServiceBundle serviceBundle, final JsonMapper jsonMapper, final int timeOutInSeconds, final int numberOfOutstandingRequests, final int batchSize, final int flushInterval, final QBitSystemManager systemManager) {
+    public ServiceServer createServiceServer(final HttpTransport httpServer, final ProtocolEncoder encoder, final ProtocolParser protocolParser, final ServiceBundle serviceBundle, final JsonMapper jsonMapper, final int timeOutInSeconds, final int numberOfOutstandingRequests, final int batchSize, final int flushInterval, final QBitSystemManager systemManager) {
         return new ServiceServerImpl(httpServer, encoder, protocolParser, serviceBundle, jsonMapper, timeOutInSeconds, numberOfOutstandingRequests, batchSize, flushInterval, systemManager);
     }
 

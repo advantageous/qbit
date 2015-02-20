@@ -18,6 +18,7 @@
 
 package io.advantageous.qbit.server;
 
+import io.advantageous.qbit.service.Startable;
 import io.advantageous.qbit.service.Stoppable;
 
 /**
@@ -25,9 +26,6 @@ import io.advantageous.qbit.service.Stoppable;
  *
  * @author Rick Hightower
  */
-public interface Server extends Stoppable {
+public interface Server extends Stoppable, Startable {
 
-    void start();
-
-    void stop();
 }
