@@ -40,7 +40,19 @@ public class QueueCallbackHandlerFactory {
             if (hasQueueCallbackAnnotations(service)) {
                 return new AnnotationDrivenQueueCallbackHandler(service);
             } else {
-                return new DynamicQueueCallbackHandler(service);
+                //return new DynamicQueueCallbackHandler(service);
+                return new QueueCallBackHandler() {
+
+                    @Override
+                    public void queueLimit() {
+
+                    }
+
+                    @Override
+                    public void queueEmpty() {
+
+                    }
+                };
             }
         }
 

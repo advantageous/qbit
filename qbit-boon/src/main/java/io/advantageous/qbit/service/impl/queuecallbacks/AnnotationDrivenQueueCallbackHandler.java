@@ -59,51 +59,55 @@ public class AnnotationDrivenQueueCallbackHandler implements QueueCallBackHandle
 
     private void processAnnotationForMethod(final MethodAccess methodAccess) {
         final AnnotationData annotation = methodAccess.annotation(QUEUE_CALLBACK_ANNOTATION_NAME);
-        final String value = annotation.getValues().get("value").toString();
-        final QueueCallbackType queueCallbackType = QueueCallbackType.valueOf(value);
+        final Object[] values = (Object[]) annotation.getValues().get("value");
 
-        switch (queueCallbackType) {
-            case IDLE:
-                queueIdle = methodAccess;
-                break;
-            case SHUTDOWN:
-                queueShutdown = methodAccess;
-                break;
-            case LIMIT:
-                queueLimit = methodAccess;
-                break;
-            case INIT:
-                queueLimit = methodAccess;
-                break;
-            case START_BATCH:
-                queueStartBatch = methodAccess;
-                break;
-            case EMPTY:
-                queueEmpty = methodAccess;
-                break;
-            case DYNAMIC:
-                switch (methodAccess.name()) {
-                    case "queueIdle":
-                        queueIdle = methodAccess;
-                        break;
-                    case "queueShutdown":
-                        queueShutdown = methodAccess;
-                        break;
-                    case "queueLimit":
-                        queueLimit = methodAccess;
-                        break;
-                    case "queueInit":
-                        queueInit = methodAccess;
-                        break;
-                    case "queueStartBatch":
-                        queueIdle = methodAccess;
-                        break;
-                    case "queueEmpty":
-                        queueEmpty = methodAccess;
-                        break;
-                }
-                break;
 
+        for (Object value : values) {
+            final QueueCallbackType queueCallbackType = QueueCallbackType.valueOf(value.toString());
+
+            switch (queueCallbackType) {
+                case IDLE:
+                    queueIdle = methodAccess;
+                    break;
+                case SHUTDOWN:
+                    queueShutdown = methodAccess;
+                    break;
+                case LIMIT:
+                    queueLimit = methodAccess;
+                    break;
+                case INIT:
+                    queueLimit = methodAccess;
+                    break;
+                case START_BATCH:
+                    queueStartBatch = methodAccess;
+                    break;
+                case EMPTY:
+                    queueEmpty = methodAccess;
+                    break;
+                case DYNAMIC:
+                    switch (methodAccess.name()) {
+                        case "queueIdle":
+                            queueIdle = methodAccess;
+                            break;
+                        case "queueShutdown":
+                            queueShutdown = methodAccess;
+                            break;
+                        case "queueLimit":
+                            queueLimit = methodAccess;
+                            break;
+                        case "queueInit":
+                            queueInit = methodAccess;
+                            break;
+                        case "queueStartBatch":
+                            queueIdle = methodAccess;
+                            break;
+                        case "queueEmpty":
+                            queueEmpty = methodAccess;
+                            break;
+                    }
+                    break;
+
+            }
         }
 
     }
