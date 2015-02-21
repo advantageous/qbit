@@ -272,6 +272,13 @@ public class ServiceBuilder {
         return serviceQueue;
     }
 
+    /**
+     * Builds and starts the service queue.  This is depricated because a builder should not perform operations on it's
+     * product
+     *
+     * @return the service queue
+     */
+    @Deprecated
     public ServiceQueue buildAndStart() {
 
         return build().start();
