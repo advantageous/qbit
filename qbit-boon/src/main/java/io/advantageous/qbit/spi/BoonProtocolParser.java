@@ -72,7 +72,7 @@ public class BoonProtocolParser implements ProtocolParser {
 
         if ( sargs.length() > 2 &&
                 sargs.charAt(0) == PROTOCOL_MARKER &&
-                ( sargs.charAt(1) == PROTOCOL_VERSION_1 ||
+                ( sargs.charAt(1) == PROTOCOL_VERSION_1_METHOD ||
                         sargs.charAt(1) == PROTOCOL_VERSION_1_GROUP || sargs.charAt(1) == PROTOCOL_VERSION_1_RESPONSE ) ) {
             return true;
 
@@ -122,7 +122,7 @@ public class BoonProtocolParser implements ProtocolParser {
 
             final char versionMarker = chars[ VERSION_MARKER_POSITION ];
 
-            if ( versionMarker == PROTOCOL_VERSION_1 ) {
+            if ( versionMarker == PROTOCOL_VERSION_1_METHOD) {
                 return Lists.list(( Message<Object> ) handleFastBodySubmissionVersion1Chars("", chars, null));
             } else if ( versionMarker == PROTOCOL_VERSION_1_RESPONSE ) {
                 return Lists.list(( Message<Object> ) parseResponseFromChars("", chars, null));
@@ -254,7 +254,7 @@ public class BoonProtocolParser implements ProtocolParser {
 
             final char versionMarker = chars[ VERSION_MARKER_POSITION ];
 
-            if ( versionMarker == PROTOCOL_VERSION_1 ) {
+            if ( versionMarker == PROTOCOL_VERSION_1_METHOD) {
                 return handleFastBodySubmissionVersion1Chars(addressPrefix, chars, returnAddress);
             } else if ( versionMarker == PROTOCOL_VERSION_1_RESPONSE ) {
                 return parseResponseFromChars(addressPrefix, chars, returnAddress);
