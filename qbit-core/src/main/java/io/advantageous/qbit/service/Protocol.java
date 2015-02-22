@@ -42,12 +42,10 @@ public class Protocol {
     public static final int PROTOCOL_VALUE_HEADER_DELIM = 0x15;
     public static final int PROTOCOL_MARKER_POSITION = 0;
     public static final int VERSION_MARKER_POSITION = 1;
-
-    public static final int PROTOCOL_VERSION_1_METHOD = 'm';
-    public static final int PROTOCOL_VERSION_1_GROUP = 'g';
-    public static final int PROTOCOL_VERSION_1_RESPONSE = 'r';
-    public static final int PROTOCOL_VERSION_1_EVENT = 'e';
-
+    public static final int PROTOCOL_MESSAGE_TYPE_METHOD = 'm';
+    public static final int PROTOCOL_MESSAGE_TYPE_GROUP = 'g';
+    public static final int PROTOCOL_MESSAGE_TYPE_RESPONSE = 'r';
+    public static final int PROTOCOL_MESSAGE_TYPE_EVENT = 'e';
 
     public static final int MESSAGE_ID_POS = 1;
     public static final int ADDRESS_POS = 2;
