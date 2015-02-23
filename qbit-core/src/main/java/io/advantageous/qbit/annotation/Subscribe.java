@@ -23,11 +23,11 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-
 /**
- * Created by rhightower on 2/4/15.
+ * @author richardhightower@gmail.com (Rick Hightower)
+ * @see io.advantageous.qbit.annotation.OnEvent
  */
-@Target({ElementType.METHOD, ElementType.FIELD})
+@Target({ElementType.METHOD})
 @Retention(RetentionPolicy.RUNTIME)
 public @interface Subscribe {
 
@@ -40,7 +40,6 @@ public @interface Subscribe {
        An event channel can have many subscribers but only one consume.
      */
     boolean consume() default false;
-
 
 }
 

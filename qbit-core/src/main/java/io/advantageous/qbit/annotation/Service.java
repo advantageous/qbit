@@ -27,12 +27,11 @@ import java.lang.annotation.Target;
 /**
  * Defines an object as a client.
  *
- * @author Rick Hightower
+ * @author richardhightower@gmail.com (Rick Hightower)
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(value = {ElementType.TYPE})
 public @interface Service {
-
 
     String value() default "";
 

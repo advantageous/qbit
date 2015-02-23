@@ -24,19 +24,15 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Created by rhightower on 2/3/15.
+ * @author richardhightower@gmail.com (Rick Hightower)
+ * @see io.advantageous.qbit.annotation.OnEvent
  */
-@Target({ElementType.METHOD, ElementType.FIELD})
+@Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
 public @interface Listen {
 
-    /* The channel you want to listen to. */;
-
     String value() default "";
 
-    /* The consume is the last object listening to this event.
-       An event channel can have many subscribers but only one consume.
-     */
     boolean consume() default false;
 
 }

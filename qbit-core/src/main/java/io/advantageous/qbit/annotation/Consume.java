@@ -23,11 +23,9 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-
 @Target({ElementType.METHOD, ElementType.FIELD})
 @Retention(RetentionPolicy.RUNTIME)
 public @interface Consume {
-
 
     /* The channel you want to listen to. */;
 
@@ -37,6 +35,5 @@ public @interface Consume {
        An event channel can have many subscribers but only one consume.
      */
     boolean consume() default true;
-
 
 }

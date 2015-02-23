@@ -24,20 +24,26 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Created by rhightower on 2/4/15.
+ * This annotation is used to trigger the method on which is applied.
+ *
+ * @author richardhightower@gmail.com (Rick Hightower)
  */
-
-@Target({ElementType.METHOD, ElementType.FIELD})
+@Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
 public @interface OnEvent {
 
-
-    /* The channel you want to listen to. */;
-
+    /**
+     * The channel you want to listen to.
+     *
+     * @return the name of the channel
+     */
     String value() default "";
 
-    /* The consume is the last object listening to this event.
-       An event channel can have many subscribers but only one consume.
+    /**
+     * The consume is the last object listening to this event.
+     * An event channel can have many subscribers but only one consume.
+     *
+     * @return true if the annotated method consumes
      */
     boolean consume() default false;
 
