@@ -85,11 +85,13 @@ public class BoonEventBusProxyCreator implements EventBusProxyCreator {
         classMeta.methods().forEach(methodAccess -> {
 
             AnnotationData methodAnnotation = methodAccess.annotation("EventChannel");
-            final String methodEventBusName = methodAnnotation != null ? methodAnnotation.getValues().get("value").toString() : null;
+            if (methodAnnotation !=null) {
+                final String methodEventBusName = methodAnnotation.getValues().get("value").toString();
 
 
-            final String channelName = createChannelName(channelPrefix, classEventBusName, methodEventBusName);
-            methodToChannelMap.put(methodAccess.method().toString(), channelName);
+                final String channelName = createChannelName(channelPrefix, classEventBusName, methodEventBusName);
+                methodToChannelMap.put(methodAccess.method().toString(), channelName);
+            }
         });
 
         return methodToChannelMap;
