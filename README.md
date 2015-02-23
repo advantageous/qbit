@@ -923,7 +923,7 @@ In other words, `loadUser` can potentially block on IO.
 
 
 
-### TQueue Callbacks - he first rule of Queue Club - don't block
+### Queue Callbacks - The first rule of Queue Club - don't block
 
 
 Our client does not block, but our service does. Going back to our `RecommendationService`.
