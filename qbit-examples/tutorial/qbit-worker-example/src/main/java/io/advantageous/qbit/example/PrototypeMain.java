@@ -1,15 +1,19 @@
 package io.advantageous.qbit.example;
 
 import io.advantageous.qbit.QBit;
-import io.advantageous.qbit.service.Callback;
-import io.advantageous.qbit.service.Service;
-import io.advantageous.qbit.service.ServiceProxyUtils;
-import org.boon.Lists;
+//import io.advantageous.qbit.service.Callback;
+//import io.advantageous.qbit.service.ServiceProxyUtils;
+import io.advantageous.qbit.service.ServiceQueue;
+//import org.boon.Lists;
 import org.boon.core.Sys;
+
+import static io.advantageous.qbit.service.ServiceProxyUtils.flushServiceProxy;
+//import static java.lang.System.out;
 
 import java.util.List;
 
 import static io.advantageous.qbit.service.ServiceBuilder.serviceBuilder;
+import static org.boon.Lists.list;
 
 /**
  * Created by rhightower on 2/20/15.
@@ -22,7 +26,7 @@ public class PrototypeMain {
         QBit.factory().systemEventManager();
 
 
-        Service userDataService = serviceBuilder()
+        ServiceQueue userDataService = serviceBuilder()
                                     .setServiceObject(new UserDataService())
                                     .build().start();
 
@@ -32,42 +36,51 @@ public class PrototypeMain {
                                 .createProxy(UserDataServiceClient.class);
 
 
+
+        /* Not using userDataService part 1. */
+//
+//        RecommendationService recommendationServiceImpl =
+//                new RecommendationService(userDataServiceClient);
+
         RecommendationService recommendationServiceImpl =
                 new RecommendationService(userDataServiceClient);
 
 
-        Service recommendationService = serviceBuilder()
+        ServiceQueue recommendationServiceQueue = serviceBuilder()
                 .setServiceObject(recommendationServiceImpl)
-                .build().start();
-
-        recommendationService.startCallBackHandler();
-
+                .build().start().startCallBackHandler();
 
         RecommendationServiceClient recommendationServiceClient =
-                recommendationService.createProxy(RecommendationServiceClient.class);
+                recommendationServiceQueue.createProxy(RecommendationServiceClient.class);
 
-        Callback<List<Recommendation>> callback = new Callback<List<Recommendation>>() {
-            @Override
-            public void accept(List<Recommendation> recommendations) {
-                System.out.println("recommendations" + recommendations);
-            }
+        /**** NO LAMBDA ****/
+//        Callback<List<Recommendation>> callback = new Callback<List<Recommendation>>() {
+//            @Override
+//            public void accept(List<Recommendation> recommendations) {
+//                System.out.println("recommendations " + recommendations);
+//            }
+//
+//            @Override
+//            public void onError(Throwable error) {
+//                error.printStackTrace();
+//            }
+//        };
+//
+//        recommendationServiceClient.recommend(callback, "Rick");
 
-            @Override
-            public void onError(Throwable error) {
-                error.printStackTrace();
-            }
-        };
 
-        recommendationServiceClient.recommend(callback, "Rick");
+        //import static java.lang.System.out;
 
-        ServiceProxyUtils.flushServiceProxy(recommendationServiceClient);
+        //recommendationServiceClient.recommend(out::println, "Rick");
+
+        flushServiceProxy(recommendationServiceClient);
         Sys.sleep(1000);
 
-        List<String> userNames = Lists.list("Bob", "Joe", "Scott", "William");
+        List<String> userNames = list("Bob", "Joe", "Scott", "William");
 
         userNames.forEach( userName->
                 recommendationServiceClient.recommend(recommendations -> {
-                    System.out.println("Recommendations for:" + userName);
+                    System.out.println("Recommendations for: " + userName);
                     recommendations.forEach(recommendation->
                             System.out.println("\t" + recommendation));
                 }, userName)
@@ -75,7 +88,7 @@ public class PrototypeMain {
 
 
 
-        ServiceProxyUtils.flushServiceProxy(recommendationServiceClient);
+        flushServiceProxy(recommendationServiceClient);
         Sys.sleep(1000);
 
     }

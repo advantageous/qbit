@@ -86,7 +86,7 @@ public class BoonProtocolEncoder implements ProtocolEncoder {
         buf.recycle();
 
         buf.addChar(PROTOCOL_MARKER);
-        buf.addChar(PROTOCOL_VERSION_1_GROUP);
+        buf.addChar(PROTOCOL_MESSAGE_TYPE_GROUP);
         int index = 0;
 
         for ( Message<Object> message : messages ) {
@@ -110,7 +110,7 @@ public class BoonProtocolEncoder implements ProtocolEncoder {
 
     private void encodeAsString(CharBuf buf, MethodCall<Object> methodCall, boolean encodeAddress) {
         buf.addChar(PROTOCOL_MARKER);
-        buf.addChar(PROTOCOL_VERSION_1);
+        buf.addChar(PROTOCOL_MESSAGE_TYPE_METHOD);
         buf.addChar(PROTOCOL_SEPARATOR);
         buf.add(methodCall.id());
         buf.addChar(PROTOCOL_SEPARATOR);
@@ -162,20 +162,14 @@ public class BoonProtocolEncoder implements ProtocolEncoder {
 
     private void encodeAsString(CharBuf buf, Response<Object> response, boolean encodeAddress) {
         buf.addChar(PROTOCOL_MARKER);
-        buf.addChar(PROTOCOL_VERSION_1_RESPONSE);
+        buf.addChar(PROTOCOL_MESSAGE_TYPE_RESPONSE);
         buf.addChar(PROTOCOL_SEPARATOR);
         buf.add(response.id());
         buf.addChar(PROTOCOL_SEPARATOR);
         buf.add(response.address());
         buf.addChar(PROTOCOL_SEPARATOR);
 
-
         buf.add(response.returnAddress());
-//        if (encodeAddress) {
-//            buf.add(response.returnAddress());
-//        } else {
-//            buf.add("same");
-//        }
         buf.addChar(PROTOCOL_SEPARATOR);
         buf.addChar(PROTOCOL_SEPARATOR); //reserved for header
         buf.addChar(PROTOCOL_SEPARATOR); //reserved for params

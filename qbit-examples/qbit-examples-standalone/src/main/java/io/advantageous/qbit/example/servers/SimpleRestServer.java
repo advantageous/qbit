@@ -59,5 +59,13 @@ public class SimpleRestServer {
         public List ping() {
             return Collections.singletonList("Hello World!");
         }
+
+        @RequestMapping
+        public List puke() {
+
+            throw new IllegalStateException("Crap");
+        }
+
+
     }
 }

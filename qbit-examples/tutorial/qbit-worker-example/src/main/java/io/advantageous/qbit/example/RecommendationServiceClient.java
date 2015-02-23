@@ -5,7 +5,8 @@ import io.advantageous.qbit.service.Callback;
 import java.util.List;
 
 /**
- * Created by rhightower on 2/20/15.
+ * @author  rhightower
+ * on 2/20/15.
  */
 public interface RecommendationServiceClient {
 

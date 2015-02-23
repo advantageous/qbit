@@ -35,6 +35,39 @@ public class SimpleWebSocketClient {
 
     static volatile int count = 0;
 
+
+    public static void mainEx(String... args) {
+
+        String host = args.length > 0 ? args[0] : "localhost";
+        int port = args.length > 1 ? Integer.parseInt(args[1]) : 6060;
+
+
+        final Client client = new ClientBuilder().setPoolSize(1).setPort(port).setHost(host).setRequestBatchSize(10_000)
+                .build();
+
+        client.start();
+
+
+        final SimpleServiceProxy myService = client.createProxy(SimpleServiceProxy.class, "myService");
+
+        myService.puke(new Callback<List<String>>() {
+                           @Override
+                           public void accept(List<String> strings) {
+
+                           }
+
+                           @Override
+                           public void onError(Throwable error) {
+                               error.printStackTrace();
+
+                           }
+                       }
+
+        );
+
+
+    }
+
     public static void main(String... args) {
 
         String host = args.length > 0 ? args[0] : "localhost";
@@ -96,6 +129,9 @@ public class SimpleWebSocketClient {
     interface SimpleServiceProxy {
 
         void ping(Callback<List<String>> callback);
+
+
+        void puke(Callback<List<String>> callback);
 
     }
 }

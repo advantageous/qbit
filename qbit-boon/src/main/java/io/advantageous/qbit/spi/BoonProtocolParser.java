@@ -72,8 +72,8 @@ public class BoonProtocolParser implements ProtocolParser {
 
         if ( sargs.length() > 2 &&
                 sargs.charAt(0) == PROTOCOL_MARKER &&
-                ( sargs.charAt(1) == PROTOCOL_VERSION_1 ||
-                        sargs.charAt(1) == PROTOCOL_VERSION_1_GROUP || sargs.charAt(1) == PROTOCOL_VERSION_1_RESPONSE ) ) {
+                ( sargs.charAt(1) == PROTOCOL_MESSAGE_TYPE_METHOD ||
+                        sargs.charAt(1) == PROTOCOL_MESSAGE_TYPE_GROUP || sargs.charAt(1) == PROTOCOL_MESSAGE_TYPE_RESPONSE) ) {
             return true;
 
         }
@@ -122,11 +122,11 @@ public class BoonProtocolParser implements ProtocolParser {
 
             final char versionMarker = chars[ VERSION_MARKER_POSITION ];
 
-            if ( versionMarker == PROTOCOL_VERSION_1 ) {
+            if ( versionMarker == PROTOCOL_MESSAGE_TYPE_METHOD) {
                 return Lists.list(( Message<Object> ) handleFastBodySubmissionVersion1Chars("", chars, null));
-            } else if ( versionMarker == PROTOCOL_VERSION_1_RESPONSE ) {
+            } else if ( versionMarker == PROTOCOL_MESSAGE_TYPE_RESPONSE) {
                 return Lists.list(( Message<Object> ) parseResponseFromChars("", chars, null));
-            } else if ( versionMarker == PROTOCOL_VERSION_1_GROUP ) {
+            } else if ( versionMarker == PROTOCOL_MESSAGE_TYPE_GROUP) {
 
                 String returnAddress = null;
 
@@ -184,7 +184,7 @@ public class BoonProtocolParser implements ProtocolParser {
 
                 final char versionMarker = args[ VERSION_MARKER_POSITION ];
 
-                if ( versionMarker == PROTOCOL_VERSION_1_RESPONSE ) {
+                if ( versionMarker == PROTOCOL_MESSAGE_TYPE_RESPONSE) {
 
 
                     return parseResponseFromChars("", args, null);
@@ -254,9 +254,9 @@ public class BoonProtocolParser implements ProtocolParser {
 
             final char versionMarker = chars[ VERSION_MARKER_POSITION ];
 
-            if ( versionMarker == PROTOCOL_VERSION_1 ) {
+            if ( versionMarker == PROTOCOL_MESSAGE_TYPE_METHOD) {
                 return handleFastBodySubmissionVersion1Chars(addressPrefix, chars, returnAddress);
-            } else if ( versionMarker == PROTOCOL_VERSION_1_RESPONSE ) {
+            } else if ( versionMarker == PROTOCOL_MESSAGE_TYPE_RESPONSE) {
                 return parseResponseFromChars(addressPrefix, chars, returnAddress);
             } else {
                 die("Unsupported method call", new String(chars));

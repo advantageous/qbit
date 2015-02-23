@@ -3,7 +3,8 @@
 Got a question? Ask here: [QBit Google Group](https://groups.google.com/forum/#!forum/qbit-microservice).
 
 Everything is a queue. You have a choice. You can embrace it and control it. You can optimize for it. 
-Or you can hide behind abstractions. QBit opens you up to peeking into what is going on, and allows you to pull some levers without selling your soul.
+Or you can hide behind abstractions. QBit opens you up to peeking into what is going on, and allows you 
+to pull some levers without selling your soul.
 
 QBit is a library not a framework. You can mix and match QBit with Spring, Guice, etc.
 
@@ -11,11 +12,24 @@ QBit is FAST!
 
 ![QBit the microservice framework for java](https://docs.google.com/spreadsheets/d/1kd3gjyyz1MyTJvNLJ-BC0YIkzIU-8YYLLrxpjUl0TBQ/pubchart?oid=781959089&format=image)
 
+
+Status
+=====
+Lot's of progress. More people are helping out. 
+QBit now works with Vertx (standalone or embedded), Jetty (standalone) or just plain Java Servlets.
+
+
+License
+=====
+Apache 2
+
+
 ## Java Microservice Lib
 
-QBit has inproc services, REST microservices and WebSocket microservices as well as an in-proc service event bus (which can be per module or per app). It supports workers and in-memory services. 
+QBit has inproc services, REST microservices and WebSocket microservices as well as an 
+in-proc service event bus (which can be per module or per app). It supports workers and in-memory services. 
 
-Before we descibe more, here are two sample services.
+Before we describe more, here are two sample services:
 
 #### Todo Service
 ```java
@@ -42,18 +56,9 @@ public class TodoService {
     }
 ```
 
-Status
-=====
-Lot's of progress. More people are helping out. 
-QBit now works with Vertx (standalone or embedded), Jetty (standalone) or just plain Java Servlets.
 
 
-License
-=====
-Apache 2
-
-
-QBit philosiphy:
+QBit philosophy:
 ====
 At the end of the day QBit is a simple library not a framework. 
 Your app is not a QBit app but a Java app that uses the QBit lib.
@@ -77,27 +82,41 @@ If you have an idea or technique you want to share, we listen.
 Inspiration
 ====
 
-A big inspireation for Boon/QBit was Akka, Go Channels, Active Objects, Apartment Model Threading, Actor, and the Mechnical Sympathy papers.
+A big inspiration for Boon/QBit was Akka, Go Channels, Active Objects, Apartment Model Threading, Actor, 
+and the Mechnical Sympathy papers.
 
-"I have read the AKKA in Action Book. It was inpsiring, but not the only inspiration for QBit.".
+"I have read the AKKA in Action Book. It was inspiring, but not the only inspiration for QBit.".
 "I have written apps where I promised a lot of performance and the techniques from QBit is how I got it."
  - Rick Hightower
  
 QBit has ideas that are similar to many frameworks. We are all reading the same papers. 
-QBit got inspiration from the LMAX disruptor papers and this blog post about [link transfer queue versus disruptor](http://php.sabscape.com/blog/?p=557). We had some theories about queues that blog post insprired us to try them out. Some of these theories are deployed at some of the biggest middleware backends and whose name brands are known around the world. And thus QBit was born. QBit also took an lot of inspiration by the great work done
-by Tim Fox on Vertx. The first project using something that could actually be called QBit (albiet early QBit) was
-using Vertx on an web/mobile microserivce for an app that could potentially have 80 million users. It was this
-experience with Vertx and early QBit that led to QBit development and evolution. QBit is built on the shoulders of giants.
+QBit got inspiration from the LMAX disruptor papers and this blog post about 
+[link transfer queue versus disruptor](http://php.sabscape.com/blog/?p=557). We had some theories about 
+queues that blog post insprired us to try them out. Some of these theories are deployed at some of the 
+biggest middleware backends and whose name brands are known around the world. And thus QBit was born. 
+
+QBit also took an lot of inspiration by the great work done
+by Tim Fox on Vertx. The first project using something that could actually be called QBit (albeit early QBit)
+ was using Vertx on an web/mobile microserivce for an app that could potentially have 80 million users. 
+ It was this
+experience with Vertx and early QBit that led to QBit development and evolution. QBit is built on the 
+shoulders of giants.
  
 Does QBit compete with...
 ====
-Spring Disruptor: No. You could use QBit to write plugins for Spring Disruptor I suppose, but QBit does not compete with Spring Disruptor.
-Spring Boot/Spring MVC: No. We use the same annotations but QBit is geared for high-speed in-memory microservices. It is more like Akka than Spring Boot. QBit has a subset of the features of Spring MVC geared only for microservices, i.e., WebSocket RPC, REST, JSON marshaling, etc.
-Akka: No. Well Maybe. Akka has similar concepts but they take a different approach. QBit is more focused on Java, and microservices (REST, JSON, WebSocket) than Akka. 
+Spring Disruptor: No. You could use QBit to write plugins for Spring Disruptor I suppose, but QBit does 
+not compete with Spring Disruptor.
+Spring Boot/Spring MVC: No. We use the same annotations but QBit is geared for high-speed in-memory 
+microservices. It is more like Akka than Spring Boot. QBit has a subset of the features of Spring MVC 
+geared only for microservices, i.e., WebSocket RPC, REST, JSON marshaling, etc.
+Akka: No. Well Maybe. Akka has similar concepts but they take a different approach. QBit is more focused
+ on Java, and microservices (REST, JSON, WebSocket) than Akka. 
 LMAX Disruptor: No. In fact, we can use disruptor as on of the queues that QBit uses underneath the covers. 
 
 
-(Early benchmarks have been removed. They were here. QBit got a lot faster. Links and reports will be created.)
+(Early benchmarks have been removed. They were here. QBit got a lot faster.
+ Benchmarking QBit is a moving target at the moment.
+ Links and reports will be created.)
 
 
 Code Examples
@@ -132,20 +151,36 @@ Code Examples
 
 ### What is QBit again?
 
-QBit is a queuing library for microservices. It is similar to many other projects like Akka, Spring Reactor, etc. QBit is just a library not a platform. QBit has libraries to put a service behind a queue. You can use QBit queues directly or you can create a service. QBit services can be exposed by WebSocket, HTTP, HTTP pipeline, and other types of remoting. A service in QBit is a Java class whose methods are executed behind service queues. QBit implements apartment model threading and is similar to the Actor model or a better description would be Active Objects. QBit does not use a disruptor. It uses regular Java Queues. QBit can do north of 100 million ping pong calls per second which is an amazing speed (seen as high as 200M). QBit also supports calling services via REST, and WebSocket. QBit is microservices in the pure Web sense: JSON, HTTP, WebSocket, etc. QBit uses micro batching to push messages through the pipe (queue, IO, etc.) faster to reduce thread hand-off.
+QBit is a queuing library for microservices. It is similar to many other projects like Akka, Spring Reactor, 
+etc. QBit is just a library not a platform. QBit has libraries to put a service behind a queue. 
+You can use QBit queues directly or you can create a service. QBit services can be exposed by WebSocket, 
+HTTP, HTTP pipeline, and other types of remoting. A service in QBit is a Java class whose methods are
+ executed behind service queues. QBit implements apartment model threading and is similar to the 
+ Actor model or a better description would be Active Objects. QBit does not use a disruptor. 
+ It uses regular Java Queues. QBit can do north of 100 million ping pong calls per second which is
+  an amazing speed (seen as high as 200M). QBit also supports calling services via REST, and WebSocket.
+   QBit is microservices in the pure Web sense: JSON, HTTP, WebSocket, etc. QBit uses micro batching to
+    push messages through the pipe (queue, IO, etc.) faster to reduce thread hand-off.
 
 ### QBit lingo
 
-QBit is a Java microservice lib supporting REST, JSON and WebSocket. It is written in Java but we could one day write a version in Rust or Go or C# (but that would require a large payday).
+QBit is a Java microservice lib supporting REST, JSON and WebSocket. It is written in Java but we could 
+one day write a version in Rust or Go or C# (but that would require a large payday).
 
 **Service** 
-POJO (plain old Java object) behind a queue that can receive method calls via proxy calls or events (May have one thread managing events, method calls, and responses or two one for method calls and events and the other for responses so response handlers do not block service. One is faster unless responses block). Services can use Spring MVC style REST annotations to expose themselves to the outside world via REST and WebSocket. 
+POJO (plain old Java object) behind a queue that can receive method calls via proxy calls or events 
+(May have one thread managing events, method calls, and responses or two one for method calls and events
+ and the other for responses so response handlers do not block service. One is faster unless responses block). Services can use Spring MVC style REST annotations to expose themselves to the outside world via REST and WebSocket. 
 
 **ServiceBundle** 
-Many POJOs behind one response queue and many receive queues. There may be one thread for all responses or not. They also can be one receive queue. 
+Many POJOs behind one response queue and many receive queues. There may be one thread for all responses 
+or not. They also can be one receive queue. 
 
 **Queue**
-A thread managing a queue. It supports batching. It has events for empty, reachedLimit, startedBatch, idle. You can listen to these events from services that sit behind a queue. You don't have to use Services. You can use Queue's direct. In QBit, you have sender queues and recievers queues. They are seperated to support micro-batching.
+A thread managing a queue. It supports batching. It has events for empty, reachedLimit, startedBatch, 
+idle. You can listen to these events from services that sit behind a queue. You don't have to use Services. 
+You can use Queue's direct. In QBit, you have sender queues and receivers queues. They are separated to 
+support micro-batching.
 
 **ServiceServer**
 ServiceBundle that is exposed to REST and WebSocket communication.
@@ -154,20 +189,26 @@ ServiceBundle that is exposed to REST and WebSocket communication.
 EventBus is a way to send a lot of messages to services that may be loosely coupled.
 
 **ClientProxy** 
-ClientProxy is a way to invoke service through async interface, service can be inproc (same process) or remoted over WebSocket.
+ClientProxy is a way to invoke service through async interface, service can be inproc (same process) or 
+remoted over WebSocket.
 
 **Non-blocking**
-QBit is a non-blocking lib. You use CallBacks via Java 8 Lambdas. You can also send event messages and get replies. Messaging is built into the system so you can easily coordinate complex tasks. 
-QBit takes an object-oriented approach to service development so services look like normal Java services that you 
-already write, but the services live behind a queue/thread. This is not a new concept. Micorsoft did this with DCOM/COM and called it active objects. Akka does it with actors and called them strongly typed Actors. 
-The important concepts is that you get the speed of reactive and actor style messaging but you develop in a natural
-OOP approach. QBit is not the first. QBit is not the only. 
+QBit is a non-blocking lib. You use CallBacks via Java 8 Lambdas. You can also send event messages and get 
+replies. Messaging is built into the system so you can easily coordinate complex tasks. 
+QBit takes an object-oriented approach to service development so services look like normal Java services 
+that you 
+already write, but the services live behind a queue/thread. This is not a new concept. Microsoft did this 
+with DCOM/COM and called it active objects. Akka does it with actors and called them strongly typed Actors. 
+The important concepts is that you get the speed of reactive and actor style messaging but you develop 
+in a natural OOP approach. QBit is not the first. QBit is not the only. 
 
 
 **Speed**
 QBit is VERY fast. There is a of course a lot of room for improvement. But already 200M+ TPS inproc ping pong, 10M-20M+ TPS event bus, 500K TPS RPC calls over WebSocket/JSON, etc.
-More work needs to be done to improve speed, but now it is fast enough where we are focusing more on usability.
-The JSON support uses Boon by default which is up to 4x faster than other JSON parsers for the REST/JSON, WebSocket/JSON use case.
+More work needs to be done to improve speed, but now it is fast enough where we are focusing more on 
+usability.
+The JSON support uses Boon by default which is up to 4x faster than other JSON parsers for the 
+REST/JSON, WebSocket/JSON use case.
 
 
 ### CURLable REST services example 
@@ -250,11 +291,14 @@ public class TodoService {
 ```
 
 #### Side note Why Spring style annotations?
-Why did we pick Spring sytle annotations?
+Why did we pick Spring style annotations?
 1) Spring is not a standard and neither is QBit. 2) We found the Spring annotations to be less verbose.
 3) More people use Spring than Java EE. We wrote QBit for people to use.
-We could easily support JAX-RS style annotaitons, and we probably will. 
-Since QBit focuses on JSON, we do not need all of the complexity of JAX-RS or even all the features of the Spring MVC annotations. Also we can literally use the actual Spring annotations. QBit and Boon use a non-type safe mechanism for annotations which means they are not tied to a particular lib. You can define your own. I hate vendor tie-in even if it is an open source vendor. 
+We could easily support JAX-RS style annotations, and we probably will. 
+Since QBit focuses on JSON, we do not need all of the complexity of JAX-RS or even all the features of 
+the Spring MVC annotations. Also we can literally use the actual Spring annotations. QBit and Boon 
+use a non-type safe mechanism for annotations which means they are not tied to a particular lib. 
+You can define your own. We hate vendor tie-in even if it is an open source vendor. 
 
 Now just start it up.
 
@@ -269,7 +313,8 @@ Now just start it up.
 
 
 
-That is it. There is also out of the box WebSocket support with client side proxy generation so you can call into services at the rate of millions of calls per second.
+That is it. There is also out of the box WebSocket support with client side proxy generation so 
+you can call into services at the rate of millions of calls per second.
 
 ## Using URI Params for QBit microservice
 
@@ -290,7 +335,8 @@ That is it. There is also out of the box WebSocket support with client side prox
 
 ## WebSocket
 You can always invoke QBit services via a WebSocket proxy. 
-The advantage of a WebSocket proxy is it allows you execute 1M RPC+ a second (1 million remote calls every second).
+The advantage of a WebSocket proxy is it allows you execute 1M RPC+ a second (1 million remote calls 
+every second).
 
 
 #### Using a microservice remotely with WebSocket
@@ -333,12 +379,13 @@ The above uses a WebSocket proxy interface to call the service async.
 
 ## REST call with URI params
 
-The last client example uses WebSocket. You could also just use REST, and actually use the URI params that we setup.
+The last client example uses WebSocket. You could also just use REST, and actually use the URI params 
+that we setup.
 REST is nice but it is going to be slower than WebSocket support. 
 
 QBit ships with a nice little HTTP client. We can use it.
 
-You can use it to send async calls and websocket messages with the HTTP client.
+You can use it to send async calls and WebSocket messages with the HTTP client.
 
 
 Here we will use the http client to invoke our remote method:
@@ -485,7 +532,7 @@ Now stop the server and client. Pretty easy eh?
 
 The focus is on ease of use and using Java 8 Lambdas for callbacks so the code is tight and small.
 
-[Find out more about QBit's microservice style websocket support here](https://github.com/advantageous/qbit/wiki/%5BDoc%5D-Using-QBit-microservice-lib's-WebSocket-support)
+[Find out more about QBit's microservice style WebSocket support here](https://github.com/advantageous/qbit/wiki/%5BDoc%5D-Using-QBit-microservice-lib's-WebSocket-support)
 
 
 ## Using HTTP Client lib
@@ -642,7 +689,8 @@ There are async calls for GET as well.
 
 ```
 
-[Find more about the easy to use, fast microservice HTTP client here](https://github.com/advantageous/qbit/wiki/%5BDoc%5D-Using-QBit-microservice-lib's-HttpClient-GET,-POST,-et-al,-JSON,-Java-8-Lambda).
+[Find more about the easy to use, fast microservice HTTP client here]
+(https://github.com/advantageous/qbit/wiki/%5BDoc%5D-Using-QBit-microservice-lib's-HttpClient-GET,-POST,-et-al,-JSON,-Java-8-Lambda).
 
 ## InProc QBit services
 
@@ -752,7 +800,9 @@ public class EmployeeHiringService {
 ```
 
 
-Notice that we call sendArray so we can send the employee and their salary. The listener for PAYROLL_ADJUSTMENT_CHANNEL will have to handle both an employee and an int that represents the new employees salary.
+Notice that we call sendArray so we can send the employee and their salary. 
+The listener for PAYROLL_ADJUSTMENT_CHANNEL will have to handle both an employee and an int 
+that represents the new employees salary.
 You can also use event bus proxies so you do not have to call into the event bus at all.
 
 The BenefitsService listens for new employees being hired so it can enroll them into the benefits system.
@@ -797,7 +847,333 @@ Find more details here:
 
 
 ## Private event bus and event bus proxies
-TBD 
+
+ You can define your own interface to the event bus and you can use your own event buses with QBit.
+ Each module in your service can have its own internal event bus.
+ 
+ To learn more read:
+ [QBit Microservice working with a private event bus](https://github.com/advantageous/qbit/wiki/%5BRough-Cut%5D-Working-with-private-event-bus-for-inproc-microservices)
+ and [QBit Java Microservice lib using your own interface to the event bus](https://github.com/advantageous/qbit/wiki/%5BRough-Cut%5D-Working-with-strongly-typed-event-bus-proxies-for-QBit-Java-Microservice-lib).
+ 
+ 
+
+## Queue Callbacks
+
+ To really grasp QBit, one must grasp the concepts of a CallBack.
+ 
+ A CallBack is a way to get an async response in QBit.
+ 
+ You call a service method and it calls you back.
+ 
+ Client proxies can have callbacks:
+ 
+ 
+#### Queue Callbacks - RecommendationService client interface
+```java
+
+public interface RecommendationServiceClient {
+
+
+    void recommend(final Callback<List<Recommendation>> recommendationsCallback,
+                          final String userName);
+}
+
+```
+
+Callbacks are Java 8 Consumers with some optional extra error handling.
+
+
+#### Queue Callbacks - Callback
+
+```java
+
+
+public interface Callback <T> extends java.util.function.Consumer<T> {
+    default void onError(java.lang.Throwable error) { /* compiled code */ }
+}
+
+```
+
+Services that can block should use callbacks.
+Thus if loadUser blocked in the following example, it should really use a callback instead of returning a value.
+
+public class RecommendationService {
+
+#### Queue Callbacks - Simple minded implementation of RecommendationService
+```java
+
+    private final SimpleCache<String, User> users =
+            new SimpleCache<>(10_000);
+
+    public List<Recommendation> recommend(final String userName) {
+        User user = users.get(userName);
+        if (user == null) {
+            user = loadUser(userName);
+        }
+        return runRulesEngineAgainstUser(user);
+    }
+
+```
+
+
+Let's pretend `loadUser` has to look in a local cache, and if the user is not found, look in an off-heap cache 
+and if not found it must ask for the user from the UserService which must check its caches and perhaps fallback
+to loading the user data from a database or from other services. 
+In other words, `loadUser` can potentially block on IO.
+
+
+
+### Queue Callbacks - The first rule of Queue Club - don't block
+
+
+Our client does not block, but our service does. Going back to our `RecommendationService`.
+If we get a lot of cache hits for user loads, perhaps the
+block will not be that long, but it will be there and every time we have to fault in a user, the whole system
+is gummed up. What we want to be able to do is if we can't handle the recommendation request, 
+we go ahead and make an async call to the `UserDataService`. When that async callback comes back, then we
+handle that request. In the mean time, we handle recommendation lists requests as quickly as we can.
+We never block.
+
+
+So let's revisit the service. The first thing we are going to do is make the service method take
+a callback. Before we do that, let's set down some rules.
+
+
+#### The first rule of queue club don't block. 
+#### The second rule of queue club if you are not ready, use a callback and continue handling stuff you are ready for
+
+
+#### Queue Callbacks - Adding a CallBack to the RecommendationService inproc microservice
+
+```java
+public class RecommendationService {
+
+
+    public void recommend(final Callback<List<Recommendation>> recommendationsCallback,
+                          final String userName) {
+
+```
+
+
+
+Now we are taking a callback and we can decide when we want to handle this recommendation generation request.
+We can do it right away if there user data we need is in-memory or we can delay it.
+
+
+#### If the user is found, call the callback right away for RecommendationService inproc microservice
+
+```java
+
+    public void recommend(final Callback<List<Recommendation>> recommendationsCallback,
+                          final String userName) {
+
+        /** Look for user in user cache. */
+        User user = users.get(userName);
+
+        /** If the user not found, load the user from the user service. */
+        if (user == null) {
+             ...
+        } else {
+             /* Call the callback now because we can handle the callback now. */
+            recommendationsCallback.accept(runRulesEngineAgainstUser(user));
+        }
+
+    }
+
+```
+
+
+Notice, if the user is found in the cache, we run our recommendation rules in-memory and call the callback right away
+`recommendationsCallback.accept(runRulesEngineAgainstUser(user))`.
+
+The interesting part is what do we do if don't have the user loaded.
+
+
+#### If the user was not found, load him from the user microservice, but still don't block
+
+```java
+
+
+    public void recommend(final Callback<List<Recommendation>> recommendationsCallback,
+                          final String userName) {
+
+
+        /** Look for user in users cache. */
+        User user = users.get(userName);
+
+        /** If the user not found, load the user from the user service. */
+        if (user == null) {
+
+            /* Load user using Callback. */
+            userDataService.loadUser(new Callback<User>() {
+                @Override
+                public void accept(final User loadedUser) {
+                        handleLoadFromUserDataService(loadedUser,
+                                recommendationsCallback);
+                }
+            }, userName);
+
+        }
+        ...
+
+```
+
+Here we use a CallBack to load the user, and when the user is loaded, we call `handleLoadFromUserDataService`
+which adds some management about handling the callback so we can still handle this call, just not now. 
+
+
+
+#### Lambda version of last example
+
+```java
+
+
+    public void recommend(final Callback<List<Recommendation>> recommendationsCallback,
+                          final String userName) {
+
+
+        /** Look for user in users cache. */
+        User user = users.get(userName);
+
+        /** If the user not found, load the user from the user service. */
+        if (user == null) {
+
+            /* Load user using lambda expression. */
+         userDataService.loadUser(
+                    loadedUser -> {
+                        handleLoadFromUserDataService(loadedUser, 
+                        recommendationsCallback);
+                    }, userName);
+
+        }
+        ...
+
+```
+
+Using lambdas like this makes the code more readable and terse, but remember don't deeply nest 
+lambda expressions or you will create a code maintenance nightmare. Use them judiciously.
+
+
+### Queue Callbacks - Doing something later
+
+What we want is to handle the request for recommendations after the user service system loads
+the user from its store.
+   
+   
+   
+#### Handling UserServiceData callback methods once we get them.
+
+```java
+
+public class RecommendationService {
+
+
+    private final SimpleCache<String, User> users =
+            new SimpleCache<>(10_000);
+
+    private UserDataServiceClient userDataService;
+    
+    
+    private BlockingQueue<Runnable> callbacks = 
+               new ArrayBlockingQueue<Runnable>(10_000);
+
+
+    ...
+    
+    public void recommend(final Callback<List<Recommendation>> recommendationsCallback,
+                          final String userName) {
+
+        ...
+    
+    }
+
+    /** Handle defered recommendations based on user loads. */
+    private void handleLoadFromUserDataService(final User loadedUser,
+                                               final Callback<List<Recommendation>> recommendationsCallback) {
+
+        /** Add a runnable to the callbacks queue. */
+        callbacks.add(new Runnable() {
+            @Override
+            public void run() {
+              List<Recommendation> recommendations = runRulesEngineAgainstUser(loadedUser);
+              recommendationsCallback.accept(recommendations);
+            }
+        });
+    }
+
+
+
+```
+
+
+
+
+####  handleLoadFromUserDataService rewritten using Lambda
+
+```java
+
+
+public class RecommendationService {
+
+...
+
+    /** Handle defered recommendations based on user loads. */
+    private void handleLoadFromUserDataService(final User loadedUser,
+                                               final Callback<List<Recommendation>> recommendationsCallback) {
+
+        /** Add a runnable to the callbacks list. */
+        callbacks.add(() -> {
+            List<Recommendation> recommendations = runRulesEngineAgainstUser(loadedUser);
+            recommendationsCallback.accept(recommendations);
+        });
+
+    }
+
+```
+
+
+The important part there is that every time we get a callback call from `UserDataService`, we then
+perform our CPU intensive recommendation rules and callback our caller. Well not exactly, what we 
+do is enqueue an runnable onto our callbacks queue, and later we will iterate through those but when?
+
+
+### Queue Callbacks Handling callbacks when our receive queue is empty, a new batch started or we hit a batch limit
+
+The `RecommendationService` can be notified when its queue is empty, it has started a new batch and when 
+it has reached a batch limit. These are all good times to handle callbacks from the `UserDataService`.
+
+#### Draining our callback queue
+```java
+
+    @QueueCallback({
+            QueueCallbackType.EMPTY,
+            QueueCallbackType.START_BATCH,
+            QueueCallbackType.LIMIT})
+    private void handleCallbacks() {
+
+        flushServiceProxy(userDataService);
+        Runnable runnable = callbacks.poll();
+
+        while (runnable != null) {
+            runnable.run();
+            runnable = callbacks.poll();
+        }
+    }
+
+```
+
+It is important to remember when handling callbacks from another microservice that you want to handle 
+callbacks from the other service before you handle more incomming requests from you clients. 
+Essentially you have clients that have been waiting (async waiting but still), and these clients
+might represent an open TCP/IP connection like an HTTP call so it is best to close them out
+before handling more requests and like we said they were already waiting around with an open connection
+for users to load form the user service.
+
+To learn more about CallBacks, plesae read [QBit Java MicroService Lib CallBack fundamentals]([Rough Cut] QBit Microservice Lib Working With CallBacks).
+
+
+
+
 
 ## Workers - pools and shards
 
@@ -809,7 +1185,8 @@ public class ServiceWorkers {
     public static ShardedMethodDispatcher shardedWorkers(final ShardRule shardRule) {...
 ```
 
-You can compose sharded workers (for in-memory, thread safe, CPU intensive services), or workers for IO or talking to foreign services or foreign buses.
+You can compose sharded workers (for in-memory, thread safe, CPU intensive services), or workers for IO 
+or talking to foreign services or foreign buses.
 
 Here is an example that uses a worker pool with three service workers in it:
 
@@ -828,9 +1205,10 @@ Let's say you have a service that does something:
 
 ```
 
-Now this does some sort of IO and you want to have a bank of these running not just one so you can do IO in parallel. After some performance testing, you found out that three is the magic number.
+Now this does some sort of IO and you want to have a bank of these running not just one so you can do 
+IO in parallel. After some performance testing, you found out that three is the magic number.
 
-You want to use your API for accessin this service:
+You want to use your API for accessing this service:
 
 ```java
     public  interface MultiWorkerClient {
@@ -877,7 +1255,8 @@ Let's add our new Service workers. ServiceWorkers is a ServiceMethodDispatcher.
         bundle.start();
 ```
 
-We are probably going to add a helper method to the service bundle so most of this can happen in a single call.
+We are probably going to add a helper method to the service bundle so most of this can happen in 
+a single call.
 
 Now you can start using your workers.
 
@@ -891,7 +1270,8 @@ Now you can start using your workers.
 Now you could use Spring or Guice to configure the builders and the service bundle.
 But you can just do it like the above which is good for testing and understanding QBit internals.
 
-QBit also supports the concept of sharded services which is good for sharding resoruces like CPU (run a rules engine on each CPU core for a user recommendation enigne). 
+QBit also supports the concept of sharded services which is good for sharding resources like CPU 
+(run a rules engine on each CPU core for a user recommendation engine). 
 
 QBit does not know how to shard your services, you have to give it a hint.
 You do this through a shard rule.
@@ -901,7 +1281,8 @@ public interface ShardRule {
     int shard(String methodName, Object[] args, int numWorkers);
 }
 ```
-We worked on an app where the first argument to the services was the username, and then we used that to shard calls to a CPU intensive in-memory rules engine. This technique works. :)
+We worked on an app where the first argument to the services was the username, and then we used that to 
+shard calls to a CPU intensive in-memory rules engine. This technique works. :)
 
 The ServiceWorkers class has a method for creating a sharded worker pool.
 
@@ -1000,10 +1381,6 @@ The shardOnBeanPath allows you to create a complex bean path navigation call and
 
 [Read more about Service sharding and service workers here](https://github.com/advantageous/qbit/wiki/%5BRough-Cut%5D-QBit-Microservices-using-Service-Workers-and-sharded-service-workers)
 
-## More
-TBD
-## Road map
-TBD
 
 You can find a lot more in the wiki. Also follow the commits.
 We have been busy beavers.
