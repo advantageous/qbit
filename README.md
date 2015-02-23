@@ -1169,6 +1169,11 @@ might represent an open TCP/IP connection like an HTTP call so it is best to clo
 before handling more requests and like we said they were already waiting around with an open connection
 for users to load form the user service.
 
+To learn more about CallBacks, plesae read [QBit Java MicroService Lib CallBack fundamentals]([Rough Cut] QBit Microservice Lib Working With CallBacks).
+
+
+
+
 
 ## Workers - pools and shards
 
