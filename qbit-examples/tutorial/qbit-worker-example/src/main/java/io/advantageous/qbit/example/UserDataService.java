@@ -32,36 +32,22 @@ public class UserDataService {
 
     }
 
-    @QueueCallback(QueueCallbackType.EMPTY)
-    private void emptyQueue() {
 
-        pretendToDoIO();
-    }
-
-
-    @QueueCallback(QueueCallbackType.LIMIT)
-    private void queueLimit() {
-
-        pretendToDoIO();
-    }
-
+    @QueueCallback({QueueCallbackType.EMPTY, QueueCallbackType.LIMIT})
     public void pretendToDoIO() {
         Sys.sleep(100);
 
         if (userLoadCallBacks.size()==0) {
             return;
         }
-
         for (Runnable runnable : userLoadCallBacks) {
             runnable.run();
         }
-
         userLoadCallBacks.clear();
 
     }
 
 
-    //private final Map<String, User> map = new HashMap<>(10_000);
 
 
 }
