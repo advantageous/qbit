@@ -62,8 +62,6 @@ import static org.boon.Boon.sputs;
 public class HttpRequestServiceServerHandler {
 
     protected final int timeoutInSeconds;
-    protected final ProtocolEncoder encoder;
-    protected final ProtocolParser parser;
     protected final JsonMapper jsonMapper; //TODO make this a TLV and use a thread pool just in case we have large JSON payloads
     protected final long flushInterval;
     private final Logger logger = LoggerFactory.getLogger(HttpRequestServiceServerHandler.class);
@@ -102,11 +100,11 @@ public class HttpRequestServiceServerHandler {
     }
 
 
-    public HttpRequestServiceServerHandler(int timeoutInSeconds, ProtocolEncoder encoder, ProtocolParser parser, ServiceBundle serviceBundle, JsonMapper jsonMapper, final int numberOfOutstandingRequests, int flushInterval) {
+    public HttpRequestServiceServerHandler(int timeoutInSeconds, ServiceBundle serviceBundle,
+                                           JsonMapper jsonMapper, final int numberOfOutstandingRequests,
+                                           int flushInterval) {
         this.timeoutInSeconds = timeoutInSeconds;
         lastTimeoutCheckTime = Timer.timer().now() + ( timeoutInSeconds * 1000 );
-        this.encoder = encoder;
-        this.parser = parser;
         this.jsonMapper = jsonMapper;
         this.numberOfOutstandingRequests = numberOfOutstandingRequests;
 

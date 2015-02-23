@@ -80,8 +80,12 @@ public class ServiceServerImpl implements ServiceServer {
         this.timeoutInSeconds = timeOutInSeconds;
         this.batchSize = batchSize;
 
-        webSocketHandler = new WebSocketServiceServerHandler(batchSize, serviceBundle, encoder, parser);
-        httpRequestServerHandler = new HttpRequestServiceServerHandler(this.timeoutInSeconds, this.encoder, this.parser, serviceBundle, jsonMapper, numberOfOutstandingRequests, flushInterval);
+        webSocketHandler = new WebSocketServiceServerHandler(batchSize, serviceBundle, 4, 4);
+        //TODO don't hardcode this. Pass it form the builder.
+
+        httpRequestServerHandler =
+                new HttpRequestServiceServerHandler(this.timeoutInSeconds,
+                        serviceBundle, jsonMapper, numberOfOutstandingRequests, flushInterval);
     }
 
 

@@ -179,7 +179,11 @@ public class BoonQBitFactory implements Factory {
     }
 
     @Override
-    public ServiceServer createServiceServer(final HttpTransport httpServer, final ProtocolEncoder encoder, final ProtocolParser protocolParser, final ServiceBundle serviceBundle, final JsonMapper jsonMapper, final int timeOutInSeconds, final int numberOfOutstandingRequests, final int batchSize, final int flushInterval, final QBitSystemManager systemManager) {
+    public ServiceServer createServiceServer(final HttpTransport httpServer, final ProtocolEncoder encoder,
+                                             final ProtocolParser protocolParser, final ServiceBundle serviceBundle,
+                                             final JsonMapper jsonMapper, final int timeOutInSeconds,
+                                             final int numberOfOutstandingRequests, final int batchSize,
+                                             final int flushInterval, final QBitSystemManager systemManager) {
         return new ServiceServerImpl(httpServer, encoder, protocolParser, serviceBundle, jsonMapper, timeOutInSeconds, numberOfOutstandingRequests, batchSize, flushInterval, systemManager);
     }
 

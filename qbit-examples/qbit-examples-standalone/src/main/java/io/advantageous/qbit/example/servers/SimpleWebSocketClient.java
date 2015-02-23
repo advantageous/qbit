@@ -92,13 +92,13 @@ public class SimpleWebSocketClient {
                 @Override
                 public void run() {
 
-                    for (int index = 0; index < 11_000_000; index++) {
+                    for (int index = 0; index < 25_000_000; index++) {
                         myService.ping(strings -> {
                             count++;
                         });
 
                         if (index % 15_000 == 0) {
-                            Sys.sleep(10);
+                            Sys.sleep(5);
                         }
                     }
                 }
@@ -110,11 +110,11 @@ public class SimpleWebSocketClient {
 
 
         double start = System.currentTimeMillis();
-        while (count < 10_000_000) {
+        while (count < 24_000_000) {
             for (int index = 0; index < 10; index++) {
                 Sys.sleep(100);
 
-                if (count > 10_000_000) {
+                if (count > 24_000_000) {
                     break;
                 }
             }
