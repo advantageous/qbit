@@ -21,6 +21,7 @@ package io.advantageous.qbit.events.impl;
 import io.advantageous.qbit.client.ClientProxy;
 import io.advantageous.qbit.events.EventBusProxyCreator;
 import io.advantageous.qbit.events.EventManager;
+import org.boon.Sets;
 import org.boon.Str;
 import org.boon.core.Sys;
 import org.boon.core.reflection.AnnotationData;
@@ -29,6 +30,7 @@ import org.boon.core.reflection.ClassMeta;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Proxy;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import static io.advantageous.qbit.service.ServiceProxyUtils.flushServiceProxy;
@@ -40,7 +42,16 @@ import static org.boon.core.reflection.ClassMeta.classMeta;
 public class BoonEventBusProxyCreator implements EventBusProxyCreator {
 
     /* I don't think anyone will ever want to change this but they can via a system property. */
-    public static final String EVENT_CHANNEL_ANNOTATION_NAME = Sys.sysProp("io.advantageous.qbit.events.EventBusProxyCreator.eventChannelName", "EventChannel");
+    public static final String EVENT_CHANNEL_ANNOTATION_NAME =
+            Sys.sysProp("io.advantageous.qbit.events.EventBusProxyCreator.eventChannelName", "EventChannel");
+
+
+    private static final String flushMethodNames =  Sys.sysProp("io.advantageous.qbit.events.EventBusProxyCreator.flushMethodNames",
+            "clientProxyFlush,flushEvents");
+
+
+    private final Set<String> flushMethodNameSet = Sets.set(Str.split(flushMethodNames, ','));
+
 
     @Override
     public <T> T createProxy(final EventManager eventManager, final Class<T> eventBusProxyInterface) {
@@ -58,7 +69,7 @@ public class BoonEventBusProxyCreator implements EventBusProxyCreator {
 
         final InvocationHandler invocationHandler = (proxy, method, args) -> {
 
-            if (method.getName().equals("clientProxyFlush")) {
+            if (flushMethodNameSet.contains(method.getName())) {
                 flushServiceProxy(eventManager);
                 return null;
             }
