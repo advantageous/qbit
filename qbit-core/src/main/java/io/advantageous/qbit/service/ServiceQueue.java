@@ -18,6 +18,7 @@
 
 package io.advantageous.qbit.service;
 
+import io.advantageous.qbit.concurrent.PeriodicScheduler;
 import io.advantageous.qbit.message.Event;
 import io.advantageous.qbit.message.MethodCall;
 import io.advantageous.qbit.message.Response;
@@ -25,6 +26,7 @@ import io.advantageous.qbit.queue.ReceiveQueue;
 import io.advantageous.qbit.queue.SendQueue;
 
 import java.util.Collection;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Created by Richard on 7/21/14.
@@ -91,6 +93,12 @@ public interface ServiceQueue extends Stoppable, ServiceFlushable {
 
     <T> T createProxy(Class<T> serviceInterface);
 
+
+    <T> T createProxyWithAutoFlush(Class<T> serviceInterface, int interval, TimeUnit timeUnit);
+
+
+    <T> T createProxyWithAutoFlush(Class<T> serviceInterface, PeriodicScheduler periodicScheduler,
+                                   int interval, TimeUnit timeUnit);
 
     void flush();
 

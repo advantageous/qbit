@@ -18,6 +18,12 @@
 
 package io.advantageous.qbit.queue;
 
+import io.advantageous.qbit.QBit;
+import io.advantageous.qbit.concurrent.PeriodicScheduler;
+import io.advantageous.qbit.queue.impl.AutoFlushingSendQueue;
+
+import java.util.concurrent.TimeUnit;
+
 /**
  * Represents a queue manager.
  * Queues are split up into receivers views and send views to facilitate batching.
@@ -44,6 +50,21 @@ public interface Queue<T> {
      * @return send queue
      */
     SendQueue<T> sendQueue();
+
+
+    default SendQueue<T> sendQueueWithAutoFlush(int interval, TimeUnit timeUnit) {
+
+        PeriodicScheduler periodicScheduler = QBit.factory().periodicScheduler();
+
+        return sendQueueWithAutoFlush(periodicScheduler, interval, timeUnit);
+    }
+
+    default SendQueue<T> sendQueueWithAutoFlush(final PeriodicScheduler periodicScheduler,
+                                                final int interval, final TimeUnit timeUnit) {
+
+        SendQueue<T> sendQueue = sendQueue();
+        return new AutoFlushingSendQueue<>(sendQueue, periodicScheduler, interval, timeUnit);
+    }
 
     /**
      * This starts up a listener which will listen to items on the

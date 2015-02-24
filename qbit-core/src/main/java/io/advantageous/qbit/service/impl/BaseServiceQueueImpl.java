@@ -47,6 +47,7 @@ package io.advantageous.qbit.service.impl;
 
 import io.advantageous.qbit.GlobalConstants;
 import io.advantageous.qbit.client.ClientProxy;
+import io.advantageous.qbit.concurrent.PeriodicScheduler;
 import io.advantageous.qbit.events.EventManager;
 import io.advantageous.qbit.message.*;
 import io.advantageous.qbit.queue.*;
@@ -65,6 +66,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.util.Collection;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReentrantLock;
 
 import static io.advantageous.qbit.QBit.factory;
@@ -486,14 +488,36 @@ public class BaseServiceQueueImpl implements ServiceQueue {
         return service;
     }
 
+
+    public <T> T createProxyWithAutoFlush(Class<T> serviceInterface, int interval, TimeUnit timeUnit) {
+
+        final SendQueue<MethodCall<Object>> methodCallSendQueue = requestQueue.sendQueueWithAutoFlush(interval, timeUnit);
+        methodCallSendQueue.start();
+        return proxy(serviceInterface, methodCallSendQueue);
+
+    }
+
+
+    public <T> T createProxyWithAutoFlush(final Class<T> serviceInterface,
+                                          final PeriodicScheduler periodicScheduler,
+                                          final int interval, final TimeUnit timeUnit) {
+
+        final SendQueue<MethodCall<Object>> methodCallSendQueue =
+                requestQueue.sendQueueWithAutoFlush(periodicScheduler, interval, timeUnit);
+        methodCallSendQueue.start();
+        return proxy(serviceInterface, methodCallSendQueue);
+
+    }
+
     public <T> T createProxy(Class<T> serviceInterface) {
 
-        final String uuid = UUID.randomUUID().toString();
-
-
-
         final SendQueue<MethodCall<Object>> methodCallSendQueue = requestQueue.sendQueue();
+        return proxy(serviceInterface, methodCallSendQueue);
+    }
 
+    private <T> T proxy(Class<T> serviceInterface, final SendQueue<MethodCall<Object>> methodCallSendQueue) {
+
+        final String uuid = UUID.randomUUID().toString();
         InvocationHandler invocationHandler = new InvocationHandler() {
 
             private long messageId = 0;
@@ -509,6 +533,11 @@ public class BaseServiceQueueImpl implements ServiceQueue {
                 }
                 if (method.getName().equals("clientProxyFlush")) {
                     methodCallSendQueue.flushSends();
+                    return null;
+                }
+
+                if (method.getName().equals("stop")) {
+                    methodCallSendQueue.stop();
                     return null;
                 }
                 messageId++;

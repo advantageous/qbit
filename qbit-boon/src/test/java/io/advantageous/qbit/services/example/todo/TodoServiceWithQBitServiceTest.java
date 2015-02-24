@@ -23,6 +23,7 @@ import io.advantageous.qbit.message.MethodCall;
 import io.advantageous.qbit.message.Response;
 import io.advantageous.qbit.queue.ReceiveQueue;
 import io.advantageous.qbit.queue.SendQueue;
+import io.advantageous.qbit.service.Callback;
 import io.advantageous.qbit.service.ServiceQueue;
 import io.advantageous.qbit.spi.RegisterBoonWithQBit;
 import org.boon.core.Sys;
@@ -30,6 +31,8 @@ import org.junit.Test;
 
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicReference;
 
 import static org.boon.Exceptions.die;
 
@@ -41,12 +44,6 @@ import static org.boon.Exceptions.die;
 public class TodoServiceWithQBitServiceTest {
 
     boolean ok;
-
-    static {
-
-        /** Boon is the default implementation but there can be others. */
-        RegisterBoonWithQBit.registerBoonWithQBit();
-    }
 
     @Test
     public void testCallbackWithObjectNameAndMethodName() {
@@ -90,6 +87,33 @@ public class TodoServiceWithQBitServiceTest {
         }
     }
 
+
+    @Test
+    public void testUsingProxyWithAutoFlush() {
+
+
+        ServiceQueue serviceQueue = QBit.factory().createService("/services", "/todo-service", new TodoService(), null, null).start().startCallBackHandler();
+        TodoServiceClient todoServiceClient = serviceQueue.createProxyWithAutoFlush(TodoServiceClient.class, 50, TimeUnit.MILLISECONDS);
+
+        todoServiceClient.add(new TodoItem("foo", "foo", null));
+
+        AtomicReference<List<TodoItem>> items = new AtomicReference<>();
+        todoServiceClient.list(new Callback<List<TodoItem>>() {
+            @Override
+            public void accept(List<TodoItem> todoItems) {
+                items.set(todoItems);
+            }
+        });
+
+        Sys.sleep(1000);
+
+        ok = items.get()!=null || die();
+
+
+        ok = items.get().size() > 0 || die();
+
+
+    }
 
     @Test
     public void testCallbackWithAddress() {

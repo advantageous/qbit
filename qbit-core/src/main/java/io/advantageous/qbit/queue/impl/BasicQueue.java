@@ -18,8 +18,11 @@
 
 package io.advantageous.qbit.queue.impl;
 
+import io.advantageous.qbit.Factory;
 import io.advantageous.qbit.GlobalConstants;
+import io.advantageous.qbit.QBit;
 import io.advantageous.qbit.concurrent.ExecutorContext;
+import io.advantageous.qbit.concurrent.PeriodicScheduler;
 import io.advantageous.qbit.queue.*;
 import org.boon.core.reflection.ClassMeta;
 import org.boon.core.reflection.ConstructorAccess;
@@ -122,6 +125,7 @@ public class BasicQueue<T> implements Queue<T> {
     public SendQueue<T> sendQueue() {
         return new BasicSendQueue<>(batchSize, this.queue, checkIfBusy, checkEvery, tryTransfer);
     }
+
 
     @Override
     public void startListener(final ReceiveQueueListener<T> listener) {

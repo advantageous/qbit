@@ -23,6 +23,7 @@ import org.boon.core.Sys;
 import org.junit.Test;
 
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 
 import static org.boon.Boon.puts;
@@ -314,5 +315,62 @@ public class BasicQueueTest {
         ok = count[0] == 1000 || die("count should be 1000", count[0]);
 
     }
+
+
+
+
+    @Test
+    public void testUsingAutoFlush() throws Exception {
+
+
+        final QueueBuilder builder = new QueueBuilder().setName("test").setPollWait(1000).setBatchSize(10);
+        Queue<String> queue = builder.build();
+
+        final int count[] = new int[1];
+
+
+        Thread writer = new Thread(new Runnable() {
+            @Override
+            public void run() {
+
+
+                final SendQueue<String> sendQueue = queue.sendQueueWithAutoFlush(50, TimeUnit.MILLISECONDS);
+                sendQueue.start();
+
+                for (int index = 0; index < 1000; index++) {
+                    sendQueue.send("item" + index);
+                }
+                Sys.sleep(1000);
+                sendQueue.stop();
+            }
+        });
+
+
+        Thread reader = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                ReceiveQueue<String> receiveQueue = queue.receiveQueue();
+
+                while (receiveQueue.poll() != null) {
+                    count[0]++;
+                }
+            }
+        });
+
+        writer.start();
+
+        Sys.sleep(100);
+
+        reader.start();
+
+        writer.join();
+        reader.join();
+
+        puts(count[0]);
+
+        ok = count[0] == 1000 || die("count should be 1000", count[0]);
+
+    }
+
 
 }

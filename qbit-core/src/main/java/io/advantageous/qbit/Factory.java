@@ -19,6 +19,7 @@
 package io.advantageous.qbit;
 
 import io.advantageous.qbit.client.Client;
+import io.advantageous.qbit.concurrent.PeriodicScheduler;
 import io.advantageous.qbit.events.EventBusProxyCreator;
 import io.advantageous.qbit.events.EventManager;
 import io.advantageous.qbit.http.HttpTransport;
@@ -52,6 +53,10 @@ import java.util.List;
  * @author rhightower
  */
 public interface Factory {
+
+
+    default PeriodicScheduler createPeriodicScheduler(int poolSize) {throw new IllegalStateException("Not implemented");}
+    default PeriodicScheduler periodicScheduler(){ throw new IllegalStateException("Not implemented");}
 
     /**
      * Create a method call based on a body that we are parsing from  a POST body or WebSocket message for example.

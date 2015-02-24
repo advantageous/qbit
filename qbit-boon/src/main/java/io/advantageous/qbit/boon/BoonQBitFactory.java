@@ -22,6 +22,7 @@ import io.advantageous.qbit.BoonJsonMapper;
 import io.advantageous.qbit.Factory;
 import io.advantageous.qbit.client.Client;
 import io.advantageous.qbit.client.ServiceProxyFactory;
+import io.advantageous.qbit.concurrent.PeriodicScheduler;
 import io.advantageous.qbit.events.EventBusProxyCreator;
 import io.advantageous.qbit.events.EventManager;
 import io.advantageous.qbit.events.impl.BoonEventBusProxyCreator;
@@ -56,6 +57,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static io.advantageous.qbit.service.ServiceBuilder.serviceBuilder;
@@ -85,6 +87,50 @@ public class BoonQBitFactory implements Factory {
             return list;
         }
     };
+
+
+
+    private ScheduledExecutorService scheduledExecutorService = Executors.newScheduledThreadPool(4,
+            r -> {
+                Thread thread = new Thread(r);
+                thread.setDaemon(true);
+                thread.setName("PeriodicTasks");
+                return thread;
+            });
+
+    public PeriodicScheduler periodicScheduler() {
+
+        return (runnable, interval, timeUnit) -> scheduledExecutorService.scheduleAtFixedRate(runnable, interval, interval, timeUnit);
+    }
+
+    public PeriodicScheduler createPeriodicScheduler(int poolSize) {
+
+
+        final ScheduledExecutorService scheduledExecutorService = Executors.newScheduledThreadPool(poolSize,
+                r -> {
+                    Thread thread = new Thread(r);
+                    thread.setDaemon(true);
+                    thread.setName("PeriodicTasks");
+                    return thread;
+                });
+
+        return new PeriodicScheduler() {
+            @Override
+            public ScheduledFuture repeat(Runnable runnable, int interval, TimeUnit timeUnit) {
+                return scheduledExecutorService.scheduleAtFixedRate(runnable, interval, interval, timeUnit);
+            }
+
+            @Override
+            public void start() {
+            }
+
+            @Override
+            public void stop() {
+                scheduledExecutorService.shutdown();
+            }
+        };
+
+    }
 
     @Override
     public EventManager systemEventManager() {
