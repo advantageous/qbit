@@ -1,20 +1,18 @@
 package io.advantageous.qbit.example;
 
 import io.advantageous.qbit.QBit;
-import io.advantageous.qbit.queue.QueueBuilder;
-import io.advantageous.qbit.server.ServiceServer;
-import io.advantageous.qbit.service.ServiceBundle;
+//import io.advantageous.qbit.service.Callback;
+//import io.advantageous.qbit.service.ServiceProxyUtils;
 import io.advantageous.qbit.service.ServiceQueue;
-import io.advantageous.qbit.service.dispatchers.ServiceWorkers;
+//import org.boon.Lists;
 import org.boon.core.Sys;
 
-import static io.advantageous.qbit.service.ServiceBundleBuilder.serviceBundleBuilder;
 import static io.advantageous.qbit.service.ServiceProxyUtils.flushServiceProxy;
+//import static java.lang.System.out;
 
 import java.util.List;
 
 import static io.advantageous.qbit.service.ServiceBuilder.serviceBuilder;
-import static io.advantageous.qbit.service.dispatchers.ServiceWorkers.workers;
 import static org.boon.Lists.list;
 
 /**
@@ -28,36 +26,21 @@ public class PrototypeMain {
         QBit.factory().systemEventManager();
 
 
+        ServiceQueue userDataService = serviceBuilder()
+                                    .setServiceObject(new UserDataService())
+                                    .build().start();
 
-        final ServiceWorkers userDataServiceWorkers =
-                workers(); //Create a round robin service dispatcher
+        userDataService.startCallBackHandler();
 
-        for (int index =0; index < 10; index++) {
-            ServiceQueue userDataService = serviceBuilder()
-                    .setQueueBuilder(QueueBuilder.queueBuilder().setBatchSize(1))
-                    .setResponseQueueBuilder(QueueBuilder.queueBuilder().setBatchSize(1))
-                    .setServiceObject(new UserDataService())
-                    .build();
-            userDataService.startCallBackHandler();
-            userDataServiceWorkers.addService(userDataService);
-        }
-
-        userDataServiceWorkers.start();
-
-
-        final ServiceBundle bundle = serviceBundleBuilder()
-                .setAddress("/root").build();
+        UserDataServiceClient userDataServiceClient = userDataService
+                                .createProxy(UserDataServiceClient.class);
 
 
 
-        bundle.addServiceConsumer("/workers", userDataServiceWorkers);
-        bundle.start();
-        //bundle.startReturnHandlerProcessor();
-
-
-        final UserDataServiceClient userDataServiceClient =
-                bundle.createLocalProxy(UserDataServiceClient.class, "/workers");
-
+        /* Not using userDataService part 1. */
+//
+//        RecommendationService recommendationServiceImpl =
+//                new RecommendationService(userDataServiceClient);
 
         RecommendationService recommendationServiceImpl =
                 new RecommendationService(userDataServiceClient);
@@ -69,6 +52,26 @@ public class PrototypeMain {
 
         RecommendationServiceClient recommendationServiceClient =
                 recommendationServiceQueue.createProxy(RecommendationServiceClient.class);
+
+        /**** NO LAMBDA ****/
+//        Callback<List<Recommendation>> callback = new Callback<List<Recommendation>>() {
+//            @Override
+//            public void accept(List<Recommendation> recommendations) {
+//                System.out.println("recommendations " + recommendations);
+//            }
+//
+//            @Override
+//            public void onError(Throwable error) {
+//                error.printStackTrace();
+//            }
+//        };
+//
+//        recommendationServiceClient.recommend(callback, "Rick");
+
+
+        //import static java.lang.System.out;
+
+        //recommendationServiceClient.recommend(out::println, "Rick");
 
         flushServiceProxy(recommendationServiceClient);
         Sys.sleep(1000);
