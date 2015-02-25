@@ -52,7 +52,7 @@ public interface Queue<T> {
     SendQueue<T> sendQueue();
 
 
-    default SendQueue<T> sendQueueWithAutoFlush(int interval, TimeUnit timeUnit) {
+    default SendQueue<T> sendQueueWithAutoFlush(final int interval, final TimeUnit timeUnit) {
 
         PeriodicScheduler periodicScheduler = QBit.factory().periodicScheduler();
 
