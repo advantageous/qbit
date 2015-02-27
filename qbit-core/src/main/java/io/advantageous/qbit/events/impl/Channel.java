@@ -27,9 +27,6 @@ import org.slf4j.LoggerFactory;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Created by rhightower on 2/3/15.
- */
 public class Channel<T> {
 
 
