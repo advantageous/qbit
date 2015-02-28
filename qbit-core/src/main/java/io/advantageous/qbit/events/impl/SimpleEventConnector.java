@@ -3,6 +3,7 @@ package io.advantageous.qbit.events.impl;
 import io.advantageous.qbit.events.EventConnector;
 import io.advantageous.qbit.events.EventManager;
 import io.advantageous.qbit.message.Event;
+import io.advantageous.qbit.service.ServiceProxyUtils;
 
 /**
  * @author Rick Hightower
@@ -18,5 +19,11 @@ public class SimpleEventConnector implements EventConnector {
     @Override
     public void forwardEvent(Event<Object> event) {
         this.eventManager.forwardEvent(event);
+    }
+
+    @Override
+    public void flush() {
+
+        ServiceProxyUtils.flushServiceProxy(eventManager);
     }
 }

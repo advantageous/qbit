@@ -2,9 +2,12 @@ package io.advantageous.qbit.events.impl;
 
 
 import io.advantageous.qbit.QBit;
+import io.advantageous.qbit.annotation.QueueCallback;
+import io.advantageous.qbit.annotation.QueueCallbackType;
 import io.advantageous.qbit.events.EventConnector;
 import io.advantageous.qbit.events.EventManager;
 import io.advantageous.qbit.message.Event;
+import io.advantageous.qbit.service.ServiceProxyUtils;
 import io.advantageous.qbit.util.MultiMap;
 
 
@@ -19,15 +22,19 @@ public class EventRemoteReplicatorService implements EventConnector {
 
 
     public EventRemoteReplicatorService(final EventManager eventManager) {
-
         this.eventConnector = new SimpleEventConnector(eventManager);
+    }
+
+
+    public EventRemoteReplicatorService(final EventConnector eventConnector) {
+        this.eventConnector = eventConnector;
     }
 
 
 
 
-    public EventRemoteReplicatorService() {
 
+    public EventRemoteReplicatorService() {
         this.eventConnector = new SimpleEventConnector(QBit.factory().systemEventManager());
     }
 
@@ -35,7 +42,7 @@ public class EventRemoteReplicatorService implements EventConnector {
 
     /** This message receives an event from a remote call. */
     @Override
-    public void forwardEvent(Event<Object> event) {
+    public void forwardEvent(final Event<Object> event) {
 
 
         eventConnector.forwardEvent(new Event<Object>() {
@@ -46,12 +53,12 @@ public class EventRemoteReplicatorService implements EventConnector {
 
             @Override
             public long id() {
-                return id();
+                return event.id();
             }
 
             @Override
             public Object body() {
-                return body();
+                return event.body();
             }
 
             @Override
@@ -74,6 +81,21 @@ public class EventRemoteReplicatorService implements EventConnector {
             public boolean wasReplicated() {
                 return true;
             }
+
+            @Override
+            public boolean equals(Object obj) {
+                return event.equals(obj);
+            }
+
+            @Override
+            public int hashCode() {
+                return event.hashCode();
+            }
         });
+    }
+
+    @QueueCallback({QueueCallbackType.EMPTY, QueueCallbackType.LIMIT})
+    void flushConnector() {
+        eventConnector.flush();
     }
 }
