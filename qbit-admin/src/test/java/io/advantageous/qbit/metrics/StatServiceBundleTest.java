@@ -165,7 +165,7 @@ public class StatServiceBundleTest extends TimedTesting {
     }
 
 
-    @Test
+    //@Test
     public void testRecord100Thousand() throws Exception {
         for (int index = 0; index < 100_000; index++) {
             statServiceClient.recordCount("mystat", 1);
@@ -223,7 +223,7 @@ public class StatServiceBundleTest extends TimedTesting {
 
     }
 
-    @Test
+    //@Test
     public void testRecordServicePerf() throws Exception {
 
         Sys.sleep(200);
