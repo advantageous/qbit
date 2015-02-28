@@ -2,6 +2,7 @@ package io.advantageous.qbit.events;
 
 import io.advantageous.qbit.QBit;
 import io.advantageous.qbit.events.impl.ConditionalEventConnector;
+import io.advantageous.qbit.events.spi.EventConnector;
 import io.advantageous.qbit.message.Event;
 
 import java.util.ArrayList;

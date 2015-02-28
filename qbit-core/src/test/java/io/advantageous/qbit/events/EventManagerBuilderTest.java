@@ -1,7 +1,8 @@
 package io.advantageous.qbit.events;
 
 import io.advantageous.qbit.Factory;
-import io.advantageous.qbit.events.impl.EventImpl;
+import io.advantageous.qbit.events.spi.EventConnector;
+import io.advantageous.qbit.events.spi.EventTransferObject;
 import io.advantageous.qbit.message.Event;
 import io.advantageous.qbit.queue.SendQueue;
 import io.advantageous.qbit.service.ServiceQueue;
@@ -31,7 +32,7 @@ public class EventManagerBuilderTest {
 
     String testChannel = "test.channel";
 
-    Event<Object> testEvent = new EventImpl<>("body", 1L,  testChannel);
+    EventTransferObject<Object> testEvent = new EventTransferObject<>("body", 1L,  testChannel);
 
 
     @Before
@@ -307,7 +308,7 @@ public class EventManagerBuilderTest {
         }
 
         @Override
-        public <T> void forwardEvent(Event<Object> event) {
+        public <T> void forwardEvent(EventTransferObject<Object> event) {
             eventConnector.forwardEvent(event);
         }
     };

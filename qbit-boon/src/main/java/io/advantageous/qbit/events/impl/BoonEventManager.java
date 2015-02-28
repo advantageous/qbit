@@ -22,6 +22,8 @@ import io.advantageous.qbit.GlobalConstants;
 import io.advantageous.qbit.annotation.QueueCallback;
 import io.advantageous.qbit.annotation.QueueCallbackType;
 import io.advantageous.qbit.events.*;
+import io.advantageous.qbit.events.spi.EventConnector;
+import io.advantageous.qbit.events.spi.EventTransferObject;
 import io.advantageous.qbit.message.Event;
 import io.advantageous.qbit.queue.SendQueue;
 import io.advantageous.qbit.service.ServiceQueue;
@@ -352,7 +354,7 @@ public class BoonEventManager implements EventManager {
     }
 
     @Override
-    public <T> void forwardEvent(final Event<Object> event) {
+    public <T> void forwardEvent(final EventTransferObject<Object> event) {
         eventBus.forwardEvent(event);
     }
 }

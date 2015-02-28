@@ -24,7 +24,7 @@ import io.advantageous.qbit.client.Client;
 import io.advantageous.qbit.client.ServiceProxyFactory;
 import io.advantageous.qbit.concurrent.PeriodicScheduler;
 import io.advantageous.qbit.events.EventBusProxyCreator;
-import io.advantageous.qbit.events.EventConnector;
+import io.advantageous.qbit.events.spi.EventConnector;
 import io.advantageous.qbit.events.EventManager;
 import io.advantageous.qbit.events.impl.BoonEventBusProxyCreator;
 import io.advantageous.qbit.http.HttpTransport;

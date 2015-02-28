@@ -16,23 +16,31 @@
  * QBit - The Microservice lib for Java : JSON, WebSocket, REST. Be The Web!
  */
 
-package io.advantageous.qbit.events.impl;
+package io.advantageous.qbit.events.spi;
 
 import io.advantageous.qbit.message.Event;
 
 /**
- * Created by rhightower on 2/3/15.
+ *
+ * @param <T>
  */
-public class EventImpl<T> implements Event<T> {
+public class EventTransferObject<T> implements Event<T> {
 
     private final T body;
     private final long id;
     private final String topic;
 
-    public EventImpl(T body, long id, String topic) {
+    public EventTransferObject(T body, long id, String topic) {
         this.body = body;
         this.id = id;
         this.topic = topic;
+    }
+
+
+    public EventTransferObject() {
+        this.body = null;
+        this.id = 0L;
+        this.topic = "";
     }
 
     @Override

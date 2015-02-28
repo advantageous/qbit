@@ -1,6 +1,7 @@
 package io.advantageous.qbit.events.impl;
 
-import io.advantageous.qbit.events.EventConnector;
+import io.advantageous.qbit.events.spi.EventConnector;
+import io.advantageous.qbit.events.spi.EventTransferObject;
 import io.advantageous.qbit.message.Event;
 
 import java.util.function.Predicate;
@@ -18,7 +19,7 @@ public class ConditionalEventConnector implements EventConnector {
 
     @Override
     public void forwardEvent(
-            final Event<Object> event) {
+            final EventTransferObject<Object> event) {
         if ( handleEvent.test( event ) ) {
             eventConnector.forwardEvent(event);
         }

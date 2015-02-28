@@ -114,6 +114,7 @@ public class HttpRequestServiceServerHandler {
         httpMethodHandlerInfoMap.put(GET.name(), new HttpMethodHandlerInfo(GET, false));
         httpMethodHandlerInfoMap.put(HEAD.name(), new HttpMethodHandlerInfo(HEAD, false));
         httpMethodHandlerInfoMap.put(TRACE.name(), new HttpMethodHandlerInfo(TRACE, false)); //You can ignore with 404 if it has a body according to RFC
+        httpMethodHandlerInfoMap.put(WEB_SOCKET.name(), new HttpMethodHandlerInfo(TRACE, false)); //You can ignore with 404 if it has a body according to RFC
 
         httpMethodHandlerInfoMap.put(OPTIONS.name(), new HttpMethodHandlerInfo(OPTIONS, true)); //Collect meta-data, body not defined but not forbidden
         httpMethodHandlerInfoMap.put(DELETE.name(), new HttpMethodHandlerInfo(DELETE, true)); //Body not forbidden

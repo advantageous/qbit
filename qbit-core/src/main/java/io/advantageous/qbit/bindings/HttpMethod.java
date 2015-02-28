@@ -32,5 +32,6 @@ public enum HttpMethod {
     HEAD,
     TRACE,
     CONNECT,
-    OPTIONS
+    OPTIONS,
+    WEB_SOCKET
 }

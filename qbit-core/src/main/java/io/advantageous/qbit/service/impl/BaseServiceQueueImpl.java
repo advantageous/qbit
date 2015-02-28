@@ -81,7 +81,7 @@ public class BaseServiceQueueImpl implements ServiceQueue {
     private static ThreadLocal<ServiceQueue> serviceThreadLocal = new ThreadLocal<>();
     protected final QBitSystemManager systemManager;
     protected final Logger logger = LoggerFactory.getLogger(ServiceQueueImpl.class);
-    protected final boolean debug = false || GlobalConstants.DEBUG || logger.isDebugEnabled();
+    protected final boolean debug = true || GlobalConstants.DEBUG || logger.isDebugEnabled();
     protected final Object service;
     protected final Queue<Response<Object>> responseQueue;
     protected final Queue<MethodCall<Object>> requestQueue;
@@ -304,7 +304,8 @@ public class BaseServiceQueueImpl implements ServiceQueue {
         }
     }
 
-    private void start(final ServiceMethodHandler serviceMethodHandler, boolean joinEventManager) {
+    private void start(final ServiceMethodHandler serviceMethodHandler,
+                       final boolean joinEventManager) {
 
         final ReceiveQueue<Response<Object>> responseReceiveQueue =
                 this.handleCallbacks ?

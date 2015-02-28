@@ -1,6 +1,5 @@
-package io.advantageous.qbit.events;
+package io.advantageous.qbit.events.spi;
 
-import io.advantageous.qbit.message.Event;
 import io.advantageous.qbit.service.ServiceFlushable;
 
 public interface EventConnector extends ServiceFlushable{
@@ -9,7 +8,7 @@ public interface EventConnector extends ServiceFlushable{
     /**
      * @param event   event
      */
-    void forwardEvent(Event<Object> event);
+    void forwardEvent(EventTransferObject<Object> event);
 
     default void flush() {
 

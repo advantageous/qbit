@@ -4,10 +4,10 @@ package io.advantageous.qbit.events.impl;
 import io.advantageous.qbit.QBit;
 import io.advantageous.qbit.annotation.QueueCallback;
 import io.advantageous.qbit.annotation.QueueCallbackType;
-import io.advantageous.qbit.events.EventConnector;
+import io.advantageous.qbit.events.spi.EventConnector;
 import io.advantageous.qbit.events.EventManager;
+import io.advantageous.qbit.events.spi.EventTransferObject;
 import io.advantageous.qbit.message.Event;
-import io.advantageous.qbit.service.ServiceProxyUtils;
 import io.advantageous.qbit.util.MultiMap;
 
 
@@ -42,10 +42,10 @@ public class EventRemoteReplicatorService implements EventConnector {
 
     /** This message receives an event from a remote call. */
     @Override
-    public void forwardEvent(final Event<Object> event) {
+    public void forwardEvent(final EventTransferObject<Object> event) {
 
 
-        eventConnector.forwardEvent(new Event<Object>() {
+        eventConnector.forwardEvent(new EventTransferObject<Object>() {
             @Override
             public String channel() {
                 return event.channel();

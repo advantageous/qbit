@@ -18,6 +18,7 @@
 
 package io.advantageous.qbit.events;
 
+import io.advantageous.qbit.events.spi.EventTransferObject;
 import io.advantageous.qbit.message.Event;
 import io.advantageous.qbit.queue.SendQueue;
 import io.advantageous.qbit.service.ServiceQueue;
@@ -137,6 +138,6 @@ public interface EventManager {
 
 
 
-    <T> void forwardEvent(Event<Object> event);
+    <T> void forwardEvent(EventTransferObject<Object> event);
 
 }

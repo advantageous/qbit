@@ -43,6 +43,10 @@ import static io.advantageous.qbit.http.server.HttpServerBuilder.httpServerBuild
  */
 
 public class ServiceServerBuilder {
+    public static ServiceServerBuilder serviceServerBuilder() {
+        return new ServiceServerBuilder();
+    }
+
 
     private String host;
     private int port = 8080;
@@ -76,9 +80,6 @@ public class ServiceServerBuilder {
      */
     private Transformer<Request, Object> argTransformer = ServiceConstants.NO_OP_ARG_TRANSFORM;
 
-    public static ServiceServerBuilder serviceServerBuilder() {
-        return new ServiceServerBuilder();
-    }
 
     public QBitSystemManager getSystemManager() {
         return qBitSystemManager;

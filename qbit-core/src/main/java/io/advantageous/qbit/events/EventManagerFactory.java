@@ -18,6 +18,8 @@
 
 package io.advantageous.qbit.events;
 
+import io.advantageous.qbit.events.spi.EventConnector;
+
 /**
  * @author rhightower
  */

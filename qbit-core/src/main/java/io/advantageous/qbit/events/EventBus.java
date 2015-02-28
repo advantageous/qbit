@@ -18,6 +18,7 @@
 
 package io.advantageous.qbit.events;
 
+import io.advantageous.qbit.events.spi.EventTransferObject;
 import io.advantageous.qbit.message.Event;
 
 /**
@@ -49,5 +50,5 @@ public interface EventBus {
     <T> void unregister(String channelName, EventListener<T> listener);
 
 
-    void forwardEvent(Event<Object> event);
+    void forwardEvent(EventTransferObject<Object> event);
 }

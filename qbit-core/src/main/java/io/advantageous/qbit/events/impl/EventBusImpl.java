@@ -19,8 +19,9 @@
 package io.advantageous.qbit.events.impl;
 
 import io.advantageous.qbit.events.EventBus;
-import io.advantageous.qbit.events.EventConnector;
+import io.advantageous.qbit.events.spi.EventConnector;
 import io.advantageous.qbit.events.EventListener;
+import io.advantageous.qbit.events.spi.EventTransferObject;
 import io.advantageous.qbit.message.Event;
 
 import java.util.Map;
@@ -66,7 +67,7 @@ public class EventBusImpl implements EventBus {
     public <T> void send(String channel, T event) {
 
         messageCounter++;
-        final EventImpl<Object> eventMessage = new EventImpl<>(event, messageCounter, channel);
+        final EventTransferObject<Object> eventMessage = new EventTransferObject<>(event, messageCounter, channel);
         eventConnector.forwardEvent(eventMessage);
         channel(channel).send(eventMessage);
 
@@ -78,9 +79,11 @@ public class EventBusImpl implements EventBus {
     }
 
     @Override
-    public void forwardEvent(final Event<Object> event) {
-        eventConnector.forwardEvent(event);
-        channel(event.channel()).send(event);
+    public void forwardEvent(final EventTransferObject<Object> event) {
 
+        if (!event.wasReplicated()) {
+            eventConnector.forwardEvent(event);
+        }
+        channel(event.channel()).send(event);
     }
 }

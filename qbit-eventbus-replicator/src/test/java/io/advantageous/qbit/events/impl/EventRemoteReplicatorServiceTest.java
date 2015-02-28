@@ -1,8 +1,9 @@
 package io.advantageous.qbit.events.impl;
 
 import io.advantageous.qbit.Factory;
-import io.advantageous.qbit.events.EventConnector;
+import io.advantageous.qbit.events.spi.EventConnector;
 import io.advantageous.qbit.events.EventManager;
+import io.advantageous.qbit.events.spi.EventTransferObject;
 import io.advantageous.qbit.message.Event;
 import io.advantageous.qbit.spi.FactorySPI;
 import org.junit.Before;
@@ -21,7 +22,7 @@ public class EventRemoteReplicatorServiceTest {
     EventRemoteReplicatorService service;
     EventManager eventManager;
 
-    Event<Object> event = new EventImpl<>("hello", 1L, "TEST.TOPIC");
+    EventTransferObject<Object> event = new EventTransferObject<>("hello", 1L, "TEST.TOPIC");
 
     @Before
     public void setup() {
@@ -67,7 +68,7 @@ public class EventRemoteReplicatorServiceTest {
     public void testWithConnectorCodeCoverage() {
         EventConnector eventConnector = new EventConnector() {
             @Override
-            public void forwardEvent(Event<Object> argEvent) {
+            public void forwardEvent(EventTransferObject<Object> argEvent) {
 
                 assertEquals(event.id(), argEvent.id());
                 assertEquals(event.hashCode(), argEvent.hashCode());
