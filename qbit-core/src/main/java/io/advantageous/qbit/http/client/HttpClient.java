@@ -36,7 +36,7 @@ import static io.advantageous.qbit.http.request.HttpRequestBuilder.httpRequestBu
 import static org.boon.Boon.sputs;
 
 /**
- * This is an interface that allows users to send HTTP requests to a server.
+ * This is an interface that allows users to forwardEvent HTTP requests to a server.
  * <p>
  * Created by rhightower on 10/28/14.
  *

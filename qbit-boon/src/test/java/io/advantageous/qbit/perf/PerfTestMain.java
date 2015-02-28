@@ -275,7 +275,7 @@ public class PerfTestMain {
 //            try {
 //                lock.lock();
 //
-//                sendQueue.send(webSocketMessage);
+//                sendQueue.forwardEvent(webSocketMessage);
 //            } finally {
 //                lock.unlock();
 //            }

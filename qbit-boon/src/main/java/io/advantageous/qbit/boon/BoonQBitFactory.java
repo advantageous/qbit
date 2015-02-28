@@ -24,6 +24,7 @@ import io.advantageous.qbit.client.Client;
 import io.advantageous.qbit.client.ServiceProxyFactory;
 import io.advantageous.qbit.concurrent.PeriodicScheduler;
 import io.advantageous.qbit.events.EventBusProxyCreator;
+import io.advantageous.qbit.events.EventConnector;
 import io.advantageous.qbit.events.EventManager;
 import io.advantageous.qbit.events.impl.BoonEventBusProxyCreator;
 import io.advantageous.qbit.http.HttpTransport;
@@ -170,10 +171,6 @@ public class BoonQBitFactory implements Factory {
         eventManagerThreadLocal.set(null);
     }
 
-    @Override
-    public EventManager createEventManager() {
-        return FactorySPI.getEventManagerFactory().createEventManager();
-    }
 
     @Override
     public MethodCall<Object> createMethodCallToBeEncodedAndSent(long id, String address, String returnAddress, String objectName, String methodName, long timestamp, Object body, MultiMap<String, String> params) {
@@ -217,6 +214,18 @@ public class BoonQBitFactory implements Factory {
     public HttpServer createHttpServer(HttpServerOptions options, QueueBuilder requestQueueBuilder, QueueBuilder responseQueueBuilder, QueueBuilder webSocketMessageQueueBuilder, QBitSystemManager systemManager) {
 
         return FactorySPI.getHttpServerFactory().create(options, requestQueueBuilder, responseQueueBuilder, webSocketMessageQueueBuilder, systemManager);
+    }
+
+    @Override
+    public EventManager createEventManager() {
+
+        return FactorySPI.getEventManagerFactory().createEventManager();
+    }
+
+
+    @Override
+    public EventManager createEventManagerWithConnector(final EventConnector eventConnector) {
+        return FactorySPI.getEventManagerFactory().createEventManagerWithConnector( eventConnector );
     }
 
     @Override

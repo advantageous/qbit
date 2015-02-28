@@ -42,11 +42,12 @@ import static io.advantageous.qbit.service.ServiceContext.serviceContext;
 import static org.boon.Boon.puts;
 
 /**
- * Created by rhightower on 2/3/15.
+ * @author  rhightower
+ * on 2/3/15.
  */
 public class BoonEventManager implements EventManager {
 
-    private final EventBus eventBus = new EventBusImpl();
+    private final EventBus eventBus;
     private final Map<String, List<Object>> eventMap = new ConcurrentHashMap<>();
     private final List<SendQueue<Event<Object>>> queuesToFlush = new ArrayList<>(100);
     private final boolean debug = GlobalConstants.DEBUG;
@@ -54,6 +55,21 @@ public class BoonEventManager implements EventManager {
     private long flushCount = 0;
     private long lastFlushTime = 0;
     private long now;
+
+    public BoonEventManager(final EventConnector eventConnector) {
+
+       eventBus = new EventBusImpl(eventConnector);
+
+    }
+
+
+    public BoonEventManager() {
+
+
+        eventBus = new EventBusImpl();
+
+    }
+
 
     private void sendMessages() {
 
@@ -329,9 +345,14 @@ public class BoonEventManager implements EventManager {
     }
 
     @Override
-    public <T> void sendCopy(String channel, Event<T> event) {
+    public <T> void sendCopy(String channel, T event) {
 
-        Event<T> copy = BeanUtils.copy(event);
+        T copy = BeanUtils.copy(event);
         this.send(channel, copy);
+    }
+
+    @Override
+    public <T> void forwardEvent(final Event<Object> event) {
+        eventBus.forwardEvent(event);
     }
 }

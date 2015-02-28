@@ -21,6 +21,7 @@ package io.advantageous.qbit;
 import io.advantageous.qbit.client.Client;
 import io.advantageous.qbit.concurrent.PeriodicScheduler;
 import io.advantageous.qbit.events.EventBusProxyCreator;
+import io.advantageous.qbit.events.EventConnector;
 import io.advantageous.qbit.events.EventManager;
 import io.advantageous.qbit.http.HttpTransport;
 import io.advantageous.qbit.http.client.HttpClient;
@@ -230,7 +231,7 @@ public interface Factory {
     }
 
     /**
-     * Create a remote proxy using a sender that knows how to send method body over wire
+     * Create a remote proxy using a sender that knows how to forwardEvent method body over wire
      *
      * @param serviceInterface client view of client
      * @param uri              uri of client
@@ -367,4 +368,10 @@ public interface Factory {
                                         QBitSystemManager systemManager) {
         throw new UnsupportedOperationException();
     }
+
+
+    default EventManager createEventManagerWithConnector(EventConnector eventConnector) {
+        throw new UnsupportedOperationException();
+    }
+
 }

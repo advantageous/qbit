@@ -26,7 +26,7 @@ import java.util.concurrent.TimeUnit;
 
 /**
  * Represents a queue manager.
- * Queues are split up into receivers views and send views to facilitate batching.
+ * Queues are split up into receivers views and forwardEvent views to facilitate batching.
  * Created by Richard on 8/4/14.
  *
  * @author rhightower
@@ -41,13 +41,13 @@ public interface Queue<T> {
     ReceiveQueue<T> receiveQueue();
 
     /**
-     * This returns a NON-thread safe send queue.
+     * This returns a NON-thread safe forwardEvent queue.
      * It is not thread safe so that you can batch sends to minimize thread hand-off
-     * and to maximize IO throughput. Each call to this method returns a send queue
+     * and to maximize IO throughput. Each call to this method returns a forwardEvent queue
      * that can only be access from one thread.
      * You get MT behavior by having a SendQueue per thread.
      *
-     * @return send queue
+     * @return forwardEvent queue
      */
     SendQueue<T> sendQueue();
 

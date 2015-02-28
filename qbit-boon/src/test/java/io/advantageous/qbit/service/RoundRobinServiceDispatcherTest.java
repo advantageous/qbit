@@ -143,7 +143,7 @@ public class RoundRobinServiceDispatcherTest extends TimedTesting{
         }
 
         ServiceProxyUtils.flushServiceProxy(worker);
-        super.waitForTrigger(20, new Predicate() {
+        super.waitForTrigger(30, new Predicate() {
             @Override
             public boolean test(Object o) {
                 return MultiWorker.totalCount >=90;

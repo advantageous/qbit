@@ -19,8 +19,10 @@
 package io.advantageous.qbit.events;
 
 /**
- * Created by rhightower on 2/3/15.
+ * @author rhightower
  */
 public interface EventManagerFactory {
     EventManager createEventManager();
+
+    EventManager createEventManagerWithConnector(EventConnector eventConnector);
 }

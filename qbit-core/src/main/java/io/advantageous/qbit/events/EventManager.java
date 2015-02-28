@@ -51,7 +51,7 @@ public interface EventManager {
 //
 //    /**
 //     * ONLY FOR SERVICES
-//     * Joins current event manager. Maps a list of event channels to one service topic method,
+//     * Joins current event manager. Maps a list of event channels to one service channel method,
 //     *
 //     * This method can only be called from inside a service.
 //     * EVENTS COME IN ON THE SAME QUEUE AS THE METHOD CALLS
@@ -133,7 +133,10 @@ public interface EventManager {
      * @param event   event
      * @param <T>     T
      */
-    <T> void sendCopy(String channel, Event<T> event);
+    <T> void sendCopy(String channel, T event);
 
+
+
+    <T> void forwardEvent(Event<Object> event);
 
 }

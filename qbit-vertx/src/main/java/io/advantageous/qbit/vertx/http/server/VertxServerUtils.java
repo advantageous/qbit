@@ -109,7 +109,7 @@ public class VertxServerUtils {
                         vertxServerWebSocket.headers());
 
 
-        /* Create a websocket that uses vertxServerWebSocket to send messages. */
+        /* Create a websocket that uses vertxServerWebSocket to forwardEvent messages. */
         final WebSocket webSocket = webSocketBuilder().setUri(vertxServerWebSocket.uri())
                 .setRemoteAddress(vertxServerWebSocket.remoteAddress().toString())
                 .setWebSocketSender(new WebSocketSender() {

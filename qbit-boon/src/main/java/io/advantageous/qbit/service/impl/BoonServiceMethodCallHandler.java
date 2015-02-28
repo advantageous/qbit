@@ -743,7 +743,7 @@ public class BoonServiceMethodCallHandler implements ServiceMethodHandler {
     @Override
     public void handleEvent(Event<Object> event) {
 
-        MethodAccess methodAccess = eventMap.get(event.topic());
+        MethodAccess methodAccess = eventMap.get(event.channel());
 
 
         if (invokeDynamic) {

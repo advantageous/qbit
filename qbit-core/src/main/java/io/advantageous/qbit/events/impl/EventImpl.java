@@ -59,7 +59,7 @@ public class EventImpl<T> implements Event<T> {
     }
 
     @Override
-    public String topic() {
+    public String channel() {
         return topic;
     }
 }

@@ -39,16 +39,16 @@ public interface ServiceQueue extends Stoppable, ServiceFlushable {
 
     /**
      * Queue so we can enqueue method calls onto a client.
-     * A client send queue is not thread safe. Every thread that uses this client, needs its own SendQueue
+     * A client forwardEvent queue is not thread safe. Every thread that uses this client, needs its own SendQueue
      * this allows us to batch calls.
      *
-     * @return send queue
+     * @return forwardEvent queue
      */
     SendQueue<MethodCall<Object>> requests();
 
 
     /*
-    Queue to send events to the service.
+    Queue to forwardEvent events to the service.
      */
     SendQueue<Event<Object>> events();
 

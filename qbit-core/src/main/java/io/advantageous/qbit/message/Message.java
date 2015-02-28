@@ -19,6 +19,8 @@
 package io.advantageous.qbit.message;
 
 
+import io.advantageous.qbit.util.MultiMap;
+
 /**
  * Created by Richard on 7/21/14.
  *
@@ -30,5 +32,18 @@ public interface Message<T> {
     T body(); //Body could be a Map for parameters for forms or JSON or bytes[] or String
 
     boolean isSingleton();
+
+
+    default MultiMap<String, String> params() {
+        return MultiMap.empty();
+    }
+
+    default MultiMap<String, String> headers()  {
+        return MultiMap.empty();
+    }
+
+    default boolean wasReplicated() {
+        return headers().containsKey("QBIT_REPLICATED_MESSAGE");
+    }
 
 }

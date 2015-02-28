@@ -32,7 +32,7 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.TimeUnit;
 
 /**
- * Combines a sender with a protocol encoder so we can send messages to another remote end point.
+ * Combines a sender with a protocol encoder so we can forwardEvent messages to another remote end point.
  * Created by Richard on 10/1/14.
  *
  * @author Rick Hightower

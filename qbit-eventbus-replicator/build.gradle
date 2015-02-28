@@ -47,19 +47,13 @@ jar {
     from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
 }
 dependencies {
-    testCompile group: 'junit', name: 'junit', version: '4.11'
-    testCompile 'org.eclipse.jetty:jetty-server:9.3.0.M1'
-    testCompile 'org.eclipse.jetty:jetty-servlet:9.3.0.M1'
-    testCompile 'org.eclipse.jetty.websocket:javax-websocket-server-impl:9.3.0.M1'
-    testCompile 'org.eclipse.jetty:jetty-annotations:9.3.0.M1'
-
-    compile 'javax.servlet:javax.servlet-api:3.1.0'
-    compile 'javax.websocket:javax.websocket-all:1.1'
     compile project(':qbit-core')
     compile project(':qbit-boon')
-
+    testCompile group: 'junit', name: 'junit', version: '4.11'
+    testCompile("org.mockito:mockito-core:2.0.4-beta")
 
 }
+
 
 uploadArchives {
     repositories {
@@ -74,7 +68,7 @@ uploadArchives {
             }
 
             pom.project {
-                name 'qbit-servlet'
+                name 'qbit-eventbus-replicator'
                 packaging 'jar'
                 description 'Go Channels inspired Java lib'
                 url 'https://github.com/advantageous/qbit'

@@ -62,7 +62,7 @@ public class ServiceBundleImpl implements ServiceBundle {
     private final QBitSystemManager systemManager;
     private final CallbackManager callbackManager = new CallbackManager();
     /**
-     * Keep track of servicesToStop to send queue mappings.
+     * Keep track of servicesToStop to forwardEvent queue mappings.
      *///SendQueue<MethodCall<Object>>
     private final Map<String, Consumer<MethodCall<Object>>> serviceMapping = new ConcurrentHashMap<>();
     /**
@@ -72,7 +72,7 @@ public class ServiceBundleImpl implements ServiceBundle {
 
     private final Set<ServiceFlushable> servicesToFlush = new ConcurrentHashSet<>(10);
     /**
-     * Keep a list of current send queue.
+     * Keep a list of current forwardEvent queue.
      */
     private final Set<SendQueue<MethodCall<Object>>> sendQueues = new ConcurrentHashSet<>(10);
     /**
@@ -258,7 +258,7 @@ public class ServiceBundleImpl implements ServiceBundle {
         servicesToStop.add(serviceQueue);
         servicesToFlush.add(serviceQueue);
 
-        /* Create an send queue for this client. which we access from a single thread. */
+        /* Create an forwardEvent queue for this client. which we access from a single thread. */
         final SendQueue<MethodCall<Object>> requests = serviceQueue.requests();
 
         Consumer<MethodCall<Object>> dispatch = new Consumer<MethodCall<Object>>() {
@@ -574,7 +574,7 @@ public class ServiceBundleImpl implements ServiceBundle {
              */
             @Override
             public void receive(MethodCall<Object> item) {
-                doCall(item); //Do call calls send but does not flush. Only when the queue is empty do we flush.
+                doCall(item); //Do call calls forwardEvent but does not flush. Only when the queue is empty do we flush.
             }
 
             /**

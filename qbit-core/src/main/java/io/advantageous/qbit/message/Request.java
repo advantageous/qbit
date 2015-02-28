@@ -33,9 +33,6 @@ public interface Request<T> extends Message<T> {
 
     String returnAddress();
 
-    MultiMap<String, String> params();
-
-    MultiMap<String, String> headers();
 
 
     boolean hasParams();

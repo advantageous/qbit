@@ -2,12 +2,12 @@ package io.advantageous.qbit.events;
 
 import io.advantageous.qbit.message.Event;
 
-public interface EventRepeater {
+public interface EventConnector {
 
 
     /**
      * @param event   event
      */
-    void send(Event<Object> event);
+    void forwardEvent(Event<Object> event);
 
 }
