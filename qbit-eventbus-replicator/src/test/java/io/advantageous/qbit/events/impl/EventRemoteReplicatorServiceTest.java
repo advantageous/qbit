@@ -8,6 +8,8 @@ import io.advantageous.qbit.spi.FactorySPI;
 import org.junit.Before;
 import org.junit.Test;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -41,6 +43,9 @@ public class EventRemoteReplicatorServiceTest {
         service = new EventRemoteReplicatorService(eventConnector);
         service.forwardEvent(event);
         verify(eventConnector).forwardEvent(event);
+
+        service.flushConnector();
+        verify(eventConnector).flush();
     }
 
 
@@ -51,10 +56,43 @@ public class EventRemoteReplicatorServiceTest {
         when(factory.systemEventManager()).thenReturn(eventManager);
         FactorySPI.setFactory(factory);
 
-        service = new EventRemoteReplicatorService(eventManager);
+        service = new EventRemoteReplicatorService();
         service.forwardEvent(event);
         verify(eventManager).forwardEvent(event);
     }
+
+
+
+    @Test
+    public void testWithConnectorCodeCoverage() {
+        EventConnector eventConnector = new EventConnector() {
+            @Override
+            public void forwardEvent(Event<Object> argEvent) {
+
+                assertEquals(event.id(), argEvent.id());
+                assertEquals(event.hashCode(), argEvent.hashCode());
+                assertEquals(event.isSingleton(), argEvent.isSingleton());
+                assertEquals(event.body(), argEvent.body());
+
+                argEvent.headers();
+                argEvent.params();
+
+
+                assertTrue(argEvent.wasReplicated());
+                assertTrue(argEvent.equals(event));
+
+            }
+        };
+
+        service = new EventRemoteReplicatorService(eventConnector);
+        service.forwardEvent(event);
+        service.flushConnector();
+    }
+
+
+
+
+
 
 
 }
