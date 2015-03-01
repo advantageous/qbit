@@ -110,6 +110,8 @@ public class BoonEventManager implements EventManager {
             return;
         }
 
+        eventBus.flush();
+
     }
 
     @QueueCallback(QueueCallbackType.LIMIT)
@@ -130,6 +132,8 @@ public class BoonEventManager implements EventManager {
             sendMessages();
         }
 
+        eventBus.flush();
+
     }
 
 
@@ -148,9 +152,11 @@ public class BoonEventManager implements EventManager {
         now = Timer.timer().now();
         long duration = now - lastFlushTime;
 
-        if (duration > 50 && messageCountSinceLastFlush > 0) {
+        if (duration > 20 && messageCountSinceLastFlush > 0) {
             sendMessages();
         }
+
+        eventBus.flush();
 
     }
 

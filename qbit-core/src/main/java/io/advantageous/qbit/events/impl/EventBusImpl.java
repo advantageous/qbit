@@ -23,6 +23,7 @@ import io.advantageous.qbit.events.spi.EventConnector;
 import io.advantageous.qbit.events.EventListener;
 import io.advantageous.qbit.events.spi.EventTransferObject;
 import io.advantageous.qbit.message.Event;
+import io.advantageous.qbit.service.ServiceProxyUtils;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -85,5 +86,11 @@ public class EventBusImpl implements EventBus {
             eventConnector.forwardEvent(event);
         }
         channel(event.channel()).send(event);
+    }
+
+    @Override
+    public void flush() {
+        eventConnector.flush();
+        ServiceProxyUtils.flushServiceProxy(eventConnector);
     }
 }

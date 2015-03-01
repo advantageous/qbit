@@ -278,17 +278,16 @@ public class ServiceServerImpl implements ServiceServer {
 
     @Override
     public ServiceServer initServices(Object... services) {
-
-
         for ( Object service : services ) {
             if ( debug ) logger.debug("registering service: " + service.getClass().getName());
             serviceBundle.addService(service);
             httpRequestServerHandler.addRestSupportFor(service.getClass(), serviceBundle.address());
         }
-
         return this;
-
     }
 
+    public ServiceBundle serviceBundle() {
+        return this.serviceBundle;
+    }
 
 }

@@ -20,11 +20,12 @@ package io.advantageous.qbit.events;
 
 import io.advantageous.qbit.events.spi.EventTransferObject;
 import io.advantageous.qbit.message.Event;
+import io.advantageous.qbit.service.ServiceFlushable;
 
 /**
  * Created by rhightower on 2/3/15.
  */
-public interface EventBus {
+public interface EventBus extends ServiceFlushable{
 
     /**
      * This method can only be called outside of a service.
