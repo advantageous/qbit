@@ -2,6 +2,7 @@ package io.advantageous.qbit.events;
 
 import io.advantageous.qbit.Factory;
 import io.advantageous.qbit.events.spi.EventConnector;
+import io.advantageous.qbit.events.spi.EventManagerFactory;
 import io.advantageous.qbit.events.spi.EventTransferObject;
 import io.advantageous.qbit.message.Event;
 import io.advantageous.qbit.queue.SendQueue;

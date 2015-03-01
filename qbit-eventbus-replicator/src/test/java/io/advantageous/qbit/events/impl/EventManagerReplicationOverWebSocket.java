@@ -8,6 +8,7 @@ import io.advantageous.qbit.server.ServiceServer;
 import io.advantageous.qbit.service.ServiceBundle;
 import io.advantageous.qbit.service.ServiceProxyUtils;
 import io.advantageous.qbit.test.TimedTesting;
+import org.boon.core.Sys;
 import org.junit.Test;
 
 import java.util.concurrent.atomic.AtomicReference;
@@ -23,7 +24,8 @@ import static org.junit.Assert.assertEquals;
 public class EventManagerReplicationOverWebSocket extends TimedTesting {
 
     EventConnector replicatorClient;
-    ServiceBundle serviceBundle;
+    ServiceBundle serviceBundleB;
+    ServiceBundle serviceBundleA;
 
 
     @Test
@@ -41,9 +43,9 @@ public class EventManagerReplicationOverWebSocket extends TimedTesting {
 
         /** Build B. */
         EventManager eventManagerBImpl = eventManagerBuilderB.build();
-        serviceBundle = serviceBundleBuilder().build(); //build service bundle
-        serviceBundle.addServiceObject("eventManagerB", eventManagerBImpl);
-        eventManagerB = serviceBundle.createLocalProxy(EventManager.class, "eventManagerB"); //wire B to Service Bundle
+        serviceBundleB = serviceBundleBuilder().build(); //build service bundle
+        serviceBundleB.addServiceObject("eventManagerB", eventManagerBImpl);
+        eventManagerB = serviceBundleB.createLocalProxy(EventManager.class, "eventManagerB"); //wire B to Service Bundle
 
         EventBusRemoteReplicatorBuilder replicatorBuilder = eventBusRemoteReplicatorBuilder();
         replicatorBuilder.serviceServerBuilder().setPort(9097);
@@ -52,7 +54,6 @@ public class EventManagerReplicationOverWebSocket extends TimedTesting {
 
         EventBusReplicationClientBuilder clientReplicatorBuilder = eventBusReplicationClientBuilder();
         clientReplicatorBuilder.clientBuilder().setPort(9097);
-
         Client client = clientReplicatorBuilder.build();
         replicatorClient = clientReplicatorBuilder.build(client);
 
@@ -61,11 +62,14 @@ public class EventManagerReplicationOverWebSocket extends TimedTesting {
 
         /* Create A that connects to the replicator client. */
         EventManager eventManagerAImpl = eventManagerBuilderA.setEventConnector(replicatorClient).build();
-        serviceBundle.addServiceObject("eventManagerA", eventManagerAImpl);
-        eventManagerA = serviceBundle.createLocalProxy(EventManager.class, "eventManagerA"); //wire A to Service Bundle
+        serviceBundleA = serviceBundleBuilder().build(); //build service bundle
+        serviceBundleA.addServiceObject("eventManagerA", eventManagerAImpl);
+        eventManagerA = serviceBundleA.createLocalProxy(EventManager.class, "eventManagerA"); //wire A to Service Bundle
 
 
-        serviceBundle.start();
+        serviceBundleA.start();
+
+        serviceBundleB.start();
 
 
         final AtomicReference<Object> body = new AtomicReference<>();
@@ -80,10 +84,11 @@ public class EventManagerReplicationOverWebSocket extends TimedTesting {
 
         assertEquals("hello", body.get());
 
+        serviceBundleA.stop();
+        serviceBundleB.stop();
         client.stop();
+        Sys.sleep(100);
         serviceServer.stop();
-        serviceBundle.stop();
-
     }
 
 

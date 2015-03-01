@@ -16,9 +16,9 @@
  * QBit - The Microservice lib for Java : JSON, WebSocket, REST. Be The Web!
  */
 
-package io.advantageous.qbit.events;
+package io.advantageous.qbit.events.spi;
 
-import io.advantageous.qbit.events.spi.EventConnector;
+import io.advantageous.qbit.events.EventManager;
 
 /**
  * @author rhightower

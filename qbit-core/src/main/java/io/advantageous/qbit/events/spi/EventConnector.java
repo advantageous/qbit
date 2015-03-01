@@ -5,7 +5,7 @@ import io.advantageous.qbit.service.ServiceFlushable;
 public interface EventConnector extends ServiceFlushable{
 
 
-    /**
+    /** Forwards the event.
      * @param event   event
      */
     void forwardEvent(EventTransferObject<Object> event);
@@ -13,7 +13,4 @@ public interface EventConnector extends ServiceFlushable{
     default void flush() {
 
     }
-
-
-
 }

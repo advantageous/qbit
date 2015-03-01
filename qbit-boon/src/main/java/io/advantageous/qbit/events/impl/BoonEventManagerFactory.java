@@ -20,7 +20,7 @@ package io.advantageous.qbit.events.impl;
 
 import io.advantageous.qbit.events.spi.EventConnector;
 import io.advantageous.qbit.events.EventManager;
-import io.advantageous.qbit.events.EventManagerFactory;
+import io.advantageous.qbit.events.spi.EventManagerFactory;
 
 
 public class BoonEventManagerFactory implements EventManagerFactory {

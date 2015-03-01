@@ -19,7 +19,7 @@
 package io.advantageous.qbit.spi;
 
 import io.advantageous.qbit.Factory;
-import io.advantageous.qbit.events.EventManagerFactory;
+import io.advantageous.qbit.events.spi.EventManagerFactory;
 
 import java.util.concurrent.atomic.AtomicReference;
 
