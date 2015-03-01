@@ -24,6 +24,7 @@ import org.junit.Test;
 
 import java.util.List;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
 import static org.boon.Boon.puts;
@@ -202,6 +203,7 @@ public class BasicQueueTest {
 
     }
 
+
     @Test
     public void testUsingInputTake() throws Exception {
 
@@ -266,53 +268,55 @@ public class BasicQueueTest {
     public void testUsingInputPollWait() throws Exception {
 
 
+        /** Build our queue. */
         final QueueBuilder builder = new QueueBuilder().setName("test").setPollWait(1000).setBatchSize(10);
         Queue<String> queue = builder.build();
 
-        final int count[] = new int[1];
+
+        final AtomicInteger count = new AtomicInteger();
+
+        /* Create a sender queue. */
+        final SendQueue<String> sendQueue = queue.sendQueue();
 
 
-        Thread writer = new Thread(new Runnable() {
-            @Override
-            public void run() {
+        /* Create a receiver queue. */
+        final ReceiveQueue<String> receiveQueue = queue.receiveQueue();
 
 
-                SendQueue<String> sendQueue = queue.sendQueue();
-                for (int index = 0; index < 1000; index++) {
-                    sendQueue.send("item" + index);
-                }
-                sendQueue.flushSends();
+        /* Create a writer thread that uses the send queue. */
+        Thread writerThread = new Thread(() -> {
+
+
+            for (int index = 0; index < 1000; index++) {
+                sendQueue.send("item" + index); //It will flush every 10 or so
             }
+            sendQueue.flushSends(); //We can also call flushSends so it sends what remains.
         });
 
 
-        Thread reader = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                ReceiveQueue<String> receiveQueue = queue.receiveQueue();
 
-                String item = receiveQueue.pollWait();
+        /* Create a reader thread that consumes queue items. */
+        Thread readerThread = new Thread(() -> {
+            String item = receiveQueue.pollWait();
 
-                while (item != null) {
-                    count[0]++;
-                    puts(item);
-                    item = receiveQueue.pollWait();
+            while (item != null) {
+                count.incrementAndGet();
+                item = receiveQueue.pollWait();
 
-                }
             }
         });
 
-        writer.start();
+        /* Starts the threads and wait for them to end. */
+        writerThread.start();
+        readerThread.start();
 
+        /* Wait for them to end. */
+        writerThread.join();
+        readerThread.join();
 
-        reader.start();
+        puts(count);
 
-        writer.join();
-        reader.join();
-
-        puts(count[0]);
-
-        ok = count[0] == 1000 || die("count should be 1000", count[0]);
+        ok = count.get() == 1000 || die("count should be 1000", count.get());
 
     }
 
@@ -323,52 +327,39 @@ public class BasicQueueTest {
     public void testUsingAutoFlush() throws Exception {
 
 
-        final QueueBuilder builder = new QueueBuilder().setName("test").setPollWait(1000).setBatchSize(10);
-        Queue<String> queue = builder.build();
+        final QueueBuilder builder = new QueueBuilder().setName("test").setPollWait(1000).setBatchSize(20_000);
+        final Queue<String> queue = builder.build();
 
-        final int count[] = new int[1];
+        final AtomicInteger count = new AtomicInteger();
 
+        final SendQueue<String> sendQueue = queue.sendQueueWithAutoFlush(50, TimeUnit.MILLISECONDS);
+        final ReceiveQueue<String> receiveQueue = queue.receiveQueue();
 
-        Thread writer = new Thread(new Runnable() {
-            @Override
-            public void run() {
+        sendQueue.start();
 
-
-                final SendQueue<String> sendQueue = queue.sendQueueWithAutoFlush(50, TimeUnit.MILLISECONDS);
-                sendQueue.start();
-
-                for (int index = 0; index < 1000; index++) {
-                    sendQueue.send("item" + index);
-                }
-                Sys.sleep(1000);
-                sendQueue.stop();
+        Thread writerThread = new Thread(() -> {
+            for (int index = 0; index < 1000; index++) {
+                sendQueue.send("item" + index);
             }
         });
 
 
-        Thread reader = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                ReceiveQueue<String> receiveQueue = queue.receiveQueue();
-
-                while (receiveQueue.poll() != null) {
-                    count[0]++;
-                }
+        Thread readerThread = new Thread(() -> {
+            while (receiveQueue.pollWait() != null) {
+                count.incrementAndGet();
             }
         });
 
-        writer.start();
+        writerThread.start();
+        readerThread.start();
+        writerThread.join();
+        readerThread.join();
+        Sys.sleep(1000); //simulate a long sleep
+        sendQueue.stop();
 
-        Sys.sleep(100);
+        puts(count);
 
-        reader.start();
-
-        writer.join();
-        reader.join();
-
-        puts(count[0]);
-
-        ok = count[0] == 1000 || die("count should be 1000", count[0]);
+        ok = count.get() == 1000 || die("count should be 1000", count);
 
     }
 

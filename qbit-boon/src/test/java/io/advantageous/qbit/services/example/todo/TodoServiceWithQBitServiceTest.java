@@ -34,6 +34,7 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 
+import static io.advantageous.qbit.service.ServiceBuilder.serviceBuilder;
 import static org.boon.Exceptions.die;
 
 /**
@@ -92,26 +93,27 @@ public class TodoServiceWithQBitServiceTest {
     public void testUsingProxyWithAutoFlush() {
 
 
-        ServiceQueue serviceQueue = QBit.factory().createService("/services", "/todo-service", new TodoService(), null, null).start().startCallBackHandler();
-        TodoServiceClient todoServiceClient = serviceQueue.createProxyWithAutoFlush(TodoServiceClient.class, 50, TimeUnit.MILLISECONDS);
+        /* Create a service that lives behind a ServiceQueue. */
+        ServiceQueue serviceQueue = serviceBuilder()
+                                    .setServiceAddress("/todo-service")
+                                    .setServiceObject(new TodoService())
+                                    .build();
+
+        serviceQueue.start().startCallBackHandler();
+
+        TodoServiceClient todoServiceClient =
+                serviceQueue.createProxyWithAutoFlush(TodoServiceClient.class, 50, TimeUnit.MILLISECONDS);
 
         todoServiceClient.add(new TodoItem("foo", "foo", null));
 
         AtomicReference<List<TodoItem>> items = new AtomicReference<>();
-        todoServiceClient.list(new Callback<List<TodoItem>>() {
-            @Override
-            public void accept(List<TodoItem> todoItems) {
-                items.set(todoItems);
-            }
-        });
+        todoServiceClient.list(todoItems -> items.set(todoItems));
 
-        Sys.sleep(1000);
+        Sys.sleep(200);
 
         ok = items.get()!=null || die();
-
-
         ok = items.get().size() > 0 || die();
-
+        ok = items.get().get(0).getDescription().equals("foo") || die();
 
     }
 

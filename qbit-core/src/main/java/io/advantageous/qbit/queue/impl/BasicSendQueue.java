@@ -175,13 +175,13 @@ public class BasicSendQueue<T> implements SendQueue<T> {
             final Object[] array) {
 
 
-        if (checkBusy) {
-            transferQueue.offer(array);
-        } else if (checkBusy && tryTransfer) {
+        if (checkBusy && tryTransfer) {
             if (!transferQueue.tryTransfer(array)) {
                 transferQueue.offer(array);
             }
-        } else {
+        } else if (checkBusy) {
+            transferQueue.offer(array);
+        } else  {
             try {
                 queue.put(array);
             } catch (InterruptedException e) {
