@@ -23,6 +23,7 @@ import io.advantageous.qbit.annotation.RequestParam;
 import io.advantageous.qbit.message.MethodCall;
 import io.advantageous.qbit.message.Response;
 import io.advantageous.qbit.message.impl.MethodCallImpl;
+import io.advantageous.qbit.queue.QueueBuilder;
 import io.advantageous.qbit.queue.ReceiveQueue;
 import io.advantageous.qbit.service.Callback;
 import io.advantageous.qbit.service.Protocol;
@@ -46,6 +47,7 @@ import java.math.BigDecimal;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import static io.advantageous.qbit.service.ServiceBundleBuilder.serviceBundleBuilder;
 import static org.boon.Boon.puts;
 import static org.boon.Exceptions.die;
 
@@ -84,7 +86,8 @@ public class IntegrationTestForRESTStyleCallsTest {
 
         factory = QBit.factory();
 
-        serviceBundle = new ServiceBundleBuilder().setAddress("/root").buildAndStart();
+        serviceBundle = serviceBundleBuilder()//.setQueueBuilder(QueueBuilder.queueBuilder().setPollWait(1000))
+                .setAddress("/root").buildAndStart();
         serviceBundleImpl = ( ServiceBundleImpl ) serviceBundle;
 
         responseReceiveQueue = serviceBundle.responses().receiveQueue();
@@ -411,8 +414,11 @@ public class IntegrationTestForRESTStyleCallsTest {
 //                impl.params(params);
         }
         serviceBundle.call(call);
-        serviceBundle.flush();
+       
+        serviceBundle.flushSends();
         Sys.sleep(100);
+        serviceBundle.flush();
+        Sys.sleep(200);
     }
 
     private void validateRick() {

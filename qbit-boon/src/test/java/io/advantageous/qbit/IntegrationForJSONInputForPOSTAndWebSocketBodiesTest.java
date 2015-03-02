@@ -49,10 +49,6 @@ import static org.boon.Boon.puts;
 public class IntegrationForJSONInputForPOSTAndWebSocketBodiesTest {
 
 
-    static {
-        RegisterBoonWithQBit.registerBoonWithQBit();
-
-    }
 
     EmployeeService employeeService;
     ServiceBundle serviceBundle;
@@ -242,8 +238,10 @@ public class IntegrationForJSONInputForPOSTAndWebSocketBodiesTest {
         puts("\nPROTOCOL\n", qbitStringBody.replace(( char ) Protocol.PROTOCOL_SEPARATOR, '\n').replace(( char ) Protocol.PROTOCOL_ARG_SEPARATOR, '\n'), "\nPROTOCOL END\n");
         call = factory.createMethodCallToBeParsedFromBody(null, null, null, null, qbitStringBody, null);
         serviceBundle.call(call);
-        serviceBundle.flush();
+        serviceBundle.flushSends();
         Sys.sleep(100);
+        serviceBundle.flush();
+        Sys.sleep(200);
     }
 
     public static class Employee {

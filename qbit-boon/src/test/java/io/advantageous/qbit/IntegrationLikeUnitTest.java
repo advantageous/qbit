@@ -46,10 +46,6 @@ import static org.boon.Boon.puts;
 public class IntegrationLikeUnitTest {
 
 
-    static {
-        RegisterBoonWithQBit.registerBoonWithQBit();
-
-    }
 
     EmployeeService employeeService;
     ServiceBundle serviceBundle;
@@ -227,8 +223,10 @@ public class IntegrationLikeUnitTest {
 
     private void doCall() {
         serviceBundle.call(call);
-        serviceBundle.flush();
+        serviceBundle.flushSends();
         Sys.sleep(100);
+        serviceBundle.flush();
+        Sys.sleep(200);
     }
 
     public static class Employee {
