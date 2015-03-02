@@ -1,7 +1,6 @@
 package io.advantageous.qbit.example;
 
 import io.advantageous.qbit.QBit;
-import io.advantageous.qbit.queue.QueueBuilder;
 import io.advantageous.qbit.service.ServiceBundle;
 import io.advantageous.qbit.service.ServiceQueue;
 import io.advantageous.qbit.service.dispatchers.ServiceWorkers;
@@ -14,7 +13,6 @@ import java.util.List;
 
 import static io.advantageous.qbit.service.ServiceBuilder.serviceBuilder;
 import static io.advantageous.qbit.service.dispatchers.ServiceWorkers.shardOnFirstArgumentWorkers;
-import static io.advantageous.qbit.service.dispatchers.ServiceWorkers.shardedWorkers;
 import static io.advantageous.qbit.service.dispatchers.ServiceWorkers.workers;
 import static org.boon.Lists.list;
 
