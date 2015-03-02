@@ -2,7 +2,6 @@ package io.advantageous.qbit.example;
 
 import io.advantageous.qbit.QBit;
 import io.advantageous.qbit.queue.QueueBuilder;
-import io.advantageous.qbit.server.ServiceServer;
 import io.advantageous.qbit.service.ServiceBundle;
 import io.advantageous.qbit.service.ServiceQueue;
 import io.advantageous.qbit.service.dispatchers.ServiceWorkers;
@@ -14,6 +13,8 @@ import static io.advantageous.qbit.service.ServiceProxyUtils.flushServiceProxy;
 import java.util.List;
 
 import static io.advantageous.qbit.service.ServiceBuilder.serviceBuilder;
+import static io.advantageous.qbit.service.dispatchers.ServiceWorkers.shardOnFirstArgumentWorkers;
+import static io.advantageous.qbit.service.dispatchers.ServiceWorkers.shardedWorkers;
 import static io.advantageous.qbit.service.dispatchers.ServiceWorkers.workers;
 import static org.boon.Lists.list;
 
@@ -28,50 +29,22 @@ public class PrototypeMain {
         QBit.factory().systemEventManager();
 
 
-
-        final ServiceWorkers userDataServiceWorkers =
-                workers(); //Create a round robin service dispatcher
-
-        for (int index =0; index < 10; index++) {
-            ServiceQueue userDataService = serviceBuilder()
-                    .setQueueBuilder(QueueBuilder.queueBuilder().setBatchSize(1))
-                    .setResponseQueueBuilder(QueueBuilder.queueBuilder().setBatchSize(1))
-                    .setServiceObject(new UserDataService())
-                    .build();
-            userDataService.startCallBackHandler();
-            userDataServiceWorkers.addService(userDataService);
-        }
-
-        userDataServiceWorkers.start();
-
-
-        final ServiceBundle bundle = serviceBundleBuilder()
+        final ServiceBundle serviceBundle = serviceBundleBuilder()
                 .setAddress("/root").build();
 
 
-
-        bundle.addServiceConsumer("/workers", userDataServiceWorkers);
-        bundle.start();
-        //bundle.startReturnHandlerProcessor();
-
+        serviceBundle.start();
 
         final UserDataServiceClient userDataServiceClient =
-                bundle.createLocalProxy(UserDataServiceClient.class, "/workers");
+                createUserDataServiceClientProxy(serviceBundle, 8);
 
 
-        RecommendationService recommendationServiceImpl =
-                new RecommendationService(userDataServiceClient);
+        final RecommendationServiceClient recommendationServiceClient =
+                createRecommendationServiceClientProxy(serviceBundle,
+                        userDataServiceClient, 4);
 
 
-        ServiceQueue recommendationServiceQueue = serviceBuilder()
-                .setServiceObject(recommendationServiceImpl)
-                .build().start().startCallBackHandler();
 
-        RecommendationServiceClient recommendationServiceClient =
-                recommendationServiceQueue.createProxy(RecommendationServiceClient.class);
-
-        flushServiceProxy(recommendationServiceClient);
-        Sys.sleep(1000);
 
         List<String> userNames = list("Bob", "Joe", "Scott", "William");
 
@@ -88,5 +61,53 @@ public class PrototypeMain {
         flushServiceProxy(recommendationServiceClient);
         Sys.sleep(1000);
 
+    }
+
+    private static RecommendationServiceClient createRecommendationServiceClientProxy(
+            final ServiceBundle serviceBundle,
+            final UserDataServiceClient userDataServiceClient,
+            int numWorkers) {
+
+
+        final ServiceWorkers recommendationShardedWorkers = shardOnFirstArgumentWorkers();
+
+        for (int index = 0; index < numWorkers; index++) {
+            RecommendationService recommendationServiceImpl =
+                    new RecommendationService(userDataServiceClient);
+
+            ServiceQueue serviceQueue = serviceBuilder()
+                    .setServiceObject(recommendationServiceImpl)
+                    .build();
+            serviceQueue.startCallBackHandler();
+            recommendationShardedWorkers.addService(serviceQueue);
+        }
+
+        recommendationShardedWorkers.start();
+
+        serviceBundle.addServiceConsumer("recomendation", recommendationShardedWorkers);
+
+        return serviceBundle.createLocalProxy(RecommendationServiceClient.class, "recomendation");
+    }
+
+    private static UserDataServiceClient createUserDataServiceClientProxy(
+            final ServiceBundle serviceBundle,
+            final int numWorkers) {
+        final ServiceWorkers userDataServiceWorkers = workers();
+
+        for (int index =0; index < numWorkers; index++) {
+            ServiceQueue userDataService = serviceBuilder()
+                    .setServiceObject(new UserDataService())
+                    .build();
+            userDataService.startCallBackHandler();
+            userDataServiceWorkers.addService(userDataService);
+        }
+
+        userDataServiceWorkers.start();
+
+
+
+        serviceBundle.addServiceConsumer("workers", userDataServiceWorkers);
+
+        return serviceBundle.createLocalProxy(UserDataServiceClient.class, "workers");
     }
 }
