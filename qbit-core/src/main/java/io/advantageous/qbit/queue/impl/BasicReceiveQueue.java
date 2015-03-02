@@ -95,12 +95,7 @@ class BasicReceiveQueue<T> implements ReceiveQueue<T> {
 
             return getItemFromLocalQueue();
         }
-
         Object o = queue.poll();
-
-        if (o!=null) {
-            puts(o);
-        }
         return extractItem(o);
 
     }

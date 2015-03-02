@@ -8,6 +8,7 @@ import io.advantageous.qbit.server.ServiceServer;
 import io.advantageous.qbit.service.ServiceBundle;
 import io.advantageous.qbit.service.ServiceProxyUtils;
 import io.advantageous.qbit.test.TimedTesting;
+import org.boon.Lists;
 import org.boon.core.Sys;
 import org.junit.Test;
 
@@ -23,22 +24,28 @@ import static org.junit.Assert.assertEquals;
  */
 public class EventManagerReplicationOverWebSocket extends TimedTesting {
 
-    EventConnector replicatorClient;
-    ServiceBundle serviceBundleB;
-    ServiceBundle serviceBundleA;
-
 
     @Test
     public void test() {
+
+
+        EventConnector replicatorHub;
+        EventConnector replicatorClientA1;
+        EventConnector replicatorClientA2;
+        ServiceBundle serviceBundleB;
+        ServiceBundle serviceBundleA;
+        ServiceBundle serviceBundleC;
 
 
         /** Two event managers A and B. Event on A gets replicated to B. */
 
         EventManager eventManagerA;
         EventManager eventManagerB;
+        EventManager eventManagerC;
 
         EventManagerBuilder eventManagerBuilderA = new EventManagerBuilder();
         EventManagerBuilder eventManagerBuilderB = new EventManagerBuilder();
+        EventManagerBuilder eventManagerBuilderC = new EventManagerBuilder();
 
 
         /** Build B. */
@@ -47,21 +54,43 @@ public class EventManagerReplicationOverWebSocket extends TimedTesting {
         serviceBundleB.addServiceObject("eventManagerB", eventManagerBImpl);
         eventManagerB = serviceBundleB.createLocalProxy(EventManager.class, "eventManagerB"); //wire B to Service Bundle
 
-        EventBusRemoteReplicatorBuilder replicatorBuilder = eventBusRemoteReplicatorBuilder();
-        replicatorBuilder.serviceServerBuilder().setPort(9097);
-        replicatorBuilder.setEventManager(eventManagerB);
-        ServiceServer serviceServer = replicatorBuilder.build();
+        /** Build C. */
+        EventManager eventManagerCImpl = eventManagerBuilderC.build();
+        serviceBundleC = serviceBundleBuilder().build(); //build service bundle
+        serviceBundleC.addServiceObject("eventManagerC", eventManagerCImpl);
+        eventManagerC = serviceBundleC.createLocalProxy(EventManager.class, "eventManagerC"); //wire C to Service Bundle
+
+
+        EventBusRemoteReplicatorBuilder replicatorBuilderB = eventBusRemoteReplicatorBuilder();
+        replicatorBuilderB.serviceServerBuilder().setPort(9097);
+        replicatorBuilderB.setEventManager(eventManagerB);
+        ServiceServer serviceServerB = replicatorBuilderB.build();
+
+
+        EventBusRemoteReplicatorBuilder replicatorBuilderC = eventBusRemoteReplicatorBuilder();
+        replicatorBuilderC.serviceServerBuilder().setPort(9099);
+        replicatorBuilderC.setEventManager(eventManagerB);
+        ServiceServer serviceServerC = replicatorBuilderC.build();
 
         EventBusReplicationClientBuilder clientReplicatorBuilder = eventBusReplicationClientBuilder();
         clientReplicatorBuilder.clientBuilder().setPort(9097);
-        Client client = clientReplicatorBuilder.build();
-        replicatorClient = clientReplicatorBuilder.build(client);
+        Client clientB = clientReplicatorBuilder.build();
+        replicatorClientA1 = clientReplicatorBuilder.build(clientB);
 
-        serviceServer.start();
-        client.start();
+
+        clientReplicatorBuilder.clientBuilder().setPort(9099);
+        Client clientC = clientReplicatorBuilder.build();
+        replicatorClientA2 = clientReplicatorBuilder.build(clientC);
+
+        serviceServerB.start();
+        serviceServerC.start();
+        clientB.start();
+        clientC.start();
+
+        replicatorHub = new EventConnectorHub(Lists.list(replicatorClientA1, replicatorClientA2));
 
         /* Create A that connects to the replicator client. */
-        EventManager eventManagerAImpl = eventManagerBuilderA.setEventConnector(replicatorClient).build();
+        EventManager eventManagerAImpl = eventManagerBuilderA.setEventConnector(replicatorHub).build();
         serviceBundleA = serviceBundleBuilder().build(); //build service bundle
         serviceBundleA.addServiceObject("eventManagerA", eventManagerAImpl);
         eventManagerA = serviceBundleA.createLocalProxy(EventManager.class, "eventManagerA"); //wire A to Service Bundle
@@ -72,23 +101,28 @@ public class EventManagerReplicationOverWebSocket extends TimedTesting {
         serviceBundleB.start();
 
 
-        final AtomicReference<Object> body = new AtomicReference<>();
+        final AtomicReference<Object> bodyB = new AtomicReference<>();
 
-        eventManagerB.register("foo.bar", event ->  body.set(event.body()));
+        final AtomicReference<Object> bodyC = new AtomicReference<>();
+
+        eventManagerB.register("foo.bar", event ->  bodyB.set(event.body()));
+        eventManagerB.register("foo.bar", event ->  bodyC.set(event.body()));
 
         eventManagerA.send("foo.bar", "hello");
         ServiceProxyUtils.flushServiceProxy(eventManagerA);
 
-        waitForTrigger(20, o -> body.get()!=null);
+        waitForTrigger(20, o -> bodyB.get()!=null && bodyC.get()!=null);
 
-
-        assertEquals("hello", body.get());
+        assertEquals("hello", bodyB.get());
+        assertEquals("hello", bodyC.get());
 
         serviceBundleA.stop();
         serviceBundleB.stop();
-        client.stop();
+        clientB.stop();
+        clientC.stop();
         Sys.sleep(100);
-        serviceServer.stop();
+        serviceServerB.stop();
+        serviceServerC.stop();
     }
 
 

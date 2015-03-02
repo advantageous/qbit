@@ -45,9 +45,6 @@ public interface ReceiveQueueListener<T> extends Input {
     default void empty() {
     }
 
-    ;
-
-
     /**
      * Notifies the queue listener that we processed up to batch size.
      * This is good for batch operations. This could mean the queue is empty or we reached our max batch size limit.
@@ -61,7 +58,7 @@ public interface ReceiveQueueListener<T> extends Input {
     default void shutdown() {
     }
 
-    ;
+
 
     /**
      * This means we did not find an item. We waited for an item as well and there was still not an item in the queue
@@ -73,5 +70,5 @@ public interface ReceiveQueueListener<T> extends Input {
     default void startBatch() {
     }
 
-    ;
+
 }
