@@ -203,6 +203,8 @@ public class EventManagerReplicationOverWebSocket extends TimedTesting {
         clientB.stop();
         clientC.stop();
         Sys.sleep(100);
+
+        serviceServerA.stop();
         serviceServerB.stop();
         serviceServerC.stop();
     }
