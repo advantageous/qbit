@@ -47,6 +47,8 @@ public interface ServiceQueue extends Stoppable, ServiceFlushable {
     SendQueue<MethodCall<Object>> requests();
 
 
+    SendQueue<MethodCall<Object>> requestsWithAutoFlush(int flushInterval, TimeUnit timeUnit);
+
     /*
     Queue to forwardEvent events to the service.
      */

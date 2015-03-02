@@ -24,6 +24,8 @@
 package io.advantageous.qbit.service.dispatchers;
 
 
+import java.util.concurrent.TimeUnit;
+
 /**
  * @author  rhightower
  * on 2/18/15.
@@ -31,6 +33,12 @@ package io.advantageous.qbit.service.dispatchers;
 public class RoundRobinServiceDispatcher extends ServiceWorkers  {
 
 
+    public RoundRobinServiceDispatcher(int flushInterval, TimeUnit timeUnit) {
+        super(flushInterval, timeUnit);
+    }
 
+    public RoundRobinServiceDispatcher() {
 
+        super();
+    }
 }

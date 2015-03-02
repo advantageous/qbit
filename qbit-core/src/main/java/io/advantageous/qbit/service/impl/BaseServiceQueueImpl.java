@@ -441,6 +441,11 @@ public class BaseServiceQueueImpl implements ServiceQueue {
     }
 
     @Override
+    public SendQueue<MethodCall<Object>> requestsWithAutoFlush(int flushInterval, TimeUnit timeUnit) {
+        return requestQueue.sendQueueWithAutoFlush(flushInterval, timeUnit);
+    }
+
+    @Override
     public ReceiveQueue<Response<Object>> responses() {
         return responseQueue.receiveQueue();
     }

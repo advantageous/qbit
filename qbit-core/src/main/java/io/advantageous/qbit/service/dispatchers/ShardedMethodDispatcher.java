@@ -26,6 +26,10 @@ package io.advantageous.qbit.service.dispatchers;
 import io.advantageous.qbit.message.MethodCall;
 import io.advantageous.qbit.queue.SendQueue;
 
+import java.util.concurrent.TimeUnit;
+
+import static org.boon.Boon.puts;
+
 /**
  * @author  rhightower
  * on 2/18/15.
@@ -37,7 +41,13 @@ public class ShardedMethodDispatcher extends ServiceWorkers {
 
 
     public ShardedMethodDispatcher(final ShardRule shardRule) {
+
         this.shardRule = shardRule;
+    }
+
+    public ShardedMethodDispatcher(final int flushInterval, final TimeUnit timeUnit, final ShardRule shardRule) {
+       super(flushInterval, timeUnit);
+       this.shardRule = shardRule;
     }
 
     @Override
@@ -46,10 +56,9 @@ public class ShardedMethodDispatcher extends ServiceWorkers {
         final Object[] args = methodCall.args();
         final int shard = shardRule.shard(methodCall.name(), args, serviceQueues.size());
 
-        final SendQueue<MethodCall<Object>> methodCallSendQueue =
-                shard < 0 ?
-                sendQueues.get(shard * -1) :
-                        sendQueues.get(shard) ;
+        final int index = shard >=0 ? shard : shard * -1;
+
+        final SendQueue<MethodCall<Object>> methodCallSendQueue = sendQueues.get(index) ;
 
         methodCallSendQueue.send(methodCall);
     }

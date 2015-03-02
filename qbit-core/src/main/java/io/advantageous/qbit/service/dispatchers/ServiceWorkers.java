@@ -61,6 +61,7 @@ import org.boon.core.reflection.BeanUtils;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -70,6 +71,12 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class ServiceWorkers implements ServiceMethodDispatcher {
 
 
+    private final int flushInterval;
+    private final TimeUnit timeUnit;
+
+    public static RoundRobinServiceDispatcher workers(int flushInterval, TimeUnit timeUnit) {
+        return new RoundRobinServiceDispatcher(flushInterval, timeUnit);
+    }
 
     public static RoundRobinServiceDispatcher workers() {
         return new RoundRobinServiceDispatcher();
@@ -77,6 +84,10 @@ public class ServiceWorkers implements ServiceMethodDispatcher {
 
     public static ShardedMethodDispatcher shardedWorkers(final ShardRule shardRule) {
         return new ShardedMethodDispatcher(shardRule);
+    }
+
+    public static ShardedMethodDispatcher shardedWorkers(int flushInterval, TimeUnit timeUnit, final ShardRule shardRule) {
+        return new ShardedMethodDispatcher(flushInterval, timeUnit, shardRule);
     }
 
 
@@ -138,12 +149,26 @@ public class ServiceWorkers implements ServiceMethodDispatcher {
 
 
     public ServiceWorkers(boolean startServices) {
+
         this.startServices = startServices;
+        this.flushInterval = 50;
+        this.timeUnit = TimeUnit.MILLISECONDS;
     }
 
 
+
+    public ServiceWorkers(int flushInterval, TimeUnit timeUnit) {
+
+        this.startServices = true;
+        this.flushInterval = flushInterval;
+        this.timeUnit = timeUnit;
+
+    }
+
     public ServiceWorkers() {
         this.startServices = true;
+        this.flushInterval = 50;
+        this.timeUnit = TimeUnit.MILLISECONDS;
     }
 
 
@@ -173,7 +198,13 @@ public class ServiceWorkers implements ServiceMethodDispatcher {
         }
 
         for (ServiceQueue serviceQueue : serviceQueues) {
-            sendQueues.add(serviceQueue.requests());
+            if (flushInterval > 0) {
+                SendQueue<MethodCall<Object>> methodCallSendQueue = serviceQueue.requestsWithAutoFlush(flushInterval, timeUnit);
+                methodCallSendQueue.start();
+                sendQueues.add(methodCallSendQueue);
+            }else {
+                sendQueues.add(serviceQueue.requests());
+            }
         }
 
         return this;
@@ -190,12 +221,22 @@ public class ServiceWorkers implements ServiceMethodDispatcher {
     }
 
     public void flush() {
+
+        for (SendQueue sendQueue : sendQueues) {
+            sendQueue.flushSends();
+        }
+
         for (ServiceQueue serviceQueue : serviceQueues) {
             serviceQueue.flush();
         }
     }
 
     public void stop() {
+
+
+        for (SendQueue sendQueue : sendQueues) {
+            sendQueue.stop();
+        }
 
         for (ServiceQueue serviceQueue : serviceQueues) {
             serviceQueue.stop();

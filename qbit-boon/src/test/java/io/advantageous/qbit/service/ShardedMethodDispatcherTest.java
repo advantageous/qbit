@@ -55,17 +55,23 @@
 
 package io.advantageous.qbit.service;
 
+import io.advantageous.qbit.client.ClientProxy;
 import io.advantageous.qbit.queue.QueueBuilder;
 import io.advantageous.qbit.service.dispatchers.*;
 import io.advantageous.qbit.test.TimedTesting;
+import org.boon.core.Sys;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static io.advantageous.qbit.queue.QueueBuilder.queueBuilder;
 import static io.advantageous.qbit.service.ServiceBuilder.serviceBuilder;
 import static io.advantageous.qbit.service.ServiceBundleBuilder.serviceBundleBuilder;
 import static io.advantageous.qbit.service.dispatchers.ServiceWorkers.shardedWorkers;
+import static io.advantageous.qbit.service.dispatchers.ServiceWorkers.workers;
+import static org.boon.Boon.puts;
 import static org.boon.Exceptions.die;
 
 /**
@@ -82,18 +88,18 @@ public class ShardedMethodDispatcherTest extends TimedTesting {
 
     public static class ContentRulesEngine {
 
-        static volatile int totalCount;
+        static AtomicInteger  totalCount = new AtomicInteger();
 
         int count;
         void pickSuggestions(String username) {
             count++;
-            totalCount++;
+            totalCount.incrementAndGet();
         }
 
     }
 
 
-    public static interface MultiWorkerClient {
+    public static interface MultiWorkerClient extends ClientProxy {
         void pickSuggestions(String username);
     }
 
@@ -101,9 +107,12 @@ public class ShardedMethodDispatcherTest extends TimedTesting {
     public void setup() {
 
         super.setupLatch();
-        QueueBuilder queueBuilder = queueBuilder().setBatchSize(1);
+        QueueBuilder queueBuilder = queueBuilder().setBatchSize(1001);
 
-        int workerCount = Runtime.getRuntime().availableProcessors();
+        int workerCount = 10;//Runtime.getRuntime().availableProcessors();
+
+//        dispatcher = workers();
+
 
         dispatcher = shardedWorkers((methodName, methodArgs, numWorkers) -> {
             String userName = methodArgs[0].toString();
@@ -126,7 +135,9 @@ public class ShardedMethodDispatcherTest extends TimedTesting {
 
         bundle = serviceBundleBuilder().setAddress("/root").build();
 
+        //bundle.addServiceObject("/workers", new ContentRulesEngine());
         bundle.addServiceConsumer("/workers", dispatcher);
+
         bundle.start();
 
     }
@@ -143,17 +154,16 @@ public class ShardedMethodDispatcherTest extends TimedTesting {
 
         final MultiWorkerClient worker = bundle.createLocalProxy(MultiWorkerClient.class, "/workers");
 
-        for (int index = 0; index < 100; index++) {
+        for (int index = 0; index < 20_000; index++) {
             worker.pickSuggestions("rickhigh" + index);
-
         }
 
-        ServiceProxyUtils.flushServiceProxy(worker);
-        super.waitForTrigger(20, o -> ContentRulesEngine.totalCount >=90);
+        worker.clientProxyFlush();
 
 
+        super.waitForTrigger(5, o -> ContentRulesEngine.totalCount.get() >= 20_000);
 
-        ok = ContentRulesEngine.totalCount >=90 || die(ContentRulesEngine.totalCount);
+        ok = ContentRulesEngine.totalCount.get() ==20_000 || die(ContentRulesEngine.totalCount);
 
 
     }

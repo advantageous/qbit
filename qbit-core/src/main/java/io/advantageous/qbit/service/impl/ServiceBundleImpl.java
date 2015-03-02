@@ -598,7 +598,6 @@ public class ServiceBundleImpl implements ServiceBundle {
     public void flush() {
 
         flushSends();
-        Sys.sleep(100);
         for (ServiceFlushable service : servicesToFlush) {
             service.flush();
         }
