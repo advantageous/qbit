@@ -107,7 +107,10 @@ public class ServerTest extends TimedTesting {
                     }
                 });
 
+        server.serviceBundle().flushSends();
+        Sys.sleep(100);
         server.flush();
+        Sys.sleep(100);
 
 
 
@@ -149,6 +152,14 @@ public class ServerTest extends TimedTesting {
                         }
                     });
         }
+
+
+        server.serviceBundle().flushSends();
+        Sys.sleep(100);
+        Sys.sleep(100);
+        server.flush();
+        Sys.sleep(100);
+
 
 
 
@@ -194,6 +205,13 @@ public class ServerTest extends TimedTesting {
                     }
                 });
 
+
+
+        server.serviceBundle().flushSends();
+        Sys.sleep(100);
+        Sys.sleep(100);
+        server.flush();
+        Sys.sleep(100);
 
 
         waitForTrigger(20, o -> resultsWorked.get());

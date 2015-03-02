@@ -414,7 +414,7 @@ public class IntegrationTestForRESTStyleCallsTest {
 //                impl.params(params);
         }
         serviceBundle.call(call);
-       
+
         serviceBundle.flushSends();
         Sys.sleep(100);
         serviceBundle.flush();
