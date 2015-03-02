@@ -36,9 +36,9 @@ public class EventManagerReplicationOverWebSocket extends TimedTesting {
         EventConnectorHub replicatorHubC = new EventConnectorHub();
 
 
-        EventConnector replicatorClientToB = new EventConnectorHub();
-        EventConnector replicatorClientToC = new EventConnectorHub();
-        EventConnector replicatorClientToA = new EventConnectorHub();
+        EventConnector replicatorClientToB;
+        EventConnector replicatorClientToC;
+        EventConnector replicatorClientToA;
         ServiceBundle serviceBundleB;
         ServiceBundle serviceBundleA;
         ServiceBundle serviceBundleC;
