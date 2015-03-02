@@ -147,6 +147,7 @@ public class EventManagerReplicationOverWebSocket extends TimedTesting {
 
         eventManagerA.send("foo.bar", "hello");
         ServiceProxyUtils.flushServiceProxy(eventManagerA);
+        Sys.sleep(500);
 
         waitForTrigger(20, o -> bodyB.get()!=null && bodyC.get()!=null);
 
@@ -168,7 +169,7 @@ public class EventManagerReplicationOverWebSocket extends TimedTesting {
 
 
         assertEquals("hello", bodyA.get());
-        assertEquals("hello", bodyC.get());
+        assertEquals("hello", bodyB.get());
 
 
 
