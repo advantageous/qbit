@@ -555,8 +555,6 @@ public class Conversions {
                 return (T) value;
 
 
-            case HANDLER:
-                return (T) value;
 
             default:
                 return createFromArg(clz, value);

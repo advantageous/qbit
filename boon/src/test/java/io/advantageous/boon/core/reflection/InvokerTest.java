@@ -48,7 +48,6 @@ import java.util.List;
 import static io.advantageous.boon.Boon.puts;
 import static io.advantageous.boon.Boon.sputs;
 import static io.advantageous.boon.Exceptions.die;
-import static io.advantageous.boon.Ok.okOrDie;
 import static io.advantageous.boon.json.JsonFactory.fromJson;
 import static io.advantageous.boon.json.JsonFactory.toJson;
 import static io.advantageous.boon.primitive.CharBuf.createCharBuf;
@@ -369,7 +368,10 @@ public class InvokerTest {
 
             CharBuf buf = createCharBuf();
             ex.printStackTrace(buf);
-            okOrDie(buf.toString().contains("SAY HI 3 AND DIE"));
+
+            if (!buf.toString().contains("SAY HI 3 AND DIE")) {
+                die();
+            }
         }
 
     }
@@ -388,7 +390,11 @@ public class InvokerTest {
         }
         catch (Exception ex) {
 
-            okOrDie(Exceptions.asJson(ex).contains("SAY HI 3 AND DIE"));
+
+            if (!Exceptions.asJson(ex).contains("SAY HI 3 AND DIE")) {
+                die();
+            }
+
         }
 
     }

@@ -34,7 +34,7 @@ import java.util.List;
 import java.util.Set;
 
 import static io.advantageous.boon.Boon.puts;
-import static io.advantageous.boon.Ok.okOrDie;
+import static io.advantageous.boon.Exceptions.die;
 import static io.advantageous.boon.Sets.deepCopy;
 import static io.advantageous.boon.Sets.set;
 import static io.advantageous.boon.Lists.list;
@@ -127,9 +127,13 @@ public class DeepCopyRemix {
         Employee copyEmployee = copy(employee);
 
 
-        okOrDie("not same object", employee != copyEmployee);
+        if (employee == copyEmployee) {
+            die("not same object");
+        }
 
-        okOrDie("not same object", copy.iterator().next() != original.iterator().next());
+        if (copy.iterator().next() == original.iterator().next()) {
+            die("not same object");
+        };
     }
 
 
@@ -157,7 +161,9 @@ public class DeepCopyRemix {
 
         puts("Copy of List after modification",  copy);
 
-        okOrDie("not same object", copy.iterator().next() != original.iterator().next());
+        if (copy.iterator().next() == original.iterator().next()) {
+            die("not same object");
+        }
 
 
     }

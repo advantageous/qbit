@@ -28,8 +28,6 @@
 
 package io.advantageous.boon;
 
-import io.advantageous.boon.StringScanner;
-import io.advantageous.boon.concurrent.Timer;
 import org.junit.Test;
 
 import java.util.ArrayList;
@@ -75,27 +73,26 @@ public class StringScannerTest {
 
         puts (total);
         total = 0;
-        long start = Timer.timer().now();
-
+        long start = System.currentTimeMillis();
         for (String num : numbers) {
             final int i = StringScanner.parseInt(num);
             total += i;
         }
-        long stop = Timer.timer().now();
+        long stop = System.currentTimeMillis();
 
         long duration = stop - start;
         puts("new parse", duration, total);
 
 
 
-        start = Timer.timer().now();
+        start =System.currentTimeMillis();
         total = 0;
 
         for (String num : numbers) {
             final int i = Integer.parseInt(num);
             total += i;
         }
-        stop = Timer.timer().now();
+        stop = System.currentTimeMillis();
 
         duration = stop - start;
 
@@ -128,27 +125,27 @@ public class StringScannerTest {
 
         puts (total);
         total = 0;
-        long start = Timer.timer().now();
+        long start = System.currentTimeMillis();
 
         for (String num : numbers) {
             final long i = StringScanner.parseLong(num);
             total += i;
         }
-        long stop = Timer.timer().now();
+        long stop = System.currentTimeMillis();
 
         long duration = stop - start;
         puts("new parse", duration, total);
 
 
 
-        start = Timer.timer().now();
+        start = System.currentTimeMillis();
         total = 0;
 
         for (String num : numbers) {
             final long i = Long.parseLong(num);
             total += i;
         }
-        stop = Timer.timer().now();
+        stop = System.currentTimeMillis();
 
         duration = stop - start;
 
@@ -180,27 +177,27 @@ public class StringScannerTest {
 
         puts (total);
         total = 0;
-        long start = Timer.timer().now();
+        long start = System.currentTimeMillis();
 
         for (String num : numbers) {
             final double i = StringScanner.parseDouble(num);
             total += i;
         }
-        long stop = Timer.timer().now();
+        long stop = System.currentTimeMillis();
 
         long duration = stop - start;
         puts("new parse", duration, total);
 
 
 
-        start = Timer.timer().now();
+        start = System.currentTimeMillis();
         total = 0;
 
         for (String num : numbers) {
             final double i = Double.parseDouble(num);
             total += i;
         }
-        stop = Timer.timer().now();
+        stop = System.currentTimeMillis();
 
         duration = stop - start;
 
@@ -234,27 +231,27 @@ public class StringScannerTest {
 
         puts (total);
         total = 0;
-        long start = Timer.timer().now();
+        long start = System.currentTimeMillis();
 
         for (String num : numbers) {
             final double i = StringScanner.parseDouble(num);
             total += i;
         }
-        long stop = Timer.timer().now();
+        long stop = System.currentTimeMillis();
 
         long duration = stop - start;
         puts("new parse", duration, total);
 
 
 
-        start = Timer.timer().now();
+        start = System.currentTimeMillis();
         total = 0;
 
         for (String num : numbers) {
             final double i = Double.parseDouble(num);
             total += i;
         }
-        stop = Timer.timer().now();
+        stop = System.currentTimeMillis();
 
         duration = stop - start;
 

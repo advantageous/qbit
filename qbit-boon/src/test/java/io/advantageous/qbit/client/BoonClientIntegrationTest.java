@@ -108,6 +108,8 @@ public class BoonClientIntegrationTest {
 
         ( ( ClientProxy ) mockService ).clientProxyFlush();
 
+        Sys.sleep(100);
+
         ok = httpSendWebSocketCalled || die();
 
 

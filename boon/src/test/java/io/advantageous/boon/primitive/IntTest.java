@@ -28,12 +28,10 @@
 
 package io.advantageous.boon.primitive;
 
-import io.advantageous.boon.primitive.Int;
 import org.junit.Test;
 
 import static io.advantageous.boon.Boon.sputs;
 import static io.advantageous.boon.Exceptions.die;
-import static io.advantageous.boon.Ok.okOrDie;
 import static io.advantageous.boon.primitive.Int.reduceBy;
 
 /**
@@ -64,7 +62,8 @@ public class IntTest {
         long sum =  reduceBy(new int[]{1,2,3,4,5,6,7,8}, this);
 
 
-        okOrDie(sputs("Sum was 36", sum), sum == 36);
+        if (sum != 36)
+            die(sputs("Sum was 36", sum));
 
 
     }
@@ -78,8 +77,9 @@ public class IntTest {
         long sum =  reduceBy(new int[]{1,2,3,4,5,6,7,8}, this, "sum");
 
 
-        okOrDie(sputs("Sum was 36", sum), sum == 36);
-
+        if (sum != 36) {
+            die(sputs("Sum was 36", sum));
+        }
 
     }
 }
