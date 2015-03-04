@@ -1,0 +1,13 @@
+{
+
+    /* dev namespace. */
+    "META": {
+        namespace:dev
+    },
+
+    "bar":
+    {
+        "class":"org.boon.di.CreatorTest$Bar",
+        "name": "DEV Bar"
+    }
+}

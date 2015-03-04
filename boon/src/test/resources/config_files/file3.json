@@ -1,0 +1,15 @@
+{
+
+    /* QA namespace. */
+    "META": {
+        namespace:qa,
+        include:[classpath://include/],
+        version : 1.0
+    },
+
+    "foo": {
+        "class":"org.boon.di.CreatorTest$Foo",
+        "name": "QA Foo"
+    }
+
+}

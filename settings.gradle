@@ -57,3 +57,5 @@ project(':qbit-examples-standalone').projectDir = "$rootDir/qbit-examples/qbit-e
 
 include 'qbit-eventbus-replicator'
 
+include 'boon'
+

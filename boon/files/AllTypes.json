@@ -1,0 +1,58 @@
+{
+
+    "myInt" : 1,
+    "myFloat" : 1.1,
+    "myDouble" : 1.2,
+    "myShort" : 2,
+    "myBoolean" : true,
+    "string" : "test",
+    "string2" : "test \"I love bacon \", do you?",
+    "myByte" : 3 ,
+    "date" : "2013-12-14T01:55:33.412Z",
+    "bigDecimal" : "99",
+    "bigInteger" : "101",
+    "foo" : "FOO",
+    "bar" : 1,
+
+    "allType" : {
+        "myInt" : 1,
+        "myFloat" : 1.1,
+        "myDouble" : 1.2,
+        "myShort" : 2,
+        "myBoolean" : true,
+        "string" : "test",
+        "myByte" : 3
+    },
+
+
+    "allTypeList" : [
+        {
+            "myInt" : 1,
+            "myFloat" : 1.1,
+            "myDouble" : 1.2,
+            "myShort" : 2,
+            "myBoolean" : true,
+            "string" : "test",
+            "myByte" : 3
+        },
+        {
+            "myInt" : 1,
+            "myFloat" : 1.1,
+            "myDouble" : 1.2,
+            "myShort" : 2,
+            "myBoolean" : true,
+            "string" : "test",
+            "myByte" : 3
+        },
+        {
+            "myInt" : 1,
+            "myFloat" : 1.1,
+            "myDouble" : 1.2,
+            "myShort" : 2,
+            "myBoolean" : true,
+            "string" : "test",
+            "myByte" : 3
+        }
+    ]
+
+}

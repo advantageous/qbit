@@ -1,0 +1,30 @@
+[
+    {
+        "myInt" : 0,
+        "myFloat" : 1.1,
+        "myDouble" : 1.2,
+        "myShort" : 2,
+        "myBoolean" : true,
+        "string" : "test",
+        "myByte" : 3
+    },
+    {
+        "myInt" : 1,
+        "myFloat" : 1.1,
+        "myDouble" : 1.2,
+        "myShort" : 2,
+        "myBoolean" : true,
+        "string" : "test",
+        "myByte" : 3
+    },
+    {
+        "myInt" : 2,
+        "myFloat" : 1.1,
+        "myDouble" : 1.2,
+        "myShort" : 2,
+        "myBoolean" : true,
+        "string" : "test",
+        "myByte" : 3
+    }
+
+]
