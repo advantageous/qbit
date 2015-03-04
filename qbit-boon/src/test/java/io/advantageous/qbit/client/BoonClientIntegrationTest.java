@@ -31,6 +31,7 @@ import io.advantageous.qbit.message.Response;
 import io.advantageous.qbit.service.Callback;
 import io.advantageous.qbit.service.ServiceBundle;
 import io.advantageous.qbit.service.ServiceBundleBuilder;
+import io.advantageous.qbit.test.TimedTesting;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -38,12 +39,13 @@ import org.junit.Test;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
+import java.util.function.Predicate;
 
 import static io.advantageous.boon.Boon.puts;
 import static io.advantageous.boon.Exceptions.die;
 
 
-public class BoonClientIntegrationTest {
+public class BoonClientIntegrationTest extends TimedTesting {
 
     Client client;
     AtomicBoolean httpStopCalled = new AtomicBoolean();
@@ -58,6 +60,8 @@ public class BoonClientIntegrationTest {
 
     @Before
     public void setUp() throws Exception {
+
+        setupLatch();
 
         client = new BoonClientFactory().create("/services", new HttpClientMock(), 10);
 
@@ -91,6 +95,8 @@ public class BoonClientIntegrationTest {
         serviceBundle.flush();
         Sys.sleep(100);
 
+        waitForTrigger(20, o -> httpSendWebSocketCalled.get());
+
         ok = httpSendWebSocketCalled.get() || die("Send called", httpSendWebSocketCalled);
 
 
@@ -110,6 +116,10 @@ public class BoonClientIntegrationTest {
         ( ( ClientProxy ) mockService ).clientProxyFlush();
 
         Sys.sleep(1000);
+
+
+
+        waitForTrigger(20, o -> httpSendWebSocketCalled.get());
 
         ok = httpSendWebSocketCalled.get() || die();
 
