@@ -37,6 +37,6 @@ public class ExampleTest {
 
     @Test
     public void runMain() {
-        SliceNotationExample.main( null );
+        SliceNotationExample.main(  );
     }
 }

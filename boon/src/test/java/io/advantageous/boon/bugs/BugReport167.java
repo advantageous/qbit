@@ -115,7 +115,6 @@ public class BugReport167 {
 
         user2 = fromJson(json, User.class);
 
-        puts(user.getFavoriteColors());
 
         ok = user.equals(user2) || die("Users should be equal", user, user2);
 
@@ -133,7 +132,6 @@ public class BugReport167 {
 
         user2 = objectMapper.fromJson(json, User.class);
 
-        puts(user.getFavoriteColors());
 
         ok = user.equals(user2) || die("Users should be equal", user, user2);
 
@@ -155,7 +153,6 @@ public class BugReport167 {
 
         user2 = objectMapper.fromJson(json, User.class);
 
-        puts(user.getFavoriteColors());
 
         ok = user.equals(user2) || die("Users should be equal", user, user2);
 
@@ -174,7 +171,6 @@ public class BugReport167 {
 
         user2 = MapObjectConversion.fromMap( (Map)parser.parse(json), User.class);
 
-        puts(user.getFavoriteColors());
 
         ok = user.equals(user2) || die("Users should be equal", user, user2);
 
