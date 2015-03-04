@@ -648,6 +648,7 @@ public class Dates {
 
     }
 
+    @SuppressWarnings("deprecation")
     public static void fastJsonDateChars( Date date, CharBuf buf ) {
 
         int day = date.getDate ();

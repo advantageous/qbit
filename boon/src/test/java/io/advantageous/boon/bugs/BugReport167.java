@@ -109,7 +109,6 @@ public class BugReport167 {
     @Test
     public void test() {
         user = new User("red", "yellow", "green", "purple");
-        puts(user.getFavoriteColors());
 
         json = toJson(user);
         puts ( json );
@@ -125,7 +124,6 @@ public class BugReport167 {
     @Test
     public void test2() {
         user = new User("red", "yellow", "green", "purple");
-        puts(user.getFavoriteColors());
 
 
         final ObjectMapper objectMapper = JsonFactory.createUseAnnotations(true);
@@ -146,7 +144,6 @@ public class BugReport167 {
     //@Test
     public void test3() {
         user = new User("red", "yellow", "green", "purple");
-        puts(user.getFavoriteColors());
 
 
         final JsonParserFactory jsonParserFactory = new JsonParserFactory().usePropertiesFirst().useAnnotations();
@@ -168,7 +165,6 @@ public class BugReport167 {
     @Test
     public void test4() {
         user = new User("red", "yellow", "green", "purple");
-        puts(user.getFavoriteColors());
 
         JsonParser parser = new JsonFastParser();
         JsonSerializer serializer = new JsonSerializerImpl();
