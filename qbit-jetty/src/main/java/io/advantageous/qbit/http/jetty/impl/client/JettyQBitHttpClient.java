@@ -60,6 +60,7 @@ public class JettyQBitHttpClient implements HttpClient {
     public JettyQBitHttpClient(final String host, final int port) {
         this.host = host;
         this.port = port;
+
     }
 
     @Override
@@ -180,6 +181,11 @@ public class JettyQBitHttpClient implements HttpClient {
 
 
         try {
+
+            webSocketClient.setMaxTextMessageBufferSize(20_000_000);
+            webSocketClient.setMaxBinaryMessageBufferSize(20_000_000);
+            webSocketClient.getPolicy().setMaxTextMessageSize(20_000_000);
+            webSocketClient.getPolicy().setMaxBinaryMessageSize(20_000_000);
             webSocketClient.start();
         } catch (Exception e) {
             throw new IllegalStateException("Unable to start websocket Jetty support", e);

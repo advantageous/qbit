@@ -342,6 +342,7 @@ public class HttpVertxClient implements HttpClient {
 
         if (debug) logger.debug("HTTP CLIENT: connect:: \nhost {} \nport {}\n", host, port);
 
+
         httpClient.exceptionHandler(throwable -> {
 
             if (throwable instanceof ConnectException) {

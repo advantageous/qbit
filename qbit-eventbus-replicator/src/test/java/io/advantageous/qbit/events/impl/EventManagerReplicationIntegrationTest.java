@@ -3,16 +3,17 @@ package io.advantageous.qbit.events.impl;
 import io.advantageous.qbit.events.EventManager;
 import io.advantageous.qbit.events.EventManagerBuilder;
 import io.advantageous.qbit.events.spi.EventConnector;
+import io.advantageous.qbit.http.jetty.RegisterJettyWithQBit;
 import io.advantageous.qbit.service.ServiceBundle;
 import io.advantageous.qbit.service.ServiceProxyUtils;
 import io.advantageous.qbit.spi.RegisterBoonWithQBit;
 import io.advantageous.qbit.test.TimedTesting;
-import io.advantageous.qbit.vertx.RegisterVertxWithQBit;
 import org.junit.Test;
 
 import java.util.concurrent.atomic.AtomicReference;
 
 import static io.advantageous.qbit.service.ServiceBundleBuilder.serviceBundleBuilder;
+import static io.advantageous.qbit.util.PortUtils.findOpenPortStartAt;
 import static org.junit.Assert.assertEquals;
 
 /**
@@ -27,7 +28,7 @@ public class EventManagerReplicationIntegrationTest extends TimedTesting{
 
     static {
         RegisterBoonWithQBit.registerBoonWithQBit();
-        RegisterVertxWithQBit.registerVertxWithQBit();
+        RegisterJettyWithQBit.registerJettyWithQBit();
     }
 
 

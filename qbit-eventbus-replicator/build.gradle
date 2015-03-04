@@ -52,7 +52,7 @@ dependencies {
     testCompile group: 'junit', name: 'junit', version: '4.11'
     testCompile("org.mockito:mockito-core:2.0.4-beta")
     testCompile project(':qbit-test')
-    testCompile project(':qbit-vertx')
+    testCompile project(':qbit-jetty')
 
 }
 

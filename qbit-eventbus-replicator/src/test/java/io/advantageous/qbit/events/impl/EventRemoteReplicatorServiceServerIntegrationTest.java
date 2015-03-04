@@ -4,24 +4,24 @@ import io.advantageous.qbit.client.Client;
 import io.advantageous.qbit.events.spi.EventConnector;
 import io.advantageous.qbit.events.EventManager;
 import io.advantageous.qbit.events.spi.EventTransferObject;
-import io.advantageous.qbit.message.Event;
+import io.advantageous.qbit.http.jetty.RegisterJettyWithQBit;
 import io.advantageous.qbit.server.ServiceServer;
 import io.advantageous.qbit.spi.RegisterBoonWithQBit;
 import io.advantageous.qbit.test.TimedTesting;
-import io.advantageous.qbit.vertx.RegisterVertxWithQBit;
 import io.advantageous.boon.core.Sys;
+import io.advantageous.qbit.util.PortUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.io.IOException;
-import java.net.ServerSocket;
 
 import static io.advantageous.boon.Boon.puts;
 import static io.advantageous.qbit.client.ClientBuilder.clientBuilder;
 import static io.advantageous.qbit.server.ServiceServerBuilder.serviceServerBuilder;
 import static io.advantageous.qbit.service.ServiceProxyUtils.flushServiceProxy;
 import static io.advantageous.qbit.util.PortUtils.findOpenPort;
+import static io.advantageous.qbit.util.PortUtils.findOpenPortStartAt;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
@@ -32,7 +32,7 @@ public class EventRemoteReplicatorServiceServerIntegrationTest extends TimedTest
 
     static {
         RegisterBoonWithQBit.registerBoonWithQBit();
-        RegisterVertxWithQBit.registerVertxWithQBit();
+        RegisterJettyWithQBit.registerJettyWithQBit();
     }
 
 
@@ -57,7 +57,8 @@ public class EventRemoteReplicatorServiceServerIntegrationTest extends TimedTest
         service = new EventRemoteReplicatorService(eventManager);
 
 
-        int port = findOpenPort();
+        Sys.sleep(1000);
+        int port = PortUtils.useOneOfThesePorts(3000, 6000, 4000, 3000);
 
         puts("findOpenPort(", port, ")");
 
@@ -65,7 +66,7 @@ public class EventRemoteReplicatorServiceServerIntegrationTest extends TimedTest
         serviceServer.initServices(service);
         client = clientBuilder().setPort(port).build();
 
-
+        Sys.sleep(1000);
         serviceServer.start();
         Sys.sleep(1000);
         client.start();

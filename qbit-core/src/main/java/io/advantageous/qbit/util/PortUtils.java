@@ -12,6 +12,7 @@ public class PortUtils {
         for (int port : ports) {
             try {
                 ServerSocket serverSocket = new ServerSocket(port);
+                serverSocket.close();
                 return port;
             } catch (IOException ex) {
                 continue; // try next port
@@ -27,6 +28,7 @@ public class PortUtils {
         for (int index = start; index < stop; index++) {
             try {
                 ServerSocket serverSocket = new ServerSocket(index);
+                serverSocket.close();
                 return index;
             } catch (IOException ex) {
                 continue; // try next port
@@ -39,5 +41,10 @@ public class PortUtils {
 
     public static int findOpenPort()  {
         return useOneOfThePortsInThisRange(6000, 30_000);
+    }
+
+
+    public static int findOpenPortStartAt(int start)  {
+        return useOneOfThePortsInThisRange(start, 30_000);
     }
 }

@@ -61,6 +61,11 @@ public class JettyQBitHttpServer extends SimpleHttpServer {
 
         super(systemManager, options.getFlushInterval());
 
+        policy.setMaxBinaryMessageSize(options.getMaxWebSocketFrameSize());
+        policy.setMaxTextMessageSize(options.getMaxWebSocketFrameSize());
+        policy.setMaxTextMessageBufferSize(options.getMaxWebSocketFrameSize());
+        policy.setMaxBinaryMessageBufferSize(options.getMaxWebSocketFrameSize());
+
         this.options = BeanUtils.copy(options);
         if (debug) {
             puts(options);
@@ -112,6 +117,8 @@ public class JettyQBitHttpServer extends SimpleHttpServer {
         connector.setReuseAddress(options.isReuseAddress());
         connector.setSoLingerTime(options.getSoLinger());
         connector.setIdleTimeout(options.getIdleTimeout());
+
+
         if (options.getHost() != null) {
             connector.setHost(options.getHost());
         }
