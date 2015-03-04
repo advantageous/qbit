@@ -36,6 +36,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 
 import static io.advantageous.boon.Boon.puts;
@@ -45,11 +46,11 @@ import static io.advantageous.boon.Exceptions.die;
 public class BoonClientIntegrationTest {
 
     Client client;
-    boolean httpStopCalled;
-    boolean httpStartCalled;
-    boolean httpSendWebSocketCalled;
-    boolean httpFlushCalled;
-    boolean httpPeriodicFlushCallbackCalled;
+    AtomicBoolean httpStopCalled = new AtomicBoolean();
+    AtomicBoolean httpStartCalled = new AtomicBoolean();
+    AtomicBoolean httpSendWebSocketCalled = new AtomicBoolean();
+    AtomicBoolean httpFlushCalled = new AtomicBoolean();
+    AtomicBoolean httpPeriodicFlushCallbackCalled = new AtomicBoolean();
     boolean ok;
     volatile int sum;
     volatile Response<Object> response;
@@ -90,7 +91,7 @@ public class BoonClientIntegrationTest {
         serviceBundle.flush();
         Sys.sleep(100);
 
-        ok = httpSendWebSocketCalled || die("Send called", httpSendWebSocketCalled);
+        ok = httpSendWebSocketCalled.get() || die("Send called", httpSendWebSocketCalled);
 
 
     }
@@ -110,7 +111,7 @@ public class BoonClientIntegrationTest {
 
         Sys.sleep(100);
 
-        ok = httpSendWebSocketCalled || die();
+        ok = httpSendWebSocketCalled.get() || die();
 
 
         ok = sum == 3 || die(sum);
@@ -158,7 +159,7 @@ public class BoonClientIntegrationTest {
                 public void sendText(final String body) {
 
 
-                    httpSendWebSocketCalled = true;
+                    httpSendWebSocketCalled.set(true);
                     periodicFlushCallback.accept(null);
 
 
@@ -192,28 +193,28 @@ public class BoonClientIntegrationTest {
 
         @Override
         public void periodicFlushCallback(Consumer<Void> periodicFlushCallback) {
-            httpPeriodicFlushCallbackCalled = true;
+            httpPeriodicFlushCallbackCalled.set(true);
             this.periodicFlushCallback = periodicFlushCallback;
 
         }
 
         @Override
         public HttpClient start() {
-            httpStartCalled = true;
+            httpStartCalled.set(true);
             return this;
 
         }
 
         @Override
         public void flush() {
-            httpFlushCalled = true;
+            httpFlushCalled.set(true);
 
         }
 
         @Override
         public void stop() {
 
-            httpStopCalled = true;
+            httpStopCalled.set(true);
         }
     }
 }
