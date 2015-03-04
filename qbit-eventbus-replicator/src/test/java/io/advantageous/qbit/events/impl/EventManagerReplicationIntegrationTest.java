@@ -5,7 +5,9 @@ import io.advantageous.qbit.events.EventManagerBuilder;
 import io.advantageous.qbit.events.spi.EventConnector;
 import io.advantageous.qbit.service.ServiceBundle;
 import io.advantageous.qbit.service.ServiceProxyUtils;
+import io.advantageous.qbit.spi.RegisterBoonWithQBit;
 import io.advantageous.qbit.test.TimedTesting;
+import io.advantageous.qbit.vertx.RegisterVertxWithQBit;
 import org.junit.Test;
 
 import java.util.concurrent.atomic.AtomicReference;
@@ -23,6 +25,10 @@ public class EventManagerReplicationIntegrationTest extends TimedTesting{
     EventRemoteReplicatorService replicatorService;
     ServiceBundle serviceBundle;
 
+    static {
+        RegisterBoonWithQBit.registerBoonWithQBit();
+        RegisterVertxWithQBit.registerVertxWithQBit();
+    }
 
 
     @Test

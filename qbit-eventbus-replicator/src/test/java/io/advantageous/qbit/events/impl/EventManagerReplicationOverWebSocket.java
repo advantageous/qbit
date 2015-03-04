@@ -7,7 +7,9 @@ import io.advantageous.qbit.events.spi.EventConnector;
 import io.advantageous.qbit.server.ServiceServer;
 import io.advantageous.qbit.service.ServiceBundle;
 import io.advantageous.qbit.service.ServiceProxyUtils;
+import io.advantageous.qbit.spi.RegisterBoonWithQBit;
 import io.advantageous.qbit.test.TimedTesting;
+import io.advantageous.qbit.vertx.RegisterVertxWithQBit;
 import org.boon.Lists;
 import org.boon.core.Sys;
 import org.junit.Test;
@@ -26,6 +28,11 @@ import static org.junit.Assert.assertNull;
  */
 public class EventManagerReplicationOverWebSocket extends TimedTesting {
 
+
+    static {
+        RegisterBoonWithQBit.registerBoonWithQBit();
+        RegisterVertxWithQBit.registerVertxWithQBit();
+    }
 
     @Test
     public void test() {
@@ -147,7 +154,7 @@ public class EventManagerReplicationOverWebSocket extends TimedTesting {
 
         eventManagerA.send("foo.bar", "hello");
         ServiceProxyUtils.flushServiceProxy(eventManagerA);
-        Sys.sleep(500);
+        Sys.sleep(5000);
 
         waitForTrigger(20, o -> bodyB.get()!=null && bodyC.get()!=null);
 
@@ -161,7 +168,7 @@ public class EventManagerReplicationOverWebSocket extends TimedTesting {
         bodyA.set(null); bodyB.set(null); bodyC.set(null);
         eventManagerC.send("foo.bar", "hello");
         ServiceProxyUtils.flushServiceProxy(eventManagerC);
-        Sys.sleep(500);
+        Sys.sleep(5000);
 
         waitForTrigger(20, o -> bodyA.get() != null && bodyB.get() != null);
 
@@ -177,7 +184,7 @@ public class EventManagerReplicationOverWebSocket extends TimedTesting {
         bodyA.set(null); bodyB.set(null); bodyC.set(null);
         eventManagerB.send("foo.bar", "hello");
         ServiceProxyUtils.flushServiceProxy(eventManagerB);
-        Sys.sleep(500);
+        Sys.sleep(5000);
 
         waitForTrigger(20, o -> bodyA.get()!=null && bodyC.get()!=null);
 
@@ -190,7 +197,7 @@ public class EventManagerReplicationOverWebSocket extends TimedTesting {
 
 
         bodyA.set(null); bodyB.set(null); bodyC.set(null);
-        Sys.sleep(500);
+        Sys.sleep(5000);
 
         assertNull(bodyA.get());
         assertNull(bodyB.get());

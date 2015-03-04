@@ -5,7 +5,9 @@ import io.advantageous.qbit.events.EventManager;
 import io.advantageous.qbit.events.spi.EventTransferObject;
 import io.advantageous.qbit.message.Event;
 import io.advantageous.qbit.service.ServiceBundle;
+import io.advantageous.qbit.spi.RegisterBoonWithQBit;
 import io.advantageous.qbit.test.TimedTesting;
+import io.advantageous.qbit.vertx.RegisterVertxWithQBit;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -19,6 +21,11 @@ import static org.mockito.Mockito.verify;
  */
 public class EventRemoteReplicatorServiceBundleIntegrationTest extends TimedTesting {
 
+
+    static {
+        RegisterBoonWithQBit.registerBoonWithQBit();
+        RegisterVertxWithQBit.registerVertxWithQBit();
+    }
 
 
 

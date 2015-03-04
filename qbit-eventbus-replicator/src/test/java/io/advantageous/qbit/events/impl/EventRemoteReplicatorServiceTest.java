@@ -6,6 +6,8 @@ import io.advantageous.qbit.events.EventManager;
 import io.advantageous.qbit.events.spi.EventTransferObject;
 import io.advantageous.qbit.message.Event;
 import io.advantageous.qbit.spi.FactorySPI;
+import io.advantageous.qbit.spi.RegisterBoonWithQBit;
+import io.advantageous.qbit.vertx.RegisterVertxWithQBit;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -17,6 +19,11 @@ import static org.mockito.Mockito.when;
 
 public class EventRemoteReplicatorServiceTest {
 
+
+    static {
+        RegisterBoonWithQBit.registerBoonWithQBit();
+        RegisterVertxWithQBit.registerVertxWithQBit();
+    }
 
 
     EventRemoteReplicatorService service;
