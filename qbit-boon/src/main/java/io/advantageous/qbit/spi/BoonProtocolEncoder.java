@@ -18,16 +18,16 @@
 
 package io.advantageous.qbit.spi;
 
+import io.advantageous.boon.core.reflection.fields.FieldAccess;
+import io.advantageous.boon.json.JsonSerializer;
+import io.advantageous.boon.json.JsonSerializerFactory;
+import io.advantageous.boon.json.serializers.FieldFilter;
+import io.advantageous.boon.primitive.CharBuf;
 import io.advantageous.qbit.message.Message;
 import io.advantageous.qbit.message.MethodCall;
 import io.advantageous.qbit.message.Response;
 import io.advantageous.qbit.service.Protocol;
 import io.advantageous.qbit.util.MultiMap;
-import org.boon.core.reflection.fields.FieldAccess;
-import org.boon.json.JsonSerializer;
-import org.boon.json.JsonSerializerFactory;
-import org.boon.json.serializers.FieldFilter;
-import org.boon.primitive.CharBuf;
 
 import java.util.Collection;
 import java.util.Map;

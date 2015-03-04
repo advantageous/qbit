@@ -18,9 +18,17 @@
 
 package io.advantageous.qbit.server;
 
+import io.advantageous.boon.Str;
+import io.advantageous.boon.StringScanner;
+import io.advantageous.boon.core.reflection.AnnotationData;
+import io.advantageous.boon.core.reflection.ClassMeta;
+import io.advantageous.boon.core.reflection.MethodAccess;
 import io.advantageous.qbit.GlobalConstants;
 import io.advantageous.qbit.QBit;
 import io.advantageous.qbit.annotation.RequestMethod;
+
+import static io.advantageous.boon.Boon.puts;
+import static io.advantageous.boon.Boon.sputs;
 import static io.advantageous.qbit.bindings.HttpMethod.*;
 
 import io.advantageous.qbit.bindings.HttpMethod;
@@ -37,11 +45,6 @@ import io.advantageous.qbit.spi.ProtocolEncoder;
 import io.advantageous.qbit.spi.ProtocolParser;
 import io.advantageous.qbit.util.MultiMap;
 import io.advantageous.qbit.util.Timer;
-import org.boon.Str;
-import org.boon.StringScanner;
-import org.boon.core.reflection.AnnotationData;
-import org.boon.core.reflection.ClassMeta;
-import org.boon.core.reflection.MethodAccess;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -52,9 +55,6 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-
-import static org.boon.Boon.puts;
-import static org.boon.Boon.sputs;
 
 /**
  * @author rhightower on 1/27/15.

@@ -49,7 +49,7 @@ public class TimeKeeperBasic implements TimeKeeper {
 
     private final AtomicInteger callEveryNowAndThen = new AtomicInteger();
     private final AtomicLong time = new AtomicLong();
-    private final int TIME_KEEPER_FREQUENCY = Sys.sysProp( "org.boon.timekeeper.frequency", 100 );
+    private final int TIME_KEEPER_FREQUENCY = Sys.sysProp( "io.advantageous.boon.timekeeper.frequency", 100 );
 
     private final ReentrantLock lock = new ReentrantLock();
 

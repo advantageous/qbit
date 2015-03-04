@@ -59,20 +59,18 @@ import io.advantageous.qbit.client.ClientProxy;
 import io.advantageous.qbit.queue.QueueBuilder;
 import io.advantageous.qbit.service.dispatchers.*;
 import io.advantageous.qbit.test.TimedTesting;
-import org.boon.core.Sys;
+import io.advantageous.boon.core.Sys;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
+import static io.advantageous.boon.Exceptions.die;
 import static io.advantageous.qbit.queue.QueueBuilder.queueBuilder;
 import static io.advantageous.qbit.service.ServiceBuilder.serviceBuilder;
 import static io.advantageous.qbit.service.ServiceBundleBuilder.serviceBundleBuilder;
 import static io.advantageous.qbit.service.dispatchers.ServiceWorkers.shardedWorkers;
-import static io.advantageous.qbit.service.dispatchers.ServiceWorkers.workers;
-import static org.boon.Boon.puts;
-import static org.boon.Exceptions.die;
 
 /**
  * @author rhightower

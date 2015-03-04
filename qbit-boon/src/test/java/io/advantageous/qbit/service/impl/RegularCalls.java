@@ -18,6 +18,8 @@
 
 package io.advantageous.qbit.service.impl;
 
+import io.advantageous.boon.Lists;
+import io.advantageous.boon.core.Sys;
 import io.advantageous.qbit.Services;
 import io.advantageous.qbit.message.MethodCall;
 import io.advantageous.qbit.message.MethodCallBuilder;
@@ -25,15 +27,13 @@ import io.advantageous.qbit.message.Response;
 import io.advantageous.qbit.queue.ReceiveQueue;
 import io.advantageous.qbit.queue.SendQueue;
 import io.advantageous.qbit.service.ServiceQueue;
-import org.boon.Lists;
-import org.boon.core.Sys;
 import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-import static org.boon.Exceptions.die;
+import static io.advantageous.boon.Exceptions.die;
 
 /**
  * Created by Richard on 8/26/14.

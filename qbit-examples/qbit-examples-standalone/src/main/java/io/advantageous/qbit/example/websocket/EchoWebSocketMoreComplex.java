@@ -21,11 +21,11 @@ package io.advantageous.qbit.example.websocket;
 import io.advantageous.qbit.http.client.HttpClient;
 import io.advantageous.qbit.http.server.HttpServer;
 import io.advantageous.qbit.http.websocket.WebSocket;
-import org.boon.core.Sys;
+import io.advantageous.boon.core.Sys;
 
+import static io.advantageous.boon.Boon.puts;
 import static io.advantageous.qbit.http.client.HttpClientBuilder.httpClientBuilder;
 import static io.advantageous.qbit.http.server.HttpServerBuilder.httpServerBuilder;
-import static org.boon.Boon.puts;
 
 /**
  * @author rhightower on 2/16/15.

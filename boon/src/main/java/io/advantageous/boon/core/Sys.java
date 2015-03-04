@@ -184,8 +184,8 @@ public class Sys {
 
     static {
         boolean _inContainer;
-        boolean forceInContainer = Boolean.parseBoolean ( System.getProperty ( "org.boon.forceInContainer", "false" ) );
-        boolean forceNoContainer = Boolean.parseBoolean ( System.getProperty ( "org.boon.forceNoContainer", "false" ) );
+        boolean forceInContainer = Boolean.parseBoolean ( System.getProperty ( "io.advantageous.boon.forceInContainer", "false" ) );
+        boolean forceNoContainer = Boolean.parseBoolean ( System.getProperty ( "io.advantageous.boon.forceNoContainer", "false" ) );
 
         if ( forceNoContainer ) {
             _inContainer = false;

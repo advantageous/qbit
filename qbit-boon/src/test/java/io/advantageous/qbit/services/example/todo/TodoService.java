@@ -21,7 +21,7 @@ package io.advantageous.qbit.services.example.todo;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.boon.Boon.puts;
+import static io.advantageous.boon.Boon.puts;
 
 /**
  * Created by rhightower on 10/24/14.

@@ -19,11 +19,11 @@
 package io.advantageous.qbit;
 
 import io.advantageous.qbit.spi.FactorySPI;
-import org.boon.core.reflection.ClassMeta;
+import io.advantageous.boon.core.reflection.ClassMeta;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static org.boon.Boon.puts;
+import static io.advantageous.boon.Boon.puts;
 
 /**
  * Main interface to QBit.

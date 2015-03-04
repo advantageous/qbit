@@ -31,15 +31,15 @@ import io.advantageous.qbit.message.Response;
 import io.advantageous.qbit.queue.ReceiveQueue;
 import io.advantageous.qbit.service.ServiceBundle;
 import io.advantageous.qbit.service.ServiceBundleBuilder;
-import org.boon.core.Sys;
+import io.advantageous.boon.core.Sys;
 import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import static org.boon.Boon.puts;
-import static org.boon.Exceptions.die;
+import static io.advantageous.boon.Boon.puts;
+import static io.advantageous.boon.Exceptions.die;
 
 /**
  * Created by Richard on 9/30/14.

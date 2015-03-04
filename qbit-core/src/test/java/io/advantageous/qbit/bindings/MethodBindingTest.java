@@ -18,10 +18,11 @@
 
 package io.advantageous.qbit.bindings;
 
-import org.boon.Str;
+import io.advantageous.boon.Str;
 import org.junit.Test;
 
-import static org.boon.Boon.puts;
+import static io.advantageous.boon.Boon.puts;
+
 
 public class MethodBindingTest {
 

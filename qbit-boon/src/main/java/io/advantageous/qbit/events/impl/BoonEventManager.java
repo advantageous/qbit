@@ -18,6 +18,10 @@
 
 package io.advantageous.qbit.events.impl;
 
+import io.advantageous.boon.core.reflection.AnnotationData;
+import io.advantageous.boon.core.reflection.BeanUtils;
+import io.advantageous.boon.core.reflection.ClassMeta;
+import io.advantageous.boon.core.reflection.MethodAccess;
 import io.advantageous.qbit.GlobalConstants;
 import io.advantageous.qbit.annotation.QueueCallback;
 import io.advantageous.qbit.annotation.QueueCallbackType;
@@ -28,10 +32,6 @@ import io.advantageous.qbit.message.Event;
 import io.advantageous.qbit.queue.SendQueue;
 import io.advantageous.qbit.service.ServiceQueue;
 import io.advantageous.qbit.util.Timer;
-import org.boon.core.reflection.AnnotationData;
-import org.boon.core.reflection.BeanUtils;
-import org.boon.core.reflection.ClassMeta;
-import org.boon.core.reflection.MethodAccess;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -39,9 +39,9 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
+import static io.advantageous.boon.Boon.puts;
 import static io.advantageous.qbit.annotation.AnnotationUtils.getListenAnnotation;
 import static io.advantageous.qbit.service.ServiceContext.serviceContext;
-import static org.boon.Boon.puts;
 
 /**
  * @author  rhightower

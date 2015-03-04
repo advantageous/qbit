@@ -57,7 +57,7 @@ import io.advantageous.qbit.transforms.NoOpResponseTransformer;
 import io.advantageous.qbit.transforms.Transformer;
 import io.advantageous.qbit.util.MultiMap;
 import io.advantageous.qbit.util.Timer;
-import org.boon.core.reflection.BeanUtils;
+import io.advantageous.boon.core.reflection.BeanUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -71,8 +71,8 @@ import java.util.concurrent.locks.ReentrantLock;
 
 import static io.advantageous.qbit.QBit.factory;
 import static io.advantageous.qbit.service.ServiceContext.serviceContext;
-import static org.boon.Boon.puts;
-import static org.boon.Boon.sputs;
+import static io.advantageous.boon.Boon.puts;
+import static io.advantageous.boon.Boon.sputs;
 
 /**
  * @author  rhightower on 2/18/15.

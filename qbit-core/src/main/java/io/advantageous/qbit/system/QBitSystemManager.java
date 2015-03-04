@@ -31,7 +31,7 @@ import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.CountDownLatch;
 
-import static org.boon.Boon.puts;
+import static io.advantageous.boon.Boon.puts;
 
 /**
  * Created by rhightower on 2/11/15.

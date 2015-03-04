@@ -18,16 +18,16 @@
 
 package io.advantageous.qbit.metrics;
 
+import io.advantageous.boon.primitive.Arry;
+import io.advantageous.boon.primitive.Int;
+import io.advantageous.boon.primitive.Lng;
 import io.advantageous.qbit.metrics.support.*;
 import io.advantageous.qbit.util.Timer;
-import org.boon.primitive.Arry;
-import org.boon.primitive.Int;
-import org.boon.primitive.Lng;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import static org.boon.Exceptions.die;
+import static io.advantageous.boon.Exceptions.die;
 
 
 public class StatServiceTest {

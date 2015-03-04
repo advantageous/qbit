@@ -65,12 +65,12 @@ import org.junit.Test;
 
 import java.util.function.Predicate;
 
+import static io.advantageous.boon.Exceptions.die;
 import static io.advantageous.qbit.queue.QueueBuilder.queueBuilder;
 import static io.advantageous.qbit.service.ServiceBuilder.serviceBuilder;
 import static io.advantageous.qbit.service.ServiceBundleBuilder.serviceBundleBuilder;
 import static io.advantageous.qbit.service.dispatchers.ServiceWorkers.workers;
-import static org.boon.Boon.puts;
-import static org.boon.Exceptions.die;
+import static io.advantageous.boon.Boon.puts;
 
 public class RoundRobinServiceDispatcherTest extends TimedTesting{
 

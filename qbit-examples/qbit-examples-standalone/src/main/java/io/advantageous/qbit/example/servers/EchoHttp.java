@@ -18,20 +18,20 @@
 
 package io.advantageous.qbit.example.servers;
 
+import io.advantageous.boon.Boon;
+import io.advantageous.boon.core.Sys;
 import io.advantageous.qbit.http.client.HttpClient;
 import io.advantageous.qbit.http.request.HttpRequest;
 import io.advantageous.qbit.http.request.HttpResponse;
 import io.advantageous.qbit.http.server.HttpServer;
-import org.boon.Boon;
-import org.boon.core.Sys;
 
 import java.util.HashMap;
 import java.util.Map;
 
+import static io.advantageous.boon.Boon.puts;
 import static io.advantageous.qbit.http.client.HttpClientBuilder.httpClientBuilder;
 import static io.advantageous.qbit.http.request.HttpRequestBuilder.httpRequestBuilder;
 import static io.advantageous.qbit.http.server.HttpServerBuilder.httpServerBuilder;
-import static org.boon.Boon.puts;
 
 /**
  * Created by rhightower on 2/16/15.

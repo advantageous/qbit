@@ -18,9 +18,9 @@
 
 package io.advantageous.qbit.network.impl;
 
+import io.advantageous.boon.core.Sys;
 import io.advantageous.qbit.network.NetSocket;
 import io.advantageous.qbit.network.NetworkSender;
-import org.boon.core.Sys;
 import org.slf4j.LoggerFactory;
 
 import java.util.function.Consumer;

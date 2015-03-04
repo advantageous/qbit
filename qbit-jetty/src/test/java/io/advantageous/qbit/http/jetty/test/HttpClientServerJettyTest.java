@@ -25,11 +25,12 @@ import io.advantageous.qbit.http.server.HttpServer;
 import io.advantageous.qbit.http.server.HttpServerBuilder;
 import io.advantageous.qbit.http.server.websocket.WebSocketMessageBuilder;
 import io.advantageous.qbit.http.websocket.WebSocket;
-import org.boon.core.Sys;
+import io.advantageous.boon.core.Sys;
 import org.junit.Test;
 
-import static org.boon.Boon.puts;
-import static org.boon.Exceptions.die;
+import static io.advantageous.boon.Boon.puts;
+import static io.advantageous.boon.Exceptions.die;
+
 
 /**
  * @author rhightower on 2/15/15.

@@ -20,7 +20,7 @@ package io.advantageous.qbit.example.inproc;
 
 import io.advantageous.qbit.service.Callback;
 import io.advantageous.qbit.service.ServiceQueue;
-import org.boon.core.Sys;
+import io.advantageous.boon.core.Sys;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -25,9 +25,9 @@ import io.advantageous.qbit.message.Event;
 import org.junit.Before;
 import org.junit.Test;
 
+import static io.advantageous.boon.Exceptions.die;
 import static io.advantageous.qbit.events.EventUtils.callbackEventListener;
-import static org.boon.Boon.puts;
-import static org.boon.Exceptions.die;
+import static io.advantageous.boon.Boon.puts;
 
 public class EventBusImplTest {
 

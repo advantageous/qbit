@@ -27,7 +27,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
-import static org.boon.Boon.sputs;
+import static io.advantageous.boon.Boon.sputs;
 
 /**
  * Created by rhightower on 2/13/15.

@@ -105,7 +105,7 @@ public class Reflection {
             _useUnsafe = false;
         }
 
-        _useUnsafe = _useUnsafe && !Boolean.getBoolean( "org.boon.noUnsafe" );
+        _useUnsafe = _useUnsafe && !Boolean.getBoolean( "io.advantageous.boon.noUnsafe" );
     }
 
     private static final boolean useUnsafe = _useUnsafe;
@@ -118,7 +118,7 @@ public class Reflection {
 
     static {
 
-        boolean noStatics = Boolean.getBoolean( "org.boon.noStatics" );
+        boolean noStatics = Boolean.getBoolean( "io.advantageous.boon.noStatics" );
         if ( noStatics || Sys.inContainer() ) {
 
             _context = null;

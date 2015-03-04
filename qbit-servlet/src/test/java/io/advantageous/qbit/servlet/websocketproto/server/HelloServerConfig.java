@@ -20,7 +20,7 @@ package io.advantageous.qbit.servlet.websocketproto.server;
 
 import io.advantageous.qbit.servlet.websocketproto.protocol.HelloDecoder;
 import io.advantageous.qbit.servlet.websocketproto.protocol.HelloEncoder;
-import org.boon.Lists;
+import io.advantageous.boon.Lists;
 
 import javax.websocket.Decoder;
 import javax.websocket.Encoder;

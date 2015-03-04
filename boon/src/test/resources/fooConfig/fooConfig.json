@@ -2,7 +2,7 @@
 
     "foo":
         {
-        "class":"org.boon.di.CreatorTest$Foo",
+        "class":"io.advantageous.boon.di.CreatorTest$Foo",
         "name": "barFromJsonResource"
         }
 

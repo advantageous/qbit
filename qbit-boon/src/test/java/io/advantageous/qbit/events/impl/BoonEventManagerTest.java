@@ -29,15 +29,15 @@ import io.advantageous.qbit.message.Event;
 import io.advantageous.qbit.service.ServiceQueue;
 import io.advantageous.qbit.service.ServiceProxyUtils;
 import io.advantageous.qbit.test.TimedTesting;
-import org.boon.core.Sys;
+import io.advantageous.boon.core.Sys;
 import org.junit.Before;
 import org.junit.Test;
 
+import static io.advantageous.boon.Boon.puts;
+import static io.advantageous.boon.Exceptions.die;
 import static io.advantageous.qbit.events.EventUtils.callbackEventListener;
 import static io.advantageous.qbit.service.ServiceBuilder.serviceBuilder;
 import static io.advantageous.qbit.service.ServiceContext.serviceContext;
-import static org.boon.Boon.puts;
-import static org.boon.Exceptions.die;
 
 public class BoonEventManagerTest extends TimedTesting {
 

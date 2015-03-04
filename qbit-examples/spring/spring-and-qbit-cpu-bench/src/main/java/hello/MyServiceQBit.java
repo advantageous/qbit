@@ -5,7 +5,7 @@ import io.advantageous.qbit.annotation.RequestMapping;
 import io.advantageous.qbit.annotation.RequestParam;
 import io.advantageous.qbit.queue.QueueBuilder;
 import io.advantageous.qbit.server.ServiceServer;
-import org.boon.core.Sys;
+import io.advantageous.boon.core.Sys;
 
 import java.util.Collections;
 import java.util.List;

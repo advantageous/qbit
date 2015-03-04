@@ -18,8 +18,8 @@
 
 package io.advantageous.qbit.queue;
 
-import org.boon.Lists;
-import org.boon.core.Sys;
+import io.advantageous.boon.Lists;
+import io.advantageous.boon.core.Sys;
 import org.junit.Test;
 
 import java.util.List;
@@ -27,9 +27,9 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
-import static org.boon.Boon.puts;
-import static org.boon.Exceptions.die;
-import static org.boon.core.Sys.sleep;
+import static io.advantageous.boon.Boon.puts;
+import static io.advantageous.boon.Exceptions.die;
+import static io.advantageous.boon.core.Sys.sleep;
 
 /**
  * Created by Richard on 8/11/14.
@@ -190,7 +190,7 @@ public class BasicQueueTest {
 
         writer.start();
 
-        Sys.sleep(100);
+        sleep(100);
 
         reader.start();
 
@@ -354,7 +354,7 @@ public class BasicQueueTest {
         readerThread.start();
         writerThread.join();
         readerThread.join();
-        Sys.sleep(1000); //simulate a long sleep
+        sleep(1000); //simulate a long sleep
         sendQueue.stop();
 
         puts(count);

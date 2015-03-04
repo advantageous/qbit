@@ -24,14 +24,14 @@ import io.advantageous.qbit.message.MethodCallBuilder;
 import io.advantageous.qbit.message.Response;
 import io.advantageous.qbit.queue.ReceiveQueue;
 import io.advantageous.qbit.queue.SendQueue;
-import org.boon.Lists;
+import io.advantageous.boon.Lists;
 import org.junit.Test;
 
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-import static org.boon.Boon.fromJson;
-import static org.boon.Exceptions.die;
+import static io.advantageous.boon.Boon.fromJson;
+import static io.advantageous.boon.Exceptions.die;
 
 /**
  * Created by Richard on 8/11/14.

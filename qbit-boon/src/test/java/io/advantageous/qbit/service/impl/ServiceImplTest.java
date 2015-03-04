@@ -22,7 +22,7 @@ import io.advantageous.qbit.QBit;
 import io.advantageous.qbit.service.Callback;
 import io.advantageous.qbit.service.ServiceQueue;
 import io.advantageous.qbit.service.ServiceBuilder;
-import org.boon.core.Sys;
+import io.advantageous.boon.core.Sys;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -30,8 +30,9 @@ import org.junit.Test;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
-import static org.boon.Boon.puts;
-import static org.boon.Exceptions.die;
+import static io.advantageous.boon.Boon.puts;
+import static io.advantageous.boon.Exceptions.die;
+
 
 public class ServiceImplTest {
 

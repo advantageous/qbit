@@ -18,6 +18,9 @@
 
 package io.advantageous.qbit.vertx.http.client;
 
+import io.advantageous.boon.Str;
+import io.advantageous.boon.core.Sys;
+import io.advantageous.boon.primitive.CharBuf;
 import io.advantageous.qbit.GlobalConstants;
 import io.advantageous.qbit.concurrent.ExecutorContext;
 import io.advantageous.qbit.http.client.HttpClient;
@@ -27,9 +30,6 @@ import io.advantageous.qbit.http.websocket.WebSocketSender;
 import io.advantageous.qbit.network.NetSocket;
 import io.advantageous.qbit.util.MultiMap;
 import io.advantageous.qbit.vertx.MultiMapWrapper;
-import org.boon.Str;
-import org.boon.core.Sys;
-import org.boon.primitive.CharBuf;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.vertx.java.core.Vertx;
@@ -48,10 +48,10 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 
+import static io.advantageous.boon.Boon.puts;
+import static io.advantageous.boon.Boon.sputs;
 import static io.advantageous.qbit.concurrent.ScheduledExecutorBuilder.scheduledExecutorBuilder;
 import static io.advantageous.qbit.http.websocket.WebSocketBuilder.webSocketBuilder;
-import static org.boon.Boon.puts;
-import static org.boon.Boon.sputs;
 
 /**
  * @author rhightower on 1/30/15.

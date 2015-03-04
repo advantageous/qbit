@@ -26,7 +26,7 @@ import io.advantageous.qbit.queue.SendQueue;
 import io.advantageous.qbit.service.Callback;
 import io.advantageous.qbit.service.ServiceQueue;
 import io.advantageous.qbit.spi.RegisterBoonWithQBit;
-import org.boon.core.Sys;
+import io.advantageous.boon.core.Sys;
 import org.junit.Test;
 
 import java.util.Date;
@@ -34,8 +34,8 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 
+import static io.advantageous.boon.Exceptions.die;
 import static io.advantageous.qbit.service.ServiceBuilder.serviceBuilder;
-import static org.boon.Exceptions.die;
 
 /**
  * Created by rhightower on 10/24/14.

@@ -19,6 +19,8 @@
 package io.advantageous.qbit.vertx.http.server;
 
 
+import io.advantageous.boon.Str;
+import io.advantageous.boon.core.reflection.BeanUtils;
 import io.advantageous.qbit.GlobalConstants;
 import io.advantageous.qbit.http.config.HttpServerOptions;
 import io.advantageous.qbit.http.request.HttpRequest;
@@ -28,8 +30,6 @@ import io.advantageous.qbit.http.server.websocket.WebSocketMessage;
 import io.advantageous.qbit.http.websocket.WebSocket;
 import io.advantageous.qbit.system.QBitSystemManager;
 import io.advantageous.qbit.util.Timer;
-import org.boon.Str;
-import org.boon.core.reflection.BeanUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.vertx.java.core.Vertx;

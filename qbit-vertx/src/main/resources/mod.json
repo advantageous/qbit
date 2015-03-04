@@ -1,5 +1,5 @@
 {
-  "main": "org.boon.qbit.vertx.example.httpServer.QBitVerticle",
+  "main": "io.advantageous.boon.qbit.vertx.example.httpServer.QBitVerticle",
   "name": "emp",
   "owner": "qbit",
   "version": "1.0",

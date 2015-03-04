@@ -26,8 +26,8 @@ import org.vertx.java.core.buffer.Buffer;
 import java.nio.charset.StandardCharsets;
 import java.util.Collection;
 
-import static org.boon.Boon.puts;
-import static org.boon.Exceptions.die;
+import static io.advantageous.boon.Boon.puts;
+import static io.advantageous.boon.Exceptions.die;
 
 public class BufferUtilsTest {
 

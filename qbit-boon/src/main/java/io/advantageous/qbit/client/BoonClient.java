@@ -18,6 +18,14 @@
 
 package io.advantageous.qbit.client;
 
+import io.advantageous.boon.Str;
+import io.advantageous.boon.StringScanner;
+import io.advantageous.boon.core.Conversions;
+import io.advantageous.boon.core.Sys;
+import io.advantageous.boon.core.reflection.ClassMeta;
+import io.advantageous.boon.core.reflection.MapObjectConversion;
+import io.advantageous.boon.core.reflection.MethodAccess;
+import io.advantageous.boon.primitive.Arry;
 import io.advantageous.qbit.QBit;
 import io.advantageous.qbit.http.client.HttpClient;
 import io.advantageous.qbit.http.websocket.WebSocket;
@@ -27,16 +35,8 @@ import io.advantageous.qbit.message.Response;
 import io.advantageous.qbit.message.impl.MethodCallImpl;
 import io.advantageous.qbit.service.BeforeMethodCall;
 import io.advantageous.qbit.service.Callback;
-import org.boon.Boon;
-import org.boon.Logger;
-import org.boon.Str;
-import org.boon.StringScanner;
-import org.boon.core.Conversions;
-import org.boon.core.Sys;
-import org.boon.core.reflection.ClassMeta;
-import org.boon.core.reflection.MapObjectConversion;
-import org.boon.core.reflection.MethodAccess;
-import org.boon.primitive.Arry;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
@@ -46,9 +46,10 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-import static io.advantageous.qbit.service.Protocol.PROTOCOL_ARG_SEPARATOR;
-import static org.boon.Boon.sputs;
-import static org.boon.Exceptions.die;
+import static io.advantageous.boon.Boon.sputs;
+import static io.advantageous.boon.Exceptions.die;
+import static io.advantageous.qbit.service.Protocol.*;
+
 
 
 /**
@@ -79,7 +80,7 @@ public class BoonClient implements Client {
     /**
      * Logger.
      */
-    private Logger logger = Boon.logger(BoonClient.class);
+    private Logger logger = LoggerFactory.getLogger(BoonClient.class);
     /**
      * List of client proxies that we are managing for periodic flush.
      */
@@ -109,7 +110,7 @@ public class BoonClient implements Client {
                 httpServerProxy.stop();
             } catch ( Exception ex ) {
 
-                logger.warn(ex, "Problem closing httpServerProxy ");
+                logger.warn("Problem closing httpServerProxy ", ex);
             }
         }
     }
@@ -131,7 +132,7 @@ public class BoonClient implements Client {
         for ( Message<Object> message : messages ) {
             if ( message instanceof Response ) {
                 final Response<Object> response = ( ( Response ) message );
-                final String[] split = StringScanner.split(response.returnAddress(), ( char ) PROTOCOL_ARG_SEPARATOR);
+                final String[] split = StringScanner.split(response.returnAddress(), (char) PROTOCOL_ARG_SEPARATOR);
                 final HandlerKey key = split.length == 2 ? new HandlerKey(split[ 1 ], response.id()) : new HandlerKey(split[ 0 ], response.id());
                 final Callback<Object> handler = handlers.get(key);
 
@@ -311,7 +312,7 @@ public class BoonClient implements Client {
                     if ( componentClass != null && actualReturnType == List.class ) {
 
                         try {
-                            event = MapObjectConversion.convertListOfMapsToObjects(componentClass, ( List ) event);
+                            event = MapObjectConversion.convertListOfMapsToObjects(componentClass, (List) event);
                         } catch ( Exception ex ) {
                             if ( event instanceof CharSequence ) {
                                 String errorMessage = event.toString();

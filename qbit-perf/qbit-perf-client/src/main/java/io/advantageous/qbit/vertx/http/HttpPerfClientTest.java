@@ -22,13 +22,13 @@ import io.advantageous.qbit.http.client.HttpClient;
 import io.advantageous.qbit.http.client.HttpClientBuilder;
 import io.advantageous.qbit.http.request.HttpRequest;
 import io.advantageous.qbit.http.request.HttpRequestBuilder;
-import org.boon.core.Sys;
+import io.advantageous.boon.core.Sys;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.LongAdder;
 
-import static org.boon.Boon.puts;
+import static io.advantageous.boon.Boon.puts;
 
 /**
  * Created by rhightower on 11/12/14.

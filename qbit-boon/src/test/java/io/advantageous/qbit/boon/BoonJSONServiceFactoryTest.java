@@ -28,7 +28,7 @@ import org.junit.Test;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.boon.Exceptions.die;
+import static io.advantageous.boon.Exceptions.die;
 
 public class BoonJSONServiceFactoryTest {
 

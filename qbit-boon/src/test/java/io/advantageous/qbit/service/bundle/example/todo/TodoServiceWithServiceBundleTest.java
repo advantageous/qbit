@@ -25,13 +25,14 @@ import io.advantageous.qbit.queue.ReceiveQueue;
 import io.advantageous.qbit.service.ServiceBundle;
 import io.advantageous.qbit.service.ServiceBundleBuilder;
 import io.advantageous.qbit.spi.RegisterBoonWithQBit;
-import org.boon.core.Sys;
+import io.advantageous.boon.core.Sys;
 import org.junit.Test;
 
 import java.util.Date;
 import java.util.List;
 
-import static org.boon.Exceptions.die;
+import static io.advantageous.boon.Exceptions.die;
+
 
 /**
  * Created by rhightower on 10/24/14.

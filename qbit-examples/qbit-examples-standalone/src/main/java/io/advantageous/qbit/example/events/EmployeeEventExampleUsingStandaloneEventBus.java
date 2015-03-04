@@ -21,7 +21,7 @@ package io.advantageous.qbit.example.events;
 import io.advantageous.qbit.QBit;
 import io.advantageous.qbit.events.EventManager;
 import io.advantageous.qbit.service.ServiceQueue;
-import org.boon.core.Sys;
+import io.advantageous.boon.core.Sys;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

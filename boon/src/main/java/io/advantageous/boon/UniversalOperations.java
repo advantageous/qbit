@@ -102,8 +102,8 @@ public interface UniversalOperations<ITEM, INDEX> {
      * Int (in progress)
      * Lng (in progress)
      * Arry
-     * org.boon.core.Strings (planned)
-     * org.boon.core.StrBuf (planned)
+     * io.advantageous.boon.core.Strings (planned)
+     * io.advantageous.boon.core.StrBuf (planned)
      * Lists
      * Maps
      * Sets
@@ -290,8 +290,8 @@ public interface UniversalOperations<ITEM, INDEX> {
      * Int (in progress)
      * Lng (in progress)
      * Arry
-     * org.boon.core.Strings (planned)
-     * org.boon.core.StrBuf (planned)
+     * io.advantageous.boon.core.Strings (planned)
+     * io.advantageous.boon.core.StrBuf (planned)
      * Lists
      * Maps
      * Sets
@@ -322,8 +322,8 @@ public interface UniversalOperations<ITEM, INDEX> {
      * Int (in progress)
      * Lng (in progress)
      * Arry
-     * org.boon.core.Strings (planned)
-     * org.boon.core.StrBuf (planned)
+     * io.advantageous.boon.core.Strings (planned)
+     * io.advantageous.boon.core.StrBuf (planned)
      * Lists
      * Maps
      * Sets
@@ -356,8 +356,8 @@ public interface UniversalOperations<ITEM, INDEX> {
      * Int (in progress)
      * Lng (in progress)
      * Arry
-     * org.boon.core.Strings (planned)
-     * org.boon.core.StrBuf (planned)
+     * io.advantageous.boon.core.Strings (planned)
+     * io.advantageous.boon.core.StrBuf (planned)
      * Lists
      * Maps
      * Sets
@@ -388,8 +388,8 @@ public interface UniversalOperations<ITEM, INDEX> {
      * Int (in progress)
      * Lng (in progress)
      * Arry
-     * org.boon.core.Strings (planned)
-     * org.boon.core.StrBuf (planned)
+     * io.advantageous.boon.core.Strings (planned)
+     * io.advantageous.boon.core.StrBuf (planned)
      * Lists
      * Maps
      * Sets
@@ -417,8 +417,8 @@ public interface UniversalOperations<ITEM, INDEX> {
      * Int (in progress)
      * Lng (in progress)
      * Arry
-     * org.boon.core.Strings (planned)
-     * org.boon.core.StrBuf (planned)
+     * io.advantageous.boon.core.Strings (planned)
+     * io.advantageous.boon.core.StrBuf (planned)
      * Lists
      * </pre>
      *
@@ -529,8 +529,8 @@ public interface UniversalOperations<ITEM, INDEX> {
      * Int (in progress)
      * Lng (in progress)
      * Arry
-     * org.boon.core.Strings (planned)
-     * org.boon.core.StrBuf (planned)
+     * io.advantageous.boon.core.Strings (planned)
+     * io.advantageous.boon.core.StrBuf (planned)
      * Lists
      * </pre>
      *

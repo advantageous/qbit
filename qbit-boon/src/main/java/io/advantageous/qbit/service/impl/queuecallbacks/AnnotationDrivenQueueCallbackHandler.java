@@ -18,11 +18,11 @@
 
 package io.advantageous.qbit.service.impl.queuecallbacks;
 
+import io.advantageous.boon.core.reflection.AnnotationData;
+import io.advantageous.boon.core.reflection.ClassMeta;
+import io.advantageous.boon.core.reflection.MethodAccess;
 import io.advantageous.qbit.annotation.QueueCallbackType;
 import io.advantageous.qbit.queue.QueueCallBackHandler;
-import org.boon.core.reflection.AnnotationData;
-import org.boon.core.reflection.ClassMeta;
-import org.boon.core.reflection.MethodAccess;
 
 /**
  * @author rhightower on 2/10/15.

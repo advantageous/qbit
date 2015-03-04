@@ -18,7 +18,7 @@
 
 package io.advantageous.qbit.example.queues;
 
-import org.boon.core.Sys;
+import io.advantageous.boon.core.Sys;
 
 import java.util.ArrayList;
 import java.util.List;

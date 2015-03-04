@@ -19,13 +19,14 @@
 package io.advantageous.qbit.servlet.websocketproto.protocol;
 
 import io.advantageous.qbit.servlet.websocketproto.model.Hello;
-import org.boon.Boon;
+import io.advantageous.boon.Boon;
 
 import javax.websocket.DecodeException;
 import javax.websocket.Decoder;
 import javax.websocket.EndpointConfig;
 
-import static org.boon.Boon.puts;
+import static io.advantageous.boon.Boon.puts;
+
 
 /**
  * @author rhightower on 2/12/15.

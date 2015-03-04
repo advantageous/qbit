@@ -22,7 +22,7 @@ import io.advantageous.qbit.queue.Queue;
 import io.advantageous.qbit.queue.QueueBuilder;
 import io.advantageous.qbit.queue.ReceiveQueue;
 import io.advantageous.qbit.queue.SendQueue;
-import org.boon.core.Sys;
+import io.advantageous.boon.core.Sys;
 
 import java.util.ArrayList;
 import java.util.List;

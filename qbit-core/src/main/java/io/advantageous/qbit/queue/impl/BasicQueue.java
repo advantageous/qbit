@@ -24,8 +24,8 @@ import io.advantageous.qbit.QBit;
 import io.advantageous.qbit.concurrent.ExecutorContext;
 import io.advantageous.qbit.concurrent.PeriodicScheduler;
 import io.advantageous.qbit.queue.*;
-import org.boon.core.reflection.ClassMeta;
-import org.boon.core.reflection.ConstructorAccess;
+import io.advantageous.boon.core.reflection.ClassMeta;
+import io.advantageous.boon.core.reflection.ConstructorAccess;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,7 +35,7 @@ import java.util.concurrent.TransferQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import static io.advantageous.qbit.concurrent.ScheduledExecutorBuilder.scheduledExecutorBuilder;
-import static org.boon.Boon.sputs;
+import static io.advantageous.boon.Boon.sputs;
 
 /**
  * This is the base for all the queues we use.

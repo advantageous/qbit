@@ -18,6 +18,11 @@
 
 package io.advantageous.qbit.service.impl;
 
+import io.advantageous.boon.Boon;
+import io.advantageous.boon.Lists;
+import io.advantageous.boon.Str;
+import io.advantageous.boon.core.Conversions;
+import io.advantageous.boon.core.Sys;
 import io.advantageous.qbit.Factory;
 import io.advantageous.qbit.QBit;
 import io.advantageous.qbit.message.MethodCall;
@@ -27,11 +32,6 @@ import io.advantageous.qbit.service.Callback;
 import io.advantageous.qbit.service.ServiceBundle;
 import io.advantageous.qbit.service.ServiceBundleBuilder;
 import io.advantageous.qbit.util.MultiMap;
-import org.boon.Boon;
-import org.boon.Lists;
-import org.boon.Str;
-import org.boon.core.Conversions;
-import org.boon.core.Sys;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -39,8 +39,8 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
-import static org.boon.Boon.puts;
-import static org.boon.Exceptions.die;
+import static io.advantageous.boon.Boon.puts;
+import static io.advantageous.boon.Exceptions.die;
 
 public class ServiceBundleImplTest {
 

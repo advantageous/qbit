@@ -23,15 +23,18 @@ import io.advantageous.qbit.http.request.HttpRequest;
 import io.advantageous.qbit.http.request.HttpResponse;
 import io.advantageous.qbit.http.request.HttpTextReceiver;
 import io.advantageous.qbit.http.server.HttpServer;
-import org.boon.core.Sys;
+import io.advantageous.boon.core.Sys;
 
 import java.util.HashMap;
 import java.util.Map;
 
+import static io.advantageous.boon.Boon.fromJson;
+import static io.advantageous.boon.Boon.puts;
+import static io.advantageous.boon.Boon.toJson;
 import static io.advantageous.qbit.http.client.HttpClientBuilder.httpClientBuilder;
 import static io.advantageous.qbit.http.request.HttpRequestBuilder.httpRequestBuilder;
 import static io.advantageous.qbit.http.server.HttpServerBuilder.httpServerBuilder;
-import static org.boon.Boon.*;
+
 
 
 /**

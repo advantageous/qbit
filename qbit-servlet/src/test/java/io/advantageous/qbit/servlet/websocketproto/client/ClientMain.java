@@ -19,7 +19,7 @@
 package io.advantageous.qbit.servlet.websocketproto.client;
 
 import io.advantageous.qbit.servlet.websocketproto.model.Hello;
-import org.boon.core.Sys;
+import io.advantageous.boon.core.Sys;
 import org.eclipse.jetty.util.component.LifeCycle;
 
 import javax.websocket.ContainerProvider;
@@ -27,7 +27,8 @@ import javax.websocket.Session;
 import javax.websocket.WebSocketContainer;
 import java.net.URI;
 
-import static org.boon.Boon.puts;
+import static io.advantageous.boon.Boon.puts;
+
 
 /**
  * @author rhightower on 2/12/15.

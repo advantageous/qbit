@@ -25,7 +25,7 @@ import io.advantageous.qbit.http.request.HttpTextReceiver;
 import io.advantageous.qbit.http.server.HttpServer;
 import io.advantageous.qbit.http.server.websocket.WebSocketMessage;
 import io.advantageous.qbit.util.MultiMap;
-import org.boon.Boon;
+import io.advantageous.boon.Boon;
 
 import java.util.function.Consumer;
 

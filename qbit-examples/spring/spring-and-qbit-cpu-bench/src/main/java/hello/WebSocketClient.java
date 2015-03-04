@@ -3,12 +3,12 @@ package hello;
 import io.advantageous.qbit.client.Client;
 import io.advantageous.qbit.client.ClientBuilder;
 import io.advantageous.qbit.service.Callback;
-import org.boon.core.Sys;
+import io.advantageous.boon.core.Sys;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.boon.Boon.puts;
+imio.advantageous.boontic org.boon.Boon.puts;
 
 /**
  * Created by rhightower on 2/3/15.

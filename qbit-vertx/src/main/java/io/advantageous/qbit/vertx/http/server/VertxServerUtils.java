@@ -18,6 +18,8 @@
 
 package io.advantageous.qbit.vertx.http.server;
 
+import io.advantageous.boon.Str;
+import io.advantageous.boon.StringScanner;
 import io.advantageous.qbit.GlobalConstants;
 import io.advantageous.qbit.http.request.HttpRequest;
 import io.advantageous.qbit.http.request.HttpResponseReceiver;
@@ -26,8 +28,6 @@ import io.advantageous.qbit.http.websocket.WebSocketSender;
 import io.advantageous.qbit.util.MultiMap;
 import io.advantageous.qbit.util.MultiMapImpl;
 import io.advantageous.qbit.vertx.MultiMapWrapper;
-import org.boon.Str;
-import org.boon.StringScanner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.vertx.java.core.buffer.Buffer;
@@ -39,8 +39,9 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 
+import static io.advantageous.boon.Boon.sputs;
 import static io.advantageous.qbit.http.websocket.WebSocketBuilder.webSocketBuilder;
-import static org.boon.Boon.sputs;
+
 
 /**
  * Created by rhightower on 2/15/15.

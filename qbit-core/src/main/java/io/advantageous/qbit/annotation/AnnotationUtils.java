@@ -18,8 +18,8 @@
 
 package io.advantageous.qbit.annotation;
 
-import org.boon.core.reflection.AnnotationData;
-import org.boon.core.reflection.MethodAccess;
+import io.advantageous.boon.core.reflection.AnnotationData;
+import io.advantageous.boon.core.reflection.MethodAccess;
 
 /**
  * Created by rhightower on 2/4/15.

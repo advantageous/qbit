@@ -18,6 +18,9 @@
 
 package io.advantageous.qbit.spi;
 
+import io.advantageous.boon.Boon;
+import io.advantageous.boon.Lists;
+import io.advantageous.boon.Str;
 import io.advantageous.qbit.message.Message;
 import io.advantageous.qbit.message.MethodCall;
 import io.advantageous.qbit.message.MethodCallBuilder;
@@ -25,17 +28,14 @@ import io.advantageous.qbit.message.Response;
 import io.advantageous.qbit.message.impl.ResponseImpl;
 import io.advantageous.qbit.util.MultiMap;
 import io.advantageous.qbit.util.MultiMapImpl;
-import org.boon.Boon;
-import org.boon.Lists;
-import org.boon.Str;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.boon.Boon.puts;
-import static org.boon.Exceptions.die;
+import static io.advantageous.boon.Boon.puts;
+import static io.advantageous.boon.Exceptions.die;
 
 /**
  * Created by Richard on 9/26/14.
@@ -70,8 +70,6 @@ public class ProtocolParserVersion1Test {
         ResponseImpl<Object> response = new ResponseImpl<>(1L, 2L, "addr", "Raddr", null, "body", null, false);
 
         final String s = encoder.encodeAsString(response);
-
-        puts(s);
 
 
         ProtocolParser parser = new BoonProtocolParser();

@@ -9,7 +9,7 @@ import io.advantageous.qbit.server.ServiceServer;
 import io.advantageous.qbit.spi.RegisterBoonWithQBit;
 import io.advantageous.qbit.test.TimedTesting;
 import io.advantageous.qbit.vertx.RegisterVertxWithQBit;
-import org.boon.core.Sys;
+import io.advantageous.boon.core.Sys;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;

@@ -23,12 +23,13 @@ import io.advantageous.qbit.http.client.HttpClient;
 import io.advantageous.qbit.http.client.HttpClientBuilder;
 import io.advantageous.qbit.spi.FactorySPI;
 import io.advantageous.qbit.spi.HttpClientFactory;
-import org.boon.core.Sys;
+import io.advantageous.boon.core.Sys;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import static org.boon.Exceptions.die;
+import static io.advantageous.boon.Exceptions.die;
+
 
 public class HttpClientBuilderTest {
 

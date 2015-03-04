@@ -22,11 +22,11 @@ import io.advantageous.qbit.GlobalConstants;
 import io.advantageous.qbit.queue.ReceiveQueue;
 import io.advantageous.qbit.queue.ReceiveQueueListener;
 import io.advantageous.qbit.queue.ReceiveQueueManager;
-import org.boon.core.Sys;
+import io.advantageous.boon.core.Sys;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import static org.boon.Boon.puts;
+import static io.advantageous.boon.Boon.puts;
 
 
 /**

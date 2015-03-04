@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.Collections;
 import java.util.List;
 
-import static org.boon.Boon.puts;
+import static io.advantageous.boon.Boon.puts;
 
 /*
  ./wrk -c 3000 -d 10s http://localhost:8080/services/myservice/ping -H "X_USER_ID: RICK"   --timeout 100000s -t 8

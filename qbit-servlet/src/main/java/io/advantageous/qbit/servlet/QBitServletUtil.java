@@ -21,7 +21,7 @@ package io.advantageous.qbit.servlet;
 import io.advantageous.qbit.http.request.HttpRequest;
 import io.advantageous.qbit.http.request.HttpRequestBuilder;
 import io.advantageous.qbit.util.MultiMap;
-import org.boon.IO;
+import io.advantageous.boon.IO;
 
 import javax.servlet.AsyncContext;
 import javax.servlet.ServletInputStream;

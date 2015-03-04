@@ -18,14 +18,14 @@
 
 package io.advantageous.qbit.events.impl;
 
+import io.advantageous.boon.Sets;
+import io.advantageous.boon.Str;
+import io.advantageous.boon.core.Sys;
+import io.advantageous.boon.core.reflection.ClassMeta;
 import io.advantageous.qbit.client.ClientProxy;
 import io.advantageous.qbit.events.EventBusProxyCreator;
 import io.advantageous.qbit.events.EventManager;
-import org.boon.Sets;
-import org.boon.Str;
-import org.boon.core.Sys;
-import org.boon.core.reflection.AnnotationData;
-import org.boon.core.reflection.ClassMeta;
+import io.advantageous.boon.core.reflection.AnnotationData;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Proxy;
@@ -33,8 +33,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
+import static io.advantageous.boon.core.reflection.ClassMeta.classMeta;
 import static io.advantageous.qbit.service.ServiceProxyUtils.flushServiceProxy;
-import static org.boon.core.reflection.ClassMeta.classMeta;
 
 /**
  * Created by rhightower on 2/11/15.

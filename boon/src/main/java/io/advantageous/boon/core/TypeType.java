@@ -351,7 +351,7 @@ public enum TypeType {
                 case "CharSequenceValue":
                     return TypeType.VALUE;
 
-                case "org.boon.core.Handler":
+                case "io.advantageous.boon.core.Handler":
                     return TypeType.HANDLER;
 
                 case "java.lang.Object":

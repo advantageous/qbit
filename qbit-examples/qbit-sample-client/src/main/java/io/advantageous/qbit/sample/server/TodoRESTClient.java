@@ -18,14 +18,14 @@
 
 package io.advantageous.qbit.sample.server;
 
+import io.advantageous.boon.Boon;
+import io.advantageous.boon.HTTP;
 import io.advantageous.qbit.sample.server.model.TodoItem;
-import org.boon.Boon;
-import org.boon.HTTP;
 
 import java.util.Date;
 import java.util.List;
 
-import static org.boon.Boon.puts;
+import static io.advantageous.boon.Boon.puts;
 
 /**
  * Created by rhightower on 11/6/14.

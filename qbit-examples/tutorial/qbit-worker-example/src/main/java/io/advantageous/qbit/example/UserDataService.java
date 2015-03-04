@@ -5,12 +5,12 @@ import io.advantageous.qbit.annotation.QueueCallback;
 import io.advantageous.qbit.annotation.QueueCallbackType;
 import io.advantageous.qbit.annotation.Service;
 import io.advantageous.qbit.service.Callback;
-import org.boon.core.Sys;
+import io.advantageous.boon.core.Sys;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.boon.Boon.puts;
+imio.advantageous.boontic org.boon.Boon.puts;
 
 
 @Service

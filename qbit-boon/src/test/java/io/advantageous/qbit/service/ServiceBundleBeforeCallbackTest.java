@@ -21,13 +21,14 @@ package io.advantageous.qbit.service;
 import io.advantageous.qbit.QBit;
 import io.advantageous.qbit.message.MethodCall;
 import io.advantageous.qbit.util.MultiMap;
-import org.boon.core.Sys;
+import io.advantageous.boon.core.Sys;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.util.Collections;
 
-import static org.boon.Exceptions.die;
+import static io.advantageous.boon.Exceptions.die;
+
 
 /**
  * Created by rhightower on 1/19/15.

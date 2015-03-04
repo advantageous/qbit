@@ -23,7 +23,7 @@ import io.advantageous.qbit.http.client.HttpClient;
 import io.advantageous.qbit.http.request.HttpRequest;
 import io.advantageous.qbit.http.websocket.WebSocket;
 import io.advantageous.qbit.util.MultiMap;
-import org.boon.Str;
+import io.advantageous.boon.Str;
 import org.eclipse.jetty.client.api.Request;
 import org.eclipse.jetty.client.api.Result;
 import org.eclipse.jetty.client.util.BufferingResponseListener;
@@ -41,8 +41,8 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.function.Consumer;
 
+import static io.advantageous.boon.Boon.puts;
 import static io.advantageous.qbit.http.websocket.WebSocketBuilder.webSocketBuilder;
-import static org.boon.Boon.puts;
 
 /**
  * @author rhightower on 2/14/15.

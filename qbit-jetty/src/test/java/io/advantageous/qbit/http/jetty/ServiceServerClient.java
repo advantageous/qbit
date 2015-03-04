@@ -22,9 +22,9 @@ import io.advantageous.qbit.client.Client;
 import io.advantageous.qbit.client.ClientBuilder;
 import io.advantageous.qbit.service.Callback;
 import io.advantageous.qbit.service.ServiceProxyUtils;
-import org.boon.core.Sys;
+import io.advantageous.boon.core.Sys;
 
-import static org.boon.Boon.puts;
+import static io.advantageous.boon.Boon.puts;
 
 
 /**

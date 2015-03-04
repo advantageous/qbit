@@ -33,12 +33,13 @@ import io.advantageous.qbit.server.ServiceServerBuilder;
 import io.advantageous.qbit.service.Callback;
 import io.advantageous.qbit.spi.FactorySPI;
 import io.advantageous.qbit.spi.HttpClientFactory;
-import org.boon.core.Sys;
+import io.advantageous.boon.core.Sys;
 
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Consumer;
 
-import static org.boon.Boon.puts;
+import static io.advantageous.boon.Boon.puts;
+
 
 /**
  * Created by Richard on 12/7/14.

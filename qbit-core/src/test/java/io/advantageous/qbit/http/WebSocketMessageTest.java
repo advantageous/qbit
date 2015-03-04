@@ -21,12 +21,13 @@ package io.advantageous.qbit.http;
 import io.advantageous.qbit.http.server.websocket.WebSocketMessage;
 import io.advantageous.qbit.http.server.websocket.WebSocketMessageBuilder;
 import io.advantageous.qbit.http.websocket.WebSocketSender;
-import org.boon.core.reflection.BeanUtils;
+import io.advantageous.boon.core.reflection.BeanUtils;
 import org.junit.Before;
 import org.junit.Test;
 
-import static org.boon.Boon.puts;
-import static org.boon.Exceptions.die;
+import static io.advantageous.boon.Boon.puts;
+import static io.advantageous.boon.Exceptions.die;
+
 
 public class WebSocketMessageTest {
 

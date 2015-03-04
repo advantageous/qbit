@@ -24,8 +24,8 @@ import io.advantageous.qbit.http.request.HttpResponse;
 import io.advantageous.qbit.http.request.HttpTextReceiver;
 import io.advantageous.qbit.http.websocket.WebSocket;
 import io.advantageous.qbit.util.MultiMap;
-import org.boon.core.Sys;
-import org.boon.core.reflection.BeanUtils;
+import io.advantageous.boon.core.Sys;
+import io.advantageous.boon.core.reflection.BeanUtils;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -33,7 +33,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 
 import static io.advantageous.qbit.http.request.HttpRequestBuilder.httpRequestBuilder;
-import static org.boon.Boon.sputs;
+import static io.advantageous.boon.Boon.sputs;
 
 /**
  * This is an interface that allows users to forwardEvent HTTP requests to a server.

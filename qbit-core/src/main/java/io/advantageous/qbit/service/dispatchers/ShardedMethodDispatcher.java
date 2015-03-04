@@ -28,7 +28,7 @@ import io.advantageous.qbit.queue.SendQueue;
 
 import java.util.concurrent.TimeUnit;
 
-import static org.boon.Boon.puts;
+import static io.advantageous.boon.Boon.puts;
 
 /**
  * @author  rhightower

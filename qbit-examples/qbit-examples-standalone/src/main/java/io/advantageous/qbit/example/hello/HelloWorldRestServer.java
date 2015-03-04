@@ -24,7 +24,7 @@ import io.advantageous.qbit.system.QBitSystemManager;
 
 import static io.advantageous.qbit.http.server.HttpServerBuilder.httpServerBuilder;
 import static io.advantageous.qbit.server.ServiceServerBuilder.serviceServerBuilder;
-import static org.boon.Boon.resource;
+import static io.advantageous.boon.Boon.resource;
 
 /**
  * Created by rhightower on 2/9/15.

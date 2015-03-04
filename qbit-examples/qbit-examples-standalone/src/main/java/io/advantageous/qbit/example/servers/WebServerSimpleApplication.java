@@ -20,7 +20,7 @@ package io.advantageous.qbit.example.servers;
 
 import io.advantageous.qbit.http.server.HttpServer;
 import io.advantageous.qbit.http.server.HttpServerBuilder;
-import org.boon.Boon;
+import io.advantageous.boon.Boon;
 
 
 /**

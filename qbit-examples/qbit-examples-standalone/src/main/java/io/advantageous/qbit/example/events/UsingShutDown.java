@@ -28,11 +28,11 @@ import io.advantageous.qbit.events.EventManager;
 import io.advantageous.qbit.service.ServiceQueue;
 import io.advantageous.qbit.service.ServiceBuilder;
 import io.advantageous.qbit.system.QBitSystemManager;
-import org.boon.core.Sys;
+import io.advantageous.boon.core.Sys;
 
+import static io.advantageous.boon.Boon.puts;
 import static io.advantageous.qbit.service.ServiceBuilder.serviceBuilder;
 import static io.advantageous.qbit.service.ServiceProxyUtils.flushServiceProxy;
-import static org.boon.Boon.puts;
 
 /**
  * Created by rhightower on 2/11/15.

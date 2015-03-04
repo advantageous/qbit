@@ -25,7 +25,7 @@ import io.advantageous.qbit.servlet.websocketproto.protocol.HelloEncoder;
 import javax.websocket.*;
 import java.io.IOException;
 
-import static org.boon.Boon.puts;
+import static io.advantageous.boon.Boon.puts;
 
 /**
  * @author rhightower on 2/12/15.

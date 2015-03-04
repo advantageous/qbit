@@ -18,14 +18,14 @@
 
 package io.advantageous.qbit.boon;
 
+import io.advantageous.boon.Str;
+import io.advantageous.boon.primitive.CharBuf;
 import io.advantageous.qbit.Factory;
 import io.advantageous.qbit.client.ClientProxy;
 import io.advantageous.qbit.client.ServiceProxyFactory;
 import io.advantageous.qbit.message.MethodCall;
 import io.advantageous.qbit.service.EndPoint;
 import io.advantageous.qbit.util.Timer;
-import org.boon.Str;
-import org.boon.primitive.CharBuf;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;

@@ -56,7 +56,7 @@ package io.advantageous.qbit.service.dispatchers;
 import io.advantageous.qbit.message.MethodCall;
 import io.advantageous.qbit.queue.SendQueue;
 import io.advantageous.qbit.service.ServiceQueue;
-import org.boon.core.reflection.BeanUtils;
+import io.advantageous.boon.core.reflection.BeanUtils;
 
 import java.util.ArrayList;
 import java.util.Collections;

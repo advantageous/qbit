@@ -23,12 +23,13 @@ import io.advantageous.qbit.client.ClientBuilder;
 import io.advantageous.qbit.sample.server.client.TodoServiceClient;
 import io.advantageous.qbit.sample.server.model.TodoItem;
 import io.advantageous.qbit.service.Callback;
-import org.boon.core.Sys;
+import io.advantageous.boon.core.Sys;
 
 import java.util.Date;
 import java.util.List;
 
-import static org.boon.Boon.puts;
+import static io.advantageous.boon.Boon.puts;
+
 
 /**
  * Created by Richard on 11/17/14.

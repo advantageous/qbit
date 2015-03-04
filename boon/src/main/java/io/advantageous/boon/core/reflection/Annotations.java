@@ -83,7 +83,7 @@ public class Annotations {
 
     static {
 
-        boolean noStatics = Boolean.getBoolean( "org.boon.noStatics" );
+        boolean noStatics = Boolean.getBoolean( "io.advantageous.boon.noStatics" );
         if ( noStatics || Sys.inContainer () ) {
 
             _context = null;

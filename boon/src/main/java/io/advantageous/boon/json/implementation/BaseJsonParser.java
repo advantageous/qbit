@@ -75,7 +75,7 @@ public abstract class BaseJsonParser implements JsonParser {
 
         protected static final int ESCAPE = '\\';
 
-        protected static final boolean internKeys = Boolean.parseBoolean( System.getProperty( "org.boon.json.implementation.internKeys", "false" ) );
+        protected static final boolean internKeys = Boolean.parseBoolean( System.getProperty( "io.advantageous.boon.json.implementation.internKeys", "false" ) );
         protected static ConcurrentHashMap<String, String> internedKeysCache;
 
         protected Charset charset  = StandardCharsets.UTF_8;

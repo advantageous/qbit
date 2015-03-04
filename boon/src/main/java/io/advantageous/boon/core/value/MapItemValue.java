@@ -46,7 +46,7 @@ public class MapItemValue implements Map.Entry<String, Value> {
 
     private String key = null;
 
-    private static final boolean internKeys = Boolean.parseBoolean( System.getProperty( "org.boon.json.implementation.internKeys", "false" ) );
+    private static final boolean internKeys = Boolean.parseBoolean( System.getProperty( "io.advantageous.boon.json.implementation.internKeys", "false" ) );
 
 
 

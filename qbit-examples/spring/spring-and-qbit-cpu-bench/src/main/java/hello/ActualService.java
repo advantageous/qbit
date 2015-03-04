@@ -2,13 +2,13 @@ package hello;
 
 
 import io.advantageous.qbit.util.Timer;
-import org.boon.core.Sys;
+import io.advantageous.boon.core.Sys;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-import static org.boon.Boon.puts;
+imio.advantageous.boontic org.boon.Boon.puts;
 
 /**
  * Created by rhightower on 2/2/15.

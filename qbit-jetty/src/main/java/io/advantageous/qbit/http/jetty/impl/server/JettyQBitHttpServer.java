@@ -23,7 +23,7 @@ import io.advantageous.qbit.http.config.HttpServerOptions;
 import io.advantageous.qbit.http.request.HttpRequest;
 import io.advantageous.qbit.http.server.impl.SimpleHttpServer;
 import io.advantageous.qbit.system.QBitSystemManager;
-import org.boon.core.reflection.BeanUtils;
+import io.advantageous.boon.core.reflection.BeanUtils;
 import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
@@ -41,8 +41,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
+import static io.advantageous.boon.Boon.puts;
 import static io.advantageous.qbit.servlet.QBitServletUtil.convertRequest;
-import static org.boon.Boon.puts;
 
 /**
  * @author rhightower on 2/13/15.

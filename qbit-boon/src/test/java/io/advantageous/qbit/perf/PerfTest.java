@@ -18,12 +18,12 @@
 
 package io.advantageous.qbit.perf;
 
+import io.advantageous.boon.collections.LongList;
+import io.advantageous.boon.core.Sys;
 import io.advantageous.qbit.queue.Queue;
 import io.advantageous.qbit.queue.QueueBuilder;
 import io.advantageous.qbit.queue.ReceiveQueue;
 import io.advantageous.qbit.queue.SendQueue;
-import org.boon.collections.LongList;
-import org.boon.core.Sys;
 import org.junit.Before;
 
 import java.util.ArrayList;
@@ -32,8 +32,7 @@ import java.util.ListIterator;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 
-import static io.advantageous.qbit.queue.QueueBuilder.queueBuilder;
-import static org.boon.Boon.puts;
+import static io.advantageous.boon.Boon.puts;
 
 /**
  * Created by rhightower on 2/7/15.
@@ -252,7 +251,7 @@ public class PerfTest {
 //                .setLinkTransferQueue();
 
 
-        final QueueBuilder queueBuilder = queueBuilder().setBatchSize(batchSize).setSize(10_000_000).setArrayBlockingQueue();
+        final QueueBuilder queueBuilder = QueueBuilder.queueBuilder().setBatchSize(batchSize).setSize(10_000_000).setArrayBlockingQueue();
 
         perfTest(queueBuilder, 1, 10, totalSends, 50_000, new LongList(), fudgeFactor, sleepAmount, sleepEvery, cpuIntensive, times);
         System.gc();

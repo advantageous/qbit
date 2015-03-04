@@ -1,5 +1,6 @@
 package io.advantageous.qbit.events.impl;
 
+import io.advantageous.boon.core.Sys;
 import io.advantageous.qbit.client.Client;
 import io.advantageous.qbit.events.EventManager;
 import io.advantageous.qbit.events.EventManagerBuilder;
@@ -10,16 +11,14 @@ import io.advantageous.qbit.service.ServiceProxyUtils;
 import io.advantageous.qbit.spi.RegisterBoonWithQBit;
 import io.advantageous.qbit.test.TimedTesting;
 import io.advantageous.qbit.vertx.RegisterVertxWithQBit;
-import org.boon.Lists;
-import org.boon.core.Sys;
 import org.junit.Test;
 
 import java.util.concurrent.atomic.AtomicReference;
 
+import static io.advantageous.boon.Boon.puts;
 import static io.advantageous.qbit.events.impl.EventBusRemoteReplicatorBuilder.eventBusRemoteReplicatorBuilder;
 import static io.advantageous.qbit.events.impl.EventBusReplicationClientBuilder.eventBusReplicationClientBuilder;
 import static io.advantageous.qbit.service.ServiceBundleBuilder.serviceBundleBuilder;
-import static org.boon.Boon.puts;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 

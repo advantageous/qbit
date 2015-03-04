@@ -19,6 +19,9 @@
 package io.advantageous.qbit.server;
 
 
+import io.advantageous.boon.Boon;
+import io.advantageous.boon.Sets;
+import io.advantageous.boon.core.Sys;
 import io.advantageous.qbit.BoonJsonMapper;
 import io.advantageous.qbit.QBit;
 import io.advantageous.qbit.json.JsonMapper;
@@ -29,9 +32,6 @@ import io.advantageous.qbit.service.bundle.example.todo.TodoService;
 import io.advantageous.qbit.spi.ProtocolEncoder;
 import io.advantageous.qbit.spi.ProtocolParser;
 import io.advantageous.qbit.test.TimedTesting;
-import org.boon.Boon;
-import org.boon.Sets;
-import org.boon.core.Sys;
 import org.junit.Test;
 
 import java.util.Date;
@@ -39,10 +39,9 @@ import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.function.Predicate;
 
-import static org.boon.Boon.puts;
-import static org.boon.Exceptions.die;
+import static io.advantageous.boon.Boon.puts;
+import static io.advantageous.boon.Exceptions.die;
 
 public class ServerTest extends TimedTesting {
 

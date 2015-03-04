@@ -22,10 +22,10 @@ import io.advantageous.qbit.http.client.HttpClient;
 import io.advantageous.qbit.http.request.HttpRequest;
 import io.advantageous.qbit.http.request.HttpTextReceiver;
 
+import static io.advantageous.boon.core.Sys.sleep;
 import static io.advantageous.qbit.http.client.HttpClientBuilder.httpClientBuilder;
 import static io.advantageous.qbit.http.request.HttpRequestBuilder.httpRequestBuilder;
-import static org.boon.Boon.puts;
-import static org.boon.core.Sys.sleep;
+import static io.advantageous.boon.Boon.puts;
 
 /**
  * Created by rhightower on 2/2/15.

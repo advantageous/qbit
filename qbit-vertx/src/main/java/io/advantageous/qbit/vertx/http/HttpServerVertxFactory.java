@@ -24,7 +24,6 @@ import io.advantageous.qbit.queue.QueueBuilder;
 import io.advantageous.qbit.spi.HttpServerFactory;
 import io.advantageous.qbit.system.QBitSystemManager;
 import io.advantageous.qbit.vertx.http.server.HttpServerVertx;
-import io.advantageous.qbit.vertx.http.server.HttpServerVertxWithQueues;
 
 /**
  * @author rhightower on 1/26/15.
@@ -39,15 +38,8 @@ public class HttpServerVertxFactory implements HttpServerFactory {
                              final QueueBuilder webSocketMessageQueueBuilder,
                              final QBitSystemManager systemManager) {
 
-        if (options.isManageQueues() || requestQueueBuilder != null
-                || responseQueueBuilder != null || webSocketMessageQueueBuilder != null) {
-
-            return new HttpServerVertxWithQueues(options, requestQueueBuilder,
-                    responseQueueBuilder, webSocketMessageQueueBuilder, systemManager);
-
-        } else {
 
             return new HttpServerVertx(options, systemManager);
-        }
+
     }
 }

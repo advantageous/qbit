@@ -20,8 +20,8 @@ package io.advantageous.qbit.http.request;
 
 import io.advantageous.qbit.util.MultiMap;
 import io.advantageous.qbit.util.MultiMapImpl;
-import org.boon.Str;
-import org.boon.primitive.ByteBuf;
+import io.advantageous.boon.Str;
+import io.advantageous.boon.primitive.ByteBuf;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Set;

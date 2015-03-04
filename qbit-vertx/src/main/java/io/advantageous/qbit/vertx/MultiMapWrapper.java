@@ -22,8 +22,8 @@ import io.advantageous.qbit.util.MultiMap;
 
 import java.util.*;
 
-import static org.boon.Boon.sputs;
-import static org.boon.Exceptions.die;
+import static io.advantageous.boon.Boon.sputs;
+import static io.advantageous.boon.Exceptions.die;
 
 /**
  * @author rhightower on 10/13/14.

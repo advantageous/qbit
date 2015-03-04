@@ -18,6 +18,8 @@
 
 package io.advantageous.qbit.client;
 
+import io.advantageous.boon.core.Sys;
+import io.advantageous.boon.core.reflection.BeanUtils;
 import io.advantageous.qbit.http.client.HttpClient;
 import io.advantageous.qbit.http.request.HttpRequest;
 import io.advantageous.qbit.http.websocket.WebSocket;
@@ -26,17 +28,16 @@ import io.advantageous.qbit.http.websocket.WebSocketSender;
 import io.advantageous.qbit.service.Callback;
 import io.advantageous.qbit.spi.FactorySPI;
 import io.advantageous.qbit.spi.HttpClientFactory;
-import org.boon.core.Sys;
-import org.boon.core.reflection.BeanUtils;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.util.function.Consumer;
 
-import static io.advantageous.qbit.http.websocket.WebSocketBuilder.webSocketBuilder;
-import static org.boon.Boon.puts;
-import static org.boon.Exceptions.die;
+import static io.advantageous.boon.Boon.puts;
+import static io.advantageous.boon.Exceptions.die;
+
 
 public class BoonClientTest {
 
@@ -195,7 +196,7 @@ public class BoonClientTest {
         @Override
         public WebSocket createWebSocket(final String uri) {
 
-            final WebSocketBuilder webSocketBuilder = webSocketBuilder().setRemoteAddress("test").setUri(uri).setBinary(false).setOpen(true);
+            final WebSocketBuilder webSocketBuilder = WebSocketBuilder.webSocketBuilder().setRemoteAddress("test").setUri(uri).setBinary(false).setOpen(true);
 
             final WebSocket webSocket = webSocketBuilder.build();
 

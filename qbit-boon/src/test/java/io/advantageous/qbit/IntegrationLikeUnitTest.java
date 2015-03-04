@@ -18,6 +18,11 @@
 
 package io.advantageous.qbit;
 
+import io.advantageous.boon.Boon;
+import io.advantageous.boon.Exceptions;
+import io.advantageous.boon.Lists;
+import io.advantageous.boon.Str;
+import io.advantageous.boon.core.Sys;
 import io.advantageous.qbit.message.MethodCall;
 import io.advantageous.qbit.message.Response;
 import io.advantageous.qbit.queue.ReceiveQueue;
@@ -26,11 +31,6 @@ import io.advantageous.qbit.service.ServiceBundleBuilder;
 import io.advantageous.qbit.service.impl.ServiceBundleImpl;
 import io.advantageous.qbit.spi.RegisterBoonWithQBit;
 import io.advantageous.qbit.util.MultiMap;
-import org.boon.Boon;
-import org.boon.Exceptions;
-import org.boon.Lists;
-import org.boon.Str;
-import org.boon.core.Sys;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -38,7 +38,7 @@ import java.math.BigDecimal;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import static org.boon.Boon.puts;
+import static io.advantageous.boon.Boon.puts;
 
 /**
  * Created by Richard on 9/27/14.

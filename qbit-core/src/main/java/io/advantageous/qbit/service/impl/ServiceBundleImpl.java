@@ -34,9 +34,9 @@ import io.advantageous.qbit.system.QBitSystemManager;
 import io.advantageous.qbit.transforms.Transformer;
 import io.advantageous.qbit.util.ConcurrentHashSet;
 import io.advantageous.qbit.util.Timer;
-import org.boon.Str;
-import org.boon.core.Sys;
-import org.boon.core.reflection.BeanUtils;
+import io.advantageous.boon.Str;
+import io.advantageous.boon.core.Sys;
+import io.advantageous.boon.core.reflection.BeanUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -44,7 +44,7 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
 
-import static org.boon.Boon.*;
+import static io.advantageous.boon.Boon.*;
 
 /**
  * Manages a collection of services.

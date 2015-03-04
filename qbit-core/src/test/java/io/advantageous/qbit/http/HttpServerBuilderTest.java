@@ -28,13 +28,14 @@ import io.advantageous.qbit.http.server.websocket.WebSocketMessage;
 import io.advantageous.qbit.queue.QueueBuilder;
 import io.advantageous.qbit.spi.FactorySPI;
 import io.advantageous.qbit.system.QBitSystemManager;
-import org.boon.core.Sys;
+import io.advantageous.boon.core.Sys;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.util.function.Consumer;
 
-import static org.boon.Exceptions.die;
+import static io.advantageous.boon.Exceptions.die;
+
 
 public class HttpServerBuilderTest {
 

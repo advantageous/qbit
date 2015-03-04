@@ -21,7 +21,7 @@ package io.advantageous.qbit.example.events;
 import io.advantageous.qbit.annotation.OnEvent;
 import io.advantageous.qbit.events.EventManager;
 import io.advantageous.qbit.service.ServiceQueue;
-import org.boon.core.Sys;
+import io.advantageous.boon.core.Sys;
 
 import static io.advantageous.qbit.service.ServiceBuilder.serviceBuilder;
 import static io.advantageous.qbit.service.ServiceContext.serviceContext;
