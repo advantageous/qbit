@@ -176,6 +176,10 @@ public class ServiceBundleBuilder {
             qBitSystemManager.registerServiceBundle(serviceBundle);
         }
 
+        if (serviceBundle==null) {
+            throw new IllegalStateException("Service Bundle was null");
+        }
+
         return serviceBundle;
 
 
