@@ -21,6 +21,7 @@ import static io.advantageous.boon.Boon.puts;
 import static io.advantageous.qbit.client.ClientBuilder.clientBuilder;
 import static io.advantageous.qbit.server.ServiceServerBuilder.serviceServerBuilder;
 import static io.advantageous.qbit.service.ServiceProxyUtils.flushServiceProxy;
+import static io.advantageous.qbit.util.PortUtils.findOpenPort;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
@@ -46,18 +47,6 @@ public class EventRemoteReplicatorServiceServerIntegrationTest extends TimedTest
 
     EventTransferObject<Object> event = new EventTransferObject<>("hello", 1L, "TEST.TOPIC");
 
-    public int useOneOfThese(int... ports) throws IOException {
-        for (int port : ports) {
-            try {
-                ServerSocket serverSocket = new ServerSocket(port);
-                return port;
-            } catch (IOException ex) {
-                continue; // try next port
-            }
-        }
-        // if the program gets here, no port in the range was found
-        throw new IOException("no free port found");
-    }
 
 
     @Before
@@ -68,11 +57,13 @@ public class EventRemoteReplicatorServiceServerIntegrationTest extends TimedTest
         service = new EventRemoteReplicatorService(eventManager);
 
 
+        int port = findOpenPort();
 
-        int port = useOneOfThese(8080,7070,6060,6666,5555,4444, 2121, 8081, 8082, 7777, 6767, 2323, 5555);
+        puts(port);
+
         serviceServer = serviceServerBuilder().setPort(port).build();
         serviceServer.initServices(service);
-        client = clientBuilder().build();
+        client = clientBuilder().setPort(port).build();
 
 
         serviceServer.start();
