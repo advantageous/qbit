@@ -59,7 +59,7 @@ public class EventRemoteReplicatorServiceServerIntegrationTest extends TimedTest
 
         int port = findOpenPort();
 
-        puts(port);
+        puts("findOpenPort(", port, ")");
 
         serviceServer = serviceServerBuilder().setPort(port).build();
         serviceServer.initServices(service);
@@ -67,7 +67,7 @@ public class EventRemoteReplicatorServiceServerIntegrationTest extends TimedTest
 
 
         serviceServer.start();
-        Sys.sleep(100);
+        Sys.sleep(1000);
         client.start();
 
         clientEventConnector  = client.createProxy(EventConnector.class, "eventRemoteReplicatorService");
