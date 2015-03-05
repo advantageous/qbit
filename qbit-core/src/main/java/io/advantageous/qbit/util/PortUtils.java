@@ -10,13 +10,27 @@ public class PortUtils {
 
     public static int useOneOfThesePorts(int... ports)  {
         for (int port : ports) {
+            ServerSocket serverSocket = null;
+
             try {
-                ServerSocket serverSocket = new ServerSocket(port);
+
+                serverSocket = new ServerSocket(port);
                 serverSocket.close();
                 return port;
             } catch (IOException ex) {
                 continue; // try next port
+            } finally {
+                if (serverSocket!=null) {
+                    if (!serverSocket.isClosed()) {
+                        try {
+                            serverSocket.close();
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }
             }
+
         }
         // if the program gets here, no port in the range was found
         throw new IllegalStateException("no free port found");
@@ -26,12 +40,25 @@ public class PortUtils {
 
     public static int useOneOfThePortsInThisRange(int start, int stop)  {
         for (int index = start; index < stop; index++) {
+            ServerSocket serverSocket = null;
+
             try {
-                ServerSocket serverSocket = new ServerSocket(index);
+
+                serverSocket = new ServerSocket(index);
                 serverSocket.close();
                 return index;
             } catch (IOException ex) {
                 continue; // try next port
+            } finally {
+                if (serverSocket!=null) {
+                    if (!serverSocket.isClosed()) {
+                        try {
+                            serverSocket.close();
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }
             }
         }
         // if the program gets here, no port in the range was found
