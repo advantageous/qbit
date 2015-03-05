@@ -38,11 +38,13 @@ import org.junit.Test;
 
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
 import static io.advantageous.boon.Boon.puts;
 import static io.advantageous.boon.Exceptions.die;
+import static junit.framework.Assert.assertEquals;
 
 
 public class BoonClientIntegrationTest extends TimedTesting {
@@ -54,7 +56,7 @@ public class BoonClientIntegrationTest extends TimedTesting {
     AtomicBoolean httpFlushCalled = new AtomicBoolean();
     AtomicBoolean httpPeriodicFlushCallbackCalled = new AtomicBoolean();
     boolean ok;
-    volatile int sum;
+    AtomicInteger  sum = new AtomicInteger();
     volatile Response<Object> response;
     ServiceBundle serviceBundle;
 
@@ -68,7 +70,7 @@ public class BoonClientIntegrationTest extends TimedTesting {
         client.start();
         serviceBundle = new ServiceBundleBuilder().setAddress("/services").buildAndStart();
         serviceBundle.addService(new ServiceMock());
-        sum = 0;
+        sum.set(0);
         serviceBundle.startReturnHandlerProcessor(item -> response = item);
     }
 
@@ -111,7 +113,7 @@ public class BoonClientIntegrationTest extends TimedTesting {
 
 
         mockService.add(1, 2);
-        mockService.sum(integer -> sum = integer);
+        mockService.sum(integer -> sum.set(integer));
 
         ( ( ClientProxy ) mockService ).clientProxyFlush();
 
@@ -121,10 +123,13 @@ public class BoonClientIntegrationTest extends TimedTesting {
 
         waitForTrigger(20, o -> httpSendWebSocketCalled.get());
 
+
         ok = httpSendWebSocketCalled.get() || die();
 
 
-        ok = sum == 3 || die(sum);
+        waitForTrigger(20, o -> sum.get()!=0);
+
+        assertEquals(3, sum.get());
 
     }
 
