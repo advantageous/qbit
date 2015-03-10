@@ -20,6 +20,7 @@ package io.advantageous.consul.domain;
 import io.advantageous.boon.json.annotations.JsonProperty;
 
 import java.util.Arrays;
+import java.util.List;
 
 /**
  * Holds service information.
@@ -33,7 +34,7 @@ public class Service {
     private String service;
 
     @JsonProperty("Tags")
-    private String[] tags;
+    private List<String> tags;
 
     @JsonProperty("Port")
     private int port;
@@ -54,11 +55,11 @@ public class Service {
         this.service = service;
     }
 
-    public String[] getTags() {
+    public List<String> getTags() {
         return tags;
     }
 
-    public void setTags(String[] tags) {
+    public void setTags(List<String> tags) {
         this.tags = tags;
     }
 
@@ -80,7 +81,7 @@ public class Service {
         if (port != service1.port) return false;
         if (id != null ? !id.equals(service1.id) : service1.id != null) return false;
         if (service != null ? !service.equals(service1.service) : service1.service != null) return false;
-        if (!Arrays.equals(tags, service1.tags)) return false;
+        if (tags != null ? !tags.equals(service1.tags) : service1.tags != null) return false;
 
         return true;
     }
@@ -89,7 +90,7 @@ public class Service {
     public int hashCode() {
         int result = id != null ? id.hashCode() : 0;
         result = 31 * result + (service != null ? service.hashCode() : 0);
-        result = 31 * result + (tags != null ? Arrays.hashCode(tags) : 0);
+        result = 31 * result + (tags != null ? tags.hashCode() : 0);
         result = 31 * result + port;
         return result;
     }
@@ -99,7 +100,7 @@ public class Service {
         return "Service{" +
                 "id='" + id + '\'' +
                 ", service='" + service + '\'' +
-                ", tags=" + Arrays.toString(tags) +
+                ", tags=" + tags +
                 ", port=" + port +
                 '}';
     }
