@@ -44,12 +44,6 @@ signing {
     sign configurations.archives
 }
 
-jar {
-    manifest {
-        attributes 'Main-Class': 'io.rd.cognizance.example.SampleService'
-    }
-    from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
-}
 
 dependencies {
 
