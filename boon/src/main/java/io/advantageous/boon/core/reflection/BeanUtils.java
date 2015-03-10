@@ -497,8 +497,11 @@ public class BeanUtils {
      *
      * @param root root
      * @param properties properties forming a path
+     * @param newValue  new value
      */
-    public static void setPropertyValue( final Object root, final Object newValue, final String... properties ) {
+    public static void setPropertyValue( final Object root,
+                                         final Object newValue,
+                                         final String... properties ) {
 
         Object object = root;
 
@@ -556,6 +559,7 @@ public class BeanUtils {
      * Get property value, loads nested properties
      *
      * @param root root class
+     * @param newValue new value
      * @param properties properties forming a path
      */
     public static void setPropertyValue( final Class<?> root, final Object newValue, final String... properties ) {
@@ -864,6 +868,7 @@ public class BeanUtils {
      *
      * @param object object
      * @param path   in dotted notation
+     * @param value  value
      */
     public static void injectIntoProperty( Object object, String path, Object value ) {
 
@@ -878,6 +883,7 @@ public class BeanUtils {
      *
      * @param object object
      * @param path   in dotted notation
+     * @param value value
      */
     public static void idx( Object object, String path, Object value ) {
 
@@ -892,6 +898,7 @@ public class BeanUtils {
      *
      * @param cls class
      * @param path   in dotted notation
+     * @param value value
      */
     public static void idx( Class<?> cls, String path, Object value ) {
 
@@ -1544,6 +1551,7 @@ public class BeanUtils {
     }
 
 
+    @SuppressWarnings("all")
     public static <T> T copy( T item ) {
         if ( item instanceof Cloneable ) {
              return (T) ClassMeta.classMeta(item.getClass()).invokeUntyped(item, "clone", ( Class[] ) null);

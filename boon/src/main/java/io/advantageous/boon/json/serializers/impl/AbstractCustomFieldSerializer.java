@@ -6,9 +6,8 @@ import io.advantageous.boon.json.serializers.JsonSerializerInternal;
 import io.advantageous.boon.primitive.CharBuf;
 
 /**
- * Custom serializer for a specific field of a specific class. <br>
+ * Custom serializer for a specific field of a specific class.
  * The field is identified by its name, not by its alias (specified by the annotation
- * {@link io.advantageous.boon.json.annotations.SerializedName}).<br>
  */
 public abstract class AbstractCustomFieldSerializer implements CustomFieldSerializer {
 	private final Class<?> parentClass;
@@ -41,14 +40,14 @@ public abstract class AbstractCustomFieldSerializer implements CustomFieldSerial
 	 * For example:
 	 * 
 	 * <pre>
-	 * {@code
+	 *
 	 * if (value != null) {
 	 * 	builder.addJsonFieldName(fieldAccess.name());
 	 * 	builder.addQuoted(value.toString());
 	 * } else {
 	 * 	builder.addJsonFieldName(fieldAccess.name());
 	 * 	builder.addQuoted("N/A");
-	 * }
+	 *
 	 * </pre>
 	 * @param serializer JsonSerializer to help serializing dates, arrays...
 	 * @param parent Class containing the field.

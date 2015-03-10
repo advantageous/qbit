@@ -269,6 +269,7 @@ public class Annotations {
      * Create an annotation data list.
      *
      * @param annotations list of annotation.
+     * @param allowedPackages allowed packages
      * @return list of annotation data
      */
     public static List<AnnotationData> extractValidationAnnotationData(

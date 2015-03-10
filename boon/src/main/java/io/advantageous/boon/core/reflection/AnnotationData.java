@@ -42,7 +42,7 @@ import static io.advantageous.boon.Str.uncapitalize;
 /**
  * This is a helper class that helps us extract annotation data
  * from the Annotations.
- * <p/>
+ *
  * This was pulled over from crank. I have not given in a thorough review yet.
  *
  * @author Rick Hightower
@@ -91,6 +91,7 @@ public class AnnotationData {
     /**
      * Determines if this is an annotation we care about.
      * Checks to see if the package name is in the set.
+     * @return allowed
      */
     public boolean isAllowed() {
         if (allowedAnnotations ==null || allowedAnnotations.size ()==0) return true;

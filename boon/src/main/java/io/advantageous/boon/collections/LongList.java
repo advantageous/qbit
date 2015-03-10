@@ -43,7 +43,7 @@ import static io.advantageous.boon.primitive.Lng.grow;
 
 /**
  * Holds primitive values in a list like object for long.
- * <p/>
+ *
  * <p>
  * Has sum, mean, median, standardDeviation, reduceBy,
  * variance.

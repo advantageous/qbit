@@ -66,10 +66,11 @@ public class AgentEndpoint {
      *
      * Checks to see if a service is registered with the local agent..
      *
+     * @param serviceId service id
      * @return <code>true</code> if a particular service is registered with
      * the local Consul agent, otherwise <code>false</code>.
      */
-    public boolean isServiceRegistered(String serviceId) {
+    public boolean isServiceRegistered(final String serviceId) {
         Map<String, Service> serviceIdToService = getServices();
         return serviceIdToService.containsKey(serviceId);
     }
@@ -290,7 +291,7 @@ public class AgentEndpoint {
 
     /**
      * Retrieves all checks registered with the Agent.
-     * <p/>
+     *
      * GET /v1/agent/checks
      *
      * @return Map of Check ID to Checks.
@@ -316,7 +317,7 @@ public class AgentEndpoint {
 
     /**
      * Retrieves all services registered with the Agent.
-     * <p/>
+     *
      * GET /v1/agent/services
      *
      * @return Map of Service ID to Services.
@@ -343,7 +344,7 @@ public class AgentEndpoint {
 
     /**
      * Retrieves all members that the Agent can see in the gossip pool.
-     * <p/>
+     *
      * GET /v1/agent/members
      *
      * @return List of Members.
@@ -361,7 +362,7 @@ public class AgentEndpoint {
 
     /**
      * GET /v1/agent/force-leave/{node}
-     * <p/>
+     *
      * Instructs the agent to force a node into the "left" state.
      *
      * @param node node
@@ -401,7 +402,6 @@ public class AgentEndpoint {
      * @param serviceId service id
      * @param status state
      * @param note note
-     * @throws NotRegisteredException
      */
     public void checkTtl(String serviceId, Status status, String note)  {
         check("service:" + serviceId, status, note);
@@ -416,6 +416,8 @@ public class AgentEndpoint {
 
     /**
      * Sets a TTL check to "passing" state with a note
+     * @param checkId check id
+     * @param note note
      */
     public void pass(String checkId, String note) throws NotRegisteredException {
         checkTtl(checkId, Status.PASS, note);
@@ -423,6 +425,7 @@ public class AgentEndpoint {
 
     /**
      * Sets a TTL check to "warning" state.
+     * @param checkId check id
      */
     public void warn(String checkId) throws NotRegisteredException {
         checkTtl(checkId, Status.WARN, null);
@@ -430,6 +433,8 @@ public class AgentEndpoint {
 
     /**
      * Sets a TTL check to "warning" state with a note.
+     * @param checkId check id
+     * @param note note
      */
     public void warn(String checkId, String note) throws NotRegisteredException {
         checkTtl(checkId, Status.WARN, note);
@@ -437,6 +442,7 @@ public class AgentEndpoint {
 
     /**
      * Sets a TTL check to "critical" state.
+     * @param checkId check id
      */
     public void fail(String checkId) throws NotRegisteredException {
         checkTtl(checkId, Status.FAIL, null);
@@ -444,6 +450,8 @@ public class AgentEndpoint {
 
     /**
      * Sets a TTL check to "critical" state with a note.
+     * @param checkId check id
+     * @param note note
      */
     public void fail(String checkId, String note) throws NotRegisteredException {
         checkTtl(checkId, Status.FAIL, note);
@@ -451,6 +459,7 @@ public class AgentEndpoint {
 
     /**
      * Sets a TTL check to "critical" state.
+     * @param checkId check id
      */
     public void critical(String checkId) throws NotRegisteredException {
         checkTtl(checkId, Status.FAIL, null);
@@ -458,6 +467,8 @@ public class AgentEndpoint {
 
     /**
      * Sets a TTL check to "critical" state with a note.
+     * @param checkId check id
+     * @param note note
      */
     public void critical(String checkId, String note) throws NotRegisteredException {
         checkTtl(checkId, Status.FAIL, note);

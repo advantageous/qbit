@@ -185,7 +185,7 @@ public class MapObjectConversion {
      * @param cls class type of new object
      * @param ignoreSet a set of properties to ignore
      * @param <T> map to create teh object from.
-     * @return new object of type cls <T>
+     * @return new object of type cls
      */
     @SuppressWarnings("unchecked")
     public static <T> T fromMap( boolean respectIgnore, String view, FieldsAccessor fieldsAccessor, Map<String, Object> map, Class<T> cls, Set<String> ignoreSet ) {
@@ -207,6 +207,8 @@ public class MapObjectConversion {
      * @param fieldsAccessor how we are going to access the fields (by field, by property, combination)
      * @param cls the new type
      * @param ignoreSet a set of properties to ignore
+     * @param valueMap  value map
+     * @param <T> type
      * @return new object from value map
      */
     @SuppressWarnings("unchecked")

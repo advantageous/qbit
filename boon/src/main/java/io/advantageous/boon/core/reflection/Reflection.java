@@ -48,9 +48,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 import java.util.logging.Logger;
 
-import static io.advantageous.boon.Boon.sputs;
-import static io.advantageous.boon.Exceptions.die;
-import static io.advantageous.boon.Str.slc;
 
 
 public class Reflection {

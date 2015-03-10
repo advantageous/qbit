@@ -130,57 +130,59 @@ public class CatalogEndpoint {
      *
      * GET /v1/catalog/service/{service}
      *
+     * @param serviceName service name
      * @return A {@link io.advantageous.consul.domain.ConsulResponse} containing
      * {@link io.advantageous.consul.domain.CatalogService} objects.
      */
-    public ConsulResponse<List<CatalogService>> getService(String service) {
-        return getService(service, null, null, RequestOptions.BLANK);
+    public ConsulResponse<List<CatalogService>> getService(final String serviceName) {
+        return getService(serviceName, null, null, RequestOptions.BLANK);
     }
 
     /**
      * Retrieves a single service for a given datacenter.
      *
      * GET /v1/catalog/service/{service}?dc={datacenter}
+     * @param serviceName service name
      * @param datacenter datacenter
      * @param tag tag
      * @return A {@link io.advantageous.consul.domain.ConsulResponse} containing
      * {@link io.advantageous.consul.domain.CatalogService} objects.
      */
-    public ConsulResponse<List<CatalogService>> getService(String service,
+    public ConsulResponse<List<CatalogService>> getService(final String serviceName,
                                                            final String datacenter, final String tag
                                                            ) {
-        return getService(service, datacenter, tag, RequestOptions.BLANK);
+        return getService(serviceName, datacenter, tag, RequestOptions.BLANK);
     }
 
     /**
      * Retrieves a single service with {@link io.advantageous.consul.domain.option.RequestOptions}.
      *
      * GET /v1/catalog/service/{service}
-     *
+     * @param serviceName service name
      * @param requestOptions The Query Options to use.
      * @return A {@link io.advantageous.consul.domain.ConsulResponse} containing
      * {@link io.advantageous.consul.domain.CatalogService} objects.
      */
-    public ConsulResponse<List<CatalogService>> getService(String service, RequestOptions requestOptions) {
-        return getService(service, null, null, requestOptions);
+    public ConsulResponse<List<CatalogService>> getService(String serviceName, RequestOptions requestOptions) {
+        return getService(serviceName, null, null, requestOptions);
     }
 
     /**
      * Retrieves a single service for a given datacenter with {@link io.advantageous.consul.domain.option.RequestOptions}.
      *
      * GET /v1/catalog/service/{service}?dc={datacenter}
-     *
+     * @param serviceName service name
      * @param datacenter datacenter
      * @param tag tag
      * @param requestOptions The Query Options to use.
      * @return A {@link io.advantageous.consul.domain.ConsulResponse} containing
      * {@link io.advantageous.consul.domain.CatalogService} objects.
      */
-    public ConsulResponse<List<CatalogService>> getService(String service, final String datacenter, final String tag,
+    public ConsulResponse<List<CatalogService>> getService(final String serviceName, final String datacenter, final String tag,
                                                            RequestOptions requestOptions) {
 
 
-        final String path = rootPath + "/service/" + service;
+        final String path = rootPath + "/service/" + serviceName;
 
         final HttpRequestBuilder httpRequestBuilder = RequestUtils
                                 .getHttpRequestBuilder(datacenter, tag, requestOptions, path);

@@ -45,7 +45,7 @@ import static io.advantageous.boon.Str.lines;
 
 /**
  * Created by rick on 12/12/13.
- * <p/>
+ *
  * Make sure it can handle these
  * https://code.google.com/p/json-smart/wiki/FeaturesTests
  */

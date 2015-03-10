@@ -112,7 +112,7 @@ public class Boon {
 
     /**
      * Print a single object to the console.
-     * If null prints out <NULL>
+     * If null prints out &gt;NULL&lt;
      * If char[] converts to String.
      * If array prints out string version of array
      * by first converting array to a list.
@@ -455,7 +455,7 @@ public class Boon {
     /**
      * Facade method over Boon invoker system.
      * Allow you to easily invoke methods from Java objects using reflection.
-     * <p/>
+     *
      * TODO change this to invoke missingMethod if the method is not found.
      * First arg is the name of the missing method.
      * (If missingMethod is implemented on the object value).
@@ -558,7 +558,7 @@ public class Boon {
      * Loads a resource from the file system or classpath if not found.
      * This allows you to have resources that exist in the jar
      * and that can be configured outside of the jar easily.
-     * <p/>
+     *
      * Classpath is only used if file system resource is not found.
      *
      * @param path path to resource
@@ -578,7 +578,7 @@ public class Boon {
      * Loads a resource from the file system or classpath if not found.
      * This allows you to have resources that exist in the jar
      * and that can be configured outside of the jar easily.
-     * <p/>
+     *
      * Classpath is only used if file system resource is not found.
      *
      * @param path path to resource
@@ -638,8 +638,6 @@ public class Boon {
 
     /**
      * <p>
-     * Load JSON Map as resource but first applies the template to the JSON file.
-     * LOAD STRING -> RUN TEMPLATE -> JSON PARSE.
      * </p>
      * Looks in file system first and then classpath.
      *
@@ -653,8 +651,6 @@ public class Boon {
 
     /**
      * <p>
-     * Load JSON object as resource but first applies the template to the JSON file.
-     * LOAD STRING -> RUN TEMPLATE -> JSON PARSE.
      * </p>
      * Looks in file system first.
      *
@@ -670,7 +666,7 @@ public class Boon {
     /**
      * <p>
      * Load JSON list as resource.
-     * <p/>
+     *
      * </p>
      * Looks in file system first and then classpath.
      *

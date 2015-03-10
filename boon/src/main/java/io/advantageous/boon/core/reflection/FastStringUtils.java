@@ -41,6 +41,7 @@ import java.nio.charset.StandardCharsets;
  */
 public class FastStringUtils {
 
+    @SuppressWarnings("all")
     public static final Unsafe UNSAFE;
     public static final long STRING_VALUE_FIELD_OFFSET;
     public static final long STRING_OFFSET_FIELD_OFFSET;
@@ -95,6 +96,7 @@ public class FastStringUtils {
             @Override
             public String noCopyStringFromChars(char[] chars) {
                 if (WRITE_TO_FINAL_FIELDS) {
+                    @SuppressWarnings("all")
                     String string = new String();
                     UNSAFE.putObject(string, STRING_VALUE_FIELD_OFFSET, chars);
                     return string;
@@ -119,6 +121,7 @@ public class FastStringUtils {
             @Override
             public String noCopyStringFromChars(char[] chars) {
                 if (WRITE_TO_FINAL_FIELDS) {
+                    @SuppressWarnings("all")
                     String string = new String();
                     UNSAFE.putObject(string, STRING_VALUE_FIELD_OFFSET, chars);
                     UNSAFE.putInt(string, STRING_COUNT_FIELD_OFFSET, chars.length);

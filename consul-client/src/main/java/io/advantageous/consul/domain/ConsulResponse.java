@@ -19,7 +19,7 @@ package io.advantageous.consul.domain;
 
 /**
  * Contains index, leader, response, known leader for agent.
- * @param <T>
+ * @param <T> T
  */
 public class ConsulResponse<T> {
 

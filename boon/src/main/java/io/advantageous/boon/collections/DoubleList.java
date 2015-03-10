@@ -42,7 +42,7 @@ import static io.advantageous.boon.primitive.Dbl.grow;
 
 /**
  * Holds primitive values in a list like object for ints.
- * <p/>
+ *
  * <p>
  * Has sum, mean, median, standardDeviation, reduceBy,
  * variance.

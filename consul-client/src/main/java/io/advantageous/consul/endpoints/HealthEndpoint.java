@@ -71,7 +71,7 @@ public class HealthEndpoint {
     /**
      * Retrieves the healthchecks for a node in a given datacenter.
      * 
-     * GET /v1/health/node/{node}?dc={datacenter}
+     * <code>GET /v1/health/node/{node}?dc={datacenter}</code>
      *
      * @param datacenter        datacenter
      * @param tag        tag
@@ -284,7 +284,7 @@ public class HealthEndpoint {
     /**
      * Retrieves the healthchecks for all healthy nodes in a given datacenter.
      * 
-     * GET /v1/health/service/{service}?dc={datacenter}&passing
+     * <code>GET /v1/health/service/{service}?dc={datacenter}&amp;passing</code>
      *
      * @param serviceName        The service to query.
      * @param datacenter        datacenter
@@ -301,7 +301,7 @@ public class HealthEndpoint {
     /**
      * Retrieves the healthchecks for all healthy nodes with {@link io.advantageous.consul.domain.option.RequestOptions}.
      * 
-     * GET /v1/health/service/{service}?passing
+     * <code>GET /v1/health/service/{service}?passing</code>
      *
      * @param serviceName      The service to query.
      * @param requestOptions The Query Options to use.
@@ -316,7 +316,7 @@ public class HealthEndpoint {
      * Retrieves the healthchecks for all healthy nodes in a given datacenter with
      * {@link io.advantageous.consul.domain.option.RequestOptions}.
      * 
-     * GET /v1/health/service/{service}?dc={datacenter}&passing
+     * <code>GET /v1/health/service/{service}?dc={datacenter}&amp;passing</code>
      *
      * @param serviceName        The service to query.
      * @param datacenter        datacenter
@@ -349,7 +349,7 @@ public class HealthEndpoint {
      * Asynchronously retrieves the healthchecks for all healthy nodes in a given
      * datacenter with {@link io.advantageous.consul.domain.option.RequestOptions}.
      * 
-     * GET /v1/health/service/{service}?dc={datacenter}&passing
+     * <code>GET /v1/health/service/{service}?dc={datacenter}&amp;passing</code>
      * 
      * Experimental.
      *
@@ -380,7 +380,7 @@ public class HealthEndpoint {
      * Asynchronously retrieves the healthchecks for all healthy nodes in a given
      * datacenter with {@link io.advantageous.consul.domain.option.RequestOptions}.
      * 
-     * GET /v1/health/service/{service}?dc={datacenter}&passing
+     * <code>GET /v1/health/service/{service}?dc={datacenter}&amp;passing</code>
      * 
      * Experimental.
      *

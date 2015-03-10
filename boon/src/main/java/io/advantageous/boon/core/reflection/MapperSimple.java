@@ -86,7 +86,7 @@ public class MapperSimple implements Mapper {
      * @param map map to create the object from.
      * @param cls class type of new object
      * @param <T> map to create teh object from.
-     * @return new object of type cls <T>
+     * @return new object of type cls
      */
     @Override
     public  <T> T fromMap(final Map<String, Object> map, final Class<T> cls) {
