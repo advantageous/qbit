@@ -47,9 +47,11 @@ signing {
 
 dependencies {
 
-  compile 'io.advantageous.qbit:qbit-core:0.7.1-SNAPSHOT'
-  compile 'io.advantageous.qbit:qbit-boon:0.7.1-SNAPSHOT'
-  compile 'io.advantageous.qbit:qbit-jetty:0.7.1-SNAPSHOT'
+
+  compile project(":boon")
+  compile project(":qbit-core")
+  compile project(":qbit-boon")
+  compile project(":qbit-jetty")
   testCompile 'junit:junit:4.11'
   testCompile 'org.mockito:mockito-all:1.9.5'
 
