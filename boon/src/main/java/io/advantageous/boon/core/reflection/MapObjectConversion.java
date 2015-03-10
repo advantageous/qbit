@@ -297,8 +297,8 @@ public class MapObjectConversion {
      *
      * @param componentType The component type of the created list
      * @param list the input list
-     * @param <T>
-     * @return
+     * @param <T> T
+     * @return T
      */
     public static  <T> List<T> convertListOfMapsToObjects(Class<T> componentType, List<Map> list) {
         return mapper.convertListOfMapsToObjects(list, componentType);

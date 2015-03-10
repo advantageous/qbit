@@ -123,9 +123,9 @@ public class Classpaths {
 
     /**
      * Load the listFromClassLoader
-     * @param loader
-     * @param resource
-     * @return
+     * @param loader loader
+     * @param resource resource
+     * @return list of strings
      */
     public static List<String> listFromClassLoader(ClassLoader loader, String resource) {
         final List<URL> resourceURLs = Classpaths.classpathResources( loader, resource );
@@ -146,9 +146,9 @@ public class Classpaths {
 
     /**
      * Load the listFromClassLoader
-     * @param loader
-     * @param resource
-     * @return
+     * @param loader loader
+     * @param resource resource
+     * @return array of strings
      */
     public static List<Path> pathsFromClassLoader(ClassLoader loader, String resource) {
         final List<URL> resourceURLs = Classpaths.classpathResources( loader, resource );

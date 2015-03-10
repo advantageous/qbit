@@ -107,15 +107,15 @@ public class Lng {
      * Creates an array of bytes
      *
      * @param size size of the array you want to make
-     * @return
+     * @return array
      */
     public static long[] arrayOfLong( final int size ) {
         return new long[ size ];
     }
 
     /**
-     * @param array
-     * @return
+     * @param array array
+     * @return array
      */
     @Universal
     public static long[] array( final long... array ) {
@@ -617,7 +617,7 @@ public class Lng {
      * @param array array of items to reduce by
      * @param object function object
      * @param <T> type of function object.
-     * @return
+     * @return result
      */
     private  static <T> long reduceByR( final long[] array, T object ) {
         try {
@@ -768,7 +768,7 @@ public class Lng {
      * @param array array of items to reduce by
      * @param length where to end in the array
      * @param function function
-     * @param function functionName
+     * @param functionName functionName
      * @return reduction
      */
     public static long reduceBy( final long[] array,  int length,
@@ -1048,9 +1048,9 @@ public class Lng {
 
     /**
      * Calculate variance
-     * @param values
-     * @param length
-     * @return variance
+     * @param values values
+     * @param length length
+     * @return variance variance
      */
     public static long variance(long[] values,  final int length) {
         return Math.round(varianceDouble(values, 0, length));
@@ -1058,8 +1058,8 @@ public class Lng {
 
     /**
      * Calculate variance
-     * @param values
-     * @return variance
+     * @param values values
+     * @return variance variance
      */
     public static long variance(long[] values) {
         return Math.round(varianceDouble(values, 0, values.length));

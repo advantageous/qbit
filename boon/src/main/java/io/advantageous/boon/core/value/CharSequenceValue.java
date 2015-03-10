@@ -119,7 +119,7 @@ public class CharSequenceValue implements Value, CharSequence {
         return false;
     }
 
-    private final Object doToValue () {
+    private Object doToValue () {
 
         switch ( type ) {
             case DOUBLE:

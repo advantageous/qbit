@@ -96,7 +96,7 @@ public class Watcher {
 
     /**
      * Last media watched.
-     * @return
+     * @return string
      */
     public String lastVideo() {
         return lastVideo;
@@ -105,7 +105,7 @@ public class Watcher {
     /**
      * last media watched.
      * @param lastVideo
-     * @return
+     * @return string
      */
     public Watcher lastVideo(String lastVideo) {
         this.lastVideo = lastVideo;
@@ -124,7 +124,7 @@ public class Watcher {
     /**
      * Last media position.
      * @param lastVideoPosition
-     * @return
+     * @return watcher
      */
     public Watcher lastVideoPosition(int lastVideoPosition) {
         this.lastVideoPosition = lastVideoPosition;
@@ -134,7 +134,7 @@ public class Watcher {
 
     /**
      * New Watcher
-     * @param username
+     * @param username username
      */
     public Watcher(final String username) {
         this.username = username;
@@ -147,8 +147,8 @@ public class Watcher {
 
     /**
      * New Watcher.
-     * @param username
-     * @return
+     * @param username username
+     * @return watcher
      */
     public static Watcher user ( final String username ) {
         return new Watcher( username );
@@ -159,7 +159,7 @@ public class Watcher {
      *
      * @param username username
      * @param version version
-     * @return
+     * @return watcher
      */
     public static Watcher user ( final String username, long version ) {
         Watcher watcher = user(username);
@@ -221,7 +221,7 @@ public class Watcher {
      * A person is someone (announcer, TV personality) who was in the media who we want to score.
      * @param personId person id
      * @param value value
-     * @return
+     * @return score
      */
     public boolean addPersonScore(final String personId, final int value) {
         LikeFactor likeFactor = people.get( personId );
@@ -350,7 +350,7 @@ public class Watcher {
     /**
      * lookupWithDefault likeFactor.
      * @param likeFactor
-     * @return
+     * @return score
      */
     private int score( LikeFactor likeFactor) {
         if ( likeFactor == null ) {
@@ -378,7 +378,7 @@ public class Watcher {
     /**
      * Player score
      * @param id of player
-     * @return score
+     * @return score score
      */
     public int getPlayerScore( String id ) {
         LikeFactor likeFactor = actors.get( id );
@@ -436,7 +436,7 @@ public class Watcher {
 
     /**
      * Bump the version.
-     * @return
+     * @return bumped
      */
     public long bumpVersion() {
         version++;
@@ -463,12 +463,6 @@ public class Watcher {
 
     }
 
-    /**
-     *
-     * @param category
-     * @param value
-     * @return
-     */
     public boolean addCategoryScore(VendorCategory category, int value) {
         LikeFactor likeFactor = tags.get( category );
 
@@ -483,45 +477,23 @@ public class Watcher {
 
     }
 
-    /**
-     *
-     * @param id
-     * @return
-     */
     public boolean removePersonScore(String id) {
          this.people.remove(id);
          return true;
 
     }
 
-    /**
-     *
-     * @param id
-     * @return
-     */
     public boolean removePlayerScore(String id) {
         this.actors.remove(id);
         return true;
 
     }
 
-    /**
-     *
-     * @param category
-     * @return
-     */
     public boolean removeCategoryScore(VendorCategory category) {
         this.tags.remove(category);
         return true;
     }
 
-    /**
-     *
-     * @param id
-     * @param current
-     * @param value
-     * @return
-     */
     public boolean incrementPersonScore(String id, int current, int value) {
 
         if (current== Short.MIN_VALUE) {
@@ -533,13 +505,6 @@ public class Watcher {
         }
     }
 
-    /**
-     *
-     * @param id
-     * @param current
-     * @param value
-     * @return
-     */
     public boolean incrementPlayerScore(String id, int current, int value) {
 
         if (current== Short.MIN_VALUE) {
@@ -550,13 +515,6 @@ public class Watcher {
         }
     }
 
-    /**
-     *
-     * @param category
-     * @param current
-     * @param value
-     * @return
-     */
     public boolean incrementCategoryScore(VendorCategory category, int current, int value) {
         if (current== Short.MIN_VALUE) {
             categoryScore(category).changeBy(value);
@@ -566,11 +524,6 @@ public class Watcher {
         }
     }
 
-    /**
-     *
-     * @param personId
-     * @return
-     */
     public boolean addDefaultPersonScore(String personId) {
 
         LikeFactor likeFactor = people.get( personId );
@@ -586,11 +539,6 @@ public class Watcher {
 
     }
 
-    /**
-     *
-     * @param id
-     * @return
-     */
     public boolean addDefaultPlayerScore(String id) {
         LikeFactor likeFactor = actors.get( id );
 
@@ -605,11 +553,6 @@ public class Watcher {
 
     }
 
-    /**
-     *
-     * @param category
-     * @return
-     */
     public boolean addDefaultCategoryScore(VendorCategory category) {
 
         LikeFactor likeFactor = tags.get( category );
@@ -628,27 +571,14 @@ public class Watcher {
     }
 
 
-    /**
-     *
-     * @return
-     */
     public DeviceConnectionSpeed connectionSpeed() {
         return lastConnectionSpeed;
     }
 
-    /**
-     *
-     * @return
-     */
     public ScreenDevice device() {
         return lastScreenDeviceUsed;
     }
 
-    /**
-     *
-     * @param lastConnectionSpeed
-     * @return
-     */
     public Watcher setLastConnectionSpeed(DeviceConnectionSpeed lastConnectionSpeed) {
 
         if (lastConnectionSpeed == DeviceConnectionSpeed.UNKNOWN) {
@@ -658,11 +588,6 @@ public class Watcher {
         return this;
     }
 
-    /**
-     *
-     * @param lastScreenDeviceUsed
-     * @return
-     */
     public Watcher setLastScreenDeviceUsed(ScreenDevice lastScreenDeviceUsed) {
 
         if (lastScreenDeviceUsed == ScreenDevice.UNKNOWN) {

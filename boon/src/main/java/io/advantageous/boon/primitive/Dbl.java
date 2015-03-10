@@ -102,15 +102,15 @@ public class Dbl {
      * Creates an array of bytes
      *
      * @param size size of the array you want to make
-     * @return
+     * @return array
      */
     public static double[] arrayOfDouble( final int size ) {
         return new double[ size ];
     }
 
     /**
-     * @param array
-     * @return
+     * @param array array
+     * @return array
      */
     @Universal
     public static double[] array( final double... array ) {
@@ -579,7 +579,7 @@ public class Dbl {
      * @param array array of items to reduce by
      * @param object function object
      * @param <T> type of function object.
-     * @return
+     * @return reduction
      */
     private  static <T> double reduceByR( final double[] array, T object ) {
         try {
@@ -730,7 +730,7 @@ public class Dbl {
      * @param array array of items to reduce by
      * @param length where to end in the array
      * @param function function
-     * @param function functionName
+     * @param functionName functionName
      * @return reduction
      */
     public static double reduceBy( final double[] array,  int length,

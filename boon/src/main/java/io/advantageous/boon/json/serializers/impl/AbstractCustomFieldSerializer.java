@@ -43,10 +43,10 @@ public abstract class AbstractCustomFieldSerializer implements CustomFieldSerial
 	 * <pre>
 	 * {@code
 	 * if (value != null) {
-	 * 	builder.addJsonFieldName(fieldAcces.name());
+	 * 	builder.addJsonFieldName(fieldAccess.name());
 	 * 	builder.addQuoted(value.toString());
 	 * } else {
-	 * 	builder.addJsonFieldName(fieldAcces.name());
+	 * 	builder.addJsonFieldName(fieldAccess.name());
 	 * 	builder.addQuoted("N/A");
 	 * }
 	 * </pre>

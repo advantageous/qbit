@@ -239,7 +239,7 @@ public class IntList extends AbstractList<Integer> {
     /**
      * Return the current size.
      *
-     * @return
+     * @return size
      */
     @Override
     public int size() {
@@ -259,7 +259,7 @@ public class IntList extends AbstractList<Integer> {
     /**
      * Get a copy of the array up to the end element.
      *
-     * @return
+     * @return array
      */
     public int[] toValueArray() {
 
@@ -271,7 +271,7 @@ public class IntList extends AbstractList<Integer> {
      * This would be a good opportunity to reintroduce dynamic invoke
      *
      * @param function function
-     * @return
+     * @return array
      */
     public long reduceBy(Object function) {
         return Int.reduceBy(values, end, function);
@@ -282,7 +282,7 @@ public class IntList extends AbstractList<Integer> {
      * This would be a good opportunity to reintroduce dynamic invoke
      *
      * @param function function
-     * @return
+     * @return result
      */
     public long reduceBy(Object function, String name) {
         return Int.reduceBy(values, end, function, name);
@@ -360,7 +360,6 @@ public class IntList extends AbstractList<Integer> {
     /**
      * sort
      *
-     * @return sort
      */
     public void sort() {
         Arrays.sort(values, 0, end);

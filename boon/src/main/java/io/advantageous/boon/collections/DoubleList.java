@@ -284,7 +284,7 @@ public class DoubleList extends AbstractList<Double> {
     /**
      * Return the current size.
      *
-     * @return
+     * @return size
      */
     @Override
     public int size() {
@@ -304,7 +304,7 @@ public class DoubleList extends AbstractList<Double> {
     /**
      * Get a copy of the array up to the end element.
      *
-     * @return
+     * @return array
      */
     public double[] toValueArray() {
 
@@ -316,7 +316,7 @@ public class DoubleList extends AbstractList<Double> {
      * This would be a good opportunity to reintroduce dynamic invoke
      *
      * @param function function
-     * @return
+     * @return result
      */
     public double reduceBy(Object function) {
         return Dbl.reduceBy(values, end, function);
@@ -327,7 +327,7 @@ public class DoubleList extends AbstractList<Double> {
      * This would be a good opportunity to reintroduce dynamic invoke
      *
      * @param function function
-     * @return
+     * @return result
      */
     public double reduceBy(Object function, String name) {
         return Dbl.reduceBy(values, end, function, name);
@@ -405,7 +405,6 @@ public class DoubleList extends AbstractList<Double> {
     /**
      * sort
      *
-     * @return sort
      */
     public void sort() {
         Arrays.sort(values, 0, end);

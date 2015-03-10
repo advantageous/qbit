@@ -348,7 +348,7 @@ public class HttpRequestServiceServerHandler {
     /**
      * Gets the URI from a method annotation
      *
-     * @param methodValuesForAnnotation
+     * @param methodValuesForAnnotation method values for annotation
      * @return URI
      */
     private String extractMethodURI(Map<String, Object> methodValuesForAnnotation) {

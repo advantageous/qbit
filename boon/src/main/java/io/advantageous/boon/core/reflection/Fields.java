@@ -59,9 +59,9 @@ public class Fields {
     /**
      * Checks to see if we have a string field.
      *
-     * @param value1
-     * @param name
-     * @return
+     * @param value1 value1
+     * @param name name
+     * @return result
      */
     public static boolean hasStringField( final Object value1, final String name ) {
 
@@ -72,9 +72,9 @@ public class Fields {
     /**
      * Checks to see if this class has a string field.
      *
-     * @param clz
-     * @param name
-     * @return
+     * @param clz class
+     * @param name name
+     * @return result
      */
     public static boolean classHasStringField( Class<?> clz, String name ) {
 
@@ -96,9 +96,9 @@ public class Fields {
     /**
      * Checks to if an instance has a field
      *
-     * @param value1
-     * @param name
-     * @return
+     * @param value1 value1
+     * @param name name
+     * @return result
      */
     public static boolean hasField( Object value1, String name ) {
         return classHasField( value1.getClass(), name );
@@ -107,9 +107,9 @@ public class Fields {
     /**
      * Checks to see if a class has a field.
      *
-     * @param clz
-     * @param name
-     * @return
+     * @param clz class we are analyzing
+     * @param name name
+     * @return result
      */
     public static boolean classHasField( Class<?> clz, String name ) {
         List<Field> fields = Reflection.getAllFields( clz );
@@ -192,7 +192,7 @@ public class Fields {
     /**
      * Gets the first sortable fields found.
      *
-     * @param value1
+     * @param value1 value
      * @return sortable field
      */
     public static String getSortableField( Object value1 ) {

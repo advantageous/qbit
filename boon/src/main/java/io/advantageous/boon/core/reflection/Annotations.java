@@ -269,7 +269,7 @@ public class Annotations {
      * Create an annotation data list.
      *
      * @param annotations list of annotation.
-     * @return
+     * @return list of annotation data
      */
     public static List<AnnotationData> extractValidationAnnotationData(
             Annotation[] annotations, Set<String> allowedPackages ) {
@@ -291,7 +291,7 @@ public class Annotations {
      *
      * @param clazz        Class containing the property.
      * @param propertyName The name of the property.
-     * @return
+     * @return array of annotation data.
      */
     private static Annotation[] extractAllAnnotationsForProperty( Class<?> clazz, String propertyName, boolean useRead ) {
         try {
@@ -322,7 +322,7 @@ public class Annotations {
      *
      * @param clazz        The class that holds the property.
      * @param propertyName The name of the property.
-     * @return
+     * @return array of annotation data
      * @throws java.beans.IntrospectionException
      *
      */

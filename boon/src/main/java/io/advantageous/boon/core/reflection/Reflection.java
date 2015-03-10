@@ -272,7 +272,7 @@ public class Reflection {
      * Gets a list of fields merges with properties if field is not found.
      *
      * @param clazz get the properties or fields
-     * @return
+     * @return map
      */
     public static Map<String, FieldAccess> getPropertyFieldAccessMapFieldFirst( Class<?> clazz ) {
         Map<String, FieldAccess> combinedFieldsFieldFirst = getCombinedFieldsFieldFirst(clazz);
@@ -312,7 +312,7 @@ public class Reflection {
      * Gets a list of fields merges with properties if field is not found.
      *
      * @param clazz get the properties or fields
-     * @return
+     * @return map
      */
     public static Map<String, FieldAccess> getPropertyFieldAccessMapFieldFirstForSerializer( Class<?> clazz ) {
         Map<String, FieldAccess> combinedFieldsFieldFirst = getCombinedFieldsFieldFirstForSerializer(clazz);

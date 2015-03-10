@@ -522,7 +522,7 @@ public class Str {
      * @param start start
      * @param inStr input string
      * @param end index at end
-     * @return
+     * @return inside of  result
      */
     public static boolean insideOf(String start, String inStr, String end) {
         return Chr.insideOf(FastStringUtils.toCharArray(start), FastStringUtils.toCharArray(inStr), FastStringUtils.toCharArray(end));
@@ -571,91 +571,41 @@ public class Str {
     }
 
 
-    /**
-     *
-     * @param inStr
-     * @param size
-     * @param fill
-     * @return
-     */
     public static String lpad( String inStr, int size, char fill ) {
         return new String( Chr.lpad( inStr.toCharArray(), size, fill ) );
     }
 
 
-    /**
-     *
-     * @param inStr
-     * @param size
-     * @return
-     */
     public static String lpad( String inStr, int size ) {
         return new String( Chr.lpad( inStr.toCharArray(), size, ' ' ) );
     }
 
-
-    /**
-     *
-     * @param inStr
-     * @param size
-     * @return
-     */
     public static String lpad( Object inStr, int size ) {
         return new String( Chr.lpad(inStr == null ? "".toCharArray() : inStr.toString().toCharArray(), size, ' ') );
     }
 
 
-    /**
-     *
-     * @param inStr
-     * @return
-     */
     public static String lpad( Object inStr) {
         return new String( Chr.lpad( inStr == null ? "".toCharArray() : inStr.toString().toCharArray(), 20, ' ' ) );
     }
 
 
-    /**
-     *
-     * @param num
-     * @param size
-     * @return
-     */
     public static String zfill( int num, int size ) {
         return new String( Chr.lpad( Integer.toString( num ).toCharArray(),
                 size, '0' ) );
     }
 
 
-    /**
-     *
-     * @param inStr
-     * @param size
-     * @param fill
-     * @return
-     */
     public static String rpad( String inStr, int size, char fill ) {
         return new String( Chr.rpad( inStr.toCharArray(), size, fill ) );
     }
 
 
-    /**
-     *
-     * @param inStr
-     * @param size
-     * @return
-     */
     public static String rpad( String inStr, int size) {
         return new String( Chr.rpad( inStr.toCharArray(), size, ' ' ) );
     }
 
 
-    /**
-     *
-     * @param obj
-     * @param size
-     * @return
-     */
     public static String rpad( Object obj, int size) {
         if (obj != null) {
             return new String( Chr.rpad( obj.toString().toCharArray(), size, ' ' ) );
@@ -665,11 +615,6 @@ public class Str {
     }
 
 
-    /**
-     *
-     * @param obj
-     * @return
-     */
     public static String rpad( Object obj) {
         if (obj != null) {
             return new String( Chr.rpad( obj.toString().toCharArray(), 20, ' ' ) );
@@ -678,13 +623,6 @@ public class Str {
         }
     }
 
-    /**
-     *
-     * @param obj
-     * @param size
-     * @param fill
-     * @return
-     */
     public static String rpad( Object obj, int size, char fill ) {
         if (obj != null) {
             return new String( Chr.rpad( obj.toString().toCharArray(), size, fill ) );
@@ -693,45 +631,23 @@ public class Str {
         }
     }
 
-    /**
-     *
-     * @param input
-     * @param split
-     * @return
-     */
     public static String[] split( final String input,
                                   final char split ) {
         return StringScanner.split( input, split );
 
     }
 
-    /**
-     *
-     * @param value
-     * @param str
-     * @return
-     */
     @Universal
     public static boolean in( String value, String str ) {
         return str.contains( value );
     }
 
 
-    /**
-     *
-     * @param lines
-     * @return
-     */
     public static String lines( String... lines ) {
         return join( '\n', lines );
     }
 
 
-    /**
-     *
-     * @param lines
-     * @return
-     */
     public static String linesConvertQuotes( String... lines ) {
 
         for (int index=0; index < lines.length; index++) {
@@ -741,12 +657,6 @@ public class Str {
     }
 
 
-    /**
-     *
-     * @param delim
-     * @param args
-     * @return
-     */
     public static String join( char delim, String... args ) {
         CharBuf builder = CharBuf.create( 10 * args.length );
 
@@ -761,12 +671,6 @@ public class Str {
         return builder.toString();
     }
 
-    /**
-     *
-     * @param delim
-     * @param args
-     * @return
-     */
     public static String joinObjects( char delim, Object... args ) {
         CharBuf builder = CharBuf.create( 10 * args.length );
 
@@ -783,11 +687,6 @@ public class Str {
 
 
 
-    /**
-     *
-     * @param args
-     * @return
-     */
     public static String join( String... args ) {
         CharBuf builder = CharBuf.create( 10 * args.length );
 
@@ -797,12 +696,6 @@ public class Str {
         return builder.toString();
     }
 
-    /**
-     *
-     * @param delim
-     * @param args
-     * @return
-     */
     public static String joinCollection( char delim, List<?> args ) {
         CharBuf builder = CharBuf.create( 10 * args.size() );
 
@@ -822,12 +715,6 @@ public class Str {
     }
 
 
-    /**
-     *
-     * @param delim
-     * @param args
-     * @return
-     */
     public static String joinCollection( String delim, List<?> args ) {
         CharBuf builder = CharBuf.create( 10 * args.size() );
 
@@ -846,11 +733,6 @@ public class Str {
 
     }
 
-    /**
-     *
-     * @param str
-     * @return
-     */
     @Universal
     public static boolean isEmpty( String str ) {
         if ( str == null ) {
@@ -872,11 +754,6 @@ public class Str {
     }
 
 
-    /**
-     *
-     * @param string
-     * @return
-     */
     public static String uncapitalize( String string ) {
         StringBuilder rv = new StringBuilder();
         if ( string.length() > 0 ) {
@@ -888,12 +765,6 @@ public class Str {
         return rv.toString();
     }
 
-    /**
-     *
-     * @param object
-     * @param defaultString
-     * @return
-     */
     public static String toString(Object object, String defaultString) {
         if (object == null) {
             return defaultString;
@@ -903,11 +774,6 @@ public class Str {
     }
 
 
-    /**
-     *
-     * @param object
-     * @return
-     */
     public static String toString(Object object) {
         if (object == null) {
             return "";
@@ -917,21 +783,10 @@ public class Str {
     }
 
 
-    /**
-     *
-     * @param str
-     * @return
-     */
     public static String str(Object str) {
         return str == null ? "<NULL>" : str.toString();
     }
 
-    /**
-     *
-     * @param name
-     * @param startsWithList
-     * @return
-     */
     public static boolean startsWithItemInCollection(String name, Collection<String> startsWithList) {
         for (String startsWith : startsWithList) {
             if (name.startsWith(startsWith)) {

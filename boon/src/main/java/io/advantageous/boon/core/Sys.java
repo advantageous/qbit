@@ -262,9 +262,9 @@ public class Sys {
      * Then checks it as an environment variable.
      * (Looks up in env using straight key and performing underBarCase on it.)
      * Then converts defaultValue into a string.
-     * @param key
-     * @param defaultValue
-     * @return
+     * @param key key
+     * @param defaultValue default value
+     * @return prop
      */
     public static String sysProp(String key, Object defaultValue) {
         return _sysProp(key, defaultValue);

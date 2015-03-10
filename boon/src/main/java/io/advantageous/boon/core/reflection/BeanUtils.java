@@ -57,9 +57,9 @@ public class BeanUtils {
     /**
      * This method handles walking lists of lists.
      *
-     * @param item
-     * @param path
-     * @return
+     * @param item item
+     * @param path path
+     * @return value at this path
      */
     public static Object getPropByPath( Object item, String... path ) {
 
@@ -86,7 +86,7 @@ public class BeanUtils {
      * This returns getPropertyFieldFieldAccessMap(clazz, true, true);
      *
      * @param clazz gets the properties or fields of this class.
-     * @return
+     * @return name/field mapping
      */
     private static Map<String, FieldAccess> getPropertyFieldAccessMap( Class<?> clazz ) {
         return Reflection.getPropertyFieldAccessMapFieldFirst( clazz );
@@ -122,8 +122,8 @@ public class BeanUtils {
      * Get fields from object or Map.
      * Allows maps to act like they have fields.
      *
-     * @param object
-     * @return
+     * @param object object
+     * @return names/fields mapping
      */
     public static Map<String, FieldAccess> getFieldsFromObject( Object object ) {
 
@@ -151,8 +151,8 @@ public class BeanUtils {
     /**
      * Get fields from map.
      *
-     * @param map
-     * @return
+     * @param map map
+     * @return fields
      */
     private static Map<String, FieldAccess> getFieldsFromMap(final Map<String, Object> map ) {
 
@@ -495,9 +495,8 @@ public class BeanUtils {
     /**
      * Get property value, loads nested properties
      *
-     * @param root
-     * @param properties
-     * @return
+     * @param root root
+     * @param properties properties forming a path
      */
     public static void setPropertyValue( final Object root, final Object newValue, final String... properties ) {
 
@@ -556,9 +555,8 @@ public class BeanUtils {
     /**
      * Get property value, loads nested properties
      *
-     * @param root
-     * @param properties
-     * @return
+     * @param root root class
+     * @param properties properties forming a path
      */
     public static void setPropertyValue( final Class<?> root, final Object newValue, final String... properties ) {
 
@@ -626,9 +624,9 @@ public class BeanUtils {
         /**
          * Get property value, loads nested properties
          *
-         * @param root
-         * @param properties
-         * @return
+         * @param root root
+         * @param properties properties forming a path
+         * @return value at path
          */
     public static Object getPropertyValue( final Object root, final String... properties ) {
 
@@ -705,9 +703,9 @@ public class BeanUtils {
     /**
      * Get property value, loads nested properties
      *
-     * @param root
-     * @param property
-     * @return
+     * @param root root
+     * @param property property
+     * @return type at this prop path
      */
     public static Class<?> getPropertyType( final Object root, final String property ) {
 
@@ -759,9 +757,9 @@ public class BeanUtils {
     /**
      * Get property value
      *
-     * @param object
+     * @param object object
      * @param path   in dotted notation
-     * @return
+     * @return value
      */
     public static Object idx( Object object, String path ) {
 
@@ -776,9 +774,9 @@ public class BeanUtils {
      * Get property value
      *
      * @deprecated use atIndex or idx.
-     * @param object
+     * @param object object
      * @param path   in dotted notation
-     * @return
+     * @return value at index
      */
     public static Object indexOf(Object object, String path) {
         return atIndex(object, path);
@@ -790,9 +788,9 @@ public class BeanUtils {
     /**
      * Get property value
      *
-     * @param object
+     * @param object object
      * @param path   in dotted notation
-     * @return
+     * @return value at index
      */
     public static Object atIndex(Object object, String path) {
 
@@ -864,9 +862,8 @@ public class BeanUtils {
     /**
      * Set property value to simulate dependency injection.
      *
-     * @param object
+     * @param object object
      * @param path   in dotted notation
-     * @return
      */
     public static void injectIntoProperty( Object object, String path, Object value ) {
 
@@ -879,9 +876,8 @@ public class BeanUtils {
     /**
      * Set property value
      *
-     * @param object
+     * @param object object
      * @param path   in dotted notation
-     * @return
      */
     public static void idx( Object object, String path, Object value ) {
 
@@ -894,9 +890,8 @@ public class BeanUtils {
     /**
      * Set a static value
      *
-     * @param cls
+     * @param cls class
      * @param path   in dotted notation
-     * @return
      */
     public static void idx( Class<?> cls, String path, Object value ) {
 
@@ -910,6 +905,12 @@ public class BeanUtils {
     /**
      * This is an amazing little recursive method. It walks a fanout of
      * nested collection to pull out the leaf nodes
+     *
+     * @param o o
+     * @param propName property name
+     * @param index index
+     * @param path path
+     * @return value which could be a collection
      */
     private static Object getCollectionProp(Object o, String propName, int index, String[] path
                                            ) {
@@ -928,9 +929,9 @@ public class BeanUtils {
      * This is one is forgiving of null paths.
      * This works with getters first, i.e., properties.
      *
-     * @param object
-     * @param property
-     * @return
+     * @param object object
+     * @param property property
+     * @return value
      */
     public static Object getProp( Object object, final String property ) {
         if ( object == null ) {
@@ -961,9 +962,6 @@ public class BeanUtils {
     }
 
 
-    /**
-     * Get an int property.
-     */
     public static int getPropertyInt( final Object root, final String... properties ) {
 
 
@@ -996,9 +994,9 @@ public class BeanUtils {
 
 
     /**
-     * @param root
-     * @param properties
-     * @return
+     * @param root root
+     * @param properties properties
+     * @return value
      */
     private static Object baseForGetProperty( Object root, String[] properties ) {
         Object object = root;
@@ -1056,9 +1054,9 @@ public class BeanUtils {
 
 
     /**
-     * @param root
-     * @param properties
-     * @return
+     * @param root root
+     * @param properties properties
+     * @return class
      */
     private static Class<?> baseForGetProperty( Class<?> root, String[] properties ) {
         Class cls = root;
@@ -1077,9 +1075,9 @@ public class BeanUtils {
     /**
      * Get property value
      *
-     * @param object
+     * @param object object
      * @param path   in dotted notation
-     * @return
+     * @return int
      */
     public static int idxInt( Object object, String path ) {
 
@@ -1092,9 +1090,9 @@ public class BeanUtils {
     /**
      * Get property value
      *
-     * @param object
+     * @param object object
      * @param path   in dotted notation
-     * @return
+     * @return string
      */
     public static String idxStr( Object object, String path ) {
 
@@ -1125,9 +1123,9 @@ public class BeanUtils {
 
 
     /**
-     * @param root
-     * @param properties
-     * @return
+     * @param root root
+     * @param properties properties forming a path
+     * @return byte
      */
     public static byte getPropertyByte( final Object root, final String... properties ) {
 
@@ -1154,11 +1152,6 @@ public class BeanUtils {
         }
     }
 
-    /**
-     * @param object
-     * @param path
-     * @return
-     */
     public static byte idxByte( Object object, String path ) {
 
         String[] properties = propertyPathAsStringArray(path);
@@ -1166,11 +1159,6 @@ public class BeanUtils {
         return getPropertyByte( object, properties );
     }
 
-    /**
-     * @param root
-     * @param properties
-     * @return
-     */
     public static float getPropertyFloat( final Object root, final String... properties ) {
 
         final String lastProperty = properties[ properties.length - 1 ];
@@ -1195,11 +1183,6 @@ public class BeanUtils {
     }
 
 
-    /**
-     * @param object
-     * @param path
-     * @return
-     */
     public static float idxFloat( Object object, String path ) {
 
 
@@ -1209,11 +1192,6 @@ public class BeanUtils {
     }
 
 
-    /**
-     * @param root
-     * @param properties
-     * @return
-     */
     public static short getPropertyShort( final Object root,
                                           final String... properties ) {
 
@@ -1246,9 +1224,9 @@ public class BeanUtils {
 
     /**
      * Get Property Path TypeType
-     * @param root
-     * @param properties
-     * @return
+     * @param root root
+     * @param properties properties forming a path
+     * @return class
      */
     public static Class<?> getPropertyPathType( final Object root,
                                           final String... properties ) {
@@ -1266,9 +1244,9 @@ public class BeanUtils {
 
     /**
      * Get Property Path TypeType
-     * @param root
-     * @param properties
-     * @return
+     * @param root root
+     * @param properties properties forming a path
+     * @return FieldAccess
      */
     public static FieldAccess getPropertyPathField( final Object root,
                                                 final String... properties ) {
@@ -1284,12 +1262,6 @@ public class BeanUtils {
     }
 
 
-    /**
-     * Get Property Path TypeType
-     * @param root
-     * @param properties
-     * @return
-     */
     public static FieldAccess getPropertyPathField( final Class root,
                                                     final String... properties ) {
 
@@ -1303,11 +1275,6 @@ public class BeanUtils {
         return field;
     }
 
-    /**
-     * @param object
-     * @param path
-     * @return
-     */
     public static short idxShort( Object object, String path ) {
 
 
@@ -1316,11 +1283,6 @@ public class BeanUtils {
         return getPropertyShort( object, properties );
     }
 
-    /**
-     * @param object
-     * @param path
-     * @return
-     */
     public static Class idxType( Object object, String path ) {
 
 
@@ -1330,11 +1292,6 @@ public class BeanUtils {
     }
 
 
-    /**
-     * @param object
-     * @param path
-     * @return
-     */
     public static FieldAccess idxField( Object object, String path ) {
 
 
@@ -1344,11 +1301,6 @@ public class BeanUtils {
     }
 
 
-    /**
-     * @param cls
-     * @param path
-     * @return
-     */
     public static FieldAccess idxField( Class<?> cls, String path ) {
 
 
@@ -1357,11 +1309,6 @@ public class BeanUtils {
         return getPropertyPathField( cls, properties );
     }
 
-    /**
-     * @param root
-     * @param properties
-     * @return
-     */
     public static char getPropertyChar( final Object root,
                                         final String... properties ) {
 
@@ -1389,11 +1336,6 @@ public class BeanUtils {
     }
 
 
-    /**
-     * @param object
-     * @param path
-     * @return
-     */
     public static char idxChar( Object object, String path ) {
 
 
@@ -1403,11 +1345,6 @@ public class BeanUtils {
     }
 
 
-    /**
-     * @param root
-     * @param properties
-     * @return
-     */
     public static double getPropertyDouble( final Object root,
                                             final String... properties ) {
 
@@ -1437,11 +1374,6 @@ public class BeanUtils {
     }
 
 
-    /**
-     * @param object
-     * @param path
-     * @return
-     */
     public static double idxDouble( Object object, String path ) {
 
 
@@ -1451,11 +1383,6 @@ public class BeanUtils {
     }
 
 
-    /**
-     * @param root
-     * @param properties
-     * @return
-     */
     public static long getPropertyLong( final Object root,
                                         final String... properties ) {
 
@@ -1483,11 +1410,6 @@ public class BeanUtils {
     }
 
 
-    /**
-     * @param object
-     * @param path
-     * @return
-     */
     public static long idxLong( Object object, String path ) {
 
 
@@ -1497,11 +1419,6 @@ public class BeanUtils {
     }
 
 
-    /**
-     * @param root
-     * @param properties
-     * @return
-     */
     public static boolean getPropertyBoolean( final Object root,
                                               final String... properties ) {
 

@@ -90,7 +90,7 @@ public class WatcherRepoImpl implements WatcherRepo {
     /**
      * Create a new user.
      * @param username name of user create
-     * @return
+     * @return x
      */
     @Override
     public Watcher create(String username) {

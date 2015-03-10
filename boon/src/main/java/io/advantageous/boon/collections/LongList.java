@@ -237,7 +237,7 @@ public class LongList extends AbstractList<Long> {
     /**
      * Return the current size.
      *
-     * @return
+     * @return size
      */
     @Override
     public int size() {
@@ -257,7 +257,7 @@ public class LongList extends AbstractList<Long> {
     /**
      * Get a copy of the array up to the end element.
      *
-     * @return
+     * @return array
      */
     public long[] toValueArray() {
 
@@ -269,7 +269,7 @@ public class LongList extends AbstractList<Long> {
      * This would be a good opportunity to reintroduce dynamic invoke
      *
      * @param function function
-     * @return
+     * @return array
      */
     public long reduceBy(Object function) {
         return Lng.reduceBy(values, end, function);
@@ -280,7 +280,7 @@ public class LongList extends AbstractList<Long> {
      * This would be a good opportunity to reintroduce dynamic invoke
      *
      * @param function function
-     * @return
+     * @return result
      */
     public long reduceBy(Object function, String name) {
         return Lng.reduceBy(values, end, function, name);
@@ -358,7 +358,6 @@ public class LongList extends AbstractList<Long> {
     /**
      * sort
      *
-     * @return sort
      */
     public void sort() {
         Arrays.sort(values, 0, end);

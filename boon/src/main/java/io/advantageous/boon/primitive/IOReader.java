@@ -38,7 +38,7 @@ import java.io.Reader;
 public class IOReader extends Reader{
 
 
-    private static int defaultBufferSize = 100_000;
+    public static int defaultBufferSize = 100_000;
 
     private char buffer[];
 

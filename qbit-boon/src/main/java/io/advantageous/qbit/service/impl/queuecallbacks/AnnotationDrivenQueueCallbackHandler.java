@@ -37,10 +37,10 @@ public class AnnotationDrivenQueueCallbackHandler implements QueueCallBackHandle
     private MethodAccess queueLimit;
     private MethodAccess queueShutdown;
     private MethodAccess queueIdle;
-    private ClassMeta<Class<?>> classMeta;
 
     public AnnotationDrivenQueueCallbackHandler(Object service) {
 
+        ClassMeta<Class<?>> classMeta;
 
         classMeta = (ClassMeta<Class<?>>) ClassMeta.classMeta(service.getClass());
 

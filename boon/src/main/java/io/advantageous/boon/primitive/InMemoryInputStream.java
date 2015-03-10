@@ -54,9 +54,9 @@ public final class InMemoryInputStream extends ByteArrayInputStream {
     }
 
 
-    private int value;
     public final int read() {
 
+        int value;
         if (position >= buffer.length) {
             return -1;
         }

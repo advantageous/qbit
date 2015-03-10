@@ -96,7 +96,7 @@ public class ConcurrentLruCache<KEY, VALUE> implements Cache<KEY, VALUE> {
     /**
      * Get the key without updating the LRU status for testing
      * @param key key
-     * @return
+     * @return value
      */
     @Override
     public VALUE getSilent( KEY key ) {

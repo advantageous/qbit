@@ -1153,7 +1153,6 @@ public class MapperSimple implements Mapper {
      * @param field  field we want to inject something into
      * @param newInstance the thing we want to inject a field value into
      * @param objectValue object value we want to inject into the field.
-     * @return new object from value map
      */
     private  <T> void fromMapHandleNonValueCase( T newInstance, FieldAccess field,
                                                  Object objectValue ) {
@@ -1193,7 +1192,6 @@ public class MapperSimple implements Mapper {
      * @param field  field we want to inject something into
      * @param newInstance the thing we want to inject a field value into
      * @param value object value of type Value we want to inject into the field.
-     * @return new object from value map
      */
     private  <T> void fromValueMapHandleValueCase(
             T newInstance, FieldAccess field, Value value  ) {

@@ -85,7 +85,7 @@ public class FastConcurrentReadLruLfuFifoCache<KEY, VALUE> implements Cache<KEY,
 
     /**
      * New cache LFU is the default.
-     * @param evictSize
+     * @param evictSize eviction size
      */
     public FastConcurrentReadLruLfuFifoCache( int evictSize ) {
         this.evictSize = ( int ) ( evictSize + ( evictSize * 0.20f ) );
@@ -123,8 +123,8 @@ public class FastConcurrentReadLruLfuFifoCache<KEY, VALUE> implements Cache<KEY,
     /**
      * Just for testing
      *
-     * @param evictSize
-     * @param type
+     * @param evictSize eviction size
+     * @param type cache type.
      */
     FastConcurrentReadLruLfuFifoCache( boolean test, int evictSize, CacheType type ) {
         this.evictSize = ( int ) ( evictSize + ( evictSize * 0.20f ) );

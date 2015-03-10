@@ -101,7 +101,7 @@ public class LazyValueMap extends AbstractMap<String, Object> implements ValueMa
     /** Gets the item by key from the mapping.
      *
      * @param key to lookupWithDefault
-     * @return
+     * @return value at key
      */
     @Override
     public final Object get( Object key ) {

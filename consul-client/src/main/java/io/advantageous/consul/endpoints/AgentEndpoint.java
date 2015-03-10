@@ -364,7 +364,7 @@ public class AgentEndpoint {
      * <p/>
      * Instructs the agent to force a node into the "left" state.
      *
-     * @param node
+     * @param node node
      */
     public void forceLeave(String node) {
         final String path = rootPath + "/force-leave";

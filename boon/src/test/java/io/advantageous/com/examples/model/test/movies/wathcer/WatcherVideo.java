@@ -73,7 +73,7 @@ public class WatcherVideo {
 
     /**
      * LikeFactor property.
-     * @param s
+     * @param s s
      */
     public void setScore( int s ) {
         this.score = s;
@@ -82,7 +82,7 @@ public class WatcherVideo {
 
     /**
      * LikeFactor property.
-     * @param s
+     * @param s s
      */
     public void incrementScore( int s ) {
         this.score += s;

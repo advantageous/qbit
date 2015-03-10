@@ -721,11 +721,6 @@ public class Maps {
 
     /**
      * Note, you need to make sure that the iterators are from some sort of ordered collection.
-     * @param keys
-     * @param values
-     * @param <K>
-     * @param <V>
-     * @return
      */
     public static <K, V> Map<K, V> map( Iterable<K> keys, Iterable<V> values ) {
         Map<K, V> map = new LinkedHashMap<>();

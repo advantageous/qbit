@@ -35,10 +35,11 @@ public class DynamicQueueCallbackHandler implements QueueCallBackHandler {
     private final MethodAccess queueLimit;
     private final MethodAccess queueShutdown;
     private final MethodAccess queueIdle;
-    private ClassMeta<Class<?>> classMeta;
 
 
     public DynamicQueueCallbackHandler(Object service) {
+        final ClassMeta<Class<?>> classMeta;
+
         this.service = service;
         classMeta = (ClassMeta<Class<?>>) ClassMeta.classMeta(service.getClass());
 

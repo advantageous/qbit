@@ -116,10 +116,10 @@ public class Invoker {
 
     /**
      * Invokes method from list or map depending on what the Object arg is.
-     * @param object
-     * @param method
-     * @param args
-     * @return
+     * @param object object
+     * @param method method
+     * @param args args
+     * @return result
      */
     public static Object invokeMethodFromObjectArg(Object object, MethodAccess method, Object args) {
         return invokeMethodFromObjectArg(false, null, null, object, method, args);

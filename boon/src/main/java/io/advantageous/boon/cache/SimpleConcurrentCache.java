@@ -353,7 +353,7 @@ public class SimpleConcurrentCache<K, V> implements Cache<K, V> {
     /**
      * Calculate the hash.
      * @param k key
-     * @return
+     * @return hash
      */
     private final int hash( Object k ) {
         int h = hashSeed;

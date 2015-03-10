@@ -509,7 +509,7 @@ public class CharBuf extends PrintWriter implements CharSequence {
     }
 
 
-    private final  boolean hasAnyAsciiControl(final char[] charArray) {
+    private boolean hasAnyAsciiControl(final char[] charArray) {
         int index = 0;
         char c;
         while ( true ) {
@@ -560,7 +560,7 @@ public class CharBuf extends PrintWriter implements CharSequence {
 
 
 
-    private final CharBuf doAddJsonEscapedStringEscapeUnicode( char[] charArray ) {
+    private CharBuf doAddJsonEscapedStringEscapeUnicode( char[] charArray ) {
 
 
         char [] _buffer = buffer;
@@ -693,7 +693,7 @@ public class CharBuf extends PrintWriter implements CharSequence {
     }
 
 
-    private final CharBuf doAddJsonEscapedString( char[] charArray ) {
+    private CharBuf doAddJsonEscapedString( char[] charArray ) {
 
 
         char [] _buffer = buffer;

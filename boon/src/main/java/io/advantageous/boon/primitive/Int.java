@@ -131,15 +131,15 @@ public class Int {
      * Creates an array of bytes
      *
      * @param size size of the array you want to make
-     * @return
+     * @return array
      */
     public static int[] arrayOfInt( final int size ) {
         return new int[ size ];
     }
 
     /**
-     * @param array
-     * @return
+     * @param array array
+     * @return array
      */
     @Universal
     public static int[] array( final int... array ) {
@@ -201,7 +201,6 @@ public class Int {
     /**
      * Sets the value at the given index.
      * @param array the array you are getting the from.
-     * @return the value
      */
     @Universal
     public static void idx( final int[] array, int index, int value ) {
@@ -215,7 +214,6 @@ public class Int {
      * Sets the value at the given index.
      * @param array the array you are setting the value to.
      * @param value the new value.
-     * @return the value
      */
     @Universal
     public static void atIndex( final int[] array, int index, int value ) {
@@ -425,7 +423,7 @@ public class Int {
      * adds two array together and returns the results.
      * @param array first array
      * @param array2 second array
-     * @return
+     * @return result
      */
     @Universal
     public static int[] add( int[] array, int[] array2 ) {
@@ -438,10 +436,10 @@ public class Int {
 
     /**
      * Inserts a value in the midst of another array.
-     * @param array
-     * @param idx
-     * @param v
-     * @return
+     * @param array array
+     * @param idx index
+     * @param v value
+     * @return new array
      */
     @Universal
     public static int[] insert( final int[] array, final int idx, final int v ) {
@@ -485,8 +483,8 @@ public class Int {
 
     /**
      * Inserts an array in the midst of another array.
-     * @param array
-     * @return
+     * @param array array
+     * @return new array
      */
     @Universal
     public static int[] insert( final int[] array, final int fromIndex, final int[] values ) {
@@ -535,7 +533,7 @@ public class Int {
      * Calculates the index for slice notation so -1 is one minus length and so on.
      * @param array array in question
      * @param originalIndex the index give which might be negative or higher than length.
-     * @return
+     * @return index
      */
     private static int calculateIndex( int[] array, int originalIndex ) {
         final int length = array.length;
@@ -571,7 +569,7 @@ public class Int {
      * Calculates the index for slice notation so -1 is one minus length and so on.
      * @param array array in question
      * @param originalIndex the index give which might be negative or higher than length.
-     * @return
+     * @return end index
      */
     private static int calculateEndIndex( int[] array, int originalIndex ) {
         final int length = array.length;
@@ -746,7 +744,7 @@ public class Int {
      * @param array array of items to reduce by
      * @param object function object
      * @param <T> type of function object.
-     * @return
+     * @return result
      */
     private  static <T> long reduceByR( final int[] array, T object ) {
         try {
@@ -897,7 +895,7 @@ public class Int {
      * @param array array of items to reduce by
      * @param length where to end in the array
      * @param function function
-     * @param function functionName
+     * @param functionName functionName
      * @return reduction
      */
     public static long reduceBy( final int[] array,  int length,
@@ -1428,7 +1426,7 @@ public class Int {
 
     /**
      * Calculate a sum of a property from a list.
-     * @param inputList
+     * @param inputList input list
      * @param propertyPath to item we want to sum
      * @return sum
      */

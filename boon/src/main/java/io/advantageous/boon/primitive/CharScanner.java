@@ -69,9 +69,9 @@ public class CharScanner {
     private static final int PIPE = '|';
     private static final char[][] EMPTY_CHAR_ARRAY_ARRAY = new char[0][0];
 
-    private static int NEWLINE= '\n';
+    public static int NEWLINE= '\n';
 
-    private static int CARRIAGE_RETURN= '\r';
+    public static int CARRIAGE_RETURN= '\r';
 
 
 

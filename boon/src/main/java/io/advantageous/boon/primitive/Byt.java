@@ -95,15 +95,15 @@ public class Byt {
      * Creates an array of bytes
      *
      * @param size size of the array you want to make
-     * @return
+     * @return array of bytes
      */
     public static byte[] arrayOfByte( final int size ) {
         return new byte[ size ];
     }
 
     /**
-     * @param array
-     * @return
+     * @param array array
+     * @return array
      */
     @Universal
     public static byte[] array( final byte... array ) {
@@ -111,8 +111,8 @@ public class Byt {
     }
 
     /**
-     * @param array
-     * @return
+     * @param array array
+     * @return array
      */
     @Universal
     public static byte[] bytes( final byte... array ) {
@@ -120,8 +120,8 @@ public class Byt {
     }
 
     /**
-     * @param str
-     * @return
+     * @param str string
+     * @return array
      */
     @Universal
     public static byte[] bytes( String str ) {
@@ -785,7 +785,7 @@ public class Byt {
         int ch1 = buffer[ off ] & 0xFF;
         int ch2 = buffer[ off + 1 ] & 0xFF;
 
-        return ( ch1 << 8 ) + ( ch2 << 0 );
+        return ( ch1 << 8 ) + ( ch2  );
 
 
     }

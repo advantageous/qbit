@@ -102,9 +102,9 @@ class CacheEntry<KEY, VALUE> implements Comparable<CacheEntry> {
     /**
      *
      * @param other other entry to compare to
-     * @return
+     * @return value of comparison
      */
-    private final int compareReadCount( CacheEntry other ) {
+    private  int compareReadCount( CacheEntry other ) {
 
         if ( readCount.get() > other.readCount.get() ) {  //this read count is greater so it has higher priority
             return 1;
@@ -122,7 +122,7 @@ class CacheEntry<KEY, VALUE> implements Comparable<CacheEntry> {
      * @param other the other entry
      * @return results
      */
-    private final int compareTime( CacheEntry other ) {
+    private int compareTime( CacheEntry other ) {
 
         if ( time > other.time ) {  //this time stamp is  greater so it has higher priority
             return 1;
@@ -140,7 +140,7 @@ class CacheEntry<KEY, VALUE> implements Comparable<CacheEntry> {
      * @param other the other entry
      * @return results
      */
-    private final int compareOrder( CacheEntry other ) {
+    private int compareOrder( CacheEntry other ) {
 
         if ( order > other.order ) {  //this order is lower so it has higher priority
             return 1;
@@ -158,7 +158,7 @@ class CacheEntry<KEY, VALUE> implements Comparable<CacheEntry> {
      * @param other read count
      * @return results
      */
-    private final int compareToLFU( CacheEntry other ) {
+    private int compareToLFU( CacheEntry other ) {
 
         int cmp = compareReadCount( other );
         if ( cmp != 0 ) {
@@ -179,7 +179,7 @@ class CacheEntry<KEY, VALUE> implements Comparable<CacheEntry> {
      * @param other other entry to compare to
      * @return results
      */
-    private final int compareToLRU( CacheEntry other ) {
+    private int compareToLRU( CacheEntry other ) {
 
         int cmp = compareTime( other );
         if ( cmp != 0 ) {
@@ -202,7 +202,7 @@ class CacheEntry<KEY, VALUE> implements Comparable<CacheEntry> {
      * @param other the other entry
      * @return results
      */
-    private final int compareToFIFO( CacheEntry other ) {
+    private int compareToFIFO( CacheEntry other ) {
         int cmp = compareOrder( other );
         if ( cmp != 0 ) {
             return cmp;

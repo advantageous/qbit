@@ -120,7 +120,7 @@ public class WebSocketServiceServerHandler {
     /**
      * All WebSocket calls come through here.
      *
-     * @param webSocketMessage
+     * @param webSocketMessage websocket message
      */
     public void handleWebSocketCall(final WebSocketMessage webSocketMessage) {
 

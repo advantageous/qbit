@@ -37,7 +37,7 @@ import java.io.InputStream;
 */
 public final class IOInputStream extends InputStream {
 
-    private static int defaultBufferSize = 100_000;
+    public static int defaultBufferSize = 100_000;
 
     private byte buffer[];
 

@@ -1551,8 +1551,8 @@ public class Conversions {
     /**
      * Cast an object to a comparable object.
      *
-     * @param comparable
-     * @return
+     * @param comparable comparable
+     * @return comparable
      */
     public static Comparable comparable(Object comparable) {
         return (Comparable) comparable;

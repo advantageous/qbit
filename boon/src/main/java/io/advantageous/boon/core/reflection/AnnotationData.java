@@ -50,7 +50,7 @@ import static io.advantageous.boon.Str.uncapitalize;
 public class AnnotationData {
 
     /**
-     * The name of the classname of the annotation.
+     * The name of the className of the annotation.
      */
     private String annotationClassName;
 
@@ -98,10 +98,10 @@ public class AnnotationData {
     }
 
     /**
-     * Get the name of the annotation by lowercasing the first letter
+     * Get the name of the annotation by lowerCasing the first letter
      * of the simple name, e.g., short name Required becomes required.
      *
-     * @return
+     * @return name
      */
     public String getName() {
         return name;
@@ -112,7 +112,7 @@ public class AnnotationData {
      * We use reflection to turn the annotation into a simple HashMap
      * of values.
      *
-     * @return
+     * @return map of basic types and enums
      */
     Map<String, Object> doGetValues(Annotation annotation) {
         /* Holds the value map. */

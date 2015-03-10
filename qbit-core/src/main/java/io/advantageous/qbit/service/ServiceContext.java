@@ -39,7 +39,7 @@ public class ServiceContext {
      * The only time this is valid is during queueInit.
      * This allows a service to get at its Service interface.
      *
-     * @return
+     * @return current service queue
      */
     public ServiceQueue currentService() {
         return BaseServiceQueueImpl.currentService();

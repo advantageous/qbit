@@ -66,9 +66,9 @@ public class Boon {
     /**
      * Checks to see if two objects are equal.
      *
-     * @param a
-     * @param b
-     * @return
+     * @param a a
+     * @param b b
+     * @return eq?
      */
     public static boolean equals(Object a, Object b) {
         return (a == b) || (a != null && a.equals(b));
@@ -104,7 +104,7 @@ public class Boon {
     /**
      * Prints to console.
      *
-     * @param message
+     * @param message message
      */
     public static void print(String message) {
         Sys.print(message);
@@ -182,7 +182,7 @@ public class Boon {
      * like putl but writes to a string.
      *
      * @param messages the stuff you want to print out.
-     * @return
+     * @return string
      */
     public static String sputl(Object... messages) {
         CharBuf buf = CharBuf.create(100);
@@ -193,7 +193,7 @@ public class Boon {
      * Like puts but writes to a String.
      *
      * @param messages the stuff you want to print out.
-     * @return
+     * @return string
      */
     public static String sputs(Object... messages) {
         CharBuf buf = CharBuf.create(80);
@@ -206,7 +206,7 @@ public class Boon {
      *
      * @param buf      char buf
      * @param messages messages
-     * @return
+     * @return charbuf
      */
     public static CharBuf sputl(CharBuf buf, Object... messages) {
 
@@ -521,7 +521,7 @@ public class Boon {
     /**
      * Press enter to continue. Used for console apps.
      *
-     * @param pressEnterKeyMessage
+     * @param pressEnterKeyMessage message
      */
     public static void pressEnterKey(String pressEnterKeyMessage) {
         puts(pressEnterKeyMessage);

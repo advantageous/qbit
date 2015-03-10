@@ -101,15 +101,15 @@ public class Shrt {
      * Creates an array of bytes
      *
      * @param size size of the array you want to make
-     * @return
+     * @return array
      */
     public static short[] arrayOfShort( final int size ) {
         return new short[ size ];
     }
 
     /**
-     * @param array
-     * @return
+     * @param array array
+     * @return array
      */
     @Universal
     public static short[] array( final short... array ) {

@@ -102,15 +102,15 @@ public class Flt {
      * Creates an array of bytes
      *
      * @param size size of the array you want to make
-     * @return
+     * @return array
      */
     public static float[] arrayOfFloat( final int size ) {
         return new float[ size ];
     }
 
     /**
-     * @param array
-     * @return
+     * @param array array
+     * @return array
      */
     @Universal
     public static float[] array( final float... array ) {
@@ -609,7 +609,7 @@ public class Flt {
      * @param array array of items to reduce by
      * @param object function object
      * @param <T> type of function object.
-     * @return
+     * @return result
      */
     private  static <T> double reduceByR( final float[] array, T object ) {
         try {
@@ -760,7 +760,7 @@ public class Flt {
      * @param array array of items to reduce by
      * @param length where to end in the array
      * @param function function
-     * @param function functionName
+     * @param functionName functionName
      * @return reduction
      */
     public static double reduceBy( final float[] array,  int length,

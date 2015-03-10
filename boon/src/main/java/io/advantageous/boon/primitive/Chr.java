@@ -49,7 +49,7 @@ public class Chr {
      * Creates an array of chars
      *
      * @param size size of the array you want to make
-     * @return
+     * @return array
      */
     public static char[] arrayOfChar( final int size ) {
         return new char[ size ];
@@ -57,8 +57,8 @@ public class Chr {
 
 
     /**
-     * @param array
-     * @return
+     * @param array array
+     * @return array
      */
     @Universal
     public static char[] array( final char... array ) {
