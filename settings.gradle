@@ -23,9 +23,9 @@ include 'qbit-test'
 include ':qbit-boon'
 include ':qbit-vertx'
 include 'qbit-servlet'
-include 'consul-client'
 include 'qbit-jetty'
 include ':qbit-admin'
+include 'consul-client'
 
 
 include ':qbit-examples'

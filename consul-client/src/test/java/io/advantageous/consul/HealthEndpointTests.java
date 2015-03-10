@@ -118,7 +118,7 @@ public class HealthEndpointTests {
         client2.agent().fail(serviceId2);
 
         boolean found = false;
-        ConsulResponse<List<ServiceHealth>> response = client2.health().getHealthyNodes(serviceName);
+        ConsulResponse<List<ServiceHealth>> response = client2.health().getHealthyServices(serviceName);
         assertHealth(serviceId, found, response);
     }
 

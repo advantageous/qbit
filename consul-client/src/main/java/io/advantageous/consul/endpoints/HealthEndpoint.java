@@ -248,7 +248,8 @@ public class HealthEndpoint {
      * @return A {@link io.advantageous.consul.domain.ConsulResponse} containing a list of
      * {@link io.advantageous.consul.domain.HealthCheck} objects.
      */
-    public ConsulResponse<List<HealthCheck>> getChecksByState(final Status status, final String datacenter,
+    public ConsulResponse<List<HealthCheck>> getChecksByState(final Status status,
+                                                              final String datacenter,
                                                               final String tag,
                                                               final RequestOptions requestOptions) {
 
@@ -272,12 +273,12 @@ public class HealthEndpoint {
      * 
      * GET /v1/health/service/{service}?passing
      *
-     * @param service The service to query.
+     * @param serviceName The service to query.
      * @return A {@link io.advantageous.consul.domain.ConsulResponse} containing a list of
      * {@link io.advantageous.consul.domain.HealthCheck} objects.
      */
-    public ConsulResponse<List<ServiceHealth>> getHealthyNodes(String service) {
-        return getHealthyNodes(service, null, null, RequestOptions.BLANK);
+    public ConsulResponse<List<ServiceHealth>> getHealthyServices(final String serviceName) {
+        return getHealthyServices(serviceName, null, null, RequestOptions.BLANK);
     }
 
     /**
@@ -285,16 +286,16 @@ public class HealthEndpoint {
      * 
      * GET /v1/health/service/{service}?dc={datacenter}&passing
      *
-     * @param service        The service to query.
+     * @param serviceName        The service to query.
      * @param datacenter        datacenter
      * @param tag        tag
      * @return A {@link io.advantageous.consul.domain.ConsulResponse} containing a list of
      * {@link io.advantageous.consul.domain.HealthCheck} objects.
      */
-    public ConsulResponse<List<ServiceHealth>> getHealthyNodes(final String service,
-                                                               final String datacenter,
-                                                               final String tag) {
-        return getHealthyNodes(service, datacenter, tag, RequestOptions.BLANK);
+    public ConsulResponse<List<ServiceHealth>> getHealthyServicesByDatacenterAndTag(final String serviceName,
+                                                                                    final String datacenter,
+                                                                                    final String tag) {
+        return getHealthyServices(serviceName, datacenter, tag, RequestOptions.BLANK);
     }
 
     /**
@@ -302,13 +303,13 @@ public class HealthEndpoint {
      * 
      * GET /v1/health/service/{service}?passing
      *
-     * @param service      The service to query.
+     * @param serviceName      The service to query.
      * @param requestOptions The Query Options to use.
      * @return A {@link io.advantageous.consul.domain.ConsulResponse} containing a list of
      * {@link io.advantageous.consul.domain.HealthCheck} objects.
      */
-    public ConsulResponse<List<ServiceHealth>> getHealthyNodes(String service, RequestOptions requestOptions) {
-        return getHealthyNodes(service, null, null, requestOptions);
+    public ConsulResponse<List<ServiceHealth>> getHealthyServicesWithRequestOptions(String serviceName, RequestOptions requestOptions) {
+        return getHealthyServices(serviceName, null, null, requestOptions);
     }
 
     /**
@@ -317,17 +318,19 @@ public class HealthEndpoint {
      * 
      * GET /v1/health/service/{service}?dc={datacenter}&passing
      *
-     * @param service        The service to query.
+     * @param serviceName        The service to query.
      * @param datacenter        datacenter
      * @param tag        tag
      * @param requestOptions   The Query Options to use.
      * @return A {@link io.advantageous.consul.domain.ConsulResponse} containing a list of
      * {@link io.advantageous.consul.domain.HealthCheck} objects.
      */
-    public ConsulResponse<List<ServiceHealth>> getHealthyNodes(String service, final String datacenter, final String tag,
-                                                               RequestOptions requestOptions) {
+    public ConsulResponse<List<ServiceHealth>> getHealthyServices(final String serviceName,
+                                                                  final String datacenter,
+                                                                  final String tag,
+                                                                  final RequestOptions requestOptions) {
 
-        final String path = rootPath + "/service/" + service;
+        final String path = rootPath + "/service/" + serviceName;
         final HttpRequestBuilder httpRequestBuilder = RequestUtils
                 .getHttpRequestBuilder(datacenter, tag, requestOptions, path);
 
@@ -356,11 +359,11 @@ public class HealthEndpoint {
      * @param requestOptions   The Query Options to use.
      * @param callback       Callback implemented by callee to handle results.
      */
-    public void getHealthyNodes(final String service,
-                                final String datacenter,
-                                final String tag,
-                                final RequestOptions requestOptions,
-                                final Callback<List<ServiceHealth>> callback) {
+    public void getHealthyServicesAsync(final String service,
+                                        final String datacenter,
+                                        final String tag,
+                                        final RequestOptions requestOptions,
+                                        final Callback<List<ServiceHealth>> callback) {
 
         final String path = rootPath + "/service/" + service;
         final HttpRequestBuilder httpRequestBuilder = RequestUtils
@@ -385,11 +388,11 @@ public class HealthEndpoint {
      * @param requestOptions The Query Options to use.
      * @param callback     Callback implemented by callee to handle results.
      */
-    public void getHealthyNodes(String service, RequestOptions requestOptions,
-                                Callback<List<ServiceHealth>> callback) {
+    public void getHealthyServicesAsync(String service, RequestOptions requestOptions,
+                                        Callback<List<ServiceHealth>> callback) {
 
 
-        getHealthyNodes(service, null, null, requestOptions, callback);
+        getHealthyServicesAsync(service, null, null, requestOptions, callback);
 
     }
 
