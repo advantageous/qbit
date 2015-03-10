@@ -20,6 +20,7 @@ package io.advantageous.qbit.http.jetty.impl.client;
 
 import io.advantageous.qbit.GlobalConstants;
 import io.advantageous.qbit.http.client.HttpClient;
+import io.advantageous.qbit.http.jetty.impl.server.JettyHeaderAdapter;
 import io.advantageous.qbit.http.request.HttpRequest;
 import io.advantageous.qbit.http.websocket.WebSocket;
 import io.advantageous.qbit.util.MultiMap;
@@ -147,11 +148,12 @@ public class JettyQBitHttpClient implements HttpClient {
 
                         request.getReceiver().response(result.getResponse().getStatus(),
                                 result.getResponse().getHeaders().get(HttpHeader.CONTENT_TYPE),
-                                responseString);
+                                responseString,
+                                new JettyHeaderAdapter(result.getResponse().getHeaders()));
                     } else {
                         request.getReceiver().response(result.getResponse().getStatus(),
                                 result.getResponse().getHeaders().get(HttpHeader.CONTENT_TYPE),
-                                responseContent);
+                                responseContent, new JettyHeaderAdapter(result.getResponse().getHeaders()));
 
                     }
                 }
