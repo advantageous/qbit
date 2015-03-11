@@ -156,6 +156,8 @@ public class EventManagerReplicationOverWebSocket extends TimedTesting {
         Sys.sleep(5000);
 
         waitForTrigger(20, o -> bodyB.get()!=null && bodyC.get()!=null);
+        Sys.sleep(500);
+
 
         puts(bodyA.get(), bodyB.get(), bodyC.get());
 
@@ -170,6 +172,8 @@ public class EventManagerReplicationOverWebSocket extends TimedTesting {
         Sys.sleep(5000);
 
         waitForTrigger(20, o -> bodyA.get() != null && bodyB.get() != null);
+        Sys.sleep(500);
+
 
         puts(bodyA.get(), bodyB.get(), bodyC.get());
 
@@ -186,6 +190,7 @@ public class EventManagerReplicationOverWebSocket extends TimedTesting {
         Sys.sleep(5000);
 
         waitForTrigger(20, o -> bodyA.get()!=null && bodyC.get()!=null);
+        Sys.sleep(500);
 
         puts(bodyA.get(), bodyB.get(), bodyC.get());
 

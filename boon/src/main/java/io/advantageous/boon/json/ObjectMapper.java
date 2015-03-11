@@ -41,7 +41,7 @@ import java.util.Collection;
  * beans), and matching JSON constructs.
  * It will use instances of {@link JsonParserAndMapper} and {@link JsonSerializer}
  * for implementing actual reading/writing of JSON.
- *<p>
+ *
  */
 public interface ObjectMapper {
 
@@ -156,6 +156,7 @@ public interface ObjectMapper {
      *
      * @param src source
      * @param valueType value type
+     * @param componentType component type
      * @param <T> T
      * @param <C> C
      * @return T
@@ -171,11 +172,13 @@ public interface ObjectMapper {
      *
      * @param src source
      * @param valueType value type
+     * @param componentType component type
      * @param <T> T
      * @param <C> C
      * @return T
      */
-    <T extends Collection<C>, C> T readValue(File src, Class<T> valueType, Class<C> componentType);
+    <T extends Collection<C>, C> T readValue(File src, Class<T> valueType,
+                                             Class<C> componentType);
     /**
      * Method to deserialize JSON content into a container like Set or List.
      *
@@ -186,11 +189,13 @@ public interface ObjectMapper {
      *
      * @param src source
      * @param valueType value type
+     * @param componentType component type
      * @param <T> T
      * @param <C> C
      * @return T
      */
-    <T extends Collection<C>, C> T readValue(byte[] src, Class<T> valueType, Class<C> componentType);
+    <T extends Collection<C>, C> T readValue(byte[] src, Class<T> valueType,
+                                             Class<C> componentType);
     /**
      * Method to deserialize JSON content into a container like Set or List.
      *
@@ -201,11 +206,13 @@ public interface ObjectMapper {
      *
      * @param src source
      * @param valueType value type
+     * @param componentType component type
      * @param <T> T
      * @param <C> C
      * @return T
      */
-    <T extends Collection<C>, C> T readValue(char[] src, Class<T> valueType, Class<C> componentType);
+    <T extends Collection<C>, C> T readValue(char[] src, Class<T> valueType,
+                                             Class<C> componentType);
     /**
      * Method to deserialize JSON content into a container like Set or List.
      *
@@ -216,11 +223,13 @@ public interface ObjectMapper {
      *
      * @param src source
      * @param valueType value type
+     * @param componentType component type
      * @param <T> T
      * @param <C> C
      * @return T
      */
-    <T extends Collection<C>, C> T readValue(Reader src, Class<T> valueType, Class<C> componentType);
+    <T extends Collection<C>, C> T readValue(Reader src, Class<T> valueType,
+                                             Class<C> componentType);
     /**
      * Method to deserialize JSON content into a container like Set or List.
      *
@@ -231,6 +240,7 @@ public interface ObjectMapper {
      *
      * @param src source
      * @param valueType value type
+     * @param componentType component type
      * @param <T> T
      * @param <C> C
      * @return T
@@ -247,11 +257,15 @@ public interface ObjectMapper {
      *
      * @param src source
      * @param valueType value type
+     * @param componentType component type
+     * @param charset charset
      * @param <T> T
      * @param <C> C
      * @return T
      */
-    <T extends Collection<C>, C> T readValue(byte[] src, Charset charset, Class<T> valueType, Class<C> componentType);
+    <T extends Collection<C>, C> T readValue(byte[] src, Charset charset,
+                                             Class<T> valueType,
+                                             Class<C> componentType);
 
     /**
      * Method to deserialize JSON content into a container like Set or List.
@@ -263,11 +277,15 @@ public interface ObjectMapper {
      *
      * @param src source
      * @param valueType value type
+     * @param componentType component type
+     * @param charset charset
      * @param <T> T
      * @param <C> C
      * @return T
      */
-    <T extends Collection<C>, C> T readValue(InputStream src, Charset charset, Class<T> valueType, Class<C> componentType);
+    <T extends Collection<C>, C> T readValue(InputStream src, Charset charset,
+                                             Class<T> valueType,
+                                             Class<C> componentType);
 
     /**
      * Method that can be used to serialize any Java value as
@@ -308,6 +326,7 @@ public interface ObjectMapper {
      * {@link #writeValue(Writer,Object)} with {@link java.io.StringWriter}
      * and constructing String, but more efficient.
      * @param value value
+     * @return value
      */
     public String writeValueAsString(Object value);
 
@@ -320,6 +339,7 @@ public interface ObjectMapper {
      * {@link #writeValue(Writer,Object)} with {@link java.io.StringWriter}
      * and constructing String, but more efficient.
      * @param value value
+     * @return value
      */
     public char[] writeValueAsCharArray(Object value);
 
@@ -328,6 +348,7 @@ public interface ObjectMapper {
      * a byte array.
      * Encoding used will be UTF-8.
      * @param value value
+     * @return value
      */
     public byte[] writeValueAsBytes(Object value);
 
@@ -336,6 +357,7 @@ public interface ObjectMapper {
      * a byte array.
      * @param value value
      * @param charset charset
+     * @return value
      */
     public byte[] writeValueAsBytes(Object value, Charset charset);
 
