@@ -189,7 +189,6 @@ public class PerfTest {
                     try {
                         writerThread.join(1000);
                     } catch ( InterruptedException e ) {
-                        continue;
                     }
                 }
                 writeDuration.set(System.currentTimeMillis() - writeThreadsStarted);

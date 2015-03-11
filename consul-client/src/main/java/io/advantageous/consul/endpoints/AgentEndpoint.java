@@ -409,8 +409,9 @@ public class AgentEndpoint {
 
     /**
      * Sets a TTL check to "passing" state
+     * @param checkId check id
      */
-    public void pass(String checkId) throws NotRegisteredException {
+    public void pass(final String checkId) throws NotRegisteredException {
         checkTtl(checkId, Status.PASS, null);
     }
 

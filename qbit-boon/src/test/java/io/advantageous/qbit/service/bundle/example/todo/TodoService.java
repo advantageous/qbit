@@ -43,7 +43,6 @@ public class TodoService {
     public boolean timeout() {
 
         while (true) {
-
             Sys.sleep(1000);
         }
 

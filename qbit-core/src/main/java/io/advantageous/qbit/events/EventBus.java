@@ -31,6 +31,8 @@ public interface EventBus extends ServiceFlushable{
      * This method can only be called outside of a service.
      *
      * @param channelName array of channel names
+     * @param listener event listener
+     * @param <T> T
      */
     <T> void register(String channelName, EventListener<T> listener);
 
@@ -47,6 +49,8 @@ public interface EventBus extends ServiceFlushable{
      * This method can only be called outside of a service.
      *
      * @param channelName array of channel names
+     * @param listener event listener
+     * @param <T> T
      */
     <T> void unregister(String channelName, EventListener<T> listener);
 

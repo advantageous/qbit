@@ -202,9 +202,11 @@ public class CatalogEndpoint {
      *
      * GET /v1/catalog/node/{node}
      *
+     * @param node node
+     *
      * @return A list of matching {@link io.advantageous.consul.domain.CatalogService} objects.
      */
-    public ConsulResponse<CatalogNode> getNode(String node) {
+    public ConsulResponse<CatalogNode> getNode(final String node) {
         return getNode(node, null, null, RequestOptions.BLANK);
     }
 
@@ -212,10 +214,13 @@ public class CatalogEndpoint {
      * Retrieves a single node for a given datacenter.
      *
      * GET /v1/catalog/node/{node}?dc={datacenter}
+     * @param node node
+     * @param datacenter dc
+     * @param tag tag
      *
      * @return A list of matching {@link io.advantageous.consul.domain.CatalogService} objects.
      */
-    public ConsulResponse<CatalogNode> getNode(String node, final String datacenter, final String tag
+    public ConsulResponse<CatalogNode> getNode(final String node, final String datacenter, final String tag
                                                ) {
         return getNode(node, datacenter, tag, RequestOptions.BLANK);
     }
@@ -225,10 +230,12 @@ public class CatalogEndpoint {
      *
      * GET /v1/catalog/node/{node}
      *
+     * @param node node
      * @param requestOptions The Query Options to use.
      * @return A list of matching {@link io.advantageous.consul.domain.CatalogService} objects.
      */
-    public ConsulResponse<CatalogNode> getNode(String node, RequestOptions requestOptions) {
+    public ConsulResponse<CatalogNode> getNode(final String node,
+                                               final RequestOptions requestOptions) {
         return getNode(node, null, null, requestOptions);
     }
 
@@ -237,6 +244,7 @@ public class CatalogEndpoint {
      *
      * GET /v1/catalog/node/{node}?dc={datacenter}
      *
+     * @param node node
      * @param datacenter dc
      * @param tag tag
      * @param requestOptions The Query Options to use.

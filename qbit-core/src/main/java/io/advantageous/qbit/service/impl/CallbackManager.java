@@ -29,9 +29,6 @@ import org.slf4j.LoggerFactory;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-/**
- * Created by rhightower on 1/30/15.
- */
 public class CallbackManager {
 
 
@@ -77,16 +74,11 @@ public class CallbackManager {
 
     /**
      * Handles responses coming back from services.
+     * @param responseQueue response queue
      */
     public void startReturnHandlerProcessor(final Queue<Response<Object>> responseQueue) {
 
-        responseQueue.startListener(new ReceiveQueueListener<Response<Object>>() {
-            @Override
-            public void receive(Response<Object> response) {
-                handleResponse(response);
-            }
-
-        });
+        responseQueue.startListener(response -> handleResponse(response));
     }
 
     public void handleResponse(Response<Object> response) {

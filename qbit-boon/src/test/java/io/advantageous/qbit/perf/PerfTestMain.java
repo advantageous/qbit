@@ -87,19 +87,15 @@ public class PerfTestMain {
         for ( int index = 0; index < 80_000_000; index++ ) {
             adder.add("name", 1);
 
-            final int runNum = index;
 
 
             if ( index % 400_000 == 0 ) {
-                adder.sum(new Callback<Integer>() {
-                    @Override
-                    public void accept(Integer integer) {
+                adder.sum(integer -> {
 
 
-                        final long endTime = System.currentTimeMillis();
+                    final long endTime = System.currentTimeMillis();
 
-                        puts("sum", integer, "time", endTime - startTime, "rate", ( integer / ( endTime - startTime ) * 1000 ));
-                    }
+                    puts("sum", integer, "time", endTime - startTime, "rate", ( integer / ( endTime - startTime ) * 1000 ));
                 });
             }
         }

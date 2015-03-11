@@ -36,9 +36,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import static io.advantageous.boon.core.reflection.ClassMeta.classMeta;
 import static io.advantageous.qbit.service.ServiceProxyUtils.flushServiceProxy;
 
-/**
- * Created by rhightower on 2/11/15.
- */
 public class BoonEventBusProxyCreator implements EventBusProxyCreator {
 
     /* I don't think anyone will ever want to change this but they can via a system property. */

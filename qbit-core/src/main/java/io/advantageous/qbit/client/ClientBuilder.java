@@ -28,10 +28,6 @@ import java.net.URL;
 
 /**
  * Client builder is used to createWithWorkers a client programatically.
- * <p>
- * <p>
- * <p>
- * Created by rhightower on 12/3/14.
  */
 public class ClientBuilder {
 

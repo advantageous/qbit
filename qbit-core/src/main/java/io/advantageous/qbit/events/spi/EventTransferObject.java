@@ -22,7 +22,7 @@ import io.advantageous.qbit.message.Event;
 
 /**
  *
- * @param <T>
+ * @param <T> T
  */
 public class EventTransferObject<T> implements Event<T> {
 

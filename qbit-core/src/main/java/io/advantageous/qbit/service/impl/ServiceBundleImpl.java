@@ -136,10 +136,6 @@ public class ServiceBundleImpl implements ServiceBundle {
      */
     private final QueueBuilder queueBuilder;
 
-    /**
-     * @param address root address of client bundle
-     * @param factory the qbit factory where we can createWithWorkers responses, methods, etc.
-     */
     public ServiceBundleImpl(String address, QueueBuilder queueBuilder,
                              final Factory factory, final boolean asyncCalls,
                              final BeforeMethodCall beforeMethodCall,

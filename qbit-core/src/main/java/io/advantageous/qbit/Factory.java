@@ -117,21 +117,6 @@ public interface Factory {
     }
 
 
-    /**
-     * String address, final int batchSize, final int pollRate,
-     final Factory factory, final boolean asyncCalls,
-     final BeforeMethodCall beforeMethodCall,
-     final BeforeMethodCall beforeMethodCallAfterTransform,
-     final Transformer<Request, Object> argTransformer
-     */
-
-    /**
-     * Create a service bundle.
-     *
-     * @param address    service path to bundle (base URI really)
-     * @param asyncCalls service calls
-     * @return new client bundle
-     */
     default ServiceBundle createServiceBundle(String address, final QueueBuilder queueBuilder,
                                               final Factory factory, final boolean asyncCalls,
                                               final BeforeMethodCall beforeMethodCall,
@@ -147,15 +132,6 @@ public interface Factory {
         throw new UnsupportedOperationException();
     }
 
-    /**
-     * Create a client
-     *
-     * @param rootAddress    base URI
-     * @param serviceAddress client address URI
-     * @param object         object that implements the client
-     * @param responseQueue  the response queue.
-     * @return new Service that was created
-     */
     default ServiceQueue createService(String rootAddress, String serviceAddress,
                                   Object object,
                                   Queue<Response<Object>> responseQueue,
@@ -175,6 +151,7 @@ public interface Factory {
      * @param serviceAddress client address URI
      * @param object         object that implements the client
      * @param responseQueue  the response queue.
+     * @param systemManager system manager
      * @return new Service that was created
      */
     default ServiceQueue createService(String rootAddress, String serviceAddress,
@@ -240,6 +217,7 @@ public interface Factory {
      * @param sender           how we are sending the message over the wire
      * @param beforeMethodCall before method call
      * @param <T>              type of client
+     * @param requestBatchSize request batch size
      * @return remote proxy
      */
     default <T> T createRemoteProxyWithReturnAddress(Class<T> serviceInterface, String uri, String serviceName, String returnAddressArg,

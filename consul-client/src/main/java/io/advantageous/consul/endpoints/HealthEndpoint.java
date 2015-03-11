@@ -49,6 +49,9 @@ public class HealthEndpoint {
     /**
      * Constructs an instance of this class.
      *
+     * @param httpClient http client
+     * @param rootPath root path
+     *
      */
     public HealthEndpoint(final HttpClient httpClient, final String rootPath) {
         this.httpClient = httpClient;
@@ -60,6 +63,8 @@ public class HealthEndpoint {
      * Retrieves the healthchecks for a node.
      * 
      * GET /v1/health/node/{node}
+     *
+     * @param node node
      *
      * @return A {@link io.advantageous.consul.domain.ConsulResponse} containing a list of
      * {@link io.advantageous.consul.domain.HealthCheck} objects.
@@ -73,6 +78,7 @@ public class HealthEndpoint {
      * 
      * <code>GET /v1/health/node/{node}?dc={datacenter}</code>
      *
+     * @param node node
      * @param datacenter        datacenter
      * @param tag        tag
      * @return A {@link io.advantageous.consul.domain.ConsulResponse} containing a list of
@@ -88,6 +94,7 @@ public class HealthEndpoint {
      * 
      * GET /v1/health/node/{node}
      *
+     * @param node node
      * @param requestOptions The Query Options to use.
      * @return A {@link io.advantageous.consul.domain.ConsulResponse} containing a list of
      * {@link io.advantageous.consul.domain.HealthCheck} objects.
@@ -101,14 +108,17 @@ public class HealthEndpoint {
      * 
      * GET /v1/health/node/{node}?dc={datacenter}
      *
+     * @param node node
      * @param datacenter        datacenter
      * @param tag        tag
      * @param requestOptions   The Query Options to use.
      * @return A {@link io.advantageous.consul.domain.ConsulResponse} containing a list of
      * {@link io.advantageous.consul.domain.HealthCheck} objects.
      */
-    public ConsulResponse<List<HealthCheck>> getNodeChecks(String node, final String datacenter,
-                                                           final String tag, RequestOptions requestOptions) {
+    public ConsulResponse<List<HealthCheck>> getNodeChecks(final String node,
+                                                           final String datacenter,
+                                                           final String tag,
+                                                           final RequestOptions requestOptions) {
 
 
         final String path = rootPath + "/node/" + node;
@@ -130,10 +140,11 @@ public class HealthEndpoint {
      * 
      * GET /v1/health/service/{service}
      *
+     * @param service service
      * @return A {@link io.advantageous.consul.domain.ConsulResponse} containing a list of
      * {@link io.advantageous.consul.domain.HealthCheck} objects.
      */
-    public ConsulResponse<List<HealthCheck>> getServiceChecks(String service) {
+    public ConsulResponse<List<HealthCheck>> getServiceChecks(final String service) {
         return getNodeChecks(service, null, null, RequestOptions.BLANK);
     }
 
@@ -142,6 +153,7 @@ public class HealthEndpoint {
      * 
      * GET /v1/health/service/{service}?dc={datacenter}
      *
+     * @param service service
      * @param datacenter        datacenter
      * @param tag        tag
      * @return A {@link io.advantageous.consul.domain.ConsulResponse} containing a list of
@@ -157,6 +169,7 @@ public class HealthEndpoint {
      * 
      * GET /v1/health/service/{service}
      *
+     * @param service service
      * @param requestOptions The Query Options to use.
      * @return A {@link io.advantageous.consul.domain.ConsulResponse} containing a list of
      * {@link io.advantageous.consul.domain.HealthCheck} objects.
@@ -170,6 +183,7 @@ public class HealthEndpoint {
      * 
      * GET /v1/health/service/{service}?dc={datacenter}
      *
+     * @param service service
      * @param datacenter        datacenter
      * @param tag        tag
      * @param requestOptions   The Query Options to use.

@@ -114,8 +114,7 @@ public class ShardedMethodDispatcherTest extends TimedTesting {
 
         dispatcher = shardedWorkers((methodName, methodArgs, numWorkers) -> {
             String userName = methodArgs[0].toString();
-            int shardKey =  userName.hashCode() % numWorkers;
-            return shardKey;
+            return userName.hashCode() % numWorkers;
         });
 
 

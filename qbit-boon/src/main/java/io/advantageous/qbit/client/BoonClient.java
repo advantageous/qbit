@@ -66,7 +66,7 @@ public class BoonClient implements Client {
      */
     private final HttpClient httpServerProxy;
     /**
-     * Request batch size for queing.
+     * Request batch size for queuing.
      */
     private final int requestBatchSize;
     /**
@@ -90,8 +90,11 @@ public class BoonClient implements Client {
     /**
      * @param httpClient httpClient
      * @param uri        uri
+     * @param requestBatchSize request batch size
      */
-    public BoonClient(String uri, HttpClient httpClient, int requestBatchSize) {
+    public BoonClient(final String uri,
+                      final HttpClient httpClient,
+                      final int requestBatchSize) {
 
         this.httpServerProxy = httpClient;
         this.uri = uri;
@@ -117,16 +120,16 @@ public class BoonClient implements Client {
 
 
     /**
-     * Handles websocket messages and parses them into responses.
+     * Handles WebSocket messages and parses them into responses.
      * This does not handle batching or rather un-batching which we need for performance
      * we do handle batching in the parser/encoder.
      *
-     * @param websocketText websocket text
+     * @param webSocketText websocket text
      */
-    private void handleWebSocketReplyMessage(final String websocketText) {
+    private void handleWebSocketReplyMessage(final String webSocketText) {
 
 
-        final List<Message<Object>> messages = QBit.factory().createProtocolParser().parse("", websocketText);
+        final List<Message<Object>> messages = QBit.factory().createProtocolParser().parse("", webSocketText);
 
 
         for ( Message<Object> message : messages ) {
@@ -303,7 +306,7 @@ public class BoonClient implements Client {
         final Class<?> componentClass = compType;
 
         /** Create the return handler. */
-        Callback<Object> returnHandler = new Callback<Object>() {
+        return new Callback<Object>() {
             @Override
             public void accept(Object event) {
 
@@ -336,9 +339,6 @@ public class BoonClient implements Client {
 
             }
         };
-
-
-        return returnHandler;
     }
 
     public void start() {

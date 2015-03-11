@@ -68,12 +68,12 @@ public class BoonProtocolParser implements ProtocolParser {
             return false;
         }
 
-        String sargs = ( String ) args;
+        String stringArgs = ( String ) args;
 
-        if ( sargs.length() > 2 &&
-                sargs.charAt(0) == PROTOCOL_MARKER &&
-                ( sargs.charAt(1) == PROTOCOL_MESSAGE_TYPE_METHOD ||
-                        sargs.charAt(1) == PROTOCOL_MESSAGE_TYPE_GROUP || sargs.charAt(1) == PROTOCOL_MESSAGE_TYPE_RESPONSE) ) {
+        if ( stringArgs.length() > 2 &&
+                stringArgs.charAt(0) == PROTOCOL_MARKER &&
+                ( stringArgs.charAt(1) == PROTOCOL_MESSAGE_TYPE_METHOD ||
+                        stringArgs.charAt(1) == PROTOCOL_MESSAGE_TYPE_GROUP || stringArgs.charAt(1) == PROTOCOL_MESSAGE_TYPE_RESPONSE) ) {
             return true;
 
         }
@@ -108,6 +108,7 @@ public class BoonProtocolParser implements ProtocolParser {
         if ( !( body instanceof String ) ) {
 
             die("Body must be a string at this point");
+            return null;
 
         }
 

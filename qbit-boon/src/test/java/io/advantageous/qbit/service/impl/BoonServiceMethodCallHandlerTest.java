@@ -73,7 +73,7 @@ public class BoonServiceMethodCallHandlerTest {
         methodCalled = false;
         impl.receiveMethodCall(factory.createMethodCallByAddress("/boo/baz/baaah/pluck", null, null, null));
 
-        ok = methodCalled == true || die();
+        ok = methodCalled || die();
 
 
     }

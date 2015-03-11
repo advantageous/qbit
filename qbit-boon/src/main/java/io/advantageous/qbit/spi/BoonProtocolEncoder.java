@@ -58,12 +58,8 @@ public class BoonProtocolEncoder implements ProtocolEncoder {
     private ThreadLocal<CharBuf> bufRef = new ThreadLocal<CharBuf>() {
         @Override
         protected CharBuf initialValue() {
-            CharBuf buf = CharBuf.createCharBuf(1000);
-
-            return buf;
+            return CharBuf.createCharBuf(1000);
         }
-
-        ;
     };
 
     @Override
