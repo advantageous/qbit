@@ -543,10 +543,13 @@ public class Dbl {
      * Reduce by functional support for int arrays.
      * @param array array of items to reduce by
      * @param object object that contains the reduce by function
+     * @param methodName method name
      * @param <T> the type of object
      * @return the final reduction
      */
-    public static <T> double reduceBy( final double[] array, T object, String methodName ) {
+    public static <T> double reduceBy( final double[] array,
+                                       final T object,
+                                       final String methodName ) {
 
         if (object.getClass().isAnonymousClass()) {
             return reduceByR(array, object, methodName);
@@ -769,6 +772,7 @@ public class Dbl {
      * @param array array of items to reduce by
      * @param length where to end in the array
      * @param object function
+     * @param start start
      * @return reduction
      */
     public static double reduceBy( final double[] array, int start, int length,
@@ -841,9 +845,10 @@ public class Dbl {
      * Sum
      * Provides overflow protection.
      * @param values values in int
+     * @param length length
      * @return sum
      */
-    public static double sum( double[] values,  int length ) {
+    public static double sum( final double[] values,  final int length ) {
         return sum( values, 0, length);
     }
 
@@ -851,6 +856,8 @@ public class Dbl {
      * Sum
      * Provides overflow protection.
      * @param values values in int
+     * @param length length
+     * @param start start
      * @return sum
      */
     public static double sum( double[] values, int start, int length ) {
@@ -873,14 +880,11 @@ public class Dbl {
 
     }
 
-
-
-
-
-
     /**
      * Max
      * @param values values in int
+     * @param length length
+     * @param start start
      * @return max
      */
     public static double max( double[] values, final int start, final int length ) {
@@ -897,7 +901,7 @@ public class Dbl {
 
     /**
      * max
-     * @param values values in int
+     * @param values values in array
      * @return max
      */
     public static double max( double[] values ) {
@@ -907,7 +911,8 @@ public class Dbl {
 
     /**
      * max
-     * @param values values in int
+     * @param values values in array
+     * @param length length
      * @return max
      */
     public static double max( double[] values, int length ) {
@@ -918,6 +923,8 @@ public class Dbl {
     /**
      * Min
      * @param values values in int
+     * @param start where to start in the array
+     * @param length length
      * @return min
      */
     public static double min( double[] values, final int start, final int length ) {
@@ -942,6 +949,7 @@ public class Dbl {
     /**
      * Min
      * @param values values in int
+     * @param length length
      * @return min
      */
     public static double min( double[] values, int length ) {
@@ -954,6 +962,8 @@ public class Dbl {
     /**
      * Average
      * @param values values
+     * @param start start
+     * @param length length
      * @return average
      */
     private static double mean( double[] values, final int start, final int length ) {
@@ -966,6 +976,7 @@ public class Dbl {
     /**
      * Average
      * @param values values
+     * @param length length
      * @return average
      */
     public static double mean( double[] values, final int length ) {

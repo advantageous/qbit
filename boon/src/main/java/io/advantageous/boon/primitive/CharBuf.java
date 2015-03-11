@@ -1130,6 +1130,7 @@ public class CharBuf extends PrintWriter implements CharSequence {
      * Turn a single bytes into two hex character representation.
      *
      * @param decoded the byte to serializeObject.
+     * @return self
      */
     public  CharSequence addHex( final int decoded  ) {
 

@@ -34,20 +34,32 @@ public interface CharacterSource {
     /** Skip white space. */
     void skipWhiteSpace();
 
-    /** returns the next character moving the file pointer or index to the next location. */
+    /** returns the next character moving the file pointer or index
+     * to the next location.
+     * @return next char
+     */
     int nextChar();
-    /** returns the current character without changing the IO pointer or index. */
+    /** returns the current character without changing the IO pointer or index.
+     * @return currentChar
+     * */
     int currentChar();
-    /** Checks to see if there is a next character. */
+    /** Checks to see if there is a next character.
+     * @return has a char
+     */
     boolean hasChar();
-    /** Useful for finding constants in a string like true, false, etc.  */
+    /** Useful for finding constants in a string like true, false, etc.
+     * @return consume if match
+     **/
     boolean consumeIfMatch( char[] match );
-    /** This is mostly for debugging and testing. */
+    /** This is mostly for debugging and testing.
+     * @return location
+     */
     int location();
 
     /** Combines the operations of nextChar and hasChar.
      *  Characters is -1 if not found which signifies end of file.
      *  This might be preferable to avoid two method calls.
+     * @return safe next char
      **/
     int safeNextChar();
 
@@ -62,7 +74,9 @@ public interface CharacterSource {
 
     boolean hadEscape();
 
-    /** Reads a number from the character source. */
+    /** Reads a number from the character source.
+     * @return readNumber
+     **/
     char[] readNumber(  );
 
     String errorDetails( String message  );

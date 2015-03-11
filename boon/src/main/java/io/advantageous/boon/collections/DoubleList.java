@@ -64,8 +64,9 @@ public class DoubleList extends AbstractList<Double> {
 
     /**
      * Create a new list with this many items in it.
+     * @param capacity capacity
      */
-    public DoubleList(int capacity) {
+    public DoubleList(final int capacity) {
         this.values = new double[capacity];
     }
 
@@ -80,6 +81,8 @@ public class DoubleList extends AbstractList<Double> {
 
     /**
      * Create a new list with this many items in it.
+     * @param values values
+     *
      */
     public DoubleList(double values[]) {
         this.values = values;
@@ -213,15 +216,16 @@ public class DoubleList extends AbstractList<Double> {
     /**
      * Add a new array to the list.
      *
+     * @param newValues values
      * @return was able to add.
      */
-    public boolean addArray(double... integers) {
-        if (end + integers.length >= values.length) {
-            values = grow(values, (values.length + integers.length) * 2);
+    public boolean addArray(double... newValues) {
+        if (end + newValues.length >= this.values.length) {
+            this.values = grow(this.values, (this.values.length + newValues.length) * 2);
         }
 
-        System.arraycopy(integers, 0, values, end, integers.length);
-        end += integers.length;
+        System.arraycopy(newValues, 0, this.values, end, newValues.length);
+        end += newValues.length;
         return true;
     }
 
@@ -294,6 +298,7 @@ public class DoubleList extends AbstractList<Double> {
 
     /**
      * Sums the values with bounds checking.
+     * @return sum
      */
     public double sum() {
 
@@ -327,6 +332,7 @@ public class DoubleList extends AbstractList<Double> {
      * This would be a good opportunity to reintroduce dynamic invoke
      *
      * @param function function
+     * @param name name
      * @return result
      */
     public double reduceBy(Object function, String name) {

@@ -47,8 +47,8 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
  * So if you cache size was 10,000 and you had 8 CPUs, then a reaping would only
  * get one of the least recently used, but maybe not the most least but within the least +-8.
  *
- * @param <K>
- * @param <V>
+ * @param <K> Key
+ * @param <V> Value
  */
 public class SimpleConcurrentCache<K, V> implements Cache<K, V> {
 

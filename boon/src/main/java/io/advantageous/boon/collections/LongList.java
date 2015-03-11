@@ -65,8 +65,9 @@ public class LongList extends AbstractList<Long> {
 
     /**
      * Create a new list with this many items in it.
+     * @param capacity capacity
      */
-    public LongList(int capacity) {
+    public LongList(final int capacity) {
         this.values = new long[capacity];
     }
 
@@ -81,6 +82,7 @@ public class LongList extends AbstractList<Long> {
 
     /**
      * Create a new list with this many items in it.
+     * @param values values
      */
     public LongList(long values[]) {
         this.values = values;
@@ -194,15 +196,16 @@ public class LongList extends AbstractList<Long> {
     /**
      * Add a new array to the list.
      *
+     * @param newValues  new values
      * @return was able to add.
      */
-    public boolean addArray(long... integers) {
-        if (end + integers.length >= values.length) {
-            values = Lng.grow(values, (values.length + integers.length) * 2);
+    public boolean addArray(long... newValues) {
+        if (end + newValues.length >= values.length) {
+            values = Lng.grow(values, (values.length + newValues.length) * 2);
         }
 
-        System.arraycopy(integers, 0, values, end, integers.length);
-        end += integers.length;
+        System.arraycopy(newValues, 0, values, end, newValues.length);
+        end += newValues.length;
         return true;
     }
 
@@ -247,6 +250,7 @@ public class LongList extends AbstractList<Long> {
 
     /**
      * Sums the values with bounds checking.
+     * @return sum
      */
     public long sum() {
 
@@ -280,6 +284,7 @@ public class LongList extends AbstractList<Long> {
      * This would be a good opportunity to reintroduce dynamic invoke
      *
      * @param function function
+     * @param name name
      * @return result
      */
     public long reduceBy(Object function, String name) {

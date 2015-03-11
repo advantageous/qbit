@@ -64,8 +64,9 @@ public class IntList extends AbstractList<Integer> {
 
     /**
      * Create a new list with this many items in it.
+     * @param capacity capacity
      */
-    public IntList(int capacity) {
+    public IntList(final int capacity) {
         this.values = new int[capacity];
     }
 
@@ -80,6 +81,7 @@ public class IntList extends AbstractList<Integer> {
 
     /**
      * Create a new list with this many items in it.
+     * @param values values
      */
     public IntList(int values[]) {
         this.values = values;
@@ -196,15 +198,17 @@ public class IntList extends AbstractList<Integer> {
     /**
      * Add a new array to the list.
      *
+     *
+     * @param newValues new values
      * @return was able to add.
      */
-    public boolean addArray(int... integers) {
-        if (end + integers.length >= values.length) {
-            values = Int.grow(values, (values.length + integers.length) * 2);
+    public boolean addArray(int... newValues) {
+        if (end + newValues.length >= values.length) {
+            values = Int.grow(values, (values.length + newValues.length) * 2);
         }
 
-        System.arraycopy(integers, 0, values, end, integers.length);
-        end += integers.length;
+        System.arraycopy(newValues, 0, values, end, newValues.length);
+        end += newValues.length;
         return true;
     }
 
@@ -249,6 +253,7 @@ public class IntList extends AbstractList<Integer> {
 
     /**
      * Sums the values with bounds checking.
+     * @return sum
      */
     public int sum() {
 
@@ -282,6 +287,7 @@ public class IntList extends AbstractList<Integer> {
      * This would be a good opportunity to reintroduce dynamic invoke
      *
      * @param function function
+     * @param name name
      * @return result
      */
     public long reduceBy(Object function, String name) {

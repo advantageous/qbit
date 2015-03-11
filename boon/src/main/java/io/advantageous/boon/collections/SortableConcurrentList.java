@@ -36,7 +36,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 /**
  * Just a concurrent list.
  *
- * @param <T>
+ * @param <T> T
  */
 public class SortableConcurrentList<T extends Comparable> implements List<T> {
     private final ReadWriteLock readWriteLock = new ReentrantReadWriteLock();

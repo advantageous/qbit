@@ -64,8 +64,9 @@ public class FloatList extends AbstractList<Float> {
 
     /**
      * Create a new list with this many items in it.
+     * @param capacity capacity
      */
-    public FloatList(int capacity) {
+    public FloatList(final int capacity) {
         this.values = new float[capacity];
     }
 
@@ -80,6 +81,7 @@ public class FloatList extends AbstractList<Float> {
 
     /**
      * Create a new list with this many items in it.
+     * @param values  values
      */
     public FloatList(float values[]) {
         this.values = values;
@@ -213,15 +215,16 @@ public class FloatList extends AbstractList<Float> {
     /**
      * Add a new array to the list.
      *
+     * @param values values
      * @return was able to add.
      */
-    public boolean addArray(float... integers) {
-        if (end + integers.length >= values.length) {
-            values = grow(values, (values.length + integers.length) * 2);
+    public boolean addArray(float... values) {
+        if (end + values.length >= this.values.length) {
+            this.values = grow(this.values, (this.values.length + values.length) * 2);
         }
 
-        System.arraycopy(integers, 0, values, end, integers.length);
-        end += integers.length;
+        System.arraycopy(values, 0, this.values, end, values.length);
+        end += values.length;
         return true;
     }
 
@@ -327,6 +330,7 @@ public class FloatList extends AbstractList<Float> {
      * This would be a good opportunity to reintroduce dynamic invoke
      *
      * @param function function
+     * @param name name
      * @return result
      */
     public double reduceBy(Object function, String name) {

@@ -57,8 +57,10 @@ public class ConcurrentLruCache<KEY, VALUE> implements Cache<KEY, VALUE> {
     private final int limit;
 
 
-    /** Creates an LRU Cache with a given limit. */
-    public ConcurrentLruCache( int limit ) {
+    /** Creates an LRU Cache with a given limit.
+     * @param limit limit
+     */
+    public ConcurrentLruCache( final int limit ) {
         this.limit = limit;
     }
 
@@ -105,7 +107,7 @@ public class ConcurrentLruCache<KEY, VALUE> implements Cache<KEY, VALUE> {
 
     /**
      * Remove the key.
-     * @param key
+     * @param key the key
      */
     @Override
     public void remove( KEY key ) {
