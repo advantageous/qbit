@@ -21,6 +21,8 @@ package io.advantageous.qbit.metrics.support;
 
 import io.advantageous.qbit.metrics.StatReplicator;
 
+import java.util.concurrent.atomic.AtomicInteger;
+
 import static io.advantageous.boon.Boon.puts;
 
 /**
@@ -28,7 +30,7 @@ import static io.advantageous.boon.Boon.puts;
  */
 public class DebugReplicator implements StatReplicator {
 
-    public volatile int count;
+    public volatile AtomicInteger count = new AtomicInteger();
 
     public boolean out = false;
 
@@ -42,7 +44,7 @@ public class DebugReplicator implements StatReplicator {
 
     @Override
     public void recordCount(String name, int count, long now) {
-        this.count += count;
+        this.count.addAndGet(count);
         if (out) puts("DEBUG REPLICATOR", name, count, now);
     }
 }

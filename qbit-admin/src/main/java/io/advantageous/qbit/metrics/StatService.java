@@ -26,9 +26,6 @@ import java.util.ArrayList;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-/**
- * Created by rhightower on 1/28/15.
- */
 public class StatService implements QueueCallBackHandler {
     private final StatRecorder recorder;
     private final StatReplicator replica;

@@ -57,7 +57,7 @@ public class StatServiceTest {
 
         statService.recordCount("mystat", 1);
 
-        ok = replicator.count == 1 || die();
+        ok = replicator.count.get() == 1 || die();
         ok = recorder.count == 0 || die();
 
         statService.process();
@@ -85,7 +85,7 @@ public class StatServiceTest {
 
         statService.recordAllCounts(Timer.timer().now(), names, counts);
 
-        ok = replicator.count == 3 || die(replicator.count);
+        ok = replicator.count.get() == 3 || die(replicator.count);
         ok = recorder.count == 0 || die(recorder.count);
 
         statService.process();
@@ -121,7 +121,7 @@ public class StatServiceTest {
 
         statService.recordAllCountsWithTimes(names, counts, times);
 
-        ok = replicator.count == 6 || die(replicator.count);
+        ok = replicator.count.get() == 6 || die(replicator.count);
         ok = recorder.count == 0 || die(recorder.count);
 
         statService.process();

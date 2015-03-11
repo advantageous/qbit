@@ -22,6 +22,7 @@ import io.advantageous.boon.Str;
 import io.advantageous.boon.primitive.CharBuf;
 import io.advantageous.qbit.Factory;
 import io.advantageous.qbit.client.ClientProxy;
+import io.advantageous.qbit.client.RemoteTCPClientProxy;
 import io.advantageous.qbit.client.ServiceProxyFactory;
 import io.advantageous.qbit.message.MethodCall;
 import io.advantageous.qbit.service.EndPoint;
@@ -31,6 +32,8 @@ import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.util.UUID;
+
+import static io.advantageous.boon.Boon.sputs;
 
 /**
  * Created by Richard on 10/1/14.
@@ -48,7 +51,12 @@ public class BoonServiceProxyFactory implements ServiceProxyFactory {
     }
 
     @Override
-    public <T> T createProxyWithReturnAddress(Class<T> serviceInterface, final String serviceName, String returnAddressArg, final EndPoint endPoint) {
+    public <T> T createProxyWithReturnAddress(final Class<T> serviceInterface,
+                                              final String serviceName,
+                                              final String host,
+                                              final int port,
+                                              String returnAddressArg,
+                                              final EndPoint endPoint) {
 
         final String objectAddress = endPoint != null ? Str.add(endPoint.address(), "/", serviceName) : "";
 
@@ -101,28 +109,42 @@ public class BoonServiceProxyFactory implements ServiceProxyFactory {
                 final String address = addressBuf.toString();
 
 
-                final MethodCall<Object> call = factory.createMethodCallToBeEncodedAndSent(messageId, address, returnAddress, serviceName, method.getName(), timestamp, args, null);
+                final MethodCall<Object> call =
+                        factory.createMethodCallToBeEncodedAndSent(messageId, address,
+                                returnAddress, serviceName, method.getName(), timestamp, args, null);
 
-                if ( method.getName().equals("toString") ) {
-                    return "PROXY OBJECT";
+                switch (method.getName()) {
+                    case "port":
+                        return port;
+                    case "host":
+                        return host;
+                    case "toString":
+                        return port == 0 ? sputs("{Local Proxy", serviceName, "}") :
+                                sputs("{Remote Proxy", serviceName, host, port, "}");
+
+                    default:
+                        endPoint.call(call);
                 }
-
-                endPoint.call(call);
 
                 return null;
             }
         };
 
-        final Object o = Proxy.newProxyInstance(serviceInterface.getClassLoader(), new Class[]{serviceInterface, ClientProxy.class}, invocationHandler);
 
 
-        return ( T ) o;
+        if (port == 0) {
+            return (T) Proxy.newProxyInstance(serviceInterface.getClassLoader(),
+                    new Class[]{serviceInterface, ClientProxy.class}, invocationHandler);
+        } else {
+            return (T) Proxy.newProxyInstance(serviceInterface.getClassLoader(),
+                    new Class[]{serviceInterface, RemoteTCPClientProxy.class}, invocationHandler);
+        }
 
 
     }
 
     @Override
     public <T> T createProxy(Class<T> serviceInterface, String serviceName, EndPoint endPoint) {
-        return createProxyWithReturnAddress(serviceInterface, serviceName, "", endPoint);
+        return createProxyWithReturnAddress(serviceInterface, serviceName, "local", 0, "", endPoint);
     }
 }

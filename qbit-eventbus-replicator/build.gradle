@@ -47,6 +47,8 @@ jar {
     from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
 }
 dependencies {
+
+    compile project(':consul-client')
     compile project(':qbit-core')
     compile project(':qbit-boon')
     testCompile group: 'junit', name: 'junit', version: '4.11'

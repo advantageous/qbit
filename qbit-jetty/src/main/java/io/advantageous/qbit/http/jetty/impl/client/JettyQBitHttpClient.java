@@ -173,6 +173,16 @@ public class JettyQBitHttpClient implements HttpClient {
     }
 
     @Override
+    public int getPort() {
+        return this.port;
+    }
+
+    @Override
+    public String getHost() {
+        return this.host;
+    }
+
+    @Override
     public HttpClient start() {
         try {
             httpClient.start();

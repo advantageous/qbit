@@ -257,7 +257,11 @@ public class BoonClient implements Client {
                 return true;
             }
         };
-        T proxy = QBit.factory().createRemoteProxyWithReturnAddress(serviceInterface, uri, serviceName, returnAddressArg, (returnAddress, buffer) -> BoonClient.this.send(serviceName, buffer), beforeMethodCall, requestBatchSize);
+        T proxy = QBit.factory().createRemoteProxyWithReturnAddress(serviceInterface, uri, serviceName,
+                httpServerProxy.getHost(),
+                httpServerProxy.getPort(),
+                returnAddressArg, (returnAddress, buffer) ->
+                        BoonClient.this.send(serviceName, buffer), beforeMethodCall, requestBatchSize);
 
         if ( proxy instanceof ClientProxy ) {
             clientProxies.add(( ClientProxy ) proxy);

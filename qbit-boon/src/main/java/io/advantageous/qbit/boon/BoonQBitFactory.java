@@ -186,8 +186,17 @@ public class BoonQBitFactory implements Factory {
 
 
     @Override
-    public <T> T createRemoteProxyWithReturnAddress(Class<T> serviceInterface, String address, String serviceName, String returnAddressArg, Sender<String> sender, BeforeMethodCall beforeMethodCall, int requestBatchSize) {
-        return remoteServiceProxyFactory.createProxyWithReturnAddress(serviceInterface, serviceName, returnAddressArg, new SenderEndPoint(this.createEncoder(), address, sender, beforeMethodCall, requestBatchSize));
+    public <T> T createRemoteProxyWithReturnAddress(Class<T> serviceInterface, String address,
+                                                    String serviceName,
+                                                    String host,
+                                                    int port,
+                                                    String returnAddressArg,
+                                                    Sender<String> sender,
+                                                    BeforeMethodCall beforeMethodCall,
+                                                    int requestBatchSize) {
+        return remoteServiceProxyFactory.createProxyWithReturnAddress(serviceInterface, serviceName,host, port,
+                returnAddressArg, new SenderEndPoint(this.createEncoder(), address, sender, beforeMethodCall,
+                        requestBatchSize));
     }
 
 

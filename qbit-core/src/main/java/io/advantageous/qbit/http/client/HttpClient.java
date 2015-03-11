@@ -1009,6 +1009,9 @@ public interface HttpClient {
 
     void periodicFlushCallback(Consumer<Void> periodicFlushCallback);
 
+    int getPort();
+
+    String getHost();
 
     HttpClient start();
 

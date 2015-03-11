@@ -225,6 +225,16 @@ public class BoonClientTest {
         }
 
         @Override
+        public int getPort() {
+            return 0;
+        }
+
+        @Override
+        public String getHost() {
+            return "mock";
+        }
+
+        @Override
         public HttpClient start() {
             httpStartCalled = true;
             return this;

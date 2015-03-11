@@ -29,6 +29,8 @@ import io.advantageous.qbit.service.EndPoint;
 public interface ServiceProxyFactory {
     <T> T createProxyWithReturnAddress(Class<T> serviceInterface,
                                        String serviceName,
+                                       String host,
+                                       int port,
                                        String returnAddressArg,
                                        EndPoint serviceBundle);
 

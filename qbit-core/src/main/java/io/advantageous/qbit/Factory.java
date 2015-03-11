@@ -212,7 +212,10 @@ public interface Factory {
      *
      * @param serviceInterface client view of client
      * @param uri              uri of client
+     *
      * @param serviceName      name of the client that we are proxying method calls to.
+     * @param port port
+     * @param host host
      * @param returnAddressArg return address
      * @param sender           how we are sending the message over the wire
      * @param beforeMethodCall before method call
@@ -220,7 +223,10 @@ public interface Factory {
      * @param requestBatchSize request batch size
      * @return remote proxy
      */
-    default <T> T createRemoteProxyWithReturnAddress(Class<T> serviceInterface, String uri, String serviceName, String returnAddressArg,
+    default <T> T createRemoteProxyWithReturnAddress(Class<T> serviceInterface, String uri, String serviceName,
+                                                     String host,
+                                                     int port,
+                                                     String returnAddressArg,
                                                      Sender<String> sender,
                                                      BeforeMethodCall beforeMethodCall,
                                                      int requestBatchSize) {

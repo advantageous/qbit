@@ -192,6 +192,16 @@ public class HttpVertxClient implements HttpClient {
     }
 
     @Override
+    public int getPort() {
+        return port;
+    }
+
+    @Override
+    public String getHost() {
+        return host;
+    }
+
+    @Override
     public void stop() {
 
         if (executorContext != null) {

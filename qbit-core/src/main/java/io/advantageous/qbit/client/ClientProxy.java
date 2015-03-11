@@ -28,4 +28,5 @@ package io.advantageous.qbit.client;
 public interface ClientProxy {
 
     void clientProxyFlush();
+
 }

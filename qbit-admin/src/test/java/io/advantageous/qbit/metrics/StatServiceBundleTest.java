@@ -97,10 +97,10 @@ public class StatServiceBundleTest extends TimedTesting {
         serviceBundle.flush();
 
 
-        triggerLatchWhen(o -> replicator.count == 1);
+        triggerLatchWhen(o -> replicator.count.get() == 1);
         waitForLatch(20);
 
-        ok = replicator.count == 1 || die();
+        ok = replicator.count.get() == 1 || die();
 
     }
 
@@ -115,9 +115,9 @@ public class StatServiceBundleTest extends TimedTesting {
         serviceBundle.flush();
 
 
-        triggerLatchWhen(o -> replicator.count == 3);
+        triggerLatchWhen(o -> replicator.count.get() == 3);
         waitForLatch(20);
-        ok = replicator.count == 3 || die(replicator.count);
+        ok = replicator.count.get() == 3 || die(replicator.count);
 
 
     }
@@ -134,11 +134,17 @@ public class StatServiceBundleTest extends TimedTesting {
         serviceBundle.flush();
 
 
-        triggerLatchWhen(o -> replicator.count == 1000);
+        triggerLatchWhen(o -> replicator.count.get() == 1000);
+
+        for (int index = 0; index < 4; index++) {
+            puts(replicator.count.get());
+            Sys.sleep(100);
+        }
 
         waitForLatch(20);
+        Sys.sleep(1000);
 
-        ok = replicator.count == 1000 || die(replicator.count);
+        ok = replicator.count.get() == 1000 || die(replicator.count);
 
     }
 
@@ -156,11 +162,12 @@ public class StatServiceBundleTest extends TimedTesting {
         serviceBundle.flush();
 
 
-        triggerLatchWhen(o -> replicator.count == 4000);
+        triggerLatchWhen(o -> replicator.count.get() == 4000);
         waitForLatch(20);
 
+        Sys.sleep(1000);
 
-        ok = replicator.count == 4000 || die(replicator.count);
+        ok = replicator.count.get() == 4000 || die(replicator.count);
 
     }
 
@@ -178,10 +185,10 @@ public class StatServiceBundleTest extends TimedTesting {
         serviceBundle.flush();
 
 
-        triggerLatchWhen(o -> replicator.count == 100_000);
+        triggerLatchWhen(o -> replicator.count.get() == 100_000);
         waitForLatch(60);
 
-        ok = replicator.count == 100_000 || die(replicator.count);
+        ok = replicator.count.get() == 100_000 || die(replicator.count);
 
     }
 
@@ -204,7 +211,7 @@ public class StatServiceBundleTest extends TimedTesting {
 
         for (int index = 0; index < 20; index++) {
             Sys.sleep(1000);
-            if (replicator.count == 16_000_000) {
+            if (replicator.count.get() == 16_000_000) {
                 break;
             }
             puts(replicator.count);
@@ -212,7 +219,7 @@ public class StatServiceBundleTest extends TimedTesting {
         }
 
 
-        ok = replicator.count == 16_000_000 || die(replicator.count);
+        ok = replicator.count.get() == 16_000_000 || die(replicator.count);
 
 
         final long end = System.currentTimeMillis();
@@ -284,7 +291,7 @@ public class StatServiceBundleTest extends TimedTesting {
 
         for (int index = 0; index < 100; index++) {
             Sys.sleep(100);
-            if (replicator.count == count) {
+            if (replicator.count.get() == count) {
                 break;
             }
             puts(replicator.count);
@@ -292,7 +299,7 @@ public class StatServiceBundleTest extends TimedTesting {
         }
 
 
-        ok = replicator.count == count || die(replicator.count);
+        ok = replicator.count.get() == count || die(replicator.count);
 
 
         final long end = System.currentTimeMillis();
@@ -318,7 +325,7 @@ public class StatServiceBundleTest extends TimedTesting {
             puts(replicator.count);
 
         }
-        ok = replicator.count == 16_000_000 || die(replicator.count);
+        ok = replicator.count.get() == 16_000_000 || die(replicator.count);
 
 
         final long end = System.currentTimeMillis();
@@ -349,7 +356,7 @@ public class StatServiceBundleTest extends TimedTesting {
             puts(replicator.count);
 
         }
-        ok = replicator.count == 16_000_000 || die(replicator.count);
+        ok = replicator.count.get()  == 16_000_000 || die(replicator.count);
 
 
         final long end = System.currentTimeMillis();

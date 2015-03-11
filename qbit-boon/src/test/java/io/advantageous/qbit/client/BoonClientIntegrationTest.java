@@ -210,6 +210,16 @@ public class BoonClientIntegrationTest extends TimedTesting {
         }
 
         @Override
+        public int getPort() {
+            return 0;
+        }
+
+        @Override
+        public String getHost() {
+            return "mock";
+        }
+
+        @Override
         public HttpClient start() {
             httpStartCalled.set(true);
             return this;

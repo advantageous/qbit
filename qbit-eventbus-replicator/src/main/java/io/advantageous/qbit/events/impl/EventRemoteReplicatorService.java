@@ -7,7 +7,6 @@ import io.advantageous.qbit.annotation.QueueCallbackType;
 import io.advantageous.qbit.events.spi.EventConnector;
 import io.advantageous.qbit.events.EventManager;
 import io.advantageous.qbit.events.spi.EventTransferObject;
-import io.advantageous.qbit.message.Event;
 import io.advantageous.qbit.util.MultiMap;
 
 
