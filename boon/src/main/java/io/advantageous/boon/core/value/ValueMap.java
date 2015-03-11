@@ -34,14 +34,21 @@ import java.util.Map;
 
 public interface ValueMap <K, V> extends  Map<K, V> {
 
-    /* add a map item value. */
+    /** add a map item value.
+     * @param miv miv
+     */
     void add( MapItemValue miv );
-    /** Return size w/o hydrating the map. */
+    /** Return size w/o hydrating the map.
+     * @return len
+     */
     int len();
-    /** Has the map been hydrated. */
+    /** Has the map been hydrated.
+     * @return hydrated
+     */
     boolean hydrated();
     /** Give me the items in the map without hydrating the map.
      * Realize that the array is likely larger than the length so array items can be null.
+     * @return items
      * */
     Entry<String, Value>[] items();
 
