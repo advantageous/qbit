@@ -3,13 +3,13 @@ package io.advantageous.qbit.events.impl;
 import io.advantageous.qbit.events.spi.EventConnector;
 import io.advantageous.qbit.events.spi.EventTransferObject;
 
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.function.Consumer;
 
 /**
  */
-public class EventConnectorHub implements EventConnector {
+public class EventConnectorHub implements EventConnector, Iterable<EventConnector> {
 
     private final List<EventConnector> eventConnectors;
 
@@ -52,4 +52,14 @@ public class EventConnectorHub implements EventConnector {
             eventConnectors.get(index).flush();
         }
     }
+
+    @Override
+    public Iterator<EventConnector> iterator() {
+        return this.eventConnectors.listIterator();
+    }
+
+    public ListIterator<EventConnector> listIterator() {
+        return this.eventConnectors.listIterator();
+    }
+
 }
