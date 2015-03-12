@@ -84,46 +84,6 @@ public class FullIntegrationTest extends TimedTesting {
     }
 
     @Test
-    public void testWebSocketFlushHappy() throws Exception {
-
-
-        final Callback<String> callback = s -> {
-            final int i = returnCount.incrementAndGet();
-
-            if (i % 2 == 0) {
-                puts("return count", returnCount);
-            }
-
-            puts("                     PONG");
-            pongValue.set(s);
-        };
-
-        for (int index = 0; index < 11; index++) {
-
-            clientProxy.ping(callback, "hi");
-
-            ServiceProxyUtils.flushServiceProxy(clientProxy);
-        }
-
-        Sys.sleep(1000);
-        ServiceProxyUtils.flushServiceProxy(clientProxy);
-
-        client.flush();
-        Sys.sleep(1000);
-
-
-        waitForTrigger(20, o -> returnCount.get() == callCount.get()-1);
-        Sys.sleep(1000);
-
-
-        puts("HERE                        ", callCount, returnCount);
-
-        ok = returnCount.get() == callCount.get()-1 || die(callCount, returnCount);
-
-
-    }
-
-    @Test
     public void testWebSocketSend10() throws Exception {
 
 
