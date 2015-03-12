@@ -2,10 +2,12 @@ package io.advantageous.qbit.eventbus;
 
 import io.advantageous.consul.Consul;
 import io.advantageous.consul.domain.ConsulResponse;
+import io.advantageous.consul.domain.NotRegisteredException;
 import io.advantageous.consul.domain.ServiceHealth;
 import io.advantageous.consul.domain.option.Consistency;
 import io.advantageous.consul.domain.option.RequestOptions;
 import io.advantageous.consul.domain.option.RequestOptionsBuilder;
+import io.advantageous.qbit.GlobalConstants;
 import io.advantageous.qbit.QBit;
 import io.advantageous.qbit.client.Client;
 import io.advantageous.qbit.client.RemoteTCPClientProxy;
@@ -14,9 +16,11 @@ import io.advantageous.qbit.events.EventManager;
 import io.advantageous.qbit.events.impl.EventConnectorHub;
 import io.advantageous.qbit.events.spi.EventConnector;
 import io.advantageous.qbit.server.ServiceServer;
-import io.advantageous.qbit.service.ServiceBundle;
+import io.advantageous.qbit.service.ServiceQueue;
 import io.advantageous.qbit.service.Startable;
 import io.advantageous.qbit.service.Stoppable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -24,10 +28,11 @@ import java.util.ListIterator;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
+import static io.advantageous.boon.Boon.puts;
 import static io.advantageous.qbit.events.EventManagerBuilder.eventManagerBuilder;
 import static io.advantageous.qbit.eventbus.EventBusRemoteReplicatorBuilder.eventBusRemoteReplicatorBuilder;
 import static io.advantageous.qbit.eventbus.EventBusReplicationClientBuilder.eventBusReplicationClientBuilder;
-import static io.advantageous.qbit.service.ServiceBundleBuilder.serviceBundleBuilder;
+import static io.advantageous.qbit.service.ServiceBuilder.serviceBuilder;
 
 public class EventBusRing implements Startable, Stoppable {
 
@@ -48,13 +53,18 @@ public class EventBusRing implements Startable, Stoppable {
     private final int replicationServerCheckInIntervalInSeconds;
 
 
+    private final Logger logger = LoggerFactory.getLogger(EventBusRing.class);
+    private final boolean debug = GlobalConstants.DEBUG || logger.isDebugEnabled() || true;
+
+
+
     private int lastIndex = 0;
     private RequestOptions requestOptions;
     private Consul consul;
     private ScheduledFuture healthyNodeMonitor;
     private ScheduledFuture consulCheckInMonitor;
     private ServiceServer serviceServerForReplicator;
-    private  ServiceBundle serviceBundle;
+    private ServiceQueue serviceQueue;
 
     public EventBusRing(
                         final EventManager eventManager,
@@ -102,9 +112,10 @@ public class EventBusRing implements Startable, Stoppable {
 
     private EventManager createEventManager() {
         final EventManager eventManagerImpl = eventManagerBuilder().setEventConnector(eventConnectorHub).build();
-        serviceBundle = serviceBundleBuilder().build();//build service bundle
-        serviceBundle.addServiceObject(eventBusName, eventManagerImpl);
-        return serviceBundle.createLocalProxy(EventManager.class, eventBusName);
+
+        serviceQueue = serviceBuilder().setServiceObject(eventManagerImpl).build();
+
+        return serviceQueue.createProxyWithAutoFlush(EventManager.class, periodicScheduler, 100, TimeUnit.MILLISECONDS);
 
     }
 
@@ -113,6 +124,10 @@ public class EventBusRing implements Startable, Stoppable {
     public void start() {
 
         consul.start();
+
+        if (serviceQueue!=null) {
+            serviceQueue.start();
+        }
 
         startServerReplicator();
 
@@ -128,7 +143,11 @@ public class EventBusRing implements Startable, Stoppable {
     }
 
     private void checkInWithConsul() {
-        consul.agent().pass(localEventBusId, "still running");
+        try {
+            consul.agent().pass(localEventBusId, "still running");
+        } catch (NotRegisteredException ex) {
+            registerLocalBusInConsul();
+        }
     }
 
     private void registerLocalBusInConsul() {
@@ -137,6 +156,7 @@ public class EventBusRing implements Startable, Stoppable {
 
     private void startServerReplicator() {
         final List<ServiceHealth> healthyServices = getHealthyServices();
+
         List<ServiceHealth> newServices = findNewServices(healthyServices);
         addNewServicesToHub(newServices);
 
@@ -153,14 +173,30 @@ public class EventBusRing implements Startable, Stoppable {
         serviceServerForReplicator.start();
     }
 
+    private void showHealthyServices(List<ServiceHealth> healthyServices) {
+        puts("SHOW HEALTHY SERVICES");
+
+        healthyServices.forEach(serviceHealth -> {
+            puts("----------------------------");
+            puts(serviceHealth);
+            puts("----------------------------");
+
+        });
+    }
+
     private List<ServiceHealth> getHealthyServices() {
         final ConsulResponse<List<ServiceHealth>> consulResponse = consul.health()
                 .getHealthyServices(
                         eventBusName, datacenter, tag, requestOptions);
         this.lastIndex = consulResponse.getIndex();
 
+        final List<ServiceHealth> healthyServices = consulResponse.getResponse();
+
+        if (debug) {
+            showHealthyServices(healthyServices);
+        }
         buildRequestOptions();
-        return consulResponse.getResponse();
+        return healthyServices;
     }
 
     private void buildRequestOptions() {
@@ -172,17 +208,7 @@ public class EventBusRing implements Startable, Stoppable {
     private void monitor() {
 
         try {
-            final ConsulResponse<List<ServiceHealth>> consulResponse = consul.health()
-                    .getHealthyServices(
-                            eventBusName, datacenter, tag, requestOptions);
-
-            this.lastIndex = consulResponse.getIndex();
-            buildRequestOptions();
-
-
-            rebuildHub(consulResponse.getResponse());
-
-
+            rebuildHub(getHealthyServices());
         } catch (Exception ex) {
             ex.printStackTrace();//TODO add logging
             consul = Consul.consul(consulHost, consulPort);
@@ -255,9 +281,11 @@ public class EventBusRing implements Startable, Stoppable {
     private void addEventConnector(final String newHost, final int newPort) {
         /* A client replicator */
         EventBusReplicationClientBuilder clientReplicatorBuilder = eventBusReplicationClientBuilder();
+        clientReplicatorBuilder.setName(this.eventBusName);
         clientReplicatorBuilder.clientBuilder().setPort(newPort).setHost(newHost);
         Client client = clientReplicatorBuilder.build();
         final EventConnector eventConnector = clientReplicatorBuilder.build(client);
+        client.start();
         eventConnectorHub.add(eventConnector);
     }
 
@@ -313,8 +341,8 @@ public class EventBusRing implements Startable, Stoppable {
                             consulCheckInMonitor.cancel(true);
                         }
                     } finally {
-                        if (serviceBundle !=null) {
-                            serviceBundle.stop();
+                        if (serviceQueue !=null) {
+                            serviceQueue.stop();
                         }
                     }
                 }

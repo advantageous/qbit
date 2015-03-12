@@ -55,6 +55,8 @@ dependencies {
     testCompile("org.mockito:mockito-core:2.0.4-beta")
     testCompile project(':qbit-test')
     testCompile project(':qbit-jetty')
+    testCompile 'ch.qos.logback:logback-classic:1.1.2'
+
 
 }
 

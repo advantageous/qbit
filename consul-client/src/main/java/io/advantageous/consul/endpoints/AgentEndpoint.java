@@ -81,6 +81,9 @@ public class AgentEndpoint {
     public void pingAgent() {
         final String path = rootPath + "/self";
         final HttpResponse httpResponse = httpClient.get(path);
+        if (httpResponse==null) {
+            die("Error pinging Consul, no connection");
+        }
         if (httpResponse.code() != 200) {
             die("Error pinging Consul", httpResponse.body());
         }

@@ -1,13 +1,20 @@
 package io.advantageous.qbit.eventbus;
 
+import io.advantageous.qbit.GlobalConstants;
 import io.advantageous.qbit.concurrent.PeriodicScheduler;
 import io.advantageous.qbit.events.EventManager;
 import io.advantageous.qbit.events.impl.EventConnectorHub;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 public class EventBusRingBuilder {
+
+    public static EventBusRingBuilder eventBusRingBuilder() {
+        return new EventBusRingBuilder();
+    }
 
     private  String eventBusName = "eventBus";
     private  EventConnectorHub eventConnectorHub = null;
@@ -15,7 +22,7 @@ public class EventBusRingBuilder {
     private  int peerCheckTimeInterval = 7;
     private  TimeUnit peerCheckTimeUnit = TimeUnit.SECONDS;
     private  String consulHost = null;
-    private  int consulPort = 9090;
+    private  int consulPort = 8500;
     private  String datacenter = null;
     private  String tag = null;
     private  int longPollTimeSeconds = 5;
@@ -24,11 +31,19 @@ public class EventBusRingBuilder {
     private  String replicationHostLocal = null;
     private  EventManager eventManager = null;
     private  int replicationServerCheckInIntervalInSeconds = 5;
+    private final Logger logger = LoggerFactory.getLogger(EventBusRingBuilder.class);
+    private final boolean debug = true || GlobalConstants.DEBUG || logger.isDebugEnabled();
+
 
     public EventBusRing build() {
         if (localEventBusId==null) {
             localEventBusId = eventBusName + UUID.randomUUID().toString();
         }
+
+        if (consulHost==null) {
+            consulHost = "localhost";
+        }
+
 
         return new EventBusRing(getEventManager(), getEventBusName(), getLocalEventBusId(),
                 getEventConnectorHub(), getPeriodicScheduler(),
