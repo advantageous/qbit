@@ -32,6 +32,7 @@ import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import static io.advantageous.boon.Boon.sputs;
 
@@ -55,6 +56,7 @@ public class BoonServiceProxyFactory implements ServiceProxyFactory {
                                               final String serviceName,
                                               final String host,
                                               final int port,
+                                              final AtomicBoolean connected,
                                               String returnAddressArg,
                                               final EndPoint endPoint) {
 
@@ -98,6 +100,8 @@ public class BoonServiceProxyFactory implements ServiceProxyFactory {
                     case "toString":
                         return port == 0 ? sputs("{Local Proxy", serviceName, "}") :
                                 sputs("{Remote Proxy", serviceName, host, port, "}");
+                    case "connected":
+                        return connected.get();
 
                 }
 
@@ -146,6 +150,6 @@ public class BoonServiceProxyFactory implements ServiceProxyFactory {
 
     @Override
     public <T> T createProxy(Class<T> serviceInterface, String serviceName, EndPoint endPoint) {
-        return createProxyWithReturnAddress(serviceInterface, serviceName, "local", 0, "", endPoint);
+        return createProxyWithReturnAddress(serviceInterface, serviceName, "local", 0, new AtomicBoolean(true), "", endPoint);
     }
 }

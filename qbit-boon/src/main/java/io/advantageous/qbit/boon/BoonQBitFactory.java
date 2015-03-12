@@ -59,6 +59,7 @@ import org.slf4j.LoggerFactory;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.*;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static io.advantageous.qbit.service.ServiceBuilder.serviceBuilder;
@@ -186,15 +187,20 @@ public class BoonQBitFactory implements Factory {
 
 
     @Override
-    public <T> T createRemoteProxyWithReturnAddress(Class<T> serviceInterface, String address,
-                                                    String serviceName,
-                                                    String host,
-                                                    int port,
-                                                    String returnAddressArg,
-                                                    Sender<String> sender,
-                                                    BeforeMethodCall beforeMethodCall,
-                                                    int requestBatchSize) {
-        return remoteServiceProxyFactory.createProxyWithReturnAddress(serviceInterface, serviceName,host, port,
+    public <T> T createRemoteProxyWithReturnAddress(final Class<T> serviceInterface,
+                                                    final String address,
+                                                    final String serviceName,
+                                                    final String host,
+                                                    final int port,
+                                                    final AtomicBoolean connected,
+                                                    final String returnAddressArg,
+                                                    final Sender<String> sender,
+                                                    final BeforeMethodCall beforeMethodCall,
+                                                    final int requestBatchSize) {
+        return remoteServiceProxyFactory.createProxyWithReturnAddress(
+                    serviceInterface,
+                    serviceName,
+                    host, port, connected,
                 returnAddressArg, new SenderEndPoint(this.createEncoder(), address, sender, beforeMethodCall,
                         requestBatchSize));
     }

@@ -17,7 +17,7 @@ public class EventBusRingBuilderTest {
     EventBusRing eventBusRing;
 
     int port = 0;
-    //@Before
+    @Before
     public void setup() {
 
         port = useOneOfThePortsInThisRange(9000, 9900);
@@ -31,15 +31,12 @@ public class EventBusRingBuilderTest {
     }
 
     @Test
-    public void testFake() {
-    }
-    //    @Test
     public void test() {
 
         eventBusRing.eventManager().register("mom", new EventConsumer<Object>() {
             @Override
             public void listen(Event<Object> event) {
-                puts("\n\n\n", event.channel(), event.body());
+                puts(event.channel(), event.body());
             }
         });
 

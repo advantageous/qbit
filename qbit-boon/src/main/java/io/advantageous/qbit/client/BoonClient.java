@@ -45,6 +45,7 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import static io.advantageous.boon.Boon.sputs;
 import static io.advantageous.boon.Exceptions.die;
@@ -87,6 +88,8 @@ public class BoonClient implements Client {
     private List<ClientProxy> clientProxies = new CopyOnWriteArrayList<>();
     private WebSocket webSocket;
 
+    private AtomicBoolean connected = new AtomicBoolean();
+
     /**
      * @param httpClient httpClient
      * @param uri        uri
@@ -107,7 +110,6 @@ public class BoonClient implements Client {
      */
     public void stop() {
         flush();
-        Sys.sleep(100); //TODO really? Get rid of this and retest
         if ( httpServerProxy != null ) {
             try {
                 httpServerProxy.stop();
@@ -116,6 +118,11 @@ public class BoonClient implements Client {
                 logger.warn("Problem closing httpServerProxy ", ex);
             }
         }
+    }
+
+    @Override
+    public boolean connected() {
+        return connected.get();
     }
 
 
@@ -179,20 +186,39 @@ public class BoonClient implements Client {
         if ( webSocket == null ) {
             this.webSocket = httpServerProxy.createWebSocket(Str.add(uri, "/", serviceName));
             wireWebSocket(serviceName, message);
-            this.webSocket.openAndWait();
-        } else {
-            if ( webSocket.isClosed() ) {
+            try {
                 this.webSocket.openAndWait();
+                this.connected.set(true);
+
+            } catch (Exception ex) {
+                this.connected.set(false);
+                throw new IllegalStateException(ex);
+            }
+        } else {
+            try {
+                if (webSocket.isClosed() && connected()) {
+                    this.webSocket.openAndWait();
+                    this.connected.set(true);
+                }
+            }catch (Exception ex) {
+                logger.error("Unable to open connection", ex);
+                this.connected.set(false);
+                return;
+
             }
         }
 
+        if (!webSocket.isClosed()) {
         /* By this point we should be open. */
-        webSocket.sendText(message);
+            webSocket.sendText(message);
+        }
     }
 
     private void wireWebSocket(final String serviceName, final String message) {
 
-        this.webSocket.setErrorConsumer(error -> logger.error(sputs(this.getClass().getName(), "::Exception calling WebSocket from client proxy", "\nService Name", serviceName, "\nMessage", message), error));
+        this.webSocket.setErrorConsumer(error ->
+                logger.error(sputs(this.getClass().getName(),
+                        "::Exception calling WebSocket from client proxy", "\nService Name", serviceName, "\nMessage", message), error));
 
         this.webSocket.setTextMessageConsumer(messageFromServer -> handleWebSocketReplyMessage(messageFromServer));
     }
@@ -260,6 +286,7 @@ public class BoonClient implements Client {
         T proxy = QBit.factory().createRemoteProxyWithReturnAddress(serviceInterface, uri, serviceName,
                 httpServerProxy.getHost(),
                 httpServerProxy.getPort(),
+                connected,
                 returnAddressArg, (returnAddress, buffer) ->
                         BoonClient.this.send(serviceName, buffer), beforeMethodCall, requestBatchSize);
 

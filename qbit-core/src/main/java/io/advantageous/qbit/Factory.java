@@ -47,6 +47,7 @@ import io.advantageous.qbit.transforms.Transformer;
 import io.advantageous.qbit.util.MultiMap;
 
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * Main factory for QBit. This gets used internally to createWithWorkers / parse methods.
@@ -216,6 +217,7 @@ public interface Factory {
      * @param serviceName      name of the client that we are proxying method calls to.
      * @param port port
      * @param host host
+     * @param connected connected
      * @param returnAddressArg return address
      * @param sender           how we are sending the message over the wire
      * @param beforeMethodCall before method call
@@ -226,6 +228,7 @@ public interface Factory {
     default <T> T createRemoteProxyWithReturnAddress(Class<T> serviceInterface, String uri, String serviceName,
                                                      String host,
                                                      int port,
+                                                     AtomicBoolean connected,
                                                      String returnAddressArg,
                                                      Sender<String> sender,
                                                      BeforeMethodCall beforeMethodCall,

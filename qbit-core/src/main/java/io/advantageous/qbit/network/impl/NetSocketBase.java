@@ -26,9 +26,6 @@ import org.slf4j.LoggerFactory;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 
-/**
- * Created by rhightower on 2/14/15.
- */
 public class NetSocketBase implements NetSocket {
 
     private final String remoteAddress;
@@ -182,7 +179,7 @@ public class NetSocketBase implements NetSocket {
         /* Try to open for three seconds. */
         int count = 300;
         while (!open.get()) {
-            Sys.sleep(100);
+            Sys.sleep(10);
             count--;
             if (count <= 0) {
                 throw new IllegalStateException("Unable to open WebSocket connection");

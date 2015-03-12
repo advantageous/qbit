@@ -88,9 +88,17 @@ public class JettyClientWebSocketSender implements WebSocketSender {
         openWebSocket((WebSocket) netSocket);
     }
 
+    public synchronized Session getSession() {
+        return session;
+    }
+
+    public synchronized  void setSession(Session session) {
+        this.session = session;
+    }
+
     @Override
     public void openWebSocket(final WebSocket webSocket) {
-        if (session != null) throw new IllegalStateException("WebSocket open already");
+        if (getSession() != null) throw new IllegalStateException("WebSocket open already");
         ClientUpgradeRequest request = new ClientUpgradeRequest();
         try {
             webSocketClient.connect(new WebSocketListener() {
@@ -111,13 +119,14 @@ public class JettyClientWebSocketSender implements WebSocketSender {
                     }
 
                     webSocket.onClose();
+                    setSession(null);
 
                 }
 
                 @Override
                 public void onWebSocketConnect(Session session) {
 
-                    JettyClientWebSocketSender.this.session = session;
+                    setSession(session);
                     webSocket.onOpen();
 
                 }

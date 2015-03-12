@@ -48,4 +48,6 @@ public interface Client extends Stoppable {
 
     void stop();
 
+    boolean connected();
+
 }

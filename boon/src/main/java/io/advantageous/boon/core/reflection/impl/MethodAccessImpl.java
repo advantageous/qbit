@@ -42,6 +42,7 @@ import java.lang.invoke.ConstantCallSite;
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Type;
@@ -265,7 +266,15 @@ public class MethodAccessImpl implements MethodAccess {
         try {
 
             return method.invoke( object, args );
-        } catch ( Throwable ex ) {
+        } catch (InvocationTargetException invocationTargetException) {
+
+            return Exceptions.handle(Object.class, invocationTargetException.getTargetException(), "unable to invoke method", method,
+                    " on object ", object, "with arguments", args,
+                    "\nparameter types", parameterTypes(), "\nargument types are", args);
+
+        }
+
+        catch ( Throwable ex ) {
 
             return Exceptions.handle(Object.class, ex, "unable to invoke method", method,
                     " on object ", object, "with arguments", args,

@@ -208,6 +208,8 @@ public class EventBusRing implements Startable, Stoppable {
     private void monitor() {
 
         try {
+
+
             rebuildHub(getHealthyServices());
         } catch (Exception ex) {
             ex.printStackTrace();//TODO add logging
@@ -291,11 +293,21 @@ public class EventBusRing implements Startable, Stoppable {
 
     private void removeBadServices(List<ServiceHealth> services) {
         final ListIterator<EventConnector> listIterator = eventConnectorHub.listIterator();
+
+        final List<EventConnector> badConnectors = new ArrayList<>();
+
         while (listIterator.hasNext()) {
             final EventConnector connector = listIterator.next();
 
+
             /** Remove bad ones. */
             if (connector instanceof RemoteTCPClientProxy) {
+
+                if (!((RemoteTCPClientProxy) connector).connected() ) {
+                    badConnectors.add(connector);
+                    continue;
+                }
+
                 final String host = ((RemoteTCPClientProxy) connector).host();
                 final int port = ((RemoteTCPClientProxy) connector).port();
                 boolean found = false;
@@ -309,10 +321,12 @@ public class EventBusRing implements Startable, Stoppable {
                     }
                 }
                 if (!found) {
-                    listIterator.remove();
+                    badConnectors.add(connector);
                 }
             }
         }
+
+        badConnectors.forEach(eventConnectorHub::remove);
     }
 
 
