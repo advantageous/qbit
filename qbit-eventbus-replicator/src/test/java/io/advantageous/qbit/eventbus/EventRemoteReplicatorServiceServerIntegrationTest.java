@@ -1,8 +1,9 @@
-package io.advantageous.qbit.events.impl;
+package io.advantageous.qbit.eventbus;
 
 import io.advantageous.qbit.client.Client;
-import io.advantageous.qbit.events.spi.EventConnector;
+import io.advantageous.qbit.eventbus.EventRemoteReplicatorService;
 import io.advantageous.qbit.events.EventManager;
+import io.advantageous.qbit.events.spi.EventConnector;
 import io.advantageous.qbit.events.spi.EventTransferObject;
 import io.advantageous.qbit.http.jetty.RegisterJettyWithQBit;
 import io.advantageous.qbit.server.ServiceServer;
@@ -20,8 +21,6 @@ import static io.advantageous.boon.Boon.puts;
 import static io.advantageous.qbit.client.ClientBuilder.clientBuilder;
 import static io.advantageous.qbit.server.ServiceServerBuilder.serviceServerBuilder;
 import static io.advantageous.qbit.service.ServiceProxyUtils.flushServiceProxy;
-import static io.advantageous.qbit.util.PortUtils.findOpenPort;
-import static io.advantageous.qbit.util.PortUtils.findOpenPortStartAt;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 

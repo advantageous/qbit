@@ -1,4 +1,4 @@
-package io.advantageous.qbit.events.impl;
+package io.advantageous.qbit.eventbus;
 
 import io.advantageous.consul.Consul;
 import io.advantageous.consul.domain.ConsulResponse;
@@ -11,6 +11,7 @@ import io.advantageous.qbit.client.Client;
 import io.advantageous.qbit.client.RemoteTCPClientProxy;
 import io.advantageous.qbit.concurrent.PeriodicScheduler;
 import io.advantageous.qbit.events.EventManager;
+import io.advantageous.qbit.events.impl.EventConnectorHub;
 import io.advantageous.qbit.events.spi.EventConnector;
 import io.advantageous.qbit.server.ServiceServer;
 import io.advantageous.qbit.service.ServiceBundle;
@@ -24,8 +25,8 @@ import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
 import static io.advantageous.qbit.events.EventManagerBuilder.eventManagerBuilder;
-import static io.advantageous.qbit.events.impl.EventBusRemoteReplicatorBuilder.eventBusRemoteReplicatorBuilder;
-import static io.advantageous.qbit.events.impl.EventBusReplicationClientBuilder.eventBusReplicationClientBuilder;
+import static io.advantageous.qbit.eventbus.EventBusRemoteReplicatorBuilder.eventBusRemoteReplicatorBuilder;
+import static io.advantageous.qbit.eventbus.EventBusReplicationClientBuilder.eventBusReplicationClientBuilder;
 import static io.advantageous.qbit.service.ServiceBundleBuilder.serviceBundleBuilder;
 
 public class EventBusRing implements Startable, Stoppable {
@@ -33,8 +34,8 @@ public class EventBusRing implements Startable, Stoppable {
     private final String eventBusName;
     private final EventConnectorHub eventConnectorHub;
     private final PeriodicScheduler periodicScheduler;
-    private final int interval;
-    private final TimeUnit timeUnit;
+    private final int peerCheckTimeInterval;
+    private final TimeUnit peerCheckTimeUnit;
     private final String consulHost;
     private final int consulPort;
     private final String datacenter;
@@ -44,11 +45,12 @@ public class EventBusRing implements Startable, Stoppable {
     private final int replicationPortLocal;
     private final String replicationHostLocal;
     private final EventManager eventManager;
-    private final int ttl;
-    private Consul consul;
+    private final int replicationServerCheckInIntervalInSeconds;
+
+
     private int lastIndex = 0;
     private RequestOptions requestOptions;
-
+    private Consul consul;
     private ScheduledFuture healthyNodeMonitor;
     private ScheduledFuture consulCheckInMonitor;
     private ServiceServer serviceServerForReplicator;
@@ -60,7 +62,7 @@ public class EventBusRing implements Startable, Stoppable {
                         final String localEventBusId,
                         final EventConnectorHub eventConnectorHub,
                         final PeriodicScheduler periodicScheduler,
-                        final int interval,
+                        final int peerCheckTimeInterval,
                         final TimeUnit timeunit,
                         final String consulHost,
                         final int consulPort,
@@ -69,14 +71,14 @@ public class EventBusRing implements Startable, Stoppable {
                         final String replicationHostLocal,
                         final String datacenter,
                         final String tag,
-                        final int ttl
+                        final int replicationServerCheckInIntervalInSeconds
     ) {
         this.eventBusName = eventBusName;
         this.eventConnectorHub = eventConnectorHub == null ? new EventConnectorHub() : eventConnectorHub;
         this.periodicScheduler = periodicScheduler == null ?
                 QBit.factory().periodicScheduler() : periodicScheduler;
-        this.interval = interval;
-        this.timeUnit = timeunit;
+        this.peerCheckTimeInterval = peerCheckTimeInterval;
+        this.peerCheckTimeUnit = timeunit;
         this.consulHost = consulHost;
         this.consulPort = consulPort;
         this.consul = Consul.consul(consulHost, consulPort);
@@ -87,11 +89,15 @@ public class EventBusRing implements Startable, Stoppable {
         this.replicationPortLocal = replicationPortLocal;
         this.replicationHostLocal = replicationHostLocal;
         this.eventManager = eventManager == null ? createEventManager() : eventManager;
-        this.ttl = ttl;
+        this.replicationServerCheckInIntervalInSeconds = replicationServerCheckInIntervalInSeconds;
 
 
         buildRequestOptions();
 
+    }
+
+    public EventManager eventManager() {
+        return eventManager;
     }
 
     private EventManager createEventManager() {
@@ -112,10 +118,10 @@ public class EventBusRing implements Startable, Stoppable {
 
         registerLocalBusInConsul();
 
-        healthyNodeMonitor = periodicScheduler.repeat(this::monitor, interval, timeUnit);
+        healthyNodeMonitor = periodicScheduler.repeat(this::monitor, peerCheckTimeInterval, peerCheckTimeUnit);
 
-        if (ttl > 2) {
-            consulCheckInMonitor  = periodicScheduler.repeat(this::checkInWithConsul, ttl / 2, TimeUnit.SECONDS);
+        if (replicationServerCheckInIntervalInSeconds > 2) {
+            consulCheckInMonitor  = periodicScheduler.repeat(this::checkInWithConsul, replicationServerCheckInIntervalInSeconds / 2, TimeUnit.SECONDS);
         } else {
             consulCheckInMonitor  = periodicScheduler.repeat(this::checkInWithConsul, 100, TimeUnit.MILLISECONDS);
         }
@@ -126,7 +132,7 @@ public class EventBusRing implements Startable, Stoppable {
     }
 
     private void registerLocalBusInConsul() {
-        consul.agent().registerService(replicationPortLocal, ttl, eventBusName, localEventBusId, tag);
+        consul.agent().registerService(replicationPortLocal, replicationServerCheckInIntervalInSeconds, eventBusName, localEventBusId, tag);
     }
 
     private void startServerReplicator() {

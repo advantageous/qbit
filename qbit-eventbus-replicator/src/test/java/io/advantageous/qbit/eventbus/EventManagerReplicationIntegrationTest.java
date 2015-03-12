@@ -1,5 +1,6 @@
-package io.advantageous.qbit.events.impl;
+package io.advantageous.qbit.eventbus;
 
+import io.advantageous.qbit.eventbus.EventRemoteReplicatorService;
 import io.advantageous.qbit.events.EventManager;
 import io.advantageous.qbit.events.EventManagerBuilder;
 import io.advantageous.qbit.events.spi.EventConnector;
@@ -13,7 +14,6 @@ import org.junit.Test;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static io.advantageous.qbit.service.ServiceBundleBuilder.serviceBundleBuilder;
-import static io.advantageous.qbit.util.PortUtils.findOpenPortStartAt;
 import static org.junit.Assert.assertEquals;
 
 /**

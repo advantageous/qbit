@@ -1,11 +1,12 @@
-package io.advantageous.qbit.events.impl;
+package io.advantageous.qbit.eventbus;
 
 
 import io.advantageous.qbit.QBit;
 import io.advantageous.qbit.annotation.QueueCallback;
 import io.advantageous.qbit.annotation.QueueCallbackType;
-import io.advantageous.qbit.events.spi.EventConnector;
 import io.advantageous.qbit.events.EventManager;
+import io.advantageous.qbit.events.impl.SimpleEventConnector;
+import io.advantageous.qbit.events.spi.EventConnector;
 import io.advantageous.qbit.events.spi.EventTransferObject;
 import io.advantageous.qbit.util.MultiMap;
 

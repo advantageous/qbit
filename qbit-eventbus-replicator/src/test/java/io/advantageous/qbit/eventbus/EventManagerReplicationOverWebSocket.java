@@ -1,9 +1,12 @@
-package io.advantageous.qbit.events.impl;
+package io.advantageous.qbit.eventbus;
 
 import io.advantageous.boon.core.Sys;
 import io.advantageous.qbit.client.Client;
+import io.advantageous.qbit.eventbus.EventBusRemoteReplicatorBuilder;
+import io.advantageous.qbit.eventbus.EventBusReplicationClientBuilder;
 import io.advantageous.qbit.events.EventManager;
 import io.advantageous.qbit.events.EventManagerBuilder;
+import io.advantageous.qbit.events.impl.EventConnectorHub;
 import io.advantageous.qbit.events.spi.EventConnector;
 import io.advantageous.qbit.http.jetty.RegisterJettyWithQBit;
 import io.advantageous.qbit.server.ServiceServer;
@@ -16,8 +19,8 @@ import org.junit.Test;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static io.advantageous.boon.Boon.puts;
-import static io.advantageous.qbit.events.impl.EventBusRemoteReplicatorBuilder.eventBusRemoteReplicatorBuilder;
-import static io.advantageous.qbit.events.impl.EventBusReplicationClientBuilder.eventBusReplicationClientBuilder;
+import static io.advantageous.qbit.eventbus.EventBusRemoteReplicatorBuilder.eventBusRemoteReplicatorBuilder;
+import static io.advantageous.qbit.eventbus.EventBusReplicationClientBuilder.eventBusReplicationClientBuilder;
 import static io.advantageous.qbit.service.ServiceBundleBuilder.serviceBundleBuilder;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;

@@ -1,4 +1,4 @@
-package io.advantageous.qbit.events.impl;
+package io.advantageous.qbit.eventbus;
 
 
 import io.advantageous.qbit.client.Client;

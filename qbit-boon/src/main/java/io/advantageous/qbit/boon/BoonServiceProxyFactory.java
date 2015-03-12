@@ -84,13 +84,26 @@ public class BoonServiceProxyFactory implements ServiceProxyFactory {
             public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
 
 
+
+
+                switch (method.getName()) {
+                    case "port":
+                        return port;
+                    case "host":
+                        return host;
+                    case "flush":
+                    case "clientProxyFlush":
+                        endPoint.flush();
+                        return null;
+                    case "toString":
+                        return port == 0 ? sputs("{Local Proxy", serviceName, "}") :
+                                sputs("{Remote Proxy", serviceName, host, port, "}");
+
+                }
+
+
                 long messageId = generatedMessageId++;
 
-                if ( method.getName().equals("clientProxyFlush") ) {
-
-                    endPoint.flush();
-                    return null;
-                }
                 times--;
                 if ( times == 0 ) {
                     timestamp = Timer.timer().now();
@@ -113,19 +126,7 @@ public class BoonServiceProxyFactory implements ServiceProxyFactory {
                         factory.createMethodCallToBeEncodedAndSent(messageId, address,
                                 returnAddress, serviceName, method.getName(), timestamp, args, null);
 
-                switch (method.getName()) {
-                    case "port":
-                        return port;
-                    case "host":
-                        return host;
-                    case "toString":
-                        return port == 0 ? sputs("{Local Proxy", serviceName, "}") :
-                                sputs("{Remote Proxy", serviceName, host, port, "}");
-
-                    default:
-                        endPoint.call(call);
-                }
-
+                endPoint.call(call);
                 return null;
             }
         };
