@@ -208,11 +208,9 @@ public class EventBusRing implements Startable, Stoppable {
     private void monitor() {
 
         try {
-
-
             rebuildHub(getHealthyServices());
         } catch (Exception ex) {
-            ex.printStackTrace();//TODO add logging
+            logger.error("unable to contact consul or problems rebuilding event hub", ex);
             consul = Consul.consul(consulHost, consulPort);
             consul.start();
         }
