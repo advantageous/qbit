@@ -37,15 +37,13 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static io.advantageous.boon.Boon.puts;
 import static io.advantageous.boon.Exceptions.die;
 
 
-/**
- * Created by rhightower on 1/19/15.
- */
 public class FullIntegrationTest extends TimedTesting {
 
     static volatile int port = 7777;
@@ -53,15 +51,16 @@ public class FullIntegrationTest extends TimedTesting {
     ServiceServer server;
     HttpClient httpClient;
     ClientServiceInterface clientProxy;
-    volatile int callCount;
+    AtomicInteger callCount = new AtomicInteger();
     AtomicReference<String> pongValue;
     boolean ok;
-    private volatile int returnCount;
+    AtomicInteger returnCount = new AtomicInteger();
 
     /**
      * Holds on to Boon cache so we don't have to recreate reflected gak.
      */
     Object context = Sys.contextToHold();
+
 
     @Test
     public void testWebSocket() throws Exception {
@@ -89,9 +88,9 @@ public class FullIntegrationTest extends TimedTesting {
 
 
         final Callback<String> callback = s -> {
-            returnCount++;
+            final int i = returnCount.incrementAndGet();
 
-            if (returnCount % 2 == 0) {
+            if (i % 2 == 0) {
                 puts("return count", returnCount);
             }
 
@@ -99,25 +98,27 @@ public class FullIntegrationTest extends TimedTesting {
             pongValue.set(s);
         };
 
-        for (int index = 0; index < 10; index++) {
+        for (int index = 0; index < 11; index++) {
 
             clientProxy.ping(callback, "hi");
 
+            ServiceProxyUtils.flushServiceProxy(clientProxy);
         }
 
+        Sys.sleep(1000);
         ServiceProxyUtils.flushServiceProxy(clientProxy);
-        Sys.sleep(100);
 
         client.flush();
-        Sys.sleep(100);
+        Sys.sleep(1000);
 
 
-        waitForTrigger(20, o -> returnCount == callCount);
+        waitForTrigger(20, o -> returnCount.get() == callCount.get()-1);
+        Sys.sleep(1000);
 
 
         puts("HERE                        ", callCount, returnCount);
 
-        ok = returnCount == callCount || die(callCount);
+        ok = returnCount.get() == callCount.get()-1 || die(callCount, returnCount);
 
 
     }
@@ -127,11 +128,7 @@ public class FullIntegrationTest extends TimedTesting {
 
 
         final Callback<String> callback = s -> {
-            returnCount++;
-
-            if (returnCount % 2 == 0) {
-                puts("return count", returnCount);
-            }
+            returnCount.incrementAndGet();
 
             puts("                     PONG");
             pongValue.set(s);
@@ -151,12 +148,12 @@ public class FullIntegrationTest extends TimedTesting {
         Sys.sleep(100);
 
 
-        waitForTrigger(20, o -> returnCount == callCount);
+        waitForTrigger(20, o -> returnCount.get() == callCount.get());
 
 
         puts("HERE                        ", callCount, returnCount);
 
-        ok = returnCount == callCount || die(returnCount, callCount);
+        ok = returnCount.get() == callCount.get() || die(returnCount, callCount);
 
 
     }
@@ -200,6 +197,7 @@ public class FullIntegrationTest extends TimedTesting {
 
         port += 10;
         pongValue = new AtomicReference<>();
+        returnCount.set(0);
 
         httpClient = new HttpClientBuilder().setPort(port).build();
 
@@ -220,7 +218,7 @@ public class FullIntegrationTest extends TimedTesting {
         Sys.sleep(100);
         client.start();
 
-        callCount = 0;
+        callCount.set(0);
         pongValue.set(null);
 
         Sys.sleep(200);
@@ -254,7 +252,7 @@ public class FullIntegrationTest extends TimedTesting {
 
         @RequestMapping(method = RequestMethod.POST)
         public String ping(String ping) {
-            callCount++;
+            callCount.incrementAndGet();
             return ping + " pong";
         }
     }
