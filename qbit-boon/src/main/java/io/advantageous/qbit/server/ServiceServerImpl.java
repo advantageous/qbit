@@ -21,7 +21,6 @@ package io.advantageous.qbit.server;
 import io.advantageous.qbit.GlobalConstants;
 import io.advantageous.qbit.http.HttpTransport;
 import io.advantageous.qbit.http.request.HttpRequest;
-import io.advantageous.qbit.http.server.HttpServer;
 import io.advantageous.qbit.http.server.websocket.WebSocketMessage;
 import io.advantageous.qbit.json.JsonMapper;
 import io.advantageous.qbit.message.MethodCall;
@@ -29,6 +28,7 @@ import io.advantageous.qbit.message.Request;
 import io.advantageous.qbit.message.Response;
 import io.advantageous.qbit.queue.ReceiveQueueListener;
 import io.advantageous.qbit.service.ServiceBundle;
+import io.advantageous.qbit.service.ServiceQueue;
 import io.advantageous.qbit.service.Stoppable;
 import io.advantageous.qbit.spi.ProtocolEncoder;
 import io.advantageous.qbit.spi.ProtocolParser;
@@ -275,6 +275,15 @@ public class ServiceServerImpl implements ServiceServer {
         return this;
 
     }
+
+
+    public  ServiceServer addServiceQueue(String address, ServiceQueue serviceQueue) {
+        serviceBundle().addServiceQueue(address, serviceQueue);
+        httpRequestServerHandler.addRestSupportFor(serviceQueue.service().getClass(), serviceBundle.address());
+        return this;
+    }
+
+
 
 
     @Override

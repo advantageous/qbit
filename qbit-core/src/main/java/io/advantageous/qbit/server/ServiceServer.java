@@ -44,9 +44,8 @@ public interface ServiceServer extends Server {
 
     }
 
-    default ServiceServer addService(String address, ServiceQueue serviceQueue) {
-        serviceBundle().addService(address, serviceQueue);
-        return this;
+    default ServiceServer addServiceQueue(String address, ServiceQueue serviceQueue) {
+        throw new IllegalStateException("Not implemented");
     }
 
     default ServiceServer addServiceConsumer(String address, Consumer<MethodCall<Object>> service) {

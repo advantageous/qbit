@@ -195,6 +195,7 @@ public class ServiceBundleImpl implements ServiceBundle {
         if ( serviceObject instanceof Consumer ) {
 
             addServiceConsumer(serviceAddress, (Consumer<MethodCall<Object>>) serviceObject);
+            return this;
         }
 
 
@@ -206,6 +207,7 @@ public class ServiceBundleImpl implements ServiceBundle {
         if (serviceObject instanceof ServiceQueue) {
             addServiceService(serviceAddress, (ServiceQueue) serviceObject);
 
+            return this;
         }
 
         /** Turn this client object into a client with queues. */
@@ -599,4 +601,13 @@ public class ServiceBundleImpl implements ServiceBundle {
         }
 
     }
+
+
+
+    public ServiceBundle addServiceQueue(String address, ServiceQueue serviceQueue) {
+
+        addServiceService(address, serviceQueue);
+        return this;
+    }
+
 }

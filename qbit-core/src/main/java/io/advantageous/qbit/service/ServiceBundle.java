@@ -43,9 +43,9 @@ public interface ServiceBundle extends EndPoint {
     ServiceBundle addServiceObject(String address, Object object);
 
 
-    default ServiceBundle addService(String address, ServiceQueue serviceQueue) {
-        this.addServiceObject(address, serviceQueue);
-        return this;
+    default ServiceBundle addServiceQueue(String address, ServiceQueue serviceQueue) {
+
+        throw new IllegalStateException("Not implemented");
     }
 
     default ServiceBundle addServiceConsumer(String address, Consumer<MethodCall<Object>> service) {
