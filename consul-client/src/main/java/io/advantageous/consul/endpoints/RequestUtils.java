@@ -28,6 +28,8 @@ import io.advantageous.qbit.http.request.HttpRequestBuilder;
 import io.advantageous.qbit.http.request.HttpResponse;
 
 
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.Base64;
 import java.util.List;
 
@@ -90,9 +92,15 @@ public class RequestUtils {
 
 
 
-    public static  HttpRequestBuilder getHttpRequestBuilder(String datacenter, String tag, RequestOptions requestOptions, String path) {
+    public static  HttpRequestBuilder getHttpRequestBuilder(
+            final String datacenter,
+            final String tag,
+            final RequestOptions requestOptions,
+            final String path) {
+
         final HttpRequestBuilder httpRequestBuilder = HttpRequestBuilder.httpRequestBuilder();
-        httpRequestBuilder.setUri(path);
+
+        httpRequestBuilder.setUri(cleanURI(path));
 
         if (!Str.isEmpty(datacenter)) {
             httpRequestBuilder.addParam("dc", datacenter);
@@ -115,6 +123,19 @@ public class RequestUtils {
             httpRequestBuilder.addParam("stale", "true");
         }
         return httpRequestBuilder;
+    }
+
+    public static String cleanURI(final String path) {
+        String requestPath;
+        try {
+            URI uri = new URI("http", "fakedomain", path, null);
+            requestPath = uri.getRawPath();
+        } catch (URISyntaxException e) {
+            requestPath = path;
+        }
+
+        return requestPath;
+
     }
 
 

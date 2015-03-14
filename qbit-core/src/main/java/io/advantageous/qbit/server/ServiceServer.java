@@ -45,7 +45,7 @@ public interface ServiceServer extends Server {
     }
 
     default ServiceServer addService(String address, ServiceQueue serviceQueue) {
-        serviceBundle().addServiceObject(address, serviceQueue);
+        serviceBundle().addService(address, serviceQueue);
         return this;
     }
 
