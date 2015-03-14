@@ -109,7 +109,7 @@ public class RoundRobinServiceDispatcherTest extends TimedTesting{
         rrDispatcher = (RoundRobinServiceDispatcher) dispatcher;
 
         final ServiceBuilder serviceBuilder = serviceBuilder()
-                .setQueueBuilder(queueBuilder).setResponseQueueBuilder(queueBuilder);
+                .setRequestQueueBuilder(queueBuilder).setResponseQueueBuilder(queueBuilder);
 
         final ServiceQueue serviceQueue1 = serviceBuilder.setServiceObject(new MultiWorker()).build();
         final ServiceQueue serviceQueue2 = serviceBuilder.setServiceObject(new MultiWorker()).build();

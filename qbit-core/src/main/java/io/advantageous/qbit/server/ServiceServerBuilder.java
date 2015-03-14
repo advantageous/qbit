@@ -24,6 +24,8 @@ import io.advantageous.qbit.http.HttpTransport;
 import io.advantageous.qbit.http.server.HttpServer;
 import io.advantageous.qbit.json.JsonMapper;
 import io.advantageous.qbit.message.Request;
+import io.advantageous.qbit.message.Response;
+import io.advantageous.qbit.queue.Queue;
 import io.advantageous.qbit.queue.QueueBuilder;
 import io.advantageous.qbit.service.BeforeMethodCall;
 import io.advantageous.qbit.service.ServiceBundle;
@@ -43,6 +45,8 @@ import static io.advantageous.qbit.http.server.HttpServerBuilder.httpServerBuild
  */
 
 public class ServiceServerBuilder {
+    private Queue<Response<Object>> responseQueue;
+
     public static ServiceServerBuilder serviceServerBuilder() {
         return new ServiceServerBuilder();
     }
@@ -59,12 +63,15 @@ public class ServiceServerBuilder {
     private int maxRequestBatches = 10_000;
     private int timeoutSeconds = 30;
     private boolean invokeDynamic = true;
-    private QueueBuilder requestQueueBuilder;
+    private QueueBuilder httpRequestQueueBuilder;
     private QueueBuilder webSocketMessageQueueBuilder;
-    private QueueBuilder serviceBundleQueueBuilder;
+    private QueueBuilder requestQueueBuilder;
+    private QueueBuilder responseQueueBuilder;
     private boolean eachServiceInItsOwnThread = true;
     private HttpTransport httpServer;
     private QBitSystemManager qBitSystemManager;
+
+
     /**
      * Allows interception of method calls before they get sent to a client.
      * This allows us to transform or reject method calls.
@@ -80,6 +87,15 @@ public class ServiceServerBuilder {
      */
     private Transformer<Request, Object> argTransformer = ServiceConstants.NO_OP_ARG_TRANSFORM;
 
+
+    public QueueBuilder getRequestQueueBuilder() {
+        return requestQueueBuilder;
+    }
+
+    public ServiceServerBuilder setRequestQueueBuilder(QueueBuilder requestQueueBuilder) {
+        this.requestQueueBuilder = requestQueueBuilder;
+        return this;
+    }
 
     public QBitSystemManager getSystemManager() {
         return qBitSystemManager;
@@ -110,12 +126,12 @@ public class ServiceServerBuilder {
         return this;
     }
 
-    public QueueBuilder getRequestQueueBuilder() {
-        return requestQueueBuilder;
+    public QueueBuilder getHttpRequestQueueBuilder() {
+        return httpRequestQueueBuilder;
     }
 
-    public ServiceServerBuilder setRequestQueueBuilder(QueueBuilder requestQueueBuilder) {
-        this.requestQueueBuilder = requestQueueBuilder;
+    public ServiceServerBuilder setHttpRequestQueueBuilder(QueueBuilder httpRequestQueueBuilder) {
+        this.httpRequestQueueBuilder = httpRequestQueueBuilder;
         return this;
     }
 
@@ -264,14 +280,24 @@ public class ServiceServerBuilder {
         return this;
     }
 
-    public QueueBuilder getServiceBundleQueueBuilder() {
-        return serviceBundleQueueBuilder;
+    public QueueBuilder getResponseQueueBuilder() {
+        return responseQueueBuilder;
     }
 
-    public ServiceServerBuilder setServiceBundleQueueBuilder(QueueBuilder serviceBundleQueueBuilder) {
-        this.serviceBundleQueueBuilder = serviceBundleQueueBuilder;
+    public ServiceServerBuilder setResponseQueueBuilder(QueueBuilder responseQueueBuilder) {
+        this.responseQueueBuilder = responseQueueBuilder;
         return this;
     }
+
+    public Queue<Response<Object>> getResponseQueue() {
+        return responseQueue;
+    }
+
+    public ServiceServerBuilder setResponseQueue(final Queue<Response<Object>> responseQueue) {
+        this.responseQueue = responseQueue;
+        return this;
+    }
+
 
     public ServiceServer build() {
 
@@ -281,15 +307,46 @@ public class ServiceServerBuilder {
 
         final JsonMapper jsonMapper = QBit.factory().createJsonMapper();
         final ProtocolEncoder encoder = QBit.factory().createEncoder();
-        if (serviceBundleQueueBuilder == null) {
-            serviceBundleQueueBuilder = new QueueBuilder().setBatchSize(this.getRequestBatchSize()).setPollWait(this.getPollTime());
+
+
+        final ServiceBundle serviceBundle;
+
+        if (requestQueueBuilder == null) {
+            requestQueueBuilder = new QueueBuilder().setBatchSize(this.getRequestBatchSize())
+                    .setPollWait(this.getPollTime());
         }
-        final ServiceBundle serviceBundle = QBit.factory().createServiceBundle(uri,
-                serviceBundleQueueBuilder,
+
+        if (responseQueueBuilder == null) {
+
+            if (responseQueue==null) {
+                responseQueueBuilder = new QueueBuilder().setBatchSize(this.getRequestBatchSize())
+                        .setPollWait(this.getPollTime());
+            } else {
+
+
+                responseQueueBuilder = new QueueBuilder(){
+
+                    @Override
+                    public <T> Queue<T> build() {
+                        return (Queue<T>) responseQueue;
+                    }
+                };
+            }
+
+
+        }
+
+
+
+        serviceBundle = QBit.factory().createServiceBundle(uri,
+                requestQueueBuilder,
+                responseQueueBuilder,
                 QBit.factory(),
                 eachServiceInItsOwnThread, this.getBeforeMethodCall(),
                 this.getBeforeMethodCallAfterTransform(),
                 this.getArgTransformer(), true, getSystemManager());
+
+
         final ProtocolParser parser = QBit.factory().createProtocolParser();
         final ServiceServer serviceServer = QBit.factory().createServiceServer(httpServer,
                 encoder, parser, serviceBundle, jsonMapper, this.getTimeoutSeconds(),
@@ -312,7 +369,7 @@ public class ServiceServerBuilder {
                 .setPollTime(this.getPollTime())
                 .setRequestBatchSize(this.getRequestBatchSize())
                 .setMaxRequestBatches(this.getMaxRequestBatches())
-                .setRequestQueueBuilder(this.getRequestQueueBuilder())
+                .setRequestQueueBuilder(this.getHttpRequestQueueBuilder())
                 .setSystemManager(getSystemManager())
                 .setWebSocketMessageQueueBuilder(this.getWebSocketMessageQueueBuilder()).build();
     }

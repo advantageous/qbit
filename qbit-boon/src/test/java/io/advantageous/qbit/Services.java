@@ -37,7 +37,7 @@ public class Services {
         JsonMapper mapper = new BoonJsonMapper();
 
 
-        ServiceQueueImpl serviceQueue = new ServiceQueueImpl(null, name, service, new QueueBuilder(), new BoonServiceMethodCallHandler(true), null, true, false, null);
+        ServiceQueueImpl serviceQueue = new ServiceQueueImpl(null, name, service, new QueueBuilder(), new QueueBuilder(), new BoonServiceMethodCallHandler(true), null, true, false, null);
         serviceQueue.requestObjectTransformer(new JsonRequestBodyToArgListTransformer(mapper));
         serviceQueue.responseObjectTransformer(new JsonResponseTransformer(mapper));
         serviceQueue.start();
@@ -45,6 +45,6 @@ public class Services {
     }
 
     public static ServiceQueue regularService(final String name, Object service, int waitTime, TimeUnit timeUnit, int batchSize) {
-        return new ServiceQueueImpl(null, name, service, new QueueBuilder(), new BoonServiceMethodCallHandler(true), null, true, false, null).start();
+        return new ServiceQueueImpl(null, name, service, new QueueBuilder(), new QueueBuilder(), new BoonServiceMethodCallHandler(true), null, true, false, null).start();
     }
 }

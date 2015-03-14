@@ -86,7 +86,10 @@ public class BaseServiceQueueImpl implements ServiceQueue {
     protected final Queue<Response<Object>> responseQueue;
     protected final Queue<MethodCall<Object>> requestQueue;
     protected final Queue<Event<Object>> eventQueue;
-    protected final QueueBuilder queueBuilder;
+
+    protected final QueueBuilder requestQueueBuilder;
+    protected final QueueBuilder responseQueueBuilder;
+
     protected final boolean handleCallbacks;
     protected ReentrantLock responseLock = new ReentrantLock();
     protected volatile long lastResponseFlushTime = Timer.timer().now();
@@ -104,7 +107,8 @@ public class BaseServiceQueueImpl implements ServiceQueue {
     public BaseServiceQueueImpl(final String rootAddress,
                                 final String serviceAddress,
                                 final Object service,
-                                final QueueBuilder queueBuilder,
+                                final QueueBuilder requestQueueBuilder,
+                                final QueueBuilder responseQueueBuilder,
                                 final ServiceMethodHandler serviceMethodHandler,
                                 final Queue<Response<Object>> responseQueue,
                                 final boolean async,
@@ -112,17 +116,24 @@ public class BaseServiceQueueImpl implements ServiceQueue {
                                 final QBitSystemManager systemManager
     ) {
 
-        if (queueBuilder == null) {
-            this.queueBuilder = new QueueBuilder();
+        if (requestQueueBuilder == null) {
+            this.requestQueueBuilder = new QueueBuilder();
         } else {
-            this.queueBuilder = BeanUtils.copy(queueBuilder);
+            this.requestQueueBuilder = BeanUtils.copy(requestQueueBuilder);
         }
+
+        if (responseQueueBuilder == null) {
+            this.responseQueueBuilder = new QueueBuilder();
+        } else {
+            this.responseQueueBuilder = BeanUtils.copy(responseQueueBuilder);
+        }
+
 
         if (responseQueue == null) {
             if (debug) {
                 puts("RESPONSE QUEUE WAS NULL CREATING ONE");
             }
-            this.responseQueue = this.queueBuilder.setName("Response Queue  " + serviceMethodHandler.address()).build();
+            this.responseQueue = this.responseQueueBuilder.setName("Response Queue  " + serviceMethodHandler.address()).build();
         } else {
             this.responseQueue = responseQueue;
         }
@@ -132,7 +143,7 @@ public class BaseServiceQueueImpl implements ServiceQueue {
         this.service = service;
         this.serviceMethodHandler = serviceMethodHandler;
         this.serviceMethodHandler.init(service, rootAddress, serviceAddress, responseSendQueue);
-        this.eventQueue = this.queueBuilder.setName("Event Queue" + serviceMethodHandler.address()).build();
+        this.eventQueue = this.requestQueueBuilder.setName("Event Queue" + serviceMethodHandler.address()).build();
         this.handleCallbacks = handleCallbacks;
         this.requestQueue = initRequestQueue(serviceMethodHandler, async);
         this.systemManager = systemManager;
@@ -161,7 +172,7 @@ public class BaseServiceQueueImpl implements ServiceQueue {
     protected Queue<MethodCall<Object>> initRequestQueue(final ServiceMethodHandler serviceMethodHandler, boolean async) {
         Queue<MethodCall<Object>> requestQueue;
         if (async) {
-            requestQueue = this.queueBuilder.setName("Send Queue  " + serviceMethodHandler.address()).build();
+            requestQueue = this.requestQueueBuilder.setName("Send Queue  " + serviceMethodHandler.address()).build();
         } else {
             requestQueue = new Queue<MethodCall<Object>>() {
                 @Override

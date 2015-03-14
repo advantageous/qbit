@@ -53,7 +53,7 @@ public class ServiceBuilder {
     private Transformer<Request, Object> requestObjectTransformer = ServiceConstants.NO_OP_ARG_TRANSFORM;
     private Transformer<Response<Object>, Response> responseObjectTransformer = new NoOpResponseTransformer();
     private Queue<Response<Object>> responseQueue;
-    private QueueBuilder queueBuilder;
+    private QueueBuilder requestQueueBuilder;
     private QueueBuilder responseQueueBuilder = new QueueBuilder();
     private boolean asyncResponse = true;
     private boolean invokeDynamic = true;
@@ -201,12 +201,12 @@ public class ServiceBuilder {
 
     }
 
-    public QueueBuilder getQueueBuilder() {
-        return queueBuilder;
+    public QueueBuilder getRequestQueueBuilder() {
+        return requestQueueBuilder;
     }
 
-    public ServiceBuilder setQueueBuilder(QueueBuilder queueBuilder) {
-        this.queueBuilder = queueBuilder;
+    public ServiceBuilder setRequestQueueBuilder(QueueBuilder requestQueueBuilder) {
+        this.requestQueueBuilder = requestQueueBuilder;
         return this;
 
     }
@@ -247,18 +247,14 @@ public class ServiceBuilder {
 
     public ServiceQueue build() {
 
-        if (this.getResponseQueue() == null) {
-
-            this.setResponseQueue(responseQueueBuilder.build());
-        }
 
 
 
-
-            ServiceQueue serviceQueue = new ServiceQueueImpl(this.getRootAddress(),
+        ServiceQueue serviceQueue = new ServiceQueueImpl(this.getRootAddress(),
                 this.getServiceAddress(),
                 this.getServiceObject(),
-                this.getQueueBuilder(),
+                this.getRequestQueueBuilder(),
+                this.getResponseQueueBuilder(),
                 QBit.factory().createServiceMethodHandler(this.isInvokeDynamic()),
                 this.getResponseQueue(),
                 this.isAsyncResponse(),

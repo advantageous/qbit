@@ -56,7 +56,7 @@ public class ServiceBundleImpl implements ServiceBundle {
      * Logger.
      */
     private final Logger logger = LoggerFactory.getLogger(ServiceBundleImpl.class);
-    private final boolean debug = false || GlobalConstants.DEBUG || logger.isDebugEnabled();
+    private final boolean debug = true || GlobalConstants.DEBUG || logger.isDebugEnabled();
     private final boolean asyncCalls;
     private final boolean invokeDynamic;
     private final QBitSystemManager systemManager;
@@ -134,9 +134,12 @@ public class ServiceBundleImpl implements ServiceBundle {
     );
     /*
      */
-    private final QueueBuilder queueBuilder;
+    private final QueueBuilder requestQueueBuilder;
+    private final QueueBuilder responseQueueBuilder;
 
-    public ServiceBundleImpl(String address, QueueBuilder queueBuilder,
+    public ServiceBundleImpl(String address,
+                             final QueueBuilder requestQueueBuilder,
+                             final QueueBuilder responseQueueBuilder,
                              final Factory factory, final boolean asyncCalls,
                              final BeforeMethodCall beforeMethodCall,
                              final BeforeMethodCall beforeMethodCallAfterTransform,
@@ -154,9 +157,10 @@ public class ServiceBundleImpl implements ServiceBundle {
         this.address = address;
         this.factory = factory;
         this.asyncCalls = asyncCalls;
-        this.queueBuilder = queueBuilder;
-        this.methodQueue = queueBuilder.setName("Call Queue " + address).build();
-        this.responseQueue = queueBuilder.setName("Response Queue " + address).build();
+        this.requestQueueBuilder = requestQueueBuilder;
+        this.responseQueueBuilder = responseQueueBuilder;
+        this.methodQueue = requestQueueBuilder.setName("Call Queue " + address).build();
+        this.responseQueue = responseQueueBuilder.setName("Response Queue " + address).build();
         this.methodSendQueue = methodQueue.sendQueue();
     }
 
@@ -213,7 +217,8 @@ public class ServiceBundleImpl implements ServiceBundle {
         /** Turn this client object into a client with queues. */
         final ServiceQueue serviceQueue = factory.createService(address, serviceAddress,
                 serviceObject, responseQueue,
-                BeanUtils.copy(this.queueBuilder),
+                BeanUtils.copy(this.requestQueueBuilder),
+                this.responseQueueBuilder,
                 this.asyncCalls,
                 this.invokeDynamic,
                 false, systemManager);

@@ -59,7 +59,6 @@ import io.advantageous.qbit.client.ClientProxy;
 import io.advantageous.qbit.queue.QueueBuilder;
 import io.advantageous.qbit.service.dispatchers.*;
 import io.advantageous.qbit.test.TimedTesting;
-import io.advantageous.boon.core.Sys;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -119,7 +118,7 @@ public class ShardedMethodDispatcherTest extends TimedTesting {
 
 
         final ServiceBuilder serviceBuilder = serviceBuilder()
-                .setQueueBuilder(queueBuilder).setResponseQueueBuilder(queueBuilder);
+                .setRequestQueueBuilder(queueBuilder).setResponseQueueBuilder(queueBuilder);
 
         for (int index = 0; index < workerCount; index++) {
             final ServiceQueue serviceQueue = serviceBuilder

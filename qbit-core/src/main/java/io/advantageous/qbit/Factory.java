@@ -118,7 +118,9 @@ public interface Factory {
     }
 
 
-    default ServiceBundle createServiceBundle(String address, final QueueBuilder queueBuilder,
+    default ServiceBundle createServiceBundle(String address,
+                                              final QueueBuilder requestQueueBuilder,
+                                              final QueueBuilder responseQueueBuilder,
                                               final Factory factory, final boolean asyncCalls,
                                               final BeforeMethodCall beforeMethodCall,
                                               final BeforeMethodCall beforeMethodCallAfterTransform,
@@ -136,7 +138,8 @@ public interface Factory {
     default ServiceQueue createService(String rootAddress, String serviceAddress,
                                   Object object,
                                   Queue<Response<Object>> responseQueue,
-                                  final QueueBuilder queueBuilder,
+                                  final QueueBuilder requestQueueBuilder,
+                                  final QueueBuilder responseQueueBuilder,
                                   boolean asyncCalls,
                                   boolean invokeDynamic,
                                   boolean handleCallbacks,

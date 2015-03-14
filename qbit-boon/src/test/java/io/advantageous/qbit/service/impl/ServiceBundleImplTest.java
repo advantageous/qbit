@@ -31,6 +31,7 @@ import io.advantageous.qbit.queue.ReceiveQueue;
 import io.advantageous.qbit.service.Callback;
 import io.advantageous.qbit.service.ServiceBundle;
 import io.advantageous.qbit.service.ServiceBundleBuilder;
+import io.advantageous.qbit.service.ServiceQueue;
 import io.advantageous.qbit.util.MultiMap;
 import org.junit.Before;
 import org.junit.Test;
@@ -41,6 +42,7 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import static io.advantageous.boon.Boon.puts;
 import static io.advantageous.boon.Exceptions.die;
+import static io.advantageous.qbit.service.ServiceBuilder.serviceBuilder;
 
 public class ServiceBundleImplTest {
 
@@ -81,6 +83,25 @@ public class ServiceBundleImplTest {
     public void test() {
 
         serviceBundle.addService(new MockService());
+        proxy = serviceBundle.createLocalProxy(MockServiceInterface.class, "mockService");
+        serviceBundle.startReturnHandlerProcessor();
+
+        proxy.method1();
+        proxy.clientProxyFlush();
+
+
+        Sys.sleep(1000);
+
+        ok = callCount == 1 || die();
+    }
+
+
+    @Test
+    public void testWithService() {
+
+        final ServiceQueue serviceQueue = serviceBuilder().setServiceObject(new MockService()).build();
+        //serviceBundle.addService(new MockService());
+        serviceBundle.addServiceQueue("mockService", serviceQueue);
         proxy = serviceBundle.createLocalProxy(MockServiceInterface.class, "mockService");
         serviceBundle.startReturnHandlerProcessor();
 

@@ -116,7 +116,7 @@ public class InProcExample {
         This means that you can execute the service more efficiently when it is in proc.
          */
         final ServiceQueue serviceQueue = serviceBuilder()
-                .setQueueBuilder(queueBuilder().setBatchSize(1))
+                .setRequestQueueBuilder(queueBuilder().setBatchSize(1))
                 .setServiceObject(todoManagerImpl).setInvokeDynamic(false)
                 .build().start();
 

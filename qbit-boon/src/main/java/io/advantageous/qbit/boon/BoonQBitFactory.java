@@ -323,21 +323,34 @@ public class BoonQBitFactory implements Factory {
     public ServiceQueue createService(final String rootAddress, final String serviceAddress, final Object service, final Queue<Response<Object>> responseQueue, final QBitSystemManager systemManager) {
 
 
-        return new ServiceQueueImpl(rootAddress, serviceAddress, service, null, new BoonServiceMethodCallHandler(true), responseQueue, true, false, systemManager);
+        return new ServiceQueueImpl(rootAddress, serviceAddress, service, null, null, new BoonServiceMethodCallHandler(true), responseQueue, true, false, systemManager);
 
     }
 
     @Override
-    public ServiceQueue createService(String rootAddress, String serviceAddress, Object object, Queue<Response<Object>> responseQueue, final QueueBuilder queueBuilder, boolean async, boolean invokeDynamic, boolean handleCallbacks, final QBitSystemManager systemManager) {
+    public ServiceQueue createService(final String rootAddress,
+                                      final String serviceAddress,
+                                      final Object object,
+                                      final Queue<Response<Object>> responseQueue,
+                                      final QueueBuilder requestQueueBuilder,
+                                      final QueueBuilder responseQueueBuilder,
+                                      final boolean async,
+                                      final boolean invokeDynamic,
+                                      final boolean handleCallbacks,
+                                      final QBitSystemManager systemManager) {
 
-        return new ServiceQueueImpl(rootAddress, serviceAddress, object, queueBuilder, new BoonServiceMethodCallHandler(invokeDynamic), responseQueue, async, handleCallbacks, systemManager);
+        return new ServiceQueueImpl(rootAddress, serviceAddress, object, requestQueueBuilder, responseQueueBuilder, new BoonServiceMethodCallHandler(invokeDynamic), responseQueue, async, handleCallbacks, systemManager);
 
     }
 
 
     @Override
-    public ServiceBundle createServiceBundle(String address, QueueBuilder queueBuilder, final Factory factory, final boolean asyncCalls, final BeforeMethodCall beforeMethodCall, final BeforeMethodCall beforeMethodCallAfterTransform, final Transformer<Request, Object> argTransformer, boolean invokeDynamic, final QBitSystemManager systemManager) {
-        return new ServiceBundleImpl(address, queueBuilder, factory, asyncCalls, beforeMethodCall, beforeMethodCallAfterTransform, argTransformer, invokeDynamic, systemManager);
+    public ServiceBundle createServiceBundle(final String address,
+                                             final QueueBuilder requestQueueBuilder,
+                                             final QueueBuilder responseQueueBuilder,
+                                             final Factory factory, final boolean asyncCalls, final BeforeMethodCall beforeMethodCall, final BeforeMethodCall beforeMethodCallAfterTransform, final Transformer<Request, Object> argTransformer, boolean invokeDynamic, final QBitSystemManager systemManager) {
+        return new ServiceBundleImpl(address, requestQueueBuilder, responseQueueBuilder,
+                factory, asyncCalls, beforeMethodCall, beforeMethodCallAfterTransform, argTransformer, invokeDynamic, systemManager);
     }
 
 

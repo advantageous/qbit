@@ -68,13 +68,14 @@ public class StatServiceBundleTest extends TimedTesting {
                 .setRootAddress("/root")
                 .setServiceAddress("/serviceAddress")
                 .setServiceObject(statService)
-                .setQueueBuilder(queueBuilder)
+                .setRequestQueueBuilder(queueBuilder)
                 .setHandleCallbacks(true)
                 .setInvokeDynamic(false)
                 .build();
         serviceBundle = new ServiceBundleBuilder()
                 .setEachServiceInItsOwnThread(true)
-                .setQueueBuilder(queueBuilder)
+                .setRequestQueueBuilder(queueBuilder)
+                .setResponseQueueBuilder(queueBuilder)
                 .setInvokeDynamic(false)
                 .buildAndStart();
         serviceBundle.addService(statService);

@@ -87,7 +87,7 @@ public class IntegrationTestForRESTStyleCallsTest {
 
         factory = QBit.factory();
 
-        serviceBundle = serviceBundleBuilder()//.setQueueBuilder(QueueBuilder.queueBuilder().setPollWait(1000))
+        serviceBundle = serviceBundleBuilder()//.setRequestQueueBuilder(QueueBuilder.queueBuilder().setPollWait(1000))
                 .setAddress("/root").buildAndStart();
         serviceBundleImpl = ( ServiceBundleImpl ) serviceBundle;
 

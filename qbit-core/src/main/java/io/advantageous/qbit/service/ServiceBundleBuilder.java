@@ -21,6 +21,8 @@ package io.advantageous.qbit.service;
 import io.advantageous.qbit.GlobalConstants;
 import io.advantageous.qbit.QBit;
 import io.advantageous.qbit.message.Request;
+import io.advantageous.qbit.message.Response;
+import io.advantageous.qbit.queue.Queue;
 import io.advantageous.qbit.queue.QueueBuilder;
 import io.advantageous.qbit.service.impl.ServiceConstants;
 import io.advantageous.qbit.system.QBitSystemManager;
@@ -41,13 +43,16 @@ public class ServiceBundleBuilder {
         return new ServiceBundleBuilder();
     }
 
-    private QueueBuilder queueBuilder;
+    private QueueBuilder requestQueueBuilder;
+    private QueueBuilder responseQueueBuilder;
     private int pollTime = GlobalConstants.POLL_WAIT;
     private int requestBatchSize = GlobalConstants.BATCH_SIZE;
     private boolean invokeDynamic = true;
     private String address = "/services";
     private boolean eachServiceInItsOwnThread = true;
     private QBitSystemManager qBitSystemManager;
+
+    private Queue<Response<Object>> responseQueue;
     /**
      * Allows interception of method calls before they get sent to a client.
      * This allows us to transform or reject method calls.
@@ -147,26 +152,64 @@ public class ServiceBundleBuilder {
         return this;
     }
 
-    public QueueBuilder getQueueBuilder() {
-        return queueBuilder;
+    public QueueBuilder getRequestQueueBuilder() {
+        return requestQueueBuilder;
     }
 
-    public ServiceBundleBuilder setQueueBuilder(QueueBuilder queueBuilder) {
-        this.queueBuilder = queueBuilder;
+    public QueueBuilder getResponseQueueBuilder() {
+        return responseQueueBuilder;
+    }
+
+    public ServiceBundleBuilder setResponseQueueBuilder(QueueBuilder queueBuilder) {
+        this.responseQueueBuilder = queueBuilder;
         return this;
     }
 
 
+    public ServiceBundleBuilder setRequestQueueBuilder(QueueBuilder queueBuilder) {
+        this.requestQueueBuilder = queueBuilder;
+        return this;
+    }
+
+    public Queue<Response<Object>> getResponseQueue() {
+        return responseQueue;
+    }
+
+    public ServiceBundleBuilder setResponseQueue(final Queue<Response<Object>> responseQueue) {
+        this.responseQueue = responseQueue;
+        return this;
+    }
+
     public ServiceBundle build() {
 
-        if (queueBuilder == null) {
+        if (responseQueueBuilder == null) {
 
-            queueBuilder = new QueueBuilder().setBatchSize(this.getRequestBatchSize()).setPollWait(this.getPollTime());
+            if (responseQueue!=null) {
+
+                responseQueueBuilder = new QueueBuilder(){
+
+                    @Override
+                    public <T> Queue<T> build() {
+                        return (Queue<T>) responseQueue;
+                    }
+                };
+
+            } else {
+
+                responseQueueBuilder = new QueueBuilder().setBatchSize(this.getRequestBatchSize()).setPollWait(this.getPollTime());
+            }
 
         }
 
+
+        if (requestQueueBuilder == null) {
+            requestQueueBuilder = new QueueBuilder().setBatchSize(this.getRequestBatchSize())
+                    .setPollWait(this.getPollTime());
+        }
+
         final ServiceBundle serviceBundle = QBit.factory().createServiceBundle(this.getAddress(),
-                queueBuilder,
+                requestQueueBuilder,
+                responseQueueBuilder,
                 QBit.factory(),
                 eachServiceInItsOwnThread, this.getBeforeMethodCall(), this.getBeforeMethodCallAfterTransform(),
                 this.getArgTransformer(), invokeDynamic, this.getSystemManager());

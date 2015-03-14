@@ -36,8 +36,12 @@ import io.advantageous.qbit.message.Message;
 import io.advantageous.qbit.message.MethodCall;
 import io.advantageous.qbit.message.MethodCallBuilder;
 import io.advantageous.qbit.message.Response;
+import io.advantageous.qbit.queue.Queue;
+import io.advantageous.qbit.queue.QueueBuilder;
+import io.advantageous.qbit.service.Callback;
 import io.advantageous.qbit.service.ServiceBundle;
 import io.advantageous.qbit.service.ServiceBundleBuilder;
+import io.advantageous.qbit.service.ServiceQueue;
 import io.advantageous.qbit.spi.ProtocolEncoder;
 import io.advantageous.qbit.spi.ProtocolParser;
 import io.advantageous.qbit.test.TimedTesting;
@@ -50,6 +54,7 @@ import java.util.function.Consumer;
 
 import static io.advantageous.boon.Boon.puts;
 import static io.advantageous.boon.Exceptions.die;
+import static io.advantageous.qbit.service.ServiceBuilder.serviceBuilder;
 
 public class ServiceServerImplTest extends TimedTesting {
 
@@ -70,6 +75,7 @@ public class ServiceServerImplTest extends TimedTesting {
         final ProtocolParser protocolParser = factory.createProtocolParser();
         final ProtocolEncoder encoder = factory.createEncoder();
 
+
         final ServiceBundle serviceBundle = new ServiceBundleBuilder().setAddress("/services").build();
         final JsonMapper mapper = factory.createJsonMapper();
 
@@ -84,6 +90,74 @@ public class ServiceServerImplTest extends TimedTesting {
         serviceServerImpl.start();
 
         Sys.sleep(500);
+
+
+    }
+
+    @RequestMapping("/other")
+    public  class MyOtherService {
+
+        @RequestMapping("/method")
+        public void method(Callback<String> callback, String arg) {
+            callMeCounter++;
+            callback.accept(arg);
+        }
+    }
+
+    public static interface MyOtherInterface {
+        void method(Callback<String> callback, String arg);
+    }
+
+    @Test
+    public void testWithServiceQueue() {
+
+        final Factory factory = QBit.factory();
+        final ProtocolParser protocolParser = factory.createProtocolParser();
+        final ProtocolEncoder encoder = factory.createEncoder();
+
+
+        final Queue<Response<Object>> responseQueue = QueueBuilder.queueBuilder().setName("RESPONSE QUEUE").build();
+
+        final ServiceBundle serviceBundle = new ServiceBundleBuilder()
+                .setResponseQueue(responseQueue).setAddress("/services").build();
+        final JsonMapper mapper = factory.createJsonMapper();
+
+
+        httpServer = new HttpServerMock();
+        serviceServerImpl = new ServiceServerImpl(httpServer, encoder, protocolParser, serviceBundle,
+                mapper, 1, 100, 30, 10, null);
+
+
+        callMeCounter = 0;
+        responseCounter = 0;
+
+
+
+        ServiceQueue serviceQueue = serviceBuilder()
+                .setResponseQueue(responseQueue)
+                .setServiceObject(new MyOtherService()).build();
+
+
+
+
+        serviceServerImpl.addServiceQueue("/services/other/method", serviceQueue);
+
+        serviceServerImpl.start();
+
+
+        final HttpRequest request = new HttpRequestBuilder().setUri("/other/method")
+                .setTextReceiver(new MockReceiver()).setBody("").build();
+
+        httpServer.sendRequest(request);
+
+
+        Sys.sleep(100);
+
+        waitForTrigger(100, o -> responseCounter == 1 && callMeCounter==1);
+
+        ok |= responseCounter == 1 || die();
+        ok |= callMeCounter == 1 || die();
+
 
 
     }
@@ -133,7 +207,9 @@ public class ServiceServerImplTest extends TimedTesting {
     @Test
     public void testSimplePOST_HTTPRequest() throws Exception {
 
-        final HttpRequest request = new HttpRequestBuilder().setUri("/services/mock/callPost").setTextReceiver(new MockReceiver()).setMethod("POST").setBody("[]").build();
+        final HttpRequest request = new HttpRequestBuilder()
+                .setUri("/services/mock/callPost")
+                .setTextReceiver(new MockReceiver()).setMethod("POST").setBody("[]").build();
 
         httpServer.sendRequest(request);
 
@@ -278,7 +354,8 @@ public class ServiceServerImplTest extends TimedTesting {
     @Test
     public void testExceptionCallWebSocket() throws Exception {
 
-        final MethodCall<Object> methodCall = new MethodCallBuilder().setObjectName("serviceMockObject").setName("exceptionCall").setBody(null).build();
+        final MethodCall<Object> methodCall = new MethodCallBuilder()
+                .setObjectName("serviceMockObject").setName("exceptionCall").setBody(null).build();
 
         final String message = QBit.factory().createEncoder().encodeAsString(Lists.list(methodCall));
 
@@ -393,6 +470,23 @@ public class ServiceServerImplTest extends TimedTesting {
         Consumer<HttpRequest> requestConsumer;
         private Consumer<Void> idleConsumerRequest;
         private Consumer<Void> idleConsumerWebSocket;
+
+        Thread thread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+
+                //Thread.currentThread().setDaemon(true);
+
+                while (true) {
+                    Sys.sleep(10);
+                    idleConsumerRequest.accept(null);
+                    idleConsumerWebSocket.accept(null);
+                }
+
+            }
+        });
+
+        {thread.start();}
 
         public void sendWebSocketServerMessage(WebSocketMessage ws) {
             webSocketMessageConsumer.accept(ws);
