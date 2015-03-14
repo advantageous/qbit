@@ -32,7 +32,7 @@ public class EventBusRingBuilder {
     private  EventManager eventManager = null;
     private  int replicationServerCheckInIntervalInSeconds = 5;
     private final Logger logger = LoggerFactory.getLogger(EventBusRingBuilder.class);
-    private final boolean debug = true || GlobalConstants.DEBUG || logger.isDebugEnabled();
+    private final boolean debug = false || GlobalConstants.DEBUG || logger.isDebugEnabled();
 
 
     public EventBusRing build() {

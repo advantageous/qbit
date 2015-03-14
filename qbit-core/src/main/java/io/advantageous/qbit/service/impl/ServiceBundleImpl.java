@@ -56,7 +56,7 @@ public class ServiceBundleImpl implements ServiceBundle {
      * Logger.
      */
     private final Logger logger = LoggerFactory.getLogger(ServiceBundleImpl.class);
-    private final boolean debug = true || GlobalConstants.DEBUG || logger.isDebugEnabled();
+    private final boolean debug = false || GlobalConstants.DEBUG || logger.isDebugEnabled();
     private final boolean asyncCalls;
     private final boolean invokeDynamic;
     private final QBitSystemManager systemManager;
