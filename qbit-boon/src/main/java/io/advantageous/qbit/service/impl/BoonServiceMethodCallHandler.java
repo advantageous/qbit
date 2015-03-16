@@ -108,6 +108,7 @@ public class BoonServiceMethodCallHandler implements ServiceMethodHandler {
 
         Pair<MethodBinding, MethodAccess> binding = null;
 
+
         if (mappings != null && request instanceof HttpRequest) {
             HttpRequest httpRequest = ((HttpRequest) request);
             final String method = httpRequest.getMethod();
@@ -208,7 +209,10 @@ public class BoonServiceMethodCallHandler implements ServiceMethodHandler {
 
     }
 
-    private Response<Object> invokeByAddressWithSimpleBinding(MethodCall<Object> methodCall, Pair<MethodBinding, MethodAccess> pair) {
+    private Response<Object> invokeByAddressWithSimpleBinding(
+            final MethodCall<Object> methodCall,
+            final Pair<MethodBinding, MethodAccess> pair
+           ) {
 
         final MethodBinding binding = pair.getFirst();
 
@@ -468,8 +472,10 @@ public class BoonServiceMethodCallHandler implements ServiceMethodHandler {
         return ResponseImpl.response(methodCall.id(), methodCall.timestamp(), methodCall.name(), methodCall.returnAddress(), returnValue, methodCall);
     }
 
-    private Object bodyFromRequestParams(MethodAccess method, MethodCall<Object> methodCall, MethodBinding binding) {
-        final MultiMap<String, String> params = methodCall.params();
+    private Object bodyFromRequestParams(final MethodAccess method,
+                                         final MethodCall<Object> methodCall,
+                                         final MethodBinding binding) {
+
 
         final Class<?>[] parameterTypes = method.parameterTypes();
 
@@ -502,13 +508,16 @@ public class BoonServiceMethodCallHandler implements ServiceMethodHandler {
                 }
             } else {
                 if (paramBinding.isRequired()) {
-                    if (!params.containsKey(paramBinding.getName())) {
+                    if (!methodCall.params().containsKey(paramBinding.getName())) {
                         die("Method call missing required parameter", "\nParam Name", paramBinding.getName(), "\nMethod Call", methodCall, "\nFor method binding\n", binding, "\nFor method\n", method);
 
                     }
                 }
                 final String name = paramBinding.getName();
-                Object objectItem = params.getSingleObject(name);
+                Object objectItem = methodCall.params().getSingleObject(name);
+                if (objectItem == null || objectItem.equals("")) {
+                    objectItem = paramBinding.getDefaultValue();
+                }
                 objectItem = Conversions.coerce(parameterTypes[index], objectItem);
 
                 argsList.set(index, objectItem);

@@ -53,6 +53,7 @@ import static io.advantageous.qbit.service.ServiceBundleBuilder.serviceBundleBui
 
 
 /**
+ * A test
  * Created by Richard on 9/27/14.
  */
 public class IntegrationTestForRESTStyleCallsTest {
@@ -313,6 +314,56 @@ public class IntegrationTestForRESTStyleCallsTest {
 
 
     @Test
+    public void testRequestParamBinding2Params() {
+
+
+        params = new MultiMapImpl<>();
+        params.put("idOfEmployee", "" + 10);
+        params.put("deptName", "Engineering");
+
+
+        String addressToMethodCall = "/root/employeeRest/addEmployeeWithParams2";
+
+        /* Create employee client */
+        serviceBundle.addService(employeeService);
+
+
+        call = factory.createMethodCallByAddress(addressToMethodCall, returnAddress, rick, params);
+
+
+        doCall();
+
+
+        response = responseReceiveQueue.pollWait();
+
+        Exceptions.requireNonNull(response);
+
+        if ( response.body() instanceof Exception ) {
+            Exception ex = ( Exception ) response.body();
+            ex.printStackTrace();
+        }
+
+        Boon.equalsOrDie(true, response.body());
+
+        /** Read employee back from client */
+
+
+        params = new MultiMapImpl<>();
+        params.put("idOfEmployee", "" + 10);
+
+        addressToMethodCall = "/root/employeeRest/employeeRead";
+
+        call = factory.createMethodCallByAddress(addressToMethodCall, returnAddress, "", params);
+        doCall();
+        response = responseReceiveQueue.pollWait();
+
+        validateRick();
+
+
+    }
+
+
+    @Test
     public void testException() {
 
 
@@ -500,6 +551,19 @@ public class IntegrationTestForRESTStyleCallsTest {
         public boolean addEmployeeWithParams(@RequestParam( required = true, value = "idOfEmployee" ) int id, Employee employee) {
 
             puts("addEmployeeWithParams CALLED", id, employee);
+            map.put(id, employee);
+            return true;
+
+        }
+
+
+        @RequestMapping( "/addEmployeeWithParams2" )
+        public boolean addEmployeeWithParams2(
+                @RequestParam( required = true, value = "idOfEmployee" ) int id,
+                @RequestParam( "deptName") String deptName,
+                Employee employee) {
+
+            puts("addEmployeeWithParams2 CALLED", id, deptName, employee);
             map.put(id, employee);
             return true;
 

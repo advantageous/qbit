@@ -27,10 +27,14 @@ import java.util.Collections;
 import java.util.List;
 
 /**
+ * MethodCallBuilder
  * Created by rhightower on 1/16/15.
  */
 public class MethodCallBuilder {
 
+    public MethodCallBuilder methodCallBuilder() {
+        return methodCallBuilder();
+    }
     private static transient Timer timer = Timer.timer();
 
     private static volatile long idSequence;
@@ -200,7 +204,20 @@ public class MethodCallBuilder {
             id = idSequence;
         }
 
-        return new MethodCallImpl(timestamp, id, name, address, params, headers, body, objectName, returnAddress, originatingRequest);
+        if (params==null || params.isEmpty() ) {
+            if ( originatingRequest!=null) {
+                params = originatingRequest.params();
+            }
+        }
+
+        if (headers==null || headers.isEmpty() ) {
+            if ( originatingRequest!=null) {
+                headers = originatingRequest.headers();
+            }
+        }
+
+        return new MethodCallImpl(getTimestamp(), getId(), getName(), getAddress(), getParams(), getHeaders(),
+                getBody(), getObjectName(), getReturnAddress(), getOriginatingRequest());
 
     }
 

@@ -18,8 +18,10 @@
 
 package io.advantageous.qbit.http.jetty.test;
 
+import io.advantageous.boon.Str;
 import io.advantageous.qbit.annotation.RequestMapping;
 import io.advantageous.qbit.annotation.RequestMethod;
+import io.advantageous.qbit.annotation.RequestParam;
 import io.advantageous.qbit.client.Client;
 import io.advantageous.qbit.client.ClientBuilder;
 import io.advantageous.qbit.http.client.HttpClient;
@@ -183,11 +185,49 @@ public class FullJettyIntegration extends TimedTesting {
 
     }
 
+
+    @Test
+    public void testRestWithTwoParams() throws Exception {
+
+        final HttpRequest request = new HttpRequestBuilder()
+                .setUri("/services/mockservice/pingWithTwoParams")
+                .setJsonBodyForPost("\"hello\"")
+                .addParam("param1", "param1")
+                .addParam("param2", "param2")
+                .setTextReceiver(new HttpTextReceiver() {
+                    @Override
+                    public void response(int code, String mimeType, String body) {
+                        if (code == 200) {
+                            pongValue.set(body);
+                        } else {
+                            pongValue.set("ERROR " + body + " code " + code);
+                            throw new RuntimeException("ERROR " + code + " " + body);
+
+                        }
+                    }
+                })
+                .build();
+
+        httpClient.sendHttpRequest(request);
+
+        httpClient.flush();
+
+        waitForTrigger(20, o -> this.pongValue.get() != null);
+
+
+        final String pongValue = this.pongValue.get();
+        ok = pongValue.equals("\"hello pong\"") || die("message##", pongValue, "##message");
+
+        puts("RETURN VALUE", returnValue.get());
+    }
+
+    private final AtomicReference<String> returnValue = new AtomicReference<>();
     @Before
     public synchronized void setup() throws Exception {
 
         super.setupLatch();
 
+        returnValue.set("");
         port += 10;
         pongValue = new AtomicReference<>();
 
@@ -235,7 +275,10 @@ public class FullJettyIntegration extends TimedTesting {
         System.gc();
         Sys.sleep(1000);
 
+        returnValue.set("");
+
     }
+
 
     static interface ClientServiceInterface {
         String ping(Callback<String> callback, String ping);
@@ -246,6 +289,17 @@ public class FullJettyIntegration extends TimedTesting {
         @RequestMapping(method = RequestMethod.POST)
         public String ping(String ping) {
             callCount++;
+            return ping + " pong";
+        }
+
+
+        @RequestMapping(method = RequestMethod.POST)
+        public String pingWithTwoParams(final String ping,
+                                        final @RequestParam("param1") String param1,
+                                        final @RequestParam("param2") String param2) {
+            callCount++;
+
+            returnValue.set(Str.join('-', ping, param1, param2));
             return ping + " pong";
         }
     }
