@@ -99,7 +99,6 @@ public class JettyQBitHttpClient implements HttpClient {
 
             for (String value : values) {
                 jettyRequest.param(paramName, value);
-                if (debug) puts("Adding Params", paramName, value);
             }
         }
     }

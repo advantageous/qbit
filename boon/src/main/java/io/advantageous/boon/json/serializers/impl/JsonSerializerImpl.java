@@ -41,6 +41,7 @@ import java.util.Map;
 
 
 /**
+ * JSON serializer
  * Created by rick on 1/1/14.
  */
 public class JsonSerializerImpl implements JsonSerializerInternal {

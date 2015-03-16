@@ -361,6 +361,7 @@ public class BoonEventManager implements EventManager {
 
     @Override
     public <T> void forwardEvent(final EventTransferObject<Object> event) {
+        messageCountSinceLastFlush++;
         eventBus.forwardEvent(event);
     }
 }

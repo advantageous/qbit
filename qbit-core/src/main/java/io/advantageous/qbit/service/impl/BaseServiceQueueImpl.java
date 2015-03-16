@@ -578,7 +578,7 @@ public class BaseServiceQueueImpl implements ServiceQueue {
 
     @Override
     public SendQueue<Event<Object>> events() {
-        return this.eventQueue.sendQueue();
+        return this.eventQueue.sendQueueWithAutoFlush(50, TimeUnit.MILLISECONDS);
     }
 
     @Override

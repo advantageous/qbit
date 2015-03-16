@@ -67,6 +67,8 @@ public class EventBusRing implements Startable, Stoppable {
     private ServiceServer serviceServerForReplicator;
     private ServiceQueue eventServiceQueue;
 
+    private EventManager eventManagerImpl;
+
     public EventBusRing(
                         final EventManager eventManager,
                         final String eventBusName,
@@ -111,6 +113,7 @@ public class EventBusRing implements Startable, Stoppable {
         if (eventManager instanceof ClientProxy) {
             return eventManager;
         } else {
+            eventManagerImpl = eventManager;
             eventServiceQueue = serviceBuilder().setServiceObject(eventManager).build();
             return eventServiceQueue.createProxyWithAutoFlush(EventManager.class, periodicScheduler,
                     100, TimeUnit.MILLISECONDS);
@@ -120,9 +123,12 @@ public class EventBusRing implements Startable, Stoppable {
     public EventManager eventManager() {
         return eventManager;
     }
+    public EventManager eventManagerImpl() {
+        return eventManagerImpl;
+    }
 
     private EventManager createEventManager() {
-        final EventManager eventManagerImpl = eventManagerBuilder().setEventConnector(eventConnectorHub).build();
+        eventManagerImpl = eventManagerBuilder().setEventConnector(eventConnectorHub).build();
 
         eventServiceQueue = serviceBuilder().setServiceObject(eventManagerImpl).build();
 

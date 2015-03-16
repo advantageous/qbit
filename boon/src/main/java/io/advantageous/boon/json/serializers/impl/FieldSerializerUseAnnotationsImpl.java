@@ -100,7 +100,7 @@ public class FieldSerializerUseAnnotationsImpl implements FieldSerializer {
     public final boolean serializeField ( JsonSerializerInternal serializer, Object parent, FieldAccess fieldAccess, CharBuf builder ) {
 
         final String fieldName = fieldAccess.alias();
-        final TypeType typeEnum = fieldAccess.typeEnum();
+        TypeType typeEnum = fieldAccess.typeEnum();
 
         if ( useAnnotations && fieldAccess.ignore() )  {
             return false;
@@ -209,6 +209,10 @@ public class FieldSerializerUseAnnotationsImpl implements FieldSerializer {
                     return true;
                 }
                 return false;
+
+            case OBJECT:
+                typeEnum = TypeType.getInstanceType(fieldAccess.getObject ( parent ));
+                break;
 
         }
 
