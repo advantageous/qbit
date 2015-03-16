@@ -10,6 +10,7 @@ import io.advantageous.consul.domain.option.RequestOptionsBuilder;
 import io.advantageous.qbit.GlobalConstants;
 import io.advantageous.qbit.QBit;
 import io.advantageous.qbit.client.Client;
+import io.advantageous.qbit.client.ClientProxy;
 import io.advantageous.qbit.client.RemoteTCPClientProxy;
 import io.advantageous.qbit.concurrent.PeriodicScheduler;
 import io.advantageous.qbit.events.EventManager;
@@ -54,7 +55,7 @@ public class EventBusRing implements Startable, Stoppable {
 
 
     private final Logger logger = LoggerFactory.getLogger(EventBusRing.class);
-    private final boolean debug = GlobalConstants.DEBUG || logger.isDebugEnabled() || true;
+    private final boolean debug = GlobalConstants.DEBUG || logger.isDebugEnabled() || false;
 
 
 
@@ -64,7 +65,7 @@ public class EventBusRing implements Startable, Stoppable {
     private ScheduledFuture healthyNodeMonitor;
     private ScheduledFuture consulCheckInMonitor;
     private ServiceServer serviceServerForReplicator;
-    private ServiceQueue serviceQueue;
+    private ServiceQueue eventServiceQueue;
 
     public EventBusRing(
                         final EventManager eventManager,
@@ -98,12 +99,22 @@ public class EventBusRing implements Startable, Stoppable {
         this.localEventBusId = localEventBusId;
         this.replicationPortLocal = replicationPortLocal;
         this.replicationHostLocal = replicationHostLocal;
-        this.eventManager = eventManager == null ? createEventManager() : eventManager;
+        this.eventManager = eventManager == null ? createEventManager() : wrapEventManager(eventManager);
         this.replicationServerCheckInIntervalInSeconds = replicationServerCheckInIntervalInSeconds;
 
 
         buildRequestOptions();
 
+    }
+
+    private EventManager wrapEventManager(final EventManager eventManager) {
+        if (eventManager instanceof ClientProxy) {
+            return eventManager;
+        } else {
+            eventServiceQueue = serviceBuilder().setServiceObject(eventManager).build();
+            return eventServiceQueue.createProxyWithAutoFlush(EventManager.class, periodicScheduler,
+                    100, TimeUnit.MILLISECONDS);
+        }
     }
 
     public EventManager eventManager() {
@@ -113,20 +124,23 @@ public class EventBusRing implements Startable, Stoppable {
     private EventManager createEventManager() {
         final EventManager eventManagerImpl = eventManagerBuilder().setEventConnector(eventConnectorHub).build();
 
-        serviceQueue = serviceBuilder().setServiceObject(eventManagerImpl).build();
+        eventServiceQueue = serviceBuilder().setServiceObject(eventManagerImpl).build();
 
-        return serviceQueue.createProxyWithAutoFlush(EventManager.class, periodicScheduler, 100, TimeUnit.MILLISECONDS);
+        return eventServiceQueue.createProxyWithAutoFlush(EventManager.class, periodicScheduler, 100, TimeUnit.MILLISECONDS);
 
     }
 
+    public ServiceQueue eventServiceQueue() {
+        return eventServiceQueue;
+    }
 
     @Override
     public void start() {
 
         consul.start();
 
-        if (serviceQueue!=null) {
-            serviceQueue.start();
+        if (eventServiceQueue !=null) {
+            eventServiceQueue.start();
         }
 
         startServerReplicator();
@@ -353,8 +367,8 @@ public class EventBusRing implements Startable, Stoppable {
                             consulCheckInMonitor.cancel(true);
                         }
                     } finally {
-                        if (serviceQueue !=null) {
-                            serviceQueue.stop();
+                        if (eventServiceQueue !=null) {
+                            eventServiceQueue.stop();
                         }
                     }
                 }
