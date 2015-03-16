@@ -55,6 +55,7 @@
 
 package io.advantageous.qbit.service;
 
+import io.advantageous.boon.core.Sys;
 import io.advantageous.qbit.queue.QueueBuilder;
 import io.advantageous.qbit.service.dispatchers.RoundRobinServiceDispatcher;
 import io.advantageous.qbit.service.dispatchers.ServiceMethodDispatcher;
@@ -138,17 +139,15 @@ public class RoundRobinServiceDispatcherTest extends TimedTesting{
 
         final MultiWorkerClient worker = bundle.createLocalProxy(MultiWorkerClient.class, "/workers");
 
-        for (int index = 0; index < 100; index++) {
+        for (int index = 0; index < 200; index++) {
             worker.doSomeWork();
         }
 
+        Sys.sleep(100);
         ServiceProxyUtils.flushServiceProxy(worker);
-        super.waitForTrigger(30, new Predicate() {
-            @Override
-            public boolean test(Object o) {
-                return MultiWorker.totalCount >=90;
-            }
-        });
+        Sys.sleep(100);
+        ServiceProxyUtils.flushServiceProxy(worker);
+        super.waitForTrigger(30, o -> MultiWorker.totalCount >=90);
 
 
 
