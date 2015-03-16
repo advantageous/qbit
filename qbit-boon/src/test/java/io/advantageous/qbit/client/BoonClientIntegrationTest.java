@@ -40,7 +40,6 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
-import java.util.function.Predicate;
 
 import static io.advantageous.boon.Boon.puts;
 import static io.advantageous.boon.Exceptions.die;
@@ -109,6 +108,8 @@ public class BoonClientIntegrationTest extends TimedTesting {
         client.start();
         Sys.sleep(100);
 
+        sum.set(0);
+
         final ServiceMockClientInterface mockService = client.createProxy(ServiceMockClientInterface.class, "serviceMock");
 
 
@@ -122,7 +123,7 @@ public class BoonClientIntegrationTest extends TimedTesting {
         ok = httpSendWebSocketCalled.get() || die();
 
 
-        waitForTrigger(20, o -> sum.get()!=0);
+        waitForTrigger(20, o -> sum.get()!=3);
         Sys.sleep(200);
 
         assertEquals(3, sum.get());
