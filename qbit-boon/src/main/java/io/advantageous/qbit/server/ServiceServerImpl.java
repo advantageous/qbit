@@ -18,6 +18,7 @@
 
 package io.advantageous.qbit.server;
 
+import io.advantageous.boon.Str;
 import io.advantageous.qbit.GlobalConstants;
 import io.advantageous.qbit.http.HttpTransport;
 import io.advantageous.qbit.http.request.HttpRequest;
@@ -41,6 +42,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import static io.advantageous.boon.Boon.add;
 import static io.advantageous.boon.Boon.puts;
 
 
@@ -277,9 +279,11 @@ public class ServiceServerImpl implements ServiceServer {
     }
 
 
-    public  ServiceServer addServiceQueue(String address, ServiceQueue serviceQueue) {
+    public  ServiceServer addServiceQueue(final String address, final ServiceQueue serviceQueue) {
+
+
         serviceBundle().addServiceQueue(address, serviceQueue);
-        httpRequestServerHandler.addRestSupportFor(serviceQueue.service().getClass(), serviceBundle.address());
+        httpRequestServerHandler.addRestSupportFor(serviceQueue.service().getClass(), serviceBundle().address());
         return this;
     }
 

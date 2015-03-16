@@ -251,8 +251,14 @@ public class ServiceBundleImpl implements ServiceBundle {
 
     }
 
-
     public void addServiceService(final String serviceAddress, final ServiceQueue serviceQueue) {
+
+
+        addServiceService(null, serviceAddress, serviceQueue);
+    }
+
+
+    public void addServiceService(final String objectName, final String serviceAddress, final ServiceQueue serviceQueue) {
 
         serviceQueue.start(false); //Don't like this.. REFACTOR
 
@@ -277,7 +283,11 @@ public class ServiceBundleImpl implements ServiceBundle {
             serviceMapping.put(serviceAddress, dispatch);
         }
 
-        /** Put the client incoming requests in our client name, request queue mapping. */
+        if (objectName!=null) {
+            /** Put the client incoming requests in our client name, request queue mapping. */
+            serviceMapping.put(objectName, dispatch);
+        }
+
         serviceMapping.put(serviceQueue.name(), dispatch);
         serviceMapping.put(serviceQueue.address(), dispatch);
 
@@ -609,9 +619,13 @@ public class ServiceBundleImpl implements ServiceBundle {
 
 
 
-    public ServiceBundle addServiceQueue(String address, ServiceQueue serviceQueue) {
+    public ServiceBundle addServiceQueue(String objectName, ServiceQueue serviceQueue) {
 
-        addServiceService(address, serviceQueue);
+
+        final String objectAddress = objectName.startsWith("/") ? this.address() + objectName :
+                Str.add(this.address(), "/", objectName);
+
+        addServiceService(objectName, objectAddress, serviceQueue);
         return this;
     }
 

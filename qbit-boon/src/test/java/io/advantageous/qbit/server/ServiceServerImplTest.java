@@ -163,6 +163,65 @@ public class ServiceServerImplTest extends TimedTesting {
     }
 
     @Test
+    public void testWebSocketCallWithServiceQueue() throws Exception {
+
+        final Factory factory = QBit.factory();
+        final ProtocolParser protocolParser = factory.createProtocolParser();
+        final ProtocolEncoder encoder = factory.createEncoder();
+
+
+        final Queue<Response<Object>> responseQueue = QueueBuilder.queueBuilder().setName("RESPONSE QUEUE").build();
+
+        final ServiceBundle serviceBundle = new ServiceBundleBuilder()
+                .setResponseQueue(responseQueue).setAddress("/services").build();
+        final JsonMapper mapper = factory.createJsonMapper();
+
+
+        httpServer = new HttpServerMock();
+        serviceServerImpl = new ServiceServerImpl(httpServer, encoder, protocolParser, serviceBundle,
+                mapper, 1, 100, 30, 10, null);
+
+
+        callMeCounter = 0;
+        responseCounter = 0;
+
+
+
+        ServiceQueue serviceQueue = serviceBuilder()
+                .setResponseQueue(responseQueue)
+                .setServiceObject(new MyOtherService()).build();
+
+
+
+
+        serviceServerImpl.addServiceQueue("other", serviceQueue);
+
+        serviceServerImpl.start();
+
+
+        final MethodCall<Object> methodCall = new MethodCallBuilder().setObjectName("other").setName("method").setBody(null).build();
+
+        final String message = QBit.factory().createEncoder().encodeAsString(Lists.list(methodCall));
+
+        httpServer.sendWebSocketServerMessage(new WebSocketMessageBuilder().setRemoteAddress("/foo")
+                .setMessage(message).setSender(new MockWebSocketSender()).build());
+
+
+        Sys.sleep(100);
+
+
+
+        waitForTrigger(20, o -> responseCounter == 1);
+
+        Sys.sleep(10);
+
+        ok |= responseCounter == 1 || die();
+        ok |= failureCounter == 0 || die();
+
+    }
+
+
+    @Test
     public void testSimpleHTTPRequest() throws Exception {
 
         final HttpRequest request = new HttpRequestBuilder().setUri("/services/mock/callme").setTextReceiver(new MockReceiver()).setBody("").build();
