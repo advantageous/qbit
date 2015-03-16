@@ -24,7 +24,7 @@ allprojects {
     apply plugin: 'maven'
     apply plugin: 'application'
 
-    version = '0.7.1'
+    version = '0.7.2-SNAPSHOT'
 
     test.onlyIf { !Boolean.getBoolean('skip.tests') }
 }
