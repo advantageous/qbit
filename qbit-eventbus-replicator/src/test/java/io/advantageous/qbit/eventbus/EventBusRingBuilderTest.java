@@ -30,10 +30,10 @@ public class EventBusRingBuilderTest {
 
     }
 
-    @Test
+    //@Test
     public void fakeTest() {
     }
-        //@Test
+    //@Test
     public void test() {
 
         eventBusRing.eventManager().register("mom", new EventConsumer<Object>() {
@@ -49,6 +49,14 @@ public class EventBusRingBuilderTest {
 
 
         }
+
+    }
+
+    public static void main(String... args) {
+
+        EventBusRingBuilderTest test = new EventBusRingBuilderTest();
+        test.setup();
+        test.test();
 
     }
 

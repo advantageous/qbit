@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicReference;
 
 import static io.advantageous.boon.Boon.puts;
 import static io.advantageous.qbit.events.EventManagerBuilder.eventManagerBuilder;
@@ -61,7 +62,7 @@ public class EventBusRing implements Startable, Stoppable {
 
     private int lastIndex = 0;
     private RequestOptions requestOptions;
-    private Consul consul;
+    private AtomicReference<Consul> consul = new AtomicReference<>();
     private ScheduledFuture healthyNodeMonitor;
     private ScheduledFuture consulCheckInMonitor;
     private ServiceServer serviceServerForReplicator;
@@ -94,7 +95,7 @@ public class EventBusRing implements Startable, Stoppable {
         this.peerCheckTimeUnit = timeunit;
         this.consulHost = consulHost;
         this.consulPort = consulPort;
-        this.consul = Consul.consul(consulHost, consulPort);
+        this.consul.set(Consul.consul(consulHost, consulPort));
         this.datacenter = datacenter;
         this.tag = tag;
         this.longPollTimeSeconds = longPollTimeSeconds;
@@ -143,7 +144,7 @@ public class EventBusRing implements Startable, Stoppable {
     @Override
     public void start() {
 
-        consul.start();
+        consul.get().start();
 
         if (eventServiceQueue !=null) {
             eventServiceQueue.start();
@@ -153,7 +154,7 @@ public class EventBusRing implements Startable, Stoppable {
 
         registerLocalBusInConsul();
 
-        healthyNodeMonitor = periodicScheduler.repeat(this::monitor, peerCheckTimeInterval, peerCheckTimeUnit);
+        healthyNodeMonitor = periodicScheduler.repeat(this::healthyNodeMonitor, peerCheckTimeInterval, peerCheckTimeUnit);
 
         if (replicationServerCheckInIntervalInSeconds > 2) {
             consulCheckInMonitor  = periodicScheduler.repeat(this::checkInWithConsul, replicationServerCheckInIntervalInSeconds / 2, TimeUnit.SECONDS);
@@ -164,14 +165,32 @@ public class EventBusRing implements Startable, Stoppable {
 
     private void checkInWithConsul() {
         try {
-            consul.agent().pass(localEventBusId, "still running");
+            consul.get().agent().pass(localEventBusId, "still running");
         } catch (NotRegisteredException ex) {
             registerLocalBusInConsul();
+        } catch (Exception ex) {
+            Consul oldConsul = consul.get();
+            consul.compareAndSet(oldConsul, startNewConsul(oldConsul));
         }
     }
 
+    private Consul startNewConsul(final Consul oldConsul) {
+
+        if (oldConsul!=null) {
+            try {
+                oldConsul.stop();
+            } catch (Exception ex) {
+                logger.debug("Unable to stop old consul", ex);
+            }
+        }
+
+        final Consul consul = Consul.consul(consulHost, consulPort);
+        consul.start();
+        return consul;
+    }
+
     private void registerLocalBusInConsul() {
-        consul.agent().registerService(replicationPortLocal, replicationServerCheckInIntervalInSeconds, eventBusName, localEventBusId, tag);
+        consul.get().agent().registerService(replicationPortLocal, replicationServerCheckInIntervalInSeconds, eventBusName, localEventBusId, tag);
     }
 
     private void startServerReplicator() {
@@ -205,9 +224,8 @@ public class EventBusRing implements Startable, Stoppable {
     }
 
     private List<ServiceHealth> getHealthyServices() {
-        final ConsulResponse<List<ServiceHealth>> consulResponse = consul.health()
-                .getHealthyServices(
-                        eventBusName, datacenter, tag, requestOptions);
+        final ConsulResponse<List<ServiceHealth>> consulResponse = consul.get().health()
+                .getHealthyServices(eventBusName, datacenter, tag, requestOptions);
         this.lastIndex = consulResponse.getIndex();
 
         final List<ServiceHealth> healthyServices = consulResponse.getResponse();
@@ -225,14 +243,14 @@ public class EventBusRing implements Startable, Stoppable {
                 .blockSeconds(longPollTimeSeconds, lastIndex).build();
     }
 
-    private void monitor() {
+    private void healthyNodeMonitor() {
 
         try {
             rebuildHub(getHealthyServices());
         } catch (Exception ex) {
             logger.error("unable to contact consul or problems rebuilding event hub", ex);
-            consul = Consul.consul(consulHost, consulPort);
-            consul.start();
+            Consul oldConsul = consul.get();
+            consul.compareAndSet(oldConsul, startNewConsul(oldConsul));
         }
 
     }
@@ -357,7 +375,7 @@ public class EventBusRing implements Startable, Stoppable {
         /** Fix this when you add the logging. */
 
         try {
-            consul.stop();
+            consul.get().stop();
         }finally {
             try {
                 this.serviceServerForReplicator.stop();
