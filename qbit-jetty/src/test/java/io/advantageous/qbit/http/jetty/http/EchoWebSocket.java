@@ -16,21 +16,21 @@
  * QBit - The Microservice lib for Java : JSON, WebSocket, REST. Be The Web!
  */
 
-package io.advantageous.qbit.http.jetty;
+package io.advantageous.qbit.http.jetty.http;
 
 import io.advantageous.qbit.http.client.HttpClient;
 import io.advantageous.qbit.http.server.HttpServer;
 import io.advantageous.qbit.http.websocket.WebSocket;
 import io.advantageous.boon.core.Sys;
 
-import static io.advantageous.boon.Boon.puts;
 import static io.advantageous.qbit.http.client.HttpClientBuilder.httpClientBuilder;
 import static io.advantageous.qbit.http.server.HttpServerBuilder.httpServerBuilder;
 
 /**
- * Created by rhightower on 2/16/15.
+ * @author rhightower on 2/16/15.
  */
-public class EchoWebSocketMoreComplex {
+public class EchoWebSocket {
+
 
     public static void main(String... args) {
 
@@ -41,22 +41,9 @@ public class EchoWebSocketMoreComplex {
 
         /* Setup WebSocket Server support. */
         httpServer.setWebSocketOnOpenConsumer(webSocket -> {
-
-            /** Set up onMessage. */
             webSocket.setTextMessageConsumer(message -> {
                 webSocket.sendText("ECHO " + message);
             });
-
-            /** Set up onClose. */
-            webSocket.setCloseConsumer(obj -> {
-                puts("SERVER CLOSE ");
-            });
-
-            /** Set up onError. */
-            webSocket.setErrorConsumer(error -> {
-                puts("SERVER ERROR", error);
-            });
-
         });
 
         /* Start the server. */
@@ -74,31 +61,17 @@ public class EchoWebSocketMoreComplex {
                 .createWebSocket("/websocket/rocket");
 
         webSocket.setTextMessageConsumer(message -> {
-            System.out.println("CLIENT ON MESSAGE \n" + message);
+            System.out.println(message);
         });
-
-        /** Set up onClose. */
-        webSocket.setCloseConsumer(obj -> {
-            puts("CLIENT CLOSE");
-        });
-
-
-        /** Set up onError. */
-        webSocket.setErrorConsumer(error -> {
-            puts("CLIENT ERROR", error);
-        });
-
         webSocket.openAndWait();
 
         /* Send some messages. */
         webSocket.sendText("Hi mom");
         webSocket.sendText("Hello World!");
 
-        puts("----------- SHUTDOWN --------------");
 
         Sys.sleep(1000);
         webSocket.close();
-        Sys.sleep(100);
         httpClient.stop();
         httpServer.stop();
     }

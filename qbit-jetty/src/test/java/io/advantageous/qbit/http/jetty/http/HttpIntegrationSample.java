@@ -16,8 +16,9 @@
  * QBit - The Microservice lib for Java : JSON, WebSocket, REST. Be The Web!
  */
 
-package io.advantageous.qbit.http.jetty;
+package io.advantageous.qbit.http.jetty.http;
 
+import io.advantageous.qbit.http.jetty.RegisterJettyWithQBit;
 import io.advantageous.qbit.http.server.HttpServer;
 
 import static io.advantageous.qbit.http.server.HttpServerBuilder.httpServerBuilder;

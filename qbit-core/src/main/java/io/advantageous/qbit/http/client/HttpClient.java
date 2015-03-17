@@ -458,7 +458,7 @@ public interface HttpClient {
     }
 
     default HttpResponse postWithTimeout(String uri, long time, TimeUnit unit) {
-        final HttpRequest httpRequest = httpRequestBuilder().setMethod("PUT")
+        final HttpRequest httpRequest = httpRequestBuilder().setMethod("POST")
                 .setUri(uri).build();
         return sendRequestAndWait(httpRequest, time, unit);
     }

@@ -16,11 +16,15 @@
  * QBit - The Microservice lib for Java : JSON, WebSocket, REST. Be The Web!
  */
 
-package io.advantageous.qbit.http.jetty;
+package io.advantageous.qbit.http.jetty.service;
 
 import io.advantageous.qbit.annotation.RequestMapping;
+import io.advantageous.qbit.annotation.RequestMethod;
+import io.advantageous.qbit.annotation.RequestParam;
+import io.advantageous.qbit.http.jetty.RegisterJettyWithQBit;
 import io.advantageous.qbit.server.ServiceServer;
 
+import static io.advantageous.boon.Boon.puts;
 import static io.advantageous.qbit.server.ServiceServerBuilder.serviceServerBuilder;
 
 /**
@@ -44,6 +48,24 @@ public class ServiceServerIntegrationSample {
         @RequestMapping("/ping")
         public String ping() {
             return "ok";
+        }
+
+
+        @RequestMapping("/oneway")
+        public void oneway() {
+            puts("ok");
+        }
+
+
+        @RequestMapping(value="/onewaypost", method = RequestMethod.POST)
+        public void onewayPost() {
+            puts("ok");
+        }
+
+
+        @RequestMapping(value="/onewaypostarg1", method = RequestMethod.POST)
+        public void onewayPostArg1(@RequestParam("arg") String arg) {
+            puts("ok" + arg);
         }
     }
 }

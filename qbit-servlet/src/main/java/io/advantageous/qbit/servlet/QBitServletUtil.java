@@ -22,6 +22,7 @@ import io.advantageous.qbit.http.request.HttpRequest;
 import io.advantageous.qbit.http.request.HttpRequestBuilder;
 import io.advantageous.qbit.util.MultiMap;
 import io.advantageous.boon.IO;
+import io.advantageous.qbit.util.MultiMapImpl;
 
 import javax.servlet.AsyncContext;
 import javax.servlet.ServletInputStream;
@@ -43,7 +44,7 @@ public class QBitServletUtil {
         final HttpServletRequest request = (HttpServletRequest) asyncContext.getRequest();
         final HttpServletResponse response = (HttpServletResponse) asyncContext.getResponse();
         final MultiMap<String, String> headers = new HttpServletHeaderMultiMap(request);
-        final MultiMap<String, String> params = new HttpServletParamMultiMap(request);
+        final MultiMap<String, String> params = new MultiMapImpl<>(request.getParameterMap());
 
 
         final HttpRequestBuilder httpRequestBuilder = httpRequestBuilder().setParams(params)

@@ -43,7 +43,6 @@ import io.advantageous.qbit.queue.QueueCallBackHandler;
 import io.advantageous.qbit.queue.SendQueue;
 import io.advantageous.qbit.service.Callback;
 import io.advantageous.qbit.service.ServiceMethodHandler;
-import io.advantageous.qbit.util.MultiMap;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.*;
@@ -88,6 +87,7 @@ public class BoonServiceMethodCallHandler implements ServiceMethodHandler {
                 return invokeByAddress(methodCall);
             }
         } catch (Exception ex) {
+            ex.printStackTrace();
 
             if (ex.getCause() instanceof InvocationTargetException) {
                 InvocationTargetException tex = (InvocationTargetException) ex.getCause();

@@ -16,7 +16,7 @@
  * QBit - The Microservice lib for Java : JSON, WebSocket, REST. Be The Web!
  */
 
-package io.advantageous.qbit.http.jetty;
+package io.advantageous.qbit.http.jetty.service;
 
 import io.advantageous.qbit.client.Client;
 import io.advantageous.qbit.client.ClientBuilder;
@@ -44,13 +44,18 @@ public class ServiceServerClient {
 
         pingService.ping(s -> puts("FROM SERVER", s));
 
+        pingService.oneway();
+
 
         ServiceProxyUtils.flushServiceProxy(pingService);
 
+        puts("done");
         Sys.sleep(1000000);
     }
 
     public interface PingService {
         void ping(Callback<String> callback);
+        void oneway();
+
     }
 }

@@ -18,7 +18,6 @@
 
 package io.advantageous.qbit.server;
 
-import io.advantageous.boon.Str;
 import io.advantageous.qbit.GlobalConstants;
 import io.advantageous.qbit.http.HttpTransport;
 import io.advantageous.qbit.http.request.HttpRequest;
@@ -42,11 +41,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import static io.advantageous.boon.Boon.add;
 import static io.advantageous.boon.Boon.puts;
 
 
 /**
+ *
  * Created by rhightower on 10/22/14.
  *
  * @author rhightower

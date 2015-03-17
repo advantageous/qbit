@@ -145,7 +145,6 @@ public class HttpRequestServiceServerHandler {
     public void handleRestCall(final HttpRequest request) {
 
 
-        boolean knownURI = false;
 
         final String uri = request.getUri();
 

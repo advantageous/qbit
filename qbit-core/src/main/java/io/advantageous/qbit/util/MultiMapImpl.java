@@ -31,7 +31,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public class MultiMapImpl<K, V> implements MultiMap<K, V> {
 
     private int initialSize = 10;
-    private Map<K, Collection<V>> map = new ConcurrentHashMap<>();
+    private Map<K, Collection<V>> map;
     private Class<? extends Collection> collectionClass = ArrayList.class;
 
     public MultiMapImpl(Class<? extends Collection> collectionClass, int initialSize) {
@@ -40,14 +40,35 @@ public class MultiMapImpl<K, V> implements MultiMap<K, V> {
     }
 
     public MultiMapImpl(Class<? extends Collection> collectionClass) {
+
         this.collectionClass = collectionClass;
+
+        map = new ConcurrentHashMap<>();
     }
 
 
     public MultiMapImpl() {
+       map = new ConcurrentHashMap<>();
     }
 
+
+
+    public MultiMapImpl(Map<K, V[]> parameterMap) {
+
+        map = new ConcurrentHashMap<>(parameterMap.size());
+        final Set<Entry<K, V[]>> entries = parameterMap.entrySet();
+
+        for (Entry<K, V[]> entry : entries) {
+
+            for (V value : entry.getValue()) {
+                this.add(entry.getKey(), value);
+            }
+        }
+    }
+
+
     static Collection<Object> createCollectionFromClass(Class<?> type, int size) {
+
 
         if (type == List.class) {
             return new ArrayList<>(size);
