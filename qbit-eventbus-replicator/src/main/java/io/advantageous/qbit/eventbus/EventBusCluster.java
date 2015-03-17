@@ -32,12 +32,12 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static io.advantageous.boon.Boon.puts;
-import static io.advantageous.qbit.events.EventManagerBuilder.eventManagerBuilder;
 import static io.advantageous.qbit.eventbus.EventBusRemoteReplicatorBuilder.eventBusRemoteReplicatorBuilder;
 import static io.advantageous.qbit.eventbus.EventBusReplicationClientBuilder.eventBusReplicationClientBuilder;
+import static io.advantageous.qbit.events.EventManagerBuilder.eventManagerBuilder;
 import static io.advantageous.qbit.service.ServiceBuilder.serviceBuilder;
 
-public class EventBusRing implements Startable, Stoppable {
+public class EventBusCluster implements Startable, Stoppable {
 
     private final String eventBusName;
     private final EventConnectorHub eventConnectorHub;
@@ -55,11 +55,8 @@ public class EventBusRing implements Startable, Stoppable {
     private final EventManager eventManager;
     private final int replicationServerCheckInIntervalInSeconds;
 
-
-    private final Logger logger = LoggerFactory.getLogger(EventBusRing.class);
-    private final boolean debug = GlobalConstants.DEBUG || logger.isDebugEnabled() || false;
-
-
+    private final Logger logger = LoggerFactory.getLogger(EventBusCluster.class);
+    private final boolean debug = GlobalConstants.DEBUG || logger.isDebugEnabled();
 
     private AtomicInteger lastIndex = new AtomicInteger();
     private RequestOptions requestOptions;
@@ -71,23 +68,22 @@ public class EventBusRing implements Startable, Stoppable {
 
     private EventManager eventManagerImpl;
 
-    public EventBusRing(
-                        final EventManager eventManager,
-                        final String eventBusName,
-                        final String localEventBusId,
-                        final EventConnectorHub eventConnectorHub,
-                        final PeriodicScheduler periodicScheduler,
-                        final int peerCheckTimeInterval,
-                        final TimeUnit timeunit,
-                        final String consulHost,
-                        final int consulPort,
-                        final int longPollTimeSeconds,
-                        final int replicationPortLocal,
-                        final String replicationHostLocal,
-                        final String datacenter,
-                        final String tag,
-                        final int replicationServerCheckInIntervalInSeconds
-    ) {
+    public EventBusCluster(final EventManager eventManager,
+                           final String eventBusName,
+                           final String localEventBusId,
+                           final EventConnectorHub eventConnectorHub,
+                           final PeriodicScheduler periodicScheduler,
+                           final int peerCheckTimeInterval,
+                           final TimeUnit timeunit,
+                           final String consulHost,
+                           final int consulPort,
+                           final int longPollTimeSeconds,
+                           final int replicationPortLocal,
+                           final String replicationHostLocal,
+                           final String datacenter,
+                           final String tag,
+                           final int replicationServerCheckInIntervalInSeconds) {
+
         this.eventBusName = eventBusName;
         this.eventConnectorHub = eventConnectorHub == null ? new EventConnectorHub() : eventConnectorHub;
         this.periodicScheduler = periodicScheduler == null ?
@@ -106,9 +102,7 @@ public class EventBusRing implements Startable, Stoppable {
         this.eventManager = eventManager == null ? createEventManager() : wrapEventManager(eventManager);
         this.replicationServerCheckInIntervalInSeconds = replicationServerCheckInIntervalInSeconds;
 
-
         buildRequestOptions();
-
     }
 
     private EventManager wrapEventManager(final EventManager eventManager) {
@@ -125,17 +119,17 @@ public class EventBusRing implements Startable, Stoppable {
     public EventManager eventManager() {
         return eventManager;
     }
+
     public EventManager eventManagerImpl() {
         return eventManagerImpl;
     }
 
     private EventManager createEventManager() {
         eventManagerImpl = eventManagerBuilder().setEventConnector(eventConnectorHub).build();
-
         eventServiceQueue = serviceBuilder().setServiceObject(eventManagerImpl).build();
 
-        return eventServiceQueue.createProxyWithAutoFlush(EventManager.class, periodicScheduler, 100, TimeUnit.MILLISECONDS);
-
+        return eventServiceQueue.createProxyWithAutoFlush(
+                EventManager.class, periodicScheduler, 100, TimeUnit.MILLISECONDS);
     }
 
     public ServiceQueue eventServiceQueue() {
@@ -147,7 +141,7 @@ public class EventBusRing implements Startable, Stoppable {
 
         consul.get().start();
 
-        if (eventServiceQueue !=null) {
+        if (eventServiceQueue != null) {
             eventServiceQueue.start();
         }
 
@@ -155,12 +149,14 @@ public class EventBusRing implements Startable, Stoppable {
 
         registerLocalBusInConsul();
 
-        healthyNodeMonitor = periodicScheduler.repeat(this::healthyNodeMonitor, peerCheckTimeInterval, peerCheckTimeUnit);
+        healthyNodeMonitor = periodicScheduler.repeat(
+                this::healthyNodeMonitor, peerCheckTimeInterval, peerCheckTimeUnit);
 
         if (replicationServerCheckInIntervalInSeconds > 2) {
-            consulCheckInMonitor  = periodicScheduler.repeat(this::checkInWithConsul, replicationServerCheckInIntervalInSeconds / 2, TimeUnit.SECONDS);
+            consulCheckInMonitor = periodicScheduler.repeat(this::checkInWithConsul,
+                    replicationServerCheckInIntervalInSeconds / 2, TimeUnit.SECONDS);
         } else {
-            consulCheckInMonitor  = periodicScheduler.repeat(this::checkInWithConsul, 100, TimeUnit.MILLISECONDS);
+            consulCheckInMonitor = periodicScheduler.repeat(this::checkInWithConsul, 100, TimeUnit.MILLISECONDS);
         }
     }
 
@@ -177,7 +173,7 @@ public class EventBusRing implements Startable, Stoppable {
 
     private Consul startNewConsul(final Consul oldConsul) {
 
-        if (oldConsul!=null) {
+        if (oldConsul != null) {
             try {
                 oldConsul.stop();
             } catch (Exception ex) {
@@ -206,7 +202,7 @@ public class EventBusRing implements Startable, Stoppable {
         replicatorBuilder.setName(this.eventBusName);
         replicatorBuilder.serviceServerBuilder().setPort(replicationPortLocal);
 
-        if (replicationHostLocal!=null) {
+        if (replicationHostLocal != null) {
             replicatorBuilder.serviceServerBuilder().setHost(replicationHostLocal);
         }
         replicatorBuilder.setEventManager(eventManager);
@@ -341,7 +337,7 @@ public class EventBusRing implements Startable, Stoppable {
             /** Remove bad ones. */
             if (connector instanceof RemoteTCPClientProxy) {
 
-                if (!((RemoteTCPClientProxy) connector).connected() ) {
+                if (!((RemoteTCPClientProxy) connector).connected()) {
                     badConnectors.add(connector);
                     continue;
                 }
@@ -368,15 +364,12 @@ public class EventBusRing implements Startable, Stoppable {
     }
 
 
-
-
-
     @Override
     public void stop() {
 
         try {
             consul.get().stop();
-        }finally {
+        } finally {
             try {
                 this.serviceServerForReplicator.stop();
             } finally {
@@ -385,13 +378,13 @@ public class EventBusRing implements Startable, Stoppable {
                     if (healthyNodeMonitor != null) {
                         healthyNodeMonitor.cancel(true);
                     }
-                }finally {
+                } finally {
                     try {
                         if (consulCheckInMonitor != null) {
                             consulCheckInMonitor.cancel(true);
                         }
                     } finally {
-                        if (eventServiceQueue !=null) {
+                        if (eventServiceQueue != null) {
                             eventServiceQueue.stop();
                         }
                     }

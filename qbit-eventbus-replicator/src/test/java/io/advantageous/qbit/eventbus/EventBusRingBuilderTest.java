@@ -7,26 +7,26 @@ import org.junit.Before;
 import org.junit.Test;
 
 import static io.advantageous.boon.Boon.puts;
-import static io.advantageous.qbit.eventbus.EventBusRingBuilder.eventBusRingBuilder;
+import static io.advantageous.qbit.eventbus.EventBusClusterBuilder.eventBusRingBuilder;
 import static io.advantageous.qbit.util.PortUtils.useOneOfThePortsInThisRange;
 import static org.junit.Assert.*;
 
 public class EventBusRingBuilderTest {
 
 
-    EventBusRing eventBusRing;
+    EventBusCluster eventBusCluster;
 
     int port = 0;
     //@Before
     public void setup() {
 
         port = useOneOfThePortsInThisRange(9000, 9900);
-        EventBusRingBuilder eventBusRingBuilder = eventBusRingBuilder();
-        eventBusRingBuilder.setConsulHost("localhost");
-        eventBusRingBuilder.setReplicationPortLocal(port);
+        EventBusClusterBuilder eventBusClusterBuilder = eventBusRingBuilder();
+        eventBusClusterBuilder.setConsulHost("localhost");
+        eventBusClusterBuilder.setReplicationPortLocal(port);
 
-        eventBusRing = eventBusRingBuilder.build();
-        eventBusRing.start();
+        eventBusCluster = eventBusClusterBuilder.build();
+        eventBusCluster.start();
 
     }
 
@@ -36,7 +36,7 @@ public class EventBusRingBuilderTest {
     //@Test
     public void test() {
 
-        eventBusRing.eventManager().register("mom", new EventConsumer<Object>() {
+        eventBusCluster.eventManager().register("mom", new EventConsumer<Object>() {
             @Override
             public void listen(Event<Object> event) {
                 puts(event.channel(), event.body());
@@ -45,7 +45,7 @@ public class EventBusRingBuilderTest {
 
         for (int index = 0; index < 100; index++) {
             Sys.sleep(1000);
-            eventBusRing.eventManager().send("mom", "hi mom " + port);
+            eventBusCluster.eventManager().send("mom", "hi mom " + port);
 
 
         }

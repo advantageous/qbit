@@ -10,10 +10,10 @@ import org.slf4j.LoggerFactory;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
-public class EventBusRingBuilder {
+public class EventBusClusterBuilder {
 
-    public static EventBusRingBuilder eventBusRingBuilder() {
-        return new EventBusRingBuilder();
+    public static EventBusClusterBuilder eventBusRingBuilder() {
+        return new EventBusClusterBuilder();
     }
 
     private  String eventBusName = "eventBus";
@@ -31,11 +31,11 @@ public class EventBusRingBuilder {
     private  String replicationHostLocal = null;
     private  EventManager eventManager = null;
     private  int replicationServerCheckInIntervalInSeconds = 5;
-    private final Logger logger = LoggerFactory.getLogger(EventBusRingBuilder.class);
+    private final Logger logger = LoggerFactory.getLogger(EventBusClusterBuilder.class);
     private final boolean debug = false || GlobalConstants.DEBUG || logger.isDebugEnabled();
 
 
-    public EventBusRing build() {
+    public EventBusCluster build() {
         if (localEventBusId==null) {
             localEventBusId = eventBusName + UUID.randomUUID().toString();
         }
@@ -45,7 +45,7 @@ public class EventBusRingBuilder {
         }
 
 
-        return new EventBusRing(getEventManager(), getEventBusName(), getLocalEventBusId(),
+        return new EventBusCluster(getEventManager(), getEventBusName(), getLocalEventBusId(),
                 getEventConnectorHub(), getPeriodicScheduler(),
                 getPeerCheckTimeInterval(), getPeerCheckTimeUnit(), getConsulHost(),
                 getConsulPort(), getLongPollTimeSeconds(), getReplicationPortLocal(),
@@ -57,7 +57,7 @@ public class EventBusRingBuilder {
         return eventBusName;
     }
 
-    public EventBusRingBuilder setEventBusName(String eventBusName) {
+    public EventBusClusterBuilder setEventBusName(String eventBusName) {
         this.eventBusName = eventBusName;
         return this;
     }
@@ -66,7 +66,7 @@ public class EventBusRingBuilder {
         return eventConnectorHub;
     }
 
-    public EventBusRingBuilder setEventConnectorHub(EventConnectorHub eventConnectorHub) {
+    public EventBusClusterBuilder setEventConnectorHub(EventConnectorHub eventConnectorHub) {
         this.eventConnectorHub = eventConnectorHub;
         return this;
     }
@@ -75,7 +75,7 @@ public class EventBusRingBuilder {
         return periodicScheduler;
     }
 
-    public EventBusRingBuilder setPeriodicScheduler(PeriodicScheduler periodicScheduler) {
+    public EventBusClusterBuilder setPeriodicScheduler(PeriodicScheduler periodicScheduler) {
         this.periodicScheduler = periodicScheduler;
         return this;
     }
@@ -84,7 +84,7 @@ public class EventBusRingBuilder {
         return peerCheckTimeInterval;
     }
 
-    public EventBusRingBuilder setPeerCheckTimeInterval(int peerCheckTimeInterval) {
+    public EventBusClusterBuilder setPeerCheckTimeInterval(int peerCheckTimeInterval) {
         this.peerCheckTimeInterval = peerCheckTimeInterval;
         return this;
     }
@@ -93,7 +93,7 @@ public class EventBusRingBuilder {
         return peerCheckTimeUnit;
     }
 
-    public EventBusRingBuilder setPeerCheckTimeUnit(TimeUnit peerCheckTimeUnit) {
+    public EventBusClusterBuilder setPeerCheckTimeUnit(TimeUnit peerCheckTimeUnit) {
         this.peerCheckTimeUnit = peerCheckTimeUnit;
         return this;
     }
@@ -102,7 +102,7 @@ public class EventBusRingBuilder {
         return consulHost;
     }
 
-    public EventBusRingBuilder setConsulHost(String consulHost) {
+    public EventBusClusterBuilder setConsulHost(String consulHost) {
         this.consulHost = consulHost;
         return this;
     }
@@ -111,7 +111,7 @@ public class EventBusRingBuilder {
         return consulPort;
     }
 
-    public EventBusRingBuilder setConsulPort(int consulPort) {
+    public EventBusClusterBuilder setConsulPort(int consulPort) {
         this.consulPort = consulPort;
         return this;
     }
@@ -120,7 +120,7 @@ public class EventBusRingBuilder {
         return datacenter;
     }
 
-    public EventBusRingBuilder setDatacenter(String datacenter) {
+    public EventBusClusterBuilder setDatacenter(String datacenter) {
         this.datacenter = datacenter;
         return this;
     }
@@ -129,7 +129,7 @@ public class EventBusRingBuilder {
         return tag;
     }
 
-    public EventBusRingBuilder setTag(String tag) {
+    public EventBusClusterBuilder setTag(String tag) {
         this.tag = tag;
         return this;
     }
@@ -138,7 +138,7 @@ public class EventBusRingBuilder {
         return longPollTimeSeconds;
     }
 
-    public EventBusRingBuilder setLongPollTimeSeconds(int longPollTimeSeconds) {
+    public EventBusClusterBuilder setLongPollTimeSeconds(int longPollTimeSeconds) {
         this.longPollTimeSeconds = longPollTimeSeconds;
         return this;
     }
@@ -147,7 +147,7 @@ public class EventBusRingBuilder {
         return localEventBusId;
     }
 
-    public EventBusRingBuilder setLocalEventBusId(String localEventBusId) {
+    public EventBusClusterBuilder setLocalEventBusId(String localEventBusId) {
         this.localEventBusId = localEventBusId;
         return this;
     }
@@ -156,7 +156,7 @@ public class EventBusRingBuilder {
         return replicationPortLocal;
     }
 
-    public EventBusRingBuilder setReplicationPortLocal(int replicationPortLocal) {
+    public EventBusClusterBuilder setReplicationPortLocal(int replicationPortLocal) {
         this.replicationPortLocal = replicationPortLocal;
         return this;
     }
@@ -165,7 +165,7 @@ public class EventBusRingBuilder {
         return replicationHostLocal;
     }
 
-    public EventBusRingBuilder setReplicationHostLocal(String replicationHostLocal) {
+    public EventBusClusterBuilder setReplicationHostLocal(String replicationHostLocal) {
         this.replicationHostLocal = replicationHostLocal;
         return this;
     }
@@ -174,7 +174,7 @@ public class EventBusRingBuilder {
         return eventManager;
     }
 
-    public EventBusRingBuilder setEventManager(EventManager eventManager) {
+    public EventBusClusterBuilder setEventManager(EventManager eventManager) {
         this.eventManager = eventManager;
         return this;
     }
@@ -183,7 +183,7 @@ public class EventBusRingBuilder {
         return replicationServerCheckInIntervalInSeconds;
     }
 
-    public EventBusRingBuilder setReplicationServerCheckInIntervalInSeconds(int replicationServerCheckInIntervalInSeconds) {
+    public EventBusClusterBuilder setReplicationServerCheckInIntervalInSeconds(int replicationServerCheckInIntervalInSeconds) {
         this.replicationServerCheckInIntervalInSeconds = replicationServerCheckInIntervalInSeconds;
         return this;
     }
