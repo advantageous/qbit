@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static io.advantageous.boon.Boon.puts;
@@ -60,7 +61,7 @@ public class EventBusRing implements Startable, Stoppable {
 
 
 
-    private int lastIndex = 0;
+    private AtomicInteger lastIndex = new AtomicInteger();
     private RequestOptions requestOptions;
     private AtomicReference<Consul> consul = new AtomicReference<>();
     private ScheduledFuture healthyNodeMonitor;
@@ -190,7 +191,8 @@ public class EventBusRing implements Startable, Stoppable {
     }
 
     private void registerLocalBusInConsul() {
-        consul.get().agent().registerService(replicationPortLocal, replicationServerCheckInIntervalInSeconds, eventBusName, localEventBusId, tag);
+        consul.get().agent().registerService(replicationPortLocal,
+                replicationServerCheckInIntervalInSeconds, eventBusName, localEventBusId, tag);
     }
 
     private void startServerReplicator() {
@@ -226,7 +228,7 @@ public class EventBusRing implements Startable, Stoppable {
     private List<ServiceHealth> getHealthyServices() {
         final ConsulResponse<List<ServiceHealth>> consulResponse = consul.get().health()
                 .getHealthyServices(eventBusName, datacenter, tag, requestOptions);
-        this.lastIndex = consulResponse.getIndex();
+        this.lastIndex.set(consulResponse.getIndex());
 
         final List<ServiceHealth> healthyServices = consulResponse.getResponse();
 
@@ -240,7 +242,7 @@ public class EventBusRing implements Startable, Stoppable {
     private void buildRequestOptions() {
         this.requestOptions = new RequestOptionsBuilder()
                 .consistency(Consistency.CONSISTENT)
-                .blockSeconds(longPollTimeSeconds, lastIndex).build();
+                .blockSeconds(longPollTimeSeconds, lastIndex.get()).build();
     }
 
     private void healthyNodeMonitor() {
@@ -371,8 +373,6 @@ public class EventBusRing implements Startable, Stoppable {
 
     @Override
     public void stop() {
-
-        /** Fix this when you add the logging. */
 
         try {
             consul.get().stop();

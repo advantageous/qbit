@@ -100,6 +100,8 @@ public class BoonServiceProxyFactory implements ServiceProxyFactory {
                     case "toString":
                         return port == 0 ? sputs("{Local Proxy", serviceName, "}") :
                                 sputs("{Remote Proxy", serviceName, host, port, "}");
+                    case "equals":
+                        return proxy == args[0];
                     case "connected":
                         return connected.get();
 
