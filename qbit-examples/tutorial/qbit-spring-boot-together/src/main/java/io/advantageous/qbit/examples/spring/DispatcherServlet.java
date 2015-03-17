@@ -26,6 +26,7 @@ package io.advantageous.qbit.examples.spring;
 import io.advantageous.qbit.http.HttpTransport;
 import io.advantageous.qbit.server.ServiceServer;
 import io.advantageous.qbit.servlet.QBitHttpServlet;
+
 import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.servlet.ServletConfig;
@@ -34,6 +35,7 @@ import static io.advantageous.qbit.server.ServiceServerBuilder.serviceServerBuil
 
 /**
  * @author Rick Hightower
+ * Works as of March 16th, 2015.
  */
 public class DispatcherServlet extends QBitHttpServlet {
 

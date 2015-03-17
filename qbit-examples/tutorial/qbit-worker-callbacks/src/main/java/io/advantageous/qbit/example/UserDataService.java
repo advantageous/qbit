@@ -10,7 +10,7 @@ import io.advantageous.boon.core.Sys;
 import java.util.ArrayList;
 import java.util.List;
 
-imio.advantageous.boontic org.boon.Boon.puts;
+import static io.advantageous.boon.Boon.puts;
 
 
 @Service

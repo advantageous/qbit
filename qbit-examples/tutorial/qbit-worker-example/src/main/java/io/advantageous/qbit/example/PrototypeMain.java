@@ -6,6 +6,7 @@ import io.advantageous.qbit.service.ServiceQueue;
 import io.advantageous.qbit.service.dispatchers.ServiceWorkers;
 import io.advantageous.boon.core.Sys;
 
+import static io.advantageous.boon.Lists.list;
 import static io.advantageous.qbit.service.ServiceBundleBuilder.serviceBundleBuilder;
 import static io.advantageous.qbit.service.ServiceProxyUtils.flushServiceProxy;
 
@@ -14,7 +15,6 @@ import java.util.List;
 import static io.advantageous.qbit.service.ServiceBuilder.serviceBuilder;
 import static io.advantageous.qbit.service.dispatchers.ServiceWorkers.shardOnFirstArgumentWorkers;
 import static io.advantageous.qbit.service.dispatchers.ServiceWorkers.workers;
-imio.advantageous.boontic org.boon.Lists.list;
 
 /**
  * Created by rhightower on 2/20/15.

@@ -1,17 +1,17 @@
 package io.advantageous.qbit.example;
 
 
+import io.advantageous.boon.cache.SimpleCache;
 import io.advantageous.qbit.annotation.QueueCallback;
 import io.advantageous.qbit.annotation.QueueCallbackType;
 import io.advantageous.qbit.annotation.Service;
 import io.advantageous.qbit.service.Callback;
-import io.advantageous.boon.Liio.advantageous.boonort org.boon.cache.SimpleCache;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 
+import static io.advantageous.boon.Lists.list;
 import static io.advantageous.qbit.service.ServiceProxyUtils.flushServiceProxy;
 
 @Service
@@ -121,7 +121,7 @@ public class RecommendationService {
 
     private List<Recommendation> runRulesEngineAgainstUser(final User user) {
 
-        return Lists.list(new Recommendation("Take a walk"), new Recommendation("Read a book"),
+        return list(new Recommendation("Take a walk"), new Recommendation("Read a book"),
                 new Recommendation("Love more, complain less"));
     }
 

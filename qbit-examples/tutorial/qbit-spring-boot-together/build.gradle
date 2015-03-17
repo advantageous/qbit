@@ -14,7 +14,7 @@ repositories {
 
 
 dependencies {
-    compile group: 'io.advantageous.qbit', name: 'qbit-servlet', version: '0.6.1-SNAPSHOT'
+    compile group: 'io.advantageous.qbit', name: 'qbit-servlet', version: '0.7.2'
     compile group: 'javax.inject', name: 'javax.inject', version: '1'
     compile('org.springframework.boot:spring-boot-starter-web:1.2.1.RELEASE') {
         exclude module: 'spring-boot-starter-tomcat'
