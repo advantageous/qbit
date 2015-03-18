@@ -144,12 +144,13 @@ public class BoonQBitFactory implements Factory {
 
         EventManager proxy;
         if ( systemEventManager.get() == null ) {
-            final ServiceQueue serviceQueue = serviceBuilder().setInvokeDynamic(false).setServiceObject(createEventManager()).build().start();
+            final ServiceQueue serviceQueue = serviceBuilder().setInvokeDynamic(false)
+                    .setServiceObject(createEventManager()).build().start();
 
             systemEventManager.set(serviceQueue);
-            proxy = serviceQueue.createProxy(EventManager.class);
+            proxy = serviceQueue.createProxyWithAutoFlush(EventManager.class, 100, TimeUnit.MILLISECONDS);
         } else {
-            proxy = systemEventManager.get().createProxy(EventManager.class);
+            proxy = systemEventManager.get().createProxyWithAutoFlush(EventManager.class, 100, TimeUnit.MILLISECONDS);
         }
 
         eventManagerThreadLocal.set(proxy);

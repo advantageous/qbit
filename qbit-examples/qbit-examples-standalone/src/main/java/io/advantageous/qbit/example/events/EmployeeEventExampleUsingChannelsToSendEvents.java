@@ -32,14 +32,14 @@ import static io.advantageous.qbit.service.ServiceBuilder.serviceBuilder;
 import static io.advantageous.qbit.service.ServiceProxyUtils.flushServiceProxy;
 
 /**
+ * EmployeeEventExampleUsingChannelsToSendEvents
  * Created by rhightower on 2/11/15.
  */
-public class EmployeeEventExampleUsingEventProxyToSendEvents {
+public class EmployeeEventExampleUsingChannelsToSendEvents {
 
 
     public static final String NEW_HIRE_CHANNEL = "com.mycompnay.employee.new";
 
-    public static final String PAYROLL_ADJUSTMENT_CHANNEL = "com.mycompnay.employee.payroll";
 
     public static void main(String... args) {
 
@@ -141,8 +141,6 @@ public class EmployeeEventExampleUsingEventProxyToSendEvents {
         void sendNewEmployee(Employee employee);
 
 
-        @EventChannel(PAYROLL_ADJUSTMENT_CHANNEL)
-        void sendSalaryChangeEvent(Employee employee, int newSalary);
 
     }
 
@@ -210,7 +208,6 @@ public class EmployeeEventExampleUsingEventProxyToSendEvents {
 
 
             eventManager.sendNewEmployee(employee);
-            eventManager.sendSalaryChangeEvent(employee, salary);
             salaryChangedChannel.salaryChanged(employee, salary);
 
 
@@ -243,14 +240,6 @@ public class EmployeeEventExampleUsingEventProxyToSendEvents {
     }
 
     public static class PayrollService implements SalaryChangedChannel{
-
-        @OnEvent(PAYROLL_ADJUSTMENT_CHANNEL)
-        public void addEmployeeToPayroll(final Employee employee, int salary) {
-
-            System.out.printf("Employee added to payroll  %s %d %d\n",
-                    employee.getFirstName(), employee.getEmployeeId(), salary);
-
-        }
 
         @Override
         public void salaryChanged(Employee employee, int newSalary) {

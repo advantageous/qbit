@@ -24,6 +24,7 @@ import io.advantageous.boon.core.Sys;
 import io.advantageous.boon.core.reflection.ClassMeta;
 import io.advantageous.qbit.annotation.AnnotationUtils;
 import io.advantageous.qbit.client.ClientProxy;
+import io.advantageous.qbit.concurrent.PeriodicScheduler;
 import io.advantageous.qbit.events.EventBusProxyCreator;
 import io.advantageous.qbit.events.EventManager;
 import io.advantageous.boon.core.reflection.AnnotationData;
@@ -33,6 +34,7 @@ import java.lang.reflect.Proxy;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
 
 import static io.advantageous.boon.core.reflection.ClassMeta.classMeta;
 import static io.advantageous.qbit.annotation.AnnotationUtils.createChannelName;
@@ -56,7 +58,8 @@ public class BoonEventBusProxyCreator implements EventBusProxyCreator {
     }
 
     @Override
-    public <T> T createProxyWithChannelPrefix(final EventManager eventManager, final Class<T> eventBusProxyInterface, final String channelPrefix) {
+    public <T> T createProxyWithChannelPrefix(final EventManager eventManager, final Class<T> eventBusProxyInterface,
+                                              final String channelPrefix) {
 
         if (!eventBusProxyInterface.isInterface()) {
             throw new IllegalArgumentException("Must be an interface for eventBusProxyInterface argument");

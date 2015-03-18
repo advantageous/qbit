@@ -170,7 +170,7 @@ public class BoonEventManager implements EventManager {
 
 
     @Override
-    public void joinService(ServiceQueue serviceQueue) {
+    public void joinService(final ServiceQueue serviceQueue) {
 
         if (debug) {
 
@@ -284,11 +284,9 @@ public class BoonEventManager implements EventManager {
 
         final SendQueue<Event<Object>> events = serviceQueue.events();
         if (consume) {
-
-            this.subscribe(channel, events);
-        } else {
-
             this.consume(channel, events);
+        } else {
+            this.subscribe(channel, events);
         }
     }
 
