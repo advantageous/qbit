@@ -22,6 +22,7 @@ import io.advantageous.boon.Sets;
 import io.advantageous.boon.Str;
 import io.advantageous.boon.core.Sys;
 import io.advantageous.boon.core.reflection.ClassMeta;
+import io.advantageous.qbit.annotation.AnnotationUtils;
 import io.advantageous.qbit.client.ClientProxy;
 import io.advantageous.qbit.events.EventBusProxyCreator;
 import io.advantageous.qbit.events.EventManager;
@@ -34,13 +35,11 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import static io.advantageous.boon.core.reflection.ClassMeta.classMeta;
+import static io.advantageous.qbit.annotation.AnnotationUtils.createChannelName;
 import static io.advantageous.qbit.service.ServiceProxyUtils.flushServiceProxy;
 
 public class BoonEventBusProxyCreator implements EventBusProxyCreator {
 
-    /* I don't think anyone will ever want to change this but they can via a system property. */
-    public static final String EVENT_CHANNEL_ANNOTATION_NAME =
-            Sys.sysProp("io.advantageous.qbit.events.EventBusProxyCreator.eventChannelName", "EventChannel");
 
 
     private static final String flushMethodNames =  Sys.sysProp("io.advantageous.qbit.events.EventBusProxyCreator.flushMethodNames",
@@ -80,56 +79,32 @@ public class BoonEventBusProxyCreator implements EventBusProxyCreator {
 
     }
 
-    private <T> Map<String, String> createMethodToChannelMap(String channelPrefix, Class<T> eventBusProxyInterface) {
+    private <T> Map<String, String> createMethodToChannelMap(final String channelPrefix,
+                                                             final Class<T> eventBusProxyInterface) {
 
         final Map<String, String> methodToChannelMap = new ConcurrentHashMap<>(20);
         final ClassMeta<T> classMeta = classMeta(eventBusProxyInterface);
 
-        AnnotationData classAnnotation = classMeta.annotation(EVENT_CHANNEL_ANNOTATION_NAME);
-        //They could even use enum as we are getting a string value
-        final String classEventBusName = classAnnotation != null ? classAnnotation.getValues().get("value").toString() : null;
+        final AnnotationData classAnnotation = classMeta.annotation(AnnotationUtils.EVENT_CHANNEL_ANNOTATION_NAME);
+        final String classEventBusName = AnnotationUtils.getClassEventChannelName(classMeta, classAnnotation);
 
 
         classMeta.methods().forEach(methodAccess -> {
 
-            AnnotationData methodAnnotation = methodAccess.annotation("EventChannel");
-            if (methodAnnotation !=null) {
-                final String methodEventBusName = methodAnnotation.getValues().get("value").toString();
+            AnnotationData methodAnnotation = methodAccess.annotation(AnnotationUtils.EVENT_CHANNEL_ANNOTATION_NAME);
 
+            String methodEventBusName = methodAnnotation!=null && methodAnnotation.getValues().get("value")!=null
+                 ? methodAnnotation.getValues().get("value").toString() : null;
 
-                final String channelName = createChannelName(channelPrefix, classEventBusName, methodEventBusName);
-                methodToChannelMap.put(methodAccess.method().toString(), channelName);
+            if (Str.isEmpty(methodEventBusName)){
+                    methodEventBusName = methodAccess.name();
             }
+
+            final String channelName = createChannelName(channelPrefix, classEventBusName, methodEventBusName);
+            methodToChannelMap.put(methodAccess.method().toString(), channelName);
         });
 
         return methodToChannelMap;
     }
 
-    private String createChannelName(final String channelPrefix, final String classChannelNamePart, final String methodChannelNamePart) {
-
-        if (methodChannelNamePart == null) {
-            throw new IllegalArgumentException("Each method must have an event bus channel name");
-        }
-
-        //If Channel prefix is null then just use class channel name and method channel name
-        if (channelPrefix == null) {
-
-            //If the class channel name is null just return the method channel name.
-            if (classChannelNamePart == null) {
-                return methodChannelNamePart;
-            } else {
-
-                //Channel name takes the form ${classChannelNamePart.methodChannelNamePart}
-                return Str.join('.', classChannelNamePart, methodChannelNamePart);
-            }
-        } else {
-            //If classChannelNamePart null then channel name takes the form ${channelPrefix.methodChannelNamePart}
-            if (classChannelNamePart == null) {
-                return Str.join('.', channelPrefix, methodChannelNamePart);
-            } else {
-                //Nothing was null so the channel name takes the form ${channelPrefix.classChannelNamePart.methodChannelNamePart}
-                return Str.join('.', channelPrefix, classChannelNamePart, methodChannelNamePart);
-            }
-        }
-    }
 }

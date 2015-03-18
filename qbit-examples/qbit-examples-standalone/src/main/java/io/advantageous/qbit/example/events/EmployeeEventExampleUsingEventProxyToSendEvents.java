@@ -59,11 +59,13 @@ public class EmployeeEventExampleUsingEventProxyToSendEvents {
         final EmployeeEventManager employeeEventManager =
                 eventBusProxyCreator.createProxy(privateEventBus, EmployeeEventManager.class);
 
+        final SalaryChangedChannel salaryChangedChannel = eventBusProxyCreator.createProxy(privateEventBus, SalaryChangedChannel.class);
+
         /*
         Create your EmployeeHiringService but this time pass the private event bus.
         Note you could easily use Spring or Guice for this wiring.
          */
-        EmployeeHiringService employeeHiring = new EmployeeHiringService(employeeEventManager);
+        EmployeeHiringService employeeHiring = new EmployeeHiringService(employeeEventManager, salaryChangedChannel);
 
 
 
@@ -123,6 +125,16 @@ public class EmployeeEventExampleUsingEventProxyToSendEvents {
     }
 
 
+
+    @EventChannel
+    interface SalaryChangedChannel {
+
+
+        void salaryChanged(Employee employee, int newSalary);
+
+    }
+
+
     interface EmployeeEventManager {
 
         @EventChannel(NEW_HIRE_CHANNEL)
@@ -163,20 +175,28 @@ public class EmployeeEventExampleUsingEventProxyToSendEvents {
     public static class EmployeeHiringService {
 
         final EmployeeEventManager eventManager;
+        final SalaryChangedChannel salaryChangedChannel;
 
-        public EmployeeHiringService(final EmployeeEventManager employeeEventManager) {
+        public EmployeeHiringService(final EmployeeEventManager employeeEventManager,
+                                     final SalaryChangedChannel salaryChangedChannel) {
             this.eventManager = employeeEventManager;
+            this.salaryChangedChannel = salaryChangedChannel;
         }
 
 
         @QueueCallback(QueueCallbackType.EMPTY)
         private void noMoreRequests() {
+
+
+            flushServiceProxy(salaryChangedChannel);
             flushServiceProxy(eventManager);
         }
 
 
         @QueueCallback(QueueCallbackType.LIMIT)
         private void hitLimitOfRequests() {
+
+            flushServiceProxy(salaryChangedChannel);
             flushServiceProxy(eventManager);
         }
 
@@ -191,6 +211,7 @@ public class EmployeeEventExampleUsingEventProxyToSendEvents {
 
             eventManager.sendNewEmployee(employee);
             eventManager.sendSalaryChangeEvent(employee, salary);
+            salaryChangedChannel.salaryChanged(employee, salary);
 
 
         }
@@ -221,7 +242,7 @@ public class EmployeeEventExampleUsingEventProxyToSendEvents {
 
     }
 
-    public static class PayrollService {
+    public static class PayrollService implements SalaryChangedChannel{
 
         @OnEvent(PAYROLL_ADJUSTMENT_CHANNEL)
         public void addEmployeeToPayroll(final Employee employee, int salary) {
@@ -231,5 +252,11 @@ public class EmployeeEventExampleUsingEventProxyToSendEvents {
 
         }
 
+        @Override
+        public void salaryChanged(Employee employee, int newSalary) {
+            System.out.printf("DIRECT FROM CHANNEL SalaryChangedChannel Employee added to payroll  %s %d %d\n",
+                    employee.getFirstName(), employee.getEmployeeId(), newSalary);
+
+        }
     }
 }

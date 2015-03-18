@@ -21,6 +21,7 @@ package io.advantageous.qbit.events;
 import io.advantageous.qbit.message.Event;
 
 /**
+ * EventListener
  * Created by rhightower on 2/3/15.
  */
 public interface EventListener<T> {

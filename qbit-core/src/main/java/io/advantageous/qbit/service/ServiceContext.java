@@ -53,7 +53,9 @@ public class ServiceContext {
 
         final EventManager eventManager = eventManager();
         ServiceQueue serviceQueue = currentService();
-        eventManager.joinService(serviceQueue);
+        if (serviceQueue!=null) {
+            eventManager.joinService(serviceQueue);
+        }
     }
 
     public <T> void send(String channel, T message) {

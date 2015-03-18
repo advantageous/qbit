@@ -27,10 +27,10 @@ import org.slf4j.LoggerFactory;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Channel<T> {
+public class ChannelManager<T> {
 
 
-    private final Logger logger = LoggerFactory.getLogger(Channel.class);
+    private final Logger logger = LoggerFactory.getLogger(ChannelManager.class);
 
     private final boolean debug = logger.isDebugEnabled();
 
@@ -39,7 +39,7 @@ public class Channel<T> {
 
     private EventListener<T> consumer;
 
-    public Channel(String name) {
+    public ChannelManager(String name) {
         this.name = name;
         listeners = new ArrayList<>();
         consumer = new NoOpEventConsumer<>();

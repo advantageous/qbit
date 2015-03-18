@@ -24,15 +24,15 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
+ * EventChannel marks an interface as an event channel.
  * Created by rhightower on 2/11/15.
  */
-
 @Target({ElementType.METHOD, ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)
 public @interface EventChannel {
-    /* The channel you want to listen to. */;
-
-    String value();
-
-    boolean appendMethodName() default false;
+    /** The channel you want to listen to.
+     * If you don't specify it, then we default to the
+     * fully qualified class name of teh event channel plus mehtod names.
+     **/;
+    String value() default "";
 }

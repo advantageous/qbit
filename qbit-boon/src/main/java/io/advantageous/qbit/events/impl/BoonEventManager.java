@@ -18,11 +18,14 @@
 
 package io.advantageous.qbit.events.impl;
 
+import io.advantageous.boon.Str;
+import io.advantageous.boon.core.Sys;
 import io.advantageous.boon.core.reflection.AnnotationData;
 import io.advantageous.boon.core.reflection.BeanUtils;
 import io.advantageous.boon.core.reflection.ClassMeta;
 import io.advantageous.boon.core.reflection.MethodAccess;
 import io.advantageous.qbit.GlobalConstants;
+import io.advantageous.qbit.annotation.AnnotationUtils;
 import io.advantageous.qbit.annotation.QueueCallback;
 import io.advantageous.qbit.annotation.QueueCallbackType;
 import io.advantageous.qbit.events.*;
@@ -40,6 +43,9 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import static io.advantageous.boon.Boon.puts;
+import static io.advantageous.boon.core.reflection.ClassMeta.classMeta;
+import static io.advantageous.qbit.annotation.AnnotationUtils.createChannelName;
+import static io.advantageous.qbit.annotation.AnnotationUtils.getClassEventChannelName;
 import static io.advantageous.qbit.annotation.AnnotationUtils.getListenAnnotation;
 import static io.advantageous.qbit.service.ServiceContext.serviceContext;
 
@@ -48,6 +54,8 @@ import static io.advantageous.qbit.service.ServiceContext.serviceContext;
  * on 2/3/15.
  */
 public class BoonEventManager implements EventManager {
+
+
 
     private final EventBus eventBus;
     private final Map<String, List<Object>> eventMap = new ConcurrentHashMap<>();
@@ -196,6 +204,9 @@ public class BoonEventManager implements EventManager {
 
     }
 
+
+
+
     private void doListen(final Object listener, final ServiceQueue serviceQueue) {
 
         if (debug) {
@@ -210,7 +221,50 @@ public class BoonEventManager implements EventManager {
             if (listen == null) continue;
             extractEventListenerFromMethod(listener, methodAccess, listen, serviceQueue);
         }
+
+
+        final Class<?>[] interfaces = classMeta.cls().getInterfaces();
+
+        for (Class<?> interfaceClass : interfaces) {
+            final ClassMeta<?> interfaceMeta = classMeta(interfaceClass);
+
+            final AnnotationData eventChannelAnnotation = interfaceMeta.annotation(AnnotationUtils.EVENT_CHANNEL_ANNOTATION_NAME);
+            if (eventChannelAnnotation == null) {
+                continue;
+            }
+
+            final Iterable<MethodAccess> interfaceMethods = interfaceMeta.methods();
+
+            final String classEventBusName = getClassEventChannelName(interfaceMeta, eventChannelAnnotation);
+
+
+            for (MethodAccess methodAccess : interfaceMethods) {
+
+
+
+                final AnnotationData methodAnnotation = methodAccess.annotation(AnnotationUtils.EVENT_CHANNEL_ANNOTATION_NAME);
+
+                String methodEventBusName = methodAnnotation!=null && methodAnnotation.getValues().get("value")!=null
+                        ? methodAnnotation.getValues().get("value").toString() : null;
+
+                if (Str.isEmpty(methodEventBusName)){
+                    methodEventBusName = methodAccess.name();
+                }
+
+                final String channelName = createChannelName(null, classEventBusName, methodEventBusName);
+
+
+                if (serviceQueue == null) {
+                    extractListenerForRegularObject(listener, methodAccess, channelName, false);
+                } else {
+                    extractListenerForService(serviceQueue, methodAccess, channelName, false);
+                }
+            }
+
+
+        }
     }
+
 
 
     private void extractEventListenerFromMethod(final Object listener, final MethodAccess methodAccess, final AnnotationData listen, final ServiceQueue serviceQueue) {

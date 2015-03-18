@@ -23,12 +23,14 @@ import io.advantageous.boon.Pair;
 import io.advantageous.boon.Str;
 import io.advantageous.boon.StringScanner;
 import io.advantageous.boon.core.Conversions;
+import io.advantageous.boon.core.Sys;
 import io.advantageous.boon.core.TypeType;
 import io.advantageous.boon.core.reflection.Annotated;
 import io.advantageous.boon.core.reflection.AnnotationData;
 import io.advantageous.boon.core.reflection.ClassMeta;
 import io.advantageous.boon.core.reflection.MethodAccess;
 import io.advantageous.boon.primitive.Arry;
+import io.advantageous.qbit.annotation.AnnotationUtils;
 import io.advantageous.qbit.annotation.RequestMethod;
 import io.advantageous.qbit.bindings.ArgParamBinding;
 import io.advantageous.qbit.bindings.MethodBinding;
@@ -51,6 +53,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import static io.advantageous.boon.Boon.puts;
 import static io.advantageous.boon.Boon.sputs;
 import static io.advantageous.boon.Exceptions.die;
+import static io.advantageous.qbit.annotation.AnnotationUtils.createChannelName;
+import static io.advantageous.qbit.annotation.AnnotationUtils.getClassEventChannelName;
 import static io.advantageous.qbit.annotation.AnnotationUtils.getListenAnnotation;
 
 /**
@@ -59,6 +63,8 @@ import static io.advantageous.qbit.annotation.AnnotationUtils.getListenAnnotatio
  * @author Rick Hightower
  */
 public class BoonServiceMethodCallHandler implements ServiceMethodHandler {
+
+
     private final boolean invokeDynamic;
     private ClassMeta<Class<?>> classMeta;
     private Object service;
@@ -635,8 +641,39 @@ public class BoonServiceMethodCallHandler implements ServiceMethodHandler {
             eventMap.put(channel, methodAccess);
         }
 
-        readMethodMetaData();
+        final Class<?>[] interfaces = classMeta.cls().getInterfaces();
+        for (Class<?> interfaceClass : interfaces) {
 
+            final ClassMeta<?> interfaceMeta = ClassMeta.classMeta(interfaceClass);
+
+            final AnnotationData channelAnnotation =
+                    interfaceMeta.annotation(AnnotationUtils.EVENT_CHANNEL_ANNOTATION_NAME);
+
+            if (channelAnnotation == null) {
+                continue;
+            }
+
+            final String classEventBusName = getClassEventChannelName(interfaceMeta, channelAnnotation);
+
+
+            interfaceMeta.methods().forEach(methodAccess -> {
+
+                AnnotationData methodAnnotation = methodAccess.annotation(AnnotationUtils.EVENT_CHANNEL_ANNOTATION_NAME);
+
+                String methodEventBusName = methodAnnotation!=null && methodAnnotation.getValues().get("value")!=null
+                            ? methodAnnotation.getValues().get("value").toString() : null;
+
+                if (Str.isEmpty(methodEventBusName)){
+                        methodEventBusName = methodAccess.name();
+                }
+
+                final String channelName = createChannelName(null, classEventBusName, methodEventBusName);
+                eventMap.put(channelName, methodAccess);
+
+            });
+        }
+
+        readMethodMetaData();
         initQueueHandlerMethods();
 
     }
@@ -930,4 +967,6 @@ public class BoonServiceMethodCallHandler implements ServiceMethodHandler {
             responseSendQueue.sendAndFlush(ResponseImpl.response(methodCall, result));
         }
     }
+
+
 }

@@ -22,7 +22,6 @@ import io.advantageous.qbit.events.EventBus;
 import io.advantageous.qbit.events.spi.EventConnector;
 import io.advantageous.qbit.events.EventListener;
 import io.advantageous.qbit.events.spi.EventTransferObject;
-import io.advantageous.qbit.message.Event;
 import io.advantageous.qbit.service.ServiceProxyUtils;
 
 import java.util.Map;
@@ -34,7 +33,7 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class EventBusImpl implements EventBus {
 
-    Map<String, Channel<Object>> channelMap = new ConcurrentHashMap<>(20);
+    Map<String, ChannelManager<Object>> channelMap = new ConcurrentHashMap<>(20);
     long messageCounter = 0;
 
 
@@ -53,15 +52,15 @@ public class EventBusImpl implements EventBus {
         channel(channelName).add( (EventListener<Object>)  ((Object) listener));
     }
 
-    private Channel<Object> channel(String channelName) {
-        Channel<Object> channel = channelMap.get(channelName);
+    private ChannelManager<Object> channel(String channelName) {
+        ChannelManager<Object> channelManager = channelMap.get(channelName);
 
-        if (channel == null) {
+        if (channelManager == null) {
 
-            channel = new Channel(channelName);
-            channelMap.put(channelName, channel);
+            channelManager = new ChannelManager(channelName);
+            channelMap.put(channelName, channelManager);
         }
-        return channel;
+        return channelManager;
     }
 
     @Override
