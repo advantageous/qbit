@@ -1,5 +1,6 @@
 package io.advantageous.qbit.events.impl;
 
+import io.advantageous.qbit.GlobalConstants;
 import io.advantageous.qbit.client.ClientProxy;
 import io.advantageous.qbit.client.RemoteTCPClientProxy;
 import io.advantageous.qbit.events.spi.EventConnector;
@@ -20,6 +21,7 @@ public class EventConnectorHub implements EventConnector, Iterable<EventConnecto
 
     private final List<EventConnector> eventConnectors;
     private final Logger logger = LoggerFactory.getLogger(EventConnectorHub.class);
+    private final boolean debug = GlobalConstants.DEBUG || logger.isDebugEnabled();
 
 
     public EventConnectorHub(final List<EventConnector> eventConnectors) {
@@ -56,7 +58,11 @@ public class EventConnectorHub implements EventConnector, Iterable<EventConnecto
 
     @Override
     public void forwardEvent(final EventTransferObject<Object> event) {
+
+        if (debug) puts("forwardEvent " + event.channel() + " size " + eventConnectors.size() );
+
         for (int index=0; index < eventConnectors.size(); index++) {
+
             EventConnector eventConnector=null;
             try {
                 eventConnector = eventConnectors.get(index);
@@ -71,10 +77,17 @@ public class EventConnectorHub implements EventConnector, Iterable<EventConnecto
                 }
             }
         }
+
+
+        if (debug) puts("forwardEvent done " + event.channel() );
     }
 
     @Override
     public void flush() {
+
+
+        if (debug) puts("flush size " + eventConnectors.size() );
+
         for (int index=0; index < eventConnectors.size(); index++) {
 
             EventConnector eventConnector=null;
@@ -95,6 +108,10 @@ public class EventConnectorHub implements EventConnector, Iterable<EventConnecto
                 }
             }
         }
+
+
+        if (debug) puts("flush DONE size " + eventConnectors.size() );
+
     }
 
     @Override
@@ -106,4 +123,7 @@ public class EventConnectorHub implements EventConnector, Iterable<EventConnecto
         return this.eventConnectors.listIterator();
     }
 
+    public int size() {
+        return eventConnectors.size();
+    }
 }

@@ -215,7 +215,7 @@ public class EventBusCluster implements Startable, Stoppable {
 
         healthyServices.forEach(serviceHealth -> {
             puts("----------------------------");
-            puts(serviceHealth);
+            puts("node",eventBusName, serviceHealth.getService().getPort(), serviceHealth.getNode().getAddress());
             puts("----------------------------");
 
         });
@@ -258,9 +258,16 @@ public class EventBusCluster implements Startable, Stoppable {
 
         //look at stuff in the hub and see if it matches the healthy nodes
         //if not take them out of the hub
+
+        if (debug) logger.debug("Number of services before remove bad service called " + eventConnectorHub.size() );
         removeBadServices(services);
+        if (debug) logger.debug("Number of services AFTER remove bad service called " + eventConnectorHub.size() );
         List<ServiceHealth> newServices = findNewServices(services);
+
+        if (debug) logger.debug("Number of services found " + newServices.size() );
         addNewServicesToHub(newServices);
+
+        if (debug) logger.debug("Number of services AFTER addNewServicesToHub called " + eventConnectorHub.size() );
 
 
     }

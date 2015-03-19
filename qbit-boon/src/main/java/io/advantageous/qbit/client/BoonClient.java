@@ -217,6 +217,8 @@ public class BoonClient implements Client {
         if (!webSocket.isClosed()) {
         /* By this point we should be open. */
             webSocket.sendText(message);
+        } else {
+            connected.set(false);
         }
     }
 
@@ -387,6 +389,8 @@ public class BoonClient implements Client {
         });
 
         this.httpServerProxy.start();
+        connected.set(true);
+
     }
 
     /**
