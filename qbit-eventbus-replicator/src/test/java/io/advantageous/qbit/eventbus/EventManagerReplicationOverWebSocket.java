@@ -158,7 +158,9 @@ public class EventManagerReplicationOverWebSocket extends TimedTesting {
         ServiceProxyUtils.flushServiceProxy(eventManagerA);
         Sys.sleep(5000);
 
-        waitForTrigger(20, o -> bodyB.get()!=null && bodyC.get()!=null);
+        ServiceProxyUtils.flushServiceProxy(eventManagerA);
+
+        waitForTrigger(20, o -> bodyA.get()!=null && bodyB.get()!=null && bodyC.get()!=null);
         Sys.sleep(5000);
 
 
