@@ -1,14 +1,18 @@
 package io.advantageous.qbit.events.impl;
 
+import io.advantageous.qbit.client.ClientProxy;
 import io.advantageous.qbit.client.RemoteTCPClientProxy;
 import io.advantageous.qbit.events.spi.EventConnector;
 import io.advantageous.qbit.events.spi.EventTransferObject;
+import io.advantageous.qbit.service.ServiceProxyUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Consumer;
+
+import static io.advantageous.boon.Boon.puts;
 
 /**
  */
@@ -76,12 +80,16 @@ public class EventConnectorHub implements EventConnector, Iterable<EventConnecto
             EventConnector eventConnector=null;
             try {
                 eventConnector = eventConnectors.get(index);
-                eventConnector.flush();
+                if (eventConnector instanceof ClientProxy) {
+                    ServiceProxyUtils.flushServiceProxy(eventConnector);
+                } else {
+                    eventConnector.flush();
+                }
             } catch (Exception ex) {
-                logger.info("problem sending event to event connector", ex);
-
+                logger.debug("problem sending event to event connector", ex);
                 if (eventConnector instanceof RemoteTCPClientProxy) {
                     if (!((RemoteTCPClientProxy) eventConnector).connected()) {
+
                         eventConnectors.remove(eventConnector);
                     }
                 }

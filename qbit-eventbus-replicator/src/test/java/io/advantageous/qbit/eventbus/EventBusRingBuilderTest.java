@@ -43,11 +43,13 @@ public class EventBusRingBuilderTest {
             }
         });
 
-        for (int index = 0; index < 100; index++) {
-            Sys.sleep(1000);
+        for (int index = 0; index < 10000; index++) {
+            Sys.sleep(2000);
             eventBusCluster.eventManager().send("mom", "hi mom " + port);
 
-
+            if (index % 3 == 0) {
+                puts();
+            }
         }
 
     }

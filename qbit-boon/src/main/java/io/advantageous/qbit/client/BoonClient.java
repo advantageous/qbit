@@ -209,10 +209,8 @@ public class BoonClient implements Client {
                     this.connected.set(true);
                 }
             }catch (Exception ex) {
-                logger.error("Unable to open connection", ex);
                 this.connected.set(false);
-                return;
-
+                throw ex;
             }
         }
 
