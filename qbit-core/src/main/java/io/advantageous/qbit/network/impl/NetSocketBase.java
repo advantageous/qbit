@@ -179,7 +179,7 @@ public class NetSocketBase implements NetSocket {
         /* Try to open for three seconds. */
         int count = 300;
         while (!open.get()) {
-            Sys.sleep(10);
+            Sys.sleep(100);
             count--;
             if (count <= 0) {
                 throw new IllegalStateException("Unable to open WebSocket connection");

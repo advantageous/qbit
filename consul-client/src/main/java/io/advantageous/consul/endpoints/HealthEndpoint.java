@@ -127,7 +127,10 @@ public class HealthEndpoint {
 
         final HttpResponse httpResponse = httpClient.sendRequestAndWait(httpRequestBuilder.build());
 
-        if (httpResponse.code()!=200) {
+
+
+
+        if (httpResponse==null || httpResponse.code()!=200) {
             die("Unable to retrieve the service", path, httpResponse.code(), httpResponse.body());
         }
 

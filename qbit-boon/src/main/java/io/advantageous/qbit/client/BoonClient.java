@@ -184,7 +184,15 @@ public class BoonClient implements Client {
     private void send(final String serviceName, final String message) {
 
         if ( webSocket == null ) {
-            this.webSocket = httpServerProxy.createWebSocket(Str.add(uri, "/", serviceName));
+
+            String webSocketURI;
+            if (serviceName.startsWith(uri)) {
+                webSocketURI = serviceName;
+            } else {
+                webSocketURI = Str.add(uri, "/", serviceName);
+            }
+
+            this.webSocket = httpServerProxy.createWebSocket(webSocketURI);
             wireWebSocket(serviceName, message);
             try {
                 this.webSocket.openAndWait();

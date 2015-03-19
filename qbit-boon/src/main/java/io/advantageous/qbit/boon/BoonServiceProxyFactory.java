@@ -102,6 +102,8 @@ public class BoonServiceProxyFactory implements ServiceProxyFactory {
                                 sputs("{Remote Proxy", serviceName, host, port, "}");
                     case "equals":
                         return proxy == args[0];
+                    case "hashCode":
+                        return proxy.hashCode();
                     case "connected":
                         return connected.get();
 

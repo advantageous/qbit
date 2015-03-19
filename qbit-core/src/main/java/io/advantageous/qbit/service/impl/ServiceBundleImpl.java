@@ -35,7 +35,6 @@ import io.advantageous.qbit.transforms.Transformer;
 import io.advantageous.qbit.util.ConcurrentHashSet;
 import io.advantageous.qbit.util.Timer;
 import io.advantageous.boon.Str;
-import io.advantageous.boon.core.Sys;
 import io.advantageous.boon.core.reflection.BeanUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -90,7 +89,7 @@ public class ServiceBundleImpl implements ServiceBundle {
     /**
      * Base URI for servicesToStop that this bundle is managing.
      */
-    private final String address;
+    private final String rootAddress;
     /**
      * Access to QBit factory.
      */
@@ -137,7 +136,7 @@ public class ServiceBundleImpl implements ServiceBundle {
     private final QueueBuilder requestQueueBuilder;
     private final QueueBuilder responseQueueBuilder;
 
-    public ServiceBundleImpl(String address,
+    public ServiceBundleImpl(final String address,
                              final QueueBuilder requestQueueBuilder,
                              final QueueBuilder responseQueueBuilder,
                              final Factory factory, final boolean asyncCalls,
@@ -148,13 +147,17 @@ public class ServiceBundleImpl implements ServiceBundle {
 
         this.invokeDynamic = invokeDynamic;
         this.systemManager = systemManager;
+
+        String rootAddress = "";
         if (address.endsWith("/")) {
-            address = address.substring(0, address.length() - 1);
+            rootAddress = address.substring(0, address.length() - 1);
+        } else {
+            rootAddress = address;
         }
         this.beforeMethodCall = beforeMethodCall;
         this.beforeMethodCallAfterTransform = beforeMethodCallAfterTransform;
         this.argTransformer = argTransformer;
-        this.address = address;
+        this.rootAddress = address;
         this.factory = factory;
         this.asyncCalls = asyncCalls;
         this.requestQueueBuilder = requestQueueBuilder;
@@ -171,7 +174,7 @@ public class ServiceBundleImpl implements ServiceBundle {
      */
     @Override
     public String address() {
-        return address;
+        return rootAddress;
     }
 
     /**
@@ -215,7 +218,7 @@ public class ServiceBundleImpl implements ServiceBundle {
         }
 
         /** Turn this client object into a client with queues. */
-        final ServiceQueue serviceQueue = factory.createService(address, serviceAddress,
+        final ServiceQueue serviceQueue = factory.createService(rootAddress, serviceAddress,
                 serviceObject, responseQueue,
                 BeanUtils.copy(this.requestQueueBuilder),
                 this.responseQueueBuilder,
@@ -295,7 +298,7 @@ public class ServiceBundleImpl implements ServiceBundle {
         sendQueues.add(requests);
 
         /** Generate a list of end point addresses based on the client bundle root address. */
-        final Collection<String> addresses = serviceQueue.addresses(this.address);
+        final Collection<String> addresses = serviceQueue.addresses(this.rootAddress);
 
         if (debug) {
             puts("ServiceBundleImpl::addServiceObject(object)- addresses: ", addresses);
