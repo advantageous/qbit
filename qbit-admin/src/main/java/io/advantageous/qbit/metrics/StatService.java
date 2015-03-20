@@ -51,6 +51,11 @@ public class StatService implements QueueCallBackHandler {
         return oneMinuteOfStats(name).getTotalCount();
     }
 
+
+    public int lastTenSeconds(String name) {
+        return oneMinuteOfStats(name).countLastTenSeconds(now);
+    }
+
     public int currentSecondCount(String name) {
         return oneMinuteOfStats(name).countThisSecond(now);
     }
@@ -96,6 +101,8 @@ public class StatService implements QueueCallBackHandler {
         }
         return oneMinuteOfStats;
     }
+
+
 
     public void queueLimit() {
         now = Timer.timer().now();

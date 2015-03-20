@@ -68,7 +68,7 @@ public class MinuteMeasurementTest {
         ok = secondCounts[50] == 5 || die();
         ok = secondCounts[59] == 6 || die();
 
-        ok = status == -1 || die();
+        ok = status == 0 || die();
 
         puts(measurement);
 
@@ -90,7 +90,7 @@ public class MinuteMeasurementTest {
 
         final int crap2 = measurement.countLastSecond(Long.MAX_VALUE);
 
-        ok = crap2 == Integer.MIN_VALUE || die(crap2);
+        ok = crap2 == 0 || die(crap2);
 
     }
 

@@ -21,6 +21,7 @@ package io.advantageous.qbit.metrics.support;
 import java.util.Arrays;
 
 /**
+ * MinuteStat
  * Created by rhightower on 1/28/15.
  */
 public class MinuteStat {
@@ -45,12 +46,50 @@ public class MinuteStat {
 
 
         if (secondIndex - 1 >= secondCounts.length) {
-            return Integer.MIN_VALUE;
+            return 0;
         }
 
         return secondCounts[secondIndex - 1];
     }
 
+
+
+    public int countLastTenSeconds(long now) {
+
+        int sum = 0;
+
+        int secondIndex = secondIndex(now);
+
+        int index=0;
+
+        while (secondIndex > 0) {
+            index++;
+            sum += secondCounts[secondIndex];
+            if (index == 10) {
+                break;
+            }
+        }
+        return sum;
+    }
+
+
+    public int countLastFiveSeconds(long now) {
+
+        int sum = 0;
+
+        int secondIndex = secondIndex(now);
+
+        int index=0;
+
+        while (secondIndex > 0) {
+            index++;
+            sum += secondCounts[secondIndex];
+            if (index == 5) {
+                break;
+            }
+        }
+        return sum;
+    }
 
     public int countThisSecond(long now) {
         int secondIndex = secondIndex(now);
@@ -70,7 +109,7 @@ public class MinuteStat {
 
 
         if (secondIndex >= secondCounts.length) {
-            return -1;
+            return 0;
         }
 
         secondCounts[secondIndex] += count;
@@ -118,4 +157,5 @@ public class MinuteStat {
     public int getTotalCount() {
         return totalCount;
     }
+
 }
