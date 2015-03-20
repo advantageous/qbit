@@ -86,7 +86,6 @@ public class EventConnectorHub implements EventConnector, Iterable<EventConnecto
     public void flush() {
 
 
-        if (debug) puts("flush size " + eventConnectors.size() );
 
         for (int index=0; index < eventConnectors.size(); index++) {
 
@@ -108,10 +107,6 @@ public class EventConnectorHub implements EventConnector, Iterable<EventConnecto
                 }
             }
         }
-
-
-        if (debug) puts("flush DONE size " + eventConnectors.size() );
-
     }
 
     @Override
