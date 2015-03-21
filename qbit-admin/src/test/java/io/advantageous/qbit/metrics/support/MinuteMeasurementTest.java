@@ -90,7 +90,7 @@ public class MinuteMeasurementTest {
 
         final int crap2 = measurement.countLastSecond(Long.MAX_VALUE);
 
-        ok = crap2 == 0 || die(crap2);
+        ok = crap2 == 6 || die(crap2);
 
     }
 

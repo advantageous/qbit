@@ -34,6 +34,11 @@ import java.util.List;
  */
 public class StatServiceBuilder {
 
+
+    public static StatServiceBuilder statServiceBuilder() {
+        return new StatServiceBuilder();
+    }
+
     private Timer timer = Timer.timer();
     private StatRecorder recorder = new NoOpRecorder();
     private StatReplicator replicator = new NoOpReplicator();

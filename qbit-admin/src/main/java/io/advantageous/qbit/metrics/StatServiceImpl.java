@@ -18,6 +18,8 @@
 
 package io.advantageous.qbit.metrics;
 
+import io.advantageous.qbit.annotation.RequestMapping;
+import io.advantageous.qbit.annotation.Service;
 import io.advantageous.qbit.metrics.support.MinuteStat;
 import io.advantageous.qbit.queue.QueueCallBackHandler;
 import io.advantageous.qbit.util.Timer;
@@ -29,6 +31,7 @@ import java.util.concurrent.ConcurrentHashMap;
 /**
  * Stat Service Impl
  */
+@Service("statService")
 public class StatServiceImpl implements QueueCallBackHandler {
     private final StatRecorder recorder;
     private final StatReplicator replica;
