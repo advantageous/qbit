@@ -71,6 +71,7 @@ public class EventRemoteReplicatorServiceServerIntegrationTest extends TimedTest
         client.start();
 
         clientEventConnector  = client.createProxy(EventConnector.class, "eventRemoteReplicatorService");
+        Sys.sleep(100);
     }
 
     @After
@@ -84,9 +85,13 @@ public class EventRemoteReplicatorServiceServerIntegrationTest extends TimedTest
     public void test() {
         clientEventConnector.forwardEvent(event);
         flushServiceProxy(clientEventConnector);
-        waitForLatch(1);
+        Sys.sleep(100);
+
+        waitForLatch(2);
         client.flush();
-        waitForLatch(1);
+        waitForLatch(2);
+        Sys.sleep(100);
+
         verify(eventManager).forwardEvent(event);
 
     }
