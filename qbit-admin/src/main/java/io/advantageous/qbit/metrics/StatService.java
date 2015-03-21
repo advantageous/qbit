@@ -18,116 +18,44 @@
 
 package io.advantageous.qbit.metrics;
 
-import io.advantageous.qbit.metrics.support.MinuteStat;
-import io.advantageous.qbit.queue.QueueCallBackHandler;
-import io.advantageous.qbit.util.Timer;
+import io.advantageous.qbit.client.ClientProxy;
+import io.advantageous.qbit.service.Callback;
 
-import java.util.ArrayList;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
+/**
+ * StatService
+ * Created by rhightower on 1/28/15.
+ */
 
-public class StatService implements QueueCallBackHandler {
-    private final StatRecorder recorder;
-    private final StatReplicator replica;
-    private long now;
-    private long startMinute;
-    private Map<String, MinuteStat> statMap;
-
-    public StatService(final StatRecorder recorder, final StatReplicator replica) {
-        this.recorder = recorder;
-        this.statMap = new ConcurrentHashMap<>(100);
-        now = Timer.timer().now();
-        startMinute = now;
-        this.replica = replica;
-    }
+public interface StatService extends ClientProxy {
+    void recordCount(String name, int count);
 
 
-    public void recordCount(String name, int count) {
-        recordWithTime(name, count, now);
-    }
+    void currentMinuteCount(Callback<Integer> callback, String name);
+
+    void currentSecondCount(Callback<Integer> callback, String name);
+
+    void lastSecondCount(Callback<Integer> callback, String name);
 
 
-    public int currentMinuteCount(String name) {
-        return oneMinuteOfStats(name).getTotalCount();
-    }
+    void lastTenSecondCount(Callback<Integer> callback, String name);
+
+    void lastFiveSecondCount(Callback<Integer> callback, String name);
+
+    void lastNSecondsCount(Callback<Integer> callback, String name, int secondCount);
 
 
-    public int lastTenSeconds(String name) {
-        return oneMinuteOfStats(name).countLastTenSeconds(now);
-    }
-
-    public int currentSecondCount(String name) {
-        return oneMinuteOfStats(name).countThisSecond(now);
-    }
-
-    public int lastSecondCount(String name) {
-        return oneMinuteOfStats(name).countLastSecond(now);
-    }
-
-    public void recordWithTime(String name, int count, long now) {
-        oneMinuteOfStats(name).changeBy(count, now);
-        replica.recordCount(name, count, now);
-    }
-
-    public void recordAllCounts(final long timestamp,
-                                final String[] names,
-                                final int[] counts) {
-        for (int index = 0; index < names.length; index++) {
-            String name = names[index];
-            int count = counts[index];
-            recordWithTime(name, count, timestamp);
-        }
-    }
-
-    public void recordAllCountsWithTimes(
-            final String[] names,
-            final int[] counts,
-            final long[] times) {
-
-        for (int index = 0; index < names.length; index++) {
-            String name = names[index];
-            int count = counts[index];
-            long now = times[index];
-            recordWithTime(name, count, now);
-        }
-    }
+    void lastNSecondsCountExact(Callback<Integer> callback, String name, int secondCount);
 
 
-    private MinuteStat oneMinuteOfStats(String name) {
-        MinuteStat oneMinuteOfStats = this.statMap.get(name);
-        if (oneMinuteOfStats == null) {
-            oneMinuteOfStats = new MinuteStat(now, name);
-            this.statMap.put(name, oneMinuteOfStats);
-        }
-        return oneMinuteOfStats;
-    }
+    void lastTenSecondCountExact(Callback<Integer> callback, String name);
+
+    void lastFiveSecondCountExact(Callback<Integer> callback, String name);
 
 
 
-    public void queueLimit() {
-        now = Timer.timer().now();
-        process();
-    }
+    void recordCountWithTime(String name, int count, long timestamp);
 
-    public void queueEmpty() {
-        now = Timer.timer().now();
-        process();
-    }
+    void recordAllCounts(long timestamp, String[] names, int[] counts);
 
-    //For testing
-    void time(long time) {
-        now = time;
-    }
-
-    void process() {
-        long duration = (now - startMinute) / 1_000;
-        if (duration > 60) {
-            startMinute = now;
-
-            final ArrayList<MinuteStat> stats = new ArrayList<>(this.statMap.values());
-            this.recorder.record(stats);
-            this.statMap = new ConcurrentHashMap<>(100);
-
-        }
-    }
+    void recordAllCountsWithTimes(String[] names, int[] counts, long[] times);
 }

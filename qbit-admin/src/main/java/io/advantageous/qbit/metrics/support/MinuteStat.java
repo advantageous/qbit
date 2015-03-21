@@ -55,6 +55,11 @@ public class MinuteStat {
 
 
     public int countLastTenSeconds(long now) {
+        return countLastSeconds(now, 10);
+    }
+
+
+    public int countLastSeconds(long now, int secondCount) {
 
         int sum = 0;
 
@@ -62,33 +67,34 @@ public class MinuteStat {
 
         int index=0;
 
-        while (secondIndex > 0) {
+
+
+        while (secondIndex >= 0) {
+
+
+            if (secondIndex >= 60) {
+
+                now = now - 1000;
+                secondIndex = secondIndex(now);
+                index++;
+                if (index >= secondCount) {
+                    break;
+                }
+                continue;
+            }
             index++;
             sum += secondCounts[secondIndex];
-            if (index == 10) {
+            if (index >= secondCount) {
                 break;
             }
+            secondIndex--;
         }
         return sum;
     }
 
-
     public int countLastFiveSeconds(long now) {
 
-        int sum = 0;
-
-        int secondIndex = secondIndex(now);
-
-        int index=0;
-
-        while (secondIndex > 0) {
-            index++;
-            sum += secondCounts[secondIndex];
-            if (index == 5) {
-                break;
-            }
-        }
-        return sum;
+        return countLastSeconds(now, 5);
     }
 
     public int countThisSecond(long now) {
@@ -123,7 +129,7 @@ public class MinuteStat {
         if (now >= startTime && now < (startTime + 60 * 1000)) {
             return (int) ((now - startTime) / 1000);
         } else {
-            return Integer.MAX_VALUE;
+            return 60;
         }
     }
 

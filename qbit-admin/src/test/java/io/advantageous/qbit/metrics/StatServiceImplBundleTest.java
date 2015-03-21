@@ -44,13 +44,13 @@ import static io.advantageous.qbit.service.ServiceBuilder.serviceBuilder;
 /**
  * Created by rhightower on 1/28/15.
  */
-public class StatServiceBundleTest extends TimedTesting {
+public class StatServiceImplBundleTest extends TimedTesting {
 
 
     protected static Object context = Sys.contextToHold();
     boolean ok;
-    StatServiceClientInterface statServiceClient;
-    StatService statService;
+    StatService statServiceClient;
+    StatServiceImpl statServiceImpl;
     DebugRecorder recorder;
     DebugReplicator replicator;
     ServiceBundle serviceBundle;
@@ -61,13 +61,13 @@ public class StatServiceBundleTest extends TimedTesting {
         super.setupLatch();
         recorder = new DebugRecorder();
         replicator = new DebugReplicator();
-        statService = new StatServiceBuilder().setRecorder(recorder).setReplicator(replicator).build();
+        statServiceImpl = new StatServiceBuilder().setRecorder(recorder).setReplicator(replicator).build();
         QueueBuilder queueBuilder = queueBuilder()
                 .setPollWait(40).setBatchSize(100_000).setLinkTransferQueue().setCheckEvery(1000);
         serviceQueue = serviceBuilder()
                 .setRootAddress("/root")
                 .setServiceAddress("/serviceAddress")
-                .setServiceObject(statService)
+                .setServiceObject(statServiceImpl)
                 .setRequestQueueBuilder(queueBuilder)
                 .setHandleCallbacks(true)
                 .setInvokeDynamic(false)
@@ -78,10 +78,10 @@ public class StatServiceBundleTest extends TimedTesting {
                 .setResponseQueueBuilder(queueBuilder)
                 .setInvokeDynamic(false)
                 .buildAndStart();
-        serviceBundle.addService(statService);
+        serviceBundle.addService(statServiceImpl);
         serviceBundle.startReturnHandlerProcessor();
         serviceQueue.start();
-        statServiceClient = serviceBundle.createLocalProxy(StatServiceClientInterface.class, "statService");
+        statServiceClient = serviceBundle.createLocalProxy(StatService.class, "statService");
     }
 
     @After
@@ -93,6 +93,21 @@ public class StatServiceBundleTest extends TimedTesting {
 
     @Test
     public void testRecord() throws Exception {
+
+        statServiceClient.recordCount("mystat", 1);
+        serviceBundle.flush();
+
+
+        triggerLatchWhen(o -> replicator.count.get() == 1);
+        waitForLatch(20);
+
+        ok = replicator.count.get() == 1 || die();
+
+    }
+
+
+    @Test
+    public void testLastSecond() throws Exception {
 
         statServiceClient.recordCount("mystat", 1);
         serviceBundle.flush();
@@ -275,7 +290,7 @@ public class StatServiceBundleTest extends TimedTesting {
 
     private void runPerfTestService(final int count) {
 
-        statServiceClient = serviceQueue.createProxy(StatServiceClientInterface.class);
+        statServiceClient = serviceQueue.createProxy(StatService.class);
         final long start = System.currentTimeMillis();
 
         for (int index = 0; index < count; index++) {
@@ -318,7 +333,7 @@ public class StatServiceBundleTest extends TimedTesting {
         final long start = System.currentTimeMillis();
 
         for (int index = 0; index < 16_000_000; index++) {
-            statService.recordCount("mystat", 1);
+            statServiceImpl.recordCount("mystat", 1);
 
         }
         for (int index = 0; index < 10; index++) {
@@ -345,12 +360,12 @@ public class StatServiceBundleTest extends TimedTesting {
 
         final long start = System.currentTimeMillis();
 
-        final ClassMeta<StatService> statServiceClassMeta = ClassMeta.classMeta(StatService.class);
+        final ClassMeta<StatServiceImpl> statServiceClassMeta = ClassMeta.classMeta(StatServiceImpl.class);
         final MethodAccess record = statServiceClassMeta.method("recordCount");
 
 
         for (int index = 0; index < 16_000_000; index++) {
-            record.invoke(statService, "mystat", 1);
+            record.invoke(statServiceImpl, "mystat", 1);
         }
         for (int index = 0; index < 10; index++) {
             Sys.sleep(100);

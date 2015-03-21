@@ -21,23 +21,32 @@ package io.advantageous.qbit.metrics.support;
 
 import io.advantageous.qbit.metrics.StatRecorder;
 import io.advantageous.qbit.metrics.StatReplicator;
-import io.advantageous.qbit.metrics.StatService;
+import io.advantageous.qbit.metrics.StatServiceImpl;
+import io.advantageous.qbit.metrics.StatServiceImpl;
+import io.advantageous.qbit.util.Timer;
 
 import java.util.ArrayList;
 import java.util.List;
 
 /**
+ * Stat Service Builder
  * Created by rhightower on 1/28/15.
  */
 public class StatServiceBuilder {
 
+    private Timer timer = Timer.timer();
     private StatRecorder recorder = new NoOpRecorder();
-
     private StatReplicator replicator = new NoOpReplicator();
-
-
     private List<StatReplicator> replicators = new ArrayList<>();
 
+    public Timer getTimer() {
+        return timer;
+    }
+
+    public StatServiceBuilder setTimer(Timer timer) {
+        this.timer = timer;
+        return this;
+    }
 
     public StatServiceBuilder addReplicator(StatReplicator replicator) {
         replicators.add(replicator);
@@ -62,12 +71,12 @@ public class StatServiceBuilder {
         return this;
     }
 
-    public StatService build() {
+    public StatServiceImpl build() {
 
         if (replicators.size() == 0) {
-            return new StatService(this.getRecorder(), this.getReplicator());
+            return new StatServiceImpl(this.getRecorder(), this.getReplicator(), timer);
         } else {
-            return new StatService(this.getRecorder(), new ReplicatorHub(replicators));
+            return new StatServiceImpl(this.getRecorder(), new ReplicatorHub(replicators), timer);
         }
     }
 }
