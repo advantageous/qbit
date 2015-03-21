@@ -109,7 +109,7 @@ public class TodoServiceWithQBitServiceTest {
         AtomicReference<List<TodoItem>> items = new AtomicReference<>();
         todoServiceClient.list(todoItems -> items.set(todoItems));
 
-        Sys.sleep(200);
+        Sys.sleep(2000);
 
         ok = items.get()!=null || die();
         ok = items.get().size() > 0 || die();
