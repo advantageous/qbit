@@ -230,7 +230,7 @@ public class HttpVertxClient implements HttpClient {
         if (autoFlush) {
 
             if (executorContext != null) {
-                throw new IllegalStateException(sputs("Unable to start up, it is already started"));
+                throw new IllegalStateException(sputs("Unable to start up Vertx client, it is already started"));
             }
 
             this.executorContext = scheduledExecutorBuilder()
