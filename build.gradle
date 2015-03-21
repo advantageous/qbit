@@ -419,7 +419,6 @@ project(':qbit-admin') {
     dependencies {
         compile project(':qbit-boon')
         compile project(':qbit-core')
-        compile project(':qbit-vertx')
         compile "org.slf4j:slf4j-api:[1.7,1.8)"
         compile 'ch.qos.logback:logback-classic:1.1.2'
 
