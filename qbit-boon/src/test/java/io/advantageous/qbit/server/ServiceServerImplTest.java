@@ -97,7 +97,7 @@ public class ServiceServerImplTest extends TimedTesting {
     @RequestMapping("/other")
     public  class MyOtherService {
 
-        @RequestMapping("/method")
+        @RequestMapping("/serviceCall")
         public void method(Callback<String> callback, String arg) {
             callMeCounter++;
             callback.accept(arg);
@@ -140,12 +140,12 @@ public class ServiceServerImplTest extends TimedTesting {
 
 
 
-        serviceServerImpl.addServiceQueue("/services/other/method", serviceQueue);
+        serviceServerImpl.addServiceQueue("/services/other/serviceCall", serviceQueue);
 
         serviceServerImpl.start();
 
 
-        final HttpRequest request = new HttpRequestBuilder().setUri("/other/method")
+        final HttpRequest request = new HttpRequestBuilder().setUri("/other/serviceCall")
                 .setTextReceiver(new MockReceiver()).setBody("").build();
 
         httpServer.sendRequest(request);

@@ -33,14 +33,14 @@ public class TodoService {
 
     public void add(TodoItem todoItem) {
 
-        puts("add method was called", todoItem);
+        puts("add serviceCall was called", todoItem);
         items.add(todoItem);
 
-        puts("add method AFTER called", items);
+        puts("add serviceCall AFTER called", items);
     }
 
     public List<TodoItem> list() {
-        puts("List method was called", items);
+        puts("List serviceCall was called", items);
         return new ArrayList<>(items);
     }
 }

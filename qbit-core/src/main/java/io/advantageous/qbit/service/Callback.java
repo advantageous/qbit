@@ -27,6 +27,7 @@ import java.util.function.Consumer;
  * Note: This was boon Handler but we switched to JDK 8 Consumer style callback.
  * <p>
  * Created by gcc on 10/14/14.
+ * Was called Handler and created by Rick Hightower quite a bit before 10/14
  */
 
 public interface Callback<T> extends Consumer<T> {
@@ -35,6 +36,10 @@ public interface Callback<T> extends Consumer<T> {
 
         LoggerFactory.getLogger(Callback.class)
                 .error(error.getMessage(), error);
+    }
+
+
+    default void timedOut(long startTime, long now) {
     }
 }
 

@@ -51,15 +51,15 @@ public class TodoService {
     @RequestMapping(value = "/todo", method = POST)
     public void add(Todo todoItem) {
 
-        puts("add method was called", todoItem);
+        puts("add serviceCall was called", todoItem);
         items.add(todoItem);
 
-        puts("add method AFTER called", items);
+        puts("add serviceCall AFTER called", items);
     }
 
     @RequestMapping("/todo/list/")
     public List<Todo> list() {
-        puts("List method was called", items);
+        puts("List serviceCall was called", items);
         return new ArrayList<>(items);
     }
 
