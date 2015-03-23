@@ -22,10 +22,12 @@ public class AsyncFutureCallbackImpl<T> implements AsyncFutureCallback<T> {
                                                           final long startTime,
                                                           final long maxExecutionTime,
                                                           final Runnable onFinished,
+                                                          final Runnable onTimeout,
                                                           final Consumer<Throwable> onError) {
-        return new AsyncFutureCallbackImpl<>(callback, startTime, maxExecutionTime, onFinished, onError);
+        return new AsyncFutureCallbackImpl<>(callback, startTime, maxExecutionTime, onFinished, onTimeout, onError);
     }
 
+    private final Runnable onTimeout;
     private final Callback<T> callback;
     private final long startTime;
     private final long maxExecutionTime;
@@ -41,12 +43,15 @@ public class AsyncFutureCallbackImpl<T> implements AsyncFutureCallback<T> {
                                    final long startTime,
                                    final long maxExecutionDuration,
                                    final Runnable onFinished,
+                                   final Runnable onTimeout,
                                    final Consumer<Throwable> onError) {
         this.callback = callback;
         this.startTime = startTime;
         this.maxExecutionTime = maxExecutionDuration;
         this.onError = onError == null ? throwable -> {callback.onError(throwable);} : onError;
         this.onFinished = onFinished == null ? () -> {} : onFinished;
+
+        this.onTimeout = onTimeout;
 
     }
 
@@ -71,7 +76,7 @@ public class AsyncFutureCallbackImpl<T> implements AsyncFutureCallback<T> {
     @Override
     public boolean checkTimeOut(final long now) {
         if (now - startTime > maxExecutionTime) {
-            callback.timedOut(startTime, now);
+            this.onTimeout();
             timedOut.set(true);
             return true;
         } else {
@@ -97,6 +102,15 @@ public class AsyncFutureCallbackImpl<T> implements AsyncFutureCallback<T> {
         this.error.set(error);
         done.set(true);
 
+    }
+
+    @Override
+    public void onTimeout() {
+        if (onTimeout==null) {
+            callback.onTimeout();
+        } else {
+            onTimeout.run();
+        }
     }
 
     @Override

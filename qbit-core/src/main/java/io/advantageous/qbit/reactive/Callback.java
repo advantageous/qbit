@@ -39,7 +39,8 @@ public interface Callback<T> extends Consumer<T> {
     }
 
 
-    default void timedOut(long startTime, long now) {
+    default void onTimeout() {
+
     }
 }
 

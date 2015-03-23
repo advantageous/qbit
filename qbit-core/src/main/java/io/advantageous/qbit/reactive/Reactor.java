@@ -4,7 +4,9 @@ import io.advantageous.qbit.reactive.impl.AsyncFutureCallbackImpl;
 import io.advantageous.qbit.util.Timer;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedTransferQueue;
 import java.util.concurrent.TimeUnit;
@@ -24,8 +26,8 @@ public class Reactor {
     private final BlockingQueue<CallbackCoordinator> coordinatorQueue = new LinkedTransferQueue<>();
     private final BlockingQueue<CallbackCoordinator> removeCoordinatorQueue = new LinkedTransferQueue<>();
 
-    private final List<AsyncFutureCallback<?>> futureList = new ArrayList<>();
-    private final List<CallbackCoordinator> coordinatorList = new ArrayList<>();
+    private final Set<AsyncFutureCallback<?>> futureList = new HashSet<>();
+    private final Set<CallbackCoordinator> coordinatorList = new HashSet<>();
     private final Timer timer;
     private final long defaultTimeOut;
 
@@ -49,17 +51,6 @@ public class Reactor {
 
 
     private boolean drainQueues() {
-        AsyncFutureCallback<?> futureCallback = futureQueue.poll();
-        while (futureCallback != null) {
-            futureList.add(futureCallback);
-            futureCallback = futureQueue.poll();
-        }
-
-        futureCallback  = removeFutureQueue.poll();
-        while (futureCallback != null) {
-            futureList.remove(futureCallback);
-            futureCallback = futureQueue.poll();
-        }
 
         CallbackCoordinator callable = coordinatorQueue.poll();
         while (callable != null) {
@@ -73,7 +64,28 @@ public class Reactor {
             callable = coordinatorQueue.poll();
         }
 
+        AsyncFutureCallback<?> futureCallback = futureQueue.poll();
+        while (futureCallback != null) {
+            futureList.add(futureCallback);
+            futureCallback = futureQueue.poll();
+        }
+
+        futureCallback  = removeFutureQueue.poll();
+        while (futureCallback != null) {
+            futureList.remove(futureCallback);
+            futureCallback = futureQueue.poll();
+        }
+
+
         return false;
+    }
+
+    public CallbackBuilder callbackBuilder () {
+        return CallbackBuilder.callbackBuilder(this);
+    }
+
+    public CoordinatorBuilder coordinatorBuilder () {
+        return CoordinatorBuilder.coordinatorBuilder(this);
     }
 
     public <T> AsyncFutureCallback<T> callback(final Callback<T> callback) {
@@ -96,17 +108,31 @@ public class Reactor {
 
     }
 
-    public <T> AsyncFutureCallback<T> callbackWithTimeoutAndErrorHandler(final Callback<T> callback,
+    public <T> AsyncFutureCallback<T> callbackWithTimeoutAndErrorHandler(
+                                                          final Callback<T> callback,
                                                           final long timeoutDuration,
                                                           final TimeUnit timeUnit,
                                                           final Consumer<Throwable> onError) {
 
+        return callbackWithTimeoutAndErrorHandlerAndOnTimeout(callback, timeoutDuration, timeUnit, null, onError);
+
+    }
+
+
+    public <T> AsyncFutureCallback<T> callbackWithTimeoutAndErrorHandlerAndOnTimeout(
+            final Callback<T> callback,
+            final long timeoutDuration,
+            final TimeUnit timeUnit,
+            final Runnable onTimeout,
+            final Consumer<Throwable> onError) {
+
         final AtomicReference<AsyncFutureCallback<T>> ref = new AtomicReference<>();
 
         final AsyncFutureCallbackImpl<T> asyncFutureCallback =
-                AsyncFutureCallbackImpl.callback(callback, Timer.timer().now(),
+                AsyncFutureCallbackImpl.callback(callback, currentTime,
                         timeUnit.toMillis(timeoutDuration),
-                        () -> Reactor.this.removeFuture(ref.get()), onError);
+                        createOnFinished(ref)
+                        , onTimeout, onError);
 
         ref.set(asyncFutureCallback);
         futureQueue.add(asyncFutureCallback);
@@ -114,6 +140,14 @@ public class Reactor {
 
     }
 
+    private <T> Runnable createOnFinished(final AtomicReference<AsyncFutureCallback<T>> ref) {
+        return new Runnable() {
+            @Override
+            public void run() {
+                Reactor.this.removeFuture(ref.get());
+            }
+        };
+    }
 
 
     public <T> AsyncFutureCallback<T> callbackWithTimeout(Class<T> cls, final Callback<T> callback,
@@ -125,7 +159,8 @@ public class Reactor {
     }
 
 
-    public <T> AsyncFutureCallback<T> callbackWithTimeoutAndErrorHandler(Class<T> cls, final Callback<T> callback,
+    public <T> AsyncFutureCallback<T> callbackWithTimeoutAndErrorHandler(Class<T> cls,
+                                                          final Callback<T> callback,
                                                           final long timeoutDuration,
                                                           final TimeUnit timeUnit,
                                                           final Consumer<Throwable> onError) {
@@ -143,18 +178,7 @@ public class Reactor {
 
     public CallbackCoordinator removeCoordinator(final CallbackCoordinator coordinator) {
 
-        this.removeCoordinatorQueue.add(new CallbackCoordinator() {
-            @Override
-            public boolean checkComplete() {
-                return coordinator.checkComplete();
-            }
-
-
-            public void finished() {
-                removeCoordinator(this);
-            }
-
-        });
+        this.removeCoordinatorQueue.add(coordinator);
         return coordinator;
     }
 
@@ -172,46 +196,74 @@ public class Reactor {
                                                      final Runnable timeOutHandler) {
 
         final long timeoutDurationMS = timeUnit.toMillis(timeoutDuration);
-        this.coordinatorQueue.add(
-                new CallbackCoordinator() {
-                    @Override
-                    public boolean checkComplete() {
-                        return coordinator.checkComplete();
-                    }
+
+        final long theStartTime = startTime == -1 ? currentTime : startTime;
 
 
-                    public boolean timedOut(long now) {
+        final CallbackCoordinator wrapper =                 new CallbackCoordinator() {
 
-                        if (startTime() == -1 || timeOutDuration() == -1) {
-                            return false;
-                        }
-                        if ((now - startTime()) > timeOutDuration() ) {
-
-                            timeOutHandler.run();
-                            return true;
-                        } else {
-                            return false;
-                        }
-                    }
-
-                    @Override
-                    public long timeOutDuration() {
-                        return timeoutDurationMS;
-                    }
-
-                    @Override
-                    public long startTime() {
-                        return startTime;
-                    }
-
-                    public void finished() {
-                        if (checkComplete()) {
-                            removeCoordinator(this);
-                        }
-                    }
+            boolean done = false;
+            @Override
+            public boolean checkComplete() {
+                if (done) {
+                    return true;
                 }
-        );
-        return coordinator;
+
+                if (coordinator.checkComplete()) {
+                    done = true;
+                }
+
+                return done;
+
+            }
+
+
+            public boolean timedOut(long now) {
+
+
+                if (startTime() == -1 || timeOutDuration() == -1) {
+                    return false;
+                }
+                if ((now - startTime()) > timeOutDuration() ) {
+
+                    if (!done) {
+                        timeOutHandler.run();
+                        done = true;
+                    }
+                    return true;
+                } else {
+                    return false;
+                }
+            }
+
+            @Override
+            public long timeOutDuration() {
+                return coordinator.timeOutDuration() == -1 ? timeoutDurationMS : coordinator.timeOutDuration();
+            }
+
+            @Override
+            public long startTime() {
+                return coordinator.startTime() == -1 ? theStartTime : coordinator.startTime();
+            }
+
+            public void finished() {
+                if (checkComplete()) {
+                    removeCoordinator(this);
+                }
+                done = true;
+                coordinator.finished();
+            }
+
+            public void cancel() {
+                done = true;
+                removeCoordinator(this);
+                coordinator.cancel();
+            }
+        };
+
+
+        this.coordinatorQueue.add(wrapper);
+        return wrapper;
     }
 
     private void monitorCallBacks() {

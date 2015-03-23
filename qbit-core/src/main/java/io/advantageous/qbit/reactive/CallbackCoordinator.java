@@ -29,4 +29,9 @@ public interface CallbackCoordinator {
     default void finished() {
 
     }
+
+
+    default void cancel()  {
+
+    }
 }
