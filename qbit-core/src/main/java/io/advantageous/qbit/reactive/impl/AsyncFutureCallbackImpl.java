@@ -7,6 +7,7 @@ import io.advantageous.qbit.reactive.Callback;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Consumer;
 
 /**
  * This allows for a callbackWithTimeout to be called in the context of a service.
@@ -20,8 +21,9 @@ public class AsyncFutureCallbackImpl<T> implements AsyncFutureCallback<T> {
     public static <T> AsyncFutureCallbackImpl<T> callback(final Callback<T> callback,
                                                           final long startTime,
                                                           final long maxExecutionTime,
-                                                          final Runnable onFinished) {
-        return new AsyncFutureCallbackImpl<>(callback, startTime, maxExecutionTime, onFinished);
+                                                          final Runnable onFinished,
+                                                          final Consumer<Throwable> onError) {
+        return new AsyncFutureCallbackImpl<>(callback, startTime, maxExecutionTime, onFinished, onError);
     }
 
     private final Callback<T> callback;
@@ -33,16 +35,18 @@ public class AsyncFutureCallbackImpl<T> implements AsyncFutureCallback<T> {
     private AtomicBoolean done = new AtomicBoolean();
     private AtomicBoolean timedOut = new AtomicBoolean();
     private final Runnable onFinished;
+    private final Consumer<Throwable> onError;
 
     public AsyncFutureCallbackImpl(final Callback<T> callback,
                                    final long startTime,
                                    final long maxExecutionDuration,
-                                   final Runnable onFinished) {
+                                   final Runnable onFinished,
+                                   final Consumer<Throwable> onError) {
         this.callback = callback;
         this.startTime = startTime;
         this.maxExecutionTime = maxExecutionDuration;
-        this.onFinished = onFinished == null ? () -> {
-        } : onFinished;
+        this.onError = onError == null ? throwable -> {callback.onError(throwable);} : onError;
+        this.onFinished = onFinished == null ? () -> {} : onFinished;
 
     }
 
@@ -101,7 +105,7 @@ public class AsyncFutureCallbackImpl<T> implements AsyncFutureCallback<T> {
                 callback.accept(value.get());
             } else {
                 if (error.get()!=null) {
-                    callback.onError(error.get());
+                    onError.accept(error.get());
                 } else {
                     if (cancelled.get()) {
                         callback.onError(CANCEL);

@@ -9,8 +9,10 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedTransferQueue;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Consumer;
 
 /**
+ * Reactor
 * Created by rhightower on 3/22/15.
 */
 public class Reactor {
@@ -85,16 +87,26 @@ public class Reactor {
         return callbackWithTimeout(callback, defaultTimeOut, TimeUnit.MILLISECONDS);
     }
 
+
     public <T> AsyncFutureCallback<T> callbackWithTimeout(final Callback<T> callback,
                                                           final long timeoutDuration,
                                                           final TimeUnit timeUnit) {
+
+        return callbackWithTimeoutAndErrorHandler(callback, timeoutDuration, timeUnit, null);
+
+    }
+
+    public <T> AsyncFutureCallback<T> callbackWithTimeoutAndErrorHandler(final Callback<T> callback,
+                                                          final long timeoutDuration,
+                                                          final TimeUnit timeUnit,
+                                                          final Consumer<Throwable> onError) {
 
         final AtomicReference<AsyncFutureCallback<T>> ref = new AtomicReference<>();
 
         final AsyncFutureCallbackImpl<T> asyncFutureCallback =
                 AsyncFutureCallbackImpl.callback(callback, Timer.timer().now(),
                         timeUnit.toMillis(timeoutDuration),
-                        () -> Reactor.this.removeFuture(ref.get()));
+                        () -> Reactor.this.removeFuture(ref.get()), onError);
 
         ref.set(asyncFutureCallback);
         futureQueue.add(asyncFutureCallback);
@@ -110,6 +122,16 @@ public class Reactor {
 
 
         return callbackWithTimeout(callback, timeoutDuration, timeUnit);
+    }
+
+
+    public <T> AsyncFutureCallback<T> callbackWithTimeoutAndErrorHandler(Class<T> cls, final Callback<T> callback,
+                                                          final long timeoutDuration,
+                                                          final TimeUnit timeUnit,
+                                                          final Consumer<Throwable> onError) {
+
+
+        return callbackWithTimeoutAndErrorHandler(callback, timeoutDuration, timeUnit, onError);
     }
 
     public CallbackCoordinator coordinate(final CallbackCoordinator coordinator) {
