@@ -32,6 +32,7 @@ package io.advantageous.boon.json.serializers.impl;
 import io.advantageous.boon.Boon;
 import io.advantageous.boon.Exceptions;
 import io.advantageous.boon.Str;
+import io.advantageous.boon.core.Value;
 import io.advantageous.boon.core.reflection.FastStringUtils;
 import io.advantageous.boon.core.reflection.Invoker;
 import io.advantageous.boon.core.reflection.fields.FieldAccess;
@@ -547,6 +548,11 @@ public class JsonSimpleSerializerImpl implements JsonSerializerInternal {
             case ABSTRACT:
             case INTERFACE:
                 serializeSubtypeInstance ( obj, builder );
+                return;
+
+            case VALUE:
+                Value value = (Value) obj;
+                serializeObject( value.toValue(), builder );
                 return;
 
             case INSTANCE:

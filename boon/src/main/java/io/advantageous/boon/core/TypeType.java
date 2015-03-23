@@ -347,8 +347,8 @@ public enum TypeType {
                 case "ValueMapImpl":
                     return TypeType.VALUE_MAP;
 
-                case "NumberValue":
-                case "CharSequenceValue":
+                case "io.advantageous.boon.core.value.NumberValue":
+                case "io.advantageous.boon.core.value.CharSequenceValue":
                     return TypeType.VALUE;
 
 

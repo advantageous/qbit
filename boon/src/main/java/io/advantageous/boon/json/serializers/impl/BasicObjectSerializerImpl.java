@@ -28,6 +28,7 @@
 
 package io.advantageous.boon.json.serializers.impl;
 
+import io.advantageous.boon.core.Value;
 import io.advantageous.boon.json.serializers.JsonSerializerInternal;
 import io.advantageous.boon.core.TypeType;
 import io.advantageous.boon.json.serializers.ObjectSerializer;
@@ -162,6 +163,13 @@ public class BasicObjectSerializerImpl implements ObjectSerializer {
             case ARRAY_OBJECT:
                 jsonSerializer.serializeArray ( obj, builder );
                 return;
+
+
+            case VALUE:
+                Value value = (Value) obj;
+                serializeObject( jsonSerializer, value.toValue(), builder );
+                return;
+
             case INSTANCE:
                 jsonSerializer.serializeInstance ( obj, builder, includeTypeInfo );
                 return;
