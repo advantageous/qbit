@@ -416,11 +416,6 @@ public class JsonSimpleSerializerImpl implements JsonSerializerInternal {
                     return true;
             }
 
-//        } catch (Exception ex) {
-//            return handle(Boolean.class, ex, "Unable to serialize field", fieldName, "from parent object", parent,
-//                    "type enum", typeEnum);
-//        }
-
     }
 
 
@@ -445,6 +440,7 @@ public class JsonSimpleSerializerImpl implements JsonSerializerInternal {
         switch ( type ) {
 
             case NULL:
+                builder.addNull();
                 return;
             case INT:
                 builder.addInt ( int.class.cast ( obj ) );

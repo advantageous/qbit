@@ -35,6 +35,7 @@ import io.advantageous.boon.core.reflection.BeanUtils;
 import io.advantageous.boon.json.serializers.impl.JsonSimpleSerializerImpl;
 import io.advantageous.boon.json.test.FooEnum;
 import io.advantageous.boon.json.test.AllTypes;
+import org.junit.Assert;
 import org.junit.Test;
 
 import java.net.URL;
@@ -554,5 +555,31 @@ public class JsonSerializeTest {
         JsonSerializer serializer = new JsonSerializerFactory().create();
         serializer.serialize( new int[]{ 0, 1, 2, 3, 4, 5 } );
     }
+
+
+    @Test
+    public void testWithStringArray(){
+        String[] cats = new String[10];
+        cats[0] = "Felix";
+        cats[5] = "Tom";
+        String sRick = new JsonSimpleSerializerImpl().serialize(cats).toString();
+        boolean ok = sRick.equals( "[\"Felix\",null,null,null,null,\"Tom\",null,null,null,null]" ) || die( sRick );
+    }
+
+
+
+    @Test
+    public void testWithIntArray(){
+        int[] numbers = new int[10];
+        numbers[0] = 5;
+        numbers[3] = 10;
+
+        String sRick = new JsonSimpleSerializerImpl().serialize(numbers).toString();
+        int[] numeros = new JsonParserFactory().create().parseIntArray(sRick);
+
+        Assert.assertArrayEquals(numbers, numeros);
+    }
+
+
 
 }
