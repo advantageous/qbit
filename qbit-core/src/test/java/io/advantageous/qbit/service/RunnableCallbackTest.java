@@ -6,13 +6,11 @@ import io.advantageous.qbit.util.Timer;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedTransferQueue;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
-
-import static io.advantageous.boon.Boon.puts;
 
 public class RunnableCallbackTest {
 
@@ -38,52 +36,54 @@ public class RunnableCallbackTest {
     }
 
 
-    public static class Reactor implements Runnable{
+    public static class Reactor {
 
 
-        final BlockingQueue<AsyncFutureCallback<?>> queue = new ArrayBlockingQueue<>(100);
+        private final BlockingQueue<AsyncFutureCallback<?>> futureQueue = new LinkedTransferQueue<>();
+        private final BlockingQueue<CallbackCoordinator> coordinatorQueue = new LinkedTransferQueue<>();
+        private final BlockingQueue<CallbackCoordinator> removeCoordinatorQueue = new LinkedTransferQueue<>();
 
-        final BlockingQueue<CallbackCoordinator> callQueue = new ArrayBlockingQueue<>(100);
-        final List<AsyncFutureCallback<?>> callbackList = new ArrayList<>();
-        final List<CallbackCoordinator> callableList = new ArrayList<>();
+        private final List<AsyncFutureCallback<?>> futureList = new ArrayList<>();
+        private final List<CallbackCoordinator> coordinatorList = new ArrayList<>();
+        private final Timer timer;
 
-        final Thread thread;
-        final AtomicBoolean stopped = new AtomicBoolean();
-        Reactor (){
-            this.thread = new Thread(this);
-            this.thread.start();
+        private long currentTime;
+
+        public Reactor(final Timer timer) {
+
+            this.timer = timer;
+            currentTime = timer.now();
         }
 
-        @Override
-        public void run() {
+        public void process() {
 
-            while (!stopped.get()) {
 
-                if (drainQueues()) break;
-
-                monitorCallBacks();
-
-                monitorCallable();
-            }
+            drainQueues();
+            currentTime = timer.now();
+            monitorCallBacks();
+            monitorCallbackCoordinators();
         }
 
 
         private boolean drainQueues() {
-            try {
-                AsyncFutureCallback<?> value = queue.poll(1, TimeUnit.SECONDS);
-                while (value !=null) {
-                    callbackList.add(value);
-                    value = queue.poll();
-                }
-            } catch (InterruptedException e) {
-                return true;
+            AsyncFutureCallback<?> futureCallback = futureQueue.poll();
+            while (futureCallback != null) {
+                futureList.add(futureCallback);
+                futureCallback = futureQueue.poll();
             }
 
-            CallbackCoordinator callable = callQueue.poll();
-            while (callable !=null) {
-                callableList.add(callable);
-                callable = callQueue.poll();
+            CallbackCoordinator callable = coordinatorQueue.poll();
+            while (callable != null) {
+                coordinatorList.add(callable);
+                callable = coordinatorQueue.poll();
             }
+
+            callable = removeCoordinatorQueue.poll();
+            while (callable != null) {
+                coordinatorList.remove(callable);
+                callable = coordinatorQueue.poll();
+            }
+
             return false;
         }
 
@@ -91,7 +91,7 @@ public class RunnableCallbackTest {
 
             final AsyncFutureCallback<T> asyncFutureCallback =
                     AsyncFutureCallback.callback(callback, Timer.timer().now(), 4000);
-            queue.add(asyncFutureCallback);
+            futureQueue.add(asyncFutureCallback);
             return asyncFutureCallback;
 
         }
@@ -101,14 +101,82 @@ public class RunnableCallbackTest {
 
             final AsyncFutureCallback<T> asyncFutureCallback =
                     AsyncFutureCallback.callback(callback, Timer.timer().now(), 4000);
-            queue.add(asyncFutureCallback);
+            futureQueue.add(asyncFutureCallback);
             return asyncFutureCallback;
 
         }
 
         public CallbackCoordinator coordinate(final CallbackCoordinator coordinator) {
 
-            this.callQueue.add(coordinator);
+            this.coordinatorQueue.add(coordinator);
+            return coordinator;
+        }
+
+
+        public CallbackCoordinator removeCoordinator(final CallbackCoordinator coordinator) {
+
+            this.removeCoordinatorQueue.add(new CallbackCoordinator() {
+                @Override
+                public boolean checkComplete() {
+                    return coordinator.checkComplete();
+                }
+
+
+                public void finished() {
+                    removeCoordinator(this);
+                }
+
+            });
+            return coordinator;
+        }
+
+
+        public CallbackCoordinator coordinateWithTimeout(final CallbackCoordinator coordinator,
+                                                         final long startTime,
+                                                         final long timeoutDuration,
+                                                         final TimeUnit timeUnit,
+                                                         final Runnable timeOutHandler) {
+
+            final long timeoutDurationMS = timeUnit.toMillis(timeoutDuration);
+            this.coordinatorQueue.add(
+                    new CallbackCoordinator() {
+                        @Override
+                        public boolean checkComplete() {
+                            return coordinator.checkComplete();
+                        }
+
+
+                        public boolean timedOut(long now) {
+
+                            if (startTime() == -1 || timeOutDuration() == -1) {
+                                return false;
+                            }
+                            if ((now - startTime()) > timeOutDuration() ) {
+
+                                timeOutHandler.run();
+                                return true;
+                            } else {
+                                return false;
+                            }
+                        }
+
+                        @Override
+                        public long timeOutDuration() {
+                            return timeoutDurationMS;
+                        }
+
+                        @Override
+                        public long startTime() {
+                            return startTime;
+                        }
+
+                        public void finished() {
+                            if (checkComplete()) {
+                                removeCoordinator(this);
+                            }
+                        }
+                    }
+            );
             return coordinator;
         }
 
@@ -117,7 +185,7 @@ public class RunnableCallbackTest {
             final List<AsyncFutureCallback<?>> removeList = new ArrayList<>();
 
             long now = Timer.timer().now();
-            for (AsyncFutureCallback<?> callback : callbackList) {
+            for (AsyncFutureCallback<?> callback : futureList) {
                 if (callback.isDone()) {
                     callback.run();
                     removeList.add(callback);
@@ -127,41 +195,56 @@ public class RunnableCallbackTest {
                     }
                 }
             }
-            callbackList.removeAll(removeList);
+            futureList.removeAll(removeList);
         }
 
 
-        private void monitorCallable() {
+        private void monitorCallbackCoordinators() {
+
 
             final List<CallbackCoordinator> removeList = new ArrayList<>();
 
-            for (CallbackCoordinator callable : callableList) {
-                try {
-                    if (callable.checkComplete()) {
-                        removeList.add(callable);
-                    }
-                } catch (Exception e) {
-
-
+            for (CallbackCoordinator callable : coordinatorList) {
+                if (callable.checkComplete()) {
+                    removeList.add(callable);
+                } else if (callable.timedOut(currentTime)) {
+                    removeList.add(callable);
                 }
             }
-            callableList.removeAll(removeList);
+            coordinatorList.removeAll(removeList);
 
         }
 
-        public void stop() {
-            stopped.set(true);
-        }
     }
 
 
 
 
+    public static void handleReturnFromC(AtomicReference<String> serviceAReturn,
+                                         CallbackCoordinator coordinator,
+                                         Reactor reactor) {
+
+        if (serviceAReturn.get()!=null) {
+           reactor.removeCoordinator(coordinator);
+        }
+
+    }
 
     public static void main(String... args) throws Exception {
 
 
-        Reactor reactor = new Reactor();
+        final Reactor reactor = new Reactor(Timer.timer());
+        final AtomicBoolean stop = new AtomicBoolean();
+
+        Thread thread = new Thread(() -> {
+
+            while (!stop.get()) {
+                Sys.sleep(1);
+                reactor.process();
+            }
+        });
+
+        thread.start();
 
         final PretendService serviceA = new PretendService("SERVICE A");
         final PretendService serviceB = new PretendService("SERVICE B");
@@ -169,7 +252,6 @@ public class RunnableCallbackTest {
         final AtomicReference<String> serviceAReturn = new AtomicReference<>();
         final AtomicReference<String> serviceCReturn = new AtomicReference<>();
 
-        final long startTime = Timer.timer().now();
 
         /* Create a callback for service A to demonstrate
             a callback to show that it can be cancelled. */
@@ -179,40 +261,43 @@ public class RunnableCallbackTest {
         /* Call service A using the callback. */
         serviceA.serviceCall(serviceACallback, 1, " from main");
 
-        /* Call Service B, register a callback
-             which call service C on service b completion. */
-        serviceB.serviceCall(
-                reactor.callback(returnValue ->
-                        serviceC.serviceCall(reactor.callback(serviceCReturn::set), 1, " from " + returnValue)
-                ), 1, " from main");
 
-
-        /* Register a coordinator that checks for return values form service A and C */
-        reactor.coordinate(() -> {
+        /* Register a coordinator that checks for return values from service A and C */
+        CallbackCoordinator coordinator = reactor.coordinateWithTimeout(() -> {
 
             /* If service A and service C are done, then we are done.
             * Let the client know.
             */
-            if (serviceAReturn.get()!=null && serviceCReturn.get()!=null) {
+            if (serviceAReturn.get() != null && serviceCReturn.get() != null) {
                 sendResponseBackToClient(serviceAReturn.get(), serviceCReturn.get());
                 return true;  //true means we are done
             }
 
-            /* We are not done, so check to see if 4s elapsed, then signal we are done.*/
-            if ( Timer.timer().now() - startTime > 4000) {
-                sendTimeoutBackToClient();
-                serviceACallback.cancel(true);
-                return true; //true means we are done
-            }
-            return false; //keep going
-        });
+            return false;
+
+        }, Timer.timer().now(), 2, TimeUnit.SECONDS, () -> sendTimeoutBackToClient());
+
+
+        /* Call Service B, register a callback
+             which call service C on service b completion. */
+        serviceB.serviceCall(
+                reactor.callback(returnValue ->
+                        serviceC.serviceCall(reactor.callback(
+                                returnValueFromC -> {
+                                    serviceCReturn.set(returnValueFromC);
+                                    handleReturnFromC(serviceAReturn, coordinator, reactor);
+                                }
+                        ), 2, " from " + returnValue)
+                ), 2, " from main");
+
 
 
         Sys.sleep(20_000);
-        reactor.stop();
+        stop.set(true);
 
-        puts("DONE");
+        thread.join();
 
+        System.out.println("done");
 
 
     }
