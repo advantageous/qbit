@@ -21,8 +21,7 @@ package io.advantageous.qbit.service.impl;
 import io.advantageous.qbit.message.MethodCall;
 import io.advantageous.qbit.message.Response;
 import io.advantageous.qbit.queue.Queue;
-import io.advantageous.qbit.queue.ReceiveQueueListener;
-import io.advantageous.qbit.service.Callback;
+import io.advantageous.qbit.reactive.Callback;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,7 +38,7 @@ public class CallbackManager {
     private final Map<HandlerKey, Callback<Object>> handlers = new ConcurrentHashMap<>();
 
     /**
-     * Register a callback handler
+     * Register a callbackWithTimeout handler
      *
      * @param methodCall method call
      * @param handler    call back handler to register
@@ -53,7 +52,7 @@ public class CallbackManager {
     public void registerCallbacks(MethodCall<Object> methodCall) {
         Object args = methodCall.body();
 
-        /** Look for callback handler in the args */
+        /** Look for callbackWithTimeout handler in the args */
         if (args instanceof Iterable) {
             final Iterable list = (Iterable) args;
             for (Object arg : list) {

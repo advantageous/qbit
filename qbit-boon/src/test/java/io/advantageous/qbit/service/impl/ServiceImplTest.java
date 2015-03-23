@@ -19,7 +19,7 @@
 package io.advantageous.qbit.service.impl;
 
 import io.advantageous.qbit.QBit;
-import io.advantageous.qbit.service.Callback;
+import io.advantageous.qbit.reactive.Callback;
 import io.advantageous.qbit.service.ServiceQueue;
 import io.advantageous.qbit.service.ServiceBuilder;
 import io.advantageous.boon.core.Sys;

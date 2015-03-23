@@ -55,7 +55,7 @@
 
 package io.advantageous.qbit.services.example.todo;
 
-import io.advantageous.qbit.service.Callback;
+import io.advantageous.qbit.reactive.Callback;
 
 import java.util.List;
 

@@ -26,7 +26,7 @@ import io.advantageous.qbit.http.client.HttpClient;
 import io.advantageous.qbit.http.client.HttpClientBuilder;
 import io.advantageous.qbit.server.ServiceServer;
 import io.advantageous.qbit.server.ServiceServerBuilder;
-import io.advantageous.qbit.service.Callback;
+import io.advantageous.qbit.reactive.Callback;
 import io.advantageous.boon.core.Sys;
 import org.junit.After;
 import org.junit.Before;

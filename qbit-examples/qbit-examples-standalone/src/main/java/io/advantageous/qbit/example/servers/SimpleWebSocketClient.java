@@ -20,7 +20,7 @@ package io.advantageous.qbit.example.servers;
 
 import io.advantageous.qbit.client.Client;
 import io.advantageous.qbit.client.ClientBuilder;
-import io.advantageous.qbit.service.Callback;
+import io.advantageous.qbit.reactive.Callback;
 import io.advantageous.boon.core.Sys;
 
 import java.util.ArrayList;

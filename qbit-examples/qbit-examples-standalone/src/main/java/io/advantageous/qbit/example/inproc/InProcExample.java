@@ -18,7 +18,7 @@
 
 package io.advantageous.qbit.example.inproc;
 
-import io.advantageous.qbit.service.Callback;
+import io.advantageous.qbit.reactive.Callback;
 import io.advantageous.qbit.service.ServiceQueue;
 import io.advantageous.boon.core.Sys;
 
@@ -75,7 +75,7 @@ public class InProcExample {
         System.out.println("This is an async call to count");
 
         todoManager.count(count -> {
-            System.out.println("This lambda expression is the callback " + count);
+            System.out.println("This lambda expression is the callbackWithTimeout " + count);
 
             countTracker.set(count);
         });
@@ -137,7 +137,7 @@ public class InProcExample {
         System.out.println("This is an async call to count");
 
         todoManager.count(count -> {
-            System.out.println("This lambda expression is the callback " + count);
+            System.out.println("This lambda expression is the callbackWithTimeout " + count);
 
             countTracker.set(count);
         });

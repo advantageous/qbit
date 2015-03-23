@@ -18,7 +18,7 @@
 
 package io.advantageous.qbit.events;
 
-import io.advantageous.qbit.service.Callback;
+import io.advantageous.qbit.reactive.Callback;
 
 /**
  * Created by rhightower on 2/3/15.

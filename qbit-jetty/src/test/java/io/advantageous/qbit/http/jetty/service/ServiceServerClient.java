@@ -20,7 +20,7 @@ package io.advantageous.qbit.http.jetty.service;
 
 import io.advantageous.qbit.client.Client;
 import io.advantageous.qbit.client.ClientBuilder;
-import io.advantageous.qbit.service.Callback;
+import io.advantageous.qbit.reactive.Callback;
 import io.advantageous.qbit.service.ServiceProxyUtils;
 import io.advantageous.boon.core.Sys;
 

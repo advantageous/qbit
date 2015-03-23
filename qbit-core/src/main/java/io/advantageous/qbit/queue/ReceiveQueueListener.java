@@ -25,7 +25,7 @@ import io.advantageous.qbit.Input;
  * Simplifies queue handler loop code by abstracting queue operations.
  * <p>
  * The nitty gritty of polling the queue which can vary from one implementation to another is abstracted
- * These are all callback method to notify you when the queue has an item, when the queue is empty, etc.
+ * These are all callbackWithTimeout method to notify you when the queue has an item, when the queue is empty, etc.
  *
  * @author Richard Hightower
  */

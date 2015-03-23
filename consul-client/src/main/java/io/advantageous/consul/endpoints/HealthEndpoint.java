@@ -28,7 +28,7 @@ import io.advantageous.consul.domain.option.RequestOptions;
 import io.advantageous.qbit.http.client.HttpClient;
 import io.advantageous.qbit.http.request.HttpRequestBuilder;
 import io.advantageous.qbit.http.request.HttpResponse;
-import io.advantageous.qbit.service.Callback;
+import io.advantageous.qbit.reactive.Callback;
 
 import java.util.List;
 

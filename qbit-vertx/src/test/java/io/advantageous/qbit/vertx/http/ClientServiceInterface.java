@@ -55,7 +55,7 @@
 
 package io.advantageous.qbit.vertx.http;
 
-import io.advantageous.qbit.service.Callback;
+import io.advantageous.qbit.reactive.Callback;
 
 /**
 * Created by rhightower on 2/17/15.

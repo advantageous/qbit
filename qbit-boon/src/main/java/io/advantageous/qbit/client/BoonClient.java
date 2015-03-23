@@ -34,7 +34,7 @@ import io.advantageous.qbit.message.MethodCall;
 import io.advantageous.qbit.message.Response;
 import io.advantageous.qbit.message.impl.MethodCallImpl;
 import io.advantageous.qbit.service.BeforeMethodCall;
-import io.advantageous.qbit.service.Callback;
+import io.advantageous.qbit.reactive.Callback;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -155,7 +155,7 @@ public class BoonClient implements Client {
     }
 
     /**
-     * Handles an async callback.
+     * Handles an async callbackWithTimeout.
      */
     private void handleAsyncCallback(final Response<Object> response, final Callback<Object> handler) {
         if ( response.wasErrors() ) {
@@ -394,7 +394,7 @@ public class BoonClient implements Client {
     }
 
     /**
-     * Key to store callback in call back map.
+     * Key to store callbackWithTimeout in call back map.
      */
     private class HandlerKey {
         /**

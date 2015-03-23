@@ -31,7 +31,7 @@ import io.advantageous.qbit.http.request.HttpRequestBuilder;
 import io.advantageous.qbit.http.request.HttpTextReceiver;
 import io.advantageous.qbit.server.ServiceServer;
 import io.advantageous.qbit.server.ServiceServerBuilder;
-import io.advantageous.qbit.service.Callback;
+import io.advantageous.qbit.reactive.Callback;
 import io.advantageous.qbit.service.ServiceProxyUtils;
 import io.advantageous.qbit.test.TimedTesting;
 import io.advantageous.boon.core.Sys;

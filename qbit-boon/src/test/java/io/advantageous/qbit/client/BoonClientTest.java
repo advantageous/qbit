@@ -25,7 +25,7 @@ import io.advantageous.qbit.http.request.HttpRequest;
 import io.advantageous.qbit.http.websocket.WebSocket;
 import io.advantageous.qbit.http.websocket.WebSocketBuilder;
 import io.advantageous.qbit.http.websocket.WebSocketSender;
-import io.advantageous.qbit.service.Callback;
+import io.advantageous.qbit.reactive.Callback;
 import io.advantageous.qbit.spi.FactorySPI;
 import io.advantageous.qbit.spi.HttpClientFactory;
 

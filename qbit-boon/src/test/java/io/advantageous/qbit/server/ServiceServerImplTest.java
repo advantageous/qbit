@@ -38,7 +38,7 @@ import io.advantageous.qbit.message.MethodCallBuilder;
 import io.advantageous.qbit.message.Response;
 import io.advantageous.qbit.queue.Queue;
 import io.advantageous.qbit.queue.QueueBuilder;
-import io.advantageous.qbit.service.Callback;
+import io.advantageous.qbit.reactive.Callback;
 import io.advantageous.qbit.service.ServiceBundle;
 import io.advantageous.qbit.service.ServiceBundleBuilder;
 import io.advantageous.qbit.service.ServiceQueue;

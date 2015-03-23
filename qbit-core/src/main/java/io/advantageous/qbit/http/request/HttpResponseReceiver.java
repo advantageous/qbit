@@ -25,7 +25,7 @@ import org.slf4j.LoggerFactory;
 import java.util.function.Consumer;
 
 /**
- * Represents a callback which receives an HTTP response.
+ * Represents a callbackWithTimeout which receives an HTTP response.
  * <p>
  * Created by rhightower on 10/21/14.
  *

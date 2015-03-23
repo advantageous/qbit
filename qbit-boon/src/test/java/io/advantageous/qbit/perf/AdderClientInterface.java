@@ -18,7 +18,7 @@
 
 package io.advantageous.qbit.perf;
 
-import io.advantageous.qbit.service.Callback;
+import io.advantageous.qbit.reactive.Callback;
 
 /**
  * Created by Richard on 12/7/14.

@@ -1,4 +1,4 @@
-package io.advantageous.qbit.service;
+package io.advantageous.qbit.reactive;
 
 /**
  * CallbackCoordinator

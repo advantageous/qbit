@@ -22,16 +22,14 @@ import io.advantageous.qbit.annotation.PathVariable;
 import io.advantageous.qbit.annotation.RequestMapping;
 import io.advantageous.qbit.client.Client;
 import io.advantageous.qbit.http.client.HttpClient;
-import io.advantageous.qbit.http.request.HttpResponse;
 import io.advantageous.qbit.server.ServiceServer;
-import io.advantageous.qbit.service.Callback;
+import io.advantageous.qbit.reactive.Callback;
 import io.advantageous.qbit.system.QBitSystemManager;
 import io.advantageous.boon.core.Sys;
 
 import static io.advantageous.qbit.client.ClientBuilder.clientBuilder;
 import static io.advantageous.qbit.http.client.HttpClientBuilder.httpClientBuilder;
 import static io.advantageous.qbit.server.ServiceServerBuilder.serviceServerBuilder;
-import static io.advantageous.qbit.service.ServiceProxyUtils.flushServiceProxy;
 
 /**
  * @author rhightower

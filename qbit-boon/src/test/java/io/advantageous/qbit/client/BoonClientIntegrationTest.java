@@ -28,7 +28,7 @@ import io.advantageous.qbit.http.websocket.WebSocketBuilder;
 import io.advantageous.qbit.http.websocket.WebSocketSender;
 import io.advantageous.qbit.message.MethodCall;
 import io.advantageous.qbit.message.Response;
-import io.advantageous.qbit.service.Callback;
+import io.advantageous.qbit.reactive.Callback;
 import io.advantageous.qbit.service.ServiceBundle;
 import io.advantageous.qbit.service.ServiceBundleBuilder;
 import io.advantageous.qbit.test.TimedTesting;

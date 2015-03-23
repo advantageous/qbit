@@ -25,7 +25,7 @@ import java.lang.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface QueueCallback {
 
-    /* The type of callback. */;
+    /* The type of callbackWithTimeout. */;
 
     QueueCallbackType[] value() default {QueueCallbackType.DYNAMIC};
 

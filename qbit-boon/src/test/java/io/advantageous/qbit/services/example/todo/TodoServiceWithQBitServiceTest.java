@@ -23,9 +23,7 @@ import io.advantageous.qbit.message.MethodCall;
 import io.advantageous.qbit.message.Response;
 import io.advantageous.qbit.queue.ReceiveQueue;
 import io.advantageous.qbit.queue.SendQueue;
-import io.advantageous.qbit.service.Callback;
 import io.advantageous.qbit.service.ServiceQueue;
-import io.advantageous.qbit.spi.RegisterBoonWithQBit;
 import io.advantageous.boon.core.Sys;
 import org.junit.Test;
 

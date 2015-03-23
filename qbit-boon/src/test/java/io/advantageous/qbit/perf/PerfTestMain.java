@@ -30,7 +30,7 @@ import io.advantageous.qbit.queue.ReceiveQueueListener;
 import io.advantageous.qbit.queue.SendQueue;
 import io.advantageous.qbit.server.ServiceServer;
 import io.advantageous.qbit.server.ServiceServerBuilder;
-import io.advantageous.qbit.service.Callback;
+import io.advantageous.qbit.reactive.Callback;
 import io.advantageous.qbit.spi.FactorySPI;
 import io.advantageous.qbit.spi.HttpClientFactory;
 import io.advantageous.boon.core.Sys;

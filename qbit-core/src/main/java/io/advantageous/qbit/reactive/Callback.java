@@ -16,7 +16,7 @@
  * QBit - The Microservice lib for Java : JSON, WebSocket, REST. Be The Web!
  */
 
-package io.advantageous.qbit.service;
+package io.advantageous.qbit.reactive;
 
 import org.slf4j.LoggerFactory;
 
@@ -24,7 +24,7 @@ import java.util.function.Consumer;
 
 /**
  * Extends the JDK Consumer to provide a default error handler for RPC callbacks.
- * Note: This was boon Handler but we switched to JDK 8 Consumer style callback.
+ * Note: This was boon Handler but we switched to JDK 8 Consumer style callbackWithTimeout.
  * <p>
  * Created by gcc on 10/14/14.
  * Was called Handler and created by Rick Hightower quite a bit before 10/14

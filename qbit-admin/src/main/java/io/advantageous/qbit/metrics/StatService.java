@@ -19,7 +19,7 @@
 package io.advantageous.qbit.metrics;
 
 import io.advantageous.qbit.client.ClientProxy;
-import io.advantageous.qbit.service.Callback;
+import io.advantageous.qbit.reactive.Callback;
 
 /**
  * StatService
