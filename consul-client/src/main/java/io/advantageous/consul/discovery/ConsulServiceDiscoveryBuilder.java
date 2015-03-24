@@ -1,9 +1,15 @@
-package io.advantageous.consul;
+package io.advantageous.consul.discovery;
 
+import io.advantageous.consul.discovery.spi.ConsulServiceDiscoveryProvider;
 import io.advantageous.qbit.concurrent.PeriodicScheduler;
 import io.advantageous.qbit.service.discovery.ServiceChangedEventChannel;
+import io.advantageous.qbit.service.discovery.ServicePoolListener;
+import io.advantageous.qbit.service.discovery.impl.ServiceDiscoveryImpl;
+
+import java.util.concurrent.ExecutorService;
 
 /**
+ * ConsulServiceDiscoveryBuilder
  * Created by rhightower on 3/23/15.
  */
 public class ConsulServiceDiscoveryBuilder {
@@ -22,6 +28,9 @@ public class ConsulServiceDiscoveryBuilder {
     private int longPollTimeSeconds=5;
     private PeriodicScheduler periodicScheduler;
     private ServiceChangedEventChannel serviceChangedEventChannel;
+
+    private ServicePoolListener servicePoolListener;
+    private ExecutorService executorService;
 
     public String getConsulHost() {
         return consulHost;
@@ -79,8 +88,34 @@ public class ConsulServiceDiscoveryBuilder {
         this.serviceChangedEventChannel = serviceChangedEventChannel;
     }
 
-    public ConsulServiceDiscovery build() {
-        return new ConsulServiceDiscovery(consulHost, consulPort, datacenter, tag,
-                longPollTimeSeconds, periodicScheduler, serviceChangedEventChannel);
+    public ServicePoolListener getServicePoolListener() {
+        return servicePoolListener;
+    }
+
+    public ConsulServiceDiscoveryBuilder setServicePoolListener(ServicePoolListener servicePoolListener) {
+        this.servicePoolListener = servicePoolListener;
+        return this;
+    }
+
+    public ExecutorService getExecutorService() {
+        return executorService;
+    }
+
+    public ConsulServiceDiscoveryBuilder setExecutorService(ExecutorService executorService) {
+        this.executorService = executorService;
+        return this;
+    }
+
+    public ServiceDiscoveryImpl build() {
+
+        final ConsulServiceDiscoveryProvider consulServiceDiscoveryProvider =
+                new ConsulServiceDiscoveryProvider(getConsulHost(), getConsulPort(), getDatacenter(), getTag(), getLongPollTimeSeconds());
+
+        return new ServiceDiscoveryImpl(
+                getPeriodicScheduler(), getServiceChangedEventChannel(),
+                consulServiceDiscoveryProvider,
+                getServicePoolListener(),
+                getExecutorService());
+
     }
 }

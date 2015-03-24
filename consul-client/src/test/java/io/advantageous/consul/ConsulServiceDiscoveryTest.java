@@ -3,19 +3,22 @@ package io.advantageous.consul;
 import io.advantageous.boon.core.Sys;
 import io.advantageous.qbit.service.discovery.HealthStatus;
 import io.advantageous.qbit.service.discovery.ServiceDefinition;
+import io.advantageous.qbit.service.discovery.impl.ServiceDiscoveryImpl;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.util.List;
+
 import static io.advantageous.boon.Boon.puts;
-import static io.advantageous.consul.ConsulServiceDiscoveryBuilder.consulServiceDiscoveryBuilder;
-import static org.junit.Assert.*;
+import static io.advantageous.consul.discovery.ConsulServiceDiscoveryBuilder.consulServiceDiscoveryBuilder;
+import static org.junit.Assert.assertEquals;
 
 public class ConsulServiceDiscoveryTest {
 
 
-    ConsulServiceDiscovery discovery1;
-    ConsulServiceDiscovery discovery2;
-    ConsulServiceDiscovery discovery3;
+    ServiceDiscoveryImpl discovery1;
+    ServiceDiscoveryImpl discovery2;
+    ServiceDiscoveryImpl discovery3;
 
     private final String serviceName = "FOO-BAR-";
 
@@ -39,10 +42,8 @@ public class ConsulServiceDiscoveryTest {
         final String id3 = discovery3.registerService(serviceName, 9000).getId();
 
 
-
-
         for (int index=0; index< 10; index++) {
-            Sys.sleep(1000);
+            Sys.sleep(100);
             puts(discovery1.loadServices(serviceName));
 
             Sys.sleep(100);
@@ -50,5 +51,19 @@ public class ConsulServiceDiscoveryTest {
             discovery2.checkIn(id2, HealthStatus.PASS);
             discovery3.checkIn(id3, HealthStatus.PASS);
         }
+
+        List<ServiceDefinition> serviceDefinitions = discovery1.loadServices(serviceName);
+        assertEquals(3, serviceDefinitions.size());
+
+
+        for (int index=0; index< 10; index++) {
+            Sys.sleep(100);
+            discovery1.checkIn(id1, HealthStatus.PASS);
+            discovery2.checkIn(id2, HealthStatus.FAIL);
+            discovery3.checkIn(id3, HealthStatus.PASS);
+        }
+
+        serviceDefinitions = discovery1.loadServices(serviceName);
+        assertEquals(2, serviceDefinitions.size());
     }
 }

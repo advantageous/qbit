@@ -1,10 +1,51 @@
 package io.advantageous.qbit.service.discovery;
 
+import io.advantageous.boon.Lists;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
+
 /**
  * Service Definition
  * Created by rhightower on 3/23/15.
  */
 public class ServiceDefinition {
+
+
+    public static List<ServiceDefinition> serviceDefinitions(final ServiceDefinition... serviceDefinitions) {
+        return Lists.list(serviceDefinitions);
+    }
+
+    public static ServiceDefinition serviceDefinition(
+            final String id,
+            final String name,
+            final String host,
+            final int port) {
+
+        return new ServiceDefinition(HealthStatus.PASS,
+                id, name, host, port);
+    }
+
+    public static ServiceDefinition serviceDefinition(
+            final String name,
+            final String host,
+            final int port) {
+
+        return new ServiceDefinition(HealthStatus.PASS,
+                name + "-" + UUID.randomUUID().toString(), name, host, port);
+    }
+
+
+    public static ServiceDefinition serviceDefinition(
+            final String name,
+            final String host
+            ) {
+
+        return new ServiceDefinition(HealthStatus.PASS,
+                name + "-" + UUID.randomUUID().toString(), name, host, 0);
+    }
+
 
     private final HealthStatus healthStatus;
     private final String id;

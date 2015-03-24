@@ -49,7 +49,7 @@ public class ServicePool {
     public synchronized boolean setHealthyNodes (final List<ServiceDefinition> services,
                                                  final ServicePoolListener servicePoolListener) {
 
-        final Map<String, ServiceDefinition> serviceDefinitionMap = pool.get();
+        final Map<String, ServiceDefinition> oldMap = pool.get();
 
 
         final Map<String, ServiceDefinition> newMap = new ConcurrentHashMap<>(services.size());
@@ -57,7 +57,7 @@ public class ServicePool {
         int newServices = 0;
         for (ServiceDefinition service : services) {
 
-            if (serviceDefinitionMap.containsKey(service.getId())) {
+            if (!oldMap.containsKey(service.getId())) {
                 newServices++;
                 servicePoolListener.serviceAdded(serviceName);
             }
@@ -66,13 +66,15 @@ public class ServicePool {
         }
 
 
-        servicePoolListener.servicesAdded(serviceName, newServices);
+        if (newServices > 0) {
+            servicePoolListener.servicesAdded(serviceName, newServices);
+        }
 
         //log the number of new services
 
 
         int oldServicesRemoved = 0;
-        for (ServiceDefinition service : serviceDefinitionMap.values()) {
+        for (ServiceDefinition service : oldMap.values()) {
 
 
             if (!newMap.containsKey(service.getId())) {
@@ -83,9 +85,13 @@ public class ServicePool {
         }
 
 
-        servicePoolListener.servicesRemoved(serviceName, oldServicesRemoved);
+        if (oldServicesRemoved > 0) {
+            servicePoolListener.servicesRemoved(serviceName, newServices);
+        }
 
-        if (!pool.compareAndSet(serviceDefinitionMap, newMap)) {
+
+
+        if (!pool.compareAndSet(oldMap, newMap)) {
             //Log this
 
         }
