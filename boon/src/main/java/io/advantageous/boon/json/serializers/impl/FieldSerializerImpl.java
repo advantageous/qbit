@@ -176,6 +176,12 @@ public class FieldSerializerImpl implements FieldSerializer {
                 builder.addString (  value.toString() );
                 return true;
 
+
+
+            case BOOLEAN_WRAPPER:
+                serializeFieldName ( fieldName, builder );
+                builder.addBoolean ( ( Boolean ) value );
+                return true;
             case INTEGER_WRAPPER:
                 serializeFieldName ( fieldName, builder );
                 builder.addInt ( ( Integer ) value );

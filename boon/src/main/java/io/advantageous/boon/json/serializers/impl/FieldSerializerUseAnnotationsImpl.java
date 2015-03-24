@@ -276,6 +276,13 @@ public class FieldSerializerUseAnnotationsImpl implements FieldSerializer {
                     return true;
                 }
                 return false;
+
+
+
+            case BOOLEAN_WRAPPER:
+                serializeFieldName ( fieldName, builder );
+                builder.addBoolean ( ( Boolean ) value );
+                return true;
             case INTEGER_WRAPPER:
                 serializeFieldName ( fieldName, builder );
                 builder.addInt ( ( Integer ) value );
