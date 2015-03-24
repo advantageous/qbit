@@ -217,6 +217,10 @@ public class ServiceDiscoveryImplTest{
         assertEquals(3, serviceAdded.get());
         assertEquals(0, serviceRemoved.get());
 
+        assertEquals(serviceName, servicePoolChangedServiceName.get());
+        assertEquals(serviceName, servicePoolChangedServiceNameFromListener.get());
+
+
 
 
     }
