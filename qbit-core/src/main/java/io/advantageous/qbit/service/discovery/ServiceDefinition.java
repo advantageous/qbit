@@ -11,6 +11,7 @@ public class ServiceDefinition {
     private final String name;
     private final String host;
     private final int port;
+    private final long timeToLive;
 
     public ServiceDefinition(
             final HealthStatus healthStatus,
@@ -23,6 +24,23 @@ public class ServiceDefinition {
         this.name = name;
         this.host = host;
         this.port = port;
+        this.timeToLive = 20L;
+    }
+
+
+    public ServiceDefinition(
+            final HealthStatus healthStatus,
+            final String id,
+            final String name,
+            final String host,
+            final int port,
+            final long timeToLive) {
+        this.healthStatus = healthStatus;
+        this.id = id;
+        this.name = name;
+        this.host = host;
+        this.port = port;
+        this.timeToLive = timeToLive;
     }
 
     public HealthStatus getHealthStatus() {
@@ -80,5 +98,10 @@ public class ServiceDefinition {
                 ", host='" + host + '\'' +
                 ", port=" + port +
                 '}';
+    }
+
+    public long getTimeToLive() {
+
+        return timeToLive;
     }
 }

@@ -1,20 +1,22 @@
 package io.advantageous.consul;
 
 import io.advantageous.consul.domain.ConsulResponse;
+import io.advantageous.consul.domain.Registration;
 import io.advantageous.consul.domain.ServiceHealth;
+import io.advantageous.consul.domain.Status;
 import io.advantageous.consul.domain.option.Consistency;
 import io.advantageous.consul.domain.option.RequestOptions;
 import io.advantageous.consul.domain.option.RequestOptionsBuilder;
 import io.advantageous.qbit.QBit;
 import io.advantageous.qbit.concurrent.PeriodicScheduler;
-import io.advantageous.qbit.service.discovery.HealthStatus;
-import io.advantageous.qbit.service.discovery.ServiceDefinition;
-import io.advantageous.qbit.service.discovery.ServiceDiscovery;
+import io.advantageous.qbit.service.discovery.*;
 
 import java.util.*;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
+
+import static io.advantageous.boon.Boon.puts;
 
 /**
  * Service Discovery using consul
@@ -29,12 +31,17 @@ public class ConsulServiceDiscovery implements ServiceDiscovery{
     private final int longPollTimeSeconds;
     private final PeriodicScheduler periodicScheduler;
     private final BlockingQueue<String> doneQueue = new LinkedTransferQueue<>();
+    private final BlockingQueue<CheckIn> checkInsQueue = new LinkedTransferQueue<>();
+    private final BlockingQueue<ServiceDefinition> registerQueue = new LinkedTransferQueue<>();
+
+    private final ServiceChangedEventChannel serviceChangedEventChannel;
     private AtomicInteger lastIndex = new AtomicInteger();
     private AtomicBoolean stop = new AtomicBoolean();
     private Set<String> serviceNames = new TreeSet<>();
     private final ExecutorService executorService;
 
-    //TODO create a set of services that takes a service name and a map
+    private final ConcurrentHashMap <String, ServicePool> servicePoolMap = new ConcurrentHashMap<>();
+
 
 
     public ConsulServiceDiscovery(
@@ -43,8 +50,8 @@ public class ConsulServiceDiscovery implements ServiceDiscovery{
             final String datacenter,
             final String tag,
             final int longPollTimeSeconds,
-            final PeriodicScheduler periodicScheduler
-            ) {
+            final PeriodicScheduler periodicScheduler,
+            final ServiceChangedEventChannel serviceChangedEventChannel) {
 
         this.consulHost = consulHost;
         this.consulPort = consulPort;
@@ -55,6 +62,11 @@ public class ConsulServiceDiscovery implements ServiceDiscovery{
         this.periodicScheduler =
                 periodicScheduler==null ? QBit.factory().periodicScheduler() : periodicScheduler;
 
+        this.serviceChangedEventChannel = serviceChangedEventChannel == null ?
+                 serviceName -> {
+
+                } : serviceChangedEventChannel;
+
 
         executorService = Executors.newFixedThreadPool(100);//Mostly sleeping threads doing long polls
 
@@ -62,12 +74,20 @@ public class ConsulServiceDiscovery implements ServiceDiscovery{
 
     }
 
+
     @Override
     public ServiceDefinition registerService(String serviceName, int port) {
         watchService(serviceName);
-        return new ServiceDefinition(HealthStatus.PASS,
-                serviceName + "." + UUID.randomUUID().toString(),
+
+
+        ServiceDefinition serviceDefinition =  new ServiceDefinition(HealthStatus.PASS,
+                serviceName + "-" + UUID.randomUUID().toString(),
                 serviceName, null, port);
+
+        registerQueue.offer(serviceDefinition);
+
+        return serviceDefinition;
+
     }
 
     @Override
@@ -79,17 +99,43 @@ public class ConsulServiceDiscovery implements ServiceDiscovery{
 
     }
 
+    static class CheckIn {
+        final String serviceId;
+        final HealthStatus healthStatus;
+
+        CheckIn(String serviceId, HealthStatus healthStatus) {
+            this.serviceId = serviceId;
+            this.healthStatus = healthStatus;
+        }
+    }
+
     @Override
     public void checkIn(String serviceId, HealthStatus healthStatus) {
 
+        checkInsQueue.offer(new CheckIn(serviceId, healthStatus));
+
+
+    }
+
+    public ServicePool servicePool(final String serviceName)  {
+        ServicePool servicePool = servicePoolMap.get(serviceName);
+        if (servicePool==null) {
+            servicePool = new ServicePool(serviceName, null);
+            servicePoolMap.put(serviceName, servicePool);
+        }
+        return servicePool;
     }
 
     @Override
     public List<ServiceDefinition> loadServices(final String serviceName) {
-        watchService(serviceName);
-
-        //TODO create a set of services that takes a service name and a map
-        return null;
+        ServicePool servicePool = servicePoolMap.get(serviceName);
+        if (servicePool==null) {
+            servicePool = new ServicePool(serviceName, null);
+            servicePoolMap.put(serviceName, servicePool);
+            watchService(serviceName);
+            return Collections.emptyList();
+        }
+        return servicePool.services();
     }
 
 
@@ -101,8 +147,6 @@ public class ConsulServiceDiscovery implements ServiceDiscovery{
 
     @Override
     public void start() {
-
-
         this.periodicScheduler.repeat(() -> {
             try {
                 monitor();
@@ -110,8 +154,6 @@ public class ConsulServiceDiscovery implements ServiceDiscovery{
                 e.printStackTrace();//add logging
             }
         }, 50, TimeUnit.MILLISECONDS);
-
-
     }
 
     private List<ServiceHealth> getHealthyServices(final String serviceName) {
@@ -146,23 +188,79 @@ public class ConsulServiceDiscovery implements ServiceDiscovery{
             while (serviceName!=null) {
 
                 final String serviceNameToFetch = serviceName;
-                executorService.submit(new Runnable() {
-                    @Override
-                    public void run() {
+                executorService.submit(() -> {
+                    try {
+                        puts("Fetching healthy nodes for", serviceNameToFetch);
                         final List<ServiceHealth> healthyServices = getHealthyServices(serviceNameToFetch);
-                        populateServiceMap(healthyServices);
+                        puts("Fetching healthy nodes for", serviceNameToFetch, healthyServices.size());
+
+                        populateServiceMap(serviceNameToFetch, healthyServices);
+                    }catch (Exception ex) {
+                        ex.printStackTrace(); //TODO log
                     }
                 });
                 serviceName = doneQueue.poll();
             }
+
+
+            CheckIn checkIn = checkInsQueue.poll();
+            ServiceDefinition serviceDefinition = registerQueue.poll();
+
+            if (checkIn!=null || serviceDefinition!=null) {
+                Consul consul = Consul.consul(consulHost, consulPort);
+                try {
+                    consul.start();
+
+
+                    while(serviceDefinition!=null) {
+
+
+                        //puts("REGISTER ", serviceDefinition);
+                        consul.agent().registerService(serviceDefinition.getPort(),
+                                serviceDefinition.getTimeToLive(),
+                                serviceDefinition.getName(), serviceDefinition.getId(), tag);
+                        serviceDefinition = registerQueue.poll();
+                    }
+
+                    while (checkIn != null) {
+                        Status status = convertStatus(checkIn.healthStatus);
+
+                        //puts("Checking in ", checkIn.healthStatus, checkIn.serviceId);
+                        consul.agent().checkTtl(checkIn.serviceId, status, "" + checkIn.healthStatus);
+                        checkIn = checkInsQueue.poll();
+                    }
+
+
+                } finally {
+                    consul.stop();
+                }
+            }
+
+
         }
     }
 
-    private void populateServiceMap(final List<ServiceHealth> healthyServices) {
-        List<ServiceDefinition> serviceDefinitions = convertToServiceDefinitions(healthyServices);
+    private Status convertStatus(HealthStatus healthStatus) {
+        switch (healthStatus) {
+            case PASS:
+                return Status.PASS;
+            case FAIL:
+                return Status.FAIL;
+            case WARN:
+                return Status.UNKNOWN;
+            case UNKNOWN:
+                return Status.UNKNOWN;
+            default:
+                return Status.UNKNOWN;
+        }
+    }
 
-        //TODO create a set of services that takes a service name and a map
-
+    private void populateServiceMap(final String serviceName, final List<ServiceHealth> healthyServices) {
+        final List<ServiceDefinition> serviceDefinitions = convertToServiceDefinitions(healthyServices);
+        final ServicePool servicePool = servicePool(serviceName);
+        if (servicePool.setHealthyNodes(serviceDefinitions)) {
+            serviceChangedEventChannel.servicePoolChanged(serviceName);
+        }
     }
 
     private List<ServiceDefinition> convertToServiceDefinitions(
