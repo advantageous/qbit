@@ -93,11 +93,11 @@ public class AgentEndpoint {
      * Registers the client as a service with Consul.  Registration enables
      * the use of checks.
      *
-     * @param port The public facing port of the service to registerService with Consul.
+     * @param port The public facing port of the service to register with Consul.
      * @param ttl  Time to live for the Consul dead man's switch.
-     * @param serviceName Service name to registerService.
-     * @param serviceId   Service id to registerService.
-     * @param tags Tags to registerService with.
+     * @param serviceName Service name to register.
+     * @param serviceId   Service id to register.
+     * @param tags Tags to register with.
      */
     public void registerService(final int port, final long ttl,
                                 final String serviceName, final String serviceId,
@@ -112,12 +112,12 @@ public class AgentEndpoint {
      * Registration enables
      * the use of check with a script.
      *
-     * @param port     The public facing port of the service to registerService with Consul.
+     * @param port     The public facing port of the service to register with Consul.
      * @param script   Health script for Consul to use.
      * @param interval Health script run interval in seconds.
-     * @param serviceName     Service name to registerService.
-     * @param serviceId       Service id to registerService.
-     * @param tags     Tags to registerService with.
+     * @param serviceName     Service name to register.
+     * @param serviceId       Service id to register.
+     * @param tags     Tags to register with.
      */
     public void registerServiceWithScript(final int port,
                                           final String script,
@@ -135,11 +135,11 @@ public class AgentEndpoint {
      * Registers the client as a service with Consul.  Registration enables
      * the use of checks.
      *
-     * @param port  The public facing port of the service to registerService with Consul.
+     * @param port  The public facing port of the service to register with Consul.
      * @param check The health check to run periodically.  Can be null.
-     * @param name  Service name to registerService.
-     * @param id    Service id to registerService.
-     * @param tags  Tags to registerService with.
+     * @param name  Service name to register.
+     * @param id    Service id to register.
+     * @param tags  Tags to register with.
      */
     public void registerServiceWithRegistrationCheck(int port, RegistrationCheck check, String name, String id, String... tags) {
         Registration registration = new Registration();
@@ -243,7 +243,7 @@ public class AgentEndpoint {
     /**
      * Registers a Health Check with the Agent.
      *
-     * @param check The Check to registerService.
+     * @param check The Check to register.
      */
     public void registerCheck(Check check) {
 

@@ -72,7 +72,7 @@ public class QBitSystemManager {
     }
 
     public void registerService(final ServiceQueue serviceQueue) {
-        if (debug) puts("registerService", serviceQueue);
+        if (debug) puts("register", serviceQueue);
         countTracked++;
         serviceQueueList.add(serviceQueue);
     }

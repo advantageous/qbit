@@ -145,7 +145,7 @@ public class ServiceDiscoveryImplTest{
 
     @Test
     public void testRegisterService() throws Exception {
-        serviceDiscovery.registerService("fooBar", 9090);
+        serviceDiscovery.register("fooBar", 9090);
 
 
         AtomicReference<ServiceDefinition> serviceDefinitionAtomicReference = new AtomicReference<>();
@@ -171,7 +171,7 @@ public class ServiceDiscoveryImplTest{
     @Test
     public void testHealthCheckIn() throws Exception {
 
-        final ServiceDefinition serviceDefinition = serviceDiscovery.registerService("fooBar", 9090);
+        final ServiceDefinition serviceDefinition = serviceDiscovery.register("fooBar", 9090);
 
         serviceDiscovery.checkIn(serviceDefinition.getId(), HealthStatus.PASS);
 

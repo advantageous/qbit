@@ -24,7 +24,7 @@ import static io.advantageous.boon.Boon.sputs;
  * check in.  This condition indicates an agent has been restarted and left
  * the cluster.
  *
- * Services should registerService again if this is thrown.
+ * Services should register again if this is thrown.
  */
 public class NotRegisteredException extends ConsulException {
 

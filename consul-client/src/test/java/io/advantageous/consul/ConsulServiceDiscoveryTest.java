@@ -37,9 +37,9 @@ public class ConsulServiceDiscoveryTest {
 
     @Test
     public void test() {
-        final String id1 = discovery1.registerService(serviceName, 7000).getId();
-        final String id2 = discovery2.registerService(serviceName, 8000).getId();
-        final String id3 = discovery3.registerService(serviceName, 9000).getId();
+        final String id1 = discovery1.register(serviceName, 7000).getId();
+        final String id2 = discovery2.register(serviceName, 8000).getId();
+        final String id3 = discovery3.register(serviceName, 9000).getId();
 
 
         for (int index=0; index< 10; index++) {

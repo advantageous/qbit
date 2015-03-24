@@ -7,19 +7,23 @@ import io.advantageous.consul.domain.Status;
 import io.advantageous.consul.domain.option.Consistency;
 import io.advantageous.consul.domain.option.RequestOptions;
 import io.advantageous.consul.domain.option.RequestOptionsBuilder;
+import io.advantageous.qbit.GlobalConstants;
 import io.advantageous.qbit.service.discovery.HealthStatus;
 import io.advantageous.qbit.service.discovery.ServiceDefinition;
-import io.advantageous.qbit.service.discovery.ServiceHealthCheckIn;
+import io.advantageous.qbit.service.discovery.impl.ServiceHealthCheckIn;
 import io.advantageous.qbit.service.discovery.spi.ServiceDiscoveryProvider;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Queue;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static io.advantageous.boon.Boon.puts;
+import static io.advantageous.boon.Boon.sputs;
 
 /**
+ * Consul Service Discovery Provider
  * Created by rhightower on 3/24/15.
  */
 public class ConsulServiceDiscoveryProvider implements ServiceDiscoveryProvider {
@@ -31,19 +35,42 @@ public class ConsulServiceDiscoveryProvider implements ServiceDiscoveryProvider 
     private final int longPollTimeSeconds;
     private AtomicInteger lastIndex = new AtomicInteger();
 
+    private final Logger logger = LoggerFactory.getLogger(ConsulServiceDiscoveryProvider.class);
+    private final boolean debug = false || GlobalConstants.DEBUG || logger.isDebugEnabled();
+    private final boolean trace = logger.isTraceEnabled();
 
 
-    public ConsulServiceDiscoveryProvider(String consulHost, int consulPort, String datacenter,
-                                          String tag, int longPollTimeSeconds) {
+
+
+    public ConsulServiceDiscoveryProvider(final String consulHost,
+                                          final int consulPort,
+                                          final String datacenter,
+                                          final String tag,
+                                          final int longPollTimeSeconds) {
         this.consulHost = consulHost;
         this.consulPort = consulPort;
         this.datacenter = datacenter;
         this.tag = tag;
         this.longPollTimeSeconds = longPollTimeSeconds;
+
+        if (trace) {
+            logger.trace(sputs(
+                    "ConsulServiceDiscoveryProvider",
+                    consulHost, consulPort, datacenter, tag, longPollTimeSeconds
+                    ));
+        }
     }
 
     @Override
     public void registerServices(final Queue<ServiceDefinition> registerQueue) {
+
+
+        if (trace) {
+            logger.trace(sputs(
+                    "ConsulServiceDiscoveryProvider::registerServices",
+                    registerQueue
+            ));
+        }
 
         ServiceDefinition serviceDefinition = registerQueue.poll();
         if (serviceDefinition!=null) {
@@ -66,6 +93,14 @@ public class ConsulServiceDiscoveryProvider implements ServiceDiscoveryProvider 
 
     @Override
     public void checkIn(final Queue<ServiceHealthCheckIn> checkInsQueue) {
+
+        if (trace) {
+            logger.trace(sputs(
+                    "ConsulServiceDiscoveryProvider::checkIn",
+                    checkInsQueue
+            ));
+        }
+
 
 
         ServiceHealthCheckIn checkIn = checkInsQueue.poll();
@@ -95,15 +130,27 @@ public class ConsulServiceDiscoveryProvider implements ServiceDiscoveryProvider 
     }
 
     @Override
-    public List<ServiceDefinition> loadServices(final String serviceName
-    ) {
+    public List<ServiceDefinition> loadServices(final String serviceName) {
 
-        puts("Fetching healthy nodes for", serviceName);
+        if (trace) {
+            logger.trace(sputs(
+                    "ConsulServiceDiscoveryProvider::loadServices",
+                    serviceName
+            ));
+        }
+
+
+        if (debug) logger.debug(sputs("Fetching healthy nodes for", serviceName));
+
         final List<ServiceHealth> healthyServices = getHealthyServices(serviceName);
-        puts("Fetching healthy nodes for", serviceName, healthyServices.size());
 
 
-        final List<ServiceDefinition> serviceDefinitions = convertToServiceDefinitions(healthyServices);
+        if (debug) logger.debug(sputs("Fetched healthy nodes for", serviceName,
+                "node count fetched", healthyServices.size()));
+
+
+        final List<ServiceDefinition> serviceDefinitions =
+                convertToServiceDefinitions(healthyServices);
 
         return serviceDefinitions;
 
@@ -117,7 +164,8 @@ public class ConsulServiceDiscoveryProvider implements ServiceDiscoveryProvider 
         final List<ServiceDefinition> serviceDefinitions = new ArrayList<>(healthyServices.size());
 
         healthyServices.forEach(serviceHealth -> {
-            ServiceDefinition serviceDefinition = convertToServiceDefinition(serviceHealth);
+            ServiceDefinition serviceDefinition =
+                    convertToServiceDefinition(serviceHealth);
             serviceDefinitions.add(serviceDefinition);
         });
 
@@ -130,8 +178,13 @@ public class ConsulServiceDiscoveryProvider implements ServiceDiscoveryProvider 
         final int port = serviceHealth.getService().getPort();
         final String id = serviceHealth.getService().getId();
         final String name = serviceHealth.getService().getService();
+        final ServiceDefinition serviceDefinition =
+                new ServiceDefinition(HealthStatus.PASS, id, name, host, port);
 
-        return new ServiceDefinition(HealthStatus.PASS, id, name, host, port);
+        if (debug) logger.debug(sputs("convertToServiceDefinition \nserviceHealth",
+                serviceHealth, "\nserviceDefinition" , serviceDefinition));
+
+        return serviceDefinition;
     }
 
 

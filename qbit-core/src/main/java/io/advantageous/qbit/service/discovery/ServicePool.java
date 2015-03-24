@@ -7,7 +7,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicReference;
 
 /**
- *
  * Service pool
  * Created by rhightower on 3/23/15.
  */
@@ -23,7 +22,7 @@ public class ServicePool {
     public ServicePool(final String serviceName,
                        final ServicePoolListener servicePoolListener) {
         this.serviceName = serviceName;
-        this.servicePoolListener = servicePoolListener==null ?
+        this.servicePoolListener = servicePoolListener == null ?
                 serviceNameChanged -> {
 
                 } : servicePoolListener;
@@ -37,17 +36,17 @@ public class ServicePool {
         return serviceName;
     }
 
-    public  boolean setHealthyNodes (final List<ServiceDefinition> services) {
+    public boolean setHealthyNodes(final List<ServiceDefinition> services) {
 
         return setHealthyNodes(services, this.servicePoolListener);
     }
-        /**
-         *
-         * @param services services
-         * @return true if services have changed
-         */
-    public synchronized boolean setHealthyNodes (final List<ServiceDefinition> services,
-                                                 final ServicePoolListener servicePoolListener) {
+
+    /**
+     * @param services services
+     * @return true if services have changed
+     */
+    public synchronized boolean setHealthyNodes(final List<ServiceDefinition> services,
+                                                final ServicePoolListener servicePoolListener) {
 
         final Map<String, ServiceDefinition> oldMap = pool.get();
 
@@ -70,9 +69,6 @@ public class ServicePool {
             servicePoolListener.servicesAdded(serviceName, newServices);
         }
 
-        //log the number of new services
-
-
         int oldServicesRemoved = 0;
         for (ServiceDefinition service : oldMap.values()) {
 
@@ -90,13 +86,9 @@ public class ServicePool {
         }
 
 
+        pool.set(newMap);
 
-        if (!pool.compareAndSet(oldMap, newMap)) {
-            //Log this
-
-        }
-
-        boolean changed =  oldServicesRemoved > 0 || newServices > 0;
+        boolean changed = oldServicesRemoved > 0 || newServices > 0;
 
         if (changed) {
             servicePoolListener.servicePoolChanged(serviceName);

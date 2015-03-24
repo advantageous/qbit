@@ -11,9 +11,9 @@ import java.util.UUID;
  * Service Discovery
  * Created by rhightower on 3/23/15.
  */
-public interface ServiceDiscovery extends Startable, Stoppable{
+public interface ServiceDiscovery extends Startable, Stoppable {
 
-    default ServiceDefinition registerService(
+    default ServiceDefinition register(
             final String serviceName,
             final int port) {
 
@@ -23,7 +23,7 @@ public interface ServiceDiscovery extends Startable, Stoppable{
     }
 
 
-    void watchService(String serviceName) ;
+    void watch(String serviceName);
 
     default void checkIn(String serviceId, HealthStatus healthStatus) {
 
