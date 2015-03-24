@@ -87,7 +87,7 @@ public class Consul {
      * @param port The Consul port.
      * @return A new client.
      */
-    public static Consul consul(String host, int port) {
+    public static Consul consul(final String host, final int port) {
         try {
             return new Consul(new URL("http", host, port, "").toString());
         } catch (MalformedURLException e) {
