@@ -24,12 +24,17 @@ import io.advantageous.qbit.client.Client;
 import io.advantageous.qbit.client.ClientBuilder;
 import io.advantageous.qbit.metrics.*;
 import io.advantageous.qbit.metrics.StatServiceImpl;
+import io.advantageous.qbit.server.ServiceServer;
+import io.advantageous.qbit.server.ServiceServerBuilder;
+import io.advantageous.qbit.service.ServiceBuilder;
+import io.advantageous.qbit.service.ServiceQueue;
 import io.advantageous.qbit.service.discovery.ServiceDefinition;
 import io.advantageous.qbit.service.discovery.ServiceDiscovery;
 import io.advantageous.qbit.util.Timer;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import static io.advantageous.qbit.client.ClientBuilder.clientBuilder;
 
@@ -51,8 +56,53 @@ public class StatServiceBuilder {
     private ServiceDiscovery serviceDiscovery;
     private StatReplicatorProvider statReplicatorProvider;
     private ClientBuilder clientBuilder;
-    private String serviceName;
+    private ServiceQueue serviceQueue;
+    private ServiceBuilder serviceBuilder;
+    private ServiceServerBuilder serviceServerBuilder;
+
+    private String serviceName = "statsService";
     private String localServiceId = "";
+
+
+    public ServiceServerBuilder getServiceServerBuilder() {
+
+        if (serviceServerBuilder == null) {
+            serviceServerBuilder = ServiceServerBuilder.serviceServerBuilder();
+        }
+        return serviceServerBuilder;
+    }
+
+    public StatServiceBuilder setServiceServerBuilder(ServiceServerBuilder serviceServerBuilder) {
+        this.serviceServerBuilder = serviceServerBuilder;
+        return this;
+    }
+
+    public ServiceQueue getServiceQueue() {
+
+        if (serviceQueue==null) {
+            buildServiceQueue();
+        }
+        return serviceQueue;
+    }
+
+    public StatServiceBuilder setServiceQueue(ServiceQueue serviceQueue) {
+        this.serviceQueue = serviceQueue;
+        return this;
+    }
+
+    public ServiceBuilder getServiceBuilder() {
+
+        if (serviceBuilder == null) {
+            serviceBuilder = ServiceBuilder.serviceBuilder();
+        }
+        return serviceBuilder;
+    }
+
+    public StatServiceBuilder setServiceBuilder(ServiceBuilder serviceBuilder) {
+        this.serviceBuilder = serviceBuilder;
+        return this;
+    }
+
 
 
     public String getLocalServiceId() {
@@ -121,6 +171,33 @@ public class StatServiceBuilder {
         return this;
     }
 
+    public ServiceQueue buildServiceQueue() {
+        ServiceBuilder serviceBuilder = getServiceBuilder().setServiceObject(build());
+        serviceQueue = serviceBuilder.build();
+        return serviceQueue;
+    }
+
+
+    public ServiceServer buildServiceServer() {
+
+
+        final ServiceServerBuilder serviceServerBuilder = getServiceServerBuilder();
+
+        if (serviceDiscovery!=null) {
+            final ServiceDefinition serviceDefinition = serviceDiscovery
+                    .register(this.getServiceName(), serviceServerBuilder.getPort());
+            localServiceId = serviceDefinition.getId();
+        }
+        final ServiceQueue serviceQueue = getServiceQueue();
+        final ServiceServer serviceServer = serviceServerBuilder.build();
+        serviceServer.addServiceObject(this.getServiceName(), serviceQueue.service());
+
+        return serviceServer;
+    }
+
+
+
+
     public StatServiceImpl build() {
 
         if (serviceDiscovery!=null) {
@@ -155,6 +232,13 @@ public class StatServiceBuilder {
                 private Client theClient = client;
 
                 @Override
+                protected void finalize() throws Throwable {
+                    if (theClient!=null) {
+                        theClient.stop();
+                    }
+                }
+
+                @Override
                 public void recordCount(String name, int count, long now) {
                     proxy.recordCount(name, count, now);
                 }
@@ -162,6 +246,18 @@ public class StatServiceBuilder {
                 @Override
                 public void clientProxyFlush() {
                     proxy.clientProxyFlush();
+                }
+
+                @Override
+                public void stop() {
+                    proxy.stop();
+                    theClient.stop();
+                }
+
+                @Override
+                public void flush() {
+                    proxy.flush();
+                    theClient.flush();
                 }
             };
         };

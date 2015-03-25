@@ -61,5 +61,5 @@ package io.advantageous.qbit.service;
 public interface Stoppable {
 
 
-    void stop();
+    default void stop() {}
 }
