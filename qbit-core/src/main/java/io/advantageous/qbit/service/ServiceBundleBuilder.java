@@ -45,6 +45,7 @@ public class ServiceBundleBuilder {
 
     private QueueBuilder requestQueueBuilder;
     private QueueBuilder responseQueueBuilder;
+    private QueueBuilder webResponseQueueBuilder;
     private int pollTime = GlobalConstants.POLL_WAIT;
     private int requestBatchSize = GlobalConstants.BATCH_SIZE;
     private boolean invokeDynamic = true;
@@ -53,6 +54,8 @@ public class ServiceBundleBuilder {
     private QBitSystemManager qBitSystemManager;
 
     private Queue<Response<Object>> responseQueue;
+
+
     /**
      * Allows interception of method calls before they get sent to a client.
      * This allows us to transform or reject method calls.
@@ -67,6 +70,22 @@ public class ServiceBundleBuilder {
      * Allows transformation of arguments, for example from JSON to Java objects.
      */
     private Transformer<Request, Object> argTransformer = ServiceConstants.NO_OP_ARG_TRANSFORM;
+
+
+
+    public QueueBuilder getWebResponseQueueBuilder() {
+
+        if (webResponseQueueBuilder == null) {
+            webResponseQueueBuilder = new QueueBuilder().setBatchSize(this.getRequestBatchSize())
+                    .setPollWait(this.getPollTime());
+        }
+        return webResponseQueueBuilder;
+    }
+
+    public ServiceBundleBuilder setWebResponseQueueBuilder(QueueBuilder webResponseQueueBuilder) {
+        this.webResponseQueueBuilder = webResponseQueueBuilder;
+        return this;
+    }
 
     public QBitSystemManager getSystemManager() {
         return qBitSystemManager;
@@ -153,10 +172,34 @@ public class ServiceBundleBuilder {
     }
 
     public QueueBuilder getRequestQueueBuilder() {
+
+        if (requestQueueBuilder == null) {
+            requestQueueBuilder = new QueueBuilder().setBatchSize(this.getRequestBatchSize())
+                    .setPollWait(this.getPollTime());
+        }
         return requestQueueBuilder;
     }
 
     public QueueBuilder getResponseQueueBuilder() {
+
+        if (responseQueueBuilder == null) {
+
+            if (responseQueue!=null) {
+
+                responseQueueBuilder = new QueueBuilder(){
+
+                    @Override
+                    public <T> Queue<T> build() {
+                        return (Queue<T>) responseQueue;
+                    }
+                };
+
+            } else {
+
+                responseQueueBuilder = new QueueBuilder().setBatchSize(this.getRequestBatchSize()).setPollWait(this.getPollTime());
+            }
+
+        }
         return responseQueueBuilder;
     }
 
@@ -182,34 +225,13 @@ public class ServiceBundleBuilder {
 
     public ServiceBundle build() {
 
-        if (responseQueueBuilder == null) {
-
-            if (responseQueue!=null) {
-
-                responseQueueBuilder = new QueueBuilder(){
-
-                    @Override
-                    public <T> Queue<T> build() {
-                        return (Queue<T>) responseQueue;
-                    }
-                };
-
-            } else {
-
-                responseQueueBuilder = new QueueBuilder().setBatchSize(this.getRequestBatchSize()).setPollWait(this.getPollTime());
-            }
-
-        }
 
 
-        if (requestQueueBuilder == null) {
-            requestQueueBuilder = new QueueBuilder().setBatchSize(this.getRequestBatchSize())
-                    .setPollWait(this.getPollTime());
-        }
 
         final ServiceBundle serviceBundle = QBit.factory().createServiceBundle(this.getAddress(),
-                requestQueueBuilder,
-                responseQueueBuilder,
+                getRequestQueueBuilder(),
+                getResponseQueueBuilder(),
+                getWebResponseQueueBuilder(),
                 QBit.factory(),
                 eachServiceInItsOwnThread, this.getBeforeMethodCall(), this.getBeforeMethodCallAfterTransform(),
                 this.getArgTransformer(), invokeDynamic, this.getSystemManager());

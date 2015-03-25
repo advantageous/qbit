@@ -28,7 +28,6 @@ public interface MethodCall<T> extends Request<T> {
 
     String objectName();
 
-    Request<Object> originatingRequest();
 
 
     default Object[] args() {

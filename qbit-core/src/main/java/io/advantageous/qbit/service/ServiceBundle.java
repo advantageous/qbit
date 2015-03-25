@@ -71,6 +71,8 @@ public interface ServiceBundle extends EndPoint {
 
     void startReturnHandlerProcessor(ReceiveQueueListener<Response<Object>> listener);
 
+    default void startWebResponseReturnHandler(ReceiveQueueListener<Response<Object>> listener) {}
+
     void startReturnHandlerProcessor();
 
     default void start() {

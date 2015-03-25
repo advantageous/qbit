@@ -34,6 +34,9 @@ public interface Request<T> extends Message<T> {
     String returnAddress();
 
 
+    default Request<Object> originatingRequest() {return null;}
+
+
 
     boolean hasParams();
 

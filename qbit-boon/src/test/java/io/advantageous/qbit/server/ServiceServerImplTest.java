@@ -116,7 +116,7 @@ public class ServiceServerImplTest extends TimedTesting {
         final ProtocolEncoder encoder = factory.createEncoder();
 
 
-        final Queue<Response<Object>> responseQueue = QueueBuilder.queueBuilder().setName("RESPONSE QUEUE").build();
+        final Queue<Response<Object>> responseQueue = QueueBuilder.queueBuilder().setName("RESPONSE QUEUE TEST").build();
 
         final ServiceBundle serviceBundle = new ServiceBundleBuilder()
                 .setResponseQueue(responseQueue).setAddress("/services").build();

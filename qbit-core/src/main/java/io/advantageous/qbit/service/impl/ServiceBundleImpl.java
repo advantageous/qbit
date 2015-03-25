@@ -86,6 +86,12 @@ public class ServiceBundleImpl implements ServiceBundle {
      * Response queue for returning responses from servicesToStop that we invoked.
      */
     private final Queue<Response<Object>> responseQueue;
+
+    /**
+     * Response queue for returning responses from servicesToStop that we invoked.
+     */
+    private final Queue<Response<Object>> webResponseQueue;
+
     /**
      * Base URI for servicesToStop that this bundle is managing.
      */
@@ -139,6 +145,7 @@ public class ServiceBundleImpl implements ServiceBundle {
     public ServiceBundleImpl(final String address,
                              final QueueBuilder requestQueueBuilder,
                              final QueueBuilder responseQueueBuilder,
+                             final QueueBuilder webResponseQueueBuilder,
                              final Factory factory, final boolean asyncCalls,
                              final BeforeMethodCall beforeMethodCall,
                              final BeforeMethodCall beforeMethodCallAfterTransform,
@@ -164,6 +171,7 @@ public class ServiceBundleImpl implements ServiceBundle {
         this.responseQueueBuilder = responseQueueBuilder;
         this.methodQueue = requestQueueBuilder.setName("Call Queue " + address).build();
         this.responseQueue = responseQueueBuilder.setName("Response Queue " + address).build();
+        this.webResponseQueue = webResponseQueueBuilder.setName("Web Response Queue " + address).build();
         this.methodSendQueue = methodQueue.sendQueue();
     }
 
@@ -549,6 +557,17 @@ public class ServiceBundleImpl implements ServiceBundle {
             service.stop();
         }
 
+        try {
+            responseQueue.stop();
+        }catch (Exception ex) {
+            logger.debug("", ex);
+        }
+
+        try {
+            webResponseQueue.stop();
+        }catch (Exception ex) {
+            logger.debug("", ex);
+        }
         if (systemManager != null) systemManager.serviceShutDown();
     }
 
@@ -567,11 +586,63 @@ public class ServiceBundleImpl implements ServiceBundle {
 
     }
 
+
+    public void startWebResponseReturnHandler(ReceiveQueueListener<Response<Object>> listener) {
+
+        webResponseQueue.startListener(listener);
+
+    }
+
     /**
      * Handles responses coming back from servicesToStop.
      */
     public void startReturnHandlerProcessor() {
-        callbackManager.startReturnHandlerProcessor(responseQueue);
+
+        final SendQueue<Response<Object>> webResponseSendQueue = webResponseQueue.sendQueue();
+
+        responseQueue.startListener(new ReceiveQueueListener<Response<Object>>() {
+
+            @Override
+            public void receive(Response<Object> response) {
+
+
+                final Request<Object> originatingRequest = response.request().originatingRequest();
+
+                if (originatingRequest==null) {
+                    callbackManager.handleResponse(response);
+                } else {
+                    webResponseSendQueue.send(response);
+                }
+            }
+
+            @Override
+            public void empty() {
+                webResponseSendQueue.flushSends();
+
+            }
+
+            @Override
+            public void limit() {
+                webResponseSendQueue.flushSends();
+
+            }
+
+            @Override
+            public void shutdown() {
+
+            }
+
+            @Override
+            public void idle() {
+                webResponseSendQueue.flushSends();
+
+            }
+
+            @Override
+            public void startBatch() {
+
+            }
+        });
     }
 
     /**

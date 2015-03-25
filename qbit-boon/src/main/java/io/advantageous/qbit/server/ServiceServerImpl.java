@@ -71,7 +71,10 @@ public class ServiceServerImpl implements ServiceServer {
     private AtomicBoolean stop = new AtomicBoolean();
 
 
-    public ServiceServerImpl(final HttpTransport httpServer, final ProtocolEncoder encoder, final ProtocolParser parser, final ServiceBundle serviceBundle, final JsonMapper jsonMapper, final int timeOutInSeconds, final int numberOfOutstandingRequests, final int batchSize, final int flushInterval, final QBitSystemManager systemManager) {
+    public ServiceServerImpl(final HttpTransport httpServer, final ProtocolEncoder encoder, final ProtocolParser parser,
+                             final ServiceBundle serviceBundle, final JsonMapper jsonMapper,
+                             final int timeOutInSeconds, final int numberOfOutstandingRequests,
+                             final int batchSize, final int flushInterval, final QBitSystemManager systemManager) {
 
         this.systemManager = systemManager;
         this.encoder = encoder;
@@ -140,7 +143,8 @@ public class ServiceServerImpl implements ServiceServer {
      * to HTTP / WebSocket end points.
      */
     private void startResponseQueueListener() {
-        serviceBundle.startReturnHandlerProcessor(createResponseQueueListener());
+        serviceBundle.startReturnHandlerProcessor();
+        serviceBundle.startWebResponseReturnHandler(createResponseQueueListener());
     }
 
     /**

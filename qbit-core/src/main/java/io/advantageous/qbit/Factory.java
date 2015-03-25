@@ -121,6 +121,7 @@ public interface Factory {
     default ServiceBundle createServiceBundle(String address,
                                               final QueueBuilder requestQueueBuilder,
                                               final QueueBuilder responseQueueBuilder,
+                                              final QueueBuilder webResponseQueueBuilder,
                                               final Factory factory, final boolean asyncCalls,
                                               final BeforeMethodCall beforeMethodCall,
                                               final BeforeMethodCall beforeMethodCallAfterTransform,

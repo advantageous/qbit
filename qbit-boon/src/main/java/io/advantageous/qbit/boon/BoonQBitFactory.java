@@ -349,8 +349,9 @@ public class BoonQBitFactory implements Factory {
     public ServiceBundle createServiceBundle(final String address,
                                              final QueueBuilder requestQueueBuilder,
                                              final QueueBuilder responseQueueBuilder,
+                                             final QueueBuilder webResponseQueueBuilder,
                                              final Factory factory, final boolean asyncCalls, final BeforeMethodCall beforeMethodCall, final BeforeMethodCall beforeMethodCallAfterTransform, final Transformer<Request, Object> argTransformer, boolean invokeDynamic, final QBitSystemManager systemManager) {
-        return new ServiceBundleImpl(address, requestQueueBuilder, responseQueueBuilder,
+        return new ServiceBundleImpl(address, requestQueueBuilder, responseQueueBuilder, webResponseQueueBuilder,
                 factory, asyncCalls, beforeMethodCall, beforeMethodCallAfterTransform, argTransformer, invokeDynamic, systemManager);
     }
 

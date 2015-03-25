@@ -67,6 +67,7 @@ public class ServiceServerBuilder {
     private QueueBuilder webSocketMessageQueueBuilder;
     private QueueBuilder requestQueueBuilder;
     private QueueBuilder responseQueueBuilder;
+    private QueueBuilder webResponseQueueBuilder;
     private boolean eachServiceInItsOwnThread = true;
     private HttpTransport httpServer;
     private QBitSystemManager qBitSystemManager;
@@ -89,6 +90,12 @@ public class ServiceServerBuilder {
 
 
     public QueueBuilder getRequestQueueBuilder() {
+
+        if (requestQueueBuilder == null) {
+            requestQueueBuilder = new QueueBuilder().setBatchSize(this.getRequestBatchSize())
+                    .setPollWait(this.getPollTime());
+        }
+
         return requestQueueBuilder;
     }
 
@@ -96,6 +103,21 @@ public class ServiceServerBuilder {
         this.requestQueueBuilder = requestQueueBuilder;
         return this;
     }
+
+
+    public QueueBuilder getWebResponseQueueBuilder() {
+        if (webResponseQueueBuilder==null) {
+            webResponseQueueBuilder = QueueBuilder.queueBuilder()
+                    .setBatchSize(requestBatchSize).setPollWait(pollTime);
+        }
+        return webResponseQueueBuilder;
+    }
+
+    public ServiceServerBuilder setWebResponseQueueBuilder(QueueBuilder webResponseQueueBuilder) {
+        this.webResponseQueueBuilder = webResponseQueueBuilder;
+        return this;
+    }
+
 
     public QBitSystemManager getSystemManager() {
         return qBitSystemManager;
@@ -281,6 +303,27 @@ public class ServiceServerBuilder {
     }
 
     public QueueBuilder getResponseQueueBuilder() {
+
+        if (responseQueueBuilder == null) {
+
+            if (responseQueue==null) {
+                responseQueueBuilder = new QueueBuilder().setBatchSize(this.getRequestBatchSize())
+                        .setPollWait(this.getPollTime());
+            } else {
+
+
+                responseQueueBuilder = new QueueBuilder(){
+
+                    @Override
+                    public <T> Queue<T> build() {
+                        return (Queue<T>) responseQueue;
+                    }
+                };
+            }
+
+
+        }
+
         return responseQueueBuilder;
     }
 
@@ -311,36 +354,12 @@ public class ServiceServerBuilder {
 
         final ServiceBundle serviceBundle;
 
-        if (requestQueueBuilder == null) {
-            requestQueueBuilder = new QueueBuilder().setBatchSize(this.getRequestBatchSize())
-                    .setPollWait(this.getPollTime());
-        }
-
-        if (responseQueueBuilder == null) {
-
-            if (responseQueue==null) {
-                responseQueueBuilder = new QueueBuilder().setBatchSize(this.getRequestBatchSize())
-                        .setPollWait(this.getPollTime());
-            } else {
-
-
-                responseQueueBuilder = new QueueBuilder(){
-
-                    @Override
-                    public <T> Queue<T> build() {
-                        return (Queue<T>) responseQueue;
-                    }
-                };
-            }
-
-
-        }
-
 
 
         serviceBundle = QBit.factory().createServiceBundle(uri,
-                requestQueueBuilder,
-                responseQueueBuilder,
+                getRequestQueueBuilder(),
+                getResponseQueueBuilder(),
+                getWebResponseQueueBuilder(),
                 QBit.factory(),
                 eachServiceInItsOwnThread, this.getBeforeMethodCall(),
                 this.getBeforeMethodCallAfterTransform(),
