@@ -84,8 +84,9 @@ public class ConsulServiceDiscoveryBuilder {
         return serviceChangedEventChannel;
     }
 
-    public void setServiceChangedEventChannel(ServiceChangedEventChannel serviceChangedEventChannel) {
+    public ConsulServiceDiscoveryBuilder setServiceChangedEventChannel(ServiceChangedEventChannel serviceChangedEventChannel) {
         this.serviceChangedEventChannel = serviceChangedEventChannel;
+        return this;
     }
 
     public ServicePoolListener getServicePoolListener() {

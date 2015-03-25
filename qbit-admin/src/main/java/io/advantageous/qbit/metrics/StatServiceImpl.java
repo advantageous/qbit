@@ -18,11 +18,13 @@
 
 package io.advantageous.qbit.metrics;
 
+import io.advantageous.boon.core.Sys;
 import io.advantageous.qbit.annotation.Service;
 import io.advantageous.qbit.metrics.support.MinuteStat;
 import io.advantageous.qbit.queue.QueueCallBackHandler;
 import io.advantageous.qbit.service.ServiceFlushable;
 import io.advantageous.qbit.service.ServiceProxyUtils;
+import io.advantageous.qbit.service.discovery.ServiceChangedEventChannel;
 import io.advantageous.qbit.util.Timer;
 
 import java.util.ArrayList;
@@ -33,7 +35,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * Stat Service Impl
  */
 @Service("statService")
-public class StatServiceImpl implements QueueCallBackHandler {
+public class StatServiceImpl implements QueueCallBackHandler, ServiceChangedEventChannel {
     private final StatRecorder recorder;
     private final StatReplicator replica;
     private final Timer timer;
@@ -187,15 +189,24 @@ public class StatServiceImpl implements QueueCallBackHandler {
             this.lastMinuteOfStatsMap = currentMinuteOfStatsMap;
             this.currentMinuteOfStatsMap = new ConcurrentHashMap<>(100);
         }
-        ServiceProxyUtils.flushServiceProxy(replica);
 
+        Sys.sleep(100);
+
+        ServiceProxyUtils.flushServiceProxy(replica);
         if (replica instanceof ServiceFlushable) {
-            ((ServiceFlushable) replica).flush();
+                ((ServiceFlushable) replica).flush();
         }
     }
 
     public int lastMinuteCount(String name) {
 
         return lastOneMinuteOfStats(name).getTotalCount();
+    }
+
+    @Override
+    public void servicePoolChanged(String serviceName) {
+        if (replica instanceof ServiceChangedEventChannel) {
+            ((ServiceChangedEventChannel) replica).servicePoolChanged(serviceName);
+        }
     }
 }

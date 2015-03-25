@@ -61,7 +61,7 @@ public class ClusteredStatReplicator implements StatReplicator, ServiceChangedEv
     void process() {
 
 
-        if (trace) logger.trace(sputs("ClusteredStatReplicator::process()", serviceName));
+        //if (trace) logger.trace(sputs("ClusteredStatReplicator::process()", serviceName));
         statReplicators.forEach(statReplicator ->
                 ServiceProxyUtils.flushServiceProxy(statReplicator));
     }
@@ -135,7 +135,7 @@ public class ClusteredStatReplicator implements StatReplicator, ServiceChangedEv
     @Override
     public void flush() {
 
-        if (trace) logger.trace(sputs("ClusteredStatReplicator::flush()", serviceName));
+        //if (trace) logger.trace(sputs("ClusteredStatReplicator::flush()", serviceName));
         process();
     }
 }

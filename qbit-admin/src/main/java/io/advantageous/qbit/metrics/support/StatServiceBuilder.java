@@ -20,8 +20,10 @@ package io.advantageous.qbit.metrics.support;
 
 
 import io.advantageous.boon.core.reflection.BeanUtils;
+import io.advantageous.qbit.QBit;
 import io.advantageous.qbit.client.Client;
 import io.advantageous.qbit.client.ClientBuilder;
+import io.advantageous.qbit.events.EventManager;
 import io.advantageous.qbit.metrics.*;
 import io.advantageous.qbit.metrics.StatServiceImpl;
 import io.advantageous.qbit.server.ServiceServer;
@@ -44,6 +46,8 @@ import static io.advantageous.qbit.client.ClientBuilder.clientBuilder;
  */
 public class StatServiceBuilder {
 
+
+    private EventManager eventManager;
 
     public static StatServiceBuilder statServiceBuilder() {
         return new StatServiceBuilder();
@@ -174,6 +178,14 @@ public class StatServiceBuilder {
     public ServiceQueue buildServiceQueue() {
         ServiceBuilder serviceBuilder = getServiceBuilder().setServiceObject(build());
         serviceQueue = serviceBuilder.build();
+
+        if (serviceDiscovery!=null) {
+
+            if (eventManager!=null) {
+
+                eventManager.joinService(serviceQueue);
+            }
+        }
         return serviceQueue;
     }
 
@@ -261,5 +273,18 @@ public class StatServiceBuilder {
                 }
             };
         };
+    }
+
+    public StatServiceBuilder setEventManager(EventManager eventManager) {
+        this.eventManager = eventManager;
+        return this;
+    }
+
+    public EventManager getEventManager() {
+        if (eventManager==null) {
+            eventManager = QBit.factory().systemEventManager();
+
+        }
+        return eventManager;
     }
 }
