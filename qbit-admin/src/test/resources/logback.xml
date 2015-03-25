@@ -31,7 +31,7 @@
 
     <logger name="io.advantageous.qbit.metrics" level="TRACE"/>
 
-    <logger name="io.advantageous.consul.discovery" level="TRACE"/>
+    <logger name="io.advantageous.consul.discovery" level="INFO"/>
 
 
 

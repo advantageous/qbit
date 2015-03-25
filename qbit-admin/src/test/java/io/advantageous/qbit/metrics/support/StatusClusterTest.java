@@ -58,7 +58,7 @@ public class StatusClusterTest {
 
         for (int index = 0; index < 100; index++) {
             Sys.sleep(1000);
-            serviceDiscovery.checkIn(statServiceBuilder.getServiceName(), HealthStatus.PASS);
+            serviceDiscovery.checkIn(statServiceBuilder.getLocalServiceId(), HealthStatus.PASS);
             System.out.print(".");
             statService.increment("foo");
             statService.currentMinuteCount(count -> System.out.println(sputs("count", count)), "foo");
