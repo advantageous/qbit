@@ -19,14 +19,19 @@
 package io.advantageous.qbit.metrics.support;
 
 
-import io.advantageous.qbit.metrics.StatRecorder;
-import io.advantageous.qbit.metrics.StatReplicator;
+import io.advantageous.boon.core.reflection.BeanUtils;
+import io.advantageous.qbit.client.Client;
+import io.advantageous.qbit.client.ClientBuilder;
+import io.advantageous.qbit.metrics.*;
 import io.advantageous.qbit.metrics.StatServiceImpl;
-import io.advantageous.qbit.metrics.StatServiceImpl;
+import io.advantageous.qbit.service.discovery.ServiceDefinition;
+import io.advantageous.qbit.service.discovery.ServiceDiscovery;
 import io.advantageous.qbit.util.Timer;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import static io.advantageous.qbit.client.ClientBuilder.clientBuilder;
 
 /**
  * Stat Service Builder
@@ -43,6 +48,46 @@ public class StatServiceBuilder {
     private StatRecorder recorder = new NoOpRecorder();
     private StatReplicator replicator = new NoOpReplicator();
     private List<StatReplicator> replicators = new ArrayList<>();
+    private ServiceDiscovery serviceDiscovery;
+    private StatReplicatorProvider statReplicatorProvider;
+    private ClientBuilder clientBuilder;
+    private String serviceName;
+    private String localServiceId = "";
+
+
+    public String getLocalServiceId() {
+        return localServiceId;
+    }
+
+    public StatServiceBuilder setLocalServiceId(String localServiceId) {
+        this.localServiceId = localServiceId;
+        return this;
+    }
+
+    public String getServiceName() {
+        return serviceName;
+    }
+
+    public void setServiceName(String serviceName) {
+        this.serviceName = serviceName;
+    }
+
+    private ClientBuilder getClientBuilder() {
+
+        if (clientBuilder==null) {
+            clientBuilder = clientBuilder();
+        }
+
+        return BeanUtils.copy(clientBuilder);
+    }
+    public ServiceDiscovery getServiceDiscovery() {
+        return serviceDiscovery;
+    }
+
+    public StatServiceBuilder setServiceDiscovery(ServiceDiscovery serviceDiscovery) {
+        this.serviceDiscovery = serviceDiscovery;
+        return this;
+    }
 
     public Timer getTimer() {
         return timer;
@@ -78,10 +123,47 @@ public class StatServiceBuilder {
 
     public StatServiceImpl build() {
 
-        if (replicators.size() == 0) {
-            return new StatServiceImpl(this.getRecorder(), this.getReplicator(), timer);
+        if (serviceDiscovery!=null) {
+            return new StatServiceImpl(this.getRecorder(), buildReplicator(), getTimer());
+        } else if (replicators.size() == 0) {
+            return new StatServiceImpl(this.getRecorder(), this.getReplicator(), getTimer());
         } else {
-            return new StatServiceImpl(this.getRecorder(), new ReplicatorHub(replicators), timer);
+            return new StatServiceImpl(this.getRecorder(), new ReplicatorHub(replicators), getTimer());
         }
+    }
+
+    private StatReplicator buildReplicator() {
+
+        if (statReplicatorProvider == null) {
+            statReplicatorProvider = buildStatsReplicatorProvider();
+        }
+        return new ClusteredStatReplicator(serviceName, serviceDiscovery,
+                statReplicatorProvider, localServiceId);
+    }
+
+    private StatReplicatorProvider buildStatsReplicatorProvider() {
+        return serviceDefinition -> {
+
+            final ClientBuilder clientBuilder1 = getClientBuilder();
+            final Client client = clientBuilder1.setPort(serviceDefinition.getPort())
+                    .setHost(serviceDefinition.getHost()).build();
+
+            final StatReplicator proxy = client.createProxy(StatReplicator.class, serviceName);
+
+            return new StatReplicator() {
+
+                private Client theClient = client;
+
+                @Override
+                public void recordCount(String name, int count, long now) {
+                    proxy.recordCount(name, count, now);
+                }
+
+                @Override
+                public void clientProxyFlush() {
+                    proxy.clientProxyFlush();
+                }
+            };
+        };
     }
 }

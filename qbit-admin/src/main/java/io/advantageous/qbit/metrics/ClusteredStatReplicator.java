@@ -13,11 +13,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
+import static io.advantageous.boon.Boon.sputs;
+
 /**
  * Clustered Stat Replicator
  * Created by rhightower on 3/24/15.
  */
-public class ClusteredStatReplicator implements StatReplicator, ServiceChangedEventChannel, ServiceFlushable {
+public class ClusteredStatReplicator implements StatReplicator, ServiceChangedEventChannel {
 
 
     private final ServiceDiscovery serviceDiscovery;
@@ -46,6 +48,9 @@ public class ClusteredStatReplicator implements StatReplicator, ServiceChangedEv
 
     @Override
     public void recordCount(final String name, final int count, final long now) {
+
+        if (trace) logger.trace(sputs("ClusteredStatReplicator::recordCount()",
+                serviceName, name, count, now));
         statReplicators.forEach(statReplicator -> statReplicator.recordCount(name, count, now));
     }
 
@@ -54,7 +59,11 @@ public class ClusteredStatReplicator implements StatReplicator, ServiceChangedEv
             QueueCallbackType.EMPTY,
             QueueCallbackType.LIMIT})
     void process() {
-        statReplicators.forEach(statReplicator -> ServiceProxyUtils.flushServiceProxy(statReplicator));
+
+
+        if (trace) logger.trace(sputs("ClusteredStatReplicator::process()", serviceName));
+        statReplicators.forEach(statReplicator ->
+                ServiceProxyUtils.flushServiceProxy(statReplicator));
     }
 
 
@@ -66,14 +75,21 @@ public class ClusteredStatReplicator implements StatReplicator, ServiceChangedEv
     @Override
     public void servicePoolChanged(final String serviceName) {
 
+        if (trace) logger.trace(sputs("ClusteredStatReplicator::servicePoolChanged()", serviceName));
+
         if (this.serviceName.equals(serviceName)) {
             updateServicePool(serviceName);
 
+        } else {
+            if (debug) logger.debug(sputs("ClusteredStatReplicator::servicePoolChanged()",
+                    "got event for another service", serviceName));
         }
+
 
     }
 
     private void updateServicePool(String serviceName) {
+
         final List<ServiceDefinition> nodes = serviceDiscovery.loadServices(serviceName);
         servicePool.setHealthyNodes(nodes, new ServicePoolListener() {
             @Override
@@ -95,11 +111,16 @@ public class ClusteredStatReplicator implements StatReplicator, ServiceChangedEv
 
     private void removeService(final ServiceDefinition serviceDefinition) {
 
+        if (trace) logger.trace(sputs("ClusteredStatReplicator::removeService()",
+                serviceName, serviceDefinition));
+
         this.replicatorsMap.remove(serviceDefinition.getId());
         this.statReplicators = new ArrayList<>(replicatorsMap.values());
     }
 
     private void addService(final ServiceDefinition serviceDefinition) {
+
+        if (trace) logger.trace(sputs("ClusteredStatReplicator::addService()", serviceDefinition));
 
         if (serviceDefinition.getId().equals(localServiceId)) {
             return;
@@ -113,6 +134,8 @@ public class ClusteredStatReplicator implements StatReplicator, ServiceChangedEv
 
     @Override
     public void flush() {
+
+        if (trace) logger.trace(sputs("ClusteredStatReplicator::flush()", serviceName));
         process();
     }
 }

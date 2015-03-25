@@ -18,9 +18,12 @@
 
 package io.advantageous.qbit.metrics;
 
+import io.advantageous.qbit.client.ClientProxy;
+import io.advantageous.qbit.service.ServiceFlushable;
+
 /**
  * Created by rhightower on 1/28/15.
  */
-public interface StatReplicator {
+public interface StatReplicator extends ClientProxy, ServiceFlushable {
     void recordCount(String name, int count, long now);
 }

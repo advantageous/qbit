@@ -61,5 +61,5 @@ package io.advantageous.qbit.service;
 public interface ServiceFlushable {
 
 
-    void flush();
+    default void flush() {}
 }
