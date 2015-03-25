@@ -49,48 +49,44 @@ public class ServicePool {
                                                 final ServicePoolListener servicePoolListener) {
 
         final Map<String, ServiceDefinition> oldMap = pool.get();
-
-
         final Map<String, ServiceDefinition> newMap = new ConcurrentHashMap<>(services.size());
-
+        int oldServicesRemoved = 0;
         int newServices = 0;
-        for (ServiceDefinition service : services) {
 
+        for (ServiceDefinition service : services) {
             if (!oldMap.containsKey(service.getId())) {
                 newServices++;
-                servicePoolListener.serviceAdded(serviceName);
+                servicePoolListener.serviceAdded(serviceName, service);
             }
             newMap.put(service.getId(), service);
-
         }
 
+        for (ServiceDefinition service : oldMap.values()) {
+            if (!newMap.containsKey(service.getId())) {
+                oldServicesRemoved++;
+                servicePoolListener.serviceRemoved(serviceName, service);
+                //log an old service was removed
+            }
+        }
+
+        pool.set(newMap);
+
+        return handleEvents(servicePoolListener, newServices, oldServicesRemoved);
+    }
+
+    private boolean handleEvents(ServicePoolListener servicePoolListener, int newServices, int oldServicesRemoved) {
+        if (oldServicesRemoved > 0) {
+            servicePoolListener.servicesRemoved(serviceName, newServices);
+        }
 
         if (newServices > 0) {
             servicePoolListener.servicesAdded(serviceName, newServices);
         }
 
-        int oldServicesRemoved = 0;
-        for (ServiceDefinition service : oldMap.values()) {
-
-
-            if (!newMap.containsKey(service.getId())) {
-                oldServicesRemoved++;
-                servicePoolListener.serviceRemoved(serviceName);
-                //log an old service was removed
-            }
-        }
-
-
-        if (oldServicesRemoved > 0) {
-            servicePoolListener.servicesRemoved(serviceName, newServices);
-        }
-
-
-        pool.set(newMap);
-
         boolean changed = oldServicesRemoved > 0 || newServices > 0;
 
         if (changed) {
+
             servicePoolListener.servicePoolChanged(serviceName);
         }
 

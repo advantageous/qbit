@@ -35,4 +35,7 @@ public interface ServiceDiscovery extends Startable, Stoppable {
     }
 
 
+    default void start() {}
+    default void stop() {}
+
 }

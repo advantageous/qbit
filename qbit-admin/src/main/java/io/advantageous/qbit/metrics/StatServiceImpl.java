@@ -18,10 +18,11 @@
 
 package io.advantageous.qbit.metrics;
 
-import io.advantageous.qbit.annotation.RequestMapping;
 import io.advantageous.qbit.annotation.Service;
 import io.advantageous.qbit.metrics.support.MinuteStat;
 import io.advantageous.qbit.queue.QueueCallBackHandler;
+import io.advantageous.qbit.service.ServiceFlushable;
+import io.advantageous.qbit.service.ServiceProxyUtils;
 import io.advantageous.qbit.util.Timer;
 
 import java.util.ArrayList;
@@ -60,6 +61,17 @@ public class StatServiceImpl implements QueueCallBackHandler {
     }
 
 
+    public void increment(String name) {
+        recordWithTime(name, 1, now);
+    }
+
+
+    public void incrementAll(final String... names) {
+        for (String name : names) {
+            increment(name);
+        }
+    }
+
     public int currentMinuteCount(String name) {
         return oneMinuteOfStats(name).getTotalCount();
     }
@@ -92,7 +104,7 @@ public class StatServiceImpl implements QueueCallBackHandler {
 
     public int lastFiveSecondCountExact(String name) {
         return oneMinuteOfStats(name).countLastFiveSeconds(now) +
-                        lastOneMinuteOfStats(name).countLastTenSeconds(now);
+                lastOneMinuteOfStats(name).countLastTenSeconds(now);
 
     }
 
@@ -152,8 +164,6 @@ public class StatServiceImpl implements QueueCallBackHandler {
     }
 
 
-
-
     public void queueLimit() {
         process();
     }
@@ -176,6 +186,11 @@ public class StatServiceImpl implements QueueCallBackHandler {
             this.recorder.record(stats);
             this.lastMinuteOfStatsMap = currentMinuteOfStatsMap;
             this.currentMinuteOfStatsMap = new ConcurrentHashMap<>(100);
+        }
+        ServiceProxyUtils.flushServiceProxy(replica);
+
+        if (replica instanceof ServiceFlushable) {
+            ((ServiceFlushable) replica).flush();
         }
     }
 

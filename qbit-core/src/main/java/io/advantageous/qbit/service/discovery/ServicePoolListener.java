@@ -6,9 +6,9 @@ package io.advantageous.qbit.service.discovery;
  */
 public interface ServicePoolListener {
 
-    default void serviceAdded(String serviceName) {}
+    default void serviceAdded(String serviceName, ServiceDefinition serviceDefinition) {}
 
-    default void serviceRemoved(String serviceName) {}
+    default void serviceRemoved(String serviceName, ServiceDefinition serviceDefinition) {}
 
     default void servicesAdded(String serviceName, int count) {}
 

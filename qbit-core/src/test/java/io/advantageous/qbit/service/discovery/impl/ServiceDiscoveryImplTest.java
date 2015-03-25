@@ -61,7 +61,7 @@ public class ServiceDiscoveryImplTest{
         }
 
         @Override
-        public void serviceAdded(String serviceName) {
+        public void serviceAdded(String serviceName, ServiceDefinition serviceDefinition) {
             puts ("serviceAdded", serviceName, serviceAdded.incrementAndGet());
 
 
@@ -69,7 +69,7 @@ public class ServiceDiscoveryImplTest{
         }
 
         @Override
-        public void serviceRemoved(String serviceName) {
+        public void serviceRemoved(String serviceName, ServiceDefinition serviceDefinition) {
             puts ("serviceRemoved", serviceName);
 
 
