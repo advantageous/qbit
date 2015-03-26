@@ -37,7 +37,6 @@ import io.advantageous.qbit.util.Timer;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 import static io.advantageous.qbit.client.ClientBuilder.clientBuilder;
 
@@ -371,8 +370,8 @@ public class StatServiceBuilder {
                 }
 
                 @Override
-                public boolean isRemote() {
-                    return proxy.isRemote();
+                public boolean remote() {
+                    return proxy.remote();
                 }
             };
         };

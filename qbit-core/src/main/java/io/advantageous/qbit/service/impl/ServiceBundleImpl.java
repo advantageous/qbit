@@ -392,7 +392,7 @@ public class ServiceBundleImpl implements ServiceBundle {
         final Consumer<MethodCall<Object>> callConsumer = this.serviceMapping.get(myService);
 
         if (callConsumer==null) {
-            throw new IllegalStateException("Service requested does not exist " + myService);
+            logger.error("Service requested does not exist " + myService);
         }
 
         return  factory.createLocalProxy(serviceInterface, myService, this);

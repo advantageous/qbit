@@ -205,7 +205,7 @@ public class ServiceProxyFactoryTest {
 
 
 
-        bundle.addService(myService);
+        bundle.addServiceObject("myService", myService);
 
 
         final SomeInterface myServiceProxy = bundle.createLocalProxy(SomeInterface.class, "myService");

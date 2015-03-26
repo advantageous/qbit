@@ -30,6 +30,6 @@ public interface ClientProxy {
     default void clientProxyFlush() {}
 
 
-    default boolean isRemote() {return false;}
+    default boolean remote() {return false;}
 
 }
