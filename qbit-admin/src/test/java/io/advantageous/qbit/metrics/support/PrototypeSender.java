@@ -59,16 +59,9 @@ public class PrototypeSender {
 
         serviceServer.start();
 
-        final StatService statService = serviceServer.serviceBundle().createLocalProxy(StatService.class,
+        final StatService statService = serviceServer.serviceBundle().createOneWayLocalProxy(StatService.class,
                 statServiceBuilder.getServiceName());
 
-        List<ServiceDefinition> serviceDefinitions = serviceDiscovery.loadServices(statServiceBuilder.getServiceName());
-
-        serviceDefinitions.forEach(serviceDefinition -> puts(serviceDefinition));
-
-        puts("Service statServiceBuilder.getLocalServiceId()", statServiceBuilder.getLocalServiceId());
-
-        serviceDiscovery.checkIn(statServiceBuilder.getLocalServiceId(), HealthStatus.PASS);
 
 
         for (int x = 0; x < 100; x++) {
@@ -76,12 +69,11 @@ public class PrototypeSender {
             for (int z = 0; z < 10; z++) {
 
                 //final Timer timer =
-                long startTime =  System.currentTimeMillis();
+                long startTime =  Timer.timer().time();
                 for (int index = 0; index < 6_000_000; index++) {
 
                     if (index % 1_000_000 == 0) {
-                        Sys.sleep(1);
-                        System.out.print("." + (System.currentTimeMillis()-startTime));
+                        System.out.print("." + (Timer.timer().time()-startTime));
                     }
 
                     if (index % 10 == 0) {
@@ -94,33 +86,11 @@ public class PrototypeSender {
                 }
 
 
-                System.out.println("SENT A BUNCH");
+                System.out.println("\nSENT A BUNCH");
 
                 ServiceProxyUtils.flushServiceProxy(statService);
-                Sys.sleep(10_000);
+                Sys.sleep(5_000);
 
-            }
-
-
-        }
-
-
-
-        for (int index = 0; index < 10; index++) {
-
-            final int fromIndex = index;
-            Sys.sleep(1000);
-            serviceDiscovery.checkIn(statServiceBuilder.getLocalServiceId(), HealthStatus.PASS);
-            System.out.print(".");
-            statService.increment("foo");
-
-            statService.currentMinuteCount(count -> System.out.print(
-                    "count " + count + " index " + fromIndex + "    "), "foo");
-
-            if (index % 10 == 0) {
-                ServiceProxyUtils.flushServiceProxy(statService);
-                serviceDefinitions = serviceDiscovery.loadServices(statServiceBuilder.getServiceName());
-                serviceDefinitions.forEach(serviceDefinition -> System.out.print(" " + serviceDefinition + " "));
             }
 
 
@@ -128,29 +98,7 @@ public class PrototypeSender {
 
 
         ServiceProxyUtils.flushServiceProxy(statService);
-        serviceDefinitions = serviceDiscovery.loadServices(statServiceBuilder.getServiceName());
-        serviceDefinitions.forEach(serviceDefinition -> puts(serviceDefinition));
 
-
-
-        int index = 0;
-
-        while (true) {
-
-            index ++;
-
-
-            statService.lastTenSecondCountExact(count -> System.out.println(
-                    "count " + count + " index " +  "    "), "foo");
-
-            ServiceProxyUtils.flushServiceProxy(statService);
-
-            Sys.sleep(1000);
-
-            if (index % 10 == 0)
-                serviceDiscovery.checkIn(statServiceBuilder.getLocalServiceId(), HealthStatus.PASS);
-
-        }
 
     }
 

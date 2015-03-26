@@ -41,6 +41,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
 import static io.advantageous.boon.Boon.*;
@@ -269,7 +270,28 @@ public class ServiceBundleImpl implements ServiceBundle {
     }
 
 
+    static class QueueDispatch implements Consumer<MethodCall<Object>> {
+
+        final ServiceQueue serviceQueue;
+        final SendQueue<MethodCall<Object>> requests;
+
+        QueueDispatch(ServiceQueue serviceQueue) {
+            this.serviceQueue = serviceQueue;
+            /* Create an forwardEvent queue for this client. which we access from a single thread. */
+            requests = serviceQueue.requests();
+
+
+        }
+
+        @Override
+        public void accept(MethodCall<Object> objectMethodCall) {
+            requests.send(objectMethodCall);
+        }
+    }
+
+
     public void addServiceService(final String objectName, final String serviceAddress, final ServiceQueue serviceQueue) {
+
 
         serviceQueue.start(); //Don't like this.. REFACTOR
 
@@ -278,16 +300,8 @@ public class ServiceBundleImpl implements ServiceBundle {
         servicesToStop.add(serviceQueue);
         servicesToFlush.add(serviceQueue);
 
-        /* Create an forwardEvent queue for this client. which we access from a single thread. */
-        final SendQueue<MethodCall<Object>> requests = serviceQueue.requests();
 
-        Consumer<MethodCall<Object>> dispatch = new Consumer<MethodCall<Object>>() {
-            @Override
-            public void accept(MethodCall<Object> objectMethodCall) {
-                requests.send(objectMethodCall);
-            }
-        };
-
+        QueueDispatch dispatch = new QueueDispatch(serviceQueue);
 
         /** Add the client given the address if we have an address. */
         if (serviceAddress != null && !serviceAddress.isEmpty()) {
@@ -303,7 +317,7 @@ public class ServiceBundleImpl implements ServiceBundle {
         serviceMapping.put(serviceQueue.address(), dispatch);
 
         /** Add the request queue to our set of request queues. */
-        sendQueues.add(requests);
+        sendQueues.add(dispatch.requests);
 
         /** Generate a list of end point addresses based on the client bundle root address. */
         final Collection<String> addresses = serviceQueue.addresses(this.rootAddress);
@@ -372,9 +386,35 @@ public class ServiceBundleImpl implements ServiceBundle {
      * @return proxy client to client
      */
     @Override
-    public <T> T createLocalProxy(Class<T> serviceInterface, String myService) {
+    public <T> T createLocalProxy(final Class<T> serviceInterface, final String myService) {
 
-        return factory.createLocalProxy(serviceInterface, myService, this);
+
+        final Consumer<MethodCall<Object>> callConsumer = this.serviceMapping.get(myService);
+
+        if (callConsumer==null) {
+            throw new IllegalStateException("Service requested does not exist " + myService);
+        }
+
+        return  factory.createLocalProxy(serviceInterface, myService, this);
+
+    }
+
+    public <T> T createOneWayLocalProxy(final Class<T> serviceInterface, final String myService) {
+
+
+        final Consumer<MethodCall<Object>> callConsumer = this.serviceMapping.get(myService);
+
+        if (callConsumer==null) {
+            throw new IllegalStateException("Service requested does not exist " + myService);
+        }
+
+        if (callConsumer instanceof QueueDispatch) {
+
+           return ((QueueDispatch) callConsumer).serviceQueue.createProxyWithAutoFlush(
+                    serviceInterface, 100, TimeUnit.MILLISECONDS);
+        } else {
+            return factory.createLocalProxy(serviceInterface, myService, this);
+        }
     }
 
     /**

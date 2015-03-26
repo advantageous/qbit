@@ -18,6 +18,7 @@
 
 package io.advantageous.qbit.metrics;
 
+import io.advantageous.qbit.GlobalConstants;
 import io.advantageous.qbit.annotation.Service;
 import io.advantageous.qbit.metrics.support.MinuteStat;
 import io.advantageous.qbit.queue.QueueCallBackHandler;
@@ -27,6 +28,8 @@ import io.advantageous.qbit.service.discovery.HealthStatus;
 import io.advantageous.qbit.service.discovery.ServiceChangedEventChannel;
 import io.advantageous.qbit.service.discovery.ServiceDiscovery;
 import io.advantageous.qbit.util.Timer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.Map;
@@ -48,6 +51,9 @@ public class StatServiceImpl implements QueueCallBackHandler, ServiceChangedEven
     private long startMinute;
     private Map<String, MinuteStat> currentMinuteOfStatsMap;
     private Map<String, MinuteStat> lastMinuteOfStatsMap;
+    private final Logger logger = LoggerFactory.getLogger(StatServiceImpl.class);
+    private final boolean debug = GlobalConstants.DEBUG || logger.isDebugEnabled();
+
 
     long lastHealthCheck = 0;
 
@@ -231,7 +237,7 @@ public class StatServiceImpl implements QueueCallBackHandler, ServiceChangedEven
     private void flushMinuteCheck() {
         long duration = (now - startMinute) / 1_000;
         if (duration > 60) {
-            puts("One minute of stats");
+            if (debug) logger.debug("One minute of stats");
             startMinute = now;
 
             final ArrayList<MinuteStat> stats = new ArrayList<>(this.currentMinuteOfStatsMap.values());

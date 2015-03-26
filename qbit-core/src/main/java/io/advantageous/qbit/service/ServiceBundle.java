@@ -79,4 +79,8 @@ public interface ServiceBundle extends EndPoint {
     }
 
     <T> T createLocalProxy(Class<T> serviceInterface, String myService);
+    default <T> T createOneWayLocalProxy(Class<T> serviceInterface, String myService){
+        return createLocalProxy(serviceInterface, myService);
+    }
+
 }
