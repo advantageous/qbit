@@ -36,7 +36,6 @@ import io.advantageous.qbit.util.Timer;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 import static io.advantageous.qbit.client.ClientBuilder.clientBuilder;
 
@@ -230,7 +229,7 @@ public class StatServiceBuilder {
                 statReplicatorProvider, localServiceId);
     }
 
-    private StatReplicatorProvider buildStatsReplicatorProvider() {
+    public StatReplicatorProvider buildStatsReplicatorProvider() {
         return serviceDefinition -> {
 
             final ClientBuilder clientBuilder1 = getClientBuilder();
@@ -238,6 +237,8 @@ public class StatServiceBuilder {
                     .setHost(serviceDefinition.getHost()).build();
 
             final StatReplicator proxy = client.createProxy(StatReplicator.class, serviceName);
+
+            client.start();
 
             return new StatReplicator() {
 
@@ -270,6 +271,10 @@ public class StatServiceBuilder {
                 public void flush() {
                     proxy.flush();
                     theClient.flush();
+                }
+
+                public String toString() {
+                    return "StatServiceReplicator " + proxy;
                 }
             };
         };

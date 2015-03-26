@@ -271,7 +271,7 @@ public class ServiceBundleImpl implements ServiceBundle {
 
     public void addServiceService(final String objectName, final String serviceAddress, final ServiceQueue serviceQueue) {
 
-        serviceQueue.start(false); //Don't like this.. REFACTOR
+        serviceQueue.start(); //Don't like this.. REFACTOR
 
 
         /** add to our list of servicesToStop. */

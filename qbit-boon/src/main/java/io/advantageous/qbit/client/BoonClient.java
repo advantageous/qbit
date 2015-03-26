@@ -26,6 +26,7 @@ import io.advantageous.boon.core.reflection.ClassMeta;
 import io.advantageous.boon.core.reflection.MapObjectConversion;
 import io.advantageous.boon.core.reflection.MethodAccess;
 import io.advantageous.boon.primitive.Arry;
+import io.advantageous.qbit.GlobalConstants;
 import io.advantageous.qbit.QBit;
 import io.advantageous.qbit.http.client.HttpClient;
 import io.advantageous.qbit.http.websocket.WebSocket;
@@ -82,6 +83,8 @@ public class BoonClient implements Client {
      * Logger.
      */
     private Logger logger = LoggerFactory.getLogger(BoonClient.class);
+
+    private final boolean debug = GlobalConstants.DEBUG;
     /**
      * List of client proxies that we are managing for periodic flush.
      */
@@ -200,6 +203,7 @@ public class BoonClient implements Client {
 
             } catch (Exception ex) {
                 this.connected.set(false);
+                if (debug)
                 throw new IllegalStateException(ex);
             }
         } else {
@@ -210,6 +214,7 @@ public class BoonClient implements Client {
                 }
             }catch (Exception ex) {
                 this.connected.set(false);
+                if (debug)
                 throw ex;
             }
         }

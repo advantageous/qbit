@@ -1,6 +1,7 @@
 package io.advantageous.qbit.service.discovery;
 
 import io.advantageous.qbit.annotation.EventChannel;
+import io.advantageous.qbit.service.ServiceFlushable;
 
 /**
  * ServiceChangedChannel
@@ -9,4 +10,5 @@ import io.advantageous.qbit.annotation.EventChannel;
 @EventChannel
 public interface ServiceChangedEventChannel {
     void  servicePoolChanged(String serviceName);
+    default void flushEvents() {}
 }

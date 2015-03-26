@@ -29,7 +29,7 @@
     </root>
 
 
-    <logger name="io.advantageous.qbit.metrics" level="TRACE"/>
+    <logger name="io.advantageous.qbit.metrics" level="INFO"/>
 
     <logger name="io.advantageous.consul.discovery" level="INFO"/>
 

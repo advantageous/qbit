@@ -570,7 +570,7 @@ public class BaseServiceQueueImpl implements ServiceQueue {
                 return null;
             }
         };
-        final Object o = Proxy.newProxyInstance(Thread.currentThread().getContextClassLoader(),
+        final Object o = Proxy.newProxyInstance(serviceInterface.getClassLoader(),
                 new Class[]{serviceInterface, ClientProxy.class}, invocationHandler
         );
         return (T) o;

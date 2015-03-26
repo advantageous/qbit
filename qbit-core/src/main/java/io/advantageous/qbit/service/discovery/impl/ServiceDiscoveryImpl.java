@@ -217,6 +217,7 @@ public class ServiceDiscoveryImpl implements ServiceDiscovery{
         final ServicePool servicePool = servicePool(serviceName);
         if (servicePool.setHealthyNodes(healthyServices)) {
             serviceChangedEventChannel.servicePoolChanged(serviceName);
+            serviceChangedEventChannel.flushEvents();
         }
     }
 

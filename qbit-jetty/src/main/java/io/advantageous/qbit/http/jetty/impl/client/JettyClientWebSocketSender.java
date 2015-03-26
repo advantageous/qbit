@@ -157,8 +157,13 @@ public class JettyClientWebSocketSender implements WebSocketSender {
                 }
             }, connectUri, request);
         } catch (IOException e) {
+            if (debug)
             throw new IllegalStateException(e);
+        }catch (IllegalStateException e) {
+            if (debug)
+                throw new IllegalStateException(e);
         }
+
     }
 
     public URI getConnectUri() {
