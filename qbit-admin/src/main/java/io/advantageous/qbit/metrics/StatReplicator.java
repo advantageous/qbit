@@ -23,8 +23,9 @@ import io.advantageous.qbit.service.ServiceFlushable;
 import io.advantageous.qbit.service.Stoppable;
 
 /**
+ * Stat Replicator
  * Created by rhightower on 1/28/15.
  */
 public interface StatReplicator extends ClientProxy, ServiceFlushable, Stoppable {
-    void recordCount(String name, int count, long now);
+    void replicateCount(String name, int count, long time);
 }

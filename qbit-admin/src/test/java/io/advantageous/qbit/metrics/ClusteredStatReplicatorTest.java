@@ -126,7 +126,7 @@ public class ClusteredStatReplicatorTest {
         assertNotNull(debugReplicator2);
         assertNotNull(debugReplicator3);
 
-        clusteredStatReplicator.recordCount("foo", 5, System.currentTimeMillis());
+        clusteredStatReplicator.replicateCount("foo", 5, System.currentTimeMillis());
 
         assertEquals(5, debugReplicator1.count.get());
         assertEquals(5, debugReplicator2.count.get());
@@ -168,7 +168,7 @@ public class ClusteredStatReplicatorTest {
         assertNotNull(debugReplicator2);
         assertNotNull(debugReplicator3);
 
-        clusteredStatReplicator.recordCount("foo", 5, 100);
+        clusteredStatReplicator.replicateCount("foo", 5, 100);
 
         assertEquals(5, debugReplicator1.count.get());
         assertEquals(5, debugReplicator2.count.get());
@@ -193,7 +193,7 @@ public class ClusteredStatReplicatorTest {
 
 
 
-        clusteredStatReplicator.recordCount("foo", 5, 200);
+        clusteredStatReplicator.replicateCount("foo", 5, 200);
         Sys.sleep(100);
 
 

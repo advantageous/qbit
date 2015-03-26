@@ -43,7 +43,7 @@ public class DebugReplicator implements StatReplicator {
 
 
     @Override
-    public void recordCount(String name, int count, long now) {
+    public void replicateCount(String name, int count, long now) {
         this.count.addAndGet(count);
         if (out) puts("DEBUG REPLICATOR", name, count, now, this.count.get());
     }

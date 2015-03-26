@@ -234,6 +234,7 @@ public class StatServiceBuilder {
 
             final ClientBuilder clientBuilder1 = getClientBuilder();
             final Client client = clientBuilder1.setPort(serviceDefinition.getPort())
+                    .setRequestBatchSize(1_000)
                     .setHost(serviceDefinition.getHost()).build();
 
             final StatReplicator proxy = client.createProxy(StatReplicator.class, serviceName);
@@ -252,8 +253,8 @@ public class StatServiceBuilder {
                 }
 
                 @Override
-                public void recordCount(String name, int count, long now) {
-                    proxy.recordCount(name, count, now);
+                public void replicateCount(String name, int count, long now) {
+                    proxy.replicateCount(name, count, now);
                 }
 
                 @Override

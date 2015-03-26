@@ -29,6 +29,11 @@ public interface ServiceDiscovery extends Startable, Stoppable {
 
     }
 
+
+    default void checkInOk(String serviceId) {
+
+    }
+
     default List<ServiceDefinition> loadServices(final String serviceName) {
 
         return Collections.emptyList();

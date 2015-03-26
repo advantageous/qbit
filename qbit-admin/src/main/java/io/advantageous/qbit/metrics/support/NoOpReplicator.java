@@ -26,6 +26,6 @@ import io.advantageous.qbit.metrics.StatReplicator;
  */
 public class NoOpReplicator implements StatReplicator {
     @Override
-    public final void recordCount(String name, int count, long now) {
+    public final void replicateCount(String name, int count, long now) {
     }
 }

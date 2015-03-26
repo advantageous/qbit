@@ -27,7 +27,7 @@ import static io.advantageous.qbit.metrics.support.StatServiceBuilder.statServic
  * StatusClusterTest
  * Created by rhightower on 3/24/15.
  */
-public class StatusClusterTest {
+public class Prototype {
 
     public static void main(String... args) throws Exception {
 
@@ -70,17 +70,31 @@ public class StatusClusterTest {
         serviceDiscovery.checkIn(statServiceBuilder.getLocalServiceId(), HealthStatus.PASS);
 
 
-        for (int index = 0; index < 100; index++) {
+        for (int x = 0; x < 100; x++) {
 
-            final int fromIndex = index;
-            statService.increment("foo");
-            statService.currentMinuteCount(count -> System.out.println(sputs("count", count, fromIndex)), "foo");
+            for (int z = 0; z < 10; z++) {
+                for (int index = 0; index < 70_000; index++) {
+
+                    if (index % 100 == 0) {
+                        statService.recordCount("foo", 100);
+                        ServiceProxyUtils.flushServiceProxy(statService);
+                    }
+                }
+                System.out.println("SENT A 70K");
+                ServiceProxyUtils.flushServiceProxy(statService);
+                Sys.sleep(5_000);
+                serviceDiscovery.checkInOk(statServiceBuilder.getLocalServiceId());
+                Sys.sleep(5_000);
+                serviceDiscovery.checkInOk(statServiceBuilder.getLocalServiceId());
+
+            }
+
 
         }
 
 
 
-        for (int index = 0; index < 100; index++) {
+        for (int index = 0; index < 10; index++) {
 
             final int fromIndex = index;
             Sys.sleep(1000);
@@ -107,15 +121,21 @@ public class StatusClusterTest {
 
 
 
+        int index = 0;
 
         while (true) {
 
-            statService.currentMinuteCount(count -> System.out.println(
+            index ++;
+
+
+            statService.lastTenSecondCountExact(count -> System.out.println(
                     "count " + count + " index " +  "    "), "foo");
 
             ServiceProxyUtils.flushServiceProxy(statService);
 
-            Sys.sleep(5_000);
+            Sys.sleep(1000);
+
+            if (index % 10 == 0)
             serviceDiscovery.checkIn(statServiceBuilder.getLocalServiceId(), HealthStatus.PASS);
 
         }

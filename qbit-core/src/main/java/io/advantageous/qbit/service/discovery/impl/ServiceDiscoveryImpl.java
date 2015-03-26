@@ -125,6 +125,24 @@ public class ServiceDiscoveryImpl implements ServiceDiscovery{
 
     }
 
+
+    @Override
+    public void checkInOk(final String serviceId) {
+
+
+        if (trace) {
+            logger.trace(sputs(
+                    "ServiceDiscoveryImpl::checkInOk()",
+                    serviceId
+            ));
+        }
+
+        checkInsQueue.offer(new ServiceHealthCheckIn(serviceId, HealthStatus.PASS));
+
+
+    }
+
+
     public ServicePool servicePool(final String serviceName)  {
         ServicePool servicePool = servicePoolMap.get(serviceName);
         if (servicePool==null) {

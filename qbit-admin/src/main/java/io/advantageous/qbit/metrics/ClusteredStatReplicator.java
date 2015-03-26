@@ -9,10 +9,8 @@ import io.advantageous.qbit.util.Timer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.function.Consumer;
 
 import static io.advantageous.boon.Boon.puts;
 import static io.advantageous.boon.Boon.sputs;
@@ -33,6 +31,27 @@ public class ClusteredStatReplicator implements StatReplicator, ServiceChangedEv
     private final String serviceName;
     private final ServicePool servicePool;
     private final String localServiceId;
+    private Timer timer = Timer.timer();
+    private long currentTime;
+    private long lastReconnectTime;
+    private long lastSendTime;
+
+
+    class LocalCount {
+
+        int count;
+        String name;
+
+        void reset() {
+            count = 0;
+        }
+
+        void inc() {
+            count++;
+        }
+    }
+
+    private ConcurrentHashMap<String, LocalCount> countMap = new ConcurrentHashMap<>();
 
     private List<StatReplicator> statReplicators = new ArrayList<>();
 
@@ -49,9 +68,9 @@ public class ClusteredStatReplicator implements StatReplicator, ServiceChangedEv
     }
 
     @Override
-    public void recordCount(final String name, final int count, final long now) {
+    public void replicateCount(final String name, final int count, final long now) {
 
-        if (trace) logger.trace(sputs("ClusteredStatReplicator::recordCount()",
+        if (trace) logger.trace(sputs("ClusteredStatReplicator::replicateCount()",
                 serviceName, name, count, now));
 
         if (debug) {
@@ -59,16 +78,24 @@ public class ClusteredStatReplicator implements StatReplicator, ServiceChangedEv
                 puts("WARNING.............. ######### NO REPLICATORS");
             }
         }
-        statReplicators.forEach(
-                statReplicator -> doRecordCount(statReplicator, name, count, now)
-        );
+
+        LocalCount localCount = countMap.get(name);
+
+        if (localCount==null) {
+            localCount = new LocalCount();
+            localCount.name = name;
+            countMap.put(name, localCount);
+        }
+        localCount.count += count;
+
+
     }
 
     private void doRecordCount(StatReplicator statReplicator,
                                final String name, final int count, final long now) {
 
         try {
-            statReplicator.recordCount(name, count, now);
+            statReplicator.replicateCount(name, count, now);
         } catch (Exception ex) {
             if (debug) logger.debug(sputs("Replicator failed"), ex);
             if (debug) logger.debug(sputs("Replicator failed", statReplicator ));
@@ -82,7 +109,45 @@ public class ClusteredStatReplicator implements StatReplicator, ServiceChangedEv
             QueueCallbackType.LIMIT})
     void process() {
 
+
+
         currentTime = timer.now();
+
+        sendIfNeeded();
+        checkForReconnect();
+    }
+
+    private void sendIfNeeded() {
+
+        long duration = currentTime - lastSendTime;
+
+        if (duration > 1_000) {
+            this.lastSendTime = currentTime;
+
+            final Collection<LocalCount> countCollection = this.countMap.values();
+
+
+            for (LocalCount localCount : countCollection) {
+
+                if (localCount.count > 0) {
+                    statReplicators.forEach(
+                            statReplicator -> doRecordCount(statReplicator, localCount.name, localCount.count, currentTime)
+                    );
+                }
+                localCount.count = 0;
+            }
+            if (countMap.size()>10_000_000) {
+                countMap.clear();
+            }
+            flushReplicatorsAll();
+        }
+
+
+
+
+    }
+
+    private void flushReplicatorsAll() {
         final List<StatReplicator> badReplicators = new ArrayList<>();
 
         statReplicators.forEach(
@@ -90,13 +155,9 @@ public class ClusteredStatReplicator implements StatReplicator, ServiceChangedEv
         );
 
         badReplicators.forEach(statReplicator -> statReplicators.remove(statReplicator));
-        checkForReconnect();
     }
 
 
-    Timer timer = Timer.timer();
-    long currentTime;
-    long lastReconnectTime;
     private void checkForReconnect() {
         long duration = currentTime - lastReconnectTime;
         if (duration > 10_000) {
@@ -108,7 +169,7 @@ public class ClusteredStatReplicator implements StatReplicator, ServiceChangedEv
     public void doReconnect() {
         lastReconnectTime = currentTime;
         final List<ServiceDefinition> services = servicePool.services();
-        if (services.size() != this.statReplicators.size()) {
+        if ((services.size()-1) != this.statReplicators.size()) {
             shutDownReplicators();
             services.forEach(this::addService);
         }

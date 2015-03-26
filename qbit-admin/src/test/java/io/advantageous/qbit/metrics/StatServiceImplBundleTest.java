@@ -361,7 +361,7 @@ public class StatServiceImplBundleTest extends TimedTesting {
         final long start = System.currentTimeMillis();
 
         final ClassMeta<StatServiceImpl> statServiceClassMeta = ClassMeta.classMeta(StatServiceImpl.class);
-        final MethodAccess record = statServiceClassMeta.method("recordCount");
+        final MethodAccess record = statServiceClassMeta.method("replicateCount");
 
 
         for (int index = 0; index < 16_000_000; index++) {

@@ -34,9 +34,9 @@ public class ReplicatorHub implements StatReplicator {
     }
 
     @Override
-    public void recordCount(String name, int count, long now) {
+    public void replicateCount(String name, int count, long now) {
         for (StatReplicator replicator : list) {
-            replicator.recordCount(name, count, now);
+            replicator.replicateCount(name, count, now);
         }
     }
 
