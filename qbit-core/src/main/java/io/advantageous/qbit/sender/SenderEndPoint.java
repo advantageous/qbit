@@ -40,8 +40,8 @@ import java.util.concurrent.TimeUnit;
 public class SenderEndPoint implements EndPoint {
 
 
-    final ProtocolEncoder encoder;
-    final String address;
+    private final ProtocolEncoder encoder;
+    private final String address;
     private final Sender<String> sender;
     private final BeforeMethodCall beforeMethodCall;
     private final BlockingQueue<MethodCall<Object>> methodCalls;
