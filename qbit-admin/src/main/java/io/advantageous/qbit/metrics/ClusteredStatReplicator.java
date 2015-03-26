@@ -77,7 +77,7 @@ public class ClusteredStatReplicator implements StatReplicator, ServiceChangedEv
 
         if (debug) {
             if (statReplicators.size() == 0) {
-                puts("WARNING.............. ######### NO REPLICATORS");
+                logger.debug(sputs("ClusteredStatReplicator::replicateCount", name, count, now ));
             }
         }
 
@@ -123,7 +123,7 @@ public class ClusteredStatReplicator implements StatReplicator, ServiceChangedEv
 
         long duration = currentTime - lastSendTime;
 
-        if (duration > 1_000) {
+        if (duration > 500) {
             this.lastSendTime = currentTime;
 
             final Collection<LocalCount> countCollection = this.countMap.values();
@@ -149,29 +149,37 @@ public class ClusteredStatReplicator implements StatReplicator, ServiceChangedEv
 
     }
 
+
+    long lastReplicatorFlush = 0;
     private void flushReplicatorsAll() {
-        final List<StatReplicator> badReplicators = new ArrayList<>();
 
-        statReplicators.forEach(
-                statReplicator -> flushReplicator(statReplicator, badReplicators)
-        );
+        if (currentTime - lastReplicatorFlush > 2000) {
+            lastReplicatorFlush = currentTime;
 
-        badReplicators.forEach(statReplicator -> statReplicators.remove(statReplicator));
+            final List<StatReplicator> badReplicators = new ArrayList<>();
+            statReplicators.forEach(
+                    statReplicator -> flushReplicator(statReplicator, badReplicators)
+            );
+            badReplicators.forEach(statReplicator -> statReplicators.remove(statReplicator));
+        }
     }
 
 
     private void checkForReconnect() {
         long duration = currentTime - lastReconnectTime;
         if (duration > 10_000) {
-            doReconnect();
+            doCheckReconnect();
         }
 
     }
 
-    public void doReconnect() {
+    public void doCheckReconnect() {
+
         lastReconnectTime = currentTime;
         final List<ServiceDefinition> services = servicePool.services();
+
         if ((services.size()-1) != this.statReplicators.size()) {
+            puts("DOING RECONNECT", services.size()-1, this.statReplicators.size());
             shutDownReplicators();
             services.forEach(this::addService);
         }
@@ -218,9 +226,6 @@ public class ClusteredStatReplicator implements StatReplicator, ServiceChangedEv
     public void servicePoolChanged(final String serviceName) {
 
         if (trace) logger.trace(sputs("ClusteredStatReplicator::servicePoolChanged()", serviceName));
-
-        puts("SERVICE POOL CHANGED \n\n\n #################");
-
         if (this.serviceName.equals(serviceName)) {
             updateServicePool(serviceName);
 

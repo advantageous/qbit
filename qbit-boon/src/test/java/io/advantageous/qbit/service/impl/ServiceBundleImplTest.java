@@ -151,7 +151,6 @@ public class ServiceBundleImplTest {
         proxy.methodWithCallBack(new Callback<String>() {
             @Override
             public void accept(String s) {
-                puts("###############", s);
                 str.set(s);
             }
         });

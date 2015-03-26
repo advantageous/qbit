@@ -26,6 +26,7 @@ import io.advantageous.qbit.client.ClientBuilder;
 import io.advantageous.qbit.events.EventManager;
 import io.advantageous.qbit.metrics.*;
 import io.advantageous.qbit.metrics.StatServiceImpl;
+import io.advantageous.qbit.queue.QueueBuilder;
 import io.advantageous.qbit.server.ServiceServer;
 import io.advantageous.qbit.server.ServiceServerBuilder;
 import io.advantageous.qbit.service.ServiceBuilder;
@@ -62,12 +63,24 @@ public class StatServiceBuilder {
     private ServiceQueue serviceQueue;
     private ServiceBuilder serviceBuilder;
     private ServiceServerBuilder serviceServerBuilder;
+    private QueueBuilder sendQueueBuilder;
+
 
 
     private String serviceName = "statsService";
     private String localServiceId = "";
 
 
+
+
+    public QueueBuilder getSendQueueBuilder() {
+
+        if (sendQueueBuilder==null) {
+            sendQueueBuilder = QueueBuilder.queueBuilder().setLinkTransferQueue()
+                    .setBatchSize(1_000).setPollWait(500);
+        }
+        return sendQueueBuilder;
+    }
     public ServiceServerBuilder getServiceServerBuilder() {
 
         if (serviceServerBuilder == null) {
@@ -80,6 +93,14 @@ public class StatServiceBuilder {
         this.serviceServerBuilder = serviceServerBuilder;
         return this;
     }
+
+
+    public StatServiceBuilder setSendQueueBuilder(QueueBuilder sendQueueBuilder) {
+        this.sendQueueBuilder = sendQueueBuilder;
+        return this;
+    }
+
+
 
     public ServiceQueue getServiceQueue() {
 
@@ -176,12 +197,14 @@ public class StatServiceBuilder {
     }
 
     public ServiceQueue buildServiceQueue() {
-        ServiceBuilder serviceBuilder = getServiceBuilder().setServiceObject(build());
+        ServiceBuilder serviceBuilder = getServiceBuilder()
+                .setRequestQueueBuilder(sendQueueBuilder)
+                .setServiceObject(build());
         serviceQueue = serviceBuilder.build();
 
         if (serviceDiscovery!=null) {
 
-            if (eventManager!=null) {
+            if (eventManager!=null && eventManager!=QBit.factory().systemEventManager()) {
 
                 eventManager.joinService(serviceQueue);
             }
@@ -213,11 +236,12 @@ public class StatServiceBuilder {
     public StatServiceImpl build() {
 
         if (serviceDiscovery!=null) {
-            return new StatServiceImpl(this.getRecorder(), buildReplicator(), getTimer());
+            return new StatServiceImpl(this.getRecorder(), buildReplicator(), getTimer(), getServiceDiscovery(),
+                    getLocalServiceId());
         } else if (replicators.size() == 0) {
-            return new StatServiceImpl(this.getRecorder(), this.getReplicator(), getTimer());
+            return new StatServiceImpl(this.getRecorder(), this.getReplicator(), getTimer(), null, getLocalServiceId());
         } else {
-            return new StatServiceImpl(this.getRecorder(), new ReplicatorHub(replicators), getTimer());
+            return new StatServiceImpl(this.getRecorder(), new ReplicatorHub(replicators), getTimer(), null, getLocalServiceId());
         }
     }
 

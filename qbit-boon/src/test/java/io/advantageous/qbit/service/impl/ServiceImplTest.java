@@ -94,13 +94,7 @@ public class ServiceImplTest {
         serviceQueue.startCallBackHandler();
         Sys.sleep(100);
         AtomicInteger returnValue = new AtomicInteger();
-        proxy.methodWithCallBack(new Callback<String>() {
-            @Override
-            public void accept(String s) {
-                puts("#################", s);
-                returnString.set(s);
-            }
-        }, "hello");
+        proxy.methodWithCallBack(s -> returnString.set(s), "hello");
         proxy.clientProxyFlush();
 
 

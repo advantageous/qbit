@@ -30,6 +30,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedTransferQueue;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TransferQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -87,8 +88,14 @@ public class BasicQueue<T> implements Queue<T> {
         } else {
 
             final ClassMeta<? extends BlockingQueue> classMeta = ClassMeta.classMeta(queueClass);
-            final ConstructorAccess<Object> constructor = classMeta.declaredConstructor(int.class);
-            this.queue = (BlockingQueue<Object>) constructor.create(size);
+            if (queueClass!= LinkedTransferQueue.class) {
+                final ConstructorAccess<Object> constructor = classMeta.declaredConstructor(int.class);
+                this.queue = (BlockingQueue<Object>) constructor.create(size);
+            } else {
+                final ConstructorAccess<? extends BlockingQueue> constructorAccess = classMeta.noArgConstructor();
+
+                this.queue = (BlockingQueue<Object>) constructorAccess.create();
+            }
         }
 
 

@@ -514,8 +514,6 @@ public class JsonParserAndMapperBaseTest {
         boolean ok = true;
 
 
-        //        outputs ("################", types.getBigDecimal (), types.getBirthDate (), types.getBigInteger ());
-
         ok |= types.getBigDecimal ().equals ( new BigDecimal ( "99" ) ) || die();
 
         ok |= types.getBigInteger ().equals ( new BigInteger ( "101" ) ) || die();

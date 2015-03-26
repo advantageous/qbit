@@ -14,6 +14,7 @@ import io.advantageous.qbit.service.discovery.ServiceChangedEventChannel;
 import io.advantageous.qbit.service.discovery.ServiceDefinition;
 import io.advantageous.qbit.service.discovery.impl.ServiceDiscoveryImpl;
 import io.advantageous.qbit.util.PortUtils;
+import io.advantageous.qbit.util.Timer;
 
 import java.util.List;
 import java.util.function.Consumer;
@@ -27,7 +28,7 @@ import static io.advantageous.qbit.metrics.support.StatServiceBuilder.statServic
  * StatusClusterTest
  * Created by rhightower on 3/24/15.
  */
-public class Prototype {
+public class PrototypeSender {
 
     public static void main(String... args) throws Exception {
 
@@ -70,6 +71,40 @@ public class Prototype {
         serviceDiscovery.checkIn(statServiceBuilder.getLocalServiceId(), HealthStatus.PASS);
 
 
+        for (int x = 0; x < 100; x++) {
+
+            for (int z = 0; z < 10; z++) {
+
+                //final Timer timer =
+                long startTime =  System.currentTimeMillis();
+                for (int index = 0; index < 6_000_000; index++) {
+
+                    if (index % 1_000_000 == 0) {
+                        Sys.sleep(1);
+                        System.out.print("." + (System.currentTimeMillis()-startTime));
+                    }
+
+                    if (index % 10 == 0) {
+                        statService.recordCount("foo", 10);
+                        statService.recordCount("bar", 10);
+                        statService.recordCount("baz", 10);
+                    }
+
+
+                }
+
+
+                System.out.println("SENT A BUNCH");
+
+                ServiceProxyUtils.flushServiceProxy(statService);
+                Sys.sleep(10_000);
+
+            }
+
+
+        }
+
+
 
         for (int index = 0; index < 10; index++) {
 
@@ -105,15 +140,15 @@ public class Prototype {
             index ++;
 
 
-            statService.currentMinuteCount(count -> System.out.println(
-                    "count " + count + "    "), "foo");
+            statService.lastTenSecondCountExact(count -> System.out.println(
+                    "count " + count + " index " +  "    "), "foo");
 
             ServiceProxyUtils.flushServiceProxy(statService);
 
             Sys.sleep(1000);
 
             if (index % 10 == 0)
-            serviceDiscovery.checkIn(statServiceBuilder.getLocalServiceId(), HealthStatus.PASS);
+                serviceDiscovery.checkIn(statServiceBuilder.getLocalServiceId(), HealthStatus.PASS);
 
         }
 

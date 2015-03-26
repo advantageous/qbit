@@ -18,18 +18,21 @@
 
 package io.advantageous.qbit.metrics;
 
-import io.advantageous.boon.core.Sys;
 import io.advantageous.qbit.annotation.Service;
 import io.advantageous.qbit.metrics.support.MinuteStat;
 import io.advantageous.qbit.queue.QueueCallBackHandler;
 import io.advantageous.qbit.service.ServiceFlushable;
 import io.advantageous.qbit.service.ServiceProxyUtils;
+import io.advantageous.qbit.service.discovery.HealthStatus;
 import io.advantageous.qbit.service.discovery.ServiceChangedEventChannel;
+import io.advantageous.qbit.service.discovery.ServiceDiscovery;
 import io.advantageous.qbit.util.Timer;
 
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+
+import static io.advantageous.boon.Boon.puts;
 
 /**
  * Stat Service Impl
@@ -39,15 +42,24 @@ public class StatServiceImpl implements QueueCallBackHandler, ServiceChangedEven
     private final StatRecorder recorder;
     private final StatReplicator replica;
     private final Timer timer;
+    private final String serviceId;
+    private final ServiceDiscovery serviceDiscovery;
     private long now;
     private long startMinute;
     private Map<String, MinuteStat> currentMinuteOfStatsMap;
     private Map<String, MinuteStat> lastMinuteOfStatsMap;
 
+    long lastHealthCheck = 0;
+
 
     public StatServiceImpl(final StatRecorder recorder,
                            final StatReplicator replica,
-                           final Timer timer) {
+                           final Timer timer,
+                           final ServiceDiscovery serviceDiscovery,
+                           final String serviceId) {
+
+        this.serviceId = serviceId;
+        this.serviceDiscovery = serviceDiscovery;
         this.recorder = recorder;
         this.currentMinuteOfStatsMap = new ConcurrentHashMap<>(100);
         this.lastMinuteOfStatsMap = new ConcurrentHashMap<>(100);
@@ -55,6 +67,8 @@ public class StatServiceImpl implements QueueCallBackHandler, ServiceChangedEven
         now = timer.now();
         startMinute = now;
         this.replica = replica;
+
+
     }
 
 
@@ -185,23 +199,45 @@ public class StatServiceImpl implements QueueCallBackHandler, ServiceChangedEven
         now = timer.now();
     }
 
+
+    long lastProcess = 0;
     void process() {
         tick();
+        long duration = now - lastProcess;
+        if (duration > 50) {
+            flushMinuteCheck();
+            flushReplicas();
+        }
+
+        if (serviceDiscovery!=null) {
+            heathCheck();
+        }
+    }
+
+
+    private void heathCheck() {
+        long duration = now - lastHealthCheck;
+        if (duration > 5_000) {
+            lastHealthCheck = now;
+            serviceDiscovery.checkInOk(serviceId);
+        }
+    }
+
+    private void flushReplicas() {
+        ServiceProxyUtils.flushServiceProxy(replica);
+        replica.flush();
+    }
+
+    private void flushMinuteCheck() {
         long duration = (now - startMinute) / 1_000;
         if (duration > 60) {
+            puts("One minute of stats");
             startMinute = now;
 
             final ArrayList<MinuteStat> stats = new ArrayList<>(this.currentMinuteOfStatsMap.values());
             this.recorder.record(stats);
             this.lastMinuteOfStatsMap = currentMinuteOfStatsMap;
             this.currentMinuteOfStatsMap = new ConcurrentHashMap<>(100);
-        }
-
-        Sys.sleep(100);
-
-        ServiceProxyUtils.flushServiceProxy(replica);
-        if (replica instanceof ServiceFlushable) {
-                ((ServiceFlushable) replica).flush();
         }
     }
 
