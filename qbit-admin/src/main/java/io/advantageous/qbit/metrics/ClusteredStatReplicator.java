@@ -33,25 +33,21 @@ public class ClusteredStatReplicator implements StatReplicator, ServiceChangedEv
     private final ServicePool servicePool;
     private final String localServiceId;
     private final Timer timer;
+    private final int tallyInterval;
+    private final int flushInterval;
     private long currentTime;
     private long lastReconnectTime;
     private long lastSendTime;
+    private long lastReplicatorFlush = 0;
     private ConcurrentHashMap<String, LocalCount> countMap = new ConcurrentHashMap<>();
     private List<Pair<ServiceDefinition,StatReplicator>> statReplicators = new ArrayList<>();
 
 
-    class LocalCount {
+    final static class LocalCount {
 
         int count;
         String name;
 
-        void reset() {
-            count = 0;
-        }
-
-        void inc() {
-            count++;
-        }
     }
 
 
@@ -59,13 +55,17 @@ public class ClusteredStatReplicator implements StatReplicator, ServiceChangedEv
                                    final ServiceDiscovery serviceDiscovery,
                                    final StatReplicatorProvider statReplicatorProvider,
                                    final String localServiceId,
-                                   final Timer timer) {
+                                   final Timer timer,
+                                   final int tallyInterval,
+                                   final int flushInterval) {
         this.serviceDiscovery = serviceDiscovery;
         this.statReplicatorProvider = statReplicatorProvider;
         this.serviceName = serviceName;
         this.localServiceId=localServiceId;
         this.servicePool = new ServicePool(serviceName, null);
         this.timer = timer;
+        this.tallyInterval = tallyInterval;
+        this.flushInterval = flushInterval;
 
     }
 
@@ -123,7 +123,7 @@ public class ClusteredStatReplicator implements StatReplicator, ServiceChangedEv
 
         long duration = currentTime - lastSendTime;
 
-        if (duration > 100) {
+        if (duration > tallyInterval) {
             this.lastSendTime = currentTime;
 
             final Collection<LocalCount> countCollection = this.countMap.values();
@@ -150,10 +150,9 @@ public class ClusteredStatReplicator implements StatReplicator, ServiceChangedEv
     }
 
 
-    long lastReplicatorFlush = 0;
     private void flushReplicatorsAll() {
 
-        if (currentTime - lastReplicatorFlush > 333) {
+        if (currentTime - lastReplicatorFlush > flushInterval) {
             lastReplicatorFlush = currentTime;
 
             final List<Pair<ServiceDefinition,StatReplicator>> badReplicators = new ArrayList<>();
@@ -202,7 +201,6 @@ public class ClusteredStatReplicator implements StatReplicator, ServiceChangedEv
             if (debug) logger.debug(sputs("DOING RECONNECT", services.size() - 1,
                     this.statReplicators.size()));
 
-
             shutDownReplicators();
             services.forEach(this::addService);
         }
@@ -224,9 +222,8 @@ public class ClusteredStatReplicator implements StatReplicator, ServiceChangedEv
     }
 
     private void shutDownReplicators() {
-        logger.debug("Shutting down replicators");
+        if (debug) logger.debug("Shutting down replicators");
         for (Pair<ServiceDefinition,StatReplicator> statReplicator : statReplicators) {
-
             try {
                 statReplicator.getSecond().stop();
 
@@ -234,9 +231,8 @@ public class ClusteredStatReplicator implements StatReplicator, ServiceChangedEv
                 logger.debug("Shutdown replicator failed", ex);
             }
 
-            logger.debug("Shutting down replicator");
+            if (debug) logger.debug("Shutting down replicator");
         }
-
         statReplicators.clear();
         replicatorsMap.clear();
     }
@@ -321,8 +317,6 @@ public class ClusteredStatReplicator implements StatReplicator, ServiceChangedEv
 
     @Override
     public void flush() {
-
-        //if (trace) logger.trace(sputs("ClusteredStatReplicator::flush()", serviceName));
         process();
     }
 }

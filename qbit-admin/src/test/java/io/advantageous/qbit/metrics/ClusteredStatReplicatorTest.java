@@ -57,7 +57,8 @@ public class ClusteredStatReplicatorTest {
 
         timer.setTime();
 
-        clusteredStatReplicator = new ClusteredStatReplicator(serviceName, serviceDiscovery, provider, localServiceId, timer);
+        clusteredStatReplicator = new ClusteredStatReplicator(serviceName, serviceDiscovery,
+                provider, localServiceId, timer, 100, 333);
 
     }
 

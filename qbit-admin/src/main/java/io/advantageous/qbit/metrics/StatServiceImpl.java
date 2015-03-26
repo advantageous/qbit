@@ -47,32 +47,38 @@ public class StatServiceImpl implements QueueCallBackHandler, ServiceChangedEven
     private final Timer timer;
     private final String serviceId;
     private final ServiceDiscovery serviceDiscovery;
-    private long now;
-    private long startMinute;
-    private Map<String, MinuteStat> currentMinuteOfStatsMap;
-    private Map<String, MinuteStat> lastMinuteOfStatsMap;
+    private final int sizeOfMaps;
     private final Logger logger = LoggerFactory.getLogger(StatServiceImpl.class);
     private final boolean debug = GlobalConstants.DEBUG || logger.isDebugEnabled();
+    private final int timeToLiveCheckInterval;
 
 
-    long lastHealthCheck = 0;
+    private Map<String, MinuteStat> currentMinuteOfStatsMap;
+    private Map<String, MinuteStat> lastMinuteOfStatsMap;
+    private long lastHealthCheck = 0;
+    private long now;
+    private long startMinute;
 
 
     public StatServiceImpl(final StatRecorder recorder,
                            final StatReplicator replica,
                            final Timer timer,
                            final ServiceDiscovery serviceDiscovery,
-                           final String serviceId) {
+                           final String serviceId,
+                           final int numStats,
+                           final int timeToLiveCheckInterval) {
 
         this.serviceId = serviceId;
         this.serviceDiscovery = serviceDiscovery;
         this.recorder = recorder;
-        this.currentMinuteOfStatsMap = new ConcurrentHashMap<>(100);
-        this.lastMinuteOfStatsMap = new ConcurrentHashMap<>(100);
+        this.currentMinuteOfStatsMap = new ConcurrentHashMap<>(numStats);
+        this.lastMinuteOfStatsMap = new ConcurrentHashMap<>(numStats);
         this.timer = timer;
+        this.sizeOfMaps = numStats;
         now = timer.now();
         startMinute = now;
         this.replica = replica;
+        this.timeToLiveCheckInterval = timeToLiveCheckInterval;
 
 
     }
@@ -223,7 +229,7 @@ public class StatServiceImpl implements QueueCallBackHandler, ServiceChangedEven
 
     private void heathCheck() {
         long duration = now - lastHealthCheck;
-        if (duration > 5_000) {
+        if (duration > timeToLiveCheckInterval) {
             lastHealthCheck = now;
             serviceDiscovery.checkInOk(serviceId);
         }
@@ -243,7 +249,7 @@ public class StatServiceImpl implements QueueCallBackHandler, ServiceChangedEven
             final ArrayList<MinuteStat> stats = new ArrayList<>(this.currentMinuteOfStatsMap.values());
             this.recorder.record(stats);
             this.lastMinuteOfStatsMap = currentMinuteOfStatsMap;
-            this.currentMinuteOfStatsMap = new ConcurrentHashMap<>(100);
+            this.currentMinuteOfStatsMap = new ConcurrentHashMap<>(sizeOfMaps);
         }
     }
 

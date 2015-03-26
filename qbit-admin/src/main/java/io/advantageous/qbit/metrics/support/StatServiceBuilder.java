@@ -70,9 +70,46 @@ public class StatServiceBuilder {
 
     private String serviceName = "statsService";
     private String localServiceId = "";
+    private int tallyInterval = 100;
+    private int flushInterval = 333;
+    private int timeToLiveCheckInterval = 5_000;
+    private int numStats = 100;
 
 
+    public int getTallyInterval() {
+        return tallyInterval;
+    }
 
+    public StatServiceBuilder setTallyInterval(int tallyInterval) {
+        this.tallyInterval = tallyInterval;
+        return this;
+    }
+
+    public int getFlushInterval() {
+        return flushInterval;
+    }
+
+    public StatServiceBuilder setFlushInterval(int flushInterval) {
+        this.flushInterval = flushInterval;
+        return this;
+    }
+
+    public int getTimeToLiveCheckInterval() {
+        return timeToLiveCheckInterval;
+    }
+
+    public StatServiceBuilder setTimeToLiveCheckInterval(int timeToLiveCheckInterval) {
+        this.timeToLiveCheckInterval = timeToLiveCheckInterval;
+        return this;
+    }
+
+    public int getNumStats() {
+        return numStats;
+    }
+
+    public void setNumStats(int numStats) {
+        this.numStats = numStats;
+    }
 
     public QueueBuilder getSendQueueBuilder() {
 
@@ -199,7 +236,7 @@ public class StatServiceBuilder {
 
     public ServiceQueue buildServiceQueue() {
         ServiceBuilder serviceBuilder = getServiceBuilder()
-                .setRequestQueueBuilder(sendQueueBuilder)
+                .setRequestQueueBuilder(getSendQueueBuilder())
                 .setServiceObject(build());
         serviceQueue = serviceBuilder.build();
 
@@ -238,21 +275,35 @@ public class StatServiceBuilder {
 
         if (serviceDiscovery!=null) {
             return new StatServiceImpl(this.getRecorder(), buildReplicator(), getTimer(), getServiceDiscovery(),
-                    getLocalServiceId());
+                    getLocalServiceId(), getNumStats(), getTimeToLiveCheckInterval());
         } else if (replicators.size() == 0) {
-            return new StatServiceImpl(this.getRecorder(), this.getReplicator(), getTimer(), null, getLocalServiceId());
+            return new StatServiceImpl(this.getRecorder(), this.getReplicator(), getTimer(),
+                    null, getLocalServiceId(), getNumStats(), getTimeToLiveCheckInterval());
         } else {
-            return new StatServiceImpl(this.getRecorder(), new ReplicatorHub(replicators), getTimer(), null, getLocalServiceId());
+            return new StatServiceImpl(this.getRecorder(), new ReplicatorHub(replicators), getTimer(),
+                    null, getLocalServiceId(), getNumStats(), getTimeToLiveCheckInterval());
         }
     }
 
-    private StatReplicator buildReplicator() {
+    public StatReplicatorProvider getStatsReplicatorProvider() {
 
         if (statReplicatorProvider == null) {
             statReplicatorProvider = buildStatsReplicatorProvider();
         }
-        return new ClusteredStatReplicator(serviceName, serviceDiscovery,
-                statReplicatorProvider, localServiceId, timer);
+
+        return statReplicatorProvider;
+    }
+
+    public StatServiceBuilder setStatReplicatorProvider(StatReplicatorProvider statReplicatorProvider) {
+        this.statReplicatorProvider = statReplicatorProvider;
+        return this;
+    }
+
+    private StatReplicator buildReplicator() {
+
+        return new ClusteredStatReplicator(getServiceName(), getServiceDiscovery(),
+                getStatsReplicatorProvider(), getLocalServiceId(), getTimer(),
+                getTallyInterval(), getFlushInterval());
     }
 
     public StatReplicatorProvider buildStatsReplicatorProvider() {
@@ -270,8 +321,6 @@ public class StatServiceBuilder {
             return new StatReplicator() {
 
                 private final Client theClient = client;
-
-
 
                 @Override
                 protected void finalize() throws Throwable {
@@ -337,7 +386,6 @@ public class StatServiceBuilder {
     public EventManager getEventManager() {
         if (eventManager==null) {
             eventManager = QBit.factory().systemEventManager();
-
         }
         return eventManager;
     }
