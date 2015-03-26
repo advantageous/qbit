@@ -31,7 +31,7 @@ public class ClusteredStatReplicator implements StatReplicator, ServiceChangedEv
     private final String serviceName;
     private final ServicePool servicePool;
     private final String localServiceId;
-    private Timer timer = Timer.timer();
+    private final Timer timer;
     private long currentTime;
     private long lastReconnectTime;
     private long lastSendTime;
@@ -58,12 +58,14 @@ public class ClusteredStatReplicator implements StatReplicator, ServiceChangedEv
     public ClusteredStatReplicator(final String serviceName,
                                    final ServiceDiscovery serviceDiscovery,
                                    final StatReplicatorProvider statReplicatorProvider,
-                                   final String localServiceId) {
+                                   final String localServiceId,
+                                   final Timer timer) {
         this.serviceDiscovery = serviceDiscovery;
         this.statReplicatorProvider = statReplicatorProvider;
         this.serviceName = serviceName;
         this.localServiceId=localServiceId;
         this.servicePool = new ServicePool(serviceName, null);
+        this.timer = timer;
 
     }
 

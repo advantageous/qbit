@@ -4,6 +4,7 @@ import io.advantageous.boon.core.Sys;
 import io.advantageous.qbit.metrics.support.DebugReplicator;
 import io.advantageous.qbit.service.discovery.ServiceDefinition;
 import io.advantageous.qbit.service.discovery.ServiceDiscovery;
+import io.advantageous.qbit.util.Timer;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -19,19 +20,14 @@ import static org.junit.Assert.*;
 
 public class ClusteredStatReplicatorTest {
 
-
-
     private final String localServiceId = "fooBar-" + System.currentTimeMillis();
     private final String serviceName = "fooBar";
+    private ClusteredStatReplicator clusteredStatReplicator;
+    private AtomicReference<List<ServiceDefinition>> services;
+    private ConcurrentHashMap<String, DebugReplicator> statReplicatorMap;
 
-    ClusteredStatReplicator clusteredStatReplicator;
-
-    AtomicReference<List<ServiceDefinition>> services;
-
-    ConcurrentHashMap<String, DebugReplicator> statReplicatorMap;
-
-
-    ServiceDiscovery serviceDiscovery = new ServiceDiscovery() {
+    private TestTimer timer = new TestTimer();
+    private ServiceDiscovery serviceDiscovery = new ServiceDiscovery() {
         @Override
         public void watch(String serviceName) {
 
@@ -42,9 +38,7 @@ public class ClusteredStatReplicatorTest {
             return services.get() == null ? Collections.emptyList() : services.get();
         }
     };
-
-
-    StatReplicatorProvider provider = new StatReplicatorProvider() {
+    private StatReplicatorProvider provider = new StatReplicatorProvider() {
         @Override
         public StatReplicator provide(ServiceDefinition serviceDefinition) {
 
@@ -61,7 +55,9 @@ public class ClusteredStatReplicatorTest {
         services = new AtomicReference<>();
         statReplicatorMap = new ConcurrentHashMap<>();
 
-        clusteredStatReplicator = new ClusteredStatReplicator(serviceName, serviceDiscovery, provider, localServiceId);
+        timer.setTime();
+
+        clusteredStatReplicator = new ClusteredStatReplicator(serviceName, serviceDiscovery, provider, localServiceId, timer);
 
     }
 
@@ -128,6 +124,9 @@ public class ClusteredStatReplicatorTest {
 
         clusteredStatReplicator.replicateCount("foo", 5, System.currentTimeMillis());
 
+        timer.seconds(2);
+        clusteredStatReplicator.process();
+
         assertEquals(5, debugReplicator1.count.get());
         assertEquals(5, debugReplicator2.count.get());
         assertEquals(5, debugReplicator3.count.get());
@@ -170,6 +169,10 @@ public class ClusteredStatReplicatorTest {
 
         clusteredStatReplicator.replicateCount("foo", 5, 100);
 
+
+        timer.seconds(2);
+        clusteredStatReplicator.process();
+
         assertEquals(5, debugReplicator1.count.get());
         assertEquals(5, debugReplicator2.count.get());
         assertEquals(5, debugReplicator3.count.get());
@@ -196,6 +199,9 @@ public class ClusteredStatReplicatorTest {
         clusteredStatReplicator.replicateCount("foo", 5, 200);
         Sys.sleep(100);
 
+
+        timer.seconds(2);
+        clusteredStatReplicator.process();
 
         assertEquals(10, debugReplicator1.count.get());
         assertEquals(5, debugReplicator2.count.get());

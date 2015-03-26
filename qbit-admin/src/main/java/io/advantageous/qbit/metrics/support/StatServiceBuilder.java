@@ -63,6 +63,7 @@ public class StatServiceBuilder {
     private ServiceBuilder serviceBuilder;
     private ServiceServerBuilder serviceServerBuilder;
 
+
     private String serviceName = "statsService";
     private String localServiceId = "";
 
@@ -226,7 +227,7 @@ public class StatServiceBuilder {
             statReplicatorProvider = buildStatsReplicatorProvider();
         }
         return new ClusteredStatReplicator(serviceName, serviceDiscovery,
-                statReplicatorProvider, localServiceId);
+                statReplicatorProvider, localServiceId, timer);
     }
 
     public StatReplicatorProvider buildStatsReplicatorProvider() {
