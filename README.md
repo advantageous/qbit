@@ -10,7 +10,7 @@ QBit is a library not a framework. You can mix and match QBit with Spring, Guice
 
 QBit is FAST!
 
-![QBit the microservice framework for java](https://docs.google.com/spreadsheets/d/1kd3gjyyz1MyTJvNLJ-BC0YIkzIU-8YYLLrxpjUl0TBQ/pubchart?oid=781959089&format=image)
+![QBit the microservice lib for java](https://docs.google.com/spreadsheets/d/1kd3gjyyz1MyTJvNLJ-BC0YIkzIU-8YYLLrxpjUl0TBQ/pubchart?oid=781959089&format=image)
 
 
 Status
@@ -23,7 +23,8 @@ Service discovery added and we have a consul implementation.
 
 QBit has an event bus, you can have a private event bus, a replicated event bus and with consul integration a clustered event bus.
 
-<iframe src="//www.slideshare.net/slideshow/embed_code/46377880" width="476" height="400" frameborder="0" marginwidth="0" marginheight="0" scrolling="no"></iframe>
+
+![QBit the microservice lib for java](//www.slideshare.net/slideshow/embed_code/46377880)
 
 License
 =====
