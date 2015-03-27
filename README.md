@@ -16,8 +16,14 @@ QBit is FAST!
 Status
 =====
 Lot's of progress. More people are helping out. 
+
 QBit now works with Vertx (standalone or embedded), Jetty (standalone) or just plain Java Servlets.
 
+Service discovery added and we have a consul implementation.
+
+QBit has an event bus, you can have a private event bus, a replicated event bus and with consul integration a clustered event bus.
+
+<iframe src="//www.slideshare.net/slideshow/embed_code/46377880" width="476" height="400" frameborder="0" marginwidth="0" marginheight="0" scrolling="no"></iframe>
 
 License
 =====
