@@ -30,10 +30,16 @@ public interface StatService extends ClientProxy {
     void recordCount(String name, int count);
 
 
-    void increment(String name);
+    default void increment(String name) {
+        recordCount(name, 1);
+    }
 
 
-    void incrementAll(String... names);
+    default void incrementAll(String... names) {
+        for (String name : names) {
+            increment(name);
+        }
+    }
 
     void currentMinuteCount(Callback<Integer> callback, String name);
 
