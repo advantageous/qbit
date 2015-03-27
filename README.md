@@ -23,8 +23,10 @@ Service discovery added and we have a consul implementation.
 
 QBit has an event bus, you can have a private event bus, a replicated event bus and with consul integration a clustered event bus.
 
+Slide deck
+=====
 
-![QBit the microservice lib for java](//www.slideshare.net/slideshow/embed_code/46377880)
+[QBit the microservice lib for java](http://www.slideshare.net/slideshow/embed_code/46377880)
 
 License
 =====
