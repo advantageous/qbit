@@ -6,7 +6,6 @@ import io.advantageous.qbit.QBit;
 import io.advantageous.qbit.events.EventBusProxyCreator;
 import io.advantageous.qbit.events.EventManager;
 import io.advantageous.qbit.metrics.StatService;
-import io.advantageous.qbit.reactive.Callback;
 import io.advantageous.qbit.server.ServiceServer;
 import io.advantageous.qbit.service.ServiceProxyUtils;
 import io.advantageous.qbit.service.discovery.HealthStatus;
@@ -16,10 +15,8 @@ import io.advantageous.qbit.service.discovery.impl.ServiceDiscoveryImpl;
 import io.advantageous.qbit.util.PortUtils;
 
 import java.util.List;
-import java.util.function.Consumer;
 
 import static io.advantageous.boon.Boon.puts;
-import static io.advantageous.boon.Boon.sputs;
 import static io.advantageous.consul.discovery.ConsulServiceDiscoveryBuilder.consulServiceDiscoveryBuilder;
 import static io.advantageous.qbit.metrics.support.StatServiceBuilder.statServiceBuilder;
 

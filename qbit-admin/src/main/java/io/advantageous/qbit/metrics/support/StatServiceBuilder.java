@@ -64,6 +64,7 @@ public class StatServiceBuilder {
     private ServiceBuilder serviceBuilder;
     private ServiceServerBuilder serviceServerBuilder;
     private QueueBuilder sendQueueBuilder;
+    private StatServiceImpl statServiceImpl;
 
 
 
@@ -236,7 +237,7 @@ public class StatServiceBuilder {
     public ServiceQueue buildServiceQueue() {
         ServiceBuilder serviceBuilder = getServiceBuilder()
                 .setRequestQueueBuilder(getSendQueueBuilder())
-                .setServiceObject(build());
+                .setServiceObject(getStatServiceImpl());
         serviceQueue = serviceBuilder.build();
 
         if (serviceDiscovery!=null) {
@@ -269,6 +270,18 @@ public class StatServiceBuilder {
 
 
 
+    public StatServiceImpl getStatServiceImpl() {
+
+        if (statServiceImpl == null) {
+            statServiceImpl = build();
+        }
+        return statServiceImpl;
+    }
+
+    public StatServiceBuilder setStatServiceImpl(StatServiceImpl statServiceImpl) {
+        this.statServiceImpl = statServiceImpl;
+        return this;
+    }
 
     public StatServiceImpl build() {
 

@@ -23,6 +23,7 @@ import io.advantageous.boon.StringScanner;
 import io.advantageous.boon.core.reflection.AnnotationData;
 import io.advantageous.boon.core.reflection.ClassMeta;
 import io.advantageous.boon.core.reflection.MethodAccess;
+import io.advantageous.boon.json.JsonFactory;
 import io.advantageous.qbit.GlobalConstants;
 import io.advantageous.qbit.QBit;
 import io.advantageous.qbit.annotation.RequestMethod;
@@ -157,6 +158,20 @@ public class HttpRequestServiceServerHandler {
         Object args = null;
 
         final HttpMethodHandlerInfo httpMethodHandlerInfo = httpMethodHandlerInfoMap.get(request.getMethod());
+
+        if (httpMethodHandlerInfo == null) {
+
+            String message = sputs("HttpRequestServiceServerHandler::handleRestCall() unable to find handler",
+                    "method", request.getMethod(), "request uri", request.getUri());
+
+            logger.info(message);
+
+            writeResponse(request.getReceiver(), 500, "application/json",
+                    JsonFactory.toJson(sputs(message)), request.getHeaders());
+            return;
+
+        }
+
 
         if (httpMethodHandlerInfo.serviceMethodURIsWithVoidReturn.contains(uri)) {
             writeResponse(request.getReceiver(), 200,
