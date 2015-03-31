@@ -1,8 +1,8 @@
 package hello;
 
 
+import io.advantageous.boon.core.Sys;
 import io.advantageous.qbit.util.Timer;
-import org.boon.core.Sys;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -13,7 +13,7 @@ import java.util.Set;
  */
 public class ActualService {
 
-    final Map<Integer, String> map = new HashMap<Integer, String>();
+    final Map<Integer, String> map = new HashMap<>();
     long lastWrite = Timer.timer().now();
 
     ActualService() {

@@ -5,11 +5,11 @@ import io.advantageous.qbit.annotation.RequestMapping;
 import io.advantageous.qbit.annotation.RequestParam;
 import io.advantageous.qbit.queue.QueueBuilder;
 import io.advantageous.qbit.server.ServiceServer;
-import org.boon.core.Sys;
 
 import java.util.Collections;
 import java.util.List;
 
+import static io.advantageous.boon.core.Sys.sleep;
 import static io.advantageous.qbit.server.ServiceServerBuilder.serviceServerBuilder;
 
 /**
@@ -285,8 +285,13 @@ end
                         QueueBuilder.queueBuilder()
                                 .setBatchSize(1000).setLinkTransferQueue().setCheckEvery(50).setPollWait(100)
                 )
-                .setServiceBundleQueueBuilder(QueueBuilder.queueBuilder()
-                        .setBatchSize(250).setLinkTransferQueue().setCheckEvery(5))
+                .setHttpRequestQueueBuilder(
+
+                        QueueBuilder.queueBuilder()
+                                .setBatchSize(250).setLinkTransferQueue().setCheckEvery(5).setPollWait(100)
+
+                )
+
                 .setPort(6060).setFlushInterval(10).setRequestBatchSize(100)
                 .setTimeoutSeconds(60)
                 .build();
@@ -297,7 +302,7 @@ end
         serviceServer.start();
 
 
-        while (true) Sys.sleep(100_000_000);
+        while (true) sleep(100_000_000);
     }
 
     @RequestMapping("/ping")
