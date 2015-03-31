@@ -1,0 +1,288 @@
+/*
+ * Copyright (c) 2015. Rick Hightower, Geoff Chandler
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *  		http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * QBit - The Microservice lib for Java : JSON, WebSocket, REST. Be The Web!
+ */
+
+subprojects {
+
+    apply plugin: 'maven'
+    apply plugin: 'signing'
+
+    group = 'io.advantageous.qbit'
+    version = projectVersion
+    archivesBaseName = "qbit-$project.name"
+
+    test.onlyIf { !Boolean.getBoolean('skip.tests') }
+
+    dependencies {
+        compile 'org.slf4j:slf4j-api:[1.7,1.8)'
+        testCompile 'junit:junit:4.10'
+        testCompile 'org.mockito:mockito-core:2.0.4-beta'
+        testCompile 'ch.qos.logback:logback-classic:1.1.2'
+    }
+
+    task javadocJar(type: Jar, dependsOn: javadoc) {
+        classifier = 'javadoc'
+        from 'build/docs/javadoc'
+    }
+
+    task sourcesJar(type: Jar) {
+        from sourceSets.main.allSource
+        classifier = 'sources'
+    }
+
+    artifacts {
+        archives jar
+        archives javadocJar
+        archives sourcesJar
+    }
+
+    signing {
+        required false
+        sign configurations.archives
+    }
+
+    uploadArchives {
+        repositories {
+            mavenDeployer {
+                beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
+
+                repository(url: "https://oss.sonatype.org/service/local/staging/deploy/maven2/") {
+                    try {
+                        authentication(userName: sonatypeUsername, password: sonatypePassword)
+                    } catch (MissingPropertyException ignore) {
+                    }
+                }
+
+                pom.project {
+                    packaging 'jar'
+                    url 'https://github.com/advantageous/qbit'
+
+                    scm {
+                        url 'scm:git@github.com:advantageous/qbit.git'
+                        connection 'scm:git@github.com:advantageous/qbit.git'
+                        developerConnection 'scm:git@github.com:advantageous/qbit.git'
+                    }
+
+                    licenses {
+                        license {
+                            name 'The Apache Software License, Version 2.0'
+                            url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                            distribution 'repo'
+                        }
+                    }
+
+                    developers {
+                        developer {
+                            id 'richardHightower'
+                            name 'Richard Hightower'
+                        }
+                        developer {
+                            id 'sailorgeoffrey'
+                            name 'Geoffrey Chandler'
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+project('core') {
+
+    dependencies {
+        compile "io.advantageous.boon:boon-reflekt:$boonVersion"
+        testCompile project(':qbit:test-support')
+    }
+
+    uploadArchives {
+        repositories {
+            mavenDeployer {
+                pom.project {
+                    name 'qbit-core'
+                    description 'Go Channels inspired Java lib'
+                }
+            }
+        }
+    }
+}
+
+project('boon') {
+
+    dependencies {
+        compile project(':qbit:core')
+        compile "io.advantageous.boon:boon-json:$boonVersion"
+        testCompile project(':qbit:test-support')
+    }
+
+    uploadArchives {
+        repositories {
+            mavenDeployer {
+                pom.project {
+                    name 'qbit-boon'
+                    description 'Boon plugin for qbit'
+                }
+            }
+        }
+    }
+}
+
+project('web:servlet') {
+
+    dependencies {
+        compile project(':qbit:boon')
+        compile project(':qbit:core')
+
+        compile 'javax.servlet:javax.servlet-api:3.1.0'
+        compile 'javax.websocket:javax.websocket-all:1.1'
+
+        testCompile 'org.eclipse.jetty:jetty-server:9.3.0.M1'
+        testCompile 'org.eclipse.jetty:jetty-servlet:9.3.0.M1'
+        testCompile 'org.eclipse.jetty.websocket:javax-websocket-server-impl:9.3.0.M1'
+        testCompile 'org.eclipse.jetty:jetty-annotations:9.3.0.M1'
+
+        testCompile project(':qbit:test-support')
+    }
+
+    uploadArchives {
+        repositories {
+            mavenDeployer {
+                pom.project {
+                    name 'qbit-servlet'
+                    description 'servlet support for qbit'
+                }
+            }
+        }
+    }
+}
+
+project('web:jetty') {
+
+    dependencies {
+        compile project(':qbit:web:servlet')
+        compile project(':qbit:core')
+        compile project(':qbit:boon')
+
+        compile 'org.eclipse.jetty:jetty-server:9.3.0.M1'
+        compile 'org.eclipse.jetty:jetty-servlet:9.3.0.M1'
+        compile 'org.eclipse.jetty.websocket:javax-websocket-server-impl:9.3.0.M1'
+        compile 'org.eclipse.jetty:jetty-annotations:9.3.0.M1'
+        compile 'org.eclipse.jetty:jetty-client:9.3.0.M1'
+        compile 'javax.servlet:javax.servlet-api:3.1.0'
+        compile 'javax.websocket:javax.websocket-all:1.1'
+
+        testCompile project(':qbit:test-support')
+    }
+
+    uploadArchives {
+        repositories {
+            mavenDeployer {
+                pom.project {
+                    name 'qbit-jetty'
+                    description 'Jetty support for qbit'
+                }
+            }
+        }
+    }
+
+}
+
+project('web:vertx') {
+
+    ext {
+        vertxVersion='2.1.1'
+    }
+
+    dependencies {
+        compile project(':qbit:boon')
+        compile project(':qbit:core')
+        compile group: 'io.vertx', name: 'vertx-core', version: vertxVersion
+        compile group: 'io.vertx', name: 'vertx-platform', version: vertxVersion
+
+        testCompile project(':qbit:test-support')
+    }
+
+    uploadArchives {
+        repositories {
+            mavenDeployer {
+                pom.project {
+                    name 'qbit-vertx'
+                    description 'Vertex support for qbit'
+                }
+            }
+        }
+    }
+}
+
+project('cluster:consul-client') {
+
+    dependencies {
+        compile project(":qbit:web:jetty")
+    }
+
+    uploadArchives {
+        repositories {
+            mavenDeployer {
+                pom.project {
+                    name 'consul-client'
+                    description 'Consul client for qbit'
+                }
+            }
+        }
+    }
+}
+
+project('cluster:admin') {
+
+    dependencies {
+        compile project(':qbit:boon')
+        compile project(':qbit:core')
+        testCompile project(':qbit:cluster:consul-client')
+        testCompile project(':qbit:test-support')
+    }
+
+    uploadArchives {
+        repositories {
+            mavenDeployer {
+                pom.project {
+                    name 'qbit-admin'
+                    description 'Admin support for qbit'
+                }
+            }
+        }
+    }
+}
+
+project('cluster:eventbus-replicator') {
+
+    dependencies {
+        compile project(':qbit:boon')
+        compile project(':qbit:core')
+        compile project(':qbit:cluster:consul-client')
+        testCompile project(':qbit:test-support')
+    }
+
+    uploadArchives {
+        repositories {
+            mavenDeployer {
+                pom.project {
+                    name 'eventbus-replicator'
+                    description 'Eventbus replication for qbit'
+                }
+            }
+        }
+    }
+}

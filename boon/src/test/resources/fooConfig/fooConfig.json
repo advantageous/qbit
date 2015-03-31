@@ -1,9 +1,0 @@
-{
-
-    "foo":
-        {
-        "class":"io.advantageous.boon.di.CreatorTest$Foo",
-        "name": "barFromJsonResource"
-        }
-
-}

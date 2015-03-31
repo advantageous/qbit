@@ -15,48 +15,16 @@
  *
  * QBit - The Microservice lib for Java : JSON, WebSocket, REST. Be The Web!
  */
+rootProject.name = 'qbit-bundle'
 
+include 'qbit'
+include 'qbit:boon', 'qbit:core', 'qbit:cluster', 'qbit:test-support'
+include 'qbit:web:servlet', 'qbit:web:jetty', 'qbit:web:vertx'
+include 'qbit:cluster:consul-client', 'qbit:cluster:eventbus-replicator', 'qbit:cluster:admin'
 
-/* Main projects. */
-include ':qbit-core'
-include 'qbit-test'
-include ':qbit-boon'
-include ':qbit-vertx'
-include 'qbit-servlet'
-include 'qbit-jetty'
-include ':qbit-admin'
-include 'consul-client'
+include 'examples:standalone'
+include 'examples:basic', 'examples:basic:model', 'examples:basic:client', 'examples:basic:server'
+include 'examples:spring:spring-and-qbit-cpu-bench', 'examples:spring:spring-boot'
 
-
-include ':qbit-examples'
-include ':qbit-examples-standalone'
-include ':qbit-sample-model'
-include ':qbit-sample-client'
-include ':qbit-sample-server'
-
-include ':qbit-perf'
-include ':qbit-perf-server'
-include ':qbit-perf-client'
-
-/* Main projects .*/
-project(':qbit-core').projectDir = "$rootDir/qbit-core" as File
-project(':qbit-boon').projectDir = "$rootDir/qbit-boon" as File
-project(':qbit-vertx').projectDir = "$rootDir/qbit-vertx" as File
-project(':qbit-admin').projectDir = "$rootDir/qbit-admin" as File
-
-
-project(':qbit-perf').projectDir = "$rootDir/qbit-perf" as File
-project(':qbit-perf-server').projectDir = "$rootDir/qbit-perf/qbit-perf-server" as File
-project(':qbit-perf-client').projectDir = "$rootDir/qbit-perf/qbit-perf-client" as File
-project(':qbit-examples').projectDir = "$rootDir/qbit-examples" as File
-project(':qbit-sample-model').projectDir = "$rootDir/qbit-examples/qbit-sample-model" as File
-project(':qbit-sample-client').projectDir = "$rootDir/qbit-examples/qbit-sample-client" as File
-project(':qbit-sample-server').projectDir = "$rootDir/qbit-examples/qbit-sample-server" as File
-project(':qbit-examples-standalone').projectDir = "$rootDir/qbit-examples/qbit-examples-standalone" as File
-
-
-
-include 'qbit-eventbus-replicator'
-
-include 'boon'
-
+include 'testing:performance'
+include 'testing:performance:client', 'testing:performance:server'

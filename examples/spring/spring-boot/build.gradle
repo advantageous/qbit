@@ -1,0 +1,7 @@
+apply plugin: 'application'
+
+mainClassName = "hello.MyService"
+
+dependencies {
+    compile("org.springframework.boot:spring-boot-starter-web:1.2.1.RELEASE")
+}
