@@ -9,6 +9,8 @@ import java.util.Map;
 import java.util.Set;
 
 /**
+ * QBit Service Example
+ *
  * Created by rhightower on 2/2/15.
  */
 public class ActualService {
