@@ -1,8 +1,0 @@
-{
-
-    "bar":
-    {
-        "class":"io.advantageous.boon.di.CreatorTest$Bar",
-        "name": "QA Bar"
-    }
-}
