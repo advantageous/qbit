@@ -39,6 +39,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static io.advantageous.boon.core.Exceptions.die;
@@ -52,18 +53,20 @@ public class FullJettyIntegration extends TimedTesting {
 
 
     static volatile int port = 7777;
-    private final AtomicReference<String> returnValue = new AtomicReference<>();
+    private AtomicReference<String> returnValue;
+
     Client client;
     ServiceServer server;
     HttpClient httpClient;
     ClientServiceInterface clientProxy;
-    volatile int callCount;
+    AtomicInteger callCount;
     AtomicReference<String> pongValue;
     boolean ok;
-    private volatile int returnCount;
+    AtomicInteger returnCount;
 
     @Test
     public void testWebSocket() throws Exception {
+
 
         clientProxy.ping(s -> {
             puts(s);
@@ -85,10 +88,10 @@ public class FullJettyIntegration extends TimedTesting {
 
 
         final Callback<String> callback = s -> {
-            returnCount++;
+            int count = returnCount.incrementAndGet();
 
-            if (returnCount % 2 == 0) {
-                puts("return count", returnCount);
+            if (count % 2 == 0) {
+                puts("return count", count);
             }
 
             puts("                     PONG");
@@ -108,11 +111,11 @@ public class FullJettyIntegration extends TimedTesting {
         Sys.sleep(100);
 
 
-        waitForTrigger(20, o -> returnCount == callCount - 1);
+        waitForTrigger(20, o -> returnCount.get() >= callCount.get());
 
         puts("HERE                        ", callCount, returnCount);
 
-        ok = returnCount >= callCount - 1 || die(returnCount, callCount); //TODO off by one error?
+        ok = returnCount.get() >= callCount.get() || die(returnCount, callCount); //TODO off by one error?
 
 
     }
@@ -122,11 +125,8 @@ public class FullJettyIntegration extends TimedTesting {
 
 
         final Callback<String> callback = s -> {
-            returnCount++;
 
-            if (returnCount % 2 == 0) {
-                puts("return count", returnCount);
-            }
+            returnCount.incrementAndGet();
 
             puts("                     PONG");
             pongValue.set(s);
@@ -146,11 +146,11 @@ public class FullJettyIntegration extends TimedTesting {
         Sys.sleep(100);
 
 
-        waitForTrigger(20, o -> returnCount == callCount);
+        waitForTrigger(20, o -> returnCount.get() == callCount.get());
 
         puts("HERE                        ", callCount, returnCount);
 
-        ok = returnCount == callCount || die(returnCount, callCount);
+        ok = returnCount.get() == callCount.get() || die(returnCount, callCount);
 
 
     }
@@ -225,11 +225,18 @@ public class FullJettyIntegration extends TimedTesting {
     @Before
     public synchronized void setup() throws Exception {
 
+
+        returnValue = new AtomicReference<>();
+
+        returnCount = new AtomicInteger();
+
         super.setupLatch();
 
         returnValue.set("");
         port += 10;
         pongValue = new AtomicReference<>();
+
+        callCount = new AtomicInteger();
 
         httpClient = new HttpClientBuilder().setPort(port).build();
 
@@ -250,7 +257,6 @@ public class FullJettyIntegration extends TimedTesting {
         Sys.sleep(100);
         client.start();
 
-        callCount = 0;
         pongValue.set(null);
 
         Sys.sleep(200);
@@ -288,7 +294,7 @@ public class FullJettyIntegration extends TimedTesting {
 
         @RequestMapping(method = RequestMethod.POST)
         public String ping(String ping) {
-            callCount++;
+            callCount.incrementAndGet();
             return ping + " pong";
         }
 
@@ -297,7 +303,8 @@ public class FullJettyIntegration extends TimedTesting {
         public String pingWithTwoParams(final String ping,
                                         final @RequestParam("param1") String param1,
                                         final @RequestParam("param2") String param2) {
-            callCount++;
+
+            callCount.incrementAndGet();
 
             returnValue.set(Str.join('-', ping, param1, param2));
             return ping + " pong";
