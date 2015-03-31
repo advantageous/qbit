@@ -68,6 +68,7 @@ subprojects {
                 }
 
                 pom.project {
+                    name archivesBaseName
                     packaging 'jar'
                     url 'https://github.com/advantageous/qbit'
 
@@ -113,7 +114,6 @@ project('core') {
         repositories {
             mavenDeployer {
                 pom.project {
-                    name 'qbit-core'
                     description 'Go Channels inspired Java lib'
                 }
             }
@@ -133,7 +133,6 @@ project('boon') {
         repositories {
             mavenDeployer {
                 pom.project {
-                    name 'qbit-boon'
                     description 'Boon plugin for qbit'
                 }
             }
@@ -162,7 +161,6 @@ project('web:servlet') {
         repositories {
             mavenDeployer {
                 pom.project {
-                    name 'qbit-servlet'
                     description 'servlet support for qbit'
                 }
             }
@@ -192,7 +190,6 @@ project('web:jetty') {
         repositories {
             mavenDeployer {
                 pom.project {
-                    name 'qbit-jetty'
                     description 'Jetty support for qbit'
                 }
             }
@@ -220,7 +217,6 @@ project('web:vertx') {
         repositories {
             mavenDeployer {
                 pom.project {
-                    name 'qbit-vertx'
                     description 'Vertx support for qbit'
                 }
             }
@@ -229,7 +225,6 @@ project('web:vertx') {
 }
 
 project('cluster:consul-client') {
-
 
     test.onlyIf { Boolean.getBoolean('consul.running') }
 
@@ -241,7 +236,6 @@ project('cluster:consul-client') {
         repositories {
             mavenDeployer {
                 pom.project {
-                    name 'qbit-consul-client'
                     description 'Consul client for qbit'
                 }
             }
@@ -262,7 +256,6 @@ project('cluster:admin') {
         repositories {
             mavenDeployer {
                 pom.project {
-                    name 'qbit-admin'
                     description 'Admin support for qbit'
                 }
             }
@@ -283,7 +276,6 @@ project('cluster:eventbus-replicator') {
         repositories {
             mavenDeployer {
                 pom.project {
-                    name 'qbit-eventbus-replicator'
                     description 'Eventbus replication for qbit'
                 }
             }
