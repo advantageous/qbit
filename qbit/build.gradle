@@ -105,6 +105,7 @@ project('core') {
 
     dependencies {
         compile "io.advantageous.boon:boon-reflekt:$boonVersion"
+        testCompile "io.advantageous.boon:boon-json:$boonVersion"
         testCompile project(':qbit:test-support')
     }
 
@@ -220,7 +221,7 @@ project('web:vertx') {
             mavenDeployer {
                 pom.project {
                     name 'qbit-vertx'
-                    description 'Vertex support for qbit'
+                    description 'Vertx support for qbit'
                 }
             }
         }
@@ -240,7 +241,7 @@ project('cluster:consul-client') {
         repositories {
             mavenDeployer {
                 pom.project {
-                    name 'consul-client'
+                    name 'qbit-consul-client'
                     description 'Consul client for qbit'
                 }
             }
@@ -282,7 +283,7 @@ project('cluster:eventbus-replicator') {
         repositories {
             mavenDeployer {
                 pom.project {
-                    name 'eventbus-replicator'
+                    name 'qbit-eventbus-replicator'
                     description 'Eventbus replication for qbit'
                 }
             }
