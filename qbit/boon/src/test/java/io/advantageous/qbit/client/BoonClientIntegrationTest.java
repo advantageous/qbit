@@ -105,31 +105,31 @@ public class BoonClientIntegrationTest extends TimedTesting {
     }
 
 
-    //TODO: this breaks
-//    @Test
-//    public void testCallBack() throws Exception {
-//        client.start();
-//        Sys.sleep(100);
-//
-//        sum.set(0);
-//
-//        final ServiceMockClientInterface mockService =
-//                client.createProxy(ServiceMockClientInterface.class, "serviceMock");
-//
-//        mockService.add(1, 2);
-//        mockService.sum(integer -> sum.set(integer));
-//
-//        ((ClientProxy) mockService).clientProxyFlush();
-//
-//        Sys.sleep(1000);
-//        waitForTrigger(20, o -> httpSendWebSocketCalled.get());
-//        ok = httpSendWebSocketCalled.get() || die();
-//
-//        waitForTrigger(20, o -> sum.get() != 3);
-//        Sys.sleep(200);
-//
-//        assertEquals(3, sum.get());
-//    }
+    @Test
+    public void testCallBack() throws Exception {
+        client.start();
+        Sys.sleep(100);
+
+        sum.set(0);
+
+        final ServiceMockClientInterface mockService =
+                client.createProxy(ServiceMockClientInterface.class, "serviceMock");
+
+        mockService.add(1, 2);
+        mockService.sum(integer -> sum.set(integer));
+
+        Sys.sleep(100);
+        ((ClientProxy) mockService).clientProxyFlush();
+
+        Sys.sleep(100);
+        waitForTrigger(20, o -> httpSendWebSocketCalled.get());
+        ok = httpSendWebSocketCalled.get() || die();
+
+        waitForTrigger(20, o -> sum.get() == 3);
+        Sys.sleep(100);
+
+        assertEquals(3, sum.get());
+    }
 
     public static interface ServiceMockClientInterface {
         void add(int a, int b);

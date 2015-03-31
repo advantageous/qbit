@@ -229,6 +229,9 @@ project('web:vertx') {
 
 project('cluster:consul-client') {
 
+
+    test.onlyIf { Boolean.getBoolean('consul.running') }
+
     dependencies {
         compile project(":qbit:web:jetty")
     }
