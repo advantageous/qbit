@@ -43,6 +43,7 @@ public class ServicePool {
 
     /**
      * @param services services
+     * @param servicePoolListener listens to service pool events
      * @return true if services have changed
      */
     public synchronized boolean setHealthyNodes(final List<ServiceDefinition> services,
