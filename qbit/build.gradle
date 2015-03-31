@@ -194,7 +194,7 @@ project('web:jetty') {
         repositories {
             mavenDeployer {
                 pom.project {
-                    name 'qbit-vertx'
+                    name 'qbit-jetty'
                     description 'Jetty support for qbit'
                 }
             }
