@@ -1,8 +1,8 @@
 package hello;
 
 
+import io.advantageous.boon.core.Sys;
 import io.advantageous.qbit.util.Timer;
-import org.boon.core.Sys;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -37,8 +37,6 @@ public class ActualService {
         ActualService actualService = new ActualService();
 
         System.out.println(actualService.addKey(1, "foo"));
-
-
         System.out.println(actualService.addKey(3, "foo"));
 
     }

@@ -1,9 +1,9 @@
 package hello;
 
+import io.advantageous.boon.core.Sys;
 import io.advantageous.qbit.client.Client;
 import io.advantageous.qbit.client.ClientBuilder;
-import io.advantageous.qbit.service.Callback;
-import org.boon.core.Sys;
+import io.advantageous.qbit.reactive.Callback;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -47,14 +47,7 @@ public class WebSocketClient {
                             key = -1;
                         }
 
-
-                        myService.addKey(new Callback<Double>() {
-                            @Override
-                            public void accept(Double aDouble) {
-                                count++;
-
-                            }
-                        }, 1, "mom");
+                        myService.addKey(aDouble -> count++, 1, "mom");
 
                         if (index % 15_000 == 0) {
                             Sys.sleep(50);

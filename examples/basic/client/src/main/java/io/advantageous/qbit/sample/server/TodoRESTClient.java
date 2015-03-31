@@ -74,8 +74,7 @@ public class TodoRESTClient {
 
 
         //HTTP GET
-        final String todoJsonList =
-                HTTP.getJSON(readTodoListURL, null);
+        final String todoJsonList = HTTP.getJSON(readTodoListURL, null);
 
         final List<TodoItem> todoItems =
                 fromJsonArray(todoJsonList, TodoItem.class);
