@@ -322,6 +322,14 @@ class RunConsul extends DefaultTask {
             zipURL = linuxDist
             println("On linux")
 
+
+            def osArc = System.getProperty("os.arc")
+            def osName = System.getProperty("os.name")
+            def osVersion = System.getProperty("os.version")
+
+            println("os.arc Operating system architecture\t\t $osArc")
+            println("os.name Operating system name\t\t $osName")
+            println("os.version Operating system version\t\t $osVersion")
         }
 
         new URL(zipURL).withInputStream{ i -> zipFile.withOutputStream{ it << i }}
