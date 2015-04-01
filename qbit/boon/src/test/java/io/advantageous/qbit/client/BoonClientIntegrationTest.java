@@ -119,8 +119,16 @@ public class BoonClientIntegrationTest extends TimedTesting {
         mockService.add(1, 2);
         mockService.sum(integer -> sum.set(integer));
 
+        client.flush();
+        serviceBundle.flushSends();
+        serviceBundle.flush();
+
         Sys.sleep(1000);
         ((ClientProxy) mockService).clientProxyFlush();
+        client.flush();
+        serviceBundle.flushSends();
+        serviceBundle.flush();
+
 
         Sys.sleep(1000);
         waitForTrigger(20, o -> httpSendWebSocketCalled.get());
