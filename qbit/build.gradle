@@ -349,12 +349,16 @@ class RunConsul extends DefaultTask {
 
         if (zipFile.exists()) {
 
+            println("${zipFile} ${zipFile.exists()}")
+            println(execFile.parentFile)
+
             ant.unzip(src: zipFile, dest: execFile.parentFile)
 
             ant.exec(command: "/bin/sh -c \"chmod +x ${execFile}\"")
         } else {
             println("Unable to create file $zipFile from $zipURL")
         }
+
 
     }
 
