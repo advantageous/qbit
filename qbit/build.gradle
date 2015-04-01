@@ -314,6 +314,10 @@ class RunConsul extends DefaultTask {
 
         execFile.parentFile.mkdirs()
 
+        if (execFile.parentFile.exists()) {
+            println("${execFile.parentFile} created" );
+        }
+
 
         if (System.getProperty("os.name").contains("Mac OS X")) {
             zipURL = macDist
@@ -323,7 +327,7 @@ class RunConsul extends DefaultTask {
             println("On linux")
 
 
-            def osArc = System.getProperty("os.arc")
+            def osArc = System.getProperty("sun.arch.data.model")
             def osName = System.getProperty("os.name")
             def osVersion = System.getProperty("os.version")
 
@@ -334,9 +338,23 @@ class RunConsul extends DefaultTask {
 
         new URL(zipURL).withInputStream{ i -> zipFile.withOutputStream{ it << i }}
 
-        ant.unzip (src: zipFile, dest: execFile.parentFile)
 
-        ant.exec( command: "/bin/sh -c \"chmod +x ${execFile}\"")
+        for (int index = 0; index < 10; index++) {
+            ant.sleep(seconds: 1)
+            if (zipFile.exists()) {
+                break;
+            }
+            println("Waiting for download $zipURL" )
+        }
+
+        if (zipFile.exists()) {
+
+            ant.unzip(src: zipFile, dest: execFile.parentFile)
+
+            ant.exec(command: "/bin/sh -c \"chmod +x ${execFile}\"")
+        } else {
+            println("Unable to create file $zipFile from $zipURL")
+        }
 
     }
 
