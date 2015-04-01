@@ -53,13 +53,13 @@ public class StatusEndpointTest {
 
     }
 
-//    @Test
-//    public void getPeers() throws UnknownHostException {
-//        List<String> peers = Consul.consul().status().getPeers();
-//        for (String ipAndPort : peers) {
-//            assertLocalIpAndCorrectPort(ipAndPort);
-//        }
-//    }
+    @Test
+    public void getPeers() throws UnknownHostException {
+        List<String> peers = Consul.consul().status().getPeers();
+        for (String ipAndPort : peers) {
+            assertLocalIpAndCorrectPort(ipAndPort);
+        }
+    }
 
     @BeforeClass
     public static void getIps() throws RuntimeException {
