@@ -108,7 +108,7 @@ public class BoonClientIntegrationTest extends TimedTesting {
     @Test
     public void testCallBack() throws Exception {
         client.start();
-        Sys.sleep(100);
+        Sys.sleep(1000);
 
         sum.set(0);
 
@@ -118,15 +118,15 @@ public class BoonClientIntegrationTest extends TimedTesting {
         mockService.add(1, 2);
         mockService.sum(integer -> sum.set(integer));
 
-        Sys.sleep(100);
+        Sys.sleep(1000);
         ((ClientProxy) mockService).clientProxyFlush();
 
-        Sys.sleep(100);
+        Sys.sleep(1000);
         waitForTrigger(20, o -> httpSendWebSocketCalled.get());
         ok = httpSendWebSocketCalled.get() || die();
 
         waitForTrigger(20, o -> sum.get() == 3);
-        Sys.sleep(100);
+        Sys.sleep(1000);
 
         assertEquals(3, sum.get());
     }
