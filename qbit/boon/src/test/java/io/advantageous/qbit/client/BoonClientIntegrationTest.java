@@ -72,12 +72,13 @@ public class BoonClientIntegrationTest extends TimedTesting {
         serviceBundle.addService(new ServiceMock());
         sum.set(0);
         serviceBundle.startReturnHandlerProcessor(item -> response = item);
+        Sys.sleep(1000);
     }
 
     @After
     public void tearDown() throws Exception {
         client.flush();
-        Sys.sleep(100);
+        Sys.sleep(1000);
         client.stop();
     }
 
