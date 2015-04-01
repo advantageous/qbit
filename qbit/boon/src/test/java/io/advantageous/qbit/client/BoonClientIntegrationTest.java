@@ -106,7 +106,7 @@ public class BoonClientIntegrationTest extends TimedTesting {
     }
 
 
-    @Test
+    //@Test
     public void testCallBack() throws Exception {
         client.start();
         Sys.sleep(1000);
