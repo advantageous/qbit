@@ -349,7 +349,7 @@ class RunConsul extends DefaultTask {
 
         if (zipFile.exists()) {
 
-            println("${zipFile} ${zipFile.exists()}")
+            println("${zipFile} ${zipFile.absoluteFile} ${zipFile.exists()} ${zipFile.size()}")
             println(execFile.parentFile)
 
             ant.unzip(src: zipFile, dest: execFile.parentFile)
