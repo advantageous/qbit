@@ -34,6 +34,8 @@ import io.advantageous.qbit.meta.provider.MetaDataProvider;
 import java.util.ArrayList;
 import java.util.List;
 
+import static io.advantageous.boon.core.Str.sputs;
+
 public class StandardRequestTransformer implements RequestTransformer {
 
 
@@ -55,13 +57,19 @@ public class StandardRequestTransformer implements RequestTransformer {
 
 
     @Override
-    public MethodCall<Object> transform(Request<Object> request) {
+    public MethodCall<Object> transform(Request<Object> request, List<String> errorsList) {
 
         final RequestMetaData metaData = metaDataProvider.get(request.address());
+
 
         MethodCallBuilder methodCallBuilder = new MethodCallBuilder();
         methodCallBuilder.setAddress(request.address());
         methodCallBuilder.setOriginatingRequest(request);
+
+        if (metaData==null) {
+            errorsList.add("Unable to find handler");
+            return null;
+        }
         methodCallBuilder.setName(metaData.getMethod().getName());
         methodCallBuilder.setObjectName(metaData.getService().getName());
 
@@ -84,13 +92,16 @@ public class StandardRequestTransformer implements RequestTransformer {
                     namedParam = ((NamedParam) parameterMeta.getParam());
                     value = request.params().get(namedParam.getName());
                     if (namedParam.isRequired() && value == null) {
+                        errorsList.add(sputs("Unable to find required request param", namedParam.getName()));
                         return null;
+
                     }
                     break;
                 case HEADER:
                     namedParam = ((NamedParam) parameterMeta.getParam());
                     value = request.headers().get(namedParam.getName());
                     if (namedParam.isRequired() && value == null) {
+                        errorsList.add(sputs("Unable to find required header param", namedParam.getName()));
                         return null;
                     }
                     break;
@@ -101,12 +112,14 @@ public class StandardRequestTransformer implements RequestTransformer {
 
                     if (uriNamedParam.getIndexIntoURI() >= split.length) {
                         if (uriNamedParam.isRequired()) {
+                            errorsList.add(sputs("Unable to find required path param", uriNamedParam.getName()));
                             return null;
                         }
                     }
 
                     value = split[uriNamedParam.getIndexIntoURI()];
                     if (uriNamedParam.isRequired()) {
+                        errorsList.add(sputs("Unable to find required path param", uriNamedParam.getName()));
                         return null;
                     }
                     break;
@@ -118,12 +131,16 @@ public class StandardRequestTransformer implements RequestTransformer {
 
                     if (positionalParam.getIndexIntoURI() >= pathSplit.length) {
                         if (positionalParam.isRequired()) {
+                            errorsList.add(sputs("Unable to find required path param",
+                                    positionalParam.getIndexIntoURI()));
                             return null;
                         }
                     }
 
                     value = pathSplit[positionalParam.getIndexIntoURI()];
                     if (positionalParam.isRequired()) {
+                        errorsList.add(sputs("Unable to find required path param",
+                                positionalParam.getIndexIntoURI()));
                         return null;
                     }
                     break;
@@ -132,6 +149,8 @@ public class StandardRequestTransformer implements RequestTransformer {
                     BodyParam bodyParam = (BodyParam) parameterMeta.getParam();
                     value = request.body();
                     if (bodyParam.isRequired() || Str.isEmpty(value)) {
+
+                        errorsList.add("Unable to find body");
                         return null;
 
                     }

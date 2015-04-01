@@ -89,6 +89,22 @@ public class StandardMetaDataProvider implements MetaDataProvider {
 
     @Override
     public RequestMetaData get(final String path) {
-        return metaDataMap.get(path);
+
+        RequestMetaData requestMetaData = metaDataMap.get(path);
+
+        if (requestMetaData == null) {
+            final Map.Entry<String, RequestMetaData> entry = treeMap.lowerEntry(path);
+
+            if (entry == null) {
+                return null;
+            }
+            if (path.startsWith(entry.getKey())) {
+                return entry.getValue();
+            } else {
+                return null;
+            }
+        } else {
+            return requestMetaData;
+        }
     }
 }
