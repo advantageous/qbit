@@ -34,6 +34,9 @@ subprojects {
         testCompile 'ch.qos.logback:logback-classic:1.1.2'
     }
 
+
+
+
     task javadocJar(type: Jar, dependsOn: javadoc) {
         classifier = 'javadoc'
         from 'build/docs/javadoc'
@@ -231,11 +234,19 @@ project('web:vertx') {
 project('cluster:consul-client') {
 
 
-    test.onlyIf { Boolean.getBoolean('consul.running') }
+    //test.onlyIf { Boolean.getBoolean('consul.running') }
 
     dependencies {
         compile project(":qbit:web:jetty")
     }
+
+
+
+    task runConsul(type: RunConsul) << {
+        println 'task'
+    }
+
+    test.dependsOn(runConsul)
 
     uploadArchives {
         repositories {
@@ -290,3 +301,59 @@ project('cluster:eventbus-replicator') {
         }
     }
 }
+
+
+
+
+class RunConsul extends DefaultTask {
+
+    def execFile = new File('./consul/bin/consul')
+
+    def zipFile = new File('./consul/bin/consul.zip')
+
+    def linuxDist = "https://dl.bintray.com/mitchellh/consul/0.5.0_linux_amd64.zip"
+    def macDist = "https://dl.bintray.com/mitchellh/consul/0.5.0_darwin_amd64.zip"
+    def zipURL = null
+
+
+    def findItUnpackIt() {
+
+
+        execFile.parentFile.mkdirs()
+
+
+        if (System.getProperty("os.name").contains("Mac OS X")) {
+            zipURL = macDist
+            println("On mac")
+        } else {
+            zipURL = linuxDist
+            println("On linux")
+
+        }
+
+        new URL(zipURL).withInputStream{ i -> zipFile.withOutputStream{ it << i }}
+
+        ant.unzip (src: zipFile, dest: execFile.parentFile)
+
+        ant.exec( command: "/bin/sh -c \"chmod +x ${execFile}\"")
+
+    }
+
+    @TaskAction
+    void runIt() {
+
+        if (!execFile.exists()) {
+            findItUnpackIt()
+        }
+
+
+        ant.exec(command: "/bin/sh -c  \"${execFile}  agent -server -bootstrap-expect 1 -data-dir /tmp/consul\"",
+                spawn: true)
+
+        for (int index = 0; index < 10; index++) {
+            ant.sleep(seconds: "1")
+            ant.echo(message: "Waiting for consul $index")
+        }
+    }
+}
+
