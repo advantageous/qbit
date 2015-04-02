@@ -18,7 +18,7 @@
 
 ext {
     projectVersion = '0.7.3-SNAPSHOT'
-    boonVersion = '0.5.2'
+    boonVersion = '0.5.3-SNAPSHOT'
 }
 
 allprojects {
