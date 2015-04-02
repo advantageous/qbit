@@ -102,7 +102,7 @@ public interface HttpClient {
         BeanUtils.idx(httpRequest, "receiver", httpTextReceiver);
     }
 
-    void sendHttpRequest(HttpRequest request);
+    default void sendHttpRequest(HttpRequest request) {}
 
     default void sendGetRequest(String uri) {
 
@@ -1006,16 +1006,16 @@ public interface HttpClient {
         throw new RuntimeException("New way to send messages");
     }
 
-    void periodicFlushCallback(Consumer<Void> periodicFlushCallback);
+    default void periodicFlushCallback(Consumer<Void> periodicFlushCallback) {}
 
-    int getPort();
+    default int getPort() {return -1;}
 
-    String getHost();
+    default String getHost() {return "localhost";}
 
-    HttpClient start();
+    default HttpClient start() { return this;}
 
-    void flush();
+    default void flush() {}
 
-    void stop();
+    default void stop() {}
 
 }

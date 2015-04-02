@@ -27,7 +27,7 @@ import io.advantageous.qbit.reactive.Callback;
  */
 
 public interface StatService extends ClientProxy {
-    void recordCount(String name, int count);
+    default void recordCount(String name, int count) {}
 
 
     default void increment(String name) {
@@ -41,32 +41,32 @@ public interface StatService extends ClientProxy {
         }
     }
 
-    void currentMinuteCount(Callback<Integer> callback, String name);
+    default void currentMinuteCount(Callback<Integer> callback, String name) {}
 
-    void currentSecondCount(Callback<Integer> callback, String name);
+    default void currentSecondCount(Callback<Integer> callback, String name) {}
 
-    void lastSecondCount(Callback<Integer> callback, String name);
-
-
-    void lastTenSecondCount(Callback<Integer> callback, String name);
-
-    void lastFiveSecondCount(Callback<Integer> callback, String name);
-
-    void lastNSecondsCount(Callback<Integer> callback, String name, int secondCount);
+    default void lastSecondCount(Callback<Integer> callback, String name) {}
 
 
-    void lastNSecondsCountExact(Callback<Integer> callback, String name, int secondCount);
+    default void lastTenSecondCount(Callback<Integer> callback, String name){}
+
+    default void lastFiveSecondCount(Callback<Integer> callback, String name){}
+
+    default void lastNSecondsCount(Callback<Integer> callback, String name, int secondCount){}
 
 
-    void lastTenSecondCountExact(Callback<Integer> callback, String name);
-
-    void lastFiveSecondCountExact(Callback<Integer> callback, String name);
+    default void lastNSecondsCountExact(Callback<Integer> callback, String name, int secondCount){}
 
 
+    default void lastTenSecondCountExact(Callback<Integer> callback, String name){}
 
-    void recordCountWithTime(String name, int count, long timestamp);
+    default void lastFiveSecondCountExact(Callback<Integer> callback, String name){}
 
-    void recordAllCounts(long timestamp, String[] names, int[] counts);
 
-    void recordAllCountsWithTimes(String[] names, int[] counts, long[] times);
+
+    default void recordCountWithTime(String name, int count, long timestamp){}
+
+    default void recordAllCounts(long timestamp, String[] names, int[] counts){}
+
+    default void recordAllCountsWithTimes(String[] names, int[] counts, long[] times){}
 }
