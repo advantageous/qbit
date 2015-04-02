@@ -120,16 +120,17 @@ public class JettyQBitHttpClient implements HttpClient {
     private void copyHeaders(HttpRequest request, Request jettyRequest) {
         final MultiMap<String, String> headers = request.getHeaders();
         final Iterator<Map.Entry<String, Collection<String>>> iterator = headers.iterator();
-        final HttpFields headerFields = jettyRequest.getHeaders();
         while (iterator.hasNext()) {
             final Map.Entry<String, Collection<String>> entry = iterator.next();
-            final String paramName = entry.getKey();
+            final String headerName = entry.getKey();
             final Collection<String> values = entry.getValue();
             for (String value : values) {
-                headerFields.add(paramName, value);
-                if (debug) logger.debug("Adding Header: " + paramName + "," + value);
+                jettyRequest.header(headerName, value);
+                if (debug) logger.debug("Adding Header: " + headerName + "," + value);
             }
         }
+
+
     }
 
     private BufferingResponseListener createJettyListener(final HttpRequest request) {
