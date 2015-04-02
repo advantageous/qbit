@@ -80,11 +80,11 @@ public class StatServiceImpl implements QueueCallBackHandler, ServiceChangedEven
     }
 
     public void recordCount(String name, int count) {
-        recordWithTime(name, count, now);
+        recordCountWithTime(name, count, now);
     }
 
     public void increment(String name) {
-        recordWithTime(name, 1, now);
+        recordCountWithTime(name, 1, now);
     }
 
     public void incrementAll(final String... names) {
@@ -135,7 +135,7 @@ public class StatServiceImpl implements QueueCallBackHandler, ServiceChangedEven
         return oneMinuteOfStats(name).countLastSecond(now);
     }
 
-    public void recordWithTime(String name, int count, long now) {
+    public void recordCountWithTime(String name, int count, long now) {
         oneMinuteOfStats(name).changeBy(count, now);
         replica.replicateCount(name, count, now);
     }
@@ -150,7 +150,7 @@ public class StatServiceImpl implements QueueCallBackHandler, ServiceChangedEven
         for (int index = 0; index < names.length; index++) {
             String name = names[index];
             int count = counts[index];
-            recordWithTime(name, count, timestamp);
+            recordCountWithTime(name, count, timestamp);
         }
     }
 
@@ -163,7 +163,7 @@ public class StatServiceImpl implements QueueCallBackHandler, ServiceChangedEven
             String name = names[index];
             int count = counts[index];
             long now = times[index];
-            recordWithTime(name, count, now);
+            recordCountWithTime(name, count, now);
         }
     }
 
