@@ -6,11 +6,9 @@ import io.advantageous.qbit.events.EventManager;
 import io.advantageous.qbit.events.EventManagerBuilder;
 import io.advantageous.qbit.events.impl.EventConnectorHub;
 import io.advantageous.qbit.events.spi.EventConnector;
-import io.advantageous.qbit.http.jetty.RegisterJettyWithQBit;
 import io.advantageous.qbit.server.ServiceServer;
 import io.advantageous.qbit.service.ServiceBundle;
 import io.advantageous.qbit.service.ServiceProxyUtils;
-import io.advantageous.qbit.spi.RegisterBoonWithQBit;
 import io.advantageous.qbit.test.TimedTesting;
 
 import java.util.concurrent.atomic.AtomicReference;
@@ -28,10 +26,6 @@ import static org.junit.Assert.assertNull;
 public class EventManagerReplicationOverWebSocket extends TimedTesting {
 
 
-    static {
-        RegisterBoonWithQBit.registerBoonWithQBit();
-        RegisterJettyWithQBit.registerJettyWithQBit();
-    }
 
     //@Test
     public void test() {

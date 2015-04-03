@@ -5,7 +5,7 @@ import io.advantageous.qbit.client.Client;
 import io.advantageous.qbit.events.EventManager;
 import io.advantageous.qbit.events.spi.EventConnector;
 import io.advantageous.qbit.events.spi.EventTransferObject;
-import io.advantageous.qbit.http.jetty.RegisterJettyWithQBit;
+//import io.advantageous.qbit.http.jetty.RegisterJettyWithQBit;
 import io.advantageous.qbit.server.ServiceServer;
 import io.advantageous.qbit.spi.RegisterBoonWithQBit;
 import io.advantageous.qbit.test.TimedTesting;
@@ -30,7 +30,7 @@ public class EventRemoteReplicatorServiceServerIntegrationTest extends TimedTest
 
     static {
         RegisterBoonWithQBit.registerBoonWithQBit();
-        RegisterJettyWithQBit.registerJettyWithQBit();
+        //RegisterJettyWithQBit.registerJettyWithQBit();
     }
 
 

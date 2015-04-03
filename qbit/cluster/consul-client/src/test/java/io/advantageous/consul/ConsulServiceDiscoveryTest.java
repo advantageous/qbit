@@ -52,6 +52,8 @@ public class ConsulServiceDiscoveryTest {
             discovery3.checkIn(id3, HealthStatus.PASS);
         }
 
+
+        Sys.sleep(100);
         List<ServiceDefinition> serviceDefinitions = discovery1.loadServices(serviceName);
         assertEquals(3, serviceDefinitions.size());
 

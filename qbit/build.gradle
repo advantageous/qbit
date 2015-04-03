@@ -234,12 +234,13 @@ project('cluster:consul-client') {
 
     dependencies {
         compile project(":qbit:web:jetty")
+        //compile project(":qbit:web:vertx")
     }
 
 
 
     task runConsul(type: RunConsul) << {
-        println 'task'
+
     }
 
     test.dependsOn(runConsul)

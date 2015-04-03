@@ -45,6 +45,8 @@ public class Consul {
 
     private final HttpClient httpClient;
 
+    private boolean started = false;
+
     /**
      * Private constructor.
      *
@@ -66,17 +68,22 @@ public class Consul {
         this.catalog = new CatalogEndpoint(httpClient, rootPath + "/catalog");
         this.status = new StatusEndpoint(httpClient, rootPath + "/status");
 
-        httpClient.start();
-        agent.pingAgent();
+        start();
+
     }
 
     public void start() {
 
-        httpClient.start();
+        if (!started) {
+            started = true;
+            httpClient.start();
+            agent.pingAgent();
+        }
     }
 
     public void stop() {
 
+        started = false;
         httpClient.stop();
     }
 

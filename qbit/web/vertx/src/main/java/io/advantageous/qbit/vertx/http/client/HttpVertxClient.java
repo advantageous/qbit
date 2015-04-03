@@ -330,12 +330,17 @@ public class HttpVertxClient implements HttpClient {
         });
     }
 
-    private void handleResponseFromServer(HttpRequest request, int responseStatusCode, MultiMap<String, String> responseHeaders, String body) {
+    private void handleResponseFromServer(
+            final HttpRequest request,
+            final int responseStatusCode,
+            final MultiMap<String, String> responseHeaders,
+            final String body) {
         if (debug) {
             logger.debug("HttpClientVertx::handleResponseFromServer:: request = {}, response status code = {}, \n" +
                     "response headers = {}, body = {}", request, responseStatusCode, responseHeaders, body);
         }
-        request.getReceiver().response(responseStatusCode, responseHeaders.get("Content-Type"), body);
+        request.getReceiver().response(responseStatusCode,
+                responseHeaders.get("Content-Type"), body, responseHeaders);
     }
 
     private void connect() {

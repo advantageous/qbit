@@ -4,7 +4,7 @@ import io.advantageous.qbit.Factory;
 import io.advantageous.qbit.events.EventManager;
 import io.advantageous.qbit.events.spi.EventConnector;
 import io.advantageous.qbit.events.spi.EventTransferObject;
-import io.advantageous.qbit.http.jetty.RegisterJettyWithQBit;
+//import io.advantageous.qbit.http.jetty.RegisterJettyWithQBit;
 import io.advantageous.qbit.spi.FactorySPI;
 import io.advantageous.qbit.spi.RegisterBoonWithQBit;
 import org.junit.Before;
@@ -21,7 +21,7 @@ public class EventRemoteReplicatorServiceTest {
 
     static {
         RegisterBoonWithQBit.registerBoonWithQBit();
-        RegisterJettyWithQBit.registerJettyWithQBit();
+        //RegisterJettyWithQBit.registerJettyWithQBit();
     }
 
 
