@@ -152,10 +152,10 @@ project('web:servlet') {
         compile 'javax.servlet:javax.servlet-api:3.1.0'
         compile 'javax.websocket:javax.websocket-all:1.1'
 
-        testCompile 'org.eclipse.jetty:jetty-server:9.3.0.M1'
-        testCompile 'org.eclipse.jetty:jetty-servlet:9.3.0.M1'
-        testCompile 'org.eclipse.jetty.websocket:javax-websocket-server-impl:9.3.0.M1'
-        testCompile 'org.eclipse.jetty:jetty-annotations:9.3.0.M1'
+        testCompile 'org.eclipse.jetty:jetty-server:9.3.0.M2'
+        testCompile 'org.eclipse.jetty:jetty-servlet:9.3.0.M2'
+        testCompile 'org.eclipse.jetty.websocket:javax-websocket-server-impl:9.3.0.M2'
+        testCompile 'org.eclipse.jetty:jetty-annotations:9.3.0.M2'
 
         testCompile project(':qbit:test-support')
     }
@@ -178,11 +178,11 @@ project('web:jetty') {
         compile project(':qbit:core')
         compile project(':qbit:boon')
 
-        compile 'org.eclipse.jetty:jetty-server:9.3.0.M1'
-        compile 'org.eclipse.jetty:jetty-servlet:9.3.0.M1'
-        compile 'org.eclipse.jetty.websocket:javax-websocket-server-impl:9.3.0.M1'
-        compile 'org.eclipse.jetty:jetty-annotations:9.3.0.M1'
-        compile 'org.eclipse.jetty:jetty-client:9.3.0.M1'
+        compile 'org.eclipse.jetty:jetty-server:9.3.0.M2'
+        compile 'org.eclipse.jetty:jetty-servlet:9.3.0.M2'
+        compile 'org.eclipse.jetty.websocket:javax-websocket-server-impl:9.3.0.M2'
+        compile 'org.eclipse.jetty:jetty-annotations:9.3.0.M2'
+        compile 'org.eclipse.jetty:jetty-client:9.3.0.M2'
         compile 'javax.servlet:javax.servlet-api:3.1.0'
         compile 'javax.websocket:javax.websocket-all:1.1'
 

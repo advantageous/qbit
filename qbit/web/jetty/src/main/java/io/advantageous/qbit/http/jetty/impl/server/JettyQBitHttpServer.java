@@ -18,12 +18,16 @@
 
 package io.advantageous.qbit.http.jetty.impl.server;
 
+import io.advantageous.boon.core.IO;
 import io.advantageous.qbit.GlobalConstants;
 import io.advantageous.qbit.http.config.HttpServerOptions;
-import io.advantageous.qbit.http.request.HttpRequest;
+import io.advantageous.qbit.http.request.HttpRequestBuilder;
 import io.advantageous.qbit.http.server.impl.SimpleHttpServer;
+import io.advantageous.qbit.servlet.HttpServletHeaderMultiMap;
 import io.advantageous.qbit.system.QBitSystemManager;
 import io.advantageous.boon.core.reflection.BeanUtils;
+import io.advantageous.qbit.util.MultiMap;
+import io.advantageous.qbit.util.MultiMapImpl;
 import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
@@ -36,13 +40,18 @@ import org.eclipse.jetty.websocket.servlet.WebSocketServletFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.servlet.AsyncContext;
 import javax.servlet.ServletException;
+import javax.servlet.ServletInputStream;
+import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 
 import static io.advantageous.boon.core.IO.puts;
-import static io.advantageous.qbit.servlet.QBitServletUtil.convertRequest;
+import static io.advantageous.qbit.http.request.HttpRequestBuilder.httpRequestBuilder;
+import static io.advantageous.qbit.servlet.QBitServletUtil.setRequestBodyIfNeeded;
 
 /**
  * @author rhightower on 2/13/15.
@@ -65,6 +74,7 @@ public class JettyQBitHttpServer extends SimpleHttpServer {
         policy.setMaxTextMessageSize(options.getMaxWebSocketFrameSize());
         policy.setMaxTextMessageBufferSize(options.getMaxWebSocketFrameSize());
         policy.setMaxBinaryMessageBufferSize(options.getMaxWebSocketFrameSize());
+        policy.setAsyncWriteTimeout(10_000);
 
         this.options = BeanUtils.copy(options);
         if (debug) {
@@ -103,11 +113,61 @@ public class JettyQBitHttpServer extends SimpleHttpServer {
                     }
                 } else {
                     baseRequest.setAsyncSupported(true);
-                    handleRequestInternal(request);
+
+                    handleRequestInternal(request, response);
                 }
             }
         });
     }
+    private void handleRequestInternal(final HttpServletRequest request, final HttpServletResponse response) {
+
+        final AsyncContext asyncContext = request.startAsync(request, response);
+        final HttpRequestBuilder httpRequestBuilder = convertRequest(asyncContext);
+        setupRequestHandler(response, httpRequestBuilder);
+        handleRequest(httpRequestBuilder.build());
+
+    }
+
+
+    public static HttpRequestBuilder convertRequest(final AsyncContext asyncContext) {
+
+        final HttpServletRequest request = (HttpServletRequest) asyncContext.getRequest();
+        final MultiMap<String, String> headers = new HttpServletHeaderMultiMap(request);
+        final MultiMap<String, String> params = new MultiMapImpl<>(request.getParameterMap());
+        final HttpRequestBuilder httpRequestBuilder = httpRequestBuilder().setParams(params)
+                .setHeaders(headers).setUri(request.getRequestURI())
+                .setMethod(request.getMethod());
+        setRequestBodyIfNeeded(request, httpRequestBuilder);
+        return httpRequestBuilder;
+    }
+
+
+
+
+    private static void setupRequestHandler(final HttpServletResponse response,
+                                            final HttpRequestBuilder httpRequestBuilder) {
+
+        httpRequestBuilder.setTextReceiver((code, contentType, body) -> {
+
+
+            response.setHeader("Content-Type", contentType);
+            response.setStatus(code);
+            final byte[] bodyBytes = body.getBytes(StandardCharsets.UTF_8);
+
+            response.setHeader("Content-Length", String.valueOf(bodyBytes.length));
+
+            try {
+                final ServletOutputStream outputStream = response.getOutputStream();
+                outputStream.write(bodyBytes);
+                outputStream.close();
+                //baseRequest.setHandled(true);
+                //asyncContext.dispatch();
+            } catch (final IOException e) {
+                throw new IllegalStateException(e);
+            }
+        });
+    }
+
 
     private void configureConnector(HttpServerOptions options) {
         ServerConnector connector = new ServerConnector(server);
@@ -149,10 +209,6 @@ public class JettyQBitHttpServer extends SimpleHttpServer {
         }
     }
 
-    private void handleRequestInternal(final HttpServletRequest request) {
-        final HttpRequest httpRequest = convertRequest(request.startAsync());
-        super.handleRequest(httpRequest);
-    }
 
     @Override
     public void start() {

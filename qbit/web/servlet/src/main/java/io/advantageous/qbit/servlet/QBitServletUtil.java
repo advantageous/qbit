@@ -62,21 +62,26 @@ public class QBitServletUtil {
 
         httpRequestBuilder.setTextReceiver((code, contentType, body) -> {
 
-
             response.setHeader("Content-Type", contentType);
             response.setStatus(code);
+            final byte[] bodyBytes = body.getBytes(StandardCharsets.UTF_8);
+
+            response.setHeader("Content-Length", String.valueOf(bodyBytes.length));
+
             try {
                 final ServletOutputStream outputStream = response.getOutputStream();
-                outputStream.write(body.getBytes(StandardCharsets.UTF_8));
+                outputStream.write(bodyBytes);
                 outputStream.close();
+
                 asyncContext.complete();
+
             } catch (final IOException e) {
                 throw new IllegalStateException(e);
             }
         });
     }
 
-    private static void setRequestBodyIfNeeded(final HttpServletRequest request,
+    public static void setRequestBodyIfNeeded(final HttpServletRequest request,
                                                final HttpRequestBuilder httpRequestBuilder) {
 
         if (request.getMethod().equals("POST") || request.getMethod().equals("PUT")) {
@@ -87,10 +92,12 @@ public class QBitServletUtil {
         }
     }
 
-    private static String readBody(final HttpServletRequest request) {
+    public static String readBody(final HttpServletRequest request) {
         try {
             final ServletInputStream inputStream = request.getInputStream();
-            return IO.read(inputStream, StandardCharsets.UTF_8);
+            final String read = IO.read(inputStream, StandardCharsets.UTF_8);
+            inputStream.close();
+            return read;
         } catch (final IOException e) {
             throw new IllegalStateException(e);
         }
