@@ -19,10 +19,13 @@
 package io.advantageous.qbit.servlet;
 
 import io.advantageous.boon.core.IO;
+import io.advantageous.qbit.GlobalConstants;
 import io.advantageous.qbit.http.request.HttpRequest;
 import io.advantageous.qbit.http.request.HttpRequestBuilder;
 import io.advantageous.qbit.util.MultiMap;
 import io.advantageous.qbit.util.MultiMapImpl;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.servlet.AsyncContext;
 import javax.servlet.ServletInputStream;
@@ -39,7 +42,18 @@ import static io.advantageous.qbit.http.request.HttpRequestBuilder.httpRequestBu
  */
 public class QBitServletUtil {
 
-    public static HttpRequest convertRequest(final AsyncContext asyncContext) {
+
+    private final Logger logger = LoggerFactory.getLogger(QBitServletUtil.class);
+    private final boolean debug = GlobalConstants.DEBUG || logger.isDebugEnabled();
+    private final boolean trace = logger.isTraceEnabled();
+
+
+    private QBitServletUtil() {
+
+    }
+
+
+    private HttpRequest doConvertRequest(final AsyncContext asyncContext) {
 
         final HttpServletRequest request = (HttpServletRequest) asyncContext.getRequest();
         final HttpServletResponse response = (HttpServletResponse) asyncContext.getResponse();
@@ -54,35 +68,44 @@ public class QBitServletUtil {
         setRequestBodyIfNeeded(request, httpRequestBuilder);
         setupRequestHandler(asyncContext, response, httpRequestBuilder);
         return httpRequestBuilder.build();
+
     }
 
-    private static void setupRequestHandler(final AsyncContext asyncContext,
-                                            final HttpServletResponse response,
-                                            final HttpRequestBuilder httpRequestBuilder) {
+
+    public static HttpRequest convertRequest(final AsyncContext asyncContext) {
+
+        return new QBitServletUtil().doConvertRequest(asyncContext);
+
+    }
+
+    private void setupRequestHandler(final AsyncContext asyncContext,
+                                     final HttpServletResponse response,
+                                     final HttpRequestBuilder httpRequestBuilder) {
 
         httpRequestBuilder.setTextReceiver((code, contentType, body) -> {
+                    try {
+                        if (!response.isCommitted()) {
 
-            response.setHeader("Content-Type", contentType);
-            response.setStatus(code);
-            final byte[] bodyBytes = body.getBytes(StandardCharsets.UTF_8);
+                            response.setHeader("Content-Type", contentType);
+                            response.setStatus(code);
+                            final byte[] bodyBytes = body.getBytes(StandardCharsets.UTF_8);
 
-            response.setHeader("Content-Length", String.valueOf(bodyBytes.length));
+                            response.setHeader("Content-Length", String.valueOf(bodyBytes.length));
 
-            try {
-                final ServletOutputStream outputStream = response.getOutputStream();
-                outputStream.write(bodyBytes);
-                outputStream.close();
-
-                asyncContext.complete();
-
-            } catch (final IOException e) {
-                throw new IllegalStateException(e);
-            }
-        });
+                            final ServletOutputStream outputStream = response.getOutputStream();
+                            outputStream.write(bodyBytes);
+                            outputStream.close();
+                            asyncContext.complete();
+                        }
+                    } catch (Exception ex) {
+                        if (debug) logger.debug("unable to write", ex);
+                    }
+                }
+        );
     }
 
     public static void setRequestBodyIfNeeded(final HttpServletRequest request,
-                                               final HttpRequestBuilder httpRequestBuilder) {
+                                       final HttpRequestBuilder httpRequestBuilder) {
 
         if (request.getMethod().equals("POST") || request.getMethod().equals("PUT")) {
             final String body = readBody(request);
