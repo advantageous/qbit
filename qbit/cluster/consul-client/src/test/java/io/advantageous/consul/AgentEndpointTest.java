@@ -128,6 +128,8 @@ public class AgentEndpointTest {
                 found = true;
 
                 assertEquals(serviceId, health.getService().getId());
+
+                assertNotNull(checks);
                 assertEquals(state, checks.get(0).getStatus());
             }
         }
