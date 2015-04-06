@@ -17,6 +17,8 @@ out/
 lib/
 *.class
 
+tmp/
+
 *.hprof
 
 
