@@ -33,6 +33,7 @@ import static org.junit.Assert.assertTrue;
 
 /**
  * Note this class was heavily influenced and inspired by the Orbitz Consul client.
+ *
  */
 public class AgentEndpointTest {
 
