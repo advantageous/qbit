@@ -74,7 +74,7 @@ public class BoonEventBusProxyCreator implements EventBusProxyCreator {
 
             return null;
         };
-        final Object o = Proxy.newProxyInstance(Thread.currentThread().getContextClassLoader(), new Class[]{eventBusProxyInterface, ClientProxy.class}, invocationHandler);
+        final Object o = Proxy.newProxyInstance(eventBusProxyInterface.getClassLoader(), new Class[]{eventBusProxyInterface, ClientProxy.class}, invocationHandler);
         return (T) o;
 
     }
