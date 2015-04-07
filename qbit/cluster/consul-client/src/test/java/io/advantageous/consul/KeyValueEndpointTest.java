@@ -39,6 +39,7 @@ public class KeyValueEndpointTest {
     @Test
     public void putAndReceiveWithFlags() throws UnknownHostException {
         Consul client = Consul.consul();
+        client.start();
         KeyValueStoreEndpoint keyValueStore = client.keyValueStore();
         String key = UUID.randomUUID().toString();
         String value = UUID.randomUUID().toString();
@@ -48,11 +49,13 @@ public class KeyValueEndpointTest {
         KeyValue received = keyValueStore.getValue(key).get();
         assertEquals(value, decodeBase64(received.getValue()));
         assertEquals(flags, received.getFlags());
+        client.stop();
     }
 
     @Test
     public void putAndReceiveStrings() throws UnknownHostException {
         Consul client = Consul.consul();
+        client.start();
         KeyValueStoreEndpoint keyValueStore = client.keyValueStore();
         String key = UUID.randomUUID().toString();
         String key2 = key + "/" + UUID.randomUUID().toString();
@@ -67,11 +70,14 @@ public class KeyValueEndpointTest {
                 add(value2);
             }
         }, new HashSet<>(keyValueStore.getValuesAsString(key)));
+
+        client.stop();
     }
 
     @Test
     public void delete() throws Exception {
         Consul client = Consul.consul();
+        client.start();
         KeyValueStoreEndpoint keyValueStore = client.keyValueStore();
         String key = UUID.randomUUID().toString();
         final String value = UUID.randomUUID().toString();
@@ -83,22 +89,26 @@ public class KeyValueEndpointTest {
         keyValueStore.deleteKey(key);
 
         assertFalse(keyValueStore.getValueAsString(key).isPresent());
+        client.stop();
     }
 
     @Test
     public void putAndReceiveString() throws UnknownHostException {
         Consul client = Consul.consul();
+        client.start();
         KeyValueStoreEndpoint keyValueStore = client.keyValueStore();
         String key = UUID.randomUUID().toString();
         String value = UUID.randomUUID().toString();
 
         assertTrue(keyValueStore.putValue(key, value));
         assertEquals(value, keyValueStore.getValueAsString(key).get());
+        client.stop();
     }
 
     @Test
     public void putAndReceiveValue() throws UnknownHostException {
         Consul client = Consul.consul();
+        client.start();
         KeyValueStoreEndpoint keyValueStore = client.keyValueStore();
         String key = UUID.randomUUID().toString();
         String value = UUID.randomUUID().toString();
@@ -107,6 +117,7 @@ public class KeyValueEndpointTest {
         KeyValue received = keyValueStore.getValue(key).get();
         assertEquals(value, decodeBase64(received.getValue()));
         assertEquals(0L, received.getFlags());
+        client.stop();
     }
 
 }

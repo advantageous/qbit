@@ -68,8 +68,9 @@ public class ConsulServiceDiscoveryBuilder {
         return longPollTimeSeconds;
     }
 
-    public void setLongPollTimeSeconds(int longPollTimeSeconds) {
+    public ConsulServiceDiscoveryBuilder setLongPollTimeSeconds(int longPollTimeSeconds) {
         this.longPollTimeSeconds = longPollTimeSeconds;
+        return this;
     }
 
     public PeriodicScheduler getPeriodicScheduler() {

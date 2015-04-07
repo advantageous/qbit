@@ -48,17 +48,24 @@ public class StatusEndpointTest {
 
     @Test
     public void getLeader() throws UnknownHostException {
-        String ipAndPort = Consul.consul().status().getLeader();
+        Consul consul = Consul.consul();
+        consul.start();
+        String ipAndPort = consul.status().getLeader();
         assertLocalIpAndCorrectPort(ipAndPort);
+        consul.stop();
 
     }
 
     @Test
     public void getPeers() throws UnknownHostException {
-        List<String> peers = Consul.consul().status().getPeers();
+        Consul consul = Consul.consul();
+        consul.start();
+        List<String> peers = consul.status().getPeers();
         for (String ipAndPort : peers) {
             assertLocalIpAndCorrectPort(ipAndPort);
         }
+
+        consul.stop();
     }
 
     @BeforeClass

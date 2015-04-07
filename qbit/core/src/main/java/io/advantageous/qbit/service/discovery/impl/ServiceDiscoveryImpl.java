@@ -5,6 +5,7 @@ import io.advantageous.qbit.QBit;
 import io.advantageous.qbit.concurrent.PeriodicScheduler;
 import io.advantageous.qbit.service.discovery.*;
 import io.advantageous.qbit.service.discovery.spi.ServiceDiscoveryProvider;
+import io.advantageous.qbit.util.ConcurrentHashSet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -55,7 +56,7 @@ public class ServiceDiscoveryImpl implements ServiceDiscovery {
         } : servicePoolListener;
 
         this.executorService = executorService == null ?
-                Executors.newFixedThreadPool(100) :
+                Executors.newFixedThreadPool(10) :
                 executorService;//Mostly sleeping threads doing long polls
 
 
@@ -193,28 +194,31 @@ public class ServiceDiscoveryImpl implements ServiceDiscovery {
         }
     }
 
+    ConcurrentHashSet<String> serviceNamesBeingLoaded = new ConcurrentHashSet<>();
+
     private void loadHealthyServices() throws InterruptedException {
         String serviceName = doneQueue.poll(50, TimeUnit.MILLISECONDS);
 
         while (serviceName != null) {
 
             final String serviceNameToFetch = serviceName;
-            executorService.submit(() -> {
-                try {
 
-                    try {
-                        final List<ServiceDefinition> healthyServices = provider.loadServices(serviceNameToFetch);
-                        populateServiceMap(serviceNameToFetch, healthyServices);
-                    } finally {
-                        doneQueue.offer(serviceNameToFetch);
-                    }
-                } catch (Exception ex) {
-                    logger.error("ServiceDiscoveryImpl::loadHealthyServices " +
-                            "Error while loading healthy" +
-                            " services for " + serviceNameToFetch, ex);
-
-                }
-            });
+            if (!serviceNamesBeingLoaded.contains(serviceNameToFetch)) {
+                serviceNamesBeingLoaded.add(serviceNameToFetch);
+                executorService.submit(() -> {
+                        try {
+                            final List<ServiceDefinition> healthyServices = provider.loadServices(serviceNameToFetch);
+                            populateServiceMap(serviceNameToFetch, healthyServices);
+                            serviceNamesBeingLoaded.remove(serviceNameToFetch);
+                        } catch (Exception ex) {
+                            logger.error("ServiceDiscoveryImpl::loadHealthyServices " +
+                                    "Error while loading healthy" +
+                                    " services for " + serviceNameToFetch, ex);
+                        } finally {
+                            doneQueue.offer(serviceNameToFetch);
+                        }
+                });
+            }
             serviceName = doneQueue.poll();
         }
     }

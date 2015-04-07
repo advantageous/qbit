@@ -34,6 +34,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.util.function.Consumer;
 
 import static io.advantageous.qbit.http.request.HttpRequestBuilder.httpRequestBuilder;
 
@@ -53,7 +54,13 @@ public class QBitServletUtil {
     }
 
 
-    private HttpRequest doConvertRequest(final AsyncContext asyncContext) {
+    private HttpRequest doConvertRequest(final AsyncContext asyncContext, Consumer<Exception> onError) {
+
+        if (onError == null) {
+            onError = e -> {
+
+            };
+        }
 
         final HttpServletRequest request = (HttpServletRequest) asyncContext.getRequest();
         final HttpServletResponse response = (HttpServletResponse) asyncContext.getResponse();
@@ -66,21 +73,31 @@ public class QBitServletUtil {
                 .setMethod(request.getMethod());
 
         setRequestBodyIfNeeded(request, httpRequestBuilder);
-        setupRequestHandler(asyncContext, response, httpRequestBuilder);
+        setupRequestHandler(asyncContext, response, httpRequestBuilder, onError);
         return httpRequestBuilder.build();
+
+    }
+
+
+
+
+    public static HttpRequest convertRequest(final AsyncContext asyncContext, final Consumer<Exception> onError) {
+
+        return new QBitServletUtil().doConvertRequest(asyncContext, onError);
 
     }
 
 
     public static HttpRequest convertRequest(final AsyncContext asyncContext) {
 
-        return new QBitServletUtil().doConvertRequest(asyncContext);
+        return new QBitServletUtil().doConvertRequest(asyncContext, null);
 
     }
 
     private void setupRequestHandler(final AsyncContext asyncContext,
                                      final HttpServletResponse response,
-                                     final HttpRequestBuilder httpRequestBuilder) {
+                                     final HttpRequestBuilder httpRequestBuilder,
+                                     final Consumer<Exception> onError) {
 
         httpRequestBuilder.setTextReceiver((code, contentType, body) -> {
                     try {
@@ -98,6 +115,7 @@ public class QBitServletUtil {
                             asyncContext.complete();
                         }
                     } catch (Exception ex) {
+                        onError.accept(ex);
                         if (debug) logger.debug("unable to write", ex);
                     }
                 }

@@ -31,6 +31,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.function.Consumer;
 
 import static io.advantageous.qbit.servlet.QBitServletUtil.convertRequest;
 
@@ -67,7 +68,12 @@ public abstract class QBitHttpServlet extends HttpServlet {
     @Override
     protected void service(final HttpServletRequest request, final HttpServletResponse response)
             throws ServletException, IOException {
-        final HttpRequest httpRequest = convertRequest(request.startAsync());
+        final HttpRequest httpRequest = convertRequest(request.startAsync(), new Consumer<Exception>() {
+            @Override
+            public void accept(Exception e) {
+                e.printStackTrace();
+            }
+        });
         httpServer.handleRequest(httpRequest);
     }
 }

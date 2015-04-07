@@ -39,11 +39,11 @@ public class Prototype {
         final ConsulServiceDiscoveryBuilder consulServiceDiscoveryBuilder = consulServiceDiscoveryBuilder()
                 .setServiceChangedEventChannel(servicePoolUpdate);
 
-        final ServiceDiscoveryImpl serviceDiscovery = consulServiceDiscoveryBuilder.build();
+        final ServiceDiscoveryImpl serviceDiscovery = consulServiceDiscoveryBuilder.setLongPollTimeSeconds(1).build();
         serviceDiscovery.start();
 
 
-        final StatServiceBuilder statServiceBuilder = statServiceBuilder()
+        final StatServiceBuilder statServiceBuilder = statServiceBuilder().setTimeToLiveCheckInterval(5_000)
                 .setServiceDiscovery(serviceDiscovery).setEventManager(eventManager);
 
         //Not getting service updates when we join a cluster.
@@ -72,18 +72,12 @@ public class Prototype {
 
             final int fromIndex = index;
             Sys.sleep(1000);
-            serviceDiscovery.checkIn(statServiceBuilder.getLocalServiceId(), HealthStatus.PASS);
             System.out.print(".");
             statService.increment("foo");
 
             statService.currentMinuteCount(count -> System.out.print(
                     "count " + count + " index " + fromIndex + "    "), "foo");
 
-            if (index % 10 == 0) {
-                ServiceProxyUtils.flushServiceProxy(statService);
-                serviceDefinitions = serviceDiscovery.loadServices(statServiceBuilder.getServiceName());
-                serviceDefinitions.forEach(serviceDefinition -> System.out.print(" " + serviceDefinition + " "));
-            }
 
 
         }
@@ -109,8 +103,6 @@ public class Prototype {
 
             Sys.sleep(1000);
 
-            if (index % 10 == 0)
-            serviceDiscovery.checkIn(statServiceBuilder.getLocalServiceId(), HealthStatus.PASS);
 
         }
 

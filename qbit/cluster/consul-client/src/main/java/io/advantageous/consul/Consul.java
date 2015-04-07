@@ -57,7 +57,7 @@ public class Consul {
         URI uri = URI.create(url + "/v1");
 
         final HttpClientBuilder httpClientBuilder = HttpClientBuilder
-                .httpClientBuilder().setPoolSize(1).setHost(uri.getHost()).setPort(uri.getPort());
+                .httpClientBuilder().setAutoFlush(false).setPoolSize(1).setHost(uri.getHost()).setPort(uri.getPort());
         httpClient = httpClientBuilder.build();
 
         final String rootPath = uri.getPath();
@@ -68,7 +68,6 @@ public class Consul {
         this.catalog = new CatalogEndpoint(httpClient, rootPath + "/catalog");
         this.status = new StatusEndpoint(httpClient, rootPath + "/status");
 
-        start();
 
     }
 

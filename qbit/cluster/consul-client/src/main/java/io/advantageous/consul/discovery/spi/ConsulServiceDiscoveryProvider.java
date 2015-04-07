@@ -12,10 +12,12 @@ import io.advantageous.qbit.service.discovery.HealthStatus;
 import io.advantageous.qbit.service.discovery.ServiceDefinition;
 import io.advantageous.qbit.service.discovery.impl.ServiceHealthCheckIn;
 import io.advantageous.qbit.service.discovery.spi.ServiceDiscoveryProvider;
+import io.advantageous.qbit.util.ConcurrentHashSet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Queue;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -37,8 +39,18 @@ public class ConsulServiceDiscoveryProvider implements ServiceDiscoveryProvider 
     private AtomicInteger lastIndex = new AtomicInteger();
 
     private final Logger logger = LoggerFactory.getLogger(ConsulServiceDiscoveryProvider.class);
-    private final boolean debug = false || GlobalConstants.DEBUG || logger.isDebugEnabled();
+    private final boolean debug = GlobalConstants.DEBUG || logger.isDebugEnabled();
     private final boolean trace = logger.isTraceEnabled();
+
+
+    private final ThreadLocal<Consul> consulThreadLocal = new ThreadLocal<Consul>(){
+        @Override
+        protected Consul initialValue() {
+            final Consul consul = Consul.consul(consulHost, consulPort);
+            consul.start();
+            return consul;
+        }
+    };
 
 
 
@@ -75,19 +87,22 @@ public class ConsulServiceDiscoveryProvider implements ServiceDiscoveryProvider 
 
         ServiceDefinition serviceDefinition = registerQueue.poll();
         if (serviceDefinition!=null) {
-            Consul consul = Consul.consul(consulHost, consulPort);
-            try {
-                consul.start();
+            Consul consul = consulThreadLocal.get();
 
-                while(serviceDefinition!=null) {
-                    consul.agent().registerService(serviceDefinition.getPort(),
-                            serviceDefinition.getTimeToLive(),
-                            serviceDefinition.getName(), serviceDefinition.getId(), tag);
+            while(serviceDefinition!=null) {
+                    try {
+                        consul.agent().registerService(serviceDefinition.getPort(),
+                                serviceDefinition.getTimeToLive(),
+                                serviceDefinition.getName(), serviceDefinition.getId(), tag);
+                    } catch (Exception ex) {
+
+                        logger.debug("problem running consul register service", ex);
+                        shutDownConsul(consul);
+                        Consul consulNew = Consul.consul(consulHost, consulPort);
+                        consulNew.start();
+                        consulThreadLocal.set(consulNew);
+                    }
                     serviceDefinition = registerQueue.poll();
-                }
-
-            } finally {
-                consul.stop();
             }
         }
     }
@@ -102,32 +117,35 @@ public class ConsulServiceDiscoveryProvider implements ServiceDiscoveryProvider 
             ));
         }
 
-
-
         ServiceHealthCheckIn checkIn = checkInsQueue.poll();
 
         if (checkIn!=null) {
-            Consul consul = Consul.consul(consulHost, consulPort);
-            try {
-                consul.start();
+            Consul consul = consulThreadLocal.get();
 
-
-
-                while (checkIn != null) {
+            while (checkIn != null) {
                     Status status = convertStatus(checkIn.getHealthStatus());
 
-                    //puts("Checking in ", checkIn.healthStatus, checkIn.serviceId);
-                    consul.agent().checkTtl(checkIn.getServiceId(), status, "" + checkIn.getHealthStatus());
+                    try {
+                        consul.agent().checkTtl(checkIn.getServiceId(), status, "" + checkIn.getHealthStatus());
+                    }catch (Exception ex) {
+                        logger.debug("problem running consul agent checkTtl", ex);
+                        shutDownConsul(consul);
+                        Consul consulNew = Consul.consul(consulHost, consulPort);
+                        consulNew.start();
+                        consulThreadLocal.set(consulNew);
+                    }
                     checkIn = checkInsQueue.poll();
-                }
-
-
-            } finally {
-                consul.stop();
             }
+
         }
+    }
 
+    private void shutDownConsul(Consul consul) {
+        try {
+            consul.stop();
+        } catch (Exception ex) {
 
+        }
     }
 
     @Override
@@ -197,13 +215,12 @@ public class ConsulServiceDiscoveryProvider implements ServiceDiscoveryProvider 
     }
 
 
+
     private List<ServiceHealth> getHealthyServices(final String serviceName
                                                    ) {
-        Consul consul = Consul.consul(consulHost, consulPort);
-
+        Consul consul = consulThreadLocal.get();
 
         try {
-            consul.start();
             final ConsulResponse<List<ServiceHealth>> consulResponse = consul.health()
                     .getHealthyServices(serviceName, datacenter, tag, buildRequestOptions());
 
@@ -213,8 +230,14 @@ public class ConsulServiceDiscoveryProvider implements ServiceDiscoveryProvider 
             final List<ServiceHealth> healthyServices = consulResponse.getResponse();
 
             return healthyServices;
-        } finally {
-            consul.stop();
+
+        } catch (Exception ex) {
+
+            shutDownConsul(consul);
+            Consul consulNew = Consul.consul(consulHost, consulPort);
+            consulNew.start();
+            consulThreadLocal.set(consulNew);
+            return Collections.emptyList();
         }
     }
 

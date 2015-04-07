@@ -37,6 +37,7 @@ public class HealthEndpointTests {
     @Test
     public void fetchNode() throws UnknownHostException, NotRegisteredException {
         Consul client = Consul.consul();
+        client.start();
         String serviceName = UUID.randomUUID().toString();
         String serviceId = UUID.randomUUID().toString();
 
@@ -46,12 +47,14 @@ public class HealthEndpointTests {
         boolean found = false;
         ConsulResponse<List<ServiceHealth>> response = client.health().getAllNodes(serviceName);
         assertHealth(serviceId, found, response);
+        client.stop();
     }
 
 
     @Test
     public void fetchNodeUsingBlock() throws UnknownHostException, NotRegisteredException {
         Consul client = Consul.consul();
+        client.start();
         String serviceName = UUID.randomUUID().toString();
         String serviceId = UUID.randomUUID().toString();
 
@@ -63,11 +66,13 @@ public class HealthEndpointTests {
                 "dc1", null,
                 RequestOptionsBuilder.requestOptionsBuilder().blockSeconds(2, 0).build());
         assertHealth(serviceId, found, response);
+        client.stop();
     }
 
     @Test
     public void fetchNodeByState() throws UnknownHostException, NotRegisteredException {
         Consul client = Consul.consul();
+        client.start();
         String serviceName = UUID.randomUUID().toString();
         String serviceId = UUID.randomUUID().toString();
 
@@ -85,6 +90,7 @@ public class HealthEndpointTests {
         }
 
         assertTrue(found);
+        client.stop();
     }
 
     private void assertHealth(String serviceId, boolean found, ConsulResponse<List<ServiceHealth>> response) {
@@ -105,6 +111,7 @@ public class HealthEndpointTests {
     @Test
     public void fetchPassingNodes() throws UnknownHostException, NotRegisteredException {
         Consul client = Consul.consul();
+        client.start();
         String serviceName = UUID.randomUUID().toString();
         String serviceId = UUID.randomUUID().toString();
 
@@ -112,6 +119,8 @@ public class HealthEndpointTests {
         client.agent().pass(serviceId);
 
         Consul client2 = Consul.consul();
+        client2.start();
+
         String serviceId2 = UUID.randomUUID().toString();
 
         client2.agent().registerService(80, 20L, serviceName, serviceId2);
@@ -120,12 +129,15 @@ public class HealthEndpointTests {
         boolean found = false;
         ConsulResponse<List<ServiceHealth>> response = client2.health().getHealthyServices(serviceName);
         assertHealth(serviceId, found, response);
+        client.stop();
+        client2.stop();
     }
 
 
     @Test
     public void fetchNodeByDatacenter() throws UnknownHostException, NotRegisteredException {
         Consul client = Consul.consul();
+        client.start();
         String serviceName = UUID.randomUUID().toString();
         String serviceId = UUID.randomUUID().toString();
 
@@ -136,6 +148,7 @@ public class HealthEndpointTests {
         ConsulResponse<List<ServiceHealth>> response = client.health().getAllNodes(serviceName,
                 "dc1", null);
         assertHealth(serviceId, found, response);
+        client.stop();
     }
 
 }
