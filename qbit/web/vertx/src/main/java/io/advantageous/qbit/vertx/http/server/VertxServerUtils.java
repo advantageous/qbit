@@ -27,6 +27,7 @@ import io.advantageous.qbit.http.websocket.WebSocket;
 import io.advantageous.qbit.http.websocket.WebSocketSender;
 import io.advantageous.qbit.util.MultiMap;
 import io.advantageous.qbit.util.MultiMapImpl;
+import io.advantageous.qbit.util.Timer;
 import io.advantageous.qbit.vertx.MultiMapWrapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -85,7 +86,7 @@ public class VertxServerUtils {
 
         return new HttpRequest(requestId++, request.path(), request.method(), params, headers, body,
                 request.remoteAddress().toString(),
-                contentType, createResponse(request.response()), time);
+                contentType, createResponse(request.response()), time==0L ? Timer.timer().now() : time);
     }
 
     private HttpResponseReceiver createResponse(final HttpServerResponse response) {

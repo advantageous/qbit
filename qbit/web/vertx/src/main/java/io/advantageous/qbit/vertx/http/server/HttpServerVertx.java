@@ -77,7 +77,10 @@ public class HttpServerVertx implements HttpServer {
         this.port = options.getPort();
         this.host = options.getHost();
         this.options = BeanUtils.copy(options);
-
+        this.setWebSocketIdleConsume(aVoid -> {
+        });
+        this.setHttpRequestsIdleConsumer(aVoid -> {
+        });
     }
 
     public HttpServerVertx(HttpServerOptions options,
@@ -154,6 +157,7 @@ public class HttpServerVertx implements HttpServer {
         httpServer.setMaxWebSocketFrameSize(options.getMaxWebSocketFrameSize());
         httpServer.websocketHandler(this::handleWebSocketMessage);
         httpServer.requestHandler(this::handleHttpRequest);
+
 
 
         if (Str.isEmpty(host)) {
