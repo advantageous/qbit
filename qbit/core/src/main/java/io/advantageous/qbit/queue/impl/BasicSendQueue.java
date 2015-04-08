@@ -108,9 +108,9 @@ public class BasicSendQueue<T> implements SendQueue<T> {
 
     @Override
     public void send(T item) {
+        flushIfOverBatch();
         queueLocal[index] = item;
         index++;
-        flushIfOverBatch();
     }
 
     @Override
