@@ -44,16 +44,13 @@ import static io.advantageous.boon.core.Str.sputs;
 import static io.advantageous.qbit.http.websocket.WebSocketBuilder.webSocketBuilder;
 
 
-/**
- * Created by rhightower on 2/15/15.
- */
 public class VertxServerUtils {
     private final Logger logger = LoggerFactory.getLogger(VertxServerUtils.class);
     private final boolean debug = false || GlobalConstants.DEBUG || logger.isDebugEnabled();
 
 
-    volatile long requestId;
-    volatile long time;
+    private volatile long requestId;
+    private volatile long time;
 
     private static Buffer createBuffer(Object body) {
         Buffer buffer = null;
@@ -82,7 +79,7 @@ public class VertxServerUtils {
         final MultiMap<String, String> headers = request.headers().size() == 0 ? MultiMap.empty() : new MultiMapWrapper(request.headers());
         final byte[] body = buffer == null ? "".getBytes(StandardCharsets.UTF_8) : buffer.getBytes();
 
-        final String contentType = request.headers().get("Content-Type");//TODO should this be accept?
+        final String contentType = request.headers().get("Content-Type");
 
         return new HttpRequest(requestId++, request.path(), request.method(), params, headers, body,
                 request.remoteAddress().toString(),
