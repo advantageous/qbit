@@ -144,6 +144,7 @@ public class HealthEndpointTests {
         client.agent().registerService(8080, 20L, serviceName, serviceId);
         client.agent().pass(serviceId);
 
+        Sys.sleep(1000);
         boolean found = false;
         ConsulResponse<List<ServiceHealth>> response = client.health().getAllNodes(serviceName,
                 "dc1", null);
