@@ -19,6 +19,8 @@ package io.advantageous.qbit.meta.transformer;
 
 
 import io.advantageous.boon.core.Str;
+import io.advantageous.boon.core.reflection.MapObjectConversion;
+import io.advantageous.boon.core.reflection.MapperSimple;
 import io.advantageous.qbit.Factory;
 import io.advantageous.qbit.QBit;
 import io.advantageous.qbit.json.JsonMapper;
@@ -31,8 +33,10 @@ import io.advantageous.qbit.meta.params.*;
 import io.advantageous.qbit.meta.provider.MetaDataProvider;
 
 
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import static io.advantageous.boon.core.Str.sputs;
 
@@ -57,7 +61,8 @@ public class StandardRequestTransformer implements RequestTransformer {
 
 
     @Override
-    public MethodCall<Object> transform(Request<Object> request, List<String> errorsList) {
+    public MethodCall<Object> transform(final Request<Object> request,
+                                        final List<String> errorsList) {
 
         final RequestMetaData metaData = metaDataProvider.get(request.address());
 
@@ -148,7 +153,30 @@ public class StandardRequestTransformer implements RequestTransformer {
                 case BODY:
                     BodyParam bodyParam = (BodyParam) parameterMeta.getParam();
                     value = request.body();
-                    if (bodyParam.isRequired() || Str.isEmpty(value)) {
+                    if (value instanceof byte[]) {
+                        final byte[] bytes = (byte[]) value;
+                        value = new String(bytes, StandardCharsets.UTF_8);
+                    }
+
+                    if (bodyParam.isRequired() && Str.isEmpty(value)) {
+
+                        errorsList.add("Unable to find body");
+                        return null;
+
+                    }
+
+                    value = jsonMapper.get().fromJson(value.toString(), parameterMeta.getClassType());
+                    break;
+
+                case BODY_BY_POSITION:
+                    BodyArrayParam bodyArrayParam = (BodyArrayParam) parameterMeta.getParam();
+                    value = request.body();
+                    if (value instanceof byte[]) {
+                        final byte[] bytes = (byte[]) value;
+                        value = new String(bytes, StandardCharsets.UTF_8);
+                    }
+
+                    if (bodyArrayParam.isRequired() && Str.isEmpty(value)) {
 
                         errorsList.add("Unable to find body");
                         return null;
@@ -156,6 +184,14 @@ public class StandardRequestTransformer implements RequestTransformer {
                     }
 
                     value = jsonMapper.get().fromJson(value.toString());
+
+                    if (value instanceof List) {
+                        final List list = (List) value;
+                        final Object o = list.get(bodyArrayParam.getPosition());
+                        if (o instanceof Map) {
+                           value = MapObjectConversion.fromMap(((Map) o), parameterMeta.getClassType());
+                        }
+                    }
                     break;
 
                 default:

@@ -61,6 +61,11 @@ public class BoonJsonMapper implements JsonMapper {
     }
 
     @Override
+    public <T> T fromJson(String json, Class<T> cls) {
+        return parser.get().parse(cls, json);
+    }
+
+    @Override
     public String toJson(Object object) {
         return serializer.get().serialize(object).toString();
     }

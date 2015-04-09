@@ -28,6 +28,8 @@ public interface JsonMapper {
 
     Object fromJson(String json);
 
+    <T> T fromJson(String json, Class<T> cls);
+
     String toJson(Object object);
 
 }

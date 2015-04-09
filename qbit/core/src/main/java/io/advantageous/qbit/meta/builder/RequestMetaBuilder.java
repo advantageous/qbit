@@ -97,22 +97,27 @@ public class RequestMetaBuilder {
 
                 final List<AnnotationData> annotationDataList = paramsAnnotationData.get(index);
 
-                if (annotationDataList == null) {
+                final String finalPath = Str.join("/", rootPath, servicePath, path).replace("//", "/");
+
+                if (annotationDataList == null || annotationDataList.size() == 0) {
+                    Param requestParam = getParam(finalPath, null, index);
+                    final ParameterMeta param = ParameterMeta.param(methodAccess.method().getParameterTypes()[index],
+                            typeTypes.get(index), requestParam);
+                    params.add(param);
                     continue;
                 }
-
-
 
                 for (AnnotationData annotationData : annotationDataList) {
 
 
-                    final String finalPath = Str.join("/", rootPath, servicePath, path).replace("//", "/");
 
                     Param requestParam = getParam(finalPath, annotationData, index);
 
                     if (requestParam != null) {
-                        final ParameterMeta param = ParameterMeta.param(typeTypes.get(index), requestParam);
+                        final ParameterMeta param = ParameterMeta.param(methodAccess.method().getParameterTypes()[index],
+                                typeTypes.get(index), requestParam);
                         params.add(param);
+                        break;
                     }
                 }
             }
@@ -124,6 +129,11 @@ public class RequestMetaBuilder {
     }
 
     private Param getParam(final String path, final AnnotationData annotationData, final int index) {
+
+        if (annotationData==null) {
+            return new BodyParam(true, null);
+        }
+
         Param param;
         String paramName = getParamName(annotationData);
 

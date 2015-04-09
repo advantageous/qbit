@@ -29,27 +29,27 @@ public class ParameterMeta {
 
 
 
-    public static ParameterMeta param(final TypeType typeType, final Param param) {
-        return new ParameterMeta(typeType, param);
+    public static ParameterMeta param(Class<?> classType, final TypeType typeType, final Param param) {
+        return new ParameterMeta(classType, typeType, param);
     }
 
     public static ParameterMeta stringParam(final Param param) {
-        return new ParameterMeta(TypeType.STRING, param);
+        return new ParameterMeta(null, TypeType.STRING, param);
     }
 
     public static ParameterMeta intParam(final Param param) {
-        return new ParameterMeta(TypeType.INT, param);
+        return new ParameterMeta(null, TypeType.INT, param);
     }
     public static ParameterMeta floatParam(final Param param) {
-        return new ParameterMeta(TypeType.FLOAT, param);
+        return new ParameterMeta(null, TypeType.FLOAT, param);
     }
 
     public static ParameterMeta doubleParam(final Param param) {
-        return new ParameterMeta(TypeType.DOUBLE, param);
+        return new ParameterMeta(null, TypeType.DOUBLE, param);
     }
 
     public static ParameterMeta objectParam(final Param param) {
-        return new ParameterMeta(TypeType.OBJECT, param);
+        return new ParameterMeta(null, TypeType.OBJECT, param);
     }
 
 
@@ -57,20 +57,26 @@ public class ParameterMeta {
 
 
     public static ParameterMeta paramMeta(final TypeType typeType, final Param param) {
-        return new ParameterMeta(typeType, param);
+        return new ParameterMeta(null, typeType, param);
     }
 
-    private final TypeType type;
 
+    private final Class<?> classType;
+    private final TypeType type;
     private final Param param;
 
-    public ParameterMeta(final TypeType typeType, final Param param) {
+    public ParameterMeta(final Class<?> classType, final TypeType typeType, final Param param) {
         this.type = typeType;
         this.param = param;
+        this.classType = classType;
     }
 
     public TypeType getType() {
         return type;
+    }
+
+    public Class<?> getClassType() {
+        return classType;
     }
 
     public Param getParam() {

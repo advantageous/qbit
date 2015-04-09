@@ -1,10 +1,7 @@
-package io.advantageous.qbit.meta;
+package io.advantageous.qbit.meta.transformer;
 
 
-import io.advantageous.qbit.annotation.PathVariable;
-import io.advantageous.qbit.annotation.RequestMapping;
-import io.advantageous.qbit.annotation.RequestParam;
-import io.advantageous.qbit.annotation.HeaderParam;
+import io.advantageous.qbit.annotation.*;
 
 import static io.advantageous.boon.core.Str.sputs;
 
@@ -46,6 +43,17 @@ public class SampleService {
     public String simple2(@RequestParam("arg1") final String arg1) {
         return "simple2";
     }
+
+
+    @RequestMapping(value = "/method3/", method= RequestMethod.POST)
+    public String method3(@RequestParam("arg1") final String arg1,
+                          @HeaderParam("arg2") final int arg2,
+                          Employee employee) {
+
+
+        return sputs(arg1, arg2, employee);
+    }
+
 
 
 }
