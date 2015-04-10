@@ -86,7 +86,7 @@ public class ServiceServerImpl implements ServiceServer {
         //TODO don't hardcode this. Pass it form the builder.
 
         httpRequestServerHandler =
-                new HttpRequestServiceServerHandler(this.timeoutInSeconds,
+                new HttpRequestServiceServerHandlerImpl(this.timeoutInSeconds,
                         serviceBundle, jsonMapper, numberOfOutstandingRequests, flushInterval);
     }
 
@@ -96,6 +96,8 @@ public class ServiceServerImpl implements ServiceServer {
 
 
         stop.set(false);
+
+        httpRequestServerHandler.start();
 
         httpServer.setHttpRequestConsumer(httpRequestServerHandler::handleRestCall);
         httpServer.setWebSocketMessageConsumer(webSocketHandler::handleWebSocketCall);
