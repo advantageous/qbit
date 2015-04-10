@@ -79,7 +79,7 @@ public class SupportingGetAndPostForSameServicesUnderSameURI extends TimedTestin
     }
 
     @Test
-    public void testRestCallSimple() throws Exception {
+    public void testRestCallSimplePOST() throws Exception {
 
         final HttpRequest request = new HttpRequestBuilder()
                 .setUri("/services/pinger/ping")

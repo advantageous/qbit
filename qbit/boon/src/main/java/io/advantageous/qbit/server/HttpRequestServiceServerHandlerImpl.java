@@ -400,7 +400,8 @@ public class HttpRequestServiceServerHandlerImpl implements HttpRequestServiceSe
 
 
         if (debug) {
-            puts("Checking for timeout.", "duration", durationSinceLastCheck, "ms timeout", timeoutInMS);
+            puts("Checking for timeout. ", " duration ",
+                    durationSinceLastCheck, " ms timeout ", timeoutInMS);
         }
 
         executorService.submit(new Runnable() {

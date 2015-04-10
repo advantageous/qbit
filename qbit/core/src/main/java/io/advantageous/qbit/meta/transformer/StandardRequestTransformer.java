@@ -23,6 +23,8 @@ import io.advantageous.boon.core.reflection.MapObjectConversion;
 import io.advantageous.boon.core.reflection.MapperSimple;
 import io.advantageous.qbit.Factory;
 import io.advantageous.qbit.QBit;
+import io.advantageous.qbit.annotation.RequestMethod;
+import io.advantageous.qbit.http.request.HttpRequest;
 import io.advantageous.qbit.json.JsonMapper;
 import io.advantageous.qbit.message.MethodCall;
 import io.advantageous.qbit.message.MethodCallBuilder;
@@ -31,19 +33,22 @@ import io.advantageous.qbit.meta.ParameterMeta;
 import io.advantageous.qbit.meta.RequestMetaData;
 import io.advantageous.qbit.meta.params.*;
 import io.advantageous.qbit.meta.provider.MetaDataProvider;
+import io.advantageous.qbit.meta.provider.StandardMetaDataProvider;
+import io.advantageous.qbit.reactive.Callback;
 
 
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import static io.advantageous.boon.core.Str.sputs;
 
 public class StandardRequestTransformer implements RequestTransformer {
 
 
-    private final MetaDataProvider metaDataProvider;
+    private final Map<RequestMethod, StandardMetaDataProvider> metaDataProviderMap;
 
     private final Factory factory = QBit.factory();
 
@@ -55,16 +60,17 @@ public class StandardRequestTransformer implements RequestTransformer {
     };
 
 
-    public StandardRequestTransformer(MetaDataProvider metaDataProvider) {
-        this.metaDataProvider = metaDataProvider;
+    public StandardRequestTransformer(final Map<RequestMethod, StandardMetaDataProvider> metaDataProviderMap) {
+        this.metaDataProviderMap = metaDataProviderMap;
     }
 
 
     @Override
-    public MethodCall<Object> transform(final Request<Object> request,
+    public MethodCall<Object> transform(final HttpRequest request,
                                         final List<String> errorsList) {
 
-        final RequestMetaData metaData = metaDataProvider.get(request.address());
+
+        final RequestMetaData metaData = metaDataProviderMap.get(RequestMethod.valueOf(request.getMethod())).get(request.address());
 
 
         MethodCallBuilder methodCallBuilder = new MethodCallBuilder();
@@ -91,6 +97,10 @@ public class StandardRequestTransformer implements RequestTransformer {
 
             Object value;
             NamedParam namedParam;
+
+            if (parameterMeta.getClassType() == Callback.class) {
+                continue;
+            }
 
             switch (paramType) {
                 case REQUEST:

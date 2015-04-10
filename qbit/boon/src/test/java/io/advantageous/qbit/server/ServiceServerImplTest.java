@@ -128,8 +128,8 @@ public class ServiceServerImplTest extends TimedTesting {
         serviceServerImpl.start();
 
 
-        final HttpRequest request = new HttpRequestBuilder().setUri("/other/serviceCall")
-                .setTextReceiver(new MockReceiver()).setBody("").build();
+        final HttpRequest request = new HttpRequestBuilder().setUri("/services/other/servicecall")
+                .setTextReceiver(new MockReceiver()).setBody("\"call\"").build();
 
         httpServer.sendRequest(request);
 
@@ -270,24 +270,29 @@ public class ServiceServerImplTest extends TimedTesting {
     @Test
     public void testSimplePOST_HTTPRequest_ErrorWrongHttpMethod() throws Exception {
 
+        failureCounter = 0;
+        responseCounter =0;
+        callMeCounter = 0;
+
         final HttpRequest request = new HttpRequestBuilder().setUri("/services/mock/callPost").setTextReceiver(new MockReceiver()).setBody("[]").build();
 
         httpServer.sendRequest(request);
 
-        waitForTrigger(20, o -> responseCounter == 1);
+        waitForTrigger(20, o -> failureCounter == 1);
 
 
-        ok |= failureCounter == 0 || die();
-        ok |= callMeCounter == 1 || die();
+        ok |= failureCounter == 1 || die();
+        ok |= callMeCounter == 0 || die();
 
-        ok |= responseCounter == 1 || die();
+        ok |= responseCounter == 0 || die();
         puts(lastResponse);
     }
 
     @Test
     public void testAsyncCallHttp() throws Exception {
 
-        final HttpRequest request = new HttpRequestBuilder().setUri("/services/mock/callWithReturn").setTextReceiver(new MockReceiver()).setBody("").build();
+        final HttpRequest request = new HttpRequestBuilder().setUri("/services/mock/callWithReturn")
+                .setTextReceiver(new MockReceiver()).setBody("").build();
 
         httpServer.sendRequest(request);
 

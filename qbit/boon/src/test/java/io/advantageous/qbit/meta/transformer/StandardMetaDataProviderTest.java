@@ -1,5 +1,6 @@
 package io.advantageous.qbit.meta.transformer;
 
+import io.advantageous.qbit.annotation.RequestMethod;
 import io.advantageous.qbit.meta.RequestMetaData;
 import io.advantageous.qbit.meta.builder.ContextMetaBuilder;
 import io.advantageous.qbit.meta.provider.StandardMetaDataProvider;
@@ -25,7 +26,7 @@ public class StandardMetaDataProviderTest {
         contextMetaBuilder.addService(
                 SampleService.class);
 
-        provider = new StandardMetaDataProvider(contextMetaBuilder.build());
+        provider = new StandardMetaDataProvider(contextMetaBuilder.build(), RequestMethod.GET);
 
 
     }

@@ -164,7 +164,7 @@ public class ServiceBundleImpl implements ServiceBundle {
         this.beforeMethodCall = beforeMethodCall;
         this.beforeMethodCallAfterTransform = beforeMethodCallAfterTransform;
         this.argTransformer = argTransformer;
-        this.rootAddress = address;
+        this.rootAddress = rootAddress;
         this.factory = factory;
         this.asyncCalls = asyncCalls;
         this.requestQueueBuilder = requestQueueBuilder;
@@ -173,6 +173,42 @@ public class ServiceBundleImpl implements ServiceBundle {
         this.responseQueue = responseQueueBuilder.setName("Response Queue " + address).build();
         this.webResponseQueue = webResponseQueueBuilder.setName("Web Response Queue " + address).build();
         this.methodSendQueue = methodQueue.sendQueue();
+    }
+
+
+    /**
+     * Handles calling a method
+     *
+     * @param methodCall method call
+     */
+    private void doCall(MethodCall<Object> methodCall) {
+        if (debug) {
+            logger.debug(ServiceBundleImpl.class.getName(), "::doCall() ",
+                    methodCall.name(),
+                    methodCall.address(),
+                    "\n", methodCall);
+        }
+
+        try {
+            callbackManager.registerCallbacks(methodCall);
+            boolean[] continueFlag = new boolean[1];
+            methodCall = handleBeforeMethodCall(methodCall, continueFlag);
+
+            if (!continueFlag[0]) {
+                if (debug) {
+                    logger.debug(ServiceBundleImpl.class.getName() + "::doCall() " +
+                            "Flag from before call handling does not want to continue");
+                }
+            } else {
+                final Consumer<MethodCall<Object>> methodDispatcher = getMethodDispatcher(methodCall);
+                methodDispatcher.accept(methodCall);
+
+            }
+
+        } catch (Exception ex) {
+            Response<Object> response = new ResponseImpl<>(methodCall, ex);
+            this.responseQueue.sendQueue().sendAndFlush(response);
+        }
     }
 
     /**
@@ -290,8 +326,11 @@ public class ServiceBundleImpl implements ServiceBundle {
             serviceMapping.put(objectName, dispatch);
         }
 
+
+        serviceMapping.put(serviceQueue.name().toLowerCase(), dispatch);
         serviceMapping.put(serviceQueue.name(), dispatch);
         serviceMapping.put(serviceQueue.address(), dispatch);
+        serviceMapping.put(serviceQueue.address().toLowerCase(), dispatch);
 
         /** Add the request queue to our set of request queues. */
         sendQueues.add(dispatch.requests);
@@ -389,46 +428,6 @@ public class ServiceBundleImpl implements ServiceBundle {
         }
     }
 
-    /**
-     * Handles calling a method
-     *
-     * @param methodCall method call
-     */
-    private void doCall(MethodCall<Object> methodCall) {
-        if (debug) {
-            logger.debug(ServiceBundleImpl.class.getName(), "::doCall() ",
-                    methodCall.name(),
-                    methodCall.address(),
-                    "\n", methodCall);
-        }
-
-
-        try {
-
-            callbackManager.registerCallbacks(methodCall);
-            boolean[] continueFlag = new boolean[1];
-
-
-            methodCall = handleBeforeMethodCall(methodCall, continueFlag);
-
-
-            if (!continueFlag[0]) {
-                if (debug) {
-                    logger.debug(ServiceBundleImpl.class.getName() + "::doCall() " +
-                            "Flag from before call handling does not want to continue");
-                }
-            } else {
-                final Consumer<MethodCall<Object>> methodDispatcher = getMethodDispatcher(methodCall);
-                methodDispatcher.accept(methodCall);
-
-            }
-
-        } catch (Exception ex) {
-
-            Response<Object> response = new ResponseImpl<>(methodCall, ex);
-            this.responseQueue.sendQueue().sendAndFlush(response);
-        }
-    }
 
     private MethodCall<Object> handleBeforeMethodCall(MethodCall<Object> methodCall, boolean[] continueFlag) {
         methodCall = beforeMethodCall(methodCall, continueFlag);

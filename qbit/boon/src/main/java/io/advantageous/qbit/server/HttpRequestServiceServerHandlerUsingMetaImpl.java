@@ -2,6 +2,7 @@ package io.advantageous.qbit.server;
 
 import io.advantageous.boon.core.Str;
 import io.advantageous.qbit.GlobalConstants;
+import io.advantageous.qbit.annotation.RequestMethod;
 import io.advantageous.qbit.http.request.HttpRequest;
 import io.advantageous.qbit.http.request.HttpResponseReceiver;
 import io.advantageous.qbit.json.JsonMapper;
@@ -45,7 +46,7 @@ public class HttpRequestServiceServerHandlerUsingMetaImpl implements HttpRequest
     private final JsonMapper jsonMapper;
     private ContextMetaBuilder contextMetaBuilder = ContextMetaBuilder.contextMetaBuilder();
     private StandardRequestTransformer standardRequestTransformer;
-    private StandardMetaDataProvider metaDataProvider;
+    private Map<RequestMethod, StandardMetaDataProvider> metaDataProviderMap = new ConcurrentHashMap<>();
     private final Map<String, Request<Object>> outstandingRequestMap = new ConcurrentHashMap<>(100_000);
 
     private final ExecutorService executorService = Executors.newFixedThreadPool(5);
@@ -94,8 +95,17 @@ public class HttpRequestServiceServerHandlerUsingMetaImpl implements HttpRequest
 
     public void start() {
 
-        metaDataProvider = new StandardMetaDataProvider(contextMetaBuilder.build());
-        standardRequestTransformer = new StandardRequestTransformer(metaDataProvider);
+
+        metaDataProviderMap.put(RequestMethod.GET, new StandardMetaDataProvider(contextMetaBuilder.build(), RequestMethod.GET));
+        metaDataProviderMap.put(RequestMethod.POST, new StandardMetaDataProvider(contextMetaBuilder.build(), RequestMethod.POST));
+        metaDataProviderMap.put(RequestMethod.PUT, new StandardMetaDataProvider(contextMetaBuilder.build(), RequestMethod.PUT));
+        metaDataProviderMap.put(RequestMethod.DELETE, new StandardMetaDataProvider(contextMetaBuilder.build(), RequestMethod.DELETE));
+        metaDataProviderMap.put(RequestMethod.HEAD, new StandardMetaDataProvider(contextMetaBuilder.build(), RequestMethod.HEAD));
+        metaDataProviderMap.put(RequestMethod.OPTIONS, new StandardMetaDataProvider(contextMetaBuilder.build(), RequestMethod.OPTIONS));
+        metaDataProviderMap.put(RequestMethod.TRACE, new StandardMetaDataProvider(contextMetaBuilder.build(), RequestMethod.TRACE));
+        metaDataProviderMap.put(RequestMethod.CONNECT, new StandardMetaDataProvider(contextMetaBuilder.build(), RequestMethod.CONNECT));
+
+        standardRequestTransformer = new StandardRequestTransformer(metaDataProviderMap);
     }
 
     @Override
@@ -115,10 +125,12 @@ public class HttpRequestServiceServerHandlerUsingMetaImpl implements HttpRequest
             return;
         }
 
-        final RequestMetaData requestMetaData = metaDataProvider.get(request.address());
+        final RequestMetaData requestMetaData = metaDataProviderMap
+                .get(RequestMethod.valueOf(request.getMethod())).get(request.address());
 
         if (requestMetaData.getMethod().getMethodAccess().returnType() == void.class) {
 
+            request.handled();
             writeResponse(request.getReceiver(), 200,
                     "application/json", "\"success\"", request.getHeaders());
 
@@ -180,7 +192,7 @@ public class HttpRequestServiceServerHandlerUsingMetaImpl implements HttpRequest
 
 
         if (debug) {
-            puts("Checking for timeout.", "duration", durationSinceLastCheck, "ms timeout", timeoutInMS);
+            puts("Checking for timeout. ", " duration ", durationSinceLastCheck, " ms timeout ", timeoutInMS);
         }
 
         executorService.submit(new Runnable() {

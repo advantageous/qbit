@@ -20,6 +20,7 @@ package io.advantageous.qbit.meta.provider;
 
 import io.advantageous.boon.core.Str;
 import io.advantageous.boon.core.StringScanner;
+import io.advantageous.qbit.annotation.RequestMethod;
 import io.advantageous.qbit.meta.*;
 
 import java.util.Map;
@@ -32,10 +33,11 @@ public class StandardMetaDataProvider implements MetaDataProvider {
 
     final Map<String, RequestMetaData> metaDataMap = new ConcurrentHashMap<>(100);
     final NavigableMap<String, RequestMetaData> treeMap = new TreeMap<>();
+    private final RequestMethod httpRequestMethod;
 
 
-
-    public StandardMetaDataProvider(final ContextMeta context) {
+    public StandardMetaDataProvider(final ContextMeta context, final RequestMethod method) {
+        this.httpRequestMethod = method;
         context.getServices().forEach(service -> addService(context, service));
     }
 
@@ -68,14 +70,19 @@ public class StandardMetaDataProvider implements MetaDataProvider {
                              final RequestMeta requestMeta,
                              final String servicePath) {
 
+        if (!requestMeta.getRequestMethods().contains(httpRequestMethod)) {
+            return;
+        }
 
-
-        String requestPath = requestMeta.getCallType() == CallType.ADDRESS ? requestMeta.getRequestURI() :
+        final String requestPath = requestMeta.getCallType() == CallType.ADDRESS ? requestMeta.getRequestURI() :
                 StringScanner.substringBefore(requestMeta.getRequestURI(), "{");
+        final String path = Str.join('/', context.getRootURI(), servicePath, requestPath).replace("//", "/");
 
-        String path = Str.join('/', context.getRootURI(), servicePath, requestPath).replace("//", "/").toLowerCase();
+        addRequestEndPointUsingPath(context, service, method, requestMeta, path.toLowerCase());
 
+    }
 
+    private void addRequestEndPointUsingPath(ContextMeta context, ServiceMeta service, ServiceMethodMeta method, RequestMeta requestMeta, String path) {
         RequestMetaData metaData = new RequestMetaData(path, context, requestMeta, method, service);
 
         if (requestMeta.getCallType()== CallType.ADDRESS) {
@@ -83,12 +90,10 @@ public class StandardMetaDataProvider implements MetaDataProvider {
         } else {
             treeMap.put(path, metaData);
         }
-
     }
 
 
-    @Override
-    public RequestMetaData get(final String path) {
+    private RequestMetaData doGet(final String path) {
 
         RequestMetaData requestMetaData = metaDataMap.get(path);
 
@@ -106,5 +111,14 @@ public class StandardMetaDataProvider implements MetaDataProvider {
         } else {
             return requestMetaData;
         }
+    }
+
+    @Override
+    public RequestMetaData get(final String path) {
+        RequestMetaData requestMetaData = doGet(path);
+        if (requestMetaData==null) {
+            return doGet(path.toLowerCase());
+        }
+        return requestMetaData;
     }
 }

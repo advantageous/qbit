@@ -17,6 +17,7 @@
  */
 package io.advantageous.qbit.meta.transformer;
 
+import io.advantageous.qbit.http.request.HttpRequest;
 import io.advantageous.qbit.message.MethodCall;
 import io.advantageous.qbit.message.Request;
 
@@ -24,6 +25,6 @@ import java.util.List;
 
 public interface RequestTransformer {
 
-    MethodCall<Object> transform(Request<Object> request, List<String> errorsList);
+    MethodCall<Object> transform(HttpRequest request, List<String> errorsList);
 
 }

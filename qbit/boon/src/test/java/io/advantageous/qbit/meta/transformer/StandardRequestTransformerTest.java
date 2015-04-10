@@ -1,8 +1,10 @@
 package io.advantageous.qbit.meta.transformer;
 
+import io.advantageous.qbit.annotation.RequestMethod;
 import io.advantageous.qbit.http.request.HttpRequest;
 import io.advantageous.qbit.http.request.HttpRequestBuilder;
 import io.advantageous.qbit.message.MethodCall;
+import io.advantageous.qbit.message.Request;
 import io.advantageous.qbit.meta.builder.ContextMetaBuilder;
 import io.advantageous.qbit.meta.provider.StandardMetaDataProvider;
 import org.junit.Before;
@@ -10,8 +12,10 @@ import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
 
 import static io.advantageous.boon.core.IO.puts;
+import static io.advantageous.boon.core.Maps.safeMap;
 import static io.advantageous.boon.json.JsonFactory.toJson;
 import static junit.framework.Assert.assertNotNull;
 import static org.junit.Assert.assertEquals;
@@ -32,9 +36,15 @@ public class StandardRequestTransformerTest {
 
         contextMetaBuilder.addService(SampleService.class);
 
-        provider = new StandardMetaDataProvider(contextMetaBuilder.build());
+        provider = new StandardMetaDataProvider(contextMetaBuilder.build(), RequestMethod.GET);
 
-        standardRequestTransformer = new StandardRequestTransformer(provider);
+        StandardMetaDataProvider postProvider = new StandardMetaDataProvider(contextMetaBuilder.build(), RequestMethod.POST);
+
+
+
+        standardRequestTransformer = new StandardRequestTransformer(
+                safeMap(RequestMethod.GET, provider, RequestMethod.POST, postProvider)
+        );
     }
 
 
@@ -138,6 +148,7 @@ public class StandardRequestTransformerTest {
         requestBuilder.addParam("arg1", "" + 1);
         requestBuilder.setUri("/services/sample/service/method3/");
         requestBuilder.setBody(toJson(new Employee("Rick", "Hightower")));
+        requestBuilder.setMethod("POST");
         final HttpRequest request = requestBuilder.build();
 
 

@@ -94,7 +94,12 @@ public class ContextMetaBuilder {
             return Lists.list(asPath(value.toString()));
         } else if (value instanceof String[]){
 
-            return Lists.list((String[])value);
+            final String[] varray = (String[]) value;
+            if (varray.length > 0) {
+                return Lists.list((String[]) value);
+            } else {
+                return Lists.list("/"+name);
+            }
         } else {
             throw new IllegalStateException();
         }
