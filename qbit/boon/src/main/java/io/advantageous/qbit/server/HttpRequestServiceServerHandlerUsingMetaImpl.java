@@ -87,12 +87,13 @@ public class HttpRequestServiceServerHandlerUsingMetaImpl implements HttpRequest
 
         this.methodCallSendQueue = serviceBundle.methodSendQueue();
         this.flushInterval = flushInterval;
+
+        contextMetaBuilder = ContextMetaBuilder.contextMetaBuilder();
     }
 
 
     public void start() {
 
-        contextMetaBuilder = ContextMetaBuilder.contextMetaBuilder();
         metaDataProvider = new StandardMetaDataProvider(contextMetaBuilder.build());
         standardRequestTransformer = new StandardRequestTransformer(metaDataProvider);
     }

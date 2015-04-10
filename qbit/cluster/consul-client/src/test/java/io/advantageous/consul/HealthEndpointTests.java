@@ -44,6 +44,8 @@ public class HealthEndpointTests {
         client.agent().registerService(80, 20L, serviceName, serviceId);
         client.agent().pass(serviceId);
 
+        Sys.sleep(1000);
+
         boolean found = false;
         ConsulResponse<List<ServiceHealth>> response = client.health().getAllNodes(serviceName);
         assertHealth(serviceId, found, response);
@@ -60,6 +62,8 @@ public class HealthEndpointTests {
 
         client.agent().registerService(8080, 20L, serviceName, serviceId);
         client.agent().pass(serviceId);
+
+        Sys.sleep(1000);
 
         boolean found = false;
         ConsulResponse<List<ServiceHealth>> response = client.health().getAllNodes(serviceName,
@@ -78,7 +82,7 @@ public class HealthEndpointTests {
 
         client.agent().registerService(8080, 20L, serviceName, serviceId);
         client.agent().warn(serviceId);
-        Sys.sleep(100);
+        Sys.sleep(1000);
 
         boolean found = false;
         ConsulResponse<List<HealthCheck>> response = client.health().getChecksByState(Status.WARN);
@@ -125,6 +129,9 @@ public class HealthEndpointTests {
 
         client2.agent().registerService(80, 20L, serviceName, serviceId2);
         client2.agent().fail(serviceId2);
+
+
+        Sys.sleep(1000);
 
         boolean found = false;
         ConsulResponse<List<ServiceHealth>> response = client2.health().getHealthyServices(serviceName);

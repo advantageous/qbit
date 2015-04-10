@@ -85,9 +85,14 @@ public class ServiceServerImpl implements ServiceServer {
         webSocketHandler = new WebSocketServiceServerHandler(batchSize, serviceBundle, 4, 4);
         //TODO don't hardcode this. Pass it form the builder.
 
+//        httpRequestServerHandler =
+//                new HttpRequestServiceServerHandlerUsingMetaImpl(this.timeoutInSeconds,
+//                        serviceBundle, jsonMapper, numberOfOutstandingRequests, flushInterval);
+
         httpRequestServerHandler =
                 new HttpRequestServiceServerHandlerImpl(this.timeoutInSeconds,
                         serviceBundle, jsonMapper, numberOfOutstandingRequests, flushInterval);
+
     }
 
 

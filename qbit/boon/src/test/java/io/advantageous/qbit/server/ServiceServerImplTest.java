@@ -136,7 +136,7 @@ public class ServiceServerImplTest extends TimedTesting {
 
         Sys.sleep(100);
 
-        waitForTrigger(100, o -> responseCounter == 1 && callMeCounter == 1);
+        waitForTrigger(20, o -> responseCounter == 1 && callMeCounter == 1);
 
         ok |= responseCounter == 1 || die();
         ok |= callMeCounter == 1 || die();
