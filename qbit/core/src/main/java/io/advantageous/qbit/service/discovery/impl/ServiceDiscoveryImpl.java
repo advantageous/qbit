@@ -69,12 +69,15 @@ public class ServiceDiscoveryImpl implements ServiceDiscovery {
     }
 
 
-    @Override
-    public ServiceDefinition register(final String serviceName, final int port) {
+    public ServiceDefinition registerWithTTL(
+            final String serviceName,
+            final int port,
+            final int timeToLiveSeconds) {
+
 
         if (trace) {
             logger.trace(
-                    "ServiceDiscoveryImpl::register()" + serviceName, port
+                    "ServiceDiscoveryImpl::registerWithTTL() " + serviceName + " " + port
             );
         }
 
@@ -83,6 +86,74 @@ public class ServiceDiscoveryImpl implements ServiceDiscovery {
 
         ServiceDefinition serviceDefinition = new ServiceDefinition(HealthStatus.PASS,
                 serviceName + "-" + UUID.randomUUID().toString(),
+                serviceName, null, port, timeToLiveSeconds);
+
+        registerQueue.offer(serviceDefinition);
+
+        return serviceDefinition;
+    }
+
+
+
+    public ServiceDefinition registerWithIdAndTimeToLive(
+            final String serviceName, final String serviceId, final int port, final int timeToLiveSeconds) {
+
+
+        if (trace) {
+            logger.trace(
+                    "ServiceDiscoveryImpl::registerWithIdAndTimeToLive() " + serviceName + " " + port
+            );
+        }
+
+        watch(serviceName);
+        ServiceDefinition serviceDefinition = new ServiceDefinition(HealthStatus.PASS,
+                serviceId,
+                serviceName, null, port, timeToLiveSeconds);
+
+
+        registerQueue.offer(serviceDefinition);
+
+        return serviceDefinition;
+    }
+
+    @Override
+    public ServiceDefinition register(final String serviceName, final int port) {
+
+        if (trace) {
+            logger.trace(
+                    "ServiceDiscoveryImpl::register()" + serviceName + " " + port
+            );
+        }
+
+        watch(serviceName);
+
+
+        ServiceDefinition serviceDefinition = new ServiceDefinition(HealthStatus.PASS,
+                serviceName + "-" + UUID.randomUUID().toString(),
+                serviceName, null, port);
+
+        registerQueue.offer(serviceDefinition);
+
+        return serviceDefinition;
+
+    }
+
+
+
+    @Override
+    public ServiceDefinition registerWithId(final String serviceName, final String serviceId, final int port) {
+
+        if (trace) {
+            logger.trace(
+                    "ServiceDiscoveryImpl::registerWithId()" + serviceName + " " + port
+            );
+        }
+
+        watch(serviceName);
+
+
+        ServiceDefinition serviceDefinition = new ServiceDefinition(HealthStatus.PASS,
+                serviceId,
                 serviceName, null, port);
 
         registerQueue.offer(serviceDefinition);

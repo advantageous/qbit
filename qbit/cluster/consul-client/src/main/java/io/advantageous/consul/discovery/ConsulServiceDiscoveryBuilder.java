@@ -36,32 +36,36 @@ public class ConsulServiceDiscoveryBuilder {
         return consulHost;
     }
 
-    public void setConsulHost(String consulHost) {
+    public ConsulServiceDiscoveryBuilder setConsulHost(String consulHost) {
         this.consulHost = consulHost;
+        return this;
     }
 
     public int getConsulPort() {
         return consulPort;
     }
 
-    public void setConsulPort(int consulPort) {
+    public ConsulServiceDiscoveryBuilder setConsulPort(int consulPort) {
         this.consulPort = consulPort;
+        return this;
     }
 
     public String getDatacenter() {
         return datacenter;
     }
 
-    public void setDatacenter(String datacenter) {
+    public ConsulServiceDiscoveryBuilder setDatacenter(String datacenter) {
         this.datacenter = datacenter;
+        return this;
     }
 
     public String getTag() {
         return tag;
     }
 
-    public void setTag(String tag) {
+    public ConsulServiceDiscoveryBuilder setTag(String tag) {
         this.tag = tag;
+        return this;
     }
 
     public int getLongPollTimeSeconds() {

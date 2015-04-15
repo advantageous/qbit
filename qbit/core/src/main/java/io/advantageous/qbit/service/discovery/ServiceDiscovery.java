@@ -23,6 +23,36 @@ public interface ServiceDiscovery extends Startable, Stoppable {
     }
 
 
+
+    default ServiceDefinition registerWithTTL(
+            final String serviceName,
+            final int port,
+            final int timeToLiveSeconds) {
+
+        return new ServiceDefinition(HealthStatus.PASS,
+                serviceName + "." + UUID.randomUUID().toString(),
+                serviceName, null, port, timeToLiveSeconds);
+    }
+
+
+
+    default ServiceDefinition registerWithIdAndTimeToLive(
+            final String serviceName, final String serviceId, final int port, final int timeToLiveSeconds) {
+
+        return new ServiceDefinition(HealthStatus.PASS,
+                serviceId,
+                serviceName, null, port, timeToLiveSeconds);
+    }
+
+    default ServiceDefinition registerWithId(final String serviceName, final String serviceId, final int port) {
+
+        return new ServiceDefinition(HealthStatus.PASS,
+                serviceId,
+                serviceName, null, port);
+    }
+
+
+
     void watch(String serviceName);
 
     default void checkIn(String serviceId, HealthStatus healthStatus) {
