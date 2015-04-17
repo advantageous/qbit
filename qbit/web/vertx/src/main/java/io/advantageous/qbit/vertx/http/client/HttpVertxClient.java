@@ -62,7 +62,7 @@ public class HttpVertxClient implements HttpClient {
     protected final boolean pipeline;
     protected final int flushInterval;
     private final Logger logger = LoggerFactory.getLogger(HttpVertxClient.class);
-    private final boolean debug = false || logger.isDebugEnabled() || GlobalConstants.DEBUG;
+    private final boolean debug = logger.isDebugEnabled() || GlobalConstants.DEBUG;
     /**
      * Are we closed.
      */
