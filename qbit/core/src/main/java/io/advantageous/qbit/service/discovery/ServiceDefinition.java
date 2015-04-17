@@ -82,6 +82,17 @@ public class ServiceDefinition {
                 name + "-" + uniqueString(0), name, host, 0);
     }
 
+
+    public static ServiceDefinition serviceDefinitionWithId(
+            final String name,
+            final String host,
+            final String id
+    ) {
+
+        return new ServiceDefinition(HealthStatus.PASS,
+                id, name, host, 0);
+    }
+
     public HealthStatus getHealthStatus() {
         return healthStatus;
     }

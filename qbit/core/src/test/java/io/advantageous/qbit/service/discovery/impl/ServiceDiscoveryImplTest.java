@@ -15,6 +15,7 @@ import org.junit.Test;
 import java.util.Collections;
 import java.util.List;
 import java.util.Queue;
+import java.util.UUID;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
@@ -24,6 +25,7 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import static io.advantageous.boon.core.IO.puts;
 import static io.advantageous.qbit.service.discovery.ServiceDefinition.serviceDefinition;
+import static io.advantageous.qbit.service.discovery.ServiceDefinition.serviceDefinitionWithId;
 import static io.advantageous.qbit.service.discovery.ServiceDefinition.serviceDefinitions;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -229,10 +231,10 @@ public class ServiceDiscoveryImplTest {
 
         String serviceName = "fooBar";
 
-        ServiceDefinition serviceDefinition1 = serviceDefinition(serviceName, "host1");
-        ServiceDefinition serviceDefinition2 = serviceDefinition(serviceName, "host2");
-        ServiceDefinition serviceDefinition3 = serviceDefinition(serviceName, "host3");
-        ServiceDefinition serviceDefinition4 = serviceDefinition(serviceName, "host4");
+        ServiceDefinition serviceDefinition1 = serviceDefinitionWithId(serviceName, "host1", UUID.randomUUID().toString());
+        ServiceDefinition serviceDefinition2 = serviceDefinitionWithId(serviceName, "host2", UUID.randomUUID().toString());
+        ServiceDefinition serviceDefinition3 = serviceDefinitionWithId(serviceName, "host3", UUID.randomUUID().toString());
+        ServiceDefinition serviceDefinition4 = serviceDefinitionWithId(serviceName, "host4", UUID.randomUUID().toString());
 
 
         List<ServiceDefinition> fooServices = serviceDefinitions(
