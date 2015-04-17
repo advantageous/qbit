@@ -35,6 +35,8 @@ import io.advantageous.qbit.service.discovery.ServiceDefinition;
 import io.advantageous.qbit.service.discovery.ServiceDiscovery;
 import io.advantageous.qbit.util.Timer;
 
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -181,8 +183,9 @@ public class StatServiceBuilder {
         return serviceName;
     }
 
-    public void setServiceName(String serviceName) {
+    public StatServiceBuilder setServiceName(String serviceName) {
         this.serviceName = serviceName;
+        return this;
     }
 
     private ClientBuilder getClientBuilder() {
@@ -256,10 +259,27 @@ public class StatServiceBuilder {
 
         final ServiceServerBuilder serviceServerBuilder = getServiceServerBuilder();
 
+
+
+
         if (serviceDiscovery!=null) {
-            final ServiceDefinition serviceDefinition = serviceDiscovery
-                    .register(this.getServiceName(), serviceServerBuilder.getPort());
-            localServiceId = serviceDefinition.getId();
+
+            if (localServiceId == null || "".equals(localServiceId.trim())){
+
+                try {
+                    localServiceId =
+                            serviceName + "." + serviceServerBuilder.getPort() + "." + InetAddress.getLocalHost().getHostName() ;
+                } catch (UnknownHostException e) {
+                    localServiceId =
+                            serviceName + "." + serviceServerBuilder.getPort() + "." + "localhost";
+                }
+            }
+
+
+            serviceDiscovery.registerWithIdAndTimeToLive(this.getServiceName(), localServiceId,
+                                    serviceServerBuilder.getPort(), timeToLiveCheckInterval);
+
+
         }
         final ServiceQueue serviceQueue = getServiceQueue();
         final ServiceServer serviceServer = serviceServerBuilder.build();

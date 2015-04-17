@@ -7,6 +7,8 @@ import io.advantageous.qbit.events.impl.EventConnectorHub;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
@@ -36,14 +38,18 @@ public class EventBusClusterBuilder {
 
 
     public EventBusCluster build() {
-        if (localEventBusId==null) {
-            localEventBusId = eventBusName + UUID.randomUUID().toString();
-        }
 
         if (consulHost==null) {
             consulHost = "localhost";
         }
 
+        if (localEventBusId==null) {
+            try {
+                localEventBusId = eventBusName + "." + replicationPortLocal + "." + InetAddress.getLocalHost().getHostName() ;
+            } catch (UnknownHostException e) {
+                localEventBusId = eventBusName + "." + replicationPortLocal + "." + consulHost;
+            }
+        }
 
         return new EventBusCluster(getEventManager(), getEventBusName(), getLocalEventBusId(),
                 getEventConnectorHub(), getPeriodicScheduler(),

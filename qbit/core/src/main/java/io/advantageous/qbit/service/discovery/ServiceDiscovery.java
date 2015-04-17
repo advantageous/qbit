@@ -3,6 +3,8 @@ package io.advantageous.qbit.service.discovery;
 import io.advantageous.qbit.service.Startable;
 import io.advantageous.qbit.service.Stoppable;
 
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
@@ -18,7 +20,7 @@ public interface ServiceDiscovery extends Startable, Stoppable {
             final int port) {
 
         return new ServiceDefinition(HealthStatus.PASS,
-                serviceName + "." + UUID.randomUUID().toString(),
+                serviceName + "." + uniqueString(port),
                 serviceName, null, port);
     }
 
@@ -30,10 +32,17 @@ public interface ServiceDiscovery extends Startable, Stoppable {
             final int timeToLiveSeconds) {
 
         return new ServiceDefinition(HealthStatus.PASS,
-                serviceName + "." + UUID.randomUUID().toString(),
+                serviceName + "." + uniqueString(port),
                 serviceName, null, port, timeToLiveSeconds);
     }
 
+    static String uniqueString(int port) {
+        try {
+            return port + "." + InetAddress.getLocalHost().getHostName() ;
+        } catch (UnknownHostException e) {
+            return port + "." + UUID.randomUUID().toString();
+        }
+    }
 
 
     default ServiceDefinition registerWithIdAndTimeToLive(
