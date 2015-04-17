@@ -40,6 +40,7 @@ import static org.junit.Assert.assertTrue;
 public class CatalogEndpointTest {
 
 
+
     @Test
     public void getServices() throws Exception {
         Consul client = Consul.consul();
