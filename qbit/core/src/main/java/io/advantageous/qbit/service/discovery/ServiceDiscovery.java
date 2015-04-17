@@ -78,6 +78,10 @@ public interface ServiceDiscovery extends Startable, Stoppable {
         return Collections.emptyList();
     }
 
+    default List<ServiceDefinition> loadServicesNow(final String serviceName) {
+
+        return Collections.emptyList();
+    }
 
     default void start() {}
     default void stop() {}

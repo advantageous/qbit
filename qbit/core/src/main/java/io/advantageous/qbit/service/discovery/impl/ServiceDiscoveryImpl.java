@@ -176,6 +176,8 @@ public class ServiceDiscoveryImpl implements ServiceDiscovery {
 
     }
 
+
+
     @Override
     public void checkIn(final String serviceId, final HealthStatus healthStatus) {
 
@@ -235,6 +237,29 @@ public class ServiceDiscoveryImpl implements ServiceDiscovery {
             return Collections.emptyList();
         }
         return servicePool.services();
+    }
+
+
+    public List<ServiceDefinition> loadServicesNow(final String serviceName) {
+
+
+        if (trace) {
+            logger.trace(
+                    "ServiceDiscoveryImpl::loadServices()" + serviceName
+            );
+        }
+
+        ServicePool servicePool = servicePoolMap.get(serviceName);
+        if (servicePool == null) {
+            servicePool = new ServicePool(serviceName, this.servicePoolListener);
+            servicePoolMap.put(serviceName, servicePool);
+            final List<ServiceDefinition> healthyServices = provider.loadServices(serviceName);
+            servicePool.setHealthyNodes(healthyServices, this.servicePoolListener);
+            watch(serviceName);
+        }
+        return servicePool.services();
+
+
     }
 
 
