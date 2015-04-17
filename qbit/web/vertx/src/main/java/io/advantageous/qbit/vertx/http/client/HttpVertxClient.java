@@ -215,7 +215,7 @@ public class HttpVertxClient implements HttpClient {
             }
         } catch (Exception ex) {
 
-            logger.warn("problem shutting down vertx httpClient for QBIT Http Client", ex);
+            logger.debug("problem shutting down vertx httpClient for QBIT Http Client", ex);
         }
 
     }
