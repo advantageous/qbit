@@ -265,14 +265,9 @@ public class StatServiceBuilder {
         if (serviceDiscovery!=null) {
 
             if (localServiceId == null || "".equals(localServiceId.trim())){
+                    localServiceId =
+                            serviceName + "-" + ServiceDiscovery.uniqueString(serviceServerBuilder.getPort());
 
-                try {
-                    localServiceId =
-                            serviceName + "." + serviceServerBuilder.getPort() + "." + InetAddress.getLocalHost().getHostName() ;
-                } catch (UnknownHostException e) {
-                    localServiceId =
-                            serviceName + "." + serviceServerBuilder.getPort() + "." + "localhost";
-                }
             }
 
 

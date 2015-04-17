@@ -2,11 +2,13 @@ package io.advantageous.qbit.service.discovery;
 
 import io.advantageous.qbit.service.Startable;
 import io.advantageous.qbit.service.Stoppable;
+import io.advantageous.qbit.util.ConcurrentHashSet;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 /**
@@ -38,9 +40,9 @@ public interface ServiceDiscovery extends Startable, Stoppable {
 
     static String uniqueString(int port) {
         try {
-            return port + "." + InetAddress.getLocalHost().getHostName() ;
+            return port + "-" + InetAddress.getLocalHost().getHostName().replace('.', '-');
         } catch (UnknownHostException e) {
-            return port + "." + UUID.randomUUID().toString();
+            return port + "-" + UUID.randomUUID().toString();
         }
     }
 
@@ -86,4 +88,8 @@ public interface ServiceDiscovery extends Startable, Stoppable {
     default void start() {}
     default void stop() {}
 
+
+    default Set<ServiceDefinition> localDefinitions() {
+       return Collections.emptySet();
+    }
 }

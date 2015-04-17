@@ -2,8 +2,12 @@ package io.advantageous.qbit.service.discovery;
 
 import io.advantageous.boon.core.Lists;
 
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.List;
 import java.util.UUID;
+
+import static io.advantageous.qbit.service.discovery.ServiceDiscovery.uniqueString;
 
 /**
  * Service Definition
@@ -65,8 +69,9 @@ public class ServiceDefinition {
             final int port) {
 
         return new ServiceDefinition(HealthStatus.PASS,
-                name + "-" + UUID.randomUUID().toString(), name, host, port);
+                name + "-" + uniqueString(port), name, host, port);
     }
+
 
     public static ServiceDefinition serviceDefinition(
             final String name,
@@ -74,7 +79,7 @@ public class ServiceDefinition {
     ) {
 
         return new ServiceDefinition(HealthStatus.PASS,
-                name + "-" + UUID.randomUUID().toString(), name, host, 0);
+                name + "-" + uniqueString(0), name, host, 0);
     }
 
     public HealthStatus getHealthStatus() {

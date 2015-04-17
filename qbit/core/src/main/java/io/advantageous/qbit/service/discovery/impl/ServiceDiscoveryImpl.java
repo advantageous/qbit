@@ -27,6 +27,8 @@ public class ServiceDiscoveryImpl implements ServiceDiscovery {
     private final ServicePoolListener servicePoolListener;
     private final ExecutorService executorService;
     private final ConcurrentHashMap<String, ServicePool> servicePoolMap = new ConcurrentHashMap<>();
+
+    private final ConcurrentHashSet<ServiceDefinition> serviceDefinitions = new ConcurrentHashSet<>();
     private final ServiceDiscoveryProvider provider;
     private final Logger logger = LoggerFactory.getLogger(ServiceDiscoveryImpl.class);
     private final boolean debug = false || GlobalConstants.DEBUG || logger.isDebugEnabled();
@@ -66,6 +68,11 @@ public class ServiceDiscoveryImpl implements ServiceDiscovery {
             );
         }
 
+
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            if (!stop.get()) stop();
+        }));
+
     }
 
 
@@ -85,12 +92,10 @@ public class ServiceDiscoveryImpl implements ServiceDiscovery {
 
 
         ServiceDefinition serviceDefinition = new ServiceDefinition(HealthStatus.PASS,
-                serviceName + "-" + UUID.randomUUID().toString(),
+                serviceName + "-" + ServiceDiscovery.uniqueString(port),
                 serviceName, null, port, timeToLiveSeconds);
 
-        registerQueue.offer(serviceDefinition);
-
-        return serviceDefinition;
+        return doRegister(serviceDefinition);
     }
 
 
@@ -111,6 +116,12 @@ public class ServiceDiscoveryImpl implements ServiceDiscovery {
                 serviceName, null, port, timeToLiveSeconds);
 
 
+        return doRegister(serviceDefinition);
+    }
+
+    private ServiceDefinition doRegister(ServiceDefinition serviceDefinition) {
+
+        serviceDefinitions.add(serviceDefinition);
         registerQueue.offer(serviceDefinition);
 
         return serviceDefinition;
@@ -129,12 +140,10 @@ public class ServiceDiscoveryImpl implements ServiceDiscovery {
 
 
         ServiceDefinition serviceDefinition = new ServiceDefinition(HealthStatus.PASS,
-                serviceName + "-" + UUID.randomUUID().toString(),
+                serviceName + "-" + ServiceDiscovery.uniqueString(port),
                 serviceName, null, port);
 
-        registerQueue.offer(serviceDefinition);
-
-        return serviceDefinition;
+        return doRegister(serviceDefinition);
 
     }
 
@@ -156,9 +165,7 @@ public class ServiceDiscoveryImpl implements ServiceDiscovery {
                 serviceId,
                 serviceName, null, port);
 
-        registerQueue.offer(serviceDefinition);
-
-        return serviceDefinition;
+        return doRegister(serviceDefinition);
 
     }
 
@@ -336,8 +343,13 @@ public class ServiceDiscoveryImpl implements ServiceDiscovery {
             logger.debug("Stopping Service Discovery");
         }
 
+        provider.unregisterServices(serviceDefinitions);
         this.periodicScheduler.stop();
         this.stop.set(true);
 
+    }
+
+    public Set<ServiceDefinition> localDefinitions() {
+        return serviceDefinitions;
     }
 }

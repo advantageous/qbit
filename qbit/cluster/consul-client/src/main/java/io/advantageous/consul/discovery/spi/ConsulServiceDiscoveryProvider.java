@@ -74,6 +74,20 @@ public class ConsulServiceDiscoveryProvider implements ServiceDiscoveryProvider 
         }
     }
 
+
+
+    @Override
+    public void unregisterServices(final ConcurrentHashSet<ServiceDefinition> serviceDefinitions){
+
+
+        for (ServiceDefinition definition : serviceDefinitions) {
+            Consul consul = consulThreadLocal.get();
+            consul.agent().deregister(definition.getId());
+        }
+
+
+    }
+
     @Override
     public void registerServices(final Queue<ServiceDefinition> registerQueue) {
 

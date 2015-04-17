@@ -4,6 +4,7 @@ import io.advantageous.qbit.GlobalConstants;
 import io.advantageous.qbit.concurrent.PeriodicScheduler;
 import io.advantageous.qbit.events.EventManager;
 import io.advantageous.qbit.events.impl.EventConnectorHub;
+import io.advantageous.qbit.service.discovery.ServiceDiscovery;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -44,11 +45,7 @@ public class EventBusClusterBuilder {
         }
 
         if (localEventBusId==null) {
-            try {
-                localEventBusId = eventBusName + "." + replicationPortLocal + "." + InetAddress.getLocalHost().getHostName() ;
-            } catch (UnknownHostException e) {
-                localEventBusId = eventBusName + "." + replicationPortLocal + "." + consulHost;
-            }
+                localEventBusId = eventBusName + "-" + ServiceDiscovery.uniqueString(replicationPortLocal);
         }
 
         return new EventBusCluster(getEventManager(), getEventBusName(), getLocalEventBusId(),
