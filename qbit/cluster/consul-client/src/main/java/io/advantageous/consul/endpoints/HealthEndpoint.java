@@ -485,6 +485,10 @@ public class HealthEndpoint {
 
         final HttpResponse httpResponse = httpClient.sendRequestAndWait(httpRequestBuilder.build());
 
+        if (httpResponse == null) {
+            die("No response from server for get all nodes request");
+        }
+
         if (httpResponse.code()!=200) {
             die("Unable to retrieve the service", path, httpResponse.code(), httpResponse.body());
         }

@@ -230,7 +230,7 @@ project('web:vertx') {
 project('cluster:consul-client') {
 
 
-    //test.onlyIf { Boolean.getBoolean('consul.running') }
+    test.onlyIf { Boolean.getBoolean('consul.running') }
 
     dependencies {
         //compile project(":qbit:web:jetty")
@@ -239,11 +239,11 @@ project('cluster:consul-client') {
 
 
 
-    task runConsul(type: RunConsul) << {
-
-    }
-
-    test.dependsOn(runConsul)
+//    task runConsul(type: RunConsul) << {
+//
+//    }
+//
+//    test.dependsOn(runConsul)
 
     uploadArchives {
         repositories {
@@ -368,18 +368,61 @@ class RunConsul extends DefaultTask {
     @TaskAction
     void runIt() {
 
+        println("${execFile} is here")
+
         if (!execFile.exists()) {
+
+            println("${execFile} did not exist")
             findItUnpackIt()
         }
 
 
-        ant.exec(command: "/bin/sh -c  \"${execFile}  agent -server -bootstrap-expect 1 -data-dir /tmp/consul\"",
-                spawn: true)
+        mixinAntExec()
+        println("Running consul \n ${execFile}  agent -server -bootstrap -data-dir /tmp/consul")
 
-        for (int index = 0; index < 10; index++) {
+        "/bin/sh -c  \"${execFile}  agent -server -bootstrap -data-dir /tmp/consul\"".antExec()
+
+        for (int index = 0; index < 5; index++) {
             ant.sleep(seconds: 1)
             ant.echo(message: "Waiting for consul $index")
         }
+    }
+
+
+    def mixinAntExec() {
+        String.metaClass.antExec = {failOnError=true -> antExec([delegate], failOnError)}
+        ArrayList.metaClass.antExec << {failOnError=true -> antExec(delegate, failOnError)}
+    }
+
+    def antExec(command, failOnError=true) {
+        def commandLiteral = command.collect{it.contains(' ') ? '"' + it + '"' : it}.join(' ')
+
+        println "ant exec with: ${commandLiteral}"
+
+        ant.exec(
+                failonerror: false,
+                spawn: true,
+                executable: command[0]) {
+            if (command.size()>1)
+                arg(line:command[1..-1].collect{it.contains(' ') ? '"' + it + '"' : it}.join(' '))
+        }
+
+        def result = new Expando(
+                text: ant.project.properties.text,
+                error: ant.project.properties.error,
+                exitValue: ant.project.properties.exitValue as Integer,
+                toString: {text}
+        )
+
+        if (failOnError && result.exitValue != 0){
+            throw new Exception("""command failed with ${result.exitValue}
+executed: ${commandLiteral}
+error: ${result.error}
+text: ${result.text}""")
+
+        }
+
+        return result
     }
 }
 
