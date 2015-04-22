@@ -42,7 +42,9 @@ public class HttpPerfClientTest {
     private static volatile LongAdder errorCount = new LongAdder();
     private static volatile LongAdder receivedCount = new LongAdder();
 
+
     public static void main(String... args) throws InterruptedException {
+
 
         puts("Arguments", args);
 
@@ -142,8 +144,8 @@ public class HttpPerfClientTest {
                     for (int index = 0; index < countPerThread; index++) {
                         client.sendHttpRequest(perfRequest);
 
-                        if (index % 30_000 == 0) {
-                            Sys.sleep(3_000);
+                        if (index % 3000 == 0) {
+                            Sys.sleep(125);
                         }
 
 //                        if (index % 200_000 == 0) {
@@ -191,8 +193,14 @@ public class HttpPerfClientTest {
             }
 
             if (i % 10 == 0) {
-                long duration = System.currentTimeMillis() - startTime;
-                puts("DURATION", duration / 1000, "count", receivedCount, "errors", errorCount);
+                long duration = System.currentTimeMillis() - startTime ;
+                try {
+                    puts("DURATION", duration / 1000, "count",
+                            receivedCount, "errors", errorCount, "rate seconds",
+                            receivedCount.longValue() / (duration / 1000));
+                } catch (Exception ex) {
+
+                }
             }
             Sys.sleep(100);
 
