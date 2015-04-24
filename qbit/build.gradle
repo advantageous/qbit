@@ -143,6 +143,18 @@ project('boon') {
     }
 }
 
+project('web') {
+    uploadArchives {
+        repositories {
+            mavenDeployer {
+                pom.project {
+                    description 'HTTP integrations for qbit'
+                }
+            }
+        }
+    }
+}
+
 project('web:servlet') {
 
     dependencies {
@@ -227,6 +239,18 @@ project('web:vertx') {
     }
 }
 
+project('cluster') {
+    uploadArchives {
+        repositories {
+            mavenDeployer {
+                pom.project {
+                    description 'libraries for running qbit in a cluster'
+                }
+            }
+        }
+    }
+}
+
 project('cluster:consul-client') {
 
 
@@ -236,14 +260,6 @@ project('cluster:consul-client') {
         //compile project(":qbit:web:jetty")
         compile project(":qbit:web:vertx")
     }
-
-
-
-//    task runConsul(type: RunConsul) << {
-//
-//    }
-//
-//    test.dependsOn(runConsul)
 
     uploadArchives {
         repositories {
@@ -296,16 +312,23 @@ project('cluster:eventbus-replicator') {
     }
 }
 
-
-
+project('test-support') {
+    uploadArchives {
+        repositories {
+            mavenDeployer {
+                pom.project {
+                    description 'support library for unit and integration tests'
+                }
+            }
+        }
+    }
+}
 
 class RunConsul extends DefaultTask {
 
-    def execFile = new File(project.rootDir,
-            '/tmp/consul/bin/consul')
+    def execFile = new File(project.rootDir, '/tmp/consul/bin/consul')
 
     def zipFile = new File(project.rootDir, '/tmp/consul/bin/consul.zip')
-
 
     def linuxDist = "https://dl.bintray.com/mitchellh/consul/0.5.0_linux_amd64.zip"
     def macDist = "https://dl.bintray.com/mitchellh/consul/0.5.0_darwin_amd64.zip"
