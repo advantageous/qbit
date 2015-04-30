@@ -29,6 +29,7 @@ import io.advantageous.qbit.util.MultiMap;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 
@@ -46,8 +47,19 @@ public interface HttpClient {
     public static int HTTP_CLIENT_DEFAULT_TIMEOUT = Sys.sysProp(
             "io.advantageous.qbit.http.client.HttpClient.timeout", 30);
 
+    default boolean isClosed() {
+        return false;
+    }
+
+    default void checkClosed() {
+        if (isClosed()) {
+            throw new HttpClientClosedConnectionException();
+        }
+    }
+
     public static void _createHttpTextReceiver(final HttpRequest httpRequest,
                                                final CountDownLatch countDownLatch,
+                                               final CountDownLatch countDownLatch2,
                                                final AtomicReference<HttpResponse> httpResponseAtomicReference) {
 
         final HttpTextReceiver httpTextReceiver = new HttpTextReceiver() {
@@ -96,6 +108,7 @@ public interface HttpClient {
                         }
                 );
                 countDownLatch.countDown();
+                countDownLatch2.countDown();
             }
         };
 
@@ -422,20 +435,33 @@ public interface HttpClient {
     default HttpResponse sendRequestAndWait(final HttpRequest httpRequest, long wait, TimeUnit timeUnit) {
 
 
+        final CountDownLatch countDownLatchConnect = new CountDownLatch(1);
         final CountDownLatch countDownLatch = new CountDownLatch(1);
         final AtomicReference<HttpResponse> httpResponseAtomicReference = new AtomicReference<>();
 
 
-        _createHttpTextReceiver(httpRequest, countDownLatch, httpResponseAtomicReference);
+        _createHttpTextReceiver(httpRequest, countDownLatch, countDownLatchConnect, httpResponseAtomicReference);
 
         sendHttpRequest(httpRequest);
 
+
+
         try {
-            countDownLatch.await(wait, timeUnit);
+
+            countDownLatchConnect.await(500, TimeUnit.MILLISECONDS);
+            checkClosed();
+            if (countDownLatch.getCount() > 0) {
+                countDownLatch.await(wait, timeUnit);
+            }
         } catch (InterruptedException e) {
             if (Thread.currentThread().isInterrupted()) {
                 Thread.interrupted();
             }
+        }
+
+
+        if (countDownLatch.getCount()>0) {
+            throw new HttpClientTimeoutException();
         }
         return httpResponseAtomicReference.get();
 

@@ -161,9 +161,9 @@ public class ClusteredStatReplicator implements StatReplicator, ServiceChangedEv
                     }
             );
 
-            if (debug) {
+            if (trace) {
 
-                logger.debug(sputs("ClusteredStatReplicator::flushReplicatorsAll()",
+                logger.trace(sputs("ClusteredStatReplicator::flushReplicatorsAll()",
                         badReplicators.size()));
                 badReplicators.forEach(statReplicator -> logger.debug(sputs(statReplicator)));
             }

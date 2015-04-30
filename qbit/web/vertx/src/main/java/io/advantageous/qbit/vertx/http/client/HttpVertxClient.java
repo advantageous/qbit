@@ -63,6 +63,7 @@ public class HttpVertxClient implements HttpClient {
     protected final int flushInterval;
     private final Logger logger = LoggerFactory.getLogger(HttpVertxClient.class);
     private final boolean debug = logger.isDebugEnabled() || GlobalConstants.DEBUG;
+    private final boolean trace = logger.isTraceEnabled();
     /**
      * Are we closed.
      */
@@ -102,8 +103,11 @@ public class HttpVertxClient implements HttpClient {
 
     @Override
     public void sendHttpRequest(final HttpRequest request) {
-        if (debug) {
-            puts("HTTP CLIENT: sendHttpRequest:: \n{}\n", request, "\nparams\n", request.params());
+
+        checkClosed();
+
+        if (trace) {
+            logger.debug(sputs("HTTP CLIENT: sendHttpRequest:: \n{}\n", request, "\nparams\n", request.params()));
         }
 
 
@@ -129,7 +133,6 @@ public class HttpVertxClient implements HttpClient {
             httpClientRequest.putHeader(HttpHeaders.CONNECTION, HttpHeaders.KEEP_ALIVE);
         }
 
-
         if (body != null && body.length > 0) {
 
 
@@ -145,7 +148,7 @@ public class HttpVertxClient implements HttpClient {
             httpClientRequest.end();
         }
 
-        if (debug) logger.debug("HttpClientVertx::SENT \n{}", request);
+        if (trace) logger.trace("HttpClientVertx::SENT \n{}", request);
 
     }
 
@@ -357,7 +360,6 @@ public class HttpVertxClient implements HttpClient {
 
         if (debug) logger.debug("HTTP CLIENT: connect:: \nhost {} \nport {}\n", host, port);
 
-
         httpClient.exceptionHandler(throwable -> {
 
             if (throwable instanceof ConnectException) {
@@ -370,4 +372,11 @@ public class HttpVertxClient implements HttpClient {
         Sys.sleep(100);
 
     }
+
+
+    public boolean isClosed() {
+        return closed.get();
+    }
+
+
 }
