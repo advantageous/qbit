@@ -22,6 +22,8 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.time.Clock;
+
 import static io.advantageous.boon.core.Exceptions.die;
 import static io.advantageous.boon.core.IO.puts;
 
@@ -29,7 +31,7 @@ import static io.advantageous.boon.core.IO.puts;
 public class MinuteMeasurementTest {
 
     MinuteStat measurement;
-    long time = System.currentTimeMillis();
+    long time = Clock.systemUTC().millis();
     boolean ok;
 
     @Before

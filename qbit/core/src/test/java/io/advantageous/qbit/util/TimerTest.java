@@ -15,7 +15,7 @@ public class TimerTest {
 
         long now = Timer.timer().now();
 
-        long currentTime = System.currentTimeMillis();
+        long currentTime = Clock.systemUTC().millis();
 
         Sys.sleep(1_000);
 

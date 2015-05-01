@@ -7,6 +7,7 @@ import io.advantageous.qbit.service.discovery.ServiceDiscovery;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.time.Clock;
 import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
@@ -21,7 +22,7 @@ import static org.junit.Assert.*;
 
 public class ClusteredStatReplicatorTest {
 
-    private final String localServiceId = "fooBar-" + System.currentTimeMillis();
+    private final String localServiceId = "fooBar-" + Clock.systemUTC().millis();
     private final String serviceName = "fooBar";
     private ClusteredStatReplicator clusteredStatReplicator;
     private AtomicReference<List<ServiceDefinition>> services;
@@ -124,7 +125,7 @@ public class ClusteredStatReplicatorTest {
         assertNotNull(debugReplicator2);
         assertNotNull(debugReplicator3);
 
-        clusteredStatReplicator.replicateCount("foo", 5, System.currentTimeMillis());
+        clusteredStatReplicator.replicateCount("foo", 5, Clock.systemUTC().millis());
 
         timer.seconds(2);
         clusteredStatReplicator.process();
