@@ -23,6 +23,8 @@ import io.advantageous.qbit.concurrent.ExecutorContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.time.Clock;
+import java.time.LocalTime;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -36,7 +38,7 @@ public class Timer {
     private static AtomicReference<Timer> timeHolder = new AtomicReference<>();
     private final Logger logger = LoggerFactory.getLogger(Timer.class);
     private final boolean debug = false || GlobalConstants.DEBUG || logger.isDebugEnabled();
-    private final AtomicLong time = new AtomicLong(System.nanoTime() / 1_000_000);
+    private final AtomicLong time = new AtomicLong(Clock.systemUTC().millis());
     private ExecutorContext executorContext;
 
     public static Timer timer() {
@@ -89,6 +91,8 @@ public class Timer {
     @SuppressWarnings("InfiniteLoopStatement")
     private void manageTimer() {
         int count = 0;
+
+        time.set(Clock.systemUTC().millis());
         while (true) {
             count++;
             try {
@@ -97,8 +101,8 @@ public class Timer {
                 Thread.interrupted();
             }
             time.addAndGet(5);
-            if (count > 100) {
-                time.set(System.nanoTime() / 1_000_000);
+            if (count > 10) {
+                time.set(Clock.systemUTC().millis());
                 count = 0;
             }
         }

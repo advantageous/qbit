@@ -86,6 +86,7 @@ public class HttpServerVertx implements HttpServer {
     public HttpServerVertx(HttpServerOptions options,
                            QBitSystemManager systemManager) {
 
+
         this(VertxFactory.newVertx(), options, systemManager);
     }
 
