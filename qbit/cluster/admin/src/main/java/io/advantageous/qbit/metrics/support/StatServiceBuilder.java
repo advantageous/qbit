@@ -31,12 +31,9 @@ import io.advantageous.qbit.server.ServiceServer;
 import io.advantageous.qbit.server.ServiceServerBuilder;
 import io.advantageous.qbit.service.ServiceBuilder;
 import io.advantageous.qbit.service.ServiceQueue;
-import io.advantageous.qbit.service.discovery.ServiceDefinition;
 import io.advantageous.qbit.service.discovery.ServiceDiscovery;
 import io.advantageous.qbit.util.Timer;
 
-import java.net.InetAddress;
-import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -358,7 +355,13 @@ public class StatServiceBuilder {
 
                 @Override
                 public void replicateCount(String name, int count, long now) {
+
                     proxy.replicateCount(name, count, now);
+                }
+
+                @Override
+                public void replicateLevel(String name, int level, long time) {
+                    proxy.replicateLevel(name, level, time);
                 }
 
                 @Override

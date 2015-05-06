@@ -127,7 +127,7 @@ public class StatServiceImplBundleTest extends TimedTesting {
         String[] names = Arry.array("stat1", "stat2");
         int[] counts = Int.array(1, 2);
 
-        statServiceClient.recordAllCounts(Timer.timer().now(), names, counts);
+        statServiceClient.recordAll(Timer.timer().now(), names, counts);
         serviceBundle.flush();
 
 

@@ -18,6 +18,8 @@
 
 package io.advantageous.qbit.metrics.support;
 
+import io.advantageous.qbit.metrics.Stats;
+
 import java.util.Arrays;
 
 /**
@@ -36,6 +38,10 @@ public class MinuteStat {
         startTime = now;
 
         secondCounts = new int[60];
+
+        for (int index=0; index < 60; index++) {
+            secondCounts[index] = -1;
+        }
         this.name = name;
 
     }
@@ -83,7 +89,11 @@ public class MinuteStat {
                 continue;
             }
             index++;
-            sum += secondCounts[secondIndex];
+            int value = secondCounts[secondIndex];
+
+            if (value != -1) {
+                sum += value;
+            }
             if (index >= secondCount) {
                 break;
             }
@@ -92,6 +102,88 @@ public class MinuteStat {
         return sum;
     }
 
+
+    public Stats statsForLastSeconds(long now, int secondCount) {
+
+        StatList list = new StatList(60);
+
+        int secondIndex = secondIndex(now);
+
+        int index=0;
+
+
+
+        while (secondIndex >= 0) {
+
+
+            if (secondIndex >= 60) {
+
+                now = now - 1000;
+                secondIndex = secondIndex(now);
+                index++;
+                if (index >= secondCount) {
+                    break;
+                }
+                continue;
+            }
+            index++;
+
+
+            int value = secondCounts[secondIndex];
+
+            if (value != -1) {
+                list.add(value);
+            }
+
+            if (index >= secondCount) {
+                break;
+            }
+            secondIndex--;
+        }
+        return new Stats(list);
+
+    }
+
+    public int averageLastLevel(long now, int secondCount) {
+
+        int sum = 0;
+
+        int secondIndex = secondIndex(now);
+
+        int index=0;
+
+        int readingCount = 0;
+
+
+
+        while (secondIndex >= 0) {
+
+
+            if (secondIndex >= 60) {
+
+                now = now - 1000;
+                secondIndex = secondIndex(now);
+                index++;
+                if (index >= secondCount) {
+                    break;
+                }
+                continue;
+            }
+            index++;
+
+
+            int value = secondCounts[secondIndex];
+            if (value != -1) {
+                sum += value;
+                readingCount++;
+            }
+            if (index >= secondCount) {
+                break;
+            }
+            secondIndex--;
+        }
+        return sum/readingCount;
+    }
     public int countLastFiveSeconds(long now) {
 
         return countLastSeconds(now, 5);
@@ -118,7 +210,15 @@ public class MinuteStat {
             return 0;
         }
 
-        secondCounts[secondIndex] += count;
+        int value = secondCounts[secondIndex];
+
+        if (value == -1) {
+            value = 0;
+        }
+
+        value += count;
+
+        secondCounts[secondIndex] = value;
 
         endTime = now;
         return totalCount;
@@ -164,4 +264,17 @@ public class MinuteStat {
         return totalCount;
     }
 
+    public void recordLevel(int level, long now) {
+        int secondIndex = secondIndex(now);
+
+
+        if (secondIndex >= secondCounts.length) {
+            return;
+        }
+
+        secondCounts[secondIndex] = level;
+
+        endTime = now;
+
+    }
 }

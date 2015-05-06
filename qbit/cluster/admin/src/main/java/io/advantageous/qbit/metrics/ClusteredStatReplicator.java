@@ -88,6 +88,19 @@ public class ClusteredStatReplicator implements StatReplicator, ServiceChangedEv
 
     }
 
+    @Override
+    public void replicateLevel(String name, int level, long time) {
+
+        LocalCount localCount = countMap.get(name);
+
+        if (localCount == null) {
+            localCount = new LocalCount();
+            localCount.name = name;
+            countMap.put(name, localCount);
+        }
+        localCount.count = level;
+    }
+
     private void doRecordCount(Pair<ServiceDefinition, StatReplicator> statReplicator,
                                final String name, final int count, final long now) {
 

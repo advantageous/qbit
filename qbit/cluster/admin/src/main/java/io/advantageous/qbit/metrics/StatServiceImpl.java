@@ -79,7 +79,13 @@ public class StatServiceImpl implements QueueCallBackHandler, ServiceChangedEven
 
     }
 
+
     public void recordCount(String name, int count) {
+        recordCountWithTime(name, count, now);
+    }
+
+
+    public void recordLevel(String name, int count) {
         recordCountWithTime(name, count, now);
     }
 
@@ -92,6 +98,10 @@ public class StatServiceImpl implements QueueCallBackHandler, ServiceChangedEven
             increment(name);
         }
     }
+
+    public Stats statsForLastSeconds(String name, int secondCount) {return oneMinuteOfStats(name).statsForLastSeconds(now, secondCount);}
+
+    public int averageLastLevel(String name, int secondCount) {return oneMinuteOfStats(name).averageLastLevel(now, secondCount);}
 
     public int currentMinuteCount(String name) {
         return oneMinuteOfStats(name).getTotalCount();
@@ -140,13 +150,23 @@ public class StatServiceImpl implements QueueCallBackHandler, ServiceChangedEven
         replica.replicateCount(name, count, now);
     }
 
+    public void recordLevelWithTime(String name, int level, long now) {
+        oneMinuteOfStats(name).recordLevel(level, now);
+        replica.replicateLevel(name, level, now);
+    }
+
+
     public void replicateCount(String name, int count, long time) {
         oneMinuteOfStats(name).changeBy(count, time);
     }
 
-    public void recordAllCounts(final long timestamp,
-                                final String[] names,
-                                final int[] counts) {
+    public void replicateLevel(String name, int level, long time) {
+        oneMinuteOfStats(name).recordLevel(level, time);
+    }
+
+    public void recordAll(final long timestamp,
+                          final String[] names,
+                          final int[] counts) {
         for (int index = 0; index < names.length; index++) {
             String name = names[index];
             int count = counts[index];
@@ -154,7 +174,7 @@ public class StatServiceImpl implements QueueCallBackHandler, ServiceChangedEven
         }
     }
 
-    public void recordAllCountsWithTimes(
+    public void recordAllWithTimes(
             final String[] names,
             final int[] counts,
             final long[] times) {

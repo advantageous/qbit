@@ -221,7 +221,7 @@ public class StatServiceImplTest {
         int[] counts = Int.array(1, 2);
         //long[] times = Lng.array(Timer.timer().now(), Timer.timer().now() + 2000);
 
-        statServiceImpl.recordAllCounts(Timer.timer().now(), names, counts);
+        statServiceImpl.recordAll(Timer.timer().now(), names, counts);
 
         ok = replicator.count.get() == 3 || die(replicator.count);
         ok = recorder.count == 0 || die(recorder.count);
@@ -257,7 +257,7 @@ public class StatServiceImplTest {
         int[] counts = Int.array(1, 2);
         long[] times = Lng.array(Timer.timer().now(), Timer.timer().now() + 2000);
 
-        statServiceImpl.recordAllCountsWithTimes(names, counts, times);
+        statServiceImpl.recordAllWithTimes(names, counts, times);
 
         ok = replicator.count.get() == 6 || die(replicator.count);
         ok = recorder.count == 0 || die(recorder.count);

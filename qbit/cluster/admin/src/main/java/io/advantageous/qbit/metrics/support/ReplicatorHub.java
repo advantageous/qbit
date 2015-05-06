@@ -40,5 +40,13 @@ public class ReplicatorHub implements StatReplicator {
         }
     }
 
+    @Override
+    public void replicateLevel(String name, int level, long time) {
+        for (StatReplicator replicator : list) {
+            replicator.replicateLevel(name, level, time);
+        }
+
+    }
+
 
 }

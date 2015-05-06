@@ -73,7 +73,7 @@ public class Prototype {
             final int fromIndex = index;
             Sys.sleep(1000);
             System.out.print(".");
-            statService.increment("foo");
+            statService.recordCount("foo", 1);
 
             statService.currentMinuteCount(count -> System.out.print(
                     "count " + count + " index " + fromIndex + "    "), "foo");

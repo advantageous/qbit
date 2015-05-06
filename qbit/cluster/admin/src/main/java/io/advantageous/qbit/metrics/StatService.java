@@ -28,18 +28,12 @@ import io.advantageous.qbit.reactive.Callback;
 
 public interface StatService extends ClientProxy {
     default void recordCount(String name, int count) {}
+    default void recordLevel(String name, int level) {}
 
 
-    default void increment(String name) {
-        recordCount(name, 1);
-    }
+    default void statsForLastSeconds(Callback<Stats> callback, String name, int secondCount) {}
 
-
-    default void incrementAll(String... names) {
-        for (String name : names) {
-            increment(name);
-        }
-    }
+    default void averageLastLevel(Callback<Integer> callback, String name, int secondCount) {}
 
     default void currentMinuteCount(Callback<Integer> callback, String name) {}
 
@@ -64,9 +58,9 @@ public interface StatService extends ClientProxy {
 
 
 
-    default void recordCountWithTime(String name, int count, long timestamp){}
+    default void recordWithTime(String name, int count, long timestamp){}
 
-    default void recordAllCounts(long timestamp, String[] names, int[] counts){}
+    default void recordAll(long timestamp, String[] names, int[] counts){}
 
-    default void recordAllCountsWithTimes(String[] names, int[] counts, long[] times){}
+    default void recordAllWithTimes(String[] names, int[] counts, long[] times){}
 }
