@@ -10,6 +10,7 @@ import io.advantageous.qbit.server.ServiceServer;
 import io.advantageous.qbit.spi.RegisterBoonWithQBit;
 import io.advantageous.qbit.test.TimedTesting;
 import io.advantageous.qbit.util.PortUtils;
+import io.advantageous.qbit.vertx.RegisterVertxWithQBit;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -48,6 +49,9 @@ public class EventRemoteReplicatorServiceServerIntegrationTest extends TimedTest
     public void setup() throws IOException {
 
         setupLatch();
+
+        RegisterVertxWithQBit.registerVertxWithQBit();
+        RegisterBoonWithQBit.registerBoonWithQBit();
         eventManager = mock(EventManager.class);
         service = new EventRemoteReplicatorService(eventManager);
 
@@ -73,8 +77,14 @@ public class EventRemoteReplicatorServiceServerIntegrationTest extends TimedTest
 
     @After
     public void tearDown() {
-        client.stop();
-        serviceServer.stop();
+
+        if (client!=null) {
+            client.stop();
+        }
+
+        if (serviceServer!=null) {
+            serviceServer.stop();
+        }
     }
 
 
