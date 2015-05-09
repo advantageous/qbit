@@ -29,7 +29,6 @@ import io.advantageous.qbit.util.MultiMap;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 
@@ -46,16 +45,6 @@ public interface HttpClient {
 
     public static int HTTP_CLIENT_DEFAULT_TIMEOUT = Sys.sysProp(
             "io.advantageous.qbit.http.client.HttpClient.timeout", 30);
-
-    default boolean isClosed() {
-        return false;
-    }
-
-    default void checkClosed() {
-        if (isClosed()) {
-            throw new HttpClientClosedConnectionException();
-        }
-    }
 
     public static void _createHttpTextReceiver(final HttpRequest httpRequest,
                                                final CountDownLatch countDownLatch,
@@ -115,7 +104,18 @@ public interface HttpClient {
         BeanUtils.idx(httpRequest, "receiver", httpTextReceiver);
     }
 
-    default void sendHttpRequest(HttpRequest request) {}
+    default boolean isClosed() {
+        return false;
+    }
+
+    default void checkClosed() {
+        if (isClosed()) {
+            throw new HttpClientClosedConnectionException();
+        }
+    }
+
+    default void sendHttpRequest(HttpRequest request) {
+    }
 
     default void sendGetRequest(String uri) {
 
@@ -445,7 +445,6 @@ public interface HttpClient {
         sendHttpRequest(httpRequest);
 
 
-
         try {
 
             countDownLatchConnect.await(500, TimeUnit.MILLISECONDS);
@@ -459,8 +458,7 @@ public interface HttpClient {
             }
         }
 
-
-        if (countDownLatch.getCount()>0) {
+        if (countDownLatch.getCount() > 0) {
             throw new HttpClientTimeoutException();
         }
         return httpResponseAtomicReference.get();
@@ -1032,16 +1030,25 @@ public interface HttpClient {
         throw new RuntimeException("New way to send messages");
     }
 
-    default void periodicFlushCallback(Consumer<Void> periodicFlushCallback) {}
+    default void periodicFlushCallback(Consumer<Void> periodicFlushCallback) {
+    }
 
-    default int getPort() {return -1;}
+    default int getPort() {
+        return -1;
+    }
 
-    default String getHost() {return "localhost";}
+    default String getHost() {
+        return "localhost";
+    }
 
-    default HttpClient start() { return this;}
+    default HttpClient start() {
+        return this;
+    }
 
-    default void flush() {}
+    default void flush() {
+    }
 
-    default void stop() {}
+    default void stop() {
+    }
 
 }
