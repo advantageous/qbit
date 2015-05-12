@@ -43,7 +43,6 @@ import java.io.UnsupportedEncodingException;
 import java.net.ConnectException;
 import java.net.URLEncoder;
 import java.util.Collection;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
@@ -110,9 +109,7 @@ public class HttpVertxClient implements HttpClient {
             logger.debug(sputs("HTTP CLIENT: sendHttpRequest:: \n{}\n", request, "\nparams\n", request.params()));
         }
 
-
         String uri = getURICreateParamsIfNeeded(request);
-
 
         final HttpClientRequest httpClientRequest = httpClient.request(
                 request.getMethod(), uri,
@@ -163,11 +160,7 @@ public class HttpVertxClient implements HttpClient {
 
             charBuf.add(request.getUri()).add("?");
 
-            final Iterator<Map.Entry<String, Collection<String>>> iterator = params.iterator();
-
-            while (iterator.hasNext()) {
-                final Map.Entry<String, Collection<String>> entry = iterator.next();
-
+            for (Map.Entry<String, Collection<String>> entry : params) {
                 try {
                     String key = URLEncoder.encode(entry.getKey(), "UTF-8");
 
@@ -207,6 +200,8 @@ public class HttpVertxClient implements HttpClient {
     @Override
     public void stop() {
 
+        this.closed.set(true);
+
         if (executorContext != null) {
             executorContext.stop();
             executorContext = null;
@@ -239,7 +234,7 @@ public class HttpVertxClient implements HttpClient {
             this.executorContext = scheduledExecutorBuilder()
                     .setThreadName("HttpClient")
                     .setInitialDelay(50)
-                    .setPeriod(this.flushInterval).setRunnable(() -> autoFlush())
+                    .setPeriod(this.flushInterval).setRunnable(this::autoFlush)
                     .build();
 
             executorContext.start();
@@ -251,9 +246,8 @@ public class HttpVertxClient implements HttpClient {
     public WebSocket createWebSocket(final String uri) {
 
         final String remoteAddress = Str.add("ws://", host, ":", Integer.toString(port), uri);
-        final WebSocket webSocket = webSocketBuilder().setUri(uri).setWebSocketSender(createWebSocketSender(uri))
+        return webSocketBuilder().setUri(uri).setWebSocketSender(createWebSocketSender(uri))
                 .setRemoteAddress(remoteAddress).build();
-        return webSocket;
 
     }
 
@@ -278,9 +272,7 @@ public class HttpVertxClient implements HttpClient {
                     );
 
                     /* Handle onClose */
-                    vertxWebSocket.closeHandler(event -> {
-                        webSocket.onClose();
-                    });
+                    vertxWebSocket.closeHandler(event -> webSocket.onClose());
 
                     /* Handle on Exception. */
                     vertxWebSocket.exceptionHandler(event -> {
@@ -347,6 +339,7 @@ public class HttpVertxClient implements HttpClient {
     }
 
     private void connect() {
+        this.closed.set(false);
         httpClient = vertx.createHttpClient().setHost(host).setPort(port)
                 .setConnectTimeout(timeOutInMilliseconds).setMaxPoolSize(poolSize)
                 .setKeepAlive(keepAlive).setPipelining(pipeline)
