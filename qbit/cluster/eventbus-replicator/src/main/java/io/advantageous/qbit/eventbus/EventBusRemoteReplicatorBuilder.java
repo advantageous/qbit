@@ -2,8 +2,8 @@ package io.advantageous.qbit.eventbus;
 
 import io.advantageous.qbit.events.EventManager;
 import io.advantageous.qbit.events.spi.EventConnector;
+import io.advantageous.qbit.server.EndpointServerBuilder;
 import io.advantageous.qbit.server.ServiceServer;
-import io.advantageous.qbit.server.ServiceServerBuilder;
 
 /**
  * @author Rick Hightower
@@ -18,7 +18,7 @@ public class EventBusRemoteReplicatorBuilder {
     private EventManager eventManager;
     private EventConnector eventConnector;
     private String name = "eventReplicator";
-    private ServiceServerBuilder serviceServerBuilder;
+    private EndpointServerBuilder endpointServerBuilder;
 
     public EventManager getEventManager() {
         return eventManager;
@@ -48,24 +48,24 @@ public class EventBusRemoteReplicatorBuilder {
         return this;
     }
 
-    public ServiceServerBuilder getServiceServerBuilder() {
+    public EndpointServerBuilder getEndpointServerBuilder() {
 
-        if (serviceServerBuilder==null) {
-            serviceServerBuilder = ServiceServerBuilder.serviceServerBuilder();
+        if (endpointServerBuilder ==null) {
+            endpointServerBuilder = EndpointServerBuilder.endpointServerBuilder();
 
         }
-        return serviceServerBuilder;
+        return endpointServerBuilder;
     }
 
-    public EventBusRemoteReplicatorBuilder setServiceServerBuilder(ServiceServerBuilder serviceServerBuilder) {
-        this.serviceServerBuilder = serviceServerBuilder;
+    public EventBusRemoteReplicatorBuilder setEndpointServerBuilder(EndpointServerBuilder endpointServerBuilder) {
+        this.endpointServerBuilder = endpointServerBuilder;
         return this;
     }
 
 
 
-    public ServiceServerBuilder serviceServerBuilder() {
-        return getServiceServerBuilder();
+    public EndpointServerBuilder serviceServerBuilder() {
+        return getEndpointServerBuilder();
     }
 
 

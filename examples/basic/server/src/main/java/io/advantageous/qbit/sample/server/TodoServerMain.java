@@ -22,7 +22,7 @@ package io.advantageous.qbit.sample.server;
 import io.advantageous.qbit.sample.server.service.TodoService;
 import io.advantageous.qbit.system.QBitSystemManager;
 
-import static io.advantageous.qbit.server.ServiceServerBuilder.serviceServerBuilder;
+import static io.advantageous.qbit.server.EndpointServerBuilder.endpointServerBuilder;
 
 /**
  * Created by rhightower on 11/5/14.
@@ -35,7 +35,7 @@ public class TodoServerMain {
 
         QBitSystemManager systemManager = new QBitSystemManager();
 
-        serviceServerBuilder()
+        endpointServerBuilder()
                 .setSystemManager(systemManager).build()
                 .initServices(new TodoService()).start();
 

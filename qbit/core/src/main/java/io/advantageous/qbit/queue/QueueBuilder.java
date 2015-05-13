@@ -19,8 +19,10 @@
 package io.advantageous.qbit.queue;
 
 import io.advantageous.qbit.GlobalConstants;
+import io.advantageous.qbit.config.PropertyResolver;
 import io.advantageous.qbit.queue.impl.BasicQueue;
 
+import java.util.Properties;
 import java.util.concurrent.*;
 
 /**
@@ -30,6 +32,8 @@ import java.util.concurrent.*;
  */
 public class QueueBuilder implements Cloneable {
 
+    public static final String QBIT_QUEUE_BUILDER = "qbit.queue.builder.";
+
     private int batchSize = GlobalConstants.BATCH_SIZE;
     private int pollWait = GlobalConstants.POLL_WAIT;
     private int size = GlobalConstants.NUM_BATCHES;
@@ -38,6 +42,38 @@ public class QueueBuilder implements Cloneable {
     private String name;
     private Class<? extends BlockingQueue> queueClass = ArrayBlockingQueue.class;
     private boolean checkIfBusy = false;
+
+
+    public QueueBuilder(PropertyResolver propertyResolver) {
+        this.pollWait = propertyResolver
+                .getIntegerProperty("pollWait", GlobalConstants.POLL_WAIT);
+        this.batchSize = propertyResolver
+                .getIntegerProperty("batchSize", GlobalConstants.BATCH_SIZE);
+        this.checkEvery = propertyResolver
+                .getIntegerProperty("checkEvery", 100);
+        this.size = propertyResolver
+                .getIntegerProperty("size", GlobalConstants.NUM_BATCHES);
+        this.checkIfBusy = propertyResolver
+                .getBooleanProperty("checkIfBusy", false);
+        this.tryTransfer = propertyResolver
+                .getBooleanProperty("tryTransfer", false);
+
+        this.queueClass =  propertyResolver
+                .getGenericPropertyWithDefault("queueClass", ArrayBlockingQueue.class);
+
+    }
+
+
+    public QueueBuilder() {
+        this(PropertyResolver.createSystemPropertyResolver(QBIT_QUEUE_BUILDER));
+    }
+
+
+    public QueueBuilder(final Properties properties) {
+        this(PropertyResolver.createPropertiesPropertyResolver(
+                QBIT_QUEUE_BUILDER, properties));
+    }
+
 
     public static QueueBuilder queueBuilder() {
         return new QueueBuilder();

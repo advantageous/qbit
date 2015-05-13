@@ -1,5 +1,7 @@
 package io.advantageous.qbit.config;
 
+import io.advantageous.boon.core.Conversions;
+
 import java.util.Properties;
 
 public interface PropertyResolver {
@@ -44,7 +46,7 @@ public interface PropertyResolver {
         } else if (property instanceof CharSequence) {
             return Boolean.valueOf(property.toString());
         } else if (property == null) {
-            return false;
+            return null;
         } else {
             throw new IllegalStateException("Unexpected type " + property.getClass().getName());
         }
@@ -134,6 +136,22 @@ public interface PropertyResolver {
 
     default String getStringProperty(final String propertyName, final String defaultValue) {
         final String value = getStringProperty(propertyName);
+        return value == null ? defaultValue : value;
+    }
+
+
+    default <T> T getGenericProperty(final String propertyName, Class<T> type) {
+        final Object value = getProperty(propertyName);
+        if (value != null) {
+            return Conversions.coerce(type, value);
+        } else {
+            return null;
+        }
+    }
+
+
+    default <T> T getGenericPropertyWithDefault(final String propertyName, final T defaultValue) {
+        final T value = getGenericProperty(propertyName, (Class<T>) defaultValue.getClass());
         return value == null ? defaultValue : value;
     }
 }

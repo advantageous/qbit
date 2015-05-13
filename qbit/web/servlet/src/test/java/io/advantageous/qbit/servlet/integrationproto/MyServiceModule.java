@@ -20,10 +20,9 @@ package io.advantageous.qbit.servlet.integrationproto;
 
 import io.advantageous.qbit.annotation.RequestMapping;
 import io.advantageous.qbit.http.HttpTransport;
-import io.advantageous.qbit.http.server.HttpServer;
 import io.advantageous.qbit.server.ServiceServer;
 
-import static io.advantageous.qbit.server.ServiceServerBuilder.serviceServerBuilder;
+import static io.advantageous.qbit.server.EndpointServerBuilder.endpointServerBuilder;
 
 /**
  * @author rhightower
@@ -31,7 +30,7 @@ import static io.advantageous.qbit.server.ServiceServerBuilder.serviceServerBuil
  */
 public class MyServiceModule {
     public static ServiceServer configureApp(final HttpTransport httpTransport) {
-        return serviceServerBuilder().setHttpTransport(httpTransport)
+        return endpointServerBuilder().setHttpTransport(httpTransport)
                 .build().initServices(new PingService()).startServer();
     }
 

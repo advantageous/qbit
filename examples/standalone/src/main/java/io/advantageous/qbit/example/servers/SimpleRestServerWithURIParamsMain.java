@@ -29,7 +29,7 @@ import io.advantageous.boon.core.Sys;
 
 import static io.advantageous.qbit.client.ClientBuilder.clientBuilder;
 import static io.advantageous.qbit.http.client.HttpClientBuilder.httpClientBuilder;
-import static io.advantageous.qbit.server.ServiceServerBuilder.serviceServerBuilder;
+import static io.advantageous.qbit.server.EndpointServerBuilder.endpointServerBuilder;
 
 /**
  * @author rhightower
@@ -43,7 +43,7 @@ public class SimpleRestServerWithURIParamsMain {
         QBitSystemManager systemManager = new QBitSystemManager();
 
        /* Start Service server. */
-        final ServiceServer server = serviceServerBuilder()
+        final ServiceServer server = endpointServerBuilder()
                 .setSystemManager(systemManager)
                 .setPort(7000).build();
 

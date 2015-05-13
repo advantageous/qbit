@@ -27,8 +27,8 @@ import io.advantageous.qbit.events.EventManager;
 import io.advantageous.qbit.metrics.*;
 import io.advantageous.qbit.metrics.StatServiceImpl;
 import io.advantageous.qbit.queue.QueueBuilder;
+import io.advantageous.qbit.server.EndpointServerBuilder;
 import io.advantageous.qbit.server.ServiceServer;
-import io.advantageous.qbit.server.ServiceServerBuilder;
 import io.advantageous.qbit.service.ServiceBuilder;
 import io.advantageous.qbit.service.ServiceQueue;
 import io.advantageous.qbit.service.discovery.ServiceDiscovery;
@@ -61,7 +61,7 @@ public class StatServiceBuilder {
     private ClientBuilder clientBuilder;
     private ServiceQueue serviceQueue;
     private ServiceBuilder serviceBuilder;
-    private ServiceServerBuilder serviceServerBuilder;
+    private EndpointServerBuilder endpointServerBuilder;
     private QueueBuilder sendQueueBuilder;
     private StatServiceImpl statServiceImpl;
 
@@ -118,16 +118,16 @@ public class StatServiceBuilder {
         }
         return sendQueueBuilder;
     }
-    public ServiceServerBuilder getServiceServerBuilder() {
+    public EndpointServerBuilder getEndpointServerBuilder() {
 
-        if (serviceServerBuilder == null) {
-            serviceServerBuilder = ServiceServerBuilder.serviceServerBuilder();
+        if (endpointServerBuilder == null) {
+            endpointServerBuilder = EndpointServerBuilder.endpointServerBuilder();
         }
-        return serviceServerBuilder;
+        return endpointServerBuilder;
     }
 
-    public StatServiceBuilder setServiceServerBuilder(ServiceServerBuilder serviceServerBuilder) {
-        this.serviceServerBuilder = serviceServerBuilder;
+    public StatServiceBuilder setEndpointServerBuilder(EndpointServerBuilder endpointServerBuilder) {
+        this.endpointServerBuilder = endpointServerBuilder;
         return this;
     }
 
@@ -254,7 +254,7 @@ public class StatServiceBuilder {
     public ServiceServer buildServiceServer() {
 
 
-        final ServiceServerBuilder serviceServerBuilder = getServiceServerBuilder();
+        final EndpointServerBuilder endpointServerBuilder = getEndpointServerBuilder();
 
 
 
@@ -263,18 +263,18 @@ public class StatServiceBuilder {
 
             if (localServiceId == null || "".equals(localServiceId.trim())){
                     localServiceId =
-                            serviceName + "-" + ServiceDiscovery.uniqueString(serviceServerBuilder.getPort());
+                            serviceName + "-" + ServiceDiscovery.uniqueString(endpointServerBuilder.getPort());
 
             }
 
 
             serviceDiscovery.registerWithIdAndTimeToLive(this.getServiceName(), localServiceId,
-                                    serviceServerBuilder.getPort(), timeToLiveCheckInterval);
+                                    endpointServerBuilder.getPort(), timeToLiveCheckInterval);
 
 
         }
         final ServiceQueue serviceQueue = getServiceQueue();
-        final ServiceServer serviceServer = serviceServerBuilder.build();
+        final ServiceServer serviceServer = endpointServerBuilder.build();
         serviceServer.addServiceObject(this.getServiceName(), serviceQueue.service());
 
         return serviceServer;

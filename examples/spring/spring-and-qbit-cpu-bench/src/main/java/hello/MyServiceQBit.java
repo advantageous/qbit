@@ -10,7 +10,7 @@ import io.advantageous.qbit.server.ServiceServer;
 import java.util.Collections;
 import java.util.List;
 
-import static io.advantageous.qbit.server.ServiceServerBuilder.serviceServerBuilder;
+import static io.advantageous.qbit.server.EndpointServerBuilder.endpointServerBuilder;
 
 /**
  * Example of a QBit Service
@@ -200,7 +200,7 @@ Running 10s test @ http://localhost:6060
         //50089.54
         //30360.42
 
-//        final ServiceServer serviceServer = serviceServerBuilder()
+//        final ServiceServer serviceServer = endpointServerBuilder()
 //                //2,500,000 454,065
 //                .setRequestQueueBuilder(
 //                        QueueBuilder.queueBuilder()
@@ -265,7 +265,7 @@ end
         //SB/J gets 45k to 50K TPS, and uses twice the CPU as QBit
         //QBit gets about 75K to 80K and uses 1/2 the CPU as SB/J
 
-//        final ServiceServer serviceServer = serviceServerBuilder()
+//        final ServiceServer serviceServer = endpointServerBuilder()
 //                //2,500,000 454,065
 //                .setRequestQueueBuilder(
 //                        queueBuilder()
@@ -280,7 +280,7 @@ end
 //                .build();
 
 
-        final ServiceServer serviceServer = serviceServerBuilder()
+        final ServiceServer serviceServer = endpointServerBuilder()
                 //2,500,000 454,065
 
                 .setHttpRequestQueueBuilder(

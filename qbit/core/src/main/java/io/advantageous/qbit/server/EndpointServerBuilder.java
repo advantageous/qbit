@@ -20,6 +20,7 @@ package io.advantageous.qbit.server;
 
 import io.advantageous.qbit.GlobalConstants;
 import io.advantageous.qbit.QBit;
+import io.advantageous.qbit.config.PropertyResolver;
 import io.advantageous.qbit.http.HttpTransport;
 import io.advantageous.qbit.http.server.HttpServer;
 import io.advantageous.qbit.json.JsonMapper;
@@ -35,6 +36,8 @@ import io.advantageous.qbit.spi.ProtocolParser;
 import io.advantageous.qbit.system.QBitSystemManager;
 import io.advantageous.qbit.transforms.Transformer;
 
+import java.util.Properties;
+
 import static io.advantageous.qbit.http.server.HttpServerBuilder.httpServerBuilder;
 
 /**
@@ -44,22 +47,24 @@ import static io.advantageous.qbit.http.server.HttpServerBuilder.httpServerBuild
  *         Created by Richard on 11/14/14.
  */
 
-public class ServiceServerBuilder {
+public class EndpointServerBuilder {
     private Queue<Response<Object>> responseQueue;
 
-    public static ServiceServerBuilder serviceServerBuilder() {
-        return new ServiceServerBuilder();
+
+    public static final String QBIT_ENDPOINT_SERVER_BUILDER = "qbit.endpoint.server.builder.";
+
+    public static EndpointServerBuilder endpointServerBuilder() {
+        return new EndpointServerBuilder();
     }
 
-
     private String host;
-    private int port = 8080;
+    private int port;
     private boolean manageQueues = false;
     private int pollTime = GlobalConstants.POLL_WAIT;
     private int requestBatchSize = GlobalConstants.BATCH_SIZE;
     private int flushInterval = 200;
-    private String uri = "/services";
-    private int numberOfOutstandingRequests = 1_000_000;
+    private String uri;
+    private int numberOfOutstandingRequests;
     private int maxRequestBatches = 10_000;
     private int timeoutSeconds = 30;
     private boolean invokeDynamic = true;
@@ -71,6 +76,38 @@ public class ServiceServerBuilder {
     private boolean eachServiceInItsOwnThread = true;
     private HttpTransport httpServer;
     private QBitSystemManager qBitSystemManager;
+
+    public EndpointServerBuilder(PropertyResolver propertyResolver) {
+        this.eachServiceInItsOwnThread = propertyResolver.getBooleanProperty("eachServiceInItsOwnThread", true);
+        this.manageQueues = propertyResolver.getBooleanProperty("manageQueues", false);
+        this.invokeDynamic = propertyResolver.getBooleanProperty("invokeDynamic", true);
+        this.host = propertyResolver.getStringProperty("host", null);
+        this.port = propertyResolver.getIntegerProperty("port", 8080);
+        this.pollTime = propertyResolver.getIntegerProperty("pollTime", GlobalConstants.POLL_WAIT);
+        this.requestBatchSize = propertyResolver
+                .getIntegerProperty("requestBatchSize", GlobalConstants.BATCH_SIZE);
+
+        this.numberOfOutstandingRequests = propertyResolver
+                .getIntegerProperty("numberOfOutstandingRequests", 1_000_000);
+        this.maxRequestBatches = propertyResolver
+                .getIntegerProperty("maxRequestBatches", 10_000);
+
+        this.flushInterval = propertyResolver.getIntegerProperty("flushInterval", 500);
+        this.uri = propertyResolver.getStringProperty("uri", "/services");
+        this.timeoutSeconds = propertyResolver.getIntegerProperty("timeoutSeconds", 30);
+    }
+
+
+    public EndpointServerBuilder() {
+        this(PropertyResolver.createSystemPropertyResolver(QBIT_ENDPOINT_SERVER_BUILDER));
+    }
+
+
+    public EndpointServerBuilder(final Properties properties) {
+        this(PropertyResolver.createPropertiesPropertyResolver(
+                QBIT_ENDPOINT_SERVER_BUILDER, properties));
+    }
+
 
 
     /**
@@ -99,7 +136,7 @@ public class ServiceServerBuilder {
         return requestQueueBuilder;
     }
 
-    public ServiceServerBuilder setRequestQueueBuilder(QueueBuilder requestQueueBuilder) {
+    public EndpointServerBuilder setRequestQueueBuilder(QueueBuilder requestQueueBuilder) {
         this.requestQueueBuilder = requestQueueBuilder;
         return this;
     }
@@ -113,7 +150,7 @@ public class ServiceServerBuilder {
         return webResponseQueueBuilder;
     }
 
-    public ServiceServerBuilder setWebResponseQueueBuilder(QueueBuilder webResponseQueueBuilder) {
+    public EndpointServerBuilder setWebResponseQueueBuilder(QueueBuilder webResponseQueueBuilder) {
         this.webResponseQueueBuilder = webResponseQueueBuilder;
         return this;
     }
@@ -123,7 +160,7 @@ public class ServiceServerBuilder {
         return qBitSystemManager;
     }
 
-    public ServiceServerBuilder setSystemManager(QBitSystemManager qBitSystemManager) {
+    public EndpointServerBuilder setSystemManager(QBitSystemManager qBitSystemManager) {
         this.qBitSystemManager = qBitSystemManager;
         return this;
     }
@@ -137,13 +174,13 @@ public class ServiceServerBuilder {
         return httpServer;
     }
 
-    public ServiceServerBuilder setHttpServer(HttpServer httpServer) {
+    public EndpointServerBuilder setHttpServer(HttpServer httpServer) {
         this.httpServer = httpServer;
         return this;
     }
 
 
-    public ServiceServerBuilder setHttpTransport(HttpTransport httpTransport) {
+    public EndpointServerBuilder setHttpTransport(HttpTransport httpTransport) {
         this.httpServer = httpTransport;
         return this;
     }
@@ -152,7 +189,7 @@ public class ServiceServerBuilder {
         return httpRequestQueueBuilder;
     }
 
-    public ServiceServerBuilder setHttpRequestQueueBuilder(QueueBuilder httpRequestQueueBuilder) {
+    public EndpointServerBuilder setHttpRequestQueueBuilder(QueueBuilder httpRequestQueueBuilder) {
         this.httpRequestQueueBuilder = httpRequestQueueBuilder;
         return this;
     }
@@ -161,7 +198,7 @@ public class ServiceServerBuilder {
         return webSocketMessageQueueBuilder;
     }
 
-    public ServiceServerBuilder setWebSocketMessageQueueBuilder(QueueBuilder webSocketMessageQueueBuilder) {
+    public EndpointServerBuilder setWebSocketMessageQueueBuilder(QueueBuilder webSocketMessageQueueBuilder) {
         this.webSocketMessageQueueBuilder = webSocketMessageQueueBuilder;
         return this;
     }
@@ -170,7 +207,7 @@ public class ServiceServerBuilder {
         return invokeDynamic;
     }
 
-    public ServiceServerBuilder setInvokeDynamic(boolean invokeDynamic) {
+    public EndpointServerBuilder setInvokeDynamic(boolean invokeDynamic) {
         this.invokeDynamic = invokeDynamic;
         return this;
     }
@@ -179,7 +216,7 @@ public class ServiceServerBuilder {
         return maxRequestBatches;
     }
 
-    public ServiceServerBuilder setMaxRequestBatches(int maxRequestBatches) {
+    public EndpointServerBuilder setMaxRequestBatches(int maxRequestBatches) {
         this.maxRequestBatches = maxRequestBatches;
         return this;
     }
@@ -188,7 +225,7 @@ public class ServiceServerBuilder {
         return eachServiceInItsOwnThread;
     }
 
-    public ServiceServerBuilder setEachServiceInItsOwnThread(boolean eachServiceInItsOwnThread) {
+    public EndpointServerBuilder setEachServiceInItsOwnThread(boolean eachServiceInItsOwnThread) {
         this.eachServiceInItsOwnThread = eachServiceInItsOwnThread;
         return this;
     }
@@ -197,7 +234,7 @@ public class ServiceServerBuilder {
         return beforeMethodCall;
     }
 
-    public ServiceServerBuilder setBeforeMethodCall(BeforeMethodCall beforeMethodCall) {
+    public EndpointServerBuilder setBeforeMethodCall(BeforeMethodCall beforeMethodCall) {
         this.beforeMethodCall = beforeMethodCall;
         return this;
     }
@@ -206,7 +243,7 @@ public class ServiceServerBuilder {
         return beforeMethodCallAfterTransform;
     }
 
-    public ServiceServerBuilder setBeforeMethodCallAfterTransform(BeforeMethodCall beforeMethodCallAfterTransform) {
+    public EndpointServerBuilder setBeforeMethodCallAfterTransform(BeforeMethodCall beforeMethodCallAfterTransform) {
         this.beforeMethodCallAfterTransform = beforeMethodCallAfterTransform;
         return this;
     }
@@ -216,7 +253,7 @@ public class ServiceServerBuilder {
 
     }
 
-    public ServiceServerBuilder setArgTransformer(Transformer<Request, Object> argTransformer) {
+    public EndpointServerBuilder setArgTransformer(Transformer<Request, Object> argTransformer) {
         this.argTransformer = argTransformer;
         return this;
     }
@@ -225,7 +262,7 @@ public class ServiceServerBuilder {
         return numberOfOutstandingRequests;
     }
 
-    public ServiceServerBuilder setNumberOfOutstandingRequests(int numberOfOutstandingRequests) {
+    public EndpointServerBuilder setNumberOfOutstandingRequests(int numberOfOutstandingRequests) {
         this.numberOfOutstandingRequests = numberOfOutstandingRequests;
         return this;
     }
@@ -234,7 +271,7 @@ public class ServiceServerBuilder {
         return uri;
     }
 
-    public ServiceServerBuilder setUri(String uri) {
+    public EndpointServerBuilder setUri(String uri) {
         this.uri = uri;
         return this;
     }
@@ -243,7 +280,7 @@ public class ServiceServerBuilder {
         return timeoutSeconds;
     }
 
-    public ServiceServerBuilder setTimeoutSeconds(int timeoutSeconds) {
+    public EndpointServerBuilder setTimeoutSeconds(int timeoutSeconds) {
         this.timeoutSeconds = timeoutSeconds;
         return this;
     }
@@ -252,7 +289,7 @@ public class ServiceServerBuilder {
         return host;
     }
 
-    public ServiceServerBuilder setHost(String host) {
+    public EndpointServerBuilder setHost(String host) {
         this.host = host;
         return this;
     }
@@ -261,7 +298,7 @@ public class ServiceServerBuilder {
         return port;
     }
 
-    public ServiceServerBuilder setPort(int port) {
+    public EndpointServerBuilder setPort(int port) {
         this.port = port;
         return this;
     }
@@ -270,7 +307,7 @@ public class ServiceServerBuilder {
         return manageQueues;
     }
 
-    public ServiceServerBuilder setManageQueues(boolean manageQueues) {
+    public EndpointServerBuilder setManageQueues(boolean manageQueues) {
         this.manageQueues = manageQueues;
         return this;
     }
@@ -279,7 +316,7 @@ public class ServiceServerBuilder {
         return pollTime;
     }
 
-    public ServiceServerBuilder setPollTime(int pollTime) {
+    public EndpointServerBuilder setPollTime(int pollTime) {
         this.pollTime = pollTime;
         return this;
     }
@@ -288,7 +325,7 @@ public class ServiceServerBuilder {
         return requestBatchSize;
     }
 
-    public ServiceServerBuilder setRequestBatchSize(int requestBatchSize) {
+    public EndpointServerBuilder setRequestBatchSize(int requestBatchSize) {
         this.requestBatchSize = requestBatchSize;
         return this;
     }
@@ -297,7 +334,7 @@ public class ServiceServerBuilder {
         return flushInterval;
     }
 
-    public ServiceServerBuilder setFlushInterval(int flushInterval) {
+    public EndpointServerBuilder setFlushInterval(int flushInterval) {
         this.flushInterval = flushInterval;
         return this;
     }
@@ -327,7 +364,7 @@ public class ServiceServerBuilder {
         return responseQueueBuilder;
     }
 
-    public ServiceServerBuilder setResponseQueueBuilder(QueueBuilder responseQueueBuilder) {
+    public EndpointServerBuilder setResponseQueueBuilder(QueueBuilder responseQueueBuilder) {
         this.responseQueueBuilder = responseQueueBuilder;
         return this;
     }
@@ -336,7 +373,7 @@ public class ServiceServerBuilder {
         return responseQueue;
     }
 
-    public ServiceServerBuilder setResponseQueue(final Queue<Response<Object>> responseQueue) {
+    public EndpointServerBuilder setResponseQueue(final Queue<Response<Object>> responseQueue) {
         this.responseQueue = responseQueue;
         return this;
     }

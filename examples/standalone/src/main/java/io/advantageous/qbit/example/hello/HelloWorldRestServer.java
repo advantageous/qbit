@@ -23,7 +23,7 @@ import io.advantageous.qbit.server.ServiceServer;
 import io.advantageous.qbit.system.QBitSystemManager;
 
 import static io.advantageous.qbit.http.server.HttpServerBuilder.httpServerBuilder;
-import static io.advantageous.qbit.server.ServiceServerBuilder.serviceServerBuilder;
+import static io.advantageous.qbit.server.EndpointServerBuilder.endpointServerBuilder;
 
 /**
  * Created by rhightower on 2/9/15.
@@ -55,7 +55,7 @@ public class HelloWorldRestServer {
 
 
         /* Start the service. */
-        final ServiceServer serviceServer = serviceServerBuilder().setSystemManager(systemManager)
+        final ServiceServer serviceServer = endpointServerBuilder().setSystemManager(systemManager)
                 .setHttpServer(httpServer).build().initServices(new HelloService()).startServer();
 
         /* Wait for the service to shutdown. */

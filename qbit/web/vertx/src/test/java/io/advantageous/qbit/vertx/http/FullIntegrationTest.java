@@ -27,8 +27,8 @@ import io.advantageous.qbit.http.client.HttpClientBuilder;
 import io.advantageous.qbit.http.request.HttpRequest;
 import io.advantageous.qbit.http.request.HttpRequestBuilder;
 import io.advantageous.qbit.http.request.HttpTextReceiver;
+import io.advantageous.qbit.server.EndpointServerBuilder;
 import io.advantageous.qbit.server.ServiceServer;
-import io.advantageous.qbit.server.ServiceServerBuilder;
 import io.advantageous.qbit.reactive.Callback;
 import io.advantageous.qbit.service.ServiceProxyUtils;
 import io.advantageous.qbit.test.TimedTesting;
@@ -166,7 +166,7 @@ public class FullIntegrationTest extends TimedTesting {
         puts("PORT", port);
 
         client = new ClientBuilder().setPort(port).build();
-        server = new ServiceServerBuilder().setPort(port).build();
+        server = new EndpointServerBuilder().setPort(port).build();
 
         server.initServices(new MockService());
 

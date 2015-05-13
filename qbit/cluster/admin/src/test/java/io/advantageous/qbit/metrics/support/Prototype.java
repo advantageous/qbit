@@ -49,7 +49,7 @@ public class Prototype {
         //Not getting service updates when we join a cluster.
 
         int port = PortUtils.useOneOfThePortsInThisRange(8900, 9000);
-        statServiceBuilder.getServiceServerBuilder().setPort(port);
+        statServiceBuilder.getEndpointServerBuilder().setPort(port);
         final ServiceServer serviceServer = statServiceBuilder.buildServiceServer();
 
 

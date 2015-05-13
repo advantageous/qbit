@@ -27,7 +27,7 @@ import io.advantageous.boon.core.Sys;
 import java.util.Collections;
 import java.util.List;
 
-import static io.advantageous.qbit.server.ServiceServerBuilder.serviceServerBuilder;
+import static io.advantageous.qbit.server.EndpointServerBuilder.endpointServerBuilder;
 
 @RequestMapping("/myservice")
 public class CPUIntensiveService {
@@ -39,7 +39,7 @@ public class CPUIntensiveService {
     public static void main(String... args) throws Exception {
 
 
-        final ServiceServer serviceServer = serviceServerBuilder()
+        final ServiceServer serviceServer = endpointServerBuilder()
                 //2,500,000 454,065
                 .setHttpRequestQueueBuilder(
                         QueueBuilder.queueBuilder()

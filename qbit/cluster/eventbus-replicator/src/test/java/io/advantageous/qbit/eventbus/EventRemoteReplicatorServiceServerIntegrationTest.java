@@ -19,7 +19,7 @@ import java.io.IOException;
 
 import static io.advantageous.boon.core.IO.puts;
 import static io.advantageous.qbit.client.ClientBuilder.clientBuilder;
-import static io.advantageous.qbit.server.ServiceServerBuilder.serviceServerBuilder;
+import static io.advantageous.qbit.server.EndpointServerBuilder.endpointServerBuilder;
 import static io.advantageous.qbit.service.ServiceProxyUtils.flushServiceProxy;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -61,7 +61,7 @@ public class EventRemoteReplicatorServiceServerIntegrationTest extends TimedTest
 
         puts("findOpenPort(", port, ")");
 
-        serviceServer = serviceServerBuilder().setPort(port).build();
+        serviceServer = endpointServerBuilder().setPort(port).build();
         serviceServer.initServices(service);
         client = clientBuilder().setPort(port).build();
 

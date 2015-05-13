@@ -24,8 +24,8 @@ import io.advantageous.qbit.client.Client;
 import io.advantageous.qbit.client.ClientBuilder;
 import io.advantageous.qbit.http.client.HttpClient;
 import io.advantageous.qbit.http.client.HttpClientBuilder;
+import io.advantageous.qbit.server.EndpointServerBuilder;
 import io.advantageous.qbit.server.ServiceServer;
-import io.advantageous.qbit.server.ServiceServerBuilder;
 import io.advantageous.qbit.reactive.Callback;
 import io.advantageous.boon.core.Sys;
 import org.junit.After;
@@ -256,7 +256,7 @@ public class LoadTestingTest {
         httpClient = new HttpClientBuilder().setPort(port).build();
 
         client = new ClientBuilder().setRequestBatchSize(20000).setFlushInterval(200).setPort(port).build();
-        server = new ServiceServerBuilder().setRequestBatchSize(20000).setFlushInterval(200).setTimeoutSeconds(20)
+        server = new EndpointServerBuilder().setRequestBatchSize(20000).setFlushInterval(200).setTimeoutSeconds(20)
                 .setPollTime(10).setPort(port).build();
 
         server.initServices(new MockService());

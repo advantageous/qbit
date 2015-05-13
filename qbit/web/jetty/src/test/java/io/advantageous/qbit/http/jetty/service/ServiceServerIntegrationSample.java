@@ -25,7 +25,7 @@ import io.advantageous.qbit.http.jetty.RegisterJettyWithQBit;
 import io.advantageous.qbit.server.ServiceServer;
 
 import static io.advantageous.boon.core.IO.puts;
-import static io.advantageous.qbit.server.ServiceServerBuilder.serviceServerBuilder;
+import static io.advantageous.qbit.server.EndpointServerBuilder.endpointServerBuilder;
 
 /**
  * @author rhightower on 2/13/15.
@@ -36,7 +36,7 @@ public class ServiceServerIntegrationSample {
         RegisterJettyWithQBit.registerJettyWithQBit();
 
         final ServiceServer serviceServer =
-                serviceServerBuilder().setPort(9998).build()
+                endpointServerBuilder().setPort(9998).build()
                         .initServices(new PingService()).startServer();
 
 
