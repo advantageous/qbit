@@ -25,7 +25,7 @@ import io.advantageous.qbit.client.ClientBuilder;
 import io.advantageous.qbit.http.client.HttpClient;
 import io.advantageous.qbit.http.client.HttpClientBuilder;
 import io.advantageous.qbit.server.EndpointServerBuilder;
-import io.advantageous.qbit.server.EndpointServer;
+import io.advantageous.qbit.server.ServiceEndpointServer;
 import io.advantageous.qbit.reactive.Callback;
 import io.advantageous.boon.core.Sys;
 import org.junit.After;
@@ -55,7 +55,7 @@ public class LoadTestingTest {
         }
     };
     Client client;
-    EndpointServer server;
+    ServiceEndpointServer server;
     HttpClient httpClient;
     ClientServiceInterface clientProxy;
     AtomicReference<String> pongValue;

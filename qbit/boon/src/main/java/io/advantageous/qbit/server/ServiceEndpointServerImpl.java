@@ -18,7 +18,6 @@
 
 package io.advantageous.qbit.server;
 
-import io.advantageous.boon.core.Sys;
 import io.advantageous.qbit.GlobalConstants;
 import io.advantageous.qbit.http.HttpTransport;
 import io.advantageous.qbit.http.request.HttpRequest;
@@ -43,16 +42,16 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 
 /**
- * Created by rhightower on 10/22/14.
+ * Implementation of a service endpoint server.  This is the server that exposes a set of qbit services to the network.
  *
- * @author rhightower
+ * @author richardhightower@gmail.com (Rick Hightower)
+ * @author gcc@rd.io (Geoff Chandler)
  */
-public class EndpointServerImpl implements EndpointServer {
-
+public class ServiceEndpointServerImpl implements ServiceEndpointServer {
 
     protected final int batchSize;
-    private final Logger logger = LoggerFactory.getLogger(EndpointServerImpl.class);
-    private final boolean debug = false || GlobalConstants.DEBUG || logger.isDebugEnabled();
+    private final Logger logger = LoggerFactory.getLogger(ServiceEndpointServerImpl.class);
+    private final boolean debug = GlobalConstants.DEBUG || logger.isDebugEnabled();
     private final QBitSystemManager systemManager;
     protected WebSocketServiceServerHandler webSocketHandler;
     protected HttpRequestServiceServerHandler httpRequestServerHandler;
@@ -62,16 +61,19 @@ public class EndpointServerImpl implements EndpointServer {
     protected ServiceBundle serviceBundle;
     protected JsonMapper jsonMapper;
     protected ProtocolParser parser;
-    protected Object context = Sys.contextToHold();
-
 
     private AtomicBoolean stop = new AtomicBoolean();
 
 
-    public EndpointServerImpl(final HttpTransport httpServer, final ProtocolEncoder encoder, final ProtocolParser parser,
-                              final ServiceBundle serviceBundle, final JsonMapper jsonMapper,
-                              final int timeOutInSeconds, final int numberOfOutstandingRequests,
-                              final int batchSize, final int flushInterval, final QBitSystemManager systemManager) {
+    public ServiceEndpointServerImpl(final HttpTransport httpServer, final ProtocolEncoder encoder,
+                                     final ProtocolParser parser,
+                                     final ServiceBundle serviceBundle,
+                                     final JsonMapper jsonMapper,
+                                     final int timeOutInSeconds,
+                                     final int numberOfOutstandingRequests,
+                                     final int batchSize,
+                                     final int flushInterval,
+                                     final QBitSystemManager systemManager) {
 
         this.systemManager = systemManager;
         this.encoder = encoder;
@@ -88,18 +90,11 @@ public class EndpointServerImpl implements EndpointServer {
         httpRequestServerHandler =
                 new HttpRequestServiceServerHandlerUsingMetaImpl(this.timeoutInSeconds,
                         serviceBundle, jsonMapper, numberOfOutstandingRequests, flushInterval);
-
-//        httpRequestServerHandler =
-//                new HttpRequestServiceServerHandlerImpl(this.timeoutInSeconds,
-//                        serviceBundle, jsonMapper, numberOfOutstandingRequests, flushInterval);
-
     }
 
 
     @Override
     public void start() {
-
-
         stop.set(false);
 
         httpRequestServerHandler.start();
@@ -111,12 +106,9 @@ public class EndpointServerImpl implements EndpointServer {
 
         httpServer.setWebSocketIdleConsume(webSocketHandler::webSocketQueueIdle);
 
-
         serviceBundle.start();
         startResponseQueueListener();
         httpServer.start();
-
-
     }
 
     public void stop() {
@@ -159,8 +151,7 @@ public class EndpointServerImpl implements EndpointServer {
     private ReceiveQueueListener<Response<Object>> createResponseQueueListener() {
         return new ReceiveQueueListener<Response<Object>>() {
 
-
-            List<Response<Object>> responseBatch = new ArrayList<>();
+            final List<Response<Object>> responseBatch = new ArrayList<>();
 
             @Override
             public void receive(final Response<Object> response) {
@@ -263,14 +254,14 @@ public class EndpointServerImpl implements EndpointServer {
     }
 
     @Override
-    public EndpointServer flush() {
+    public ServiceEndpointServer flush() {
         this.serviceBundle.flush();
         return this;
     }
 
 
     @Override
-    public EndpointServer initServices(Iterable services) {
+    public ServiceEndpointServer initServices(Iterable services) {
 
 
         for (Object service : services) {
@@ -284,7 +275,7 @@ public class EndpointServerImpl implements EndpointServer {
     }
 
 
-    public EndpointServer addServiceQueue(final String address, final ServiceQueue serviceQueue) {
+    public ServiceEndpointServer addServiceQueue(final String address, final ServiceQueue serviceQueue) {
 
 
         serviceBundle().addServiceQueue(address, serviceQueue);
@@ -294,7 +285,7 @@ public class EndpointServerImpl implements EndpointServer {
 
 
     @Override
-    public EndpointServer initServices(Object... services) {
+    public ServiceEndpointServer initServices(Object... services) {
         for (Object service : services) {
             if (debug) logger.debug("registering service: " + service.getClass().getName());
             serviceBundle.addService(service);

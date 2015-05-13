@@ -56,15 +56,15 @@ import static io.advantageous.boon.core.Exceptions.die;
 import static io.advantageous.boon.core.IO.puts;
 import static io.advantageous.qbit.service.ServiceBuilder.serviceBuilder;
 
-public class EndpointServerImplTest extends TimedTesting {
+public class ServiceEndpointServerImplTest extends TimedTesting {
 
     static AtomicInteger timeOutCounter = new AtomicInteger();
     volatile int callMeCounter = 0;
     volatile int responseCounter = 0;
     volatile int failureCounter = 0;
     volatile String lastResponse = "";
-    private EndpointServer objectUnderTest;
-    private EndpointServerImpl serviceServerImpl;
+    private ServiceEndpointServer objectUnderTest;
+    private ServiceEndpointServerImpl serviceServerImpl;
     private HttpServerMock httpServer;
     private boolean ok = true;
 
@@ -81,7 +81,7 @@ public class EndpointServerImplTest extends TimedTesting {
 
 
         httpServer = new HttpServerMock();
-        serviceServerImpl = new EndpointServerImpl(httpServer, encoder, protocolParser, serviceBundle, mapper, 1, 100, 30, 10, null);
+        serviceServerImpl = new ServiceEndpointServerImpl(httpServer, encoder, protocolParser, serviceBundle, mapper, 1, 100, 30, 10, null);
 
 
         callMeCounter = 0;
@@ -110,7 +110,7 @@ public class EndpointServerImplTest extends TimedTesting {
 
 
         httpServer = new HttpServerMock();
-        serviceServerImpl = new EndpointServerImpl(httpServer, encoder, protocolParser, serviceBundle,
+        serviceServerImpl = new ServiceEndpointServerImpl(httpServer, encoder, protocolParser, serviceBundle,
                 mapper, 1, 100, 30, 10, null);
 
 
@@ -159,7 +159,7 @@ public class EndpointServerImplTest extends TimedTesting {
 
 
         httpServer = new HttpServerMock();
-        serviceServerImpl = new EndpointServerImpl(httpServer, encoder, protocolParser, serviceBundle,
+        serviceServerImpl = new ServiceEndpointServerImpl(httpServer, encoder, protocolParser, serviceBundle,
                 mapper, 1, 100, 30, 10, null);
 
 
