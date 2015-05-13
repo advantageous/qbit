@@ -33,7 +33,12 @@ public class EventRemoteReplicatorServiceBundleIntegrationTest extends TimedTest
         setupLatch();
         eventManager = mock(EventManager.class);
         service = new EventRemoteReplicatorService(eventManager);
-        serviceBundle = serviceBundleBuilder().build();
+
+        try {
+            serviceBundle = serviceBundleBuilder().build();
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
         serviceBundle.addServiceObject("remote", service);
         client = serviceBundle.createLocalProxy(EventConnector.class, "remote");
         serviceBundle.start();
