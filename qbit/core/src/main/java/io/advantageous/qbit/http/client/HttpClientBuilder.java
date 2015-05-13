@@ -18,7 +18,11 @@
 
 package io.advantageous.qbit.http.client;
 
+import io.advantageous.qbit.GlobalConstants;
 import io.advantageous.qbit.QBit;
+import io.advantageous.qbit.config.PropertyResolver;
+
+import java.util.Properties;
 
 
 /**
@@ -30,6 +34,8 @@ import io.advantageous.qbit.QBit;
 public class HttpClientBuilder {
 
 
+    public static final String QBIT_HTTP_CLIENT_BUILDER = "qbit.http.client.builder.";
+
     private String host = "localhost";
     private int port = 8080;
     private int poolSize = 20;
@@ -40,6 +46,32 @@ public class HttpClientBuilder {
     private boolean keepAlive = true;
     private boolean pipeline = true;
     private int flushInterval = 500;
+
+
+    public HttpClientBuilder(PropertyResolver propertyResolver) {
+        this.autoFlush = propertyResolver.getBooleanProperty("autoFlush", true);
+        this.host = propertyResolver.getStringProperty("host", "localhost");
+        this.port = propertyResolver.getIntegerProperty("port", 8080);
+        this.poolSize = propertyResolver.getIntegerProperty("poolSize", 1);
+        this.pollTime = propertyResolver.getIntegerProperty("pollTime", GlobalConstants.POLL_WAIT);
+        this.requestBatchSize = propertyResolver
+                .getIntegerProperty("requestBatchSize", GlobalConstants.BATCH_SIZE);
+        this.keepAlive = propertyResolver.getBooleanProperty("keepAlive", true);
+        this.pipeline = propertyResolver.getBooleanProperty("pipeline", true);
+        this.timeOutInMilliseconds = propertyResolver.getIntegerProperty("timeOutInMilliseconds", 3000);
+        this.flushInterval = propertyResolver.getIntegerProperty("flushInterval", 500);
+    }
+
+
+    public HttpClientBuilder() {
+        this(PropertyResolver.createSystemPropertyResolver(QBIT_HTTP_CLIENT_BUILDER));
+    }
+
+
+    public HttpClientBuilder(final Properties properties) {
+        this(PropertyResolver.createPropertiesPropertyResolver(
+                QBIT_HTTP_CLIENT_BUILDER, properties));
+    }
 
     public static HttpClientBuilder httpClientBuilder() {
 
