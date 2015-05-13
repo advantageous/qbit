@@ -20,11 +20,13 @@ package io.advantageous.qbit.client;
 
 import io.advantageous.qbit.GlobalConstants;
 import io.advantageous.qbit.QBit;
+import io.advantageous.qbit.config.PropertyResolver;
 import io.advantageous.qbit.http.client.HttpClient;
 
 import java.net.InetSocketAddress;
 import java.net.URI;
 import java.net.URL;
+import java.util.Properties;
 
 /**
  * Client builder is used to createWithWorkers a client programatically.
@@ -32,19 +34,48 @@ import java.net.URL;
 public class ClientBuilder {
 
 
-    private String host = "localhost";
-    private int port = 8080;
-    private boolean autoFlush = true;
-    private int pollTime = GlobalConstants.POLL_WAIT;
-    private int poolSize = 1;
-    private int requestBatchSize = GlobalConstants.BATCH_SIZE;
-    private boolean keepAlive = true;
-    private boolean pipeline = true;
-    private int timeOutInMilliseconds = 3000;
-    private int protocolBatchSize = -1;
-    private int flushInterval = 500;
-    private String uri = "/services";
+    public static final String QBIT_CLIENT_BUILDER = "qbit.client.builder.";
+    private String host;
+    private int port;
+    private boolean autoFlush;
+    private int pollTime;
+    private int poolSize;
+    private int requestBatchSize;
+    private boolean keepAlive;
+    private boolean pipeline;
+    private int timeOutInMilliseconds;
+    private int protocolBatchSize;
+    private int flushInterval;
+    private String uri;
     private int timeoutSeconds = 30;
+
+    public ClientBuilder(PropertyResolver propertyResolver) {
+        this.autoFlush = propertyResolver.getBooleanProperty("autoFlush", true);
+        this.host = propertyResolver.getStringProperty("host", "localhost");
+        this.port = propertyResolver.getIntegerProperty("port", 8080);
+        this.poolSize = propertyResolver.getIntegerProperty("poolSize", 1);
+        this.pollTime = propertyResolver.getIntegerProperty("pollTime", GlobalConstants.POLL_WAIT);
+        this.requestBatchSize = propertyResolver
+                .getIntegerProperty("requestBatchSize", GlobalConstants.BATCH_SIZE);
+        this.keepAlive = propertyResolver.getBooleanProperty("keepAlive", true);
+        this.pipeline = propertyResolver.getBooleanProperty("pipeline", true);
+        this.timeOutInMilliseconds = propertyResolver.getIntegerProperty("timeOutInMilliseconds", 3000);
+        this.protocolBatchSize = propertyResolver.getIntegerProperty("protocolBatchSize", -1);
+        this.flushInterval = propertyResolver.getIntegerProperty("flushInterval", 500);
+        this.uri = propertyResolver.getStringProperty("uri", "/services");
+        this.timeoutSeconds = propertyResolver.getIntegerProperty("timeoutSeconds", 30);
+    }
+
+
+    public ClientBuilder() {
+        this(PropertyResolver.createSystemPropertyResolver(QBIT_CLIENT_BUILDER));
+    }
+
+
+    public ClientBuilder(final Properties properties) {
+        this(PropertyResolver.createPropertiesPropertyResolver(
+                QBIT_CLIENT_BUILDER, properties));
+    }
 
     public static ClientBuilder clientBuilder() {
         return new ClientBuilder();
