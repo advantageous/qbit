@@ -3,7 +3,7 @@ package io.advantageous.qbit.eventbus;
 import io.advantageous.qbit.events.EventManager;
 import io.advantageous.qbit.events.spi.EventConnector;
 import io.advantageous.qbit.server.EndpointServerBuilder;
-import io.advantageous.qbit.server.EndpointServer;
+import io.advantageous.qbit.server.ServiceEndpointServer;
 
 /**
  * @author Rick Hightower
@@ -69,9 +69,9 @@ public class EventBusRemoteReplicatorBuilder {
     }
 
 
-    public EndpointServer build() {
+    public ServiceEndpointServer build() {
 
-        EndpointServer endpointServer = serviceServerBuilder().build();
+        ServiceEndpointServer serviceEndpointServer = serviceServerBuilder().build();
 
         if (this.getEventConnector()!=null && this.getEventManager() !=null) {
             throw new IllegalStateException("Only event connector or event manager can be set, not both");
@@ -87,7 +87,7 @@ public class EventBusRemoteReplicatorBuilder {
             eventRemoteReplicatorService = new EventRemoteReplicatorService(this.getEventManager());
         }
 
-        endpointServer.addServiceObject(this.getName(), eventRemoteReplicatorService);
-        return endpointServer;
+        serviceEndpointServer.addServiceObject(this.getName(), eventRemoteReplicatorService);
+        return serviceEndpointServer;
     }
 }

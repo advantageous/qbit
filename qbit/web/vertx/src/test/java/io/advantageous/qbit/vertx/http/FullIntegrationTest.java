@@ -28,7 +28,7 @@ import io.advantageous.qbit.http.request.HttpRequest;
 import io.advantageous.qbit.http.request.HttpRequestBuilder;
 import io.advantageous.qbit.http.request.HttpTextReceiver;
 import io.advantageous.qbit.server.EndpointServerBuilder;
-import io.advantageous.qbit.server.EndpointServer;
+import io.advantageous.qbit.server.ServiceEndpointServer;
 import io.advantageous.qbit.reactive.Callback;
 import io.advantageous.qbit.service.ServiceProxyUtils;
 import io.advantageous.qbit.test.TimedTesting;
@@ -48,7 +48,7 @@ public class FullIntegrationTest extends TimedTesting {
 
     static volatile int port = 7777;
     Client client;
-    EndpointServer server;
+    ServiceEndpointServer server;
     HttpClient httpClient;
     ClientServiceInterface clientProxy;
     AtomicInteger callCount = new AtomicInteger();

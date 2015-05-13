@@ -29,7 +29,7 @@ import io.advantageous.qbit.queue.QueueBuilder;
 import io.advantageous.qbit.queue.ReceiveQueueListener;
 import io.advantageous.qbit.queue.SendQueue;
 import io.advantageous.qbit.server.EndpointServerBuilder;
-import io.advantageous.qbit.server.EndpointServer;
+import io.advantageous.qbit.server.ServiceEndpointServer;
 import io.advantageous.qbit.reactive.Callback;
 import io.advantageous.qbit.spi.FactorySPI;
 import io.advantageous.qbit.spi.HttpClientFactory;
@@ -65,7 +65,7 @@ public class PerfTestMain {
 
         FactorySPI.setHttpServerFactory((options, requestQueueBuilder, respQB, webSocketMessageQueueBuilder, systemManager) -> new MockHttpServer());
 
-        EndpointServer server = new EndpointServerBuilder().setRequestBatchSize(10_000).build();
+        ServiceEndpointServer server = new EndpointServerBuilder().setRequestBatchSize(10_000).build();
         server.initServices(new AdderService());
         server.start();
 

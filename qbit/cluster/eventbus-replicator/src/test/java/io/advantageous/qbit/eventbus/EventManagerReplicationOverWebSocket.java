@@ -6,7 +6,7 @@ import io.advantageous.qbit.events.EventManager;
 import io.advantageous.qbit.events.EventManagerBuilder;
 import io.advantageous.qbit.events.impl.EventConnectorHub;
 import io.advantageous.qbit.events.spi.EventConnector;
-import io.advantageous.qbit.server.EndpointServer;
+import io.advantageous.qbit.server.ServiceEndpointServer;
 import io.advantageous.qbit.service.ServiceBundle;
 import io.advantageous.qbit.service.ServiceProxyUtils;
 import io.advantageous.qbit.test.TimedTesting;
@@ -78,14 +78,14 @@ public class EventManagerReplicationOverWebSocket extends TimedTesting {
         EventBusRemoteReplicatorBuilder replicatorBuilderA = eventBusRemoteReplicatorBuilder();
         replicatorBuilderA.serviceServerBuilder().setPort(9096);
         replicatorBuilderA.setEventManager(eventManagerA);
-        EndpointServer endpointServerA = replicatorBuilderA.build();
+        ServiceEndpointServer serviceEndpointServerA = replicatorBuilderA.build();
 
 
         /* B remote replicator. */
         EventBusRemoteReplicatorBuilder replicatorBuilderB = eventBusRemoteReplicatorBuilder();
         replicatorBuilderB.serviceServerBuilder().setPort(9097);
         replicatorBuilderB.setEventManager(eventManagerB);
-        EndpointServer endpointServerB = replicatorBuilderB.build();
+        ServiceEndpointServer serviceEndpointServerB = replicatorBuilderB.build();
 
 
 
@@ -93,7 +93,7 @@ public class EventManagerReplicationOverWebSocket extends TimedTesting {
         EventBusRemoteReplicatorBuilder replicatorBuilderC = eventBusRemoteReplicatorBuilder();
         replicatorBuilderC.serviceServerBuilder().setPort(9099);
         replicatorBuilderC.setEventManager(eventManagerC);
-        EndpointServer endpointServerC = replicatorBuilderC.build();
+        ServiceEndpointServer serviceEndpointServerC = replicatorBuilderC.build();
 
 
 
@@ -123,9 +123,9 @@ public class EventManagerReplicationOverWebSocket extends TimedTesting {
 
         Sys.sleep(100);
 
-        endpointServerB.start();
-        endpointServerC.start();
-        endpointServerA.start();
+        serviceEndpointServerB.start();
+        serviceEndpointServerC.start();
+        serviceEndpointServerA.start();
         clientA.start();
         clientB.start();
         clientC.start();
@@ -212,9 +212,9 @@ public class EventManagerReplicationOverWebSocket extends TimedTesting {
         clientC.stop();
         Sys.sleep(100);
 
-        endpointServerA.stop();
-        endpointServerB.stop();
-        endpointServerC.stop();
+        serviceEndpointServerA.stop();
+        serviceEndpointServerB.stop();
+        serviceEndpointServerC.stop();
 
     }
 

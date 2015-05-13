@@ -40,8 +40,8 @@ import io.advantageous.qbit.queue.Queue;
 import io.advantageous.qbit.queue.QueueBuilder;
 import io.advantageous.qbit.sender.Sender;
 import io.advantageous.qbit.sender.SenderEndPoint;
-import io.advantageous.qbit.server.EndpointServer;
-import io.advantageous.qbit.server.EndpointServerImpl;
+import io.advantageous.qbit.server.ServiceEndpointServer;
+import io.advantageous.qbit.server.ServiceEndpointServerImpl;
 import io.advantageous.qbit.service.BeforeMethodCall;
 import io.advantageous.qbit.service.ServiceQueue;
 import io.advantageous.qbit.service.ServiceBundle;
@@ -250,12 +250,12 @@ public class BoonQBitFactory implements Factory {
     }
 
     @Override
-    public EndpointServer createServiceServer(final HttpTransport httpServer, final ProtocolEncoder encoder,
+    public ServiceEndpointServer createServiceServer(final HttpTransport httpServer, final ProtocolEncoder encoder,
                                              final ProtocolParser protocolParser, final ServiceBundle serviceBundle,
                                              final JsonMapper jsonMapper, final int timeOutInSeconds,
                                              final int numberOfOutstandingRequests, final int batchSize,
                                              final int flushInterval, final QBitSystemManager systemManager) {
-        return new EndpointServerImpl(httpServer, encoder, protocolParser, serviceBundle, jsonMapper, timeOutInSeconds, numberOfOutstandingRequests, batchSize, flushInterval, systemManager);
+        return new ServiceEndpointServerImpl(httpServer, encoder, protocolParser, serviceBundle, jsonMapper, timeOutInSeconds, numberOfOutstandingRequests, batchSize, flushInterval, systemManager);
     }
 
 

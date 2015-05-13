@@ -19,55 +19,53 @@
 package io.advantageous.qbit.server;
 
 import io.advantageous.qbit.message.MethodCall;
-import io.advantageous.qbit.service.ServiceQueue;
 import io.advantageous.qbit.service.ServiceBundle;
+import io.advantageous.qbit.service.ServiceQueue;
 
 import java.util.function.Consumer;
 
 /**
  * Represents a server that marshals method calls to a service.
- * Created by Richard on 11/14/14.
+ *
+ * @author richardhightower@gmail.com (Rick Hightower)
+ * @author gcc@rd.io (Geoff Chandler)
  */
-public interface EndpointServer extends Server {
-    default EndpointServer initServices(Object... services) {
+public interface ServiceEndpointServer extends Server {
+
+    default ServiceEndpointServer initServices(Object... services) {
         throw new IllegalStateException("Not implemented");
     }
 
-
-    default EndpointServer initServices(Iterable services) {
+    default ServiceEndpointServer initServices(Iterable services) {
         throw new IllegalStateException("Not implemented");
     }
-
 
     default ServiceBundle serviceBundle() {
         throw new IllegalStateException("Not implemented");
 
     }
 
-    default EndpointServer addServiceQueue(String address, ServiceQueue serviceQueue) {
+    default ServiceEndpointServer addServiceQueue(String address, ServiceQueue serviceQueue) {
         throw new IllegalStateException("Not implemented");
     }
 
-    default EndpointServer addServiceConsumer(String address, Consumer<MethodCall<Object>> service) {
+    default ServiceEndpointServer addServiceConsumer(String address, Consumer<MethodCall<Object>> service) {
         serviceBundle().addServiceObject(address, service);
         return this;
     }
 
-
-    default EndpointServer addServiceObject(String address, Object serviceObject) {
+    default ServiceEndpointServer addServiceObject(String address, Object serviceObject) {
         serviceBundle().addServiceObject(address, serviceObject);
         return this;
     }
 
-    default EndpointServer flush() {
+    default ServiceEndpointServer flush() {
         throw new IllegalStateException("Not implemented");
     }
 
-
-    default EndpointServer startServer() {
+    default ServiceEndpointServer startServer() {
         start();
         return this;
     }
-
 
 }
