@@ -42,7 +42,9 @@ public class EventRemoteReplicatorServiceBundleIntegrationTest extends TimedTest
     @After
     public void tearDown() {
 
-        serviceBundle.stop();
+        if (serviceBundle!=null) {
+            serviceBundle.stop();
+        }
     }
 
     @Test
