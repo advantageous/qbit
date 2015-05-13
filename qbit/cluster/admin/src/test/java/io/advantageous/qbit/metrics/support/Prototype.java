@@ -6,11 +6,11 @@ import io.advantageous.qbit.QBit;
 import io.advantageous.qbit.events.EventBusProxyCreator;
 import io.advantageous.qbit.events.EventManager;
 import io.advantageous.qbit.metrics.StatService;
-import io.advantageous.qbit.server.ServiceServer;
+import io.advantageous.qbit.server.EndpointServer;
 import io.advantageous.qbit.service.ServiceProxyUtils;
 import io.advantageous.qbit.service.discovery.HealthStatus;
 import io.advantageous.qbit.service.discovery.ServiceChangedEventChannel;
-import io.advantageous.qbit.service.discovery.ServiceDefinition;
+import io.advantageous.qbit.service.discovery.EndpointDefinition;
 import io.advantageous.qbit.service.discovery.impl.ServiceDiscoveryImpl;
 import io.advantageous.qbit.util.PortUtils;
 
@@ -50,17 +50,17 @@ public class Prototype {
 
         int port = PortUtils.useOneOfThePortsInThisRange(8900, 9000);
         statServiceBuilder.getEndpointServerBuilder().setPort(port);
-        final ServiceServer serviceServer = statServiceBuilder.buildServiceServer();
+        final EndpointServer endpointServer = statServiceBuilder.buildServiceServer();
 
 
-        serviceServer.start();
+        endpointServer.start();
 
-        final StatService statService = serviceServer.serviceBundle().createLocalProxy(StatService.class,
+        final StatService statService = endpointServer.serviceBundle().createLocalProxy(StatService.class,
                 statServiceBuilder.getServiceName());
 
-        List<ServiceDefinition> serviceDefinitions = serviceDiscovery.loadServices(statServiceBuilder.getServiceName());
+        List<EndpointDefinition> endpointDefinitions = serviceDiscovery.loadServices(statServiceBuilder.getServiceName());
 
-        serviceDefinitions.forEach(serviceDefinition -> puts(serviceDefinition));
+        endpointDefinitions.forEach(serviceDefinition -> puts(serviceDefinition));
 
         puts("Service statServiceBuilder.getLocalServiceId()", statServiceBuilder.getLocalServiceId());
 
@@ -84,8 +84,8 @@ public class Prototype {
 
 
         ServiceProxyUtils.flushServiceProxy(statService);
-        serviceDefinitions = serviceDiscovery.loadServices(statServiceBuilder.getServiceName());
-        serviceDefinitions.forEach(serviceDefinition -> puts(serviceDefinition));
+        endpointDefinitions = serviceDiscovery.loadServices(statServiceBuilder.getServiceName());
+        endpointDefinitions.forEach(serviceDefinition -> puts(serviceDefinition));
 
 
 

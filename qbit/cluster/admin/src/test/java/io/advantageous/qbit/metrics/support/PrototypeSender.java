@@ -6,7 +6,7 @@ import io.advantageous.qbit.QBit;
 import io.advantageous.qbit.events.EventBusProxyCreator;
 import io.advantageous.qbit.events.EventManager;
 import io.advantageous.qbit.metrics.StatService;
-import io.advantageous.qbit.server.ServiceServer;
+import io.advantageous.qbit.server.EndpointServer;
 import io.advantageous.qbit.service.ServiceProxyUtils;
 import io.advantageous.qbit.service.discovery.ServiceChangedEventChannel;
 import io.advantageous.qbit.service.discovery.impl.ServiceDiscoveryImpl;
@@ -46,12 +46,12 @@ public class PrototypeSender {
 
         int port = PortUtils.useOneOfThePortsInThisRange(8900, 9000);
         statServiceBuilder.getEndpointServerBuilder().setPort(port);
-        final ServiceServer serviceServer = statServiceBuilder.buildServiceServer();
+        final EndpointServer endpointServer = statServiceBuilder.buildServiceServer();
 
 
-        serviceServer.start();
+        endpointServer.start();
 
-        final StatService statService = serviceServer.serviceBundle().createOneWayLocalProxy(StatService.class,
+        final StatService statService = endpointServer.serviceBundle().createOneWayLocalProxy(StatService.class,
                 statServiceBuilder.getServiceName());
 
 

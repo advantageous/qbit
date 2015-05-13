@@ -9,7 +9,7 @@ import io.advantageous.consul.domain.option.RequestOptions;
 import io.advantageous.consul.domain.option.RequestOptionsBuilder;
 import io.advantageous.qbit.GlobalConstants;
 import io.advantageous.qbit.service.discovery.HealthStatus;
-import io.advantageous.qbit.service.discovery.ServiceDefinition;
+import io.advantageous.qbit.service.discovery.EndpointDefinition;
 import io.advantageous.qbit.service.discovery.impl.ServiceHealthCheckIn;
 import io.advantageous.qbit.service.discovery.spi.ServiceDiscoveryProvider;
 import io.advantageous.qbit.util.ConcurrentHashSet;
@@ -77,10 +77,10 @@ public class ConsulServiceDiscoveryProvider implements ServiceDiscoveryProvider 
 
 
     @Override
-    public void unregisterServices(final ConcurrentHashSet<ServiceDefinition> serviceDefinitions){
+    public void unregisterServices(final ConcurrentHashSet<EndpointDefinition> endpointDefinitions){
 
 
-        for (ServiceDefinition definition : serviceDefinitions) {
+        for (EndpointDefinition definition : endpointDefinitions) {
             Consul consul = consulThreadLocal.get();
             consul.agent().deregister(definition.getId());
         }
@@ -89,7 +89,7 @@ public class ConsulServiceDiscoveryProvider implements ServiceDiscoveryProvider 
     }
 
     @Override
-    public void registerServices(final Queue<ServiceDefinition> registerQueue) {
+    public void registerServices(final Queue<EndpointDefinition> registerQueue) {
 
 
         if (trace) {
@@ -99,15 +99,15 @@ public class ConsulServiceDiscoveryProvider implements ServiceDiscoveryProvider 
             ));
         }
 
-        ServiceDefinition serviceDefinition = registerQueue.poll();
-        if (serviceDefinition!=null) {
+        EndpointDefinition endpointDefinition = registerQueue.poll();
+        if (endpointDefinition !=null) {
             Consul consul = consulThreadLocal.get();
 
-            while(serviceDefinition!=null) {
+            while(endpointDefinition !=null) {
                     try {
-                        consul.agent().registerService(serviceDefinition.getPort(),
-                                serviceDefinition.getTimeToLive(),
-                                serviceDefinition.getName(), serviceDefinition.getId(), tag);
+                        consul.agent().registerService(endpointDefinition.getPort(),
+                                endpointDefinition.getTimeToLive(),
+                                endpointDefinition.getName(), endpointDefinition.getId(), tag);
                     } catch (Exception ex) {
 
                         logger.debug("problem running consul register service", ex);
@@ -116,7 +116,7 @@ public class ConsulServiceDiscoveryProvider implements ServiceDiscoveryProvider 
                         consulNew.start();
                         consulThreadLocal.set(consulNew);
                     }
-                    serviceDefinition = registerQueue.poll();
+                    endpointDefinition = registerQueue.poll();
             }
         }
     }
@@ -163,7 +163,7 @@ public class ConsulServiceDiscoveryProvider implements ServiceDiscoveryProvider 
     }
 
     @Override
-    public List<ServiceDefinition> loadServices(final String serviceName) {
+    public List<EndpointDefinition> loadServices(final String serviceName) {
 
         if (trace) {
             logger.trace(sputs(
@@ -182,42 +182,42 @@ public class ConsulServiceDiscoveryProvider implements ServiceDiscoveryProvider 
                 "node count fetched", healthyServices.size()));
 
 
-        final List<ServiceDefinition> serviceDefinitions =
+        final List<EndpointDefinition> endpointDefinitions =
                 convertToServiceDefinitions(healthyServices);
 
-        return serviceDefinitions;
+        return endpointDefinitions;
 
     }
 
 
 
-    private List<ServiceDefinition> convertToServiceDefinitions(
+    private List<EndpointDefinition> convertToServiceDefinitions(
             final List<ServiceHealth> healthyServices) {
 
-        final List<ServiceDefinition> serviceDefinitions = new ArrayList<>(healthyServices.size());
+        final List<EndpointDefinition> endpointDefinitions = new ArrayList<>(healthyServices.size());
 
         healthyServices.forEach(serviceHealth -> {
-            ServiceDefinition serviceDefinition =
+            EndpointDefinition endpointDefinition =
                     convertToServiceDefinition(serviceHealth);
-            serviceDefinitions.add(serviceDefinition);
+            endpointDefinitions.add(endpointDefinition);
         });
 
-        return serviceDefinitions;
+        return endpointDefinitions;
     }
 
-    private ServiceDefinition convertToServiceDefinition(final ServiceHealth serviceHealth) {
+    private EndpointDefinition convertToServiceDefinition(final ServiceHealth serviceHealth) {
 
         final String host = serviceHealth.getNode().getAddress();
         final int port = serviceHealth.getService().getPort();
         final String id = serviceHealth.getService().getId();
         final String name = serviceHealth.getService().getService();
-        final ServiceDefinition serviceDefinition =
-                new ServiceDefinition(HealthStatus.PASS, id, name, host, port);
+        final EndpointDefinition endpointDefinition =
+                new EndpointDefinition(HealthStatus.PASS, id, name, host, port);
 
         if (debug) logger.debug(sputs("convertToServiceDefinition \nserviceHealth",
-                serviceHealth, "\nserviceDefinition" , serviceDefinition));
+                serviceHealth, "\nserviceDefinition" , endpointDefinition));
 
-        return serviceDefinition;
+        return endpointDefinition;
     }
 
 

@@ -27,7 +27,7 @@ public class ClusteredStatReplicator implements StatReplicator, ServiceChangedEv
 
     private final ServiceDiscovery serviceDiscovery;
     private final StatReplicatorProvider statReplicatorProvider;
-    private final ConcurrentHashMap<String, Pair<ServiceDefinition, StatReplicator>>
+    private final ConcurrentHashMap<String, Pair<EndpointDefinition, StatReplicator>>
             replicatorsMap = new ConcurrentHashMap<>();
     private final Logger logger = LoggerFactory.getLogger(ClusteredStatReplicator.class);
     private final boolean debug = GlobalConstants.DEBUG || logger.isDebugEnabled();
@@ -43,7 +43,7 @@ public class ClusteredStatReplicator implements StatReplicator, ServiceChangedEv
     private long lastSendTime;
     private long lastReplicatorFlush = 0;
     private ConcurrentHashMap<String, LocalCount> countMap = new ConcurrentHashMap<>();
-    private List<Pair<ServiceDefinition, StatReplicator>> statReplicators = new ArrayList<>();
+    private List<Pair<EndpointDefinition, StatReplicator>> statReplicators = new ArrayList<>();
 
 
     public ClusteredStatReplicator(final String serviceName,
@@ -101,7 +101,7 @@ public class ClusteredStatReplicator implements StatReplicator, ServiceChangedEv
         localCount.count = level;
     }
 
-    private void doRecordCount(Pair<ServiceDefinition, StatReplicator> statReplicator,
+    private void doRecordCount(Pair<EndpointDefinition, StatReplicator> statReplicator,
                                final String name, final int count, final long now) {
 
         try {
@@ -158,7 +158,7 @@ public class ClusteredStatReplicator implements StatReplicator, ServiceChangedEv
         if (currentTime - lastReplicatorFlush > flushInterval) {
             lastReplicatorFlush = currentTime;
 
-            final List<Pair<ServiceDefinition, StatReplicator>> badReplicators = new ArrayList<>();
+            final List<Pair<EndpointDefinition, StatReplicator>> badReplicators = new ArrayList<>();
             statReplicators.forEach(
                     statReplicator -> flushReplicator(statReplicator, badReplicators)
             );
@@ -194,7 +194,7 @@ public class ClusteredStatReplicator implements StatReplicator, ServiceChangedEv
     public void doCheckReconnect() {
 
         lastReconnectTime = currentTime;
-        final List<ServiceDefinition> services = servicePool.services();
+        final List<EndpointDefinition> services = servicePool.services();
 
 
         //services.forEach(serviceDefinition -> addIfNotExists(serviceDefinition));
@@ -208,14 +208,14 @@ public class ClusteredStatReplicator implements StatReplicator, ServiceChangedEv
         }
     }
 
-    private void addIfNotExists(ServiceDefinition serviceDefinition) {
-        Pair<ServiceDefinition, StatReplicator> pair = this.replicatorsMap.get(serviceDefinition.getId());
+    private void addIfNotExists(EndpointDefinition endpointDefinition) {
+        Pair<EndpointDefinition, StatReplicator> pair = this.replicatorsMap.get(endpointDefinition.getId());
         if (pair == null) {
-            addService(serviceDefinition);
+            addService(endpointDefinition);
         } else {
             try {
                 if (!pair.getSecond().connected()) {
-                    addService(serviceDefinition);
+                    addService(endpointDefinition);
                 }
             } catch (Exception ex) {
                 if (debug) logger.debug("Unable to add service or check to see if it is connected", ex);
@@ -225,7 +225,7 @@ public class ClusteredStatReplicator implements StatReplicator, ServiceChangedEv
 
     private void shutDownReplicators() {
         if (debug) logger.debug("Shutting down replicators");
-        for (Pair<ServiceDefinition, StatReplicator> statReplicator : statReplicators) {
+        for (Pair<EndpointDefinition, StatReplicator> statReplicator : statReplicators) {
             try {
                 statReplicator.getSecond().stop();
 
@@ -239,8 +239,8 @@ public class ClusteredStatReplicator implements StatReplicator, ServiceChangedEv
         replicatorsMap.clear();
     }
 
-    private void flushReplicator(final Pair<ServiceDefinition, StatReplicator> statReplicator,
-                                 final List<Pair<ServiceDefinition, StatReplicator>> badReplicators) {
+    private void flushReplicator(final Pair<EndpointDefinition, StatReplicator> statReplicator,
+                                 final List<Pair<EndpointDefinition, StatReplicator>> badReplicators) {
 
 
         try {
@@ -273,44 +273,44 @@ public class ClusteredStatReplicator implements StatReplicator, ServiceChangedEv
 
     private void updateServicePool(String serviceName) {
 
-        final List<ServiceDefinition> nodes = serviceDiscovery.loadServices(serviceName);
+        final List<EndpointDefinition> nodes = serviceDiscovery.loadServices(serviceName);
         servicePool.setHealthyNodes(nodes, new ServicePoolListener() {
             @Override
             public void servicePoolChanged(String serviceName) {
             }
 
             @Override
-            public void serviceAdded(String serviceName, ServiceDefinition serviceDefinition) {
-                addService(serviceDefinition);
+            public void serviceAdded(String serviceName, EndpointDefinition endpointDefinition) {
+                addService(endpointDefinition);
             }
 
             @Override
-            public void serviceRemoved(String serviceName, ServiceDefinition serviceDefinition) {
-                removeService(serviceDefinition);
+            public void serviceRemoved(String serviceName, EndpointDefinition endpointDefinition) {
+                removeService(endpointDefinition);
             }
 
         });
     }
 
-    private void removeService(final ServiceDefinition serviceDefinition) {
+    private void removeService(final EndpointDefinition endpointDefinition) {
 
         if (trace) logger.trace(sputs("ClusteredStatReplicator::removeService()",
-                serviceName, serviceDefinition));
+                serviceName, endpointDefinition));
 
-        this.replicatorsMap.remove(serviceDefinition.getId());
+        this.replicatorsMap.remove(endpointDefinition.getId());
         this.statReplicators = new ArrayList<>(replicatorsMap.values());
     }
 
-    private void addService(final ServiceDefinition serviceDefinition) {
+    private void addService(final EndpointDefinition endpointDefinition) {
 
-        if (trace) logger.trace(sputs("ClusteredStatReplicator::addService()", serviceDefinition));
+        if (trace) logger.trace(sputs("ClusteredStatReplicator::addService()", endpointDefinition));
 
-        if (serviceDefinition.getId().equals(localServiceId)) {
+        if (endpointDefinition.getId().equals(localServiceId)) {
             return;
         }
 
-        final StatReplicator statReplicator = statReplicatorProvider.provide(serviceDefinition);
-        this.replicatorsMap.put(serviceDefinition.getId(), Pair.pair(serviceDefinition, statReplicator));
+        final StatReplicator statReplicator = statReplicatorProvider.provide(endpointDefinition);
+        this.replicatorsMap.put(endpointDefinition.getId(), Pair.pair(endpointDefinition, statReplicator));
         this.statReplicators = new ArrayList<>(replicatorsMap.values());
 
     }

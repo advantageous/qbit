@@ -16,7 +16,7 @@ import io.advantageous.qbit.concurrent.PeriodicScheduler;
 import io.advantageous.qbit.events.EventManager;
 import io.advantageous.qbit.events.impl.EventConnectorHub;
 import io.advantageous.qbit.events.spi.EventConnector;
-import io.advantageous.qbit.server.ServiceServer;
+import io.advantageous.qbit.server.EndpointServer;
 import io.advantageous.qbit.service.ServiceQueue;
 import io.advantageous.qbit.service.Startable;
 import io.advantageous.qbit.service.Stoppable;
@@ -63,7 +63,7 @@ public class EventBusCluster implements Startable, Stoppable {
     private AtomicReference<Consul> consul = new AtomicReference<>();
     private ScheduledFuture healthyNodeMonitor;
     private ScheduledFuture consulCheckInMonitor;
-    private ServiceServer serviceServerForReplicator;
+    private EndpointServer endpointServerForReplicator;
     private ServiceQueue eventServiceQueue;
 
     private EventManager eventManagerImpl;
@@ -206,8 +206,8 @@ public class EventBusCluster implements Startable, Stoppable {
             replicatorBuilder.serviceServerBuilder().setHost(replicationHostLocal);
         }
         replicatorBuilder.setEventManager(eventManager);
-        serviceServerForReplicator = replicatorBuilder.build();
-        serviceServerForReplicator.start();
+        endpointServerForReplicator = replicatorBuilder.build();
+        endpointServerForReplicator.start();
     }
 
     private void showHealthyServices(List<ServiceHealth> healthyServices) {
@@ -378,7 +378,7 @@ public class EventBusCluster implements Startable, Stoppable {
             consul.get().stop();
         } finally {
             try {
-                this.serviceServerForReplicator.stop();
+                this.endpointServerForReplicator.stop();
             } finally {
 
                 try {

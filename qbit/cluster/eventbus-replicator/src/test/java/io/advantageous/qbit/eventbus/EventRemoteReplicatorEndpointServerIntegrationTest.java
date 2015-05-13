@@ -6,7 +6,7 @@ import io.advantageous.qbit.events.EventManager;
 import io.advantageous.qbit.events.spi.EventConnector;
 import io.advantageous.qbit.events.spi.EventTransferObject;
 //import io.advantageous.qbit.http.jetty.RegisterJettyWithQBit;
-import io.advantageous.qbit.server.ServiceServer;
+import io.advantageous.qbit.server.EndpointServer;
 import io.advantageous.qbit.spi.RegisterBoonWithQBit;
 import io.advantageous.qbit.test.TimedTesting;
 import io.advantageous.qbit.util.PortUtils;
@@ -26,7 +26,7 @@ import static org.mockito.Mockito.verify;
 
 /**
  */
-public class EventRemoteReplicatorServiceServerIntegrationTest extends TimedTesting {
+public class EventRemoteReplicatorEndpointServerIntegrationTest extends TimedTesting {
 
 
     static {
@@ -38,7 +38,7 @@ public class EventRemoteReplicatorServiceServerIntegrationTest extends TimedTest
     EventConnector clientEventConnector;
     EventRemoteReplicatorService service;
     EventManager eventManager;
-    ServiceServer serviceServer;
+    EndpointServer endpointServer;
     Client client;
 
 
@@ -61,12 +61,12 @@ public class EventRemoteReplicatorServiceServerIntegrationTest extends TimedTest
 
         puts("findOpenPort(", port, ")");
 
-        serviceServer = endpointServerBuilder().setPort(port).build();
-        serviceServer.initServices(service);
+        endpointServer = endpointServerBuilder().setPort(port).build();
+        endpointServer.initServices(service);
         client = clientBuilder().setPort(port).build();
 
         Sys.sleep(1000);
-        serviceServer.start();
+        endpointServer.start();
         Sys.sleep(1000);
         client.start();
 
@@ -82,8 +82,8 @@ public class EventRemoteReplicatorServiceServerIntegrationTest extends TimedTest
             client.stop();
         }
 
-        if (serviceServer!=null) {
-            serviceServer.stop();
+        if (endpointServer !=null) {
+            endpointServer.stop();
         }
     }
 

@@ -19,8 +19,6 @@
 package io.advantageous.qbit.server;
 
 import io.advantageous.qbit.message.MethodCall;
-import io.advantageous.qbit.message.Response;
-import io.advantageous.qbit.queue.Queue;
 import io.advantageous.qbit.service.ServiceQueue;
 import io.advantageous.qbit.service.ServiceBundle;
 
@@ -30,13 +28,13 @@ import java.util.function.Consumer;
  * Represents a server that marshals method calls to a service.
  * Created by Richard on 11/14/14.
  */
-public interface ServiceServer extends Server {
-    default ServiceServer initServices(Object... services) {
+public interface EndpointServer extends Server {
+    default EndpointServer initServices(Object... services) {
         throw new IllegalStateException("Not implemented");
     }
 
 
-    default ServiceServer initServices(Iterable services) {
+    default EndpointServer initServices(Iterable services) {
         throw new IllegalStateException("Not implemented");
     }
 
@@ -46,27 +44,27 @@ public interface ServiceServer extends Server {
 
     }
 
-    default ServiceServer addServiceQueue(String address, ServiceQueue serviceQueue) {
+    default EndpointServer addServiceQueue(String address, ServiceQueue serviceQueue) {
         throw new IllegalStateException("Not implemented");
     }
 
-    default ServiceServer addServiceConsumer(String address, Consumer<MethodCall<Object>> service) {
+    default EndpointServer addServiceConsumer(String address, Consumer<MethodCall<Object>> service) {
         serviceBundle().addServiceObject(address, service);
         return this;
     }
 
 
-    default ServiceServer addServiceObject(String address, Object serviceObject) {
+    default EndpointServer addServiceObject(String address, Object serviceObject) {
         serviceBundle().addServiceObject(address, serviceObject);
         return this;
     }
 
-    default ServiceServer flush() {
+    default EndpointServer flush() {
         throw new IllegalStateException("Not implemented");
     }
 
 
-    default ServiceServer startServer() {
+    default EndpointServer startServer() {
         start();
         return this;
     }

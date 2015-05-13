@@ -20,7 +20,6 @@ package io.advantageous.qbit.metrics.support;
 
 
 import io.advantageous.boon.core.reflection.BeanUtils;
-import io.advantageous.qbit.GlobalConstants;
 import io.advantageous.qbit.QBit;
 import io.advantageous.qbit.client.Client;
 import io.advantageous.qbit.client.ClientBuilder;
@@ -30,7 +29,7 @@ import io.advantageous.qbit.metrics.*;
 import io.advantageous.qbit.metrics.StatServiceImpl;
 import io.advantageous.qbit.queue.QueueBuilder;
 import io.advantageous.qbit.server.EndpointServerBuilder;
-import io.advantageous.qbit.server.ServiceServer;
+import io.advantageous.qbit.server.EndpointServer;
 import io.advantageous.qbit.service.ServiceBuilder;
 import io.advantageous.qbit.service.ServiceQueue;
 import io.advantageous.qbit.service.discovery.ServiceDiscovery;
@@ -278,7 +277,7 @@ public class StatServiceBuilder {
     }
 
 
-    public ServiceServer buildServiceServer() {
+    public EndpointServer buildServiceServer() {
 
 
         final EndpointServerBuilder endpointServerBuilder = getEndpointServerBuilder();
@@ -301,10 +300,10 @@ public class StatServiceBuilder {
 
         }
         final ServiceQueue serviceQueue = getServiceQueue();
-        final ServiceServer serviceServer = endpointServerBuilder.build();
-        serviceServer.addServiceObject(this.getServiceName(), serviceQueue.service());
+        final EndpointServer endpointServer = endpointServerBuilder.build();
+        endpointServer.addServiceObject(this.getServiceName(), serviceQueue.service());
 
-        return serviceServer;
+        return endpointServer;
     }
 
 

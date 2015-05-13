@@ -22,7 +22,7 @@ import io.advantageous.qbit.annotation.RequestMapping;
 import io.advantageous.qbit.annotation.RequestMethod;
 import io.advantageous.qbit.annotation.RequestParam;
 import io.advantageous.qbit.http.jetty.RegisterJettyWithQBit;
-import io.advantageous.qbit.server.ServiceServer;
+import io.advantageous.qbit.server.EndpointServer;
 
 import static io.advantageous.boon.core.IO.puts;
 import static io.advantageous.qbit.server.EndpointServerBuilder.endpointServerBuilder;
@@ -35,7 +35,7 @@ public class ServiceServerIntegrationSample {
     public static void main(String... args) throws Exception {
         RegisterJettyWithQBit.registerJettyWithQBit();
 
-        final ServiceServer serviceServer =
+        final EndpointServer endpointServer =
                 endpointServerBuilder().setPort(9998).build()
                         .initServices(new PingService()).startServer();
 

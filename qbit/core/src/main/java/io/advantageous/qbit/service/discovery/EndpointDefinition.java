@@ -2,10 +2,7 @@ package io.advantageous.qbit.service.discovery;
 
 import io.advantageous.boon.core.Lists;
 
-import java.net.InetAddress;
-import java.net.UnknownHostException;
 import java.util.List;
-import java.util.UUID;
 
 import static io.advantageous.qbit.service.discovery.ServiceDiscovery.uniqueString;
 
@@ -13,7 +10,7 @@ import static io.advantageous.qbit.service.discovery.ServiceDiscovery.uniqueStri
  * Service Definition
  * Created by rhightower on 3/23/15.
  */
-public class ServiceDefinition {
+public class EndpointDefinition {
 
     private final HealthStatus healthStatus;
     private final String id;
@@ -21,7 +18,7 @@ public class ServiceDefinition {
     private final String host;
     private final int port;
     private final long timeToLive;
-    public ServiceDefinition(
+    public EndpointDefinition(
             final HealthStatus healthStatus,
             final String id,
             final String name,
@@ -34,7 +31,7 @@ public class ServiceDefinition {
         this.port = port;
         this.timeToLive = 20L;
     }
-    public ServiceDefinition(
+    public EndpointDefinition(
             final HealthStatus healthStatus,
             final String id,
             final String name,
@@ -49,47 +46,47 @@ public class ServiceDefinition {
         this.timeToLive = timeToLive;
     }
 
-    public static List<ServiceDefinition> serviceDefinitions(final ServiceDefinition... serviceDefinitions) {
-        return Lists.list(serviceDefinitions);
+    public static List<EndpointDefinition> serviceDefinitions(final EndpointDefinition... endpointDefinitions) {
+        return Lists.list(endpointDefinitions);
     }
 
-    public static ServiceDefinition serviceDefinition(
+    public static EndpointDefinition serviceDefinition(
             final String id,
             final String name,
             final String host,
             final int port) {
 
-        return new ServiceDefinition(HealthStatus.PASS,
+        return new EndpointDefinition(HealthStatus.PASS,
                 id, name, host, port);
     }
 
-    public static ServiceDefinition serviceDefinition(
+    public static EndpointDefinition serviceDefinition(
             final String name,
             final String host,
             final int port) {
 
-        return new ServiceDefinition(HealthStatus.PASS,
+        return new EndpointDefinition(HealthStatus.PASS,
                 name + "-" + uniqueString(port), name, host, port);
     }
 
 
-    public static ServiceDefinition serviceDefinition(
+    public static EndpointDefinition serviceDefinition(
             final String name,
             final String host
     ) {
 
-        return new ServiceDefinition(HealthStatus.PASS,
+        return new EndpointDefinition(HealthStatus.PASS,
                 name + "-" + uniqueString(0), name, host, 0);
     }
 
 
-    public static ServiceDefinition serviceDefinitionWithId(
+    public static EndpointDefinition serviceDefinitionWithId(
             final String name,
             final String host,
             final String id
     ) {
 
-        return new ServiceDefinition(HealthStatus.PASS,
+        return new EndpointDefinition(HealthStatus.PASS,
                 id, name, host, 0);
     }
 
@@ -116,9 +113,9 @@ public class ServiceDefinition {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof ServiceDefinition)) return false;
+        if (!(o instanceof EndpointDefinition)) return false;
 
-        ServiceDefinition that = (ServiceDefinition) o;
+        EndpointDefinition that = (EndpointDefinition) o;
 
         if (port != that.port) return false;
         if (healthStatus != that.healthStatus) return false;

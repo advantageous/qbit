@@ -1,6 +1,6 @@
 package io.advantageous.qbit.metrics;
 
-import io.advantageous.qbit.service.discovery.ServiceDefinition;
+import io.advantageous.qbit.service.discovery.EndpointDefinition;
 
 /**
  * Replicator Provider
@@ -8,6 +8,6 @@ import io.advantageous.qbit.service.discovery.ServiceDefinition;
  */
 public interface StatReplicatorProvider {
 
-    StatReplicator provide(final ServiceDefinition serviceDefinition);
+    StatReplicator provide(final EndpointDefinition endpointDefinition);
 
 }

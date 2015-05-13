@@ -2,7 +2,7 @@ package io.advantageous.qbit.metrics;
 
 import io.advantageous.boon.core.Sys;
 import io.advantageous.qbit.metrics.support.DebugReplicator;
-import io.advantageous.qbit.service.discovery.ServiceDefinition;
+import io.advantageous.qbit.service.discovery.EndpointDefinition;
 import io.advantageous.qbit.service.discovery.ServiceDiscovery;
 import org.junit.Before;
 import org.junit.Test;
@@ -15,9 +15,9 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static io.advantageous.boon.core.IO.puts;
-import static io.advantageous.qbit.service.discovery.ServiceDefinition.serviceDefinition;
-import static io.advantageous.qbit.service.discovery.ServiceDefinition.serviceDefinitionWithId;
-import static io.advantageous.qbit.service.discovery.ServiceDefinition.serviceDefinitions;
+import static io.advantageous.qbit.service.discovery.EndpointDefinition.serviceDefinition;
+import static io.advantageous.qbit.service.discovery.EndpointDefinition.serviceDefinitionWithId;
+import static io.advantageous.qbit.service.discovery.EndpointDefinition.serviceDefinitions;
 import static org.junit.Assert.*;
 
 public class ClusteredStatReplicatorTest {
@@ -25,7 +25,7 @@ public class ClusteredStatReplicatorTest {
     private final String localServiceId = "fooBar-" + Clock.systemUTC().millis();
     private final String serviceName = "fooBar";
     private ClusteredStatReplicator clusteredStatReplicator;
-    private AtomicReference<List<ServiceDefinition>> services;
+    private AtomicReference<List<EndpointDefinition>> services;
     private ConcurrentHashMap<String, DebugReplicator> statReplicatorMap;
 
     private TestTimer timer = new TestTimer();
@@ -36,17 +36,17 @@ public class ClusteredStatReplicatorTest {
         }
 
         @Override
-        public List<ServiceDefinition> loadServices(String serviceName) {
+        public List<EndpointDefinition> loadServices(String serviceName) {
             return services.get() == null ? Collections.emptyList() : services.get();
         }
     };
     private StatReplicatorProvider provider = new StatReplicatorProvider() {
         @Override
-        public StatReplicator provide(ServiceDefinition serviceDefinition) {
+        public StatReplicator provide(EndpointDefinition endpointDefinition) {
 
-            puts("Creating ", serviceDefinition);
+            puts("Creating ", endpointDefinition);
             DebugReplicator debugReplicator =  new DebugReplicator(true);
-            statReplicatorMap.put(serviceDefinition.getId(), debugReplicator);
+            statReplicatorMap.put(endpointDefinition.getId(), debugReplicator);
             return debugReplicator;
         }
     };
@@ -68,15 +68,15 @@ public class ClusteredStatReplicatorTest {
     public void testDiscovery() {
 
 
-        ServiceDefinition serviceDefinition1 = serviceDefinition(serviceName, "host1");
-        ServiceDefinition serviceDefinition2 = serviceDefinition(serviceName, "host2");
-        ServiceDefinition serviceDefinition3 = serviceDefinition(serviceName, "host3");
+        EndpointDefinition endpointDefinition1 = serviceDefinition(serviceName, "host1");
+        EndpointDefinition endpointDefinition2 = serviceDefinition(serviceName, "host2");
+        EndpointDefinition endpointDefinition3 = serviceDefinition(serviceName, "host3");
 
 
-        List<ServiceDefinition> fooServices = serviceDefinitions(
-                serviceDefinition1,
-                serviceDefinition2,
-                serviceDefinition3
+        List<EndpointDefinition> fooServices = serviceDefinitions(
+                endpointDefinition1,
+                endpointDefinition2,
+                endpointDefinition3
         );
 
         services.set(fooServices);
@@ -85,9 +85,9 @@ public class ClusteredStatReplicatorTest {
 
         Sys.sleep(100);
 
-        final DebugReplicator debugReplicator1 = statReplicatorMap.get(serviceDefinition1.getId());
-        final DebugReplicator debugReplicator2 = statReplicatorMap.get(serviceDefinition1.getId());
-        final DebugReplicator debugReplicator3 = statReplicatorMap.get(serviceDefinition1.getId());
+        final DebugReplicator debugReplicator1 = statReplicatorMap.get(endpointDefinition1.getId());
+        final DebugReplicator debugReplicator2 = statReplicatorMap.get(endpointDefinition1.getId());
+        final DebugReplicator debugReplicator3 = statReplicatorMap.get(endpointDefinition1.getId());
 
         assertNotNull(debugReplicator1);
         assertNotNull(debugReplicator2);
@@ -100,15 +100,15 @@ public class ClusteredStatReplicatorTest {
     public void testDiscoveryAndSends() {
 
 
-        ServiceDefinition serviceDefinition1 = serviceDefinition(serviceName, "host1");
-        ServiceDefinition serviceDefinition2 = serviceDefinition(serviceName, "host2");
-        ServiceDefinition serviceDefinition3 = serviceDefinition(serviceName, "host3");
+        EndpointDefinition endpointDefinition1 = serviceDefinition(serviceName, "host1");
+        EndpointDefinition endpointDefinition2 = serviceDefinition(serviceName, "host2");
+        EndpointDefinition endpointDefinition3 = serviceDefinition(serviceName, "host3");
 
 
-        List<ServiceDefinition> fooServices = serviceDefinitions(
-                serviceDefinition1,
-                serviceDefinition2,
-                serviceDefinition3
+        List<EndpointDefinition> fooServices = serviceDefinitions(
+                endpointDefinition1,
+                endpointDefinition2,
+                endpointDefinition3
         );
 
         services.set(fooServices);
@@ -117,9 +117,9 @@ public class ClusteredStatReplicatorTest {
 
         Sys.sleep(100);
 
-        final DebugReplicator debugReplicator1 = statReplicatorMap.get(serviceDefinition1.getId());
-        final DebugReplicator debugReplicator2 = statReplicatorMap.get(serviceDefinition1.getId());
-        final DebugReplicator debugReplicator3 = statReplicatorMap.get(serviceDefinition1.getId());
+        final DebugReplicator debugReplicator1 = statReplicatorMap.get(endpointDefinition1.getId());
+        final DebugReplicator debugReplicator2 = statReplicatorMap.get(endpointDefinition1.getId());
+        final DebugReplicator debugReplicator3 = statReplicatorMap.get(endpointDefinition1.getId());
 
         assertNotNull(debugReplicator1);
         assertNotNull(debugReplicator2);
@@ -143,19 +143,19 @@ public class ClusteredStatReplicatorTest {
     public void testDiscoveryAndSendsAndRemove() {
 
 
-        ServiceDefinition serviceDefinition1 = serviceDefinitionWithId(serviceName, "host1",
+        EndpointDefinition endpointDefinition1 = serviceDefinitionWithId(serviceName, "host1",
                 UUID.randomUUID().toString());
-        ServiceDefinition serviceDefinition2 = serviceDefinitionWithId(serviceName, "host2",
+        EndpointDefinition endpointDefinition2 = serviceDefinitionWithId(serviceName, "host2",
                 UUID.randomUUID().toString());
-        ServiceDefinition serviceDefinition3 = serviceDefinitionWithId(serviceName, "host3",
+        EndpointDefinition endpointDefinition3 = serviceDefinitionWithId(serviceName, "host3",
                 UUID.randomUUID().toString());
-        ServiceDefinition localService = serviceDefinition(localServiceId, serviceName, "host3", 0);
+        EndpointDefinition localService = serviceDefinition(localServiceId, serviceName, "host3", 0);
 
 
-        List<ServiceDefinition> fooServices = serviceDefinitions(
-                serviceDefinition1,
-                serviceDefinition2,
-                serviceDefinition3,
+        List<EndpointDefinition> fooServices = serviceDefinitions(
+                endpointDefinition1,
+                endpointDefinition2,
+                endpointDefinition3,
                 localService
         );
 
@@ -165,9 +165,9 @@ public class ClusteredStatReplicatorTest {
 
         Sys.sleep(100);
 
-        final DebugReplicator debugReplicator1 = statReplicatorMap.get(serviceDefinition1.getId());
-        final DebugReplicator debugReplicator2 = statReplicatorMap.get(serviceDefinition2.getId());
-        final DebugReplicator debugReplicator3 = statReplicatorMap.get(serviceDefinition3.getId());
+        final DebugReplicator debugReplicator1 = statReplicatorMap.get(endpointDefinition1.getId());
+        final DebugReplicator debugReplicator2 = statReplicatorMap.get(endpointDefinition2.getId());
+        final DebugReplicator debugReplicator3 = statReplicatorMap.get(endpointDefinition3.getId());
 
         assertNotNull(debugReplicator1);
         assertNotNull(debugReplicator2);
@@ -185,8 +185,8 @@ public class ClusteredStatReplicatorTest {
 
 
         fooServices = serviceDefinitions(
-                serviceDefinition1,
-                serviceDefinition3
+                endpointDefinition1,
+                endpointDefinition3
         );
 
 

@@ -22,7 +22,7 @@ import io.advantageous.qbit.annotation.PathVariable;
 import io.advantageous.qbit.annotation.RequestMapping;
 import io.advantageous.qbit.client.Client;
 import io.advantageous.qbit.http.client.HttpClient;
-import io.advantageous.qbit.server.ServiceServer;
+import io.advantageous.qbit.server.EndpointServer;
 import io.advantageous.qbit.reactive.Callback;
 import io.advantageous.qbit.system.QBitSystemManager;
 import io.advantageous.boon.core.Sys;
@@ -43,7 +43,7 @@ public class SimpleRestServerWithURIParamsMain {
         QBitSystemManager systemManager = new QBitSystemManager();
 
        /* Start Service server. */
-        final ServiceServer server = endpointServerBuilder()
+        final EndpointServer server = endpointServerBuilder()
                 .setSystemManager(systemManager)
                 .setPort(7000).build();
 

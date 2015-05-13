@@ -2,7 +2,6 @@ package io.advantageous.qbit.service.discovery;
 
 import io.advantageous.qbit.service.Startable;
 import io.advantageous.qbit.service.Stoppable;
-import io.advantageous.qbit.util.ConcurrentHashSet;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -17,23 +16,23 @@ import java.util.UUID;
  */
 public interface ServiceDiscovery extends Startable, Stoppable {
 
-    default ServiceDefinition register(
+    default EndpointDefinition register(
             final String serviceName,
             final int port) {
 
-        return new ServiceDefinition(HealthStatus.PASS,
+        return new EndpointDefinition(HealthStatus.PASS,
                 serviceName + "." + uniqueString(port),
                 serviceName, null, port);
     }
 
 
 
-    default ServiceDefinition registerWithTTL(
+    default EndpointDefinition registerWithTTL(
             final String serviceName,
             final int port,
             final int timeToLiveSeconds) {
 
-        return new ServiceDefinition(HealthStatus.PASS,
+        return new EndpointDefinition(HealthStatus.PASS,
                 serviceName + "." + uniqueString(port),
                 serviceName, null, port, timeToLiveSeconds);
     }
@@ -47,17 +46,17 @@ public interface ServiceDiscovery extends Startable, Stoppable {
     }
 
 
-    default ServiceDefinition registerWithIdAndTimeToLive(
+    default EndpointDefinition registerWithIdAndTimeToLive(
             final String serviceName, final String serviceId, final int port, final int timeToLiveSeconds) {
 
-        return new ServiceDefinition(HealthStatus.PASS,
+        return new EndpointDefinition(HealthStatus.PASS,
                 serviceId,
                 serviceName, null, port, timeToLiveSeconds);
     }
 
-    default ServiceDefinition registerWithId(final String serviceName, final String serviceId, final int port) {
+    default EndpointDefinition registerWithId(final String serviceName, final String serviceId, final int port) {
 
-        return new ServiceDefinition(HealthStatus.PASS,
+        return new EndpointDefinition(HealthStatus.PASS,
                 serviceId,
                 serviceName, null, port);
     }
@@ -75,12 +74,12 @@ public interface ServiceDiscovery extends Startable, Stoppable {
 
     }
 
-    default List<ServiceDefinition> loadServices(final String serviceName) {
+    default List<EndpointDefinition> loadServices(final String serviceName) {
 
         return Collections.emptyList();
     }
 
-    default List<ServiceDefinition> loadServicesNow(final String serviceName) {
+    default List<EndpointDefinition> loadServicesNow(final String serviceName) {
 
         return Collections.emptyList();
     }
@@ -89,7 +88,7 @@ public interface ServiceDiscovery extends Startable, Stoppable {
     default void stop() {}
 
 
-    default Set<ServiceDefinition> localDefinitions() {
+    default Set<EndpointDefinition> localDefinitions() {
        return Collections.emptySet();
     }
 }

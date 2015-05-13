@@ -15,7 +15,7 @@ public class ServicePool {
     private final String serviceName;
 
 
-    private final AtomicReference<Map<String, ServiceDefinition>> pool =
+    private final AtomicReference<Map<String, EndpointDefinition>> pool =
             new AtomicReference<>(new ConcurrentHashMap<>());
     private final ServicePoolListener servicePoolListener;
 
@@ -28,7 +28,7 @@ public class ServicePool {
                 } : servicePoolListener;
     }
 
-    public List<ServiceDefinition> services() {
+    public List<EndpointDefinition> services() {
         return new ArrayList<>(pool.get().values());
     }
 
@@ -36,7 +36,7 @@ public class ServicePool {
         return serviceName;
     }
 
-    public boolean setHealthyNodes(final List<ServiceDefinition> services) {
+    public boolean setHealthyNodes(final List<EndpointDefinition> services) {
 
         return setHealthyNodes(services, this.servicePoolListener);
     }
@@ -46,15 +46,15 @@ public class ServicePool {
      * @param servicePoolListener listens to service pool events
      * @return true if services have changed
      */
-    public synchronized boolean setHealthyNodes(final List<ServiceDefinition> services,
+    public synchronized boolean setHealthyNodes(final List<EndpointDefinition> services,
                                                 final ServicePoolListener servicePoolListener) {
 
-        final Map<String, ServiceDefinition> oldMap = pool.get();
-        final Map<String, ServiceDefinition> newMap = new ConcurrentHashMap<>(services.size());
+        final Map<String, EndpointDefinition> oldMap = pool.get();
+        final Map<String, EndpointDefinition> newMap = new ConcurrentHashMap<>(services.size());
         int oldServicesRemoved = 0;
         int newServices = 0;
 
-        for (ServiceDefinition service : services) {
+        for (EndpointDefinition service : services) {
             if (!oldMap.containsKey(service.getId())) {
                 newServices++;
                 servicePoolListener.serviceAdded(serviceName, service);
@@ -62,7 +62,7 @@ public class ServicePool {
             newMap.put(service.getId(), service);
         }
 
-        for (ServiceDefinition service : oldMap.values()) {
+        for (EndpointDefinition service : oldMap.values()) {
             if (!newMap.containsKey(service.getId())) {
                 oldServicesRemoved++;
                 servicePoolListener.serviceRemoved(serviceName, service);

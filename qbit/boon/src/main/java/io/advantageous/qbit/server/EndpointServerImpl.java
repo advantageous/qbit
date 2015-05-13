@@ -47,11 +47,11 @@ import java.util.concurrent.atomic.AtomicBoolean;
  *
  * @author rhightower
  */
-public class ServiceServerImpl implements ServiceServer {
+public class EndpointServerImpl implements EndpointServer {
 
 
     protected final int batchSize;
-    private final Logger logger = LoggerFactory.getLogger(ServiceServerImpl.class);
+    private final Logger logger = LoggerFactory.getLogger(EndpointServerImpl.class);
     private final boolean debug = false || GlobalConstants.DEBUG || logger.isDebugEnabled();
     private final QBitSystemManager systemManager;
     protected WebSocketServiceServerHandler webSocketHandler;
@@ -68,10 +68,10 @@ public class ServiceServerImpl implements ServiceServer {
     private AtomicBoolean stop = new AtomicBoolean();
 
 
-    public ServiceServerImpl(final HttpTransport httpServer, final ProtocolEncoder encoder, final ProtocolParser parser,
-                             final ServiceBundle serviceBundle, final JsonMapper jsonMapper,
-                             final int timeOutInSeconds, final int numberOfOutstandingRequests,
-                             final int batchSize, final int flushInterval, final QBitSystemManager systemManager) {
+    public EndpointServerImpl(final HttpTransport httpServer, final ProtocolEncoder encoder, final ProtocolParser parser,
+                              final ServiceBundle serviceBundle, final JsonMapper jsonMapper,
+                              final int timeOutInSeconds, final int numberOfOutstandingRequests,
+                              final int batchSize, final int flushInterval, final QBitSystemManager systemManager) {
 
         this.systemManager = systemManager;
         this.encoder = encoder;
@@ -263,14 +263,14 @@ public class ServiceServerImpl implements ServiceServer {
     }
 
     @Override
-    public ServiceServer flush() {
+    public EndpointServer flush() {
         this.serviceBundle.flush();
         return this;
     }
 
 
     @Override
-    public ServiceServer initServices(Iterable services) {
+    public EndpointServer initServices(Iterable services) {
 
 
         for (Object service : services) {
@@ -284,7 +284,7 @@ public class ServiceServerImpl implements ServiceServer {
     }
 
 
-    public ServiceServer addServiceQueue(final String address, final ServiceQueue serviceQueue) {
+    public EndpointServer addServiceQueue(final String address, final ServiceQueue serviceQueue) {
 
 
         serviceBundle().addServiceQueue(address, serviceQueue);
@@ -294,7 +294,7 @@ public class ServiceServerImpl implements ServiceServer {
 
 
     @Override
-    public ServiceServer initServices(Object... services) {
+    public EndpointServer initServices(Object... services) {
         for (Object service : services) {
             if (debug) logger.debug("registering service: " + service.getClass().getName());
             serviceBundle.addService(service);

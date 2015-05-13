@@ -21,7 +21,7 @@ package io.advantageous.qbit.example.servers;
 import io.advantageous.qbit.annotation.RequestMapping;
 import io.advantageous.qbit.annotation.RequestParam;
 import io.advantageous.qbit.queue.QueueBuilder;
-import io.advantageous.qbit.server.ServiceServer;
+import io.advantageous.qbit.server.EndpointServer;
 import io.advantageous.boon.core.Sys;
 
 import java.util.Collections;
@@ -39,7 +39,7 @@ public class CPUIntensiveService {
     public static void main(String... args) throws Exception {
 
 
-        final ServiceServer serviceServer = endpointServerBuilder()
+        final EndpointServer endpointServer = endpointServerBuilder()
                 //2,500,000 454,065
                 .setHttpRequestQueueBuilder(
                         QueueBuilder.queueBuilder()
@@ -51,8 +51,8 @@ public class CPUIntensiveService {
                 .setTimeoutSeconds(60)
                 .build();
 
-        serviceServer.initServices(new CPUIntensiveService());
-        serviceServer.start();
+        endpointServer.initServices(new CPUIntensiveService());
+        endpointServer.start();
 
 
         while (true) Sys.sleep(100_000_000);

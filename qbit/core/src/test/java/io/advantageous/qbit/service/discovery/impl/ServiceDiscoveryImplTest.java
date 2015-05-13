@@ -4,7 +4,7 @@ import io.advantageous.boon.core.Sys;
 import io.advantageous.qbit.concurrent.PeriodicScheduler;
 import io.advantageous.qbit.service.discovery.HealthStatus;
 import io.advantageous.qbit.service.discovery.ServiceChangedEventChannel;
-import io.advantageous.qbit.service.discovery.ServiceDefinition;
+import io.advantageous.qbit.service.discovery.EndpointDefinition;
 import io.advantageous.qbit.service.discovery.ServicePoolListener;
 import io.advantageous.qbit.service.discovery.spi.ServiceDiscoveryProvider;
 import io.advantageous.qbit.util.ConcurrentHashSet;
@@ -24,9 +24,9 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static io.advantageous.boon.core.IO.puts;
-import static io.advantageous.qbit.service.discovery.ServiceDefinition.serviceDefinition;
-import static io.advantageous.qbit.service.discovery.ServiceDefinition.serviceDefinitionWithId;
-import static io.advantageous.qbit.service.discovery.ServiceDefinition.serviceDefinitions;
+import static io.advantageous.qbit.service.discovery.EndpointDefinition.serviceDefinition;
+import static io.advantageous.qbit.service.discovery.EndpointDefinition.serviceDefinitionWithId;
+import static io.advantageous.qbit.service.discovery.EndpointDefinition.serviceDefinitions;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
@@ -42,9 +42,9 @@ public class ServiceDiscoveryImplTest {
     AtomicReference<String> servicePoolChangedServiceNameFromListener;
 
 
-    AtomicReference<List<ServiceDefinition>> healthyServices;
+    AtomicReference<List<EndpointDefinition>> healthyServices;
 
-    ConcurrentHashSet<ServiceDefinition> registeredServiceDefinitions;
+    ConcurrentHashSet<EndpointDefinition> registeredEndpointDefinitions;
 
 
     ConcurrentHashSet<ServiceHealthCheckIn> healthCheckIns;
@@ -67,14 +67,14 @@ public class ServiceDiscoveryImplTest {
         }
 
         @Override
-        public void serviceAdded(String serviceName, ServiceDefinition serviceDefinition) {
+        public void serviceAdded(String serviceName, EndpointDefinition endpointDefinition) {
             puts("serviceAdded", serviceName, serviceAdded.incrementAndGet());
 
 
         }
 
         @Override
-        public void serviceRemoved(String serviceName, ServiceDefinition serviceDefinition) {
+        public void serviceRemoved(String serviceName, EndpointDefinition endpointDefinition) {
             puts("serviceRemoved", serviceName);
 
 
@@ -99,10 +99,10 @@ public class ServiceDiscoveryImplTest {
 
     private ServiceDiscoveryProvider provider = new ServiceDiscoveryProvider() {
         @Override
-        public void registerServices(Queue<ServiceDefinition> registerQueue) {
+        public void registerServices(Queue<EndpointDefinition> registerQueue) {
 
 
-            registeredServiceDefinitions.addAll(registerQueue);
+            registeredEndpointDefinitions.addAll(registerQueue);
         }
 
         @Override
@@ -112,7 +112,7 @@ public class ServiceDiscoveryImplTest {
         }
 
         @Override
-        public List<ServiceDefinition> loadServices(String serviceName) {
+        public List<EndpointDefinition> loadServices(String serviceName) {
             Sys.sleep(500);
 
             if (healthyServices.get() != null) {
@@ -132,7 +132,7 @@ public class ServiceDiscoveryImplTest {
         serviceRemoved = new AtomicInteger();
         servicePoolChangedServiceName = new AtomicReference<>();
         servicePoolChangedServiceNameFromListener = new AtomicReference<>();
-        registeredServiceDefinitions = new ConcurrentHashSet<>(100);
+        registeredEndpointDefinitions = new ConcurrentHashSet<>(100);
         healthCheckIns = new ConcurrentHashSet<>(100);
 
         serviceDiscovery = new ServiceDiscoveryImpl(createPeriodicScheduler(10), eventChannel, provider, servicePoolListener, null);
@@ -150,11 +150,11 @@ public class ServiceDiscoveryImplTest {
         serviceDiscovery.register("fooBar", 9090);
 
 
-        AtomicReference<ServiceDefinition> serviceDefinitionAtomicReference = new AtomicReference<>();
+        AtomicReference<EndpointDefinition> serviceDefinitionAtomicReference = new AtomicReference<>();
 
         for (int index = 0; index < 10; index++) {
             Sys.sleep(100);
-            registeredServiceDefinitions.forEach(serviceDefinition -> {
+            registeredEndpointDefinitions.forEach(serviceDefinition -> {
                 if (serviceDefinition.getName().equals("fooBar")) {
                     puts(serviceDefinition);
                     serviceDefinitionAtomicReference.set(serviceDefinition);
@@ -173,9 +173,9 @@ public class ServiceDiscoveryImplTest {
     @Test
     public void testHealthCheckIn() throws Exception {
 
-        final ServiceDefinition serviceDefinition = serviceDiscovery.register("fooBar", 9090);
+        final EndpointDefinition endpointDefinition = serviceDiscovery.register("fooBar", 9090);
 
-        serviceDiscovery.checkIn(serviceDefinition.getId(), HealthStatus.PASS);
+        serviceDiscovery.checkIn(endpointDefinition.getId(), HealthStatus.PASS);
 
 
         AtomicReference<ServiceHealthCheckIn> ref = new AtomicReference<>();
@@ -194,7 +194,7 @@ public class ServiceDiscoveryImplTest {
 
 
         assertNotNull(ref.get());
-        assertEquals(serviceDefinition.getId(), ref.get().getServiceId());
+        assertEquals(endpointDefinition.getId(), ref.get().getServiceId());
 
     }
 
@@ -204,15 +204,15 @@ public class ServiceDiscoveryImplTest {
 
         String serviceName = "fooBar";
 
-        ServiceDefinition serviceDefinition1 = serviceDefinition(serviceName, "host1");
-        ServiceDefinition serviceDefinition2 = serviceDefinition(serviceName, "host2");
-        ServiceDefinition serviceDefinition3 = serviceDefinition(serviceName, "host3");
+        EndpointDefinition endpointDefinition1 = serviceDefinition(serviceName, "host1");
+        EndpointDefinition endpointDefinition2 = serviceDefinition(serviceName, "host2");
+        EndpointDefinition endpointDefinition3 = serviceDefinition(serviceName, "host3");
 
 
-        List<ServiceDefinition> fooServices = serviceDefinitions(
-                serviceDefinition1,
-                serviceDefinition2,
-                serviceDefinition3
+        List<EndpointDefinition> fooServices = serviceDefinitions(
+                endpointDefinition1,
+                endpointDefinition2,
+                endpointDefinition3
         );
         healthyServices.set(fooServices);
         loadServices(serviceName);
@@ -231,16 +231,16 @@ public class ServiceDiscoveryImplTest {
 
         String serviceName = "fooBar";
 
-        ServiceDefinition serviceDefinition1 = serviceDefinitionWithId(serviceName, "host1", UUID.randomUUID().toString());
-        ServiceDefinition serviceDefinition2 = serviceDefinitionWithId(serviceName, "host2", UUID.randomUUID().toString());
-        ServiceDefinition serviceDefinition3 = serviceDefinitionWithId(serviceName, "host3", UUID.randomUUID().toString());
-        ServiceDefinition serviceDefinition4 = serviceDefinitionWithId(serviceName, "host4", UUID.randomUUID().toString());
+        EndpointDefinition endpointDefinition1 = serviceDefinitionWithId(serviceName, "host1", UUID.randomUUID().toString());
+        EndpointDefinition endpointDefinition2 = serviceDefinitionWithId(serviceName, "host2", UUID.randomUUID().toString());
+        EndpointDefinition endpointDefinition3 = serviceDefinitionWithId(serviceName, "host3", UUID.randomUUID().toString());
+        EndpointDefinition endpointDefinition4 = serviceDefinitionWithId(serviceName, "host4", UUID.randomUUID().toString());
 
 
-        List<ServiceDefinition> fooServices = serviceDefinitions(
-                serviceDefinition1,
-                serviceDefinition2,
-                serviceDefinition3
+        List<EndpointDefinition> fooServices = serviceDefinitions(
+                endpointDefinition1,
+                endpointDefinition2,
+                endpointDefinition3
         );
         healthyServices.set(fooServices);
         loadServices(serviceName);
@@ -254,8 +254,8 @@ public class ServiceDiscoveryImplTest {
         Sys.sleep(100);
 
         fooServices = serviceDefinitions(
-                serviceDefinition1,
-                serviceDefinition3
+                endpointDefinition1,
+                endpointDefinition3
         );
         healthyServices.set(fooServices);
         loadServices(serviceName);
@@ -271,10 +271,10 @@ public class ServiceDiscoveryImplTest {
         Sys.sleep(100);
 
         fooServices = serviceDefinitions(
-                serviceDefinition1,
-                serviceDefinition2,
-                serviceDefinition3,
-                serviceDefinition4
+                endpointDefinition1,
+                endpointDefinition2,
+                endpointDefinition3,
+                endpointDefinition4
         );
         healthyServices.set(fooServices);
         loadServices(serviceName);
@@ -289,10 +289,10 @@ public class ServiceDiscoveryImplTest {
     private void loadServices(String serviceName) {
         for (int index = 0; index < 10; index++) {
             Sys.sleep(1000);
-            final List<ServiceDefinition> serviceDefinitions = serviceDiscovery.loadServices(serviceName);
-            puts(serviceDefinitions);
+            final List<EndpointDefinition> endpointDefinitions = serviceDiscovery.loadServices(serviceName);
+            puts(endpointDefinitions);
 
-            if (serviceDefinitions.size() > 0) {
+            if (endpointDefinitions.size() > 0) {
                 break;
             }
         }

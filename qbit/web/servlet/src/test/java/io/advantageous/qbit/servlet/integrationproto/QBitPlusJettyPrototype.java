@@ -19,7 +19,7 @@
 package io.advantageous.qbit.servlet.integrationproto;
 
 import io.advantageous.qbit.http.HttpTransport;
-import io.advantageous.qbit.server.ServiceServer;
+import io.advantageous.qbit.server.EndpointServer;
 import io.advantageous.qbit.servlet.QBitHttpServlet;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.servlet.ServletContextHandler;
@@ -46,15 +46,15 @@ public class QBitPlusJettyPrototype {
 
         @Override
         protected void wireHttpServer(final HttpTransport httpTransport, final ServletConfig config) {
-            final ServiceServer server = MyServiceModule.configureApp(httpTransport);
+            final EndpointServer server = MyServiceModule.configureApp(httpTransport);
             config.getServletContext().setAttribute(QBIT_SERVICE_SERVER_SERVER, server);
             this.config = config;
         }
 
         @Override
         protected void stop() {
-            final ServiceServer server =
-                    (ServiceServer)
+            final EndpointServer server =
+                    (EndpointServer)
                             config.getServletContext().getAttribute(QBIT_SERVICE_SERVER_SERVER);
             server.stop();
         }

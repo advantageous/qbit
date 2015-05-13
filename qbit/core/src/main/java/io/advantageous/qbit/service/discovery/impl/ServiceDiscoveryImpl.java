@@ -22,13 +22,13 @@ public class ServiceDiscoveryImpl implements ServiceDiscovery {
     private final PeriodicScheduler periodicScheduler;
     private final BlockingQueue<String> doneQueue = new LinkedTransferQueue<>();
     private final BlockingQueue<ServiceHealthCheckIn> checkInsQueue = new LinkedTransferQueue<>();
-    private final BlockingQueue<ServiceDefinition> registerQueue = new LinkedTransferQueue<>();
+    private final BlockingQueue<EndpointDefinition> registerQueue = new LinkedTransferQueue<>();
     private final ServiceChangedEventChannel serviceChangedEventChannel;
     private final ServicePoolListener servicePoolListener;
     private final ExecutorService executorService;
     private final ConcurrentHashMap<String, ServicePool> servicePoolMap = new ConcurrentHashMap<>();
 
-    private final ConcurrentHashSet<ServiceDefinition> serviceDefinitions = new ConcurrentHashSet<>();
+    private final ConcurrentHashSet<EndpointDefinition> endpointDefinitions = new ConcurrentHashSet<>();
     private final ServiceDiscoveryProvider provider;
     private final Logger logger = LoggerFactory.getLogger(ServiceDiscoveryImpl.class);
     private final boolean debug = false || GlobalConstants.DEBUG || logger.isDebugEnabled();
@@ -76,7 +76,7 @@ public class ServiceDiscoveryImpl implements ServiceDiscovery {
     }
 
 
-    public ServiceDefinition registerWithTTL(
+    public EndpointDefinition registerWithTTL(
             final String serviceName,
             final int port,
             final int timeToLiveSeconds) {
@@ -91,16 +91,16 @@ public class ServiceDiscoveryImpl implements ServiceDiscovery {
         watch(serviceName);
 
 
-        ServiceDefinition serviceDefinition = new ServiceDefinition(HealthStatus.PASS,
+        EndpointDefinition endpointDefinition = new EndpointDefinition(HealthStatus.PASS,
                 serviceName + "-" + ServiceDiscovery.uniqueString(port),
                 serviceName, null, port, timeToLiveSeconds);
 
-        return doRegister(serviceDefinition);
+        return doRegister(endpointDefinition);
     }
 
 
 
-    public ServiceDefinition registerWithIdAndTimeToLive(
+    public EndpointDefinition registerWithIdAndTimeToLive(
             final String serviceName, final String serviceId, final int port, final int timeToLiveSeconds) {
 
 
@@ -111,24 +111,24 @@ public class ServiceDiscoveryImpl implements ServiceDiscovery {
         }
 
         watch(serviceName);
-        ServiceDefinition serviceDefinition = new ServiceDefinition(HealthStatus.PASS,
+        EndpointDefinition endpointDefinition = new EndpointDefinition(HealthStatus.PASS,
                 serviceId,
                 serviceName, null, port, timeToLiveSeconds);
 
 
-        return doRegister(serviceDefinition);
+        return doRegister(endpointDefinition);
     }
 
-    private ServiceDefinition doRegister(ServiceDefinition serviceDefinition) {
+    private EndpointDefinition doRegister(EndpointDefinition endpointDefinition) {
 
-        serviceDefinitions.add(serviceDefinition);
-        registerQueue.offer(serviceDefinition);
+        endpointDefinitions.add(endpointDefinition);
+        registerQueue.offer(endpointDefinition);
 
-        return serviceDefinition;
+        return endpointDefinition;
     }
 
     @Override
-    public ServiceDefinition register(final String serviceName, final int port) {
+    public EndpointDefinition register(final String serviceName, final int port) {
 
         if (trace) {
             logger.trace(
@@ -139,18 +139,18 @@ public class ServiceDiscoveryImpl implements ServiceDiscovery {
         watch(serviceName);
 
 
-        ServiceDefinition serviceDefinition = new ServiceDefinition(HealthStatus.PASS,
+        EndpointDefinition endpointDefinition = new EndpointDefinition(HealthStatus.PASS,
                 serviceName + "-" + ServiceDiscovery.uniqueString(port),
                 serviceName, null, port);
 
-        return doRegister(serviceDefinition);
+        return doRegister(endpointDefinition);
 
     }
 
 
 
     @Override
-    public ServiceDefinition registerWithId(final String serviceName, final String serviceId, final int port) {
+    public EndpointDefinition registerWithId(final String serviceName, final String serviceId, final int port) {
 
         if (trace) {
             logger.trace(
@@ -161,11 +161,11 @@ public class ServiceDiscoveryImpl implements ServiceDiscovery {
         watch(serviceName);
 
 
-        ServiceDefinition serviceDefinition = new ServiceDefinition(HealthStatus.PASS,
+        EndpointDefinition endpointDefinition = new EndpointDefinition(HealthStatus.PASS,
                 serviceId,
                 serviceName, null, port);
 
-        return doRegister(serviceDefinition);
+        return doRegister(endpointDefinition);
 
     }
 
@@ -227,7 +227,7 @@ public class ServiceDiscoveryImpl implements ServiceDiscovery {
     }
 
     @Override
-    public List<ServiceDefinition> loadServices(final String serviceName) {
+    public List<EndpointDefinition> loadServices(final String serviceName) {
 
 
         if (trace) {
@@ -247,7 +247,7 @@ public class ServiceDiscoveryImpl implements ServiceDiscovery {
     }
 
 
-    public List<ServiceDefinition> loadServicesNow(final String serviceName) {
+    public List<EndpointDefinition> loadServicesNow(final String serviceName) {
 
 
         if (trace) {
@@ -260,7 +260,7 @@ public class ServiceDiscoveryImpl implements ServiceDiscovery {
         if (servicePool == null) {
             servicePool = new ServicePool(serviceName, this.servicePoolListener);
             servicePoolMap.put(serviceName, servicePool);
-            final List<ServiceDefinition> healthyServices = provider.loadServices(serviceName);
+            final List<EndpointDefinition> healthyServices = provider.loadServices(serviceName);
             servicePool.setHealthyNodes(healthyServices, this.servicePoolListener);
             watch(serviceName);
         }
@@ -310,7 +310,7 @@ public class ServiceDiscoveryImpl implements ServiceDiscovery {
                 serviceNamesBeingLoaded.add(serviceNameToFetch);
                 executorService.submit(() -> {
                         try {
-                            final List<ServiceDefinition> healthyServices = provider.loadServices(serviceNameToFetch);
+                            final List<EndpointDefinition> healthyServices = provider.loadServices(serviceNameToFetch);
                             populateServiceMap(serviceNameToFetch, healthyServices);
                             serviceNamesBeingLoaded.remove(serviceNameToFetch);
                         } catch (Exception ex) {
@@ -327,7 +327,7 @@ public class ServiceDiscoveryImpl implements ServiceDiscovery {
     }
 
 
-    private void populateServiceMap(final String serviceName, final List<ServiceDefinition> healthyServices) {
+    private void populateServiceMap(final String serviceName, final List<EndpointDefinition> healthyServices) {
         final ServicePool servicePool = servicePool(serviceName);
         if (servicePool.setHealthyNodes(healthyServices)) {
             serviceChangedEventChannel.servicePoolChanged(serviceName);
@@ -343,13 +343,13 @@ public class ServiceDiscoveryImpl implements ServiceDiscovery {
             logger.debug("Stopping Service Discovery");
         }
 
-        provider.unregisterServices(serviceDefinitions);
+        provider.unregisterServices(endpointDefinitions);
         this.periodicScheduler.stop();
         this.stop.set(true);
 
     }
 
-    public Set<ServiceDefinition> localDefinitions() {
-        return serviceDefinitions;
+    public Set<EndpointDefinition> localDefinitions() {
+        return endpointDefinitions;
     }
 }

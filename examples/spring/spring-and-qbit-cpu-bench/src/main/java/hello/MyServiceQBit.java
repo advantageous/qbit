@@ -5,7 +5,7 @@ import io.advantageous.boon.core.Sys;
 import io.advantageous.qbit.annotation.RequestMapping;
 import io.advantageous.qbit.annotation.RequestParam;
 import io.advantageous.qbit.queue.QueueBuilder;
-import io.advantageous.qbit.server.ServiceServer;
+import io.advantageous.qbit.server.EndpointServer;
 
 import java.util.Collections;
 import java.util.List;
@@ -280,7 +280,7 @@ end
 //                .build();
 
 
-        final ServiceServer serviceServer = endpointServerBuilder()
+        final EndpointServer endpointServer = endpointServerBuilder()
                 //2,500,000 454,065
 
                 .setHttpRequestQueueBuilder(
@@ -301,8 +301,8 @@ end
 
         //80734.79 QBit //83,135.93 QBIT
 
-        serviceServer.initServices(new MyServiceQBit());
-        serviceServer.start();
+        endpointServer.initServices(new MyServiceQBit());
+        endpointServer.start();
 
 
         while (true) Sys.sleep(100_000_000);

@@ -19,7 +19,7 @@
 package io.advantageous.qbit.example.hello;
 
 import io.advantageous.qbit.http.server.HttpServer;
-import io.advantageous.qbit.server.ServiceServer;
+import io.advantageous.qbit.server.EndpointServer;
 import io.advantageous.qbit.system.QBitSystemManager;
 
 import static io.advantageous.qbit.http.server.HttpServerBuilder.httpServerBuilder;
@@ -55,7 +55,7 @@ public class HelloWorldRestServer {
 
 
         /* Start the service. */
-        final ServiceServer serviceServer = endpointServerBuilder().setSystemManager(systemManager)
+        final EndpointServer endpointServer = endpointServerBuilder().setSystemManager(systemManager)
                 .setHttpServer(httpServer).build().initServices(new HelloService()).startServer();
 
         /* Wait for the service to shutdown. */

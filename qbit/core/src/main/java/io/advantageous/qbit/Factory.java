@@ -34,7 +34,7 @@ import io.advantageous.qbit.message.Response;
 import io.advantageous.qbit.queue.Queue;
 import io.advantageous.qbit.queue.QueueBuilder;
 import io.advantageous.qbit.sender.Sender;
-import io.advantageous.qbit.server.ServiceServer;
+import io.advantageous.qbit.server.EndpointServer;
 import io.advantageous.qbit.service.BeforeMethodCall;
 import io.advantageous.qbit.service.ServiceQueue;
 import io.advantageous.qbit.service.ServiceBundle;
@@ -310,7 +310,7 @@ public interface Factory {
         return FactorySPI.getEventManagerFactory().createEventManager();
     }
 
-    default ServiceServer createServiceServer(final HttpTransport httpServer,
+    default EndpointServer createServiceServer(final HttpTransport httpServer,
                                               final ProtocolEncoder encoder,
                                               final ProtocolParser protocolParser,
                                               final ServiceBundle serviceBundle,

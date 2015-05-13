@@ -379,7 +379,7 @@ public class EndpointServerBuilder {
     }
 
 
-    public ServiceServer build() {
+    public EndpointServer build() {
 
         if (httpServer == null) {
             httpServer = createHttpServer();
@@ -404,16 +404,16 @@ public class EndpointServerBuilder {
 
 
         final ProtocolParser parser = QBit.factory().createProtocolParser();
-        final ServiceServer serviceServer = QBit.factory().createServiceServer(httpServer,
+        final EndpointServer endpointServer = QBit.factory().createServiceServer(httpServer,
                 encoder, parser, serviceBundle, jsonMapper, this.getTimeoutSeconds(),
                 this.getNumberOfOutstandingRequests(), this.getRequestBatchSize(),
                 this.getFlushInterval(), this.getSystemManager());
 
 
-        if (serviceServer != null && qBitSystemManager != null) {
-            qBitSystemManager.registerServer(serviceServer);
+        if (endpointServer != null && qBitSystemManager != null) {
+            qBitSystemManager.registerServer(endpointServer);
         }
-        return serviceServer;
+        return endpointServer;
     }
 
     private HttpServer createHttpServer() {

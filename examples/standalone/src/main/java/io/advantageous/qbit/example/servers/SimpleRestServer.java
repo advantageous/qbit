@@ -20,7 +20,7 @@ package io.advantageous.qbit.example.servers;
 
 import io.advantageous.qbit.annotation.RequestMapping;
 import io.advantageous.qbit.server.EndpointServerBuilder;
-import io.advantageous.qbit.server.ServiceServer;
+import io.advantageous.qbit.server.EndpointServer;
 import io.advantageous.boon.core.Sys;
 
 import java.util.Collections;
@@ -43,7 +43,7 @@ public class SimpleRestServer {
     public static void main(String... args) throws Exception {
 
 
-        final ServiceServer serviceServer = new EndpointServerBuilder().setPort(6060)
+        final EndpointServer endpointServer = new EndpointServerBuilder().setPort(6060)
                 .build().initServices(new MyService()).startServer();
 
 

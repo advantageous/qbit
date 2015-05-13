@@ -2,7 +2,7 @@ package io.advantageous.consul;
 
 import io.advantageous.boon.core.Sys;
 import io.advantageous.qbit.service.discovery.HealthStatus;
-import io.advantageous.qbit.service.discovery.ServiceDefinition;
+import io.advantageous.qbit.service.discovery.EndpointDefinition;
 import io.advantageous.qbit.service.discovery.impl.ServiceDiscoveryImpl;
 import org.junit.Before;
 import org.junit.Test;
@@ -54,8 +54,8 @@ public class ConsulServiceDiscoveryTest {
 
 
         Sys.sleep(100);
-        List<ServiceDefinition> serviceDefinitions = discovery1.loadServices(serviceName);
-        assertEquals(3, serviceDefinitions.size());
+        List<EndpointDefinition> endpointDefinitions = discovery1.loadServices(serviceName);
+        assertEquals(3, endpointDefinitions.size());
 
 
         for (int index=0; index< 10; index++) {
@@ -65,7 +65,7 @@ public class ConsulServiceDiscoveryTest {
             discovery3.checkIn(id3, HealthStatus.PASS);
         }
 
-        serviceDefinitions = discovery1.loadServices(serviceName);
-        assertEquals(2, serviceDefinitions.size());
+        endpointDefinitions = discovery1.loadServices(serviceName);
+        assertEquals(2, endpointDefinitions.size());
     }
 }
