@@ -20,9 +20,11 @@ package io.advantageous.qbit.metrics.support;
 
 
 import io.advantageous.boon.core.reflection.BeanUtils;
+import io.advantageous.qbit.GlobalConstants;
 import io.advantageous.qbit.QBit;
 import io.advantageous.qbit.client.Client;
 import io.advantageous.qbit.client.ClientBuilder;
+import io.advantageous.qbit.config.PropertyResolver;
 import io.advantageous.qbit.events.EventManager;
 import io.advantageous.qbit.metrics.*;
 import io.advantageous.qbit.metrics.StatServiceImpl;
@@ -36,6 +38,7 @@ import io.advantageous.qbit.util.Timer;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Properties;
 
 import static io.advantageous.qbit.client.ClientBuilder.clientBuilder;
 
@@ -67,13 +70,37 @@ public class StatServiceBuilder {
 
 
 
-    private String serviceName = "statsService";
-    private String localServiceId = "";
-    private int tallyInterval = 100;
-    private int flushInterval = 333;
-    private int timeToLiveCheckInterval = 5_000;
-    private int numStats = 100;
+    private String serviceName;
+    private String localServiceId;
+    private int tallyInterval;
+    private int flushInterval;
+    private int timeToLiveCheckInterval;
+    private int numStats;
 
+
+    public static final String QBIT_STAT_SERVICE_BUILDER = "qbit.statservice.builder.";
+
+    public StatServiceBuilder(PropertyResolver propertyResolver) {
+        this.serviceName = propertyResolver.getStringProperty("serviceName", "statsService");
+        this.localServiceId = propertyResolver.getStringProperty("localServiceId", "");
+        this.tallyInterval = propertyResolver.getIntegerProperty("tallyInterval", 100);
+        this.flushInterval = propertyResolver.getIntegerProperty("flushInterval", 333);
+        this.timeToLiveCheckInterval = propertyResolver
+                .getIntegerProperty("timeToLiveCheckInterval", 5_000);
+        this.numStats = propertyResolver
+                .getIntegerProperty("numStats", 100);
+
+    }
+
+    public StatServiceBuilder() {
+        this(PropertyResolver.createSystemPropertyResolver(QBIT_STAT_SERVICE_BUILDER));
+    }
+
+
+    public StatServiceBuilder(final Properties properties) {
+        this(PropertyResolver.createPropertiesPropertyResolver(
+                QBIT_STAT_SERVICE_BUILDER, properties));
+    }
 
     public int getTallyInterval() {
         return tallyInterval;
