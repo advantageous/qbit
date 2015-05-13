@@ -14,12 +14,7 @@ import static io.advantageous.qbit.service.ServiceProxyUtils.flushServiceProxy;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
-/**
- */
 public class EventRemoteReplicatorServiceBundleIntegrationTest extends TimedTesting {
-
-
-
 
     EventConnector client;
     EventRemoteReplicatorService service;
@@ -47,7 +42,7 @@ public class EventRemoteReplicatorServiceBundleIntegrationTest extends TimedTest
     @After
     public void tearDown() {
 
-        if (serviceBundle!=null) {
+        if (serviceBundle != null) {
             serviceBundle.stop();
         }
     }
