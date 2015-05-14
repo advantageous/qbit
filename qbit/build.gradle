@@ -20,10 +20,15 @@ subprojects {
 
     apply plugin: 'maven'
     apply plugin: 'signing'
+    apply plugin: 'io.codearte.nexus-staging'
 
     group = 'io.advantageous.qbit'
     version = projectVersion
     archivesBaseName = "qbit-$project.name"
+
+    nexusStaging {
+        packageGroup = group
+    }
 
     test.onlyIf { !Boolean.getBoolean('skip.tests') }
 
@@ -33,9 +38,6 @@ subprojects {
         testCompile 'org.mockito:mockito-core:2.0.4-beta'
         testCompile 'ch.qos.logback:logback-classic:1.1.2'
     }
-
-
-
 
     task javadocJar(type: Jar, dependsOn: javadoc) {
         classifier = 'javadoc'
@@ -64,6 +66,13 @@ subprojects {
                 beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
 
                 repository(url: "https://oss.sonatype.org/service/local/staging/deploy/maven2/") {
+                    try {
+                        authentication(userName: sonatypeUsername, password: sonatypePassword)
+                    } catch (MissingPropertyException ignore) {
+                    }
+                }
+
+                snapshotRepository(url: "https://oss.sonatype.org/content/repositories/snapshots/") {
                     try {
                         authentication(userName: sonatypeUsername, password: sonatypePassword)
                     } catch (MissingPropertyException ignore) {
