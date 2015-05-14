@@ -158,7 +158,7 @@ public class ConsulServiceDiscoveryProvider implements ServiceDiscoveryProvider 
         try {
             consul.stop();
         } catch (Exception ex) {
-
+            logger.warn("Shutting down consul", ex);
         }
     }
 
@@ -247,6 +247,7 @@ public class ConsulServiceDiscoveryProvider implements ServiceDiscoveryProvider 
 
         } catch (Exception ex) {
 
+            logger.error("Unable to load service name " + serviceName, ex);
             shutDownConsul(consul);
             Consul consulNew = Consul.consul(consulHost, consulPort);
             consulNew.start();
