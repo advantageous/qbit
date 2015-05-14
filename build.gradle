@@ -41,3 +41,12 @@ subprojects {
     }
 
 }
+
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath "io.codearte.gradle.nexus:gradle-nexus-staging-plugin:0.5.1"
+    }
+}
