@@ -41,6 +41,7 @@ subprojects {
     }
 
 }
+apply plugin: 'io.codearte.nexus-staging'
 
 buildscript {
     repositories {

@@ -20,7 +20,6 @@ subprojects {
 
     apply plugin: 'maven'
     apply plugin: 'signing'
-    apply plugin: 'io.codearte.nexus-staging'
 
     group = 'io.advantageous.qbit'
     version = projectVersion
