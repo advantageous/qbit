@@ -23,3 +23,5 @@ tmp/
 
 
 build.out
+gradlew
+gradlew.bat

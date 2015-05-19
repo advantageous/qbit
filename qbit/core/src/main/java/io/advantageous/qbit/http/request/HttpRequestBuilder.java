@@ -377,6 +377,35 @@ public class HttpRequestBuilder {
 
     }
 
+
+    public HttpRequestBuilder setFormPutAndCreateFormBody() {
+        String paramString = paramString();
+        if (params.size() == 0) {
+            throw new IllegalStateException("Form must have params, you must add the params before you call this method");
+        }
+        contentType = "application/x-www-form-urlencoded";
+
+        body = paramString;
+        method = "PUT";
+
+
+        return this;
+    }
+
+    public HttpRequestBuilder setFormPostAndCreateFormBody() {
+        String paramString = paramString();
+        if (params.size() == 0) {
+            throw new IllegalStateException("Form must have params, you must add the params before you call this method");
+        }
+        contentType = "application/x-www-form-urlencoded";
+        method = "POST";
+
+        body = paramString;
+
+
+        return this;
+    }
+
     private static class RequestIdGenerator {
         private long value;
 

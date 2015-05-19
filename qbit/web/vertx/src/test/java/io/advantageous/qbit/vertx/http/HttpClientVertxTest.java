@@ -20,6 +20,7 @@ package io.advantageous.qbit.vertx.http;
 
 import io.advantageous.qbit.http.client.HttpClient;
 import io.advantageous.qbit.http.client.HttpClientBuilder;
+import io.advantageous.qbit.http.request.HttpRequest;
 import io.advantageous.qbit.http.request.HttpRequestBuilder;
 import io.advantageous.qbit.http.server.HttpServer;
 import io.advantageous.qbit.http.server.HttpServerBuilder;
@@ -30,15 +31,21 @@ import io.advantageous.qbit.test.TimedTesting;
 import org.junit.Test;
 
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
 import static io.advantageous.boon.core.Exceptions.die;
 import static io.advantageous.boon.core.IO.puts;
+import static junit.framework.Assert.assertEquals;
 
 
 public class HttpClientVertxTest extends TimedTesting {
 
+    AtomicReference<String> messsageBody;
+
+    AtomicInteger responseCode;
     AtomicBoolean requestReceived;
     AtomicBoolean responseReceived;
     HttpRequestBuilder requestBuilder = new HttpRequestBuilder();
@@ -53,6 +60,8 @@ public class HttpClientVertxTest extends TimedTesting {
 
         requestReceived = new AtomicBoolean();
         responseReceived = new AtomicBoolean();
+        messsageBody = new AtomicReference<>();
+        responseCode = new AtomicInteger();
 
     }
 
@@ -145,6 +154,57 @@ public class HttpClientVertxTest extends TimedTesting {
         stop();
 
     }
+
+
+    @Test
+    public void testFormSend() throws Exception {
+
+
+        connect(9090);
+
+        final HttpRequest request = new HttpRequestBuilder()
+                .setUri("/services/mockservice/ping")
+                .addParam("foo", "bar")
+                .setFormPostAndCreateFormBody()
+                .setTextReceiver((code, mimeType, body) -> {
+
+
+                    responseCode.set(code);
+                    responseReceived.set(true);
+
+
+                })
+                .build();
+
+
+
+        server.setHttpRequestConsumer(serverRequest -> {
+            requestReceived.set(true);
+            puts("SERVER", serverRequest.getUri(), serverRequest.getBodyAsString());
+
+            messsageBody.set(serverRequest.getParams().get("foo"));
+            serverRequest.getReceiver().response(200, "application/json", "\"ok\"");
+
+        });
+
+        run();
+
+        client.sendHttpRequest(request);
+
+        client.flush();
+
+        waitForTrigger(20, o -> this.responseReceived.get());
+
+
+        puts("RESPONSE", responseCode, messsageBody, responseReceived);
+
+        assertEquals("bar", messsageBody.get());
+
+        assertEquals(200, responseCode.get());
+
+        stop();
+    }
+
 
     @Test
     public void testNewOpenWaitWebSocketNewServerStuff() {
