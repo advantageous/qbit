@@ -35,17 +35,24 @@ public class ServiceDiscoveryImpl implements ServiceDiscovery {
     private final boolean trace = logger.isTraceEnabled();
     private AtomicBoolean stop = new AtomicBoolean();
     private Set<String> serviceNames = new TreeSet<>();
+    private final int pollForServicesInterval;
+    private final ServiceDiscoveryProvider backupProvider;
+
 
 
     public ServiceDiscoveryImpl(
             final PeriodicScheduler periodicScheduler,
             final ServiceChangedEventChannel serviceChangedEventChannel,
             final ServiceDiscoveryProvider provider,
+            final ServiceDiscoveryProvider backupProvider,
             final ServicePoolListener servicePoolListener,
-            final ExecutorService executorService) {
+            final ExecutorService executorService,
+            final int pollForServicesInterval) {
 
 
+        this.backupProvider = backupProvider;
         this.provider = provider;
+        this.pollForServicesInterval = pollForServicesInterval;
 
         this.periodicScheduler =
                 periodicScheduler == null ? QBit.factory().periodicScheduler() : periodicScheduler;
@@ -54,6 +61,7 @@ public class ServiceDiscoveryImpl implements ServiceDiscovery {
                 serviceName -> {
 
                 } : serviceChangedEventChannel;
+
         this.servicePoolListener = servicePoolListener == null ? serviceName -> {
         } : servicePoolListener;
 
@@ -284,7 +292,7 @@ public class ServiceDiscoveryImpl implements ServiceDiscovery {
                 logger.debug("ServiceDiscoveryImpl::" +
                         "Error while running monitor", e);
             }
-        }, 50, TimeUnit.MILLISECONDS);
+        }, pollForServicesInterval, TimeUnit.MILLISECONDS);
     }
 
 
@@ -314,9 +322,22 @@ public class ServiceDiscoveryImpl implements ServiceDiscovery {
                             populateServiceMap(serviceNameToFetch, healthyServices);
                             serviceNamesBeingLoaded.remove(serviceNameToFetch);
                         } catch (Exception ex) {
-                            logger.error("ServiceDiscoveryImpl::loadHealthyServices " +
-                                    "Error while loading healthy" +
-                                    " services for " + serviceNameToFetch, ex);
+                            if (backupProvider!=null) {
+
+                                if (debug) logger.debug("ServiceDiscoveryImpl::loadHealthyServices " +
+                                        "Error while loading healthy" +
+                                        " services for " + serviceNameToFetch, ex);
+
+                                final List<EndpointDefinition> healthyServices = provider.loadServices(serviceNameToFetch);
+                                populateServiceMap(serviceNameToFetch, healthyServices);
+                                serviceNamesBeingLoaded.remove(serviceNameToFetch);
+
+
+                            } else {
+                                logger.error("ServiceDiscoveryImpl::loadHealthyServices " +
+                                        "Error while loading healthy" +
+                                        " services for " + serviceNameToFetch, ex);
+                            }
                         } finally {
                             doneQueue.offer(serviceNameToFetch);
                         }

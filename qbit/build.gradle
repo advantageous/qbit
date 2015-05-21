@@ -117,7 +117,7 @@ project('core') {
 
     dependencies {
         compile "io.advantageous.boon:boon-reflekt:$boonVersion"
-        testCompile "io.advantageous.boon:boon-json:$boonVersion"
+        compile "io.advantageous.boon:boon-json:$boonVersion"
         testCompile project(':qbit:test-support')
     }
 

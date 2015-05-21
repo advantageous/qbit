@@ -1,20 +1,18 @@
 package io.advantageous.qbit.service.discovery.impl;
 
+import io.advantageous.boon.core.IO;
 import io.advantageous.boon.core.Sys;
+import io.advantageous.boon.json.JsonSerializer;
+import io.advantageous.boon.json.JsonSerializerFactory;
 import io.advantageous.qbit.concurrent.PeriodicScheduler;
-import io.advantageous.qbit.service.discovery.HealthStatus;
-import io.advantageous.qbit.service.discovery.ServiceChangedEventChannel;
-import io.advantageous.qbit.service.discovery.EndpointDefinition;
-import io.advantageous.qbit.service.discovery.ServicePoolListener;
-import io.advantageous.qbit.service.discovery.spi.ServiceDiscoveryProvider;
-import io.advantageous.qbit.util.ConcurrentHashSet;
+import io.advantageous.qbit.service.discovery.*;
+import io.advantageous.qbit.service.discovery.spi.ServiceDiscoveryFileSystemProvider;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.util.Collections;
+import java.io.File;
 import java.util.List;
-import java.util.Queue;
 import java.util.UUID;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -28,12 +26,14 @@ import static io.advantageous.qbit.service.discovery.EndpointDefinition.serviceD
 import static io.advantageous.qbit.service.discovery.EndpointDefinition.serviceDefinitionWithId;
 import static io.advantageous.qbit.service.discovery.EndpointDefinition.serviceDefinitions;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
 
-public class ServiceDiscoveryImplTest {
+/**
+ * Created by rick on 5/20/15.
+ */
+public class ServiceDiscoveryWithFileSystemTest {
 
 
-    ServiceDiscoveryImpl serviceDiscovery;
+    ServiceDiscovery serviceDiscovery;
 
     AtomicInteger servicePoolChangedCalled;
     AtomicInteger serviceAdded;
@@ -41,13 +41,12 @@ public class ServiceDiscoveryImplTest {
     AtomicReference<String> servicePoolChangedServiceName;
     AtomicReference<String> servicePoolChangedServiceNameFromListener;
 
-
-    AtomicReference<List<EndpointDefinition>> healthyServices;
-
-    ConcurrentHashSet<EndpointDefinition> registeredEndpointDefinitions;
+    File dir;
 
 
-    ConcurrentHashSet<ServiceHealthCheckIn> healthCheckIns;
+
+
+
 
 
     ServiceChangedEventChannel eventChannel = new ServiceChangedEventChannel() {
@@ -97,34 +96,10 @@ public class ServiceDiscoveryImplTest {
     };
 
 
-    private ServiceDiscoveryProvider provider = new ServiceDiscoveryProvider() {
-        @Override
-        public void registerServices(Queue<EndpointDefinition> registerQueue) {
-
-
-            registeredEndpointDefinitions.addAll(registerQueue);
-        }
-
-        @Override
-        public void checkIn(Queue<ServiceHealthCheckIn> checkInsQueue) {
-            healthCheckIns.addAll(checkInsQueue);
-
-        }
-
-        @Override
-        public List<EndpointDefinition> loadServices(String serviceName) {
-            Sys.sleep(500);
-
-            if (healthyServices.get() != null) {
-                return healthyServices.get();
-            }
-            return Collections.emptyList();
-        }
-    };
-
-
     @Before
-    public void setup() {
+    public void setup() throws Exception {
+
+       dir  = File.createTempFile("testSome", "testSome").getParentFile();
 
 
         servicePoolChangedCalled = new AtomicInteger();
@@ -132,12 +107,18 @@ public class ServiceDiscoveryImplTest {
         serviceRemoved = new AtomicInteger();
         servicePoolChangedServiceName = new AtomicReference<>();
         servicePoolChangedServiceNameFromListener = new AtomicReference<>();
-        registeredEndpointDefinitions = new ConcurrentHashSet<>(100);
-        healthCheckIns = new ConcurrentHashSet<>(100);
+        ServiceDiscoveryFileSystemProvider provider =
+                new ServiceDiscoveryFileSystemProvider(dir, 50);
 
-        serviceDiscovery = new ServiceDiscoveryImpl(createPeriodicScheduler(10), eventChannel, provider, null, servicePoolListener, null, 50);
 
-        healthyServices = new AtomicReference<>();
+
+        serviceDiscovery = ServiceDiscoveryBuilder.serviceDiscoveryBuilder()
+                .setPeriodicScheduler(createPeriodicScheduler(10))
+                .setServiceChangedEventChannel(eventChannel)
+                .setServicePoolListener(servicePoolListener)
+                .setServiceDiscoveryProvider(provider)
+                .setPollForServicesInterval(100).build();
+
 
 
         serviceDiscovery.start();
@@ -145,58 +126,6 @@ public class ServiceDiscoveryImplTest {
 
     }
 
-    @Test
-    public void testRegisterService() throws Exception {
-        serviceDiscovery.register("fooBar", 9090);
-
-
-        AtomicReference<EndpointDefinition> serviceDefinitionAtomicReference = new AtomicReference<>();
-
-        for (int index = 0; index < 10; index++) {
-            Sys.sleep(100);
-            registeredEndpointDefinitions.forEach(serviceDefinition -> {
-                if (serviceDefinition.getName().equals("fooBar")) {
-                    puts(serviceDefinition);
-                    serviceDefinitionAtomicReference.set(serviceDefinition);
-                }
-            });
-
-            if (serviceDefinitionAtomicReference.get() != null) break;
-        }
-
-
-        assertNotNull(serviceDefinitionAtomicReference.get());
-
-    }
-
-
-    @Test
-    public void testHealthCheckIn() throws Exception {
-
-        final EndpointDefinition endpointDefinition = serviceDiscovery.register("fooBar", 9090);
-
-        serviceDiscovery.checkIn(endpointDefinition.getId(), HealthStatus.PASS);
-
-
-        AtomicReference<ServiceHealthCheckIn> ref = new AtomicReference<>();
-
-        for (int index = 0; index < 10; index++) {
-            Sys.sleep(100);
-            healthCheckIns.forEach(healthCheckIn -> {
-                if (healthCheckIn.getServiceId().startsWith("fooBar-")) {
-                    puts(healthCheckIn);
-                    ref.set(healthCheckIn);
-                }
-            });
-
-            if (ref.get() != null) break;
-        }
-
-
-        assertNotNull(ref.get());
-        assertEquals(endpointDefinition.getId(), ref.get().getServiceId());
-
-    }
 
 
     @Test
@@ -214,14 +143,24 @@ public class ServiceDiscoveryImplTest {
                 endpointDefinition2,
                 endpointDefinition3
         );
-        healthyServices.set(fooServices);
+
+        write(fooServices);
+
         loadServices(serviceName);
-        assertEquals(3, serviceAdded.get());
-        assertEquals(0, serviceRemoved.get());
 
         assertEquals(serviceName, servicePoolChangedServiceName.get());
         assertEquals(serviceName, servicePoolChangedServiceNameFromListener.get());
 
+
+    }
+
+    private void write(List<EndpointDefinition> fooServices) throws Exception{
+        JsonSerializer jsonSerializer = new JsonSerializerFactory().create();
+        String json = jsonSerializer.serialize(fooServices).toString();
+
+        File outputFile = new File(dir, "fooBar.json");
+
+        IO.write(outputFile.toPath(), json);
 
     }
 
@@ -242,10 +181,11 @@ public class ServiceDiscoveryImplTest {
                 endpointDefinition2,
                 endpointDefinition3
         );
-        healthyServices.set(fooServices);
+
+
+        write(fooServices);
+
         loadServices(serviceName);
-        assertEquals(3, serviceAdded.get());
-        assertEquals(0, serviceRemoved.get());
 
 
 
@@ -257,7 +197,9 @@ public class ServiceDiscoveryImplTest {
                 endpointDefinition1,
                 endpointDefinition3
         );
-        healthyServices.set(fooServices);
+
+        write(fooServices);
+
         loadServices(serviceName);
 
         assertEquals(1, serviceRemoved.get());
@@ -276,7 +218,8 @@ public class ServiceDiscoveryImplTest {
                 endpointDefinition3,
                 endpointDefinition4
         );
-        healthyServices.set(fooServices);
+
+        write(fooServices);
         loadServices(serviceName);
 
         assertEquals(0, serviceRemoved.get());
@@ -334,6 +277,5 @@ public class ServiceDiscoveryImplTest {
         };
 
     }
-
 
 }

@@ -1,12 +1,22 @@
 package io.advantageous.consul.discovery;
 
+import io.advantageous.boon.core.IO;
+import io.advantageous.boon.json.JsonSerializer;
+import io.advantageous.boon.json.JsonSerializerFactory;
 import io.advantageous.consul.discovery.spi.ConsulServiceDiscoveryProvider;
 import io.advantageous.qbit.concurrent.PeriodicScheduler;
+import io.advantageous.qbit.service.discovery.EndpointDefinition;
 import io.advantageous.qbit.service.discovery.ServiceChangedEventChannel;
+import io.advantageous.qbit.service.discovery.ServiceDiscovery;
 import io.advantageous.qbit.service.discovery.ServicePoolListener;
 import io.advantageous.qbit.service.discovery.impl.ServiceDiscoveryImpl;
+import io.advantageous.qbit.service.discovery.spi.ServiceDiscoveryFileSystemProvider;
+import io.advantageous.qbit.service.discovery.spi.ServiceDiscoveryProvider;
 
+import java.io.File;
+import java.util.List;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * ConsulServiceDiscoveryBuilder
@@ -29,8 +39,20 @@ public class ConsulServiceDiscoveryBuilder {
     private PeriodicScheduler periodicScheduler;
     private ServiceChangedEventChannel serviceChangedEventChannel;
 
+    private File backupDir;
+
     private ServicePoolListener servicePoolListener;
     private ExecutorService executorService;
+
+
+    public File getBackupDir() {
+        return backupDir;
+    }
+
+    public ConsulServiceDiscoveryBuilder setBackupDir(File backupDir) {
+        this.backupDir = backupDir;
+        return this;
+    }
 
     public String getConsulHost() {
         return consulHost;
@@ -81,8 +103,9 @@ public class ConsulServiceDiscoveryBuilder {
         return periodicScheduler;
     }
 
-    public void setPeriodicScheduler(PeriodicScheduler periodicScheduler) {
+    public ConsulServiceDiscoveryBuilder setPeriodicScheduler(PeriodicScheduler periodicScheduler) {
         this.periodicScheduler = periodicScheduler;
+        return this;
     }
 
     public ServiceChangedEventChannel getServiceChangedEventChannel() {
@@ -117,11 +140,41 @@ public class ConsulServiceDiscoveryBuilder {
         final ConsulServiceDiscoveryProvider consulServiceDiscoveryProvider =
                 new ConsulServiceDiscoveryProvider(getConsulHost(), getConsulPort(), getDatacenter(), getTag(), getLongPollTimeSeconds());
 
-        return new ServiceDiscoveryImpl(
-                getPeriodicScheduler(), getServiceChangedEventChannel(),
-                consulServiceDiscoveryProvider,
-                getServicePoolListener(),
-                getExecutorService());
+        if (backupDir == null) {
+            return new ServiceDiscoveryImpl(
+                    getPeriodicScheduler(), getServiceChangedEventChannel(),
+                    consulServiceDiscoveryProvider, null,
+                    getServicePoolListener(),
+                    getExecutorService(), 50);
+        } else {
+
+            final AtomicReference<ServiceDiscovery> ref = new AtomicReference<>();
+            final File dir = this.backupDir;
+            ServiceDiscoveryProvider backup = new ServiceDiscoveryFileSystemProvider(backupDir, 1_000);
+            ServicePoolListener poolListener = serviceName -> {
+                ServiceDiscovery serviceDiscovery = ref.get();
+                if (serviceDiscovery!=null) {
+                    List<EndpointDefinition> endpointDefinitions = serviceDiscovery.loadServices(serviceName);
+                    JsonSerializer jsonSerializer = new JsonSerializerFactory().create();
+                    String json = jsonSerializer.serialize(endpointDefinitions).toString();
+                    File outputFile = new File(dir, serviceName + ".json");
+                    IO.write(outputFile.toPath(), json);
+                }
+            };
+
+            this.setServicePoolListener(poolListener);
+
+            ServiceDiscoveryImpl serviceDiscovery = new ServiceDiscoveryImpl(
+                    getPeriodicScheduler(), getServiceChangedEventChannel(),
+                    consulServiceDiscoveryProvider, backup,
+                    getServicePoolListener(),
+                    getExecutorService(), 50);
+
+            ref.set(serviceDiscovery);
+
+            return serviceDiscovery;
+
+        }
 
     }
 }

@@ -4,6 +4,7 @@ import io.advantageous.qbit.service.discovery.EndpointDefinition;
 import io.advantageous.qbit.service.discovery.impl.ServiceHealthCheckIn;
 import io.advantageous.qbit.util.ConcurrentHashSet;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Queue;
 
@@ -13,11 +14,11 @@ import java.util.Queue;
  */
 public interface ServiceDiscoveryProvider {
 
-    void registerServices(Queue<EndpointDefinition> registerQueue);
+    default void registerServices(Queue<EndpointDefinition> registerQueue){}
 
-    void checkIn(Queue<ServiceHealthCheckIn> checkInsQueue);
+    default void checkIn(Queue<ServiceHealthCheckIn> checkInsQueue) {}
 
-    List<EndpointDefinition> loadServices(String serviceName);
+    default List<EndpointDefinition> loadServices(String serviceName) {return Collections.emptyList();}
 
     default void unregisterServices(ConcurrentHashSet<EndpointDefinition> endpointDefinitions){}
 }
