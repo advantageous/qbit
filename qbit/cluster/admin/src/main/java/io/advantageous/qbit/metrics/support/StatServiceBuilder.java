@@ -323,16 +323,46 @@ public class StatServiceBuilder {
 
     public StatServiceImpl build() {
 
-        if (serviceDiscovery!=null) {
-            return new StatServiceImpl(this.getRecorder(), buildReplicator(), getTimer(), getServiceDiscovery(),
+
+        final StatReplicator replicator = buildReplicator();
+
+
+        return new StatServiceImpl(this.getRecorder(), replicator, getTimer(), getServiceDiscovery(),
                     getLocalServiceId(), getNumStats(), getTimeToLiveCheckInterval());
-        } else if (replicators.size() == 0) {
-            return new StatServiceImpl(this.getRecorder(), this.getReplicator(), getTimer(),
-                    null, getLocalServiceId(), getNumStats(), getTimeToLiveCheckInterval());
-        } else {
-            return new StatServiceImpl(this.getRecorder(), new ReplicatorHub(replicators), getTimer(),
-                    null, getLocalServiceId(), getNumStats(), getTimeToLiveCheckInterval());
+
+    }
+
+
+    private StatReplicator buildReplicator() {
+        final List<StatReplicator> finalReplicators = new ArrayList<>();
+
+        /* If service discovery is set then setup clustering
+           and add it to the list. */
+        if (serviceDiscovery!=null) {
+            finalReplicators.add(buildClusteredReplicator());
         }
+
+
+        /* If the replicator is not the NoOpReplicator,
+          then add it ot the list. */
+        if (! (this.getReplicator() instanceof NoOpReplicator)) {
+            finalReplicators.add(this.getReplicator());
+        }
+
+        /*
+            If we have any replicators then add them to the list.
+         */
+        if (this.replicators.size() > 0) {
+            finalReplicators.addAll(this.replicators);
+        }
+
+        /* If there are some replicators in our list, then create a replicator hub. */
+        // then one then create a hub.
+        return finalReplicators.size() == 0
+                ? new NoOpReplicator() // if 0 then just return a no op
+                    : finalReplicators.size() == 1 //if one then just use it direct
+                    ? finalReplicators.get(0)
+                            : new ReplicatorHub(finalReplicators);
     }
 
     public StatReplicatorProvider getStatsReplicatorProvider() {
@@ -349,7 +379,7 @@ public class StatServiceBuilder {
         return this;
     }
 
-    private StatReplicator buildReplicator() {
+    private StatReplicator buildClusteredReplicator() {
 
         return new ClusteredStatReplicator(getServiceName(), getServiceDiscovery(),
                 getStatsReplicatorProvider(), getLocalServiceId(), getTimer(),

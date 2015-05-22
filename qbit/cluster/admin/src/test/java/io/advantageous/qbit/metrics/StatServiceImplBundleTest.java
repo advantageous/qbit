@@ -26,6 +26,7 @@ import io.advantageous.boon.primitive.Int;
 import io.advantageous.qbit.metrics.support.DebugRecorder;
 import io.advantageous.qbit.metrics.support.DebugReplicator;
 import io.advantageous.qbit.metrics.support.StatServiceBuilder;
+import io.advantageous.qbit.metrics.support.StatsDReplicatorBuilder;
 import io.advantageous.qbit.queue.QueueBuilder;
 import io.advantageous.qbit.service.ServiceQueue;
 import io.advantageous.qbit.service.ServiceBundle;
@@ -61,7 +62,10 @@ public class StatServiceImplBundleTest extends TimedTesting {
         super.setupLatch();
         recorder = new DebugRecorder();
         replicator = new DebugReplicator();
-        statServiceImpl = new StatServiceBuilder().setRecorder(recorder).setReplicator(replicator).build();
+        statServiceImpl = new StatServiceBuilder().setRecorder(recorder)
+                .setReplicator(replicator)
+                .addReplicator(StatsDReplicatorBuilder.statsDReplicatorBuilder().setHost("192.168.59.103").buildAndStart())
+                .build();
         QueueBuilder queueBuilder = queueBuilder()
                 .setPollWait(40).setBatchSize(100_000).setLinkTransferQueue().setCheckEvery(1000);
         serviceQueue = serviceBuilder()

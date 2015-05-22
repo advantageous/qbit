@@ -19,13 +19,14 @@
 package io.advantageous.qbit.metrics.support;
 
 import io.advantageous.qbit.metrics.StatReplicator;
+import io.advantageous.qbit.service.discovery.ServiceChangedEventChannel;
 
 import java.util.List;
 
 /**
  * Created by rhightower on 1/28/15.
  */
-public class ReplicatorHub implements StatReplicator {
+public class ReplicatorHub implements StatReplicator, ServiceChangedEventChannel {
 
     private final List<StatReplicator> list;
 
@@ -49,4 +50,14 @@ public class ReplicatorHub implements StatReplicator {
     }
 
 
+    @Override
+    public void servicePoolChanged(final String serviceName) {
+
+        for (StatReplicator replicator : list) {
+            if (replicator instanceof ServiceChangedEventChannel) {
+                ((ServiceChangedEventChannel) replicator).servicePoolChanged(serviceName);
+            }
+        }
+
+    }
 }
