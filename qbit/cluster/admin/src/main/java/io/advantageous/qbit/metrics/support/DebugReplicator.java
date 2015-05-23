@@ -53,4 +53,11 @@ public class DebugReplicator implements StatReplicator {
         this.count.set(level);
         if (out) System.out.println("DEBUG REPLICATOR" + name + count + now + this.count.get());
     }
+
+    @Override
+    public void replicateTiming(String name, int level, long time) {
+        this.count.set(level);
+        if (out) System.out.println("DEBUG REPLICATOR" + name + count + time + this.count.get());
+
+    }
 }

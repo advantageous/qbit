@@ -49,6 +49,14 @@ public class ReplicatorHub implements StatReplicator, ServiceChangedEventChannel
 
     }
 
+    @Override
+    public void replicateTiming(String name, int level, long time) {
+        for (StatReplicator replicator : list) {
+            replicator.replicateTiming(name, level, time);
+        }
+
+    }
+
 
     @Override
     public void servicePoolChanged(final String serviceName) {

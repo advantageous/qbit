@@ -31,4 +31,9 @@ public class NoOpReplicator implements StatReplicator {
     @Override
     public final void replicateLevel(String name, int count, long now) {
     }
+
+    @Override
+    public void replicateTiming(String name, int level, long time) {
+
+    }
 }

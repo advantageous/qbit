@@ -31,6 +31,14 @@ public class StatsDReplicator implements StatReplicator, QueueCallBackHandler {
     private long lastFlush;
     private long time;
 
+    /*
+    Sets
+
+StatsD supports counting unique occurences of events between flushes, using a Set to store all occuring events.
+
+uniques:765|s
+If the count at flush is 0 then you can opt to send no metric at all for this set, by setting config.deleteSets.
+     */
 
     public StatsDReplicator(String host, int port, boolean multiMetrics, int bufferSize, int flushRateIntervalMS) throws IOException {
         this(InetAddress.getByName(host), port, multiMetrics, bufferSize, flushRateIntervalMS);
@@ -211,6 +219,10 @@ public class StatsDReplicator implements StatReplicator, QueueCallBackHandler {
         gauge(name, level);
     }
 
+    @Override
+    public void replicateTiming(String name, int timed, long time) {
+        timing(name, timed);
+    }
 
 
     private void flushIfNeeded() {

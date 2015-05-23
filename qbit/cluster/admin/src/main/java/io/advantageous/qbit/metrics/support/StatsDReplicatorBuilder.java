@@ -114,7 +114,6 @@ public class StatsDReplicatorBuilder {
                 serviceQueue.createProxyWithAutoFlush(StatReplicator.class, 100, TimeUnit.MILLISECONDS);
         serviceQueue.start();
         return proxyWithAutoFlush;
-
     }
 
 

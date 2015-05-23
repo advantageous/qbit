@@ -26,7 +26,10 @@ import io.advantageous.qbit.http.server.HttpServerBuilder;
 import io.advantageous.qbit.http.server.websocket.WebSocketMessageBuilder;
 import io.advantageous.qbit.http.websocket.WebSocket;
 import io.advantageous.boon.core.Sys;
+import org.junit.Before;
 import org.junit.Test;
+
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import static io.advantageous.boon.core.Exceptions.die;
 import static io.advantageous.boon.core.IO.puts;
@@ -36,12 +39,18 @@ import static io.advantageous.boon.core.IO.puts;
  * @author rhightower on 2/15/15.
  */
 public class HttpClientServerJettyTest {
-    volatile boolean requestReceived;
-    volatile boolean responseReceived;
+    AtomicBoolean  requestReceived;
+    AtomicBoolean responseReceived;
     HttpRequestBuilder requestBuilder = new HttpRequestBuilder();
     WebSocketMessageBuilder webSocketMessageBuilder = new WebSocketMessageBuilder();
     HttpClient client;
     HttpServer server;
+
+    @Before
+    public void setup() {
+        requestReceived = new AtomicBoolean();
+        responseReceived = new AtomicBoolean();
+    }
 
     public void connect(int port) {
 
@@ -49,8 +58,8 @@ public class HttpClientServerJettyTest {
 
         server = new HttpServerBuilder().setPort(port).build();
 
-        requestReceived = false;
-        responseReceived = false;
+        requestReceived.set(false);
+        responseReceived.set(false);
 
     }
 
@@ -66,7 +75,7 @@ public class HttpClientServerJettyTest {
             puts(webSocketMessage.address(), webSocketMessage.body());
             if (webSocketMessage.getMessage().equals("What do you want on your cheeseburger?")) {
                 webSocketMessage.getSender().sendText("Bacon");
-                requestReceived = true;
+                requestReceived.set(true);
 
             } else {
                 puts("Websocket message", webSocketMessage.getMessage());
@@ -81,7 +90,7 @@ public class HttpClientServerJettyTest {
 
         webSocket.setTextMessageConsumer(message -> {
             if (message.equals("Bacon")) {
-                responseReceived = true;
+                responseReceived.set(true);
             }
         });
 
@@ -113,7 +122,7 @@ public class HttpClientServerJettyTest {
             puts(webSocketMessage.address(), webSocketMessage.body());
             if (webSocketMessage.getMessage().equals("What do you want on your cheeseburger?")) {
                 webSocketMessage.getSender().sendText("Bacon");
-                requestReceived = true;
+                requestReceived.set(true);
 
             } else {
                 puts("Websocket message", webSocketMessage.getMessage());
@@ -128,7 +137,7 @@ public class HttpClientServerJettyTest {
 
         webSocket.setTextMessageConsumer(message -> {
             if (message.equals("Bacon")) {
-                responseReceived = true;
+                responseReceived.set(true);
             }
         });
 
@@ -156,7 +165,7 @@ public class HttpClientServerJettyTest {
         server.setWebSocketOnOpenConsumer(webSocket -> webSocket.setTextMessageConsumer(message -> {
             if (message.equals("What do you want on your cheeseburger?")) {
                 webSocket.sendText("Bacon");
-                requestReceived = true;
+                requestReceived.set(true);
             } else {
                 puts("Websocket message", message);
             }
@@ -169,7 +178,7 @@ public class HttpClientServerJettyTest {
 
         webSocket.setTextMessageConsumer(message -> {
             if (message.equals("Bacon")) {
-                responseReceived = true;
+                responseReceived.set(true);
             }
         });
 
@@ -196,7 +205,7 @@ public class HttpClientServerJettyTest {
 
 
         server.setHttpRequestConsumer(request -> {
-            requestReceived = true;
+            requestReceived.set(true);
             puts("SERVER", request.getUri(), request.getBody());
             request.getReceiver().response(200, "application/json", "\"ok\"");
         });
@@ -206,7 +215,7 @@ public class HttpClientServerJettyTest {
         requestBuilder.setRemoteAddress("localhost").setMethod("GET").setUri("/client/foo");
 
         requestBuilder.setTextReceiver((code, mimeType, body) -> {
-            responseReceived = true;
+            responseReceived.set(true);
 
             puts("CLIENT", code, mimeType, body);
 
@@ -242,12 +251,12 @@ public class HttpClientServerJettyTest {
         Sys.sleep(500);
 
 
-        if (!requestReceived) {
+        if (!requestReceived.get()) {
             die("Request not received");
         }
 
 
-        if (!responseReceived) {
+        if (!responseReceived.get()) {
             die("Response not received");
         }
 

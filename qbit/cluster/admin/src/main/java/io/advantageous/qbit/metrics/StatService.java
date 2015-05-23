@@ -29,6 +29,7 @@ import io.advantageous.qbit.reactive.Callback;
 public interface StatService extends ClientProxy {
     default void recordCount(String name, int count) {}
     default void recordLevel(String name, int level) {}
+    default void recordTiming(String name, int duration) {}
 
 
     default void statsForLastSeconds(Callback<Stats> callback, String name, int secondCount) {}

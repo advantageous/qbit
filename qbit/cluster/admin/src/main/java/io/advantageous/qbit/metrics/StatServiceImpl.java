@@ -89,6 +89,10 @@ public class StatServiceImpl implements QueueCallBackHandler, ServiceChangedEven
         recordCountWithTime(name, count, now);
     }
 
+    public void recordTiming(String name, int duration) {
+        recordTimingWithTime(name, duration, now);
+    }
+
     public void increment(String name) {
         recordCountWithTime(name, 1, now);
     }
@@ -149,6 +153,12 @@ public class StatServiceImpl implements QueueCallBackHandler, ServiceChangedEven
         oneMinuteOfStats(name).changeBy(count, now);
         replica.replicateCount(name, count, now);
     }
+
+    public void recordTimingWithTime(String name, int duration, long now) {
+        oneMinuteOfStats(name).recordLevel(duration, now);
+        replica.replicateTiming(name, duration, now);
+    }
+
 
     public void recordLevelWithTime(String name, int level, long now) {
         oneMinuteOfStats(name).recordLevel(level, now);

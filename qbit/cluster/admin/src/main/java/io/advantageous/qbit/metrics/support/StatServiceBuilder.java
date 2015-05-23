@@ -421,6 +421,11 @@ public class StatServiceBuilder {
                 }
 
                 @Override
+                public void replicateTiming(String name, int level, long time) {
+                    proxy.replicateTiming(name, level, time);
+                }
+
+                @Override
                 public void clientProxyFlush() {
                     proxy.clientProxyFlush();
                 }
