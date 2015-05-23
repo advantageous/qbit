@@ -1,11 +1,13 @@
 package io.advantageous.qbit.metrics.support;
 
 
+import io.advantageous.qbit.config.PropertyResolver;
 import io.advantageous.qbit.metrics.StatReplicator;
 import io.advantageous.qbit.service.ServiceBuilder;
 import io.advantageous.qbit.service.ServiceQueue;
 
 import java.io.IOException;
+import java.util.Properties;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -21,8 +23,29 @@ public class StatsDReplicatorBuilder {
     private ServiceBuilder serviceBuilder;
     private ServiceQueue serviceQueue;
 
+    public static final String STATSD_REPLICATOR_PROPS = "qbit.statsd.replicator.";
+
     public static StatsDReplicatorBuilder statsDReplicatorBuilder() {
         return new StatsDReplicatorBuilder();
+    }
+
+    public StatsDReplicatorBuilder() {
+        this(PropertyResolver.createSystemPropertyResolver(STATSD_REPLICATOR_PROPS));
+    }
+
+    public StatsDReplicatorBuilder(PropertyResolver propertyResolver) {
+
+        this.host = propertyResolver.getStringProperty("host", host);
+        this.port = propertyResolver.getIntegerProperty("port", port);
+        this.multiMetrics = propertyResolver.getBooleanProperty("multiMetrics", multiMetrics);
+        this.bufferSize = propertyResolver.getIntegerProperty("bufferSize", bufferSize);
+        this.flushRateIntervalMS = propertyResolver.getIntegerProperty("flushRateIntervalMS", flushRateIntervalMS);
+
+    }
+
+    public StatsDReplicatorBuilder(final Properties properties) {
+        this(PropertyResolver.createPropertiesPropertyResolver(
+                STATSD_REPLICATOR_PROPS, properties));
     }
 
 

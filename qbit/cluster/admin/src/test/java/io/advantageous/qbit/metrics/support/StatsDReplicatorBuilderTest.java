@@ -17,7 +17,9 @@ public class StatsDReplicatorBuilderTest {
 
         //https://github.com/advantageous/qbit/wiki/%5BZ-Blog%5D-StatsD-and-QBit
 
-        final StatReplicator statReplicator = StatsDReplicatorBuilder.statsDReplicatorBuilder().setHost("192.168.59.103").buildAndStart();
+        //.setHost("192.168.59.103")
+        System.setProperty("qbit.statsd.replicator.host", "192.168.59.103");
+        final StatReplicator statReplicator = StatsDReplicatorBuilder.statsDReplicatorBuilder().buildAndStart();
 
         final Random random = new Random();
 
