@@ -268,8 +268,15 @@ public class ServiceDiscoveryImpl implements ServiceDiscovery {
         if (servicePool == null) {
             servicePool = new ServicePool(serviceName, this.servicePoolListener);
             servicePoolMap.put(serviceName, servicePool);
-            final List<EndpointDefinition> healthyServices = provider.loadServices(serviceName);
-            servicePool.setHealthyNodes(healthyServices, this.servicePoolListener);
+            try {
+                final List<EndpointDefinition> healthyServices = provider.loadServices(serviceName);
+                servicePool.setHealthyNodes(healthyServices, this.servicePoolListener);
+            } catch (Exception ex) {
+                logger.warn("Unable to load healthy nodes from primary service discovery provider", ex);
+                final List<EndpointDefinition> healthyServices = backupProvider.loadServices(serviceName);
+                servicePool.setHealthyNodes(healthyServices, this.servicePoolListener);
+
+            }
             watch(serviceName);
         }
         return servicePool.services();
