@@ -31,12 +31,12 @@ public class EventRemoteReplicatorServiceBundleIntegrationTest extends TimedTest
 
         try {
             serviceBundle = serviceBundleBuilder().build();
+            serviceBundle.addServiceObject("remote", service);
+            client = serviceBundle.createLocalProxy(EventConnector.class, "remote");
+            serviceBundle.start();
         } catch (Exception ex) {
             ex.printStackTrace();
         }
-        serviceBundle.addServiceObject("remote", service);
-        client = serviceBundle.createLocalProxy(EventConnector.class, "remote");
-        serviceBundle.start();
     }
 
     @After
@@ -49,6 +49,7 @@ public class EventRemoteReplicatorServiceBundleIntegrationTest extends TimedTest
 
     @Test
     public void test() {
+
         client.forwardEvent(event);
         flushServiceProxy(client);
         waitForLatch(1);
