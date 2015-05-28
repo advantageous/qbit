@@ -157,7 +157,7 @@ public class FullJettyIntegration extends TimedTesting {
 
     }
 
-   // @Test
+   // @Test//
     public void testRestCallSimple() throws Exception {
 
         final HttpRequest request = new HttpRequestBuilder()
