@@ -335,7 +335,7 @@ public class ServiceDiscoveryImpl implements ServiceDiscovery {
                                         "Error while loading healthy" +
                                         " services for " + serviceNameToFetch, ex);
 
-                                final List<EndpointDefinition> healthyServices = provider.loadServices(serviceNameToFetch);
+                                final List<EndpointDefinition> healthyServices = backupProvider.loadServices(serviceNameToFetch);
                                 populateServiceMap(serviceNameToFetch, healthyServices);
                                 serviceNamesBeingLoaded.remove(serviceNameToFetch);
 
