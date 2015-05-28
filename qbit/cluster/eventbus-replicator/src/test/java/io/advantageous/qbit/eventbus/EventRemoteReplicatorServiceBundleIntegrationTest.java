@@ -52,7 +52,7 @@ public class EventRemoteReplicatorServiceBundleIntegrationTest extends TimedTest
 
         client.forwardEvent(event);
         flushServiceProxy(client);
-        waitForLatch(1);
+        waitForLatch(10);
         verify(eventManager).forwardEvent(event);
 
     }
