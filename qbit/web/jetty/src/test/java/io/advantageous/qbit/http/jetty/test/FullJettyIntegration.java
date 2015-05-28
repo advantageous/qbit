@@ -48,6 +48,7 @@ import static io.advantageous.boon.core.IO.puts;
 
 /**
  * @author rhightower on 2/14/15.
+ * We are going to deprecate Jetty support.
  */
 public class FullJettyIntegration extends TimedTesting {
 
@@ -64,7 +65,7 @@ public class FullJettyIntegration extends TimedTesting {
     boolean ok;
     AtomicInteger returnCount;
 
-    @Test
+    //@Test
     public void testWebSocket() throws Exception {
 
 
@@ -83,7 +84,7 @@ public class FullJettyIntegration extends TimedTesting {
 
     }
 
-    @Test
+    //@Test
     public void testWebSocketFlushHappy() throws Exception {
 
 
@@ -120,7 +121,7 @@ public class FullJettyIntegration extends TimedTesting {
 
     }
 
-    @Test
+    //@Test
     public void testWebSocketSend10() throws Exception {
 
 
@@ -156,7 +157,7 @@ public class FullJettyIntegration extends TimedTesting {
 
     }
 
-    @Test
+   // @Test
     public void testRestCallSimple() throws Exception {
 
         final HttpRequest request = new HttpRequestBuilder()
@@ -188,7 +189,7 @@ public class FullJettyIntegration extends TimedTesting {
 
     }
 
-    @Test
+    //@Test
     public void testRestWithTwoParams() throws Exception {
 
         final HttpRequest request = new HttpRequestBuilder()
@@ -223,7 +224,7 @@ public class FullJettyIntegration extends TimedTesting {
         puts("RETURN VALUE", returnValue.get());
     }
 
-    @Before
+    //@Before
     public synchronized void setup() throws Exception {
 
 
@@ -265,7 +266,7 @@ public class FullJettyIntegration extends TimedTesting {
 
     }
 
-    @After
+    //@After
     public void teardown() throws Exception {
 
         port++;

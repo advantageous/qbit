@@ -25,10 +25,6 @@ subprojects {
     version = projectVersion
     archivesBaseName = "qbit-$project.name"
 
-    nexusStaging {
-        packageGroup = group
-    }
-
     test.onlyIf { !Boolean.getBoolean('skip.tests') }
 
     dependencies {
