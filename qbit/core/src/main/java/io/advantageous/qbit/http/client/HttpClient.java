@@ -47,7 +47,7 @@ import static io.advantageous.qbit.http.request.HttpRequestBuilder.httpRequestBu
 public interface HttpClient extends ServiceFlushable, Stoppable, Startable{
 
     public static int HTTP_CLIENT_DEFAULT_TIMEOUT = Sys.sysProp(
-            "io.advantageous.qbit.http.client.HttpClient.timeout", 30);
+            "io.advantageous.qbit.http.client.HttpClient.timeout", 180);
 
     public static void _createHttpTextReceiver(final HttpRequest httpRequest,
                                                final CountDownLatch countDownLatch,

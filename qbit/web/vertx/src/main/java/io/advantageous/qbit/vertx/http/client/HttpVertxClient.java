@@ -351,12 +351,12 @@ public class HttpVertxClient implements HttpClient {
 
     private void connect() {
         httpClient = vertx.createHttpClient().setHost(host).setPort(port)
-                .setConnectTimeout(timeOutInMilliseconds).setMaxPoolSize(poolSize)
+                .setConnectTimeout(timeOutInMilliseconds)
+                .setMaxPoolSize(poolSize)
                 .setKeepAlive(keepAlive).setPipelining(pipeline)
                 .setSoLinger(100)
                 .setTCPNoDelay(false)
-                .setMaxWebSocketFrameSize(100_000_000)
-                .setConnectTimeout(this.timeOutInMilliseconds);
+                .setMaxWebSocketFrameSize(100_000_000);
 
 
         httpClient.setUsePooledBuffers(true);

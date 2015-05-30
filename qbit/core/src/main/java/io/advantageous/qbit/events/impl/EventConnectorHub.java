@@ -1,5 +1,6 @@
 package io.advantageous.qbit.events.impl;
 
+import io.advantageous.boon.core.Str;
 import io.advantageous.qbit.GlobalConstants;
 import io.advantageous.qbit.client.ClientProxy;
 import io.advantageous.qbit.client.RemoteTCPClientProxy;
@@ -50,6 +51,10 @@ public class EventConnectorHub implements EventConnector, Iterable<EventConnecto
 
                 if (eventConnector instanceof RemoteTCPClientProxy) {
                     final RemoteTCPClientProxy remoteTCPClientProxy = (RemoteTCPClientProxy) eventConnector;
+
+                    logger.info(Str.sputs("Removing event connector host ",
+                            remoteTCPClientProxy.host(), " port ", remoteTCPClientProxy.port(),
+                            "connected ", remoteTCPClientProxy.connected()));
                     remoteTCPClientProxy.silentClose();
                 }
                 this.eventConnectors.remove(eventConnector);

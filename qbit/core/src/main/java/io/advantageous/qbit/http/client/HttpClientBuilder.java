@@ -41,7 +41,7 @@ public class HttpClientBuilder {
     private int poolSize = 20;
     private int pollTime = 10;
     private int requestBatchSize = 10;
-    private int timeOutInMilliseconds = 3000;
+    private int timeOutInMilliseconds = 3_000;
     private boolean autoFlush = true;
     private boolean keepAlive = true;
     private boolean pipeline = true;

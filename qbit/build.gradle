@@ -245,7 +245,7 @@ project('web:vertx') {
 
 project('cluster') {
 
-    test.onlyIf { Boolean.getBoolean('consul.running') }
+    test.onlyIf { Boolean.getBoolean('integration.tests') }
     uploadArchives {
         repositories {
             mavenDeployer {
@@ -260,7 +260,8 @@ project('cluster') {
 project('cluster:consul-client') {
 
 
-    test.onlyIf { Boolean.getBoolean('consul.running') }
+
+    test.onlyIf { Boolean.getBoolean('integration.tests') }
 
     dependencies {
         //compile project(":qbit:web:jetty")

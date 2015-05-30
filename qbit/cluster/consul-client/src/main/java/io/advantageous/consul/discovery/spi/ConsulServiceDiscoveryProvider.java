@@ -8,6 +8,7 @@ import io.advantageous.consul.domain.option.Consistency;
 import io.advantageous.consul.domain.option.RequestOptions;
 import io.advantageous.consul.domain.option.RequestOptionsBuilder;
 import io.advantageous.qbit.GlobalConstants;
+import io.advantageous.qbit.http.client.HttpClientClosedConnectionException;
 import io.advantageous.qbit.service.discovery.HealthStatus;
 import io.advantageous.qbit.service.discovery.EndpointDefinition;
 import io.advantageous.qbit.service.discovery.impl.ServiceHealthCheckIn;
@@ -137,7 +138,7 @@ public class ConsulServiceDiscoveryProvider implements ServiceDiscoveryProvider 
         }
     }
 
-    private void handleConsulRecovery(Consul consul, Exception ex) {
+    private void handleConsulRecovery(final Consul consul, final Exception ex) {
         logger.warn("Unable to use consul", ex);
         if (consulRetryCount.incrementAndGet() > 10) {
 
@@ -159,6 +160,10 @@ public class ConsulServiceDiscoveryProvider implements ServiceDiscoveryProvider 
             Consul consulNew = Consul.consul(consulHost, consulPort);
             consulNew.start();
             consulThreadLocal.set(consulNew);
+        }
+
+        if (ex instanceof RuntimeException) {
+            throw ((RuntimeException) ex);
         }
     }
 
@@ -284,7 +289,7 @@ public class ConsulServiceDiscoveryProvider implements ServiceDiscoveryProvider 
 
             return healthyServices;
 
-        } catch (Exception ex) {
+        } catch (HttpClientClosedConnectionException ex) {
 
             handleConsulRecovery(consul, ex);
             return Collections.emptyList();

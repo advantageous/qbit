@@ -1,5 +1,6 @@
 package io.advantageous.qbit.eventbus;
 
+import io.advantageous.boon.core.Str;
 import io.advantageous.consul.Consul;
 import io.advantageous.consul.domain.ConsulResponse;
 import io.advantageous.consul.domain.NotRegisteredException;
@@ -218,11 +219,11 @@ public class EventBusCluster implements Startable, Stoppable {
     private void startServerReplicator() {
         final List<ServiceHealth> healthyServices = getHealthyServices();
 
-        List<ServiceHealth> newServices = findNewServices(healthyServices);
+        final List<ServiceHealth> newServices = findNewServices(healthyServices);
         addNewServicesToHub(newServices);
 
 
-        EventBusRemoteReplicatorBuilder replicatorBuilder = eventBusRemoteReplicatorBuilder();
+        final EventBusRemoteReplicatorBuilder replicatorBuilder = eventBusRemoteReplicatorBuilder();
         replicatorBuilder.setName(this.eventBusName);
         replicatorBuilder.serviceServerBuilder().setPort(replicationPortLocal);
 
@@ -279,32 +280,30 @@ public class EventBusCluster implements Startable, Stoppable {
 
     private void rebuildHub(List<ServiceHealth> services) {
 
-        if (info) logger.info(
-                String.format("Number of services before " +
-                        "remove bad service called %s",  eventConnectorHub.size() ));
+        if (debug) logger.debug(
+                String.format("Number of services before %s ",
+                        eventConnectorHub.size() ));
 
-        removeBadServices(services);
+        int removeCount = removeBadServices(services);
 
-        if (info) logger.info(
-                String.format("Number of services AFTER remove bad service called %s",
-                        eventConnectorHub.size()));
+        if (info && removeCount > 1) logger.info(
+                String.format("Number of services AFTER remove bad service called %s remove count %s",
+                        eventConnectorHub.size(), removeCount));
 
         List<ServiceHealth> newServices = findNewServices(services);
 
 
-        if (info) logger.info(
-                String.format("Number of services found %s",
-                        newServices.size() ));
+        if (newServices.size() > 0) {
+            addNewServicesToHub(newServices);
+            if (info) logger.info(
+                    String.format("Number of services found %s total connectors %s",
+                            newServices.size(), eventConnectorHub.size()));
+        }
 
-        addNewServicesToHub(newServices);
-
-        if (info) logger.info(
-                String.format("Number of services AFTER addNewServicesToHub called %s",
-                        eventConnectorHub.size() ));
 
     }
 
-    private void addNewServicesToHub(List<ServiceHealth> newServices) {
+    private void addNewServicesToHub(final List<ServiceHealth> newServices) {
         for (ServiceHealth serviceHealth : newServices) {
 
             final int newPort = serviceHealth.getService().getPort();
@@ -354,19 +353,25 @@ public class EventBusCluster implements Startable, Stoppable {
     }
 
     private void addEventConnector(final String newHost, final int newPort) {
+
+        if (info) logger.info(Str.sputs("Adding new event connector for",
+                eventBusName , "host",
+                newHost, "port", newPort));
+
         /* A client replicator */
-        EventBusReplicationClientBuilder clientReplicatorBuilder = eventBusReplicationClientBuilder();
+        final EventBusReplicationClientBuilder clientReplicatorBuilder = eventBusReplicationClientBuilder();
         clientReplicatorBuilder.setName(this.eventBusName);
         clientReplicatorBuilder.clientBuilder().setPort(newPort).setHost(newHost);
-        Client client = clientReplicatorBuilder.build();
+        final Client client = clientReplicatorBuilder.build();
         final EventConnector eventConnector = clientReplicatorBuilder.build(client);
         client.start();
         eventConnectorHub.add(eventConnector);
     }
 
-    private void removeBadServices(List<ServiceHealth> services) {
+    private int removeBadServices(List<ServiceHealth> services) {
         final ListIterator<EventConnector> listIterator = eventConnectorHub.listIterator();
 
+        int removeCount = 0;
         final List<EventConnector> badConnectors = new ArrayList<>();
 
         while (listIterator.hasNext()) {
@@ -379,7 +384,14 @@ public class EventBusCluster implements Startable, Stoppable {
                 final RemoteTCPClientProxy remoteTCPClientProxy = (RemoteTCPClientProxy) connector;
 
                 if (!remoteTCPClientProxy.connected()) {
+                    removeCount++;
                     badConnectors.add(connector);
+                    if (info) logger.info(Str.sputs("Removing event connector from",
+                            eventBusName , "host",
+                            remoteTCPClientProxy.host(),
+                            "port", remoteTCPClientProxy.port(),
+                            "connected", remoteTCPClientProxy.connected()));
+
                     continue;
                 }
 
@@ -396,12 +408,15 @@ public class EventBusCluster implements Startable, Stoppable {
                     }
                 }
                 if (!found) {
+                    removeCount++;
                     badConnectors.add(connector);
                 }
             }
         }
 
         badConnectors.forEach(eventConnectorHub::remove);
+
+        return removeCount;
     }
 
 
