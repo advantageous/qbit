@@ -281,6 +281,8 @@ project('cluster:consul-client') {
 
 project('cluster:admin') {
 
+
+    test.onlyIf { Boolean.getBoolean('integration.tests') }
     dependencies {
         compile project(':qbit:boon')
         compile project(':qbit:core')
@@ -300,6 +302,8 @@ project('cluster:admin') {
 }
 
 project('cluster:eventbus-replicator') {
+
+    test.onlyIf { Boolean.getBoolean('integration.tests') }
 
     dependencies {
         compile project(':qbit:boon')

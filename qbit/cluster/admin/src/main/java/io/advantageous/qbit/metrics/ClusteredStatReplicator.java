@@ -178,7 +178,7 @@ public class ClusteredStatReplicator implements StatReplicator, ServiceChangedEv
                         try {
                             statReplicator.getSecond().stop();
                         } catch (Exception ex) {
-                            if (debug) logger.debug("Failed to stop failed node", ex);
+                            logger.info("Failed to stop failed node", ex);
                         }
                         statReplicators.remove(statReplicator);
                         replicatorsMap.remove(statReplicator.getFirst().getId());
@@ -208,10 +208,9 @@ public class ClusteredStatReplicator implements StatReplicator, ServiceChangedEv
         final List<EndpointDefinition> services = servicePool.services();
 
 
-        //services.forEach(serviceDefinition -> addIfNotExists(serviceDefinition));
 
         if ((services.size() - 1) != this.statReplicators.size()) {
-            logger.debug(sputs("DOING RECONNECT", services.size() - 1,
+            logger.info(sputs("DOING RECONNECT", services.size() - 1,
                     this.statReplicators.size()));
 
             shutDownReplicators();
@@ -293,7 +292,7 @@ public class ClusteredStatReplicator implements StatReplicator, ServiceChangedEv
     private void removeService(final EndpointDefinition endpointDefinition) {
 
         logger.info(sputs("ClusteredStatReplicator::removeService()",
-                serviceName, endpointDefinition));
+                serviceName, endpointDefinition, " replicator count ",  replicatorsMap.size()));
 
 
         final Pair<EndpointDefinition, StatReplicator> statReplicatorPair = this.replicatorsMap.get(endpointDefinition.getId());
@@ -305,19 +304,28 @@ public class ClusteredStatReplicator implements StatReplicator, ServiceChangedEv
         }
         this.replicatorsMap.remove(endpointDefinition.getId());
         this.statReplicators = new ArrayList<>(replicatorsMap.values());
+
+        logger.info(sputs("ClusteredStatReplicator::removeService() removed",
+                serviceName, endpointDefinition, " replicator count ",  replicatorsMap.size()));
+
     }
 
     private void addService(final EndpointDefinition endpointDefinition) {
 
-        if (trace) logger.trace(sputs("ClusteredStatReplicator::addService()", endpointDefinition));
 
         if (endpointDefinition.getId().equals(localServiceId)) {
             return;
         }
+        logger.info(sputs("ClusteredStatReplicator::addService()", endpointDefinition,
+                " replicator count ",  replicatorsMap.size()));
 
         final StatReplicator statReplicator = statReplicatorProvider.provide(endpointDefinition);
         this.replicatorsMap.put(endpointDefinition.getId(), Pair.pair(endpointDefinition, statReplicator));
         this.statReplicators = new ArrayList<>(replicatorsMap.values());
+
+        logger.info(sputs("ClusteredStatReplicator::addService() added",
+                serviceName, endpointDefinition, " replicator count ",  replicatorsMap.size()));
+
 
     }
 
