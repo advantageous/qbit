@@ -162,7 +162,7 @@ public class SupportingGetAndPostForSameServicesUnderSameURI extends TimedTestin
 
         clientProxy = client.createProxy(ClientServiceInterface.class, "pinger");
         client.start();
-        httpClient.start();
+        httpClient.startClient();
 
         callCount = 0;
         pongValue.set(null);

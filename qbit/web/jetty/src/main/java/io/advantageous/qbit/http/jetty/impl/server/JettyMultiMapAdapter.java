@@ -25,6 +25,8 @@ import java.util.*;
 /**
  * Created by rhightower on 2/16/15.
  */
+
+@Deprecated
 public class JettyMultiMapAdapter implements MultiMap<String, String> {
 
 

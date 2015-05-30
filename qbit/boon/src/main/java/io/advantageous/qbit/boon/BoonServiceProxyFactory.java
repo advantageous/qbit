@@ -94,6 +94,12 @@ public class BoonServiceProxyFactory implements ServiceProxyFactory {
                         return port;
                     case "host":
                         return host;
+                    case "silentClose":
+                        try {
+                            endPoint.stop();
+                        } catch (Exception ex) {
+                            //silentClose
+                        }
                     case "flush":
                     case "clientProxyFlush":
                         endPoint.flush();

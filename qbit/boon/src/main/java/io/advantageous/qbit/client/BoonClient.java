@@ -35,10 +35,12 @@ import io.advantageous.qbit.message.MethodCall;
 import io.advantageous.qbit.message.Response;
 import io.advantageous.qbit.message.impl.MethodCallImpl;
 import io.advantageous.qbit.reactive.Callback;
+import io.advantageous.qbit.sender.Sender;
 import io.advantageous.qbit.service.BeforeMethodCall;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.lang.ref.WeakReference;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.List;
@@ -294,12 +296,26 @@ public class BoonClient implements Client {
                 return true;
             }
         };
+
+
+        final Sender<String> sender = new Sender<String>() {
+
+            @Override
+            public void send(String returnAddress, String buffer) {
+                BoonClient.this.send(serviceName, buffer);
+            }
+
+            @Override
+            public void stop() {
+                BoonClient.this.stop();
+            }
+        };
+
         T proxy = QBit.factory().createRemoteProxyWithReturnAddress(serviceInterface, uri, serviceName,
                 httpServerProxy.getHost(),
                 httpServerProxy.getPort(),
                 connected,
-                returnAddressArg, (returnAddress, buffer) ->
-                        BoonClient.this.send(serviceName, buffer), beforeMethodCall, requestBatchSize);
+                returnAddressArg, sender, beforeMethodCall, requestBatchSize);
 
         if (proxy instanceof ClientProxy) {
             clientProxies.add((ClientProxy) proxy);
@@ -385,13 +401,21 @@ public class BoonClient implements Client {
 
     public void start() {
 
+        /** Adding the weak reference to get rid of the circular depedency
+         * which seems to prevent this from getting collected.
+         */
+        final WeakReference<BoonClient> boonClientWeakReference =
+                 new WeakReference<>(this);
         this.httpServerProxy.periodicFlushCallback(aVoid -> {
 
-            flush();
+            final BoonClient boonClient = boonClientWeakReference.get();
+            if (boonClient!=null) {
+                boonClient.flush();
+            }
 
         });
 
-        this.httpServerProxy.start();
+        this.httpServerProxy.startClient();
         connected.set(true);
 
     }

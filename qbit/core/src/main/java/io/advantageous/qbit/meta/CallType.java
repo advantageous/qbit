@@ -23,7 +23,7 @@ public enum CallType {
     DIRECT_CALL,
     /** Passing the URI which can be directly looked up. */
     ADDRESS,
-    /** Can't just use the direct URI must match start of URI. */
+    /** Can't just use the direct URI must match startClient of URI. */
     ADDRESS_WITH_PATH_PARAMS
 
 

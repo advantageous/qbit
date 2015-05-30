@@ -16,7 +16,7 @@
   * QBit - The Microservice lib for Java : JSON, WebSocket, REST. Be The Web!
   *  http://rick-hightower.blogspot.com/2014/12/rise-of-machines-writing-high-speed.html
   *  http://rick-hightower.blogspot.com/2014/12/quick-guide-to-programming-services-in.html
-  *  http://rick-hightower.blogspot.com/2015/01/quick-start-qbit-programming.html
+  *  http://rick-hightower.blogspot.com/2015/01/quick-startClient-qbit-programming.html
   *  http://rick-hightower.blogspot.com/2015/01/high-speed-soa.html
   *  http://rick-hightower.blogspot.com/2015/02/qbit-event-bus.html
  ******************************************************************************/

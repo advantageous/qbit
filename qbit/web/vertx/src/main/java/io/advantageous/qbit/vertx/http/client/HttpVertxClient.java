@@ -63,6 +63,8 @@ public class HttpVertxClient implements HttpClient {
     private final Logger logger = LoggerFactory.getLogger(HttpVertxClient.class);
     private final boolean debug = logger.isDebugEnabled() || GlobalConstants.DEBUG;
     private final boolean trace = logger.isTraceEnabled();
+
+
     /**
      * Are we closed.
      */
@@ -216,6 +218,15 @@ public class HttpVertxClient implements HttpClient {
             logger.debug("problem shutting down vertx httpClient for QBIT Http Client", ex);
         }
 
+        if (vertx!=null) {
+            try {
+                vertx.stop();
+            } catch (Exception ex) {
+                logger.debug("problem shutting down vertx for QBIT Http Client", ex);
+
+            }
+        }
+
     }
 
     private void autoFlush() {
@@ -223,12 +234,12 @@ public class HttpVertxClient implements HttpClient {
     }
 
     @Override
-    public HttpClient start() {
+    public HttpClient startClient() {
         connect();
         if (autoFlush) {
 
             if (executorContext != null) {
-                throw new IllegalStateException(sputs("Unable to start up Vertx client, it is already started"));
+                throw new IllegalStateException(sputs("Unable to startClient up Vertx client, it is already started"));
             }
 
             this.executorContext = scheduledExecutorBuilder()
@@ -339,7 +350,6 @@ public class HttpVertxClient implements HttpClient {
     }
 
     private void connect() {
-        this.closed.set(false);
         httpClient = vertx.createHttpClient().setHost(host).setPort(port)
                 .setConnectTimeout(timeOutInMilliseconds).setMaxPoolSize(poolSize)
                 .setKeepAlive(keepAlive).setPipelining(pipeline)
@@ -357,12 +367,20 @@ public class HttpVertxClient implements HttpClient {
 
             if (throwable instanceof ConnectException) {
                 closed.set(true);
+                try {
+                    stop();
+                } catch (Exception ex) {
+                    logger.warn("Unable to stop client " +
+                            "after failed connection", ex);
+                }
             } else {
                 logger.error("Unable to connect to " + host + " port " + port, throwable);
             }
         });
 
         Sys.sleep(100);
+
+        closed.set(false);
 
     }
 
@@ -372,4 +390,25 @@ public class HttpVertxClient implements HttpClient {
     }
 
 
+    /* NOTE: There is a better way to do this.
+    * Going to use Phantom references which are a
+    * better way to keep track of which objects are being freed.
+    **/
+    @Override
+    protected void finalize() throws Throwable {
+        if(!this.closed.get()) {
+            logger.warn("we detected a connection that " +
+                    "was not closed host " + host + " port " + port);
+            try {
+                stop();
+            }catch (Exception ex) {
+                logger.warn("Problem closing client in finalize", ex);
+            }
+        }
+    }
+
+    @Override
+    public void start() {
+        startClient();
+    }
 }

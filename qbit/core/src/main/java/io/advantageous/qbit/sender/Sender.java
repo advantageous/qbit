@@ -19,6 +19,8 @@
 package io.advantageous.qbit.sender;
 
 
+import io.advantageous.qbit.service.Stoppable;
+
 /**
  * Created by Richard on 10/1/14.
  * This could be a TCP/IP connection, a websocket, an HTTP long poll, etc.
@@ -27,7 +29,8 @@ package io.advantageous.qbit.sender;
  *
  * @author Rick Hightower
  */
-public interface Sender<T> {
+public interface Sender<T> extends Stoppable{
 
     void send(String returnAddress, T buffer);
+    //add a close here
 }

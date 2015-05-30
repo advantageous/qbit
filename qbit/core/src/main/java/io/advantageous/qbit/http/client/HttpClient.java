@@ -25,6 +25,9 @@ import io.advantageous.qbit.http.request.HttpRequest;
 import io.advantageous.qbit.http.request.HttpResponse;
 import io.advantageous.qbit.http.request.HttpTextReceiver;
 import io.advantageous.qbit.http.websocket.WebSocket;
+import io.advantageous.qbit.service.ServiceFlushable;
+import io.advantageous.qbit.service.Startable;
+import io.advantageous.qbit.service.Stoppable;
 import io.advantageous.qbit.util.MultiMap;
 
 import java.util.concurrent.CountDownLatch;
@@ -41,7 +44,7 @@ import static io.advantageous.qbit.http.request.HttpRequestBuilder.httpRequestBu
  *
  * @author rhightower
  */
-public interface HttpClient {
+public interface HttpClient extends ServiceFlushable, Stoppable, Startable{
 
     public static int HTTP_CLIENT_DEFAULT_TIMEOUT = Sys.sysProp(
             "io.advantageous.qbit.http.client.HttpClient.timeout", 30);
@@ -1041,7 +1044,7 @@ public interface HttpClient {
         return "localhost";
     }
 
-    default HttpClient start() {
+    default HttpClient startClient() {
         return this;
     }
 

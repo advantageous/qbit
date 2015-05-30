@@ -164,6 +164,11 @@ public class BoonClientIntegrationTest extends TimedTesting {
 
 
         @Override
+        public void start() {
+
+        }
+
+        @Override
         public void sendHttpRequest(HttpRequest request) {
 
         }
@@ -231,7 +236,7 @@ public class BoonClientIntegrationTest extends TimedTesting {
         }
 
         @Override
-        public HttpClient start() {
+        public HttpClient startClient() {
             httpStartCalled.set(true);
             return this;
 

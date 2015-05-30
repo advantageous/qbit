@@ -47,6 +47,8 @@ import static io.advantageous.qbit.http.websocket.WebSocketBuilder.webSocketBuil
 /**
  * @author rhightower on 2/14/15.
  */
+
+@Deprecated
 public class JettyQBitHttpClient implements HttpClient {
 
     private final Logger logger = LoggerFactory.getLogger(JettyQBitHttpClient.class);
@@ -182,12 +184,12 @@ public class JettyQBitHttpClient implements HttpClient {
     }
 
     @Override
-    public HttpClient start() {
+    public HttpClient startClient() {
         try {
             httpClient.start();
         } catch (Exception e) {
 
-            throw new IllegalStateException("Unable to start httpClient Jetty support", e);
+            throw new IllegalStateException("Unable to startClient httpClient Jetty support", e);
         }
 
 
@@ -199,7 +201,7 @@ public class JettyQBitHttpClient implements HttpClient {
             webSocketClient.getPolicy().setMaxBinaryMessageSize(20_000_000);
             webSocketClient.start();
         } catch (Exception e) {
-            throw new IllegalStateException("Unable to start websocket Jetty support", e);
+            throw new IllegalStateException("Unable to startClient websocket Jetty support", e);
         }
 
         return this;
@@ -221,5 +223,9 @@ public class JettyQBitHttpClient implements HttpClient {
             logger.warn("problem stopping", e);
         }
 
+    }
+
+    public void start() {
+        startClient();
     }
 }

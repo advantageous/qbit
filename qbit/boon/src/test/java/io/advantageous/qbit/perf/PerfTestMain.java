@@ -252,11 +252,15 @@ public class PerfTestMain {
 
     static class MockHttpClient implements HttpClient {
 
+        public void start() {
+
+        }
         Consumer<Void> periodicFlushCallback;
 
         SendQueue<WebSocketMessage> sendQueue;
 
         Thread thread;
+
 
         ReentrantLock lock = new ReentrantLock();
 
@@ -295,7 +299,7 @@ public class PerfTestMain {
         }
 
         @Override
-        public HttpClient start() {
+        public HttpClient startClient() {
             sendQueue = messages.sendQueue();
 
             thread = new Thread(new Runnable() {

@@ -184,6 +184,9 @@ public class BoonClientTest {
 
     private class HttpClientMock implements HttpClient {
 
+        public void start() {
+
+        }
         Consumer<Void> periodicFlushCallback;
 
 
@@ -235,7 +238,7 @@ public class BoonClientTest {
         }
 
         @Override
-        public HttpClient start() {
+        public HttpClient startClient() {
             httpStartCalled = true;
             return this;
 

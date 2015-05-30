@@ -32,6 +32,8 @@ import java.util.Map;
 
 import static io.advantageous.qbit.http.websocket.WebSocketBuilder.webSocketBuilder;
 
+
+@Deprecated
 public class JettyNativeWebSocketHandler extends WebSocketAdapter {
     private final ServletUpgradeRequest request;
     private final SimpleHttpServer httpServer;

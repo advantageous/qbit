@@ -5,4 +5,6 @@ public interface RemoteTCPClientProxy extends ClientProxy {
     default String host() {return "localProxy";}
     default boolean connected() {return true;}
     default boolean remote() {return true;}
+
+    default void silentClose() {}
 }

@@ -35,9 +35,6 @@ import io.advantageous.qbit.server.EndpointServerBuilder;
 import io.advantageous.qbit.server.ServiceEndpointServer;
 import io.advantageous.qbit.service.ServiceProxyUtils;
 import io.advantageous.qbit.test.TimedTesting;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
 
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
@@ -255,7 +252,7 @@ public class FullJettyIntegration extends TimedTesting {
 
         clientProxy = client.createProxy(ClientServiceInterface.class, "mockService");
         Sys.sleep(100);
-        httpClient.start();
+        httpClient.startClient();
         Sys.sleep(100);
         client.start();
 

@@ -42,6 +42,7 @@ import static io.advantageous.boon.core.IO.puts;
 /**
  * @author rhightower on 2/16/15.
  */
+@Deprecated
 public class JettyClientWebSocketSender implements WebSocketSender {
 
     private final Logger logger = LoggerFactory.getLogger(JettyClientWebSocketSender.class);

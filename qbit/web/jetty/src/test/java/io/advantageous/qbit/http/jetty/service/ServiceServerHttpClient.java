@@ -13,7 +13,7 @@ public class ServiceServerHttpClient {
 
     public static void main(final String... args) throws Exception {
         HttpClient httpClient = httpClientBuilder().setPort(9998).build();
-        httpClient.start();
+        httpClient.startClient();
 
         puts(httpClient.get("/services/ping/ping").body());
 

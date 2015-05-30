@@ -3,6 +3,8 @@ package io.advantageous.qbit.eventbus;
 import io.advantageous.boon.core.Sys;
 import io.advantageous.qbit.events.EventConsumer;
 import io.advantageous.qbit.message.Event;
+import org.junit.Before;
+import org.junit.Test;
 
 import static io.advantageous.boon.core.IO.puts;
 import static io.advantageous.qbit.eventbus.EventBusClusterBuilder.eventBusRingBuilder;
@@ -14,7 +16,7 @@ public class EventBusRingBuilderTest {
     EventBusCluster eventBusCluster;
 
     int port = 0;
-    //@Before
+    @Before
     public void setup() {
 
         port = useOneOfThePortsInThisRange(9000, 9900);
@@ -30,7 +32,7 @@ public class EventBusRingBuilderTest {
     //@Test
     public void fakeTest() {
     }
-    //@Test
+    @Test
     public void test() {
 
         eventBusCluster.eventManager().register("mom", new EventConsumer<Object>() {
@@ -41,7 +43,7 @@ public class EventBusRingBuilderTest {
         });
 
         for (int index = 0; index < 10000; index++) {
-            Sys.sleep(2000);
+            Sys.sleep(1);
             eventBusCluster.eventManager().send("mom", "hi mom " + port);
 
             if (index % 3 == 0) {

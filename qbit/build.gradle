@@ -244,6 +244,8 @@ project('web:vertx') {
 }
 
 project('cluster') {
+
+    test.onlyIf { Boolean.getBoolean('consul.running') }
     uploadArchives {
         repositories {
             mavenDeployer {
@@ -407,12 +409,14 @@ class RunConsul extends DefaultTask {
         mixinAntExec()
         println("Running consul \n ${execFile}  agent -server -bootstrap -data-dir /tmp/consul")
 
-        "/bin/sh -c  \"${execFile}  agent -server -bootstrap -data-dir /tmp/consul\"".antExec()
+        "/bin/sh -c  \"${execFile}  agent -server -bootstrap -data-dir /tmp/consulqbit\"".antExec()
 
         for (int index = 0; index < 5; index++) {
             ant.sleep(seconds: 1)
             ant.echo(message: "Waiting for consul $index")
         }
+
+        System.setProperty("consul.running")
     }
 
 

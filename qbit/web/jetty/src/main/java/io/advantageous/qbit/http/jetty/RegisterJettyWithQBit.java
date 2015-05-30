@@ -23,6 +23,8 @@ import io.advantageous.qbit.spi.FactorySPI;
 /**
  * @author rhightower on 2/13/15.
  */
+
+@Deprecated
 public class RegisterJettyWithQBit {
     public static void registerJettyWithQBit() {
         FactorySPI.setHttpServerFactory(new JettyHttpServerFactory());

@@ -145,7 +145,7 @@ public class SimpleHttpServer implements HttpServer {
 
     private void startPeriodicFlush() {
         if (executorContext != null) {
-            throw new IllegalStateException("Can't call start twice");
+            throw new IllegalStateException("Can't call startClient twice");
         }
 
         executorContext = scheduledExecutorBuilder()

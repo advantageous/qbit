@@ -24,7 +24,12 @@ public class EventManagerReplicationIntegrationTest extends TimedTesting{
     ServiceBundle serviceBundle;
 
 
-    //@Test
+    @Test
+    public void fakeTest() {
+
+    }
+
+    @Test
     public void test() {
 
 

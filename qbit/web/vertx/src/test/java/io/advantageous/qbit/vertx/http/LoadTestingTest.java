@@ -267,7 +267,7 @@ public class LoadTestingTest {
 
         clientProxy = client.createProxy(ClientServiceInterface.class, "mockService");
         client.start();
-        httpClient.start();
+        httpClient.startClient();
 
         callCount = 0;
         pongValue.set(null);

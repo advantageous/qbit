@@ -25,6 +25,8 @@ import io.advantageous.qbit.spi.HttpClientFactory;
 /**
  * @author rhightower on 2/13/15.
  */
+
+@Deprecated
 public class JettyHttpClientFactory implements HttpClientFactory {
 
     @Override

@@ -20,6 +20,7 @@ import io.advantageous.qbit.server.ServiceEndpointServer;
 import io.advantageous.qbit.service.ServiceQueue;
 import io.advantageous.qbit.service.Startable;
 import io.advantageous.qbit.service.Stoppable;
+import io.advantageous.qbit.util.Timer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -57,6 +58,7 @@ public class EventBusCluster implements Startable, Stoppable {
 
     private final Logger logger = LoggerFactory.getLogger(EventBusCluster.class);
     private final boolean debug = GlobalConstants.DEBUG || logger.isDebugEnabled();
+    private final boolean info = logger.isInfoEnabled();
 
     private AtomicInteger lastIndex = new AtomicInteger();
     private RequestOptions requestOptions;
@@ -67,6 +69,11 @@ public class EventBusCluster implements Startable, Stoppable {
     private ServiceQueue eventServiceQueue;
 
     private EventManager eventManagerImpl;
+
+
+    /* Used to manage consul retry logic. */
+    private int consulRetryCount = 0;
+    private long lastResetTimestamp = Timer.clockTime();
 
     public EventBusCluster(final EventManager eventManager,
                            final String eventBusName,
@@ -166,8 +173,25 @@ public class EventBusCluster implements Startable, Stoppable {
         } catch (NotRegisteredException ex) {
             registerLocalBusInConsul();
         } catch (Exception ex) {
-            Consul oldConsul = consul.get();
-            consul.compareAndSet(oldConsul, startNewConsul(oldConsul));
+            consulRetryCount++;
+            logger.warn("Unable to check-in with consul", ex);
+            if (consulRetryCount > 10) {
+
+                logger.info("Exceeded retry count with consul");
+                final long now = Timer.clockTime();
+                final long duration = now - lastResetTimestamp;
+
+                if (duration > 180_000) {
+
+                    logger.info("Resetting retry count");
+                    lastResetTimestamp = now;
+                    consulRetryCount = 0;
+                }
+
+            } else {
+                Consul oldConsul = consul.get();
+                consul.compareAndSet(oldConsul, startNewConsul(oldConsul));
+            }
         }
     }
 
@@ -255,20 +279,28 @@ public class EventBusCluster implements Startable, Stoppable {
 
     private void rebuildHub(List<ServiceHealth> services) {
 
+        if (info) logger.info(
+                String.format("Number of services before " +
+                        "remove bad service called %s",  eventConnectorHub.size() ));
 
-        //look at stuff in the hub and see if it matches the healthy nodes
-        //if not take them out of the hub
-
-        if (debug) logger.debug("Number of services before remove bad service called " + eventConnectorHub.size() );
         removeBadServices(services);
-        if (debug) logger.debug("Number of services AFTER remove bad service called " + eventConnectorHub.size() );
+
+        if (info) logger.info(
+                String.format("Number of services AFTER remove bad service called %s",
+                        eventConnectorHub.size()));
+
         List<ServiceHealth> newServices = findNewServices(services);
 
-        if (debug) logger.debug("Number of services found " + newServices.size() );
+
+        if (info) logger.info(
+                String.format("Number of services found %s",
+                        newServices.size() ));
+
         addNewServicesToHub(newServices);
 
-        if (debug) logger.debug("Number of services AFTER addNewServicesToHub called " + eventConnectorHub.size() );
-
+        if (info) logger.info(
+                String.format("Number of services AFTER addNewServicesToHub called %s",
+                        eventConnectorHub.size() ));
 
     }
 
@@ -344,13 +376,15 @@ public class EventBusCluster implements Startable, Stoppable {
             /** Remove bad ones. */
             if (connector instanceof RemoteTCPClientProxy) {
 
-                if (!((RemoteTCPClientProxy) connector).connected()) {
+                final RemoteTCPClientProxy remoteTCPClientProxy = (RemoteTCPClientProxy) connector;
+
+                if (!remoteTCPClientProxy.connected()) {
                     badConnectors.add(connector);
                     continue;
                 }
 
-                final String host = ((RemoteTCPClientProxy) connector).host();
-                final int port = ((RemoteTCPClientProxy) connector).port();
+                final String host = remoteTCPClientProxy.host();
+                final int port = remoteTCPClientProxy.port();
                 boolean found = false;
                 for (ServiceHealth serviceHealth : services) {
                     final int healthyPort = serviceHealth.getService().getPort();
@@ -376,28 +410,40 @@ public class EventBusCluster implements Startable, Stoppable {
 
         try {
             consul.get().stop();
-        } finally {
-            try {
-                this.serviceEndpointServerForReplicator.stop();
-            } finally {
-
-                try {
-                    if (healthyNodeMonitor != null) {
-                        healthyNodeMonitor.cancel(true);
-                    }
-                } finally {
-                    try {
-                        if (consulCheckInMonitor != null) {
-                            consulCheckInMonitor.cancel(true);
-                        }
-                    } finally {
-                        if (eventServiceQueue != null) {
-                            eventServiceQueue.stop();
-                        }
-                    }
-                }
-
-            }
+        } catch (Exception ex) {
+            logger.warn("EventBusCluster is unable to stop consul");
         }
+
+        try {
+
+            this.serviceEndpointServerForReplicator.stop();
+        } catch (Exception ex) {
+            logger.warn("EventBusCluster is unable to stop end point server");
+        }
+
+        try {
+            if (healthyNodeMonitor != null) {
+                healthyNodeMonitor.cancel(true);
+            }
+        } catch (Exception ex) {
+            logger.warn("EventBusCluster is unable to stop healthyNodeMonitor");
+        }
+
+        try {
+            if (consulCheckInMonitor != null) {
+                consulCheckInMonitor.cancel(true);
+            }
+        } catch (Exception ex) {
+            logger.warn("EventBusCluster is unable to stop consulCheckInMonitor");
+        }
+
+        try {
+            if (eventServiceQueue != null) {
+                eventServiceQueue.stop();
+            }
+        } catch (Exception ex) {
+            logger.warn("EventBusCluster is unable to stop eventServiceQueue");
+        }
+
     }
 }

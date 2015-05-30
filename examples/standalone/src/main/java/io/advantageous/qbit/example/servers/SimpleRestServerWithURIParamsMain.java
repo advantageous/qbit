@@ -71,7 +71,7 @@ public class SimpleRestServerWithURIParamsMain {
                 .setHost("localhost")
                 .setPort(7000).build();
 
-        httpClient.start();
+        httpClient.startClient();
         String results = httpClient
                 .get("/services/adder-service/add/2/2")
                 .body();

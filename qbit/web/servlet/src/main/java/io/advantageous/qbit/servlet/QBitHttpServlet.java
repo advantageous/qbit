@@ -50,7 +50,7 @@ public abstract class QBitHttpServlet extends HttpServlet {
         try {
             wireHttpServer(httpServer, config);
         } catch (Exception ex) {
-            logger.error("Unable to start QBitHttpServlet servlet", ex);
+            logger.error("Unable to startClient QBitHttpServlet servlet", ex);
         }
     }
 

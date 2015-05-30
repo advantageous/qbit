@@ -35,7 +35,7 @@ public class HttpWebSocketClient {
     public static void main(String... args) {
 
         final HttpClient httpClient = httpClientBuilder()
-                .setPort(9999).build().start();
+                .setPort(9999).build().startClient();
 
 
         final WebSocket webSocket = httpClient.createWebSocket("/hello");

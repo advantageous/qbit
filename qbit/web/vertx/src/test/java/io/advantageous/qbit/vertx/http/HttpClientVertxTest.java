@@ -24,17 +24,15 @@ import io.advantageous.qbit.http.request.HttpRequest;
 import io.advantageous.qbit.http.request.HttpRequestBuilder;
 import io.advantageous.qbit.http.server.HttpServer;
 import io.advantageous.qbit.http.server.HttpServerBuilder;
-import io.advantageous.qbit.http.server.websocket.WebSocketMessageBuilder;
 import io.advantageous.qbit.http.websocket.WebSocket;
 import io.advantageous.boon.core.Sys;
 import io.advantageous.qbit.test.TimedTesting;
+import io.advantageous.qbit.util.PortUtils;
 import org.junit.Test;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
-import java.util.function.Consumer;
-import java.util.function.Predicate;
 
 import static io.advantageous.boon.core.Exceptions.die;
 import static io.advantageous.boon.core.IO.puts;
@@ -52,23 +50,26 @@ public class HttpClientVertxTest extends TimedTesting {
     HttpClient client;
     HttpServer server;
 
-    public void connect(int port) {
+    int port = 9099;
+    public void connect() {
 
-        client = new HttpClientBuilder().setPort(port).build();
+        port = PortUtils.findOpenPortStartAt(port);
 
         server = new HttpServerBuilder().setPort(port).build();
+        client = new HttpClientBuilder().setPort(port).build();
 
         requestReceived = new AtomicBoolean();
         responseReceived = new AtomicBoolean();
         messsageBody = new AtomicReference<>();
         responseCode = new AtomicInteger();
+        port++;
 
     }
 
     @Test
     public void testWebSocket() {
 
-        connect(9090);
+        connect();
 
 
         server.setWebSocketMessageConsumer(webSocketMessage -> {
@@ -96,9 +97,15 @@ public class HttpClientVertxTest extends TimedTesting {
         });
 
 
-        webSocket.setOpenConsumer(aVoid -> webSocket.sendText("What do you want on your cheeseburger?"));
+        webSocket.setOpenConsumer(
+                aVoid -> {
+
+                    webSocket.sendText("What do you want on your cheeseburger?");
+                }
+        );
 
         webSocket.open();
+
 
 
         client.flush();
@@ -114,7 +121,7 @@ public class HttpClientVertxTest extends TimedTesting {
     @Test
     public void testNewOpenWaitWebSocket() {
 
-        connect(9090);
+        connect();
 
 
         server.setWebSocketMessageConsumer(webSocketMessage -> {
@@ -160,7 +167,7 @@ public class HttpClientVertxTest extends TimedTesting {
     public void testFormSend() throws Exception {
 
 
-        connect(9090);
+        connect();
 
         final HttpRequest request = new HttpRequestBuilder()
                 .setUri("/services/mockservice/ping")
@@ -209,7 +216,7 @@ public class HttpClientVertxTest extends TimedTesting {
     @Test
     public void testNewOpenWaitWebSocketNewServerStuff() {
 
-        connect(9090);
+        connect();
 
 
         server.setWebSocketOnOpenConsumer(webSocket -> webSocket.setTextMessageConsumer(message -> {
@@ -250,7 +257,7 @@ public class HttpClientVertxTest extends TimedTesting {
     public void testHttpServerClient() throws Exception {
 
 
-        connect(9191);
+        connect();
 
 
         server.setHttpRequestConsumer(request -> {
@@ -280,9 +287,9 @@ public class HttpClientVertxTest extends TimedTesting {
 
     public void run() {
 
-        server.start();
-        client.start();
+        server.startServer();
         Sys.sleep(500);
+        client.startClient();
     }
 
 

@@ -32,7 +32,7 @@ public class SimpleHttpClient {
 
         final HttpClient httpClient = httpClientBuilder().setAutoFlush(true).setPort(9999).build();
 
-        httpClient.start();
+        httpClient.startClient();
 
         final String body = httpClient.get("/hello").body();
 

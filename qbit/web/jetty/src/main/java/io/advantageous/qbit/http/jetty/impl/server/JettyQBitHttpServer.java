@@ -57,6 +57,8 @@ import static io.advantageous.qbit.servlet.QBitServletUtil.setRequestBodyIfNeede
 /**
  * @author rhightower on 2/13/15.
  */
+
+@Deprecated
 public class JettyQBitHttpServer extends SimpleHttpServer {
 
     private final Logger logger = LoggerFactory.getLogger(SimpleHttpServer.class);
@@ -217,7 +219,7 @@ public class JettyQBitHttpServer extends SimpleHttpServer {
         try {
             server.start();
         } catch (Exception ex) {
-            logger.error("Unable to start up Jetty", ex);
+            logger.error("Unable to startClient up Jetty", ex);
         }
     }
 

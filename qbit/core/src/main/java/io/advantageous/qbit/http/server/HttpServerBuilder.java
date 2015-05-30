@@ -26,7 +26,7 @@ import io.advantageous.qbit.system.QBitSystemManager;
 import java.util.function.Consumer;
 
 /**
- * Allows one to build().start() an HTTP server.
+ * Allows one to build().startClient() an HTTP server.
  *
  * @author rhightower
  *         Created by Richard on 11/12/14.

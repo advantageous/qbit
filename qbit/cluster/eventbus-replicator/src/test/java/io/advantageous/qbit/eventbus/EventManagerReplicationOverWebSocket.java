@@ -10,6 +10,7 @@ import io.advantageous.qbit.server.ServiceEndpointServer;
 import io.advantageous.qbit.service.ServiceBundle;
 import io.advantageous.qbit.service.ServiceProxyUtils;
 import io.advantageous.qbit.test.TimedTesting;
+import org.junit.Test;
 
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -27,7 +28,7 @@ public class EventManagerReplicationOverWebSocket extends TimedTesting {
 
 
 
-    //@Test
+    @Test
     public void test() {
 
 

@@ -8,6 +8,8 @@ import java.util.*;
 /**
  * Created by rhightower on 3/9/15.
  */
+
+@Deprecated
 public class JettyHeaderAdapter implements MultiMap<String, String> {
 
     private final HttpFields httpFields;

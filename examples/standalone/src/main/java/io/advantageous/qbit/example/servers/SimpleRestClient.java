@@ -37,10 +37,10 @@ public class SimpleRestClient {
 
     public static void main(String... args) throws Exception {
 
-//       final long start = System.currentTimeMillis();
+//       final long startClient = System.currentTimeMillis();
 //
 //        final HttpClient httpClient = httpClientBuilder().setPoolSize(20)
-//                .setPort(6060).build().start().start();
+//                .setPort(6060).build().startClient().startClient();
 //
 //
 //        for (int index = 0; index < 10; index++) {
@@ -54,11 +54,11 @@ public class SimpleRestClient {
 //
 //        final long stop = System.currentTimeMillis();
 //
-//        puts(count, stop - start);
+//        puts(count, stop - startClient);
 
         final HttpClient httpClient = httpClientBuilder()
                 .setPort(6060).setPoolSize(500).setRequestBatchSize(100).setPipeline(true).setKeepAlive(true)
-                .build().start();
+                .build().startClient();
 
         Sys.sleep(1_000);
 

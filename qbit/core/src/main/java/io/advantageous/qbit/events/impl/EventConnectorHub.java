@@ -47,9 +47,14 @@ public class EventConnectorHub implements EventConnector, Iterable<EventConnecto
     public void remove(EventConnector eventConnector) {
         if (eventConnector != null) {
             try {
+
+                if (eventConnector instanceof RemoteTCPClientProxy) {
+                    final RemoteTCPClientProxy remoteTCPClientProxy = (RemoteTCPClientProxy) eventConnector;
+                    remoteTCPClientProxy.silentClose();
+                }
                 this.eventConnectors.remove(eventConnector);
             } catch (Exception ex) {
-                //already removed
+                logger.error("Unable to remove event connector", ex);
             }
         }
     }

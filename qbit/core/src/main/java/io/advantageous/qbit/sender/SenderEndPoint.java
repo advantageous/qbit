@@ -22,8 +22,11 @@ import io.advantageous.qbit.message.Message;
 import io.advantageous.qbit.message.MethodCall;
 import io.advantageous.qbit.service.BeforeMethodCall;
 import io.advantageous.qbit.service.EndPoint;
+import io.advantageous.qbit.service.Stoppable;
 import io.advantageous.qbit.service.impl.NoOpBeforeMethodCall;
 import io.advantageous.qbit.spi.ProtocolEncoder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -45,6 +48,8 @@ public class SenderEndPoint implements EndPoint {
     private final Sender<String> sender;
     private final BeforeMethodCall beforeMethodCall;
     private final BlockingQueue<MethodCall<Object>> methodCalls;
+
+    private Logger logger = LoggerFactory.getLogger(SenderEndPoint.class);
 
     private final int requestBatchSize;
 
@@ -151,5 +156,14 @@ public class SenderEndPoint implements EndPoint {
         }
 
 
+    }
+
+    public void stop() {
+        try {
+            flush();
+        } catch (Exception ex) {
+            logger.warn("Unable to flush before stop", ex);
+        }
+        sender.stop();
     }
 }

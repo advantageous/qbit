@@ -29,7 +29,7 @@ import java.util.List;
  *
  * @author rhightower
  */
-public interface EndPoint {
+public interface EndPoint extends ServiceFlushable, Stoppable{
 
 
     String address();

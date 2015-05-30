@@ -28,6 +28,8 @@ import io.advantageous.qbit.system.QBitSystemManager;
 /**
  * @author rhightower on 2/13/15.
  */
+
+@Deprecated
 public class JettyHttpServerFactory implements HttpServerFactory {
 
     @Override

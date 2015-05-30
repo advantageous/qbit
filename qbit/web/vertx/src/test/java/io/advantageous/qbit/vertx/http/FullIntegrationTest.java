@@ -177,7 +177,7 @@ public class FullIntegrationTest extends TimedTesting {
 
         clientProxy = client.createProxy(ClientServiceInterface.class, "mockService");
         Sys.sleep(100);
-        httpClient.start();
+        httpClient.startClient();
         Sys.sleep(100);
         client.start();
 

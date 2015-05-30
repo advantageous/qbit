@@ -13,6 +13,7 @@ import io.advantageous.qbit.service.discovery.EndpointDefinition;
 import io.advantageous.qbit.service.discovery.impl.ServiceHealthCheckIn;
 import io.advantageous.qbit.service.discovery.spi.ServiceDiscoveryProvider;
 import io.advantageous.qbit.util.ConcurrentHashSet;
+import io.advantageous.qbit.util.Timer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -21,6 +22,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Queue;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
 
 import static io.advantageous.boon.core.Str.sputs;
 
@@ -34,7 +36,7 @@ public class ConsulServiceDiscoveryProvider implements ServiceDiscoveryProvider 
     private final String consulHost;
     private final int consulPort;
     private final String datacenter;
-    private final String tag;
+    private final String[] tags;
     private final int longPollTimeSeconds;
     private AtomicInteger lastIndex = new AtomicInteger();
 
@@ -43,11 +45,20 @@ public class ConsulServiceDiscoveryProvider implements ServiceDiscoveryProvider 
     private final boolean trace = logger.isTraceEnabled();
 
 
+    /* Used to manage consul retry logic. */
+    private AtomicInteger consulRetryCount = new AtomicInteger();
+    private AtomicLong lastResetTimestamp = new AtomicLong(Timer.clockTime());
+
     private final ThreadLocal<Consul> consulThreadLocal = new ThreadLocal<Consul>(){
         @Override
         protected Consul initialValue() {
             final Consul consul = Consul.consul(consulHost, consulPort);
-            consul.start();
+
+            try {
+                consul.start();
+            } catch (Exception ex) {
+                logger.info("Unable to connect to consul");
+            }
             return consul;
         }
     };
@@ -63,7 +74,12 @@ public class ConsulServiceDiscoveryProvider implements ServiceDiscoveryProvider 
         this.consulHost = consulHost;
         this.consulPort = consulPort;
         this.datacenter = datacenter;
-        this.tag = tag;
+
+        if (tag == null || "".equals(tag) ) {
+            this.tags = new String[]{};
+        } else {
+            this.tags = new String[]{tag};
+        }
         this.longPollTimeSeconds = longPollTimeSeconds;
 
         if (trace) {
@@ -82,7 +98,12 @@ public class ConsulServiceDiscoveryProvider implements ServiceDiscoveryProvider 
 
         for (EndpointDefinition definition : endpointDefinitions) {
             Consul consul = consulThreadLocal.get();
-            consul.agent().deregister(definition.getId());
+
+            try {
+                consul.agent().deregister(definition.getId());
+            }catch (Exception ex) {
+                handleConsulRecovery(consul, ex);
+            }
         }
 
 
@@ -107,17 +128,37 @@ public class ConsulServiceDiscoveryProvider implements ServiceDiscoveryProvider 
                     try {
                         consul.agent().registerService(endpointDefinition.getPort(),
                                 endpointDefinition.getTimeToLive(),
-                                endpointDefinition.getName(), endpointDefinition.getId(), tag);
+                                endpointDefinition.getName(), endpointDefinition.getId(), tags);
                     } catch (Exception ex) {
-
-                        logger.debug("problem running consul register service", ex);
-                        shutDownConsul(consul);
-                        Consul consulNew = Consul.consul(consulHost, consulPort);
-                        consulNew.start();
-                        consulThreadLocal.set(consulNew);
+                        handleConsulRecovery(consul, ex);
                     }
                     endpointDefinition = registerQueue.poll();
             }
+        }
+    }
+
+    private void handleConsulRecovery(Consul consul, Exception ex) {
+        logger.warn("Unable to use consul", ex);
+        if (consulRetryCount.incrementAndGet() > 10) {
+
+            logger.info("Exceeded retry count with consul");
+            final long now = Timer.clockTime();
+            final long duration = now - lastResetTimestamp.get();
+
+            if (duration > 180_000) {
+
+                logger.info("Resetting retry count");
+                lastResetTimestamp.set(now);
+                consulRetryCount.set(0);
+            }
+
+        } else {
+
+            logger.debug("problem running consul register service", ex);
+            shutDownConsul(consul);
+            Consul consulNew = Consul.consul(consulHost, consulPort);
+            consulNew.start();
+            consulThreadLocal.set(consulNew);
         }
     }
 
@@ -142,11 +183,7 @@ public class ConsulServiceDiscoveryProvider implements ServiceDiscoveryProvider 
                     try {
                         consul.agent().checkTtl(checkIn.getServiceId(), status, "" + checkIn.getHealthStatus());
                     }catch (Exception ex) {
-                        logger.debug("problem running consul agent checkTtl", ex);
-                        shutDownConsul(consul);
-                        Consul consulNew = Consul.consul(consulHost, consulPort);
-                        consulNew.start();
-                        consulThreadLocal.set(consulNew);
+                        handleConsulRecovery(consul, ex);
                     }
                     checkIn = checkInsQueue.poll();
             }
@@ -235,6 +272,8 @@ public class ConsulServiceDiscoveryProvider implements ServiceDiscoveryProvider 
         Consul consul = consulThreadLocal.get();
 
         try {
+
+            String tag = tags.length > 1 ? tags[0] : null;
             final ConsulResponse<List<ServiceHealth>> consulResponse = consul.health()
                     .getHealthyServices(serviceName, datacenter, tag, buildRequestOptions());
 
@@ -247,11 +286,7 @@ public class ConsulServiceDiscoveryProvider implements ServiceDiscoveryProvider 
 
         } catch (Exception ex) {
 
-            logger.error("Unable to load service name " + serviceName, ex);
-            shutDownConsul(consul);
-            Consul consulNew = Consul.consul(consulHost, consulPort);
-            consulNew.start();
-            consulThreadLocal.set(consulNew);
+            handleConsulRecovery(consul, ex);
             return Collections.emptyList();
         }
     }

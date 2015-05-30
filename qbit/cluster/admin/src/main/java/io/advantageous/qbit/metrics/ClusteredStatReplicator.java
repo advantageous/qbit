@@ -120,9 +120,7 @@ public class ClusteredStatReplicator implements StatReplicator, ServiceChangedEv
         try {
             statReplicator.getSecond().replicateCount(name, count, now);
         } catch (Exception ex) {
-            if (debug) logger.debug(sputs("ClusteredStatReplicator::Replicator failed"), ex);
-            if (debug) logger.debug(sputs("ClusteredStatReplicator::Replicator failed", statReplicator));
-
+            logger.error(sputs("ClusteredStatReplicator::Replicator failed", statReplicator), ex);
         }
     }
 
@@ -198,7 +196,7 @@ public class ClusteredStatReplicator implements StatReplicator, ServiceChangedEv
 
     private void checkForReconnect() {
         long duration = currentTime - lastReconnectTime;
-        if (duration > 10_000) {
+        if (duration > 60_000) {
             doCheckReconnect();
         }
 
@@ -213,7 +211,7 @@ public class ClusteredStatReplicator implements StatReplicator, ServiceChangedEv
         //services.forEach(serviceDefinition -> addIfNotExists(serviceDefinition));
 
         if ((services.size() - 1) != this.statReplicators.size()) {
-            if (debug) logger.debug(sputs("DOING RECONNECT", services.size() - 1,
+            logger.debug(sputs("DOING RECONNECT", services.size() - 1,
                     this.statReplicators.size()));
 
             shutDownReplicators();
@@ -221,20 +219,7 @@ public class ClusteredStatReplicator implements StatReplicator, ServiceChangedEv
         }
     }
 
-    private void addIfNotExists(EndpointDefinition endpointDefinition) {
-        Pair<EndpointDefinition, StatReplicator> pair = this.replicatorsMap.get(endpointDefinition.getId());
-        if (pair == null) {
-            addService(endpointDefinition);
-        } else {
-            try {
-                if (!pair.getSecond().connected()) {
-                    addService(endpointDefinition);
-                }
-            } catch (Exception ex) {
-                if (debug) logger.debug("Unable to add service or check to see if it is connected", ex);
-            }
-        }
-    }
+
 
     private void shutDownReplicators() {
         if (debug) logger.debug("Shutting down replicators");
@@ -307,9 +292,17 @@ public class ClusteredStatReplicator implements StatReplicator, ServiceChangedEv
 
     private void removeService(final EndpointDefinition endpointDefinition) {
 
-        if (trace) logger.trace(sputs("ClusteredStatReplicator::removeService()",
+        logger.info(sputs("ClusteredStatReplicator::removeService()",
                 serviceName, endpointDefinition));
 
+
+        final Pair<EndpointDefinition, StatReplicator> statReplicatorPair = this.replicatorsMap.get(endpointDefinition.getId());
+
+        try {
+            statReplicatorPair.getSecond().stop();
+        } catch (Exception ex) {
+            logger.error("Unable to stop service endpoint that was removed " + endpointDefinition, ex);
+        }
         this.replicatorsMap.remove(endpointDefinition.getId());
         this.statReplicators = new ArrayList<>(replicatorsMap.values());
     }

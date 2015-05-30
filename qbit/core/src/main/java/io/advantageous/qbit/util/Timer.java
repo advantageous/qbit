@@ -71,7 +71,7 @@ public class Timer {
         }
 
         if (executorContext != null) {
-            throw new IllegalStateException("You can't start a timer twice");
+            throw new IllegalStateException("You can't startClient a timer twice");
         }
 
         executorContext = scheduledExecutorBuilder().setPriority(Thread.MAX_PRIORITY)
@@ -111,8 +111,11 @@ public class Timer {
         return time.get();
     }
 
+    public static long clockTime() {
+        return timer().now();
+    }
+
     public long now() {
         return time.get();
     }
-
 }

@@ -134,7 +134,7 @@ public class BasicQueue<T> implements Queue<T> {
     public void startListener(final ReceiveQueueListener<T> listener) {
 
         if (executorContext != null) {
-            throw new IllegalStateException("Queue.startListener::Unable to start up twice: " + name);
+            throw new IllegalStateException("Queue.startListener::Unable to startClient up twice: " + name);
         }
 
         this.executorContext = scheduledExecutorBuilder()

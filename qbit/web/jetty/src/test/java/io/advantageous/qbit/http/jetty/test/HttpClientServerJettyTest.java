@@ -38,6 +38,7 @@ import static io.advantageous.boon.core.IO.puts;
 /**
  * @author rhightower on 2/15/15.
  */
+@Deprecated
 public class HttpClientServerJettyTest {
     AtomicBoolean  requestReceived;
     AtomicBoolean responseReceived;
@@ -64,7 +65,7 @@ public class HttpClientServerJettyTest {
     }
 
 
-    @Test
+    //@Test
     public void testWebSocket() {
 
         connect(9090);
@@ -111,7 +112,7 @@ public class HttpClientServerJettyTest {
     }
 
 
-    @Test
+    //@Test
     public void testNewOpenWaitWebSocket() {
 
         connect(9090);
@@ -156,7 +157,7 @@ public class HttpClientServerJettyTest {
 
     }
 
-    @Test
+    //@Test
     public void testNewOpenWaitWebSocketNewServerStuff() {
 
         connect(9090);
@@ -232,7 +233,7 @@ public class HttpClientServerJettyTest {
     public void run() {
 
         server.start();
-        client.start();
+        client.startClient();
         Sys.sleep(500);
     }
 
