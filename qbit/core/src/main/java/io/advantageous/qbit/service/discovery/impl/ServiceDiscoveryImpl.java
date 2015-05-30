@@ -1,5 +1,6 @@
 package io.advantageous.qbit.service.discovery.impl;
 
+import io.advantageous.boon.core.Sys;
 import io.advantageous.qbit.GlobalConstants;
 import io.advantageous.qbit.QBit;
 import io.advantageous.qbit.concurrent.PeriodicScheduler;
@@ -329,6 +330,8 @@ public class ServiceDiscoveryImpl implements ServiceDiscovery {
                             populateServiceMap(serviceNameToFetch, healthyServices);
                             serviceNamesBeingLoaded.remove(serviceNameToFetch);
                         } catch (Exception ex) {
+
+                            Sys.sleep(10_000); //primary is down so slow it down
                             if (backupProvider!=null) {
 
                                 if (debug) logger.debug("ServiceDiscoveryImpl::loadHealthyServices " +
