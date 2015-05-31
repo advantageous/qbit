@@ -61,17 +61,19 @@ public class BoonEventManager implements EventManager {
     private long flushCount = 0;
     private long lastFlushTime = 0;
     private long now;
+    private final String name;
 
-    public BoonEventManager(final EventConnector eventConnector) {
+    public BoonEventManager(final String name, final EventConnector eventConnector) {
 
+        this.name = name;
         eventBus = new EventBusImpl(eventConnector);
 
     }
 
 
-    public BoonEventManager() {
+    public BoonEventManager(final String name) {
 
-
+        this.name = name;
         eventBus = new EventBusImpl();
 
     }
@@ -407,5 +409,10 @@ public class BoonEventManager implements EventManager {
     public <T> void forwardEvent(final EventTransferObject<Object> event) {
         messageCountSinceLastFlush++;
         eventBus.forwardEvent(event);
+    }
+
+    @Override
+    public String toString() {
+        return name + " " + super.toString();
     }
 }

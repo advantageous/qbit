@@ -37,14 +37,19 @@ public class EventManagerBuilder {
         return this;
     }
 
+
     public EventManager build() {
+        return build("no_name");
+    }
+
+    public EventManager build(final String name) {
         if (eventConnector == null) {
-            return QBit.factory().createEventManager();
+            return QBit.factory().createEventManager(name);
 
         } else {
 
             if (eventConnectorPredicates.size()==0) {
-                return QBit.factory().createEventManagerWithConnector(eventConnector);
+                return QBit.factory().createEventManagerWithConnector(name, eventConnector);
             } else {
 
                 Predicate<Event<Object>> mainPredicate = eventConnectorPredicates.get(0);
@@ -52,7 +57,7 @@ public class EventManagerBuilder {
                 for (int index = 1; index < eventConnectorPredicates.size(); index++) {
                     mainPredicate = mainPredicate.and(eventConnectorPredicates.get(index));
                 }
-                return QBit.factory().createEventManagerWithConnector(
+                return QBit.factory().createEventManagerWithConnector(name,
                         new ConditionalEventConnector(mainPredicate, eventConnector));
             }
 

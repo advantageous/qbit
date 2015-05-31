@@ -47,20 +47,20 @@ public class EventManagerBuilderTest {
 
         eventManagerFactory = new EventManagerFactory() {
             @Override
-            public EventManager createEventManager() {
+            public EventManager createEventManager(String name) {
                 return eventManager;
             }
 
             @Override
-            public EventManager createEventManagerWithConnector(final EventConnector eventConnector) {
+            public EventManager createEventManagerWithConnector(String name, final EventConnector eventConnector) {
 
-                return createEventManagerConnectorShortCut(eventConnector);
+                return createEventManagerConnectorShortCut(name, eventConnector);
             }
         };
 
         factory = mock(Factory.class);
 
-        when(factory.createEventManager()).thenReturn(eventManagerFactory.createEventManager());
+        when(factory.createEventManager("foo")).thenReturn(eventManagerFactory.createEventManager("foo"));
 
 
         FactorySPI.setFactory(factory);
@@ -76,15 +76,15 @@ public class EventManagerBuilderTest {
 
         EventConnector eventConnector = event -> eventRef.set(event);
 
-        when(factory.createEventManagerWithConnector(eventConnector)).thenReturn(
-                createEventManagerConnectorShortCut(eventConnector)
+        when(factory.createEventManagerWithConnector("foo", eventConnector)).thenReturn(
+                createEventManagerConnectorShortCut("foo", eventConnector)
         );
 
 
         eventManagerBuilder.setEventConnector(eventConnector);
 
 
-        EventManager build = eventManagerBuilder.build();
+        EventManager build = eventManagerBuilder.build("foo");
 
         build.forwardEvent(testEvent);
 
@@ -106,8 +106,8 @@ public class EventManagerBuilderTest {
         factory = new Factory() {
 
             @Override
-            public EventManager createEventManagerWithConnector(EventConnector eventConnector) {
-                return createEventManagerConnectorShortCut(eventConnector);
+            public EventManager createEventManagerWithConnector(String name, EventConnector eventConnector) {
+                return createEventManagerConnectorShortCut("foo", eventConnector);
             }
         };
 
@@ -121,7 +121,7 @@ public class EventManagerBuilderTest {
 
         eventManagerBuilder.addEventConnectorPredicate(objectEvent -> false);
 
-        EventManager build = eventManagerBuilder.build();
+        EventManager build = eventManagerBuilder.build("foo");
 
         build.forwardEvent(testEvent);
 
@@ -143,8 +143,8 @@ public class EventManagerBuilderTest {
         factory = new Factory() {
 
             @Override
-            public EventManager createEventManagerWithConnector(EventConnector eventConnector) {
-                return createEventManagerConnectorShortCut(eventConnector);
+            public EventManager createEventManagerWithConnector(String name, EventConnector eventConnector) {
+                return createEventManagerConnectorShortCut(name, eventConnector);
             }
         };
 
@@ -158,7 +158,7 @@ public class EventManagerBuilderTest {
 
         eventManagerBuilder.addEventConnectorPredicate(objectEvent -> true);
 
-        EventManager build = eventManagerBuilder.build();
+        EventManager build = eventManagerBuilder.build("foo");
 
         build.forwardEvent(testEvent);
 
@@ -180,8 +180,8 @@ public class EventManagerBuilderTest {
         factory = new Factory() {
 
             @Override
-            public EventManager createEventManagerWithConnector(EventConnector eventConnector) {
-                return createEventManagerConnectorShortCut(eventConnector);
+            public EventManager createEventManagerWithConnector(String name, EventConnector eventConnector) {
+                return createEventManagerConnectorShortCut(name, eventConnector);
             }
         };
 
@@ -197,7 +197,7 @@ public class EventManagerBuilderTest {
 
         eventManagerBuilder.addEventConnectorPredicate(objectEvent -> true);
 
-        EventManager build = eventManagerBuilder.build();
+        EventManager build = eventManagerBuilder.build("foo");
 
         build.forwardEvent(testEvent);
 
@@ -219,8 +219,8 @@ public class EventManagerBuilderTest {
         factory = new Factory() {
 
             @Override
-            public EventManager createEventManagerWithConnector(EventConnector eventConnector) {
-                return createEventManagerConnectorShortCut(eventConnector);
+            public EventManager createEventManagerWithConnector(String name, EventConnector eventConnector) {
+                return createEventManagerConnectorShortCut(name, eventConnector);
             }
         };
 
@@ -238,7 +238,7 @@ public class EventManagerBuilderTest {
 
         eventManagerBuilder.addEventConnectorPredicate(objectEvent -> false);
 
-        EventManager build = eventManagerBuilder.build();
+        EventManager build = eventManagerBuilder.build("foo");
 
         build.forwardEvent(testEvent);
 
@@ -250,7 +250,7 @@ public class EventManagerBuilderTest {
 
 
 
-    private EventManager createEventManagerConnectorShortCut(final EventConnector eventConnector) {
+    private EventManager createEventManagerConnectorShortCut(final String name, final EventConnector eventConnector) {
         return new EventManager(){
 
         @Override

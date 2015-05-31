@@ -145,7 +145,7 @@ public class BoonQBitFactory implements Factory {
         EventManager proxy;
         if ( systemEventManager.get() == null ) {
             final ServiceQueue serviceQueue = serviceBuilder().setInvokeDynamic(false)
-                    .setServiceObject(createEventManager()).build().start();
+                    .setServiceObject(createEventManager("QBIT_SYSTEM")).build().start();
 
             systemEventManager.set(serviceQueue);
             proxy = serviceQueue.createProxyWithAutoFlush(EventManager.class, 100, TimeUnit.MILLISECONDS);
@@ -233,15 +233,15 @@ public class BoonQBitFactory implements Factory {
     }
 
     @Override
-    public EventManager createEventManager() {
+    public EventManager createEventManager(final String name) {
 
-        return FactorySPI.getEventManagerFactory().createEventManager();
+        return FactorySPI.getEventManagerFactory().createEventManager(name);
     }
 
 
     @Override
-    public EventManager createEventManagerWithConnector(final EventConnector eventConnector) {
-        return FactorySPI.getEventManagerFactory().createEventManagerWithConnector( eventConnector );
+    public EventManager createEventManagerWithConnector(final String name, final EventConnector eventConnector) {
+        return FactorySPI.getEventManagerFactory().createEventManagerWithConnector( name, eventConnector );
     }
 
     @Override

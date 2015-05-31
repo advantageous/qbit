@@ -133,7 +133,7 @@ public class EventBusCluster implements Startable, Stoppable {
     }
 
     private EventManager createEventManager() {
-        eventManagerImpl = eventManagerBuilder().setEventConnector(eventConnectorHub).build();
+        eventManagerImpl = eventManagerBuilder().setEventConnector(eventConnectorHub).build("foo");
         eventServiceQueue = serviceBuilder().setServiceObject(eventManagerImpl).build();
 
         return eventServiceQueue.createProxyWithAutoFlush(

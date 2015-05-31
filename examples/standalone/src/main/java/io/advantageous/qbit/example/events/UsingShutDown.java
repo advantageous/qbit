@@ -47,7 +47,7 @@ public class UsingShutDown {
 
 
         /* Create you own private event bus. */
-        EventManager privateEventBus = QBit.factory().createEventManager();
+        EventManager privateEventBus = QBit.factory().createEventManager("foo");
 
 
         final EventBusProxyCreator eventBusProxyCreator =

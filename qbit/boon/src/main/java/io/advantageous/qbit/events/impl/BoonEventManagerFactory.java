@@ -26,13 +26,13 @@ import io.advantageous.qbit.events.spi.EventManagerFactory;
 public class BoonEventManagerFactory implements EventManagerFactory {
 
     @Override
-    public EventManager createEventManager() {
-        return new BoonEventManager();
+    public EventManager createEventManager(final String name) {
+        return new BoonEventManager(name);
     }
 
     @Override
-    public EventManager createEventManagerWithConnector(EventConnector eventConnector) {
-        return new BoonEventManager(eventConnector);
+    public EventManager createEventManagerWithConnector(final String name,
+                                                        final EventConnector eventConnector) {
+        return new BoonEventManager(name, eventConnector);
     }
-
 }
