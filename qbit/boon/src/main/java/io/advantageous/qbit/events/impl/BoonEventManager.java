@@ -28,17 +28,17 @@ import io.advantageous.qbit.annotation.AnnotationUtils;
 import io.advantageous.qbit.annotation.QueueCallback;
 import io.advantageous.qbit.annotation.QueueCallbackType;
 import io.advantageous.qbit.events.*;
+import io.advantageous.qbit.events.EventListener;
 import io.advantageous.qbit.events.spi.EventConnector;
 import io.advantageous.qbit.events.spi.EventTransferObject;
 import io.advantageous.qbit.message.Event;
 import io.advantageous.qbit.queue.SendQueue;
 import io.advantageous.qbit.service.ServiceQueue;
 import io.advantageous.qbit.util.Timer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 import static io.advantageous.boon.core.IO.puts;
@@ -53,9 +53,12 @@ import static io.advantageous.qbit.service.ServiceContext.serviceContext;
 public class BoonEventManager implements EventManager {
 
 
+    private final Logger logger = LoggerFactory.getLogger(BoonEventManager.class);
+
     private final EventBus eventBus;
     private final Map<String, List<Object>> eventMap = new ConcurrentHashMap<>();
     private final List<SendQueue<Event<Object>>> queuesToFlush = new ArrayList<>(100);
+    private final HashSet<ServiceQueue> services = new HashSet<>();
     private final boolean debug = GlobalConstants.DEBUG;
     private int messageCountSinceLastFlush = 0;
     private long flushCount = 0;
@@ -170,14 +173,19 @@ public class BoonEventManager implements EventManager {
     @Override
     public void joinService(final ServiceQueue serviceQueue) {
 
-        if (debug) {
 
-            puts("Joined", serviceQueue);
+        if (services.contains(serviceQueue)) {
+            logger.info("EventManager::joinService: Service queue " +
+                    "is already a member of this event manager " + serviceQueue.name());
+            return;
         }
 
-        if (serviceQueue == null) {
-            throw new IllegalStateException("Must be called from inside of a Service");
-        }
+
+        services.add(serviceQueue);
+
+
+        logger.info("EventManager::joinService::  {} joined {}", serviceQueue.name(), name);
+
 
         doListen(serviceQueue.service(), serviceQueue);
     }
@@ -193,6 +201,8 @@ public class BoonEventManager implements EventManager {
 
 
         stopListening(serviceQueue.service());
+
+        services.remove(serviceQueue);
     }
 
 
@@ -252,7 +262,7 @@ public class BoonEventManager implements EventManager {
                 if (serviceQueue == null) {
                     extractListenerForRegularObject(listener, methodAccess, channelName, false);
                 } else {
-                    extractListenerForService(serviceQueue, methodAccess, channelName, false);
+                    extractListenerForService(serviceQueue, channelName, false);
                 }
             }
 
@@ -269,12 +279,12 @@ public class BoonEventManager implements EventManager {
         if (serviceQueue == null) {
             extractListenerForRegularObject(listener, methodAccess, channel, consume);
         } else {
-            extractListenerForService(serviceQueue, methodAccess, channel, consume);
+            extractListenerForService(serviceQueue,  channel, consume);
         }
     }
 
 
-    private void extractListenerForService(ServiceQueue serviceQueue, final MethodAccess methodAccess, final String channel, final boolean consume) {
+    private void extractListenerForService(ServiceQueue serviceQueue,  final String channel, final boolean consume) {
 
         final SendQueue<Event<Object>> events = serviceQueue.events();
         if (consume) {

@@ -47,22 +47,22 @@ public class EmployeeEventExampleUsingSystemEventBus {
 
         ServiceQueue employeeHiringServiceQueue = serviceBuilder()
                 .setServiceObject(employeeHiring)
-                .setInvokeDynamic(false).build().start();
+                .setInvokeDynamic(false).build().startServiceQueue();
 
 
         ServiceQueue payrollServiceQueue = serviceBuilder()
                 .setServiceObject(payroll)
-                .setInvokeDynamic(false).build().start();
+                .setInvokeDynamic(false).build().startServiceQueue();
 
 
         ServiceQueue employeeBenefitsServiceQueue = serviceBuilder()
                 .setServiceObject(benefits)
-                .setInvokeDynamic(false).build().start();
+                .setInvokeDynamic(false).build().startServiceQueue();
 
 
         ServiceQueue volunteeringServiceQueue = serviceBuilder()
                 .setServiceObject(volunteering)
-                .setInvokeDynamic(false).build().start();
+                .setInvokeDynamic(false).build().startServiceQueue();
 
         EmployeeHiringServiceClient employeeHiringServiceClientProxy = employeeHiringServiceQueue.createProxy(EmployeeHiringServiceClient.class);
 

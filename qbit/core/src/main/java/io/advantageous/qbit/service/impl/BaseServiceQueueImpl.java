@@ -67,6 +67,7 @@ import java.lang.reflect.Proxy;
 import java.util.Collection;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.locks.ReentrantLock;
 
 import static io.advantageous.qbit.QBit.factory;
@@ -79,11 +80,13 @@ public class BaseServiceQueueImpl implements ServiceQueue {
     private static ThreadLocal<ServiceQueue> serviceThreadLocal = new ThreadLocal<>();
     protected final QBitSystemManager systemManager;
     protected final Logger logger = LoggerFactory.getLogger(ServiceQueueImpl.class);
-    protected final boolean debug = false || GlobalConstants.DEBUG || logger.isDebugEnabled();
+    protected final boolean debug = logger.isDebugEnabled();
     protected final Object service;
     protected final Queue<Response<Object>> responseQueue;
     protected final Queue<MethodCall<Object>> requestQueue;
     protected final Queue<Event<Object>> eventQueue;
+
+    private AtomicBoolean started = new AtomicBoolean(false);
 
     protected final QueueBuilder requestQueueBuilder;
     protected final QueueBuilder responseQueueBuilder;
@@ -128,9 +131,8 @@ public class BaseServiceQueueImpl implements ServiceQueue {
 
 
         if (responseQueue == null) {
-            if (debug) {
-                System.out.println("RESPONSE QUEUE WAS NULL CREATING ONE");
-            }
+
+            logger.info("RESPONSE QUEUE WAS NULL CREATING ONE for service");
             this.responseQueue = this.responseQueueBuilder.setName("Response Queue  " + serviceMethodHandler.address()).build();
         } else {
             this.responseQueue = responseQueue;
@@ -154,7 +156,13 @@ public class BaseServiceQueueImpl implements ServiceQueue {
     }
 
     @Override
-    public ServiceQueue start() {
+    public void start() {
+
+        start(serviceMethodHandler, true);
+
+    }
+
+    public ServiceQueue startServiceQueue() {
 
         start(serviceMethodHandler, true);
         return this;
@@ -314,6 +322,14 @@ public class BaseServiceQueueImpl implements ServiceQueue {
     private void start(final ServiceMethodHandler serviceMethodHandler,
                        final boolean joinEventManager) {
 
+        if (started.get()) {
+            logger.warn("Service {} already started. It will not start twice.", name());
+            return;
+        }
+
+        logger.info("Starting service {}", name());
+        started.set(true);
+
         final ReceiveQueue<Response<Object>> responseReceiveQueue =
                 this.handleCallbacks ?
                         responseQueue.receiveQueue() : null;
@@ -325,7 +341,7 @@ public class BaseServiceQueueImpl implements ServiceQueue {
         final ReceiveQueue<Event<Object>> eventReceiveQueue =
                 eventQueue.receiveQueue();
 
-        serviceThreadLocal.set(BaseServiceQueueImpl.this);
+        serviceThreadLocal.set(this);
 
         if (!(service instanceof EventManager)) {
             if (joinEventManager) {
@@ -470,6 +486,8 @@ public class BaseServiceQueueImpl implements ServiceQueue {
     @Override
     public void stop() {
 
+
+        started.set(false);
         try {
             if (requestQueue != null) requestQueue.stop();
         } catch (Exception ex) {
@@ -504,6 +522,7 @@ public class BaseServiceQueueImpl implements ServiceQueue {
 
     public <T> T createProxyWithAutoFlush(Class<T> serviceInterface, int interval, TimeUnit timeUnit) {
 
+
         final SendQueue<MethodCall<Object>> methodCallSendQueue = requestQueue.sendQueueWithAutoFlush(interval, timeUnit);
         methodCallSendQueue.start();
         return proxy(serviceInterface, methodCallSendQueue);
@@ -531,6 +550,9 @@ public class BaseServiceQueueImpl implements ServiceQueue {
     private <T> T proxy(Class<T> serviceInterface, final SendQueue<MethodCall<Object>> methodCallSendQueue) {
 
         final String uuid = UUID.randomUUID().toString();
+        if (!started.get()) {
+            logger.warn("ServiceQueue::create(...), A proxy is being asked for a service that is not started ", name());
+        }
         InvocationHandler invocationHandler = new InvocationHandler() {
 
             private long messageId = 0;

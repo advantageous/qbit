@@ -28,11 +28,12 @@
         <appender-ref ref="STDOUT"/>
     </root>
 
+    <!--
 
     <logger name="io.advantageous.qbit.metrics" level="INFO"/>
 
     <logger name="io.advantageous.consul.discovery" level="INFO"/>
-
+    -->
 
 
 </configuration>

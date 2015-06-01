@@ -42,7 +42,8 @@ public class ServiceImplTest {
 
     @Before
     public void setup() {
-        serviceQueue = new ServiceBuilder().setServiceObject(new MockService()).setInvokeDynamic(false).build().start();
+        serviceQueue = new ServiceBuilder().setServiceObject(
+                new MockService()).setInvokeDynamic(false).build().startServiceQueue();
 
         proxy = serviceQueue.createProxy(MockServiceInterface.class);
         ok = true;

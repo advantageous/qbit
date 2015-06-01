@@ -56,7 +56,7 @@ public class InProcExample {
          */
         final ServiceQueue serviceQueue = serviceBuilder()
                 .setServiceObject(todoManagerImpl)
-                .build().start();
+                .build().startServiceQueue();
 
 
         /* Create Asynchronous proxy over Synchronous service. */
@@ -118,7 +118,7 @@ public class InProcExample {
         final ServiceQueue serviceQueue = serviceBuilder()
                 .setRequestQueueBuilder(queueBuilder().setBatchSize(1))
                 .setServiceObject(todoManagerImpl).setInvokeDynamic(false)
-                .build().start();
+                .build().startServiceQueue();
 
 
         /* Create Asynchronous proxy over Synchronous service. */

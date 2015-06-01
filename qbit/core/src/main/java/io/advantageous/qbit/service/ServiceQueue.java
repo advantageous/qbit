@@ -33,7 +33,7 @@ import java.util.concurrent.TimeUnit;
  *
  * @author rhightower
  */
-public interface ServiceQueue extends Stoppable, ServiceFlushable {
+public interface ServiceQueue extends Stoppable, ServiceFlushable, Startable {
 
     Object service();
 
@@ -105,7 +105,7 @@ public interface ServiceQueue extends Stoppable, ServiceFlushable {
     void flush();
 
 
-    default ServiceQueue start() {
+    default ServiceQueue startServiceQueue() {
         return this;
     }
 

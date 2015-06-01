@@ -45,6 +45,8 @@ public class Services {
     }
 
     public static ServiceQueue regularService(final String name, Object service, int waitTime, TimeUnit timeUnit, int batchSize) {
-        return new ServiceQueueImpl(null, name, service, new QueueBuilder(), new QueueBuilder(), new BoonServiceMethodCallHandler(true), null, true, false, null).start();
+        return new ServiceQueueImpl(null, name, service, new QueueBuilder(),
+                new QueueBuilder(),
+                new BoonServiceMethodCallHandler(true), null, true, false, null).startServiceQueue();
     }
 }

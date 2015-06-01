@@ -277,6 +277,6 @@ public class ServiceBuilder {
     @Deprecated
     public ServiceQueue buildAndStart() {
 
-        return build().start();
+        return build().startServiceQueue();
     }
 }

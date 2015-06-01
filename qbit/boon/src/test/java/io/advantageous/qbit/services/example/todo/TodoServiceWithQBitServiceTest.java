@@ -48,7 +48,8 @@ public class TodoServiceWithQBitServiceTest {
     public void testCallbackWithObjectNameAndMethodName() {
 
 
-        ServiceQueue serviceQueue = QBit.factory().createService("/services", "/todo-service", new TodoService(), null, null).start();
+        ServiceQueue serviceQueue = QBit.factory().createService("/services", "/todo-service",
+                new TodoService(), null, null).startServiceQueue();
 
 
         SendQueue<MethodCall<Object>> requests = serviceQueue.requests();
@@ -97,7 +98,7 @@ public class TodoServiceWithQBitServiceTest {
                                     .setServiceObject(new TodoService())
                                     .build();
 
-        serviceQueue.start().startCallBackHandler();
+        serviceQueue.startServiceQueue().startCallBackHandler();
 
         TodoServiceClient todoServiceClient =
                 serviceQueue.createProxyWithAutoFlush(TodoServiceClient.class, 50, TimeUnit.MILLISECONDS);
@@ -119,7 +120,8 @@ public class TodoServiceWithQBitServiceTest {
     public void testCallbackWithAddress() {
 
 
-        ServiceQueue serviceQueue = QBit.factory().createService("/services", "/todo-service", new TodoService(), null, null).start();
+        ServiceQueue serviceQueue = QBit.factory().createService("/services",
+                "/todo-service", new TodoService(), null, null).startServiceQueue();
 
         SendQueue<MethodCall<Object>> requests = serviceQueue.requests();
 

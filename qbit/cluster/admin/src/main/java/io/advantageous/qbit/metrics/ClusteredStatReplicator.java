@@ -255,14 +255,12 @@ public class ClusteredStatReplicator implements StatReplicator, ServiceChangedEv
      */
     @Override
     public void servicePoolChanged(final String serviceName) {
-
-        if (trace) logger.trace(sputs("ClusteredStatReplicator::servicePoolChanged()", serviceName));
+        logger.info("ClusteredStatReplicator::servicePoolChanged({})", serviceName);
         if (this.serviceName.equals(serviceName)) {
             updateServicePool(serviceName);
-
         } else {
-            if (debug) logger.debug(sputs("ClusteredStatReplicator::servicePoolChanged()",
-                    "got event for another service", serviceName));
+            logger.info("ClusteredStatReplicator::servicePoolChanged({})",
+                    "got event for another service", serviceName);
         }
 
 

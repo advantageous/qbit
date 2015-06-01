@@ -19,6 +19,7 @@
 package io.advantageous.qbit.metrics.support;
 
 import io.advantageous.qbit.metrics.StatReplicator;
+import io.advantageous.qbit.service.ServiceFlushable;
 import io.advantageous.qbit.service.discovery.ServiceChangedEventChannel;
 
 import java.util.List;
@@ -68,4 +69,14 @@ public class ReplicatorHub implements StatReplicator, ServiceChangedEventChannel
         }
 
     }
+
+
+    public void flush() {
+
+
+        for (StatReplicator replicator : list) {
+                replicator.flush();
+        }
+    }
+
 }

@@ -48,7 +48,7 @@ public class EmployeeEventExampleUsingStandaloneEventBus {
         /* Create a service queue for this event bus. */
         ServiceQueue privateEventBusServiceQueue = serviceBuilder()
                 .setServiceObject(privateEventBus)
-                .setInvokeDynamic(false).build().start();
+                .setInvokeDynamic(false).build().startServiceQueue();
 
         /*
          Create a proxy client for the queued event bus service.

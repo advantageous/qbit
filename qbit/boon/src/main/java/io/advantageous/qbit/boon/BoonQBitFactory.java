@@ -145,7 +145,7 @@ public class BoonQBitFactory implements Factory {
         EventManager proxy;
         if ( systemEventManager.get() == null ) {
             final ServiceQueue serviceQueue = serviceBuilder().setInvokeDynamic(false)
-                    .setServiceObject(createEventManager("QBIT_SYSTEM")).build().start();
+                    .setServiceObject(createEventManager("QBIT_SYSTEM")).build().startServiceQueue();
 
             systemEventManager.set(serviceQueue);
             proxy = serviceQueue.createProxyWithAutoFlush(EventManager.class, 100, TimeUnit.MILLISECONDS);

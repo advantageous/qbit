@@ -101,7 +101,9 @@ public class BoonEventManagerTest extends TimedTesting {
 
         final MyService myService = new MyService();
 
-        ServiceQueue consumerServiceQueue = serviceBuilder().setServiceObject(myServiceConsumer).setInvokeDynamic(false).build().start();
+        ServiceQueue consumerServiceQueue = serviceBuilder()
+                .setServiceObject(myServiceConsumer)
+                .setInvokeDynamic(false).build().startServiceQueue();
 
         clientProxy.clientProxyFlush();
 
@@ -124,7 +126,8 @@ public class BoonEventManagerTest extends TimedTesting {
 
 
         Sys.sleep(100);
-        ServiceQueue senderServiceQueue = serviceBuilder().setServiceObject(myService).setInvokeDynamic(false).build().start();
+        ServiceQueue senderServiceQueue = serviceBuilder().setServiceObject(myService)
+                .setInvokeDynamic(false).build().startServiceQueue();
 
         final MyServiceClient clientProxy = senderServiceQueue.createProxy(MyServiceClient.class);
 
