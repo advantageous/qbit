@@ -46,6 +46,7 @@
 package io.advantageous.qbit.service.impl;
 
 import io.advantageous.boon.core.reflection.BeanUtils;
+import io.advantageous.qbit.Factory;
 import io.advantageous.qbit.GlobalConstants;
 import io.advantageous.qbit.client.ClientProxy;
 import io.advantageous.qbit.concurrent.PeriodicScheduler;
@@ -105,6 +106,8 @@ public class BaseServiceQueueImpl implements ServiceQueue {
     private Transformer<Response<Object>, Response> responseObjectTransformer = new NoOpResponseTransformer();
     private CallbackManager callbackManager;
 
+    private final Factory factory;
+
     public BaseServiceQueueImpl(final String rootAddress,
                                 final String serviceAddress,
                                 final Object service,
@@ -147,6 +150,8 @@ public class BaseServiceQueueImpl implements ServiceQueue {
         this.handleCallbacks = handleCallbacks;
         this.requestQueue = initRequestQueue(serviceMethodHandler, async);
         this.systemManager = systemManager;
+
+        this.factory = factory();
 
 
     }
@@ -422,10 +427,10 @@ public class BaseServiceQueueImpl implements ServiceQueue {
     }
 
     private void flushEventManagerCalls() {
-        final EventManager eventManager = factory().eventManagerProxy();
+        final EventManager eventManager = factory.eventManagerProxy();
         if (eventManager != null) {
             ServiceProxyUtils.flushServiceProxy(eventManager);
-            factory().clearEventManagerProxy();
+            factory.clearEventManagerProxy();
         }
     }
 

@@ -29,6 +29,7 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -38,7 +39,7 @@ public class HttpRequestServiceServerHandlerUsingMetaImpl implements HttpRequest
 
 
     private final int timeoutInSeconds;
-    private long lastTimeoutCheckTime;
+    private final AtomicLong lastTimeoutCheckTime = new AtomicLong();
     private long lastFlushTime;
     private final int numberOfOutstandingRequests;
     private final SendQueue<MethodCall<Object>> methodCallSendQueue;
@@ -49,7 +50,6 @@ public class HttpRequestServiceServerHandlerUsingMetaImpl implements HttpRequest
     private Map<RequestMethod, StandardMetaDataProvider> metaDataProviderMap = new ConcurrentHashMap<>();
     private final Map<String, Request<Object>> outstandingRequestMap = new ConcurrentHashMap<>(100_000);
 
-    private final ExecutorService executorService = Executors.newFixedThreadPool(5);
 
     private final Logger logger = LoggerFactory.getLogger(HttpRequestServiceServerHandlerUsingMetaImpl.class);
     private final boolean debug = GlobalConstants.DEBUG || logger.isDebugEnabled();
@@ -82,7 +82,7 @@ public class HttpRequestServiceServerHandlerUsingMetaImpl implements HttpRequest
                                                         final int numberOfOutstandingRequests,
                                                int flushInterval) {
         this.timeoutInSeconds = timeoutInSeconds;
-        lastTimeoutCheckTime = Timer.timer().now() + (timeoutInSeconds * 1000);
+        lastTimeoutCheckTime.set(Timer.timer().now() + (timeoutInSeconds * 1000));
         this.numberOfOutstandingRequests = numberOfOutstandingRequests;
         this.jsonMapper = jsonMapper;
 
@@ -180,8 +180,12 @@ public class HttpRequestServiceServerHandlerUsingMetaImpl implements HttpRequest
     @Override
     public void checkTimeoutsForRequests() {
 
+//        if (outstandingRequestMap.size()==0) {
+//            return;
+//        }
+
         final long now = Timer.timer().now();
-        final long durationSinceLastCheck = now - lastTimeoutCheckTime;
+        final long durationSinceLastCheck = now - lastTimeoutCheckTime.get();
         final long timeoutInMS = timeoutInSeconds * 1000;
         final boolean timedOut = durationSinceLastCheck > timeoutInMS;
 
@@ -190,65 +194,42 @@ public class HttpRequestServiceServerHandlerUsingMetaImpl implements HttpRequest
             return;
         }
 
+        lastTimeoutCheckTime.set(now);
 
-        if (debug) {
-            puts("Checking for timeout. ", " duration ", durationSinceLastCheck, " ms timeout ", timeoutInMS);
-        }
+        long duration;
 
-        executorService.submit(new Runnable() {
-            @Override
-            public void run() {
-                lastTimeoutCheckTime = now;
-                long duration;
 
-                final Set<Map.Entry<String, Request<Object>>> entries = outstandingRequestMap.entrySet();
+        final Set<Map.Entry<String, Request<Object>>> entries = outstandingRequestMap.entrySet();
 
-                for (Map.Entry<String, Request<Object>> requestEntry : entries) {
-                    final Request<Object> request = requestEntry.getValue();
-                    duration = now - request.timestamp();
+        for (Map.Entry<String, Request<Object>> requestEntry : entries) {
 
-                    if (duration > timeoutInMS) {
-                        if (!request.isHandled()) {
-                            if (debug) {
-                                puts("Request timed out.", "duration", duration, "ms timeout", timeoutInMS);
-                            }
-                            handleMethodTimedOut(requestEntry.getKey(), request);
-                        }
-                    }
-                }
+            final Request<Object> request = requestEntry.getValue();
+            final String key = requestEntry.getKey();
 
+            if (request.isHandled()) {
+                request.handled();
+                outstandingRequestMap.remove(key);
+                continue;
             }
-        });
 
+            duration = now - request.timestamp();
 
-    }
-
-
-
-
-    /**
-     * Handle a method timeout.
-     *
-     * @param request request
-     */
-    private void handleMethodTimedOut(String key, final Request<Object> request) {
-        this.outstandingRequestMap.remove(key);
-        if (request.isHandled()) {
-            return;
-        }
-        request.handled();
-
-        final HttpResponseReceiver httpResponse = ((HttpRequest) request).getReceiver();
-
-        try {
-            httpResponse.response(408, "application/json", "\"timed out\"");
-        } catch (Exception ex) {
-            logger.debug("Response not marked handled and it timed out, but could not be written " + request, ex);
+            if (duration > timeoutInMS) {
+                final HttpResponseReceiver httpResponse = ((HttpRequest) request).getReceiver();
+                try {
+                    httpResponse.response(408, "application/json", "\"timed out\"");
+                } catch (Exception ex) {
+                    logger.debug("Response not marked handled and it timed out, but could not be written " + request, ex);
+                }
+            }
         }
     }
+
+
+
 
     @Override
-    public void handleResponseFromServiceToHttpResponse(Response<Object> response, HttpRequest originatingRequest) {
+    public void handleResponseFromServiceToHttpResponse(final Response<Object> response, final HttpRequest originatingRequest) {
 
         String key = Str.add("" + originatingRequest.id(), "|", originatingRequest.returnAddress());
         this.outstandingRequestMap.remove(key);

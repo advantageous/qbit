@@ -25,6 +25,12 @@ public class MyServiceQBit {
 
     public static void main(String... args) throws Exception {
 
+        System.setProperty("vertx.pool.worker.size", System.getProperty("vertx.pool.worker.size",
+                String.valueOf(200)));
+        System.setProperty("vertx.pool.eventloop.size", System.getProperty("vertx.pool.eventloop.size",
+                String.valueOf((Runtime.getRuntime().availableProcessors() * 3))));
+
+
 
         //86K TPS QBit
         //Jetty/Spring boot 47K
@@ -281,22 +287,8 @@ end
 
 
         final ServiceEndpointServer serviceEndpointServer = endpointServerBuilder()
-                //2,500,000 454,065
-
-                .setHttpRequestQueueBuilder(
-                        QueueBuilder.queueBuilder()
-                                .setBatchSize(250).setLinkTransferQueue().setCheckEvery(5).setPollWait(100)
-
-                )
-                .setRequestQueueBuilder(
-                        QueueBuilder.queueBuilder()
-                                .setBatchSize(1000).setLinkTransferQueue().setCheckEvery(50).setPollWait(100)
-                )
-
-                .setHttpRequestQueueBuilder(QueueBuilder.queueBuilder()
-                        .setBatchSize(250).setLinkTransferQueue().setCheckEvery(5))
-                .setPort(6060).setFlushInterval(10).setRequestBatchSize(100)
-                .setTimeoutSeconds(60)
+                .setPort(6060).setRequestBatchSize(25)
+                .setTimeoutSeconds(60).setPollTime(25)
                 .build();
 
         //80734.79 QBit //83,135.93 QBIT

@@ -98,12 +98,12 @@ public class HttpRequest implements Request<Object> {
     }
 
     @Override
-    public boolean isHandled() {
+    public synchronized boolean isHandled() {
         return handled;
     }
 
     @Override
-    public void handled() {
+    public synchronized void handled() {
         handled = true;
     }
 
