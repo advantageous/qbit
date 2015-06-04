@@ -2,6 +2,7 @@ package io.advantageous.qbit.service.discovery;
 
 import io.advantageous.qbit.service.Startable;
 import io.advantageous.qbit.service.Stoppable;
+import io.advantageous.qbit.service.health.HealthStatus;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;

@@ -8,7 +8,7 @@ import io.advantageous.qbit.events.EventManager;
 import io.advantageous.qbit.metrics.StatService;
 import io.advantageous.qbit.server.ServiceEndpointServer;
 import io.advantageous.qbit.service.ServiceProxyUtils;
-import io.advantageous.qbit.service.discovery.HealthStatus;
+import io.advantageous.qbit.service.health.HealthStatus;
 import io.advantageous.qbit.service.discovery.ServiceChangedEventChannel;
 import io.advantageous.qbit.service.discovery.EndpointDefinition;
 import io.advantageous.qbit.service.discovery.impl.ServiceDiscoveryImpl;

@@ -2,7 +2,7 @@ package io.advantageous.qbit.service.discovery.impl;
 
 import io.advantageous.boon.core.Sys;
 import io.advantageous.qbit.concurrent.PeriodicScheduler;
-import io.advantageous.qbit.service.discovery.HealthStatus;
+import io.advantageous.qbit.service.health.HealthStatus;
 import io.advantageous.qbit.service.discovery.ServiceChangedEventChannel;
 import io.advantageous.qbit.service.discovery.EndpointDefinition;
 import io.advantageous.qbit.service.discovery.ServicePoolListener;
