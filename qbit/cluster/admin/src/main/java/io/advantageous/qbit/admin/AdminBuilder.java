@@ -1,13 +1,18 @@
 package io.advantageous.qbit.admin;
 
 
+import io.advantageous.qbit.config.PropertyResolver;
 import io.advantageous.qbit.server.EndpointServerBuilder;
 import io.advantageous.qbit.server.ServiceEndpointServer;
 import io.advantageous.qbit.service.health.HealthServiceAsync;
 import io.advantageous.qbit.service.health.HealthServiceBuilder;
 
+import java.util.Properties;
+
 public class AdminBuilder {
 
+
+    public static final String CONTEXT = "qbit.service.admin.";
 
     private int port= 7777;
     private String host;
@@ -20,6 +25,22 @@ public class AdminBuilder {
 
     public static AdminBuilder adminBuilder() {
         return new AdminBuilder();
+    }
+
+
+    public AdminBuilder(final PropertyResolver propertyResolver) {
+        port = propertyResolver.getIntegerProperty("port", port);
+        host = propertyResolver.getStringProperty("host", host);
+    }
+
+    public AdminBuilder() {
+
+        this(PropertyResolver.createSystemPropertyResolver(CONTEXT));
+    }
+
+    public AdminBuilder(Properties properties) {
+
+        this(PropertyResolver.createPropertiesPropertyResolver(CONTEXT, properties));
     }
 
     public HealthServiceAsync getHealthService() {
