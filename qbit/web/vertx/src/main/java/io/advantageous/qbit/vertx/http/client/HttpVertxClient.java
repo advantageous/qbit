@@ -326,13 +326,20 @@ public class HttpVertxClient implements HttpClient {
         }
 
         httpClientResponse.bodyHandler(buffer -> {
-            final String body = buffer.toString("UTF-8");
 
-            if (debug) {
-                puts("got body", "BODY");
+            if (request.getReceiver().isText()) {
+                final String body = buffer.toString("UTF-8");
+
+                    if (debug) {
+                    puts("got body", "BODY");
+                }
+
+                handleResponseFromServer(request, statusCode, headers, body);
+            } else {
+                final byte[] body = buffer.getBytes();
+                handleResponseFromServerBytes(request, statusCode, headers, body);
+
             }
-
-            handleResponseFromServer(request, statusCode, headers, body);
         });
     }
 
@@ -348,6 +355,21 @@ public class HttpVertxClient implements HttpClient {
         request.getReceiver().response(responseStatusCode,
                 responseHeaders.get("Content-Type"), body, responseHeaders);
     }
+
+
+    private void handleResponseFromServerBytes(
+            final HttpRequest request,
+            final int responseStatusCode,
+            final MultiMap<String, String> responseHeaders,
+            final byte[] body) {
+        if (debug) {
+            logger.debug("HttpClientVertx::handleResponseFromServerBytes:: request = {}, response status code = {}, \n" +
+                    "response headers = {}, body = {}", request, responseStatusCode, responseHeaders, body);
+        }
+        request.getReceiver().response(responseStatusCode,
+                responseHeaders.get("Content-Type"), body, responseHeaders);
+    }
+
 
     private void connect() {
         httpClient = vertx.createHttpClient().setHost(host).setPort(port)
