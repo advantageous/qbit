@@ -1,7 +1,7 @@
 package io.advantageous.consul;
 
 import io.advantageous.boon.core.Sys;
-import io.advantageous.qbit.service.discovery.HealthStatus;
+import io.advantageous.qbit.service.health.HealthStatus;
 import io.advantageous.qbit.service.discovery.EndpointDefinition;
 import io.advantageous.qbit.service.discovery.impl.ServiceDiscoveryImpl;
 import org.junit.Before;

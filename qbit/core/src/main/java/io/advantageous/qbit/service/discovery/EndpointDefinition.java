@@ -1,6 +1,7 @@
 package io.advantageous.qbit.service.discovery;
 
 import io.advantageous.boon.core.Lists;
+import io.advantageous.qbit.service.health.HealthStatus;
 
 import java.util.List;
 

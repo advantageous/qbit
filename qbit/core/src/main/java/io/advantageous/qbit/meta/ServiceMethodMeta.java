@@ -107,4 +107,9 @@ public class ServiceMethodMeta {
     public List<TypeType> getParamTypes() {
         return paramTypes;
     }
+
+    public boolean hasCallBack() {
+        return getMethodAccess().returnType() == void.class && paramTypes.size() > 0
+                && paramTypes.get(0) == TypeType.INTERFACE;
+    }
 }

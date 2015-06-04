@@ -1,6 +1,6 @@
 package io.advantageous.qbit.service.discovery.impl;
 
-import io.advantageous.qbit.service.discovery.HealthStatus;
+import io.advantageous.qbit.service.health.HealthStatus;
 
 /**
 * Created by rhightower on 3/24/15.

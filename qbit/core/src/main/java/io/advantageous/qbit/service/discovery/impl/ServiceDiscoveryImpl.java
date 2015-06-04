@@ -6,6 +6,7 @@ import io.advantageous.qbit.QBit;
 import io.advantageous.qbit.concurrent.PeriodicScheduler;
 import io.advantageous.qbit.service.discovery.*;
 import io.advantageous.qbit.service.discovery.spi.ServiceDiscoveryProvider;
+import io.advantageous.qbit.service.health.HealthStatus;
 import io.advantageous.qbit.util.ConcurrentHashSet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

@@ -9,7 +9,7 @@ import io.advantageous.consul.domain.option.RequestOptions;
 import io.advantageous.consul.domain.option.RequestOptionsBuilder;
 import io.advantageous.qbit.GlobalConstants;
 import io.advantageous.qbit.http.client.HttpClientClosedConnectionException;
-import io.advantageous.qbit.service.discovery.HealthStatus;
+import io.advantageous.qbit.service.health.HealthStatus;
 import io.advantageous.qbit.service.discovery.EndpointDefinition;
 import io.advantageous.qbit.service.discovery.impl.ServiceHealthCheckIn;
 import io.advantageous.qbit.service.discovery.spi.ServiceDiscoveryProvider;

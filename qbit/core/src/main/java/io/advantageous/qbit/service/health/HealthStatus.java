@@ -1,4 +1,4 @@
-package io.advantageous.qbit.service.discovery;
+package io.advantageous.qbit.service.health;
 
 /**
  * Health Status

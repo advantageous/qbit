@@ -111,7 +111,7 @@ public class HttpRequestServiceServerHandlerUsingMetaImpl implements HttpRequest
     @Override
     public  void handleRestCall(final HttpRequest request) {
 
-        List<String> errorList = new ArrayList<>();
+        List<String> errorList = new ArrayList<>(0);
         final MethodCall<Object> methodCall = standardRequestTransformer.transform(request, errorList);
 
         if (methodCall!=null && errorList.size()==0) {
@@ -128,7 +128,8 @@ public class HttpRequestServiceServerHandlerUsingMetaImpl implements HttpRequest
         final RequestMetaData requestMetaData = metaDataProviderMap
                 .get(RequestMethod.valueOf(request.getMethod())).get(request.address());
 
-        if (requestMetaData.getMethod().getMethodAccess().returnType() == void.class) {
+        if (requestMetaData.getMethod().getMethodAccess().returnType() == void.class
+                && !requestMetaData.getMethod().hasCallBack() ) {
 
             request.handled();
             writeResponse(request.getReceiver(), 200,

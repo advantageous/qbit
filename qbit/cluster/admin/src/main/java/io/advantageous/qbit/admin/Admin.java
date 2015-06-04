@@ -19,15 +19,43 @@
 package io.advantageous.qbit.admin;
 
 import io.advantageous.qbit.annotation.RequestMapping;
+import io.advantageous.qbit.reactive.Callback;
+import io.advantageous.qbit.service.health.HealthServiceAsync;
 
-/**
- * Created by rhightower on 2/9/15.
- */
-@RequestMapping("/admin")
+import java.util.List;
+
+@RequestMapping("/qbit-admin")
 public class Admin {
 
-    @RequestMapping("/ok")
-    public String ok() {
-        return "ok";
+
+    private final HealthServiceAsync healthService;
+
+    public Admin(final HealthServiceAsync healthService) {
+        this.healthService = healthService;
     }
+
+    @RequestMapping("/ok")
+    public void ok(Callback<Boolean> callback) {
+
+        healthService.ok(callback::accept);
+        healthService.clientProxyFlush();
+    }
+
+
+    @RequestMapping("/all-nodes/")
+    public void findAllNodes(Callback<List<String>> callback) {
+
+        healthService.findAllNodes(callback::accept);
+        healthService.clientProxyFlush();
+    }
+
+
+    @RequestMapping("/healthy-nodes")
+    public void findAllHealthyNodes(Callback<List<String>> callback) {
+
+        healthService.findHealthyNodes(callback::accept);
+        healthService.clientProxyFlush();
+    }
+
+
 }
