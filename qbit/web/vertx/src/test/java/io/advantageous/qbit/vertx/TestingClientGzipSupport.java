@@ -34,7 +34,10 @@ public class TestingClientGzipSupport {
 
         server.setHttpRequestConsumer(serverRequest -> {
 
-            if (serverRequest.getContentType().equals("gzip")) {
+            final String contentEncoding = serverRequest.getHeaders().getFirst("Content-Encoding");
+
+            if (serverRequest.getContentType().startsWith("application/json")
+                    && contentEncoding.equalsIgnoreCase("gzip")) {
                 try {
                     puts("S BODY FROM GZIP", GzipUtils.decode(serverRequest.getBody()));
                     puts("S BODY FROM GZIP", new String(serverRequest.getBody(), StandardCharsets.UTF_8));

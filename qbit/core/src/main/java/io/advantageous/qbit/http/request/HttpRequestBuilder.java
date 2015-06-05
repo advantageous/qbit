@@ -424,7 +424,8 @@ public class HttpRequestBuilder {
         try {
             this.setBodyBytes(GzipUtils.encode(jsonBodyForPostGzip));
             this.addHeader("Accept-Encoding", "gzip, deflate");
-            this.setContentType("gzip");
+            this.addHeader("Content-Encoding", "gzip");
+            this.setJsonContentType();
             this.setMethodPost();
         } catch (Exception e) {
            throw new IllegalStateException(e);
@@ -438,7 +439,8 @@ public class HttpRequestBuilder {
         try {
             this.setBodyBytes(GzipUtils.encode(jsonBodyForPostGzip));
             this.addHeader("Accept-Encoding", "gzip, deflate");
-            this.setContentType("gzip");
+            this.addHeader("Content-Encoding", "gzip");
+            this.setJsonContentType();
             this.setMethodPut();
         } catch (Exception e) {
             throw new IllegalStateException(e);
