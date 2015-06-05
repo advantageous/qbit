@@ -20,10 +20,7 @@ package io.advantageous.qbit.http.client;
 
 import io.advantageous.boon.core.Sys;
 import io.advantageous.boon.core.reflection.BeanUtils;
-import io.advantageous.qbit.http.request.HttpBinaryReceiver;
-import io.advantageous.qbit.http.request.HttpRequest;
-import io.advantageous.qbit.http.request.HttpResponse;
-import io.advantageous.qbit.http.request.HttpTextReceiver;
+import io.advantageous.qbit.http.request.*;
 import io.advantageous.qbit.http.websocket.WebSocket;
 import io.advantageous.qbit.service.ServiceFlushable;
 import io.advantageous.qbit.service.Startable;
@@ -1034,6 +1031,33 @@ public interface HttpClient extends ServiceFlushable, Stoppable, Startable{
 
         sendHttpRequest(httpRequest);
     }
+
+    default <T> void sendJsonGzipPostAsync(final String uri,
+                                   final String body,
+                                   final HttpResponseReceiver<T> receiver) {
+
+        final HttpRequest httpRequest = httpRequestBuilder()
+                .setUri(uri).setJsonBodyForPostGzip(body)
+                .receiver(receiver)
+                .build();
+
+        sendHttpRequest(httpRequest);
+    }
+
+
+    default <T> void sendJsonGzipPutAsync(final String uri,
+                                       final String body,
+                                       final HttpResponseReceiver<T> receiver) {
+
+        final HttpRequest httpRequest = httpRequestBuilder()
+                .setUri(uri).setJsonBodyForPutGzip(body)
+                .receiver(receiver)
+                .build();
+
+        sendHttpRequest(httpRequest);
+    }
+
+
 
 
     default void sendJsonPutAsync(final String uri,

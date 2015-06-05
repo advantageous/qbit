@@ -169,7 +169,7 @@ public class HttpRequestBuilder {
         return receiver;
     }
 
-    public HttpRequestBuilder receiver(HttpResponseReceiver receiver) {
+    public <T> HttpRequestBuilder receiver(HttpResponseReceiver<T> receiver) {
         this.receiver = receiver;
         return this;
     }
