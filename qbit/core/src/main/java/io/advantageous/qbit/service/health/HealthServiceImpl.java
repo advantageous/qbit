@@ -49,11 +49,15 @@ public class HealthServiceImpl implements HealthService {
     private Logger logger = LoggerFactory.getLogger(HealthServiceImpl.class);
 
 
-
     /**
      * Constructor.
+     * @param timer timer
+     * @param recheckInterval recheck interval
+     * @param timeUnit time unit for interval
      */
-    public HealthServiceImpl(final Timer timer, final long recheckInterval, final TimeUnit timeUnit) {
+    public HealthServiceImpl(final Timer timer,
+                             final long recheckInterval,
+                             final TimeUnit timeUnit) {
         this.timer = timer;
         recheckIntervalMS = timeUnit.toMillis(recheckInterval);
         now = timer.now();

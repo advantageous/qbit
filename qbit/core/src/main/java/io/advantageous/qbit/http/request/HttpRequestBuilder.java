@@ -20,12 +20,16 @@ package io.advantageous.qbit.http.request;
 
 import io.advantageous.boon.core.Str;
 import io.advantageous.boon.primitive.ByteBuf;
+import io.advantageous.qbit.util.GzipUtils;
 import io.advantageous.qbit.util.MultiMap;
 import io.advantageous.qbit.util.MultiMapImpl;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Set;
 import java.util.function.Consumer;
+import java.util.zip.GZIPOutputStream;
 
 /**
  * This is a builder for creating HTTP request objects.
@@ -51,7 +55,7 @@ public class HttpRequestBuilder {
     private String remoteAddress;
     private MultiMap<String, String> params;
     private MultiMap<String, String> headers;
-    private String body;
+    private byte[] body;
     private String method = "GET";
     private Consumer<Exception> errorHandler;
 
@@ -143,11 +147,12 @@ public class HttpRequestBuilder {
     }
 
     public String getBody() {
-        return body;
+
+        return new String(body, StandardCharsets.UTF_8);
     }
 
     public HttpRequestBuilder setBody(String body) {
-        this.body = body;
+        this.body = body.getBytes(StandardCharsets.UTF_8);
         return this;
     }
 
@@ -194,7 +199,7 @@ public class HttpRequestBuilder {
                     break;
                 case "POST":
                 case "PUT":
-                    body = paramString;
+                    body = paramString.getBytes(StandardCharsets.UTF_8);
                     contentType = "application/x-www-form-urlencoded";
                     break;
             }
@@ -217,7 +222,7 @@ public class HttpRequestBuilder {
         }
         return new HttpRequest(this.getId(), newURI, this.getMethod(), this.getParams(),
                 this.getHeaders(),
-                this.getBody() != null ? this.getBody().getBytes(StandardCharsets.UTF_8) : EMPTY_STRING,
+                this.getBodyBytes() != null ? this.getBodyBytes() : new byte[]{},
                 this.getRemoteAddress(), this.getContentType(), httpResponse, this.getTimestamp());
     }
 
@@ -243,7 +248,7 @@ public class HttpRequestBuilder {
         }
         return new HttpRequest(this.getId(), newURI, this.getMethod(), this.getParams(),
                 this.getHeaders(),
-                this.getBody() != null ? this.getBody().getBytes(StandardCharsets.UTF_8) : EMPTY_STRING,
+                this.getBodyBytes() != null ? this.getBodyBytes() : new byte[]{},
                 this.getRemoteAddress(), this.getContentType(), httpResponse, this.getTimestamp());
     }
 
@@ -337,7 +342,7 @@ public class HttpRequestBuilder {
     }
 
     private String paramString() {
-        String paramString = null;
+        String paramString = "";
 
 
         if (params != null) {
@@ -385,7 +390,7 @@ public class HttpRequestBuilder {
         }
         contentType = "application/x-www-form-urlencoded";
 
-        body = paramString;
+        body = paramString.getBytes();
         method = "PUT";
 
 
@@ -400,11 +405,34 @@ public class HttpRequestBuilder {
         contentType = "application/x-www-form-urlencoded";
         method = "POST";
 
-        body = paramString;
+        body = paramString.getBytes(StandardCharsets.UTF_8);
 
 
         return this;
     }
+
+    public HttpRequestBuilder setBodyBytes(byte[] bodyBytes) {
+        this.body = bodyBytes;
+        return this;
+    }
+
+    public byte[]  getBodyBytes() {
+        return body;
+    }
+
+    public HttpRequestBuilder setJsonBodyForPostGzip(String jsonBodyForPostGzip) {
+        try {
+            this.setBodyBytes(GzipUtils.encode(jsonBodyForPostGzip));
+            this.addHeader("Accept-Encoding", "gzip, deflate");
+            this.setContentType("gzip");
+            this.setMethodPost();
+        } catch (Exception e) {
+           throw new IllegalStateException(e);
+        }
+
+        return this;
+    }
+
 
     private static class RequestIdGenerator {
         private long value;

@@ -8,8 +8,15 @@ import io.advantageous.qbit.http.request.HttpRequestBuilder;
 import io.advantageous.qbit.http.request.HttpResponse;
 import io.advantageous.qbit.http.server.HttpServer;
 import io.advantageous.qbit.http.server.HttpServerBuilder;
+import io.advantageous.qbit.util.GzipUtils;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.util.zip.GZIPInputStream;
+import java.util.zip.GZIPOutputStream;
 
 import static io.advantageous.boon.core.IO.puts;
 
@@ -17,40 +24,57 @@ import static io.advantageous.boon.core.IO.puts;
  * Created by rick on 6/3/15.
  */
 public class TestingClientGzipSupport {
-
-    public static void main(String... args) {
-
-        HttpClient client = HttpClientBuilder.httpClientBuilder().setPort(80).setHost("farm4.staticflickr.com").build();
-
-        client.start();
+    public static void main(String... args) throws Exception {
 
 
-        final File thisDir = new File(".");
-        final File thisImage = new File(thisDir,  "foo.jpg");
+        System.out.println(GzipUtils.decode(GzipUtils.encode("\"HELLO\"")));
 
-        HttpResponse httpResponse = client.get("/3721/9207329484_ba28755ec4_o.jpg");
-        puts(httpResponse.contentType());
-
-        HttpRequest httpRequest = HttpRequestBuilder.httpRequestBuilder()
-                .setUri("/3721/9207329484_ba28755ec4_o.jpg")
-                .setBinaryReceiver((code, contentType, body) -> {
-
-                    puts(body.length, code, contentType);
-
-
-                    IO.write(thisImage.toPath(), body);
-                })
-                .build();
-
-        client.sendHttpRequest(httpRequest);
 
         HttpServer server = HttpServerBuilder.httpServerBuilder().setPort(9999).build();
 
         server.setHttpRequestConsumer(serverRequest -> {
 
-            serverRequest.getReceiver().response(200, "image/jpeg", IO.input(thisImage.getAbsolutePath()));
+            if (serverRequest.getContentType().equals("gzip")) {
+                try {
+                    puts("S BODY FROM GZIP", GzipUtils.decode(serverRequest.getBody()));
+                    puts("S BODY FROM GZIP", new String(serverRequest.getBody(), StandardCharsets.UTF_8));
+
+                    serverRequest.getReceiver().response(200, "application/json",
+                            "true");
+
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    serverRequest.getReceiver().response(500, "application/json",
+                            "false");
+                }
+            } else {
+                puts("SERVER ", serverRequest.getBodyAsString());
+                serverRequest.getReceiver().response(200, "application/json",
+                        "1");
+            }
         });
 
         server.startServer();
+
+        HttpClient client = HttpClientBuilder.httpClientBuilder()
+                .setPort(9999)
+                .setHost("localhost").build();
+
+        client.start();
+
+        HttpRequest httpRequest = HttpRequestBuilder.httpRequestBuilder()
+                .setBinaryReceiver((code, contentType, body) -> {
+
+
+
+                    puts("CLIENT", body.length, code, contentType, new String(body, StandardCharsets.UTF_8));
+                })
+                .setMethodPost()
+                .setJsonBodyForPostGzip("\"Hello\"")
+                .build();
+
+        puts("HELLO HERE", GzipUtils.decode(httpRequest.getBody()));
+        client.sendHttpRequest(httpRequest);
+
     }
 }
