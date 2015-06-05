@@ -20,7 +20,6 @@ package io.advantageous.qbit.vertx.http.server;
 
 import io.advantageous.boon.core.Str;
 import io.advantageous.boon.core.StringScanner;
-import io.advantageous.qbit.GlobalConstants;
 import io.advantageous.qbit.http.request.HttpRequest;
 import io.advantageous.qbit.http.request.HttpResponseReceiver;
 import io.advantageous.qbit.http.websocket.WebSocket;
@@ -48,8 +47,6 @@ import static io.advantageous.qbit.http.websocket.WebSocketBuilder.webSocketBuil
 
 public class VertxServerUtils {
     private final Logger logger = LoggerFactory.getLogger(VertxServerUtils.class);
-    private final boolean debug = false || GlobalConstants.DEBUG || logger.isDebugEnabled();
-
 
     private volatile long requestId;
     private volatile long time;
@@ -58,12 +55,9 @@ public class VertxServerUtils {
         Buffer buffer = null;
 
         if (body instanceof byte[]) {
-;
             byte[] bBody = ((byte[]) body);
-
             response.putHeader("Content-Length", String.valueOf(bBody.length));
             buffer = new Buffer(bBody);
-
         } else if (body instanceof String) {
             String sBody = ((String) body);
             byte[] bBody = sBody.getBytes(StandardCharsets.UTF_8);
@@ -88,7 +82,7 @@ public class VertxServerUtils {
 
         return new HttpRequest(requestId++, request.path(), request.method(), params, headers, body,
                 request.remoteAddress().toString(),
-                contentType, createResponse(request.response()), time==0L ? Timer.timer().now() : time);
+                contentType, createResponse(request.response()), time == 0L ? Timer.timer().now() : time);
     }
 
     private HttpResponseReceiver createResponse(final HttpServerResponse response) {
@@ -105,11 +99,8 @@ public class VertxServerUtils {
             public void response(final int code, final String contentType, final Object body, final MultiMap<String, String> headers) {
 
 
-
-
                 if (!headers.isEmpty()) {
                     for (Map.Entry<String, Collection<String>> entry : headers) {
-                        System.out.println(entry.getKey());
                         response.putHeader(entry.getKey(), entry.getValue());
                     }
                 }
@@ -206,16 +197,11 @@ public class VertxServerUtils {
                             paramMap.add(key, value);
                         } catch (UnsupportedEncodingException e) {
                             logger.warn(sputs("Unable to url decode key or value in param", key, value), e);
-                            continue;
                         }
                     }
-
                 }
-
             }
         }
         return paramMap;
     }
-
-
 }
