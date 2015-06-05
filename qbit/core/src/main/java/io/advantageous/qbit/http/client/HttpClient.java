@@ -982,6 +982,26 @@ public interface HttpClient extends ServiceFlushable, Stoppable, Startable{
     }
 
 
+    default HttpResponse postJsonGzip(final String uri,
+                                  final String body) {
+
+        final HttpRequest httpRequest = httpRequestBuilder()
+                .setUri(uri).setJsonBodyForPostGzip(body)
+                .build();
+
+        return sendRequestAndWait(httpRequest);
+    }
+
+
+    default HttpResponse putJsonGzip(final String uri,
+                                      final String body) {
+
+        final HttpRequest httpRequest = httpRequestBuilder()
+                .setUri(uri).setJsonBodyForPutGzip(body)
+                .build();
+
+        return sendRequestAndWait(httpRequest);
+    }
     default HttpResponse putJson(final String uri,
                                  final String body) {
 

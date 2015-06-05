@@ -434,6 +434,19 @@ public class HttpRequestBuilder {
     }
 
 
+    public HttpRequestBuilder setJsonBodyForPutGzip(String jsonBodyForPostGzip) {
+        try {
+            this.setBodyBytes(GzipUtils.encode(jsonBodyForPostGzip));
+            this.addHeader("Accept-Encoding", "gzip, deflate");
+            this.setContentType("gzip");
+            this.setMethodPut();
+        } catch (Exception e) {
+            throw new IllegalStateException(e);
+        }
+
+        return this;
+    }
+
     private static class RequestIdGenerator {
         private long value;
 
