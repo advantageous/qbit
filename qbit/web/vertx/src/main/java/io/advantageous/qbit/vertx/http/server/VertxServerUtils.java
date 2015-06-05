@@ -97,7 +97,8 @@ public class VertxServerUtils {
 
             @Override
             public void response(int code, String contentType, Object body) {
-                System.out.println("NOT CALLED");
+
+                response(code, contentType, body, MultiMap.empty());
             }
 
             @Override
