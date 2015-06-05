@@ -25,6 +25,7 @@ import io.advantageous.qbit.GlobalConstants;
 import io.advantageous.qbit.concurrent.ExecutorContext;
 import io.advantageous.qbit.http.client.HttpClient;
 import io.advantageous.qbit.http.request.HttpRequest;
+import io.advantageous.qbit.http.request.HttpResponseReceiver;
 import io.advantageous.qbit.http.websocket.WebSocket;
 import io.advantageous.qbit.http.websocket.WebSocketSender;
 import io.advantageous.qbit.network.NetSocket;
@@ -352,8 +353,9 @@ public class HttpVertxClient implements HttpClient {
             logger.debug("HttpClientVertx::handleResponseFromServer:: request = {}, response status code = {}, \n" +
                     "response headers = {}, body = {}", request, responseStatusCode, responseHeaders, body);
         }
-        request.getReceiver().response(responseStatusCode,
-                responseHeaders.get("Content-Type"), body, responseHeaders);
+        final HttpResponseReceiver<Object> receiver = request.getReceiver();
+        final String contentType = responseHeaders.get("Content-Type");
+        receiver.response(responseStatusCode, contentType, body, responseHeaders);
     }
 
 

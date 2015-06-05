@@ -129,6 +129,9 @@ public class FullIntegrationTest extends TimedTesting {
                 .setTextReceiver(new HttpTextReceiver() {
                     @Override
                     public void response(int code, String mimeType, String body) {
+
+                        System.out.println(body);
+
                         if (code == 200) {
                             pongValue.set(body);
                         } else {

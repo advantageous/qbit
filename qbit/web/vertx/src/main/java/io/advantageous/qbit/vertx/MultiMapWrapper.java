@@ -76,9 +76,10 @@ public class MultiMapWrapper implements MultiMap<String, String> {
     }
 
     @Override
-    public void add(String key, String s) {
+    public MultiMap<String, String> add(String key, String s) {
 
         vertxMap.add(key, s);
+        return this;
     }
 
     @Override

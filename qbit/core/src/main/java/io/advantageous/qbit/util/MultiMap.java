@@ -26,6 +26,9 @@ import java.util.*;
  * @author rhightower
  */
 public interface MultiMap<K, V> extends Iterable<Map.Entry<K, Collection<V>>>, Map<K, V> {
+
+    public static <K,V> MultiMap<K, V> multiMap() {return new MultiMapImpl<>();}
+
     static final MultiMap EMPTY = new MultiMap() {
 
         private Map empty = Collections.emptyMap();
@@ -36,7 +39,8 @@ public interface MultiMap<K, V> extends Iterable<Map.Entry<K, Collection<V>>>, M
         }
 
         @Override
-        public void add(Object key, Object o) {
+        public MultiMap add(Object key, Object o) {
+            return null;
         }
 
         @Override
@@ -151,7 +155,7 @@ public interface MultiMap<K, V> extends Iterable<Map.Entry<K, Collection<V>>>, M
 
     Iterator<Entry<K, Collection<V>>> iterator();
 
-    default void add(K key, V v) {
+    default MultiMap<K, V> add(K key, V v) {
         {
             throw new UnsupportedOperationException("add");
         }

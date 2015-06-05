@@ -39,6 +39,8 @@ import org.vertx.java.core.http.ServerWebSocket;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
+import java.util.Collection;
+import java.util.Map;
 
 import static io.advantageous.boon.core.Str.sputs;
 import static io.advantageous.qbit.http.websocket.WebSocketBuilder.webSocketBuilder;
@@ -52,18 +54,21 @@ public class VertxServerUtils {
     private volatile long requestId;
     private volatile long time;
 
-    private static Buffer createBuffer(Object body) {
+    private static Buffer createBuffer(Object body, HttpServerResponse response) {
         Buffer buffer = null;
 
         if (body instanceof byte[]) {
-
+;
             byte[] bBody = ((byte[]) body);
+
+            response.putHeader("Content-Length", String.valueOf(bBody.length));
             buffer = new Buffer(bBody);
 
         } else if (body instanceof String) {
-
             String sBody = ((String) body);
-            buffer = new Buffer(sBody, "UTF-8");
+            byte[] bBody = sBody.getBytes(StandardCharsets.UTF_8);
+            response.putHeader("Content-Length", String.valueOf(bBody.length));
+            buffer = new Buffer(bBody);
         }
         return buffer;
     }
@@ -87,15 +92,37 @@ public class VertxServerUtils {
     }
 
     private HttpResponseReceiver createResponse(final HttpServerResponse response) {
-        return (code, mimeType, body) -> {
 
-            //TODO put the rest of the headers here
-            response.setStatusCode(code).putHeader("Content-Type", mimeType);
-            //response.setStatusCode(code).putHeader("Keep-Alive", "timeout=600");
-            Buffer buffer = createBuffer(body);
-            response.end(buffer);
+        return new HttpResponseReceiver<Object>() {
 
+            @Override
+            public void response(int code, String contentType, Object body) {
+
+                response(code, contentType, body, MultiMap.empty());
+            }
+
+            @Override
+            public void response(final int code, final String contentType, final Object body, final MultiMap<String, String> headers) {
+
+
+
+
+                if (!headers.isEmpty()) {
+                    for (Map.Entry<String, Collection<String>> entry : headers) {
+                        System.out.println(entry.getKey());
+                        response.putHeader(entry.getKey(), entry.getValue());
+                    }
+                }
+
+                response.putHeader("Content-Type", contentType);
+                response.setStatusCode(code);
+
+
+                Buffer buffer = createBuffer(body, response);
+                response.end(buffer);
+            }
         };
+
     }
 
     public WebSocket createWebSocket(final ServerWebSocket vertxServerWebSocket) {
