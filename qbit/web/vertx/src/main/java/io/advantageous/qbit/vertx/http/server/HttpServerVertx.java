@@ -144,7 +144,7 @@ public class HttpServerVertx implements HttpServer {
         simpleHttpServer.start();
 
         if (debug) {
-            vertx.setPeriodic(10_000, event -> logger.info("Exceptions", exceptionCount, "Close Count", closeCount));
+            vertx.setPeriodic(10_000, event -> logger.info("Exception Count {} Close Count {}", exceptionCount,  closeCount));
         }
         httpServer = vertx.createHttpServer();
 

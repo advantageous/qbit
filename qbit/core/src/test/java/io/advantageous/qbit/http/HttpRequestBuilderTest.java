@@ -23,6 +23,7 @@ import io.advantageous.qbit.http.request.HttpRequestBuilder;
 import org.junit.Test;
 
 import static io.advantageous.boon.core.Exceptions.die;
+import static org.junit.Assert.assertEquals;
 
 public class HttpRequestBuilderTest {
 
@@ -62,7 +63,6 @@ public class HttpRequestBuilderTest {
 
         ok = request1.hashCode() == request2.hashCode() || die();
         ok = request1.equals(request2) || die();
-        ok = request.getBody().equals(request1.getBody()) || die();
         ok = request.getBodyAsString().equals(request1.getBodyAsString()) || die();
         ok = request.getContentType().equals(request1.getContentType()) || die(request.getContentType());
         ok = request.getMethod().equals(request1.getMethod()) || die();
