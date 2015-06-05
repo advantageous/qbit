@@ -59,7 +59,7 @@ public class QueueCallbackHandlerFactory {
     }
 
     private static boolean hasQueueCallbackAnnotations(Object service) {
-        ClassMeta<Class<?>> classMeta = (ClassMeta<Class<?>>) ClassMeta.classMeta(service.getClass());
+        @SuppressWarnings("unchecked") ClassMeta<Class<?>> classMeta = (ClassMeta<Class<?>>) ClassMeta.classMeta(service.getClass());
         final Iterable<MethodAccess> methods = classMeta.methods();
 
         for (MethodAccess methodAccess : methods) {

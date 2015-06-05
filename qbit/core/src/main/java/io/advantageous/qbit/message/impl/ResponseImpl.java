@@ -120,8 +120,10 @@ public class ResponseImpl<T> implements Response<T> {
     @Override
     public T body() {
         if (transformedBody == null) {
+            //noinspection unchecked
             return (T) body;
         } else {
+            //noinspection unchecked
             return (T) transformedBody;
         }
     }
@@ -160,7 +162,7 @@ public class ResponseImpl<T> implements Response<T> {
     @Override
     public Request<Object> request() {
 
-        return (Request<Object>) this.request;
+        return this.request;
     }
 
     @Override
@@ -172,9 +174,8 @@ public class ResponseImpl<T> implements Response<T> {
 
         if (address != null ? !address.equals(response.address) : response.address != null) return false;
         if (body != null ? !body.equals(response.body) : response.body != null) return false;
-        if (params != null ? !params.equals(response.params) : response.params != null) return false;
+        return !(params != null ? !params.equals(response.params) : response.params != null);
 
-        return true;
     }
 
     @Override

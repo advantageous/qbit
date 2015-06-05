@@ -30,6 +30,7 @@ public class CallbackBuilder  {
     }
 
     public <T> Callback<T> getCallback() {
+        //noinspection unchecked
         return callback;
     }
 
@@ -91,8 +92,9 @@ public class CallbackBuilder  {
             }
 
 
+            //noinspection unchecked
             return reactor.callbackWithTimeoutAndErrorHandlerAndOnTimeout(
-                    (Callback<T>) ((Object) getCallback()),
+                    (Callback<T>) getCallback(),
                     getTimeoutDuration(),
                     getTimeoutTimeUnit(),
                     getOnTimeout(),
@@ -100,6 +102,7 @@ public class CallbackBuilder  {
 
         }
 
+        //noinspection unchecked
         return reactor.callback(this.callback);
     }
 

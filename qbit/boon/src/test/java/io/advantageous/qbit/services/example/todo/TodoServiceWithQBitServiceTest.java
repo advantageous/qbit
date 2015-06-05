@@ -73,7 +73,7 @@ public class TodoServiceWithQBitServiceTest {
         Object body = response.body();
 
         if (body instanceof List) {
-            List<TodoItem> items = (List) body;
+            @SuppressWarnings("unchecked") List<TodoItem> items = (List) body;
 
             ok = items.size() > 0 || die("items should have one todo in it");
 
@@ -144,7 +144,7 @@ public class TodoServiceWithQBitServiceTest {
         Object body = response.body();
 
         if (body instanceof List) {
-            List<TodoItem> items = (List) body;
+            @SuppressWarnings("unchecked") List<TodoItem> items = (List) body;
 
             ok = items.size() > 0 || die("items should have one todo in it");
 

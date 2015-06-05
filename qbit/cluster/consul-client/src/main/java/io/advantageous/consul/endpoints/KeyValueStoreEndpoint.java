@@ -270,6 +270,7 @@ public class KeyValueStoreEndpoint {
      * @param key The key to delete.
      */
     public void deleteKey(String key) {
+        //noinspection unchecked,unchecked
         delete(key, Collections.EMPTY_MAP);
     }
 

@@ -245,6 +245,7 @@ public class ServiceBundleImpl implements ServiceBundle {
 
         if (serviceObject instanceof Consumer) {
 
+            //noinspection unchecked
             addServiceConsumer(serviceAddress, (Consumer<MethodCall<Object>>) serviceObject);
             return this;
         }

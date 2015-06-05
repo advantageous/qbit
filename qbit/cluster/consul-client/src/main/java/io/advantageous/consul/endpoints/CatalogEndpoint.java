@@ -121,6 +121,7 @@ public class CatalogEndpoint {
             die("Unable to retrieve the datacenters", path, httpResponse.code(), httpResponse.body());
         }
 
+        //noinspection unchecked
         return (ConsulResponse<Map<String, List<String>>>)(Object) RequestUtils.consulResponse(Map.class, httpResponse);
 
     }

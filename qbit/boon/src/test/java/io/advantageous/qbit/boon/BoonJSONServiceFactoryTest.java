@@ -66,7 +66,7 @@ public class BoonJSONServiceFactoryTest {
     }
 
 
-    public static interface MockServiceInterface {
+    public interface MockServiceInterface {
         void method1();
     }
 

@@ -91,9 +91,8 @@ public class Registration {
         if (check != null ? !check.equals(that.check) : that.check != null) return false;
         if (id != null ? !id.equals(that.id) : that.id != null) return false;
         if (name != null ? !name.equals(that.name) : that.name != null) return false;
-        if (!Arrays.equals(tags, that.tags)) return false;
+        return Arrays.equals(tags, that.tags);
 
-        return true;
     }
 
     @Override

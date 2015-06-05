@@ -115,9 +115,8 @@ public class CatalogService {
             return false;
         if (serviceId != null ? !serviceId.equals(that.serviceId) : that.serviceId != null) return false;
         if (serviceName != null ? !serviceName.equals(that.serviceName) : that.serviceName != null) return false;
-        if (serviceTags != null ? !serviceTags.equals(that.serviceTags) : that.serviceTags != null) return false;
+        return !(serviceTags != null ? !serviceTags.equals(that.serviceTags) : that.serviceTags != null);
 
-        return true;
     }
 
     @Override

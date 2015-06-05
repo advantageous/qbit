@@ -300,7 +300,7 @@ public class WebSocketServiceServerHandler {
 
 
             protocolEncoderThreadPool.execute(() -> {
-                final String textMessage = encoderRef.get().encodeAsString((Collection<Message<Object>>) (Object) messages);
+                @SuppressWarnings("unchecked") final String textMessage = encoderRef.get().encodeAsString((Collection<Message<Object>>) (Object) messages);
                 serverWebSocket.getSender().sendText(textMessage);
             });
 

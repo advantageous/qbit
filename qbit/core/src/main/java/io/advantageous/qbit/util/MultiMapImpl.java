@@ -83,7 +83,7 @@ public class MultiMapImpl<K, V> implements MultiMap<K, V> {
         } else if (type.isAssignableFrom(Set.class)) {
             return new LinkedHashSet<>(size);
         } else {
-            return new ArrayList(size);
+            return new ArrayList<>(size);
         }
 
     }
@@ -140,6 +140,7 @@ public class MultiMapImpl<K, V> implements MultiMap<K, V> {
 
     @Override
     public V get(Object key) {
+        //noinspection unchecked
         return getFirst((K) key);
     }
 
@@ -176,7 +177,7 @@ public class MultiMapImpl<K, V> implements MultiMap<K, V> {
     }
 
     private Collection<V> createCollection(K key) {
-        Collection<V> collection = (Collection<V>) createCollectionFromClass(collectionClass, initialSize);
+        @SuppressWarnings("unchecked") Collection<V> collection = (Collection<V>) createCollectionFromClass(collectionClass, initialSize);
         map.put(key, collection);
         return collection;
     }
@@ -194,9 +195,11 @@ public class MultiMapImpl<K, V> implements MultiMap<K, V> {
 
         for (Collection c : values) {
             for (Object o : c) {
+                //noinspection unchecked
                 list.add(o);
             }
         }
+        //noinspection unchecked
         return list;
     }
 
@@ -208,9 +211,11 @@ public class MultiMapImpl<K, V> implements MultiMap<K, V> {
 
         for (Collection c : values) {
             for (Object o : c) {
+                //noinspection unchecked
                 list.add(o);
             }
         }
+        //noinspection unchecked
         return list;
 
     }
@@ -348,10 +353,7 @@ public class MultiMapImpl<K, V> implements MultiMap<K, V> {
             return false;
         } else {
             Collection<V> collection = map.get(key);
-            if (collection == null || collection.size() == 0) {
-                return false;
-            }
-            return true;
+            return !(collection == null || collection.size() == 0);
         }
     }
 

@@ -90,7 +90,7 @@ public class ProtocolParserVersion1Test {
         BoonProtocolEncoder encoder = new BoonProtocolEncoder();
 
         ProtocolParser parser = new BoonProtocolParser();
-        MultiMap<String, String> multiMap = new MultiMapImpl(ArrayList.class);
+        @SuppressWarnings("unchecked") MultiMap<String, String> multiMap = new MultiMapImpl(ArrayList.class);
         multiMap.add("fruit", "apple");
         multiMap.add("fruit", "pair");
         multiMap.add("fruit", "watermelon");

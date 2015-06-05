@@ -79,9 +79,8 @@ public class EventTransferObject<T> implements Event<T> {
         Event event = (Event) o;
 
         if (id != event.id()) return false;
-        if (topic != null ? !topic.equals(event.channel()) : event.channel() != null) return false;
+        return !(topic != null ? !topic.equals(event.channel()) : event.channel() != null);
 
-        return true;
     }
 
     @Override

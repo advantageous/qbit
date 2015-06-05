@@ -56,9 +56,8 @@ public class CatalogNode {
         CatalogNode that = (CatalogNode) o;
 
         if (node != null ? !node.equals(that.node) : that.node != null) return false;
-        if (services != null ? !services.equals(that.services) : that.services != null) return false;
+        return !(services != null ? !services.equals(that.services) : that.services != null);
 
-        return true;
     }
 
     @Override

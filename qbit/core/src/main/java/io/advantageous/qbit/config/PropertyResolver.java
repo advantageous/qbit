@@ -6,12 +6,12 @@ import java.util.Properties;
 
 public interface PropertyResolver {
 
-    public static PropertyResolver createPropertiesPropertyResolver(final String prefix,
-                                                                    final Properties properties) {
+    static PropertyResolver createPropertiesPropertyResolver(final String prefix,
+                                                             final Properties properties) {
         return propertyName -> properties.getProperty(prefix + propertyName);
     }
 
-    public static PropertyResolver createSystemPropertyResolver(final String prefix) {
+    static PropertyResolver createSystemPropertyResolver(final String prefix) {
         return createPropertiesPropertyResolver(prefix, System.getProperties());
     }
 
@@ -151,7 +151,7 @@ public interface PropertyResolver {
 
 
     default <T> T getGenericPropertyWithDefault(final String propertyName, final T defaultValue) {
-        final T value = getGenericProperty(propertyName, (Class<T>) defaultValue.getClass());
+        @SuppressWarnings("unchecked") final T value = getGenericProperty(propertyName, (Class<T>) defaultValue.getClass());
         return value == null ? defaultValue : value;
     }
 }

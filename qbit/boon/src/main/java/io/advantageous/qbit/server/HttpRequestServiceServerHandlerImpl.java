@@ -300,7 +300,7 @@ public class HttpRequestServiceServerHandlerImpl implements HttpRequestServiceSe
 
         ClassMeta classMeta = ClassMeta.classMeta(cls);
 
-        Iterable<MethodAccess> methods = classMeta.methods();
+        @SuppressWarnings("unchecked") Iterable<MethodAccess> methods = classMeta.methods();
 
         final AnnotationData mapping = classMeta.annotation("RequestMapping");
 
@@ -447,6 +447,7 @@ public class HttpRequestServiceServerHandlerImpl implements HttpRequestServiceSe
         final HttpResponseReceiver httpResponse = ((HttpRequest) request).getReceiver();
 
         try {
+            //noinspection unchecked
             httpResponse.response(408, "application/json", "\"timed out\"");
         } catch (Exception ex) {
             logger.debug("Response not marked handled and it timed out, but could not be written " + request, ex);
@@ -457,8 +458,10 @@ public class HttpRequestServiceServerHandlerImpl implements HttpRequestServiceSe
                                MultiMap<String, String> headers) {
 
         if (response.isText()) {
+            //noinspection unchecked
             response.response(code, mimeType, responseString, headers);
         } else {
+            //noinspection unchecked
             response.response(code, mimeType, responseString.getBytes(StandardCharsets.UTF_8), headers);
         }
     }

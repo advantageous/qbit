@@ -20,8 +20,6 @@ public class ConsulServiceDiscoveryTest {
     ServiceDiscoveryImpl discovery2;
     ServiceDiscoveryImpl discovery3;
 
-    private final String serviceName = "FOO-BAR-";
-
     @Before
     public void setup() {
 
@@ -37,6 +35,7 @@ public class ConsulServiceDiscoveryTest {
 
     @Test
     public void test() {
+        String serviceName = "FOO-BAR-";
         final String id1 = discovery1.register(serviceName, 7000).getId();
         final String id2 = discovery2.register(serviceName, 8000).getId();
         final String id3 = discovery3.register(serviceName, 9000).getId();

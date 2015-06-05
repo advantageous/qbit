@@ -49,7 +49,8 @@ public class EventBusImpl implements EventBus {
 
     @Override
     public <T> void register(String channelName, EventListener<T> listener) {
-        channel(channelName).add( (EventListener<Object>)  ((Object) listener));
+        //noinspection unchecked
+        channel(channelName).add( (EventListener<Object>) listener);
     }
 
     private ChannelManager<Object> channel(String channelName) {
@@ -57,6 +58,7 @@ public class EventBusImpl implements EventBus {
 
         if (channelManager == null) {
 
+            //noinspection unchecked
             channelManager = new ChannelManager(channelName);
             channelMap.put(channelName, channelManager);
         }
@@ -75,7 +77,8 @@ public class EventBusImpl implements EventBus {
 
     @Override
     public <T> void unregister(String channelName, EventListener<T> listener) {
-        channel(channelName).remove( (EventListener<Object>) ((Object) listener));
+        //noinspection unchecked
+        channel(channelName).remove( (EventListener<Object>) listener);
     }
 
     @Override

@@ -140,7 +140,7 @@ public class BoonClientIntegrationTest extends TimedTesting {
         assertEquals(3, sum.get());
     }
 
-    public static interface ServiceMockClientInterface {
+    public interface ServiceMockClientInterface {
         void add(int a, int b);
 
         void sum(Callback<Integer> callback);

@@ -56,13 +56,13 @@ public class ServiceBundleAndEvents extends TimedTesting{
     }
 
 
-    public static interface TestService extends ClientProxy{
+    public interface TestService extends ClientProxy{
         void method1(String method1);
     }
 
     @EventChannel
     public  interface EventChannel1 extends ClientProxy{
-        public void event(String event);
+        void event(String event);
     }
 
     @Before

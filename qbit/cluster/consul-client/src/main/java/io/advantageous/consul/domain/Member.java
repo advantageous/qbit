@@ -166,9 +166,8 @@ public class Member {
         if (status != member.status) return false;
         if (address != null ? !address.equals(member.address) : member.address != null) return false;
         if (name != null ? !name.equals(member.name) : member.name != null) return false;
-        if (tags != null ? !tags.equals(member.tags) : member.tags != null) return false;
+        return !(tags != null ? !tags.equals(member.tags) : member.tags != null);
 
-        return true;
     }
 
     @Override

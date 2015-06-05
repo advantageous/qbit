@@ -36,7 +36,7 @@ public enum Status {
      *
      * @param uri Consul API uri value.
      */
-    private Status(String uri, String name) {
+    Status(String uri, String name) {
         this.uri = uri;
         this.name = name;
     }

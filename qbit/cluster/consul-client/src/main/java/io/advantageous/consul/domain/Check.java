@@ -115,9 +115,8 @@ public class Check {
         if (name != null ? !name.equals(check.name) : check.name != null) return false;
         if (notes != null ? !notes.equals(check.notes) : check.notes != null) return false;
         if (script != null ? !script.equals(check.script) : check.script != null) return false;
-        if (ttl != null ? !ttl.equals(check.ttl) : check.ttl != null) return false;
+        return !(ttl != null ? !ttl.equals(check.ttl) : check.ttl != null);
 
-        return true;
     }
 
     @Override

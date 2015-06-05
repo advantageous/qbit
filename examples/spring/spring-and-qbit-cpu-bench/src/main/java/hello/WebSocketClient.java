@@ -80,7 +80,7 @@ public class WebSocketClient {
 
     interface SimpleServiceProxy {
 
-        public void addKey(Callback<Double> doubleReturn, int key, String value);
+        void addKey(Callback<Double> doubleReturn, int key, String value);
 
 
     }

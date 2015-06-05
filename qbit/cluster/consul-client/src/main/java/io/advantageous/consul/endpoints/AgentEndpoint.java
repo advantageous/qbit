@@ -306,7 +306,7 @@ public class AgentEndpoint {
             final Map<String, Object> map = jsonParserAndMapper.parseMap(httpResponse.body());
             final Map<String, HealthCheck> returnMap = new HashMap<>(map.size());
             map.entrySet().forEach(entry -> {
-                HealthCheck healthCheck = fromMap((Map<String, Object>) entry.getValue(), HealthCheck.class);
+                @SuppressWarnings("unchecked") HealthCheck healthCheck = fromMap((Map<String, Object>) entry.getValue(), HealthCheck.class);
                 returnMap.put(entry.getKey(), healthCheck);
 
             });
@@ -332,7 +332,7 @@ public class AgentEndpoint {
             final Map<String, Object> map = jsonParserAndMapper.parseMap(httpResponse.body());
             final Map<String, Service> returnMap = new HashMap<>(map.size());
             map.entrySet().forEach(entry -> {
-                Service service = fromMap((Map<String, Object>) entry.getValue(), Service.class);
+                @SuppressWarnings("unchecked") Service service = fromMap((Map<String, Object>) entry.getValue(), Service.class);
                 returnMap.put(entry.getKey(), service);
 
             });

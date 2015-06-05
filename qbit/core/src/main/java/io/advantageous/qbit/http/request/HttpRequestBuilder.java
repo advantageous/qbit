@@ -263,6 +263,7 @@ public class HttpRequestBuilder {
             httpResponse = new HttpResponseReceiver() {
                 @Override
                 public void response(int code, String contentType, Object body) {
+                    //noinspection unchecked
                     innerHttpResponse.response(code, contentType, body);
                 }
 
@@ -273,6 +274,7 @@ public class HttpRequestBuilder {
 
                 @Override
                 public void response(int code, String contentType, Object body, MultiMap headers) {
+                    //noinspection unchecked
                     innerHttpResponse.response(code, contentType, body, headers);
                 }
 

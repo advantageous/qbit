@@ -48,7 +48,6 @@ public class StatServiceImpl implements QueueCallBackHandler, ServiceChangedEven
     private final Logger logger = LoggerFactory.getLogger(StatServiceImpl.class);
     private final boolean debug = GlobalConstants.DEBUG || logger.isDebugEnabled();
     private final int timeToLiveCheckInterval;
-    private long lastProcess = 0;
     private Map<String, MinuteStat> currentMinuteOfStatsMap;
     private Map<String, MinuteStat> lastMinuteOfStatsMap;
     private long lastHealthCheck = 0;
@@ -229,6 +228,7 @@ public class StatServiceImpl implements QueueCallBackHandler, ServiceChangedEven
 
     void process() {
         tick();
+        long lastProcess = 0;
         long duration = now - lastProcess;
         if (duration > 50) {
             flushMinuteCheck();

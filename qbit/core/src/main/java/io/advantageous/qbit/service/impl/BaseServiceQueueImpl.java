@@ -309,6 +309,7 @@ public class BaseServiceQueueImpl implements ServiceQueue {
             if (!afterMethodCall.after(methodCall, response)) {
                 return;
             }
+            //noinspection unchecked
             response = responseObjectTransformer.transform(response);
 
             if (!afterMethodCallAfterTransform.after(methodCall, response)) {
@@ -595,6 +596,7 @@ public class BaseServiceQueueImpl implements ServiceQueue {
         final Object o = Proxy.newProxyInstance(serviceInterface.getClassLoader(),
                 new Class[]{serviceInterface, ClientProxy.class}, invocationHandler
         );
+        //noinspection unchecked
         return (T) o;
     }
 

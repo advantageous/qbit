@@ -63,9 +63,8 @@ public class AgentInfo {
         AgentInfo agentInfo = (AgentInfo) o;
 
         if (config != null ? !config.equals(agentInfo.config) : agentInfo.config != null) return false;
-        if (member != null ? !member.equals(agentInfo.member) : agentInfo.member != null) return false;
+        return !(member != null ? !member.equals(agentInfo.member) : agentInfo.member != null);
 
-        return true;
     }
 
     @Override

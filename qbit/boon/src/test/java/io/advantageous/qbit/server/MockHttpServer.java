@@ -42,7 +42,6 @@ public class MockHttpServer implements HttpServer {
     Consumer<HttpRequest> httpRequestConsumer;
     volatile long messageId = 0;
     private Consumer<Void> idleHttpRequestConsumer;
-    private Consumer<Void> idleWebSocketConsumer;
 
 
     public void postRequestObject(final String uri, final Object body, final HttpResponseReceiver response) {
@@ -105,7 +104,7 @@ public class MockHttpServer implements HttpServer {
 
     @Override
     public void setWebSocketIdleConsume(Consumer<Void> idleConsumer) {
-        this.idleWebSocketConsumer = idleConsumer;
+        Consumer<Void> idleWebSocketConsumer = idleConsumer;
 
     }
 

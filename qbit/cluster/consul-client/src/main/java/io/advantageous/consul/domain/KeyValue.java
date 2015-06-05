@@ -111,9 +111,8 @@ public class KeyValue {
         if (modifyIndex != keyValue.modifyIndex) return false;
         if (key != null ? !key.equals(keyValue.key) : keyValue.key != null) return false;
         if (session != null ? !session.equals(keyValue.session) : keyValue.session != null) return false;
-        if (value != null ? !value.equals(keyValue.value) : keyValue.value != null) return false;
+        return !(value != null ? !value.equals(keyValue.value) : keyValue.value != null);
 
-        return true;
     }
 
     @Override

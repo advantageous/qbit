@@ -217,7 +217,7 @@ public class BoonEventManagerTest extends TimedTesting {
     }
 
 
-    public static interface MyServiceClient {
+    public interface MyServiceClient {
 
         void sendHi(String hi);
     }

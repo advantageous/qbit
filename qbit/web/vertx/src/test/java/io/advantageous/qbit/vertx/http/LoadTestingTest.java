@@ -296,7 +296,7 @@ public class LoadTestingTest {
 
     }
 
-    static interface ClientServiceInterface {
+    interface ClientServiceInterface {
         String ping(Callback<String> callback, String ping);
     }
 

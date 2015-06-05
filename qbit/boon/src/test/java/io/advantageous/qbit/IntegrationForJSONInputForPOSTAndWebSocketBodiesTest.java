@@ -66,8 +66,6 @@ public class IntegrationForJSONInputForPOSTAndWebSocketBodiesTest {
     Object responseBody = null;
     Employee employee;
     private Employee rick;
-    private Employee diana;
-    private Employee whitney;
     private String returnAddress = "clientIdAkaReturnAddress";
 
 
@@ -99,7 +97,7 @@ public class IntegrationForJSONInputForPOSTAndWebSocketBodiesTest {
         employee.active = true;
         employee.salary = new BigDecimal("100");
 
-        diana = employee;
+        Employee diana = employee;
 
 
         employee = new Employee();
@@ -109,7 +107,7 @@ public class IntegrationForJSONInputForPOSTAndWebSocketBodiesTest {
         employee.active = true;
         employee.salary = new BigDecimal("100");
 
-        whitney = employee;
+        Employee whitney = employee;
 
         returnAddress = "clientIdAkaReturnAddress";
 

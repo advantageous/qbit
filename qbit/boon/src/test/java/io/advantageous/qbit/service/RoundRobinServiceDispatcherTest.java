@@ -135,7 +135,7 @@ public class RoundRobinServiceDispatcherTest extends TimedTesting {
     }
 
 
-    public static interface MultiWorkerClient {
+    public interface MultiWorkerClient {
         void doSomeWork();
     }
 

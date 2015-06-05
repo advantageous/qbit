@@ -56,9 +56,8 @@ public class KeyValuePutOptions {
 
         if (acquire != null ? !acquire.equals(that.acquire) : that.acquire != null) return false;
         if (cas != null ? !cas.equals(that.cas) : that.cas != null) return false;
-        if (release != null ? !release.equals(that.release) : that.release != null) return false;
+        return !(release != null ? !release.equals(that.release) : that.release != null);
 
-        return true;
     }
 
     @Override

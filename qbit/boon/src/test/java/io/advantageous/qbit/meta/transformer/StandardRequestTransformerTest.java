@@ -79,7 +79,7 @@ public class StandardRequestTransformerTest {
         assertEquals("simple2", methodCall.name());
 
 
-        List<Object> args = (List<Object>) methodCall.body();
+        @SuppressWarnings("unchecked") List<Object> args = (List<Object>) methodCall.body();
 
         assertEquals("1", args.get(0));
     }
@@ -114,7 +114,7 @@ public class StandardRequestTransformerTest {
         final MethodCall<Object> methodCall = standardRequestTransformer.transform(request, errorsList);
         assertNotNull(methodCall);
         assertEquals(0, errorsList.size());
-        List<Object> args = (List<Object>) methodCall.body();
+        @SuppressWarnings("unchecked") List<Object> args = (List<Object>) methodCall.body();
         assertEquals(4, args.size());
         assertEquals("1", args.get(0));
         assertEquals("2", args.get(1));
@@ -157,7 +157,7 @@ public class StandardRequestTransformerTest {
         final MethodCall<Object> methodCall = standardRequestTransformer.transform(request, errorsList);
         assertNotNull(methodCall);
         assertEquals(0, errorsList.size());
-        List<Object> args = (List<Object>) methodCall.body();
+        @SuppressWarnings("unchecked") List<Object> args = (List<Object>) methodCall.body();
         assertEquals(3, args.size());
         assertEquals("1", args.get(0));
         assertEquals("2", args.get(1));

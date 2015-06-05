@@ -57,6 +57,7 @@ public class CallbackManager {
             final Iterable list = (Iterable) args;
             for (Object arg : list) {
                 if (arg instanceof Callback) {
+                    //noinspection unchecked
                     registerHandlerCallbackForClient(methodCall, (Callback) arg);
                 }
             }
@@ -64,6 +65,7 @@ public class CallbackManager {
             final Object[] array = (Object[]) args;
             for (Object arg : array) {
                 if (arg instanceof Callback) {
+                    //noinspection unchecked
                     registerHandlerCallbackForClient(methodCall, ((Callback) arg));
                 }
             }

@@ -122,9 +122,8 @@ public class EndpointDefinition {
         if (healthStatus != that.healthStatus) return false;
         if (host != null ? !host.equals(that.host) : that.host != null) return false;
         if (id != null ? !id.equals(that.id) : that.id != null) return false;
-        if (name != null ? !name.equals(that.name) : that.name != null) return false;
+        return !(name != null ? !name.equals(that.name) : that.name != null);
 
-        return true;
     }
 
     @Override

@@ -414,7 +414,7 @@ public class ServiceProxyFactoryTest {
 
     }
 
-    public static interface SomeInterface {
+    public interface SomeInterface {
         void method1();
 
         void method2(String hi, int amount);
@@ -424,7 +424,7 @@ public class ServiceProxyFactoryTest {
     }
 
 
-    public static interface MyServiceInterfaceForClient {
+    public interface MyServiceInterfaceForClient {
 
         void method1();
 
@@ -433,8 +433,8 @@ public class ServiceProxyFactoryTest {
         void method3(Callback<String> handler, String hi, int amount);
     }
 
-    public static interface ClientInterfaceThrowsException {
+    public interface ClientInterfaceThrowsException {
 
-        public void methodThrowsExceptionIf5(Callback<String> arg, String hi, int amount);
+        void methodThrowsExceptionIf5(Callback<String> arg, String hi, int amount);
     }
 }

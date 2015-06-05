@@ -353,7 +353,7 @@ public class BoonServiceMethodCallHandler implements ServiceMethodHandler {
     private void extactHandlersFromArgumentList(MethodAccess method, Object body, List<Object> argsList) {
         if (body instanceof List) {
 
-            List<Object> list = (List<Object>) body;
+            @SuppressWarnings("unchecked") List<Object> list = (List<Object>) body;
 
             extractHandlersFromArgumentListBodyIsList(method, argsList, list);
 
@@ -406,11 +406,7 @@ public class BoonServiceMethodCallHandler implements ServiceMethodHandler {
 
             @Override
             public boolean hasNext() {
-                if (index >= theArray.length) {
-                    return false;
-                } else {
-                    return true;
-                }
+                return index < theArray.length;
             }
 
             @Override
@@ -583,7 +579,8 @@ public class BoonServiceMethodCallHandler implements ServiceMethodHandler {
 
         this.responseSendQueue = responseSendQueue;
         this.service = service;
-        classMeta = (ClassMeta<Class<?>>) (Object) ClassMeta.classMeta(service.getClass());
+        //noinspection unchecked
+        classMeta = (ClassMeta<Class<?>>) ClassMeta.classMeta(service.getClass());
         if (Str.isEmpty(serviceAddress)) {
             serviceAddress = readAddressFromAnnotation(classMeta);
         }
