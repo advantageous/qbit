@@ -187,36 +187,6 @@ project('web:servlet') {
     }
 }
 
-project('web:jetty') {
-
-    dependencies {
-        compile project(':qbit:web:servlet')
-        compile project(':qbit:core')
-        compile project(':qbit:boon')
-
-        compile 'org.eclipse.jetty:jetty-server:9.3.0.M2'
-        compile 'org.eclipse.jetty:jetty-servlet:9.3.0.M2'
-        compile 'org.eclipse.jetty.websocket:javax-websocket-server-impl:9.3.0.M2'
-        compile 'org.eclipse.jetty:jetty-annotations:9.3.0.M2'
-        compile 'org.eclipse.jetty:jetty-client:9.3.0.M2'
-        compile 'javax.servlet:javax.servlet-api:3.1.0'
-        compile 'javax.websocket:javax.websocket-all:1.1'
-
-        testCompile project(':qbit:test-support')
-    }
-
-    uploadArchives {
-        repositories {
-            mavenDeployer {
-                pom.project {
-                    description 'Jetty support for qbit'
-                }
-            }
-        }
-    }
-
-}
-
 project('web:vertx') {
 
     ext {
@@ -264,7 +234,6 @@ project('cluster:consul-client') {
     test.onlyIf { Boolean.getBoolean('integration.tests') }
 
     dependencies {
-        //compile project(":qbit:web:jetty")
         compile project(":qbit:web:vertx")
     }
 
@@ -288,6 +257,7 @@ project('cluster:admin') {
         compile project(':qbit:core')
         testCompile project(':qbit:cluster:consul-client')
         testCompile project(':qbit:test-support')
+        compile project(":qbit:web:vertx")
     }
 
     uploadArchives {
@@ -309,6 +279,7 @@ project('cluster:eventbus-replicator') {
         compile project(':qbit:boon')
         compile project(':qbit:core')
         compile project(':qbit:cluster:consul-client')
+        compile project(":qbit:web:vertx")
         testCompile project(':qbit:test-support')
     }
 

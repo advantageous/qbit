@@ -32,7 +32,7 @@ import org.slf4j.LoggerFactory;
  */
 public class QBit {
     private Logger logger = LoggerFactory.getLogger(QBit.class);
-    private final boolean debug = false || GlobalConstants.DEBUG || logger.isDebugEnabled();
+    private final boolean debug = logger.isDebugEnabled();
 
     public static Factory factory() {
         return new QBit().doGetFactory();
@@ -44,7 +44,7 @@ public class QBit {
         if (factory == null) {
 
             if (debug) {
-                System.out.println("Factory was null");
+                logger.debug("Factory was null");
             }
 
             registerReflectionAndJsonParser();
@@ -79,8 +79,6 @@ public class QBit {
                     System.out.println("Unable to load vertx network stack, trying Jetty" + ex);
                 }
 
-                final Class<?> vertxFactory = Class.forName("io.advantageous.qbit.http.jetty.RegisterJettyWithQBit");
-                ClassMeta.classMeta(vertxFactory).invokeStatic("registerJettyWithQBit");
             }
         } catch (Exception ex) {
             FactorySPI.setHttpServerFactory((options, requestQueueBuilder, responseQueueBuilder,
