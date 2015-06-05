@@ -222,7 +222,7 @@ public class HttpRequestBuilder {
         }
         return new HttpRequest(this.getId(), newURI, this.getMethod(), this.getParams(),
                 this.getHeaders(),
-                this.getBodyBytes() != null ? this.getBodyBytes() : new byte[]{},
+                this.getBodyBytes() != null ? this.getBodyBytes() : EMPTY_STRING,
                 this.getRemoteAddress(), this.getContentType(), httpResponse, this.getTimestamp());
     }
 
@@ -390,7 +390,7 @@ public class HttpRequestBuilder {
         }
         contentType = "application/x-www-form-urlencoded";
 
-        body = paramString.getBytes();
+        body = paramString.getBytes(StandardCharsets.UTF_8);
         method = "PUT";
 
 
