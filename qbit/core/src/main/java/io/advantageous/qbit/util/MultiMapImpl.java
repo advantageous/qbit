@@ -94,12 +94,14 @@ public class MultiMapImpl<K, V> implements MultiMap<K, V> {
     }
 
     @Override
-    public void add(K key, V v) {
+    public MultiMap<K, V> add(K key, V v) {
         Collection<V> collection = map.get(key);
         if (collection == null) {
             collection = createCollection(key);
         }
         collection.add(v);
+        return this;
+
     }
 
     @Override

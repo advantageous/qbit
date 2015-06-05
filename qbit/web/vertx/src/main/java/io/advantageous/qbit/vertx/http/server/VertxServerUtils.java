@@ -39,6 +39,8 @@ import org.vertx.java.core.http.ServerWebSocket;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
+import java.util.Collection;
+import java.util.Map;
 
 import static io.advantageous.boon.core.Str.sputs;
 import static io.advantageous.qbit.http.websocket.WebSocketBuilder.webSocketBuilder;
@@ -87,15 +89,31 @@ public class VertxServerUtils {
     }
 
     private HttpResponseReceiver createResponse(final HttpServerResponse response) {
-        return (code, mimeType, body) -> {
 
-            //TODO put the rest of the headers here
-            response.setStatusCode(code).putHeader("Content-Type", mimeType);
-            //response.setStatusCode(code).putHeader("Keep-Alive", "timeout=600");
-            Buffer buffer = createBuffer(body);
-            response.end(buffer);
+        return new HttpResponseReceiver<Object>() {
 
+            @Override
+            public void response(int code, String contentType, Object body) {
+                System.out.println("NOT CALLED");
+            }
+
+            @Override
+            public void response(final int code, final String contentType, final Object body, final MultiMap<String, String> headers) {
+
+
+                response.setStatusCode(code).putHeader("Content-Type", contentType);
+
+                if (!headers.isEmpty()) {
+                    for (Map.Entry<String, Collection<String>> entry : headers) {
+                        response.putHeader(entry.getKey(), entry.getValue());
+                    }
+                }
+
+                Buffer buffer = createBuffer(body);
+                response.end(buffer);
+            }
         };
+
     }
 
     public WebSocket createWebSocket(final ServerWebSocket vertxServerWebSocket) {
