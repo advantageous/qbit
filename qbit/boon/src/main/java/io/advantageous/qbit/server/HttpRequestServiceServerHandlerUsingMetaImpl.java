@@ -242,14 +242,14 @@ public class HttpRequestServiceServerHandlerUsingMetaImpl implements HttpRequest
             Object obj = response.body();
 
             if (obj instanceof ServiceMethodNotFoundException) {
-                writeResponse(httpRequest.getReceiver(), 404, "application/json", jsonMapper.toJson(response.body()), httpRequest.getHeaders());
+                writeResponse(httpRequest.getReceiver(), 404, "application/json", jsonMapper.toJson(response.body()), response.headers());
 
             } else {
-                writeResponse(httpRequest.getReceiver(), 500, "application/json", jsonMapper.toJson(response.body()), httpRequest.getHeaders());
+                writeResponse(httpRequest.getReceiver(), 500, "application/json", jsonMapper.toJson(response.body()), response.headers());
 
             }
         } else {
-            writeResponse(httpRequest.getReceiver(), 200, "application/json", jsonMapper.toJson(response.body()), httpRequest.getHeaders());
+            writeResponse(httpRequest.getReceiver(), 200, "application/json", jsonMapper.toJson(response.body()), response.headers());
         }
 
 
