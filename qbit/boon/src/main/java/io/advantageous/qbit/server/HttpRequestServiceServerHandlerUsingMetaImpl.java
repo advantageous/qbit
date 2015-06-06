@@ -218,6 +218,7 @@ public class HttpRequestServiceServerHandlerUsingMetaImpl implements HttpRequest
             if (duration > timeoutInMS) {
                 final HttpResponseReceiver httpResponse = ((HttpRequest) request).getReceiver();
                 try {
+                    //noinspection unchecked
                     httpResponse.response(408, "application/json", "\"timed out\"");
                 } catch (Exception ex) {
                     logger.debug("Response not marked handled and it timed out, but could not be written " + request, ex);
@@ -261,8 +262,10 @@ public class HttpRequestServiceServerHandlerUsingMetaImpl implements HttpRequest
                                MultiMap<String, String> headers) {
 
         if (response.isText()) {
+            //noinspection unchecked
             response.response(code, mimeType, responseString, headers);
         } else {
+            //noinspection unchecked
             response.response(code, mimeType, responseString.getBytes(StandardCharsets.UTF_8), headers);
         }
     }

@@ -80,16 +80,19 @@ public class BasicQueue<T> implements Queue<T> {
 
 
         if (size == -1) {
+            //noinspection unchecked
             this.queue = ClassMeta.classMeta(queueClass).noArgConstructor().create();
         } else {
 
             final ClassMeta<? extends BlockingQueue> classMeta = ClassMeta.classMeta(queueClass);
             if (queueClass != LinkedTransferQueue.class) {
                 final ConstructorAccess<Object> constructor = classMeta.declaredConstructor(int.class);
+                //noinspection unchecked
                 this.queue = (BlockingQueue<Object>) constructor.create(size);
             } else {
                 final ConstructorAccess<? extends BlockingQueue> constructorAccess = classMeta.noArgConstructor();
 
+                //noinspection unchecked
                 this.queue = (BlockingQueue<Object>) constructorAccess.create();
             }
         }
@@ -97,11 +100,7 @@ public class BasicQueue<T> implements Queue<T> {
 
         shouldCheckIfBusy = queue instanceof TransferQueue;
 
-        if (shouldCheckIfBusy && checkIfBusy) {
-            this.checkIfBusy = true;
-        } else {
-            this.checkIfBusy = false;
-        }
+        this.checkIfBusy = shouldCheckIfBusy && checkIfBusy;
 
         this.checkEvery = checkEvery;
     }

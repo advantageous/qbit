@@ -67,9 +67,8 @@ public class RegistrationCheck {
 
         if (interval != null ? !interval.equals(that.interval) : that.interval != null) return false;
         if (script != null ? !script.equals(that.script) : that.script != null) return false;
-        if (ttl != null ? !ttl.equals(that.ttl) : that.ttl != null) return false;
+        return !(ttl != null ? !ttl.equals(that.ttl) : that.ttl != null);
 
-        return true;
     }
 
     @Override

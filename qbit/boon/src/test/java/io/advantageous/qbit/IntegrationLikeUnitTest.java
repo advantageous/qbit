@@ -61,8 +61,6 @@ public class IntegrationLikeUnitTest {
 
     Object responseBody = null;
     private Employee rick;
-    private Employee diana;
-    private Employee whitney;
 
     private String returnAddress = "clientIdAkaReturnAddress";
 
@@ -96,7 +94,7 @@ public class IntegrationLikeUnitTest {
         employee.active = true;
         employee.salary = new BigDecimal("100");
 
-        diana = employee;
+        Employee diana = employee;
 
 
         employee = new Employee();
@@ -106,7 +104,7 @@ public class IntegrationLikeUnitTest {
         employee.active = true;
         employee.salary = new BigDecimal("100");
 
-        whitney = employee;
+        Employee whitney = employee;
 
         returnAddress = "clientIdAkaReturnAddress";
 

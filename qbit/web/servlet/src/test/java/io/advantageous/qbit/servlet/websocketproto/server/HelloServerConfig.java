@@ -67,12 +67,14 @@ public class HelloServerConfig implements ServerEndpointConfig {
 
     @Override
     public List<Class<? extends Encoder>> getEncoders() {
+        //noinspection unchecked
         return Lists.list((Class) HelloEncoder.class);
 
     }
 
     @Override
     public List<Class<? extends Decoder>> getDecoders() {
+        //noinspection unchecked
         return Lists.list((Class) HelloDecoder.class);
 
     }

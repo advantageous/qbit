@@ -147,7 +147,7 @@ public class ShardedMethodDispatcherTest extends TimedTesting {
     }
 
 
-    public static interface MultiWorkerClient extends ClientProxy {
+    public interface MultiWorkerClient extends ClientProxy {
         void pickSuggestions(String username);
     }
 

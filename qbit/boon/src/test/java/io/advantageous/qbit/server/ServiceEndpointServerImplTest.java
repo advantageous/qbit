@@ -411,7 +411,7 @@ public class ServiceEndpointServerImplTest extends TimedTesting {
 
     }
 
-    public static interface MyOtherInterface {
+    public interface MyOtherInterface {
         void method(Callback<String> callback, String arg);
     }
 

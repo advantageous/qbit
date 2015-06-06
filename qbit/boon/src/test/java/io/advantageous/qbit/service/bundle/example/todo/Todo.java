@@ -58,9 +58,8 @@ public class Todo {
         if (description != null ? !description.equals(todoItem.description) : todoItem.description != null)
             return false;
         if (dueDate != null ? !dueDate.equals(todoItem.dueDate) : todoItem.dueDate != null) return false;
-        if (name != null ? !name.equals(todoItem.name) : todoItem.name != null) return false;
+        return !(name != null ? !name.equals(todoItem.name) : todoItem.name != null);
 
-        return true;
     }
 
     @Override

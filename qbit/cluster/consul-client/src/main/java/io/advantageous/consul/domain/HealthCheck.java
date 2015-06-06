@@ -126,9 +126,8 @@ public class HealthCheck {
         if (output != null ? !output.equals(that.output) : that.output != null) return false;
         if (serviceId != null ? !serviceId.equals(that.serviceId) : that.serviceId != null) return false;
         if (serviceName != null ? !serviceName.equals(that.serviceName) : that.serviceName != null) return false;
-        if (status != null ? !status.equals(that.status) : that.status != null) return false;
+        return !(status != null ? !status.equals(that.status) : that.status != null);
 
-        return true;
     }
 
     @Override

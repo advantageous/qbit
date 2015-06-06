@@ -199,7 +199,8 @@ public class StandardRequestTransformer implements RequestTransformer {
                         final List list = (List) value;
                         final Object o = list.get(bodyArrayParam.getPosition());
                         if (o instanceof Map) {
-                           value = MapObjectConversion.fromMap(((Map) o), parameterMeta.getClassType());
+                            //noinspection unchecked
+                            value = MapObjectConversion.fromMap(((Map) o), parameterMeta.getClassType());
                         }
                     }
                     break;

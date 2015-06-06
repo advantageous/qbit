@@ -176,7 +176,7 @@ public class BoonClientTest {
     }
 
 
-    public static interface ServiceMock {
+    public interface ServiceMock {
         void add(int a, int b);
 
         void sum(Callback<Integer> callback);

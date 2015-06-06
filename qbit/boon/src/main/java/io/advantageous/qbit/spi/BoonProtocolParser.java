@@ -70,14 +70,10 @@ public class BoonProtocolParser implements ProtocolParser {
 
         String stringArgs = (String) args;
 
-        if (stringArgs.length() > 2 &&
+        return stringArgs.length() > 2 &&
                 stringArgs.charAt(0) == PROTOCOL_MARKER &&
                 (stringArgs.charAt(1) == PROTOCOL_MESSAGE_TYPE_METHOD ||
-                        stringArgs.charAt(1) == PROTOCOL_MESSAGE_TYPE_GROUP || stringArgs.charAt(1) == PROTOCOL_MESSAGE_TYPE_RESPONSE)) {
-            return true;
-
-        }
-        return false;
+                        stringArgs.charAt(1) == PROTOCOL_MESSAGE_TYPE_GROUP || stringArgs.charAt(1) == PROTOCOL_MESSAGE_TYPE_RESPONSE);
     }
 
 
@@ -93,7 +89,7 @@ public class BoonProtocolParser implements ProtocolParser {
 
         if (body != null) {
             if (body instanceof String) {
-                return (MethodCall<Object>) (Object) parseMessageFromString(addressPrefix, (String) body);
+                return (MethodCall<Object>) parseMessageFromString(addressPrefix, (String) body);
             }
         }
 
@@ -168,11 +164,13 @@ public class BoonProtocolParser implements ProtocolParser {
 
     @Override
     public List<MethodCall<Object>> parseMethods(Object body) {
+        //noinspection unchecked
         return (List<MethodCall<Object>>) (Object) parse("", body);
     }
 
     @Override
     public List<MethodCall<Object>> parseMethodCallListUsingAddressPrefix(String addressPrefix, Object body) {
+        //noinspection unchecked
         return (List<MethodCall<Object>>) (Object) parse("", body);
     }
 

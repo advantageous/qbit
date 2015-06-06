@@ -30,6 +30,14 @@ public class HelloObject {
     public HelloObject(String hello) {
         this.hello = hello;
     }
+
+    public String getHello() {
+        return hello;
+    }
+
+    public long getTime() {
+        return time;
+    }
 }
 
 

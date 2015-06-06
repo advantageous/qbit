@@ -353,6 +353,7 @@ public class EndpointServerBuilder {
 
                     @Override
                     public <T> Queue<T> build() {
+                        //noinspection unchecked
                         return (Queue<T>) responseQueue;
                     }
                 };

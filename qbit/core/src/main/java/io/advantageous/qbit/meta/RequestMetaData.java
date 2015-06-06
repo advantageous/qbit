@@ -21,7 +21,6 @@ package io.advantageous.qbit.meta;
 public class RequestMetaData {
 
 
-    private final ContextMeta context;
     private final RequestMeta request;
     private final ServiceMethodMeta method;
     private final ServiceMeta service;
@@ -36,7 +35,7 @@ public class RequestMetaData {
         this.method = method;
         this.service = service;
         this.path = path;
-        this.context = context;
+        ContextMeta context1 = context;
     }
 
 

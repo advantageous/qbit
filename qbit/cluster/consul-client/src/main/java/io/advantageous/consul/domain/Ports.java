@@ -103,9 +103,8 @@ public class Ports {
         if (rpc != ports.rpc) return false;
         if (serfLan != ports.serfLan) return false;
         if (serfWan != ports.serfWan) return false;
-        if (server != ports.server) return false;
+        return server == ports.server;
 
-        return true;
     }
 
     @Override

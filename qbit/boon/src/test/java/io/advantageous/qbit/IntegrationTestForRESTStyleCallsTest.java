@@ -71,10 +71,7 @@ public class IntegrationTestForRESTStyleCallsTest {
     Response<Object> response;
     ProtocolEncoder encoder = new BoonProtocolEncoder();
     private Employee rick;
-    private Employee diana;
-    private Employee whitney;
     private String returnAddress = "clientIdAkaReturnAddress";
-    private Employee employee;
 
 
     @Before
@@ -106,7 +103,7 @@ public class IntegrationTestForRESTStyleCallsTest {
         employee.active = true;
         employee.salary = new BigDecimal("100");
 
-        diana = employee;
+        Employee diana = employee;
 
 
         employee = new Employee();
@@ -116,7 +113,7 @@ public class IntegrationTestForRESTStyleCallsTest {
         employee.active = true;
         employee.salary = new BigDecimal("100");
 
-        whitney = employee;
+        Employee whitney = employee;
 
         returnAddress = "clientIdAkaReturnAddress";
 
@@ -469,7 +466,7 @@ public class IntegrationTestForRESTStyleCallsTest {
     }
 
     private void validateRick() {
-        employee = (Employee) response.body();
+        Employee employee = (Employee) response.body();
         Assert.assertEquals(rick.id, employee.id);
         Assert.assertEquals(rick.active, employee.active);
         Assert.assertEquals(rick.firstName, employee.firstName);

@@ -60,6 +60,7 @@ public class BasicSendQueue<T> implements SendQueue<T> {
         this.queue = queue;
         queueLocal = new Object[batchSize];
         if (queue instanceof TransferQueue && checkBusy) {
+            //noinspection unchecked
             transferQueue = ((TransferQueue) queue);
             this.checkBusy = true;
         } else {

@@ -144,7 +144,7 @@ public class BoonClient implements Client {
 
         for (Message<Object> message : messages) {
             if (message instanceof Response) {
-                final Response<Object> response = ((Response) message);
+                @SuppressWarnings("unchecked") final Response<Object> response = ((Response) message);
                 final String[] split = StringScanner.split(response.returnAddress(), (char) PROTOCOL_ARG_SEPARATOR);
                 final HandlerKey key = split.length == 2 ? new HandlerKey(split[1], response.id()) : new HandlerKey(split[0], response.id());
                 final Callback<Object> handler = handlers.get(key);
@@ -276,6 +276,7 @@ public class BoonClient implements Client {
                     if (list.length > 0) {
                         final Object o = list[0];
                         if (o instanceof Callback) {
+                            //noinspection unchecked
                             handlers.put(new HandlerKey(call.returnAddress(), call.id()), createHandler(serviceInterface, call, (Callback) o));
 
                             if (list.length - 1 == 0) {
@@ -373,6 +374,7 @@ public class BoonClient implements Client {
                     if (componentClass != null && actualReturnType == List.class) {
 
                         try {
+                            //noinspection unchecked
                             event = MapObjectConversion.convertListOfMapsToObjects(componentClass, (List) event);
                         } catch (Exception ex) {
                             if (event instanceof CharSequence) {
@@ -392,6 +394,7 @@ public class BoonClient implements Client {
                     } else {
                         event = Conversions.coerce(actualReturnType, event);
                     }
+                    //noinspection unchecked
                     handler.accept(event);
                 }
 

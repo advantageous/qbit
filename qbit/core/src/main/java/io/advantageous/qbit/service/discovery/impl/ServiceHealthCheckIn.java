@@ -30,9 +30,8 @@ public class ServiceHealthCheckIn {
         ServiceHealthCheckIn checkIn = (ServiceHealthCheckIn) o;
 
         if (healthStatus != checkIn.healthStatus) return false;
-        if (serviceId != null ? !serviceId.equals(checkIn.serviceId) : checkIn.serviceId != null) return false;
+        return !(serviceId != null ? !serviceId.equals(checkIn.serviceId) : checkIn.serviceId != null);
 
-        return true;
     }
 
     @Override

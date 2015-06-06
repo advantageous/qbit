@@ -320,9 +320,8 @@ public class StatList extends AbstractList<Integer> {
         StatList integers = (StatList) o;
 
         if (end != integers.end) return false;
-        if (!Int.equals(0, end, values, integers.values)) return false;
+        return Int.equals(0, end, values, integers.values);
 
-        return true;
     }
 
     @Override

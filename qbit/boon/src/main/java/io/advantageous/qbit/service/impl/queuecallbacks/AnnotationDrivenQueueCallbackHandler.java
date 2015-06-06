@@ -42,6 +42,7 @@ public class AnnotationDrivenQueueCallbackHandler implements QueueCallBackHandle
 
         ClassMeta<Class<?>> classMeta;
 
+        //noinspection unchecked
         classMeta = (ClassMeta<Class<?>>) ClassMeta.classMeta(service.getClass());
 
         this.service = service;

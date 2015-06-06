@@ -81,9 +81,8 @@ public class Service {
         if (port != service1.port) return false;
         if (id != null ? !id.equals(service1.id) : service1.id != null) return false;
         if (service != null ? !service.equals(service1.service) : service1.service != null) return false;
-        if (tags != null ? !tags.equals(service1.tags) : service1.tags != null) return false;
+        return !(tags != null ? !tags.equals(service1.tags) : service1.tags != null);
 
-        return true;
     }
 
     @Override

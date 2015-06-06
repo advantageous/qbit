@@ -41,6 +41,7 @@ public class DynamicQueueCallbackHandler implements QueueCallBackHandler {
         final ClassMeta<Class<?>> classMeta;
 
         this.service = service;
+        //noinspection unchecked
         classMeta = (ClassMeta<Class<?>>) ClassMeta.classMeta(service.getClass());
 
         queueLimit = classMeta.method("queueLimit");

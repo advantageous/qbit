@@ -27,14 +27,15 @@ import java.util.*;
  */
 public interface MultiMap<K, V> extends Iterable<Map.Entry<K, Collection<V>>>, Map<K, V> {
 
-    public static <K,V> MultiMap<K, V> multiMap() {return new MultiMapImpl<>();}
+    static <K,V> MultiMap<K, V> multiMap() {return new MultiMapImpl<>();}
 
-    static final MultiMap EMPTY = new MultiMap() {
+    MultiMap EMPTY = new MultiMap() {
 
         private Map empty = Collections.emptyMap();
 
         @Override
         public Iterator<Entry> iterator() {
+            //noinspection unchecked
             return empty.entrySet().iterator();
         }
 
@@ -114,6 +115,7 @@ public interface MultiMap<K, V> extends Iterable<Map.Entry<K, Collection<V>>>, M
 
         @Override
         public Object put(Object key, Object value) {
+            //noinspection unchecked
             return empty.put(key, value);
         }
 
@@ -124,6 +126,7 @@ public interface MultiMap<K, V> extends Iterable<Map.Entry<K, Collection<V>>>, M
 
         @Override
         public void putAll(Map m) {
+            //noinspection unchecked
             empty.putAll(m);
         }
 
@@ -144,6 +147,7 @@ public interface MultiMap<K, V> extends Iterable<Map.Entry<K, Collection<V>>>, M
 
         @Override
         public Set<Entry> entrySet() {
+            //noinspection unchecked
             return empty.entrySet();
         }
     };
@@ -183,21 +187,21 @@ public interface MultiMap<K, V> extends Iterable<Map.Entry<K, Collection<V>>>, M
         throw new UnsupportedOperationException("baseMap");
     }
 
-    public V getSingleObject(K name);
+    V getSingleObject(K name);
 
     @Override
-    default public boolean containsValue(Object value) {
+    default boolean containsValue(Object value) {
 
         throw new UnsupportedOperationException("Unsupported");
 
     }
 
-    default public V put(K key, V value) {
+    default V put(K key, V value) {
         throw new UnsupportedOperationException("Unsupported");
 
     }
 
-    default public V remove(Object key) {
+    default V remove(Object key) {
 
         throw new UnsupportedOperationException("Unsupported");
     }

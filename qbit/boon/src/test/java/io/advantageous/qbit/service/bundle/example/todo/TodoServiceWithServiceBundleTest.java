@@ -78,7 +78,7 @@ public class TodoServiceWithServiceBundleTest {
         Object body = response.body();
 
         if (body instanceof List) {
-            List<Todo> items = (List) body;
+            @SuppressWarnings("unchecked") List<Todo> items = (List) body;
 
             ok = items.size() > 0 || die("items should have one todo in it");
 
@@ -124,7 +124,7 @@ public class TodoServiceWithServiceBundleTest {
         Object body = response.body();
 
         if (body instanceof List) {
-            List<Todo> items = (List) body;
+            @SuppressWarnings("unchecked") List<Todo> items = (List) body;
 
             ok = items.size() > 0 || die("items should have one todo in it");
 
@@ -171,7 +171,7 @@ public class TodoServiceWithServiceBundleTest {
         Object body = response.body();
 
         if (body instanceof List) {
-            List<Todo> items = (List) body;
+            @SuppressWarnings("unchecked") List<Todo> items = (List) body;
 
             ok = items.size() > 0 || die("items should have one todo in it");
 

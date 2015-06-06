@@ -356,9 +356,8 @@ public class Config {
         if (!Arrays.equals(startJoin, config.startJoin)) return false;
         if (statsiteAddr != null ? !statsiteAddr.equals(config.statsiteAddr) : config.statsiteAddr != null)
             return false;
-        if (uiDir != null ? !uiDir.equals(config.uiDir) : config.uiDir != null) return false;
+        return !(uiDir != null ? !uiDir.equals(config.uiDir) : config.uiDir != null);
 
-        return true;
     }
 
     @Override

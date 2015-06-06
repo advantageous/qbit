@@ -87,7 +87,7 @@ public class SenderEndPoint implements EndPoint {
 
         if (methodCalls.size() > 0) {
             String returnAddress = methodCalls.get(0).returnAddress();
-            List<Message<Object>> methods = (List<Message<Object>>) (Object) methodCalls;
+            @SuppressWarnings("unchecked") List<Message<Object>> methods = (List<Message<Object>>) (Object) methodCalls;
             sender.send(returnAddress, encoder.encodeAsString(methods));
         }
     }

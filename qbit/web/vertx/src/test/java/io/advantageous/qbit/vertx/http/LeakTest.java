@@ -9,7 +9,7 @@ import io.advantageous.qbit.server.ServiceEndpointServer;
 
 public class LeakTest {
 
-    public static interface MyService {
+    public interface MyService {
         void foo();
     }
 

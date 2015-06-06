@@ -111,6 +111,7 @@ public class MultiMapWrapper implements MultiMap<String, String> {
     @Override
     public Iterable<String> valueMulti() {
         /* We could support this. */
+        //noinspection unchecked
         return die(Iterable.class, "NOT SUPPORTED");
     }
 
@@ -130,6 +131,7 @@ public class MultiMapWrapper implements MultiMap<String, String> {
     @Override
     public Map<? extends String, ? extends Collection<String>> baseMap() {
 
+        //noinspection unchecked
         return die(Map.class, "NOT SUPPORTED");
     }
 
@@ -199,6 +201,7 @@ public class MultiMapWrapper implements MultiMap<String, String> {
 
     @Override
     public Collection<String> values() {
+        //noinspection unchecked
         return die(Collection.class, "Not supported");
     }
 

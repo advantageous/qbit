@@ -43,18 +43,18 @@ import static io.advantageous.qbit.http.request.HttpRequestBuilder.httpRequestBu
  */
 public interface HttpClient extends ServiceFlushable, Stoppable, Startable{
 
-    public static int HTTP_CLIENT_DEFAULT_TIMEOUT = Sys.sysProp(
+    int HTTP_CLIENT_DEFAULT_TIMEOUT = Sys.sysProp(
             "io.advantageous.qbit.http.client.HttpClient.timeout", 180);
 
-    public static void _createHttpTextReceiver(final HttpRequest httpRequest,
-                                               final CountDownLatch countDownLatch,
-                                               final CountDownLatch countDownLatch2,
-                                               final AtomicReference<HttpResponse> httpResponseAtomicReference) {
+    static void _createHttpTextReceiver(final HttpRequest httpRequest,
+                                        final CountDownLatch countDownLatch,
+                                        final CountDownLatch countDownLatch2,
+                                        final AtomicReference<HttpResponse> httpResponseAtomicReference) {
 
         final HttpTextReceiver httpTextReceiver = new HttpTextReceiver() {
             @Override
             public void response(int code, String contentType, String body) {
-                response(code, contentType, body, MultiMap.EMPTY);
+                response(code, contentType, body, MultiMap.empty());
             }
 
             @Override

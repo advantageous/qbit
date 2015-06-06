@@ -65,9 +65,8 @@ public class ServiceHealth {
 
         if (checks != null ? !checks.equals(that.checks) : that.checks != null) return false;
         if (node != null ? !node.equals(that.node) : that.node != null) return false;
-        if (service != null ? !service.equals(that.service) : that.service != null) return false;
+        return !(service != null ? !service.equals(that.service) : that.service != null);
 
-        return true;
     }
 
     @Override

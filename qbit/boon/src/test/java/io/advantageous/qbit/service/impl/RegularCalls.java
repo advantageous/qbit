@@ -106,6 +106,7 @@ public class RegularCalls {
         SendQueue<MethodCall<Object>> requests = serviceQueue.requests();
         ReceiveQueue<Response<Object>> responses = serviceQueue.responses();
 
+        //noinspection unchecked
         requests.sendMany(MethodCallBuilder.method("add", Lists.list(1, 2)), MethodCallBuilder.method("add", Lists.list(4, 5)));
 
 

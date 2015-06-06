@@ -51,9 +51,8 @@ public class Node {
         Node node1 = (Node) o;
 
         if (address != null ? !address.equals(node1.address) : node1.address != null) return false;
-        if (node != null ? !node.equals(node1.node) : node1.node != null) return false;
+        return !(node != null ? !node.equals(node1.node) : node1.node != null);
 
-        return true;
     }
 
     @Override

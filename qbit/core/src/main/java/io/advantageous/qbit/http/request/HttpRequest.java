@@ -144,6 +144,7 @@ public class HttpRequest implements Request<Object> {
 
 
     public HttpResponseReceiver<Object> getReceiver() {
+        //noinspection unchecked
         return receiver;
     }
 
@@ -174,9 +175,8 @@ public class HttpRequest implements Request<Object> {
         if (messageId != request.messageId) return false;
         if (timestamp != request.timestamp) return false;
         if (!method.equals(request.method)) return false;
-        if (!uri.equals(request.uri)) return false;
+        return uri.equals(request.uri);
 
-        return true;
     }
 
     @Override

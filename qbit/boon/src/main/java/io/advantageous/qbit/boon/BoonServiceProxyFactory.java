@@ -149,9 +149,11 @@ public class BoonServiceProxyFactory implements ServiceProxyFactory {
 
 
         if (port == 0) {
+            //noinspection unchecked
             return (T) Proxy.newProxyInstance(serviceInterface.getClassLoader(),
                     new Class[]{serviceInterface, ClientProxy.class}, invocationHandler);
         } else {
+            //noinspection unchecked
             return (T) Proxy.newProxyInstance(serviceInterface.getClassLoader(),
                     new Class[]{serviceInterface, RemoteTCPClientProxy.class}, invocationHandler);
         }

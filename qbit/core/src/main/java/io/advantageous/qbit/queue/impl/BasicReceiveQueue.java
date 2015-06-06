@@ -73,7 +73,7 @@ class BasicReceiveQueue<T> implements ReceiveQueue<T> {
             return null;
         }
 
-        T item = (T) lastQueue[lastQueueIndex];
+        @SuppressWarnings("unchecked") T item = (T) lastQueue[lastQueueIndex];
         lastQueueIndex++;
 
         if (lastQueueIndex == lastQueue.length) {
@@ -123,6 +123,7 @@ class BasicReceiveQueue<T> implements ReceiveQueue<T> {
             //uts("batch size", lastQueue.length);
             return getItemFromLocalQueue();
         } else {
+            //noinspection unchecked
             return (T) o;
         }
     }

@@ -87,6 +87,7 @@ public class JsonServiceCallTest {
         SendQueue<MethodCall<Object>> requests = serviceQueue.requests();
 
 
+        //noinspection unchecked
         requests.sendMany(MethodCallBuilder.method("add", "[1,2]"), MethodCallBuilder.method("add", "[4,5]"));
 
 

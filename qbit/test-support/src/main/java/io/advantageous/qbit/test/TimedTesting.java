@@ -49,6 +49,7 @@ public class TimedTesting {
 
             while (true) {
 
+                //noinspection unchecked
                 if (predicate.test(null)) {
                     latch.countDown();
                     return;

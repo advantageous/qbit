@@ -24,7 +24,7 @@ public class BoonEventChannelTestAndOnEvent extends TimedTesting {
     public  AtomicInteger eventCount = new AtomicInteger();
 
     @EventChannel ("FOO")
-    static interface MyChannelInterface {
+    interface MyChannelInterface {
 
         @EventChannel ("bam")
         void somethingHappened(int i, String foo);
