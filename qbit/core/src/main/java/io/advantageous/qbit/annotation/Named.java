@@ -18,21 +18,19 @@
 
 package io.advantageous.qbit.annotation;
 
+
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-
 /**
- * Used to register for queue callback methods like, the queue is idle, the queue hit its limit, etc.
+ * Give something a name.
+ *
+ * @author Rick Hightower
  */
-@Target({ElementType.METHOD})
 @Retention(RetentionPolicy.RUNTIME)
-public @interface QueueCallback {
-
-    /* The type of callbackWithTimeout. */;
-
-    QueueCallbackType[] value() default {QueueCallbackType.DYNAMIC};
-
+@Target(value = {ElementType.METHOD, ElementType.TYPE, ElementType.FIELD, ElementType.PARAMETER})
+public @interface Named {
+    String value() default "";
 }

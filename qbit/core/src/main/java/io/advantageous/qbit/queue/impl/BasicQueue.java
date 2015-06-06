@@ -67,6 +67,9 @@ public class BasicQueue<T> implements Queue<T> {
                       final int size,
                       final int checkEvery, boolean tryTransfer) {
 
+        logger.info("Queue created <> <> batchSize <> size <> checkEvery <> tryTransfer <>",
+                name, queueClass, batchSize, size, checkEvery, tryTransfer);
+
 
         this.tryTransfer = tryTransfer;
         this.name = name;
@@ -80,12 +83,14 @@ public class BasicQueue<T> implements Queue<T> {
 
 
         if (size == -1) {
+
             //noinspection unchecked
             this.queue = ClassMeta.classMeta(queueClass).noArgConstructor().create();
         } else {
 
             final ClassMeta<? extends BlockingQueue> classMeta = ClassMeta.classMeta(queueClass);
             if (queueClass != LinkedTransferQueue.class) {
+                if (debug) logger.debug("Not a LinkedTransfer queue");
                 final ConstructorAccess<Object> constructor = classMeta.declaredConstructor(int.class);
                 //noinspection unchecked
                 this.queue = (BlockingQueue<Object>) constructor.create(size);
@@ -103,6 +108,10 @@ public class BasicQueue<T> implements Queue<T> {
         this.checkIfBusy = shouldCheckIfBusy && checkIfBusy;
 
         this.checkEvery = checkEvery;
+
+
+        logger.info("Queue done creating <>  batchSize <>  checkEvery <> tryTransfer <>",
+                this.name, this.batchSize, this.checkEvery, this.tryTransfer);
     }
 
 
@@ -114,6 +123,7 @@ public class BasicQueue<T> implements Queue<T> {
      */
     @Override
     public ReceiveQueue<T> receiveQueue() {
+        logger.info("ReceiveQueue requested for <>", name);
         return new BasicReceiveQueue<>(queue, waitTime, timeUnit, batchSize);
     }
 
@@ -125,12 +135,16 @@ public class BasicQueue<T> implements Queue<T> {
      */
     @Override
     public SendQueue<T> sendQueue() {
+        logger.info("SendQueue requested for <>", name);
         return new BasicSendQueue<>(batchSize, this.queue, checkIfBusy, checkEvery, tryTransfer);
     }
 
 
     @Override
     public void startListener(final ReceiveQueueListener<T> listener) {
+
+
+        logger.info("Starting queue listener for  <> <>" , name, listener);
 
         if (executorContext != null) {
             throw new IllegalStateException("Queue.startListener::Unable to startClient up twice: " + name);
@@ -147,6 +161,9 @@ public class BasicQueue<T> implements Queue<T> {
 
     @Override
     public void stop() {
+
+        logger.info("Stopping queue  <>", name);
+
         stop.set(true);
         if (executorContext != null) {
             executorContext.stop();
@@ -156,5 +173,12 @@ public class BasicQueue<T> implements Queue<T> {
 
     private void manageQueue(ReceiveQueueListener<T> listener) {
         this.receiveQueueManager.manageQueue(receiveQueue(), listener, batchSize, stop);
+    }
+
+    @Override
+    public String toString() {
+        return "BasicQueue{" +
+                "name='" + name + '\'' +
+                '}';
     }
 }

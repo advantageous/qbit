@@ -31,8 +31,8 @@ public class RegisterVertxWithQBit {
         FactorySPI.setHttpServerFactory(new HttpServerVertxFactory());
 
         //noinspection Convert2MethodRef
-        FactorySPI.setHttpClientFactory((host, port, requestBatchSize, timeOutInMilliseconds, poolSize, autoFlush, flushRate, keepAlive, pipeline)
-                -> new HttpVertxClient(host, port, requestBatchSize,
+        FactorySPI.setHttpClientFactory((host, port, timeOutInMilliseconds, poolSize, autoFlush, flushRate, keepAlive, pipeline)
+                -> new HttpVertxClient(host, port,
                 timeOutInMilliseconds, poolSize, autoFlush, flushRate, keepAlive, pipeline));
 
     }

@@ -29,6 +29,7 @@ import java.util.concurrent.TimeUnit;
 
 
 /**
+ * This creates a simple restartable thread.
  * created by rhightower on 2/13/15.
  */
 public class ScheduledThreadContext implements ExecutorContext {
@@ -83,12 +84,10 @@ public class ScheduledThreadContext implements ExecutorContext {
                     return thread;
                 }
         );
-        /** This wants to be configurable. */
         future = monitor.scheduleAtFixedRate(() -> {
             try {
                 runnable.run();
             } catch (Exception ex) {
-                ex.printStackTrace();
                 logger.error("Problem running: " + description, ex);
             }
         }, initialDelay, period, unit);

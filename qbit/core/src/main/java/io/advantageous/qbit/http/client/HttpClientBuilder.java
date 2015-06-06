@@ -39,8 +39,6 @@ public class HttpClientBuilder {
     private String host = "localhost";
     private int port = 8080;
     private int poolSize = 20;
-    private int pollTime = 10;
-    private int requestBatchSize = 10;
     private int timeOutInMilliseconds = 3_000;
     private boolean autoFlush = true;
     private boolean keepAlive = true;
@@ -53,9 +51,6 @@ public class HttpClientBuilder {
         this.host = propertyResolver.getStringProperty("host", "localhost");
         this.port = propertyResolver.getIntegerProperty("port", 8080);
         this.poolSize = propertyResolver.getIntegerProperty("poolSize", 1);
-        this.pollTime = propertyResolver.getIntegerProperty("pollTime", GlobalConstants.POLL_WAIT);
-        this.requestBatchSize = propertyResolver
-                .getIntegerProperty("requestBatchSize", GlobalConstants.BATCH_SIZE);
         this.keepAlive = propertyResolver.getBooleanProperty("keepAlive", true);
         this.pipeline = propertyResolver.getBooleanProperty("pipeline", true);
         this.timeOutInMilliseconds = propertyResolver.getIntegerProperty("timeOutInMilliseconds", 3000);
@@ -124,24 +119,6 @@ public class HttpClientBuilder {
     }
 
 
-    public int getPollTime() {
-        return pollTime;
-    }
-
-    public HttpClientBuilder setPollTime(int pollTime) {
-        this.pollTime = pollTime;
-        return this;
-    }
-
-    public int getRequestBatchSize() {
-        return requestBatchSize;
-    }
-
-    public HttpClientBuilder setRequestBatchSize(int requestBatchSize) {
-        this.requestBatchSize = requestBatchSize;
-        return this;
-    }
-
 
     public int getPoolSize() {
         return poolSize;
@@ -175,12 +152,12 @@ public class HttpClientBuilder {
         @SuppressWarnings("UnnecessaryLocalVariable") final HttpClient httpClient = QBit.factory().createHttpClient(
                 this.getHost(),
                 this.getPort(),
-                this.getRequestBatchSize(),
                 this.getTimeOutInMilliseconds(),
                 this.getPoolSize(),
                 this.isAutoFlush(),
                 this.getFlushInterval(),
-                this.isKeepAlive(), this.isPipeline());
+                this.isKeepAlive(),
+                this.isPipeline());
 
         return httpClient;
     }

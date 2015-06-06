@@ -17,6 +17,9 @@
  */
 package io.advantageous.qbit.meta.params;
 
+/**
+ * Holds meta data about a body parameter where the body is an array.
+ */
 public class BodyArrayParam extends PositionalParam {
 
     public BodyArrayParam(final boolean required,

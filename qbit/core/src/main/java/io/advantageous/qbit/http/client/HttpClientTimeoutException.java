@@ -1,6 +1,7 @@
 package io.advantageous.qbit.http.client;
 
 /**
+ * If an HTTP Client has a time out, it can throw this exception.
  * created by rhightower on 4/30/15.
  */
 public class HttpClientTimeoutException extends HttpClientException {

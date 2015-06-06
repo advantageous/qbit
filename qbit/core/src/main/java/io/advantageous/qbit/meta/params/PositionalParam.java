@@ -17,6 +17,10 @@
  */
 package io.advantageous.qbit.meta.params;
 
+
+/**
+ * Holds meta data about a body where some positional param represents a single argument to a method.
+ */
 public class PositionalParam extends Param {
 
     private final int position;

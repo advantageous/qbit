@@ -14,6 +14,9 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+/**
+ * Allows you to build a context for service definitions.
+ */
 public class ContextMetaBuilder {
 
     private String rootURI = "/services";

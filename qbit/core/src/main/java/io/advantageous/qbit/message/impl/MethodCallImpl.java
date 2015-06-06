@@ -23,7 +23,7 @@ import io.advantageous.qbit.message.Request;
 import io.advantageous.qbit.util.MultiMap;
 
 /**
- * This is runs a method call for an RPC call.
+ * This is represents a method call for an RPC call.
  * <p>
  * created by Richard on 8/11/14.
  */

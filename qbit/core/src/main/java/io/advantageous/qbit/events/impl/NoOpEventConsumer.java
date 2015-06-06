@@ -22,6 +22,7 @@ import io.advantageous.qbit.events.EventConsumer;
 import io.advantageous.qbit.message.Event;
 
 /**
+ * Used to provide a no op event consumer to avoid NPE.
  * created by rhightower on 2/3/15.
  */
 public class NoOpEventConsumer<T> implements EventConsumer<T> {

@@ -29,7 +29,7 @@ import java.net.URL;
 import java.util.Properties;
 
 /**
- * Client builder is used to createWithWorkers a client programatically.
+ * Client builder is used to create a client programatically.
  */
 public class ClientBuilder {
 
@@ -228,12 +228,12 @@ public class ClientBuilder {
         final HttpClient httpClient = QBit.factory().createHttpClient(
                 this.getHost(),
                 this.getPort(),
-                this.getRequestBatchSize(),
                 this.getTimeOutInMilliseconds(),
                 this.getPoolSize(),
                 this.isAutoFlush(),
                 this.getFlushInterval(),
-                this.isKeepAlive(), this.isPipeline());
+                this.isKeepAlive(),
+                this.isPipeline());
 
         if (protocolBatchSize == -1) {
             protocolBatchSize = requestBatchSize;

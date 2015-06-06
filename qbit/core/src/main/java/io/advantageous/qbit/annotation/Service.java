@@ -25,7 +25,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Defines an object as a client.
+ * Defines an object as a service.
  *
  * @author richardhightower@gmail.com (Rick Hightower)
  */

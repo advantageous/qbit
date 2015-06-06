@@ -10,7 +10,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 
 /**
- * This allows for a callbackWithTimeout to be called in the context of a service.
+ * This allows for a callback to be called in the context of a service.
  *
  * @author rhightower
  */

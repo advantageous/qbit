@@ -17,6 +17,10 @@
  */
 package io.advantageous.qbit.meta.params;
 
+
+/**
+ * Types of parameters
+ */
 public enum ParamType {
     BODY,
     REQUEST,

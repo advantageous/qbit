@@ -19,6 +19,7 @@
 package io.advantageous.qbit.events;
 
 /**
+ * Creates a proxy object to an event channel.
  * EventBusProxyCreator
  * created by rhightower on 2/11/15.
  */

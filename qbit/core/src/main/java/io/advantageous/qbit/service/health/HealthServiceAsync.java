@@ -30,4 +30,7 @@ public interface HealthServiceAsync extends ClientProxy {
     void findNotHealthyNodes(Callback<List<String>> callback);
 
 
+    List<NodeHealthStat> loadNodes();
+
+    void unregister(String serviceName);
 }

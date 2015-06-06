@@ -17,6 +17,10 @@
  */
 package io.advantageous.qbit.meta.params;
 
+
+/**
+ * Holds meta data about a body where a named URI param represents a single argument to a method.
+ */
 public class URINamedParam extends NamedParam {
 
 

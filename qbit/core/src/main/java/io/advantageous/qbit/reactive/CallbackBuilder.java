@@ -4,6 +4,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
 /**
+ * You need this is you want to do error handling (Exception) from a callback.
  * Callback Builder
  * created by rhightower on 3/23/15.
  */

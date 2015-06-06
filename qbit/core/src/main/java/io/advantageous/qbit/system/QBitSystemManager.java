@@ -32,6 +32,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.CountDownLatch;
 
 /**
+ * Allows for gracefully shutting down a collection of stoppable things.
  * created by rhightower on 2/11/15.
  */
 public class QBitSystemManager {

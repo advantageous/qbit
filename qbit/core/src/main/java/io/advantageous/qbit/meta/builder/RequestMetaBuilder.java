@@ -14,6 +14,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+/**
+ * Allows you to build request meta data.
+ */
 public class RequestMetaBuilder {
 
     private CallType callType;

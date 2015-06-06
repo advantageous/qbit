@@ -27,6 +27,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
+ * This holds a response from an RPC type call.
  * created by Richard on 8/11/14.
  */
 public class ResponseImpl<T> implements Response<T> {

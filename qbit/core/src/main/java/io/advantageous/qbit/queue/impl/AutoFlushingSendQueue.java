@@ -34,6 +34,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReentrantLock;
 
 /**
+ * A queue sender that will periodically flush itself.
  * @author rhightower
  * on 2/24/15.
  */

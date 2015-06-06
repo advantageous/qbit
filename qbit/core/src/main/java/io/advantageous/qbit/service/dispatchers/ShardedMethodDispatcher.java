@@ -31,6 +31,8 @@ import io.advantageous.qbit.queue.SendQueue;
 import java.util.concurrent.TimeUnit;
 
 /**
+ *
+ * A sharded method dispatcher.
  * @author rhightower
  * on 2/18/15.
  */

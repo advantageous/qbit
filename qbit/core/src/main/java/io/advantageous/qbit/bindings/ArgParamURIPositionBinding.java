@@ -20,17 +20,18 @@ package io.advantageous.qbit.bindings;
 
 
 /**
+ * Maps an method argument to URI position.
  * @author Rick Hightower
  *         <p>
  *         created by Richard on 7/22/14.
  */
-public class ArgParamBinding {
+public class ArgParamURIPositionBinding {
 
-    final int uriPosition;
-    final String methodParamName;
+    private final int uriPosition;
+    private final String methodParamName;
     private final int methodParamPosition;
 
-    public ArgParamBinding(int methodParamPosition, int uriPosition, String methodParamName) {
+    public ArgParamURIPositionBinding(int methodParamPosition, int uriPosition, String methodParamName) {
         this.methodParamPosition = methodParamPosition;
         this.uriPosition = uriPosition;
         this.methodParamName = methodParamName;
@@ -50,7 +51,7 @@ public class ArgParamBinding {
 
     @Override
     public String toString() {
-        return "ArgParamBinding{" +
+        return "ArgParamURIPositionBinding{" +
                 "methodParamPosition=" + methodParamPosition +
                 ", uriPosition=" + uriPosition +
                 ", methodParamName='" + methodParamName + '\'' +

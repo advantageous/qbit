@@ -18,6 +18,10 @@
 package io.advantageous.qbit.meta;
 
 
+
+/**
+ * Holds meta-data about a single request of a service method.
+ */
 public class RequestMetaData {
 
 

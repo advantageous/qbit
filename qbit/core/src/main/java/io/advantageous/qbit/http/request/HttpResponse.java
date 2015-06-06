@@ -21,6 +21,8 @@ package io.advantageous.qbit.http.request;
 import io.advantageous.qbit.util.MultiMap;
 
 /**
+ * Represents a response from the server.
+ * This only handles text, for binary results, you must use an HttpBinaryReceiver.
  * created by rhightower on 1/29/15.
  */
 public interface HttpResponse {

@@ -34,7 +34,7 @@ public class MethodBinding {
 
     private final String address;
 
-    private final List<ArgParamBinding> parameters = new ArrayList<>();
+    private final List<ArgParamURIPositionBinding> parameters = new ArrayList<>();
 
     private final List<RequestParamBinding> requestParamBindings = new ArrayList<>();
 
@@ -57,11 +57,11 @@ public class MethodBinding {
                 }
                 found = true;
                 item = item.substring(1, item.length() - 1);
-                ArgParamBinding binding;
+                ArgParamURIPositionBinding binding;
                 if (item.matches("\\d+")) {
-                    binding = new ArgParamBinding(Integer.parseInt(item), index, "");
+                    binding = new ArgParamURIPositionBinding(Integer.parseInt(item), index, "");
                 } else {
-                    binding = new ArgParamBinding(-1, index, item);
+                    binding = new ArgParamURIPositionBinding(-1, index, item);
                 }
                 parameters.add(binding);
             }
@@ -90,7 +90,7 @@ public class MethodBinding {
         return address;
     }
 
-    public List<ArgParamBinding> parameters() {
+    public List<ArgParamURIPositionBinding> parameters() {
         return parameters;
     }
 

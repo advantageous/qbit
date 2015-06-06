@@ -17,6 +17,9 @@
  */
 package io.advantageous.qbit.meta;
 
+/**
+ * Type of call.
+ */
 public enum CallType {
 
     /**

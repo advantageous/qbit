@@ -52,6 +52,4 @@ public interface ServiceMethodHandler extends ReceiveQueueListener<MethodCall<Ob
     void queueInit();
 
     void handleEvent(Event<Object> event);
-
-    void queueStartBatch();
 }

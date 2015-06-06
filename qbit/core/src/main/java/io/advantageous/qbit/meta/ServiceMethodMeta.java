@@ -25,6 +25,10 @@ import io.advantageous.qbit.annotation.JsonIgnore;
 
 import java.util.List;
 
+
+/**
+ * Holds meta-data about a single service method.
+ */
 public class ServiceMethodMeta {
 
 

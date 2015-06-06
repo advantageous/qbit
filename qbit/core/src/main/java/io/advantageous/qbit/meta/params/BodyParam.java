@@ -17,6 +17,10 @@
  */
 package io.advantageous.qbit.meta.params;
 
+
+/**
+ * Holds meta data about a body  where the body represents a single argument to a method.
+ */
 public class BodyParam extends Param {
     public BodyParam(boolean required, @SuppressWarnings("SameParameterValue") Object defaultValue) {
         super(required, defaultValue, ParamType.BODY);

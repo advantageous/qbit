@@ -1,5 +1,8 @@
 package io.advantageous.qbit.http.client;
 
+/**
+ * If you try to access an HTTP client that is closed, you will get this exception.
+ */
 public class HttpClientClosedConnectionException extends HttpClientException {
 
 

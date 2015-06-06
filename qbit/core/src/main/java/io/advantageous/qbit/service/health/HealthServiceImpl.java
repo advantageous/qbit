@@ -1,6 +1,7 @@
 package io.advantageous.qbit.service.health;
 
 
+import io.advantageous.boon.core.Lists;
 import io.advantageous.qbit.annotation.QueueCallback;
 import io.advantageous.qbit.annotation.QueueCallbackType;
 import io.advantageous.qbit.util.Timer;
@@ -31,7 +32,7 @@ public class HealthServiceImpl implements HealthService {
     /**
      * Internal map to check health.
      */
-    private final Map<String, ServiceHealthStat> serviceHealthStatMap
+    private final Map<String, NodeHealthStat> serviceHealthStatMap
             = new ConcurrentHashMap<>();
     /**
      * Last Check in time.
@@ -74,7 +75,7 @@ public class HealthServiceImpl implements HealthService {
     public void register(final String name, final long ttl, final TimeUnit timeUnit) {
 
         logger.info("HealthService::register() {} {} {}", name, ttl, timeUnit);
-        serviceHealthStatMap.put(name, new ServiceHealthStat(name, timeUnit.toMillis(ttl)));
+        serviceHealthStatMap.put(name, new NodeHealthStat(name, timeUnit.toMillis(ttl)));
     }
 
     /**
@@ -87,11 +88,11 @@ public class HealthServiceImpl implements HealthService {
 
 
         logger.info("HealthService::checkInOk() {} ", name);
-        final ServiceHealthStat serviceHealthStat = getServiceHealthStat(name);
+        final NodeHealthStat nodeHealthStat = getServiceHealthStat(name);
 
 
-        serviceHealthStat.lastCheckIn = now;
-        serviceHealthStat.status = HealthStatus.PASS;
+        nodeHealthStat.setLastCheckIn(now);
+        nodeHealthStat.setStatus(HealthStatus.PASS);
 
     }
 
@@ -106,10 +107,10 @@ public class HealthServiceImpl implements HealthService {
 
         logger.info("HealthService::checkIn() {} {}", name, status);
 
-        final ServiceHealthStat serviceHealthStat = getServiceHealthStat(name);
+        final NodeHealthStat nodeHealthStat = getServiceHealthStat(name);
 
-        serviceHealthStat.status = status;
-        serviceHealthStat.lastCheckIn = now;
+        nodeHealthStat.setStatus(status);
+        nodeHealthStat.setLastCheckIn(now);
     }
 
     @Override
@@ -118,7 +119,7 @@ public class HealthServiceImpl implements HealthService {
 
         boolean ok = serviceHealthStatMap.values()
                 .stream()
-                .allMatch(serviceHealthStat -> serviceHealthStat.status == HealthStatus.PASS);
+                .allMatch(serviceHealthStat -> serviceHealthStat.getStatus() == HealthStatus.PASS);
 
 
         logger.info("HealthService::ok() was ok? {}", ok);
@@ -132,8 +133,8 @@ public class HealthServiceImpl implements HealthService {
 
         serviceHealthStatMap.values()
                 .stream()
-                .filter(serviceHealthStat -> serviceHealthStat.status == HealthStatus.PASS)
-                .forEach(serviceHealthStat -> names.add(serviceHealthStat.name));
+                .filter(serviceHealthStat -> serviceHealthStat.getStatus() == HealthStatus.PASS)
+                .forEach(serviceHealthStat -> names.add(serviceHealthStat.getName()));
 
         return names;
     }
@@ -145,7 +146,7 @@ public class HealthServiceImpl implements HealthService {
 
         serviceHealthStatMap.values()
                 .stream()
-                .forEach(serviceHealthStat -> names.add(serviceHealthStat.name));
+                .forEach(serviceHealthStat -> names.add(serviceHealthStat.getName()));
 
         return names;
     }
@@ -157,8 +158,8 @@ public class HealthServiceImpl implements HealthService {
 
         serviceHealthStatMap.values()
                 .stream()
-                .filter(serviceHealthStat -> serviceHealthStat.status == queryStatus)
-                .forEach(serviceHealthStat -> names.add(serviceHealthStat.name));
+                .filter(serviceHealthStat -> serviceHealthStat.getStatus() == queryStatus)
+                .forEach(serviceHealthStat -> names.add(serviceHealthStat.getName()));
 
         return names;
     }
@@ -171,10 +172,20 @@ public class HealthServiceImpl implements HealthService {
 
         serviceHealthStatMap.values()
                 .stream()
-                .filter(serviceHealthStat -> serviceHealthStat.status != HealthStatus.PASS)
-                .forEach(serviceHealthStat -> names.add(serviceHealthStat.name));
+                .filter(serviceHealthStat -> serviceHealthStat.getStatus() != HealthStatus.PASS)
+                .forEach(serviceHealthStat -> names.add(serviceHealthStat.getName()));
 
         return names;
+    }
+
+    @Override
+    public List<NodeHealthStat> loadNodes() {
+        return Lists.deepCopy(this.serviceHealthStatMap.values());
+    }
+
+    @Override
+    public void unregister(String nodeName) {
+        serviceHealthStatMap.remove(nodeName);
     }
 
     @QueueCallback({QueueCallbackType.IDLE, QueueCallbackType.LIMIT})
@@ -191,19 +202,19 @@ public class HealthServiceImpl implements HealthService {
     }
 
     private void checkTTLs() {
-        Collection<ServiceHealthStat> services = serviceHealthStatMap.values();
+        Collection<NodeHealthStat> services = serviceHealthStatMap.values();
 
         //noinspection Convert2MethodRef
         services.forEach(serviceHealthStat -> checkTTL(serviceHealthStat));
     }
 
-    private void checkTTL(final ServiceHealthStat serviceHealthStat) {
+    private void checkTTL(final NodeHealthStat nodeHealthStat) {
 
 
-        logger.info("HealthService::checkTTL() {}", serviceHealthStat.name);
+        logger.info("HealthService::checkTTL() {}", nodeHealthStat.getName());
 
         /* proceed to check the ttl if the status is pass. */
-        boolean proceed = serviceHealthStat.status == HealthStatus.PASS;
+        boolean proceed = nodeHealthStat.getStatus() == HealthStatus.PASS;
 
 
         if (!proceed) {
@@ -211,30 +222,30 @@ public class HealthServiceImpl implements HealthService {
         }
 
 
-        final long duration = now - serviceHealthStat.lastCheckIn;
+        final long duration = now - nodeHealthStat.getLastCheckIn();
 
         /* If the duration is greater than the ttl interval, then mark it as failed. */
-        if (duration > serviceHealthStat.ttlInMS) {
+        if (duration > nodeHealthStat.getTtlInMS()) {
 
 
             logger.info("HealthService::checkTTL() {} FAILED TTL check, duration {}",
-                    serviceHealthStat.name, duration);
+                    nodeHealthStat.getName(), duration);
 
-            serviceHealthStat.reason = HealthFailReason.FAILED_TTL;
-            serviceHealthStat.status = HealthStatus.FAIL;
+            nodeHealthStat.setReason(HealthFailReason.FAILED_TTL);
+            nodeHealthStat.setStatus(HealthStatus.FAIL);
 
         }
     }
 
-    private ServiceHealthStat getServiceHealthStat(final String name) {
-        final ServiceHealthStat serviceHealthStat = serviceHealthStatMap.get(name);
+    private NodeHealthStat getServiceHealthStat(final String name) {
+        final NodeHealthStat nodeHealthStat = serviceHealthStatMap.get(name);
 
-        if (serviceHealthStat == null) {
+        if (nodeHealthStat == null) {
 
             throw new IllegalStateException("Trying to manage a service that you have not registered");
         }
 
-        return serviceHealthStat;
+        return nodeHealthStat;
 
     }
 
@@ -243,19 +254,4 @@ public class HealthServiceImpl implements HealthService {
         OTHER
     }
 
-    /**
-     * Internal class to hold health status.
-     */
-    private static class ServiceHealthStat {
-        private final String name;
-        private final long ttlInMS;
-        private long lastCheckIn;
-        private HealthFailReason reason;
-        private HealthStatus status = HealthStatus.UNKNOWN;
-
-        public ServiceHealthStat(final String name, final long ttlInMS) {
-            this.name = name;
-            this.ttlInMS = ttlInMS;
-        }
-    }
 }

@@ -35,7 +35,7 @@ import java.util.function.Consumer;
 import static io.advantageous.qbit.http.request.HttpRequestBuilder.httpRequestBuilder;
 
 /**
- * This is an interface that allows users to forwardEvent HTTP requests to a server.
+ * This is an interface that allows users to send HTTP requests to a server.
  * <p>
  * created by rhightower on 10/28/14.
  *
@@ -45,64 +45,6 @@ public interface HttpClient extends ServiceFlushable, Stoppable, Startable {
 
     int HTTP_CLIENT_DEFAULT_TIMEOUT = Sys.sysProp(
             "io.advantageous.qbit.http.client.HttpClient.timeout", 180);
-
-    static void _createHttpTextReceiver(final HttpRequest httpRequest,
-                                        final CountDownLatch countDownLatch,
-                                        final CountDownLatch countDownLatch2,
-                                        final AtomicReference<HttpResponse> httpResponseAtomicReference) {
-
-        final HttpTextReceiver httpTextReceiver = new HttpTextReceiver() {
-            @Override
-            public void response(int code, String contentType, String body) {
-                response(code, contentType, body, MultiMap.empty());
-            }
-
-            @Override
-            public void response(
-                    final int code,
-                    final String contentType,
-                    final String body,
-                    final MultiMap<String, String> headers) {
-
-                httpResponseAtomicReference.set(
-                        new HttpResponse() {
-                            @Override
-                            public MultiMap<String, String> headers() {
-                                return headers;
-                            }
-
-                            @Override
-                            public int code() {
-                                return code;
-                            }
-
-                            @Override
-                            public String contentType() {
-                                return contentType;
-                            }
-
-                            @Override
-                            public String body() {
-                                return body;
-                            }
-
-                            public String toString() {
-                                return ("HttpResponse(" + "code:" + code +
-                                        "contentType:" + contentType +
-                                        "\nbody:\n" +
-                                        body + "\n)"
-                                );
-                            }
-
-                        }
-                );
-                countDownLatch.countDown();
-                countDownLatch2.countDown();
-            }
-        };
-
-        BeanUtils.idx(httpRequest, "receiver", httpTextReceiver);
-    }
 
     default boolean isClosed() {
         return false;
@@ -1096,5 +1038,65 @@ public interface HttpClient extends ServiceFlushable, Stoppable, Startable {
 
     default void stop() {
     }
+
+
+    static void _createHttpTextReceiver(final HttpRequest httpRequest,
+                                        final CountDownLatch countDownLatch,
+                                        final CountDownLatch countDownLatch2,
+                                        final AtomicReference<HttpResponse> httpResponseAtomicReference) {
+
+        final HttpTextReceiver httpTextReceiver = new HttpTextReceiver() {
+            @Override
+            public void response(int code, String contentType, String body) {
+                response(code, contentType, body, MultiMap.empty());
+            }
+
+            @Override
+            public void response(
+                    final int code,
+                    final String contentType,
+                    final String body,
+                    final MultiMap<String, String> headers) {
+
+                httpResponseAtomicReference.set(
+                        new HttpResponse() {
+                            @Override
+                            public MultiMap<String, String> headers() {
+                                return headers;
+                            }
+
+                            @Override
+                            public int code() {
+                                return code;
+                            }
+
+                            @Override
+                            public String contentType() {
+                                return contentType;
+                            }
+
+                            @Override
+                            public String body() {
+                                return body;
+                            }
+
+                            public String toString() {
+                                return ("HttpResponse(" + "code:" + code +
+                                        "contentType:" + contentType +
+                                        "\nbody:\n" +
+                                        body + "\n)"
+                                );
+                            }
+
+                        }
+                );
+                countDownLatch.countDown();
+                countDownLatch2.countDown();
+            }
+        };
+
+        BeanUtils.idx(httpRequest, "receiver", httpTextReceiver);
+    }
+
 
 }

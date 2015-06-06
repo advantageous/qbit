@@ -24,6 +24,9 @@ import io.advantageous.qbit.queue.QueueBuilder;
 import io.advantageous.qbit.system.QBitSystemManager;
 
 
+/**
+ * Creates an HttpServer.
+ */
 public interface HttpServerFactory {
 
     HttpServer create(

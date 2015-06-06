@@ -247,8 +247,8 @@ public class BoonQBitFactory implements Factory {
     }
 
     @Override
-    public HttpClient createHttpClient(String host, int port, int requestBatchSize, int timeOutInMilliseconds, int poolSize, boolean autoFlush, int flushRate, boolean keepAlive, boolean pipeline) {
-        return FactorySPI.getHttpClientFactory().create(host, port, requestBatchSize, timeOutInMilliseconds, poolSize, autoFlush, flushRate, keepAlive, pipeline);
+    public HttpClient createHttpClient(String host, int port, int timeOutInMilliseconds, int poolSize, boolean autoFlush, int flushRate, boolean keepAlive, boolean pipeline) {
+        return FactorySPI.getHttpClientFactory().create(host, port, timeOutInMilliseconds, poolSize, autoFlush, flushRate, keepAlive, pipeline);
     }
 
     @Override
@@ -326,7 +326,8 @@ public class BoonQBitFactory implements Factory {
     public ServiceQueue createService(final String rootAddress, final String serviceAddress, final Object service, final Queue<Response<Object>> responseQueue, final QBitSystemManager systemManager) {
 
 
-        return new ServiceQueueImpl(rootAddress, serviceAddress, service, null, null, new BoonServiceMethodCallHandler(true), responseQueue, true, false, systemManager);
+        return new ServiceQueueImpl(rootAddress, serviceAddress, service, null, null,
+                new BoonServiceMethodCallHandler(true), responseQueue, true, false, systemManager, null);
 
     }
 
@@ -342,7 +343,9 @@ public class BoonQBitFactory implements Factory {
                                       final boolean handleCallbacks,
                                       final QBitSystemManager systemManager) {
 
-        return new ServiceQueueImpl(rootAddress, serviceAddress, object, requestQueueBuilder, responseQueueBuilder, new BoonServiceMethodCallHandler(invokeDynamic), responseQueue, async, handleCallbacks, systemManager);
+        return new ServiceQueueImpl(rootAddress, serviceAddress, object, requestQueueBuilder,
+                responseQueueBuilder, new BoonServiceMethodCallHandler(invokeDynamic), responseQueue,
+                async, handleCallbacks, systemManager, null);
 
     }
 
@@ -353,8 +356,10 @@ public class BoonQBitFactory implements Factory {
                                              final QueueBuilder responseQueueBuilder,
                                              final QueueBuilder webResponseQueueBuilder,
                                              final Factory factory, final boolean asyncCalls, final BeforeMethodCall beforeMethodCall, final BeforeMethodCall beforeMethodCallAfterTransform, final Transformer<Request, Object> argTransformer, boolean invokeDynamic, final QBitSystemManager systemManager) {
-        return new ServiceBundleImpl(address, requestQueueBuilder, responseQueueBuilder, webResponseQueueBuilder,
-                factory, asyncCalls, beforeMethodCall, beforeMethodCallAfterTransform, argTransformer, invokeDynamic, systemManager);
+        return new ServiceBundleImpl(address, requestQueueBuilder, responseQueueBuilder,
+                webResponseQueueBuilder,
+                factory, asyncCalls, beforeMethodCall, beforeMethodCallAfterTransform,
+                argTransformer, invokeDynamic, systemManager);
     }
 
 

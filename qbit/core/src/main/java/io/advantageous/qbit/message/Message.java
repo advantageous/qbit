@@ -22,6 +22,8 @@ package io.advantageous.qbit.message;
 import io.advantageous.qbit.util.MultiMap;
 
 /**
+ * This represents a message.
+ *
  * created by Richard on 7/21/14.
  *
  * @author Rick Hightower

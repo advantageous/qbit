@@ -4,6 +4,9 @@ package io.advantageous.qbit.service.health;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
+/**
+ * Health service.
+ */
 public interface HealthService {
 
 
@@ -26,5 +29,10 @@ public interface HealthService {
 
     List<String> findNotHealthyNodes();
 
+
+    List<NodeHealthStat> loadNodes();
+
+
+    void unregister(String serviceName);
 
 }

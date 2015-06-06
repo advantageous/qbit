@@ -100,10 +100,10 @@ public class BaseServiceQueueImpl implements ServiceQueue {
     private final BeforeMethodCall beforeMethodCallAfterTransform = ServiceConstants.NO_OP_BEFORE_METHOD_CALL;
     private final AfterMethodCall afterMethodCall = new NoOpAfterMethodCall();
     private final AfterMethodCall afterMethodCallAfterTransform = new NoOpAfterMethodCall();
-    private final ReceiveQueueListener<MethodCall<Object>> inputQueueListener = new NoOpInputMethodCallQueueListener();
     private Transformer<Request, Object> requestObjectTransformer = ServiceConstants.NO_OP_ARG_TRANSFORM;
     private Transformer<Response<Object>, Response> responseObjectTransformer = new NoOpResponseTransformer();
     private CallbackManager callbackManager;
+    private final QueueCallBackHandler queueCallBackHandler;
 
     public BaseServiceQueueImpl(final String rootAddress,
                                 final String serviceAddress,
@@ -114,9 +114,24 @@ public class BaseServiceQueueImpl implements ServiceQueue {
                                 final Queue<Response<Object>> responseQueue,
                                 final boolean async,
                                 final boolean handleCallbacks,
-                                final QBitSystemManager systemManager
-    ) {
+                                final QBitSystemManager systemManager,
+                                final QueueCallBackHandler queueCallBackHandler) {
 
+        if (queueCallBackHandler==null) {
+            this.queueCallBackHandler = new QueueCallBackHandler() {
+                @Override
+                public void queueLimit() {
+
+                }
+
+                @Override
+                public void queueEmpty() {
+
+                }
+            };
+        } else {
+            this.queueCallBackHandler = queueCallBackHandler;
+        }
         if (requestQueueBuilder == null) {
             this.requestQueueBuilder = new QueueBuilder();
         } else {
@@ -291,7 +306,7 @@ public class BaseServiceQueueImpl implements ServiceQueue {
         if (callbackManager != null) {
             callbackManager.registerCallbacks(methodCall);
         }
-        inputQueueListener.receive(methodCall);
+        //inputQueueListener.receive(methodCall);
         final boolean continueFlag[] = new boolean[1];
         methodCall = beforeMethodProcessing(methodCall, continueFlag);
         if (continueFlag[0]) {
@@ -359,70 +374,79 @@ public class BaseServiceQueueImpl implements ServiceQueue {
 
             @Override
             public void receive(MethodCall<Object> methodCall) {
+
+                queueCallBackHandler.beforeReceiveCalled();
                 doHandleMethodCall(methodCall, serviceMethodHandler);
+                queueCallBackHandler.afterReceiveCalled();
             }
 
             @Override
             public void empty() {
                 handle();
-                inputQueueListener.empty();
                 serviceMethodHandler.empty();
+                queueCallBackHandler.queueEmpty();
             }
 
             @Override
             public void startBatch() {
-                inputQueueListener.startBatch();
-                serviceMethodHandler.queueStartBatch();
+                serviceMethodHandler.startBatch();
+                queueCallBackHandler.queueStartBatch();
             }
 
             @Override
             public void limit() {
                 handle();
-                inputQueueListener.limit();
                 serviceMethodHandler.limit();
+                queueCallBackHandler.queueLimit();
             }
 
             @Override
             public void shutdown() {
                 handle();
-                inputQueueListener.shutdown();
                 serviceMethodHandler.shutdown();
+                queueCallBackHandler.queueShutdown();
             }
 
             @Override
             public void idle() {
                 handle();
-                if (inputQueueListener != null) {
-                    inputQueueListener.idle();
-                }
                 serviceMethodHandler.idle();
+                queueCallBackHandler.queueIdle();
             }
 
             /** Such a small method with so much responsibility. */
             public void handle() {
                 manageResponseQueue();
-                /* Handles the CallBacks if you have configured the service
-                to handle its own callbacks.
-                Callbacks can be handled in a separate thread or the same
-                thread the manages the service.
-                 */
-                if (handleCallbacks) {
-                    Response<Object> response = responseReceiveQueue.poll();
-                    while (response != null) {
-                        callbackManager.handleResponse(response);
-                        response = responseReceiveQueue.poll();
-                    }
-                }
-                /* Handles the event processing. */
-                Event<Object> event = eventReceiveQueue.poll();
-                while (event != null) {
-                    serviceMethodHandler.handleEvent(event);
-                    event = eventReceiveQueue.poll();
-                }
-                flushEventManagerCalls();
+                handleCallBacks(responseReceiveQueue);
+                handleEvents(eventReceiveQueue, serviceMethodHandler);
             }
 
         });
+    }
+
+    private void handleEvents(ReceiveQueue<Event<Object>> eventReceiveQueue, ServiceMethodHandler serviceMethodHandler) {
+    /* Handles the event processing. */
+        Event<Object> event = eventReceiveQueue.poll();
+        while (event != null) {
+            serviceMethodHandler.handleEvent(event);
+            event = eventReceiveQueue.poll();
+        }
+        flushEventManagerCalls();
+    }
+
+    private void handleCallBacks(ReceiveQueue<Response<Object>> responseReceiveQueue) {
+    /* Handles the CallBacks if you have configured the service
+    to handle its own callbacks.
+    Callbacks can be handled in a separate thread or the same
+    thread the manages the service.
+     */
+        if (handleCallbacks) {
+            Response<Object> response = responseReceiveQueue.poll();
+            while (response != null) {
+                callbackManager.handleResponse(response);
+                response = responseReceiveQueue.poll();
+            }
+        }
     }
 
     private void flushEventManagerCalls() {

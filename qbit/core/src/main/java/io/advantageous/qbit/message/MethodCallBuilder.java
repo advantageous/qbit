@@ -27,6 +27,7 @@ import java.util.Collections;
 import java.util.List;
 
 /**
+ * This allows you to construct method calls.
  * MethodCallBuilder
  * created by rhightower on 1/16/15.
  */

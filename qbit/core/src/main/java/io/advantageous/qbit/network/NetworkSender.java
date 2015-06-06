@@ -19,6 +19,9 @@
 package io.advantageous.qbit.network;
 
 /**
+ *
+ * WebSocket like thing that receives messages.
+ * Could be mapped to non-websocket implementations.
  * created by rhightower on 2/14/15.
  */
 public interface NetworkSender {

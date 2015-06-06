@@ -23,6 +23,9 @@ import io.advantageous.boon.core.Lists;
 import java.util.Collections;
 import java.util.List;
 
+/**
+ * Holds meta-data about a single service.
+ */
 public class ServiceMeta {
 
     private final String name;

@@ -29,6 +29,7 @@ import java.util.Collection;
 import java.util.concurrent.TimeUnit;
 
 /**
+ * Manages a service that sits behind a queue.
  * created by Richard on 7/21/14.
  *
  * @author rhightower

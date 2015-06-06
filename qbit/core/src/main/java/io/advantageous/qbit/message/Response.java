@@ -20,6 +20,7 @@ package io.advantageous.qbit.message;
 
 
 /**
+ * This is an abstraction for a response to a request.
  * created by Richard on 7/21/14.
  *
  * @author rhightower

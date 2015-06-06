@@ -67,6 +67,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
+ * Dispatches calls to a pool of workers in a sharded fashion or a round robin fashion.
  * @author rhightower
  * on 2/18/15.
  */

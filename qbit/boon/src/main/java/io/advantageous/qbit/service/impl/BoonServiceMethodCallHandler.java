@@ -26,7 +26,7 @@ import io.advantageous.boon.core.reflection.MethodAccess;
 import io.advantageous.boon.primitive.Arry;
 import io.advantageous.qbit.annotation.AnnotationUtils;
 import io.advantageous.qbit.annotation.RequestMethod;
-import io.advantageous.qbit.bindings.ArgParamBinding;
+import io.advantageous.qbit.bindings.ArgParamURIPositionBinding;
 import io.advantageous.qbit.bindings.MethodBinding;
 import io.advantageous.qbit.bindings.RequestParamBinding;
 import io.advantageous.qbit.http.request.HttpRequest;
@@ -154,7 +154,7 @@ public class BoonServiceMethodCallHandler implements ServiceMethodHandler {
         final MethodBinding methodBinding = binding != null ? binding.getFirst() : null;
 
         final MethodAccess methodAccess = binding != null ? binding.getSecond() : null;
-        final List<ArgParamBinding> parameters = methodBinding != null ? methodBinding.parameters() : null;
+        final List<ArgParamURIPositionBinding> parameters = methodBinding != null ? methodBinding.parameters() : null;
         final Class<?>[] parameterTypes = methodAccess != null ? methodAccess.parameterTypes() : new Class<?>[0];
         final List<TypeType> paramEnumTypes = methodAccess != null ? methodAccess.paramTypeEnumList() : null;
 
@@ -162,7 +162,7 @@ public class BoonServiceMethodCallHandler implements ServiceMethodHandler {
         final List<List<AnnotationData>> annotationDataForParams = methodAccess != null ? methodAccess.annotationDataForParams() : null;
 
         if (parameters!=null) {
-            for (ArgParamBinding param : parameters) {
+            for (ArgParamURIPositionBinding param : parameters) {
                 final int uriPosition = param.getUriPosition();
                 final int methodParamPosition = param.getMethodParamPosition();
                 final String paramName = param.getMethodParamName();
@@ -634,8 +634,10 @@ public class BoonServiceMethodCallHandler implements ServiceMethodHandler {
 
     }
 
-    public void queueStartBatch() {
+    @Override
+    public void startBatch() {
         queueCallBackHandler.queueStartBatch();
+
     }
 
     private void readMethodMetaData() {

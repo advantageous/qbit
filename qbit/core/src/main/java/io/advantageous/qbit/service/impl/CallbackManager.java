@@ -28,6 +28,9 @@ import org.slf4j.LoggerFactory;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+/**
+ * Maps incoming call returns to client callback objects.
+ */
 public class CallbackManager {
 
 

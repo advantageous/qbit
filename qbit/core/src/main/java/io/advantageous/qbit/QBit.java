@@ -88,7 +88,7 @@ public class QBit {
             });
 
 
-            FactorySPI.setHttpClientFactory((host, port, requestBatchSize, timeOutInMilliseconds, poolSize,
+            FactorySPI.setHttpClientFactory((host, port, timeOutInMilliseconds, poolSize,
                                              autoFlush, flushRate, keepAlive, pipeLine) -> {
                 throw new IllegalStateException("Unable to load Vertx or Jetty network libs");
             });

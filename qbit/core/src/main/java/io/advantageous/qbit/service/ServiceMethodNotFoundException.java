@@ -19,6 +19,7 @@
 package io.advantageous.qbit.service;
 
 /**
+ * A method was not found.
  * created by rhightower on 2/17/15.
  */
 public class ServiceMethodNotFoundException extends IllegalStateException {

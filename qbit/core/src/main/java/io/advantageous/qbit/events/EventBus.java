@@ -22,6 +22,7 @@ import io.advantageous.qbit.events.spi.EventTransferObject;
 import io.advantageous.qbit.service.ServiceFlushable;
 
 /**
+ * An event bus. You can register for events, send events, and unregister for events.
  * created by rhightower on 2/3/15.
  */
 public interface EventBus extends ServiceFlushable {
