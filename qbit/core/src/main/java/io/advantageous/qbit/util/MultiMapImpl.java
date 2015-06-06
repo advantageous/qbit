@@ -48,9 +48,8 @@ public class MultiMapImpl<K, V> implements MultiMap<K, V> {
 
 
     public MultiMapImpl() {
-       map = new ConcurrentHashMap<>();
+        map = new ConcurrentHashMap<>();
     }
-
 
 
     public MultiMapImpl(Map<K, V[]> parameterMap) {

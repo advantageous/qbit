@@ -29,7 +29,7 @@ import java.util.Properties;
  * This allows one to construct an http client which attaches to a remote server.
  *
  * @author rhightower
- *         Created by rhightower on 11/13/14.
+ *         created by rhightower on 11/13/14.
  */
 public class HttpClientBuilder {
 
@@ -171,7 +171,8 @@ public class HttpClientBuilder {
     }
 
     public HttpClient build() {
-        final HttpClient httpClient = QBit.factory().createHttpClient(
+        //noinspection UnnecessaryLocalVariable
+        @SuppressWarnings("UnnecessaryLocalVariable") final HttpClient httpClient = QBit.factory().createHttpClient(
                 this.getHost(),
                 this.getPort(),
                 this.getRequestBatchSize(),

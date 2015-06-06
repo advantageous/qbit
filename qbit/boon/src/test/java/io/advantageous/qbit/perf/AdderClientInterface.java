@@ -21,8 +21,9 @@ package io.advantageous.qbit.perf;
 import io.advantageous.qbit.reactive.Callback;
 
 /**
- * Created by Richard on 12/7/14.
+ * created by Richard on 12/7/14.
  */
+@SuppressWarnings("ALL")
 public interface AdderClientInterface {
 
     void add(String name, int value);

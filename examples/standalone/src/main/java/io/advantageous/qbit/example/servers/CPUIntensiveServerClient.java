@@ -20,7 +20,6 @@ package io.advantageous.qbit.example.servers;
 
 import io.advantageous.qbit.http.client.HttpClient;
 import io.advantageous.qbit.http.request.HttpRequest;
-import io.advantageous.qbit.http.request.HttpTextReceiver;
 
 import static io.advantageous.boon.core.IO.puts;
 import static io.advantageous.boon.core.Sys.sleep;
@@ -28,7 +27,7 @@ import static io.advantageous.qbit.http.client.HttpClientBuilder.httpClientBuild
 import static io.advantageous.qbit.http.request.HttpRequestBuilder.httpRequestBuilder;
 
 /**
- * Created by rhightower on 2/2/15.
+ * created by rhightower on 2/2/15.
  */
 public class CPUIntensiveServerClient {
 
@@ -52,13 +51,9 @@ public class CPUIntensiveServerClient {
 
             final String key = "" + (index % 10);
 
-            final HttpRequest httpRequestCPUKey1 = httpRequestBuilder().setUri("/services/myservice/addkey/").setTextReceiver(new HttpTextReceiver() {
-                @Override
-                public void response(int code, String mimeType, String body) {
-
-                    count++;
-                }
-            }).addParam("key", key).addParam("value", "hi mom ").build();
+            final HttpRequest httpRequestCPUKey1 = httpRequestBuilder().setUri("/services/myservice/addkey/")
+                    .setTextReceiver((code, mimeType, body) -> count++)
+                    .addParam("key", key).addParam("value", "hi mom ").build();
 
             httpClient.sendHttpRequest(httpRequestCPUKey1);
         }

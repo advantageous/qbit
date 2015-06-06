@@ -22,7 +22,6 @@ import io.advantageous.qbit.message.Message;
 import io.advantageous.qbit.message.MethodCall;
 import io.advantageous.qbit.service.BeforeMethodCall;
 import io.advantageous.qbit.service.EndPoint;
-import io.advantageous.qbit.service.Stoppable;
 import io.advantageous.qbit.service.impl.NoOpBeforeMethodCall;
 import io.advantageous.qbit.spi.ProtocolEncoder;
 import org.slf4j.Logger;
@@ -36,7 +35,7 @@ import java.util.concurrent.TimeUnit;
 
 /**
  * Combines a sender with a protocol encoder so we can forwardEvent messages to another remote end point.
- * Created by Richard on 10/1/14.
+ * created by Richard on 10/1/14.
  *
  * @author Rick Hightower
  */
@@ -48,10 +47,8 @@ public class SenderEndPoint implements EndPoint {
     private final Sender<String> sender;
     private final BeforeMethodCall beforeMethodCall;
     private final BlockingQueue<MethodCall<Object>> methodCalls;
-
-    private Logger logger = LoggerFactory.getLogger(SenderEndPoint.class);
-
     private final int requestBatchSize;
+    private Logger logger = LoggerFactory.getLogger(SenderEndPoint.class);
 
     public SenderEndPoint(ProtocolEncoder encoder, String address, Sender<String> sender, BeforeMethodCall beforeMethodCall,
                           int requestBatchSize) {
@@ -107,7 +104,7 @@ public class SenderEndPoint implements EndPoint {
         try {
             method = methodCalls.poll(10L, TimeUnit.MILLISECONDS);
         } catch (InterruptedException e) {
-            Thread.currentThread().interrupted();
+            Thread.interrupted();
         }
 
         if (method == null) {
@@ -115,7 +112,7 @@ public class SenderEndPoint implements EndPoint {
         }
 
 
-        List<Message<Object>> methods = null;
+        List<Message<Object>> methods;
 
         String returnAddress = ((MethodCall<Object>) method).returnAddress();
 
@@ -130,7 +127,7 @@ public class SenderEndPoint implements EndPoint {
                 method = methodCalls.poll(10L, TimeUnit.MILLISECONDS);
             } catch (InterruptedException e) {
                 method = null;
-                Thread.currentThread().interrupted();
+                Thread.interrupted();
             }
 
 

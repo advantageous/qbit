@@ -21,7 +21,7 @@ package io.advantageous.qbit.services.example.todo;
 import java.util.Date;
 
 /**
- * Created by rhightower on 10/24/14.
+ * created by rhightower on 10/24/14.
  */
 public class TodoItem {
 

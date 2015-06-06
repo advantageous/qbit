@@ -18,10 +18,10 @@
 
 package io.advantageous.qbit.example.websocket;
 
+import io.advantageous.boon.core.Sys;
 import io.advantageous.qbit.http.client.HttpClient;
 import io.advantageous.qbit.http.server.HttpServer;
 import io.advantageous.qbit.http.websocket.WebSocket;
-import io.advantageous.boon.core.Sys;
 
 import static io.advantageous.boon.core.IO.puts;
 import static io.advantageous.qbit.http.client.HttpClientBuilder.httpClientBuilder;
@@ -43,19 +43,13 @@ public class EchoWebSocketMoreComplex {
         httpServer.setWebSocketOnOpenConsumer(webSocket -> {
 
             /** Set up onMessage. */
-            webSocket.setTextMessageConsumer(message -> {
-                webSocket.sendText("ECHO " + message);
-            });
+            webSocket.setTextMessageConsumer(message -> webSocket.sendText("ECHO " + message));
 
             /** Set up onClose. */
-            webSocket.setCloseConsumer(obj -> {
-                puts("SERVER CLOSE ");
-            });
+            webSocket.setCloseConsumer(obj -> puts("SERVER CLOSE "));
 
             /** Set up onError. */
-            webSocket.setErrorConsumer(error -> {
-                puts("SERVER ERROR", error);
-            });
+            webSocket.setErrorConsumer(error -> puts("SERVER ERROR", error));
 
         });
 
@@ -73,20 +67,14 @@ public class EchoWebSocketMoreComplex {
         WebSocket webSocket = httpClient
                 .createWebSocket("/websocket/rocket");
 
-        webSocket.setTextMessageConsumer(message -> {
-            System.out.println("CLIENT ON MESSAGE \n" + message);
-        });
+        webSocket.setTextMessageConsumer(message -> System.out.println("CLIENT ON MESSAGE \n" + message));
 
         /** Set up onClose. */
-        webSocket.setCloseConsumer(obj -> {
-            puts("CLIENT CLOSE");
-        });
+        webSocket.setCloseConsumer(obj -> puts("CLIENT CLOSE"));
 
 
         /** Set up onError. */
-        webSocket.setErrorConsumer(error -> {
-            puts("CLIENT ERROR", error);
-        });
+        webSocket.setErrorConsumer(error -> puts("CLIENT ERROR", error));
 
         webSocket.openAndWait();
 

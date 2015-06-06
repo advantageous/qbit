@@ -239,6 +239,8 @@ public class ClientBuilder {
             protocolBatchSize = requestBatchSize;
         }
 
+        //noinspection UnnecessaryLocalVariable
+        @SuppressWarnings("UnnecessaryLocalVariable")
         Client client = QBit.factory().createClient(uri, httpClient, protocolBatchSize);
         return client;
 

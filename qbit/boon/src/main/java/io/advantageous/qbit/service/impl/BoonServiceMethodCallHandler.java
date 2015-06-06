@@ -50,7 +50,7 @@ import static io.advantageous.boon.core.Str.sputs;
 import static io.advantageous.qbit.annotation.AnnotationUtils.*;
 
 /**
- * Created by Richard on 9/8/14.
+ * created by Richard on 9/8/14.
  *
  * @author Rick Hightower
  */
@@ -851,7 +851,7 @@ public class BoonServiceMethodCallHandler implements ServiceMethodHandler {
         return name == null ? "" : name;
     }
 
-    private String getHttpMethod(String name, Annotated annotated) {
+    private String getHttpMethod(@SuppressWarnings("SameParameterValue") String name, Annotated annotated) {
         AnnotationData requestMapping = annotated.annotation(name);
 
         if (requestMapping != null) {
@@ -892,8 +892,7 @@ public class BoonServiceMethodCallHandler implements ServiceMethodHandler {
                 }
             } else {
 
-                String sVal = (String) value;
-                return sVal;
+                return (String) value;
             }
         }
         return null;

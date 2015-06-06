@@ -1,23 +1,22 @@
 package io.advantageous.qbit.example;
 
+import io.advantageous.boon.core.Sys;
 import io.advantageous.qbit.QBit;
 import io.advantageous.qbit.service.ServiceBundle;
 import io.advantageous.qbit.service.ServiceQueue;
 import io.advantageous.qbit.service.dispatchers.ServiceWorkers;
-import io.advantageous.boon.core.Sys;
-
-import static io.advantageous.boon.Lists.list;
-import static io.advantageous.qbit.service.ServiceBundleBuilder.serviceBundleBuilder;
-import static io.advantageous.qbit.service.ServiceProxyUtils.flushServiceProxy;
 
 import java.util.List;
 
+import static io.advantageous.boon.Lists.list;
 import static io.advantageous.qbit.service.ServiceBuilder.serviceBuilder;
+import static io.advantageous.qbit.service.ServiceBundleBuilder.serviceBundleBuilder;
+import static io.advantageous.qbit.service.ServiceProxyUtils.flushServiceProxy;
 import static io.advantageous.qbit.service.dispatchers.ServiceWorkers.shardOnFirstArgumentWorkers;
 import static io.advantageous.qbit.service.dispatchers.ServiceWorkers.workers;
 
 /**
- * Created by rhightower on 2/20/15.
+ * created by rhightower on 2/20/15.
  */
 public class PrototypeMain {
 
@@ -42,18 +41,15 @@ public class PrototypeMain {
                         userDataServiceClient, 4);
 
 
-
-
         List<String> userNames = list("Bob", "Joe", "Scott", "William");
 
-        userNames.forEach( userName->
-                recommendationServiceClient.recommend(recommendations -> {
-                    System.out.println("Recommendations for: " + userName);
-                    recommendations.forEach(recommendation->
-                            System.out.println("\t" + recommendation));
-                }, userName)
+        userNames.forEach(userName ->
+                        recommendationServiceClient.recommend(recommendations -> {
+                            System.out.println("Recommendations for: " + userName);
+                            recommendations.forEach(recommendation ->
+                                    System.out.println("\t" + recommendation));
+                        }, userName)
         );
-
 
 
         flushServiceProxy(recommendationServiceClient);
@@ -92,7 +88,7 @@ public class PrototypeMain {
             final int numWorkers) {
         final ServiceWorkers userDataServiceWorkers = workers();
 
-        for (int index =0; index < numWorkers; index++) {
+        for (int index = 0; index < numWorkers; index++) {
             ServiceQueue userDataService = serviceBuilder()
                     .setServiceObject(new UserDataService())
                     .build();
@@ -101,7 +97,6 @@ public class PrototypeMain {
         }
 
         userDataServiceWorkers.start();
-
 
 
         serviceBundle.addServiceConsumer("workers", userDataServiceWorkers);

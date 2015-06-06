@@ -18,8 +18,8 @@
 
 package io.advantageous.qbit.servlet.websocketproto.client;
 
-import io.advantageous.qbit.servlet.websocketproto.model.Hello;
 import io.advantageous.boon.core.Sys;
+import io.advantageous.qbit.servlet.websocketproto.model.Hello;
 import org.eclipse.jetty.util.component.LifeCycle;
 
 import javax.websocket.ContainerProvider;
@@ -33,6 +33,7 @@ import static io.advantageous.boon.core.IO.puts;
 /**
  * @author rhightower on 2/12/15.
  */
+@SuppressWarnings("ALL")
 public class ClientMain {
     public static void main(final String[] args) throws Exception {
 

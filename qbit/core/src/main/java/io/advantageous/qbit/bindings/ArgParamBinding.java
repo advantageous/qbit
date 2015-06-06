@@ -22,13 +22,13 @@ package io.advantageous.qbit.bindings;
 /**
  * @author Rick Hightower
  *         <p>
- *         Created by Richard on 7/22/14.
+ *         created by Richard on 7/22/14.
  */
 public class ArgParamBinding {
 
-    final int methodParamPosition;
     final int uriPosition;
     final String methodParamName;
+    private final int methodParamPosition;
 
     public ArgParamBinding(int methodParamPosition, int uriPosition, String methodParamName) {
         this.methodParamPosition = methodParamPosition;

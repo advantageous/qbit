@@ -31,7 +31,7 @@ import java.util.Collection;
  * QBit has a boon implementation of this that uses reflection.
  * One could, for example, plugin an implementation of this that used bytecode generation.
  * <p>
- * Created by Richard on 9/8/14.
+ * created by Richard on 9/8/14.
  *
  * @author rhightower
  */

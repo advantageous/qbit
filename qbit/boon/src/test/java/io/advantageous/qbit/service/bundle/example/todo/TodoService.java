@@ -28,10 +28,11 @@ import static io.advantageous.boon.core.IO.puts;
 import static io.advantageous.qbit.annotation.RequestMethod.POST;
 
 /**
- * Created by rhightower on 10/24/14.
+ * created by rhightower on 10/24/14.
  *
  * @author rhightower
  */
+@SuppressWarnings("ALL")
 @RequestMapping("/todo-manager")
 public class TodoService {
 

@@ -17,77 +17,11 @@ import static junit.framework.Assert.assertEquals;
 
 /**
  * Boon Event Channel Test for On event
- * Created by rhightower on 3/18/15.
+ * created by rhightower on 3/18/15.
  */
 public class BoonEventChannelTestAndOnEvent extends TimedTesting {
 
-    public  AtomicInteger eventCount = new AtomicInteger();
-
-    @EventChannel ("FOO")
-    interface MyChannelInterface {
-
-        @EventChannel ("bam")
-        void somethingHappened(int i, String foo);
-    }
-
-
-    static class MyServiceEventSender {
-
-        final MyChannelInterface channel;
-
-        MyServiceEventSender(MyChannelInterface channel) {
-            this.channel = channel;
-        }
-
-        public void someServiceMethod() {
-            channel.somethingHappened(1, "foo");
-        }
-    }
-
-    interface MyServiceInterface {
-
-        void someServiceMethod();
-    }
-
-
-
-
-    class MyServiceEventReceiver implements MyChannelInterface{
-
-        @Override
-        public void somethingHappened(int i, String foo) {
-
-            eventCount.incrementAndGet();
-            System.out.println("MyServiceEventReceiver bar" + i + " foo " + foo);
-        }
-    }
-
-
-    class MyServiceEventReceiver2 implements MyChannelInterface{
-
-        @Override
-        public void somethingHappened(int i, String foo) {
-
-            eventCount.incrementAndGet();
-
-            System.out.println("MyServiceEventReceiver2 bar2" + i + " foo " + foo);
-
-        }
-    }
-
-
-    class MyServiceEventReceiver3 {
-
-        //@OnEvent("io.advantageous.qbit.events.impl.BoonEventChannelTestAndOnEvent$MyChannelInterface.somethingHappened")
-        @OnEvent("FOO.bam")
-        public void onSomethingHappened(int i, String foo) {
-
-            eventCount.incrementAndGet();
-
-            System.out.println("MyServiceEventReceiver2 bar2" + i + " foo " + foo);
-
-        }
-    }
+    public AtomicInteger eventCount = new AtomicInteger();
 
     @Test
     public void test() throws Exception {
@@ -135,12 +69,72 @@ public class BoonEventChannelTestAndOnEvent extends TimedTesting {
         assertEquals(3, eventCount.get());
 
 
-
         serviceSenderQueue.stop();
         receiverServiceQueue.stop();
         receiverServiceQueue2.stop();
         receiverServiceQueue3.stop();
 
+    }
+
+
+    @EventChannel("FOO")
+    interface MyChannelInterface {
+
+        @EventChannel("bam")
+        void somethingHappened(int i, String foo);
+    }
+
+    interface MyServiceInterface {
+
+        void someServiceMethod();
+    }
+
+    static class MyServiceEventSender {
+
+        final MyChannelInterface channel;
+
+        MyServiceEventSender(MyChannelInterface channel) {
+            this.channel = channel;
+        }
+
+        public void someServiceMethod() {
+            channel.somethingHappened(1, "foo");
+        }
+    }
+
+    class MyServiceEventReceiver implements MyChannelInterface {
+
+        @Override
+        public void somethingHappened(int i, String foo) {
+
+            eventCount.incrementAndGet();
+            System.out.println("MyServiceEventReceiver bar" + i + " foo " + foo);
+        }
+    }
+
+    class MyServiceEventReceiver2 implements MyChannelInterface {
+
+        @Override
+        public void somethingHappened(int i, String foo) {
+
+            eventCount.incrementAndGet();
+
+            System.out.println("MyServiceEventReceiver2 bar2" + i + " foo " + foo);
+
+        }
+    }
+
+    class MyServiceEventReceiver3 {
+
+        //@OnEvent("io.advantageous.qbit.events.impl.BoonEventChannelTestAndOnEvent$MyChannelInterface.somethingHappened")
+        @OnEvent("FOO.bam")
+        public void onSomethingHappened(int i, String foo) {
+
+            eventCount.incrementAndGet();
+
+            System.out.println("MyServiceEventReceiver2 bar2" + i + " foo " + foo);
+
+        }
     }
 
 }

@@ -19,19 +19,13 @@
 package io.advantageous.qbit.http.server;
 
 import io.advantageous.qbit.http.HttpTransport;
-import io.advantageous.qbit.http.request.HttpRequest;
-import io.advantageous.qbit.http.server.websocket.WebSocketMessage;
-import io.advantageous.qbit.http.websocket.WebSocket;
 import io.advantageous.qbit.server.Server;
-
-import java.util.function.Consumer;
-import java.util.function.Predicate;
 
 /**
  * Represents an HTTP server.
  * Has the ability to register callbacks.
  * <p>
- * Created by rhightower on 10/22/14.
+ * created by rhightower on 10/22/14.
  *
  * @author rhightower
  */

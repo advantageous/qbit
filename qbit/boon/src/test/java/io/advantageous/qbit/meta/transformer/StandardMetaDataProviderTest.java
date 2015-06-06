@@ -8,9 +8,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import io.advantageous.qbit.meta.transformer.SampleService;
-
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertNotNull;
 
 public class StandardMetaDataProviderTest {
 

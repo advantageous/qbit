@@ -5,9 +5,9 @@ import java.util.function.Consumer;
 
 /**
  * Callback Builder
- * Created by rhightower on 3/23/15.
+ * created by rhightower on 3/23/15.
  */
-public class CallbackBuilder  {
+public class CallbackBuilder {
 
     private final Reactor reactor;
     private Callback callback;
@@ -16,14 +16,13 @@ public class CallbackBuilder  {
     private TimeUnit timeoutTimeUnit = TimeUnit.SECONDS;
     private Consumer<Throwable> onError;
 
-    public static CallbackBuilder callbackBuilder (final Reactor reactor) {
-        return new CallbackBuilder(reactor);
-    }
-
     public CallbackBuilder(final Reactor reactor) {
         this.reactor = reactor;
     }
 
+    public static CallbackBuilder callbackBuilder(final Reactor reactor) {
+        return new CallbackBuilder(reactor);
+    }
 
     public Reactor getReactor() {
         return reactor;
@@ -58,7 +57,7 @@ public class CallbackBuilder  {
         return timeoutDuration;
     }
 
-    public CallbackBuilder setTimeoutDuration(long timeoutDuration) {
+    public CallbackBuilder setTimeoutDuration(@SuppressWarnings("SameParameterValue") long timeoutDuration) {
         this.timeoutDuration = timeoutDuration;
         return this;
     }
@@ -85,7 +84,7 @@ public class CallbackBuilder  {
     public <T> AsyncFutureCallback<T> build() {
 
 
-        if (getOnError()!=null || getOnTimeout() !=null || timeoutDuration != -1) {
+        if (getOnError() != null || getOnTimeout() != null || timeoutDuration != -1) {
 
             if (timeoutDuration == -1) {
                 timeoutDuration = 30;
@@ -112,15 +111,12 @@ public class CallbackBuilder  {
     }
 
 
-
     public <T> AsyncFutureCallback<T> build(Callback<T> callback) {
 
         this.setCallback(callback);
 
         return build();
     }
-
-
 
 
 }

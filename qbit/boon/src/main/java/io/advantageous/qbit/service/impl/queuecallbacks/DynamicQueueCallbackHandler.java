@@ -23,7 +23,7 @@ import io.advantageous.boon.core.reflection.MethodAccess;
 import io.advantageous.qbit.queue.QueueCallBackHandler;
 
 /**
- * Created by rhightower on 2/10/15.
+ * created by rhightower on 2/10/15.
  */
 public class DynamicQueueCallbackHandler implements QueueCallBackHandler {
 

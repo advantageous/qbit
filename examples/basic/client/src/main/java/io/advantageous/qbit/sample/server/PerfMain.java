@@ -18,12 +18,11 @@
 
 package io.advantageous.qbit.sample.server;
 
+import io.advantageous.boon.core.Sys;
 import io.advantageous.qbit.client.Client;
 import io.advantageous.qbit.client.ClientBuilder;
 import io.advantageous.qbit.sample.server.client.TodoServiceClient;
 import io.advantageous.qbit.sample.server.model.TodoItem;
-import io.advantageous.qbit.reactive.Callback;
-import io.advantageous.boon.core.Sys;
 
 import java.util.Date;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -33,7 +32,7 @@ import static io.advantageous.boon.core.IO.puts;
 
 
 /**
- * Created by rhightower on 12/4/14.
+ * created by rhightower on 12/4/14.
  */
 public class PerfMain {
 
@@ -115,12 +114,7 @@ public class PerfMain {
 
         Sys.sleep(10_000);
 
-        todoService.size(new Callback<Integer>() {
-            @Override
-            public void accept(Integer size) {
-                puts("FINAL SIZE " + size);
-            }
-        });
+        todoService.size(size -> puts("FINAL SIZE " + size));
 
 
         Sys.sleep(10_000);

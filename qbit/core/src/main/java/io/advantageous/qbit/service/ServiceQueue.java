@@ -29,7 +29,7 @@ import java.util.Collection;
 import java.util.concurrent.TimeUnit;
 
 /**
- * Created by Richard on 7/21/14.
+ * created by Richard on 7/21/14.
  *
  * @author rhightower
  */

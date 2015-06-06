@@ -18,20 +18,19 @@
 
 package io.advantageous.qbit.example.queues;
 
+import io.advantageous.boon.core.Sys;
 import io.advantageous.qbit.queue.Queue;
 import io.advantageous.qbit.queue.QueueBuilder;
 import io.advantageous.qbit.queue.ReceiveQueue;
 import io.advantageous.qbit.queue.SendQueue;
-import io.advantageous.boon.core.Sys;
 
-import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
 
 /**
- * Created by Richard on 9/12/14.
+ * created by Richard on 9/12/14.
  */
 public class ExampleMainQBitSingleWriterSingleReader {
 
@@ -94,30 +93,24 @@ public class ExampleMainQBitSingleWriterSingleReader {
         long startTime = System.currentTimeMillis();
 
 
-        final Future<Long> receiverJob = executorService.submit(new Callable<Long>() {
-            @Override
-            public Long call() {
-                try {
-                    return counter();
-                } catch (Exception e) {
-                    e.printStackTrace();
-                    return -1L;
-                }
+        final Future<Long> receiverJob = executorService.submit(() -> {
+            try {
+                return counter();
+            } catch (Exception e) {
+                e.printStackTrace();
+                return -1L;
             }
         });
 
 
-        final Future<?> senderJob = executorService.submit(new Runnable() {
-            @Override
-            public void run() {
+        final Future<?> senderJob = executorService.submit(() -> {
 
-                try {
-                    sender(50_000_000, -1);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-
+            try {
+                sender(50_000_000, -1);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
             }
+
         });
 
         senderJob.get();

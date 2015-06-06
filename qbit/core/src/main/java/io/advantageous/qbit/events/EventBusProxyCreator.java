@@ -20,7 +20,7 @@ package io.advantageous.qbit.events;
 
 /**
  * EventBusProxyCreator
- * Created by rhightower on 2/11/15.
+ * created by rhightower on 2/11/15.
  */
 public interface EventBusProxyCreator {
 

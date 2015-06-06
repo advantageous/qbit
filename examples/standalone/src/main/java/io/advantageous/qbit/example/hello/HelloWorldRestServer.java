@@ -26,8 +26,9 @@ import static io.advantageous.qbit.http.server.HttpServerBuilder.httpServerBuild
 import static io.advantageous.qbit.server.EndpointServerBuilder.endpointServerBuilder;
 
 /**
- * Created by rhightower on 2/9/15.
+ * created by rhightower on 2/9/15.
  */
+@SuppressWarnings("ALL")
 public class HelloWorldRestServer {
 
 

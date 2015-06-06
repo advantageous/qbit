@@ -79,10 +79,10 @@ public class RunnableCallbackTest {
                             latch.countDown();
                         })
                         .setOnTimeout(() -> {
-                                System.out.println("Service A timed out");
-                                sendTimeoutBackToClient();
-                                coordinator.cancel();
-                            })
+                            System.out.println("Service A timed out");
+                            sendTimeoutBackToClient();
+                            coordinator.cancel();
+                        })
                         .setTimeoutDuration(4)
                         .build();
 
@@ -92,18 +92,18 @@ public class RunnableCallbackTest {
         /* Create service C callback. */
         final Callback<String> serviceCCallback =
                 callbackBuilder
-                    .setCallback(String.class, returnValueFromC -> {
+                        .setCallback(String.class, returnValueFromC -> {
 
-                        serviceCReturn.set(returnValueFromC);
-                        latch.countDown();
-                    })
-                    .setOnTimeout(() -> {
-                        System.out.println("Service C timed out");
-                        sendTimeoutBackToClient();
-                        coordinator.cancel();
-                    })
-                   .setTimeoutDuration(4)
-                   .build();
+                            serviceCReturn.set(returnValueFromC);
+                            latch.countDown();
+                        })
+                        .setOnTimeout(() -> {
+                            System.out.println("Service C timed out");
+                            sendTimeoutBackToClient();
+                            coordinator.cancel();
+                        })
+                        .setTimeoutDuration(4)
+                        .build();
 
 
 
@@ -112,9 +112,9 @@ public class RunnableCallbackTest {
         serviceB.serviceCall(
                 reactor.callbackBuilder()
                         .setCallback(
-                            returnValue ->
-                                serviceC.serviceCall(serviceCCallback, 1,
-                                        " from " + returnValue)
+                                returnValue ->
+                                        serviceC.serviceCall(serviceCCallback, 1,
+                                                " from " + returnValue)
                         ).build(),
                 1, " from main");
 

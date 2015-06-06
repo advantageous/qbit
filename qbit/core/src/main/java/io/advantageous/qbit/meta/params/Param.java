@@ -19,6 +19,16 @@ package io.advantageous.qbit.meta.params;
 
 public class Param {
 
+    private final boolean required;
+    private final Object defaultValue;
+    private final ParamType paramType;
+
+    public Param(boolean required, Object defaultValue, ParamType paramType) {
+        this.required = required;
+        this.defaultValue = defaultValue;
+        this.paramType = paramType;
+    }
+
     public static Param[] params(final Param... params) {
         return params;
     }
@@ -35,7 +45,6 @@ public class Param {
         return new HeaderParam(false, name, defaultValue);
     }
 
-
     public static RequestParam requestParamRequired(final String name) {
         return new RequestParam(true, name, null);
     }
@@ -47,7 +56,6 @@ public class Param {
     public static RequestParam requestParam(final String name, Object defaultValue) {
         return new RequestParam(false, name, defaultValue);
     }
-
 
     public static URINamedParam pathParamRequired(final String name, final int indexIntoURI) {
         return new URINamedParam(true, name, null, indexIntoURI);
@@ -61,7 +69,6 @@ public class Param {
         return new URINamedParam(false, name, defaultValue, indexIntoURI);
     }
 
-
     public static URIPositionalParam pathParamRequired(final int pos, final int indexIntoURI) {
         return new URIPositionalParam(true, pos, null, indexIntoURI);
     }
@@ -74,17 +81,13 @@ public class Param {
         return new URIPositionalParam(false, pos, defaultValue, indexIntoURI);
     }
 
-
-
     public static BodyParam bodyParamRequired() {
         return new BodyParam(true, null);
     }
 
-
     public static BodyParam bodyParam() {
         return new BodyParam(false, null);
     }
-
 
     public static BodyArrayParam bodyParamRequired(final int pos) {
         return new BodyArrayParam(true, pos, null);
@@ -96,21 +99,6 @@ public class Param {
 
     public static BodyArrayParam bodyParam(final int pos, Object defaultValue) {
         return new BodyArrayParam(false, pos, defaultValue);
-    }
-
-
-
-
-    private final boolean required;
-    private final Object defaultValue;
-
-
-    private final ParamType paramType;
-
-    public Param(boolean required, Object defaultValue, ParamType paramType) {
-        this.required = required;
-        this.defaultValue = defaultValue;
-        this.paramType = paramType;
     }
 
     public boolean isRequired() {

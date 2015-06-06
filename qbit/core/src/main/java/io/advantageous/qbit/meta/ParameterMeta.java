@@ -22,12 +22,19 @@ import io.advantageous.qbit.meta.params.Param;
 
 public class ParameterMeta {
 
+    private final Class<?> classType;
+    private final TypeType type;
+    private final Param param;
+
+    public ParameterMeta(final Class<?> classType, final TypeType typeType, final Param param) {
+        this.type = typeType;
+        this.param = param;
+        this.classType = classType;
+    }
+
     public static ParameterMeta[] parameters(final ParameterMeta... parameters) {
         return parameters;
     }
-
-
-
 
     public static ParameterMeta param(Class<?> classType, final TypeType typeType, final Param param) {
         return new ParameterMeta(classType, typeType, param);
@@ -40,6 +47,7 @@ public class ParameterMeta {
     public static ParameterMeta intParam(final Param param) {
         return new ParameterMeta(null, TypeType.INT, param);
     }
+
     public static ParameterMeta floatParam(final Param param) {
         return new ParameterMeta(null, TypeType.FLOAT, param);
     }
@@ -52,23 +60,8 @@ public class ParameterMeta {
         return new ParameterMeta(null, TypeType.OBJECT, param);
     }
 
-
-
-
-
     public static ParameterMeta paramMeta(final TypeType typeType, final Param param) {
         return new ParameterMeta(null, typeType, param);
-    }
-
-
-    private final Class<?> classType;
-    private final TypeType type;
-    private final Param param;
-
-    public ParameterMeta(final Class<?> classType, final TypeType typeType, final Param param) {
-        this.type = typeType;
-        this.param = param;
-        this.classType = classType;
     }
 
     public TypeType getType() {

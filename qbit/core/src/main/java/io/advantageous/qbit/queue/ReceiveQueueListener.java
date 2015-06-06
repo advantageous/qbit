@@ -21,7 +21,7 @@ package io.advantageous.qbit.queue;
 import io.advantageous.qbit.Input;
 
 /**
- * Created by Richard on 7/18/14.
+ * created by Richard on 7/18/14.
  * Simplifies queue handler loop code by abstracting queue operations.
  * <p>
  * The nitty gritty of polling the queue which can vary from one implementation to another is abstracted
@@ -57,7 +57,6 @@ public interface ReceiveQueueListener<T> extends Input {
      */
     default void shutdown() {
     }
-
 
 
     /**

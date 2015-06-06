@@ -27,7 +27,7 @@ import java.util.function.Consumer;
 /**
  * Represents a callbackWithTimeout which receives an HTTP response.
  * <p>
- * Created by rhightower on 10/21/14.
+ * created by rhightower on 10/21/14.
  *
  * @author rhightower
  *         can be text or binary

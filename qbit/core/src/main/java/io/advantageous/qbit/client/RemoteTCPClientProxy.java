@@ -1,10 +1,22 @@
 package io.advantageous.qbit.client;
 
 public interface RemoteTCPClientProxy extends ClientProxy {
-    default int port() {return 0;}
-    default String host() {return "localProxy";}
-    default boolean connected() {return true;}
-    default boolean remote() {return true;}
+    default int port() {
+        return 0;
+    }
 
-    default void silentClose() {}
+    default String host() {
+        return "localProxy";
+    }
+
+    default boolean connected() {
+        return true;
+    }
+
+    default boolean remote() {
+        return true;
+    }
+
+    default void silentClose() {
+    }
 }

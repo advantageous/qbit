@@ -21,7 +21,10 @@ package io.advantageous.qbit.metrics;
 import io.advantageous.boon.primitive.Arry;
 import io.advantageous.boon.primitive.Int;
 import io.advantageous.boon.primitive.Lng;
-import io.advantageous.qbit.metrics.support.*;
+import io.advantageous.qbit.metrics.support.DebugRecorder;
+import io.advantageous.qbit.metrics.support.DebugReplicator;
+import io.advantageous.qbit.metrics.support.NoOpReplicator;
+import io.advantageous.qbit.metrics.support.StatServiceBuilder;
 import io.advantageous.qbit.util.Timer;
 import org.junit.After;
 import org.junit.Before;
@@ -62,7 +65,7 @@ public class StatServiceImplTest {
     @Test
     public void lastFiveSecondCountTest() throws Exception {
 
-        for (int index=0; index< 20; index++) {
+        for (int index = 0; index < 20; index++) {
             statServiceImpl.recordCount("mystat", 1);
             statServiceImpl.tick();
             testTimer.seconds(1);
@@ -82,7 +85,7 @@ public class StatServiceImplTest {
     @Test
     public void lastTenSecondCountTest() throws Exception {
 
-        for (int index=0; index< 20; index++) {
+        for (int index = 0; index < 20; index++) {
             statServiceImpl.recordCount("mystat", 1);
             statServiceImpl.tick();
             testTimer.seconds(1);
@@ -102,7 +105,7 @@ public class StatServiceImplTest {
     @Test
     public void lastSevenSeconds() throws Exception {
 
-        for (int index=0; index< 20; index++) {
+        for (int index = 0; index < 20; index++) {
             statServiceImpl.recordCount("mystat", 1);
             statServiceImpl.process();
             testTimer.seconds(1);
@@ -119,16 +122,14 @@ public class StatServiceImplTest {
     }
 
 
-
     @Test
     public void lastSecondsNotExact() throws Exception {
 
-        for (int index=0; index< 70; index++) {
+        for (int index = 0; index < 70; index++) {
             statServiceImpl.recordCount("mystat", 1);
             statServiceImpl.tick();
             testTimer.seconds(1);
         }
-
 
 
         int count = statServiceImpl.lastNSecondsCount("mystat", 20);
@@ -141,13 +142,11 @@ public class StatServiceImplTest {
     @Test
     public void lastMinute() throws Exception {
 
-        for (int index=0; index< 60; index++) {
+        for (int index = 0; index < 60; index++) {
             testTimer.seconds(1);
             statServiceImpl.recordCount("mystat", 1);
             statServiceImpl.process();
         }
-
-
 
 
         int count = statServiceImpl.currentMinuteCount("mystat");
@@ -159,13 +158,12 @@ public class StatServiceImplTest {
     @Test
     public void lastSecondsExact() throws Exception {
 
-        for (int index=0; index< 140; index++) {
+        for (int index = 0; index < 140; index++) {
             testTimer.ms(500);
             statServiceImpl.tick();
             statServiceImpl.recordCount("mystat", 1);
             statServiceImpl.process();
         }
-
 
 
         int count = statServiceImpl.currentMinuteCount("mystat");
@@ -177,11 +175,9 @@ public class StatServiceImplTest {
         assertEquals(122, count);
 
 
-
         testTimer.seconds(-1);
         statServiceImpl.tick();
         count = statServiceImpl.lastNSecondsCountExact("mystat", 20);
-
 
 
         assertEquals(38, count);
@@ -267,8 +263,6 @@ public class StatServiceImplTest {
         statServiceImpl.queueEmpty();
 
         ok = recorder.count == 0 || die(recorder.count);
-
-
 
 
     }

@@ -8,44 +8,40 @@ import io.advantageous.qbit.service.discovery.ServiceDiscovery;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.net.InetAddress;
-import java.net.UnknownHostException;
-import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 public class EventBusClusterBuilder {
+
+    private final Logger logger = LoggerFactory.getLogger(EventBusClusterBuilder.class);
+    private final boolean debug = GlobalConstants.DEBUG || logger.isDebugEnabled();
+    private String eventBusName = "eventBus";
+    private EventConnectorHub eventConnectorHub = null;
+    private PeriodicScheduler periodicScheduler = null;
+    private int peerCheckTimeInterval = 7;
+    private TimeUnit peerCheckTimeUnit = TimeUnit.SECONDS;
+    private String consulHost = null;
+    private int consulPort = 8500;
+    private String datacenter = null;
+    private String tag = null;
+    private int longPollTimeSeconds = 5;
+    private String localEventBusId;
+    private int replicationPortLocal = 9090;
+    private String replicationHostLocal = null;
+    private EventManager eventManager = null;
+    private int replicationServerCheckInIntervalInSeconds = 5;
 
     public static EventBusClusterBuilder eventBusRingBuilder() {
         return new EventBusClusterBuilder();
     }
 
-    private  String eventBusName = "eventBus";
-    private  EventConnectorHub eventConnectorHub = null;
-    private  PeriodicScheduler periodicScheduler = null;
-    private  int peerCheckTimeInterval = 7;
-    private  TimeUnit peerCheckTimeUnit = TimeUnit.SECONDS;
-    private  String consulHost = null;
-    private  int consulPort = 8500;
-    private  String datacenter = null;
-    private  String tag = null;
-    private  int longPollTimeSeconds = 5;
-    private  String localEventBusId;
-    private  int replicationPortLocal = 9090;
-    private  String replicationHostLocal = null;
-    private  EventManager eventManager = null;
-    private  int replicationServerCheckInIntervalInSeconds = 5;
-    private final Logger logger = LoggerFactory.getLogger(EventBusClusterBuilder.class);
-    private final boolean debug = false || GlobalConstants.DEBUG || logger.isDebugEnabled();
-
-
     public EventBusCluster build() {
 
-        if (consulHost==null) {
+        if (consulHost == null) {
             consulHost = "localhost";
         }
 
-        if (localEventBusId==null) {
-                localEventBusId = eventBusName + "-" + ServiceDiscovery.uniqueString(replicationPortLocal);
+        if (localEventBusId == null) {
+            localEventBusId = eventBusName + "-" + ServiceDiscovery.uniqueString(replicationPortLocal);
         }
 
         return new EventBusCluster(getEventManager(), getEventBusName(), getLocalEventBusId(),

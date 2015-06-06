@@ -34,7 +34,7 @@ import static io.advantageous.qbit.http.request.HttpRequestBuilder.httpRequestBu
 import static io.advantageous.qbit.http.server.HttpServerBuilder.httpServerBuilder;
 
 /**
- * Created by rhightower on 2/16/15.
+ * created by rhightower on 2/16/15.
  */
 public class EchoHttp {
 
@@ -133,17 +133,13 @@ public class EchoHttp {
 
 
         /* Using Async support with lambda. */
-        httpClient.getAsync("/hi/async", (code, contentType, body) -> {
-            puts("Async text with lambda", body);
-        });
+        httpClient.getAsync("/hi/async", (code, contentType, body) -> puts("Async text with lambda", body));
 
         Sys.sleep(100);
 
 
         /* Using Async support with lambda. */
-        httpClient.getAsyncWith1Param("/hi/async", "hi", "mom", (code, contentType, body) -> {
-            puts("Async text with lambda 1 param\n", body);
-        });
+        httpClient.getAsyncWith1Param("/hi/async", "hi", "mom", (code, contentType, body) -> puts("Async text with lambda 1 param\n", body));
 
         Sys.sleep(100);
 
@@ -153,9 +149,7 @@ public class EchoHttp {
         httpClient.getAsyncWith2Params("/hi/async",
                 "p1", "v1",
                 "p2", "v2",
-                (code, contentType, body) -> {
-                    puts("Async text with lambda 2 params\n", body);
-                });
+                (code, contentType, body) -> puts("Async text with lambda 2 params\n", body));
 
         Sys.sleep(100);
 
@@ -167,9 +161,7 @@ public class EchoHttp {
                 "p1", "v1",
                 "p2", "v2",
                 "p3", "v3",
-                (code, contentType, body) -> {
-                    puts("Async text with lambda 3 params\n", body);
-                });
+                (code, contentType, body) -> puts("Async text with lambda 3 params\n", body));
 
         Sys.sleep(100);
 
@@ -180,9 +172,7 @@ public class EchoHttp {
                 "p2", "v2",
                 "p3", "v3",
                 "p4", "v4",
-                (code, contentType, body) -> {
-                    puts("Async text with lambda 4 params\n", body);
-                });
+                (code, contentType, body) -> puts("Async text with lambda 4 params\n", body));
 
         Sys.sleep(100);
 
@@ -194,9 +184,7 @@ public class EchoHttp {
                 "p3", "v3",
                 "p4", "v4",
                 "p5", "v5",
-                (code, contentType, body) -> {
-                    puts("Async text with lambda 5 params\n", body);
-                });
+                (code, contentType, body) -> puts("Async text with lambda 5 params\n", body));
 
         Sys.sleep(100);
     }
@@ -267,17 +255,13 @@ public class EchoHttp {
 
 
         /* Using Async support with lambda. */
-        httpClient.postAsync("/hi/async", (code, contentType, body) -> {
-            puts("Async text with lambda", body);
-        });
+        httpClient.postAsync("/hi/async", (code, contentType, body) -> puts("Async text with lambda", body));
 
         Sys.sleep(100);
 
 
         /* Using Async support with lambda. */
-        httpClient.postFormAsyncWith1Param("/hi/async", "hi", "mom", (code, contentType, body) -> {
-            puts("Async text with lambda 1 param\n", body);
-        });
+        httpClient.postFormAsyncWith1Param("/hi/async", "hi", "mom", (code, contentType, body) -> puts("Async text with lambda 1 param\n", body));
 
         Sys.sleep(100);
 
@@ -287,9 +271,7 @@ public class EchoHttp {
         httpClient.postFormAsyncWith2Params("/hi/async",
                 "p1", "v1",
                 "p2", "v2",
-                (code, contentType, body) -> {
-                    puts("Async text with lambda 2 params\n", body);
-                });
+                (code, contentType, body) -> puts("Async text with lambda 2 params\n", body));
 
         Sys.sleep(100);
 
@@ -301,9 +283,7 @@ public class EchoHttp {
                 "p1", "v1",
                 "p2", "v2",
                 "p3", "v3",
-                (code, contentType, body) -> {
-                    puts("Async text with lambda 3 params\n", body);
-                });
+                (code, contentType, body) -> puts("Async text with lambda 3 params\n", body));
 
         Sys.sleep(100);
 
@@ -314,9 +294,7 @@ public class EchoHttp {
                 "p2", "v2",
                 "p3", "v3",
                 "p4", "v4",
-                (code, contentType, body) -> {
-                    puts("Async text with lambda 4 params\n", body);
-                });
+                (code, contentType, body) -> puts("Async text with lambda 4 params\n", body));
 
         Sys.sleep(100);
 
@@ -328,9 +306,7 @@ public class EchoHttp {
                 "p3", "v3",
                 "p4", "v4",
                 "p5", "v5",
-                (code, contentType, body) -> {
-                    puts("Async text with lambda 5 params\n", body);
-                });
+                (code, contentType, body) -> puts("Async text with lambda 5 params\n", body));
 
         Sys.sleep(100);
 
@@ -406,17 +382,13 @@ public class EchoHttp {
 
 
         /* Using Async support with lambda. */
-        httpClient.putAsync("/hi/async", (code, contentType, body) -> {
-            puts("Async text with lambda", body);
-        });
+        httpClient.putAsync("/hi/async", (code, contentType, body) -> puts("Async text with lambda", body));
 
         Sys.sleep(100);
 
 
         /* Using Async support with lambda. */
-        httpClient.putFormAsyncWith1Param("/hi/async", "hi", "mom", (code, contentType, body) -> {
-            puts("Async text with lambda 1 param\n", body);
-        });
+        httpClient.putFormAsyncWith1Param("/hi/async", "hi", "mom", (code, contentType, body) -> puts("Async text with lambda 1 param\n", body));
 
         Sys.sleep(100);
 
@@ -426,9 +398,7 @@ public class EchoHttp {
         httpClient.putFormAsyncWith2Params("/hi/async",
                 "p1", "v1",
                 "p2", "v2",
-                (code, contentType, body) -> {
-                    puts("Async text with lambda 2 params\n", body);
-                });
+                (code, contentType, body) -> puts("Async text with lambda 2 params\n", body));
 
         Sys.sleep(100);
 
@@ -440,9 +410,7 @@ public class EchoHttp {
                 "p1", "v1",
                 "p2", "v2",
                 "p3", "v3",
-                (code, contentType, body) -> {
-                    puts("Async text with lambda 3 params\n", body);
-                });
+                (code, contentType, body) -> puts("Async text with lambda 3 params\n", body));
 
         Sys.sleep(100);
 
@@ -453,9 +421,7 @@ public class EchoHttp {
                 "p2", "v2",
                 "p3", "v3",
                 "p4", "v4",
-                (code, contentType, body) -> {
-                    puts("Async text with lambda 4 params\n", body);
-                });
+                (code, contentType, body) -> puts("Async text with lambda 4 params\n", body));
 
         Sys.sleep(100);
 

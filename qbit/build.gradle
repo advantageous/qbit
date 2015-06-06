@@ -190,7 +190,7 @@ project('web:servlet') {
 project('web:vertx') {
 
     ext {
-        vertxVersion='2.1.1'
+        vertxVersion = '2.1.1'
     }
 
     dependencies {
@@ -228,7 +228,6 @@ project('cluster') {
 }
 
 project('cluster:consul-client') {
-
 
 
     test.onlyIf { Boolean.getBoolean('integration.tests') }
@@ -323,7 +322,7 @@ class RunConsul extends DefaultTask {
         execFile.parentFile.mkdirs()
 
         if (execFile.parentFile.exists()) {
-            println("${execFile.parentFile} created" );
+            println("${execFile.parentFile} created");
         }
 
 
@@ -344,7 +343,7 @@ class RunConsul extends DefaultTask {
             println("os.version Operating system version\t\t $osVersion")
         }
 
-        new URL(zipURL).withInputStream{ i -> zipFile.withOutputStream{ it << i }}
+        new URL(zipURL).withInputStream { i -> zipFile.withOutputStream { it << i } }
 
 
         for (int index = 0; index < 10; index++) {
@@ -352,7 +351,7 @@ class RunConsul extends DefaultTask {
             if (zipFile.exists()) {
                 break;
             }
-            println("Waiting for download $zipURL" )
+            println("Waiting for download $zipURL")
         }
 
         if (zipFile.exists()) {
@@ -397,12 +396,12 @@ class RunConsul extends DefaultTask {
 
 
     def mixinAntExec() {
-        String.metaClass.antExec = {failOnError=true -> antExec([delegate], failOnError)}
-        ArrayList.metaClass.antExec << {failOnError=true -> antExec(delegate, failOnError)}
+        String.metaClass.antExec = { failOnError = true -> antExec([delegate], failOnError) }
+        ArrayList.metaClass.antExec << { failOnError = true -> antExec(delegate, failOnError) }
     }
 
-    def antExec(command, failOnError=true) {
-        def commandLiteral = command.collect{it.contains(' ') ? '"' + it + '"' : it}.join(' ')
+    def antExec(command, failOnError = true) {
+        def commandLiteral = command.collect { it.contains(' ') ? '"' + it + '"' : it }.join(' ')
 
         println "ant exec with: ${commandLiteral}"
 
@@ -410,18 +409,18 @@ class RunConsul extends DefaultTask {
                 failonerror: false,
                 spawn: true,
                 executable: command[0]) {
-            if (command.size()>1)
-                arg(line:command[1..-1].collect{it.contains(' ') ? '"' + it + '"' : it}.join(' '))
+            if (command.size() > 1)
+                arg(line: command[1..-1].collect { it.contains(' ') ? '"' + it + '"' : it }.join(' '))
         }
 
         def result = new Expando(
                 text: ant.project.properties.text,
                 error: ant.project.properties.error,
                 exitValue: ant.project.properties.exitValue as Integer,
-                toString: {text}
+                toString: { text }
         )
 
-        if (failOnError && result.exitValue != 0){
+        if (failOnError && result.exitValue != 0) {
             throw new Exception("""command failed with ${result.exitValue}
 executed: ${commandLiteral}
 error: ${result.error}

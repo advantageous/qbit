@@ -6,15 +6,16 @@ import org.junit.Test;
 
 import java.util.concurrent.TimeUnit;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertTrue;
 
 /**
- * Created by rick on 6/3/15.
+ * created by rick on 6/3/15.
  */
 public class HealthServiceImplTest {
 
     TestTimer timer;
-    HealthServiceImpl healthService ;
+    HealthServiceImpl healthService;
+
     @Before
     public void setUp() throws Exception {
 
@@ -32,7 +33,6 @@ public class HealthServiceImplTest {
 
         assertTrue("foo is not found among the healthy yet",
                 !healthService.findHealthyNodes().stream().anyMatch(s -> s.equals("foo")));
-
 
 
     }
@@ -82,7 +82,7 @@ public class HealthServiceImplTest {
     }
 
 
-    @Test (expected = IllegalStateException.class)
+    @Test(expected = IllegalStateException.class)
     public void fail() {
 
         healthService.checkIn("no exist", HealthStatus.PASS);
@@ -100,7 +100,6 @@ public class HealthServiceImplTest {
         healthService.checkIn("bar", HealthStatus.PASS);
 
 
-
         healthService.register("baz", 1, TimeUnit.SECONDS);
         healthService.checkIn("baz", HealthStatus.PASS);
 
@@ -113,7 +112,6 @@ public class HealthServiceImplTest {
 
 
     }
-
 
 
     @Test
@@ -171,8 +169,6 @@ public class HealthServiceImplTest {
         healthService.checkIn("foo", HealthStatus.PASS);
 
         healthService.process();
-
-
 
 
         assertTrue("foo is found among the healthy ",

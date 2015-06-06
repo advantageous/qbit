@@ -32,16 +32,12 @@ import io.advantageous.qbit.transforms.Transformer;
  * Allows for the programmatic construction of a service.
  *
  * @author rhightower
- *         Created by Richard on 11/14/14.
+ *         created by Richard on 11/14/14.
  *         <p>
- *         Created by rhightower on 1/19/15.
+ *         created by rhightower on 1/19/15.
  */
 public class ServiceBundleBuilder {
 
-
-    public static ServiceBundleBuilder serviceBundleBuilder() {
-        return new ServiceBundleBuilder();
-    }
 
     private QueueBuilder requestQueueBuilder;
     private QueueBuilder responseQueueBuilder;
@@ -52,10 +48,7 @@ public class ServiceBundleBuilder {
     private String address = "/services";
     private boolean eachServiceInItsOwnThread = true;
     private QBitSystemManager qBitSystemManager;
-
     private Queue<Response<Object>> responseQueue;
-
-
     /**
      * Allows interception of method calls before they get sent to a client.
      * This allows us to transform or reject method calls.
@@ -71,7 +64,9 @@ public class ServiceBundleBuilder {
      */
     private Transformer<Request, Object> argTransformer = ServiceConstants.NO_OP_ARG_TRANSFORM;
 
-
+    public static ServiceBundleBuilder serviceBundleBuilder() {
+        return new ServiceBundleBuilder();
+    }
 
     public QueueBuilder getWebResponseQueueBuilder() {
 
@@ -180,13 +175,18 @@ public class ServiceBundleBuilder {
         return requestQueueBuilder;
     }
 
+    public ServiceBundleBuilder setRequestQueueBuilder(QueueBuilder queueBuilder) {
+        this.requestQueueBuilder = queueBuilder;
+        return this;
+    }
+
     public QueueBuilder getResponseQueueBuilder() {
 
         if (responseQueueBuilder == null) {
 
-            if (responseQueue!=null) {
+            if (responseQueue != null) {
 
-                responseQueueBuilder = new QueueBuilder(){
+                responseQueueBuilder = new QueueBuilder() {
 
                     @Override
                     public <T> Queue<T> build() {
@@ -209,12 +209,6 @@ public class ServiceBundleBuilder {
         return this;
     }
 
-
-    public ServiceBundleBuilder setRequestQueueBuilder(QueueBuilder queueBuilder) {
-        this.requestQueueBuilder = queueBuilder;
-        return this;
-    }
-
     public Queue<Response<Object>> getResponseQueue() {
         return responseQueue;
     }
@@ -225,8 +219,6 @@ public class ServiceBundleBuilder {
     }
 
     public ServiceBundle build() {
-
-
 
 
         final ServiceBundle serviceBundle = QBit.factory().createServiceBundle(this.getAddress(),
@@ -242,7 +234,7 @@ public class ServiceBundleBuilder {
             qBitSystemManager.registerServiceBundle(serviceBundle);
         }
 
-        if (serviceBundle==null) {
+        if (serviceBundle == null) {
             throw new IllegalStateException("Service Bundle was null");
         }
 

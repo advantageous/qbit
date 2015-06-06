@@ -26,7 +26,6 @@ import io.advantageous.consul.domain.option.RequestOptions;
 import io.advantageous.qbit.http.request.HttpRequestBuilder;
 import io.advantageous.qbit.http.request.HttpResponse;
 
-
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Base64;
@@ -37,7 +36,6 @@ import static io.advantageous.boon.json.JsonFactory.fromJsonArray;
 import static io.advantageous.consul.domain.ConsulException.die;
 
 /**
- *
  * Note this class was heavily influenced and inspired by the Orbitz Consul client.
  */
 public class RequestUtils {
@@ -59,7 +57,9 @@ public class RequestUtils {
         int index = Integer.valueOf(response.headers().getFirst("X-Consul-Index"));
         long lastContact = Long.valueOf(response.headers().getFirst("X-Consul-Lastcontact"));
         boolean knownLeader = Boolean.valueOf(response.headers().getFirst("X-Consul-Knownleader"));
-        ConsulResponse<T> consulResponse = new ConsulResponse<T>(responseObject, lastContact, knownLeader, index);
+        //noinspection UnnecessaryLocalVariable
+        @SuppressWarnings("UnnecessaryLocalVariable")
+        ConsulResponse<T> consulResponse = new ConsulResponse<>(responseObject, lastContact, knownLeader, index);
 
         return consulResponse;
     }
@@ -71,7 +71,7 @@ public class RequestUtils {
 
         if (response.code() == 200) {
 
-            if (!Str.isEmpty( response.body() )) {
+            if (!Str.isEmpty(response.body())) {
                 responseObject = fromJsonArray(response.body(), responseType);
             }
 
@@ -82,6 +82,9 @@ public class RequestUtils {
         int index = Integer.valueOf(response.headers().getFirst("X-Consul-Index"));
         long lastContact = Long.valueOf(response.headers().getFirst("X-Consul-Lastcontact"));
         boolean knownLeader = Boolean.valueOf(response.headers().getFirst("X-Consul-Knownleader"));
+
+        //noinspection UnnecessaryLocalVariable
+        @SuppressWarnings("UnnecessaryLocalVariable")
         ConsulResponse<List<T>> consulResponse = new ConsulResponse<>(responseObject, lastContact, knownLeader, index);
 
         return consulResponse;
@@ -92,8 +95,7 @@ public class RequestUtils {
     }
 
 
-
-    public static  HttpRequestBuilder getHttpRequestBuilder(
+    public static HttpRequestBuilder getHttpRequestBuilder(
             final String datacenter,
             final String tag,
             final RequestOptions requestOptions,
@@ -111,16 +113,16 @@ public class RequestUtils {
             httpRequestBuilder.addParam("tag", tag);
         }
 
-        if(requestOptions.isBlocking()) {
+        if (requestOptions.isBlocking()) {
             httpRequestBuilder.addParam("wait", requestOptions.getWait());
             httpRequestBuilder.addParam("index", String.valueOf(requestOptions.getIndex()));
         }
 
-        if(requestOptions.getConsistency() == Consistency.CONSISTENT) {
+        if (requestOptions.getConsistency() == Consistency.CONSISTENT) {
             httpRequestBuilder.addParam("consistent", "true");
 
         }
-        if(requestOptions.getConsistency() == Consistency.STALE) {
+        if (requestOptions.getConsistency() == Consistency.STALE) {
             httpRequestBuilder.addParam("stale", "true");
         }
         return httpRequestBuilder;

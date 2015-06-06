@@ -14,7 +14,8 @@ import org.junit.Test;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static io.advantageous.qbit.events.EventManagerBuilder.eventManagerBuilder;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertSame;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -33,7 +34,7 @@ public class EventManagerBuilderTest {
 
     String testChannel = "test.channel";
 
-    EventTransferObject<Object> testEvent = new EventTransferObject<>("body", 1L,  testChannel);
+    EventTransferObject<Object> testEvent = new EventTransferObject<>("body", 1L, testChannel);
 
 
     @Before
@@ -93,7 +94,6 @@ public class EventManagerBuilderTest {
     }
 
 
-
     @Test
     public void testWithPredicateFalse() {
         EventManagerBuilder eventManagerBuilder = eventManagerBuilder();
@@ -114,9 +114,6 @@ public class EventManagerBuilderTest {
         FactorySPI.setFactory(factory);
 
 
-
-
-
         eventManagerBuilder.setEventConnector(eventConnector);
 
         eventManagerBuilder.addEventConnectorPredicate(objectEvent -> false);
@@ -128,7 +125,6 @@ public class EventManagerBuilderTest {
 
         assertNull(eventRef.get());
     }
-
 
 
     @Test
@@ -151,9 +147,6 @@ public class EventManagerBuilderTest {
         FactorySPI.setFactory(factory);
 
 
-
-
-
         eventManagerBuilder.setEventConnector(eventConnector);
 
         eventManagerBuilder.addEventConnectorPredicate(objectEvent -> true);
@@ -161,7 +154,6 @@ public class EventManagerBuilderTest {
         EventManager build = eventManagerBuilder.build("foo");
 
         build.forwardEvent(testEvent);
-
 
 
         assertSame(testEvent, eventRef.get());
@@ -188,9 +180,6 @@ public class EventManagerBuilderTest {
         FactorySPI.setFactory(factory);
 
 
-
-
-
         eventManagerBuilder.setEventConnector(eventConnector);
 
         eventManagerBuilder.addEventConnectorPredicate(objectEvent -> true);
@@ -200,7 +189,6 @@ public class EventManagerBuilderTest {
         EventManager build = eventManagerBuilder.build("foo");
 
         build.forwardEvent(testEvent);
-
 
 
         assertSame(testEvent, eventRef.get());
@@ -227,9 +215,6 @@ public class EventManagerBuilderTest {
         FactorySPI.setFactory(factory);
 
 
-
-
-
         eventManagerBuilder.setEventConnector(eventConnector);
 
         eventManagerBuilder.addEventConnectorPredicate(objectEvent -> true);
@@ -243,75 +228,72 @@ public class EventManagerBuilderTest {
         build.forwardEvent(testEvent);
 
 
-
-
         assertNull(eventRef.get());
     }
 
 
-
     private EventManager createEventManagerConnectorShortCut(final String name, final EventConnector eventConnector) {
-        return new EventManager(){
+        return new EventManager() {
 
-        @Override
-        public void joinService(ServiceQueue serviceQueue) {
+            @Override
+            public void joinService(ServiceQueue serviceQueue) {
 
-        }
+            }
 
-        @Override
-        public void leave() {
+            @Override
+            public void leave() {
 
-        }
+            }
 
-        @Override
-        public void listen(Object listener) {
+            @Override
+            public void listen(Object listener) {
 
-        }
+            }
 
-        @Override
-        public void stopListening(Object listener) {
+            @Override
+            public void stopListening(Object listener) {
 
-        }
+            }
 
-        @Override
-        public <T> void register(String channelName, EventListener<T> listener) {
+            @Override
+            public <T> void register(String channelName, EventListener<T> listener) {
 
-        }
+            }
 
-        @Override
-        public <T> void unregister(String channelName, EventListener<T> listener) {
+            @Override
+            public <T> void unregister(String channelName, EventListener<T> listener) {
 
-        }
+            }
 
-        @Override
-        public <T> void subscribe(String channelName, SendQueue<Event<Object>> event) {
+            @Override
+            public <T> void subscribe(String channelName, SendQueue<Event<Object>> event) {
 
-        }
+            }
 
-        @Override
-        public <T> void consume(String channelName, SendQueue<Event<Object>> event) {
+            @Override
+            public <T> void consume(String channelName, SendQueue<Event<Object>> event) {
 
-        }
+            }
 
-        @Override
-        public <T> void send(String channel, T event) {
+            @Override
+            public <T> void send(String channel, T event) {
 
-        }
+            }
 
-        @Override
-        public <T> void sendArray(String channel, T... event) {
+            @Override
+            public <T> void sendArray(String channel, T... event) {
 
-        }
+            }
 
-        @Override
-        public <T> void sendCopy(String channel, T event) {
+            @Override
+            public <T> void sendCopy(String channel, T event) {
 
-        }
+            }
 
-        @Override
-        public <T> void forwardEvent(EventTransferObject<Object> event) {
-            eventConnector.forwardEvent(event);
-        }
-    };
+            @Override
+            public <T> void forwardEvent(EventTransferObject<Object> event) {
+                eventConnector.forwardEvent(event);
+            }
+        };
     }
 }

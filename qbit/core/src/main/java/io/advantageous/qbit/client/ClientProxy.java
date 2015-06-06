@@ -23,13 +23,16 @@ package io.advantageous.qbit.client;
  *
  * @author rhightower
  *         <p>
- *         Created by rhightower on 12/4/14.
+ *         created by rhightower on 12/4/14.
  */
 public interface ClientProxy {
 
-    default void clientProxyFlush() {}
+    default void clientProxyFlush() {
+    }
 
 
-    default boolean remote() {return false;}
+    default boolean remote() {
+        return false;
+    }
 
 }

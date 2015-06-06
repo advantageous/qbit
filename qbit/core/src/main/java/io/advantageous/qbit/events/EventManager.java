@@ -37,6 +37,7 @@ public interface EventManager {
      * This is usually called in queueInit.
      * EVENTS COME IN ON THE SAME QUEUE AS THE METHOD CALLS
      * (or another queue managed by the same thread depending on the implementation).
+     *
      * @param serviceQueue service queue
      */
     void joinService(ServiceQueue serviceQueue);
@@ -50,7 +51,6 @@ public interface EventManager {
     }
 
 
-
     /**
      * Opposite of join. ONLY FOR SERVICES.
      */
@@ -59,6 +59,7 @@ public interface EventManager {
     /**
      * This method can be called outside of a service.
      * It looks for the @Listen annotation to register for certain events.
+     *
      * @param listener listener
      */
     void listen(Object listener);
@@ -66,6 +67,7 @@ public interface EventManager {
 
     /**
      * Opposite of register.
+     *
      * @param listener listener
      */
     void stopListening(Object listener);
@@ -75,8 +77,8 @@ public interface EventManager {
      * This method can only be called outside of a service.
      *
      * @param channelName array of channel names
-     * @param listener event listener
-     * @param <T> T
+     * @param listener    event listener
+     * @param <T>         T
      */
     <T> void register(String channelName, EventListener<T> listener);
 
@@ -84,8 +86,8 @@ public interface EventManager {
      * This method can only be called outside of a service.
      *
      * @param channelName array of channel names
-     * @param listener event listener
-     * @param <T> T
+     * @param listener    event listener
+     * @param <T>         T
      */
     <T> void unregister(String channelName, EventListener<T> listener);
 
@@ -95,8 +97,8 @@ public interface EventManager {
      * Registers an output queue to a list of channel names.
      *
      * @param channelName array of channel names
-     * @param listener queue that is going to listen
-     * @param <T> T
+     * @param listener    queue that is going to listen
+     * @param <T>         T
      */
     <T> void subscribe(String channelName, SendQueue<Event<Object>> listener);
 
@@ -105,11 +107,9 @@ public interface EventManager {
      * This method can only be called outside of a service.
      * Registers an output queue to a consume for P2P style messaging.
      *
-     * @param channelName array of channel names
-     *
-     * @param channelName array of channel names
-     * @param listener queue that is going to consume
-     * @param <T>     T
+     * @param channelName channel name
+     * @param listener    queue that is going to consume
+     * @param <T>         T
      */
     <T> void consume(String channelName, SendQueue<Event<Object>> listener);
 
@@ -127,6 +127,7 @@ public interface EventManager {
      * @param event   event
      * @param <T>     T
      */
+    @SuppressWarnings("unchecked")
     <T> void sendArray(String channel, T... event);
 
     /**
@@ -138,7 +139,6 @@ public interface EventManager {
      * @param <T>     T
      */
     <T> void sendCopy(String channel, T event);
-
 
 
     <T> void forwardEvent(EventTransferObject<Object> event);

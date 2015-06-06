@@ -56,6 +56,7 @@ import static io.advantageous.boon.core.Exceptions.die;
 import static io.advantageous.boon.core.IO.puts;
 import static io.advantageous.qbit.service.ServiceBuilder.serviceBuilder;
 
+@SuppressWarnings("ALL")
 public class ServiceEndpointServerImplTest extends TimedTesting {
 
     static AtomicInteger timeOutCounter = new AtomicInteger();
@@ -271,7 +272,7 @@ public class ServiceEndpointServerImplTest extends TimedTesting {
     public void testSimplePOST_HTTPRequest_ErrorWrongHttpMethod() throws Exception {
 
         failureCounter = 0;
-        responseCounter =0;
+        responseCounter = 0;
         callMeCounter = 0;
 
         final HttpRequest request = new HttpRequestBuilder().setUri("/services/mock/callPost").setTextReceiver(new MockReceiver()).setBody("[]").build();

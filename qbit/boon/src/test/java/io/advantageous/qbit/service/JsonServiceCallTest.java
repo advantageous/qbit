@@ -34,7 +34,7 @@ import static io.advantageous.boon.core.Exceptions.die;
 import static io.advantageous.boon.json.JsonFactory.fromJson;
 
 /**
- * Created by Richard on 8/11/14.
+ * created by Richard on 8/11/14.
  */
 public class JsonServiceCallTest {
 

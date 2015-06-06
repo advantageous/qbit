@@ -22,16 +22,12 @@ public class HealthServiceBuilder {
     private TimeUnit timeUnit;
     private boolean autoFlush;
 
-    public static HealthServiceBuilder healthServiceBuilder() {
-        return new HealthServiceBuilder();
-    }
-
-
     public HealthServiceBuilder(final PropertyResolver propertyResolver) {
 
         recheckInterval = propertyResolver.getLongProperty("recheckIntervalSeconds", recheckInterval);
         timeUnit = TimeUnit.SECONDS;
     }
+
 
     public HealthServiceBuilder() {
 
@@ -43,6 +39,9 @@ public class HealthServiceBuilder {
         this(PropertyResolver.createPropertiesPropertyResolver(CONTEXT, properties));
     }
 
+    public static HealthServiceBuilder healthServiceBuilder() {
+        return new HealthServiceBuilder();
+    }
 
     public long getRecheckInterval() {
         return recheckInterval;
@@ -75,7 +74,7 @@ public class HealthServiceBuilder {
     }
 
     public ServiceQueue getServiceQueue() {
-        if (serviceQueue ==  null) {
+        if (serviceQueue == null) {
             serviceQueue = getServiceBuilder().setServiceObject(getImplementation()).build();
         }
         return serviceQueue;

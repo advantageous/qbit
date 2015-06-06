@@ -53,6 +53,39 @@ public class QBitServletUtil {
 
     }
 
+    public static HttpRequest convertRequest(final AsyncContext asyncContext, final Consumer<Exception> onError) {
+
+        return new QBitServletUtil().doConvertRequest(asyncContext, onError);
+
+    }
+
+    public static HttpRequest convertRequest(final AsyncContext asyncContext) {
+
+        return new QBitServletUtil().doConvertRequest(asyncContext, null);
+
+    }
+
+    public static void setRequestBodyIfNeeded(final HttpServletRequest request,
+                                              final HttpRequestBuilder httpRequestBuilder) {
+
+        if (request.getMethod().equals("POST") || request.getMethod().equals("PUT")) {
+            final String body = readBody(request);
+            if (body != null) {
+                httpRequestBuilder.setBody(body);
+            }
+        }
+    }
+
+    public static String readBody(final HttpServletRequest request) {
+        try {
+            final ServletInputStream inputStream = request.getInputStream();
+            final String read = IO.read(inputStream, StandardCharsets.UTF_8);
+            inputStream.close();
+            return read;
+        } catch (final IOException e) {
+            throw new IllegalStateException(e);
+        }
+    }
 
     private HttpRequest doConvertRequest(final AsyncContext asyncContext, Consumer<Exception> onError) {
 
@@ -75,22 +108,6 @@ public class QBitServletUtil {
         setRequestBodyIfNeeded(request, httpRequestBuilder);
         setupRequestHandler(asyncContext, response, httpRequestBuilder, onError);
         return httpRequestBuilder.build();
-
-    }
-
-
-
-
-    public static HttpRequest convertRequest(final AsyncContext asyncContext, final Consumer<Exception> onError) {
-
-        return new QBitServletUtil().doConvertRequest(asyncContext, onError);
-
-    }
-
-
-    public static HttpRequest convertRequest(final AsyncContext asyncContext) {
-
-        return new QBitServletUtil().doConvertRequest(asyncContext, null);
 
     }
 
@@ -120,27 +137,5 @@ public class QBitServletUtil {
                     }
                 }
         );
-    }
-
-    public static void setRequestBodyIfNeeded(final HttpServletRequest request,
-                                       final HttpRequestBuilder httpRequestBuilder) {
-
-        if (request.getMethod().equals("POST") || request.getMethod().equals("PUT")) {
-            final String body = readBody(request);
-            if (body != null) {
-                httpRequestBuilder.setBody(body);
-            }
-        }
-    }
-
-    public static String readBody(final HttpServletRequest request) {
-        try {
-            final ServletInputStream inputStream = request.getInputStream();
-            final String read = IO.read(inputStream, StandardCharsets.UTF_8);
-            inputStream.close();
-            return read;
-        } catch (final IOException e) {
-            throw new IllegalStateException(e);
-        }
     }
 }

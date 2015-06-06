@@ -11,23 +11,18 @@ import java.util.Properties;
 import java.util.concurrent.TimeUnit;
 
 /**
- * Created by rhightower on 5/22/15.
+ * created by rhightower on 5/22/15.
  */
 public class StatsDReplicatorBuilder {
 
-    private String host="localhost";
-    private int port=8125;
-    private boolean multiMetrics=true;
+    public static final String STATSD_REPLICATOR_PROPS = "qbit.statsd.replicator.";
+    private String host = "localhost";
+    private int port = 8125;
+    private boolean multiMetrics = true;
     private int bufferSize = 1500;
-    private int flushRateIntervalMS=1000;
+    private int flushRateIntervalMS = 1000;
     private ServiceBuilder serviceBuilder;
     private ServiceQueue serviceQueue;
-
-    public static final String STATSD_REPLICATOR_PROPS = "qbit.statsd.replicator.";
-
-    public static StatsDReplicatorBuilder statsDReplicatorBuilder() {
-        return new StatsDReplicatorBuilder();
-    }
 
     public StatsDReplicatorBuilder() {
         this(PropertyResolver.createSystemPropertyResolver(STATSD_REPLICATOR_PROPS));
@@ -48,10 +43,13 @@ public class StatsDReplicatorBuilder {
                 STATSD_REPLICATOR_PROPS, properties));
     }
 
+    public static StatsDReplicatorBuilder statsDReplicatorBuilder() {
+        return new StatsDReplicatorBuilder();
+    }
 
     public ServiceBuilder getServiceBuilder() {
 
-        if (serviceBuilder==null) {
+        if (serviceBuilder == null) {
             serviceBuilder = ServiceBuilder.serviceBuilder();
         }
         return serviceBuilder;
@@ -124,7 +122,8 @@ public class StatsDReplicatorBuilder {
     public StatReplicator build() {
 
         buildQueue();
-        final StatReplicator proxyWithAutoFlush =
+        //noinspection UnnecessaryLocalVariable
+        @SuppressWarnings("UnnecessaryLocalVariable") final StatReplicator proxyWithAutoFlush =
                 serviceQueue.createProxyWithAutoFlush(StatReplicator.class, 100, TimeUnit.MILLISECONDS);
 
         return proxyWithAutoFlush;
@@ -142,7 +141,7 @@ public class StatsDReplicatorBuilder {
 
     private StatsDReplicator createStatsDReplicator() {
         try {
-            return  new StatsDReplicator(getHost(),
+            return new StatsDReplicator(getHost(),
                     getPort(), this.isMultiMetrics(),
                     this.getBufferSize(), this.getFlushRateIntervalMS());
         } catch (IOException e) {

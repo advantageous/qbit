@@ -39,7 +39,7 @@ public class HttpServerVertxFactory implements HttpServerFactory {
                              final QBitSystemManager systemManager) {
 
 
-            return new HttpServerVertx(options, systemManager);
+        return new HttpServerVertx(options, systemManager);
 
     }
 }

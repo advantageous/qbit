@@ -30,21 +30,19 @@ import java.net.URL;
 
 /**
  * Consul HTTP API proxy
- *
+ * <p>
  * Note: Used Orbitz consul client and others as a guides.
+ *
  * @author Richard Hightower
  */
 public class Consul {
 
+    private final HttpClient httpClient;
     private AgentEndpoint agent;
     private HealthEndpoint health;
     private KeyValueStoreEndpoint keyValueStore;
     private CatalogEndpoint catalog;
     private StatusEndpoint status;
-
-
-    private final HttpClient httpClient;
-
     private boolean started = false;
 
     /**
@@ -71,21 +69,6 @@ public class Consul {
 
     }
 
-    public void start() {
-
-        if (!started) {
-            started = true;
-            httpClient.startClient();
-            agent.pingAgent();
-        }
-    }
-
-    public void stop() {
-
-        started = false;
-        httpClient.stop();
-    }
-
     /**
      * Creates a new client given a host and a port.
      *
@@ -110,10 +93,24 @@ public class Consul {
         return consul("localhost", 8500);
     }
 
+    public void start() {
+
+        if (!started) {
+            started = true;
+            httpClient.startClient();
+            agent.pingAgent();
+        }
+    }
+
+    public void stop() {
+
+        started = false;
+        httpClient.stop();
+    }
 
     /**
      * Catalog HTTP endpoint.
-     *
+     * <p>
      * /v1/catalog
      *
      * @return The Catalog HTTP endpoint.
@@ -124,7 +121,7 @@ public class Consul {
 
     /**
      * Health HTTP endpoint.
-     *
+     * <p>
      * /v1/health
      *
      * @return The Health HTTP endpoint.
@@ -136,7 +133,7 @@ public class Consul {
 
     /**
      * Status HTTP endpoint.
-     *
+     * <p>
      * /v1/status
      *
      * @return The Status HTTP endpoint.
@@ -147,7 +144,7 @@ public class Consul {
 
     /**
      * Agent HTTP endpoint.
-     *
+     * <p>
      * /v1/agent
      *
      * @return The Agent HTTP endpoint.
@@ -159,7 +156,7 @@ public class Consul {
 
     /**
      * Key/Value HTTP endpoint.
-     *
+     * <p>
      * /v1/kv
      *
      * @return The Key/Value HTTP endpoint.

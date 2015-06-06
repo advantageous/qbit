@@ -24,7 +24,7 @@ import io.advantageous.qbit.service.EndPoint;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
- * Created by Richard on 10/1/14.
+ * created by Richard on 10/1/14.
  *
  * @author Rick Hightower
  */

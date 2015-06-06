@@ -18,15 +18,15 @@
 
 package io.advantageous.qbit.vertx.http;
 
+import io.advantageous.boon.core.Sys;
 import io.advantageous.qbit.http.server.HttpServer;
 import io.advantageous.qbit.http.server.HttpServerBuilder;
-import io.advantageous.boon.core.Sys;
 
 import static io.advantageous.boon.core.IO.puts;
 
 
 /**
- * Created by Richard on 11/12/14.
+ * created by Richard on 11/12/14.
  */
 public class HttpPerfServerTest {
 

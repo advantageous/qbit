@@ -141,7 +141,7 @@ public class BoonClientIntegrationTest extends TimedTesting {
     }
 
     public interface ServiceMockClientInterface {
-        void add(int a, int b);
+        void add(@SuppressWarnings("SameParameterValue") int a, @SuppressWarnings("SameParameterValue") int b);
 
         void sum(Callback<Integer> callback);
     }

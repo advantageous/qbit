@@ -28,13 +28,13 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 
 /**
- * Created by Richard on 9/8/14.
+ * created by Richard on 9/8/14.
  *
  * @author rhightower
  */
 public class BasicReceiveQueueManager<T> implements ReceiveQueueManager<T> {
 
-    private final boolean debug = false || GlobalConstants.DEBUG;
+    private final boolean debug = GlobalConstants.DEBUG;
 
 
     //boolean sleepWait = false;

@@ -65,17 +65,15 @@ public class HttpRequestServiceServerHandlerImpl implements HttpRequestServiceSe
     protected final JsonMapper jsonMapper;
     protected final long flushInterval;
     private final Logger logger = LoggerFactory.getLogger(HttpRequestServiceServerHandlerImpl.class);
-    private final boolean debug = false || GlobalConstants.DEBUG || logger.isDebugEnabled();
+    private final boolean debug = GlobalConstants.DEBUG || logger.isDebugEnabled();
     private final SendQueue<MethodCall<Object>> methodCallSendQueue;
     private final Set<String> objectNameAddressURIWithVoidReturn = new LinkedHashSet<>();
     private final Map<String, Request<Object>> outstandingRequestMap = new ConcurrentHashMap<>(100_000);
     private final int numberOfOutstandingRequests;
     private final ExecutorService executorService = Executors.newFixedThreadPool(5);
+    private final Lock lock = new ReentrantLock();
     protected volatile long lastTimeoutCheckTime;
     protected volatile long lastFlushTime = 0;
-
-    private final Lock lock = new ReentrantLock();
-
     private Map<String, HttpMethodHandlerInfo> httpMethodHandlerInfoMap = new ConcurrentHashMap<>(8);
 
 
@@ -473,7 +471,8 @@ public class HttpRequestServiceServerHandlerImpl implements HttpRequestServiceSe
         String key = Str.add("" + originatingRequest.id(), "|", originatingRequest.returnAddress());
         this.outstandingRequestMap.remove(key);
 
-        final HttpRequest httpRequest = originatingRequest;
+        //noinspection UnnecessaryLocalVariable
+        @SuppressWarnings("UnnecessaryLocalVariable") final HttpRequest httpRequest = originatingRequest;
 
         if (response.wasErrors()) {
 

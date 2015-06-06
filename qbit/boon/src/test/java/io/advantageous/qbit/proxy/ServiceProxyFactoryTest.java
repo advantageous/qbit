@@ -1,4 +1,3 @@
-
 /*
  * Copyright (c) 2015. Rick Hightower, Geoff Chandler
  *
@@ -19,19 +18,19 @@
 
 package io.advantageous.qbit.proxy;
 
-import io.advantageous.qbit.queue.Queue;
-import io.advantageous.qbit.queue.ReceiveQueueListener;
-import io.advantageous.qbit.queue.SendQueue;
-import io.advantageous.qbit.reactive.Callback;
+import io.advantageous.boon.core.Sys;
 import io.advantageous.qbit.Factory;
 import io.advantageous.qbit.QBit;
 import io.advantageous.qbit.annotation.RequestMapping;
 import io.advantageous.qbit.message.MethodCall;
 import io.advantageous.qbit.message.Response;
+import io.advantageous.qbit.queue.Queue;
 import io.advantageous.qbit.queue.ReceiveQueue;
+import io.advantageous.qbit.queue.ReceiveQueueListener;
+import io.advantageous.qbit.queue.SendQueue;
+import io.advantageous.qbit.reactive.Callback;
 import io.advantageous.qbit.service.ServiceBundle;
 import io.advantageous.qbit.service.ServiceBundleBuilder;
-import io.advantageous.boon.core.Sys;
 import org.junit.Test;
 
 import java.util.ArrayList;
@@ -43,7 +42,7 @@ import static io.advantageous.boon.core.IO.puts;
 
 
 /**
- * Created by Richard on 9/30/14.
+ * created by Richard on 9/30/14.
  */
 public class ServiceProxyFactoryTest {
 
@@ -53,6 +52,7 @@ public class ServiceProxyFactoryTest {
 
     ServiceBundle serviceBundle = new ServiceBundle() {
         Factory factory = QBit.factory();
+
         @Override
         public String address() {
             return "";
@@ -169,20 +169,17 @@ public class ServiceProxyFactoryTest {
                 ok = arg1.equals("Hello") || die();
                 int i = (int) args[1];
                 ok = i == 5 || die();
-                found=true;
+                found = true;
             }
         }
 
         ok = found || die();
 
 
-
     }
 
     @Test
     public void callingActualService() {
-
-
 
 
         SomeInterface myService = new SomeInterface() {
@@ -205,7 +202,6 @@ public class ServiceProxyFactoryTest {
         final ServiceBundle bundle = new ServiceBundleBuilder().setAddress("/root").buildAndStart();
 
 
-
         bundle.addServiceObject("myService", myService);
 
 
@@ -220,9 +216,7 @@ public class ServiceProxyFactoryTest {
     public void callingActualServiceWithReturn() {
 
 
-
-
-        @RequestMapping ("myService")
+        @RequestMapping("myService")
         class MyServiceClass implements SomeInterface {
             @Override
             public void method1() {
@@ -262,15 +256,13 @@ public class ServiceProxyFactoryTest {
 
         final Response<Object> objectResponse = responseReceiveQueue.pollWait();
         objectResponse.address();
-        puts (objectResponse.body());
+        puts(objectResponse.body());
         ok = "Hihi 5".equals(objectResponse.body()) || die();
 
     }
 
     @Test
     public void callingActualServiceWithReturnDifferentInterfaces() {
-
-
 
 
         @RequestMapping("myService")
@@ -292,17 +284,13 @@ public class ServiceProxyFactoryTest {
         }
 
 
-
-
         SomeInterface myService = new MyServiceClass();
 
         final ServiceBundle bundle = new ServiceBundleBuilder().setAddress("/root").buildAndStart();
 
 
-
         bundle.addService(myService);
         bundle.startReturnHandlerProcessor();
-
 
 
         final MyServiceInterfaceForClient myServiceProxy = bundle.createLocalProxy(
@@ -333,10 +321,8 @@ public class ServiceProxyFactoryTest {
     public void callingServicesThatThrowExceptions() {
 
 
-
-
-        @RequestMapping ("myService")
-        class MyServiceClass  {
+        @RequestMapping("myService")
+        class MyServiceClass {
 
 
             public String methodThrowsExceptionIf5(String hi, int amount) {
@@ -350,18 +336,13 @@ public class ServiceProxyFactoryTest {
         }
 
 
-
-
-
         MyServiceClass myService = new MyServiceClass();
 
         final ServiceBundle serviceBundle = new ServiceBundleBuilder().setAddress("/root").buildAndStart();
 
 
-
         serviceBundle.addService(myService);
         serviceBundle.startReturnHandlerProcessor();
-
 
 
         final ClientInterfaceThrowsException myServiceProxy = serviceBundle.createLocalProxy(
@@ -376,7 +357,7 @@ public class ServiceProxyFactoryTest {
             @Override
             public void accept(String s) {
 
-                ok=true;
+                ok = true;
             }
 
             @Override
@@ -409,7 +390,6 @@ public class ServiceProxyFactoryTest {
 
 
         ok = wasError.get() || die();
-
 
 
     }

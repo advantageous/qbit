@@ -19,7 +19,7 @@
 package io.advantageous.qbit.sample.server;
 
 /**
- * Created by rhightower on 11/5/14.
+ * created by rhightower on 11/5/14.
  */
 public class TodoClientMain {
 

@@ -30,7 +30,7 @@ import static io.advantageous.boon.json.JsonFactory.toJson;
 
 
 /**
- * Created by rhightower on 11/6/14.
+ * created by rhightower on 11/6/14.
  */
 public class TodoRESTClient {
 

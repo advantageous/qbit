@@ -24,7 +24,7 @@ import java.util.List;
 /**
  * This binds a method to an annotated method in a client.
  * <p>
- * Created by Richard on 7/22/14.
+ * created by Richard on 7/22/14.
  */
 public class MethodBinding {
 

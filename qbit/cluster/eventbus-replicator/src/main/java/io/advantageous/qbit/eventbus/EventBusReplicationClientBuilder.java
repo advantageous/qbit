@@ -7,12 +7,12 @@ import io.advantageous.qbit.events.spi.EventConnector;
 
 public class EventBusReplicationClientBuilder {
 
+    private ClientBuilder clientBuilder = ClientBuilder.clientBuilder();
+    private String name = "eventReplicator";
+
     public static EventBusReplicationClientBuilder eventBusReplicationClientBuilder() {
         return new EventBusReplicationClientBuilder();
     }
-
-    private ClientBuilder clientBuilder = ClientBuilder.clientBuilder();
-    private String name =  "eventReplicator";
 
     public ClientBuilder clientBuilder() {
         return clientBuilder;

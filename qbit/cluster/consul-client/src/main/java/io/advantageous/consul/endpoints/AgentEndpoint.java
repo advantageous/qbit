@@ -46,6 +46,7 @@ import static io.advantageous.consul.domain.NotRegisteredException.notRegistered
  *
  * @see <a href="http://www.consul.io/docs/agent/http.html#agent">The Consul API Docs</a>
  */
+@SuppressWarnings("WeakerAccess")
 public class AgentEndpoint {
 
     private final HttpClient httpClient;
@@ -200,7 +201,7 @@ public class AgentEndpoint {
      */
     public void registerCheckWithNotes(String checkId, String name,
                                        String script, long interval,
-                                       String notes) {
+                                       @SuppressWarnings("SameParameterValue") String notes) {
         Check check = new Check();
         check.setId(checkId);
         check.setName(name);
@@ -229,7 +230,7 @@ public class AgentEndpoint {
      * @param ttl     Time to live for the Consul dead man's switch.
      * @param notes   Human readable notes.  Not used by Consul.
      */
-    public void registerCheck(String checkId, String name, long ttl, String notes) {
+    public void registerCheck(String checkId, String name, long ttl, @SuppressWarnings("SameParameterValue") String notes) {
         Check check = new Check();
         check.setId(checkId);
         check.setName(name);
@@ -423,7 +424,7 @@ public class AgentEndpoint {
      * @param checkId check id
      * @param note    note
      */
-    public void pass(String checkId, String note) throws NotRegisteredException {
+    public void pass(String checkId, @SuppressWarnings("SameParameterValue") String note) throws NotRegisteredException {
         checkTtl(checkId, Status.PASS, note);
     }
 

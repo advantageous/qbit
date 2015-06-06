@@ -44,19 +44,12 @@ import static io.advantageous.qbit.http.server.HttpServerBuilder.httpServerBuild
  * Allows for the programmatic construction of a service.
  *
  * @author rhightower
- *         Created by Richard on 11/14/14.
+ *         created by Richard on 11/14/14.
  */
 
 public class EndpointServerBuilder {
-    private Queue<Response<Object>> responseQueue;
-
-
     public static final String QBIT_ENDPOINT_SERVER_BUILDER = "qbit.endpoint.server.builder.";
-
-    public static EndpointServerBuilder endpointServerBuilder() {
-        return new EndpointServerBuilder();
-    }
-
+    private Queue<Response<Object>> responseQueue;
     private String host;
     private int port;
     private boolean manageQueues = false;
@@ -76,6 +69,21 @@ public class EndpointServerBuilder {
     private boolean eachServiceInItsOwnThread = true;
     private HttpTransport httpServer;
     private QBitSystemManager qBitSystemManager;
+    /**
+     * Allows interception of method calls before they get sent to a client.
+     * This allows us to transform or reject method calls.
+     */
+    private BeforeMethodCall beforeMethodCall = ServiceConstants.NO_OP_BEFORE_METHOD_CALL;
+    /**
+     * Allows interception of method calls before they get transformed and sent to a client.
+     * This allows us to transform or reject method calls.
+     */
+    private BeforeMethodCall beforeMethodCallAfterTransform = ServiceConstants.NO_OP_BEFORE_METHOD_CALL;
+    /**
+     * Allows transformation of arguments, for example from JSON to Java objects.
+     */
+    private Transformer<Request, Object> argTransformer = ServiceConstants.NO_OP_ARG_TRANSFORM;
+
 
     public EndpointServerBuilder(PropertyResolver propertyResolver) {
         this.eachServiceInItsOwnThread = propertyResolver.getBooleanProperty("eachServiceInItsOwnThread", true);
@@ -101,30 +109,14 @@ public class EndpointServerBuilder {
     public EndpointServerBuilder() {
         this(PropertyResolver.createSystemPropertyResolver(QBIT_ENDPOINT_SERVER_BUILDER));
     }
-
-
     public EndpointServerBuilder(final Properties properties) {
         this(PropertyResolver.createPropertiesPropertyResolver(
                 QBIT_ENDPOINT_SERVER_BUILDER, properties));
     }
 
-
-
-    /**
-     * Allows interception of method calls before they get sent to a client.
-     * This allows us to transform or reject method calls.
-     */
-    private BeforeMethodCall beforeMethodCall = ServiceConstants.NO_OP_BEFORE_METHOD_CALL;
-    /**
-     * Allows interception of method calls before they get transformed and sent to a client.
-     * This allows us to transform or reject method calls.
-     */
-    private BeforeMethodCall beforeMethodCallAfterTransform = ServiceConstants.NO_OP_BEFORE_METHOD_CALL;
-    /**
-     * Allows transformation of arguments, for example from JSON to Java objects.
-     */
-    private Transformer<Request, Object> argTransformer = ServiceConstants.NO_OP_ARG_TRANSFORM;
-
+    public static EndpointServerBuilder endpointServerBuilder() {
+        return new EndpointServerBuilder();
+    }
 
     public QueueBuilder getRequestQueueBuilder() {
 
@@ -143,7 +135,7 @@ public class EndpointServerBuilder {
 
 
     public QueueBuilder getWebResponseQueueBuilder() {
-        if (webResponseQueueBuilder==null) {
+        if (webResponseQueueBuilder == null) {
             webResponseQueueBuilder = QueueBuilder.queueBuilder()
                     .setBatchSize(requestBatchSize).setPollWait(pollTime);
         }
@@ -169,16 +161,14 @@ public class EndpointServerBuilder {
         return httpServer;
     }
 
-
-    public HttpTransport getHttpTransport() {
-        return httpServer;
-    }
-
     public EndpointServerBuilder setHttpServer(HttpServer httpServer) {
         this.httpServer = httpServer;
         return this;
     }
 
+    public HttpTransport getHttpTransport() {
+        return httpServer;
+    }
 
     public EndpointServerBuilder setHttpTransport(HttpTransport httpTransport) {
         this.httpServer = httpTransport;
@@ -343,13 +333,13 @@ public class EndpointServerBuilder {
 
         if (responseQueueBuilder == null) {
 
-            if (responseQueue==null) {
+            if (responseQueue == null) {
                 responseQueueBuilder = new QueueBuilder().setBatchSize(this.getRequestBatchSize())
                         .setPollWait(this.getPollTime());
             } else {
 
 
-                responseQueueBuilder = new QueueBuilder(){
+                responseQueueBuilder = new QueueBuilder() {
 
                     @Override
                     public <T> Queue<T> build() {
@@ -391,7 +381,6 @@ public class EndpointServerBuilder {
 
 
         final ServiceBundle serviceBundle;
-
 
 
         serviceBundle = QBit.factory().createServiceBundle(uri,

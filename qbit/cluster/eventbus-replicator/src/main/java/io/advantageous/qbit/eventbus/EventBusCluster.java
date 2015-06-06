@@ -240,7 +240,7 @@ public class EventBusCluster implements Startable, Stoppable {
 
         healthyServices.forEach(serviceHealth -> {
             puts("----------------------------");
-            puts("node",eventBusName, serviceHealth.getService().getPort(), serviceHealth.getNode().getAddress());
+            puts("node", eventBusName, serviceHealth.getService().getPort(), serviceHealth.getNode().getAddress());
             puts("----------------------------");
 
         });
@@ -282,7 +282,7 @@ public class EventBusCluster implements Startable, Stoppable {
 
         if (debug) logger.debug(
                 String.format("Number of services before %s ",
-                        eventConnectorHub.size() ));
+                        eventConnectorHub.size()));
 
         int removeCount = removeBadServices(services);
 
@@ -328,10 +328,7 @@ public class EventBusCluster implements Startable, Stoppable {
 
             boolean found = false;
 
-            final ListIterator<EventConnector> listIterator = eventConnectorHub.listIterator();
-            while (listIterator.hasNext()) {
-                final EventConnector connector = listIterator.next();
-
+            for (EventConnector connector : eventConnectorHub) {
                 if (connector instanceof RemoteTCPClientProxy) {
                     final String host = ((RemoteTCPClientProxy) connector).host();
                     final int port = ((RemoteTCPClientProxy) connector).port();
@@ -355,7 +352,7 @@ public class EventBusCluster implements Startable, Stoppable {
     private void addEventConnector(final String newHost, final int newPort) {
 
         if (info) logger.info(Str.sputs("Adding new event connector for",
-                eventBusName , "host",
+                eventBusName, "host",
                 newHost, "port", newPort));
 
         /* A client replicator */
@@ -387,7 +384,7 @@ public class EventBusCluster implements Startable, Stoppable {
                     removeCount++;
                     badConnectors.add(connector);
                     if (info) logger.info(Str.sputs("Removing event connector from",
-                            eventBusName , "host",
+                            eventBusName, "host",
                             remoteTCPClientProxy.host(),
                             "port", remoteTCPClientProxy.port(),
                             "connected", remoteTCPClientProxy.connected()));

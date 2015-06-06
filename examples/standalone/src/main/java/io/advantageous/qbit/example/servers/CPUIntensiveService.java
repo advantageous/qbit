@@ -18,11 +18,11 @@
 
 package io.advantageous.qbit.example.servers;
 
+import io.advantageous.boon.core.Sys;
 import io.advantageous.qbit.annotation.RequestMapping;
 import io.advantageous.qbit.annotation.RequestParam;
 import io.advantageous.qbit.queue.QueueBuilder;
 import io.advantageous.qbit.server.ServiceEndpointServer;
-import io.advantageous.boon.core.Sys;
 
 import java.util.Collections;
 import java.util.List;
@@ -55,6 +55,7 @@ public class CPUIntensiveService {
         serviceEndpointServer.start();
 
 
+        //noinspection InfiniteLoopStatement,InfiniteLoopStatement
         while (true) Sys.sleep(100_000_000);
     }
 

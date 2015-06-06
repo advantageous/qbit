@@ -8,10 +8,10 @@ import io.advantageous.qbit.events.EventManager;
 import io.advantageous.qbit.metrics.StatService;
 import io.advantageous.qbit.server.ServiceEndpointServer;
 import io.advantageous.qbit.service.ServiceProxyUtils;
-import io.advantageous.qbit.service.health.HealthStatus;
-import io.advantageous.qbit.service.discovery.ServiceChangedEventChannel;
 import io.advantageous.qbit.service.discovery.EndpointDefinition;
+import io.advantageous.qbit.service.discovery.ServiceChangedEventChannel;
 import io.advantageous.qbit.service.discovery.impl.ServiceDiscoveryImpl;
+import io.advantageous.qbit.service.health.HealthStatus;
 import io.advantageous.qbit.util.PortUtils;
 
 import java.util.List;
@@ -22,8 +22,9 @@ import static io.advantageous.qbit.metrics.support.StatServiceBuilder.statServic
 
 /**
  * StatusClusterTest
- * Created by rhightower on 3/24/15.
+ * created by rhightower on 3/24/15.
  */
+@SuppressWarnings("ALL")
 public class Prototype {
 
     public static void main(String... args) throws Exception {
@@ -67,7 +68,6 @@ public class Prototype {
         serviceDiscovery.checkIn(statServiceBuilder.getLocalServiceId(), HealthStatus.PASS);
 
 
-
         for (int index = 0; index < 10; index++) {
 
             final int fromIndex = index;
@@ -79,7 +79,6 @@ public class Prototype {
                     "count " + count + " index " + fromIndex + "    "), "foo");
 
 
-
         }
 
 
@@ -88,12 +87,11 @@ public class Prototype {
         endpointDefinitions.forEach(serviceDefinition -> puts(serviceDefinition));
 
 
-
         int index = 0;
 
         while (true) {
 
-            index ++;
+            index++;
 
 
             statService.currentMinuteCount(count -> System.out.println(

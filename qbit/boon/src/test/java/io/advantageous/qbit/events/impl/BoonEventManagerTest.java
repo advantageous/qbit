@@ -18,6 +18,7 @@
 
 package io.advantageous.qbit.events.impl;
 
+import io.advantageous.boon.core.Sys;
 import io.advantageous.qbit.QBit;
 import io.advantageous.qbit.annotation.Listen;
 import io.advantageous.qbit.annotation.OnEvent;
@@ -26,10 +27,9 @@ import io.advantageous.qbit.events.EventConsumer;
 import io.advantageous.qbit.events.EventManager;
 import io.advantageous.qbit.events.EventSubscriber;
 import io.advantageous.qbit.message.Event;
-import io.advantageous.qbit.service.ServiceQueue;
 import io.advantageous.qbit.service.ServiceProxyUtils;
+import io.advantageous.qbit.service.ServiceQueue;
 import io.advantageous.qbit.test.TimedTesting;
-import io.advantageous.boon.core.Sys;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -39,6 +39,7 @@ import static io.advantageous.qbit.events.EventUtils.callbackEventListener;
 import static io.advantageous.qbit.service.ServiceBuilder.serviceBuilder;
 import static io.advantageous.qbit.service.ServiceContext.serviceContext;
 
+@SuppressWarnings("ALL")
 public class BoonEventManagerTest extends TimedTesting {
 
     EventManager eventManager;

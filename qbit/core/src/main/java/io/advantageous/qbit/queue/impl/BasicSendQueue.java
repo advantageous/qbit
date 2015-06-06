@@ -30,7 +30,7 @@ import java.util.concurrent.TransferQueue;
  * This is not thread safe.
  * Create a new for every thread by calling BasicQueue.sendQueue().
  * <p>
- * Created by Richard on 9/8/14.
+ * created by Richard on 9/8/14.
  *
  * @author rhightower
  */
@@ -88,7 +88,7 @@ public class BasicSendQueue<T> implements SendQueue<T> {
     }
 
     static Object[] fastObjectArraySlice(final Object[] array,
-                                         final int start,
+                                         @SuppressWarnings("SameParameterValue") final int start,
                                          final int end) {
         final int newLength = end - start;
         final Object[] newArray = new Object[newLength];
@@ -182,7 +182,7 @@ public class BasicSendQueue<T> implements SendQueue<T> {
             }
         } else if (checkBusy) {
             transferQueue.offer(array);
-        } else  {
+        } else {
             try {
                 queue.put(array);
             } catch (InterruptedException e) {

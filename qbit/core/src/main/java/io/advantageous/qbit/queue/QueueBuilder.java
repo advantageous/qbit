@@ -28,7 +28,7 @@ import java.util.concurrent.*;
 /**
  * Allows for the programmatic construction of a queue.
  * <p>
- * Created by rhightower on 12/14/14.
+ * created by rhightower on 12/14/14.
  */
 public class QueueBuilder implements Cloneable {
 
@@ -58,7 +58,7 @@ public class QueueBuilder implements Cloneable {
         this.tryTransfer = propertyResolver
                 .getBooleanProperty("tryTransfer", false);
 
-        this.queueClass =  propertyResolver
+        this.queueClass = propertyResolver
                 .getGenericPropertyWithDefault("queueClass", ArrayBlockingQueue.class);
 
     }

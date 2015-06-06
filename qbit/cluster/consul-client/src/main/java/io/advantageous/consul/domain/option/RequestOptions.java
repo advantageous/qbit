@@ -22,16 +22,15 @@ package io.advantageous.consul.domain.option;
  */
 public class RequestOptions {
 
+    public static RequestOptions BLANK = new RequestOptions(null, 0, Consistency.DEFAULT);
     private boolean blocking;
     private String wait;
     private int index;
     private Consistency consistency;
 
-    public static RequestOptions BLANK = new RequestOptions(null, 0, Consistency.DEFAULT);
-
     /**
-     * @param wait Wait string, e.g. "10s" or "10m"
-     * @param index Lock index.
+     * @param wait        Wait string, e.g. "10s" or "10m"
+     * @param index       Lock index.
      * @param consistency Consistency mode to use for query.
      */
     public RequestOptions(String wait, int index, Consistency consistency) {

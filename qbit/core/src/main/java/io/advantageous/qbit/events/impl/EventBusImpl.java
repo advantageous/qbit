@@ -19,8 +19,8 @@
 package io.advantageous.qbit.events.impl;
 
 import io.advantageous.qbit.events.EventBus;
-import io.advantageous.qbit.events.spi.EventConnector;
 import io.advantageous.qbit.events.EventListener;
+import io.advantageous.qbit.events.spi.EventConnector;
 import io.advantageous.qbit.events.spi.EventTransferObject;
 import io.advantageous.qbit.service.ServiceProxyUtils;
 
@@ -29,28 +29,27 @@ import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * @author rhightower
- * on 2/3/15.
+ *         on 2/3/15.
  */
 public class EventBusImpl implements EventBus {
 
+    private final EventConnector eventConnector;
     Map<String, ChannelManager<Object>> channelMap = new ConcurrentHashMap<>(20);
     long messageCounter = 0;
-
-
-    private final EventConnector eventConnector;
 
     public EventBusImpl(EventConnector eventConnector) {
         this.eventConnector = eventConnector;
     }
 
     public EventBusImpl() {
-        this.eventConnector = event -> {};
+        this.eventConnector = event -> {
+        };
     }
 
     @Override
     public <T> void register(String channelName, EventListener<T> listener) {
         //noinspection unchecked
-        channel(channelName).add( (EventListener<Object>) listener);
+        channel(channelName).add((EventListener<Object>) listener);
     }
 
     private ChannelManager<Object> channel(String channelName) {
@@ -78,7 +77,7 @@ public class EventBusImpl implements EventBus {
     @Override
     public <T> void unregister(String channelName, EventListener<T> listener) {
         //noinspection unchecked
-        channel(channelName).remove( (EventListener<Object>) listener);
+        channel(channelName).remove((EventListener<Object>) listener);
     }
 
     @Override

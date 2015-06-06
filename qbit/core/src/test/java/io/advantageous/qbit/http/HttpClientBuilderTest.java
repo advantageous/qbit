@@ -18,11 +18,11 @@
 
 package io.advantageous.qbit.http;
 
+import io.advantageous.boon.core.Sys;
 import io.advantageous.qbit.Factory;
 import io.advantageous.qbit.http.client.HttpClient;
 import io.advantageous.qbit.http.client.HttpClientBuilder;
 import io.advantageous.qbit.spi.FactorySPI;
-import io.advantageous.boon.core.Sys;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;

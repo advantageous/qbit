@@ -16,6 +16,15 @@ public class EventBusRingBuilderTest {
     EventBusCluster eventBusCluster;
 
     int port = 0;
+
+    public static void main(String... args) {
+
+        EventBusRingBuilderTest test = new EventBusRingBuilderTest();
+        test.setup();
+        test.test();
+
+    }
+
     @Before
     public void setup() {
 
@@ -32,6 +41,7 @@ public class EventBusRingBuilderTest {
     //@Test
     public void fakeTest() {
     }
+
     @Test
     public void test() {
 
@@ -52,15 +62,6 @@ public class EventBusRingBuilderTest {
         }
 
     }
-
-    public static void main(String... args) {
-
-        EventBusRingBuilderTest test = new EventBusRingBuilderTest();
-        test.setup();
-        test.test();
-
-    }
-
 
 
 }

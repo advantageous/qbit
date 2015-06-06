@@ -40,10 +40,7 @@ public class WebServerSimpleApplication {
                 .setManageQueues(true)
                 .build();
 
-        httpServer.setHttpRequestConsumer(request -> {
-
-            request.getReceiver().response(200, "application/json", "\"ok\"");
-        });
+        httpServer.setHttpRequestConsumer(request -> request.getReceiver().response(200, "application/json", "\"ok\""));
         httpServer.start();
 
         gets();

@@ -28,7 +28,6 @@ import io.advantageous.qbit.http.websocket.WebSocketSender;
 import io.advantageous.qbit.reactive.Callback;
 import io.advantageous.qbit.spi.FactorySPI;
 import io.advantageous.qbit.spi.HttpClientFactory;
-
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -39,6 +38,7 @@ import static io.advantageous.boon.core.Exceptions.die;
 import static io.advantageous.boon.core.IO.puts;
 
 
+@SuppressWarnings("PointlessBooleanExpression")
 public class BoonClientTest {
 
     Client client;
@@ -94,7 +94,7 @@ public class BoonClientTest {
 
         mockService.add(1, 2);
 
-        ( ( ClientProxy ) mockService ).clientProxyFlush();
+        ((ClientProxy) mockService).clientProxyFlush();
 
         Sys.sleep(100);
 
@@ -139,7 +139,7 @@ public class BoonClientTest {
 
         mockService.sum(integer -> puts("SUM", integer));
 
-        ( ( ClientProxy ) mockService ).clientProxyFlush();
+        ((ClientProxy) mockService).clientProxyFlush();
 
 
         Sys.sleep(100);
@@ -158,7 +158,7 @@ public class BoonClientTest {
 
         mockService.sum(integer -> puts("SUM", integer));
 
-        ( ( ClientProxy ) mockService ).clientProxyFlush();
+        ((ClientProxy) mockService).clientProxyFlush();
 
         Sys.sleep(100);
 
@@ -176,6 +176,7 @@ public class BoonClientTest {
     }
 
 
+    @SuppressWarnings("SameParameterValue")
     public interface ServiceMock {
         void add(int a, int b);
 
@@ -184,11 +185,11 @@ public class BoonClientTest {
 
     private class HttpClientMock implements HttpClient {
 
+        Consumer<Void> periodicFlushCallback;
+
         public void start() {
 
         }
-        Consumer<Void> periodicFlushCallback;
-
 
         @Override
         public void sendHttpRequest(HttpRequest request) {

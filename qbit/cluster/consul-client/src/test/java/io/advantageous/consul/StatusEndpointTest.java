@@ -24,16 +24,10 @@ import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
 import java.net.UnknownHostException;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Enumeration;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 /**
@@ -44,29 +38,6 @@ public class StatusEndpointTest {
     public static final String IP_PORT_DELIM = ":";
     public static final String CONSUL_PORT = "8300";
     private static Set<InetAddress> ips = new HashSet<>();
-
-
-    @Test
-    public void getLeader() throws UnknownHostException {
-        Consul consul = Consul.consul();
-        consul.start();
-        String ipAndPort = consul.status().getLeader();
-        assertLocalIpAndCorrectPort(ipAndPort);
-        consul.stop();
-
-    }
-
-    @Test
-    public void getPeers() throws UnknownHostException {
-        Consul consul = Consul.consul();
-        consul.start();
-        List<String> peers = consul.status().getPeers();
-        for (String ipAndPort : peers) {
-            assertLocalIpAndCorrectPort(ipAndPort);
-        }
-
-        consul.stop();
-    }
 
     @BeforeClass
     public static void getIps() throws RuntimeException {
@@ -90,6 +61,28 @@ public class StatusEndpointTest {
         if (ips.isEmpty()) {
             throw new RuntimeException("Unable to discover any local IP addresses");
         }
+    }
+
+    @Test
+    public void getLeader() throws UnknownHostException {
+        Consul consul = Consul.consul();
+        consul.start();
+        String ipAndPort = consul.status().getLeader();
+        assertLocalIpAndCorrectPort(ipAndPort);
+        consul.stop();
+
+    }
+
+    @Test
+    public void getPeers() throws UnknownHostException {
+        Consul consul = Consul.consul();
+        consul.start();
+        List<String> peers = consul.status().getPeers();
+        for (String ipAndPort : peers) {
+            assertLocalIpAndCorrectPort(ipAndPort);
+        }
+
+        consul.stop();
     }
 
     public boolean isLocalIp(String ipAddress) throws UnknownHostException {

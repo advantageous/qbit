@@ -11,12 +11,12 @@ import java.util.function.Predicate;
 
 public class EventManagerBuilder {
 
+    private EventConnector eventConnector;
+    private List<Predicate<Event<Object>>> eventConnectorPredicates = new ArrayList<>();
+
     public static EventManagerBuilder eventManagerBuilder() {
         return new EventManagerBuilder();
     }
-
-    private EventConnector eventConnector;
-    private List<Predicate<Event<Object>>> eventConnectorPredicates = new ArrayList<>();
 
     public EventManagerBuilder setEventConnector(EventConnector eventConnector) {
         this.eventConnector = eventConnector;
@@ -48,7 +48,7 @@ public class EventManagerBuilder {
 
         } else {
 
-            if (eventConnectorPredicates.size()==0) {
+            if (eventConnectorPredicates.size() == 0) {
                 return QBit.factory().createEventManagerWithConnector(name, eventConnector);
             } else {
 

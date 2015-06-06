@@ -28,9 +28,9 @@ import io.advantageous.qbit.metrics.support.DebugReplicator;
 import io.advantageous.qbit.metrics.support.StatServiceBuilder;
 import io.advantageous.qbit.metrics.support.StatsDReplicatorBuilder;
 import io.advantageous.qbit.queue.QueueBuilder;
-import io.advantageous.qbit.service.ServiceQueue;
 import io.advantageous.qbit.service.ServiceBundle;
 import io.advantageous.qbit.service.ServiceBundleBuilder;
+import io.advantageous.qbit.service.ServiceQueue;
 import io.advantageous.qbit.test.TimedTesting;
 import io.advantageous.qbit.util.Timer;
 import org.junit.After;
@@ -43,7 +43,7 @@ import static io.advantageous.qbit.queue.QueueBuilder.queueBuilder;
 import static io.advantageous.qbit.service.ServiceBuilder.serviceBuilder;
 
 /**
- * Created by rhightower on 1/28/15.
+ * created by rhightower on 1/28/15.
  */
 public class StatServiceImplBundleTest extends TimedTesting {
 
@@ -376,7 +376,7 @@ public class StatServiceImplBundleTest extends TimedTesting {
             puts(replicator.count);
 
         }
-        ok = replicator.count.get()  == 16_000_000 || die(replicator.count);
+        ok = replicator.count.get() == 16_000_000 || die(replicator.count);
 
 
         final long end = System.currentTimeMillis();

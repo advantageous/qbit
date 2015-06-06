@@ -28,7 +28,7 @@ import io.advantageous.boon.json.serializers.FieldFilter;
 import io.advantageous.qbit.json.JsonMapper;
 
 /**
- * Created by gcc on 10/15/14.
+ * created by gcc on 10/15/14.
  *
  * @author Rick Hightower
  */

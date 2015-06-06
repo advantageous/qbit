@@ -25,7 +25,7 @@ import io.advantageous.qbit.util.MultiMap;
 /**
  * This is runs a method call for an RPC call.
  * <p>
- * Created by Richard on 8/11/14.
+ * created by Richard on 8/11/14.
  */
 public class MethodCallImpl implements MethodCall<Object> {
 

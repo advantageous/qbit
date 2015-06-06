@@ -27,7 +27,6 @@ import static org.junit.Assert.assertNull;
 public class EventManagerReplicationOverWebSocket extends TimedTesting {
 
 
-
     @Test
     public void test() {
 
@@ -117,7 +116,6 @@ public class EventManagerReplicationOverWebSocket extends TimedTesting {
         replicatorClientToC = clientReplicatorBuilder.build(clientC);
 
 
-
         replicatorHubA.addAll(replicatorClientToB, replicatorClientToC);
         replicatorHubB.addAll(replicatorClientToA, replicatorClientToC);
         replicatorHubC.addAll(replicatorClientToA, replicatorClientToB);
@@ -142,9 +140,9 @@ public class EventManagerReplicationOverWebSocket extends TimedTesting {
         final AtomicReference<Object> bodyC = new AtomicReference<>();
 
 
-        eventManagerA.register("foo.bar", event ->  bodyA.set(event.body()));
-        eventManagerB.register("foo.bar", event ->  bodyB.set(event.body()));
-        eventManagerC.register("foo.bar", event ->  bodyC.set(event.body()));
+        eventManagerA.register("foo.bar", event -> bodyA.set(event.body()));
+        eventManagerB.register("foo.bar", event -> bodyB.set(event.body()));
+        eventManagerC.register("foo.bar", event -> bodyC.set(event.body()));
 
         eventManagerA.send("foo.bar", "hello");
         ServiceProxyUtils.flushServiceProxy(eventManagerA);
@@ -152,7 +150,7 @@ public class EventManagerReplicationOverWebSocket extends TimedTesting {
 
         ServiceProxyUtils.flushServiceProxy(eventManagerA);
 
-        waitForTrigger(20, o -> bodyA.get()!=null && bodyB.get()!=null && bodyC.get()!=null);
+        waitForTrigger(20, o -> bodyA.get() != null && bodyB.get() != null && bodyC.get() != null);
         Sys.sleep(5000);
 
 
@@ -163,7 +161,9 @@ public class EventManagerReplicationOverWebSocket extends TimedTesting {
         assertEquals("hello", bodyB.get());
         assertEquals("hello", bodyC.get());
 
-        bodyA.set(null); bodyB.set(null); bodyC.set(null);
+        bodyA.set(null);
+        bodyB.set(null);
+        bodyC.set(null);
         eventManagerC.send("foo.bar", "hello");
         ServiceProxyUtils.flushServiceProxy(eventManagerC);
         Sys.sleep(5000);
@@ -179,14 +179,14 @@ public class EventManagerReplicationOverWebSocket extends TimedTesting {
         assertEquals("hello", bodyB.get());
 
 
-
-
-        bodyA.set(null); bodyB.set(null); bodyC.set(null);
+        bodyA.set(null);
+        bodyB.set(null);
+        bodyC.set(null);
         eventManagerB.send("foo.bar", "hello");
         ServiceProxyUtils.flushServiceProxy(eventManagerB);
         Sys.sleep(5000);
 
-        waitForTrigger(20, o -> bodyA.get()!=null && bodyC.get()!=null);
+        waitForTrigger(20, o -> bodyA.get() != null && bodyC.get() != null);
         Sys.sleep(5000);
 
         puts(bodyA.get(), bodyB.get(), bodyC.get());
@@ -196,15 +196,14 @@ public class EventManagerReplicationOverWebSocket extends TimedTesting {
 //        assertEquals("hello", bodyC.get());
 
 
-
-        bodyA.set(null); bodyB.set(null); bodyC.set(null);
+        bodyA.set(null);
+        bodyB.set(null);
+        bodyC.set(null);
         Sys.sleep(5000);
 
         assertNull(bodyA.get());
         assertNull(bodyB.get());
         assertNull(bodyC.get());
-
-
 
 
         serviceBundleA.stop();

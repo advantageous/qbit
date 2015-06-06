@@ -18,11 +18,11 @@
 
 package io.advantageous.qbit.vertx.http;
 
+import io.advantageous.boon.core.Sys;
 import io.advantageous.qbit.http.client.HttpClient;
 import io.advantageous.qbit.http.client.HttpClientBuilder;
 import io.advantageous.qbit.http.request.HttpRequest;
 import io.advantageous.qbit.http.request.HttpRequestBuilder;
-import io.advantageous.boon.core.Sys;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -32,8 +32,9 @@ import static io.advantageous.boon.core.IO.puts;
 
 
 /**
- * Created by rhightower on 11/12/14.
+ * created by rhightower on 11/12/14.
  */
+@SuppressWarnings("ALL")
 public class HttpPerfClientTest {
 
 
@@ -126,27 +127,25 @@ public class HttpPerfClientTest {
         for (int threadNum = 0; threadNum < CLIENT_COUNT; threadNum++) {
 
 
-            Thread thread = new Thread(new Runnable() {
-                @Override
-                public void run() {
+            Thread thread = new Thread(() -> {
 
-                    //final HttpClientVertx client = new HttpClientVertx(9090, "localhost", false);
+                //final HttpClientVertx client = new HttpClientVertx(9090, "localhost", false);
 
-                    HttpClient client = new HttpClientBuilder().setPort(port)
-                            .setHost(host)
-                            .setPoolSize(poolSize).setRequestBatchSize(batchSize).
-                                    setPollTime(pollTime).setAutoFlush(true)
-                            .build();
-                    client.startClient();
+                HttpClient client = new HttpClientBuilder().setPort(port)
+                        .setHost(host)
+                        .setPoolSize(poolSize).setRequestBatchSize(batchSize).
+                                setPollTime(pollTime).setAutoFlush(true)
+                        .build();
+                client.startClient();
 
-                    Sys.sleep(5000);
+                Sys.sleep(5000);
 
-                    for (int index = 0; index < countPerThread; index++) {
-                        client.sendHttpRequest(perfRequest);
+                for (int index = 0; index < countPerThread; index++) {
+                    client.sendHttpRequest(perfRequest);
 
-                        if (index % 3000 == 0) {
-                            Sys.sleep(125);
-                        }
+                    if (index % 3000 == 0) {
+                        Sys.sleep(125);
+                    }
 
 //                        if (index % 200_000 == 0) {
 //                            client.stop();
@@ -161,12 +160,11 @@ public class HttpPerfClientTest {
 //
 //                        }
 
-                    }
-
-
-                    Sys.sleep(20_000);
-                    client.stop();
                 }
+
+
+                Sys.sleep(20_000);
+                client.stop();
             });
 
             threads.add(thread);
@@ -175,10 +173,7 @@ public class HttpPerfClientTest {
         }
 
 
-        for (Thread t : threads) {
-
-            t.start();
-        }
+        threads.forEach(java.lang.Thread::start);
 
         Sys.sleep(5000);
 
@@ -193,7 +188,7 @@ public class HttpPerfClientTest {
             }
 
             if (i % 10 == 0) {
-                long duration = System.currentTimeMillis() - startTime ;
+                long duration = System.currentTimeMillis() - startTime;
                 try {
                     puts("DURATION", duration / 1000, "count",
                             receivedCount, "errors", errorCount, "rate seconds",

@@ -22,12 +22,13 @@ package io.advantageous.qbit.metrics.support;
 import io.advantageous.qbit.metrics.StatReplicator;
 
 /**
- * Created by rhightower on 1/28/15.
+ * created by rhightower on 1/28/15.
  */
 public class NoOpReplicator implements StatReplicator {
     @Override
     public final void replicateCount(String name, int count, long now) {
     }
+
     @Override
     public final void replicateLevel(String name, int count, long now) {
     }

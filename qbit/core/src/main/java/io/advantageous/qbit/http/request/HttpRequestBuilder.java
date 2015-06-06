@@ -24,17 +24,14 @@ import io.advantageous.qbit.util.GzipUtils;
 import io.advantageous.qbit.util.MultiMap;
 import io.advantageous.qbit.util.MultiMapImpl;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Set;
 import java.util.function.Consumer;
-import java.util.zip.GZIPOutputStream;
 
 /**
  * This is a builder for creating HTTP request objects.
  * <p>
- * Created by rhightower on 10/24/14.
+ * created by rhightower on 10/24/14.
  *
  * @author rhightower
  */
@@ -413,13 +410,13 @@ public class HttpRequestBuilder {
         return this;
     }
 
+    public byte[] getBodyBytes() {
+        return body;
+    }
+
     public HttpRequestBuilder setBodyBytes(byte[] bodyBytes) {
         this.body = bodyBytes;
         return this;
-    }
-
-    public byte[]  getBodyBytes() {
-        return body;
     }
 
     public HttpRequestBuilder setJsonBodyForPostGzip(String jsonBodyForPostGzip) {
@@ -430,7 +427,7 @@ public class HttpRequestBuilder {
             this.setJsonContentType();
             this.setMethodPost();
         } catch (Exception e) {
-           throw new IllegalStateException(e);
+            throw new IllegalStateException(e);
         }
 
         return this;

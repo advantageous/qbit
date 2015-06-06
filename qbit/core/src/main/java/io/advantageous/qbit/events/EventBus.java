@@ -19,20 +19,19 @@
 package io.advantageous.qbit.events;
 
 import io.advantageous.qbit.events.spi.EventTransferObject;
-import io.advantageous.qbit.message.Event;
 import io.advantageous.qbit.service.ServiceFlushable;
 
 /**
- * Created by rhightower on 2/3/15.
+ * created by rhightower on 2/3/15.
  */
-public interface EventBus extends ServiceFlushable{
+public interface EventBus extends ServiceFlushable {
 
     /**
      * This method can only be called outside of a service.
      *
      * @param channelName array of channel names
-     * @param listener event listener
-     * @param <T> T
+     * @param listener    event listener
+     * @param <T>         T
      */
     <T> void register(String channelName, EventListener<T> listener);
 
@@ -49,8 +48,8 @@ public interface EventBus extends ServiceFlushable{
      * This method can only be called outside of a service.
      *
      * @param channelName array of channel names
-     * @param listener event listener
-     * @param <T> T
+     * @param listener    event listener
+     * @param <T>         T
      */
     <T> void unregister(String channelName, EventListener<T> listener);
 

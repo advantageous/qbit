@@ -24,7 +24,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Predicate;
 
 /**
- * Created by rhightower on 2/17/15.
+ * created by rhightower on 2/17/15.
  */
 public class TimedTesting {
 

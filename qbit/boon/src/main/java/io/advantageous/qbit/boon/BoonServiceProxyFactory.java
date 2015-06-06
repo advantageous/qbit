@@ -38,7 +38,7 @@ import static io.advantageous.boon.core.Str.sputs;
 
 
 /**
- * Created by Richard on 10/1/14.
+ * created by Richard on 10/1/14.
  *
  * @author Rick Hightower
  */
@@ -64,7 +64,7 @@ public class BoonServiceProxyFactory implements ServiceProxyFactory {
         final String objectAddress = endPoint != null ? Str.add(endPoint.address(), "/", serviceName) : "";
 
 
-        if ( !Str.isEmpty(returnAddressArg) ) {
+        if (!Str.isEmpty(returnAddressArg)) {
             returnAddressArg = Str.add(objectAddress, "/" + UUID.randomUUID());
         }
 
@@ -85,8 +85,6 @@ public class BoonServiceProxyFactory implements ServiceProxyFactory {
 
             @Override
             public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-
-
 
 
                 switch (method.getName()) {
@@ -120,7 +118,7 @@ public class BoonServiceProxyFactory implements ServiceProxyFactory {
                 long messageId = generatedMessageId++;
 
                 times--;
-                if ( times == 0 ) {
+                if (times == 0) {
                     timestamp = Timer.timer().now();
                     times = 10;
                 } else {
@@ -145,7 +143,6 @@ public class BoonServiceProxyFactory implements ServiceProxyFactory {
                 return null;
             }
         };
-
 
 
         if (port == 0) {

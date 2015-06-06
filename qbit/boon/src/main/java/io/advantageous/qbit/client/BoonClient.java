@@ -57,7 +57,7 @@ import static io.advantageous.qbit.service.Protocol.PROTOCOL_ARG_SEPARATOR;
 
 /**
  * Factory to createWithWorkers client proxies using interfaces.
- * Created by Richard on 10/2/14.
+ * created by Richard on 10/2/14.
  *
  * @author Rick Hightower
  */
@@ -408,11 +408,11 @@ public class BoonClient implements Client {
          * which seems to prevent this from getting collected.
          */
         final WeakReference<BoonClient> boonClientWeakReference =
-                 new WeakReference<>(this);
+                new WeakReference<>(this);
         this.httpServerProxy.periodicFlushCallback(aVoid -> {
 
             final BoonClient boonClient = boonClientWeakReference.get();
-            if (boonClient!=null) {
+            if (boonClient != null) {
                 boonClient.flush();
             }
 

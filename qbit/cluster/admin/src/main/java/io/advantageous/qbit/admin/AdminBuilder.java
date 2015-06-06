@@ -9,12 +9,14 @@ import io.advantageous.qbit.service.health.HealthServiceBuilder;
 
 import java.util.Properties;
 
+@SuppressWarnings("WeakerAccess")
 public class AdminBuilder {
 
 
+    @SuppressWarnings("WeakerAccess")
     public static final String CONTEXT = "qbit.service.admin.";
 
-    private int port= 7777;
+    private int port = 7777;
     private String host;
     private EndpointServerBuilder endpointServerBuilder;
     private ServiceEndpointServer serviceEndpointServer;
@@ -23,16 +25,14 @@ public class AdminBuilder {
     private HealthServiceAsync healthService;
     private HealthServiceBuilder healthServiceBuilder;
 
-    public static AdminBuilder adminBuilder() {
-        return new AdminBuilder();
-    }
-
-
+    @SuppressWarnings("WeakerAccess")
     public AdminBuilder(final PropertyResolver propertyResolver) {
         port = propertyResolver.getIntegerProperty("port", port);
         host = propertyResolver.getStringProperty("host", host);
     }
 
+
+    @SuppressWarnings("WeakerAccess")
     public AdminBuilder() {
 
         this(PropertyResolver.createSystemPropertyResolver(CONTEXT));
@@ -43,8 +43,12 @@ public class AdminBuilder {
         this(PropertyResolver.createPropertiesPropertyResolver(CONTEXT, properties));
     }
 
+    public static AdminBuilder adminBuilder() {
+        return new AdminBuilder();
+    }
+
     public HealthServiceAsync getHealthService() {
-        if (healthService==null) {
+        if (healthService == null) {
             healthService = getHealthServiceBuilder().buildAndStart();
         }
         return healthService;
@@ -89,7 +93,7 @@ public class AdminBuilder {
 
     public ServiceEndpointServer getServiceEndpointServer() {
 
-        if (serviceEndpointServer==null) {
+        if (serviceEndpointServer == null) {
             serviceEndpointServer = getEndpointServerBuilder().build();
         }
         return serviceEndpointServer;
@@ -120,8 +124,8 @@ public class AdminBuilder {
 
     public EndpointServerBuilder getEndpointServerBuilder() {
         if (endpointServerBuilder == null) {
-            endpointServerBuilder =  EndpointServerBuilder.endpointServerBuilder().setPort(this.getPort());
-            if (host!=null && !"".equals(host)) {
+            endpointServerBuilder = EndpointServerBuilder.endpointServerBuilder().setPort(this.getPort());
+            if (host != null && !"".equals(host)) {
                 endpointServerBuilder.setHost(host);
             }
         }
@@ -135,7 +139,7 @@ public class AdminBuilder {
 
     public ServiceEndpointServer build() {
         ServiceEndpointServer serviceEndpointServer = getServiceEndpointServer();
-        if (name==null) {
+        if (name == null) {
             serviceEndpointServer.initServices(getAdmin());
         } else {
             serviceEndpointServer.addServiceObject(name, getAdmin());

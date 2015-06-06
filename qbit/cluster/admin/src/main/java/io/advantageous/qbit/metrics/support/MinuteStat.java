@@ -24,7 +24,7 @@ import java.util.Arrays;
 
 /**
  * MinuteStat
- * Created by rhightower on 1/28/15.
+ * created by rhightower on 1/28/15.
  */
 public class MinuteStat {
 
@@ -39,7 +39,7 @@ public class MinuteStat {
 
         secondCounts = new int[60];
 
-        for (int index=0; index < 60; index++) {
+        for (int index = 0; index < 60; index++) {
             secondCounts[index] = -1;
         }
         this.name = name;
@@ -59,7 +59,6 @@ public class MinuteStat {
     }
 
 
-
     public int countLastTenSeconds(long now) {
         return countLastSeconds(now, 10);
     }
@@ -71,8 +70,7 @@ public class MinuteStat {
 
         int secondIndex = secondIndex(now);
 
-        int index=0;
-
+        int index = 0;
 
 
         while (secondIndex >= 0) {
@@ -109,8 +107,7 @@ public class MinuteStat {
 
         int secondIndex = secondIndex(now);
 
-        int index=0;
-
+        int index = 0;
 
 
         while (secondIndex >= 0) {
@@ -150,10 +147,9 @@ public class MinuteStat {
 
         int secondIndex = secondIndex(now);
 
-        int index=0;
+        int index = 0;
 
         int readingCount = 0;
-
 
 
         while (secondIndex >= 0) {
@@ -182,8 +178,9 @@ public class MinuteStat {
             }
             secondIndex--;
         }
-        return sum/readingCount;
+        return sum / readingCount;
     }
+
     public int countLastFiveSeconds(long now) {
 
         return countLastSeconds(now, 5);

@@ -36,7 +36,7 @@ import java.util.concurrent.TimeUnit;
 import static io.advantageous.boon.core.Exceptions.die;
 
 /**
- * Created by Richard on 8/26/14.
+ * created by Richard on 8/26/14.
  */
 public class RegularCalls {
 

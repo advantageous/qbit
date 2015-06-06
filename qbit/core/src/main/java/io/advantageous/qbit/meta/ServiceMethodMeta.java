@@ -28,34 +28,12 @@ import java.util.List;
 public class ServiceMethodMeta {
 
 
-    public static ServiceMethodMeta serviceMethod(final MethodAccess methodAccess,
-                         final RequestMeta... requestMetas) {
-
-        return new ServiceMethodMeta(methodAccess, Lists.list(requestMetas));
-    }
-
-
-    public static ServiceMethodMeta method(final MethodAccess methodAccess,
-                                              final RequestMeta... requestMetas) {
-
-        return new ServiceMethodMeta(methodAccess, Lists.list(requestMetas));
-    }
-
-    public static ServiceMethodMeta method(final String name,
-                                       final RequestMeta... requestMetas) {
-
-        return new ServiceMethodMeta(name, Lists.list(requestMetas));
-    }
-
-
     private final List<RequestMeta> requestEndpoints;
-
     @JsonIgnore
     private final MethodAccess methodAccess;
     private final String name;
     private final TypeType returnType;
     private final List<TypeType> paramTypes;
-
     public ServiceMethodMeta(final MethodAccess methodAccess,
                              final List<RequestMeta> requestMetaList) {
         this.requestEndpoints = requestMetaList;
@@ -64,8 +42,6 @@ public class ServiceMethodMeta {
         this.returnType = TypeType.getType(methodAccess.returnType());
         this.paramTypes = methodAccess.paramTypeEnumList();
     }
-
-
     public ServiceMethodMeta(final String name,
                              final List<RequestMeta> requestMetaList) {
         this.requestEndpoints = requestMetaList;
@@ -74,7 +50,6 @@ public class ServiceMethodMeta {
         this.returnType = null;
         this.paramTypes = null;
     }
-
     public ServiceMethodMeta(final String name,
                              final List<RequestMeta> requestMetaList,
                              final TypeType returnType,
@@ -85,6 +60,24 @@ public class ServiceMethodMeta {
         this.name = name;
         this.returnType = returnType;
         this.paramTypes = paramTypes;
+    }
+
+    public static ServiceMethodMeta serviceMethod(final MethodAccess methodAccess,
+                                                  final RequestMeta... requestMetas) {
+
+        return new ServiceMethodMeta(methodAccess, Lists.list(requestMetas));
+    }
+
+    public static ServiceMethodMeta method(final MethodAccess methodAccess,
+                                           final RequestMeta... requestMetas) {
+
+        return new ServiceMethodMeta(methodAccess, Lists.list(requestMetas));
+    }
+
+    public static ServiceMethodMeta method(final String name,
+                                           final RequestMeta... requestMetas) {
+
+        return new ServiceMethodMeta(name, Lists.list(requestMetas));
     }
 
     public List<RequestMeta> getRequestEndpoints() {

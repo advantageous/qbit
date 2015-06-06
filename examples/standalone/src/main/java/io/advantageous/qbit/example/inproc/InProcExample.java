@@ -18,9 +18,9 @@
 
 package io.advantageous.qbit.example.inproc;
 
+import io.advantageous.boon.core.Sys;
 import io.advantageous.qbit.reactive.Callback;
 import io.advantageous.qbit.service.ServiceQueue;
-import io.advantageous.boon.core.Sys;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -30,7 +30,7 @@ import static io.advantageous.qbit.queue.QueueBuilder.queueBuilder;
 import static io.advantageous.qbit.service.ServiceBuilder.serviceBuilder;
 
 /**
- * Created by rhightower on 1/30/15.
+ * created by rhightower on 1/30/15.
  */
 public class InProcExample {
 
@@ -88,10 +88,10 @@ public class InProcExample {
         System.out.printf("This is the count back from the server %d\n", countTracker.get());
 
 
-        System.out.printf("END EXAMPLE 1\n", countTracker.get());
-        System.out.printf("END EXAMPLE 1\n", countTracker.get());
-        System.out.printf("END EXAMPLE 1\n", countTracker.get());
-        System.out.printf("END EXAMPLE 1\n", countTracker.get());
+        System.out.printf("END EXAMPLE 1 %s \n", countTracker.get());
+        System.out.printf("END EXAMPLE 1 %s \n", countTracker.get());
+        System.out.printf("END EXAMPLE 1 %s \n", countTracker.get());
+        System.out.printf("END EXAMPLE 1 %s \n", countTracker.get());
 
     }
 

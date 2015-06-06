@@ -21,8 +21,8 @@ package io.advantageous.consul.domain;
 import io.advantageous.boon.json.annotations.JsonProperty;
 
 /**
-* Created by rhightower on 3/9/15.
-*/
+ * created by rhightower on 3/9/15.
+ */
 public class RegistrationCheck {
 
     @JsonProperty("Script")
@@ -66,8 +66,7 @@ public class RegistrationCheck {
         RegistrationCheck that = (RegistrationCheck) o;
 
         if (interval != null ? !interval.equals(that.interval) : that.interval != null) return false;
-        if (script != null ? !script.equals(that.script) : that.script != null) return false;
-        return !(ttl != null ? !ttl.equals(that.ttl) : that.ttl != null);
+        return !(script != null ? !script.equals(that.script) : that.script != null) && !(ttl != null ? !ttl.equals(that.ttl) : that.ttl != null);
 
     }
 

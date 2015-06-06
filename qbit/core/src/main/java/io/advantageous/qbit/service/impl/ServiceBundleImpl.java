@@ -55,7 +55,7 @@ public class ServiceBundleImpl implements ServiceBundle {
      * Logger.
      */
     private final Logger logger = LoggerFactory.getLogger(ServiceBundleImpl.class);
-    private final boolean debug = false || GlobalConstants.DEBUG || logger.isDebugEnabled();
+    private final boolean debug = GlobalConstants.DEBUG || logger.isDebugEnabled();
     private final boolean asyncCalls;
     private final boolean invokeDynamic;
     private final QBitSystemManager systemManager;
@@ -278,7 +278,8 @@ public class ServiceBundleImpl implements ServiceBundle {
     public ServiceBundle addServiceConsumer(final String serviceAddress,
                                             final Consumer<MethodCall<Object>> methodCallConsumer) {
 
-        String address = serviceAddress;
+        //noinspection UnnecessaryLocalVariable
+        @SuppressWarnings("UnnecessaryLocalVariable") String address = serviceAddress;
 
         if (address != null && !address.isEmpty()) {
             serviceMapping.put(address, methodCallConsumer);

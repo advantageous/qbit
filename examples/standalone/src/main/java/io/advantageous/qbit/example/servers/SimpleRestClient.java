@@ -18,10 +18,9 @@
 
 package io.advantageous.qbit.example.servers;
 
+import io.advantageous.boon.core.Sys;
 import io.advantageous.qbit.http.client.HttpClient;
 import io.advantageous.qbit.http.request.HttpRequest;
-import io.advantageous.qbit.http.request.HttpTextReceiver;
-import io.advantageous.boon.core.Sys;
 
 import static io.advantageous.boon.core.IO.puts;
 import static io.advantageous.qbit.http.client.HttpClientBuilder.httpClientBuilder;
@@ -29,7 +28,7 @@ import static io.advantageous.qbit.http.request.HttpRequestBuilder.httpRequestBu
 
 
 /**
- * Created by rhightower on 1/29/15.
+ * created by rhightower on 1/29/15.
  */
 public class SimpleRestClient {
 
@@ -66,12 +65,8 @@ public class SimpleRestClient {
         final long start = System.currentTimeMillis();
 
 
-        final HttpRequest httpRequest = httpRequestBuilder().setUri("/services/myservice/ping").setTextReceiver(new HttpTextReceiver() {
-            @Override
-            public void response(int code, String mimeType, String body) {
-                count++;
-            }
-        }).build();
+        final HttpRequest httpRequest = httpRequestBuilder().setUri("/services/myservice/ping")
+                .setTextReceiver((code, mimeType, body) -> count++).build();
 
         for (int index = 0; index < 500_005; index++) {
             httpClient.sendHttpRequest(httpRequest);

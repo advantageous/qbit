@@ -20,7 +20,6 @@ package io.advantageous.qbit.meta.transformer;
 
 import io.advantageous.boon.core.Str;
 import io.advantageous.boon.core.reflection.MapObjectConversion;
-import io.advantageous.boon.core.reflection.MapperSimple;
 import io.advantageous.qbit.Factory;
 import io.advantageous.qbit.QBit;
 import io.advantageous.qbit.annotation.RequestMethod;
@@ -28,20 +27,16 @@ import io.advantageous.qbit.http.request.HttpRequest;
 import io.advantageous.qbit.json.JsonMapper;
 import io.advantageous.qbit.message.MethodCall;
 import io.advantageous.qbit.message.MethodCallBuilder;
-import io.advantageous.qbit.message.Request;
 import io.advantageous.qbit.meta.ParameterMeta;
 import io.advantageous.qbit.meta.RequestMetaData;
 import io.advantageous.qbit.meta.params.*;
-import io.advantageous.qbit.meta.provider.MetaDataProvider;
 import io.advantageous.qbit.meta.provider.StandardMetaDataProvider;
 import io.advantageous.qbit.reactive.Callback;
-
 
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 import static io.advantageous.boon.core.Str.sputs;
 
@@ -77,7 +72,7 @@ public class StandardRequestTransformer implements RequestTransformer {
         methodCallBuilder.setAddress(request.address());
         methodCallBuilder.setOriginatingRequest(request);
 
-        if (metaData==null) {
+        if (metaData == null) {
             errorsList.add("Unable to find handler");
             return null;
         }

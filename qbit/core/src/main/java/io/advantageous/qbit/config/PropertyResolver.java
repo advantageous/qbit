@@ -122,11 +122,10 @@ public interface PropertyResolver {
     }
 
 
-
     default String getStringProperty(final String propertyName) {
         final Object property = getProperty(propertyName);
 
-         if (property != null) {
+        if (property != null) {
             return property.toString();
         } else {
             return null;

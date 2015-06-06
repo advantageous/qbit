@@ -21,7 +21,7 @@ package io.advantageous.qbit.spi;
 import io.advantageous.qbit.http.client.HttpClient;
 
 /**
- * Created by rhightower on 11/13/14.
+ * created by rhightower on 11/13/14.
  */
 public interface HttpClientFactory {
     HttpClient create(String host, int port, int requestBatchSize,

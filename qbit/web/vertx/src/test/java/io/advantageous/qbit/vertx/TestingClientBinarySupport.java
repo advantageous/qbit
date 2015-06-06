@@ -14,7 +14,7 @@ import java.io.File;
 import static io.advantageous.boon.core.IO.puts;
 
 /**
- * Created by rick on 6/3/15.
+ * created by rick on 6/3/15.
  */
 public class TestingClientBinarySupport {
 
@@ -26,7 +26,7 @@ public class TestingClientBinarySupport {
 
 
         final File thisDir = new File(".");
-        final File thisImage = new File(thisDir,  "foo.jpg");
+        final File thisImage = new File(thisDir, "foo.jpg");
 
         HttpResponse httpResponse = client.get("/3721/9207329484_ba28755ec4_o.jpg");
         puts(httpResponse.contentType());

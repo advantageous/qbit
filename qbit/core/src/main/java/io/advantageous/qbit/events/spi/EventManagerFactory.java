@@ -24,7 +24,11 @@ import io.advantageous.qbit.events.EventManager;
  * @author rhightower
  */
 public interface EventManagerFactory {
-    default EventManager createEventManager(String name) {return null;}
+    default EventManager createEventManager(String name) {
+        return null;
+    }
 
-    default EventManager createEventManagerWithConnector(String name, EventConnector eventConnector) {return null;}
+    default EventManager createEventManagerWithConnector(String name, EventConnector eventConnector) {
+        return null;
+    }
 }

@@ -87,8 +87,8 @@ public class HealthEndpointTests {
         boolean found = false;
         ConsulResponse<List<HealthCheck>> response = client.health().getChecksByState(Status.WARN);
 
-        for(HealthCheck healthCheck : response.getResponse()) {
-            if(healthCheck.getServiceId().equals(serviceId)) {
+        for (HealthCheck healthCheck : response.getResponse()) {
+            if (healthCheck.getServiceId().equals(serviceId)) {
                 found = true;
             }
         }
@@ -102,8 +102,8 @@ public class HealthEndpointTests {
 
         assertEquals(1, nodes.size());
 
-        for(ServiceHealth health : nodes) {
-            if(health.getService().getId().equals(serviceId)) {
+        for (ServiceHealth health : nodes) {
+            if (health.getService().getId().equals(serviceId)) {
                 found = true;
             }
         }

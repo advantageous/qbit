@@ -20,7 +20,7 @@ public class ConditionalEventConnector implements EventConnector {
     @Override
     public void forwardEvent(
             final EventTransferObject<Object> event) {
-        if ( handleEvent.test( event ) ) {
+        if (handleEvent.test(event)) {
             eventConnector.forwardEvent(event);
         }
     }

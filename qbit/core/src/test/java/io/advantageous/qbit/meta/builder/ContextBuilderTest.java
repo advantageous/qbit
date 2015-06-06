@@ -31,18 +31,14 @@ import org.junit.Test;
 
 import java.util.List;
 
-import static io.advantageous.qbit.meta.ParameterMeta.doubleParam;
-import static io.advantageous.qbit.meta.ParameterMeta.intParam;
-import static io.advantageous.qbit.meta.ParameterMeta.stringParam;
+import static io.advantageous.qbit.meta.ParameterMeta.*;
 import static io.advantageous.qbit.meta.RequestMeta.getRequest;
 import static io.advantageous.qbit.meta.ServiceMeta.service;
 import static io.advantageous.qbit.meta.ServiceMethodMeta.method;
 import static io.advantageous.qbit.meta.builder.RequestMetaBuilder.requestMetaBuilder;
 import static io.advantageous.qbit.meta.builder.ServiceMetaBuilder.serviceMetaBuilder;
 import static io.advantageous.qbit.meta.builder.ServiceMethodMetaBuilder.serviceMethodMetaBuilder;
-import static io.advantageous.qbit.meta.params.Param.headParam;
-import static io.advantageous.qbit.meta.params.Param.pathParam;
-import static io.advantageous.qbit.meta.params.Param.requestParam;
+import static io.advantageous.qbit.meta.params.Param.*;
 import static org.junit.Assert.assertEquals;
 
 public class ContextBuilderTest {
@@ -133,8 +129,6 @@ public class ContextBuilderTest {
     }
 
 
-
-
     @Test
     public void testBuildNestedBuilder2() throws Exception {
 
@@ -216,7 +210,6 @@ public class ContextBuilderTest {
     }
 
 
-
     @Test
     public void usingReflection() throws Exception {
 
@@ -256,7 +249,6 @@ public class ContextBuilderTest {
         assertEquals(TypeType.INT, parameters.get(1).getType());
         assertEquals(TypeType.FLOAT, parameters.get(2).getType());
         assertEquals(TypeType.DOUBLE, parameters.get(3).getType());
-
 
 
         assertEquals(ParamType.REQUEST, parameters.get(0).getParam().getParamType());

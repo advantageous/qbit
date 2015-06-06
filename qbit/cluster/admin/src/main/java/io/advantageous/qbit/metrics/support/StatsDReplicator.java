@@ -15,7 +15,7 @@ import java.util.Locale;
 import java.util.Random;
 
 /**
- * Created by rhightower on 5/22/15.
+ * created by rhightower on 5/22/15.
  */
 public class StatsDReplicator implements StatReplicator, QueueCallBackHandler {
 
@@ -53,7 +53,8 @@ If the count at flush is 0 then you can opt to send no metric at all for this se
 
     }
 
-    protected void finalize() {
+    protected void finalize() throws Throwable {
+        super.finalize();
         flushStatSend();
     }
 

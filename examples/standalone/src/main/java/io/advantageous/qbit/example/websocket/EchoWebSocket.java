@@ -18,16 +18,16 @@
 
 package io.advantageous.qbit.example.websocket;
 
+import io.advantageous.boon.core.Sys;
 import io.advantageous.qbit.http.client.HttpClient;
 import io.advantageous.qbit.http.server.HttpServer;
 import io.advantageous.qbit.http.websocket.WebSocket;
-import io.advantageous.boon.core.Sys;
 
 import static io.advantageous.qbit.http.client.HttpClientBuilder.httpClientBuilder;
 import static io.advantageous.qbit.http.server.HttpServerBuilder.httpServerBuilder;
 
 /**
- * Created by rhightower on 2/16/15.
+ * created by rhightower on 2/16/15.
  */
 public class EchoWebSocket {
 
@@ -40,11 +40,9 @@ public class EchoWebSocket {
                 .setPort(8080).build();
 
         /* Setup WebSocket Server support. */
-        httpServer.setWebSocketOnOpenConsumer(webSocket -> {
-            webSocket.setTextMessageConsumer(message -> {
-                webSocket.sendText("ECHO " + message);
-            });
-        });
+        httpServer.setWebSocketOnOpenConsumer(webSocket -> webSocket.setTextMessageConsumer(message -> {
+            webSocket.sendText("ECHO " + message);
+        }));
 
         /* Start the server. */
         httpServer.start();
@@ -60,9 +58,7 @@ public class EchoWebSocket {
         WebSocket webSocket = httpClient
                 .createWebSocket("/websocket/rocket");
 
-        webSocket.setTextMessageConsumer(message -> {
-            System.out.println(message);
-        });
+        webSocket.setTextMessageConsumer(System.out::println);
         webSocket.openAndWait();
 
         /* Send some messages. */

@@ -22,7 +22,7 @@ package io.advantageous.qbit.service;
  * Protocol constants for QBit Websocket/HTTP support.
  * This defines constants for HTTP request params as well as constants for parsing a websocket stream.
  * <p>
- * Created by Richard on 9/26/14.
+ * created by Richard on 9/26/14.
  *
  * @author rhightower
  */

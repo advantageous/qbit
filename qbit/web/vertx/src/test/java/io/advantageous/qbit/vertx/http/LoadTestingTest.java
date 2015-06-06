@@ -18,16 +18,16 @@
 
 package io.advantageous.qbit.vertx.http;
 
+import io.advantageous.boon.core.Sys;
 import io.advantageous.qbit.annotation.RequestMapping;
 import io.advantageous.qbit.annotation.RequestMethod;
 import io.advantageous.qbit.client.Client;
 import io.advantageous.qbit.client.ClientBuilder;
 import io.advantageous.qbit.http.client.HttpClient;
 import io.advantageous.qbit.http.client.HttpClientBuilder;
+import io.advantageous.qbit.reactive.Callback;
 import io.advantageous.qbit.server.EndpointServerBuilder;
 import io.advantageous.qbit.server.ServiceEndpointServer;
-import io.advantageous.qbit.reactive.Callback;
-import io.advantageous.boon.core.Sys;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -39,7 +39,7 @@ import static io.advantageous.boon.core.IO.puts;
 
 
 /**
- * Created by rhightower on 1/21/15.
+ * created by rhightower on 1/21/15.
  */
 public class LoadTestingTest {
 

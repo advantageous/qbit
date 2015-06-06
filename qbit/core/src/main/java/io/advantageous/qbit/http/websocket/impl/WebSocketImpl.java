@@ -24,7 +24,7 @@ import io.advantageous.qbit.network.impl.NetSocketBase;
 import io.advantageous.qbit.util.MultiMap;
 
 /**
- * Created by rhightower on 2/14/15.
+ * created by rhightower on 2/14/15.
  */
 public class WebSocketImpl extends NetSocketBase implements WebSocket {
 

@@ -22,7 +22,7 @@ import io.advantageous.qbit.network.NetSocket;
 import io.advantageous.qbit.util.MultiMap;
 
 /**
- * Created by rhightower on 2/14/15.
+ * created by rhightower on 2/14/15.
  */
 public interface WebSocket extends NetSocket {
 

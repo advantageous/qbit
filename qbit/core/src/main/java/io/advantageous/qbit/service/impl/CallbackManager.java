@@ -75,6 +75,7 @@ public class CallbackManager {
 
     /**
      * Handles responses coming back from services.
+     *
      * @param responseQueue response queue
      */
     public void startReturnHandlerProcessor(final Queue<Response<Object>> responseQueue) {
@@ -85,7 +86,7 @@ public class CallbackManager {
     public void handleResponse(Response<Object> response) {
         final Callback<Object> handler = handlers.get(new HandlerKey(response.returnAddress(), response.id()));
 
-        if (handler==null) {
+        if (handler == null) {
             return;
         }
 

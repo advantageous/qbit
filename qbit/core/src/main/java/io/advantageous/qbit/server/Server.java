@@ -22,7 +22,7 @@ import io.advantageous.qbit.service.Startable;
 import io.advantageous.qbit.service.Stoppable;
 
 /**
- * Created by Richard on 11/14/14.
+ * created by Richard on 11/14/14.
  *
  * @author Rick Hightower
  */

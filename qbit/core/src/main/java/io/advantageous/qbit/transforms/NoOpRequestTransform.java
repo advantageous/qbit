@@ -22,7 +22,7 @@ import io.advantageous.qbit.message.Request;
 
 
 /**
- * Created by Richard on 8/26/14.
+ * created by Richard on 8/26/14.
  *
  * @author rhightower
  */

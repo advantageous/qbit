@@ -23,7 +23,7 @@ import io.advantageous.qbit.message.MethodCall;
 /**
  * Use this to register for before method calls for services.
  * <p>
- * Created by Richard on 8/26/14.
+ * created by Richard on 8/26/14.
  *
  * @author rhightower
  */

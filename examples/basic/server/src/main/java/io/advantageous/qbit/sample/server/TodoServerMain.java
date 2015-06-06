@@ -25,7 +25,7 @@ import io.advantageous.qbit.system.QBitSystemManager;
 import static io.advantageous.qbit.server.EndpointServerBuilder.endpointServerBuilder;
 
 /**
- * Created by rhightower on 11/5/14.
+ * created by rhightower on 11/5/14.
  *
  * @author Rick Hightower
  */

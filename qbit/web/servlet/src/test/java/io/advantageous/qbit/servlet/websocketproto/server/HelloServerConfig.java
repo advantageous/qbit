@@ -34,6 +34,7 @@ import java.util.ServiceLoader;
 /**
  * @author rhightower on 2/12/15.
  */
+@SuppressWarnings("ALL")
 public class HelloServerConfig implements ServerEndpointConfig {
 
 

@@ -4,16 +4,16 @@ import io.advantageous.boon.core.Sys;
 import io.advantageous.qbit.QBit;
 import io.advantageous.qbit.service.ServiceQueue;
 
+import java.util.List;
+
 import static io.advantageous.boon.Lists.list;
 import static io.advantageous.qbit.service.ServiceBuilder.serviceBuilder;
 import static io.advantageous.qbit.service.ServiceProxyUtils.flushServiceProxy;
 
-import java.util.List;
-
 
 /**
  * Updated on 3/16/2015 and it works.
- * Created by rhightower on 2/20/15.
+ * created by rhightower on 2/20/15.
  */
 public class PrototypeMain {
 
@@ -24,13 +24,13 @@ public class PrototypeMain {
 
 
         ServiceQueue userDataService = serviceBuilder()
-                                    .setServiceObject(new UserDataService())
-                                    .build().start();
+                .setServiceObject(new UserDataService())
+                .build().start();
 
         userDataService.startCallBackHandler();
 
         UserDataServiceClient userDataServiceClient = userDataService
-                                .createProxy(UserDataServiceClient.class);
+                .createProxy(UserDataServiceClient.class);
 
 
 
@@ -75,14 +75,13 @@ public class PrototypeMain {
 
         List<String> userNames = list("Bob", "Joe", "Scott", "William");
 
-        userNames.forEach( userName->
-                recommendationServiceClient.recommend(recommendations -> {
-                    System.out.println("Recommendations for: " + userName);
-                    recommendations.forEach(recommendation->
-                            System.out.println("\t" + recommendation));
-                }, userName)
+        userNames.forEach(userName ->
+                        recommendationServiceClient.recommend(recommendations -> {
+                            System.out.println("Recommendations for: " + userName);
+                            recommendations.forEach(recommendation ->
+                                    System.out.println("\t" + recommendation));
+                        }, userName)
         );
-
 
 
         flushServiceProxy(recommendationServiceClient);

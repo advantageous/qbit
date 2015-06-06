@@ -23,45 +23,63 @@ import io.advantageous.qbit.reactive.Callback;
 
 /**
  * StatService
- * Created by rhightower on 1/28/15.
+ * created by rhightower on 1/28/15.
  */
 
 public interface StatService extends ClientProxy {
-    default void recordCount(String name, int count) {}
-    default void recordLevel(String name, int level) {}
-    default void recordTiming(String name, int duration) {}
+    default void recordCount(String name, int count) {
+    }
+
+    default void recordLevel(String name, int level) {
+    }
+
+    default void recordTiming(String name, int duration) {
+    }
 
 
-    default void statsForLastSeconds(Callback<Stats> callback, String name, int secondCount) {}
+    default void statsForLastSeconds(Callback<Stats> callback, String name, int secondCount) {
+    }
 
-    default void averageLastLevel(Callback<Integer> callback, String name, int secondCount) {}
+    default void averageLastLevel(Callback<Integer> callback, String name, int secondCount) {
+    }
 
-    default void currentMinuteCount(Callback<Integer> callback, String name) {}
+    default void currentMinuteCount(Callback<Integer> callback, String name) {
+    }
 
-    default void currentSecondCount(Callback<Integer> callback, String name) {}
+    default void currentSecondCount(Callback<Integer> callback, String name) {
+    }
 
-    default void lastSecondCount(Callback<Integer> callback, String name) {}
-
-
-    default void lastTenSecondCount(Callback<Integer> callback, String name){}
-
-    default void lastFiveSecondCount(Callback<Integer> callback, String name){}
-
-    default void lastNSecondsCount(Callback<Integer> callback, String name, int secondCount){}
+    default void lastSecondCount(Callback<Integer> callback, String name) {
+    }
 
 
-    default void lastNSecondsCountExact(Callback<Integer> callback, String name, int secondCount){}
+    default void lastTenSecondCount(Callback<Integer> callback, String name) {
+    }
+
+    default void lastFiveSecondCount(Callback<Integer> callback, String name) {
+    }
+
+    default void lastNSecondsCount(Callback<Integer> callback, String name, int secondCount) {
+    }
 
 
-    default void lastTenSecondCountExact(Callback<Integer> callback, String name){}
-
-    default void lastFiveSecondCountExact(Callback<Integer> callback, String name){}
-
+    default void lastNSecondsCountExact(Callback<Integer> callback, String name, int secondCount) {
+    }
 
 
-    default void recordWithTime(String name, int count, long timestamp){}
+    default void lastTenSecondCountExact(Callback<Integer> callback, String name) {
+    }
 
-    default void recordAll(long timestamp, String[] names, int[] counts){}
+    default void lastFiveSecondCountExact(Callback<Integer> callback, String name) {
+    }
 
-    default void recordAllWithTimes(String[] names, int[] counts, long[] times){}
+
+    default void recordWithTime(String name, int count, long timestamp) {
+    }
+
+    default void recordAll(long timestamp, String[] names, int[] counts) {
+    }
+
+    default void recordAllWithTimes(String[] names, int[] counts, long[] times) {
+    }
 }

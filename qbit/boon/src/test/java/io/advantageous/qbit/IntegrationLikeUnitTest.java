@@ -41,7 +41,7 @@ import static io.advantageous.boon.core.IO.puts;
 
 
 /**
- * Created by Richard on 9/27/14.
+ * created by Richard on 9/27/14.
  */
 public class IntegrationLikeUnitTest {
 

@@ -6,7 +6,7 @@ public class User {
     private final String userName;
     //private final int numRecommendations;
 
-    public User(String userName){//, int numRecommendations) {
+    public User(String userName) {//, int numRecommendations) {
         this.userName = userName;
         //this.numRecommendations = numRecommendations;
     }

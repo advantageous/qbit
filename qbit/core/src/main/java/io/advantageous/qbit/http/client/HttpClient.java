@@ -37,11 +37,11 @@ import static io.advantageous.qbit.http.request.HttpRequestBuilder.httpRequestBu
 /**
  * This is an interface that allows users to forwardEvent HTTP requests to a server.
  * <p>
- * Created by rhightower on 10/28/14.
+ * created by rhightower on 10/28/14.
  *
  * @author rhightower
  */
-public interface HttpClient extends ServiceFlushable, Stoppable, Startable{
+public interface HttpClient extends ServiceFlushable, Stoppable, Startable {
 
     int HTTP_CLIENT_DEFAULT_TIMEOUT = Sys.sysProp(
             "io.advantageous.qbit.http.client.HttpClient.timeout", 180);
@@ -980,7 +980,7 @@ public interface HttpClient extends ServiceFlushable, Stoppable, Startable{
 
 
     default HttpResponse postJsonGzip(final String uri,
-                                  final String body) {
+                                      final String body) {
 
         final HttpRequest httpRequest = httpRequestBuilder()
                 .setUri(uri).setJsonBodyForPostGzip(body)
@@ -991,7 +991,7 @@ public interface HttpClient extends ServiceFlushable, Stoppable, Startable{
 
 
     default HttpResponse putJsonGzip(final String uri,
-                                      final String body) {
+                                     final String body) {
 
         final HttpRequest httpRequest = httpRequestBuilder()
                 .setUri(uri).setJsonBodyForPutGzip(body)
@@ -999,6 +999,7 @@ public interface HttpClient extends ServiceFlushable, Stoppable, Startable{
 
         return sendRequestAndWait(httpRequest);
     }
+
     default HttpResponse putJson(final String uri,
                                  final String body) {
 
@@ -1033,8 +1034,8 @@ public interface HttpClient extends ServiceFlushable, Stoppable, Startable{
     }
 
     default <T> void sendJsonGzipPostAsync(final String uri,
-                                   final String body,
-                                   final HttpResponseReceiver<T> receiver) {
+                                           final String body,
+                                           final HttpResponseReceiver<T> receiver) {
 
         final HttpRequest httpRequest = httpRequestBuilder()
                 .setUri(uri).setJsonBodyForPostGzip(body)
@@ -1046,8 +1047,8 @@ public interface HttpClient extends ServiceFlushable, Stoppable, Startable{
 
 
     default <T> void sendJsonGzipPutAsync(final String uri,
-                                       final String body,
-                                       final HttpResponseReceiver<T> receiver) {
+                                          final String body,
+                                          final HttpResponseReceiver<T> receiver) {
 
         final HttpRequest httpRequest = httpRequestBuilder()
                 .setUri(uri).setJsonBodyForPutGzip(body)
@@ -1056,8 +1057,6 @@ public interface HttpClient extends ServiceFlushable, Stoppable, Startable{
 
         sendHttpRequest(httpRequest);
     }
-
-
 
 
     default void sendJsonPutAsync(final String uri,

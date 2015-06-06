@@ -5,9 +5,9 @@ import java.util.concurrent.TimeUnit;
 
 /**
  * AsyncFutureCallback
- * Created by rhightower on 3/22/15.
+ * created by rhightower on 3/22/15.
  */
-public interface AsyncFutureCallback<T> extends Runnable, Callback<T>,Future<T> {
+public interface AsyncFutureCallback<T> extends Runnable, Callback<T>, Future<T> {
     Exception CANCEL = new Exception("Cancelled RunnableCallback");
 
     boolean checkTimeOut(long now);
@@ -36,10 +36,7 @@ public interface AsyncFutureCallback<T> extends Runnable, Callback<T>,Future<T> 
 
     default boolean timedOut(long now) {
 
-        if (startTime() == -1 || timeOutDuration() == -1) {
-            return false;
-        }
-        return ( now - startTime() ) > timeOutDuration();
+        return !(startTime() == -1 || timeOutDuration() == -1) && (now - startTime()) > timeOutDuration();
     }
 
     default long timeOutDuration() {

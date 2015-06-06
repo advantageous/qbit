@@ -9,16 +9,6 @@ import io.advantageous.qbit.server.ServiceEndpointServer;
 
 public class LeakTest {
 
-    public interface MyService {
-        void foo();
-    }
-
-    public static class MyServiceImpl {
-        public void foo() {
-            System.out.println("foo");
-        }
-    }
-
     public static void main(String... args) throws Exception {
         final ServiceEndpointServer endpointServer = EndpointServerBuilder
                 .endpointServerBuilder().setPort(9000).build();
@@ -42,5 +32,15 @@ public class LeakTest {
             System.gc();
         }
 
+    }
+
+    public interface MyService {
+        void foo();
+    }
+
+    public static class MyServiceImpl {
+        public void foo() {
+            System.out.println("foo");
+        }
     }
 }

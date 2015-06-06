@@ -18,22 +18,21 @@
 
 package io.advantageous.qbit.example.queues;
 
+import io.advantageous.boon.core.Sys;
 import io.advantageous.qbit.queue.Queue;
 import io.advantageous.qbit.queue.QueueBuilder;
 import io.advantageous.qbit.queue.ReceiveQueue;
 import io.advantageous.qbit.queue.SendQueue;
-import io.advantageous.boon.core.Sys;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
- * Created by Richard on 9/12/14.
+ * created by Richard on 9/12/14.
  */
 public class ExampleMainQBitSingleWriterMultiReader {
 
@@ -66,7 +65,6 @@ public class ExampleMainQBitSingleWriterMultiReader {
         } catch (Exception ex) {
             if (stop.get()) {
                 Thread.interrupted();
-                return;
             }
         }
 
@@ -110,31 +108,25 @@ public class ExampleMainQBitSingleWriterMultiReader {
 
         for (int index = 0; index < numReaders; index++) {
             final int workerId = index;
-            receiverJobs.add(executorService.submit(new Callable<Long>() {
-                @Override
-                public Long call() {
-                    try {
-                        return counter(workerId);
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                        return -1L;
-                    }
+            receiverJobs.add(executorService.submit(() -> {
+                try {
+                    return counter(workerId);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    return -1L;
                 }
             }));
         }
 
 
-        final Future<?> senderJob = executorService.submit(new Runnable() {
-            @Override
-            public void run() {
+        final Future<?> senderJob = executorService.submit(() -> {
 
-                try {
-                    sender(200_000_000, -1);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-
+            try {
+                sender(200_000_000, -1);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
             }
+
         });
 
 

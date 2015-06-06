@@ -4,29 +4,24 @@ import java.util.concurrent.TimeUnit;
 
 /**
  * Coordinator Builder
- * Created by rhightower on 3/23/15.
+ * created by rhightower on 3/23/15.
  */
 public class CoordinatorBuilder {
 
 
-    public static CoordinatorBuilder coordinatorBuilder(final Reactor reactor) {
-        return new CoordinatorBuilder(reactor);
-    }
-
     final Reactor reactor;
-
-
-
     private CallbackCoordinator coordinator;
     private long startTime = -1;
     private long timeoutDuration = 5;
     private TimeUnit timeoutTimeUnit = TimeUnit.SECONDS;
     private Runnable timeOutHandler;
-
     public CoordinatorBuilder(Reactor reactor) {
         this.reactor = reactor;
     }
 
+    public static CoordinatorBuilder coordinatorBuilder(final Reactor reactor) {
+        return new CoordinatorBuilder(reactor);
+    }
 
     public Reactor getReactor() {
         return reactor;

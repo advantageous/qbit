@@ -17,11 +17,11 @@
  */
 package io.advantageous.consul;
 
-import io.advantageous.consul.endpoints.CatalogEndpoint;
-import io.advantageous.consul.domain.ConsulResponse;
 import io.advantageous.consul.domain.CatalogNode;
 import io.advantageous.consul.domain.CatalogService;
+import io.advantageous.consul.domain.ConsulResponse;
 import io.advantageous.consul.domain.Node;
+import io.advantageous.consul.endpoints.CatalogEndpoint;
 import org.junit.Test;
 
 import java.net.UnknownHostException;
@@ -29,16 +29,12 @@ import java.util.List;
 import java.util.Map;
 
 import static io.advantageous.consul.domain.option.RequestOptionsBuilder.requestOptionsBuilder;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 /**
  * Note this class was heavily influenced and inspired by the Orbitz Consul client.
  */
 public class CatalogEndpointTest {
-
 
 
     @Test
