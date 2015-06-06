@@ -58,14 +58,13 @@ public class ReplicatorHub implements StatReplicator, ServiceChangedEventChannel
     }
 
 
+    @SuppressWarnings("CodeBlock2Expr")
     @Override
     public void servicePoolChanged(final String serviceName) {
 
-        for (StatReplicator replicator : list) {
-            if (replicator instanceof ServiceChangedEventChannel) {
-                ((ServiceChangedEventChannel) replicator).servicePoolChanged(serviceName);
-            }
-        }
+        list.stream().filter(replicator -> replicator instanceof ServiceChangedEventChannel).forEach(replicator -> {
+            ((ServiceChangedEventChannel) replicator).servicePoolChanged(serviceName);
+        });
 
     }
 
@@ -73,9 +72,7 @@ public class ReplicatorHub implements StatReplicator, ServiceChangedEventChannel
     public void flush() {
 
 
-        for (StatReplicator replicator : list) {
-            replicator.flush();
-        }
+        list.forEach(StatReplicator::flush);
     }
 
 }

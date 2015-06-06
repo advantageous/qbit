@@ -133,16 +133,19 @@ public interface MultiMap<K, V> extends Iterable<Map.Entry<K, Collection<V>>>, M
             empty.clear();
         }
 
+        @SuppressWarnings("NullableProblems")
         @Override
         public Set keySet() {
             return empty.keySet();
         }
 
+        @SuppressWarnings("NullableProblems")
         @Override
         public Collection values() {
             return empty.values();
         }
 
+        @SuppressWarnings("NullableProblems")
         @Override
         public Set<Entry> entrySet() {
             //noinspection unchecked
@@ -208,7 +211,7 @@ public interface MultiMap<K, V> extends Iterable<Map.Entry<K, Collection<V>>>, M
         throw new UnsupportedOperationException("Unsupported");
     }
 
-    default void putAll(Map<? extends K, ? extends V> m) {
+    default void putAll(@SuppressWarnings("NullableProblems") Map<? extends K, ? extends V> m) {
         throw new UnsupportedOperationException("Unsupported");
     }
 
@@ -218,11 +221,13 @@ public interface MultiMap<K, V> extends Iterable<Map.Entry<K, Collection<V>>>, M
         throw new UnsupportedOperationException("Unsupported");
     }
 
+    @SuppressWarnings("NullableProblems")
     @Override
     default Collection<V> values() {
         throw new UnsupportedOperationException("Unsupported");
     }
 
+    @SuppressWarnings("NullableProblems")
     @Override
     default Set<Entry<K, V>> entrySet() {
 

@@ -146,6 +146,7 @@ public class WebSocketMessage implements Request<Object>, Cloneable {
         return remoteAddress;
     }
 
+    @SuppressWarnings("SimplifiableIfStatement")
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

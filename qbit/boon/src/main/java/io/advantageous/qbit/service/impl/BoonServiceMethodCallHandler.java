@@ -151,52 +151,54 @@ public class BoonServiceMethodCallHandler implements ServiceMethodHandler {
         final String[] split = StringScanner.split(methodCall.address(), '/');
 
 
-        final MethodBinding methodBinding = binding.getFirst();
+        final MethodBinding methodBinding = binding != null ? binding.getFirst() : null;
 
-        final MethodAccess methodAccess = binding.getSecond();
-        final List<ArgParamBinding> parameters = methodBinding.parameters();
-        final Class<?>[] parameterTypes = methodAccess.parameterTypes();
-        final List<TypeType> paramEnumTypes = methodAccess.paramTypeEnumList();
+        final MethodAccess methodAccess = binding != null ? binding.getSecond() : null;
+        final List<ArgParamBinding> parameters = methodBinding != null ? methodBinding.parameters() : null;
+        final Class<?>[] parameterTypes = methodAccess != null ? methodAccess.parameterTypes() : new Class<?>[0];
+        final List<TypeType> paramEnumTypes = methodAccess != null ? methodAccess.paramTypeEnumList() : null;
 
         final List<Object> args = prepareArgumentList(methodCall, methodAccess.parameterTypes());
         final List<List<AnnotationData>> annotationDataForParams = methodAccess.annotationDataForParams();
 
-        for (ArgParamBinding param : parameters) {
-            final int uriPosition = param.getUriPosition();
-            final int methodParamPosition = param.getMethodParamPosition();
-            final String paramName = param.getMethodParamName();
-            if (uriPosition != -1) {
+        if (parameters!=null) {
+            for (ArgParamBinding param : parameters) {
+                final int uriPosition = param.getUriPosition();
+                final int methodParamPosition = param.getMethodParamPosition();
+                final String paramName = param.getMethodParamName();
+                if (uriPosition != -1) {
 
-                if (uriPosition > split.length) {
-                    die("Parameter position is more than param length of method", methodAccess);
+                    if (uriPosition > split.length) {
+                        die("Parameter position is more than param length of method", methodAccess);
+                    } else {
+                        String paramAtPos = split[uriPosition];
+                        Object arg = Conversions.coerce(paramEnumTypes.get(methodParamPosition), parameterTypes[methodParamPosition], paramAtPos);
+                        args.set(methodParamPosition, arg);
+                    }
                 } else {
-                    String paramAtPos = split[uriPosition];
-                    Object arg = Conversions.coerce(paramEnumTypes.get(methodParamPosition), parameterTypes[methodParamPosition], paramAtPos);
-                    args.set(methodParamPosition, arg);
-                }
-            } else {
-                if (Str.isEmpty(paramName)) {
-                    die("Parameter name not supplied in URI path var");
-                }
+                    if (Str.isEmpty(paramName)) {
+                        die("Parameter name not supplied in URI path var");
+                    }
 
-                for (int index = 0; index < parameterTypes.length; index++) {
-                    final List<AnnotationData> paramsAnnotationData = annotationDataForParams.get(index);
-                    String name = "";
-                    for (AnnotationData paramAnnotation : paramsAnnotationData) {
-                        if (paramAnnotation.getName().equalsIgnoreCase("name") || paramAnnotation.getName().equalsIgnoreCase("PathVariable")) {
-                            name = (String) paramAnnotation.getValues().get("value");
-                            if (!Str.isEmpty(name)) {
-                                break;
+                    for (int index = 0; index < parameterTypes.length; index++) {
+                        final List<AnnotationData> paramsAnnotationData = annotationDataForParams.get(index);
+                        String name = "";
+                        for (AnnotationData paramAnnotation : paramsAnnotationData) {
+                            if (paramAnnotation.getName().equalsIgnoreCase("name") || paramAnnotation.getName().equalsIgnoreCase("PathVariable")) {
+                                name = (String) paramAnnotation.getValues().get("value");
+                                if (!Str.isEmpty(name)) {
+                                    break;
+                                }
                             }
                         }
-                    }
-                    if (paramName.equals(name)) {
+                        if (paramName.equals(name)) {
 
-                        Object arg = Conversions.coerce(paramEnumTypes.get(index), parameterTypes[index], split[index]);
-                        args.set(index, arg);
+                            Object arg = Conversions.coerce(paramEnumTypes.get(index), parameterTypes[index], split[index]);
+                            args.set(index, arg);
+                        }
                     }
+
                 }
-
             }
         }
 
@@ -837,7 +839,7 @@ public class BoonServiceMethodCallHandler implements ServiceMethodHandler {
     }
 
     private String readNameFromAnnotation(Annotated annotated) {
-        String name = null;
+        String name = getAddress("Named", annotated);
 
         if (Str.isEmpty(name)) {
             name = getAddress("Name", annotated);
@@ -845,6 +847,10 @@ public class BoonServiceMethodCallHandler implements ServiceMethodHandler {
 
         if (Str.isEmpty(name)) {
             name = getAddress("Service", annotated);
+        }
+
+        if (Str.isEmpty(name)) {
+            name = getAddress("ServiceName", annotated);
         }
 
 

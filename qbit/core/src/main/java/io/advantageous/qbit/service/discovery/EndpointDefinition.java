@@ -113,6 +113,7 @@ public class EndpointDefinition {
         return port;
     }
 
+    @SuppressWarnings("SimplifiableIfStatement")
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

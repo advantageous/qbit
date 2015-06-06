@@ -205,7 +205,6 @@ public class StandardRequestTransformer implements RequestTransformer {
             }
 
             args.add(value);
-            value = null;
 
 
         }

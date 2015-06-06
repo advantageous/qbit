@@ -193,6 +193,7 @@ public class HealthServiceImpl implements HealthService {
     private void checkTTLs() {
         Collection<ServiceHealthStat> services = serviceHealthStatMap.values();
 
+        //noinspection Convert2MethodRef
         services.forEach(serviceHealthStat -> checkTTL(serviceHealthStat));
     }
 

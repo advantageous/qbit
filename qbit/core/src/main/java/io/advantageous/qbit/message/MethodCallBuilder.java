@@ -91,8 +91,8 @@ public class MethodCallBuilder {
         return new MethodCallBuilder().setName(name).setBody(body).setAddress(address).build();
     }
 
-    public MethodCallBuilder methodCallBuilder() {
-        return methodCallBuilder();
+    public static MethodCallBuilder methodCallBuilder() {
+        return new MethodCallBuilder();
     }
 
     public long getTimestamp() {

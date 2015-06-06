@@ -70,6 +70,7 @@ public class EventTransferObject<T> implements Event<T> {
         return topic;
     }
 
+    @SuppressWarnings("SimplifiableIfStatement")
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

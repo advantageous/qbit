@@ -25,6 +25,7 @@ public class RequestMetaData {
     private final ServiceMethodMeta method;
     private final ServiceMeta service;
     private final String path;
+    private final ContextMeta context;
 
     public RequestMetaData(final String path,
                            final ContextMeta context,
@@ -35,8 +36,7 @@ public class RequestMetaData {
         this.method = method;
         this.service = service;
         this.path = path;
-        //noinspection UnnecessaryLocalVariable
-        @SuppressWarnings("UnnecessaryLocalVariable") ContextMeta context1 = context;
+        this.context = context;
     }
 
 
@@ -56,4 +56,7 @@ public class RequestMetaData {
         return path;
     }
 
+    public ContextMeta getContext() {
+        return context;
+    }
 }

@@ -147,6 +147,7 @@ public class AsyncFutureCallbackImpl<T> implements AsyncFutureCallback<T> {
 
     @Override
     public T get() {
+        //noinspection ThrowableResultOfMethodCallIgnored
         if (error.get() != null) {
             throw new IllegalStateException(error.get());
         }

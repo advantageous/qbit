@@ -201,8 +201,9 @@ public class BaseServiceQueueImpl implements ServiceQueue {
                             doHandleMethodCall(item, serviceMethodHandler);
                         }
 
+                        @SafeVarargs
                         @Override
-                        public void sendMany(MethodCall<Object>... items) {
+                        public final void sendMany(MethodCall<Object>... items) {
 
                             for (MethodCall<Object> item : items) {
 

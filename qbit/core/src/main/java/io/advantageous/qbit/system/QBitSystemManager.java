@@ -140,7 +140,7 @@ public class QBitSystemManager {
             countDownLatch.countDown();
         }
 
-        if (debug) logger.debug("serviceShutDown: " + countDownLatch.getCount());
+        if (debug) logger.debug("serviceShutDown: " + (countDownLatch != null ? countDownLatch.getCount() : 0));
     }
 
     public void waitForShutdown() {

@@ -18,6 +18,7 @@
 
 package io.advantageous.qbit.servlet;
 
+import io.advantageous.boon.core.Lists;
 import io.advantageous.qbit.util.MultiMap;
 
 import javax.servlet.http.HttpServletRequest;
@@ -69,7 +70,7 @@ public class HttpServletParamMultiMap implements MultiMap<String, String> {
 
     @Override
     public boolean isEmpty() {
-        return Arrays.asList(request.getParameterNames()).size() == 0;
+        return Lists.list(request.getParameterNames()).size() == 0;
     }
 
     @Override
@@ -82,6 +83,7 @@ public class HttpServletParamMultiMap implements MultiMap<String, String> {
         return getFirst(key.toString());
     }
 
+    @SuppressWarnings("NullableProblems")
     @Override
     public Set<String> keySet() {
         return parameterMap.keySet();
@@ -122,6 +124,7 @@ public class HttpServletParamMultiMap implements MultiMap<String, String> {
     }
 
 
+    @SuppressWarnings("NullableProblems")
     @Override
     public Set<Entry<String, String>> entrySet() {
         final Map<String, String> map = new HashMap<>(this.size());

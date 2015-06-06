@@ -83,24 +83,18 @@ public class WebSocketServiceServerHandler {
         this.methodCallSendQueue = serviceBundle.methodSendQueue();
 
         final AtomicInteger threadId = new AtomicInteger();
-        protocolParserThreadPool = Executors.newFixedThreadPool(parseWorkersCount, new ThreadFactory() {
-            @Override
-            public Thread newThread(Runnable r) {
-                Thread thread = new Thread(r);
-                thread.setName("WebSocketProtocolParser-" + threadId.incrementAndGet());
-                thread.setDaemon(true);
-                return thread;
-            }
+        protocolParserThreadPool = Executors.newFixedThreadPool(parseWorkersCount, r -> {
+            Thread thread = new Thread(r);
+            thread.setName("WebSocketProtocolParser-" + threadId.incrementAndGet());
+            thread.setDaemon(true);
+            return thread;
         });
 
-        protocolEncoderThreadPool = Executors.newFixedThreadPool(encodeWorkersCount, new ThreadFactory() {
-            @Override
-            public Thread newThread(Runnable r) {
-                Thread thread = new Thread(r);
-                thread.setName("WebSocketProtocolEncoder-" + threadId.incrementAndGet());
-                thread.setDaemon(true);
-                return thread;
-            }
+        protocolEncoderThreadPool = Executors.newFixedThreadPool(encodeWorkersCount, r -> {
+            Thread thread = new Thread(r);
+            thread.setName("WebSocketProtocolEncoder-" + threadId.incrementAndGet());
+            thread.setDaemon(true);
+            return thread;
         });
 
 
@@ -208,6 +202,7 @@ public class WebSocketServiceServerHandler {
         }
 
 
+        //noinspection Convert2streamapi
         for (MethodCall<Object> methodCall : methodCalls) {
             if (methodCall instanceof MethodCallImpl) {
 

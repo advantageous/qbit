@@ -305,6 +305,7 @@ public class StatList extends AbstractList<Integer> {
         Arrays.sort(values, 0, end);
     }
 
+    @SuppressWarnings("SimplifiableIfStatement")
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -312,6 +313,7 @@ public class StatList extends AbstractList<Integer> {
 
         StatList integers = (StatList) o;
 
+        //noinspection SimplifiableIfStatement
         if (end != integers.end) return false;
         return Int.equals(0, end, values, integers.values);
 

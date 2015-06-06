@@ -79,12 +79,7 @@ public class Timer {
 
         executorContext = scheduledExecutorBuilder().setPriority(Thread.MAX_PRIORITY)
                 .setThreadName("Timer OutputQueue Manager").setDaemon(true)
-                .setInitialDelay(50).setPeriod(50).setRunnable(new Runnable() {
-                    @Override
-                    public void run() {
-                        manageTimer();
-                    }
-                }).build();
+                .setInitialDelay(50).setPeriod(50).setRunnable(this::manageTimer).build();
         executorContext.start();
 
 

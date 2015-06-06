@@ -98,6 +98,7 @@ public class BasicSendQueue<T> implements SendQueue<T> {
 
     public boolean shouldBatch() {
 
+        //noinspection SimplifiableIfStatement
         if (checkBusy) {
             return !transferQueue.hasWaitingConsumer();
 

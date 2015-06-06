@@ -51,7 +51,9 @@ public class ScheduledThreadContext implements ExecutorContext {
                                   final int period,
                                   final TimeUnit unit,
                                   final String threadName,
-                                  final String description, int priority, boolean daemon) {
+                                  final String description,
+                                  int priority,
+                                  boolean daemon) {
         this.initialDelay = initialDelay;
         this.period = period;
         this.unit = unit;
@@ -77,7 +79,7 @@ public class ScheduledThreadContext implements ExecutorContext {
                     Thread thread = new Thread(runnable);
                     thread.setName(threadName);
                     thread.setPriority(priority);
-                    if (daemon) thread.setDaemon(daemon);
+                    thread.setDaemon(daemon);
                     return thread;
                 }
         );

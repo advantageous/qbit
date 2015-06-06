@@ -58,6 +58,7 @@ public class RegistrationCheck {
         this.ttl = ttl;
     }
 
+    @SuppressWarnings("SimplifiableIfStatement")
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

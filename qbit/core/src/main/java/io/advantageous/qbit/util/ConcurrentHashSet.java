@@ -54,13 +54,14 @@ public class ConcurrentHashSet<T> implements Set<T> {
         return map.remove(o) == null;
     }
 
+    @SuppressWarnings("NullableProblems")
     @Override
     public boolean containsAll(Collection<?> collection) {
         return map.keySet().containsAll(collection);
     }
 
     @Override
-    public boolean addAll(Collection<? extends T> collection) {
+    public boolean addAll(@SuppressWarnings("NullableProblems") Collection<? extends T> collection) {
         boolean added = false;
         for (T e : collection) {
             if (map.put(e, NOTHING) == null) {
@@ -71,12 +72,12 @@ public class ConcurrentHashSet<T> implements Set<T> {
     }
 
     @Override
-    public boolean retainAll(Collection<?> c) {
+    public boolean retainAll(@SuppressWarnings("NullableProblems") Collection<?> c) {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public boolean removeAll(Collection<?> c) {
+    public boolean removeAll(@SuppressWarnings("NullableProblems") Collection<?> c) {
         throw new UnsupportedOperationException();
     }
 
@@ -96,23 +97,29 @@ public class ConcurrentHashSet<T> implements Set<T> {
         return map.isEmpty();
     }
 
+    @SuppressWarnings("SuspiciousMethodCalls")
     @Override
     public boolean contains(Object o) {
+        //noinspection SuspiciousMethodCalls,SuspiciousMethodCalls
         return map.containsKey(o);
     }
 
+    @SuppressWarnings("NullableProblems")
     @Override
     public Iterator<T> iterator() {
         return map.keySet().iterator();
     }
 
+    @SuppressWarnings("NullableProblems")
     @Override
     public Object[] toArray() {
         return map.keySet().toArray();
     }
 
+    @SuppressWarnings("ALL")
     @Override
-    public <T> T[] toArray(T[] a) {
+    public <T> T[] toArray(@SuppressWarnings("NullableProblems") T[] a) {
+        //noinspection SuspiciousToArrayCall
         return map.keySet().toArray(a);
     }
 }

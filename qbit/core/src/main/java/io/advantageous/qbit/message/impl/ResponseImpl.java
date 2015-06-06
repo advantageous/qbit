@@ -166,6 +166,7 @@ public class ResponseImpl<T> implements Response<T> {
         return this.request;
     }
 
+    @SuppressWarnings("SimplifiableIfStatement")
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

@@ -93,17 +93,14 @@ public class ExampleMainBlockingArrayQueueSingleWriterSingleReader {
         });
 
 
-        final Future<?> senderJob = executorService.submit(new Runnable() {
-            @Override
-            public void run() {
+        final Future<?> senderJob = executorService.submit(() -> {
 
-                try {
-                    sender(50_000_000, -1);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-
+            try {
+                sender(50_000_000, -1);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
             }
+
         });
 
         senderJob.get();

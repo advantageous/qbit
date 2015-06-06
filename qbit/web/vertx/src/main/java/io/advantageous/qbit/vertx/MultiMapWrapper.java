@@ -194,17 +194,20 @@ public class MultiMapWrapper implements MultiMap<String, String> {
         vertxMap.clear();
     }
 
+    @SuppressWarnings("NullableProblems")
     @Override
     public Set<String> keySet() {
         return vertxMap.names();
     }
 
+    @SuppressWarnings("NullableProblems")
     @Override
     public Collection<String> values() {
         //noinspection unchecked
         return die(Collection.class, "Not supported");
     }
 
+    @SuppressWarnings("NullableProblems")
     @Override
     public Set<Entry<String, String>> entrySet() {
 

@@ -79,6 +79,7 @@ public class EventRemoteReplicatorService implements EventConnector {
                 return true;
             }
 
+            @SuppressWarnings("EqualsWhichDoesntCheckParameterClass")
             @Override
             public boolean equals(Object obj) {
                 //noinspection EqualsBetweenInconvertibleTypes

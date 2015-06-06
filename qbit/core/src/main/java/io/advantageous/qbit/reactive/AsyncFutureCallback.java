@@ -30,6 +30,7 @@ public interface AsyncFutureCallback<T> extends Runnable, Callback<T>, Future<T>
     @Override
     T get();
 
+    @SuppressWarnings("NullableProblems")
     @Override
     T get(long timeout, TimeUnit unit);
 

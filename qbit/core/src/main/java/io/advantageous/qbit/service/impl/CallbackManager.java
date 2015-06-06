@@ -80,6 +80,7 @@ public class CallbackManager {
      */
     public void startReturnHandlerProcessor(final Queue<Response<Object>> responseQueue) {
 
+        //noinspection Convert2MethodRef
         responseQueue.startListener(response -> handleResponse(response));
     }
 

@@ -10,6 +10,7 @@ import io.advantageous.qbit.service.ServiceProxyUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
@@ -39,9 +40,7 @@ public class EventConnectorHub implements EventConnector, Iterable<EventConnecto
     }
 
     public void addAll(EventConnector... eventConnectors) {
-        for (EventConnector eventConnector : eventConnectors) {
-            this.eventConnectors.add(eventConnector);
-        }
+        Collections.addAll(this.eventConnectors, eventConnectors);
     }
 
 

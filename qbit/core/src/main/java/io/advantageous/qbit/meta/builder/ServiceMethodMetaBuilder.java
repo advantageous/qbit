@@ -13,7 +13,7 @@ import java.util.List;
 public class ServiceMethodMetaBuilder {
 
 
-    private List<RequestMeta> requestEndpoints = new ArrayList<RequestMeta>();
+    private List<RequestMeta> requestEndpoints = new ArrayList<>();
     private MethodAccess methodAccess;
     private String name;
     private String address;

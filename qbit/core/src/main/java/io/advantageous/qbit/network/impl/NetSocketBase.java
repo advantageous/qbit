@@ -41,6 +41,7 @@ public class NetSocketBase implements NetSocket {
     };
     private Consumer<Void> openConsumer = aVoid -> {
     };
+    @SuppressWarnings("CodeBlock2Expr")
     private Consumer<Exception> errorConsumer = error -> {
 
         LoggerFactory.getLogger(NetSocketBase.class)

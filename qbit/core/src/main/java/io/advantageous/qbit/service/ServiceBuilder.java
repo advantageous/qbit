@@ -259,7 +259,7 @@ public class ServiceBuilder {
                 this.isHandleCallbacks(),
                 this.getSystemManager());
 
-        if (serviceQueue != null && qBitSystemManager != null) {
+        if (qBitSystemManager != null) {
             qBitSystemManager.registerService(serviceQueue);
         }
 

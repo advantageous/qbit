@@ -35,6 +35,7 @@ public interface SendQueue<T> extends Output {
 
     void sendAndFlush(T item);
 
+    @SuppressWarnings("unchecked")
     void sendMany(T... item);
 
     void sendBatch(Collection<T> item);

@@ -17,7 +17,7 @@ import java.util.List;
 public class ContextMetaBuilder {
 
     private String rootURI = "/services";
-    private List<ServiceMeta> services = new ArrayList<ServiceMeta>();
+    private List<ServiceMeta> services = new ArrayList<>();
 
     public static ContextMetaBuilder contextMetaBuilder() {
         return new ContextMetaBuilder();
