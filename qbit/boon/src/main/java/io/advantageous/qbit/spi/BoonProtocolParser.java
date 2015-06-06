@@ -47,7 +47,7 @@ import static io.advantageous.qbit.service.Protocol.*;
  */
 public class BoonProtocolParser implements ProtocolParser {
 
-    private JsonParserAndMapper jsonParser = new JsonParserFactory().create();
+    private final JsonParserAndMapper jsonParser = new JsonParserFactory().create();
 
 
     private Message<Object> parseMessageFromString(String addressPrefix, String args) {

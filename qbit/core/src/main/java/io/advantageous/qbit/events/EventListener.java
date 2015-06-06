@@ -24,6 +24,7 @@ import io.advantageous.qbit.message.Event;
  * EventListener
  * created by rhightower on 2/3/15.
  */
+@SuppressWarnings("SameReturnValue")
 public interface EventListener<T> {
 
     default boolean subscriber() {

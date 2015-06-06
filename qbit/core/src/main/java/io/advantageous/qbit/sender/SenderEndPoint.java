@@ -48,7 +48,7 @@ public class SenderEndPoint implements EndPoint {
     private final BeforeMethodCall beforeMethodCall;
     private final BlockingQueue<MethodCall<Object>> methodCalls;
     private final int requestBatchSize;
-    private Logger logger = LoggerFactory.getLogger(SenderEndPoint.class);
+    private final Logger logger = LoggerFactory.getLogger(SenderEndPoint.class);
 
     public SenderEndPoint(ProtocolEncoder encoder, String address, Sender<String> sender, BeforeMethodCall beforeMethodCall,
                           int requestBatchSize) {

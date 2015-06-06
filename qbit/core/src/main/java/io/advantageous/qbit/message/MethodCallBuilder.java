@@ -32,7 +32,7 @@ import java.util.List;
  */
 public class MethodCallBuilder {
 
-    private static transient Timer timer = Timer.timer();
+    private static final transient Timer timer = Timer.timer();
     private static volatile long idSequence;
     private long timestamp;
     private long id;

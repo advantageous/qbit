@@ -38,11 +38,11 @@ import java.net.URL;
 public class Consul {
 
     private final HttpClient httpClient;
-    private AgentEndpoint agent;
-    private HealthEndpoint health;
-    private KeyValueStoreEndpoint keyValueStore;
-    private CatalogEndpoint catalog;
-    private StatusEndpoint status;
+    private final AgentEndpoint agent;
+    private final HealthEndpoint health;
+    private final KeyValueStoreEndpoint keyValueStore;
+    private final CatalogEndpoint catalog;
+    private final StatusEndpoint status;
     private boolean started = false;
 
     /**

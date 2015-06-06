@@ -34,7 +34,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public class EventBusImpl implements EventBus {
 
     private final EventConnector eventConnector;
-    Map<String, ChannelManager<Object>> channelMap = new ConcurrentHashMap<>(20);
+    final Map<String, ChannelManager<Object>> channelMap = new ConcurrentHashMap<>(20);
     long messageCounter = 0;
 
     public EventBusImpl(EventConnector eventConnector) {

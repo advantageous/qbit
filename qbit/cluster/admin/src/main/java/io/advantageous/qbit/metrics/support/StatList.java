@@ -127,6 +127,7 @@ public class StatList extends AbstractList<Integer> {
      * @param integer new value
      * @return was able to add.
      */
+    @SuppressWarnings("UnusedReturnValue")
     public StatList add(int integer) {
         if (end + 1 >= values.length) {
             values = Int.grow(values);

@@ -73,16 +73,16 @@ public class HttpVertxClient implements HttpClient {
     /**
      * I am leaving these protected and non-final so subclasses can use injection frameworks for them.
      */
-    protected int port;
+    protected final int port;
     protected int requestBatchSize = 50;
-    protected String host;
-    protected int timeOutInMilliseconds;
+    protected final String host;
+    protected final int timeOutInMilliseconds;
     protected int poolSize;
     protected org.vertx.java.core.http.HttpClient httpClient;
-    protected Vertx vertx;
+    protected final Vertx vertx;
     volatile long responseCount = 0;
     private ExecutorContext executorContext;
-    private boolean autoFlush;
+    private final boolean autoFlush;
     private Consumer<Void> periodicFlushCallback = aVoid -> {
     };
 

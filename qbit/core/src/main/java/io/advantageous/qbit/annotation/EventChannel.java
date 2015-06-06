@@ -32,7 +32,7 @@ import java.lang.annotation.Target;
 public @interface EventChannel {
     /** The channel you want to listen to.
      * If you don't specify it, then we default to the
-     * fully qualified class name of teh event channel plus mehtod names.
+     * fully qualified class name of teh event channel plus method names.
      **/
     ;
 

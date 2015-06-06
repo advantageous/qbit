@@ -52,7 +52,7 @@ public class StatServiceBuilder {
     private Timer timer = Timer.timer();
     private StatRecorder recorder = new NoOpRecorder();
     private StatReplicator replicator = new NoOpReplicator();
-    private List<StatReplicator> replicators = new ArrayList<>();
+    private final List<StatReplicator> replicators = new ArrayList<>();
     private ServiceDiscovery serviceDiscovery;
     private StatReplicatorProvider statReplicatorProvider;
     private ClientBuilder clientBuilder;
@@ -253,6 +253,7 @@ public class StatServiceBuilder {
         return this;
     }
 
+    @SuppressWarnings("UnusedReturnValue")
     public ServiceQueue buildServiceQueue() {
         ServiceBuilder serviceBuilder = getServiceBuilder()
                 .setRequestQueueBuilder(getSendQueueBuilder())

@@ -82,6 +82,7 @@ public interface ServiceQueue extends Stoppable, ServiceFlushable, Startable {
     void stop();
 
 
+    @SuppressWarnings("UnusedReturnValue")
     ServiceQueue startCallBackHandler();
 
     /**

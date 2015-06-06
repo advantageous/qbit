@@ -77,8 +77,8 @@ public class ServiceWorkers implements ServiceMethodDispatcher {
     private final int flushInterval;
     private final TimeUnit timeUnit;
     protected List<ServiceQueue> serviceQueues = new ArrayList<>();
-    protected List<SendQueue<MethodCall<Object>>> sendQueues = new ArrayList<>();
-    protected AtomicInteger index = new AtomicInteger();
+    protected final List<SendQueue<MethodCall<Object>>> sendQueues = new ArrayList<>();
+    protected final AtomicInteger index = new AtomicInteger();
 
 
     public ServiceWorkers(boolean startServices) {
@@ -168,6 +168,7 @@ public class ServiceWorkers implements ServiceMethodDispatcher {
         });
     }
 
+    @SuppressWarnings("UnusedReturnValue")
     public ServiceWorkers addService(ServiceQueue serviceQueue) {
         serviceQueues.add(serviceQueue);
         return this;

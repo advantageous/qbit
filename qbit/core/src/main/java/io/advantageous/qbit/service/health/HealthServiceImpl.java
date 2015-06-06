@@ -44,7 +44,7 @@ public class HealthServiceImpl implements HealthService {
     /**
      * logger.
      */
-    private Logger logger = LoggerFactory.getLogger(HealthServiceImpl.class);
+    private final Logger logger = LoggerFactory.getLogger(HealthServiceImpl.class);
 
 
     /**

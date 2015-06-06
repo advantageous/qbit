@@ -28,8 +28,8 @@ public enum Status {
     ANY("any", "any"),
     UNKNOWN("unknown", "unknown");
 
-    private String uri;
-    private String name;
+    private final String uri;
+    private final String name;
 
     /**
      * Private constructor.

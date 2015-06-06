@@ -7,6 +7,7 @@ import java.util.function.Consumer;
  * Callback Builder
  * created by rhightower on 3/23/15.
  */
+@SuppressWarnings("UnusedReturnValue")
 public class CallbackBuilder {
 
     private final Reactor reactor;

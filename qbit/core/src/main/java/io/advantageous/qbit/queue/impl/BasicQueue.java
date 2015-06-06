@@ -60,7 +60,7 @@ public class BasicQueue<T> implements Queue<T> {
 
     public BasicQueue(final String name,
                       final int waitTime,
-                      final TimeUnit timeUnit,
+                      @SuppressWarnings("SameParameterValue") final TimeUnit timeUnit,
                       final int batchSize,
                       final Class<? extends BlockingQueue> queueClass,
                       final boolean checkIfBusy,

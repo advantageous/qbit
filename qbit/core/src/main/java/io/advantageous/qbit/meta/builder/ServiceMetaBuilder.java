@@ -15,6 +15,7 @@ import static io.advantageous.qbit.meta.builder.ContextMetaBuilder.getRequestMet
 import static io.advantageous.qbit.meta.builder.ContextMetaBuilder.getRequestPathsByAnnotated;
 
 
+@SuppressWarnings("UnusedReturnValue")
 public class ServiceMetaBuilder {
 
 

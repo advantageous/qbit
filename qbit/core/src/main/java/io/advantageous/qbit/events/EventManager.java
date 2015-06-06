@@ -24,7 +24,7 @@ import io.advantageous.qbit.queue.SendQueue;
 import io.advantageous.qbit.service.ServiceQueue;
 
 /**
- * Event Manager for managing event busses.
+ * Event Manager for managing event buses.
  */
 public interface EventManager {
 

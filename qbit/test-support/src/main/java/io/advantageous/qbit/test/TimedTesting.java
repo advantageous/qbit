@@ -31,7 +31,7 @@ public class TimedTesting {
 
     protected boolean ok;
     protected CountDownLatch latch = new CountDownLatch(1);
-    protected AtomicBoolean stop = new AtomicBoolean();
+    protected final AtomicBoolean stop = new AtomicBoolean();
 
     protected void setupLatch() {
         latch = new CountDownLatch(1);

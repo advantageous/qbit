@@ -47,7 +47,7 @@ public class HttpRequestServiceServerHandlerUsingMetaImpl implements HttpRequest
     private long lastFlushTime;
     private ContextMetaBuilder contextMetaBuilder = ContextMetaBuilder.contextMetaBuilder();
     private StandardRequestTransformer standardRequestTransformer;
-    private Map<RequestMethod, StandardMetaDataProvider> metaDataProviderMap = new ConcurrentHashMap<>();
+    private final Map<RequestMethod, StandardMetaDataProvider> metaDataProviderMap = new ConcurrentHashMap<>();
 
     public HttpRequestServiceServerHandlerUsingMetaImpl(int timeoutInSeconds, ServiceBundle serviceBundle,
                                                         JsonMapper jsonMapper,

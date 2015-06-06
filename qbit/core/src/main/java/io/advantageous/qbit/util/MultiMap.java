@@ -29,7 +29,7 @@ public interface MultiMap<K, V> extends Iterable<Map.Entry<K, Collection<V>>>, M
 
     MultiMap EMPTY = new MultiMap() {
 
-        private Map empty = Collections.emptyMap();
+        private final Map empty = Collections.emptyMap();
 
         @Override
         public Iterator<Entry> iterator() {
@@ -157,13 +157,14 @@ public interface MultiMap<K, V> extends Iterable<Map.Entry<K, Collection<V>>>, M
         return new MultiMapImpl<>();
     }
 
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({"unchecked", "SameReturnValue"})
     static <K, V> MultiMap<K, V> empty() {
         return EMPTY;
     }
 
     Iterator<Entry<K, Collection<V>>> iterator();
 
+    @SuppressWarnings("UnusedReturnValue")
     default MultiMap<K, V> add(K key, V v) {
         {
             throw new UnsupportedOperationException("add");

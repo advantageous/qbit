@@ -22,11 +22,11 @@ package io.advantageous.consul.domain.option;
  */
 public class RequestOptions {
 
-    public static RequestOptions BLANK = new RequestOptions(null, 0, Consistency.DEFAULT);
-    private boolean blocking;
-    private String wait;
-    private int index;
-    private Consistency consistency;
+    public static final RequestOptions BLANK = new RequestOptions(null, 0, Consistency.DEFAULT);
+    private final boolean blocking;
+    private final String wait;
+    private final int index;
+    private final Consistency consistency;
 
     /**
      * @param wait        Wait string, e.g. "10s" or "10m"

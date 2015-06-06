@@ -267,7 +267,7 @@ public class ServiceBuilder {
     }
 
     /**
-     * Builds and starts the service queue.  This is depricated because a builder should not perform operations on it's
+     * Builds and starts the service queue.  This is deprecated because a builder should not perform operations on it's
      * product
      *
      * @return the service queue

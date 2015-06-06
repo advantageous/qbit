@@ -32,13 +32,13 @@ import java.util.Map;
 public class ResponseImpl<T> implements Response<T> {
 
     private final Request<Object> request;
-    private String address;
+    private final String address;
 
-    private String returnAddress;
-    private Map<String, Object> params;
-    private Object body;
-    private long id;
-    private long timestamp;
+    private final String returnAddress;
+    private final Map<String, Object> params;
+    private final Object body;
+    private final long id;
+    private final long timestamp;
 
     @JsonIgnore
     private transient Object transformedBody;

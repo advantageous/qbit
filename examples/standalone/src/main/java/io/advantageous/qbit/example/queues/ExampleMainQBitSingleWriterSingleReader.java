@@ -38,9 +38,9 @@ public class ExampleMainQBitSingleWriterSingleReader {
     static final Queue<Integer> queue = new QueueBuilder().setBatchSize(1_000).build();
     static final int status = 1_000_000;
     static final int sleepEvery = 1_000_000;
-    static ExecutorService executorService = Executors.newCachedThreadPool();
+    static final ExecutorService executorService = Executors.newCachedThreadPool();
 
-    public static void sender(int amount, int code) throws InterruptedException {
+    public static void sender(int amount, int code)  {
 
         SendQueue<Integer> sendQueue = queue.sendQueue();
 
@@ -53,7 +53,7 @@ public class ExampleMainQBitSingleWriterSingleReader {
         sendQueue.flushSends();
     }
 
-    public static long counter() throws Exception {
+    public static long counter()  {
 
 
         ReceiveQueue<Integer> receiveQueue = queue.receiveQueue();
@@ -103,15 +103,7 @@ public class ExampleMainQBitSingleWriterSingleReader {
         });
 
 
-        final Future<?> senderJob = executorService.submit(() -> {
-
-            try {
-                sender(50_000_000, -1);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-
-        });
+        final Future<?> senderJob = executorService.submit(() -> sender(50_000_000, -1));
 
         senderJob.get();
 

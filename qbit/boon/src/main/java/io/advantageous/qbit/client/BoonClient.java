@@ -80,18 +80,18 @@ public class BoonClient implements Client {
     /**
      * Map of handlers so we can do the whole async call back thing.
      */
-    private Map<HandlerKey, Callback<Object>> handlers = new ConcurrentHashMap<>();
+    private final Map<HandlerKey, Callback<Object>> handlers = new ConcurrentHashMap<>();
     /**
      * Logger.
      */
-    private Logger logger = LoggerFactory.getLogger(BoonClient.class);
+    private final Logger logger = LoggerFactory.getLogger(BoonClient.class);
     /**
      * List of client proxies that we are managing for periodic flush.
      */
-    private List<ClientProxy> clientProxies = new CopyOnWriteArrayList<>();
+    private final List<ClientProxy> clientProxies = new CopyOnWriteArrayList<>();
     private WebSocket webSocket;
 
-    private AtomicBoolean connected = new AtomicBoolean();
+    private final AtomicBoolean connected = new AtomicBoolean();
 
     /**
      * @param httpClient       httpClient
@@ -401,7 +401,7 @@ public class BoonClient implements Client {
 
     public void start() {
 
-        /** Adding the weak reference to get rid of the circular depedency
+        /** Adding the weak reference to get rid of the circular dependency
          * which seems to prevent this from getting collected.
          */
         final WeakReference<BoonClient> boonClientWeakReference =

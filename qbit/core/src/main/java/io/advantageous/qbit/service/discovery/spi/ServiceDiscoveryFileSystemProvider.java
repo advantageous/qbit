@@ -16,7 +16,7 @@ public class ServiceDiscoveryFileSystemProvider implements ServiceDiscoveryProvi
     private final File dir;
     private final Map<String, ServiceData> serviceDataMap = new ConcurrentHashMap<>();
     private final long checkIntervalMS;
-    private ThreadLocal<JsonParserAndMapper> jsonMappingParserThreadLocal = new ThreadLocal<JsonParserAndMapper>() {
+    private final ThreadLocal<JsonParserAndMapper> jsonMappingParserThreadLocal = new ThreadLocal<JsonParserAndMapper>() {
         @Override
         protected JsonParserAndMapper initialValue() {
 

@@ -64,12 +64,12 @@ public class BoonServiceMethodCallHandler implements ServiceMethodHandler {
     private String address = "";
 
     private String name = "";
-    private TreeSet<String> addresses = new TreeSet<>();
+    private final TreeSet<String> addresses = new TreeSet<>();
 
-    private Map<String, Map<String, Pair<MethodBinding, MethodAccess>>> methodMap = new LinkedHashMap<>();
+    private final Map<String, Map<String, Pair<MethodBinding, MethodAccess>>> methodMap = new LinkedHashMap<>();
 
     private SendQueue<Response<Object>> responseSendQueue;
-    private Map<String, MethodAccess> eventMap = new ConcurrentHashMap<>();
+    private final Map<String, MethodAccess> eventMap = new ConcurrentHashMap<>();
 
     public BoonServiceMethodCallHandler(final boolean invokeDynamic) {
         this.invokeDynamic = invokeDynamic;
@@ -159,7 +159,7 @@ public class BoonServiceMethodCallHandler implements ServiceMethodHandler {
         final List<TypeType> paramEnumTypes = methodAccess != null ? methodAccess.paramTypeEnumList() : null;
 
         final List<Object> args = prepareArgumentList(methodCall, methodAccess != null ? methodAccess.parameterTypes() : new Class<?>[0]);
-        final List<List<AnnotationData>> annotationDataForParams = methodAccess.annotationDataForParams();
+        final List<List<AnnotationData>> annotationDataForParams = methodAccess != null ? methodAccess.annotationDataForParams() : null;
 
         if (parameters!=null) {
             for (ArgParamBinding param : parameters) {
@@ -172,7 +172,8 @@ public class BoonServiceMethodCallHandler implements ServiceMethodHandler {
                         die("Parameter position is more than param length of method", methodAccess);
                     } else {
                         String paramAtPos = split[uriPosition];
-                        Object arg = Conversions.coerce(paramEnumTypes.get(methodParamPosition), parameterTypes[methodParamPosition], paramAtPos);
+                        TypeType typeType = paramEnumTypes ==  null ? null : paramEnumTypes.get(methodParamPosition);
+                        Object arg = Conversions.coerce(typeType, parameterTypes[methodParamPosition], paramAtPos);
                         args.set(methodParamPosition, arg);
                     }
                 } else {
@@ -181,13 +182,15 @@ public class BoonServiceMethodCallHandler implements ServiceMethodHandler {
                     }
 
                     for (int index = 0; index < parameterTypes.length; index++) {
-                        final List<AnnotationData> paramsAnnotationData = annotationDataForParams.get(index);
+                        final List<AnnotationData> paramsAnnotationData = annotationDataForParams != null ? annotationDataForParams.get(index) : null;
                         String name = "";
-                        for (AnnotationData paramAnnotation : paramsAnnotationData) {
-                            if (paramAnnotation.getName().equalsIgnoreCase("name") || paramAnnotation.getName().equalsIgnoreCase("PathVariable")) {
-                                name = (String) paramAnnotation.getValues().get("value");
-                                if (!Str.isEmpty(name)) {
-                                    break;
+                        if (paramsAnnotationData!=null) {
+                            for (AnnotationData paramAnnotation : paramsAnnotationData) {
+                                if (paramAnnotation.getName().equalsIgnoreCase("name") || paramAnnotation.getName().equalsIgnoreCase("PathVariable")) {
+                                    name = (String) paramAnnotation.getValues().get("value");
+                                    if (!Str.isEmpty(name)) {
+                                        break;
+                                    }
                                 }
                             }
                         }
@@ -204,7 +207,7 @@ public class BoonServiceMethodCallHandler implements ServiceMethodHandler {
         }
 
 
-        Object returnValue = methodAccess.invokeDynamicObject(service, args);
+        Object returnValue = methodAccess != null ? methodAccess.invokeDynamicObject(service, args) : null;
         return response(methodAccess, methodCall, returnValue);
 
 
@@ -272,7 +275,7 @@ public class BoonServiceMethodCallHandler implements ServiceMethodHandler {
             if (body instanceof List || body instanceof Object[]) {
 
 
-                extactHandlersFromArgumentList(method, body, argsList);
+                extractHandlersFromArgumentList(method, body, argsList);
 
             } else {
                 if (argsList.size() == 1 && !(argsList.get(0) instanceof Callback)) {
@@ -353,7 +356,7 @@ public class BoonServiceMethodCallHandler implements ServiceMethodHandler {
         }
     }
 
-    private void extactHandlersFromArgumentList(MethodAccess method, Object body, List<Object> argsList) {
+    private void extractHandlersFromArgumentList(MethodAccess method, Object body, List<Object> argsList) {
         if (body instanceof List) {
 
             @SuppressWarnings("unchecked") List<Object> list = (List<Object>) body;
@@ -389,51 +392,6 @@ public class BoonServiceMethodCallHandler implements ServiceMethodHandler {
 
             argsList.set(index, array[arrayIndex]);
 
-        }
-    }
-
-
-    private void extactHandlersFromArgumentListArrayCaseOld(MethodAccess method, Object[] array, List<Object> argsList) {
-
-        if (array.length - 1 == method.parameterTypes().length) {
-            if (array[0] instanceof Callback) {
-                array = Arry.slc(array, 1);
-            }
-        }
-
-
-        final Object[] theArray = array;
-        final Iterator<Object> iterator = new Iterator<Object>() {
-
-            int index = 0;
-
-            @Override
-            public boolean hasNext() {
-                return index < theArray.length;
-            }
-
-            @Override
-            public Object next() {
-
-                Object o = theArray[index];
-                index++;
-                return o;
-
-            }
-        };
-
-        for (int index = 0; index < argsList.size(); index++) {
-
-            final Object o = argsList.get(index);
-            if (o instanceof Callback) {
-                continue;
-            }
-
-            if (!iterator.hasNext()) {
-                break;
-            }
-
-            argsList.set(index, iterator.next());
         }
     }
 

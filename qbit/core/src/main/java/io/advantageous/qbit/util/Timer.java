@@ -34,7 +34,7 @@ import static io.advantageous.qbit.concurrent.ScheduledExecutorBuilder.scheduled
  */
 public class Timer {
 
-    private static AtomicReference<Timer> timeHolder = new AtomicReference<>();
+    private static final AtomicReference<Timer> timeHolder = new AtomicReference<>();
     private final Logger logger = LoggerFactory.getLogger(Timer.class);
     private final boolean debug = GlobalConstants.DEBUG || logger.isDebugEnabled();
     private final AtomicLong time = new AtomicLong(Clock.systemUTC().millis());

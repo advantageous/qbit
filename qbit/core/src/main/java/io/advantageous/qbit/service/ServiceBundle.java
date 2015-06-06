@@ -39,9 +39,11 @@ public interface ServiceBundle extends EndPoint {
     String address();
 
 
+    @SuppressWarnings("UnusedReturnValue")
     ServiceBundle addServiceObject(String address, Object object);
 
 
+    @SuppressWarnings("UnusedReturnValue")
     default ServiceBundle addServiceQueue(String address, ServiceQueue serviceQueue) {
 
         throw new IllegalStateException("Not implemented");

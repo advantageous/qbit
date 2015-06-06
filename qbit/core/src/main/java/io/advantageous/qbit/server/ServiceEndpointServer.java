@@ -54,6 +54,7 @@ public interface ServiceEndpointServer extends Server {
         return this;
     }
 
+    @SuppressWarnings("UnusedReturnValue")
     default ServiceEndpointServer addServiceObject(String address, Object serviceObject) {
         serviceBundle().addServiceObject(address, serviceObject);
         return this;

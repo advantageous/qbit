@@ -24,7 +24,7 @@ public class MyServiceSpring {
 
     static volatile int count;
 
-    ActualService actualService = new ActualService();
+    final ActualService actualService = new ActualService();
 
     MyServiceSpring() {
         System.out.println("created MyServiceSpring");

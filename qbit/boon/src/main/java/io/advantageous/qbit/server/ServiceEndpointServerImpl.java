@@ -53,16 +53,16 @@ public class ServiceEndpointServerImpl implements ServiceEndpointServer {
     private final Logger logger = LoggerFactory.getLogger(ServiceEndpointServerImpl.class);
     private final boolean debug = GlobalConstants.DEBUG || logger.isDebugEnabled();
     private final QBitSystemManager systemManager;
-    protected WebSocketServiceServerHandler webSocketHandler;
-    protected HttpRequestServiceServerHandler httpRequestServerHandler;
+    protected final WebSocketServiceServerHandler webSocketHandler;
+    protected final HttpRequestServiceServerHandler httpRequestServerHandler;
     protected int timeoutInSeconds = 30;
-    protected ProtocolEncoder encoder;
-    protected HttpTransport httpServer;
-    protected ServiceBundle serviceBundle;
-    protected JsonMapper jsonMapper;
-    protected ProtocolParser parser;
+    protected final ProtocolEncoder encoder;
+    protected final HttpTransport httpServer;
+    protected final ServiceBundle serviceBundle;
+    protected final JsonMapper jsonMapper;
+    protected final ProtocolParser parser;
 
-    private AtomicBoolean stop = new AtomicBoolean();
+    private final AtomicBoolean stop = new AtomicBoolean();
 
 
     public ServiceEndpointServerImpl(final HttpTransport httpServer, final ProtocolEncoder encoder,
@@ -85,7 +85,6 @@ public class ServiceEndpointServerImpl implements ServiceEndpointServer {
         this.batchSize = batchSize;
 
         webSocketHandler = new WebSocketServiceServerHandler(batchSize, serviceBundle, 4, 4);
-        //TODO don't hardcode this. Pass it form the builder.
 
         httpRequestServerHandler =
                 new HttpRequestServiceServerHandlerUsingMetaImpl(this.timeoutInSeconds,
@@ -232,7 +231,6 @@ public class ServiceEndpointServerImpl implements ServiceEndpointServer {
 
     private void handleResponseFromServiceBundle(final Response<Object> response, final Request<Object> originatingRequest) {
 
-        /* TODO Since websockets can be for many requests, we need a counter of some sort. */
 
         if (originatingRequest instanceof HttpRequest) {
 

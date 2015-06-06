@@ -31,7 +31,7 @@ import org.slf4j.LoggerFactory;
  * @author rhightower
  */
 public class QBit {
-    private Logger logger = LoggerFactory.getLogger(QBit.class);
+    private final Logger logger = LoggerFactory.getLogger(QBit.class);
     private final boolean debug = logger.isDebugEnabled();
 
     public static Factory factory() {

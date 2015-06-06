@@ -40,7 +40,7 @@ import static io.advantageous.qbit.service.Protocol.*;
  */
 public class BoonProtocolEncoder implements ProtocolEncoder {
 
-    private ThreadLocal<JsonSerializer> jsonSerializer = new ThreadLocal<JsonSerializer>() {
+    private final ThreadLocal<JsonSerializer> jsonSerializer = new ThreadLocal<JsonSerializer>() {
         @Override
         protected JsonSerializer initialValue() {
             return new JsonSerializerFactory().addFilter((parent, fieldAccess) -> !fieldAccess.name().equals("metaClass")).create();
@@ -48,7 +48,7 @@ public class BoonProtocolEncoder implements ProtocolEncoder {
     };
 
 
-    private ThreadLocal<CharBuf> bufRef = new ThreadLocal<CharBuf>() {
+    private final ThreadLocal<CharBuf> bufRef = new ThreadLocal<CharBuf>() {
         @Override
         protected CharBuf initialValue() {
             return CharBuf.createCharBuf(1000);

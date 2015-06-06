@@ -41,7 +41,7 @@ public class QBitSystemManager {
     private final List<Server> serverList = new CopyOnWriteArrayList<>();
     private final Logger logger = LoggerFactory.getLogger(QBitSystemManager.class);
     private final boolean debug = GlobalConstants.DEBUG || logger.isDebugEnabled();
-    private boolean coreSystemShutdown;
+    private final boolean coreSystemShutdown;
     private volatile int countTracked;
 
     private CountDownLatch countDownLatch;

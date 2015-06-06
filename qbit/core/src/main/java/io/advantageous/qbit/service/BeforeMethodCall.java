@@ -27,6 +27,7 @@ import io.advantageous.qbit.message.MethodCall;
  *
  * @author rhightower
  */
+@SuppressWarnings("SameReturnValue")
 public interface BeforeMethodCall {
 
     boolean before(MethodCall call);

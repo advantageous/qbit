@@ -23,11 +23,11 @@ public class AsyncFutureCallbackImpl<T> implements AsyncFutureCallback<T> {
     private final long maxExecutionTime;
     private final Runnable onFinished;
     private final Consumer<Throwable> onError;
-    private AtomicReference<T> value = new AtomicReference<>();
-    private AtomicReference<Throwable> error = new AtomicReference<>();
-    private AtomicBoolean cancelled = new AtomicBoolean();
-    private AtomicBoolean done = new AtomicBoolean();
-    private AtomicBoolean timedOut = new AtomicBoolean();
+    private final AtomicReference<T> value = new AtomicReference<>();
+    private final AtomicReference<Throwable> error = new AtomicReference<>();
+    private final AtomicBoolean cancelled = new AtomicBoolean();
+    private final AtomicBoolean done = new AtomicBoolean();
+    private final AtomicBoolean timedOut = new AtomicBoolean();
     public AsyncFutureCallbackImpl(final Callback<T> callback,
                                    final long startTime,
                                    final long maxExecutionDuration,

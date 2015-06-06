@@ -42,11 +42,11 @@ public class ExampleMainQBitSingleWriterMultiReader {
     static final int sleepEvery = 1_000_000;
     static final int numReaders = 10;
     static final List<Future<Long>> receiverJobs = new ArrayList<>();
-    static ExecutorService executorService = Executors.newCachedThreadPool();
-    static AtomicBoolean stop = new AtomicBoolean();
+    static final ExecutorService executorService = Executors.newCachedThreadPool();
+    static final AtomicBoolean stop = new AtomicBoolean();
 
 
-    public static void sender(int amount, int code) throws InterruptedException {
+    public static void sender(int amount, int code)  {
 
         final SendQueue<Integer> sendQueue = queue.sendQueue();
         try {
@@ -70,7 +70,7 @@ public class ExampleMainQBitSingleWriterMultiReader {
 
     }
 
-    public static long counter(int workerId) throws Exception {
+    public static long counter(int workerId)  {
 
 
         final ReceiveQueue<Integer> receiveQueue = queue.receiveQueue();
@@ -119,15 +119,7 @@ public class ExampleMainQBitSingleWriterMultiReader {
         }
 
 
-        final Future<?> senderJob = executorService.submit(() -> {
-
-            try {
-                sender(200_000_000, -1);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-
-        });
+        final Future<?> senderJob = executorService.submit(() -> sender(200_000_000, -1));
 
 
         long count = 0L;

@@ -78,12 +78,12 @@ import static io.advantageous.qbit.service.ServiceBuilder.serviceBuilder;
 public class BoonQBitFactory implements Factory {
 
     private final Logger logger = LoggerFactory.getLogger(BoonQBitFactory.class);
-    private AtomicReference<ServiceQueue> systemEventManager = new AtomicReference<>();
-    private ThreadLocal<EventManager> eventManagerThreadLocal = new ThreadLocal<>();
-    private ProtocolParser defaultProtocol = new BoonProtocolParser();
-    private ServiceProxyFactory serviceProxyFactory = new BoonServiceProxyFactory(this);
-    private ServiceProxyFactory remoteServiceProxyFactory = new BoonServiceProxyFactory(this);
-    private ThreadLocal<List<ProtocolParser>> protocolParserListRef = new ThreadLocal<List<ProtocolParser>>() {
+    private final AtomicReference<ServiceQueue> systemEventManager = new AtomicReference<>();
+    private final ThreadLocal<EventManager> eventManagerThreadLocal = new ThreadLocal<>();
+    private final ProtocolParser defaultProtocol = new BoonProtocolParser();
+    private final ServiceProxyFactory serviceProxyFactory = new BoonServiceProxyFactory(this);
+    private final ServiceProxyFactory remoteServiceProxyFactory = new BoonServiceProxyFactory(this);
+    private final ThreadLocal<List<ProtocolParser>> protocolParserListRef = new ThreadLocal<List<ProtocolParser>>() {
 
         @Override
         protected List<ProtocolParser> initialValue() {
@@ -94,7 +94,7 @@ public class BoonQBitFactory implements Factory {
     };
 
 
-    private ScheduledExecutorService scheduledExecutorService = Executors.newScheduledThreadPool(4,
+    private final ScheduledExecutorService scheduledExecutorService = Executors.newScheduledThreadPool(4,
             r -> {
                 Thread thread = new Thread(r);
                 thread.setDaemon(true);

@@ -44,6 +44,7 @@ public interface ServiceDiscovery extends Startable, Stoppable {
                 serviceName, null, port, timeToLiveSeconds);
     }
 
+    @SuppressWarnings("UnusedReturnValue")
     default EndpointDefinition registerWithIdAndTimeToLive(
             final String serviceName, final String serviceId, final int port, final int timeToLiveSeconds) {
 

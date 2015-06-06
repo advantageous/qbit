@@ -79,7 +79,7 @@ import static io.advantageous.qbit.service.ServiceContext.serviceContext;
  * @author rhightower on 2/18/15.
  */
 public class BaseServiceQueueImpl implements ServiceQueue {
-    private static ThreadLocal<ServiceQueue> serviceThreadLocal = new ThreadLocal<>();
+    private static final ThreadLocal<ServiceQueue> serviceThreadLocal = new ThreadLocal<>();
     protected final QBitSystemManager systemManager;
     protected final Logger logger = LoggerFactory.getLogger(ServiceQueueImpl.class);
     protected final boolean debug = logger.isDebugEnabled();
@@ -91,16 +91,16 @@ public class BaseServiceQueueImpl implements ServiceQueue {
     protected final QueueBuilder responseQueueBuilder;
     protected final boolean handleCallbacks;
     private final Factory factory;
-    protected ReentrantLock responseLock = new ReentrantLock();
+    protected final ReentrantLock responseLock = new ReentrantLock();
     protected volatile long lastResponseFlushTime = Timer.timer().now();
-    protected ServiceMethodHandler serviceMethodHandler;
-    protected SendQueue<Response<Object>> responseSendQueue;
-    private AtomicBoolean started = new AtomicBoolean(false);
-    private BeforeMethodCall beforeMethodCall = ServiceConstants.NO_OP_BEFORE_METHOD_CALL;
-    private BeforeMethodCall beforeMethodCallAfterTransform = ServiceConstants.NO_OP_BEFORE_METHOD_CALL;
-    private AfterMethodCall afterMethodCall = new NoOpAfterMethodCall();
-    private AfterMethodCall afterMethodCallAfterTransform = new NoOpAfterMethodCall();
-    private ReceiveQueueListener<MethodCall<Object>> inputQueueListener = new NoOpInputMethodCallQueueListener();
+    protected final ServiceMethodHandler serviceMethodHandler;
+    protected final SendQueue<Response<Object>> responseSendQueue;
+    private final AtomicBoolean started = new AtomicBoolean(false);
+    private final BeforeMethodCall beforeMethodCall = ServiceConstants.NO_OP_BEFORE_METHOD_CALL;
+    private final BeforeMethodCall beforeMethodCallAfterTransform = ServiceConstants.NO_OP_BEFORE_METHOD_CALL;
+    private final AfterMethodCall afterMethodCall = new NoOpAfterMethodCall();
+    private final AfterMethodCall afterMethodCallAfterTransform = new NoOpAfterMethodCall();
+    private final ReceiveQueueListener<MethodCall<Object>> inputQueueListener = new NoOpInputMethodCallQueueListener();
     private Transformer<Request, Object> requestObjectTransformer = ServiceConstants.NO_OP_ARG_TRANSFORM;
     private Transformer<Response<Object>, Response> responseObjectTransformer = new NoOpResponseTransformer();
     private CallbackManager callbackManager;
