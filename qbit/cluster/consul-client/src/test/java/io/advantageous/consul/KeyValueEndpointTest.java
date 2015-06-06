@@ -17,8 +17,8 @@
  */
 package io.advantageous.consul;
 
-import io.advantageous.consul.endpoints.KeyValueStoreEndpoint;
 import io.advantageous.consul.domain.KeyValue;
+import io.advantageous.consul.endpoints.KeyValueStoreEndpoint;
 import org.junit.Test;
 
 import java.net.UnknownHostException;
@@ -26,9 +26,7 @@ import java.util.HashSet;
 import java.util.UUID;
 
 import static io.advantageous.consul.endpoints.RequestUtils.decodeBase64;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 /**
  * Note this class was heavily influenced and inspired by the Orbitz Consul client.

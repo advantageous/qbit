@@ -20,11 +20,10 @@ package io.advantageous.consul.domain.option;
 
 public class KeyValuePutOptions {
 
+    public static KeyValuePutOptions BLANK = new KeyValuePutOptions(null, null, null);
     private final Integer cas;
     private final String acquire;
     private final String release;
-
-    public static KeyValuePutOptions BLANK = new KeyValuePutOptions(null, null, null);
 
     public KeyValuePutOptions(Integer cas, String acquire, String release) {
         this.cas = cas;

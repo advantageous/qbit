@@ -18,12 +18,10 @@
 
 package io.advantageous.qbit.message;
 
-import io.advantageous.qbit.util.MultiMap;
-
 /**
  * This is an abstraction for an incoming client request.
  * <p>
- * Created by Richard on 7/21/14.
+ * created by Richard on 7/21/14.
  *
  * @author Rick Hightower
  */
@@ -34,8 +32,9 @@ public interface Request<T> extends Message<T> {
     String returnAddress();
 
 
-    default Request<Object> originatingRequest() {return null;}
-
+    default Request<Object> originatingRequest() {
+        return null;
+    }
 
 
     boolean hasParams();

@@ -23,14 +23,10 @@ import static io.advantageous.boon.core.Str.sputs;
  * A registered service attempted to
  * check in.  This condition indicates an agent has been restarted and left
  * the cluster.
- *
+ * <p>
  * Services should register again if this is thrown.
  */
 public class NotRegisteredException extends ConsulException {
-
-    public static void notRegistered(Object... args){
-        throw new NotRegisteredException( sputs(args));
-    }
 
     public NotRegisteredException(String message) {
         super(message);
@@ -38,5 +34,9 @@ public class NotRegisteredException extends ConsulException {
 
     public NotRegisteredException(String message, Throwable throwable) {
         super(message, throwable);
+    }
+
+    public static void notRegistered(Object... args) {
+        throw new NotRegisteredException(sputs(args));
     }
 }

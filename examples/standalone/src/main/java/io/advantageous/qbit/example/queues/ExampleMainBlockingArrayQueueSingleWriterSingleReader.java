@@ -20,11 +20,14 @@ package io.advantageous.qbit.example.queues;
 
 import io.advantageous.boon.core.Sys;
 
-import java.util.concurrent.*;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.LinkedBlockingQueue;
 
 
 /**
- * Created by Richard on 9/12/14.
+ * created by Richard on 9/12/14.
  */
 public class ExampleMainBlockingArrayQueueSingleWriterSingleReader {
 
@@ -80,15 +83,12 @@ public class ExampleMainBlockingArrayQueueSingleWriterSingleReader {
         long startTime = System.currentTimeMillis();
 
 
-        final Future<Long> receiverJob = executorService.submit(new Callable<Long>() {
-            @Override
-            public Long call() {
-                try {
-                    return counter();
-                } catch (Exception e) {
-                    e.printStackTrace();
-                    return -1L;
-                }
+        final Future<Long> receiverJob = executorService.submit(() -> {
+            try {
+                return counter();
+            } catch (Exception e) {
+                e.printStackTrace();
+                return -1L;
             }
         });
 

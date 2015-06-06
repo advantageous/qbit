@@ -25,11 +25,11 @@ import java.util.List;
 /**
  * An end point is an address and a way to transmit method calls to a client.
  * <p>
- * Created by Richard on 10/1/14.
+ * created by Richard on 10/1/14.
  *
  * @author rhightower
  */
-public interface EndPoint extends ServiceFlushable, Stoppable{
+public interface EndPoint extends ServiceFlushable, Stoppable {
 
 
     String address();

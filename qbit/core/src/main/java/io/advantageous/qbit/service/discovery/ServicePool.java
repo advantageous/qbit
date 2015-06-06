@@ -8,7 +8,7 @@ import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * Service pool
- * Created by rhightower on 3/23/15.
+ * created by rhightower on 3/23/15.
  */
 public class ServicePool {
 
@@ -42,7 +42,7 @@ public class ServicePool {
     }
 
     /**
-     * @param services services
+     * @param services            services
      * @param servicePoolListener listens to service pool events
      * @return true if services have changed
      */

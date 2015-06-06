@@ -24,7 +24,7 @@ import io.advantageous.qbit.http.client.HttpClient;
 /**
  * Creates a client.
  * This gets used by QBit factory to createWithWorkers a client.
- * Created by rhightower on 12/3/14.
+ * created by rhightower on 12/3/14.
  *
  * @author rhightower
  */

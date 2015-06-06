@@ -9,13 +9,12 @@ import org.junit.Test;
 import java.io.File;
 import java.util.List;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 /**
- * Created by rick on 5/20/15.
+ * created by rick on 5/20/15.
  */
 public class ServiceDiscoveryFileSystemProviderTest {
-
 
 
     @Test

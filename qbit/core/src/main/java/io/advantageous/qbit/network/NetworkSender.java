@@ -19,7 +19,7 @@
 package io.advantageous.qbit.network;
 
 /**
- * Created by rhightower on 2/14/15.
+ * created by rhightower on 2/14/15.
  */
 public interface NetworkSender {
 

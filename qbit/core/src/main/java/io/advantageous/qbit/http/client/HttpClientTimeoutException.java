@@ -1,9 +1,9 @@
 package io.advantageous.qbit.http.client;
 
 /**
- * Created by rhightower on 4/30/15.
+ * created by rhightower on 4/30/15.
  */
-public class HttpClientTimeoutException extends HttpClientException{
+public class HttpClientTimeoutException extends HttpClientException {
 
     public HttpClientTimeoutException() {
     }

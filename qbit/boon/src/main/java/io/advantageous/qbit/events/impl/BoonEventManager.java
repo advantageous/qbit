@@ -60,11 +60,11 @@ public class BoonEventManager implements EventManager {
     private final List<SendQueue<Event<Object>>> queuesToFlush = new ArrayList<>(100);
     private final HashSet<ServiceQueue> services = new HashSet<>();
     private final boolean debug = GlobalConstants.DEBUG;
+    private final String name;
     private int messageCountSinceLastFlush = 0;
     private long flushCount = 0;
     private long lastFlushTime = 0;
     private long now;
-    private final String name;
 
     public BoonEventManager(final String name, final EventConnector eventConnector) {
 
@@ -279,12 +279,12 @@ public class BoonEventManager implements EventManager {
         if (serviceQueue == null) {
             extractListenerForRegularObject(listener, methodAccess, channel, consume);
         } else {
-            extractListenerForService(serviceQueue,  channel, consume);
+            extractListenerForService(serviceQueue, channel, consume);
         }
     }
 
 
-    private void extractListenerForService(ServiceQueue serviceQueue,  final String channel, final boolean consume) {
+    private void extractListenerForService(ServiceQueue serviceQueue, final String channel, final boolean consume) {
 
         final SendQueue<Event<Object>> events = serviceQueue.events();
         if (consume) {

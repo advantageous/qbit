@@ -6,7 +6,7 @@ import java.util.concurrent.TimeUnit;
 
 public interface HealthService {
 
-    
+
     void register(String name, long time, TimeUnit timeUnit);
 
 

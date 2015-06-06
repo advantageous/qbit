@@ -22,14 +22,14 @@ package io.advantageous.qbit.sender;
 import io.advantageous.qbit.service.Stoppable;
 
 /**
- * Created by Richard on 10/1/14.
+ * created by Richard on 10/1/14.
  * This could be a TCP/IP connection, a websocket, an HTTP long poll, etc.
  * It just represents some sort of output stream.
  * We use this so our code is not tied to for example vertx.
  *
  * @author Rick Hightower
  */
-public interface Sender<T> extends Stoppable{
+public interface Sender<T> extends Stoppable {
 
     void send(String returnAddress, T buffer);
     //add a close here

@@ -26,7 +26,7 @@ import io.advantageous.boon.core.reflection.MethodAccess;
 
 /**
  * AnnotationUtils
- * Created by rhightower on 2/4/15.
+ * created by rhightower on 2/4/15.
  */
 public class AnnotationUtils {
 

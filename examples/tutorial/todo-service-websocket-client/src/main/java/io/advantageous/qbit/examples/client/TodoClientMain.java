@@ -1,13 +1,13 @@
 package io.advantageous.qbit.examples.client;
 
 
+import io.advantageous.boon.core.Sys;
 import io.advantageous.qbit.client.Client;
 import io.advantageous.qbit.client.ClientBuilder;
-import io.advantageous.boon.core.Sys;
 
 /**
  * Fixed by Rick on March 16th, 2015.
- * Created by fadi on 1/9/15.
+ * created by fadi on 1/9/15.
  */
 public class TodoClientMain {
 

@@ -19,7 +19,7 @@
 package io.advantageous.qbit.example.hello;
 
 /**
- * Created by rhightower on 2/10/15.
+ * created by rhightower on 2/10/15.
  */
 
 

@@ -20,7 +20,7 @@ import static io.advantageous.boon.core.Str.sputs;
 
 /**
  * Clustered Stat Replicator
- * Created by rhightower on 3/24/15.
+ * created by rhightower on 3/24/15.
  */
 public class ClusteredStatReplicator implements StatReplicator, ServiceChangedEventChannel {
 
@@ -208,7 +208,6 @@ public class ClusteredStatReplicator implements StatReplicator, ServiceChangedEv
         final List<EndpointDefinition> services = servicePool.services();
 
 
-
         if ((services.size() - 1) != this.statReplicators.size()) {
             logger.info(sputs("DOING RECONNECT", services.size() - 1,
                     this.statReplicators.size()));
@@ -217,7 +216,6 @@ public class ClusteredStatReplicator implements StatReplicator, ServiceChangedEv
             services.forEach(this::addService);
         }
     }
-
 
 
     private void shutDownReplicators() {
@@ -290,7 +288,7 @@ public class ClusteredStatReplicator implements StatReplicator, ServiceChangedEv
     private void removeService(final EndpointDefinition endpointDefinition) {
 
         logger.info(sputs("ClusteredStatReplicator::removeService()",
-                serviceName, endpointDefinition, " replicator count ",  replicatorsMap.size()));
+                serviceName, endpointDefinition, " replicator count ", replicatorsMap.size()));
 
 
         final Pair<EndpointDefinition, StatReplicator> statReplicatorPair = this.replicatorsMap.get(endpointDefinition.getId());
@@ -304,7 +302,7 @@ public class ClusteredStatReplicator implements StatReplicator, ServiceChangedEv
         this.statReplicators = new ArrayList<>(replicatorsMap.values());
 
         logger.info(sputs("ClusteredStatReplicator::removeService() removed",
-                serviceName, endpointDefinition, " replicator count ",  replicatorsMap.size()));
+                serviceName, endpointDefinition, " replicator count ", replicatorsMap.size()));
 
     }
 
@@ -315,14 +313,14 @@ public class ClusteredStatReplicator implements StatReplicator, ServiceChangedEv
             return;
         }
         logger.info(sputs("ClusteredStatReplicator::addService()", endpointDefinition,
-                " replicator count ",  replicatorsMap.size()));
+                " replicator count ", replicatorsMap.size()));
 
         final StatReplicator statReplicator = statReplicatorProvider.provide(endpointDefinition);
         this.replicatorsMap.put(endpointDefinition.getId(), Pair.pair(endpointDefinition, statReplicator));
         this.statReplicators = new ArrayList<>(replicatorsMap.values());
 
         logger.info(sputs("ClusteredStatReplicator::addService() added",
-                serviceName, endpointDefinition, " replicator count ",  replicatorsMap.size()));
+                serviceName, endpointDefinition, " replicator count ", replicatorsMap.size()));
 
 
     }

@@ -31,10 +31,11 @@ import java.util.function.Consumer;
 import static io.advantageous.boon.json.JsonFactory.toJson;
 
 /**
- * Created by rhightower on 10/24/14.
+ * created by rhightower on 10/24/14.
  *
  * @author rhightower
  */
+@SuppressWarnings("ALL")
 public class MockHttpServer implements HttpServer {
 
     Consumer<WebSocketMessage> webSocketMessageConsumer;

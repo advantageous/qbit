@@ -25,7 +25,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 
 /**
- * Created by rhightower on 1/28/15.
+ * created by rhightower on 1/28/15.
  */
 public class DebugReplicator implements StatReplicator {
 
@@ -33,7 +33,7 @@ public class DebugReplicator implements StatReplicator {
 
     public boolean out = false;
 
-    public DebugReplicator(boolean out) {
+    public DebugReplicator(@SuppressWarnings("SameParameterValue") boolean out) {
         this.out = out;
     }
 

@@ -85,14 +85,14 @@ public class BoonProtocolEncoder implements ProtocolEncoder {
         buf.addChar(PROTOCOL_MESSAGE_TYPE_GROUP);
         int index = 0;
 
-        for ( Message<Object> message : messages ) {
+        for (Message<Object> message : messages) {
 
             boolean encodeAddress = index == 0;
 
-            if ( message instanceof MethodCall ) {
-                encodeAsString(buf, ( MethodCall<Object> ) message, encodeAddress);
-            } else if ( message instanceof Response ) {
-                encodeAsString(buf, ( Response<Object> ) message, encodeAddress);
+            if (message instanceof MethodCall) {
+                encodeAsString(buf, (MethodCall<Object>) message, encodeAddress);
+            } else if (message instanceof Response) {
+                encodeAsString(buf, (Response<Object>) message, encodeAddress);
             }
             buf.addChar(PROTOCOL_MESSAGE_SEPARATOR);
 
@@ -135,22 +135,22 @@ public class BoonProtocolEncoder implements ProtocolEncoder {
         buf.addChar(PROTOCOL_SEPARATOR);
         final Object body = methodCall.body();
         final JsonSerializer serializer = jsonSerializer.get();
-        if ( body instanceof Iterable ) {
-            Iterable iter = ( Iterable ) body;
-            for ( Object bodyPart : iter ) {
+        if (body instanceof Iterable) {
+            Iterable iter = (Iterable) body;
+            for (Object bodyPart : iter) {
 
                 serializer.serialize(buf, bodyPart);
                 buf.addChar(PROTOCOL_ARG_SEPARATOR);
             }
-        } else if ( body instanceof Object[] ) {
-            Object[] args = ( Object[] ) body;
+        } else if (body instanceof Object[]) {
+            Object[] args = (Object[]) body;
 
-            for ( int index = 0; index < args.length; index++ ) {
-                Object bodyPart = args[ index ];
+            for (int index = 0; index < args.length; index++) {
+                Object bodyPart = args[index];
                 serializer.serialize(buf, bodyPart);
                 buf.addChar(PROTOCOL_ARG_SEPARATOR);
             }
-        } else if ( body != null ) {
+        } else if (body != null) {
             serializer.serialize(buf, body);
         }
     }
@@ -179,7 +179,7 @@ public class BoonProtocolEncoder implements ProtocolEncoder {
         final Object body = response.body();
         final JsonSerializer serializer = jsonSerializer.get();
 
-        if ( body != null ) {
+        if (body != null) {
             serializer.serialize(buf, body);
         } else {
             buf.addNull();
@@ -188,24 +188,24 @@ public class BoonProtocolEncoder implements ProtocolEncoder {
 
     private void encodeHeadersAndParams(CharBuf buf, MultiMap<String, String> headerOrParams) {
 
-        if ( headerOrParams == null ) {
+        if (headerOrParams == null) {
             return;
         }
 
         final Map<? extends String, ? extends Collection<String>> map = headerOrParams.baseMap();
         final Set<? extends Map.Entry<? extends String, ? extends Collection<String>>> entries = map.entrySet();
-        for ( Map.Entry<? extends String, ? extends Collection<String>> entry : entries ) {
+        for (Map.Entry<? extends String, ? extends Collection<String>> entry : entries) {
 
             final Collection<String> values = entry.getValue();
 
-            if ( values.size() == 0 ) {
+            if (values.size() == 0) {
                 continue;
             }
 
             buf.add(entry.getKey());
             buf.addChar(Protocol.PROTOCOL_KEY_HEADER_DELIM);
 
-            for ( String value : values ) {
+            for (String value : values) {
                 buf.add(value);
                 buf.addChar(Protocol.PROTOCOL_VALUE_HEADER_DELIM);
             }

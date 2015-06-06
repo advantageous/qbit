@@ -36,7 +36,7 @@ public class CatalogService {
     @JsonProperty("ServiceID")
     private String serviceId;
 
-	@JsonProperty("ServiceAddress")
+    @JsonProperty("ServiceAddress")
     private String serviceAddress;
 
     @JsonProperty("ServicePort")
@@ -78,12 +78,12 @@ public class CatalogService {
     }
 
     public String getServiceAddress() {
-		return serviceAddress;
-	}
+        return serviceAddress;
+    }
 
-	public void setServiceAddress(String serviceAddress) {
-		this.serviceAddress = serviceAddress;
-	}
+    public void setServiceAddress(String serviceAddress) {
+        this.serviceAddress = serviceAddress;
+    }
 
     public int getServicePort() {
         return servicePort;
@@ -114,8 +114,7 @@ public class CatalogService {
         if (serviceAddress != null ? !serviceAddress.equals(that.serviceAddress) : that.serviceAddress != null)
             return false;
         if (serviceId != null ? !serviceId.equals(that.serviceId) : that.serviceId != null) return false;
-        if (serviceName != null ? !serviceName.equals(that.serviceName) : that.serviceName != null) return false;
-        return !(serviceTags != null ? !serviceTags.equals(that.serviceTags) : that.serviceTags != null);
+        return !(serviceName != null ? !serviceName.equals(that.serviceName) : that.serviceName != null) && !(serviceTags != null ? !serviceTags.equals(that.serviceTags) : that.serviceTags != null);
 
     }
 

@@ -9,7 +9,7 @@ import static io.advantageous.qbit.service.discovery.ServiceDiscovery.uniqueStri
 
 /**
  * Service Definition
- * Created by rhightower on 3/23/15.
+ * created by rhightower on 3/23/15.
  */
 public class EndpointDefinition {
 
@@ -19,6 +19,7 @@ public class EndpointDefinition {
     private final String host;
     private final int port;
     private final long timeToLive;
+
     public EndpointDefinition(
             final HealthStatus healthStatus,
             final String id,
@@ -32,6 +33,7 @@ public class EndpointDefinition {
         this.port = port;
         this.timeToLive = 20L;
     }
+
     public EndpointDefinition(
             final HealthStatus healthStatus,
             final String id,

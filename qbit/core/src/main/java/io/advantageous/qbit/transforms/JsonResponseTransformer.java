@@ -24,7 +24,7 @@ import io.advantageous.qbit.message.Response;
 /**
  * Transforms raw json into a client response object.
  * <p>
- * Created by Richard on 8/26/14.
+ * created by Richard on 8/26/14.
  *
  * @author rhightower
  */

@@ -27,38 +27,45 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
-
-import static io.advantageous.boon.core.IO.puts;
 
 public class HttpRequestServiceServerHandlerUsingMetaImpl implements HttpRequestServiceServerHandler {
 
 
     private final int timeoutInSeconds;
     private final AtomicLong lastTimeoutCheckTime = new AtomicLong();
-    private long lastFlushTime;
     private final int numberOfOutstandingRequests;
     private final SendQueue<MethodCall<Object>> methodCallSendQueue;
     private final int flushInterval;
     private final JsonMapper jsonMapper;
+    private final Map<String, Request<Object>> outstandingRequestMap = new ConcurrentHashMap<>(100_000);
+    private final Logger logger = LoggerFactory.getLogger(HttpRequestServiceServerHandlerUsingMetaImpl.class);
+    private final boolean debug = GlobalConstants.DEBUG || logger.isDebugEnabled();
+    private final Lock lock = new ReentrantLock();
+    private long lastFlushTime;
     private ContextMetaBuilder contextMetaBuilder = ContextMetaBuilder.contextMetaBuilder();
     private StandardRequestTransformer standardRequestTransformer;
     private Map<RequestMethod, StandardMetaDataProvider> metaDataProviderMap = new ConcurrentHashMap<>();
-    private final Map<String, Request<Object>> outstandingRequestMap = new ConcurrentHashMap<>(100_000);
 
+    public HttpRequestServiceServerHandlerUsingMetaImpl(int timeoutInSeconds, ServiceBundle serviceBundle,
+                                                        JsonMapper jsonMapper,
+                                                        final int numberOfOutstandingRequests,
+                                                        int flushInterval) {
+        this.timeoutInSeconds = timeoutInSeconds;
+        lastTimeoutCheckTime.set(Timer.timer().now() + (timeoutInSeconds * 1000));
+        this.numberOfOutstandingRequests = numberOfOutstandingRequests;
+        this.jsonMapper = jsonMapper;
 
-    private final Logger logger = LoggerFactory.getLogger(HttpRequestServiceServerHandlerUsingMetaImpl.class);
-    private final boolean debug = GlobalConstants.DEBUG || logger.isDebugEnabled();
+        this.methodCallSendQueue = serviceBundle.methodSendQueue();
+        this.flushInterval = flushInterval;
 
-
-    private final Lock lock = new ReentrantLock();
+        contextMetaBuilder = ContextMetaBuilder.contextMetaBuilder();
+    }
 
     @Override
-    public  void httpRequestQueueIdle(Void v) {
+    public void httpRequestQueueIdle(Void v) {
         long lastFlush = lastFlushTime;
         long now = Timer.timer().now();
         long duration = now - lastFlush;
@@ -74,24 +81,6 @@ public class HttpRequestServiceServerHandlerUsingMetaImpl implements HttpRequest
         }
 
     }
-
-
-
-    public HttpRequestServiceServerHandlerUsingMetaImpl(int timeoutInSeconds, ServiceBundle serviceBundle,
-                                                        JsonMapper jsonMapper,
-                                                        final int numberOfOutstandingRequests,
-                                               int flushInterval) {
-        this.timeoutInSeconds = timeoutInSeconds;
-        lastTimeoutCheckTime.set(Timer.timer().now() + (timeoutInSeconds * 1000));
-        this.numberOfOutstandingRequests = numberOfOutstandingRequests;
-        this.jsonMapper = jsonMapper;
-
-        this.methodCallSendQueue = serviceBundle.methodSendQueue();
-        this.flushInterval = flushInterval;
-
-        contextMetaBuilder = ContextMetaBuilder.contextMetaBuilder();
-    }
-
 
     public void start() {
 
@@ -109,12 +98,12 @@ public class HttpRequestServiceServerHandlerUsingMetaImpl implements HttpRequest
     }
 
     @Override
-    public  void handleRestCall(final HttpRequest request) {
+    public void handleRestCall(final HttpRequest request) {
 
         List<String> errorList = new ArrayList<>(0);
         final MethodCall<Object> methodCall = standardRequestTransformer.transform(request, errorList);
 
-        if (methodCall!=null && errorList.size()==0) {
+        if (methodCall != null && errorList.size() == 0) {
             if (!addRequestToCheckForTimeouts(request)) {
                 handleOverflow(request);
                 return;
@@ -129,7 +118,7 @@ public class HttpRequestServiceServerHandlerUsingMetaImpl implements HttpRequest
                 .get(RequestMethod.valueOf(request.getMethod())).get(request.address());
 
         if (requestMetaData.getMethod().getMethodAccess().returnType() == void.class
-                && !requestMetaData.getMethod().hasCallBack() ) {
+                && !requestMetaData.getMethod().hasCallBack()) {
 
             request.handled();
             writeResponse(request.getReceiver(), 200,
@@ -157,13 +146,13 @@ public class HttpRequestServiceServerHandlerUsingMetaImpl implements HttpRequest
 
     private void handleErrorConverting(HttpRequest request, List<String> errorList, MethodCall<Object> methodCall) {
         if (methodCall == null) {
-            if (errorList.size()>0) {
+            if (errorList.size() > 0) {
                 request.getReceiver().response(404, "application/json", jsonMapper.toJson(errorList));
             } else {
                 request.getReceiver().response(404, "application/json", "\"not found\"");
             }
         } else {
-            if (errorList.size()>0) {
+            if (errorList.size() > 0) {
                 request.getReceiver().response(500, "application/json", jsonMapper.toJson(errorList));
             } else {
                 request.getReceiver().response(500, "application/json", "\"unable to make call\"");
@@ -228,15 +217,14 @@ public class HttpRequestServiceServerHandlerUsingMetaImpl implements HttpRequest
     }
 
 
-
-
     @Override
     public void handleResponseFromServiceToHttpResponse(final Response<Object> response, final HttpRequest originatingRequest) {
 
         String key = Str.add("" + originatingRequest.id(), "|", originatingRequest.returnAddress());
         this.outstandingRequestMap.remove(key);
 
-        final HttpRequest httpRequest = originatingRequest;
+        //noinspection UnnecessaryLocalVariable
+        @SuppressWarnings("UnnecessaryLocalVariable") final HttpRequest httpRequest = originatingRequest;
 
         if (response.wasErrors()) {
 
@@ -257,7 +245,6 @@ public class HttpRequestServiceServerHandlerUsingMetaImpl implements HttpRequest
     }
 
 
-
     private void writeResponse(HttpResponseReceiver response, int code, String mimeType, String responseString,
                                MultiMap<String, String> headers) {
 
@@ -269,7 +256,6 @@ public class HttpRequestServiceServerHandlerUsingMetaImpl implements HttpRequest
             response.response(code, mimeType, responseString.getBytes(StandardCharsets.UTF_8), headers);
         }
     }
-
 
 
     /**

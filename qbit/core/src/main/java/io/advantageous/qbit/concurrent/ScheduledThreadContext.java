@@ -29,11 +29,11 @@ import java.util.concurrent.TimeUnit;
 
 
 /**
- * Created by rhightower on 2/13/15.
+ * created by rhightower on 2/13/15.
  */
 public class ScheduledThreadContext implements ExecutorContext {
     private final Logger logger = LoggerFactory.getLogger(ScheduledThreadContext.class);
-    private final boolean debug = false || GlobalConstants.DEBUG || logger.isDebugEnabled();
+    private final boolean debug = GlobalConstants.DEBUG || logger.isDebugEnabled();
     private final int priority;
     private final boolean daemon;
     private final Runnable runnable;

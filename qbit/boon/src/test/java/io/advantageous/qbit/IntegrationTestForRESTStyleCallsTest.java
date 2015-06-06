@@ -51,7 +51,7 @@ import static io.advantageous.qbit.service.ServiceBundleBuilder.serviceBundleBui
 
 /**
  * A test
- * Created by Richard on 9/27/14.
+ * created by Richard on 9/27/14.
  */
 public class IntegrationTestForRESTStyleCallsTest {
 

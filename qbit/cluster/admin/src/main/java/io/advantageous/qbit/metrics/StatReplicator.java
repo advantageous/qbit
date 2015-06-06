@@ -24,10 +24,12 @@ import io.advantageous.qbit.service.Stoppable;
 
 /**
  * Stat Replicator
- * Created by rhightower on 1/28/15.
+ * created by rhightower on 1/28/15.
  */
 public interface StatReplicator extends RemoteTCPClientProxy, ServiceFlushable, Stoppable {
     void replicateCount(String name, int count, long time);
+
     void replicateLevel(String name, int level, long time);
+
     void replicateTiming(String name, int level, long time);
 }

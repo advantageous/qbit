@@ -18,22 +18,21 @@
 
 package io.advantageous.qbit.example.queues;
 
+import io.advantageous.boon.core.Sys;
 import io.advantageous.qbit.queue.Queue;
 import io.advantageous.qbit.queue.QueueBuilder;
 import io.advantageous.qbit.queue.ReceiveQueue;
 import io.advantageous.qbit.queue.SendQueue;
-import io.advantageous.boon.core.Sys;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
- * Created by Richard on 9/12/14.
+ * created by Richard on 9/12/14.
  * <p>
  * Description                        QBIT(ms)          LinkedBlockingQueue(ms)                         %Better
  * One Reader, One Writer                6276                            10,003                          159.38
@@ -87,7 +86,6 @@ public class QBitQueueMultiWriterMultiReader {
 
             if (stop.get()) {
                 Thread.interrupted();
-                return;
             }
         }
 
@@ -131,15 +129,12 @@ public class QBitQueueMultiWriterMultiReader {
 
         for (int index = 0; index < numReaders; index++) {
             final int workerId = index;
-            receiverJobs.add(executorService.submit(new Callable<Long>() {
-                @Override
-                public Long call() {
-                    try {
-                        return counter(workerId);
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                        return -1L;
-                    }
+            receiverJobs.add(executorService.submit(() -> {
+                try {
+                    return counter(workerId);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    return -1L;
                 }
             }));
         }
@@ -147,14 +142,11 @@ public class QBitQueueMultiWriterMultiReader {
 
         for (int index = 0; index < numWriters; index++) {
             final int workerId = index;
-            writerJobs.add(executorService.submit(new Runnable() {
-                @Override
-                public void run() {
-                    try {
-                        sender(workerId, amountOfMessagesToSend, -1);
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
+            writerJobs.add(executorService.submit(() -> {
+                try {
+                    sender(workerId, amountOfMessagesToSend, -1);
+                } catch (Exception e) {
+                    e.printStackTrace();
                 }
             }));
         }

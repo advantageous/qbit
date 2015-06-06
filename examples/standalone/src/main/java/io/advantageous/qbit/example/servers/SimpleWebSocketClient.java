@@ -18,10 +18,10 @@
 
 package io.advantageous.qbit.example.servers;
 
+import io.advantageous.boon.core.Sys;
 import io.advantageous.qbit.client.Client;
 import io.advantageous.qbit.client.ClientBuilder;
 import io.advantageous.qbit.reactive.Callback;
-import io.advantageous.boon.core.Sys;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -30,8 +30,9 @@ import static io.advantageous.boon.core.IO.puts;
 
 
 /**
- * Created by rhightower on 2/2/15.
+ * created by rhightower on 2/2/15.
  */
+@SuppressWarnings("ALL")
 public class SimpleWebSocketClient {
 
     static volatile int count = 0;
@@ -94,9 +95,7 @@ public class SimpleWebSocketClient {
                 public void run() {
 
                     for (int index = 0; index < 25_000_000; index++) {
-                        myService.ping(strings -> {
-                            count++;
-                        });
+                        myService.ping(strings -> count++);
 
                         if (index % 15_000 == 0) {
                             Sys.sleep(5);

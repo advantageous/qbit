@@ -29,7 +29,7 @@ import java.util.concurrent.TimeUnit;
 /**
  * This is not thread safe.
  * You use BasicQueue to createWithWorkers this in the one thread that you are going to use it.
- * Created by Richard on 9/8/14.
+ * created by Richard on 9/8/14.
  *
  * @author rhightower
  */

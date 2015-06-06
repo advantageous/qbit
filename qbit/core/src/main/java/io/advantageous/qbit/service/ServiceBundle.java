@@ -30,14 +30,13 @@ import java.util.function.Consumer;
 /**
  * A client bundle is a collection of services.
  * The client bundle does the routing of calls based on addresses to a particular client.
- * Created by Richard on 9/26/14.
+ * created by Richard on 9/26/14.
  *
  * @author rhightower
  */
 public interface ServiceBundle extends EndPoint {
 
     String address();
-
 
 
     ServiceBundle addServiceObject(String address, Object object);
@@ -52,7 +51,6 @@ public interface ServiceBundle extends EndPoint {
         this.addServiceObject(address, service);
         return this;
     }
-
 
 
     void addService(Object object);
@@ -71,7 +69,8 @@ public interface ServiceBundle extends EndPoint {
 
     void startReturnHandlerProcessor(ReceiveQueueListener<Response<Object>> listener);
 
-    default void startWebResponseReturnHandler(ReceiveQueueListener<Response<Object>> listener) {}
+    default void startWebResponseReturnHandler(ReceiveQueueListener<Response<Object>> listener) {
+    }
 
     void startReturnHandlerProcessor();
 
@@ -79,7 +78,8 @@ public interface ServiceBundle extends EndPoint {
     }
 
     <T> T createLocalProxy(Class<T> serviceInterface, String myService);
-    default <T> T createOneWayLocalProxy(Class<T> serviceInterface, String myService){
+
+    default <T> T createOneWayLocalProxy(Class<T> serviceInterface, String myService) {
         return createLocalProxy(serviceInterface, myService);
     }
 

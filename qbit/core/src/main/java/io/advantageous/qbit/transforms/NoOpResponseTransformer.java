@@ -21,7 +21,7 @@ package io.advantageous.qbit.transforms;
 import io.advantageous.qbit.message.Response;
 
 /**
- * Created by Richard on 8/26/14.
+ * created by Richard on 8/26/14.
  *
  * @author rhightower
  */

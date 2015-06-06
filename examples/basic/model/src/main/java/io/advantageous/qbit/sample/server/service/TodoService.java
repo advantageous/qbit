@@ -25,7 +25,7 @@ import io.advantageous.qbit.sample.server.model.TodoItem;
 import java.util.List;
 
 /**
- * Created by rhightower on 11/5/14.
+ * created by rhightower on 11/5/14.
  */
 
 @RequestMapping("/todo-manager")

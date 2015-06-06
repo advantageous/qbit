@@ -20,9 +20,9 @@
 package io.advantageous.consul.endpoints;
 
 import io.advantageous.consul.domain.ConsulResponse;
-import io.advantageous.consul.domain.Status;
 import io.advantageous.consul.domain.HealthCheck;
 import io.advantageous.consul.domain.ServiceHealth;
+import io.advantageous.consul.domain.Status;
 import io.advantageous.consul.domain.option.RequestOptions;
 import io.advantageous.qbit.http.client.HttpClient;
 import io.advantageous.qbit.http.request.HttpRequestBuilder;
@@ -36,11 +36,10 @@ import static io.advantageous.consul.domain.ConsulException.die;
 
 /**
  * HTTP Client for /v1/health/ endpoints.
- *
+ * <p>
  * Note this class was heavily influenced and inspired by the Orbitz Consul client.
  */
 public class HealthEndpoint {
-
 
 
     private final HttpClient httpClient;
@@ -50,8 +49,7 @@ public class HealthEndpoint {
      * Constructs an instance of this class.
      *
      * @param httpClient http client
-     * @param rootPath root path
-     *
+     * @param rootPath   root path
      */
     public HealthEndpoint(final HttpClient httpClient, final String rootPath) {
         this.httpClient = httpClient;
@@ -61,11 +59,10 @@ public class HealthEndpoint {
 
     /**
      * Retrieves the healthchecks for a node.
-     * 
+     * <p>
      * GET /v1/health/node/{node}
      *
      * @param node node
-     *
      * @return A {@link io.advantageous.consul.domain.ConsulResponse} containing a list of
      * {@link io.advantageous.consul.domain.HealthCheck} objects.
      */
@@ -75,11 +72,11 @@ public class HealthEndpoint {
 
     /**
      * Retrieves the healthchecks for a node in a given datacenter.
-     * 
+     * <p>
      * <code>GET /v1/health/node/{node}?dc={datacenter}</code>
      *
-     * @param node node
-     * @param datacenter        datacenter
+     * @param node       node
+     * @param datacenter datacenter
      * @param tag        tag
      * @return A {@link io.advantageous.consul.domain.ConsulResponse} containing a list of
      * {@link io.advantageous.consul.domain.HealthCheck} objects.
@@ -91,10 +88,10 @@ public class HealthEndpoint {
 
     /**
      * Retrieves the healthchecks for a node with {@link io.advantageous.consul.domain.option.RequestOptions}.
-     * 
+     * <p>
      * GET /v1/health/node/{node}
      *
-     * @param node node
+     * @param node           node
      * @param requestOptions The Query Options to use.
      * @return A {@link io.advantageous.consul.domain.ConsulResponse} containing a list of
      * {@link io.advantageous.consul.domain.HealthCheck} objects.
@@ -105,13 +102,13 @@ public class HealthEndpoint {
 
     /**
      * Retrieves the healthchecks for a node in a given datacenter with {@link io.advantageous.consul.domain.option.RequestOptions}.
-     * 
+     * <p>
      * GET /v1/health/node/{node}?dc={datacenter}
      *
-     * @param node node
-     * @param datacenter        datacenter
-     * @param tag        tag
-     * @param requestOptions   The Query Options to use.
+     * @param node           node
+     * @param datacenter     datacenter
+     * @param tag            tag
+     * @param requestOptions The Query Options to use.
      * @return A {@link io.advantageous.consul.domain.ConsulResponse} containing a list of
      * {@link io.advantageous.consul.domain.HealthCheck} objects.
      */
@@ -128,10 +125,8 @@ public class HealthEndpoint {
         final HttpResponse httpResponse = httpClient.sendRequestAndWait(httpRequestBuilder.build());
 
 
-
-
-        if (httpResponse==null || httpResponse.code()!=200) {
-            die("Unable to retrieve the service", path, httpResponse.code(), httpResponse.body());
+        if (httpResponse == null || httpResponse.code() != 200) {
+            die("Unable to retrieve the service", path, httpResponse);
         }
 
         return RequestUtils.consulResponseList(HealthCheck.class, httpResponse);
@@ -140,7 +135,7 @@ public class HealthEndpoint {
 
     /**
      * Retrieves the healthchecks for a service.
-     * 
+     * <p>
      * GET /v1/health/service/{service}
      *
      * @param service service
@@ -153,11 +148,11 @@ public class HealthEndpoint {
 
     /**
      * Retrieves the healthchecks for a service in a given datacenter.
-     * 
+     * <p>
      * GET /v1/health/service/{service}?dc={datacenter}
      *
-     * @param service service
-     * @param datacenter        datacenter
+     * @param service    service
+     * @param datacenter datacenter
      * @param tag        tag
      * @return A {@link io.advantageous.consul.domain.ConsulResponse} containing a list of
      * {@link io.advantageous.consul.domain.HealthCheck} objects.
@@ -169,10 +164,10 @@ public class HealthEndpoint {
 
     /**
      * Retrieves the healthchecks for a service with {@link io.advantageous.consul.domain.option.RequestOptions}.
-     * 
+     * <p>
      * GET /v1/health/service/{service}
      *
-     * @param service service
+     * @param service        service
      * @param requestOptions The Query Options to use.
      * @return A {@link io.advantageous.consul.domain.ConsulResponse} containing a list of
      * {@link io.advantageous.consul.domain.HealthCheck} objects.
@@ -183,13 +178,13 @@ public class HealthEndpoint {
 
     /**
      * Retrieves the healthchecks for a service in a given datacenter with {@link io.advantageous.consul.domain.option.RequestOptions}.
-     * 
+     * <p>
      * GET /v1/health/service/{service}?dc={datacenter}
      *
-     * @param service service
-     * @param datacenter        datacenter
-     * @param tag        tag
-     * @param requestOptions   The Query Options to use.
+     * @param service        service
+     * @param datacenter     datacenter
+     * @param tag            tag
+     * @param requestOptions The Query Options to use.
      * @return A {@link io.advantageous.consul.domain.ConsulResponse} containing a list of
      * {@link io.advantageous.consul.domain.HealthCheck} objects.
      */
@@ -203,7 +198,7 @@ public class HealthEndpoint {
 
         final HttpResponse httpResponse = httpClient.sendRequestAndWait(httpRequestBuilder.build());
 
-        if (httpResponse.code()!=200) {
+        if (httpResponse.code() != 200) {
             die("Unable to retrieve the service", path, httpResponse.code(), httpResponse.body());
         }
 
@@ -212,7 +207,7 @@ public class HealthEndpoint {
 
     /**
      * Retrieves the healthchecks for a state.
-     * 
+     * <p>
      * GET /v1/health/state/{state}
      *
      * @param status The state to query.
@@ -225,11 +220,11 @@ public class HealthEndpoint {
 
     /**
      * Retrieves the healthchecks for a state in a given datacenter.
-     * 
+     * <p>
      * GET /v1/health/state/{state}?dc={datacenter}
      *
-     * @param status          The state to query.
-     * @param datacenter        datacenter
+     * @param status     The state to query.
+     * @param datacenter datacenter
      * @param tag        tag
      * @return A {@link io.advantageous.consul.domain.ConsulResponse} containing a list of
      * {@link io.advantageous.consul.domain.HealthCheck} objects.
@@ -241,10 +236,10 @@ public class HealthEndpoint {
 
     /**
      * Retrieves the healthchecks for a state with {@link io.advantageous.consul.domain.option.RequestOptions}.
-     * 
+     * <p>
      * GET /v1/health/state/{state}
      *
-     * @param status        The state to query.
+     * @param status         The state to query.
      * @param requestOptions The Query Options to use.
      * @return A {@link io.advantageous.consul.domain.ConsulResponse} containing a list of
      * {@link io.advantageous.consul.domain.HealthCheck} objects.
@@ -255,13 +250,13 @@ public class HealthEndpoint {
 
     /**
      * Retrieves the healthchecks for a state in a given datacenter with {@link io.advantageous.consul.domain.option.RequestOptions}.
-     * 
+     * <p>
      * GET /v1/health/state/{state}?dc={datacenter}
      *
-     * @param status          The state to query.
-     * @param datacenter        datacenter
-     * @param tag        tag
-     * @param requestOptions   The Query Options to use.
+     * @param status         The state to query.
+     * @param datacenter     datacenter
+     * @param tag            tag
+     * @param requestOptions The Query Options to use.
      * @return A {@link io.advantageous.consul.domain.ConsulResponse} containing a list of
      * {@link io.advantageous.consul.domain.HealthCheck} objects.
      */
@@ -277,7 +272,7 @@ public class HealthEndpoint {
 
         final HttpResponse httpResponse = httpClient.sendRequestAndWait(httpRequestBuilder.build());
 
-        if (httpResponse.code()!=200) {
+        if (httpResponse.code() != 200) {
             die("Unable to retrieve the service", path, httpResponse.code(), httpResponse.body());
         }
 
@@ -287,7 +282,7 @@ public class HealthEndpoint {
 
     /**
      * Retrieves the healthchecks for all healthy nodes.
-     * 
+     * <p>
      * GET /v1/health/service/{service}?passing
      *
      * @param serviceName The service to query.
@@ -300,12 +295,12 @@ public class HealthEndpoint {
 
     /**
      * Retrieves the healthchecks for all healthy nodes in a given datacenter.
-     * 
+     * <p>
      * <code>GET /v1/health/service/{service}?dc={datacenter}&amp;passing</code>
      *
-     * @param serviceName        The service to query.
-     * @param datacenter        datacenter
-     * @param tag        tag
+     * @param serviceName The service to query.
+     * @param datacenter  datacenter
+     * @param tag         tag
      * @return A {@link io.advantageous.consul.domain.ConsulResponse} containing a list of
      * {@link io.advantageous.consul.domain.HealthCheck} objects.
      */
@@ -317,10 +312,10 @@ public class HealthEndpoint {
 
     /**
      * Retrieves the healthchecks for all healthy nodes with {@link io.advantageous.consul.domain.option.RequestOptions}.
-     * 
+     * <p>
      * <code>GET /v1/health/service/{service}?passing</code>
      *
-     * @param serviceName      The service to query.
+     * @param serviceName    The service to query.
      * @param requestOptions The Query Options to use.
      * @return A {@link io.advantageous.consul.domain.ConsulResponse} containing a list of
      * {@link io.advantageous.consul.domain.HealthCheck} objects.
@@ -332,13 +327,13 @@ public class HealthEndpoint {
     /**
      * Retrieves the healthchecks for all healthy nodes in a given datacenter with
      * {@link io.advantageous.consul.domain.option.RequestOptions}.
-     * 
+     * <p>
      * <code>GET /v1/health/service/{service}?dc={datacenter}&amp;passing</code>
      *
-     * @param serviceName        The service to query.
-     * @param datacenter        datacenter
-     * @param tag        tag
-     * @param requestOptions   The Query Options to use.
+     * @param serviceName    The service to query.
+     * @param datacenter     datacenter
+     * @param tag            tag
+     * @param requestOptions The Query Options to use.
      * @return A {@link io.advantageous.consul.domain.ConsulResponse} containing a list of
      * {@link io.advantageous.consul.domain.HealthCheck} objects.
      */
@@ -355,11 +350,11 @@ public class HealthEndpoint {
 
         final HttpResponse httpResponse = httpClient.sendRequestAndWait(httpRequestBuilder.build());
 
-        if (httpResponse==null ) {
+        if (httpResponse == null) {
             die("Unable to retrieve the service, consul request timed out", path);
         }
 
-        if (httpResponse==null || httpResponse.code()!=200) {
+        if (httpResponse.code() != 200) {
             die("Unable to retrieve the service", path, httpResponse.code(), httpResponse.body());
         }
 
@@ -369,15 +364,15 @@ public class HealthEndpoint {
     /**
      * Asynchronously retrieves the healthchecks for all healthy nodes in a given
      * datacenter with {@link io.advantageous.consul.domain.option.RequestOptions}.
-     * 
+     * <p>
      * <code>GET /v1/health/service/{service}?dc={datacenter}&amp;passing</code>
-     * 
+     * <p>
      * Experimental.
      *
      * @param service        The service to query.
-     * @param datacenter        datacenter
-     * @param tag        tag
-     * @param requestOptions   The Query Options to use.
+     * @param datacenter     datacenter
+     * @param tag            tag
+     * @param requestOptions The Query Options to use.
      * @param callback       Callback implemented by callee to handle results.
      */
     public void getHealthyServicesAsync(final String service,
@@ -400,14 +395,14 @@ public class HealthEndpoint {
     /**
      * Asynchronously retrieves the healthchecks for all healthy nodes in a given
      * datacenter with {@link io.advantageous.consul.domain.option.RequestOptions}.
-     * 
+     * <p>
      * <code>GET /v1/health/service/{service}?dc={datacenter}&amp;passing</code>
-     * 
+     * <p>
      * Experimental.
      *
-     * @param service      The service to query.
+     * @param service        The service to query.
      * @param requestOptions The Query Options to use.
-     * @param callback     Callback implemented by callee to handle results.
+     * @param callback       Callback implemented by callee to handle results.
      */
     public void getHealthyServicesAsync(String service, RequestOptions requestOptions,
                                         Callback<List<ServiceHealth>> callback) {
@@ -419,7 +414,7 @@ public class HealthEndpoint {
 
     /**
      * Retrieves the healthchecks for all nodes.
-     * 
+     * <p>
      * GET /v1/health/service/{service}
      *
      * @param service The service to query.
@@ -432,14 +427,13 @@ public class HealthEndpoint {
 
     /**
      * Retrieves the healthchecks for all nodes in a given datacenter.
-     * 
+     * <p>
      * GET /v1/health/service/{service}?dc={datacenter}
      *
-     * @param service        The service to query.
-     * @param datacenter        datacenter
+     * @param service    The service to query.
+     * @param datacenter datacenter
      * @param tag        tag
-
-     *                       @return A {@link io.advantageous.consul.domain.ConsulResponse} containing a list of
+     * @return A {@link io.advantageous.consul.domain.ConsulResponse} containing a list of
      * {@link io.advantageous.consul.domain.HealthCheck} objects.
      */
     public ConsulResponse<List<ServiceHealth>> getAllNodes(String service,
@@ -449,10 +443,10 @@ public class HealthEndpoint {
 
     /**
      * Retrieves the healthchecks for all nodes with {@link io.advantageous.consul.domain.option.RequestOptions}.
-     * 
+     * <p>
      * GET /v1/health/service/{service}
      *
-     * @param service      The service to query.
+     * @param service        The service to query.
      * @param requestOptions The Query Options to use.
      * @return A {@link io.advantageous.consul.domain.ConsulResponse} containing a list of
      * {@link io.advantageous.consul.domain.HealthCheck} objects.
@@ -464,13 +458,13 @@ public class HealthEndpoint {
     /**
      * Retrieves the healthchecks for all nodes in a given datacenter with
      * {@link io.advantageous.consul.domain.option.RequestOptions}.
-     * 
+     * <p>
      * GET /v1/health/service/{service}?dc={datacenter}
      *
      * @param service        The service to query.
-     * @param datacenter        datacenter
-     * @param tag        tag
-     * @param requestOptions   The Query Options to use.
+     * @param datacenter     datacenter
+     * @param tag            tag
+     * @param requestOptions The Query Options to use.
      * @return A {@link io.advantageous.consul.domain.ConsulResponse} containing a list of
      * {@link io.advantageous.consul.domain.HealthCheck} objects.
      */
@@ -489,7 +483,7 @@ public class HealthEndpoint {
             die("No response from server for get all nodes request");
         }
 
-        if (httpResponse.code()!=200) {
+        if (httpResponse.code() != 200) {
             die("Unable to retrieve the service", path, httpResponse.code(), httpResponse.body());
         }
 
@@ -499,15 +493,15 @@ public class HealthEndpoint {
     /**
      * Asynchronously retrieves the healthchecks for all nodes in a given
      * datacenter with {@link io.advantageous.consul.domain.option.RequestOptions}.
-     * 
+     * <p>
      * GET /v1/health/service/{service}?dc={datacenter}
-     * 
+     * <p>
      * Experimental.
      *
      * @param service        The service to query.
-     * @param datacenter        datacenter
-     * @param tag        tag
-     * @param requestOptions   The Query Options to use.
+     * @param datacenter     datacenter
+     * @param tag            tag
+     * @param requestOptions The Query Options to use.
      * @param callback       Callback implemented by callee to handle results.
      */
     public void getAllNodes(final String service,
@@ -530,14 +524,14 @@ public class HealthEndpoint {
     /**
      * Asynchronously retrieves the healthchecks for all nodes in a given
      * datacenter with {@link io.advantageous.consul.domain.option.RequestOptions}.
-     * 
+     * <p>
      * GET /v1/health/service/{service}?dc={datacenter}
-     * 
+     * <p>
      * Experimental.
      *
-     * @param service      The service to query.
+     * @param service        The service to query.
      * @param requestOptions The Query Options to use.
-     * @param callback     Callback implemented by callee to handle results.
+     * @param callback       Callback implemented by callee to handle results.
      */
     public void getAllNodes(String service, RequestOptions requestOptions,
                             Callback<List<ServiceHealth>> callback) {

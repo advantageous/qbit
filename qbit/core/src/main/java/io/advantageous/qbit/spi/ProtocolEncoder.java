@@ -25,7 +25,7 @@ import io.advantageous.qbit.message.Response;
 import java.util.Collection;
 
 /**
- * Created by Richard on 9/26/14.
+ * created by Richard on 9/26/14.
  *
  * @author rhightower
  */

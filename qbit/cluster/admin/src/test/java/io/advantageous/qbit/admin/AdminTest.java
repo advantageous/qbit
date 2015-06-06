@@ -13,11 +13,11 @@ import org.junit.Test;
 
 import java.util.concurrent.TimeUnit;
 
-import static io.advantageous.boon.core.IO.puts;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 /**
- * Created by rick on 6/3/15.
+ * created by rick on 6/3/15.
  */
 public class AdminTest {
 

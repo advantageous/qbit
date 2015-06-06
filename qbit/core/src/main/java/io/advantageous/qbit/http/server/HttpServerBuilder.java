@@ -29,7 +29,7 @@ import java.util.function.Consumer;
  * Allows one to build().startClient() an HTTP server.
  *
  * @author rhightower
- *         Created by Richard on 11/12/14.
+ *         created by Richard on 11/12/14.
  */
 public class HttpServerBuilder {
 

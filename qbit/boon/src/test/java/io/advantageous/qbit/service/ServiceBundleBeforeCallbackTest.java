@@ -18,10 +18,10 @@
 
 package io.advantageous.qbit.service;
 
+import io.advantageous.boon.core.Sys;
 import io.advantageous.qbit.QBit;
 import io.advantageous.qbit.message.MethodCall;
 import io.advantageous.qbit.util.MultiMap;
-import io.advantageous.boon.core.Sys;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -31,7 +31,7 @@ import static io.advantageous.boon.core.Exceptions.die;
 
 
 /**
- * Created by rhightower on 1/19/15.
+ * created by rhightower on 1/19/15.
  */
 public class ServiceBundleBeforeCallbackTest {
 

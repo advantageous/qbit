@@ -19,7 +19,6 @@ package io.advantageous.qbit.meta.transformer;
 
 import io.advantageous.qbit.http.request.HttpRequest;
 import io.advantageous.qbit.message.MethodCall;
-import io.advantageous.qbit.message.Request;
 
 import java.util.List;
 

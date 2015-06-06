@@ -23,7 +23,7 @@ import io.advantageous.qbit.queue.ReceiveQueueListener;
 
 /**
  * Default receive queue listener. Does nothing.
- * Created by Richard on 8/26/14.
+ * created by Richard on 8/26/14.
  */
 public class NoOpInputMethodCallQueueListener implements ReceiveQueueListener<MethodCall<Object>> {
 

@@ -22,10 +22,9 @@ import io.advantageous.boon.core.reflection.ClassMeta;
 import io.advantageous.boon.core.reflection.MethodAccess;
 import io.advantageous.qbit.queue.QueueCallBackHandler;
 import io.advantageous.qbit.service.impl.queuecallbacks.AnnotationDrivenQueueCallbackHandler;
-import io.advantageous.qbit.service.impl.queuecallbacks.DynamicQueueCallbackHandler;
 
 /**
- * Created by rhightower on 2/10/15.
+ * created by rhightower on 2/10/15.
  */
 public class QueueCallbackHandlerFactory {
 

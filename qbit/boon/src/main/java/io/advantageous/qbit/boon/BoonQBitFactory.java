@@ -24,9 +24,9 @@ import io.advantageous.qbit.client.Client;
 import io.advantageous.qbit.client.ServiceProxyFactory;
 import io.advantageous.qbit.concurrent.PeriodicScheduler;
 import io.advantageous.qbit.events.EventBusProxyCreator;
-import io.advantageous.qbit.events.spi.EventConnector;
 import io.advantageous.qbit.events.EventManager;
 import io.advantageous.qbit.events.impl.BoonEventBusProxyCreator;
+import io.advantageous.qbit.events.spi.EventConnector;
 import io.advantageous.qbit.http.HttpTransport;
 import io.advantageous.qbit.http.client.HttpClient;
 import io.advantageous.qbit.http.config.HttpServerOptions;
@@ -43,9 +43,9 @@ import io.advantageous.qbit.sender.SenderEndPoint;
 import io.advantageous.qbit.server.ServiceEndpointServer;
 import io.advantageous.qbit.server.ServiceEndpointServerImpl;
 import io.advantageous.qbit.service.BeforeMethodCall;
-import io.advantageous.qbit.service.ServiceQueue;
 import io.advantageous.qbit.service.ServiceBundle;
 import io.advantageous.qbit.service.ServiceMethodHandler;
+import io.advantageous.qbit.service.ServiceQueue;
 import io.advantageous.qbit.service.impl.BoonServiceMethodCallHandler;
 import io.advantageous.qbit.service.impl.ServiceBundleImpl;
 import io.advantageous.qbit.service.impl.ServiceQueueImpl;
@@ -58,7 +58,10 @@ import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.*;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -66,7 +69,7 @@ import static io.advantageous.qbit.service.ServiceBuilder.serviceBuilder;
 
 
 /**
- * Created by Richard on 9/26/14.
+ * created by Richard on 9/26/14.
  *
  * @author rhightower
  *         This factory uses Boon reflection and JSON support.
@@ -89,7 +92,6 @@ public class BoonQBitFactory implements Factory {
             return list;
         }
     };
-
 
 
     private ScheduledExecutorService scheduledExecutorService = Executors.newScheduledThreadPool(4,
@@ -138,12 +140,12 @@ public class BoonQBitFactory implements Factory {
     public EventManager systemEventManager() {
 
         final EventManager eventManager = eventManagerThreadLocal.get();
-        if ( eventManager != null ) {
+        if (eventManager != null) {
             return eventManager;
         }
 
         EventManager proxy;
-        if ( systemEventManager.get() == null ) {
+        if (systemEventManager.get() == null) {
             final ServiceQueue serviceQueue = serviceBuilder().setInvokeDynamic(false)
                     .setServiceObject(createEventManager("QBIT_SYSTEM")).build().startServiceQueue();
 
@@ -160,7 +162,7 @@ public class BoonQBitFactory implements Factory {
     @Override
     public void shutdownSystemEventBus() {
         final ServiceQueue serviceQueue = systemEventManager.get();
-        if ( serviceQueue != null ) {
+        if (serviceQueue != null) {
             serviceQueue.stop();
         }
     }
@@ -199,9 +201,9 @@ public class BoonQBitFactory implements Factory {
                                                     final BeforeMethodCall beforeMethodCall,
                                                     final int requestBatchSize) {
         return remoteServiceProxyFactory.createProxyWithReturnAddress(
-                    serviceInterface,
-                    serviceName,
-                    host, port, connected,
+                serviceInterface,
+                serviceName,
+                host, port, connected,
                 returnAddressArg, new SenderEndPoint(this.createEncoder(), address, sender, beforeMethodCall,
                         requestBatchSize));
     }
@@ -241,7 +243,7 @@ public class BoonQBitFactory implements Factory {
 
     @Override
     public EventManager createEventManagerWithConnector(final String name, final EventConnector eventConnector) {
-        return FactorySPI.getEventManagerFactory().createEventManagerWithConnector( name, eventConnector );
+        return FactorySPI.getEventManagerFactory().createEventManagerWithConnector(name, eventConnector);
     }
 
     @Override
@@ -251,10 +253,10 @@ public class BoonQBitFactory implements Factory {
 
     @Override
     public ServiceEndpointServer createServiceServer(final HttpTransport httpServer, final ProtocolEncoder encoder,
-                                             final ProtocolParser protocolParser, final ServiceBundle serviceBundle,
-                                             final JsonMapper jsonMapper, final int timeOutInSeconds,
-                                             final int numberOfOutstandingRequests, final int batchSize,
-                                             final int flushInterval, final QBitSystemManager systemManager) {
+                                                     final ProtocolParser protocolParser, final ServiceBundle serviceBundle,
+                                                     final JsonMapper jsonMapper, final int timeOutInSeconds,
+                                                     final int numberOfOutstandingRequests, final int batchSize,
+                                                     final int flushInterval, final QBitSystemManager systemManager) {
         return new ServiceEndpointServerImpl(httpServer, encoder, protocolParser, serviceBundle, jsonMapper, timeOutInSeconds, numberOfOutstandingRequests, batchSize, flushInterval, systemManager);
     }
 
@@ -273,17 +275,17 @@ public class BoonQBitFactory implements Factory {
     @Override
     public MethodCall<Object> createMethodCallToBeParsedFromBody(String address, String returnAddress, String objectName, String methodName, Object body, MultiMap<String, String> params) {
         MethodCall<Object> parsedMethodCall = null;
-        if ( body != null ) {
+        if (body != null) {
             ProtocolParser parser = selectProtocolParser(body, params);
 
-            if ( parser != null ) {
+            if (parser != null) {
                 parsedMethodCall = parser.parseMethodCall(body);
             } else {
                 parsedMethodCall = defaultProtocol.parseMethodCall(body);
             }
         }
 
-        if ( parsedMethodCall != null ) {
+        if (parsedMethodCall != null) {
             return parsedMethodCall;
         }
 
@@ -293,7 +295,7 @@ public class BoonQBitFactory implements Factory {
         methodCallBuilder.setObjectName(objectName);
         methodCallBuilder.setAddress(address);
         methodCallBuilder.setReturnAddress(returnAddress);
-        if ( params != null ) {
+        if (params != null) {
             methodCallBuilder.setParams(params);
         }
         methodCallBuilder.overridesFromParams();
@@ -311,8 +313,8 @@ public class BoonQBitFactory implements Factory {
     }
 
     private ProtocolParser selectProtocolParser(Object args, MultiMap<String, String> params) {
-        for ( ProtocolParser parser : protocolParserListRef.get() ) {
-            if ( parser.supports(args, params) ) {
+        for (ProtocolParser parser : protocolParserListRef.get()) {
+            if (parser.supports(args, params)) {
                 return parser;
             }
         }

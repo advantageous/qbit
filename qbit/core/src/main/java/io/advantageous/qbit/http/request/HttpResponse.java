@@ -21,7 +21,7 @@ package io.advantageous.qbit.http.request;
 import io.advantageous.qbit.util.MultiMap;
 
 /**
- * Created by rhightower on 1/29/15.
+ * created by rhightower on 1/29/15.
  */
 public interface HttpResponse {
 

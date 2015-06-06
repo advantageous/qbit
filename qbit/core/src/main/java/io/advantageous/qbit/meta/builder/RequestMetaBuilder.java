@@ -16,14 +16,28 @@ import java.util.List;
 
 public class RequestMetaBuilder {
 
-    public static RequestMetaBuilder requestMetaBuilder() {
-        return new RequestMetaBuilder();
-    }
-
     private CallType callType;
     private String requestURI;
     private List<ParameterMeta> parameters = new ArrayList<>();
     private List<RequestMethod> requestMethods = new ArrayList<>();
+
+    public static RequestMetaBuilder requestMetaBuilder() {
+        return new RequestMetaBuilder();
+    }
+
+    public static int findURIPosition(String path, String findString) {
+
+        final String[] pathParts = Str.split(path, '/');
+        int position;
+        for (position = 0; position < pathParts.length; position++) {
+
+            String pathPart = pathParts[position];
+            if (pathPart.equals(findString)) {
+                break;
+            }
+        }
+        return position;
+    }
 
     public CallType getCallType() {
         return callType;
@@ -58,13 +72,10 @@ public class RequestMetaBuilder {
         return this;
     }
 
-
     public RequestMetaBuilder addParameters(ParameterMeta... parameters) {
         Collections.addAll(this.getParameters(), parameters);
         return this;
     }
-
-
 
     public List<RequestMethod> getRequestMethods() {
         return requestMethods;
@@ -91,7 +102,7 @@ public class RequestMetaBuilder {
         final List<ParameterMeta> params = new ArrayList<>(typeTypes.size());
 
 
-        for (int index=0; index < typeTypes.size(); index++) {
+        for (int index = 0; index < typeTypes.size(); index++) {
 
             if (paramsAnnotationData.size() > index) {
 
@@ -108,7 +119,6 @@ public class RequestMetaBuilder {
                 }
 
                 for (AnnotationData annotationData : annotationDataList) {
-
 
 
                     Param requestParam = getParam(finalPath, annotationData, index);
@@ -130,7 +140,7 @@ public class RequestMetaBuilder {
 
     private Param getParam(final String path, final AnnotationData annotationData, final int index) {
 
-        if (annotationData==null) {
+        if (annotationData == null) {
             return new BodyParam(true, null);
         }
 
@@ -146,15 +156,15 @@ public class RequestMetaBuilder {
             case "requestParam":
                 param = new RequestParam(required, paramName, defaultValue);
                 break;
-            case "headerParam" :
+            case "headerParam":
                 param = new HeaderParam(required, paramName, defaultValue);
                 break;
-            case "pathVariable" :
+            case "pathVariable":
 
                 if (!path.contains("{")) {
                     throw new IllegalStateException();
                 }
-                if (paramName==null || Str.isEmpty(paramName)) {
+                if (paramName == null || Str.isEmpty(paramName)) {
 
                     String findString = "{" + index + "}";
 
@@ -174,20 +184,6 @@ public class RequestMetaBuilder {
         return param;
     }
 
-    public static int findURIPosition(String path, String findString) {
-
-        final String[] pathParts = Str.split(path, '/');
-        int position;
-        for (position = 0; position < pathParts.length; position++) {
-
-            String pathPart = pathParts[position];
-            if (pathPart.equals(findString)) {
-                break;
-            }
-        }
-        return position;
-    }
-
     private String getDefaultValue(AnnotationData annotationData) {
 
         if (annotationData == null)
@@ -204,7 +200,7 @@ public class RequestMetaBuilder {
     private String getParamName(AnnotationData annotationData) {
 
         if (annotationData == null)
-        return null;
+            return null;
 
         final Object value = annotationData.getValues().get("value");
         if (value == null) {

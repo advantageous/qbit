@@ -29,20 +29,18 @@ public class HealthServiceImpl implements HealthService {
      */
     private final long recheckIntervalMS;
     /**
-     * Last Check in time.
-     */
-    private  long lastCheckIn;
-    /**
-     * Current time.
-     */
-    private long now;
-
-    /**
      * Internal map to check health.
      */
     private final Map<String, ServiceHealthStat> serviceHealthStatMap
             = new ConcurrentHashMap<>();
-
+    /**
+     * Last Check in time.
+     */
+    private long lastCheckIn;
+    /**
+     * Current time.
+     */
+    private long now;
     /**
      * logger.
      */
@@ -51,9 +49,10 @@ public class HealthServiceImpl implements HealthService {
 
     /**
      * Constructor.
-     * @param timer timer
+     *
+     * @param timer           timer
      * @param recheckInterval recheck interval
-     * @param timeUnit time unit for interval
+     * @param timeUnit        time unit for interval
      */
     public HealthServiceImpl(final Timer timer,
                              final long recheckInterval,
@@ -64,42 +63,23 @@ public class HealthServiceImpl implements HealthService {
         lastCheckIn = now;
     }
 
-    public enum  HealthFailReason {
-        FAILED_TTL,
-        OTHER
-    }
-
-
-    /** Internal class to hold health status. */
-    private static class ServiceHealthStat {
-        private final String name;
-        private long lastCheckIn;
-        private final long ttlInMS;
-        private HealthFailReason reason;
-        private HealthStatus status = HealthStatus.UNKNOWN;
-
-        public ServiceHealthStat(final String name, final long ttlInMS) {
-            this.name = name;
-            this.ttlInMS = ttlInMS;
-        }
-    }
-
-
     /**
      * Register method to register services / internal nodes.
-     * @param name name
-     * @param ttl ttl
+     *
+     * @param name     name
+     * @param ttl      ttl
      * @param timeUnit timeUnit
      */
     @Override
     public void register(final String name, final long ttl, final TimeUnit timeUnit) {
 
         logger.info("HealthService::register() {} {} {}", name, ttl, timeUnit);
-        serviceHealthStatMap.put(name, new ServiceHealthStat(name,timeUnit.toMillis(ttl)));
+        serviceHealthStatMap.put(name, new ServiceHealthStat(name, timeUnit.toMillis(ttl)));
     }
 
     /**
      * Check in the service.
+     *
      * @param name name
      */
     @Override
@@ -115,10 +95,10 @@ public class HealthServiceImpl implements HealthService {
 
     }
 
-
     /**
      * Check in the service with a specific status.
-     * @param name name
+     *
+     * @param name   name
      * @param status status
      */
     @Override
@@ -137,16 +117,13 @@ public class HealthServiceImpl implements HealthService {
         logger.info("HealthService::ok()");
 
         boolean ok = serviceHealthStatMap.values()
-                        .stream()
-                        .allMatch(serviceHealthStat -> serviceHealthStat.status == HealthStatus.PASS);
+                .stream()
+                .allMatch(serviceHealthStat -> serviceHealthStat.status == HealthStatus.PASS);
 
 
         logger.info("HealthService::ok() was ok? {}", ok);
         return ok;
     }
-
-
-
 
     @Override
     public List<String> findHealthyNodes() {
@@ -172,7 +149,6 @@ public class HealthServiceImpl implements HealthService {
 
         return names;
     }
-
 
     @Override
     public List<String> findAllNodesWithStatus(final HealthStatus queryStatus) {
@@ -200,7 +176,6 @@ public class HealthServiceImpl implements HealthService {
 
         return names;
     }
-
 
     @QueueCallback({QueueCallbackType.IDLE, QueueCallbackType.LIMIT})
     public void process() {
@@ -250,8 +225,6 @@ public class HealthServiceImpl implements HealthService {
         }
     }
 
-
-
     private ServiceHealthStat getServiceHealthStat(final String name) {
         final ServiceHealthStat serviceHealthStat = serviceHealthStatMap.get(name);
 
@@ -262,5 +235,26 @@ public class HealthServiceImpl implements HealthService {
 
         return serviceHealthStat;
 
+    }
+
+    public enum HealthFailReason {
+        FAILED_TTL,
+        OTHER
+    }
+
+    /**
+     * Internal class to hold health status.
+     */
+    private static class ServiceHealthStat {
+        private final String name;
+        private final long ttlInMS;
+        private long lastCheckIn;
+        private HealthFailReason reason;
+        private HealthStatus status = HealthStatus.UNKNOWN;
+
+        public ServiceHealthStat(final String name, final long ttlInMS) {
+            this.name = name;
+            this.ttlInMS = ttlInMS;
+        }
     }
 }

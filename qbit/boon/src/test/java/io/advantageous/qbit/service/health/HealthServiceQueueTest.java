@@ -16,12 +16,11 @@ import static org.junit.Assert.assertTrue;
 public class HealthServiceQueueTest {
 
     TestTimer timer;
-    HealthServiceAsync healthService ;
+    HealthServiceAsync healthService;
     CountDownLatch countDownLatch;
     AtomicBoolean result;
 
     HealthServiceBuilder healthServiceBuilder;
-
 
 
     @Before
@@ -33,8 +32,6 @@ public class HealthServiceQueueTest {
         healthService = healthServiceBuilder.setTimer(timer).setAutoFlush().buildAndStart();
 
 
-
-
     }
 
     @Test
@@ -44,7 +41,6 @@ public class HealthServiceQueueTest {
 
         countDownLatch = new CountDownLatch(1);
         result = new AtomicBoolean();
-
 
 
         healthService.findAllNodes(names -> {
@@ -84,7 +80,6 @@ public class HealthServiceQueueTest {
 
 
         assertTrue("foo is not in healthy list", result.get());
-
 
 
     }
@@ -135,7 +130,6 @@ public class HealthServiceQueueTest {
         countDownLatch.await(10, TimeUnit.SECONDS);
 
 
-
         assertTrue("foo is found among the healthy ",
                 result.get());
 
@@ -161,7 +155,6 @@ public class HealthServiceQueueTest {
         );
 
 
-
         countDownLatch.await(10, TimeUnit.SECONDS);
 
 
@@ -179,14 +172,11 @@ public class HealthServiceQueueTest {
         );
 
 
-
         countDownLatch.await(10, TimeUnit.SECONDS);
 
 
-
-
         assertTrue("foo is NOT found among the healthy ",
-               result.get());
+                result.get());
 
     }
 
@@ -230,9 +220,7 @@ public class HealthServiceQueueTest {
         assertTrue("foo should not be found", result.get());
 
 
-
     }
-
 
 
     @Test

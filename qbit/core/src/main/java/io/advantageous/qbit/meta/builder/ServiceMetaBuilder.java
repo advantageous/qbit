@@ -18,16 +18,13 @@ import static io.advantageous.qbit.meta.builder.ContextMetaBuilder.getRequestPat
 public class ServiceMetaBuilder {
 
 
+    private String name;
+    private List<String> requestPaths = new ArrayList<>();
+    private List<ServiceMethodMeta> methods = new ArrayList<>();
+
     public static ServiceMetaBuilder serviceMetaBuilder() {
         return new ServiceMetaBuilder();
     }
-
-
-    private  String name;
-
-
-    private  List<String> requestPaths = new ArrayList<>();
-    private  List<ServiceMethodMeta> methods = new ArrayList<>();
 
     public String getName() {
         return name;
@@ -107,7 +104,7 @@ public class ServiceMetaBuilder {
 
                 RequestMetaBuilder requestMetaBuilder = new RequestMetaBuilder();
 
-                
+
                 requestMetaBuilder.addParameters(rootPath, servicePath, path, methodAccess);
                 requestMetaBuilder.setCallType(callType).setRequestURI(path).setRequestMethods(requestMethods);
                 serviceMethodMetaBuilder.addRequestEndpoint(requestMetaBuilder.build());
@@ -115,7 +112,6 @@ public class ServiceMetaBuilder {
             addMethod(serviceMethodMetaBuilder.build());
         }
         return this;
-
 
 
     }

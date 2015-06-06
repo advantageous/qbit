@@ -11,13 +11,16 @@ import io.advantageous.qbit.util.ConcurrentHashSet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * Service Discovery using consul
- * Created by rhightower on 3/23/15.
+ * created by rhightower on 3/23/15.
  */
 public class ServiceDiscoveryImpl implements ServiceDiscovery {
 
@@ -33,13 +36,13 @@ public class ServiceDiscoveryImpl implements ServiceDiscovery {
     private final ConcurrentHashSet<EndpointDefinition> endpointDefinitions = new ConcurrentHashSet<>();
     private final ServiceDiscoveryProvider provider;
     private final Logger logger = LoggerFactory.getLogger(ServiceDiscoveryImpl.class);
-    private final boolean debug = false || GlobalConstants.DEBUG || logger.isDebugEnabled();
+    private final boolean debug = GlobalConstants.DEBUG || logger.isDebugEnabled();
     private final boolean trace = logger.isTraceEnabled();
-    private AtomicBoolean stop = new AtomicBoolean();
-    private Set<String> serviceNames = new TreeSet<>();
     private final int pollForServicesInterval;
     private final ServiceDiscoveryProvider backupProvider;
-
+    ConcurrentHashSet<String> serviceNamesBeingLoaded = new ConcurrentHashSet<>();
+    private AtomicBoolean stop = new AtomicBoolean();
+    private Set<String> serviceNames = new TreeSet<>();
 
 
     public ServiceDiscoveryImpl(
@@ -85,7 +88,6 @@ public class ServiceDiscoveryImpl implements ServiceDiscovery {
 
     }
 
-
     public EndpointDefinition registerWithTTL(
             final String serviceName,
             final int port,
@@ -107,8 +109,6 @@ public class ServiceDiscoveryImpl implements ServiceDiscovery {
 
         return doRegister(endpointDefinition);
     }
-
-
 
     public EndpointDefinition registerWithIdAndTimeToLive(
             final String serviceName, final String serviceId, final int port, final int timeToLiveSeconds) {
@@ -157,8 +157,6 @@ public class ServiceDiscoveryImpl implements ServiceDiscovery {
 
     }
 
-
-
     @Override
     public EndpointDefinition registerWithId(final String serviceName, final String serviceId, final int port) {
 
@@ -193,8 +191,6 @@ public class ServiceDiscoveryImpl implements ServiceDiscovery {
 
     }
 
-
-
     @Override
     public void checkIn(final String serviceId, final HealthStatus healthStatus) {
 
@@ -210,7 +206,6 @@ public class ServiceDiscoveryImpl implements ServiceDiscovery {
 
     }
 
-
     @Override
     public void checkInOk(final String serviceId) {
 
@@ -225,7 +220,6 @@ public class ServiceDiscoveryImpl implements ServiceDiscovery {
 
 
     }
-
 
     public ServicePool servicePool(final String serviceName) {
         ServicePool servicePool = servicePoolMap.get(serviceName);
@@ -256,7 +250,6 @@ public class ServiceDiscoveryImpl implements ServiceDiscovery {
         return servicePool.services();
     }
 
-
     public List<EndpointDefinition> loadServicesNow(final String serviceName) {
 
 
@@ -286,7 +279,6 @@ public class ServiceDiscoveryImpl implements ServiceDiscovery {
 
     }
 
-
     @Override
     public void start() {
 
@@ -304,7 +296,6 @@ public class ServiceDiscoveryImpl implements ServiceDiscovery {
         }, pollForServicesInterval, TimeUnit.MILLISECONDS);
     }
 
-
     public void monitor() throws InterruptedException {
 
         while (!stop.get()) {
@@ -313,8 +304,6 @@ public class ServiceDiscoveryImpl implements ServiceDiscovery {
             provider.checkIn(checkInsQueue);
         }
     }
-
-    ConcurrentHashSet<String> serviceNamesBeingLoaded = new ConcurrentHashSet<>();
 
     private void loadHealthyServices() throws InterruptedException {
         String serviceName = doneQueue.poll(50, TimeUnit.MILLISECONDS);
@@ -326,32 +315,32 @@ public class ServiceDiscoveryImpl implements ServiceDiscovery {
             if (!serviceNamesBeingLoaded.contains(serviceNameToFetch)) {
                 serviceNamesBeingLoaded.add(serviceNameToFetch);
                 executorService.submit(() -> {
-                        try {
-                            final List<EndpointDefinition> healthyServices = provider.loadServices(serviceNameToFetch);
+                    try {
+                        final List<EndpointDefinition> healthyServices = provider.loadServices(serviceNameToFetch);
+                        populateServiceMap(serviceNameToFetch, healthyServices);
+                        serviceNamesBeingLoaded.remove(serviceNameToFetch);
+                    } catch (Exception ex) {
+
+                        Sys.sleep(10_000); //primary is down so slow it down
+                        if (backupProvider != null) {
+
+                            if (debug) logger.debug("ServiceDiscoveryImpl::loadHealthyServices " +
+                                    "Error while loading healthy" +
+                                    " services for " + serviceNameToFetch, ex);
+
+                            final List<EndpointDefinition> healthyServices = backupProvider.loadServices(serviceNameToFetch);
                             populateServiceMap(serviceNameToFetch, healthyServices);
                             serviceNamesBeingLoaded.remove(serviceNameToFetch);
-                        } catch (Exception ex) {
-
-                            Sys.sleep(10_000); //primary is down so slow it down
-                            if (backupProvider!=null) {
-
-                                if (debug) logger.debug("ServiceDiscoveryImpl::loadHealthyServices " +
-                                        "Error while loading healthy" +
-                                        " services for " + serviceNameToFetch, ex);
-
-                                final List<EndpointDefinition> healthyServices = backupProvider.loadServices(serviceNameToFetch);
-                                populateServiceMap(serviceNameToFetch, healthyServices);
-                                serviceNamesBeingLoaded.remove(serviceNameToFetch);
 
 
-                            } else {
-                                logger.error("ServiceDiscoveryImpl::loadHealthyServices " +
-                                        "Error while loading healthy" +
-                                        " services for " + serviceNameToFetch, ex);
-                            }
-                        } finally {
-                            doneQueue.offer(serviceNameToFetch);
+                        } else {
+                            logger.error("ServiceDiscoveryImpl::loadHealthyServices " +
+                                    "Error while loading healthy" +
+                                    " services for " + serviceNameToFetch, ex);
                         }
+                    } finally {
+                        doneQueue.offer(serviceNameToFetch);
+                    }
                 });
             }
             serviceName = doneQueue.poll();

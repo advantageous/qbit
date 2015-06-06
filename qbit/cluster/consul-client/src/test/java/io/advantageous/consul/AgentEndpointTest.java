@@ -18,7 +18,10 @@
 package io.advantageous.consul;
 
 import io.advantageous.boon.core.Sys;
-import io.advantageous.consul.domain.*;
+import io.advantageous.consul.domain.AgentInfo;
+import io.advantageous.consul.domain.HealthCheck;
+import io.advantageous.consul.domain.Service;
+import io.advantageous.consul.domain.ServiceHealth;
 import org.junit.Test;
 
 import java.net.UnknownHostException;
@@ -26,20 +29,16 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 /**
  * Note this class was heavily influenced and inspired by the Orbitz Consul client.
- *
  */
 public class AgentEndpointTest {
 
 
     @Test
-    public void deregister()  throws Exception{
+    public void deregister() throws Exception {
         Consul client = Consul.consul();
         client.start();
         String serviceName = UUID.randomUUID().toString();
@@ -147,7 +146,6 @@ public class AgentEndpointTest {
 
         assertTrue(found);
     }
-
 
 
     @Test

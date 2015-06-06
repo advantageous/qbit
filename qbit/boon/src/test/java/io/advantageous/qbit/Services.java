@@ -29,7 +29,7 @@ import io.advantageous.qbit.transforms.JsonResponseTransformer;
 import java.util.concurrent.TimeUnit;
 
 /**
- * Created by Richard on 8/26/14.
+ * created by Richard on 8/26/14.
  */
 public class Services {
 

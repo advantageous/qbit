@@ -19,9 +19,8 @@
 package io.advantageous.qbit.perf;
 
 /**
- * Created by Richard on 12/7/14.
+ * created by Richard on 12/7/14.
  */
-
 public class AdderService implements Adder {
 
     int sum = 0;

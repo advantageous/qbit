@@ -21,7 +21,7 @@ package io.advantageous.qbit.network;
 import java.util.function.Consumer;
 
 /**
- * Created by rhightower on 2/14/15.
+ * created by rhightower on 2/14/15.
  */
 public interface NetSocket {
 

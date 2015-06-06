@@ -219,7 +219,7 @@ public class HttpVertxClient implements HttpClient {
             logger.debug("problem shutting down vertx httpClient for QBIT Http Client", ex);
         }
 
-        if (vertx!=null) {
+        if (vertx != null) {
             try {
                 vertx.stop();
             } catch (Exception ex) {
@@ -331,7 +331,7 @@ public class HttpVertxClient implements HttpClient {
             if (request.getReceiver().isText()) {
                 final String body = buffer.toString("UTF-8");
 
-                    if (debug) {
+                if (debug) {
                     puts("got body", "BODY");
                 }
 
@@ -420,12 +420,13 @@ public class HttpVertxClient implements HttpClient {
     **/
     @Override
     protected void finalize() throws Throwable {
-        if(!this.closed.get()) {
+        super.finalize();
+        if (!this.closed.get()) {
             logger.warn("we detected a connection that " +
                     "was not closed host " + host + " port " + port);
             try {
                 stop();
-            }catch (Exception ex) {
+            } catch (Exception ex) {
                 logger.warn("Problem closing client in finalize", ex);
             }
         }

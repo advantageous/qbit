@@ -3,14 +3,13 @@ package io.advantageous.qbit.service.health;
 
 import io.advantageous.qbit.client.ClientProxy;
 import io.advantageous.qbit.reactive.Callback;
-import io.advantageous.qbit.service.ServiceFlushable;
 
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 public interface HealthServiceAsync extends ClientProxy {
 
-    
+
     void register(String name, long time, TimeUnit timeUnit);
 
 
@@ -21,7 +20,7 @@ public interface HealthServiceAsync extends ClientProxy {
 
     void ok(Callback<Boolean> ok);
 
-    void findHealthyNodes(Callback<List<String>> callback );
+    void findHealthyNodes(Callback<List<String>> callback);
 
     void findAllNodes(Callback<List<String>> callback);
 

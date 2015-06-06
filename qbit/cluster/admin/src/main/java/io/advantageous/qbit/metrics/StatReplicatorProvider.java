@@ -4,7 +4,7 @@ import io.advantageous.qbit.service.discovery.EndpointDefinition;
 
 /**
  * Replicator Provider
- * Created by rhightower on 3/24/15.
+ * created by rhightower on 3/24/15.
  */
 public interface StatReplicatorProvider {
 

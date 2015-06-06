@@ -5,7 +5,6 @@ import io.advantageous.qbit.client.Client;
 import io.advantageous.qbit.events.EventManager;
 import io.advantageous.qbit.events.spi.EventConnector;
 import io.advantageous.qbit.events.spi.EventTransferObject;
-//import io.advantageous.qbit.http.jetty.RegisterJettyWithQBit;
 import io.advantageous.qbit.server.ServiceEndpointServer;
 import io.advantageous.qbit.spi.RegisterBoonWithQBit;
 import io.advantageous.qbit.test.TimedTesting;
@@ -23,6 +22,8 @@ import static io.advantageous.qbit.server.EndpointServerBuilder.endpointServerBu
 import static io.advantageous.qbit.service.ServiceProxyUtils.flushServiceProxy;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
+
+//import io.advantageous.qbit.http.jetty.RegisterJettyWithQBit;
 
 /**
  */
@@ -78,11 +79,11 @@ public class EventRemoteReplicatorServiceEndpointServerIntegrationTest extends T
     @After
     public void tearDown() {
 
-        if (client!=null) {
+        if (client != null) {
             client.stop();
         }
 
-        if (serviceEndpointServer !=null) {
+        if (serviceEndpointServer != null) {
             serviceEndpointServer.stop();
         }
     }

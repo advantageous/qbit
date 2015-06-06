@@ -11,34 +11,23 @@ import java.util.function.Consumer;
 
 /**
  * This allows for a callbackWithTimeout to be called in the context of a service.
- * @author rhightower
  *
+ * @author rhightower
  */
 public class AsyncFutureCallbackImpl<T> implements AsyncFutureCallback<T> {
 
-
-
-    public static <T> AsyncFutureCallbackImpl<T> callback(final Callback<T> callback,
-                                                          final long startTime,
-                                                          final long maxExecutionTime,
-                                                          final Runnable onFinished,
-                                                          final Runnable onTimeout,
-                                                          final Consumer<Throwable> onError) {
-        return new AsyncFutureCallbackImpl<>(callback, startTime, maxExecutionTime, onFinished, onTimeout, onError);
-    }
 
     private final Runnable onTimeout;
     private final Callback<T> callback;
     private final long startTime;
     private final long maxExecutionTime;
+    private final Runnable onFinished;
+    private final Consumer<Throwable> onError;
     private AtomicReference<T> value = new AtomicReference<>();
     private AtomicReference<Throwable> error = new AtomicReference<>();
     private AtomicBoolean cancelled = new AtomicBoolean();
     private AtomicBoolean done = new AtomicBoolean();
     private AtomicBoolean timedOut = new AtomicBoolean();
-    private final Runnable onFinished;
-    private final Consumer<Throwable> onError;
-
     public AsyncFutureCallbackImpl(final Callback<T> callback,
                                    final long startTime,
                                    final long maxExecutionDuration,
@@ -48,11 +37,21 @@ public class AsyncFutureCallbackImpl<T> implements AsyncFutureCallback<T> {
         this.callback = callback;
         this.startTime = startTime;
         this.maxExecutionTime = maxExecutionDuration;
-        this.onError = onError == null ? throwable -> {callback.onError(throwable);} : onError;
-        this.onFinished = onFinished == null ? () -> {} : onFinished;
+        this.onError = onError == null ? callback::onError : onError;
+        this.onFinished = onFinished == null ? () -> {
+        } : onFinished;
 
         this.onTimeout = onTimeout;
 
+    }
+
+    public static <T> AsyncFutureCallbackImpl<T> callback(final Callback<T> callback,
+                                                          final long startTime,
+                                                          final long maxExecutionTime,
+                                                          final Runnable onFinished,
+                                                          final Runnable onTimeout,
+                                                          final Consumer<Throwable> onError) {
+        return new AsyncFutureCallbackImpl<>(callback, startTime, maxExecutionTime, onFinished, onTimeout, onError);
     }
 
     @Override
@@ -69,8 +68,6 @@ public class AsyncFutureCallbackImpl<T> implements AsyncFutureCallback<T> {
     public long startTime() {
         return startTime;
     }
-
-
 
 
     @Override
@@ -106,28 +103,29 @@ public class AsyncFutureCallbackImpl<T> implements AsyncFutureCallback<T> {
 
     @Override
     public void onTimeout() {
-        if (onTimeout==null) {
+        if (onTimeout == null) {
             callback.onTimeout();
         } else {
             onTimeout.run();
         }
     }
 
+    @SuppressWarnings("ThrowableResultOfMethodCallIgnored")
     @Override
     public void run() {
-            if (value.get()!=null) {
-                callback.accept(value.get());
+        if (value.get() != null) {
+            callback.accept(value.get());
+        } else {
+            if (error.get() != null) {
+                onError.accept(error.get());
             } else {
-                if (error.get()!=null) {
-                    onError.accept(error.get());
+                if (cancelled.get()) {
+                    callback.onError(CANCEL);
                 } else {
-                    if (cancelled.get()) {
-                        callback.onError(CANCEL);
-                    } else {
-                        callback.accept(null);
-                    }
+                    callback.accept(null);
                 }
             }
+        }
     }
 
     @Override
@@ -148,17 +146,16 @@ public class AsyncFutureCallbackImpl<T> implements AsyncFutureCallback<T> {
     }
 
     @Override
-    public T get()  {
-        if (error.get()!=null) {
+    public T get() {
+        if (error.get() != null) {
             throw new IllegalStateException(error.get());
         }
         return value.get();
     }
 
 
-
     @Override
-    public T get(long timeout, TimeUnit unit)  {
+    public T get(long timeout, TimeUnit unit) {
         throw new UnsupportedOperationException("Not supported");
     }
 }

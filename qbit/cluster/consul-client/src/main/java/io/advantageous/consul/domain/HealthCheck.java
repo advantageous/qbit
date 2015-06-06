@@ -125,8 +125,7 @@ public class HealthCheck {
         if (notes != null ? !notes.equals(that.notes) : that.notes != null) return false;
         if (output != null ? !output.equals(that.output) : that.output != null) return false;
         if (serviceId != null ? !serviceId.equals(that.serviceId) : that.serviceId != null) return false;
-        if (serviceName != null ? !serviceName.equals(that.serviceName) : that.serviceName != null) return false;
-        return !(status != null ? !status.equals(that.status) : that.status != null);
+        return !(serviceName != null ? !serviceName.equals(that.serviceName) : that.serviceName != null) && !(status != null ? !status.equals(that.status) : that.status != null);
 
     }
 

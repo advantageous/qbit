@@ -18,6 +18,7 @@
 
 package io.advantageous.qbit.perf;
 
+import io.advantageous.boon.core.Sys;
 import io.advantageous.qbit.client.Client;
 import io.advantageous.qbit.client.ClientBuilder;
 import io.advantageous.qbit.http.client.HttpClient;
@@ -28,12 +29,11 @@ import io.advantageous.qbit.queue.Queue;
 import io.advantageous.qbit.queue.QueueBuilder;
 import io.advantageous.qbit.queue.ReceiveQueueListener;
 import io.advantageous.qbit.queue.SendQueue;
+import io.advantageous.qbit.reactive.Callback;
 import io.advantageous.qbit.server.EndpointServerBuilder;
 import io.advantageous.qbit.server.ServiceEndpointServer;
-import io.advantageous.qbit.reactive.Callback;
 import io.advantageous.qbit.spi.FactorySPI;
 import io.advantageous.qbit.spi.HttpClientFactory;
-import io.advantageous.boon.core.Sys;
 
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Consumer;
@@ -42,7 +42,7 @@ import static io.advantageous.boon.core.IO.puts;
 
 
 /**
- * Created by Richard on 12/7/14.
+ * created by Richard on 12/7/14.
  */
 public class PerfTestMain {
 
@@ -84,18 +84,17 @@ public class PerfTestMain {
 
         final long startTime = System.currentTimeMillis();
 
-        for ( int index = 0; index < 80_000_000; index++ ) {
+        for (int index = 0; index < 80_000_000; index++) {
             adder.add("name", 1);
 
 
-
-            if ( index % 400_000 == 0 ) {
+            if (index % 400_000 == 0) {
                 adder.sum(integer -> {
 
 
                     final long endTime = System.currentTimeMillis();
 
-                    puts("sum", integer, "time", endTime - startTime, "rate", ( integer / ( endTime - startTime ) * 1000 ));
+                    puts("sum", integer, "time", endTime - startTime, "rate", (integer / (endTime - startTime) * 1000));
                 });
             }
         }
@@ -109,7 +108,7 @@ public class PerfTestMain {
 
                 final long endTime = System.currentTimeMillis();
 
-                puts("sum", integer, "time", endTime - startTime, "rate", ( integer / ( endTime - startTime ) * 1000 ));
+                puts("sum", integer, "time", endTime - startTime, "rate", (integer / (endTime - startTime) * 1000));
             }
         });
 
@@ -123,7 +122,7 @@ public class PerfTestMain {
 
                 final long endTime = System.currentTimeMillis();
 
-                puts("sum", integer, "time", endTime - startTime, "rate", ( integer / ( endTime - startTime ) * 1000 ));
+                puts("sum", integer, "time", endTime - startTime, "rate", (integer / (endTime - startTime) * 1000));
             }
         });
 
@@ -137,7 +136,7 @@ public class PerfTestMain {
 
                 final long endTime = System.currentTimeMillis();
 
-                puts("sum", integer, "time", endTime - startTime, "rate", ( integer / ( endTime - startTime ) * 1000 ));
+                puts("sum", integer, "time", endTime - startTime, "rate", (integer / (endTime - startTime) * 1000));
             }
         });
 
@@ -252,18 +251,14 @@ public class PerfTestMain {
 
     static class MockHttpClient implements HttpClient {
 
+        Consumer<Void> periodicFlushCallback;
+        SendQueue<WebSocketMessage> sendQueue;
+        Thread thread;
+        ReentrantLock lock = new ReentrantLock();
+
         public void start() {
 
         }
-        Consumer<Void> periodicFlushCallback;
-
-        SendQueue<WebSocketMessage> sendQueue;
-
-        Thread thread;
-
-
-        ReentrantLock lock = new ReentrantLock();
-
 
         @Override
         public void sendHttpRequest(HttpRequest request) {
@@ -306,13 +301,13 @@ public class PerfTestMain {
                 @Override
                 public void run() {
 
-                    while ( true ) {
+                    while (true) {
                         Sys.sleep(50);
 
                         periodicFlushCallback.accept(null);
                         sendQueue.flushSends();
 
-                        if ( thread.isInterrupted() ) {
+                        if (thread.isInterrupted()) {
                             break;
                         }
                     }

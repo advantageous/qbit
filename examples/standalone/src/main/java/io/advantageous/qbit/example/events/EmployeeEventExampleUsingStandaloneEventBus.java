@@ -18,10 +18,10 @@
 
 package io.advantageous.qbit.example.events;
 
+import io.advantageous.boon.core.Sys;
 import io.advantageous.qbit.QBit;
 import io.advantageous.qbit.events.EventManager;
 import io.advantageous.qbit.service.ServiceQueue;
-import io.advantageous.boon.core.Sys;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -32,8 +32,9 @@ import static io.advantageous.qbit.service.ServiceBuilder.serviceBuilder;
 import static io.advantageous.qbit.service.ServiceProxyUtils.flushServiceProxy;
 
 /**
- * Created by rhightower on 2/5/15.
+ * created by rhightower on 2/5/15.
  */
+@SuppressWarnings("ALL")
 public class EmployeeEventExampleUsingStandaloneEventBus {
 
     public static final String NEW_HIRE_CHANNEL = "com.mycompnay.employee.new";

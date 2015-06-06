@@ -10,9 +10,10 @@ import java.util.Set;
 
 /**
  * QBit Service Example
- *
- * Created by rhightower on 2/2/15.
+ * <p>
+ * created by rhightower on 2/2/15.
  */
+
 public class ActualService {
 
     final Map<Integer, String> map = new HashMap<>();

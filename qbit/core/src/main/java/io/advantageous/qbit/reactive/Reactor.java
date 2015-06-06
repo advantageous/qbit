@@ -15,8 +15,8 @@ import java.util.function.Consumer;
 
 /**
  * Reactor
-* Created by rhightower on 3/22/15.
-*/
+ * created by rhightower on 3/22/15.
+ */
 public class Reactor {
 
 
@@ -70,7 +70,7 @@ public class Reactor {
             futureCallback = futureQueue.poll();
         }
 
-        futureCallback  = removeFutureQueue.poll();
+        futureCallback = removeFutureQueue.poll();
         while (futureCallback != null) {
             futureList.remove(futureCallback);
             futureCallback = futureQueue.poll();
@@ -80,11 +80,11 @@ public class Reactor {
         return false;
     }
 
-    public CallbackBuilder callbackBuilder () {
+    public CallbackBuilder callbackBuilder() {
         return CallbackBuilder.callbackBuilder(this);
     }
 
-    public CoordinatorBuilder coordinatorBuilder () {
+    public CoordinatorBuilder coordinatorBuilder() {
         return CoordinatorBuilder.coordinatorBuilder(this);
     }
 
@@ -109,10 +109,10 @@ public class Reactor {
     }
 
     public <T> AsyncFutureCallback<T> callbackWithTimeoutAndErrorHandler(
-                                                          final Callback<T> callback,
-                                                          final long timeoutDuration,
-                                                          final TimeUnit timeUnit,
-                                                          final Consumer<Throwable> onError) {
+            final Callback<T> callback,
+            final long timeoutDuration,
+            final TimeUnit timeUnit,
+            final Consumer<Throwable> onError) {
 
         return callbackWithTimeoutAndErrorHandlerAndOnTimeout(callback, timeoutDuration, timeUnit, null, onError);
 
@@ -141,12 +141,7 @@ public class Reactor {
     }
 
     private <T> Runnable createOnFinished(final AtomicReference<AsyncFutureCallback<T>> ref) {
-        return new Runnable() {
-            @Override
-            public void run() {
-                Reactor.this.removeFuture(ref.get());
-            }
-        };
+        return () -> Reactor.this.removeFuture(ref.get());
     }
 
 
@@ -160,10 +155,10 @@ public class Reactor {
 
 
     public <T> AsyncFutureCallback<T> callbackWithTimeoutAndErrorHandler(Class<T> cls,
-                                                          final Callback<T> callback,
-                                                          final long timeoutDuration,
-                                                          final TimeUnit timeUnit,
-                                                          final Consumer<Throwable> onError) {
+                                                                         final Callback<T> callback,
+                                                                         final long timeoutDuration,
+                                                                         final TimeUnit timeUnit,
+                                                                         final Consumer<Throwable> onError) {
 
 
         return callbackWithTimeoutAndErrorHandler(callback, timeoutDuration, timeUnit, onError);
@@ -200,9 +195,10 @@ public class Reactor {
         final long theStartTime = startTime == -1 ? currentTime : startTime;
 
 
-        final CallbackCoordinator wrapper =                 new CallbackCoordinator() {
+        final CallbackCoordinator wrapper = new CallbackCoordinator() {
 
             boolean done = false;
+
             @Override
             public boolean checkComplete() {
                 if (done) {
@@ -224,7 +220,7 @@ public class Reactor {
                 if (startTime() == -1 || timeOutDuration() == -1) {
                     return false;
                 }
-                if ((now - startTime()) > timeOutDuration() ) {
+                if ((now - startTime()) > timeOutDuration()) {
 
                     if (!done) {
                         timeOutHandler.run();

@@ -23,7 +23,7 @@ import io.advantageous.qbit.util.MultiMap;
 
 
 /**
- * Created by rhightower on 2/14/15.
+ * created by rhightower on 2/14/15.
  */
 public class WebSocketBuilder {
 

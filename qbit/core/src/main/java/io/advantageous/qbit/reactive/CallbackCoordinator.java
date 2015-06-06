@@ -2,7 +2,7 @@ package io.advantageous.qbit.reactive;
 
 /**
  * CallbackCoordinator
- * Created by rhightower on 3/21/15.
+ * created by rhightower on 3/21/15.
  */
 public interface CallbackCoordinator {
 
@@ -11,10 +11,7 @@ public interface CallbackCoordinator {
 
     default boolean timedOut(long now) {
 
-        if (startTime() == -1 || timeOutDuration() == -1) {
-            return false;
-        }
-        return ( now - startTime() ) > timeOutDuration();
+        return !(startTime() == -1 || timeOutDuration() == -1) && (now - startTime()) > timeOutDuration();
     }
 
     default long timeOutDuration() {
@@ -31,7 +28,7 @@ public interface CallbackCoordinator {
     }
 
 
-    default void cancel()  {
+    default void cancel() {
 
     }
 }

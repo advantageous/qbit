@@ -25,16 +25,6 @@ import static io.advantageous.boon.core.Str.sputs;
  */
 public class ConsulException extends RuntimeException {
 
-    public static void dieWithException(Exception ex, Object... args){
-        throw new ConsulException( sputs(args), ex);
-    }
-
-
-    public static void die(Object... args){
-        throw new ConsulException( sputs(args));
-    }
-
-
     /**
      * Constructs an instance of this class.
      *
@@ -44,13 +34,22 @@ public class ConsulException extends RuntimeException {
         super(message);
     }
 
+
     /**
      * Constructs an instance of this class.
      *
-     * @param message The exception message.
+     * @param message   The exception message.
      * @param throwable The wrapped {@link java.lang.Throwable} object.
      */
     public ConsulException(String message, Throwable throwable) {
         super(message, throwable);
+    }
+
+    public static void dieWithException(Exception ex, Object... args) {
+        throw new ConsulException(sputs(args), ex);
+    }
+
+    public static void die(Object... args) {
+        throw new ConsulException(sputs(args));
     }
 }

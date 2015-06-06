@@ -9,7 +9,6 @@ import io.advantageous.qbit.annotation.RequestMethod;
 import io.advantageous.qbit.meta.ContextMeta;
 import io.advantageous.qbit.meta.ServiceMeta;
 
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -17,12 +16,103 @@ import java.util.List;
 
 public class ContextMetaBuilder {
 
+    private String rootURI = "/services";
+    private List<ServiceMeta> services = new ArrayList<ServiceMeta>();
+
     public static ContextMetaBuilder contextMetaBuilder() {
         return new ContextMetaBuilder();
     }
 
-    private String rootURI = "/services";
-    private List<ServiceMeta> services = new ArrayList<ServiceMeta>();
+    public static List<String> getRequestPathsByAnnotated(Annotated classMeta, String name) {
+        Object value = getRequestPath(classMeta, name);
+
+        if (value instanceof String) {
+            return Lists.list(asPath(value.toString()));
+        } else if (value instanceof String[]) {
+
+            final String[] varray = (String[]) value;
+            if (varray.length > 0) {
+                return Lists.list((String[]) value);
+            } else {
+                return Lists.list("/" + name);
+            }
+        } else {
+            throw new IllegalStateException();
+        }
+    }
+
+    public static List<RequestMethod> getRequestMethodsByAnnotated(Annotated annotated) {
+
+        final AnnotationData requestMapping = annotated.annotation("RequestMapping");
+
+        if (requestMapping == null) {
+            return Collections.singletonList(RequestMethod.GET);
+        }
+
+        final Object method = requestMapping.getValues().get("method");
+
+        if (method == null) {
+
+            return Collections.singletonList(RequestMethod.GET);
+        }
+
+
+        if (method instanceof RequestMethod[]) {
+            //noinspection UnnecessaryLocalVariable
+            final List<RequestMethod> requestMethods = Arrays.asList(((RequestMethod[]) method));
+            return requestMethods;
+        }
+
+        if (method instanceof Object[]) {
+
+            final Object[] methods = (Object[]) method;
+            if (methods.length == 0) {
+
+                return Collections.singletonList(RequestMethod.GET);
+            }
+            final List<RequestMethod> requestMethods = new ArrayList<>(methods.length);
+
+            for (Object object : methods) {
+                requestMethods.add(RequestMethod.valueOf(object.toString()));
+            }
+
+            return requestMethods;
+
+        }
+
+        return Collections.singletonList(RequestMethod.valueOf(method.toString()));
+
+
+    }
+
+    static Object getRequestPath(Annotated classMeta, final String name) {
+        final AnnotationData requestMapping = classMeta.annotation("RequestMapping");
+
+        if (requestMapping != null) {
+            Object value = requestMapping.getValues().get("value");
+            if (value == null) {
+                value = "/" + name.toLowerCase();
+            }
+            return value;
+        } else {
+            return "/" + name.toLowerCase();
+        }
+    }
+
+    public static String asPath(String s) {
+        String path = s;
+        if (!s.startsWith("/")) {
+            path = "/" + s;
+        }
+
+        if (s.endsWith("/")) {
+            if (s.length() > 2) {
+                path = path.substring(0, path.length() - 1);
+            }
+        }
+
+        return path;
+    }
 
     public String getRootURI() {
         return rootURI;
@@ -42,12 +132,10 @@ public class ContextMetaBuilder {
         return this;
     }
 
-
     public ContextMetaBuilder addService(ServiceMeta service) {
         this.services.add(service);
         return this;
     }
-
 
     public ContextMetaBuilder addService(Class<?> serviceClass) {
 
@@ -80,104 +168,12 @@ public class ContextMetaBuilder {
             }
         }
 
-        if (annotationData!=null) {
+        if (annotationData != null) {
             annotationData.getValues().get("value");
         }
 
         return name;
     }
-
-    public static List<String> getRequestPathsByAnnotated(Annotated classMeta, String name) {
-        Object value = getRequestPath(classMeta, name);
-
-        if (value instanceof String) {
-            return Lists.list(asPath(value.toString()));
-        } else if (value instanceof String[]){
-
-            final String[] varray = (String[]) value;
-            if (varray.length > 0) {
-                return Lists.list((String[]) value);
-            } else {
-                return Lists.list("/"+name);
-            }
-        } else {
-            throw new IllegalStateException();
-        }
-    }
-
-
-    public static List<RequestMethod> getRequestMethodsByAnnotated(Annotated annotated) {
-
-        final AnnotationData requestMapping = annotated.annotation("RequestMapping");
-
-        if (requestMapping == null) {
-            return Collections.singletonList(RequestMethod.GET);
-        }
-
-        final Object method = requestMapping.getValues().get("method");
-
-        if (method == null) {
-
-            return Collections.singletonList(RequestMethod.GET);
-        }
-
-
-        if (method instanceof RequestMethod[]) {
-            final List<RequestMethod> requestMethods = Arrays.asList(((RequestMethod[]) method));
-            return requestMethods;
-        }
-
-        if (method instanceof Object[]) {
-
-            final Object[] methods = (Object[]) method;
-            if (methods.length==0) {
-
-                return Collections.singletonList(RequestMethod.GET);
-            }
-            final List<RequestMethod> requestMethods = new ArrayList<>(methods.length);
-
-            for (Object object : methods) {
-                requestMethods.add(RequestMethod.valueOf(object.toString()));
-            }
-
-            return requestMethods;
-
-        }
-
-        return Collections.singletonList(RequestMethod.valueOf(method.toString()));
-
-
-    }
-
-    static Object getRequestPath(Annotated classMeta, final String name) {
-        final AnnotationData requestMapping = classMeta.annotation("RequestMapping");
-
-        if (requestMapping!=null) {
-            Object value = requestMapping.getValues().get("value");
-            if (value == null) {
-                value = "/" + name.toLowerCase();
-            }
-            return value;
-        } else {
-            return "/" + name.toLowerCase();
-        }
-    }
-
-    public static String asPath(String s) {
-        String path =s;
-        if (!s.startsWith("/")) {
-            path = "/" + s;
-        }
-
-        if (s.endsWith("/")) {
-            if (s.length() > 2) {
-                path = path.substring(0, path.length()-1);
-            }
-        }
-
-        return path;
-    }
-
 
     public ContextMetaBuilder addServices(ServiceMeta... serviceArray) {
         Collections.addAll(this.services, serviceArray);

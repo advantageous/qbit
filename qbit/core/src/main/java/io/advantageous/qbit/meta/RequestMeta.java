@@ -26,6 +26,22 @@ import java.util.List;
 public class RequestMeta {
 
 
+    private final CallType callType;
+    private final String requestURI;
+    private final List<ParameterMeta> parameters;
+    private final List<RequestMethod> requestMethods;
+
+
+    public RequestMeta(final CallType callType,
+                       final List<RequestMethod> requestMethods,
+                       final String requestURI,
+                       final List<ParameterMeta> parameterMetaList) {
+        this.callType = callType;
+        this.requestURI = requestURI;
+        this.parameters = parameterMetaList;
+        this.requestMethods = requestMethods;
+    }
+
     public static RequestMeta[] requests(final RequestMeta... requests) {
         return requests;
     }
@@ -35,16 +51,6 @@ public class RequestMeta {
     }
 
     public static RequestMeta requestMeta(final CallType callType,
-                       final RequestMethod requestMethod,
-                       final String requestURI,
-                       final ParameterMeta... parameterMetaList) {
-
-        return new RequestMeta(callType, Collections.singletonList(requestMethod),
-                requestURI, Lists.list(parameterMetaList));
-    }
-
-
-    public static RequestMeta request(final CallType callType,
                                           final RequestMethod requestMethod,
                                           final String requestURI,
                                           final ParameterMeta... parameterMetaList) {
@@ -53,6 +59,14 @@ public class RequestMeta {
                 requestURI, Lists.list(parameterMetaList));
     }
 
+    public static RequestMeta request(final CallType callType,
+                                      final RequestMethod requestMethod,
+                                      final String requestURI,
+                                      final ParameterMeta... parameterMetaList) {
+
+        return new RequestMeta(callType, Collections.singletonList(requestMethod),
+                requestURI, Lists.list(parameterMetaList));
+    }
 
     public static RequestMeta request(final CallType callType,
                                       final List<RequestMethod> requestMethods,
@@ -63,11 +77,10 @@ public class RequestMeta {
                 requestURI, Lists.list(parameterMetaList));
     }
 
-
     public static RequestMeta requestByAddress(
-                                      final RequestMethod requestMethod,
-                                      final String requestURI,
-                                      final ParameterMeta... parameterMetaList) {
+            final RequestMethod requestMethod,
+            final String requestURI,
+            final ParameterMeta... parameterMetaList) {
 
         if (!requestURI.contains("{")) {
 
@@ -81,7 +94,6 @@ public class RequestMeta {
         }
     }
 
-
     public static RequestMeta getRequest(
             final String requestURI,
             final ParameterMeta... parameterMetaList) {
@@ -89,13 +101,11 @@ public class RequestMeta {
         return requestByAddress(RequestMethod.GET, requestURI, parameterMetaList);
     }
 
-
     public static RequestMeta postRequest(
             final String requestURI,
             final ParameterMeta... parameterMetaList) {
         return requestByAddress(RequestMethod.POST, requestURI, parameterMetaList);
     }
-
 
     public static RequestMeta putRequest(
             final String requestURI,
@@ -109,26 +119,10 @@ public class RequestMeta {
         return requestByAddress(RequestMethod.DELETE, requestURI, parameterMetaList);
     }
 
-
     public static RequestMeta headRequest(
             final String requestURI,
             final ParameterMeta... parameterMetaList) {
         return requestByAddress(RequestMethod.HEAD, requestURI, parameterMetaList);
-    }
-
-    private final CallType callType;
-    private final String requestURI;
-    private final List<ParameterMeta> parameters;
-    private final List<RequestMethod> requestMethods;
-
-    public RequestMeta(final CallType callType,
-                       final List <RequestMethod> requestMethods,
-                       final String requestURI,
-                       final List<ParameterMeta> parameterMetaList) {
-        this.callType = callType;
-        this.requestURI = requestURI;
-        this.parameters = parameterMetaList;
-        this.requestMethods = requestMethods;
     }
 
     public CallType getCallType() {

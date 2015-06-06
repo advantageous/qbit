@@ -22,7 +22,7 @@ package io.advantageous.qbit.message;
 import io.advantageous.qbit.util.MultiMap;
 
 /**
- * Created by Richard on 7/21/14.
+ * created by Richard on 7/21/14.
  *
  * @author Rick Hightower
  */
@@ -38,7 +38,7 @@ public interface Message<T> {
         return MultiMap.empty();
     }
 
-    default MultiMap<String, String> headers()  {
+    default MultiMap<String, String> headers() {
         return MultiMap.empty();
     }
 

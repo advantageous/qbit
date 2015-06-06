@@ -10,7 +10,6 @@ import static io.advantageous.boon.core.Str.sputs;
 public class SampleService {
 
 
-
     @RequestMapping("/simple1/")
     public String simple1() {
         return "simple1";
@@ -26,7 +25,6 @@ public class SampleService {
 
         return sputs(arg1, arg2, arg3, arg4);
     }
-
 
 
     //"/call2/{2}/{arg4}")
@@ -45,7 +43,7 @@ public class SampleService {
     }
 
 
-    @RequestMapping(value = "/method3/", method= RequestMethod.POST)
+    @RequestMapping(value = "/method3/", method = RequestMethod.POST)
     public String method3(@RequestParam("arg1") final String arg1,
                           @HeaderParam("arg2") final int arg2,
                           Employee employee) {
@@ -53,7 +51,6 @@ public class SampleService {
 
         return sputs(arg1, arg2, employee);
     }
-
 
 
 }

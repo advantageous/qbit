@@ -28,6 +28,7 @@ import io.advantageous.qbit.http.request.HttpRequestBuilder;
 import io.advantageous.qbit.http.request.HttpResponse;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static io.advantageous.boon.json.JsonFactory.fromJsonArray;
 import static io.advantageous.consul.domain.ConsulException.die;
@@ -155,11 +156,7 @@ public class KeyValueStoreEndpoint {
      * @return A list of zero to many string values.
      */
     public List<String> getValuesAsString(String key) {
-        List<String> result = new ArrayList<>();
-
-        for (KeyValue keyValue : getValues(key)) {
-            result.add(RequestUtils.decodeBase64(keyValue.getValue()));
-        }
+        List<String> result = getValues(key).stream().map(keyValue -> RequestUtils.decodeBase64(keyValue.getValue())).collect(Collectors.toList());
 
         return result;
     }

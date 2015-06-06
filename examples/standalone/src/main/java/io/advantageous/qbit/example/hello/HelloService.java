@@ -21,7 +21,7 @@ package io.advantageous.qbit.example.hello;
 import io.advantageous.qbit.annotation.RequestMapping;
 
 /**
- * Created by rhightower on 2/10/15.
+ * created by rhightower on 2/10/15.
  */
 
 @RequestMapping("/helloservice")

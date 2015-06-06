@@ -18,13 +18,13 @@
 
 package io.advantageous.qbit.services.example.todo;
 
+import io.advantageous.boon.core.Sys;
 import io.advantageous.qbit.QBit;
 import io.advantageous.qbit.message.MethodCall;
 import io.advantageous.qbit.message.Response;
 import io.advantageous.qbit.queue.ReceiveQueue;
 import io.advantageous.qbit.queue.SendQueue;
 import io.advantageous.qbit.service.ServiceQueue;
-import io.advantageous.boon.core.Sys;
 import org.junit.Test;
 
 import java.util.Date;
@@ -36,7 +36,7 @@ import static io.advantageous.boon.core.Exceptions.die;
 import static io.advantageous.qbit.service.ServiceBuilder.serviceBuilder;
 
 /**
- * Created by rhightower on 10/24/14.
+ * created by rhightower on 10/24/14.
  *
  * @author rhightower
  */
@@ -94,9 +94,9 @@ public class TodoServiceWithQBitServiceTest {
 
         /* Create a service that lives behind a ServiceQueue. */
         ServiceQueue serviceQueue = serviceBuilder()
-                                    .setServiceAddress("/todo-service")
-                                    .setServiceObject(new TodoService())
-                                    .build();
+                .setServiceAddress("/todo-service")
+                .setServiceObject(new TodoService())
+                .build();
 
         serviceQueue.startServiceQueue().startCallBackHandler();
 
@@ -110,7 +110,7 @@ public class TodoServiceWithQBitServiceTest {
 
         Sys.sleep(2000);
 
-        ok = items.get()!=null || die();
+        ok = items.get() != null || die();
         ok = items.get().size() > 0 || die();
         ok = items.get().get(0).getDescription().equals("foo") || die();
 

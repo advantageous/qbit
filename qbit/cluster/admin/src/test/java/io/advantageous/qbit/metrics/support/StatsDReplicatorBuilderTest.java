@@ -6,8 +6,6 @@ import org.junit.Test;
 
 import java.util.Random;
 
-import static org.junit.Assert.*;
-
 public class StatsDReplicatorBuilderTest {
 
     @Test
@@ -23,9 +21,9 @@ public class StatsDReplicatorBuilderTest {
 
         final Random random = new Random();
 
-        for (int index=0; index < 10; index++) {
-            statReplicator.replicateCount("foo.bar", index+1, -1);
-            statReplicator.replicateLevel("foo.bar2", index +1 * 100, -1);
+        for (int index = 0; index < 10; index++) {
+            statReplicator.replicateCount("foo.bar", index + 1, -1);
+            statReplicator.replicateLevel("foo.bar2", index + 1 * 100, -1);
 
             int duration = (int) (400 * random.nextFloat()) + 200;
             statReplicator.replicateTiming("foo.bar3", duration, -1);

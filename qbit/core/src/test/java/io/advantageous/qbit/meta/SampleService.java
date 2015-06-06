@@ -18,17 +18,16 @@
 package io.advantageous.qbit.meta;
 
 
+import io.advantageous.qbit.annotation.HeaderParam;
 import io.advantageous.qbit.annotation.PathVariable;
 import io.advantageous.qbit.annotation.RequestMapping;
 import io.advantageous.qbit.annotation.RequestParam;
-import io.advantageous.qbit.annotation.HeaderParam;
 
 import static io.advantageous.boon.core.Str.sputs;
 
 
 @RequestMapping("/sample/service")
 public class SampleService {
-
 
 
     @RequestMapping("/simple1/")
@@ -46,7 +45,6 @@ public class SampleService {
 
         return sputs(arg1, arg2, arg3, arg4);
     }
-
 
 
     //"/call2/{2}/{arg4}")

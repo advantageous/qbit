@@ -29,12 +29,11 @@ public interface MethodCall<T> extends Request<T> {
     String objectName();
 
 
-
     default Object[] args() {
         Object body = this.body();
 
         if (body instanceof Object[]) {
-            return (Object[])body;
+            return (Object[]) body;
         } else if (body instanceof List) {
             List list = ((List) body);
             return list.toArray(new Object[list.size()]);

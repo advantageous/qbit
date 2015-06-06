@@ -102,9 +102,13 @@ public class StatServiceImpl implements QueueCallBackHandler, ServiceChangedEven
         }
     }
 
-    public Stats statsForLastSeconds(String name, int secondCount) {return oneMinuteOfStats(name).statsForLastSeconds(now, secondCount);}
+    public Stats statsForLastSeconds(String name, int secondCount) {
+        return oneMinuteOfStats(name).statsForLastSeconds(now, secondCount);
+    }
 
-    public int averageLastLevel(String name, int secondCount) {return oneMinuteOfStats(name).averageLastLevel(now, secondCount);}
+    public int averageLastLevel(String name, int secondCount) {
+        return oneMinuteOfStats(name).averageLastLevel(now, secondCount);
+    }
 
     public int currentMinuteCount(String name) {
         return oneMinuteOfStats(name).getTotalCount();

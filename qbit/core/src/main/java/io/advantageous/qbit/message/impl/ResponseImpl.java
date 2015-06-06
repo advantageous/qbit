@@ -27,7 +27,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Created by Richard on 8/11/14.
+ * created by Richard on 8/11/14.
  */
 public class ResponseImpl<T> implements Response<T> {
 
@@ -107,7 +107,8 @@ public class ResponseImpl<T> implements Response<T> {
 
     public static Response<Object> response(MethodCall<Object> methodCall, Object returnValue) {
 
-        ResponseImpl<Object> response = new ResponseImpl<>(methodCall, returnValue);
+        //noinspection UnnecessaryLocalVariable
+        @SuppressWarnings("UnnecessaryLocalVariable") ResponseImpl<Object> response = new ResponseImpl<>(methodCall, returnValue);
 
         return response;
     }

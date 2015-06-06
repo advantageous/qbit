@@ -4,7 +4,6 @@ package hello;
 import io.advantageous.boon.core.Sys;
 import io.advantageous.qbit.annotation.RequestMapping;
 import io.advantageous.qbit.annotation.RequestParam;
-import io.advantageous.qbit.queue.QueueBuilder;
 import io.advantageous.qbit.server.ServiceEndpointServer;
 
 import java.util.Collections;
@@ -15,7 +14,7 @@ import static io.advantageous.qbit.server.EndpointServerBuilder.endpointServerBu
 /**
  * Example of a QBit Service
  * <p>
- * Created by rhightower on 2/2/15.
+ * created by rhightower on 2/2/15.
  */
 @RequestMapping("/myservice")
 public class MyServiceQBit {
@@ -29,7 +28,6 @@ public class MyServiceQBit {
                 String.valueOf(200)));
         System.setProperty("vertx.pool.eventloop.size", System.getProperty("vertx.pool.eventloop.size",
                 String.valueOf((Runtime.getRuntime().availableProcessors() * 3))));
-
 
 
         //86K TPS QBit
@@ -297,6 +295,7 @@ end
         serviceEndpointServer.start();
 
 
+        //noinspection InfiniteLoopStatement,InfiniteLoopStatement
         while (true) Sys.sleep(100_000_000);
     }
 

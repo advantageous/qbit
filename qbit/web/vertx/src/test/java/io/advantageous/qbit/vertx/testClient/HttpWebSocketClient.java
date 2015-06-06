@@ -18,15 +18,15 @@
 
 package io.advantageous.qbit.vertx.testClient;
 
+import io.advantageous.boon.core.Sys;
 import io.advantageous.qbit.http.client.HttpClient;
 import io.advantageous.qbit.http.websocket.WebSocket;
-import io.advantageous.boon.core.Sys;
 
 import static io.advantageous.boon.core.IO.puts;
 import static io.advantageous.qbit.http.client.HttpClientBuilder.httpClientBuilder;
 
 /**
- * Created by rhightower on 2/13/15.
+ * created by rhightower on 2/13/15.
  */
 public class HttpWebSocketClient {
 

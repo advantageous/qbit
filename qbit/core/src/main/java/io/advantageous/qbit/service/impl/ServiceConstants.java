@@ -23,7 +23,7 @@ import io.advantageous.qbit.message.Response;
 import io.advantageous.qbit.transforms.NoOpRequestTransform;
 
 /**
- * Created by Richard on 9/8/14.
+ * created by Richard on 9/8/14.
  */
 public class ServiceConstants {
 

@@ -28,19 +28,13 @@ import java.util.List;
 
 /**
  * MethodCallBuilder
- * Created by rhightower on 1/16/15.
+ * created by rhightower on 1/16/15.
  */
 public class MethodCallBuilder {
 
-    public MethodCallBuilder methodCallBuilder() {
-        return methodCallBuilder();
-    }
     private static transient Timer timer = Timer.timer();
-
     private static volatile long idSequence;
-
     private long timestamp;
-
     private long id;
     private String name = "";
     private String address = "";
@@ -95,6 +89,10 @@ public class MethodCallBuilder {
 
     public static MethodCall<Object> method(String name, String address, String body) {
         return new MethodCallBuilder().setName(name).setBody(body).setAddress(address).build();
+    }
+
+    public MethodCallBuilder methodCallBuilder() {
+        return methodCallBuilder();
     }
 
     public long getTimestamp() {
@@ -204,14 +202,14 @@ public class MethodCallBuilder {
             id = idSequence;
         }
 
-        if (params==null || params.isEmpty() ) {
-            if ( originatingRequest!=null) {
+        if (params == null || params.isEmpty()) {
+            if (originatingRequest != null) {
                 params = originatingRequest.params();
             }
         }
 
-        if (headers==null || headers.isEmpty() ) {
-            if ( originatingRequest!=null) {
+        if (headers == null || headers.isEmpty()) {
+            if (originatingRequest != null) {
                 headers = originatingRequest.headers();
             }
         }

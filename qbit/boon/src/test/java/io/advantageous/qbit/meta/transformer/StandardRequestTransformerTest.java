@@ -4,7 +4,6 @@ import io.advantageous.qbit.annotation.RequestMethod;
 import io.advantageous.qbit.http.request.HttpRequest;
 import io.advantageous.qbit.http.request.HttpRequestBuilder;
 import io.advantageous.qbit.message.MethodCall;
-import io.advantageous.qbit.message.Request;
 import io.advantageous.qbit.meta.builder.ContextMetaBuilder;
 import io.advantageous.qbit.meta.provider.StandardMetaDataProvider;
 import org.junit.Before;
@@ -12,7 +11,6 @@ import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.ConcurrentHashMap;
 
 import static io.advantageous.boon.core.IO.puts;
 import static io.advantageous.boon.core.Maps.safeMap;
@@ -41,12 +39,10 @@ public class StandardRequestTransformerTest {
         StandardMetaDataProvider postProvider = new StandardMetaDataProvider(contextMetaBuilder.build(), RequestMethod.POST);
 
 
-
         standardRequestTransformer = new StandardRequestTransformer(
                 safeMap(RequestMethod.GET, provider, RequestMethod.POST, postProvider)
         );
     }
-
 
 
     @Test
@@ -123,7 +119,6 @@ public class StandardRequestTransformerTest {
 
 
     }
-
 
 
     @Test

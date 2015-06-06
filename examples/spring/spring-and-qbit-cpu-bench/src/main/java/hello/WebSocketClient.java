@@ -9,8 +9,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Created by rhightower on 2/3/15.
+ * created by rhightower on 2/3/15.
  */
+@SuppressWarnings("ALL")
 public class WebSocketClient {
 
     static volatile int count = 0;

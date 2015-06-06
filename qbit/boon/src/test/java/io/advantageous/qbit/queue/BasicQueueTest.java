@@ -31,7 +31,7 @@ import static io.advantageous.boon.core.IO.puts;
 import static io.advantageous.boon.core.Sys.sleep;
 
 /**
- * Created by Richard on 8/11/14.
+ * created by Richard on 8/11/14.
  */
 public class BasicQueueTest {
 

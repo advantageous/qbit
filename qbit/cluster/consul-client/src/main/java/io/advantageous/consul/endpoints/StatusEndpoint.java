@@ -37,9 +37,8 @@ public class StatusEndpoint {
     private final String rootPath;
 
     /**
-     *
      * @param httpClient http client
-     * @param rootPath root path
+     * @param rootPath   root path
      */
     public StatusEndpoint(final HttpClient httpClient, final String rootPath) {
         this.httpClient = httpClient;
@@ -48,7 +47,7 @@ public class StatusEndpoint {
 
     /**
      * Retrieves the host/port of the Consul leader.
-     *
+     * <p>
      * GET /v1/status/leader
      *
      * @return The host/port of the leader.
@@ -62,16 +61,16 @@ public class StatusEndpoint {
                 .getHttpRequestBuilder(null, null, RequestOptions.BLANK, path);
 
         final HttpResponse httpResponse = httpClient.sendRequestAndWait(httpRequestBuilder.build());
-        if (httpResponse.code()!=200) {
+        if (httpResponse.code() != 200) {
             die("Unable to retrieve the leader", path, httpResponse.code(), httpResponse.body());
         }
 
         return fromJson(httpResponse.body(), String.class).replace("\"", "").trim();
-     }
+    }
 
     /**
      * Retrieves a list of host/ports for raft peers.
-     *
+     * <p>
      * GET /v1/status/peers
      *
      * @return List of host/ports for raft peers.
@@ -84,7 +83,7 @@ public class StatusEndpoint {
                 .getHttpRequestBuilder(null, null, RequestOptions.BLANK, path);
 
         final HttpResponse httpResponse = httpClient.sendRequestAndWait(httpRequestBuilder.build());
-        if (httpResponse.code()!=200) {
+        if (httpResponse.code() != 200) {
             die("Unable to get the peers", path, httpResponse.code(), httpResponse.body());
         }
 

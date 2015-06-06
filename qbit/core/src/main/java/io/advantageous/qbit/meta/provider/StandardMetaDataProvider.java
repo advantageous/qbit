@@ -51,13 +51,13 @@ public class StandardMetaDataProvider implements MetaDataProvider {
                            final ServiceMeta service,
                            final ServiceMethodMeta method) {
 
-         method.getRequestEndpoints().forEach(requestMeta -> addRequest(context, service, method, requestMeta));
+        method.getRequestEndpoints().forEach(requestMeta -> addRequest(context, service, method, requestMeta));
     }
 
     private void addRequest(final ContextMeta context,
-                             final ServiceMeta service,
-                             final ServiceMethodMeta method,
-                             final RequestMeta requestMeta) {
+                            final ServiceMeta service,
+                            final ServiceMethodMeta method,
+                            final RequestMeta requestMeta) {
 
 
         service.getRequestPaths().forEach(path -> addEndPoint(context, service, method, requestMeta, path));
@@ -85,7 +85,7 @@ public class StandardMetaDataProvider implements MetaDataProvider {
     private void addRequestEndPointUsingPath(ContextMeta context, ServiceMeta service, ServiceMethodMeta method, RequestMeta requestMeta, String path) {
         RequestMetaData metaData = new RequestMetaData(path, context, requestMeta, method, service);
 
-        if (requestMeta.getCallType()== CallType.ADDRESS) {
+        if (requestMeta.getCallType() == CallType.ADDRESS) {
             metaDataMap.put(path, metaData);
         } else {
             treeMap.put(path, metaData);
@@ -116,7 +116,7 @@ public class StandardMetaDataProvider implements MetaDataProvider {
     @Override
     public RequestMetaData get(final String path) {
         RequestMetaData requestMetaData = doGet(path);
-        if (requestMetaData==null) {
+        if (requestMetaData == null) {
             return doGet(path.toLowerCase());
         }
         return requestMetaData;

@@ -36,7 +36,7 @@ public class Timer {
 
     private static AtomicReference<Timer> timeHolder = new AtomicReference<>();
     private final Logger logger = LoggerFactory.getLogger(Timer.class);
-    private final boolean debug = false || GlobalConstants.DEBUG || logger.isDebugEnabled();
+    private final boolean debug = GlobalConstants.DEBUG || logger.isDebugEnabled();
     private final AtomicLong time = new AtomicLong(Clock.systemUTC().millis());
     private ExecutorContext executorContext;
 
@@ -51,6 +51,10 @@ public class Timer {
         return timeHolder.get();
     }
 
+    public static long clockTime() {
+        return timer().now();
+    }
+
     public void stop() {
 
         if (debug) {
@@ -62,7 +66,6 @@ public class Timer {
         }
         executorContext = null;
     }
-
 
     private void start() {
 
@@ -109,10 +112,6 @@ public class Timer {
 
     public long time() {
         return time.get();
-    }
-
-    public static long clockTime() {
-        return timer().now();
     }
 
     public long now() {

@@ -1,11 +1,11 @@
 package io.advantageous.qbit.example;
 
 
+import io.advantageous.boon.core.Sys;
 import io.advantageous.qbit.annotation.QueueCallback;
 import io.advantageous.qbit.annotation.QueueCallbackType;
 import io.advantageous.qbit.annotation.Service;
 import io.advantageous.qbit.service.Callback;
-import io.advantageous.boon.core.Sys;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -37,7 +37,7 @@ public class UserDataService {
     public void pretendToDoIO() {
         Sys.sleep(100);
 
-        if (userLoadCallBacks.size()==0) {
+        if (userLoadCallBacks.size() == 0) {
             return;
         }
         for (Runnable runnable : userLoadCallBacks) {
@@ -46,8 +46,6 @@ public class UserDataService {
         userLoadCallBacks.clear();
 
     }
-
-
 
 
 }

@@ -27,6 +27,7 @@ import io.advantageous.qbit.queue.QueueCallBackHandler;
 /**
  * @author rhightower on 2/10/15.
  */
+@SuppressWarnings("WeakerAccess")
 public class AnnotationDrivenQueueCallbackHandler implements QueueCallBackHandler {
 
     public static final String QUEUE_CALLBACK_ANNOTATION_NAME = "QueueCallback";

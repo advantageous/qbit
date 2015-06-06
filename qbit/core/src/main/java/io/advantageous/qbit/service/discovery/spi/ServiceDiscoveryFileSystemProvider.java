@@ -16,27 +16,7 @@ public class ServiceDiscoveryFileSystemProvider implements ServiceDiscoveryProvi
     private final File dir;
     private final Map<String, ServiceData> serviceDataMap = new ConcurrentHashMap<>();
     private final long checkIntervalMS;
-
-    public ServiceDiscoveryFileSystemProvider(final File dir, long checkIntervalMS) {
-        this.dir = dir;
-        this.checkIntervalMS = checkIntervalMS;
-    }
-
-
-    private static class ServiceData {
-        final List<EndpointDefinition> endpointDefinitions;
-        final long longLastCheck;
-        final long lastModified;
-
-        public ServiceData(List<EndpointDefinition> endpointDefinitions, long longLastCheck, long lastModified) {
-            this.endpointDefinitions = endpointDefinitions;
-            this.longLastCheck = longLastCheck;
-            this.lastModified = lastModified;
-
-        }
-    }
-
-    private ThreadLocal<JsonParserAndMapper> jsonMappingParserThreadLocal = new ThreadLocal<JsonParserAndMapper>(){
+    private ThreadLocal<JsonParserAndMapper> jsonMappingParserThreadLocal = new ThreadLocal<JsonParserAndMapper>() {
         @Override
         protected JsonParserAndMapper initialValue() {
 
@@ -45,6 +25,10 @@ public class ServiceDiscoveryFileSystemProvider implements ServiceDiscoveryProvi
     };
 
 
+    public ServiceDiscoveryFileSystemProvider(final File dir, long checkIntervalMS) {
+        this.dir = dir;
+        this.checkIntervalMS = checkIntervalMS;
+    }
 
     @Override
     public List<EndpointDefinition> loadServices(final String serviceName) {
@@ -52,8 +36,8 @@ public class ServiceDiscoveryFileSystemProvider implements ServiceDiscoveryProvi
 
         ServiceData serviceData = serviceDataMap.get(serviceName);
 
-        if  (serviceData == null) {
-            File file = new File(dir, serviceName+".json");
+        if (serviceData == null) {
+            File file = new File(dir, serviceName + ".json");
             serviceData = new ServiceData(loadDefinitions(file), Timer.timer().now(), file.lastModified());
             serviceDataMap.put(serviceName, serviceData);
         } else {
@@ -77,6 +61,19 @@ public class ServiceDiscoveryFileSystemProvider implements ServiceDiscoveryProvi
             return jsonMappingParserThreadLocal.get().parseListFromFile(EndpointDefinition.class, file.toString());
         } else {
             return Collections.emptyList();
+        }
+    }
+
+    private static class ServiceData {
+        final List<EndpointDefinition> endpointDefinitions;
+        final long longLastCheck;
+        final long lastModified;
+
+        public ServiceData(List<EndpointDefinition> endpointDefinitions, long longLastCheck, long lastModified) {
+            this.endpointDefinitions = endpointDefinitions;
+            this.longLastCheck = longLastCheck;
+            this.lastModified = lastModified;
+
         }
     }
 }

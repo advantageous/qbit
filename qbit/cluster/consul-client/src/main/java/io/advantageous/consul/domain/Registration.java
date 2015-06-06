@@ -90,8 +90,7 @@ public class Registration {
         if (port != that.port) return false;
         if (check != null ? !check.equals(that.check) : that.check != null) return false;
         if (id != null ? !id.equals(that.id) : that.id != null) return false;
-        if (name != null ? !name.equals(that.name) : that.name != null) return false;
-        return Arrays.equals(tags, that.tags);
+        return !(name != null ? !name.equals(that.name) : that.name != null) && Arrays.equals(tags, that.tags);
 
     }
 

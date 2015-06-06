@@ -21,7 +21,7 @@ package io.advantageous.qbit.service;
 import io.advantageous.qbit.client.ClientProxy;
 
 /**
- * Created by rhightower on 2/4/15.
+ * created by rhightower on 2/4/15.
  */
 public class ServiceProxyUtils {
 

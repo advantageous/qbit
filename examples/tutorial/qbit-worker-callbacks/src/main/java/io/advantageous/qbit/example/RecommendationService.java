@@ -8,7 +8,6 @@ import io.advantageous.qbit.annotation.QueueCallbackType;
 import io.advantageous.qbit.annotation.Service;
 import io.advantageous.qbit.service.Callback;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;

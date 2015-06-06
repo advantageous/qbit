@@ -19,7 +19,6 @@ package io.advantageous.consul.domain;
 
 import io.advantageous.boon.json.annotations.JsonProperty;
 
-import java.util.Arrays;
 import java.util.List;
 
 /**

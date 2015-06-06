@@ -22,7 +22,6 @@ public class TimerTest {
         puts(now, currentTime);
 
 
-
         for (int index = 0; index < 5; index++) {
             Sys.sleep(1000);
 

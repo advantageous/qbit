@@ -30,7 +30,7 @@ import java.util.Date;
 import static io.advantageous.boon.core.IO.puts;
 
 /**
- * Created by Richard on 11/17/14.
+ * created by Richard on 11/17/14.
  */
 public class TodoWebSocketClient {
 

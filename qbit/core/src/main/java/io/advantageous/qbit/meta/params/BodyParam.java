@@ -18,7 +18,7 @@
 package io.advantageous.qbit.meta.params;
 
 public class BodyParam extends Param {
-    public BodyParam(boolean required, Object defaultValue) {
+    public BodyParam(boolean required, @SuppressWarnings("SameParameterValue") Object defaultValue) {
         super(required, defaultValue, ParamType.BODY);
     }
 }

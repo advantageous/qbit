@@ -28,7 +28,7 @@ import java.util.Arrays;
 /**
  * This represents and HTTP request.
  * <p>
- * Created by rhightower on 10/21/14.
+ * created by rhightower on 10/21/14.
  *
  * @author rhightower
  */

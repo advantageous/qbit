@@ -23,7 +23,7 @@ import io.advantageous.qbit.events.EventManager;
 import io.advantageous.qbit.service.impl.BaseServiceQueueImpl;
 
 /**
- * Created by rhightower on 2/4/15.
+ * created by rhightower on 2/4/15.
  */
 public class ServiceContext {
 
@@ -53,7 +53,7 @@ public class ServiceContext {
 
         final EventManager eventManager = eventManager();
         ServiceQueue serviceQueue = currentService();
-        if (serviceQueue!=null) {
+        if (serviceQueue != null) {
             eventManager.joinService(serviceQueue);
         }
     }

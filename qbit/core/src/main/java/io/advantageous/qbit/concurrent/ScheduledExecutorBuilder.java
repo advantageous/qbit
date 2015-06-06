@@ -21,7 +21,7 @@ package io.advantageous.qbit.concurrent;
 import java.util.concurrent.TimeUnit;
 
 /**
- * Created by rhightower on 2/13/15.
+ * created by rhightower on 2/13/15.
  */
 public class ScheduledExecutorBuilder {
 

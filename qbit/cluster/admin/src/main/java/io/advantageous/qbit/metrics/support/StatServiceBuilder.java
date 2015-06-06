@@ -26,7 +26,6 @@ import io.advantageous.qbit.client.ClientBuilder;
 import io.advantageous.qbit.config.PropertyResolver;
 import io.advantageous.qbit.events.EventManager;
 import io.advantageous.qbit.metrics.*;
-import io.advantageous.qbit.metrics.StatServiceImpl;
 import io.advantageous.qbit.queue.QueueBuilder;
 import io.advantageous.qbit.server.EndpointServerBuilder;
 import io.advantageous.qbit.server.ServiceEndpointServer;
@@ -43,17 +42,13 @@ import static io.advantageous.qbit.client.ClientBuilder.clientBuilder;
 
 /**
  * Stat Service Builder
- * Created by rhightower on 1/28/15.
+ * created by rhightower on 1/28/15.
  */
 public class StatServiceBuilder {
 
 
+    public static final String QBIT_STAT_SERVICE_BUILDER = "qbit.statservice.builder.";
     private EventManager eventManager;
-
-    public static StatServiceBuilder statServiceBuilder() {
-        return new StatServiceBuilder();
-    }
-
     private Timer timer = Timer.timer();
     private StatRecorder recorder = new NoOpRecorder();
     private StatReplicator replicator = new NoOpReplicator();
@@ -68,7 +63,6 @@ public class StatServiceBuilder {
     private StatServiceImpl statServiceImpl;
 
 
-
     private String serviceName;
     private String localServiceId;
     private int tallyInterval;
@@ -76,8 +70,6 @@ public class StatServiceBuilder {
     private int timeToLiveCheckInterval;
     private int numStats;
 
-
-    public static final String QBIT_STAT_SERVICE_BUILDER = "qbit.statservice.builder.";
 
     public StatServiceBuilder(PropertyResolver propertyResolver) {
         this.serviceName = propertyResolver.getStringProperty("serviceName", "statsService");
@@ -95,10 +87,13 @@ public class StatServiceBuilder {
         this(PropertyResolver.createSystemPropertyResolver(QBIT_STAT_SERVICE_BUILDER));
     }
 
-
     public StatServiceBuilder(final Properties properties) {
         this(PropertyResolver.createPropertiesPropertyResolver(
                 QBIT_STAT_SERVICE_BUILDER, properties));
+    }
+
+    public static StatServiceBuilder statServiceBuilder() {
+        return new StatServiceBuilder();
     }
 
     public int getTallyInterval() {
@@ -138,12 +133,18 @@ public class StatServiceBuilder {
 
     public QueueBuilder getSendQueueBuilder() {
 
-        if (sendQueueBuilder==null) {
+        if (sendQueueBuilder == null) {
             sendQueueBuilder = QueueBuilder.queueBuilder().setLinkTransferQueue()
                     .setBatchSize(1_000).setPollWait(500);
         }
         return sendQueueBuilder;
     }
+
+    public StatServiceBuilder setSendQueueBuilder(QueueBuilder sendQueueBuilder) {
+        this.sendQueueBuilder = sendQueueBuilder;
+        return this;
+    }
+
     public EndpointServerBuilder getEndpointServerBuilder() {
 
         if (endpointServerBuilder == null) {
@@ -157,17 +158,9 @@ public class StatServiceBuilder {
         return this;
     }
 
-
-    public StatServiceBuilder setSendQueueBuilder(QueueBuilder sendQueueBuilder) {
-        this.sendQueueBuilder = sendQueueBuilder;
-        return this;
-    }
-
-
-
     public ServiceQueue getServiceQueue() {
 
-        if (serviceQueue==null) {
+        if (serviceQueue == null) {
             buildServiceQueue();
         }
         return serviceQueue;
@@ -192,7 +185,6 @@ public class StatServiceBuilder {
     }
 
 
-
     public String getLocalServiceId() {
         return localServiceId;
     }
@@ -213,12 +205,13 @@ public class StatServiceBuilder {
 
     private ClientBuilder getClientBuilder() {
 
-        if (clientBuilder==null) {
+        if (clientBuilder == null) {
             clientBuilder = clientBuilder();
         }
 
         return BeanUtils.copy(clientBuilder);
     }
+
     public ServiceDiscovery getServiceDiscovery() {
         return serviceDiscovery;
     }
@@ -266,9 +259,9 @@ public class StatServiceBuilder {
                 .setServiceObject(getStatServiceImpl());
         serviceQueue = serviceBuilder.build();
 
-        if (serviceDiscovery!=null) {
+        if (serviceDiscovery != null) {
 
-            if (eventManager!=null && eventManager!=QBit.factory().systemEventManager()) {
+            if (eventManager != null && eventManager != QBit.factory().systemEventManager()) {
 
                 eventManager.joinService(serviceQueue);
             }
@@ -283,19 +276,17 @@ public class StatServiceBuilder {
         final EndpointServerBuilder endpointServerBuilder = getEndpointServerBuilder();
 
 
+        if (serviceDiscovery != null) {
 
-
-        if (serviceDiscovery!=null) {
-
-            if (localServiceId == null || "".equals(localServiceId.trim())){
-                    localServiceId =
-                            serviceName + "-" + ServiceDiscovery.uniqueString(endpointServerBuilder.getPort());
+            if (localServiceId == null || "".equals(localServiceId.trim())) {
+                localServiceId =
+                        serviceName + "-" + ServiceDiscovery.uniqueString(endpointServerBuilder.getPort());
 
             }
 
 
             serviceDiscovery.registerWithIdAndTimeToLive(this.getServiceName(), localServiceId,
-                                    endpointServerBuilder.getPort(), timeToLiveCheckInterval);
+                    endpointServerBuilder.getPort(), timeToLiveCheckInterval);
 
 
         }
@@ -305,7 +296,6 @@ public class StatServiceBuilder {
 
         return serviceEndpointServer;
     }
-
 
 
     public StatServiceImpl getStatServiceImpl() {
@@ -328,7 +318,7 @@ public class StatServiceBuilder {
 
 
         return new StatServiceImpl(this.getRecorder(), replicator, getTimer(), getServiceDiscovery(),
-                    getLocalServiceId(), getNumStats(), getTimeToLiveCheckInterval());
+                getLocalServiceId(), getNumStats(), getTimeToLiveCheckInterval());
 
     }
 
@@ -338,14 +328,14 @@ public class StatServiceBuilder {
 
         /* If service discovery is set then setup clustering
            and add it to the list. */
-        if (serviceDiscovery!=null) {
+        if (serviceDiscovery != null) {
             finalReplicators.add(buildClusteredReplicator());
         }
 
 
         /* If the replicator is not the NoOpReplicator,
           then add it ot the list. */
-        if (! (this.getReplicator() instanceof NoOpReplicator)) {
+        if (!(this.getReplicator() instanceof NoOpReplicator)) {
             finalReplicators.add(this.getReplicator());
         }
 
@@ -360,9 +350,9 @@ public class StatServiceBuilder {
         // then one then create a hub.
         return finalReplicators.size() == 0
                 ? new NoOpReplicator() // if 0 then just return a no op
-                    : finalReplicators.size() == 1 //if one then just use it direct
-                    ? finalReplicators.get(0)
-                            : new ReplicatorHub(finalReplicators);
+                : finalReplicators.size() == 1 //if one then just use it direct
+                ? finalReplicators.get(0)
+                : new ReplicatorHub(finalReplicators);
     }
 
     public StatReplicatorProvider getStatsReplicatorProvider() {
@@ -404,7 +394,8 @@ public class StatServiceBuilder {
 
                 @Override
                 protected void finalize() throws Throwable {
-                    if (theClient!=null) {
+                    super.finalize();
+                    if (theClient != null) {
                         theClient.stop();
                     }
                 }
@@ -469,15 +460,15 @@ public class StatServiceBuilder {
         };
     }
 
-    public StatServiceBuilder setEventManager(EventManager eventManager) {
-        this.eventManager = eventManager;
-        return this;
-    }
-
     public EventManager getEventManager() {
-        if (eventManager==null) {
+        if (eventManager == null) {
             eventManager = QBit.factory().systemEventManager();
         }
         return eventManager;
+    }
+
+    public StatServiceBuilder setEventManager(EventManager eventManager) {
+        this.eventManager = eventManager;
+        return this;
     }
 }

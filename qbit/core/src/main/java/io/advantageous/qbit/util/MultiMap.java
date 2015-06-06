@@ -21,13 +21,11 @@ package io.advantageous.qbit.util;
 import java.util.*;
 
 /**
- * Created by Richard on 9/26/14.
+ * created by Richard on 9/26/14.
  *
  * @author rhightower
  */
 public interface MultiMap<K, V> extends Iterable<Map.Entry<K, Collection<V>>>, Map<K, V> {
-
-    static <K,V> MultiMap<K, V> multiMap() {return new MultiMapImpl<>();}
 
     MultiMap EMPTY = new MultiMap() {
 
@@ -152,6 +150,10 @@ public interface MultiMap<K, V> extends Iterable<Map.Entry<K, Collection<V>>>, M
         }
     };
 
+    static <K, V> MultiMap<K, V> multiMap() {
+        return new MultiMapImpl<>();
+    }
+
     @SuppressWarnings("unchecked")
     static <K, V> MultiMap<K, V> empty() {
         return EMPTY;
@@ -230,8 +232,6 @@ public interface MultiMap<K, V> extends Iterable<Map.Entry<K, Collection<V>>>, M
     default Iterable<V> valueMulti() {
         throw new UnsupportedOperationException("Unsupported");
     }
-
-
 
 
 }

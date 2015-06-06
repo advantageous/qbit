@@ -1,25 +1,27 @@
-/*******************************************************************************
-  * Copyright (c) 2015. Rick Hightower, Geoff Chandler
-  *
-  * Licensed under the Apache License, Version 2.0 (the "License");
-  * you may not use this file except in compliance with the License.
-  * You may obtain a copy of the License at
-  *
-  *  		http://www.apache.org/licenses/LICENSE-2.0
-  *
-  * Unless required by applicable law or agreed to in writing, software
-  * distributed under the License is distributed on an "AS IS" BASIS,
-  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-  * See the License for the specific language governing permissions and
-  * limitations under the License.
-  *
-  * QBit - The Microservice lib for Java : JSON, WebSocket, REST. Be The Web!
-  *  http://rick-hightower.blogspot.com/2014/12/rise-of-machines-writing-high-speed.html
-  *  http://rick-hightower.blogspot.com/2014/12/quick-guide-to-programming-services-in.html
-  *  http://rick-hightower.blogspot.com/2015/01/quick-startClient-qbit-programming.html
-  *  http://rick-hightower.blogspot.com/2015/01/high-speed-soa.html
-  *  http://rick-hightower.blogspot.com/2015/02/qbit-event-bus.html
- ******************************************************************************/
+/**
+ * ****************************************************************************
+ * Copyright (c) 2015. Rick Hightower, Geoff Chandler
+ * <p>
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * <p>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * <p>
+ * QBit - The Microservice lib for Java : JSON, WebSocket, REST. Be The Web!
+ * http://rick-hightower.blogspot.com/2014/12/rise-of-machines-writing-high-speed.html
+ * http://rick-hightower.blogspot.com/2014/12/quick-guide-to-programming-services-in.html
+ * http://rick-hightower.blogspot.com/2015/01/quick-startClient-qbit-programming.html
+ * http://rick-hightower.blogspot.com/2015/01/high-speed-soa.html
+ * http://rick-hightower.blogspot.com/2015/02/qbit-event-bus.html
+ * ****************************************************************************
+ */
 
 package io.advantageous.qbit.queue.impl;
 
@@ -44,7 +46,7 @@ public class AutoFlushingSendQueue<T> implements SendQueue<T> {
     private final int interval;
     private final TimeUnit timeUnit;
 
-    private  ScheduledFuture scheduledFuture;
+    private ScheduledFuture scheduledFuture;
 
     public AutoFlushingSendQueue(final SendQueue<T> sendQueue,
                                  final PeriodicScheduler periodicScheduler,
@@ -73,7 +75,7 @@ public class AutoFlushingSendQueue<T> implements SendQueue<T> {
         try {
             lock.lock();
             sendQueue.send(item);
-        }finally {
+        } finally {
             lock.unlock();
         }
 
@@ -85,7 +87,7 @@ public class AutoFlushingSendQueue<T> implements SendQueue<T> {
         try {
             lock.lock();
             sendQueue.sendAndFlush(item);
-        }finally {
+        } finally {
             lock.unlock();
         }
     }
@@ -96,7 +98,7 @@ public class AutoFlushingSendQueue<T> implements SendQueue<T> {
         try {
             lock.lock();
             sendQueue.sendMany(items);
-        }finally {
+        } finally {
             lock.unlock();
         }
     }
@@ -107,7 +109,7 @@ public class AutoFlushingSendQueue<T> implements SendQueue<T> {
         try {
             lock.lock();
             sendQueue.sendBatch(items);
-        }finally {
+        } finally {
             lock.unlock();
         }
     }
@@ -118,7 +120,7 @@ public class AutoFlushingSendQueue<T> implements SendQueue<T> {
         try {
             lock.lock();
             sendQueue.sendBatch(items);
-        }finally {
+        } finally {
             lock.unlock();
         }
     }
@@ -135,7 +137,7 @@ public class AutoFlushingSendQueue<T> implements SendQueue<T> {
         try {
             lock.lock();
             sendQueue.flushSends();
-        }finally {
+        } finally {
             lock.unlock();
         }
     }

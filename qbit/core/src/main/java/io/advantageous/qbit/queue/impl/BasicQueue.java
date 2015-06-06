@@ -37,7 +37,7 @@ import static io.advantageous.qbit.concurrent.ScheduledExecutorBuilder.scheduled
 /**
  * This is the base for all the queues we use.
  * <p>
- * Created by Richard on 8/4/14.
+ * created by Richard on 8/4/14.
  *
  * @param <T> type
  * @author rhightower

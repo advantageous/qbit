@@ -18,6 +18,7 @@
 
 package io.advantageous.qbit.example.events;
 
+import io.advantageous.boon.core.Sys;
 import io.advantageous.qbit.QBit;
 import io.advantageous.qbit.annotation.EventChannel;
 import io.advantageous.qbit.annotation.OnEvent;
@@ -25,18 +26,18 @@ import io.advantageous.qbit.annotation.QueueCallback;
 import io.advantageous.qbit.annotation.QueueCallbackType;
 import io.advantageous.qbit.events.EventBusProxyCreator;
 import io.advantageous.qbit.events.EventManager;
-import io.advantageous.qbit.service.ServiceQueue;
 import io.advantageous.qbit.service.ServiceBuilder;
+import io.advantageous.qbit.service.ServiceQueue;
 import io.advantageous.qbit.system.QBitSystemManager;
-import io.advantageous.boon.core.Sys;
 
 import static io.advantageous.boon.core.IO.puts;
 import static io.advantageous.qbit.service.ServiceBuilder.serviceBuilder;
 import static io.advantageous.qbit.service.ServiceProxyUtils.flushServiceProxy;
 
 /**
- * Created by rhightower on 2/11/15.
+ * created by rhightower on 2/11/15.
  */
+@SuppressWarnings("ALL")
 public class UsingShutDown {
 
     public static final String NEW_HIRE_CHANNEL = "com.mycompnay.employee.new";

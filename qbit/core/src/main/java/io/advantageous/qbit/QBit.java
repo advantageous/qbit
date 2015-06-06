@@ -18,15 +18,15 @@
 
 package io.advantageous.qbit;
 
-import io.advantageous.qbit.spi.FactorySPI;
 import io.advantageous.boon.core.reflection.ClassMeta;
+import io.advantageous.qbit.spi.FactorySPI;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
 /**
  * Main interface to QBit.
- * Created by Richard on 9/26/14.
+ * created by Richard on 9/26/14.
  *
  * @author rhightower
  */

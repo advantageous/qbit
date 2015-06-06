@@ -18,6 +18,7 @@
 
 package io.advantageous.qbit.service.bundle.example.todo;
 
+import io.advantageous.boon.core.Sys;
 import io.advantageous.qbit.QBit;
 import io.advantageous.qbit.message.MethodCall;
 import io.advantageous.qbit.message.Response;
@@ -25,7 +26,6 @@ import io.advantageous.qbit.queue.ReceiveQueue;
 import io.advantageous.qbit.service.ServiceBundle;
 import io.advantageous.qbit.service.ServiceBundleBuilder;
 import io.advantageous.qbit.spi.RegisterBoonWithQBit;
-import io.advantageous.boon.core.Sys;
 import org.junit.Test;
 
 import java.util.Date;
@@ -35,17 +35,17 @@ import static io.advantageous.boon.core.Exceptions.die;
 
 
 /**
- * Created by rhightower on 10/24/14.
+ * created by rhightower on 10/24/14.
  */
 public class TodoServiceWithServiceBundleTest {
-
-    boolean ok;
 
     static {
 
         /** Boon is the default implementation but there can be others. */
         RegisterBoonWithQBit.registerBoonWithQBit();
     }
+
+    boolean ok;
 
     @Test
     public void testWithBundleUsingAddress() {

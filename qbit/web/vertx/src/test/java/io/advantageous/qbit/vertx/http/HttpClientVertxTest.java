@@ -18,6 +18,7 @@
 
 package io.advantageous.qbit.vertx.http;
 
+import io.advantageous.boon.core.Sys;
 import io.advantageous.qbit.http.client.HttpClient;
 import io.advantageous.qbit.http.client.HttpClientBuilder;
 import io.advantageous.qbit.http.request.HttpRequest;
@@ -25,7 +26,6 @@ import io.advantageous.qbit.http.request.HttpRequestBuilder;
 import io.advantageous.qbit.http.server.HttpServer;
 import io.advantageous.qbit.http.server.HttpServerBuilder;
 import io.advantageous.qbit.http.websocket.WebSocket;
-import io.advantageous.boon.core.Sys;
 import io.advantageous.qbit.test.TimedTesting;
 import io.advantageous.qbit.util.PortUtils;
 import org.junit.Test;
@@ -51,6 +51,7 @@ public class HttpClientVertxTest extends TimedTesting {
     HttpServer server;
 
     int port = 9099;
+
     public void connect() {
 
         port = PortUtils.findOpenPortStartAt(port);
@@ -107,9 +108,7 @@ public class HttpClientVertxTest extends TimedTesting {
         webSocket.open();
 
 
-
         client.flush();
-
 
 
         validate();
@@ -156,7 +155,6 @@ public class HttpClientVertxTest extends TimedTesting {
         client.flush();
 
 
-
         validate();
         stop();
 
@@ -182,7 +180,6 @@ public class HttpClientVertxTest extends TimedTesting {
 
                 })
                 .build();
-
 
 
         server.setHttpRequestConsumer(serverRequest -> {
@@ -245,7 +242,6 @@ public class HttpClientVertxTest extends TimedTesting {
 
 
         client.flush();
-
 
 
         validate();

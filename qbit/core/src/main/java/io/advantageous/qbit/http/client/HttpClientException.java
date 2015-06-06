@@ -1,6 +1,6 @@
 package io.advantageous.qbit.http.client;
 
-public class HttpClientException  extends RuntimeException {
+public class HttpClientException extends RuntimeException {
 
     public HttpClientException() {
     }

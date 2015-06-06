@@ -36,7 +36,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Created by rhightower on 1/28/15.
+ * created by rhightower on 1/28/15.
  */
 public class ServiceBuilder {
 
@@ -246,8 +246,6 @@ public class ServiceBuilder {
     }
 
     public ServiceQueue build() {
-
-
 
 
         ServiceQueue serviceQueue = new ServiceQueueImpl(this.getRootAddress(),

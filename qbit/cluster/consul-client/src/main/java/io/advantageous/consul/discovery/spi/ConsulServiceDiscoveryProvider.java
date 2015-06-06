@@ -9,10 +9,10 @@ import io.advantageous.consul.domain.option.RequestOptions;
 import io.advantageous.consul.domain.option.RequestOptionsBuilder;
 import io.advantageous.qbit.GlobalConstants;
 import io.advantageous.qbit.http.client.HttpClientClosedConnectionException;
-import io.advantageous.qbit.service.health.HealthStatus;
 import io.advantageous.qbit.service.discovery.EndpointDefinition;
 import io.advantageous.qbit.service.discovery.impl.ServiceHealthCheckIn;
 import io.advantageous.qbit.service.discovery.spi.ServiceDiscoveryProvider;
+import io.advantageous.qbit.service.health.HealthStatus;
 import io.advantageous.qbit.util.ConcurrentHashSet;
 import io.advantageous.qbit.util.Timer;
 import org.slf4j.Logger;
@@ -30,7 +30,7 @@ import static io.advantageous.boon.core.Str.sputs;
 
 /**
  * Consul Service Discovery Provider
- * Created by rhightower on 3/24/15.
+ * created by rhightower on 3/24/15.
  */
 public class ConsulServiceDiscoveryProvider implements ServiceDiscoveryProvider {
 
@@ -39,18 +39,10 @@ public class ConsulServiceDiscoveryProvider implements ServiceDiscoveryProvider 
     private final String datacenter;
     private final String[] tags;
     private final int longPollTimeSeconds;
-    private AtomicInteger lastIndex = new AtomicInteger();
-
     private final Logger logger = LoggerFactory.getLogger(ConsulServiceDiscoveryProvider.class);
     private final boolean debug = GlobalConstants.DEBUG || logger.isDebugEnabled();
     private final boolean trace = logger.isTraceEnabled();
-
-
-    /* Used to manage consul retry logic. */
-    private AtomicInteger consulRetryCount = new AtomicInteger();
-    private AtomicLong lastResetTimestamp = new AtomicLong(Timer.clockTime());
-
-    private final ThreadLocal<Consul> consulThreadLocal = new ThreadLocal<Consul>(){
+    private final ThreadLocal<Consul> consulThreadLocal = new ThreadLocal<Consul>() {
         @Override
         protected Consul initialValue() {
             final Consul consul = Consul.consul(consulHost, consulPort);
@@ -63,8 +55,10 @@ public class ConsulServiceDiscoveryProvider implements ServiceDiscoveryProvider 
             return consul;
         }
     };
-
-
+    private AtomicInteger lastIndex = new AtomicInteger();
+    /* Used to manage consul retry logic. */
+    private AtomicInteger consulRetryCount = new AtomicInteger();
+    private AtomicLong lastResetTimestamp = new AtomicLong(Timer.clockTime());
 
 
     public ConsulServiceDiscoveryProvider(final String consulHost,
@@ -76,7 +70,7 @@ public class ConsulServiceDiscoveryProvider implements ServiceDiscoveryProvider 
         this.consulPort = consulPort;
         this.datacenter = datacenter;
 
-        if (tag == null || "".equals(tag) ) {
+        if (tag == null || "".equals(tag)) {
             this.tags = new String[]{};
         } else {
             this.tags = new String[]{tag};
@@ -87,14 +81,13 @@ public class ConsulServiceDiscoveryProvider implements ServiceDiscoveryProvider 
             logger.trace(sputs(
                     "ConsulServiceDiscoveryProvider",
                     consulHost, consulPort, datacenter, tag, longPollTimeSeconds
-                    ));
+            ));
         }
     }
 
 
-
     @Override
-    public void unregisterServices(final ConcurrentHashSet<EndpointDefinition> endpointDefinitions){
+    public void unregisterServices(final ConcurrentHashSet<EndpointDefinition> endpointDefinitions) {
 
 
         for (EndpointDefinition definition : endpointDefinitions) {
@@ -102,7 +95,7 @@ public class ConsulServiceDiscoveryProvider implements ServiceDiscoveryProvider 
 
             try {
                 consul.agent().deregister(definition.getId());
-            }catch (Exception ex) {
+            } catch (Exception ex) {
                 handleConsulRecovery(consul, ex);
             }
         }
@@ -122,18 +115,18 @@ public class ConsulServiceDiscoveryProvider implements ServiceDiscoveryProvider 
         }
 
         EndpointDefinition endpointDefinition = registerQueue.poll();
-        if (endpointDefinition !=null) {
+        if (endpointDefinition != null) {
             Consul consul = consulThreadLocal.get();
 
-            while(endpointDefinition !=null) {
-                    try {
-                        consul.agent().registerService(endpointDefinition.getPort(),
-                                endpointDefinition.getTimeToLive(),
-                                endpointDefinition.getName(), endpointDefinition.getId(), tags);
-                    } catch (Exception ex) {
-                        handleConsulRecovery(consul, ex);
-                    }
-                    endpointDefinition = registerQueue.poll();
+            while (endpointDefinition != null) {
+                try {
+                    consul.agent().registerService(endpointDefinition.getPort(),
+                            endpointDefinition.getTimeToLive(),
+                            endpointDefinition.getName(), endpointDefinition.getId(), tags);
+                } catch (Exception ex) {
+                    handleConsulRecovery(consul, ex);
+                }
+                endpointDefinition = registerQueue.poll();
             }
         }
     }
@@ -179,18 +172,18 @@ public class ConsulServiceDiscoveryProvider implements ServiceDiscoveryProvider 
 
         ServiceHealthCheckIn checkIn = checkInsQueue.poll();
 
-        if (checkIn!=null) {
+        if (checkIn != null) {
             Consul consul = consulThreadLocal.get();
 
             while (checkIn != null) {
-                    Status status = convertStatus(checkIn.getHealthStatus());
+                Status status = convertStatus(checkIn.getHealthStatus());
 
-                    try {
-                        consul.agent().checkTtl(checkIn.getServiceId(), status, "" + checkIn.getHealthStatus());
-                    }catch (Exception ex) {
-                        handleConsulRecovery(consul, ex);
-                    }
-                    checkIn = checkInsQueue.poll();
+                try {
+                    consul.agent().checkTtl(checkIn.getServiceId(), status, "" + checkIn.getHealthStatus());
+                } catch (Exception ex) {
+                    handleConsulRecovery(consul, ex);
+                }
+                checkIn = checkInsQueue.poll();
             }
 
         }
@@ -224,13 +217,9 @@ public class ConsulServiceDiscoveryProvider implements ServiceDiscoveryProvider 
                 "node count fetched", healthyServices.size()));
 
 
-        final List<EndpointDefinition> endpointDefinitions =
-                convertToServiceDefinitions(healthyServices);
-
-        return endpointDefinitions;
+        return convertToServiceDefinitions(healthyServices);
 
     }
-
 
 
     private List<EndpointDefinition> convertToServiceDefinitions(
@@ -257,23 +246,21 @@ public class ConsulServiceDiscoveryProvider implements ServiceDiscoveryProvider 
                 new EndpointDefinition(HealthStatus.PASS, id, name, host, port);
 
         if (debug) logger.debug(sputs("convertToServiceDefinition \nserviceHealth",
-                serviceHealth, "\nserviceDefinition" , endpointDefinition));
+                serviceHealth, "\nserviceDefinition", endpointDefinition));
 
         return endpointDefinition;
     }
 
 
-
     private RequestOptions buildRequestOptions() {
-        return  new RequestOptionsBuilder()
+        return new RequestOptionsBuilder()
                 .consistency(Consistency.CONSISTENT)
                 .blockSeconds(longPollTimeSeconds, lastIndex.get()).build();
     }
 
 
-
     private List<ServiceHealth> getHealthyServices(final String serviceName
-                                                   ) {
+    ) {
         Consul consul = consulThreadLocal.get();
 
         try {
@@ -285,6 +272,7 @@ public class ConsulServiceDiscoveryProvider implements ServiceDiscoveryProvider 
 
             this.lastIndex.set(consulResponse.getIndex());
 
+            //noinspection UnnecessaryLocalVariable
             final List<ServiceHealth> healthyServices = consulResponse.getResponse();
 
             return healthyServices;
@@ -312,8 +300,6 @@ public class ConsulServiceDiscoveryProvider implements ServiceDiscoveryProvider 
         }
 
     }
-
-
 
 
 }

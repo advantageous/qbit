@@ -1,10 +1,9 @@
-
 package io.advantageous.qbit.util;
 
 
 /**
  * Timer for testing
- * Created by rhightower on 3/19/15.
+ * created by rhightower on 3/19/15.
  */
 public class TestTimer extends Timer {
 
@@ -12,7 +11,7 @@ public class TestTimer extends Timer {
 
     @Override
     public long time() {
-        return  (time == 0) ? Timer.timer().time() : time;
+        return (time == 0) ? Timer.timer().time() : time;
     }
 
     @Override
@@ -54,7 +53,7 @@ public class TestTimer extends Timer {
 
 
     public TestTimer seconds(int seconds) {
-        long delta = seconds *  1000;
+        long delta = seconds * 1000;
 
         time = time + delta;
         return this;

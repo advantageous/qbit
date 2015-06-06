@@ -21,7 +21,7 @@ package io.advantageous.qbit.sample.server.model;
 import java.util.Date;
 
 /**
- * Created by rhightower on 11/5/14.
+ * created by rhightower on 11/5/14.
  */
 public class TodoItem {
 

@@ -18,7 +18,7 @@ import static io.advantageous.qbit.metrics.support.StatServiceBuilder.statServic
 
 /**
  * StatusClusterTest
- * Created by rhightower on 3/24/15.
+ * created by rhightower on 3/24/15.
  */
 public class PrototypeSender {
 

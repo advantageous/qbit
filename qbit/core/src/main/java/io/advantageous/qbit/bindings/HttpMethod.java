@@ -22,7 +22,7 @@ package io.advantageous.qbit.bindings;
 /**
  * @author Rick Hightower
  *         <p>
- *         Created by Richard on 7/22/14.
+ *         created by Richard on 7/22/14.
  */
 public enum HttpMethod {
     POST,

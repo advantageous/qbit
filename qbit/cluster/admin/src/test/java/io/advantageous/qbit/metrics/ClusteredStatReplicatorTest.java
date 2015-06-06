@@ -15,10 +15,9 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static io.advantageous.boon.core.IO.puts;
-import static io.advantageous.qbit.service.discovery.EndpointDefinition.serviceDefinition;
-import static io.advantageous.qbit.service.discovery.EndpointDefinition.serviceDefinitionWithId;
-import static io.advantageous.qbit.service.discovery.EndpointDefinition.serviceDefinitions;
-import static org.junit.Assert.*;
+import static io.advantageous.qbit.service.discovery.EndpointDefinition.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 public class ClusteredStatReplicatorTest {
 
@@ -45,7 +44,7 @@ public class ClusteredStatReplicatorTest {
         public StatReplicator provide(EndpointDefinition endpointDefinition) {
 
             puts("Creating ", endpointDefinition);
-            DebugReplicator debugReplicator =  new DebugReplicator(true);
+            DebugReplicator debugReplicator = new DebugReplicator(true);
             statReplicatorMap.put(endpointDefinition.getId(), debugReplicator);
             return debugReplicator;
         }
@@ -138,7 +137,6 @@ public class ClusteredStatReplicatorTest {
     }
 
 
-
     @Test
     public void testDiscoveryAndSendsAndRemove() {
 
@@ -190,7 +188,6 @@ public class ClusteredStatReplicatorTest {
         );
 
 
-
         services.set(fooServices);
 
         clusteredStatReplicator.servicePoolChanged(serviceName);
@@ -199,7 +196,6 @@ public class ClusteredStatReplicatorTest {
 
 
         Sys.sleep(200);
-
 
 
         clusteredStatReplicator.replicateCount("foo", 5, 200);

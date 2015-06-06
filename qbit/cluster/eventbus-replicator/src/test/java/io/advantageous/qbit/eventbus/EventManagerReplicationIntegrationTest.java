@@ -14,9 +14,9 @@ import static io.advantageous.qbit.service.ServiceBundleBuilder.serviceBundleBui
 import static org.junit.Assert.assertEquals;
 
 /**
- * Created by rhightower on 3/1/15.
+ * created by rhightower on 3/1/15.
  */
-public class EventManagerReplicationIntegrationTest extends TimedTesting{
+public class EventManagerReplicationIntegrationTest extends TimedTesting {
 
 
     EventConnector replicatorClient;
@@ -46,7 +46,6 @@ public class EventManagerReplicationIntegrationTest extends TimedTesting{
         EventManager eventManagerBImpl = eventManagerBuilderB.build();
 
 
-
         /** replicated to B. */
         serviceBundle = serviceBundleBuilder().build(); //build service bundle
 
@@ -72,12 +71,12 @@ public class EventManagerReplicationIntegrationTest extends TimedTesting{
 
         final AtomicReference<Object> body = new AtomicReference<>();
 
-        eventManagerB.register("foo.bar", event ->  body.set(event.body()));
+        eventManagerB.register("foo.bar", event -> body.set(event.body()));
 
         eventManagerA.send("foo.bar", "hello");
         ServiceProxyUtils.flushServiceProxy(eventManagerA);
 
-        waitForTrigger(20, o -> body.get()!=null);
+        waitForTrigger(20, o -> body.get() != null);
 
 
         assertEquals("hello", body.get());

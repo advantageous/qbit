@@ -22,13 +22,11 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static io.advantageous.boon.core.IO.puts;
-import static io.advantageous.qbit.service.discovery.EndpointDefinition.serviceDefinition;
-import static io.advantageous.qbit.service.discovery.EndpointDefinition.serviceDefinitionWithId;
-import static io.advantageous.qbit.service.discovery.EndpointDefinition.serviceDefinitions;
+import static io.advantageous.qbit.service.discovery.EndpointDefinition.*;
 import static org.junit.Assert.assertEquals;
 
 /**
- * Created by rick on 5/20/15.
+ * created by rick on 5/20/15.
  */
 public class ServiceDiscoveryWithFileSystemTest {
 
@@ -42,11 +40,6 @@ public class ServiceDiscoveryWithFileSystemTest {
     AtomicReference<String> servicePoolChangedServiceNameFromListener;
 
     File dir;
-
-
-
-
-
 
 
     ServiceChangedEventChannel eventChannel = new ServiceChangedEventChannel() {
@@ -99,7 +92,7 @@ public class ServiceDiscoveryWithFileSystemTest {
     @Before
     public void setup() throws Exception {
 
-       dir  = File.createTempFile("testSome", "testSome").getParentFile();
+        dir = File.createTempFile("testSome", "testSome").getParentFile();
 
 
         servicePoolChangedCalled = new AtomicInteger();
@@ -111,7 +104,6 @@ public class ServiceDiscoveryWithFileSystemTest {
                 new ServiceDiscoveryFileSystemProvider(dir, 50);
 
 
-
         serviceDiscovery = ServiceDiscoveryBuilder.serviceDiscoveryBuilder()
                 .setPeriodicScheduler(createPeriodicScheduler(10))
                 .setServiceChangedEventChannel(eventChannel)
@@ -120,12 +112,10 @@ public class ServiceDiscoveryWithFileSystemTest {
                 .setPollForServicesInterval(100).build();
 
 
-
         serviceDiscovery.start();
 
 
     }
-
 
 
     @Test
@@ -154,7 +144,7 @@ public class ServiceDiscoveryWithFileSystemTest {
 
     }
 
-    private void write(List<EndpointDefinition> fooServices) throws Exception{
+    private void write(List<EndpointDefinition> fooServices) throws Exception {
         JsonSerializer jsonSerializer = new JsonSerializerFactory().create();
         String json = jsonSerializer.serialize(fooServices).toString();
 

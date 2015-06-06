@@ -20,7 +20,6 @@ public class EventRemoteReplicatorService implements EventConnector {
     private final EventConnector eventConnector;
 
 
-
     public EventRemoteReplicatorService(final EventManager eventManager) {
         this.eventConnector = new SimpleEventConnector(eventManager);
     }
@@ -31,16 +30,14 @@ public class EventRemoteReplicatorService implements EventConnector {
     }
 
 
-
-
-
     public EventRemoteReplicatorService() {
         this.eventConnector = new SimpleEventConnector(QBit.factory().systemEventManager());
     }
 
 
-
-    /** This message receives an event from a remote call. */
+    /**
+     * This message receives an event from a remote call.
+     */
     @Override
     public void forwardEvent(final EventTransferObject<Object> event) {
 
@@ -84,6 +81,7 @@ public class EventRemoteReplicatorService implements EventConnector {
 
             @Override
             public boolean equals(Object obj) {
+                //noinspection EqualsBetweenInconvertibleTypes
                 return event.equals(obj);
             }
 

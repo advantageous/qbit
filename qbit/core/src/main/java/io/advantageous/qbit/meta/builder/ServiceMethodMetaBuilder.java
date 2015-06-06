@@ -13,17 +13,16 @@ import java.util.List;
 public class ServiceMethodMetaBuilder {
 
 
+    private List<RequestMeta> requestEndpoints = new ArrayList<RequestMeta>();
+    private MethodAccess methodAccess;
+    private String name;
+    private String address;
+    private TypeType returnType;
+    private List<TypeType> paramTypes;
+
     public static ServiceMethodMetaBuilder serviceMethodMetaBuilder() {
         return new ServiceMethodMetaBuilder();
     }
-
-
-    private  List<RequestMeta> requestEndpoints = new ArrayList<RequestMeta>();
-    private  MethodAccess methodAccess;
-    private  String name;
-    private  String address;
-    private  TypeType returnType;
-    private  List<TypeType> paramTypes;
 
     public String getAddress() {
         return address;
@@ -92,7 +91,7 @@ public class ServiceMethodMetaBuilder {
     }
 
     public ServiceMethodMeta build() {
-        if (methodAccess!=null) {
+        if (methodAccess != null) {
             return new ServiceMethodMeta(getMethodAccess(), this.getRequestEndpoints());
         } else {
             return new ServiceMethodMeta(getName(), this.getRequestEndpoints(),

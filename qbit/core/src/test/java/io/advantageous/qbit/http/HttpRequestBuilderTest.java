@@ -23,7 +23,6 @@ import io.advantageous.qbit.http.request.HttpRequestBuilder;
 import org.junit.Test;
 
 import static io.advantageous.boon.core.Exceptions.die;
-import static org.junit.Assert.assertEquals;
 
 public class HttpRequestBuilderTest {
 

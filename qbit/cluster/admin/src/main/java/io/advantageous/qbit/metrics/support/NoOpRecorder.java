@@ -24,7 +24,7 @@ import io.advantageous.qbit.metrics.StatRecorder;
 import java.util.List;
 
 /**
- * Created by rhightower on 1/28/15.
+ * created by rhightower on 1/28/15.
  */
 public class NoOpRecorder implements StatRecorder {
 

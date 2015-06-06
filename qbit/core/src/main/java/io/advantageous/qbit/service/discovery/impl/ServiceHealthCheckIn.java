@@ -3,8 +3,8 @@ package io.advantageous.qbit.service.discovery.impl;
 import io.advantageous.qbit.service.health.HealthStatus;
 
 /**
-* Created by rhightower on 3/24/15.
-*/
+ * created by rhightower on 3/24/15.
+ */
 public class ServiceHealthCheckIn {
     final private String serviceId;
     final private HealthStatus healthStatus;

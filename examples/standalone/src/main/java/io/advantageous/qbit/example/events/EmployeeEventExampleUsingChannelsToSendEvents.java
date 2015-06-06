@@ -18,6 +18,7 @@
 
 package io.advantageous.qbit.example.events;
 
+import io.advantageous.boon.core.Sys;
 import io.advantageous.qbit.QBit;
 import io.advantageous.qbit.annotation.EventChannel;
 import io.advantageous.qbit.annotation.OnEvent;
@@ -26,15 +27,15 @@ import io.advantageous.qbit.annotation.QueueCallbackType;
 import io.advantageous.qbit.events.EventBusProxyCreator;
 import io.advantageous.qbit.events.EventManager;
 import io.advantageous.qbit.service.ServiceQueue;
-import io.advantageous.boon.core.Sys;
 
 import static io.advantageous.qbit.service.ServiceBuilder.serviceBuilder;
 import static io.advantageous.qbit.service.ServiceProxyUtils.flushServiceProxy;
 
 /**
  * EmployeeEventExampleUsingChannelsToSendEvents
- * Created by rhightower on 2/11/15.
+ * created by rhightower on 2/11/15.
  */
+@SuppressWarnings("ALL")
 public class EmployeeEventExampleUsingChannelsToSendEvents {
 
 
@@ -125,7 +126,6 @@ public class EmployeeEventExampleUsingChannelsToSendEvents {
     }
 
 
-
     @EventChannel
     interface SalaryChangedChannel {
 
@@ -139,7 +139,6 @@ public class EmployeeEventExampleUsingChannelsToSendEvents {
 
         @EventChannel(NEW_HIRE_CHANNEL)
         void sendNewEmployee(Employee employee);
-
 
 
     }
@@ -239,7 +238,7 @@ public class EmployeeEventExampleUsingChannelsToSendEvents {
 
     }
 
-    public static class PayrollService implements SalaryChangedChannel{
+    public static class PayrollService implements SalaryChangedChannel {
 
         @Override
         public void salaryChanged(Employee employee, int newSalary) {

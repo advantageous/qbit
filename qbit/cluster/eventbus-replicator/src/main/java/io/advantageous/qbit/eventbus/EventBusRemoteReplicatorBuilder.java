@@ -11,14 +11,14 @@ import io.advantageous.qbit.server.ServiceEndpointServer;
 public class EventBusRemoteReplicatorBuilder {
 
 
-    public static EventBusRemoteReplicatorBuilder eventBusRemoteReplicatorBuilder() {
-        return new EventBusRemoteReplicatorBuilder();
-    }
-
     private EventManager eventManager;
     private EventConnector eventConnector;
     private String name = "eventReplicator";
     private EndpointServerBuilder endpointServerBuilder;
+
+    public static EventBusRemoteReplicatorBuilder eventBusRemoteReplicatorBuilder() {
+        return new EventBusRemoteReplicatorBuilder();
+    }
 
     public EventManager getEventManager() {
         return eventManager;
@@ -50,7 +50,7 @@ public class EventBusRemoteReplicatorBuilder {
 
     public EndpointServerBuilder getEndpointServerBuilder() {
 
-        if (endpointServerBuilder ==null) {
+        if (endpointServerBuilder == null) {
             endpointServerBuilder = EndpointServerBuilder.endpointServerBuilder();
 
         }
@@ -63,7 +63,6 @@ public class EventBusRemoteReplicatorBuilder {
     }
 
 
-
     public EndpointServerBuilder serviceServerBuilder() {
         return getEndpointServerBuilder();
     }
@@ -73,15 +72,15 @@ public class EventBusRemoteReplicatorBuilder {
 
         ServiceEndpointServer serviceEndpointServer = serviceServerBuilder().build();
 
-        if (this.getEventConnector()!=null && this.getEventManager() !=null) {
+        if (this.getEventConnector() != null && this.getEventManager() != null) {
             throw new IllegalStateException("Only event connector or event manager can be set, not both");
         }
 
         EventRemoteReplicatorService eventRemoteReplicatorService;
 
-        if (this.getEventConnector()==null && this.getEventManager() ==null) {
+        if (this.getEventConnector() == null && this.getEventManager() == null) {
             eventRemoteReplicatorService = new EventRemoteReplicatorService();
-        } else if (this.getEventConnector()!=null){
+        } else if (this.getEventConnector() != null) {
             eventRemoteReplicatorService = new EventRemoteReplicatorService(this.getEventConnector());
         } else {
             eventRemoteReplicatorService = new EventRemoteReplicatorService(this.getEventManager());

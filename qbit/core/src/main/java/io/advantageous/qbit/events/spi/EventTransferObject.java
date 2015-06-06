@@ -21,7 +21,6 @@ package io.advantageous.qbit.events.spi;
 import io.advantageous.qbit.message.Event;
 
 /**
- *
  * @param <T> T
  */
 public class EventTransferObject<T> implements Event<T> {

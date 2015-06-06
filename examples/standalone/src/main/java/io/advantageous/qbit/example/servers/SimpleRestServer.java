@@ -18,10 +18,10 @@
 
 package io.advantageous.qbit.example.servers;
 
+import io.advantageous.boon.core.Sys;
 import io.advantageous.qbit.annotation.RequestMapping;
 import io.advantageous.qbit.server.EndpointServerBuilder;
 import io.advantageous.qbit.server.ServiceEndpointServer;
-import io.advantageous.boon.core.Sys;
 
 import java.util.Collections;
 import java.util.List;
@@ -37,6 +37,7 @@ import java.util.List;
  * Requests/sec:  76651.84
  * Transfer/sec:      7.68MB
  */
+@SuppressWarnings("ALL")
 public class SimpleRestServer {
 
 

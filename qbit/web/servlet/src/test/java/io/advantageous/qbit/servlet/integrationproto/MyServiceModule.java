@@ -26,7 +26,7 @@ import static io.advantageous.qbit.server.EndpointServerBuilder.endpointServerBu
 
 /**
  * @author rhightower
- * on 2/12/15.
+ *         on 2/12/15.
  */
 public class MyServiceModule {
     public static ServiceEndpointServer configureApp(final HttpTransport httpTransport) {
@@ -37,8 +37,8 @@ public class MyServiceModule {
     @RequestMapping("/ping")
     public static class PingService {
 
-    @RequestMapping("/ping")
-    public String ping() {
+        @RequestMapping("/ping")
+        public String ping() {
             return "ok";
         }
     }

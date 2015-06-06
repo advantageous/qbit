@@ -114,12 +114,9 @@ public class HttpServerVertx implements HttpServer {
     @Override
     public void setHttpRequestsIdleConsumer(final Consumer<Void> idleRequestConsumer) {
         this.simpleHttpServer.setHttpRequestsIdleConsumer(
-                new Consumer<Void>() {
-                    @Override
-                    public void accept(Void aVoid) {
-                        idleRequestConsumer.accept(null);
-                        vertxUtils.setTime(Timer.timer().now());
-                    }
+                aVoid -> {
+                    idleRequestConsumer.accept(null);
+                    vertxUtils.setTime(Timer.timer().now());
                 }
         );
     }
@@ -128,12 +125,9 @@ public class HttpServerVertx implements HttpServer {
     @Override
     public void setWebSocketIdleConsume(final Consumer<Void> idleWebSocketConsumer) {
         this.simpleHttpServer.setWebSocketIdleConsume(
-                new Consumer<Void>() {
-                    @Override
-                    public void accept(Void aVoid) {
-                        idleWebSocketConsumer.accept(null);
-                        vertxUtils.setTime(Timer.timer().now());
-                    }
+                aVoid -> {
+                    idleWebSocketConsumer.accept(null);
+                    vertxUtils.setTime(Timer.timer().now());
                 }
         );
     }
@@ -144,7 +138,7 @@ public class HttpServerVertx implements HttpServer {
         simpleHttpServer.start();
 
         if (debug) {
-            vertx.setPeriodic(10_000, event -> logger.info("Exception Count {} Close Count {}", exceptionCount,  closeCount));
+            vertx.setPeriodic(10_000, event -> logger.info("Exception Count {} Close Count {}", exceptionCount, closeCount));
         }
         httpServer = vertx.createHttpServer();
 
@@ -158,7 +152,6 @@ public class HttpServerVertx implements HttpServer {
         httpServer.setMaxWebSocketFrameSize(options.getMaxWebSocketFrameSize());
         httpServer.websocketHandler(this::handleWebSocketMessage);
         httpServer.requestHandler(this::handleHttpRequest);
-
 
 
         if (Str.isEmpty(host)) {

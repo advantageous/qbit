@@ -27,8 +27,9 @@ apply plugin: 'application'
 
 version = '0.1-SNAPSHOT'
 
-
+//noinspection GroovyUnusedAssignment
 sourceCompatibility = JavaVersion.VERSION_1_8
+//noinspection GroovyUnusedAssignment
 targetCompatibility = JavaVersion.VERSION_1_8
 
 
@@ -43,7 +44,7 @@ sourceSets {
     }
 }
 
-
+//noinspection GroovyUnusedAssignment
 mainClassName = "io.advantageous.qbit.examples.TodoMain"
 
 repositories {

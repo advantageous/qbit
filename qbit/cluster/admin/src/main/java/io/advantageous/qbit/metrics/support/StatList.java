@@ -10,7 +10,7 @@ import static io.advantageous.boon.primitive.Int.varianceDouble;
 
 /**
  * Holds primitive values in a list like object for ints.
- *
+ * <p>
  * <p>
  * Has sum, mean, median, standardDeviation, reduceBy,
  * variance.
@@ -32,6 +32,7 @@ public class StatList extends AbstractList<Integer> {
 
     /**
      * Create a new list with this many items in it.
+     *
      * @param capacity capacity
      */
     public StatList(final int capacity) {
@@ -49,11 +50,18 @@ public class StatList extends AbstractList<Integer> {
 
     /**
      * Create a new list with this many items in it.
+     *
      * @param values values
      */
     public StatList(int values[]) {
         this.values = values;
         this.end = values.length;
+    }
+
+    private static double meanDouble(int[] values, final int start, final int length) {
+        //noinspection UnnecessaryLocalVariable
+        @SuppressWarnings("UnnecessaryLocalVariable") double mean = ((double) bigSum(values, start, length)) / ((double) length);
+        return mean;
     }
 
     public void clear() {
@@ -71,7 +79,6 @@ public class StatList extends AbstractList<Integer> {
     public Integer get(int index) {
         return values[index];
     }
-
 
     /**
      * Get the value at index but don't use a wrapper
@@ -132,7 +139,6 @@ public class StatList extends AbstractList<Integer> {
     /**
      * Add a new array to the list.
      *
-     *
      * @param newValues new values
      * @return was able to add.
      */
@@ -160,7 +166,6 @@ public class StatList extends AbstractList<Integer> {
         return oldValue;
     }
 
-
     /**
      * Set in a new value no wrapper
      *
@@ -184,16 +189,15 @@ public class StatList extends AbstractList<Integer> {
         return end;
     }
 
-
     /**
      * Sums the values with bounds checking.
+     *
      * @return sum
      */
     public int sum() {
 
         return Int.sum(values, end);
     }
-
 
     /**
      * Get a copy of the array up to the end element.
@@ -205,7 +209,6 @@ public class StatList extends AbstractList<Integer> {
         return java.util.Arrays.copyOfRange(values, 0, end);
     }
 
-
     /**
      * This would be a good opportunity to reintroduce dynamic invoke
      *
@@ -216,18 +219,16 @@ public class StatList extends AbstractList<Integer> {
         return Int.reduceBy(values, end, function);
     }
 
-
     /**
      * This would be a good opportunity to reintroduce dynamic invoke
      *
      * @param function function
-     * @param name name
+     * @param name     name
      * @return result
      */
     public long reduceBy(Object function, String name) {
         return Int.reduceBy(values, end, function, name);
     }
-
 
     /**
      * @param reduceBy reduceBy function
@@ -246,13 +247,6 @@ public class StatList extends AbstractList<Integer> {
         return (float) meanDouble(values, 0, end);
     }
 
-
-    private static double meanDouble( int[] values, final int start, final int length ) {
-        double mean = ((double)bigSum(values, start, length))/ ((double) length);
-        return mean;
-    }
-
-
     /**
      * standardDeviation
      *
@@ -270,7 +264,7 @@ public class StatList extends AbstractList<Integer> {
      * @return variance
      */
     public float variance() {
-        return (float)varianceDouble(values, 0, end);
+        return (float) varianceDouble(values, 0, end);
     }
 
 
@@ -306,7 +300,6 @@ public class StatList extends AbstractList<Integer> {
 
     /**
      * sort
-     *
      */
     public void sort() {
         Arrays.sort(values, 0, end);

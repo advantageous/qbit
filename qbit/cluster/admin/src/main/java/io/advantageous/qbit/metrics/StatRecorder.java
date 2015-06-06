@@ -23,7 +23,7 @@ import io.advantageous.qbit.metrics.support.MinuteStat;
 import java.util.List;
 
 /**
- * Created by rhightower on 1/28/15.
+ * created by rhightower on 1/28/15.
  */
 public interface StatRecorder {
 

@@ -27,15 +27,11 @@ import static io.advantageous.boon.core.IO.puts;
 import static io.advantageous.boon.core.Str.sputs;
 import static io.advantageous.boon.core.reflection.ClassMeta.classMeta;
 import static io.advantageous.boon.json.JsonFactory.toJson;
-import static io.advantageous.qbit.meta.ParameterMeta.doubleParam;
-import static io.advantageous.qbit.meta.ParameterMeta.intParam;
-import static io.advantageous.qbit.meta.ParameterMeta.stringParam;
+import static io.advantageous.qbit.meta.ParameterMeta.*;
 import static io.advantageous.qbit.meta.RequestMeta.getRequest;
 import static io.advantageous.qbit.meta.ServiceMeta.service;
 import static io.advantageous.qbit.meta.ServiceMethodMeta.method;
-import static io.advantageous.qbit.meta.params.Param.headParam;
-import static io.advantageous.qbit.meta.params.Param.pathParam;
-import static io.advantageous.qbit.meta.params.Param.requestParam;
+import static io.advantageous.qbit.meta.params.Param.*;
 import static org.junit.Assert.assertEquals;
 
 public class ServiceMetaTest {
@@ -50,15 +46,6 @@ public class ServiceMetaTest {
 
     }
 
-
-    public static class MyService {
-
-        public String hello(String arg, int arg2, float arg3) {
-            return sputs(arg, arg2, arg3);
-        }
-    }
-
-
     @Test
     public void test() throws Exception {
 
@@ -66,7 +53,6 @@ public class ServiceMetaTest {
 
         puts(toJson(myService));
     }
-
 
     @Test
     public void test2() throws Exception {
@@ -77,25 +63,24 @@ public class ServiceMetaTest {
                 service("myService", "/myservice/{score}",
 
                         method(
-                                  "hello",
-                                  getRequest(
-                                          "/callme/",
-                                          stringParam(
-                                                  headParam("foobarHeader")
-                                          ),
-                                          intParam(
-                                                  requestParam("helloMom")
-                                          ),
-                                          doubleParam(
-                                                  pathParam("score", 9)
-                                          )
-                            )
-                      )
+                                "hello",
+                                getRequest(
+                                        "/callme/",
+                                        stringParam(
+                                                headParam("foobarHeader")
+                                        ),
+                                        intParam(
+                                                requestParam("helloMom")
+                                        ),
+                                        doubleParam(
+                                                pathParam("score", 9)
+                                        )
+                                )
+                        )
                 );
 
         puts(toJson(myService));
     }
-
 
     @Test
     public void test3() throws Exception {
@@ -130,7 +115,12 @@ public class ServiceMetaTest {
         assertEquals("/callme/", context.getServices().get(0).getMethods().get(0).getRequestEndpoints().get(0).getRequestURI());
     }
 
+    public static class MyService {
 
+        public String hello(String arg, int arg2, float arg3) {
+            return sputs(arg, arg2, arg3);
+        }
+    }
 
 
 }

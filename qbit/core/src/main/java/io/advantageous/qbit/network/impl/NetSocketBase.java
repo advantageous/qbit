@@ -31,8 +31,8 @@ public class NetSocketBase implements NetSocket {
     private final String remoteAddress;
     private final String uri;
     private final boolean binary;
-    private NetworkSender networkSender;
     private final AtomicBoolean open = new AtomicBoolean();
+    private NetworkSender networkSender;
     private Consumer<String> textMessageConsumer = text -> {
     };
     private Consumer<byte[]> binaryMessageConsumer = bytes -> {

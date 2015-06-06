@@ -4,7 +4,6 @@ import io.advantageous.qbit.Factory;
 import io.advantageous.qbit.events.EventManager;
 import io.advantageous.qbit.events.spi.EventConnector;
 import io.advantageous.qbit.events.spi.EventTransferObject;
-//import io.advantageous.qbit.http.jetty.RegisterJettyWithQBit;
 import io.advantageous.qbit.spi.FactorySPI;
 import io.advantageous.qbit.spi.RegisterBoonWithQBit;
 import org.junit.Before;
@@ -12,9 +11,9 @@ import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
+
+//import io.advantageous.qbit.http.jetty.RegisterJettyWithQBit;
 
 public class EventRemoteReplicatorServiceTest {
 
@@ -69,7 +68,6 @@ public class EventRemoteReplicatorServiceTest {
     }
 
 
-
     @Test
     public void testWithConnectorCodeCoverage() {
         EventConnector eventConnector = new EventConnector() {
@@ -95,11 +93,6 @@ public class EventRemoteReplicatorServiceTest {
         service.forwardEvent(event);
         service.flushConnector();
     }
-
-
-
-
-
 
 
 }

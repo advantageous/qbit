@@ -20,30 +20,25 @@ import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * ConsulServiceDiscoveryBuilder
- * Created by rhightower on 3/23/15.
+ * created by rhightower on 3/23/15.
  */
 public class ConsulServiceDiscoveryBuilder {
-
-
-
-    public static ConsulServiceDiscoveryBuilder consulServiceDiscoveryBuilder () {
-        return new ConsulServiceDiscoveryBuilder();
-    }
 
 
     private String consulHost = "localhost";
     private int consulPort = 8500;
     private String datacenter;
     private String tag;
-    private int longPollTimeSeconds=5;
+    private int longPollTimeSeconds = 5;
     private PeriodicScheduler periodicScheduler;
     private ServiceChangedEventChannel serviceChangedEventChannel;
-
     private File backupDir;
-
     private ServicePoolListener servicePoolListener;
     private ExecutorService executorService;
 
+    public static ConsulServiceDiscoveryBuilder consulServiceDiscoveryBuilder() {
+        return new ConsulServiceDiscoveryBuilder();
+    }
 
     public File getBackupDir() {
         return backupDir;
@@ -94,7 +89,7 @@ public class ConsulServiceDiscoveryBuilder {
         return longPollTimeSeconds;
     }
 
-    public ConsulServiceDiscoveryBuilder setLongPollTimeSeconds(int longPollTimeSeconds) {
+    public ConsulServiceDiscoveryBuilder setLongPollTimeSeconds(@SuppressWarnings("SameParameterValue") int longPollTimeSeconds) {
         this.longPollTimeSeconds = longPollTimeSeconds;
         return this;
     }
@@ -153,7 +148,7 @@ public class ConsulServiceDiscoveryBuilder {
             ServiceDiscoveryProvider backup = new ServiceDiscoveryFileSystemProvider(backupDir, 1_000);
             ServicePoolListener poolListener = serviceName -> {
                 ServiceDiscovery serviceDiscovery = ref.get();
-                if (serviceDiscovery!=null) {
+                if (serviceDiscovery != null) {
                     List<EndpointDefinition> endpointDefinitions = serviceDiscovery.loadServices(serviceName);
                     JsonSerializer jsonSerializer = new JsonSerializerFactory().create();
                     String json = jsonSerializer.serialize(endpointDefinitions).toString();

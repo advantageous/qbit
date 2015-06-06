@@ -21,8 +21,8 @@ package io.advantageous.qbit;
 import io.advantageous.qbit.client.Client;
 import io.advantageous.qbit.concurrent.PeriodicScheduler;
 import io.advantageous.qbit.events.EventBusProxyCreator;
-import io.advantageous.qbit.events.spi.EventConnector;
 import io.advantageous.qbit.events.EventManager;
+import io.advantageous.qbit.events.spi.EventConnector;
 import io.advantageous.qbit.http.HttpTransport;
 import io.advantageous.qbit.http.client.HttpClient;
 import io.advantageous.qbit.http.config.HttpServerOptions;
@@ -36,9 +36,9 @@ import io.advantageous.qbit.queue.QueueBuilder;
 import io.advantageous.qbit.sender.Sender;
 import io.advantageous.qbit.server.ServiceEndpointServer;
 import io.advantageous.qbit.service.BeforeMethodCall;
-import io.advantageous.qbit.service.ServiceQueue;
 import io.advantageous.qbit.service.ServiceBundle;
 import io.advantageous.qbit.service.ServiceMethodHandler;
+import io.advantageous.qbit.service.ServiceQueue;
 import io.advantageous.qbit.spi.FactorySPI;
 import io.advantageous.qbit.spi.ProtocolEncoder;
 import io.advantageous.qbit.spi.ProtocolParser;
@@ -61,7 +61,7 @@ public interface Factory {
         throw new IllegalStateException("Not implemented");
     }
 
-    default PeriodicScheduler periodicScheduler(){
+    default PeriodicScheduler periodicScheduler() {
         throw new IllegalStateException("Not implemented");
     }
 
@@ -137,14 +137,14 @@ public interface Factory {
     }
 
     default ServiceQueue createService(String rootAddress, String serviceAddress,
-                                  Object object,
-                                  Queue<Response<Object>> responseQueue,
-                                  final QueueBuilder requestQueueBuilder,
-                                  final QueueBuilder responseQueueBuilder,
-                                  boolean asyncCalls,
-                                  boolean invokeDynamic,
-                                  boolean handleCallbacks,
-                                  final QBitSystemManager systemManager) {
+                                       Object object,
+                                       Queue<Response<Object>> responseQueue,
+                                       final QueueBuilder requestQueueBuilder,
+                                       final QueueBuilder responseQueueBuilder,
+                                       boolean asyncCalls,
+                                       boolean invokeDynamic,
+                                       boolean handleCallbacks,
+                                       final QBitSystemManager systemManager) {
         throw new UnsupportedOperationException();
     }
 
@@ -156,13 +156,13 @@ public interface Factory {
      * @param serviceAddress client address URI
      * @param object         object that implements the client
      * @param responseQueue  the response queue.
-     * @param systemManager system manager
+     * @param systemManager  system manager
      * @return new Service that was created
      */
     default ServiceQueue createService(String rootAddress, String serviceAddress,
-                                  Object object,
-                                  Queue<Response<Object>> responseQueue,
-                                  final QBitSystemManager systemManager) {
+                                       Object object,
+                                       Queue<Response<Object>> responseQueue,
+                                       final QBitSystemManager systemManager) {
         throw new UnsupportedOperationException();
     }
 
@@ -217,11 +217,10 @@ public interface Factory {
      *
      * @param serviceInterface client view of client
      * @param uri              uri of client
-     *
      * @param serviceName      name of the client that we are proxying method calls to.
-     * @param port port
-     * @param host host
-     * @param connected connected
+     * @param port             port
+     * @param host             host
+     * @param connected        connected
      * @param returnAddressArg return address
      * @param sender           how we are sending the message over the wire
      * @param beforeMethodCall before method call
@@ -311,15 +310,15 @@ public interface Factory {
     }
 
     default ServiceEndpointServer createServiceServer(final HttpTransport httpServer,
-                                              final ProtocolEncoder encoder,
-                                              final ProtocolParser protocolParser,
-                                              final ServiceBundle serviceBundle,
-                                              final JsonMapper jsonMapper,
-                                              final int timeOutInSeconds,
-                                              final int numberOfOutstandingRequests,
-                                              final int batchSize,
-                                              final int flushInterval,
-                                              final QBitSystemManager systemManager
+                                                      final ProtocolEncoder encoder,
+                                                      final ProtocolParser protocolParser,
+                                                      final ServiceBundle serviceBundle,
+                                                      final JsonMapper jsonMapper,
+                                                      final int timeOutInSeconds,
+                                                      final int numberOfOutstandingRequests,
+                                                      final int batchSize,
+                                                      final int flushInterval,
+                                                      final QBitSystemManager systemManager
     ) {
         throw new UnsupportedOperationException();
     }

@@ -18,10 +18,10 @@
 
 package io.advantageous.qbit.http;
 
+import io.advantageous.boon.core.reflection.BeanUtils;
 import io.advantageous.qbit.http.server.websocket.WebSocketMessage;
 import io.advantageous.qbit.http.server.websocket.WebSocketMessageBuilder;
 import io.advantageous.qbit.http.websocket.WebSocketSender;
-import io.advantageous.boon.core.reflection.BeanUtils;
 import org.junit.Before;
 import org.junit.Test;
 

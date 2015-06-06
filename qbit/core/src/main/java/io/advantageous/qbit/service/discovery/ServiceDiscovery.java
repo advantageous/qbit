@@ -13,9 +13,17 @@ import java.util.UUID;
 
 /**
  * Service Discovery
- * Created by rhightower on 3/23/15.
+ * created by rhightower on 3/23/15.
  */
 public interface ServiceDiscovery extends Startable, Stoppable {
+
+    static String uniqueString(int port) {
+        try {
+            return port + "-" + InetAddress.getLocalHost().getHostName().replace('.', '-');
+        } catch (UnknownHostException e) {
+            return port + "-" + UUID.randomUUID().toString();
+        }
+    }
 
     default EndpointDefinition register(
             final String serviceName,
@@ -26,8 +34,6 @@ public interface ServiceDiscovery extends Startable, Stoppable {
                 serviceName, null, port);
     }
 
-
-
     default EndpointDefinition registerWithTTL(
             final String serviceName,
             final int port,
@@ -37,15 +43,6 @@ public interface ServiceDiscovery extends Startable, Stoppable {
                 serviceName + "." + uniqueString(port),
                 serviceName, null, port, timeToLiveSeconds);
     }
-
-    static String uniqueString(int port) {
-        try {
-            return port + "-" + InetAddress.getLocalHost().getHostName().replace('.', '-');
-        } catch (UnknownHostException e) {
-            return port + "-" + UUID.randomUUID().toString();
-        }
-    }
-
 
     default EndpointDefinition registerWithIdAndTimeToLive(
             final String serviceName, final String serviceId, final int port, final int timeToLiveSeconds) {
@@ -61,7 +58,6 @@ public interface ServiceDiscovery extends Startable, Stoppable {
                 serviceId,
                 serviceName, null, port);
     }
-
 
 
     void watch(String serviceName);
@@ -85,11 +81,14 @@ public interface ServiceDiscovery extends Startable, Stoppable {
         return Collections.emptyList();
     }
 
-    default void start() {}
-    default void stop() {}
+    default void start() {
+    }
+
+    default void stop() {
+    }
 
 
     default Set<EndpointDefinition> localDefinitions() {
-       return Collections.emptySet();
+        return Collections.emptySet();
     }
 }

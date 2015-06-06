@@ -41,7 +41,7 @@ import static io.advantageous.boon.core.Exceptions.die;
 import static io.advantageous.qbit.service.Protocol.*;
 
 /**
- * Created by Richard on 9/26/14.
+ * created by Richard on 9/26/14.
  *
  * @author Rick Hightower
  */

@@ -39,7 +39,7 @@ import static io.advantageous.boon.core.IO.puts;
 
 
 /**
- * Created by Richard on 9/26/14.
+ * created by Richard on 9/26/14.
  */
 public class ProtocolParserVersion1Test {
 

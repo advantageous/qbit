@@ -26,7 +26,7 @@ import java.util.Collection;
  * This provides a non-thread safe access to an output queue which allows batching of messages to other threads to
  * minimize thread coordination.
  * <p>
- * Created by Richard on 7/18/14.
+ * created by Richard on 7/18/14.
  *
  * @author rhightower
  */
@@ -45,8 +45,11 @@ public interface SendQueue<T> extends Output {
 
     void flushSends();
 
-    default void start(){}
-    default void stop(){}
+    default void start() {
+    }
+
+    default void stop() {
+    }
 
 
 }

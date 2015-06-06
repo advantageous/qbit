@@ -22,7 +22,7 @@ import io.advantageous.qbit.http.websocket.WebSocketSender;
 
 /**
  * Allows one to createWithWorkers a WebSocket message to forwardEvent.
- * Created by rhightower on 10/24/14.
+ * created by rhightower on 10/24/14.
  *
  * @author rhightower
  */
