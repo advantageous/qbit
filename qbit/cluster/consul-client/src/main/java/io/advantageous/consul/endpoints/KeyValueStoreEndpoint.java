@@ -156,8 +156,9 @@ public class KeyValueStoreEndpoint {
      * @return A list of zero to many string values.
      */
     public List<String> getValuesAsString(String key) {
-        List<String> result = getValues(key).stream().map(keyValue -> RequestUtils.decodeBase64(keyValue.getValue())).collect(Collectors.toList());
-
+        @SuppressWarnings("UnnecessaryLocalVariable")
+        List<String> result = getValues(key).stream().map(keyValue ->
+                RequestUtils.decodeBase64(keyValue.getValue())).collect(Collectors.toList());
         return result;
     }
 

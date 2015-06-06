@@ -158,7 +158,7 @@ public class BoonServiceMethodCallHandler implements ServiceMethodHandler {
         final Class<?>[] parameterTypes = methodAccess != null ? methodAccess.parameterTypes() : new Class<?>[0];
         final List<TypeType> paramEnumTypes = methodAccess != null ? methodAccess.paramTypeEnumList() : null;
 
-        final List<Object> args = prepareArgumentList(methodCall, methodAccess.parameterTypes());
+        final List<Object> args = prepareArgumentList(methodCall, methodAccess != null ? methodAccess.parameterTypes() : new Class<?>[0]);
         final List<List<AnnotationData>> annotationDataForParams = methodAccess.annotationDataForParams();
 
         if (parameters!=null) {
@@ -193,6 +193,7 @@ public class BoonServiceMethodCallHandler implements ServiceMethodHandler {
                         }
                         if (paramName.equals(name)) {
 
+                            assert paramEnumTypes != null;
                             Object arg = Conversions.coerce(paramEnumTypes.get(index), parameterTypes[index], split[index]);
                             args.set(index, arg);
                         }

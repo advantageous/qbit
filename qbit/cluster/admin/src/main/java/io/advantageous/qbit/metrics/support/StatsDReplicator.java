@@ -34,7 +34,7 @@ public class StatsDReplicator implements StatReplicator, QueueCallBackHandler {
     /*
     Sets
 
-StatsD supports counting unique occurences of events between flushes, using a Set to store all occuring events.
+StatsD supports counting unique occurences of events between flushes, using a Set to store all occurring events.
 
 uniques:765|s
 If the count at flush is 0 then you can opt to send no metric at all for this set, by setting config.deleteSets.
