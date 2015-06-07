@@ -99,8 +99,7 @@ public class ServiceBundleImplTest {
     @Test
     public void testWithService() {
 
-        final ServiceQueue serviceQueue = serviceBuilder().setServiceObject(new MockService()).build();
-        //serviceBundle.addService(new MockService());
+        final ServiceQueue serviceQueue = serviceBuilder().setServiceObject(new MockService()).buildAndStart();
         serviceBundle.addServiceQueue("mockService", serviceQueue);
         proxy = serviceBundle.createLocalProxy(MockServiceInterface.class, "mockService");
         serviceBundle.startReturnHandlerProcessor();

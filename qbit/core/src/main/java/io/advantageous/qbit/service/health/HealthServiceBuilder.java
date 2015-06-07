@@ -18,7 +18,7 @@ public class HealthServiceBuilder {
     private ServiceBuilder serviceBuilder;
     private ServiceQueue serviceQueue;
     private Timer timer;
-    private long recheckInterval;
+    private long recheckInterval=10;
     private TimeUnit timeUnit;
     private boolean autoFlush;
 
@@ -132,7 +132,6 @@ public class HealthServiceBuilder {
 
     public HealthServiceAsync buildAndStart() {
         HealthServiceAsync proxy = getProxy();
-
         getServiceQueue().start();
         getServiceQueue().startCallBackHandler();
         return proxy;
@@ -141,5 +140,16 @@ public class HealthServiceBuilder {
     public HealthServiceBuilder setAutoFlush() {
         autoFlush = true;
         return this;
+    }
+
+
+    public HealthServiceAsync buildHealthSystemReporterWithAutoFlush() {
+        return getServiceQueue().createProxyWithAutoFlush(HealthServiceAsync.class, 1, TimeUnit.SECONDS);
+    }
+
+
+    public HealthServiceAsync buildHealthSystemReporter() {
+
+        return getServiceQueue().createProxy(HealthServiceAsync.class);
     }
 }

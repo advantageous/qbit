@@ -39,6 +39,8 @@ import io.advantageous.qbit.service.BeforeMethodCall;
 import io.advantageous.qbit.service.ServiceBundle;
 import io.advantageous.qbit.service.ServiceMethodHandler;
 import io.advantageous.qbit.service.ServiceQueue;
+import io.advantageous.qbit.service.health.HealthServiceAsync;
+import io.advantageous.qbit.service.stats.StatsCollector;
 import io.advantageous.qbit.spi.FactorySPI;
 import io.advantageous.qbit.spi.ProtocolEncoder;
 import io.advantageous.qbit.spi.ProtocolParser;
@@ -127,7 +129,9 @@ public interface Factory {
                                               final BeforeMethodCall beforeMethodCallAfterTransform,
                                               final Transformer<Request, Object> argTransformer,
                                               boolean invokeDynamic,
-                                              final QBitSystemManager systemManager) {
+                                              final QBitSystemManager systemManager,
+                                              final HealthServiceAsync healthService,
+                                              final StatsCollector statsCollector) {
         throw new UnsupportedOperationException();
     }
 

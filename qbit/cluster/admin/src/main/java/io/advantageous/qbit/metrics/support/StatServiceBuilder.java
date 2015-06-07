@@ -32,11 +32,13 @@ import io.advantageous.qbit.server.ServiceEndpointServer;
 import io.advantageous.qbit.service.ServiceBuilder;
 import io.advantageous.qbit.service.ServiceQueue;
 import io.advantageous.qbit.service.discovery.ServiceDiscovery;
+import io.advantageous.qbit.service.stats.StatsCollector;
 import io.advantageous.qbit.util.Timer;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
+import java.util.concurrent.TimeUnit;
 
 import static io.advantageous.qbit.client.ClientBuilder.clientBuilder;
 
@@ -139,6 +141,7 @@ public class StatServiceBuilder {
         }
         return sendQueueBuilder;
     }
+
 
     public StatServiceBuilder setSendQueueBuilder(QueueBuilder sendQueueBuilder) {
         this.sendQueueBuilder = sendQueueBuilder;
@@ -471,5 +474,14 @@ public class StatServiceBuilder {
     public StatServiceBuilder setEventManager(EventManager eventManager) {
         this.eventManager = eventManager;
         return this;
+    }
+
+    public StatsCollector buildStatsCollector() {
+        return getServiceQueue().createProxy(StatService.class);
+    }
+
+
+    public StatsCollector buildStatsCollectorWithAutoFlush() {
+        return getServiceQueue().createProxyWithAutoFlush(StatsCollector.class, 1, TimeUnit.SECONDS);
     }
 }

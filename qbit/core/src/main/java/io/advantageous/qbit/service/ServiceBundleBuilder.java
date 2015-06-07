@@ -24,17 +24,17 @@ import io.advantageous.qbit.message.Request;
 import io.advantageous.qbit.message.Response;
 import io.advantageous.qbit.queue.Queue;
 import io.advantageous.qbit.queue.QueueBuilder;
+import io.advantageous.qbit.service.health.HealthServiceAsync;
 import io.advantageous.qbit.service.impl.ServiceConstants;
+import io.advantageous.qbit.service.stats.StatsCollector;
 import io.advantageous.qbit.system.QBitSystemManager;
 import io.advantageous.qbit.transforms.Transformer;
 
 /**
- * Allows for the programmatic construction of a service.
+ * Allows for the programmatic construction of a service bundle.
  *
  * @author rhightower
- *         created by Richard on 11/14/14.
- *         <p>
- *         created by rhightower on 1/19/15.
+ * created by Richard on 11/14/14.
  */
 public class ServiceBundleBuilder {
 
@@ -49,6 +49,9 @@ public class ServiceBundleBuilder {
     private boolean eachServiceInItsOwnThread = true;
     private QBitSystemManager qBitSystemManager;
     private Queue<Response<Object>> responseQueue;
+    private HealthServiceAsync healthService = null;
+    private StatsCollector statsCollector = null;
+
     /**
      * Allows interception of method calls before they get sent to a client.
      * This allows us to transform or reject method calls.
@@ -218,6 +221,27 @@ public class ServiceBundleBuilder {
         return this;
     }
 
+
+
+    public HealthServiceAsync getHealthService() {
+        return healthService;
+    }
+
+    public ServiceBundleBuilder setHealthService(HealthServiceAsync healthServiceAsync) {
+        this.healthService = healthServiceAsync;
+        return this;
+    }
+
+    public StatsCollector getStatsCollector() {
+        return statsCollector;
+    }
+
+    public ServiceBundleBuilder setStatsCollector(StatsCollector statsCollector) {
+        this.statsCollector = statsCollector;
+        return this;
+    }
+
+
     public ServiceBundle build() {
 
 
@@ -227,7 +251,7 @@ public class ServiceBundleBuilder {
                 getWebResponseQueueBuilder(),
                 QBit.factory(),
                 eachServiceInItsOwnThread, this.getBeforeMethodCall(), this.getBeforeMethodCallAfterTransform(),
-                this.getArgTransformer(), invokeDynamic, this.getSystemManager());
+                this.getArgTransformer(), invokeDynamic, this.getSystemManager(), getHealthService(), getStatsCollector());
 
 
         if (serviceBundle != null && qBitSystemManager != null) {

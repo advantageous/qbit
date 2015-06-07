@@ -121,7 +121,8 @@ public class ServiceEndpointServerImplTest extends TimedTesting {
 
         ServiceQueue serviceQueue = serviceBuilder()
                 .setResponseQueue(responseQueue)
-                .setServiceObject(new MyOtherService()).build();
+                .setServiceObject(new MyOtherService()).buildAndStart();
+
 
 
         serviceServerImpl.addServiceQueue("/services/other/serviceCall", serviceQueue);
@@ -170,7 +171,7 @@ public class ServiceEndpointServerImplTest extends TimedTesting {
 
         ServiceQueue serviceQueue = serviceBuilder()
                 .setResponseQueue(responseQueue)
-                .setServiceObject(new MyOtherService()).build();
+                .setServiceObject(new MyOtherService()).buildAndStart();
 
 
         serviceServerImpl.addServiceQueue("other", serviceQueue);
@@ -528,6 +529,8 @@ public class ServiceEndpointServerImplTest extends TimedTesting {
 
                 while (true) {
                     Sys.sleep(10);
+
+
                     idleConsumerRequest.accept(null);
                     idleConsumerWebSocket.accept(null);
                 }

@@ -4,33 +4,36 @@ package io.advantageous.qbit.service.health;
 import io.advantageous.qbit.client.ClientProxy;
 import io.advantageous.qbit.reactive.Callback;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 public interface HealthServiceAsync extends ClientProxy {
 
 
-    void register(String name, long time, TimeUnit timeUnit);
+    default void register(String name, long time, TimeUnit timeUnit){}
 
 
-    void checkInOk(String name);
+    default void checkInOk(String name) {}
 
-    void checkIn(String name, HealthStatus status);
-
-
-    void ok(Callback<Boolean> ok);
-
-    void findHealthyNodes(Callback<List<String>> callback);
-
-    void findAllNodes(Callback<List<String>> callback);
-
-    void findAllNodesWithStatus(Callback<List<String>> callback, HealthStatus queryStatus);
+    default void checkIn(String name, HealthStatus status) {}
 
 
-    void findNotHealthyNodes(Callback<List<String>> callback);
+    default void ok(Callback<Boolean> ok) {}
+
+    default void findHealthyNodes(Callback<List<String>> callback){}
+
+    default void findAllNodes(Callback<List<String>> callback){}
+
+    default void findAllNodesWithStatus(Callback<List<String>> callback, HealthStatus queryStatus){}
 
 
-    List<NodeHealthStat> loadNodes();
+    default void findNotHealthyNodes(Callback<List<String>> callback){}
 
-    void unregister(String serviceName);
+
+    default List<NodeHealthStat> loadNodes(){
+        return Collections.emptyList();
+    }
+
+    default void unregister(String serviceName){}
 }
