@@ -49,7 +49,7 @@ public class ServiceBundleAndEvents extends TimedTesting {
         eventManager = QBit.factory().systemEventManager();
         testServiceImpl = new TestServiceImpl();
         serviceQueue = ServiceBuilder.serviceBuilder()
-                .setServiceObject(testServiceImpl).build();
+                .setServiceObject(testServiceImpl).buildAndStart();
 
         serviceBundle = serviceBundleBuilder().buildAndStart();
 

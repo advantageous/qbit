@@ -30,7 +30,9 @@ import io.advantageous.qbit.queue.Queue;
 import io.advantageous.qbit.queue.QueueBuilder;
 import io.advantageous.qbit.service.BeforeMethodCall;
 import io.advantageous.qbit.service.ServiceBundle;
+import io.advantageous.qbit.service.health.HealthServiceAsync;
 import io.advantageous.qbit.service.impl.ServiceConstants;
+import io.advantageous.qbit.service.stats.StatsCollector;
 import io.advantageous.qbit.spi.ProtocolEncoder;
 import io.advantageous.qbit.spi.ProtocolParser;
 import io.advantageous.qbit.system.QBitSystemManager;
@@ -69,6 +71,8 @@ public class EndpointServerBuilder {
     private boolean eachServiceInItsOwnThread = true;
     private HttpTransport httpServer;
     private QBitSystemManager qBitSystemManager;
+    private HealthServiceAsync healthService = null;
+    private StatsCollector statsCollector = null;
     /**
      * Allows interception of method calls before they get sent to a client.
      * This allows us to transform or reject method calls.
@@ -116,6 +120,25 @@ public class EndpointServerBuilder {
 
     public static EndpointServerBuilder endpointServerBuilder() {
         return new EndpointServerBuilder();
+    }
+
+
+    public HealthServiceAsync getHealthService() {
+        return healthService;
+    }
+
+    public EndpointServerBuilder setHealthService(HealthServiceAsync healthServiceAsync) {
+        this.healthService = healthServiceAsync;
+        return this;
+    }
+
+    public StatsCollector getStatsCollector() {
+        return statsCollector;
+    }
+
+    public EndpointServerBuilder setStatsCollector(StatsCollector statsCollector) {
+        this.statsCollector = statsCollector;
+        return this;
     }
 
     public QueueBuilder getRequestQueueBuilder() {
@@ -390,7 +413,10 @@ public class EndpointServerBuilder {
                 QBit.factory(),
                 eachServiceInItsOwnThread, this.getBeforeMethodCall(),
                 this.getBeforeMethodCallAfterTransform(),
-                this.getArgTransformer(), true, getSystemManager());
+                this.getArgTransformer(), true,
+                getSystemManager(),
+                getHealthService(),
+                getStatsCollector());
 
 
         final ProtocolParser parser = QBit.factory().createProtocolParser();

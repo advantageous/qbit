@@ -32,6 +32,8 @@ import io.advantageous.qbit.queue.QueueBuilder;
 import io.advantageous.qbit.queue.ReceiveQueueListener;
 import io.advantageous.qbit.queue.SendQueue;
 import io.advantageous.qbit.service.*;
+import io.advantageous.qbit.service.health.HealthServiceAsync;
+import io.advantageous.qbit.service.stats.StatsCollector;
 import io.advantageous.qbit.system.QBitSystemManager;
 import io.advantageous.qbit.transforms.Transformer;
 import io.advantageous.qbit.util.ConcurrentHashSet;
@@ -135,6 +137,8 @@ public class ServiceBundleImpl implements ServiceBundle {
      */
     private final QueueBuilder requestQueueBuilder;
     private final QueueBuilder responseQueueBuilder;
+    private final HealthServiceAsync healthService;
+    private final StatsCollector statsCollector;
 
     public ServiceBundleImpl(final String address,
                              final QueueBuilder requestQueueBuilder,
@@ -144,8 +148,13 @@ public class ServiceBundleImpl implements ServiceBundle {
                              final BeforeMethodCall beforeMethodCall,
                              final BeforeMethodCall beforeMethodCallAfterTransform,
                              final Transformer<Request, Object> argTransformer,
-                             final boolean invokeDynamic, final QBitSystemManager systemManager) {
+                             final boolean invokeDynamic,
+                             final QBitSystemManager systemManager,
+                             final HealthServiceAsync healthService,
+                             final StatsCollector statsCollector) {
 
+        this.healthService = healthService;
+        this.statsCollector = statsCollector;
         this.invokeDynamic = invokeDynamic;
         this.systemManager = systemManager;
 
@@ -237,6 +246,8 @@ public class ServiceBundleImpl implements ServiceBundle {
     @Override
     public ServiceBundle addServiceObject(final String serviceAddress, final Object serviceObject) {
 
+        logger.info(ServiceBundleImpl.class.getName() + " serviceAddress " + serviceAddress + " service object " + serviceObject);
+
         if (serviceObject instanceof Consumer) {
 
             //noinspection unchecked
@@ -245,26 +256,41 @@ public class ServiceBundleImpl implements ServiceBundle {
         }
 
 
-        if (debug) {
-            logger.debug(ServiceBundleImpl.class.getName() + " serviceAddress " + serviceAddress + " service object " + serviceObject);
-        }
 
         if (serviceObject instanceof ServiceQueue) {
             addServiceService(serviceAddress, (ServiceQueue) serviceObject);
-
             return this;
         }
 
         /** Turn this client object into a client with queues. */
-        final ServiceQueue serviceQueue = factory.createService(rootAddress, serviceAddress,
-                serviceObject, responseQueue,
-                BeanUtils.copy(this.requestQueueBuilder),
-                this.responseQueueBuilder,
-                this.asyncCalls,
-                this.invokeDynamic,
-                false, systemManager);
+        ServiceBuilder serviceBuilder = ServiceBuilder.serviceBuilder()
+                .setRootAddress(rootAddress)
+                .setServiceObject(serviceObject)
+                .setServiceAddress(serviceAddress)
+                .setResponseQueue(responseQueue)
+                .setAsyncResponse(asyncCalls)
+                .setInvokeDynamic(invokeDynamic)
+                .setSystemManager(systemManager)
+                .setRequestQueueBuilder(BeanUtils.copy(this.requestQueueBuilder))
+                .setRequestQueueBuilder(requestQueueBuilder)
+                .setHandleCallbacks(false);
+
+        if (healthService!=null) {
+            serviceBuilder.registerHealthChecks(healthService, serviceAddress);
+        }
 
 
+        if (statsCollector!=null) {
+            /*
+              The default is to flush stats every five seconds, and sample
+              every 10_000 queue calls.
+             */
+            serviceBuilder.registerStatsCollections(serviceAddress,
+                    statsCollector, 5, 10_000);
+        }
+
+
+        final ServiceQueue serviceQueue = serviceBuilder.buildAndStart();
         addServiceService(serviceAddress, serviceQueue);
         return this;
     }
@@ -300,9 +326,6 @@ public class ServiceBundleImpl implements ServiceBundle {
     }
 
     public void addServiceService(final String objectName, final String serviceAddress, final ServiceQueue serviceQueue) {
-
-
-        serviceQueue.start(); //Don't like this.. REFACTOR
 
 
         /** add to our list of servicesToStop. */

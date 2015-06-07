@@ -46,9 +46,11 @@ import io.advantageous.qbit.service.BeforeMethodCall;
 import io.advantageous.qbit.service.ServiceBundle;
 import io.advantageous.qbit.service.ServiceMethodHandler;
 import io.advantageous.qbit.service.ServiceQueue;
+import io.advantageous.qbit.service.health.HealthServiceAsync;
 import io.advantageous.qbit.service.impl.BoonServiceMethodCallHandler;
 import io.advantageous.qbit.service.impl.ServiceBundleImpl;
 import io.advantageous.qbit.service.impl.ServiceQueueImpl;
+import io.advantageous.qbit.service.stats.StatsCollector;
 import io.advantageous.qbit.spi.*;
 import io.advantageous.qbit.system.QBitSystemManager;
 import io.advantageous.qbit.transforms.Transformer;
@@ -355,11 +357,19 @@ public class BoonQBitFactory implements Factory {
                                              final QueueBuilder requestQueueBuilder,
                                              final QueueBuilder responseQueueBuilder,
                                              final QueueBuilder webResponseQueueBuilder,
-                                             final Factory factory, final boolean asyncCalls, final BeforeMethodCall beforeMethodCall, final BeforeMethodCall beforeMethodCallAfterTransform, final Transformer<Request, Object> argTransformer, boolean invokeDynamic, final QBitSystemManager systemManager) {
+                                             final Factory factory,
+                                             final boolean asyncCalls,
+                                             final BeforeMethodCall beforeMethodCall,
+                                             final BeforeMethodCall beforeMethodCallAfterTransform,
+                                             final Transformer<Request, Object> argTransformer,
+                                             final boolean invokeDynamic,
+                                             final QBitSystemManager systemManager,
+                                             final HealthServiceAsync healthService,
+                                             final StatsCollector statsCollector) {
         return new ServiceBundleImpl(address, requestQueueBuilder, responseQueueBuilder,
                 webResponseQueueBuilder,
                 factory, asyncCalls, beforeMethodCall, beforeMethodCallAfterTransform,
-                argTransformer, invokeDynamic, systemManager);
+                argTransformer, invokeDynamic, systemManager, healthService, statsCollector);
     }
 
 
