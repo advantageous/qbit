@@ -95,9 +95,12 @@ public class ServiceMetaBuilder {
 
             final List<RequestMethod> requestMethods = getRequestMethodsByAnnotated(methodAccess);
 
-            if (requestPaths.size() != requestMethods.size()) {
-                throw new IllegalStateException();
-            }
+            //Commenting this out because it is legitimate to have more than 1
+            // request method on a single path so this check is invalid.
+            //TODO: Do we need a different check to perform here?
+//            if (requestPaths.size() != requestMethods.size()) {
+//                throw new IllegalStateException();
+//            }
 
             ServiceMethodMetaBuilder serviceMethodMetaBuilder = ServiceMethodMetaBuilder.serviceMethodMetaBuilder();
             serviceMethodMetaBuilder.setMethodAccess(methodAccess);
