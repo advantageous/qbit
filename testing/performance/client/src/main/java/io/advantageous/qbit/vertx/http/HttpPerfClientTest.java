@@ -133,8 +133,8 @@ public class HttpPerfClientTest {
 
                 HttpClient client = new HttpClientBuilder().setPort(port)
                         .setHost(host)
-                        .setPoolSize(poolSize).setRequestBatchSize(batchSize).
-                                setPollTime(pollTime).setAutoFlush(true)
+                        .setPoolSize(poolSize)
+                        .setAutoFlush(true)
                         .build();
                 client.startClient();
 

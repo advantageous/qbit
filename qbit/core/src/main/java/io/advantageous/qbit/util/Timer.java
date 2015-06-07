@@ -34,7 +34,7 @@ import static io.advantageous.qbit.concurrent.ScheduledExecutorBuilder.scheduled
  */
 public class Timer {
 
-    private static AtomicReference<Timer> timeHolder = new AtomicReference<>();
+    private static final AtomicReference<Timer> timeHolder = new AtomicReference<>();
     private final Logger logger = LoggerFactory.getLogger(Timer.class);
     private final boolean debug = GlobalConstants.DEBUG || logger.isDebugEnabled();
     private final AtomicLong time = new AtomicLong(Clock.systemUTC().millis());
@@ -79,12 +79,7 @@ public class Timer {
 
         executorContext = scheduledExecutorBuilder().setPriority(Thread.MAX_PRIORITY)
                 .setThreadName("Timer OutputQueue Manager").setDaemon(true)
-                .setInitialDelay(50).setPeriod(50).setRunnable(new Runnable() {
-                    @Override
-                    public void run() {
-                        manageTimer();
-                    }
-                }).build();
+                .setInitialDelay(50).setPeriod(50).setRunnable(this::manageTimer).build();
         executorContext.start();
 
 

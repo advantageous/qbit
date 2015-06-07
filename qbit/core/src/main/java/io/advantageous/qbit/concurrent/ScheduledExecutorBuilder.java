@@ -21,6 +21,7 @@ package io.advantageous.qbit.concurrent;
 import java.util.concurrent.TimeUnit;
 
 /**
+ * Builds a repeatable, restartable thread.
  * created by rhightower on 2/13/15.
  */
 public class ScheduledExecutorBuilder {

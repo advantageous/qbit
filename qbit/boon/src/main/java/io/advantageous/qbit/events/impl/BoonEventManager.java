@@ -103,6 +103,7 @@ public class BoonEventManager implements EventManager {
             events.clear();
         }
 
+        //noinspection Convert2streamapi
         for (SendQueue<Event<Object>> sendQueue : queuesToFlush) {
             sendQueue.flushSends();
         }
@@ -295,6 +296,7 @@ public class BoonEventManager implements EventManager {
     }
 
 
+    @SuppressWarnings("Convert2Lambda")
     private void extractListenerForRegularObject(final Object listener, final MethodAccess methodAccess, final String channel, final boolean consume) {
         if (consume) {
 
@@ -357,11 +359,13 @@ public class BoonEventManager implements EventManager {
         eventBus.unregister(channelName, listener);
     }
 
+    @SuppressWarnings("Convert2Lambda")
     @Override
     public <T> void subscribe(final String channelName, final SendQueue<Event<Object>> sendQueue) {
 
         queuesToFlush.add(sendQueue);
 
+        //noinspection Anonymous2MethodRef
         eventBus.register(channelName, new EventSubscriber<Object>() {
             @Override
             public void listen(Event<Object> event) {
@@ -370,12 +374,14 @@ public class BoonEventManager implements EventManager {
         });
     }
 
+    @SuppressWarnings("Convert2Lambda")
     @Override
     public <T> void consume(final String channelName, final SendQueue<Event<Object>> sendQueue) {
 
 
         queuesToFlush.add(sendQueue);
 
+        //noinspection Anonymous2MethodRef
         eventBus.register(channelName, new EventConsumer<Object>() {
             @Override
             public void listen(Event<Object> event) {
@@ -391,8 +397,9 @@ public class BoonEventManager implements EventManager {
         events(channel).add(event);
     }
 
+    @SafeVarargs
     @Override
-    public <T> void sendArray(String channel, T... event) {
+    public final <T> void sendArray(final String channel, T... event) {
 
         this.send(channel, event);
     }

@@ -197,6 +197,7 @@ public class MinuteStat {
         return secondCounts[secondIndex];
     }
 
+    @SuppressWarnings("UnusedReturnValue")
     public int changeBy(int count, long now) {
         totalCount += count;
 

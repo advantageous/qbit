@@ -24,7 +24,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Defines a request parameter.
+ * Defines a request parameter used to map service method parameters to HTTP request params.
  *
  * @author Rick Hightower
  */

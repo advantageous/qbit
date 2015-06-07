@@ -25,7 +25,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Define a path variable.
+ * Define a path variable for mapping arguments of a service method to an HTTP like protocol.
  *
  * @author rhightower
  */

@@ -27,12 +27,13 @@ import java.util.Collections;
 import java.util.List;
 
 /**
+ * This allows you to construct method calls.
  * MethodCallBuilder
  * created by rhightower on 1/16/15.
  */
 public class MethodCallBuilder {
 
-    private static transient Timer timer = Timer.timer();
+    private static final transient Timer timer = Timer.timer();
     private static volatile long idSequence;
     private long timestamp;
     private long id;
@@ -91,8 +92,8 @@ public class MethodCallBuilder {
         return new MethodCallBuilder().setName(name).setBody(body).setAddress(address).build();
     }
 
-    public MethodCallBuilder methodCallBuilder() {
-        return methodCallBuilder();
+    public static MethodCallBuilder methodCallBuilder() {
+        return new MethodCallBuilder();
     }
 
     public long getTimestamp() {

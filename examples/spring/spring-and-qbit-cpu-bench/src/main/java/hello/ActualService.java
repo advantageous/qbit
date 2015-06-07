@@ -14,6 +14,7 @@ import java.util.Set;
  * created by rhightower on 2/2/15.
  */
 
+@SuppressWarnings("ALL")
 public class ActualService {
 
     final Map<Integer, String> map = new HashMap<>();

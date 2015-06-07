@@ -34,6 +34,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReentrantLock;
 
 /**
+ * A queue sender that will periodically flush itself.
  * @author rhightower
  * on 2/24/15.
  */
@@ -61,6 +62,7 @@ public class AutoFlushingSendQueue<T> implements SendQueue<T> {
 
     @Override
     public void start() {
+        //noinspection Convert2MethodRef
         scheduledFuture = periodicScheduler.repeat(() -> flushSends(), interval, timeUnit);
     }
 
@@ -92,8 +94,9 @@ public class AutoFlushingSendQueue<T> implements SendQueue<T> {
         }
     }
 
+    @SafeVarargs
     @Override
-    public void sendMany(T... items) {
+    public final void sendMany(T... items) {
 
         try {
             lock.lock();

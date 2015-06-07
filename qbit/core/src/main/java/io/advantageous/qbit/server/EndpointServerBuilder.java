@@ -394,6 +394,8 @@ public class EndpointServerBuilder {
 
 
         final ProtocolParser parser = QBit.factory().createProtocolParser();
+
+
         final ServiceEndpointServer serviceEndpointServer = QBit.factory().createServiceServer(httpServer,
                 encoder, parser, serviceBundle, jsonMapper, this.getTimeoutSeconds(),
                 this.getNumberOfOutstandingRequests(), this.getRequestBatchSize(),

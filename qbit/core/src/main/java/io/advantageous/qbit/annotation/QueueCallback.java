@@ -24,6 +24,9 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 
+/**
+ * Used to register for queue callback methods like, the queue is idle, the queue hit its limit, etc.
+ */
 @Target({ElementType.METHOD})
 @Retention(RetentionPolicy.RUNTIME)
 public @interface QueueCallback {

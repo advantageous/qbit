@@ -132,6 +132,7 @@ public class MultiMapImpl<K, V> implements MultiMap<K, V> {
         map.clear();
     }
 
+    @SuppressWarnings("NullableProblems")
     @Override
     public Set<K> keySet() {
         return map.keySet();
@@ -161,6 +162,7 @@ public class MultiMapImpl<K, V> implements MultiMap<K, V> {
         return collection;
     }
 
+    @SuppressWarnings("SimplifiableIfStatement")
     @Override
     public boolean removeValueFrom(K key, V v) {
         Collection<V> collection = map.get(key);
@@ -186,6 +188,7 @@ public class MultiMapImpl<K, V> implements MultiMap<K, V> {
         return map.keySet();
     }
 
+    @SuppressWarnings("Convert2streamapi")
     @Override
     public Iterable<V> valueMulti() {
 
@@ -202,6 +205,7 @@ public class MultiMapImpl<K, V> implements MultiMap<K, V> {
         return list;
     }
 
+    @SuppressWarnings("NullableProblems")
     @Override
     public Collection<V> values() {
 
@@ -209,6 +213,7 @@ public class MultiMapImpl<K, V> implements MultiMap<K, V> {
         Collection<Collection<V>> values = map.values();
 
         for (Collection c : values) {
+            //noinspection Convert2streamapi
             for (Object o : c) {
                 //noinspection unchecked
                 list.add(o);
@@ -219,12 +224,14 @@ public class MultiMapImpl<K, V> implements MultiMap<K, V> {
 
     }
 
+    @SuppressWarnings("NullableProblems")
     @Override
     public Set<Entry<K, V>> entrySet() {
 
 
         final Set<Entry<K, Collection<V>>> entries = map.entrySet();
 
+        //noinspection NullableProblems,NullableProblems,NullableProblems,NullableProblems,NullableProblems,NullableProblems,NullableProblems,NullableProblems
         return new Set<Entry<K, V>>() {
 
             @Override
@@ -351,6 +358,7 @@ public class MultiMapImpl<K, V> implements MultiMap<K, V> {
         if (!map.containsKey(key)) {
             return false;
         } else {
+            @SuppressWarnings("SuspiciousMethodCalls")
             Collection<V> collection = map.get(key);
             return !(collection == null || collection.size() == 0);
         }

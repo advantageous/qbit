@@ -20,6 +20,10 @@ package io.advantageous.qbit.message;
 
 import java.util.List;
 
+/**
+ * This represents an async method call.
+ * @param <T> Type
+ */
 public interface MethodCall<T> extends Request<T> {
 
     String name();

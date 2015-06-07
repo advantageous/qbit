@@ -4,6 +4,10 @@ import io.advantageous.boon.core.Conversions;
 
 import java.util.Properties;
 
+/**
+ * Used for builders that need to be set from system property overrides and such.
+ * It is essentially a way to get at properties stored in other property systems.
+ */
 public interface PropertyResolver {
 
     static PropertyResolver createPropertiesPropertyResolver(final String prefix,

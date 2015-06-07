@@ -29,6 +29,7 @@ import java.util.Collection;
 import java.util.concurrent.TimeUnit;
 
 /**
+ * Manages a service that sits behind a queue.
  * created by Richard on 7/21/14.
  *
  * @author rhightower
@@ -82,6 +83,7 @@ public interface ServiceQueue extends Stoppable, ServiceFlushable, Startable {
     void stop();
 
 
+    @SuppressWarnings("UnusedReturnValue")
     ServiceQueue startCallBackHandler();
 
     /**

@@ -36,6 +36,7 @@ import static io.advantageous.qbit.http.server.HttpServerBuilder.httpServerBuild
 /**
  * created by rhightower on 2/16/15.
  */
+@SuppressWarnings("ALL")
 public class EchoHttp {
 
     public static void main(String... args) {

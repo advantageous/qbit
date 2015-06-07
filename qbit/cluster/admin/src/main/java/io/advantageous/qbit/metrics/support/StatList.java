@@ -10,7 +10,7 @@ import static io.advantageous.boon.primitive.Int.varianceDouble;
 
 /**
  * Holds primitive values in a list like object for ints.
- * <p>
+ *
  * <p>
  * Has sum, mean, median, standardDeviation, reduceBy,
  * variance.
@@ -127,6 +127,7 @@ public class StatList extends AbstractList<Integer> {
      * @param integer new value
      * @return was able to add.
      */
+    @SuppressWarnings("UnusedReturnValue")
     public StatList add(int integer) {
         if (end + 1 >= values.length) {
             values = Int.grow(values);
@@ -305,6 +306,7 @@ public class StatList extends AbstractList<Integer> {
         Arrays.sort(values, 0, end);
     }
 
+    @SuppressWarnings("SimplifiableIfStatement")
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -312,6 +314,7 @@ public class StatList extends AbstractList<Integer> {
 
         StatList integers = (StatList) o;
 
+        //noinspection SimplifiableIfStatement
         if (end != integers.end) return false;
         return Int.equals(0, end, values, integers.values);
 

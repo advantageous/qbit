@@ -27,18 +27,19 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
+ * This holds a response from an RPC type call.
  * created by Richard on 8/11/14.
  */
 public class ResponseImpl<T> implements Response<T> {
 
     private final Request<Object> request;
-    private String address;
+    private final String address;
 
-    private String returnAddress;
-    private Map<String, Object> params;
-    private Object body;
-    private long id;
-    private long timestamp;
+    private final String returnAddress;
+    private final Map<String, Object> params;
+    private final Object body;
+    private final long id;
+    private final long timestamp;
 
     @JsonIgnore
     private transient Object transformedBody;
@@ -166,6 +167,7 @@ public class ResponseImpl<T> implements Response<T> {
         return this.request;
     }
 
+    @SuppressWarnings("SimplifiableIfStatement")
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

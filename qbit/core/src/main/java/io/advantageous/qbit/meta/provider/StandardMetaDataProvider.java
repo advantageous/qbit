@@ -28,6 +28,9 @@ import java.util.NavigableMap;
 import java.util.TreeMap;
 import java.util.concurrent.ConcurrentHashMap;
 
+/**
+ * Holds a bunch of meta data about a service bundle.
+ */
 public class StandardMetaDataProvider implements MetaDataProvider {
 
 

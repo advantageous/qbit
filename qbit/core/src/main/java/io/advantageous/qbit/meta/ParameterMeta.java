@@ -20,6 +20,10 @@ package io.advantageous.qbit.meta;
 import io.advantageous.boon.core.TypeType;
 import io.advantageous.qbit.meta.params.Param;
 
+
+/**
+ * Holds meta-data about a single parameter of a service method.
+ */
 public class ParameterMeta {
 
     private final Class<?> classType;

@@ -9,12 +9,13 @@ import java.util.concurrent.TimeUnit;
 public class CoordinatorBuilder {
 
 
-    final Reactor reactor;
+    private final Reactor reactor;
     private CallbackCoordinator coordinator;
     private long startTime = -1;
     private long timeoutDuration = 5;
     private TimeUnit timeoutTimeUnit = TimeUnit.SECONDS;
     private Runnable timeOutHandler;
+
     public CoordinatorBuilder(Reactor reactor) {
         this.reactor = reactor;
     }

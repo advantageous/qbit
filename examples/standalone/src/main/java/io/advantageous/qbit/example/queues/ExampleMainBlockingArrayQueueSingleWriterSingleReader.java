@@ -35,7 +35,7 @@ public class ExampleMainBlockingArrayQueueSingleWriterSingleReader {
     static final LinkedBlockingQueue<Integer> queue = new LinkedBlockingQueue<>(100_000);
     static final int status = 1_000_000;
     static final int sleepEvery = 1_000_000;
-    static ExecutorService executorService = Executors.newCachedThreadPool();
+    static final ExecutorService executorService = Executors.newCachedThreadPool();
 
     public static void sender(int amount, int code) throws InterruptedException {
 
@@ -93,17 +93,14 @@ public class ExampleMainBlockingArrayQueueSingleWriterSingleReader {
         });
 
 
-        final Future<?> senderJob = executorService.submit(new Runnable() {
-            @Override
-            public void run() {
+        final Future<?> senderJob = executorService.submit(() -> {
 
-                try {
-                    sender(50_000_000, -1);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-
+            try {
+                sender(50_000_000, -1);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
             }
+
         });
 
         senderJob.get();

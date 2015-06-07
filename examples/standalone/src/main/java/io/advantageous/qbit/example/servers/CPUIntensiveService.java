@@ -33,7 +33,7 @@ import static io.advantageous.qbit.server.EndpointServerBuilder.endpointServerBu
 public class CPUIntensiveService {
 
 
-    ActualService actualService = new ActualService();
+    final ActualService actualService = new ActualService();
     int count = 0;
 
     public static void main(String... args) throws Exception {

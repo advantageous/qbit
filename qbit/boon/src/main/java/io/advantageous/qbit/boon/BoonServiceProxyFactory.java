@@ -94,12 +94,14 @@ public class BoonServiceProxyFactory implements ServiceProxyFactory {
                         return host;
                     case "silentClose":
                         try {
+                            assert endPoint != null;
                             endPoint.stop();
                         } catch (Exception ex) {
                             //silentClose
                         }
                     case "flush":
                     case "clientProxyFlush":
+                        assert endPoint != null;
                         endPoint.flush();
                         return null;
                     case "toString":
@@ -139,6 +141,7 @@ public class BoonServiceProxyFactory implements ServiceProxyFactory {
                         factory.createMethodCallToBeEncodedAndSent(messageId, address,
                                 returnAddress, serviceName, method.getName(), timestamp, args, null);
 
+                assert endPoint != null;
                 endPoint.call(call);
                 return null;
             }

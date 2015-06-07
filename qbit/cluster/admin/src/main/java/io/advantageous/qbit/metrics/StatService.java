@@ -20,13 +20,14 @@ package io.advantageous.qbit.metrics;
 
 import io.advantageous.qbit.client.ClientProxy;
 import io.advantageous.qbit.reactive.Callback;
+import io.advantageous.qbit.service.stats.StatsCollector;
 
 /**
  * StatService
  * created by rhightower on 1/28/15.
  */
 
-public interface StatService extends ClientProxy {
+public interface StatService extends ClientProxy, StatsCollector {
     default void recordCount(String name, int count) {
     }
 

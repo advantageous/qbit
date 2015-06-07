@@ -25,6 +25,10 @@ import io.advantageous.boon.core.reflection.ClassMeta;
 import io.advantageous.boon.core.reflection.MethodAccess;
 
 /**
+ * This class is used to read annotation data.
+ * Currently it is mostly used by the event system.
+ * Note: It could use some refactoring and perhaps a builder so that it is easier
+ * to change annotation processing names, which will happen when somebody needs it and is willing to submit a patch.
  * AnnotationUtils
  * created by rhightower on 2/4/15.
  */

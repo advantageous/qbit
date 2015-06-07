@@ -40,9 +40,9 @@ public class ServiceDiscoveryImpl implements ServiceDiscovery {
     private final boolean trace = logger.isTraceEnabled();
     private final int pollForServicesInterval;
     private final ServiceDiscoveryProvider backupProvider;
-    ConcurrentHashSet<String> serviceNamesBeingLoaded = new ConcurrentHashSet<>();
-    private AtomicBoolean stop = new AtomicBoolean();
-    private Set<String> serviceNames = new TreeSet<>();
+    private final ConcurrentHashSet<String> serviceNamesBeingLoaded = new ConcurrentHashSet<>();
+    private final AtomicBoolean stop = new AtomicBoolean();
+    private final Set<String> serviceNames = new TreeSet<>();
 
 
     public ServiceDiscoveryImpl(

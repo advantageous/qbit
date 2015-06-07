@@ -17,6 +17,7 @@ import java.util.function.Consumer;
  * Reactor
  * created by rhightower on 3/22/15.
  */
+@SuppressWarnings("UnusedReturnValue")
 public class Reactor {
 
 
@@ -50,6 +51,7 @@ public class Reactor {
     }
 
 
+    @SuppressWarnings({"UnusedReturnValue", "SameReturnValue"})
     private boolean drainQueues() {
 
         CallbackCoordinator callable = coordinatorQueue.poll();
@@ -171,6 +173,7 @@ public class Reactor {
     }
 
 
+    @SuppressWarnings("UnusedReturnValue")
     public CallbackCoordinator removeCoordinator(final CallbackCoordinator coordinator) {
 
         this.removeCoordinatorQueue.add(coordinator);

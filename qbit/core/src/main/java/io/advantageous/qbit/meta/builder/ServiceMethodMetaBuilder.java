@@ -10,10 +10,11 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+@SuppressWarnings("UnusedReturnValue")
 public class ServiceMethodMetaBuilder {
 
 
-    private List<RequestMeta> requestEndpoints = new ArrayList<RequestMeta>();
+    private List<RequestMeta> requestEndpoints = new ArrayList<>();
     private MethodAccess methodAccess;
     private String name;
     private String address;

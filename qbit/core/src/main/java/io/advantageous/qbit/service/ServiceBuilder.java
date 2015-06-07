@@ -19,23 +19,32 @@
 package io.advantageous.qbit.service;
 
 import io.advantageous.qbit.QBit;
+import io.advantageous.qbit.annotation.QueueCallback;
 import io.advantageous.qbit.message.MethodCall;
 import io.advantageous.qbit.message.Request;
 import io.advantageous.qbit.message.Response;
-import io.advantageous.qbit.queue.Queue;
-import io.advantageous.qbit.queue.QueueBuilder;
-import io.advantageous.qbit.queue.ReceiveQueueListener;
+import io.advantageous.qbit.queue.*;
+import io.advantageous.qbit.service.health.HealthServiceAsync;
+import io.advantageous.qbit.service.health.ServiceHealthListener;
 import io.advantageous.qbit.service.impl.NoOpAfterMethodCall;
 import io.advantageous.qbit.service.impl.NoOpInputMethodCallQueueListener;
 import io.advantageous.qbit.service.impl.ServiceConstants;
 import io.advantageous.qbit.service.impl.ServiceQueueImpl;
+import io.advantageous.qbit.service.stats.ServiceStatsListener;
+import io.advantageous.qbit.service.stats.StatsCollector;
 import io.advantageous.qbit.system.QBitSystemManager;
 import io.advantageous.qbit.transforms.NoOpResponseTransformer;
 import io.advantageous.qbit.transforms.Transformer;
+import io.advantageous.qbit.util.Timer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.TimeUnit;
+
 /**
+ * Builds a service queue for a service that sits behind a queue.
  * created by rhightower on 1/28/15.
  */
 public class ServiceBuilder {
@@ -43,7 +52,7 @@ public class ServiceBuilder {
 
     private final Logger logger = LoggerFactory.getLogger(ServiceBuilder.class);
     private final boolean debug = logger.isDebugEnabled();
-    boolean handleCallbacks;
+    private boolean handleCallbacks;
     private ServiceMethodHandler serviceMethodHandler;
     private BeforeMethodCall beforeMethodCall = ServiceConstants.NO_OP_BEFORE_METHOD_CALL;
     private BeforeMethodCall beforeMethodCallAfterTransform = ServiceConstants.NO_OP_BEFORE_METHOD_CALL;
@@ -60,12 +69,52 @@ public class ServiceBuilder {
     private String rootAddress;
     private String serviceAddress;
     private Object serviceObject;
-
     private QBitSystemManager qBitSystemManager;
+    private List<QueueCallBackHandler> queueCallBackHandlers;
+    private Timer timer;
+
 
     public static ServiceBuilder serviceBuilder() {
         return new ServiceBuilder();
     }
+
+
+    public List<QueueCallBackHandler> getQueueCallBackHandlers() {
+        if (queueCallBackHandlers==null) {
+            queueCallBackHandlers = new ArrayList<>();
+        }
+        return queueCallBackHandlers;
+    }
+
+    public ServiceBuilder setQueueCallBackHandlers(List<QueueCallBackHandler> queueCallBackHandlers) {
+        this.queueCallBackHandlers = queueCallBackHandlers;
+        return this;
+    }
+
+    public ServiceBuilder addQueueCallbackHandler(final QueueCallBackHandler queueCallBackHandler) {
+        getQueueCallBackHandlers().add(queueCallBackHandler);
+        return this;
+    }
+
+    private QueueCallBackHandler buildQueueCallBackHandler() {
+        if (queueCallBackHandlers == null || queueCallBackHandlers.size()==0) {
+            return new QueueCallBackHandler() {
+                @Override
+                public void queueLimit() {
+
+                }
+
+                @Override
+                public void queueEmpty() {
+
+                }
+            };
+        } else {
+            return new QueueCallBackHandlerHub(queueCallBackHandlers);
+        }
+    }
+
+
 
     public QBitSystemManager getSystemManager() {
         return qBitSystemManager;
@@ -240,13 +289,67 @@ public class ServiceBuilder {
     }
 
 
+
+    public Timer getTimer() {
+        if (timer == null) {
+            timer = Timer.timer();
+        }
+        return timer;
+    }
+
+    public ServiceBuilder setTimer(Timer timer) {
+        this.timer = timer;
+        return this;
+    }
+
+    public ServiceBuilder registerHealthChecks(
+            final HealthServiceAsync healthServiceAsync,
+            final String serviceName) {
+        this.addQueueCallbackHandler(new ServiceHealthListener(serviceName, healthServiceAsync,
+                getTimer(), 5, 10, TimeUnit.SECONDS));
+        return this;
+    }
+
+    public ServiceBuilder registerStatsCollections(
+            final String serviceName,
+            final StatsCollector statsCollector,
+            final int flushTimeSeconds,
+            final int sampleEvery) {
+
+        this.addQueueCallbackHandler(new ServiceStatsListener(serviceName, statsCollector,
+                getTimer(),flushTimeSeconds, TimeUnit.SECONDS, sampleEvery ));
+
+        return this;
+    }
+
+
+    public ServiceBuilder registerHealthChecksWithTTLInSeconds(
+            final HealthServiceAsync healthServiceAsync,
+            final String serviceName, final int seconds) {
+
+        int ttl = seconds > 2 ? seconds : 10;
+
+        int checkInterval = (ttl / 2==0) ? 1 : ttl/2;
+
+
+        this.addQueueCallbackHandler(new ServiceHealthListener(serviceName, healthServiceAsync,
+                getTimer(), checkInterval, ttl, TimeUnit.SECONDS));
+        return this;
+    }
+
     public ServiceQueue build(final Object serviceObject) {
         this.serviceObject = serviceObject;
         return build();
     }
 
+    /**
+     * Builds a service.
+     * @return new service queue
+     */
     public ServiceQueue build() {
 
+
+        if (debug) logger.debug("Building a service");
 
         ServiceQueue serviceQueue = new ServiceQueueImpl(this.getRootAddress(),
                 this.getServiceAddress(),
@@ -257,9 +360,10 @@ public class ServiceBuilder {
                 this.getResponseQueue(),
                 this.isAsyncResponse(),
                 this.isHandleCallbacks(),
-                this.getSystemManager());
+                this.getSystemManager(),
+                buildQueueCallBackHandler());
 
-        if (serviceQueue != null && qBitSystemManager != null) {
+        if (qBitSystemManager != null) {
             qBitSystemManager.registerService(serviceQueue);
         }
 
@@ -267,8 +371,7 @@ public class ServiceBuilder {
     }
 
     /**
-     * Builds and starts the service queue.  This is depricated because a builder should not perform operations on it's
-     * product
+     * Builds and starts the service queue.
      *
      * @return the service queue
      */
@@ -277,4 +380,5 @@ public class ServiceBuilder {
 
         return build().startServiceQueue();
     }
+
 }

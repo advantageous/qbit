@@ -15,6 +15,10 @@ import static io.advantageous.qbit.meta.builder.ContextMetaBuilder.getRequestMet
 import static io.advantageous.qbit.meta.builder.ContextMetaBuilder.getRequestPathsByAnnotated;
 
 
+/**
+ * Allows you to build service method data.
+ */
+@SuppressWarnings("UnusedReturnValue")
 public class ServiceMetaBuilder {
 
 

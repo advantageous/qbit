@@ -80,18 +80,18 @@ public class BoonClient implements Client {
     /**
      * Map of handlers so we can do the whole async call back thing.
      */
-    private Map<HandlerKey, Callback<Object>> handlers = new ConcurrentHashMap<>();
+    private final Map<HandlerKey, Callback<Object>> handlers = new ConcurrentHashMap<>();
     /**
      * Logger.
      */
-    private Logger logger = LoggerFactory.getLogger(BoonClient.class);
+    private final Logger logger = LoggerFactory.getLogger(BoonClient.class);
     /**
      * List of client proxies that we are managing for periodic flush.
      */
-    private List<ClientProxy> clientProxies = new CopyOnWriteArrayList<>();
+    private final List<ClientProxy> clientProxies = new CopyOnWriteArrayList<>();
     private WebSocket webSocket;
 
-    private AtomicBoolean connected = new AtomicBoolean();
+    private final AtomicBoolean connected = new AtomicBoolean();
 
     /**
      * @param httpClient       httpClient
@@ -142,6 +142,7 @@ public class BoonClient implements Client {
         final List<Message<Object>> messages = QBit.factory().createProtocolParser().parse("", webSocketText);
 
 
+        //noinspection Convert2streamapi
         for (Message<Object> message : messages) {
             if (message instanceof Response) {
                 @SuppressWarnings("unchecked") final Response<Object> response = ((Response) message);
@@ -172,6 +173,7 @@ public class BoonClient implements Client {
      * Flush the calls and flush the proxy.
      */
     public void flush() {
+        //noinspection Convert2streamapi
         for (ClientProxy clientProxy : clientProxies) {
             clientProxy.clientProxyFlush();
         }
@@ -233,6 +235,7 @@ public class BoonClient implements Client {
                 logger.error(sputs(this.getClass().getName(),
                         "::Exception calling WebSocket from client proxy", "\nService Name", serviceName, "\nMessage", message), error));
 
+        //noinspection Convert2MethodRef
         this.webSocket.setTextMessageConsumer(messageFromServer -> handleWebSocketReplyMessage(messageFromServer));
     }
 
@@ -264,38 +267,35 @@ public class BoonClient implements Client {
         }
 
         /** Use this before call to register an async handler with the handlers map. */
-        BeforeMethodCall beforeMethodCall = new BeforeMethodCall() {
-            @Override
-            public boolean before(final MethodCall call) {
+        BeforeMethodCall beforeMethodCall = call -> {
 
-                final Object body = call.body();
-                if (body instanceof Object[]) {
+            final Object body = call.body();
+            if (body instanceof Object[]) {
 
-                    Object[] list = (Object[]) body;
+                Object[] list = (Object[]) body;
 
-                    if (list.length > 0) {
-                        final Object o = list[0];
-                        if (o instanceof Callback) {
-                            //noinspection unchecked
-                            handlers.put(new HandlerKey(call.returnAddress(), call.id()), createHandler(serviceInterface, call, (Callback) o));
+                if (list.length > 0) {
+                    final Object o = list[0];
+                    if (o instanceof Callback) {
+                        //noinspection unchecked
+                        handlers.put(new HandlerKey(call.returnAddress(), call.id()), createHandler(serviceInterface, call, (Callback) o));
 
-                            if (list.length - 1 == 0) {
-                                list = new Object[0];
-                            } else {
-                                list = Arry.slc(list, 1); //Skip first arg it was a handler.
-                            }
-
-                        }
-                        if (call instanceof MethodCallImpl) {
-                            MethodCallImpl impl = (MethodCallImpl) call;
-                            impl.setBody(list);
+                        if (list.length - 1 == 0) {
+                            list = new Object[0];
+                        } else {
+                            list = Arry.slc(list, 1); //Skip first arg it was a handler.
                         }
 
                     }
-                }
+                    if (call instanceof MethodCallImpl) {
+                        MethodCallImpl impl = (MethodCallImpl) call;
+                        impl.setBody(list);
+                    }
 
-                return true;
+                }
             }
+
+            return true;
         };
 
 
@@ -346,7 +346,7 @@ public class BoonClient implements Client {
             Type[] genericParameterTypes = method.getGenericParameterTypes();
             ParameterizedType parameterizedType = genericParameterTypes.length > 0 ? (ParameterizedType) genericParameterTypes[0] : null;
 
-            Type type = (parameterizedType.getActualTypeArguments().length > 0 ? parameterizedType.getActualTypeArguments()[0] : null);
+            Type type = ((parameterizedType != null ? parameterizedType.getActualTypeArguments().length : 0) > 0 ? (parameterizedType != null ? parameterizedType.getActualTypeArguments() : new Type[0])[0] : null);
 
             if (type instanceof ParameterizedType) {
                 returnType = (Class) ((ParameterizedType) type).getRawType();
@@ -365,46 +365,43 @@ public class BoonClient implements Client {
         final Class<?> componentClass = compType;
 
         /** Create the return handler. */
-        return new Callback<Object>() {
-            @Override
-            public void accept(Object event) {
+        return event -> {
 
-                if (actualReturnType != null) {
+            if (actualReturnType != null) {
 
-                    if (componentClass != null && actualReturnType == List.class) {
+                if (componentClass != null && actualReturnType == List.class) {
 
-                        try {
-                            //noinspection unchecked
-                            event = MapObjectConversion.convertListOfMapsToObjects(componentClass, (List) event);
-                        } catch (Exception ex) {
-                            if (event instanceof CharSequence) {
-                                String errorMessage = event.toString();
-                                if (errorMessage.startsWith("java.lang.IllegalState")) {
-                                    handler.onError(new IllegalStateException(errorMessage));
-                                    return;
-                                } else {
-                                    handler.onError(new IllegalStateException("Conversion error"));
-                                    return;
-                                }
+                    try {
+                        //noinspection unchecked
+                        event = MapObjectConversion.convertListOfMapsToObjects(componentClass, (List) event);
+                    } catch (Exception ex) {
+                        if (event instanceof CharSequence) {
+                            String errorMessage = event.toString();
+                            if (errorMessage.startsWith("java.lang.IllegalState")) {
+                                handler.onError(new IllegalStateException(errorMessage));
+                                return;
                             } else {
                                 handler.onError(new IllegalStateException("Conversion error"));
                                 return;
                             }
+                        } else {
+                            handler.onError(new IllegalStateException("Conversion error"));
+                            return;
                         }
-                    } else {
-                        event = Conversions.coerce(actualReturnType, event);
                     }
-                    //noinspection unchecked
-                    handler.accept(event);
+                } else {
+                    event = Conversions.coerce(actualReturnType, event);
                 }
-
+                //noinspection unchecked
+                handler.accept(event);
             }
+
         };
     }
 
     public void start() {
 
-        /** Adding the weak reference to get rid of the circular depedency
+        /** Adding the weak reference to get rid of the circular dependency
          * which seems to prevent this from getting collected.
          */
         final WeakReference<BoonClient> boonClientWeakReference =

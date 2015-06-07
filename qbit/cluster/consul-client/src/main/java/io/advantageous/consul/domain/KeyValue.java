@@ -98,6 +98,7 @@ public class KeyValue {
         this.session = session;
     }
 
+    @SuppressWarnings("SimplifiableIfStatement")
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

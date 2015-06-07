@@ -118,11 +118,8 @@ public class ServiceBundleImpl implements ServiceBundle {
 
      */
     private final TreeSet<String> addressesByDescending = new TreeSet<>(
-            new Comparator<String>() {
-                @Override
-                public int compare(String o1, String o2) {
-                    return o2.compareTo(o1);
-                }
+            (o1, o2) -> {
+                return o2.compareTo(o1);
             }
     );
     /**
@@ -130,11 +127,8 @@ public class ServiceBundleImpl implements ServiceBundle {
      * This makes it easier to compare this root addresses to new addresses coming in.
      */
     private final TreeSet<String> seenAddressesDescending = new TreeSet<>(
-            new Comparator<String>() {
-                @Override
-                public int compare(String o1, String o2) {
-                    return o2.compareTo(o1);
-                }
+            (o1, o2) -> {
+                return o2.compareTo(o1);
             }
     );
     /*
@@ -155,7 +149,7 @@ public class ServiceBundleImpl implements ServiceBundle {
         this.invokeDynamic = invokeDynamic;
         this.systemManager = systemManager;
 
-        String rootAddress = "";
+        String rootAddress;
         if (address.endsWith("/")) {
             rootAddress = address.substring(0, address.length() - 1);
         } else {
@@ -460,6 +454,7 @@ public class ServiceBundleImpl implements ServiceBundle {
 
             Set<String> uris = serviceMapping.keySet();
 
+            //noinspection CodeBlock2Expr
             uris.forEach((String it) -> {
                 logger.error("known URI path " + it);
             });
@@ -547,6 +542,7 @@ public class ServiceBundleImpl implements ServiceBundle {
     /**
      * Stop the client bundle.
      */
+    @SuppressWarnings("Convert2streamapi")
     public void stop() {
         if (debug) {
             logger.debug(ServiceBundleImpl.class.getName(), "::stop()");
@@ -669,6 +665,7 @@ public class ServiceBundleImpl implements ServiceBundle {
                 time = Timer.timer().now();
                 if (time > (lastTimeAutoFlush + 50)) {
 
+                    //noinspection Convert2streamapi
                     for (SendQueue<MethodCall<Object>> sendQueue : sendQueues) {
                         sendQueue.flushSends();
                     }
@@ -679,6 +676,7 @@ public class ServiceBundleImpl implements ServiceBundle {
         });
     }
 
+    @SuppressWarnings("Convert2streamapi")
     public void flush() {
 
         flushSends();

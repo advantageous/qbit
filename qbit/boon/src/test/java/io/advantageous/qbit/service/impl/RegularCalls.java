@@ -46,7 +46,8 @@ public class RegularCalls {
     public void test() {
 
         Adder adder = new Adder();
-        ServiceQueue serviceQueue = Services.regularService("test", adder, 1000, TimeUnit.MILLISECONDS, 10);
+        ServiceQueue serviceQueue = Services.regularService("test", adder
+                );
         SendQueue<MethodCall<Object>> requests = serviceQueue.requests();
         ReceiveQueue<Response<Object>> responses = serviceQueue.responses();
 
@@ -102,7 +103,7 @@ public class RegularCalls {
         Adder adder = new Adder();
 
 
-        ServiceQueue serviceQueue = Services.regularService("test", adder, 1000, TimeUnit.MILLISECONDS, 10);
+        ServiceQueue serviceQueue = Services.regularService("test", adder);
         SendQueue<MethodCall<Object>> requests = serviceQueue.requests();
         ReceiveQueue<Response<Object>> responses = serviceQueue.responses();
 
@@ -135,7 +136,8 @@ public class RegularCalls {
     public void testBatch() {
 
         Adder adder = new Adder();
-        ServiceQueue serviceQueue = Services.regularService("test", adder, 1000, TimeUnit.MILLISECONDS, 10);
+        ServiceQueue serviceQueue = Services.regularService("test", adder
+                );
         SendQueue<MethodCall<Object>> requests = serviceQueue.requests();
         ReceiveQueue<Response<Object>> responses = serviceQueue.responses();
 

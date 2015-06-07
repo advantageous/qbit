@@ -25,6 +25,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
+ * Used to map Service method to URIs in an HTTP like protocol.
  * @author Rick Hightower
  */
 @Retention(RetentionPolicy.RUNTIME)

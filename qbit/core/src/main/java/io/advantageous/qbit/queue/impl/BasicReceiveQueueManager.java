@@ -18,11 +18,12 @@
 
 package io.advantageous.qbit.queue.impl;
 
-import io.advantageous.boon.core.Sys;
 import io.advantageous.qbit.GlobalConstants;
 import io.advantageous.qbit.queue.ReceiveQueue;
 import io.advantageous.qbit.queue.ReceiveQueueListener;
 import io.advantageous.qbit.queue.ReceiveQueueManager;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -37,10 +38,15 @@ public class BasicReceiveQueueManager<T> implements ReceiveQueueManager<T> {
     private final boolean debug = GlobalConstants.DEBUG;
 
 
-    //boolean sleepWait = false;
+    private final Logger logger = LoggerFactory.getLogger(BasicReceiveQueueManager.class);
+
+
 
     @Override
-    public void manageQueue(ReceiveQueue<T> inputQueue, ReceiveQueueListener<T> listener, int batchSize, AtomicBoolean stop) {
+    public void manageQueue(final ReceiveQueue<T> inputQueue,
+                            final ReceiveQueueListener<T> listener,
+                            final int batchSize,
+                            final AtomicBoolean stop) {
 
 
         T item = inputQueue.poll(); //Initialize things.
@@ -82,8 +88,7 @@ public class BasicReceiveQueueManager<T> implements ReceiveQueueManager<T> {
             listener.empty();
 
             if (debug) {
-                System.out.println("BasicReceiveQueueManager empty queue count was " + count + " " + Thread.currentThread().getName());
-                Sys.sleep(1_000);
+                logger.info("BasicReceiveQueueManager empty queue count was " + count + " " + Thread.currentThread().getName());
             }
 
             count = 0;
@@ -118,7 +123,7 @@ public class BasicReceiveQueueManager<T> implements ReceiveQueueManager<T> {
 
 
                 if (debug) {
-                    System.out.println("BasicReceiveQueueManager idle");
+                    logger.info("BasicReceiveQueueManager idle");
                 }
 
 

@@ -19,6 +19,8 @@
 package io.advantageous.qbit.events;
 
 /**
+ * Subscribe to an event.
+ * All subscribers will get notice of the event but only one consumer will.
  * created by rhightower on 2/3/15.
  */
 public interface EventSubscriber<T> extends EventListener<T> {

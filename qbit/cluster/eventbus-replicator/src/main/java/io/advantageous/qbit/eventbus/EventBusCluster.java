@@ -61,9 +61,9 @@ public class EventBusCluster implements Startable, Stoppable {
     private final boolean debug = GlobalConstants.DEBUG || logger.isDebugEnabled();
     private final boolean info = logger.isInfoEnabled();
 
-    private AtomicInteger lastIndex = new AtomicInteger();
+    private final AtomicInteger lastIndex = new AtomicInteger();
     private RequestOptions requestOptions;
-    private AtomicReference<Consul> consul = new AtomicReference<>();
+    private final AtomicReference<Consul> consul = new AtomicReference<>();
     private ScheduledFuture healthyNodeMonitor;
     private ScheduledFuture consulCheckInMonitor;
     private ServiceEndpointServer serviceEndpointServerForReplicator;

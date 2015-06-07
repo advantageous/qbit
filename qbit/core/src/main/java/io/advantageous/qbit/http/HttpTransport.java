@@ -35,6 +35,7 @@ import java.util.function.Consumer;
 import java.util.function.Predicate;
 
 /**
+ * Represents an HTTP transport.
  * @author rhightower
  * on 2/19/15.
  */

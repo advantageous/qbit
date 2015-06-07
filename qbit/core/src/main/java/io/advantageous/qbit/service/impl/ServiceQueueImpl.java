@@ -21,6 +21,7 @@ package io.advantageous.qbit.service.impl;
 import io.advantageous.qbit.message.Response;
 import io.advantageous.qbit.queue.Queue;
 import io.advantageous.qbit.queue.QueueBuilder;
+import io.advantageous.qbit.queue.QueueCallBackHandler;
 import io.advantageous.qbit.service.ServiceMethodHandler;
 import io.advantageous.qbit.system.QBitSystemManager;
 
@@ -37,9 +38,10 @@ public class ServiceQueueImpl extends BaseServiceQueueImpl {
                             final Queue<Response<Object>> responseQueue,
                             final boolean async,
                             final boolean handleCallbacks,
-                            final QBitSystemManager systemManager) {
+                            final QBitSystemManager systemManager,
+                            final QueueCallBackHandler handler) {
         super(rootAddress, serviceAddress, service, requestQueueBuilder, responseQueueBuilder,
                 serviceMethodHandler, responseQueue,
-                async, handleCallbacks, systemManager);
+                async, handleCallbacks, systemManager, handler);
     }
 }

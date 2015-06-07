@@ -33,11 +33,11 @@ public class ExampleMainBlockingArrayQueueSingleWriterMultiReader {
     static final int sleepEvery = 1_000_000;
     static final int numReaders = 10;
     static final List<Future<Long>> receiverJobs = new ArrayList<>();
-    static ExecutorService executorService = Executors.newCachedThreadPool();
-    static AtomicBoolean stop = new AtomicBoolean();
+    static final ExecutorService executorService = Executors.newCachedThreadPool();
+    static final AtomicBoolean stop = new AtomicBoolean();
 
 
-    public static void sender(int amount, int code) throws InterruptedException {
+    public static void sender(int amount, int code)  {
 
         try {
 
@@ -95,15 +95,7 @@ public class ExampleMainBlockingArrayQueueSingleWriterMultiReader {
             }));
         }
 
-        final Future<?> senderJob = executorService.submit(() -> {
-
-            try {
-                sender(50_000_000, -1);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-
-        });
+        final Future<?> senderJob = executorService.submit(() -> sender(50_000_000, -1));
 
         long count = 0L;
         for (Future<Long> future : receiverJobs) {

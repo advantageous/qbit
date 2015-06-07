@@ -17,6 +17,10 @@
  */
 package io.advantageous.qbit.meta.params;
 
+
+/**
+ * Holds meta data about a body where a header represents a single argument to a method.
+ */
 public class HeaderParam extends NamedParam {
 
 

@@ -18,6 +18,7 @@
 
 package io.advantageous.qbit.servlet;
 
+import io.advantageous.boon.core.Lists;
 import io.advantageous.qbit.util.MultiMap;
 
 import javax.servlet.http.HttpServletRequest;
@@ -100,7 +101,7 @@ public class HttpServletHeaderMultiMap implements MultiMap<String, String> {
 
     @Override
     public int size() {
-        return Arrays.asList(request.getHeaderNames()).size();
+        return Lists.list(request.getHeaderNames()).size();
     }
 
     @Override
@@ -118,6 +119,7 @@ public class HttpServletHeaderMultiMap implements MultiMap<String, String> {
         return getFirst(key.toString());
     }
 
+    @SuppressWarnings("NullableProblems")
     @Override
     public Set<String> keySet() {
         final Enumeration<String> enumeration = request.getHeaderNames();
@@ -128,6 +130,7 @@ public class HttpServletHeaderMultiMap implements MultiMap<String, String> {
         return set;
     }
 
+    @SuppressWarnings("NullableProblems")
     @Override
     public Set<Entry<String, String>> entrySet() {
         final Map<String, String> map = new HashMap<>(this.size());

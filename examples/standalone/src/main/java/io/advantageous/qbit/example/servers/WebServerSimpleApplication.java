@@ -25,7 +25,7 @@ import static io.advantageous.boon.core.IO.gets;
 
 
 /**
- * engine1:wrk rhightower$ ./wrk -c 500 -d 10s http://localhost:9090/1 -H "X_RDIO_USER_ID: RICK"  --timeout 100000s -t 8
+ * engine1:wrk rhightower$ ./wrk -c 500 -d 10s http://localhost:9090/1 -H "X_COMPANY_USER_ID: RICK"  --timeout 100000s -t 8
  */
 public class WebServerSimpleApplication {
 

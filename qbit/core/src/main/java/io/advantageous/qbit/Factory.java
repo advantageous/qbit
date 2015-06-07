@@ -50,7 +50,7 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
- * Main factory for QBit. This gets used internally to createWithWorkers / parse methods.
+ * Main factory for QBit. This gets used internally to create things easily.
  *
  * @author rhightower
  */
@@ -288,10 +288,10 @@ public interface Factory {
     default HttpClient createHttpClient(
             String host,
             int port,
-            int requestBatchSize,
             int timeOutInMilliseconds,
             int poolSize,
-            boolean autoFlush, int flushRate,
+            boolean autoFlush,
+            int flushRate,
             boolean keepAlive,
             boolean pipeline
 

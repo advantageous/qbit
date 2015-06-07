@@ -26,6 +26,10 @@ import org.slf4j.LoggerFactory;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 
+/**
+ * WebSocket like thing that receives messages.
+ * Could be mapped to non-websocket implementations.
+ */
 public class NetSocketBase implements NetSocket {
 
     private final String remoteAddress;
@@ -41,6 +45,7 @@ public class NetSocketBase implements NetSocket {
     };
     private Consumer<Void> openConsumer = aVoid -> {
     };
+    @SuppressWarnings("CodeBlock2Expr")
     private Consumer<Exception> errorConsumer = error -> {
 
         LoggerFactory.getLogger(NetSocketBase.class)

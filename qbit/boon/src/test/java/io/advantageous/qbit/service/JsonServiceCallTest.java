@@ -44,7 +44,7 @@ public class JsonServiceCallTest {
     public void test() {
 
         Adder adder = new Adder();
-        ServiceQueue serviceQueue = Services.jsonService("test", adder, 1000, TimeUnit.MILLISECONDS, 100);
+        ServiceQueue serviceQueue = Services.jsonService("test", adder);
 
         ReceiveQueue<Response<Object>> responses = serviceQueue.responses();
         SendQueue<MethodCall<Object>> requests = serviceQueue.requests();
@@ -81,7 +81,7 @@ public class JsonServiceCallTest {
 
         Adder adder = new Adder();
 
-        ServiceQueue serviceQueue = Services.jsonService("test", adder, 1000, TimeUnit.MILLISECONDS, 100);
+        ServiceQueue serviceQueue = Services.jsonService("test", adder);
 
         ReceiveQueue<Response<Object>> responses = serviceQueue.responses();
         SendQueue<MethodCall<Object>> requests = serviceQueue.requests();
@@ -116,7 +116,7 @@ public class JsonServiceCallTest {
 
         Adder adder = new Adder();
 
-        ServiceQueue serviceQueue = Services.jsonService("test", adder, 1000, TimeUnit.MILLISECONDS, 100);
+        ServiceQueue serviceQueue = Services.jsonService("test", adder);
 
         ReceiveQueue<Response<Object>> responses = serviceQueue.responses();
         SendQueue<MethodCall<Object>> requests = serviceQueue.requests();

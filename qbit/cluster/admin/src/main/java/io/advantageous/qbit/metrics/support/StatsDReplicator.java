@@ -34,7 +34,7 @@ public class StatsDReplicator implements StatReplicator, QueueCallBackHandler {
     /*
     Sets
 
-StatsD supports counting unique occurences of events between flushes, using a Set to store all occuring events.
+StatsD supports counting unique occurences of events between flushes, using a Set to store all occurring events.
 
 uniques:765|s
 If the count at flush is 0 then you can opt to send no metric at all for this set, by setting config.deleteSets.
@@ -59,6 +59,7 @@ If the count at flush is 0 then you can opt to send no metric at all for this se
     }
 
 
+    @SuppressWarnings("UnusedReturnValue")
     public boolean timing(String key, int value) {
         return timing(key, value, 1.0);
     }
@@ -98,6 +99,7 @@ If the count at flush is 0 then you can opt to send no metric at all for this se
         return increment(key, 1, 1.0);
     }
 
+    @SuppressWarnings("UnusedReturnValue")
     public boolean increment(String key, int magnitude) {
         return increment(key, magnitude, 1.0);
     }
@@ -115,6 +117,7 @@ If the count at flush is 0 then you can opt to send no metric at all for this se
         return send(sampleRate, stats);
     }
 
+    @SuppressWarnings("UnusedReturnValue")
     public boolean gauge(String key, double magnitude) {
         return gauge(key, magnitude, 1.0);
     }
@@ -178,26 +181,23 @@ If the count at flush is 0 then you can opt to send no metric at all for this se
         }
     }
 
+    @SuppressWarnings("UnusedReturnValue")
     public boolean flushStatSend() {
         try {
             final int sizeOfBuffer = sendBuffer.position();
 
             if (sizeOfBuffer <= 0) {
                 return false;
-            } // empty buffer
+            }
 
-            // send and reset the buffer
-            sendBuffer.flip();
-            final int nbSentBytes = channel.send(sendBuffer, address);
-            sendBuffer.limit(sendBuffer.capacity());
-            sendBuffer.rewind();
+            final int sentByteCount = sendBufferOverChannel();
 
-            if (sizeOfBuffer == nbSentBytes) {
+            if (sizeOfBuffer == sentByteCount) {
                 return true;
             } else {
                 logger.error(String.format(
-                        "Could not send entirely stat %s to host %s:%d. Only sent %d bytes out of %d bytes", sendBuffer.toString(),
-                        address.getHostName(), address.getPort(), nbSentBytes, sizeOfBuffer));
+                        "Could not send all of stat %s to host %s:%d. Only sent %d bytes out of %d bytes", sendBuffer.toString(),
+                        address.getHostName(), address.getPort(), sentByteCount, sizeOfBuffer));
                 return false;
             }
 
@@ -207,6 +207,14 @@ If the count at flush is 0 then you can opt to send no metric at all for this se
                             address.getPort()), e);
             return false;
         }
+    }
+
+    private int sendBufferOverChannel() throws IOException {
+        sendBuffer.flip();
+        final int sentByteCount = channel.send(sendBuffer, address);
+        sendBuffer.limit(sendBuffer.capacity());
+        sendBuffer.rewind();
+        return sentByteCount;
     }
 
     @Override

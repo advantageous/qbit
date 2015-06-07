@@ -29,6 +29,7 @@ import static io.advantageous.qbit.http.server.HttpServerBuilder.httpServerBuild
 /**
  * created by rhightower on 2/16/15.
  */
+@SuppressWarnings("CodeBlock2Expr")
 public class EchoWebSocket {
 
 

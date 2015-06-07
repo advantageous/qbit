@@ -21,7 +21,8 @@ package io.advantageous.qbit.events.spi;
 import io.advantageous.qbit.message.Event;
 
 /**
- * @param <T> T
+ * Holds the data for an event.
+ * @param <T> T object getting sent
  */
 public class EventTransferObject<T> implements Event<T> {
 
@@ -70,6 +71,7 @@ public class EventTransferObject<T> implements Event<T> {
         return topic;
     }
 
+    @SuppressWarnings("SimplifiableIfStatement")
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

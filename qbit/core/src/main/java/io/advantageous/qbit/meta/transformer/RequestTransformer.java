@@ -22,6 +22,9 @@ import io.advantageous.qbit.message.MethodCall;
 
 import java.util.List;
 
+/**
+ * Converts an HTTP request into a method call.
+ */
 public interface RequestTransformer {
 
     MethodCall<Object> transform(HttpRequest request, List<String> errorsList);

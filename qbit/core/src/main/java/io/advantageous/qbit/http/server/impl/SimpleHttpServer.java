@@ -38,6 +38,9 @@ import static io.advantageous.qbit.concurrent.ScheduledExecutorBuilder.scheduled
 import static io.advantageous.qbit.http.server.websocket.WebSocketMessageBuilder.webSocketMessageBuilder;
 
 /**
+ * Captures all of the logic of an HTTP server that QBit implements, but does not
+ * handle the actual wire transfer.
+ *
  * @author rhightower on 2/12/15.
  */
 public class SimpleHttpServer implements HttpServer {

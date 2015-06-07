@@ -18,10 +18,8 @@
 
 package io.advantageous.qbit.spi;
 
-import io.advantageous.boon.core.reflection.fields.FieldAccess;
 import io.advantageous.boon.json.JsonSerializer;
 import io.advantageous.boon.json.JsonSerializerFactory;
-import io.advantageous.boon.json.serializers.FieldFilter;
 import io.advantageous.boon.primitive.CharBuf;
 import io.advantageous.qbit.message.Message;
 import io.advantageous.qbit.message.MethodCall;
@@ -42,20 +40,15 @@ import static io.advantageous.qbit.service.Protocol.*;
  */
 public class BoonProtocolEncoder implements ProtocolEncoder {
 
-    private ThreadLocal<JsonSerializer> jsonSerializer = new ThreadLocal<JsonSerializer>() {
+    private final ThreadLocal<JsonSerializer> jsonSerializer = new ThreadLocal<JsonSerializer>() {
         @Override
         protected JsonSerializer initialValue() {
-            return new JsonSerializerFactory().addFilter(new FieldFilter() {
-                @Override
-                public boolean include(Object parent, FieldAccess fieldAccess) {
-                    return !fieldAccess.name().equals("metaClass");
-                }
-            }).create();
+            return new JsonSerializerFactory().addFilter((parent, fieldAccess) -> !fieldAccess.name().equals("metaClass")).create();
         }
     };
 
 
-    private ThreadLocal<CharBuf> bufRef = new ThreadLocal<CharBuf>() {
+    private final ThreadLocal<CharBuf> bufRef = new ThreadLocal<CharBuf>() {
         @Override
         protected CharBuf initialValue() {
             return CharBuf.createCharBuf(1000);
@@ -145,6 +138,7 @@ public class BoonProtocolEncoder implements ProtocolEncoder {
         } else if (body instanceof Object[]) {
             Object[] args = (Object[]) body;
 
+            //noinspection ForLoopReplaceableByForEach
             for (int index = 0; index < args.length; index++) {
                 Object bodyPart = args[index];
                 serializer.serialize(buf, bodyPart);

@@ -20,6 +20,8 @@ package io.advantageous.qbit.bindings;
 
 
 /**
+ *
+ * Maps an method argument to request param name.
  * @author Rick Hightower
  */
 public class RequestParamBinding {

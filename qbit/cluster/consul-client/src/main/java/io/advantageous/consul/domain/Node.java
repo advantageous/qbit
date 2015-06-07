@@ -43,6 +43,7 @@ public class Node {
         this.address = address;
     }
 
+    @SuppressWarnings("SimplifiableIfStatement")
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

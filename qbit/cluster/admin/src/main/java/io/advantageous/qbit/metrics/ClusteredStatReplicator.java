@@ -42,7 +42,7 @@ public class ClusteredStatReplicator implements StatReplicator, ServiceChangedEv
     private long lastReconnectTime;
     private long lastSendTime;
     private long lastReplicatorFlush = 0;
-    private ConcurrentHashMap<String, LocalCount> countMap = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<String, LocalCount> countMap = new ConcurrentHashMap<>();
     private List<Pair<EndpointDefinition, StatReplicator>> statReplicators = new ArrayList<>();
 
 

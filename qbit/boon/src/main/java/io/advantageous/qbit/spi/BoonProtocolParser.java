@@ -47,7 +47,7 @@ import static io.advantageous.qbit.service.Protocol.*;
  */
 public class BoonProtocolParser implements ProtocolParser {
 
-    private JsonParserAndMapper jsonParser = new JsonParserFactory().create();
+    private final JsonParserAndMapper jsonParser = new JsonParserFactory().create();
 
 
     private Message<Object> parseMessageFromString(String addressPrefix, String args) {
@@ -231,7 +231,7 @@ public class BoonProtocolParser implements ProtocolParser {
 
         char[] messageBodyChars = chars[RESPONSE_RETURN];
 
-        Object messageBody = null;
+        Object messageBody;
         if (!Chr.isEmpty(messageBodyChars)) {
             messageBody = jsonParser.parse(messageBodyChars);
         } else {
@@ -276,7 +276,7 @@ public class BoonProtocolParser implements ProtocolParser {
         String address = FastStringUtils.noCopyStringFromChars(chars[ADDRESS_POS]);
 
 
-        String returnAddress = null;
+        String returnAddress;
 
         returnAddress = FastStringUtils.noCopyStringFromChars(chars[RETURN_ADDRESS_POS]);
 

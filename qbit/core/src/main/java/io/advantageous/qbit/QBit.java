@@ -31,7 +31,7 @@ import org.slf4j.LoggerFactory;
  * @author rhightower
  */
 public class QBit {
-    private Logger logger = LoggerFactory.getLogger(QBit.class);
+    private final Logger logger = LoggerFactory.getLogger(QBit.class);
     private final boolean debug = logger.isDebugEnabled();
 
     public static Factory factory() {
@@ -88,7 +88,7 @@ public class QBit {
             });
 
 
-            FactorySPI.setHttpClientFactory((host, port, requestBatchSize, timeOutInMilliseconds, poolSize,
+            FactorySPI.setHttpClientFactory((host, port, timeOutInMilliseconds, poolSize,
                                              autoFlush, flushRate, keepAlive, pipeLine) -> {
                 throw new IllegalStateException("Unable to load Vertx or Jetty network libs");
             });

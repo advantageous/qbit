@@ -17,9 +17,13 @@
  */
 package io.advantageous.qbit.meta.params;
 
+
+/**
+ * Holds meta data about a body where a single positional URI param represents a single argument to a method.
+ */
 public class URIPositionalParam extends PositionalParam {
 
-    private int indexIntoURI;
+    private final int indexIntoURI;
 
     public URIPositionalParam(final boolean required, final int position,
                               final Object defaultValue, int indexIntoURI) {

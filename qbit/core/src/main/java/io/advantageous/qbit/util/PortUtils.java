@@ -18,6 +18,7 @@ public class PortUtils {
                 serverSocket.close();
                 return port;
             } catch (IOException ex) {
+                //
             } finally {
                 if (serverSocket != null) {
                     if (!serverSocket.isClosed()) {
@@ -46,6 +47,7 @@ public class PortUtils {
                 serverSocket.close();
                 return index;
             } catch (IOException ex) {
+                //
             } finally {
                 if (serverSocket != null) {
                     if (!serverSocket.isClosed()) {

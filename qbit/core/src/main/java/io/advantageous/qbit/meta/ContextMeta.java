@@ -22,6 +22,10 @@ import io.advantageous.boon.core.Lists;
 import java.util.Collections;
 import java.util.List;
 
+/**
+ * Holds the root of a service bundle's metadata.
+ * A service bundle is more or less a group of endpoints, that are mapped to the same host/port.
+ */
 public class ContextMeta {
 
     private final String rootURI;

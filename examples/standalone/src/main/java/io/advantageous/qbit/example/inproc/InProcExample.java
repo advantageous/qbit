@@ -46,7 +46,7 @@ public class InProcExample {
     /**
      * You can use services in process
      */
-    public static void example1(String... args) throws Exception {
+    public static void example1(String... args)  {
 
         /* Synchronous service. */
         final TodoManager todoManagerImpl = new TodoManager();
@@ -99,7 +99,7 @@ public class InProcExample {
     /**
      * You can use services in process
      */
-    public static void example2(String... args) throws Exception {
+    public static void example2(String... args)  {
 
         /* Synchronous service. */
         final TodoManager todoManagerImpl = new TodoManager();
@@ -173,7 +173,7 @@ public class InProcExample {
      */
     public static class TodoManager {
 
-        private List<Todo> list = new ArrayList<>();
+        private final List<Todo> list = new ArrayList<>();
 
         public void add(Todo todo) {
             System.out.println("Add Todo");

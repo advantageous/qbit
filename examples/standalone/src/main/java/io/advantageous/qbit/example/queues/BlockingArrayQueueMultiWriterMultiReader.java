@@ -42,11 +42,11 @@ public class BlockingArrayQueueMultiWriterMultiReader {
     static final int amountOfMessagesToSend = 10_000_000; //Each
     static final List<Future<Long>> receiverJobs = new ArrayList<>();
     static final List<Future<?>> writerJobs = new ArrayList<>();
-    static ExecutorService executorService = Executors.newCachedThreadPool();
-    static AtomicBoolean stop = new AtomicBoolean();
+    static final ExecutorService executorService = Executors.newCachedThreadPool();
+    static final AtomicBoolean stop = new AtomicBoolean();
 
 
-    public static void sender(int workerId, @SuppressWarnings("SameParameterValue") int amount, int code) throws InterruptedException {
+    public static void sender(int workerId, @SuppressWarnings("SameParameterValue") int amount, int code)  {
 
         try {
 

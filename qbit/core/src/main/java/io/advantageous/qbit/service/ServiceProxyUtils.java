@@ -21,6 +21,7 @@ package io.advantageous.qbit.service;
 import io.advantageous.qbit.client.ClientProxy;
 
 /**
+ * Used to flush proxy interfaces w/o implementing ClientProxy direct.
  * created by rhightower on 2/4/15.
  */
 public class ServiceProxyUtils {

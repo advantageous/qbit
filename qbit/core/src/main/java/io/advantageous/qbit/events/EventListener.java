@@ -21,9 +21,11 @@ package io.advantageous.qbit.events;
 import io.advantageous.qbit.message.Event;
 
 /**
- * EventListener
+ * EventListener listens to events.
+ * @author rick
  * created by rhightower on 2/3/15.
  */
+@SuppressWarnings("SameReturnValue")
 public interface EventListener<T> {
 
     default boolean subscriber() {

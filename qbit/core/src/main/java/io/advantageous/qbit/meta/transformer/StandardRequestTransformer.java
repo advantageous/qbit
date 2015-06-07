@@ -40,6 +40,11 @@ import java.util.Map;
 
 import static io.advantageous.boon.core.Str.sputs;
 
+/**
+ * The only implementation of RequestTransformer which takes a map
+ * of StandardMetaDataProvider mapped to request methods (GET, POST), and uses it to
+ * decide which method to invoke on an object.
+ */
 public class StandardRequestTransformer implements RequestTransformer {
 
 
@@ -205,7 +210,6 @@ public class StandardRequestTransformer implements RequestTransformer {
             }
 
             args.add(value);
-            value = null;
 
 
         }

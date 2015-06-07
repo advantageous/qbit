@@ -17,6 +17,10 @@
  */
 package io.advantageous.qbit.meta.params;
 
+
+/**
+ * Holds meta data about a body where some param named or positional represents a single argument to a method.
+ */
 public class Param {
 
     private final boolean required;

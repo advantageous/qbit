@@ -19,6 +19,8 @@
 package io.advantageous.qbit.http.request;
 
 /**
+ * This is an interface which allows you to register for a TEXT instead of binary response from
+ * an HTTP server.
  * @author rhightower
  *         on 1/15/15.
  */

@@ -19,8 +19,12 @@ package io.advantageous.qbit.meta.provider;
 
 import io.advantageous.qbit.meta.RequestMetaData;
 
+/**
+ * A provider of metadata.
+ * Could be annotations, a database, a JSON file, an XML file.
+ * Mostly likely, it is annotations.
+ */
 public interface MetaDataProvider {
-
 
     RequestMetaData get(String path);
 

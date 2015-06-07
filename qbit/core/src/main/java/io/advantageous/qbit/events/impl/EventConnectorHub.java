@@ -10,12 +10,17 @@ import io.advantageous.qbit.service.ServiceProxyUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
+ * Provides a collection of event connectors and makes them look like a single event connector.
+ * It will also work with the RemoteTCPClientProxy to close connectors that are removed.
+ * When you remvoe a remote connector that implements RemoteTCPClientProxy,
+ * note it will be closed if removed from the EventConnectorHub.
  */
 public class EventConnectorHub implements EventConnector, Iterable<EventConnector> {
 
@@ -34,18 +39,28 @@ public class EventConnectorHub implements EventConnector, Iterable<EventConnecto
         this.eventConnectors = new CopyOnWriteArrayList<>();
     }
 
-    public void add(EventConnector eventConnector) {
+    /**
+     * Add an event connector
+     * @param eventConnector eventConnector
+     */
+    public void add(final EventConnector eventConnector) {
         this.eventConnectors.add(eventConnector);
     }
 
-    public void addAll(EventConnector... eventConnectors) {
-        for (EventConnector eventConnector : eventConnectors) {
-            this.eventConnectors.add(eventConnector);
-        }
+    /**
+     * Add a bunch of event connectors.
+     * @param eventConnectors eventConnectors
+     */
+    public void addAll(final EventConnector... eventConnectors) {
+        Collections.addAll(this.eventConnectors, eventConnectors);
     }
 
 
-    public void remove(EventConnector eventConnector) {
+    /**
+     * Remove an event connector
+     * @param eventConnector eventConnector
+     */
+    public void remove(final EventConnector eventConnector) {
         if (eventConnector != null) {
             try {
 
@@ -65,6 +80,10 @@ public class EventConnectorHub implements EventConnector, Iterable<EventConnecto
     }
 
 
+    /**
+     * Forwards en event to another event system.
+     * @param event event
+     */
     @Override
     public void forwardEvent(final EventTransferObject<Object> event) {
 
@@ -91,6 +110,9 @@ public class EventConnectorHub implements EventConnector, Iterable<EventConnecto
         if (debug) logger.debug("forwardEvent done " + event.channel());
     }
 
+    /**
+     * Flushes the pool used to optimize flushing of IO operations.
+     */
     @Override
     public void flush() {
 

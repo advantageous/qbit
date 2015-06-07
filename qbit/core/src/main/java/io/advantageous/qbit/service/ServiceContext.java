@@ -23,6 +23,7 @@ import io.advantageous.qbit.events.EventManager;
 import io.advantageous.qbit.service.impl.BaseServiceQueueImpl;
 
 /**
+ * A service context. Services can call currentService() to get their ServiceQueue.
  * created by rhightower on 2/4/15.
  */
 public class ServiceContext {

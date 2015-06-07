@@ -4,6 +4,7 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
 /**
+ * A callback that is also a future, but is an async future.
  * AsyncFutureCallback
  * created by rhightower on 3/22/15.
  */
@@ -30,6 +31,7 @@ public interface AsyncFutureCallback<T> extends Runnable, Callback<T>, Future<T>
     @Override
     T get();
 
+    @SuppressWarnings("NullableProblems")
     @Override
     T get(long timeout, TimeUnit unit);
 

@@ -24,7 +24,7 @@ import io.advantageous.qbit.http.client.HttpClient;
  * created by rhightower on 11/13/14.
  */
 public interface HttpClientFactory {
-    HttpClient create(String host, int port, int requestBatchSize,
+    HttpClient create(String host, int port,
                       int timeOutInMilliseconds, int poolSize,
                       boolean autoFlush, int flushRate,
                       boolean keepAlive, boolean pipeLine);

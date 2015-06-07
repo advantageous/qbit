@@ -73,21 +73,26 @@ public class HttpVertxClient implements HttpClient {
     /**
      * I am leaving these protected and non-final so subclasses can use injection frameworks for them.
      */
-    protected int port;
-    protected int requestBatchSize = 50;
-    protected String host;
-    protected int timeOutInMilliseconds;
+    protected final int port;
+    protected final String host;
+    protected final int timeOutInMilliseconds;
     protected int poolSize;
     protected org.vertx.java.core.http.HttpClient httpClient;
-    protected Vertx vertx;
+    protected final Vertx vertx;
     volatile long responseCount = 0;
     private ExecutorContext executorContext;
-    private boolean autoFlush;
+    private final boolean autoFlush;
     private Consumer<Void> periodicFlushCallback = aVoid -> {
     };
 
-    public HttpVertxClient(String host, int port, int requestBatchSize, int timeOutInMilliseconds, int poolSize,
-                           boolean autoFlush, int flushInterval, boolean keepAlive, boolean pipeline) {
+    public HttpVertxClient(final String host,
+                           final int port,
+                           final int timeOutInMilliseconds,
+                           final int poolSize,
+                           final boolean autoFlush,
+                           final int flushInterval,
+                           final boolean keepAlive,
+                           final boolean pipeline) {
 
         this.flushInterval = flushInterval;
         this.port = port;
@@ -95,7 +100,6 @@ public class HttpVertxClient implements HttpClient {
         this.timeOutInMilliseconds = timeOutInMilliseconds;
         this.poolSize = poolSize;
         this.vertx = VertxFactory.newVertx();
-        this.requestBatchSize = requestBatchSize;
         this.poolSize = poolSize;
         this.keepAlive = keepAlive;
         this.pipeline = pipeline;

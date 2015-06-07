@@ -32,6 +32,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.CountDownLatch;
 
 /**
+ * Allows for gracefully shutting down a collection of stoppable things.
  * created by rhightower on 2/11/15.
  */
 public class QBitSystemManager {
@@ -41,7 +42,7 @@ public class QBitSystemManager {
     private final List<Server> serverList = new CopyOnWriteArrayList<>();
     private final Logger logger = LoggerFactory.getLogger(QBitSystemManager.class);
     private final boolean debug = GlobalConstants.DEBUG || logger.isDebugEnabled();
-    private boolean coreSystemShutdown;
+    private final boolean coreSystemShutdown;
     private volatile int countTracked;
 
     private CountDownLatch countDownLatch;
@@ -140,7 +141,7 @@ public class QBitSystemManager {
             countDownLatch.countDown();
         }
 
-        if (debug) logger.debug("serviceShutDown: " + countDownLatch.getCount());
+        if (debug) logger.debug("serviceShutDown: " + (countDownLatch != null ? countDownLatch.getCount() : 0));
     }
 
     public void waitForShutdown() {

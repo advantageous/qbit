@@ -55,10 +55,10 @@ public class ConsulServiceDiscoveryProvider implements ServiceDiscoveryProvider 
             return consul;
         }
     };
-    private AtomicInteger lastIndex = new AtomicInteger();
+    private final AtomicInteger lastIndex = new AtomicInteger();
     /* Used to manage consul retry logic. */
-    private AtomicInteger consulRetryCount = new AtomicInteger();
-    private AtomicLong lastResetTimestamp = new AtomicLong(Timer.clockTime());
+    private final AtomicInteger consulRetryCount = new AtomicInteger();
+    private final AtomicLong lastResetTimestamp = new AtomicLong(Timer.clockTime());
 
 
     public ConsulServiceDiscoveryProvider(final String consulHost,

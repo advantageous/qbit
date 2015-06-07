@@ -78,12 +78,12 @@ import static io.advantageous.qbit.service.ServiceBuilder.serviceBuilder;
 public class BoonQBitFactory implements Factory {
 
     private final Logger logger = LoggerFactory.getLogger(BoonQBitFactory.class);
-    private AtomicReference<ServiceQueue> systemEventManager = new AtomicReference<>();
-    private ThreadLocal<EventManager> eventManagerThreadLocal = new ThreadLocal<>();
-    private ProtocolParser defaultProtocol = new BoonProtocolParser();
-    private ServiceProxyFactory serviceProxyFactory = new BoonServiceProxyFactory(this);
-    private ServiceProxyFactory remoteServiceProxyFactory = new BoonServiceProxyFactory(this);
-    private ThreadLocal<List<ProtocolParser>> protocolParserListRef = new ThreadLocal<List<ProtocolParser>>() {
+    private final AtomicReference<ServiceQueue> systemEventManager = new AtomicReference<>();
+    private final ThreadLocal<EventManager> eventManagerThreadLocal = new ThreadLocal<>();
+    private final ProtocolParser defaultProtocol = new BoonProtocolParser();
+    private final ServiceProxyFactory serviceProxyFactory = new BoonServiceProxyFactory(this);
+    private final ServiceProxyFactory remoteServiceProxyFactory = new BoonServiceProxyFactory(this);
+    private final ThreadLocal<List<ProtocolParser>> protocolParserListRef = new ThreadLocal<List<ProtocolParser>>() {
 
         @Override
         protected List<ProtocolParser> initialValue() {
@@ -94,7 +94,7 @@ public class BoonQBitFactory implements Factory {
     };
 
 
-    private ScheduledExecutorService scheduledExecutorService = Executors.newScheduledThreadPool(4,
+    private final ScheduledExecutorService scheduledExecutorService = Executors.newScheduledThreadPool(4,
             r -> {
                 Thread thread = new Thread(r);
                 thread.setDaemon(true);
@@ -247,8 +247,8 @@ public class BoonQBitFactory implements Factory {
     }
 
     @Override
-    public HttpClient createHttpClient(String host, int port, int requestBatchSize, int timeOutInMilliseconds, int poolSize, boolean autoFlush, int flushRate, boolean keepAlive, boolean pipeline) {
-        return FactorySPI.getHttpClientFactory().create(host, port, requestBatchSize, timeOutInMilliseconds, poolSize, autoFlush, flushRate, keepAlive, pipeline);
+    public HttpClient createHttpClient(String host, int port, int timeOutInMilliseconds, int poolSize, boolean autoFlush, int flushRate, boolean keepAlive, boolean pipeline) {
+        return FactorySPI.getHttpClientFactory().create(host, port, timeOutInMilliseconds, poolSize, autoFlush, flushRate, keepAlive, pipeline);
     }
 
     @Override
@@ -326,7 +326,8 @@ public class BoonQBitFactory implements Factory {
     public ServiceQueue createService(final String rootAddress, final String serviceAddress, final Object service, final Queue<Response<Object>> responseQueue, final QBitSystemManager systemManager) {
 
 
-        return new ServiceQueueImpl(rootAddress, serviceAddress, service, null, null, new BoonServiceMethodCallHandler(true), responseQueue, true, false, systemManager);
+        return new ServiceQueueImpl(rootAddress, serviceAddress, service, null, null,
+                new BoonServiceMethodCallHandler(true), responseQueue, true, false, systemManager, null);
 
     }
 
@@ -342,7 +343,9 @@ public class BoonQBitFactory implements Factory {
                                       final boolean handleCallbacks,
                                       final QBitSystemManager systemManager) {
 
-        return new ServiceQueueImpl(rootAddress, serviceAddress, object, requestQueueBuilder, responseQueueBuilder, new BoonServiceMethodCallHandler(invokeDynamic), responseQueue, async, handleCallbacks, systemManager);
+        return new ServiceQueueImpl(rootAddress, serviceAddress, object, requestQueueBuilder,
+                responseQueueBuilder, new BoonServiceMethodCallHandler(invokeDynamic), responseQueue,
+                async, handleCallbacks, systemManager, null);
 
     }
 
@@ -353,8 +356,10 @@ public class BoonQBitFactory implements Factory {
                                              final QueueBuilder responseQueueBuilder,
                                              final QueueBuilder webResponseQueueBuilder,
                                              final Factory factory, final boolean asyncCalls, final BeforeMethodCall beforeMethodCall, final BeforeMethodCall beforeMethodCallAfterTransform, final Transformer<Request, Object> argTransformer, boolean invokeDynamic, final QBitSystemManager systemManager) {
-        return new ServiceBundleImpl(address, requestQueueBuilder, responseQueueBuilder, webResponseQueueBuilder,
-                factory, asyncCalls, beforeMethodCall, beforeMethodCallAfterTransform, argTransformer, invokeDynamic, systemManager);
+        return new ServiceBundleImpl(address, requestQueueBuilder, responseQueueBuilder,
+                webResponseQueueBuilder,
+                factory, asyncCalls, beforeMethodCall, beforeMethodCallAfterTransform,
+                argTransformer, invokeDynamic, systemManager);
     }
 
 

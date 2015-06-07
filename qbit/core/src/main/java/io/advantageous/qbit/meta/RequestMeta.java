@@ -23,6 +23,9 @@ import io.advantageous.qbit.annotation.RequestMethod;
 import java.util.Collections;
 import java.util.List;
 
+/**
+ * Holds metadata about a request to method call mapping.
+ */
 public class RequestMeta {
 
 

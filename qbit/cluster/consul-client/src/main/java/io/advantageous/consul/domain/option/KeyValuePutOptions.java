@@ -20,7 +20,7 @@ package io.advantageous.consul.domain.option;
 
 public class KeyValuePutOptions {
 
-    public static KeyValuePutOptions BLANK = new KeyValuePutOptions(null, null, null);
+    public static final KeyValuePutOptions BLANK = new KeyValuePutOptions(null, null, null);
     private final Integer cas;
     private final String acquire;
     private final String release;
@@ -46,6 +46,7 @@ public class KeyValuePutOptions {
     }
 
 
+    @SuppressWarnings("SimplifiableIfStatement")
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

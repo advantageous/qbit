@@ -27,7 +27,7 @@ import io.advantageous.qbit.message.Response;
  *
  * @author rhightower
  */
-@SuppressWarnings("BooleanMethodIsAlwaysInverted")
+@SuppressWarnings({"BooleanMethodIsAlwaysInverted", "SameReturnValue"})
 public interface AfterMethodCall {
 
 

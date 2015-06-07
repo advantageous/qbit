@@ -58,7 +58,7 @@ public class PerfTestMain {
 
 
             @Override
-            public HttpClient create(String host, int port, int requestBatchSize, int timeOutInMilliseconds, int poolSize, boolean autoFlush, int flushRate, boolean keepAlive, boolean pipeLine) {
+            public HttpClient create(String host, int port, int timeOutInMilliseconds, int poolSize, boolean autoFlush, int flushRate, boolean keepAlive, boolean pipeLine) {
                 return new MockHttpClient();
             }
         });

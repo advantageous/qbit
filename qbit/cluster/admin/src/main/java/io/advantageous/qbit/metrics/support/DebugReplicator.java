@@ -29,7 +29,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public class DebugReplicator implements StatReplicator {
 
-    public AtomicInteger count = new AtomicInteger();
+    public final AtomicInteger count = new AtomicInteger();
 
     public boolean out = false;
 

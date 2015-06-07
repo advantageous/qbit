@@ -19,12 +19,10 @@
 package io.advantageous.qbit;
 
 import io.advantageous.boon.core.Sets;
-import io.advantageous.boon.core.reflection.fields.FieldAccess;
 import io.advantageous.boon.json.JsonParserAndMapper;
 import io.advantageous.boon.json.JsonParserFactory;
 import io.advantageous.boon.json.JsonSerializer;
 import io.advantageous.boon.json.JsonSerializerFactory;
-import io.advantageous.boon.json.serializers.FieldFilter;
 import io.advantageous.qbit.json.JsonMapper;
 
 /**
@@ -34,7 +32,7 @@ import io.advantageous.qbit.json.JsonMapper;
  */
 public class BoonJsonMapper implements JsonMapper {
 
-    private ThreadLocal<JsonParserAndMapper> parser = new ThreadLocal<JsonParserAndMapper>() {
+    private final ThreadLocal<JsonParserAndMapper> parser = new ThreadLocal<JsonParserAndMapper>() {
         @Override
         protected JsonParserAndMapper initialValue() {
             return new JsonParserFactory().setIgnoreSet(Sets.set("metaClass")).createFastObjectMapperParser();
@@ -42,15 +40,10 @@ public class BoonJsonMapper implements JsonMapper {
     };
 
 
-    private ThreadLocal<JsonSerializer> serializer = new ThreadLocal<JsonSerializer>() {
+    private final ThreadLocal<JsonSerializer> serializer = new ThreadLocal<JsonSerializer>() {
         @Override
         protected JsonSerializer initialValue() {
-            return new JsonSerializerFactory().addFilter(new FieldFilter() {
-                @Override
-                public boolean include(Object parent, FieldAccess fieldAccess) {
-                    return !fieldAccess.name().equals("metaClass");
-                }
-            }).create();
+            return new JsonSerializerFactory().addFilter((parent, fieldAccess) -> !fieldAccess.name().equals("metaClass")).create();
         }
     };
 

@@ -26,7 +26,7 @@ import io.advantageous.boon.core.reflection.MethodAccess;
 import io.advantageous.boon.primitive.Arry;
 import io.advantageous.qbit.annotation.AnnotationUtils;
 import io.advantageous.qbit.annotation.RequestMethod;
-import io.advantageous.qbit.bindings.ArgParamBinding;
+import io.advantageous.qbit.bindings.ArgParamURIPositionBinding;
 import io.advantageous.qbit.bindings.MethodBinding;
 import io.advantageous.qbit.bindings.RequestParamBinding;
 import io.advantageous.qbit.http.request.HttpRequest;
@@ -64,12 +64,12 @@ public class BoonServiceMethodCallHandler implements ServiceMethodHandler {
     private String address = "";
 
     private String name = "";
-    private TreeSet<String> addresses = new TreeSet<>();
+    private final TreeSet<String> addresses = new TreeSet<>();
 
-    private Map<String, Map<String, Pair<MethodBinding, MethodAccess>>> methodMap = new LinkedHashMap<>();
+    private final Map<String, Map<String, Pair<MethodBinding, MethodAccess>>> methodMap = new LinkedHashMap<>();
 
     private SendQueue<Response<Object>> responseSendQueue;
-    private Map<String, MethodAccess> eventMap = new ConcurrentHashMap<>();
+    private final Map<String, MethodAccess> eventMap = new ConcurrentHashMap<>();
 
     public BoonServiceMethodCallHandler(final boolean invokeDynamic) {
         this.invokeDynamic = invokeDynamic;
@@ -151,57 +151,63 @@ public class BoonServiceMethodCallHandler implements ServiceMethodHandler {
         final String[] split = StringScanner.split(methodCall.address(), '/');
 
 
-        final MethodBinding methodBinding = binding.getFirst();
+        final MethodBinding methodBinding = binding != null ? binding.getFirst() : null;
 
-        final MethodAccess methodAccess = binding.getSecond();
-        final List<ArgParamBinding> parameters = methodBinding.parameters();
-        final Class<?>[] parameterTypes = methodAccess.parameterTypes();
-        final List<TypeType> paramEnumTypes = methodAccess.paramTypeEnumList();
+        final MethodAccess methodAccess = binding != null ? binding.getSecond() : null;
+        final List<ArgParamURIPositionBinding> parameters = methodBinding != null ? methodBinding.parameters() : null;
+        final Class<?>[] parameterTypes = methodAccess != null ? methodAccess.parameterTypes() : new Class<?>[0];
+        final List<TypeType> paramEnumTypes = methodAccess != null ? methodAccess.paramTypeEnumList() : null;
 
-        final List<Object> args = prepareArgumentList(methodCall, methodAccess.parameterTypes());
-        final List<List<AnnotationData>> annotationDataForParams = methodAccess.annotationDataForParams();
+        final List<Object> args = prepareArgumentList(methodCall, methodAccess != null ? methodAccess.parameterTypes() : new Class<?>[0]);
+        final List<List<AnnotationData>> annotationDataForParams = methodAccess != null ? methodAccess.annotationDataForParams() : null;
 
-        for (ArgParamBinding param : parameters) {
-            final int uriPosition = param.getUriPosition();
-            final int methodParamPosition = param.getMethodParamPosition();
-            final String paramName = param.getMethodParamName();
-            if (uriPosition != -1) {
+        if (parameters!=null) {
+            for (ArgParamURIPositionBinding param : parameters) {
+                final int uriPosition = param.getUriPosition();
+                final int methodParamPosition = param.getMethodParamPosition();
+                final String paramName = param.getMethodParamName();
+                if (uriPosition != -1) {
 
-                if (uriPosition > split.length) {
-                    die("Parameter position is more than param length of method", methodAccess);
+                    if (uriPosition > split.length) {
+                        die("Parameter position is more than param length of method", methodAccess);
+                    } else {
+                        String paramAtPos = split[uriPosition];
+                        TypeType typeType = paramEnumTypes ==  null ? null : paramEnumTypes.get(methodParamPosition);
+                        Object arg = Conversions.coerce(typeType, parameterTypes[methodParamPosition], paramAtPos);
+                        args.set(methodParamPosition, arg);
+                    }
                 } else {
-                    String paramAtPos = split[uriPosition];
-                    Object arg = Conversions.coerce(paramEnumTypes.get(methodParamPosition), parameterTypes[methodParamPosition], paramAtPos);
-                    args.set(methodParamPosition, arg);
-                }
-            } else {
-                if (Str.isEmpty(paramName)) {
-                    die("Parameter name not supplied in URI path var");
-                }
+                    if (Str.isEmpty(paramName)) {
+                        die("Parameter name not supplied in URI path var");
+                    }
 
-                for (int index = 0; index < parameterTypes.length; index++) {
-                    final List<AnnotationData> paramsAnnotationData = annotationDataForParams.get(index);
-                    String name = "";
-                    for (AnnotationData paramAnnotation : paramsAnnotationData) {
-                        if (paramAnnotation.getName().equalsIgnoreCase("name") || paramAnnotation.getName().equalsIgnoreCase("PathVariable")) {
-                            name = (String) paramAnnotation.getValues().get("value");
-                            if (!Str.isEmpty(name)) {
-                                break;
+                    for (int index = 0; index < parameterTypes.length; index++) {
+                        final List<AnnotationData> paramsAnnotationData = annotationDataForParams != null ? annotationDataForParams.get(index) : null;
+                        String name = "";
+                        if (paramsAnnotationData!=null) {
+                            for (AnnotationData paramAnnotation : paramsAnnotationData) {
+                                if (paramAnnotation.getName().equalsIgnoreCase("name") || paramAnnotation.getName().equalsIgnoreCase("PathVariable")) {
+                                    name = (String) paramAnnotation.getValues().get("value");
+                                    if (!Str.isEmpty(name)) {
+                                        break;
+                                    }
+                                }
                             }
                         }
-                    }
-                    if (paramName.equals(name)) {
+                        if (paramName.equals(name)) {
 
-                        Object arg = Conversions.coerce(paramEnumTypes.get(index), parameterTypes[index], split[index]);
-                        args.set(index, arg);
+                            assert paramEnumTypes != null;
+                            Object arg = Conversions.coerce(paramEnumTypes.get(index), parameterTypes[index], split[index]);
+                            args.set(index, arg);
+                        }
                     }
+
                 }
-
             }
         }
 
 
-        Object returnValue = methodAccess.invokeDynamicObject(service, args);
+        Object returnValue = methodAccess != null ? methodAccess.invokeDynamicObject(service, args) : null;
         return response(methodAccess, methodCall, returnValue);
 
 
@@ -269,7 +275,7 @@ public class BoonServiceMethodCallHandler implements ServiceMethodHandler {
             if (body instanceof List || body instanceof Object[]) {
 
 
-                extactHandlersFromArgumentList(method, body, argsList);
+                extractHandlersFromArgumentList(method, body, argsList);
 
             } else {
                 if (argsList.size() == 1 && !(argsList.get(0) instanceof Callback)) {
@@ -350,7 +356,7 @@ public class BoonServiceMethodCallHandler implements ServiceMethodHandler {
         }
     }
 
-    private void extactHandlersFromArgumentList(MethodAccess method, Object body, List<Object> argsList) {
+    private void extractHandlersFromArgumentList(MethodAccess method, Object body, List<Object> argsList) {
         if (body instanceof List) {
 
             @SuppressWarnings("unchecked") List<Object> list = (List<Object>) body;
@@ -386,51 +392,6 @@ public class BoonServiceMethodCallHandler implements ServiceMethodHandler {
 
             argsList.set(index, array[arrayIndex]);
 
-        }
-    }
-
-
-    private void extactHandlersFromArgumentListArrayCaseOld(MethodAccess method, Object[] array, List<Object> argsList) {
-
-        if (array.length - 1 == method.parameterTypes().length) {
-            if (array[0] instanceof Callback) {
-                array = Arry.slc(array, 1);
-            }
-        }
-
-
-        final Object[] theArray = array;
-        final Iterator<Object> iterator = new Iterator<Object>() {
-
-            int index = 0;
-
-            @Override
-            public boolean hasNext() {
-                return index < theArray.length;
-            }
-
-            @Override
-            public Object next() {
-
-                Object o = theArray[index];
-                index++;
-                return o;
-
-            }
-        };
-
-        for (int index = 0; index < argsList.size(); index++) {
-
-            final Object o = argsList.get(index);
-            if (o instanceof Callback) {
-                continue;
-            }
-
-            if (!iterator.hasNext()) {
-                break;
-            }
-
-            argsList.set(index, iterator.next());
         }
     }
 
@@ -673,8 +634,10 @@ public class BoonServiceMethodCallHandler implements ServiceMethodHandler {
 
     }
 
-    public void queueStartBatch() {
+    @Override
+    public void startBatch() {
         queueCallBackHandler.queueStartBatch();
+
     }
 
     private void readMethodMetaData() {
@@ -837,7 +800,7 @@ public class BoonServiceMethodCallHandler implements ServiceMethodHandler {
     }
 
     private String readNameFromAnnotation(Annotated annotated) {
-        String name = null;
+        String name = getAddress("Named", annotated);
 
         if (Str.isEmpty(name)) {
             name = getAddress("Name", annotated);
@@ -845,6 +808,10 @@ public class BoonServiceMethodCallHandler implements ServiceMethodHandler {
 
         if (Str.isEmpty(name)) {
             name = getAddress("Service", annotated);
+        }
+
+        if (Str.isEmpty(name)) {
+            name = getAddress("ServiceName", annotated);
         }
 
 
