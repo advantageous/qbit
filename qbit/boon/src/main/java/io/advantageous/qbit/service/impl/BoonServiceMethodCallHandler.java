@@ -85,8 +85,6 @@ public class BoonServiceMethodCallHandler implements ServiceMethodHandler {
                 return invokeByAddress(methodCall);
             }
         } catch (Exception ex) {
-            ex.printStackTrace();
-
             if (ex.getCause() instanceof InvocationTargetException) {
                 InvocationTargetException tex = (InvocationTargetException) ex.getCause();
                 return new ResponseImpl<>(methodCall, tex.getTargetException());
