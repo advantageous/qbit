@@ -4,18 +4,36 @@ package io.advantageous.qbit.examples;
 import io.advantageous.qbit.admin.AdminBuilder;
 import io.advantageous.qbit.server.EndpointServerBuilder;
 import io.advantageous.qbit.server.ServiceEndpointServer;
+import io.advantageous.qbit.service.health.HealthServiceAsync;
 
 public class TodoMainWithHealth {
 
     public static void main(final String... args) {
 
 
-        AdminBuilder adminBuilder = AdminBuilder.adminBuilder();
+        final AdminBuilder adminBuilder = AdminBuilder.adminBuilder();
+        final HealthServiceAsync healthService = adminBuilder.getHealthService();
+        final ServiceEndpointServer server = EndpointServerBuilder
+                .endpointServerBuilder()
+                .setHost("localhost")
+                .setPort(8080)
+                .setHealthService(healthService)
+                .build()
+                .startServer();
 
-        ServiceEndpointServer server = EndpointServerBuilder.endpointServerBuilder().setHost("localhost")
-                .setPort(8080).build().startServer();
+        final ServiceEndpointServer adminServer =
+                adminBuilder.build().startServer();
 
         server.initServices(new TodoService());
+
+
+        /** Shut them down. */
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            adminBuilder.getHealthServiceBuilder().getServiceQueue().stop();
+            server.stop();
+            adminServer.stop();
+        }));
+
     }
 
 }

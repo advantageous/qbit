@@ -635,6 +635,11 @@ public class BoonServiceMethodCallHandler implements ServiceMethodHandler {
     }
 
     @Override
+    public void init() {
+        queueCallBackHandler.queueInit();
+    }
+
+    @Override
     public void startBatch() {
         queueCallBackHandler.queueStartBatch();
 

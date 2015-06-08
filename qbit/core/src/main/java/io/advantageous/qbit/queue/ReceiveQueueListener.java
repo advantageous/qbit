@@ -70,4 +70,8 @@ public interface ReceiveQueueListener<T> extends Input {
     }
 
 
+    default void init() {
+    }
+
+
 }

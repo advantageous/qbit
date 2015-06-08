@@ -48,6 +48,7 @@ public class BasicReceiveQueueManager<T> implements ReceiveQueueManager<T> {
                             final int batchSize,
                             final AtomicBoolean stop) {
 
+        listener.init();
 
         T item = inputQueue.poll(); //Initialize things.
 

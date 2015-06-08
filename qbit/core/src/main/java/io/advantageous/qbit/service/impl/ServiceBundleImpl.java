@@ -22,6 +22,7 @@ import io.advantageous.boon.core.Str;
 import io.advantageous.boon.core.reflection.BeanUtils;
 import io.advantageous.qbit.Factory;
 import io.advantageous.qbit.GlobalConstants;
+import io.advantageous.qbit.annotation.AnnotationUtils;
 import io.advantageous.qbit.message.MethodCall;
 import io.advantageous.qbit.message.MethodCallBuilder;
 import io.advantageous.qbit.message.Request;
@@ -263,7 +264,7 @@ public class ServiceBundleImpl implements ServiceBundle {
         }
 
         /** Turn this client object into a client with queues. */
-        ServiceBuilder serviceBuilder = ServiceBuilder.serviceBuilder()
+        final ServiceBuilder serviceBuilder = ServiceBuilder.serviceBuilder()
                 .setRootAddress(rootAddress)
                 .setServiceObject(serviceObject)
                 .setServiceAddress(serviceAddress)
@@ -275,8 +276,13 @@ public class ServiceBundleImpl implements ServiceBundle {
                 .setRequestQueueBuilder(requestQueueBuilder)
                 .setHandleCallbacks(false);
 
+
+        final String bindStatHealthName = serviceAddress == null
+                ? AnnotationUtils.readServiceName(serviceObject)
+                : serviceAddress;
+
         if (healthService!=null) {
-            serviceBuilder.registerHealthChecks(healthService, serviceAddress);
+            serviceBuilder.registerHealthChecks(healthService, bindStatHealthName);
         }
 
 
@@ -285,12 +291,13 @@ public class ServiceBundleImpl implements ServiceBundle {
               The default is to flush stats every five seconds, and sample
               every 10_000 queue calls.
              */
-            serviceBuilder.registerStatsCollections(serviceAddress,
+            serviceBuilder.registerStatsCollections(bindStatHealthName,
                     statsCollector, 5, 10_000);
         }
 
 
         final ServiceQueue serviceQueue = serviceBuilder.buildAndStart();
+
         addServiceService(serviceAddress, serviceQueue);
         return this;
     }

@@ -31,8 +31,8 @@ public interface HealthServiceAsync extends ClientProxy {
     default void findNotHealthyNodes(Callback<List<String>> callback){}
 
 
-    default List<NodeHealthStat> loadNodes(){
-        return Collections.emptyList();
+    default void loadNodes(Callback<List<NodeHealthStat>> callback) {
+        callback.accept(Collections.emptyList());
     }
 
     default void unregister(String serviceName){}

@@ -3,7 +3,7 @@ package io.advantageous.qbit.service.health;
 /**
  * Internal class to hold health status.
  */
-class NodeHealthStat {
+public class NodeHealthStat {
     private final String name;
     private final long ttlInMS;
     private long lastCheckIn;
