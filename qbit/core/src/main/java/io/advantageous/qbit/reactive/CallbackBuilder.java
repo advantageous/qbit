@@ -11,7 +11,7 @@ import java.util.function.Consumer;
 @SuppressWarnings("UnusedReturnValue")
 public class CallbackBuilder {
 
-    private final Reactor reactor;
+    private Reactor reactor;
     private Callback callback;
     private Runnable onTimeout;
     private long timeoutDuration = -1;
@@ -21,9 +21,15 @@ public class CallbackBuilder {
     public CallbackBuilder(final Reactor reactor) {
         this.reactor = reactor;
     }
+    public CallbackBuilder() {
+    }
 
     public static CallbackBuilder callbackBuilder(final Reactor reactor) {
         return new CallbackBuilder(reactor);
+    }
+
+    public static CallbackBuilder callbackBuilder() {
+        return new CallbackBuilder();
     }
 
     public Reactor getReactor() {
@@ -93,13 +99,72 @@ public class CallbackBuilder {
             }
 
 
-            //noinspection unchecked
-            return reactor.callbackWithTimeoutAndErrorHandlerAndOnTimeout(
-                    (Callback<T>) getCallback(),
-                    getTimeoutDuration(),
-                    getTimeoutTimeUnit(),
-                    getOnTimeout(),
-                    getOnError());
+            if (reactor!=null) {
+                //noinspection unchecked
+                return reactor.callbackWithTimeoutAndErrorHandlerAndOnTimeout(
+                        (Callback<T>) getCallback(),
+                        getTimeoutDuration(),
+                        getTimeoutTimeUnit(),
+                        getOnTimeout(),
+                        getOnError());
+            } else {
+                return new AsyncFutureCallback<T>() {
+
+                    @Override
+                    public boolean checkTimeOut(long now) {
+
+                        throw new IllegalStateException("You need to register a reactor to use this feature");
+                    }
+
+                    @Override
+                    public void run() {
+                        throw new IllegalStateException("You need to register a reactor to use this feature");
+
+                    }
+
+                    @Override
+                    public boolean cancel(boolean mayInterruptIfRunning) {
+                        throw new IllegalStateException("You need to register a reactor to use this feature");
+                    }
+
+                    @Override
+                    public boolean isCancelled() {
+                        throw new IllegalStateException("You need to register a reactor to use this feature");
+                    }
+
+                    @Override
+                    public boolean isDone() {
+                        throw new IllegalStateException("You need to register a reactor to use this feature");
+                    }
+
+                    @Override
+                    public T get() {
+                        throw new IllegalStateException("You need to register a reactor to use this feature");
+                    }
+
+                    @Override
+                    public T get(long timeout, TimeUnit unit) {
+                        throw new IllegalStateException("You need to register a reactor to use this feature");
+                    }
+
+                    @Override
+                    public void accept(T t) {
+                        getCallback().accept(t);
+                    }
+
+                    @Override
+                    public void onError(final Throwable error) {
+
+                        getOnError().accept(error);
+                    }
+
+                    @Override
+                    public void onTimeout() {
+
+                        getOnTimeout().run();
+                    }
+                };
+            }
 
         }
 
