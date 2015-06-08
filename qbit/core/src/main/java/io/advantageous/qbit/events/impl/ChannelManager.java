@@ -41,7 +41,7 @@ public class ChannelManager<T> {
     private EventListener<T> consumer;
 
     public ChannelManager(final String name) {
-        logger.info("Channel <> was created", name);
+        logger.info("Channel {} was created", name);
         this.name = name;
         listeners = new ArrayList<>();
         consumer = new NoOpEventConsumer<>();

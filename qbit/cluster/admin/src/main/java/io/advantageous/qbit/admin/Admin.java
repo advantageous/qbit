@@ -21,6 +21,7 @@ package io.advantageous.qbit.admin;
 import io.advantageous.qbit.annotation.RequestMapping;
 import io.advantageous.qbit.reactive.Callback;
 import io.advantageous.qbit.service.health.HealthServiceAsync;
+import io.advantageous.qbit.service.health.NodeHealthStat;
 
 import java.util.List;
 
@@ -35,7 +36,7 @@ public class Admin {
     }
 
     @RequestMapping("/ok")
-    public void ok(Callback<Boolean> callback) {
+    public void ok(final Callback<Boolean> callback) {
 
         healthService.ok(callback::accept);
         healthService.clientProxyFlush();
@@ -43,7 +44,7 @@ public class Admin {
 
 
     @RequestMapping("/all-nodes/")
-    public void findAllNodes(Callback<List<String>> callback) {
+    public void findAllNodes(final Callback<List<String>> callback) {
 
         healthService.findAllNodes(callback::accept);
         healthService.clientProxyFlush();
@@ -51,9 +52,16 @@ public class Admin {
 
 
     @RequestMapping("/healthy-nodes")
-    public void findAllHealthyNodes(Callback<List<String>> callback) {
+    public void findAllHealthyNodes(final Callback<List<String>> callback) {
 
         healthService.findHealthyNodes(callback::accept);
+        healthService.clientProxyFlush();
+    }
+
+
+    @RequestMapping("/load-nodes")
+    public void loadNodes(final Callback<List<NodeHealthStat>> callback) {
+        healthService.loadNodes(callback);
         healthService.clientProxyFlush();
     }
 

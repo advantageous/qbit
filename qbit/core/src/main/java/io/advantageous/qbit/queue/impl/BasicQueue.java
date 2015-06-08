@@ -67,7 +67,7 @@ public class BasicQueue<T> implements Queue<T> {
                       final int size,
                       final int checkEvery, boolean tryTransfer) {
 
-        logger.info("Queue created <> <> batchSize <> size <> checkEvery <> tryTransfer <>",
+        logger.info("Queue created {} {} batchSize {} size {} checkEvery {} tryTransfer {}",
                 name, queueClass, batchSize, size, checkEvery, tryTransfer);
 
 
@@ -110,7 +110,7 @@ public class BasicQueue<T> implements Queue<T> {
         this.checkEvery = checkEvery;
 
 
-        logger.info("Queue done creating <>  batchSize <>  checkEvery <> tryTransfer <>",
+        logger.info("Queue done creating {} batchSize {} checkEvery {} tryTransfer {}",
                 this.name, this.batchSize, this.checkEvery, this.tryTransfer);
     }
 
@@ -123,7 +123,7 @@ public class BasicQueue<T> implements Queue<T> {
      */
     @Override
     public ReceiveQueue<T> receiveQueue() {
-        logger.info("ReceiveQueue requested for <>", name);
+        logger.info("ReceiveQueue requested for {}", name);
         return new BasicReceiveQueue<>(queue, waitTime, timeUnit, batchSize);
     }
 
@@ -135,7 +135,7 @@ public class BasicQueue<T> implements Queue<T> {
      */
     @Override
     public SendQueue<T> sendQueue() {
-        logger.info("SendQueue requested for <>", name);
+        logger.info("SendQueue requested for {}", name);
         return new BasicSendQueue<>(batchSize, this.queue, checkIfBusy, checkEvery, tryTransfer);
     }
 
@@ -144,7 +144,7 @@ public class BasicQueue<T> implements Queue<T> {
     public void startListener(final ReceiveQueueListener<T> listener) {
 
 
-        logger.info("Starting queue listener for  <> <>" , name, listener);
+        logger.info("Starting queue listener for  {} {}" , name, listener);
 
         if (executorContext != null) {
             throw new IllegalStateException("Queue.startListener::Unable to startClient up twice: " + name);
@@ -162,7 +162,7 @@ public class BasicQueue<T> implements Queue<T> {
     @Override
     public void stop() {
 
-        logger.info("Stopping queue  <>", name);
+        logger.info("Stopping queue  {}", name);
 
         stop.set(true);
         if (executorContext != null) {

@@ -20,6 +20,7 @@ package io.advantageous.qbit.annotation;
 
 import io.advantageous.boon.core.Str;
 import io.advantageous.boon.core.Sys;
+import io.advantageous.boon.core.reflection.Annotated;
 import io.advantageous.boon.core.reflection.AnnotationData;
 import io.advantageous.boon.core.reflection.ClassMeta;
 import io.advantageous.boon.core.reflection.MethodAccess;
@@ -59,6 +60,59 @@ public class AnnotationUtils {
             listen = methodAccess.annotation("Hear");
         }
         return listen;
+    }
+
+
+    public static String readServiceName(Object annotated) {
+
+        final ClassMeta classMeta = ClassMeta.classMeta(annotated.getClass());
+
+        final String name = readServiceName(classMeta);
+
+        if (name == null || name.isEmpty()) {
+            return annotated.getClass().getSimpleName();
+        } else {
+            return name;
+        }
+    }
+
+    public static String readServiceName(Annotated annotated) {
+        String name = readValue("Service", annotated);
+
+        if (Str.isEmpty(name)) {
+            name = readValue("ServiceName", annotated);
+        }
+
+        if (Str.isEmpty(name)) {
+            name = readValue("Named", annotated);
+        }
+
+        if (Str.isEmpty(name)) {
+            name = readValue("Name", annotated);
+        }
+
+
+        return name == null ? "" : name;
+    }
+
+    private static String readValue(String name, Annotated annotated) {
+        AnnotationData requestMapping = annotated.annotation(name);
+
+        if (requestMapping != null) {
+            Object value = requestMapping.getValues().get("value");
+
+            if (value instanceof String[]) {
+
+                String[] values = (String[]) value;
+                if (values.length > 0 && values[0] != null && !values[0].isEmpty()) {
+                    return values[0];
+                }
+            } else {
+
+                return (String) value;
+            }
+        }
+        return null;
     }
 
 

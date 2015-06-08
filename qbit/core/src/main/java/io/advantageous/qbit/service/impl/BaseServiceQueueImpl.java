@@ -373,6 +373,12 @@ public class BaseServiceQueueImpl implements ServiceQueue {
         requestQueue.startListener(new ReceiveQueueListener<MethodCall<Object>>() {
 
             @Override
+            public void init() {
+                queueCallBackHandler.queueInit();
+                serviceMethodHandler.init();
+            }
+
+            @Override
             public void receive(MethodCall<Object> methodCall) {
 
                 queueCallBackHandler.beforeReceiveCalled();
@@ -413,6 +419,8 @@ public class BaseServiceQueueImpl implements ServiceQueue {
                 serviceMethodHandler.idle();
                 queueCallBackHandler.queueIdle();
             }
+
+
 
             /** Such a small method with so much responsibility. */
             public void handle() {
