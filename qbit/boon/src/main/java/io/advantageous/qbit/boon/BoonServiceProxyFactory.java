@@ -25,6 +25,7 @@ import io.advantageous.qbit.client.ClientProxy;
 import io.advantageous.qbit.client.RemoteTCPClientProxy;
 import io.advantageous.qbit.client.ServiceProxyFactory;
 import io.advantageous.qbit.message.MethodCall;
+import io.advantageous.qbit.message.MethodCallBuilder;
 import io.advantageous.qbit.service.EndPoint;
 import io.advantageous.qbit.util.Timer;
 
@@ -33,6 +34,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicLong;
 
 import static io.advantageous.boon.core.Str.sputs;
 
@@ -44,7 +46,7 @@ import static io.advantageous.boon.core.Str.sputs;
  */
 public class BoonServiceProxyFactory implements ServiceProxyFactory {
 
-    private static volatile long generatedMessageId;
+    private static AtomicLong  generatedMessageId = new AtomicLong();
     private final Factory factory;
 
 
@@ -117,7 +119,7 @@ public class BoonServiceProxyFactory implements ServiceProxyFactory {
                 }
 
 
-                long messageId = generatedMessageId++;
+                long messageId = generatedMessageId.incrementAndGet();
 
                 times--;
                 if (times == 0) {
@@ -137,9 +139,15 @@ public class BoonServiceProxyFactory implements ServiceProxyFactory {
                 final String address = addressBuf.toString();
 
 
-                final MethodCall<Object> call =
-                        factory.createMethodCallToBeEncodedAndSent(messageId, address,
-                                returnAddress, serviceName, method.getName(), timestamp, args, null);
+                final MethodCall<Object> call = MethodCallBuilder.methodCallBuilder()
+                        .setId(messageId)
+                        .setAddress(address)
+                        .setObjectName(serviceName)
+                        .setReturnAddress(returnAddress)
+                        .setName(method.getName())
+                        .setTimestamp(timestamp)
+                        .setBody(args)
+                        .build();
 
                 assert endPoint != null;
                 endPoint.call(call);

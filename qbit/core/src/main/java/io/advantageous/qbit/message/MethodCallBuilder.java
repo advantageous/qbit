@@ -33,10 +33,8 @@ import java.util.List;
  */
 public class MethodCallBuilder {
 
-    private static final transient Timer timer = Timer.timer();
-    private static volatile long idSequence;
     private long timestamp;
-    private long id;
+    private long id = -1;
     private String name = "";
     private String address = "";
     private MultiMap<String, String> params = MultiMap.empty();
@@ -45,6 +43,10 @@ public class MethodCallBuilder {
     private String objectName;
     private String returnAddress;
     private Request<Object> originatingRequest;
+
+    public static MethodCallBuilder methodCallBuilder() {
+        return new MethodCallBuilder();
+    }
 
     public static MethodCall<Object> transformed(final MethodCall<Object> methodCall,
                                                  final Object arg) {
@@ -92,9 +94,6 @@ public class MethodCallBuilder {
         return new MethodCallBuilder().setName(name).setBody(body).setAddress(address).build();
     }
 
-    public static MethodCallBuilder methodCallBuilder() {
-        return new MethodCallBuilder();
-    }
 
     public long getTimestamp() {
         return timestamp;
@@ -194,26 +193,6 @@ public class MethodCallBuilder {
 
     public MethodCall<Object> build() {
 
-        if (timestamp == 0L) {
-            timestamp = timer.now();
-        }
-
-        if (id == 0L) {
-            idSequence++;
-            id = idSequence;
-        }
-
-        if (params == null || params.isEmpty()) {
-            if (originatingRequest != null) {
-                params = originatingRequest.params();
-            }
-        }
-
-        if (headers == null || headers.isEmpty()) {
-            if (originatingRequest != null) {
-                headers = originatingRequest.headers();
-            }
-        }
 
         return new MethodCallImpl(getTimestamp(), getId(), getName(), getAddress(), getParams(), getHeaders(),
                 getBody(), getObjectName(), getReturnAddress(), getOriginatingRequest());

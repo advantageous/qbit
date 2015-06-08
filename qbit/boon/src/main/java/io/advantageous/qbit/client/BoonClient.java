@@ -334,7 +334,8 @@ public class BoonClient implements Client {
      * @param <T>              the class of hte client interface
      * @return the new handler
      */
-    private <T> Callback createHandler(final Class<T> serviceInterface, final MethodCall call, final Callback handler) {
+    private <T> Callback createHandler(final Class<T> serviceInterface, final MethodCall call,
+                                       final Callback handler) {
 
         final ClassMeta<T> clsMeta = ClassMeta.classMeta(serviceInterface);
         final MethodAccess method = clsMeta.method(call.name());
@@ -365,38 +366,55 @@ public class BoonClient implements Client {
         final Class<?> componentClass = compType;
 
         /** Create the return handler. */
-        return event -> {
+        return new Callback<Object>() {
+            @Override
+            public void accept(Object event) {
 
-            if (actualReturnType != null) {
+                if (actualReturnType != null) {
 
-                if (componentClass != null && actualReturnType == List.class) {
+                    if (componentClass != null && actualReturnType == List.class) {
 
-                    try {
-                        //noinspection unchecked
-                        event = MapObjectConversion.convertListOfMapsToObjects(componentClass, (List) event);
-                    } catch (Exception ex) {
-                        if (event instanceof CharSequence) {
-                            String errorMessage = event.toString();
-                            if (errorMessage.startsWith("java.lang.IllegalState")) {
-                                handler.onError(new IllegalStateException(errorMessage));
-                                return;
+                        try {
+                            //noinspection unchecked
+                            event = MapObjectConversion.convertListOfMapsToObjects(componentClass, (List) event);
+                        } catch (Exception ex) {
+                            if (event instanceof CharSequence) {
+                                String errorMessage = event.toString();
+                                if (errorMessage.startsWith("java.lang.IllegalState")) {
+                                    handler.onError(new IllegalStateException(errorMessage));
+                                    return;
+                                } else {
+                                    handler.onError(new IllegalStateException("Conversion error"));
+                                    return;
+                                }
                             } else {
                                 handler.onError(new IllegalStateException("Conversion error"));
                                 return;
                             }
-                        } else {
-                            handler.onError(new IllegalStateException("Conversion error"));
-                            return;
                         }
+                    } else {
+
+                        event = Conversions.coerce(actualReturnType, event);
                     }
-                } else {
-                    event = Conversions.coerce(actualReturnType, event);
+                    //noinspection unchecked
+                    handler.accept(event);
                 }
-                //noinspection unchecked
-                handler.accept(event);
+
+
             }
 
+            @Override
+            public void onError(Throwable error) {
+                handler.onError(error);
+            }
+
+            @Override
+            public void onTimeout() {
+                handler.onTimeout();
+            }
         };
+
+
     }
 
     public void start() {
