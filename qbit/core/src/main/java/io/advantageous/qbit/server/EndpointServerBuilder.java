@@ -55,8 +55,8 @@ public class EndpointServerBuilder {
     private String host;
     private int port;
     private boolean manageQueues = false;
-    private int pollTime = GlobalConstants.POLL_WAIT;
-    private int requestBatchSize = GlobalConstants.BATCH_SIZE;
+    private int pollTime = 25;
+    private int requestBatchSize = 250;
     private int flushInterval = 200;
     private String uri;
     private int numberOfOutstandingRequests;
@@ -95,9 +95,9 @@ public class EndpointServerBuilder {
         this.invokeDynamic = propertyResolver.getBooleanProperty("invokeDynamic", true);
         this.host = propertyResolver.getStringProperty("host", null);
         this.port = propertyResolver.getIntegerProperty("port", 8080);
-        this.pollTime = propertyResolver.getIntegerProperty("pollTime", GlobalConstants.POLL_WAIT);
+        this.pollTime = propertyResolver.getIntegerProperty("pollTime", pollTime);
         this.requestBatchSize = propertyResolver
-                .getIntegerProperty("requestBatchSize", GlobalConstants.BATCH_SIZE);
+                .getIntegerProperty("requestBatchSize", requestBatchSize);
 
         this.numberOfOutstandingRequests = propertyResolver
                 .getIntegerProperty("numberOfOutstandingRequests", 1_000_000);

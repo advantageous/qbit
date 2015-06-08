@@ -7,6 +7,7 @@ import io.advantageous.qbit.reactive.Callback;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.LongAdder;
 
 /**
  * created by rhightower on 2/3/15.
@@ -14,7 +15,7 @@ import java.util.List;
 @SuppressWarnings("ALL")
 public class WebSocketClient {
 
-    static volatile int count = 0;
+    static LongAdder count = new LongAdder();
 
     public static void main(String... args) {
 
@@ -48,7 +49,12 @@ public class WebSocketClient {
                             key = -1;
                         }
 
-                        myService.addKey(aDouble -> count++, 1, "mom");
+                        myService.ping(new Callback<List<String>>() {
+                            @Override
+                            public void accept(List<String> strings) {
+                                count.increment();
+                            }
+                        });
 
                         if (index % 15_000 == 0) {
                             Sys.sleep(50);
@@ -62,28 +68,25 @@ public class WebSocketClient {
         }
 
 
-        double start = System.currentTimeMillis();
-        while (count < 10_000_000) {
+        final double start = System.currentTimeMillis();
+        while (count.longValue() < 10_000_000) {
             for (int index = 0; index < 10; index++) {
                 Sys.sleep(100);
 
-                if (count > 10_000_000) {
+                if (count.longValue() > 10_000_000) {
                     break;
                 }
             }
             double now = System.currentTimeMillis();
-            double c = count;
-            System.out.println(count + (c / (now - start) * 1000));
+            double c = count.doubleValue();
+            System.out.println((c / (now - start)) * 1000);
         }
 
         System.out.println("Done");
     }
 
     interface SimpleServiceProxy {
-
-        void addKey(Callback<Double> doubleReturn, int key, String value);
-
-
+        void ping(Callback<List<String>> doubleReturn);
     }
 
 }
