@@ -28,8 +28,11 @@ import java.util.List;
 import java.util.function.Consumer;
 
 /**
- * A client bundle is a collection of services.
- * The client bundle does the routing of calls based on addresses to a particular client.
+ * A service bundle is a collection of services.
+ * The service bundle does the routing of calls based on addresses
+ * to a particular client.
+ *
+ * It can handle local and remote clients.
  * created by Richard on 9/26/14.
  *
  * @author rhightower

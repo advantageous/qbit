@@ -7,6 +7,7 @@ import io.advantageous.qbit.http.request.HttpResponse;
 import io.advantageous.qbit.http.server.HttpServer;
 import io.advantageous.qbit.http.server.HttpServerBuilder;
 import io.advantageous.qbit.util.MultiMap;
+import io.advantageous.qbit.util.PortUtils;
 import org.junit.Test;
 
 import static io.advantageous.boon.core.IO.puts;
@@ -18,7 +19,8 @@ public class TestHeaderFidelity {
     public void test() throws Exception {
 
 
-        HttpServer server = HttpServerBuilder.httpServerBuilder().setPort(9999).build();
+        final int openPortStartAt = PortUtils.findOpenPortStartAt(7777);
+        HttpServer server = HttpServerBuilder.httpServerBuilder().setPort(openPortStartAt).build();
 
         server.setHttpRequestConsumer(serverRequest -> {
 
@@ -31,7 +33,7 @@ public class TestHeaderFidelity {
         server.startServer();
 
         HttpClient client = HttpClientBuilder.httpClientBuilder()
-                .setPort(9999)
+                .setPort(openPortStartAt)
                 .setHost("localhost").build();
 
         client.start();

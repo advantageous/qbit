@@ -178,7 +178,7 @@ public class MinuteStat {
             }
             secondIndex--;
         }
-        return sum / readingCount;
+        return (readingCount!=0) ?  sum / readingCount : -1;
     }
 
     public int countLastFiveSeconds(long now) {

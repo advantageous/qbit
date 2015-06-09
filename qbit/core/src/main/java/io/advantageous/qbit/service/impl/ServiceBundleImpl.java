@@ -617,7 +617,7 @@ public class ServiceBundleImpl implements ServiceBundle {
     }
 
     /**
-     * Handles responses coming back from servicesToStop.
+     * Handles responses coming back from services.
      */
     public void startReturnHandlerProcessor() {
 
