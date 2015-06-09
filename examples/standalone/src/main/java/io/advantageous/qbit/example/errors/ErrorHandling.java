@@ -10,6 +10,7 @@ import io.advantageous.qbit.service.ServiceQueue;
 import io.advantageous.qbit.util.Timer;
 
 import java.util.concurrent.TimeUnit;
+import java.util.function.Consumer;
 
 import static io.advantageous.boon.core.IO.puts;
 
@@ -200,6 +201,12 @@ public class ErrorHandling {
         client.regularMethod(callbackBuilder2.build());
         client.methodThatThrowsError(callbackBuilder2.build());
         client.methodThatThrowsError2(callbackBuilder2.build());
+
+
+//        client.methodThatThrowsError(
+//                CallbackBuilder.callbackBuilder().setCallback(Boolean.class, aBoolean -> puts("Custom callback handler zzz", aBoolean))
+//                        .setOnError(throwable -> puts("Custom error handler zzz", throwable)).build()
+//        );
 
 
         Sys.sleep(2000);
