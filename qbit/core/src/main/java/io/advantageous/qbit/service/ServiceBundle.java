@@ -34,7 +34,7 @@ import java.util.function.Consumer;
  *
  * @author rhightower
  */
-public interface ServiceBundle extends EndPoint {
+public interface ServiceBundle extends EndPoint, Startable {
 
     String address();
 
@@ -55,7 +55,7 @@ public interface ServiceBundle extends EndPoint {
     }
 
 
-    void addService(Object object);
+    ServiceBundle addService(Object object);
 
 
     Queue<Response<Object>> responses();
@@ -76,7 +76,21 @@ public interface ServiceBundle extends EndPoint {
 
     void startReturnHandlerProcessor();
 
+    default ServiceBundle startUpCallQueue() {
+        return this;
+    }
+
+
     default void start() {
+        startUpCallQueue();
+        startReturnHandlerProcessor();
+
+    }
+
+
+    default ServiceBundle startServiceBundle() {
+        start();
+        return this;
     }
 
     <T> T createLocalProxy(Class<T> serviceInterface, String myService);

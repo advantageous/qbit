@@ -128,9 +128,9 @@ public class EventManagerReplicationOverWebSocket extends TimedTesting {
         clientA.start();
         clientB.start();
         clientC.start();
-        serviceBundleA.start();
-        serviceBundleB.start();
-        serviceBundleC.start();
+        serviceBundleA.startUpCallQueue();
+        serviceBundleB.startUpCallQueue();
+        serviceBundleC.startUpCallQueue();
 
         Sys.sleep(100);
 

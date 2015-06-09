@@ -66,7 +66,7 @@ public class EventManagerReplicationIntegrationTest extends TimedTesting {
         eventManagerA = serviceBundle.createLocalProxy(EventManager.class, "eventManagerA"); //wire A to Service Bundle
 
 
-        serviceBundle.start();
+        serviceBundle.startUpCallQueue();
 
 
         final AtomicReference<Object> body = new AtomicReference<>();

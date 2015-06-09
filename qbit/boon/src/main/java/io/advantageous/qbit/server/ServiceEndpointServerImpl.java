@@ -105,7 +105,7 @@ public class ServiceEndpointServerImpl implements ServiceEndpointServer {
 
         httpServer.setWebSocketIdleConsume(webSocketHandler::webSocketQueueIdle);
 
-        serviceBundle.start();
+        serviceBundle.startUpCallQueue();
         startResponseQueueListener();
         httpServer.start();
     }

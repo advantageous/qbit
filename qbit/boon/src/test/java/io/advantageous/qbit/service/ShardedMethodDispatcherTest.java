@@ -119,7 +119,7 @@ public class ShardedMethodDispatcherTest extends TimedTesting {
         //bundle.addServiceObject("/workers", new ContentRulesEngine());
         bundle.addServiceConsumer("/workers", dispatcher);
 
-        bundle.start();
+        bundle.startUpCallQueue();
 
     }
 

@@ -167,7 +167,7 @@ public class QBitSystemManager {
     public void startAll() {
         serviceQueueList.forEach(ServiceQueue::start);
         serverList.forEach(Server::start);
-        serviceBundleList.forEach(ServiceBundle::start);
+        serviceBundleList.forEach(ServiceBundle::startUpCallQueue);
         countDownLatch = new CountDownLatch(countTracked);
 
 
