@@ -161,4 +161,11 @@ public class HttpClientBuilder {
 
         return httpClient;
     }
+
+
+    public HttpClient buildAndStart() {
+        HttpClient client = build();
+        client.start();
+        return client;
+    }
 }

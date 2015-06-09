@@ -1,13 +1,18 @@
 package io.advantageous.qbit.admin;
 
 
+import io.advantageous.boon.core.IO;
 import io.advantageous.qbit.config.PropertyResolver;
+import io.advantageous.qbit.http.server.HttpServer;
+import io.advantageous.qbit.http.server.HttpServerBuilder;
 import io.advantageous.qbit.server.EndpointServerBuilder;
 import io.advantageous.qbit.server.ServiceEndpointServer;
 import io.advantageous.qbit.service.health.HealthServiceAsync;
 import io.advantageous.qbit.service.health.HealthServiceBuilder;
 
+import java.io.InputStream;
 import java.util.Properties;
+import java.util.function.Supplier;
 
 @SuppressWarnings("WeakerAccess")
 public class AdminBuilder {
@@ -24,11 +29,18 @@ public class AdminBuilder {
     private Admin admin;
     private HealthServiceAsync healthService;
     private HealthServiceBuilder healthServiceBuilder;
+    private String htmlPageLocation = "/qbit/admin.html";
+    private HttpServer httpServer;
+    private HttpServerBuilder httpServerBuilder;
+    private String webPageContents;
+    private Supplier<String> webPageContentsSupplier;
+
 
     @SuppressWarnings("WeakerAccess")
     public AdminBuilder(final PropertyResolver propertyResolver) {
         port = propertyResolver.getIntegerProperty("port", port);
         host = propertyResolver.getStringProperty("host", host);
+        htmlPageLocation = propertyResolver.getStringProperty("htmlPageLocation", htmlPageLocation);
     }
 
 
@@ -45,6 +57,98 @@ public class AdminBuilder {
 
     public static AdminBuilder adminBuilder() {
         return new AdminBuilder();
+    }
+
+    public String getHtmlPageLocation() {
+        return htmlPageLocation;
+    }
+
+    public void setHtmlPageLocation(String htmlPageLocation) {
+        this.htmlPageLocation = htmlPageLocation;
+    }
+
+
+    public AdminBuilder setWebCotentsSupplier(Supplier<String> webPageContentsSupplier) {
+        this.webPageContentsSupplier = webPageContentsSupplier;
+        return this;
+    }
+
+    public Supplier<String> getWebPageContentsSupplier() {
+        if (webPageContentsSupplier == null) {
+            final String webContents = getWebPageContents();
+            webPageContentsSupplier = new Supplier<String>() {
+                @Override
+                public String get() {
+                    return webContents;
+                }
+            };
+        }
+        return webPageContentsSupplier;
+    }
+
+    public AdminBuilder setWebPageContents(String webPageContents) {
+        this.webPageContents = webPageContents;
+        return this;
+    }
+
+    public String getWebPageContents() {
+
+        if (webPageContents==null || webPageContents.isEmpty()) {
+
+            final String htmlPageLocationInitial = getHtmlPageLocation();
+            final String pageLocation;
+            pageLocation = htmlPageLocationInitial.startsWith("/") ?
+                    htmlPageLocationInitial.substring(1, htmlPageLocationInitial.length()) :
+                    htmlPageLocationInitial;
+
+            webPageContents = IO.read(
+                    Thread.currentThread()
+                            .getContextClassLoader()
+                            .getResourceAsStream(pageLocation)
+            );
+        }
+        return webPageContents;
+    }
+    public HttpServer getHttpServer() {
+        if (httpServer == null) {
+            httpServer = getHttpServerBuilder()
+                    .setPort(getPort())
+                    .setHost(getHost())
+                    .build();
+
+            final Supplier<String> webPageContentsSupplier = getWebPageContentsSupplier();
+
+
+            httpServer.setShouldContinueHttpRequest(httpRequest -> {
+                /* If not the page uri we want to then,
+                 just continue by returning true. */
+                if (!httpRequest.getUri().equals(getHtmlPageLocation())) {
+                    return true;
+                }
+
+                final String webPageContents = webPageContentsSupplier.get();
+                /* Send the HTML file out to the browser. */
+                httpRequest.getReceiver().response(200, "text/html", webPageContents);
+                return false;
+            });
+
+        }
+        return httpServer;
+    }
+
+    public void setHttpServer(HttpServer httpServer) {
+        this.httpServer = httpServer;
+    }
+
+    public HttpServerBuilder getHttpServerBuilder() {
+        if (httpServerBuilder==null) {
+            httpServerBuilder = HttpServerBuilder.httpServerBuilder();
+        }
+        return httpServerBuilder;
+    }
+
+    public void setHttpServerBuilder(HttpServerBuilder httpServerBuilder) {
+        this.httpServerBuilder = httpServerBuilder;
     }
 
     public HealthServiceAsync getHealthService() {
@@ -94,7 +198,8 @@ public class AdminBuilder {
     public ServiceEndpointServer getServiceEndpointServer() {
 
         if (serviceEndpointServer == null) {
-            serviceEndpointServer = getEndpointServerBuilder().build();
+            serviceEndpointServer = getEndpointServerBuilder()
+                    .setHttpServer(getHttpServer()).build();
         }
         return serviceEndpointServer;
     }
@@ -137,12 +242,13 @@ public class AdminBuilder {
         return this;
     }
 
+
     public ServiceEndpointServer build() {
         ServiceEndpointServer serviceEndpointServer = getServiceEndpointServer();
-        if (name == null) {
+        if (getName() == null) {
             serviceEndpointServer.initServices(getAdmin());
         } else {
-            serviceEndpointServer.addServiceObject(name, getAdmin());
+            serviceEndpointServer.addServiceObject(getName(), getAdmin());
         }
         return serviceEndpointServer;
     }
