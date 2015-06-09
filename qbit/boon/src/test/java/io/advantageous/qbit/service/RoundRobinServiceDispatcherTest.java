@@ -105,7 +105,7 @@ public class RoundRobinServiceDispatcherTest extends TimedTesting {
         bundle = serviceBundleBuilder().setAddress("/root").build();
 
         bundle.addServiceConsumer("/workers", dispatcher);
-        bundle.start();
+        bundle.startUpCallQueue();
 
     }
 

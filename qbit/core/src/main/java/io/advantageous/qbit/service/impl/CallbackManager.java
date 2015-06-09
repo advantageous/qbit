@@ -35,6 +35,7 @@ public class CallbackManager {
 
 
     private final Logger logger = LoggerFactory.getLogger(CallbackManager.class);
+    private final boolean debug = logger.isDebugEnabled();
     /**
      * Maps incoming calls with outgoing handlers (returns, async returns really).
      */
@@ -95,16 +96,18 @@ public class CallbackManager {
         }
 
         if (response.wasErrors()) {
+
+            if (debug)  {
+                logger.debug("Service threw an exception address {} return address {} message id {} response error {}",
+                        response.address(),
+                        response.returnAddress(),
+                        response.id(),
+                        response.body());
+            }
+
             if (response.body() instanceof Throwable) {
-                logger.error("Service threw an exception address", response.address(),
-                        "\n return address", response.returnAddress(), "\n message id",
-                        response.id(), response.body());
                 handler.onError(((Throwable) response.body()));
             } else {
-                logger.error("Service threw an exception address", response.address(),
-                        "\n return address", response.returnAddress(), "\n message id",
-                        response.id());
-
                 handler.onError(new Exception(response.body().toString()));
             }
         } else {

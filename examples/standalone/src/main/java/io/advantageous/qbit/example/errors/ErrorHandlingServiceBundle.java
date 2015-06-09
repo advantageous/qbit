@@ -4,17 +4,16 @@ import io.advantageous.boon.core.Sys;
 import io.advantageous.qbit.annotation.RequestMapping;
 import io.advantageous.qbit.reactive.Callback;
 import io.advantageous.qbit.reactive.CallbackBuilder;
-import io.advantageous.qbit.reactive.Reactor;
-import io.advantageous.qbit.service.ServiceBuilder;
-import io.advantageous.qbit.service.ServiceQueue;
-import io.advantageous.qbit.util.Timer;
+import io.advantageous.qbit.service.ServiceBundle;
+import io.advantageous.qbit.service.ServiceBundleBuilder;
 
-import java.util.concurrent.TimeUnit;
-import java.util.function.Consumer;
 
 import static io.advantageous.boon.core.IO.puts;
 
-public class ErrorHandling {
+/**
+ * Created by rick on 6/8/15.
+ */
+public class ErrorHandlingServiceBundle {
 
     @RequestMapping("/my")
     public static class MyService {
@@ -46,11 +45,43 @@ public class ErrorHandling {
 
 
     public static void main(final String... args) {
-        final ServiceQueue serviceQueue = ServiceBuilder.serviceBuilder().build(new MyService())
-                .startServiceQueue().startCallBackHandler();
 
-        final IMyService client = serviceQueue
-                .createProxyWithAutoFlush(IMyService.class, 10, TimeUnit.MILLISECONDS);
+        final ServiceBundle serviceBundle = ServiceBundleBuilder
+                .serviceBundleBuilder()
+                .build().addService(new MyService());
+
+        serviceBundle.startServiceBundle();
+
+        IMyService myService = serviceBundle.createLocalProxy(IMyService.class, "myservice");
+
+        myService.regularMethod(
+                CallbackBuilder.callbackBuilder().setCallback(Boolean.class,
+                        aBoolean -> {
+                            puts("Custom callback handler aaa", aBoolean);
+                        }
+                )
+                        .setOnError(throwable ->
+                                {
+                                    puts("Custom error handler aaa", throwable);
+                                }
+                        ).build()
+        );
+
+
+        myService.methodThatThrowsError(
+                CallbackBuilder.callbackBuilder().setCallback(Boolean.class,
+                        aBoolean -> puts("Custom callback handler ccc", aBoolean))
+                        .setOnError(throwable ->
+                                {
+                                    puts("Custom error handler ccc", throwable);
+                                }
+                        ).build()
+        );
+
+        serviceBundle.flushSends();
+
+        Sys.sleep(2000);
+
 //
 //        client.methodThatThrowsError(new Callback<Boolean>() {
 //            @Override
@@ -200,23 +231,6 @@ public class ErrorHandling {
 //        client.regularMethod(callbackBuilder2.build());
 //        client.methodThatThrowsError(callbackBuilder2.build());
 //        client.methodThatThrowsError2(callbackBuilder2.build());
-
-        client.methodThatThrowsError(
-                CallbackBuilder.callbackBuilder().setCallback(Boolean.class, aBoolean -> puts("Custom callback handler", aBoolean))
-                        .setOnError(throwable ->
-                                {
-                                    puts("Custom error handler", throwable);
-                                }
-                            ).build()
-        );
-
-//        client.methodThatThrowsError(
-//                CallbackBuilder.callbackBuilder().setCallback(Boolean.class, aBoolean -> puts("Custom callback handler zzz", aBoolean))
-//                        .setOnError(throwable -> puts("Custom error handler zzz", throwable)).build()
-//        );
-
-
-        Sys.sleep(2000);
 
     }
 

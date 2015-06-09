@@ -231,11 +231,12 @@ public class ServiceBundleImpl implements ServiceBundle {
      * @param object the client we want to add.
      */
     @Override
-    public void addService(Object object) {
+    public ServiceBundle addService(Object object) {
         if (debug) {
             logger.debug("ServiceBundleImpl::addServiceObject(object)- service added");
         }
         addServiceObject(null, object);
+        return this;
     }
 
     /**
@@ -671,7 +672,7 @@ public class ServiceBundleImpl implements ServiceBundle {
     /**
      * Start the client bundle.
      */
-    public void start() {
+    public ServiceBundle startUpCallQueue() {
         methodQueue.startListener(new ReceiveQueueListener<MethodCall<Object>>() {
 
             long time;
@@ -704,6 +705,8 @@ public class ServiceBundleImpl implements ServiceBundle {
             }
 
         });
+
+        return this;
     }
 
     @SuppressWarnings("Convert2streamapi")

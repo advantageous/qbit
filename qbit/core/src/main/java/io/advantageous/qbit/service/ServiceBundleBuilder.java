@@ -269,7 +269,7 @@ public class ServiceBundleBuilder {
 
     public ServiceBundle buildAndStart() {
         final ServiceBundle build = build();
-        build.start();
+        build.startUpCallQueue();
         return build;
     }
 }

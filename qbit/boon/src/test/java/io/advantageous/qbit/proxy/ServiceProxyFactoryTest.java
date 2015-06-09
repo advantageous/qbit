@@ -64,8 +64,8 @@ public class ServiceProxyFactoryTest {
         }
 
         @Override
-        public void addService(Object object) {
-
+        public ServiceBundle addService(Object object) {
+            return this;
         }
 
         @Override

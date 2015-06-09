@@ -179,28 +179,6 @@ public interface Factory {
         throw new UnsupportedOperationException();
     }
 
-    /**
-     * Creates a method call to be encoded and sent. This is usually called by a client (local or remote proxy).
-     *
-     * @param id            id of method call
-     * @param address       address of method
-     * @param returnAddress return address, which is a moniker for where we want to return the results
-     * @param objectName    name of the object (optional)
-     * @param methodName    name of the method (optional)
-     * @param timestamp     when we sent this message
-     * @param body          arguments (could be a list or an array)
-     * @param params        additional parameters associated with this method call.
-     * @return method call that we are sending
-     */
-    default MethodCall<Object> createMethodCallToBeEncodedAndSent(long id, String address,
-                                                                  String returnAddress,
-                                                                  String objectName,
-                                                                  String methodName,
-                                                                  long timestamp,
-                                                                  Object body,
-                                                                  MultiMap<String, String> params) {
-        throw new UnsupportedOperationException();
-    }
 
 
     /**

@@ -2,55 +2,98 @@ package io.advantageous.qbit.example.errors;
 
 import io.advantageous.boon.core.Sys;
 import io.advantageous.qbit.annotation.RequestMapping;
+import io.advantageous.qbit.client.Client;
+import io.advantageous.qbit.client.ClientBuilder;
 import io.advantageous.qbit.reactive.Callback;
 import io.advantageous.qbit.reactive.CallbackBuilder;
-import io.advantageous.qbit.reactive.Reactor;
+import io.advantageous.qbit.server.EndpointServerBuilder;
+import io.advantageous.qbit.server.ServiceEndpointServer;
 import io.advantageous.qbit.service.ServiceBuilder;
+import io.advantageous.qbit.service.ServiceProxyUtils;
 import io.advantageous.qbit.service.ServiceQueue;
-import io.advantageous.qbit.util.Timer;
 
 import java.util.concurrent.TimeUnit;
-import java.util.function.Consumer;
 
 import static io.advantageous.boon.core.IO.puts;
 
-public class ErrorHandling {
+/**
+ * Created by rick on 6/8/15.
+ */
+public class ErrorHandlingWebSocket {
 
-    @RequestMapping("/my")
-    public static class MyService {
+@RequestMapping("/my")
+public static class MyService {
 
-        public boolean methodThatThrowsError() {
-            puts("Method that throws error");
-            throw new IllegalStateException("ERROR");
-        }
-
-
-        public void methodThatThrowsError2(Callback<Boolean> callback) {
-            puts("Method that throws error");
-            throw new IllegalStateException("ERROR");
-        }
-
-        public boolean regularMethod() {
-            puts("Regular method");
-            return true;
-        }
+    public boolean methodThatThrowsError() {
+        puts("Method that throws error");
+        throw new IllegalStateException("ERROR");
     }
 
 
-    public static interface IMyService {
-        void methodThatThrowsError(Callback<Boolean> callback);
-        void regularMethod(Callback<Boolean> callback);
-        void methodThatThrowsError2(Callback<Boolean> callback);
-
+    public void methodThatThrowsError2(Callback<Boolean> callback) {
+        puts("Method that throws error");
+        throw new IllegalStateException("ERROR");
     }
+
+    public boolean regularMethod() {
+        puts("Regular method");
+        return true;
+    }
+
+    public void regularMethod2(Callback<Boolean> callback) {
+            callback.accept(true);
+    }
+}
+
+
+public static interface IMyService {
+    void methodThatThrowsError(Callback<Boolean> callback);
+    void methodThatThrowsError2(Callback<Boolean> callback);
+    void regularMethod(Callback<Boolean> callback);
+    void regularMethod2(Callback<Boolean> callback);
+
+}
 
 
     public static void main(final String... args) {
-        final ServiceQueue serviceQueue = ServiceBuilder.serviceBuilder().build(new MyService())
-                .startServiceQueue().startCallBackHandler();
+        ServiceEndpointServer serviceEndpointServer = EndpointServerBuilder.endpointServerBuilder().setPort(9999).build();
+        serviceEndpointServer.initServices(new MyService()).startServer();
 
-        final IMyService client = serviceQueue
-                .createProxyWithAutoFlush(IMyService.class, 10, TimeUnit.MILLISECONDS);
+
+        Client client = ClientBuilder.clientBuilder().setPort(9999).build();
+        final IMyService myService =client.createProxy(IMyService.class, "myservice");
+        client.start();
+
+
+        myService.regularMethod(
+                CallbackBuilder.callbackBuilder().setCallback(Boolean.class,
+                        aBoolean -> {
+                            puts("Custom callback handler aaa", aBoolean);
+                        }
+                )
+                        .setOnError(throwable ->
+                                {
+                                    puts("Custom error handler aaa", throwable);
+                                }
+                        ).build()
+        );
+
+
+
+        myService.methodThatThrowsError(
+                CallbackBuilder.callbackBuilder().setCallback(Boolean.class,
+                        aBoolean -> puts("Custom callback handler ccc", aBoolean))
+                        .setOnError(throwable ->
+                                {
+                                    puts("Custom error handler ccc", throwable);
+                                }
+                        ).build()
+        );
+
+
+        Sys.sleep(10_000);
+
+        client.stop();
 //
 //        client.methodThatThrowsError(new Callback<Boolean>() {
 //            @Override
@@ -201,22 +244,6 @@ public class ErrorHandling {
 //        client.methodThatThrowsError(callbackBuilder2.build());
 //        client.methodThatThrowsError2(callbackBuilder2.build());
 
-        client.methodThatThrowsError(
-                CallbackBuilder.callbackBuilder().setCallback(Boolean.class, aBoolean -> puts("Custom callback handler", aBoolean))
-                        .setOnError(throwable ->
-                                {
-                                    puts("Custom error handler", throwable);
-                                }
-                            ).build()
-        );
-
-//        client.methodThatThrowsError(
-//                CallbackBuilder.callbackBuilder().setCallback(Boolean.class, aBoolean -> puts("Custom callback handler zzz", aBoolean))
-//                        .setOnError(throwable -> puts("Custom error handler zzz", throwable)).build()
-//        );
-
-
-        Sys.sleep(2000);
 
     }
 
