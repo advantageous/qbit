@@ -94,6 +94,11 @@ public class AutoFlushingSendQueue<T> implements SendQueue<T> {
         }
     }
 
+    @Override
+    public int size() {
+        return sendQueue.size();
+    }
+
     @SafeVarargs
     @Override
     public final void sendMany(T... items) {

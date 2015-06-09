@@ -160,6 +160,11 @@ public class BasicSendQueue<T> implements SendQueue<T> {
     }
 
     @Override
+    public int size() {
+        return index;
+    }
+
+    @Override
     public void flushSends() {
         if (index > 0) {
             sendLocalQueue();

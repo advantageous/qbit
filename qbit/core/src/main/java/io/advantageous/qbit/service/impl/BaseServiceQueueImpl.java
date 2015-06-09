@@ -255,6 +255,11 @@ public class BaseServiceQueueImpl implements ServiceQueue {
                         public void flushSends() {
 
                         }
+
+                        @Override
+                        public int size() {
+                            return 0;
+                        }
                     };
                 }
 
