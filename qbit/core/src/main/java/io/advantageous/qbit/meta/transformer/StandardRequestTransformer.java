@@ -70,7 +70,9 @@ public class StandardRequestTransformer implements RequestTransformer {
                                         final List<String> errorsList) {
 
 
-        final RequestMetaData metaData = metaDataProviderMap.get(RequestMethod.valueOf(request.getMethod())).get(request.address());
+        final StandardMetaDataProvider standardMetaDataProvider = metaDataProviderMap
+                .get(RequestMethod.valueOf(request.getMethod()));
+        final RequestMetaData metaData = standardMetaDataProvider.get(request.address());
 
 
         MethodCallBuilder methodCallBuilder = new MethodCallBuilder();

@@ -27,4 +27,13 @@ public class TodoItem {
     public Date getDue() {
         return due;
     }
+
+    @Override
+    public String toString() {
+        return "TodoItem{" +
+                "description='" + description + '\'' +
+                ", name='" + name + '\'' +
+                ", due=" + due +
+                '}';
+    }
 }

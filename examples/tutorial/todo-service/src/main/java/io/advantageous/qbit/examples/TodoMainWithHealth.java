@@ -22,9 +22,9 @@ public class TodoMainWithHealth {
                 .startServer();
 
         final ServiceEndpointServer adminServer =
-                adminBuilder.build().startServer();
+                adminBuilder.build();
 
-        server.initServices(new TodoService());
+        server.initServices(new TodoService()).startServer();
 
 
         /** Shut them down. */

@@ -8,9 +8,9 @@ public class TodoMain {
     public static void main(String... args) {
 
         ServiceEndpointServer server = EndpointServerBuilder.endpointServerBuilder().setHost("localhost")
-                .setPort(8080).build().startServer();
+                .setPort(8080).build();
 
-        server.initServices(new TodoService());
+        server.initServices(new TodoService()).startServer();
     }
 
 }
