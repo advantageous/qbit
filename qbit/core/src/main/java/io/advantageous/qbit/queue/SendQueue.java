@@ -46,6 +46,8 @@ public interface SendQueue<T> extends Output {
 
     void flushSends();
 
+    int size();
+
     default void start() {
     }
 
