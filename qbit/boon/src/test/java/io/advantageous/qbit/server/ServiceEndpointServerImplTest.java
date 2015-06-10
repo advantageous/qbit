@@ -474,7 +474,7 @@ public class ServiceEndpointServerImplTest extends TimedTesting {
             puts("RESPONSE", code, mimeType, body);
             lastResponse = body;
 
-            if (code == 200) {
+            if (code == 200 || code == 202) {
                 responseCounter++;
             } else if (code == 408) {
                 timeOutCounter.incrementAndGet();

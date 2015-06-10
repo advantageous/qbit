@@ -71,7 +71,7 @@ public class ServerTest extends TimedTesting {
 
 
             puts("CALL CALLED", body, "\n\n");
-            if (body != null && code == 200 && body.equals("\"success\"")) {
+            if (body != null && code == 202 && body.equals("\"success\"")) {
                 resultsWorked.set(true);
             }
         });

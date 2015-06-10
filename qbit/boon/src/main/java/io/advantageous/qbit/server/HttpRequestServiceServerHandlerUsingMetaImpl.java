@@ -3,6 +3,7 @@ package io.advantageous.qbit.server;
 import io.advantageous.boon.core.Str;
 import io.advantageous.qbit.GlobalConstants;
 import io.advantageous.qbit.annotation.RequestMethod;
+import io.advantageous.qbit.http.HttpStatus;
 import io.advantageous.qbit.http.request.HttpRequest;
 import io.advantageous.qbit.http.request.HttpResponseReceiver;
 import io.advantageous.qbit.json.JsonMapper;
@@ -121,8 +122,8 @@ public class HttpRequestServiceServerHandlerUsingMetaImpl implements HttpRequest
                 && !requestMetaData.getMethod().hasCallBack()) {
 
             request.handled();
-            writeResponse(request.getReceiver(), 200,
-                    "application/json", "\"success\"", request.getHeaders());
+            writeResponse(request.getReceiver(), HttpStatus.ACCEPTED,
+                    "application/json", "\"success\"", MultiMap.empty());
 
         }
 
@@ -130,8 +131,8 @@ public class HttpRequestServiceServerHandlerUsingMetaImpl implements HttpRequest
     }
 
     private void handleOverflow(HttpRequest request) {
-        writeResponse(request.getReceiver(), 429, "application/json",
-                "\"too many outstanding requests\"", request.getHeaders());
+        writeResponse(request.getReceiver(), HttpStatus.TOO_MANY_REQUEST, "application/json",
+                "\"too many outstanding requests\"", MultiMap.empty());
     }
 
     private void sendMethodToServiceBundle(MethodCall<Object> methodCall) {
@@ -147,15 +148,15 @@ public class HttpRequestServiceServerHandlerUsingMetaImpl implements HttpRequest
     private void handleErrorConverting(HttpRequest request, List<String> errorList, MethodCall<Object> methodCall) {
         if (methodCall == null) {
             if (errorList.size() > 0) {
-                request.getReceiver().response(404, "application/json", jsonMapper.toJson(errorList));
+                request.getReceiver().response(HttpStatus.NOT_FOUND, "application/json", jsonMapper.toJson(errorList));
             } else {
-                request.getReceiver().response(404, "application/json", "\"not found\"");
+                request.getReceiver().response(HttpStatus.NOT_FOUND, "application/json", "\"not found\"");
             }
         } else {
             if (errorList.size() > 0) {
-                request.getReceiver().response(500, "application/json", jsonMapper.toJson(errorList));
+                request.getReceiver().response(HttpStatus.ERROR, "application/json", jsonMapper.toJson(errorList));
             } else {
-                request.getReceiver().response(500, "application/json", "\"unable to make call\"");
+                request.getReceiver().response(HttpStatus.ERROR, "application/json", "\"unable to make call\"");
             }
         }
     }
@@ -208,7 +209,7 @@ public class HttpRequestServiceServerHandlerUsingMetaImpl implements HttpRequest
                 final HttpResponseReceiver httpResponse = ((HttpRequest) request).getReceiver();
                 try {
                     //noinspection unchecked
-                    httpResponse.response(408, "application/json", "\"timed out\"");
+                    httpResponse.response(HttpStatus.TIMED_OUT, "application/json", "\"timed out\"");
                 } catch (Exception ex) {
                     logger.debug("Response not marked handled and it timed out, but could not be written " + request, ex);
                 }
@@ -231,14 +232,14 @@ public class HttpRequestServiceServerHandlerUsingMetaImpl implements HttpRequest
             Object obj = response.body();
 
             if (obj instanceof ServiceMethodNotFoundException) {
-                writeResponse(httpRequest.getReceiver(), 404, "application/json", jsonMapper.toJson(response.body()), response.headers());
+                writeResponse(httpRequest.getReceiver(), HttpStatus.NOT_FOUND, "application/json", jsonMapper.toJson(response.body()), response.headers());
 
             } else {
-                writeResponse(httpRequest.getReceiver(), 500, "application/json", jsonMapper.toJson(response.body()), response.headers());
+                writeResponse(httpRequest.getReceiver(), HttpStatus.ERROR, "application/json", jsonMapper.toJson(response.body()), response.headers());
 
             }
         } else {
-            writeResponse(httpRequest.getReceiver(), 200, "application/json", jsonMapper.toJson(response.body()), response.headers());
+            writeResponse(httpRequest.getReceiver(), HttpStatus.OK, "application/json", jsonMapper.toJson(response.body()), response.headers());
         }
 
 
