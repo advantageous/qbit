@@ -15,6 +15,7 @@ public class CoordinatorBuilder {
     private long timeoutDuration = 5;
     private TimeUnit timeoutTimeUnit = TimeUnit.SECONDS;
     private Runnable timeOutHandler;
+    private Runnable finishedHandler;
 
     public CoordinatorBuilder(Reactor reactor) {
         this.reactor = reactor;
@@ -73,8 +74,18 @@ public class CoordinatorBuilder {
         return this;
     }
 
+
+    public CoordinatorBuilder setFinishedHandler(Runnable finishedHandler) {
+        this.finishedHandler = finishedHandler;
+        return this;
+    }
+
+    public Runnable getFinishedHandler() {
+        return finishedHandler;
+    }
+
     public CallbackCoordinator build() {
         return reactor.coordinateWithTimeout(coordinator, getStartTime(), getTimeoutDuration(),
-                getTimeoutTimeUnit(), getTimeOutHandler());
+                getTimeoutTimeUnit(), getTimeOutHandler(), getFinishedHandler());
     }
 }

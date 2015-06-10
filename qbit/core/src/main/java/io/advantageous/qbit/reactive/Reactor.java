@@ -10,6 +10,7 @@ import java.util.Set;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedTransferQueue;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 
@@ -191,7 +192,8 @@ public class Reactor {
                                                      final long startTime,
                                                      final long timeoutDuration,
                                                      final TimeUnit timeUnit,
-                                                     final Runnable timeOutHandler) {
+                                                     final Runnable timeOutHandler,
+                                                     final Runnable finishedHandler) {
 
         final long timeoutDurationMS = timeUnit.toMillis(timeoutDuration);
 
@@ -200,19 +202,19 @@ public class Reactor {
 
         final CallbackCoordinator wrapper = new CallbackCoordinator() {
 
-            boolean done = false;
+            AtomicBoolean done = new AtomicBoolean();
 
             @Override
             public boolean checkComplete() {
-                if (done) {
+                if (done.get()) {
                     return true;
                 }
 
                 if (coordinator.checkComplete()) {
-                    done = true;
+                    done.set(true);
                 }
 
-                return done;
+                return done.get();
 
             }
 
@@ -225,9 +227,9 @@ public class Reactor {
                 }
                 if ((now - startTime()) > timeOutDuration()) {
 
-                    if (!done) {
+                    if (!done.get()) {
                         timeOutHandler.run();
-                        done = true;
+                        done.set(true);
                     }
                     return true;
                 } else {
@@ -249,12 +251,14 @@ public class Reactor {
                 if (checkComplete()) {
                     removeCoordinator(this);
                 }
-                done = true;
+                if (finishedHandler!=null) {
+                    finishedHandler.run();
+                }
                 coordinator.finished();
             }
 
             public void cancel() {
-                done = true;
+                done.set(true);
                 removeCoordinator(this);
                 coordinator.cancel();
             }
@@ -291,6 +295,7 @@ public class Reactor {
 
         for (CallbackCoordinator callable : coordinatorList) {
             if (callable.checkComplete()) {
+                callable.finished();
                 removeList.add(callable);
             } else if (callable.timedOut(currentTime)) {
                 removeList.add(callable);
