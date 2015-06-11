@@ -20,7 +20,7 @@ public class QueueCallBackHandlerHub implements QueueCallBackHandler{
 
     public QueueCallBackHandlerHub(List<QueueCallBackHandler> callBackHandlers) {
 
-        this.callBackHandlers = Arry.array(callBackHandlers);
+        this.callBackHandlers = Arry.array(QueueCallBackHandler.class, callBackHandlers);
 
     }
 

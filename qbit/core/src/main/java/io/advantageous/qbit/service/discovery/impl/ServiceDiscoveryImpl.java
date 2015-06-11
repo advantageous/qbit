@@ -288,15 +288,16 @@ public class ServiceDiscoveryImpl implements ServiceDiscovery {
 
         this.periodicScheduler.repeat(() -> {
             try {
+                logger.info("Starting Consul monitor");
                 monitor();
-            } catch (InterruptedException e) {
-                logger.debug("ServiceDiscoveryImpl::" +
+            } catch (Exception e) {
+                logger.error("ServiceDiscoveryImpl::" +
                         "Error while running monitor", e);
             }
         }, pollForServicesInterval, TimeUnit.MILLISECONDS);
     }
 
-    public void monitor() throws InterruptedException {
+    public void monitor() throws Exception {
 
         while (!stop.get()) {
             loadHealthyServices();

@@ -22,6 +22,7 @@ package io.advantageous.qbit.http.request;
 import io.advantageous.qbit.util.MultiMap;
 import org.slf4j.LoggerFactory;
 
+import java.nio.charset.StandardCharsets;
 import java.util.function.Consumer;
 
 /**
@@ -51,4 +52,22 @@ public interface HttpResponseReceiver<T> {
                 .error(exception.getMessage(), exception);
     }
 
+
+    default void respondOK(String json) {
+        respond(200, json);
+    }
+
+    default void error(String json) {
+        respond(500, json);
+    }
+
+
+    default void respond(int code, String json) {
+        if (!isText()) {
+            response(code, "application/json", (T) json.getBytes(StandardCharsets.UTF_8));
+        } else {
+            response(code, "application/json", (T) json);
+
+        }
+    }
 }

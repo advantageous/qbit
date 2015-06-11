@@ -18,6 +18,10 @@
 
 package io.advantageous.qbit.http.request;
 
+import io.advantageous.boon.core.Str;
+
+import java.nio.charset.StandardCharsets;
+
 /**
  * When you register this with a request, it means that you expect a binary result from the server.
  * @author rhightower on 1/15/15.
@@ -29,4 +33,16 @@ public interface HttpBinaryReceiver extends HttpResponseReceiver<byte[]> {
     }
 
 
+    default void respondOK(String json) {
+        respond(200, json);
+    }
+
+    default void error(String json) {
+        respond(500, json);
+    }
+
+
+    default void respond(int code, String json) {
+        response(code, "application/json", json.getBytes(StandardCharsets.UTF_8));
+    }
 }

@@ -18,6 +18,8 @@
 
 package io.advantageous.qbit.http.request;
 
+import io.advantageous.boon.core.Str;
+
 /**
  * This is an interface which allows you to register for a TEXT instead of binary response from
  * an HTTP server.
@@ -25,4 +27,18 @@ package io.advantageous.qbit.http.request;
  *         on 1/15/15.
  */
 public interface HttpTextReceiver extends HttpResponseReceiver<String> {
+
+    default void respondOK(String json) {
+        respond(200, json);
+    }
+
+    default void respond(int code, String json) {
+        response(code, "application/json", Str.add("\"", json, "\""));
+    }
+
+    default void error(String json) {
+        respond(500, json);
+    }
+
+
 }
