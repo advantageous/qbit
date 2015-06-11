@@ -46,6 +46,7 @@ public class ServiceHealthListener implements QueueCallBackHandler {
 
         if (duration > checkInIntervalMS) {
             healthServiceAsync.checkInOk(serviceName);
+            healthServiceAsync.clientProxyFlush();
         }
     }
 
