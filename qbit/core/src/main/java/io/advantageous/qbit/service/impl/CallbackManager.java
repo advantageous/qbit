@@ -22,17 +22,44 @@ import io.advantageous.qbit.message.MethodCall;
 import io.advantageous.qbit.message.Response;
 import io.advantageous.qbit.queue.Queue;
 import io.advantageous.qbit.reactive.Callback;
+import io.advantageous.qbit.util.Timer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Consumer;
+import java.util.function.Predicate;
 
 /**
  * Maps incoming call returns to client callback objects.
  */
 public class CallbackManager {
 
+    private final String name;
+    private final boolean handleTimeouts;
+    private final long timeOutMS;
+    private final long checkInterval;
+    private final Timer timer;
+    private long lastCheckTime;
+
+
+    public static CallbackManager callbackManager(String name) {
+        return new CallbackManager(Timer.timer(), name, true, 1000, 1000);
+    }
+
+
+    public CallbackManager(final Timer timer, final String name, boolean handleTimeouts,
+                    long timeOutMS, long checkInterval) {
+
+        this.name = name;
+        this.handleTimeouts = handleTimeouts;
+        this.timeOutMS = timeOutMS;
+        this.checkInterval = checkInterval;
+        this.timer = timer;
+    }
 
     private final Logger logger = LoggerFactory.getLogger(CallbackManager.class);
     private final boolean debug = logger.isDebugEnabled();
@@ -49,7 +76,7 @@ public class CallbackManager {
      */
     private void registerHandlerCallbackForClient(final MethodCall<Object> methodCall,
                                                   final Callback<Object> handler) {
-        handlers.put(new HandlerKey(methodCall.returnAddress(), methodCall.id()), handler);
+        handlers.put(new HandlerKey(methodCall.returnAddress(), methodCall.id(), now), handler);
     }
 
 
@@ -89,7 +116,7 @@ public class CallbackManager {
     }
 
     public void handleResponse(Response<Object> response) {
-        final Callback<Object> handler = handlers.get(new HandlerKey(response.returnAddress(), response.id()));
+        final Callback<Object> handler = handlers.get(new HandlerKey(response.returnAddress(), response.id(), now));
 
         if (handler == null) {
             return;
@@ -113,6 +140,51 @@ public class CallbackManager {
         } else {
             handler.accept(response.body());
         }
+    }
+
+    private long now;
+    public void process(long currentTime) {
+
+        if (!handleTimeouts) {
+            return;
+        }
+        if (currentTime != 0) {
+            this.now = currentTime;
+        } else {
+            this.now = timer.now();
+        }
+
+        long duration = this.now - lastCheckTime;
+
+        if (duration > checkInterval) {
+            checkForTimeOuts();
+            lastCheckTime = this.now;
+        }
+
+    }
+
+    private void checkForTimeOuts() {
+
+        if (debug) {
+            logger.debug("checking for timeouts");
+        }
+
+        final ArrayList<Map.Entry<HandlerKey, Callback<Object>>> entries = new ArrayList<>(handlers.entrySet());
+
+        entries.stream().filter(handlerKeyCallbackEntry -> now - handlerKeyCallbackEntry.getKey().timestamp > timeOutMS)
+                .forEach(handlerKeyCallbackEntry -> {
+
+
+                    logger.info("Call has timed out duration {} {} {}",
+                            now - handlerKeyCallbackEntry.getKey().timestamp,
+                            handlerKeyCallbackEntry.getKey().returnAddress,
+                            handlerKeyCallbackEntry.getKey().messageId,
+                            new Date(handlerKeyCallbackEntry.getKey().timestamp));
+
+                    handlers.remove(handlerKeyCallbackEntry.getKey());
+                    handlerKeyCallbackEntry.getValue().onTimeout();
+                });
+
     }
 
 

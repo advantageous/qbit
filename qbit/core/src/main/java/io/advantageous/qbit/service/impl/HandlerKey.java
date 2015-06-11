@@ -26,10 +26,12 @@ package io.advantageous.qbit.service.impl;
 class HandlerKey {
     final String returnAddress;
     final long messageId;
+    final long timestamp;
 
-    HandlerKey(String returnAddress, long messageId) {
+    HandlerKey(String returnAddress, long messageId, long now) {
         this.returnAddress = returnAddress;
         this.messageId = messageId;
+        this.timestamp = now;
     }
 
     @Override

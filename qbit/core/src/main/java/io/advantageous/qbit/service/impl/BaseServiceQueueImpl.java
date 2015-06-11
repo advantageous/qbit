@@ -294,13 +294,15 @@ public class BaseServiceQueueImpl implements ServiceQueue {
 
     public ServiceQueue startCallBackHandler() {
         if (!handleCallbacks) {
-            callbackManager = new CallbackManager();
+            /** Need to make this configurable. */
+            callbackManager = CallbackManager.callbackManager(name());
             callbackManager.startReturnHandlerProcessor(this.responseQueue);
             return this;
         } else {
             throw new IllegalStateException("Unable to handle callbacks in a new thread when handleCallbacks is set");
         }
     }
+
 
     public BaseServiceQueueImpl requestObjectTransformer(Transformer<Request, Object> requestObjectTransformer) {
         this.requestObjectTransformer = requestObjectTransformer;
@@ -374,7 +376,7 @@ public class BaseServiceQueueImpl implements ServiceQueue {
                         responseQueue.receiveQueue() : null;
 
         if (handleCallbacks) {
-            this.callbackManager = new CallbackManager();
+            this.callbackManager = CallbackManager.callbackManager(name());
         }
 
         final ReceiveQueue<Event<Object>> eventReceiveQueue =
@@ -438,6 +440,9 @@ public class BaseServiceQueueImpl implements ServiceQueue {
                 handle();
                 serviceMethodHandler.idle();
                 queueCallBackHandler.queueIdle();
+                if (callbackManager!=null) {
+                    callbackManager.process(0);
+                }
             }
 
 
