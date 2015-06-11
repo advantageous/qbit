@@ -42,11 +42,16 @@ public class QueueBuilder implements Cloneable {
     private String name;
     private Class<? extends BlockingQueue> queueClass = ArrayBlockingQueue.class;
     private boolean checkIfBusy = false;
+    private TimeUnit pollTimeUnit = TimeUnit.MILLISECONDS;
+    private TimeUnit enqueueTimeoutTimeUnit = TimeUnit.SECONDS;
+    private int enqueueTimeout = 1000;
 
 
     public QueueBuilder(PropertyResolver propertyResolver) {
         this.pollWait = propertyResolver
-                .getIntegerProperty("pollWait", GlobalConstants.POLL_WAIT);
+                .getIntegerProperty("pollWaitMS", GlobalConstants.POLL_WAIT);
+        this.enqueueTimeout = propertyResolver
+                .getIntegerProperty("enqueueTimeoutSeconds", 1000);
         this.batchSize = propertyResolver
                 .getIntegerProperty("batchSize", GlobalConstants.BATCH_SIZE);
         this.checkEvery = propertyResolver
@@ -63,6 +68,32 @@ public class QueueBuilder implements Cloneable {
 
     }
 
+    public TimeUnit getEnqueueTimeoutTimeUnit() {
+        return enqueueTimeoutTimeUnit;
+    }
+
+    public QueueBuilder setEnqueueTimeoutTimeUnit(TimeUnit enqueueTimeoutTimeUnit) {
+        this.enqueueTimeoutTimeUnit = enqueueTimeoutTimeUnit;
+        return this;
+    }
+
+    public TimeUnit getPollTimeUnit() {
+        return pollTimeUnit;
+    }
+
+    public QueueBuilder setPollTimeUnit(TimeUnit pollTimeUnit) {
+        this.pollTimeUnit = pollTimeUnit;
+        return this;
+    }
+
+    public int getEnqueueTimeout() {
+        return enqueueTimeout;
+    }
+
+    public QueueBuilder setEnqueueTimeout(int enqueueTimeout) {
+        this.enqueueTimeout = enqueueTimeout;
+        return this;
+    }
 
     public QueueBuilder() {
         this(PropertyResolver.createSystemPropertyResolver(QBIT_QUEUE_BUILDER));
@@ -165,10 +196,11 @@ public class QueueBuilder implements Cloneable {
     }
 
     public QueueBuilder setPollWait(int pollWait) {
-        this.pollWait = pollWait;
+        this.pollWait =  pollWait;
         return this;
-
     }
+
+
 
     public String getName() {
         return name;
@@ -182,7 +214,10 @@ public class QueueBuilder implements Cloneable {
 
 
     public <T> Queue<T> build() {
-        return new BasicQueue<>(this.getName(), this.getPollWait(), TimeUnit.MILLISECONDS, this.getBatchSize(),
+        return new BasicQueue<>(this.getName(), this.getPollWait(), this.getPollTimeUnit(),
+                this.getEnqueueTimeout(),
+                this.getEnqueueTimeoutTimeUnit(),
+                this.getBatchSize(),
                 this.queueClass, this.isCheckIfBusy(), this.getSize(), this.getCheckEvery(), this.isTryTransfer());
     }
 

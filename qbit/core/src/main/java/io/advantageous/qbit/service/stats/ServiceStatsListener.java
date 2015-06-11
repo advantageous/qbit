@@ -9,21 +9,27 @@ public class ServiceStatsListener implements QueueCallBackHandler {
 
     private final String serviceName;
     private final long flushStatsInterval;
+    private final long checkQueueSizeInterval;
     private final Timer timer;
     private final int sampleEvery;
+    private final ServiceQueueSizer serviceQueueSizer;
     private long now;
     private long lastFlush;
+    private long lastSizeCheck;
     private final StatsCollector statsCollector;
 
 
     private final String startBatchCountKey;
+
+    private final String queueRequestSizeKey;
+    private final String queueResponseSizeKey;
     private final String receiveCountKey;
     private final String receiveTimeKey;
 
     private int startBatchCount;
     private int receiveCount;
 
-    private long totalCount;
+    private long sampleUntilCount;
 
 
     private long beforeReceiveTime;
@@ -36,17 +42,21 @@ public class ServiceStatsListener implements QueueCallBackHandler {
                                 final Timer timer,
                                 final long checkInInterval,
                                 final TimeUnit timeUnit,
-                                final int sampleEvery) {
+                                final int sampleEvery,
+                                final ServiceQueueSizer serviceQueueSizer) {
         this.serviceName = serviceName;
         this.flushStatsInterval = timeUnit.toMillis(checkInInterval);
+        this.checkQueueSizeInterval = flushStatsInterval * 10;
         this.timer = timer;
         this.statsCollector = statsCollector;
         lastFlush = timer.now();
         startBatchCountKey = serviceName + ".startBatchCount";
         receiveCountKey = serviceName + ".receiveCount";
         receiveTimeKey = serviceName + ".callTimeSample";
-
+        this.queueRequestSizeKey =  serviceName + ".queueRequestSize";
+        this.queueResponseSizeKey =  serviceName + ".queueResponseSize";
         this.sampleEvery = sampleEvery;
+        this.serviceQueueSizer = serviceQueueSizer;
     }
 
     @Override
@@ -57,9 +67,10 @@ public class ServiceStatsListener implements QueueCallBackHandler {
 
     @Override
     public void beforeReceiveCalled() {
-        totalCount++;
+        sampleUntilCount++;
 
-        if (totalCount % sampleEvery == 0) {
+        if (sampleUntilCount > sampleEvery ) {
+            sampleUntilCount = 0;
             timeIt = true;
             beforeReceiveTime = System.nanoTime();
         }
@@ -115,9 +126,35 @@ public class ServiceStatsListener implements QueueCallBackHandler {
     private void sendStats() {
         now = timer.now();
 
+        calculateSizeIfNeeded();
+        flushStatsIfNeeded();
+
+    }
+
+    private void calculateSizeIfNeeded() {
+
+        if (serviceQueueSizer == null) {
+            return;
+        }
+
+        long duration = now - lastSizeCheck;
+
+
+        if (duration > checkQueueSizeInterval) {
+            lastSizeCheck = now;
+            statsCollector.recordLevel(queueRequestSizeKey, serviceQueueSizer.requestSize());
+            statsCollector.recordLevel(queueResponseSizeKey, serviceQueueSizer.responseSize());
+        }
+
+    }
+
+    private void flushStatsIfNeeded() {
+
         long duration = now - lastFlush;
 
+
         if (duration > flushStatsInterval) {
+            lastFlush = now;
             statsCollector.recordCount(startBatchCountKey, startBatchCount);
             startBatchCount = 0;
 
@@ -125,6 +162,7 @@ public class ServiceStatsListener implements QueueCallBackHandler {
             statsCollector.recordCount(receiveCountKey, receiveCount);
             receiveCount = 0;
         }
+
     }
 
 

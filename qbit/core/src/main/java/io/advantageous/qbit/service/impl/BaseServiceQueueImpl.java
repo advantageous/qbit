@@ -190,6 +190,16 @@ public class BaseServiceQueueImpl implements ServiceQueue {
         return this;
     }
 
+    @Override
+    public Queue<MethodCall<Object>> requestQueue() {
+        return this.requestQueue;
+    }
+
+    @Override
+    public Queue<Response<Object>> responseQueue() {
+        return this.responseQueue;
+    }
+
     protected Queue<MethodCall<Object>> initRequestQueue(final ServiceMethodHandler serviceMethodHandler, boolean async) {
         Queue<MethodCall<Object>> requestQueue;
         if (async) {
@@ -271,6 +281,11 @@ public class BaseServiceQueueImpl implements ServiceQueue {
                 @Override
                 public void stop() {
 
+                }
+
+                @Override
+                public int size() {
+                    return 0;
                 }
             };
         }

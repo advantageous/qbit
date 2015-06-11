@@ -80,4 +80,6 @@ public interface Queue<T> {
      * Stop the listener.
      */
     void stop();
+
+    int size();
 }

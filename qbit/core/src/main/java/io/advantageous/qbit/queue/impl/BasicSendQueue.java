@@ -18,12 +18,16 @@
 
 package io.advantageous.qbit.queue.impl;
 
+import io.advantageous.qbit.queue.QueueException;
 import io.advantageous.qbit.queue.SendQueue;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TransferQueue;
 
 /**
@@ -36,6 +40,10 @@ import java.util.concurrent.TransferQueue;
  */
 public class BasicSendQueue<T> implements SendQueue<T> {
 
+    private final Logger logger = LoggerFactory.getLogger(BasicSendQueue.class);
+    //private final boolean debug = GlobalConstants.DEBUG || logger.isDebugEnabled();
+
+
     private final BlockingQueue<Object> queue;
 
     private final TransferQueue<Object> transferQueue;
@@ -45,16 +53,27 @@ public class BasicSendQueue<T> implements SendQueue<T> {
     private final boolean tryTransfer;
     private final boolean checkBusy;
     private final int batchSize;
+    private final TimeUnit timeUnit;
     private int index;
     private int checkEveryCount = 0;
+    private final String name;
+    private final int enqueueTimeout;
+
+
 
     public BasicSendQueue(
+            final String name,
             final int batchSize,
             final BlockingQueue<Object> queue,
             final boolean checkBusy,
             final int checkBusyEvery,
-            final boolean tryTransfer) {
+            final boolean tryTransfer,
+            final TimeUnit timeUnit,
+            final int enqueueTimeout) {
 
+        this.timeUnit = timeUnit;
+        this.enqueueTimeout = enqueueTimeout;
+        this.name = name + "|SEND QUEUE";
         this.tryTransfer = tryTransfer;
         this.batchSize = batchSize;
         this.queue = queue;
@@ -161,7 +180,7 @@ public class BasicSendQueue<T> implements SendQueue<T> {
 
     @Override
     public int size() {
-        return index;
+        return queue.size();
     }
 
     @Override
@@ -178,9 +197,7 @@ public class BasicSendQueue<T> implements SendQueue<T> {
         index = 0;
     }
 
-    private void sendArray(
-            final Object[] array) {
-
+    private void sendArray(final Object[] array) {
 
         if (checkBusy && tryTransfer) {
             if (!transferQueue.tryTransfer(array)) {
@@ -190,9 +207,19 @@ public class BasicSendQueue<T> implements SendQueue<T> {
             transferQueue.offer(array);
         } else {
             try {
-                queue.put(array);
+                if (!queue.offer(array, enqueueTimeout, timeUnit)) {
+                    logger.error("Unable to send to queue {} timeout is {} {}" +
+                                    " Size of queue {} ",
+                            name, enqueueTimeout, timeUnit, queue.size());
+
+                    throw new QueueException("QUEUE FULL: Unable to send messages to queue " + name);
+
+                }
             } catch (InterruptedException e) {
-                throw new IllegalStateException("Unable to send", e);
+                logger.error("Unable to send to queue {} timeout is {} {}" +
+                                " Size of queue {} ",
+                        name, enqueueTimeout, timeUnit, queue.size());
+                throw new QueueException("Unable to send to queue " + name, e);
             }
         }
     }

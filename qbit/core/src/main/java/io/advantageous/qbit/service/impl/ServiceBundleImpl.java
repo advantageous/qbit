@@ -140,6 +140,9 @@ public class ServiceBundleImpl implements ServiceBundle {
     private final QueueBuilder responseQueueBuilder;
     private final HealthServiceAsync healthService;
     private final StatsCollector statsCollector;
+    private final Timer timer;
+    private final int sampleStatFlushRate;
+    private final int checkTimingEveryXCalls;
 
     public ServiceBundleImpl(final String address,
                              final QueueBuilder requestQueueBuilder,
@@ -152,12 +155,18 @@ public class ServiceBundleImpl implements ServiceBundle {
                              final boolean invokeDynamic,
                              final QBitSystemManager systemManager,
                              final HealthServiceAsync healthService,
-                             final StatsCollector statsCollector) {
+                             final StatsCollector statsCollector,
+                             final Timer timer,
+                             final int sampleStatFlushRate,
+                             final int checkTimingEveryXCalls) {
 
         this.healthService = healthService;
         this.statsCollector = statsCollector;
         this.invokeDynamic = invokeDynamic;
         this.systemManager = systemManager;
+        this.timer = timer;
+        this.sampleStatFlushRate = sampleStatFlushRate;
+        this.checkTimingEveryXCalls = checkTimingEveryXCalls;
 
         String rootAddress;
         if (address.endsWith("/")) {
@@ -269,6 +278,7 @@ public class ServiceBundleImpl implements ServiceBundle {
                 .setRootAddress(rootAddress)
                 .setServiceObject(serviceObject)
                 .setServiceAddress(serviceAddress)
+                .setTimer(timer)
                 .setResponseQueue(responseQueue)
                 .setAsyncResponse(asyncCalls)
                 .setInvokeDynamic(invokeDynamic)
@@ -293,7 +303,7 @@ public class ServiceBundleImpl implements ServiceBundle {
               every 10_000 queue calls.
              */
             serviceBuilder.registerStatsCollections(bindStatHealthName,
-                    statsCollector, 5, 10_000);
+                    statsCollector, sampleStatFlushRate, checkTimingEveryXCalls);
         }
 
 
@@ -693,7 +703,7 @@ public class ServiceBundleImpl implements ServiceBundle {
              */
             @Override
             public void empty() {
-                time = Timer.timer().now();
+                time = timer.now();
                 if (time > (lastTimeAutoFlush + 50)) {
 
                     //noinspection Convert2streamapi

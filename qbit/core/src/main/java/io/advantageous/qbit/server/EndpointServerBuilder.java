@@ -18,7 +18,6 @@
 
 package io.advantageous.qbit.server;
 
-import io.advantageous.qbit.GlobalConstants;
 import io.advantageous.qbit.QBit;
 import io.advantageous.qbit.config.PropertyResolver;
 import io.advantageous.qbit.http.HttpTransport;
@@ -37,6 +36,7 @@ import io.advantageous.qbit.spi.ProtocolEncoder;
 import io.advantageous.qbit.spi.ProtocolParser;
 import io.advantageous.qbit.system.QBitSystemManager;
 import io.advantageous.qbit.transforms.Transformer;
+import io.advantageous.qbit.util.Timer;
 
 import java.util.Properties;
 
@@ -73,6 +73,24 @@ public class EndpointServerBuilder {
     private QBitSystemManager qBitSystemManager;
     private HealthServiceAsync healthService = null;
     private StatsCollector statsCollector = null;
+    private Timer timer;
+
+    private  int statsFlushRateSeconds;
+    private  int checkTimingEveryXCalls;
+
+
+    public Timer getTimer() {
+        if (timer == null) {
+            timer = Timer.timer();
+        }
+        return timer;
+    }
+
+    public EndpointServerBuilder setTimer(Timer timer) {
+        this.timer = timer;
+        return this;
+    }
+
     /**
      * Allows interception of method calls before they get sent to a client.
      * This allows us to transform or reject method calls.
@@ -107,7 +125,11 @@ public class EndpointServerBuilder {
         this.flushInterval = propertyResolver.getIntegerProperty("flushInterval", 500);
         this.uri = propertyResolver.getStringProperty("uri", "/services");
         this.timeoutSeconds = propertyResolver.getIntegerProperty("timeoutSeconds", 30);
+        this.statsFlushRateSeconds = propertyResolver.getIntegerProperty("statsFlushRateSeconds", 5);
+        this.checkTimingEveryXCalls = propertyResolver.getIntegerProperty("checkTimingEveryXCalls", 1000);
+
     }
+
 
 
     public EndpointServerBuilder() {
@@ -416,7 +438,7 @@ public class EndpointServerBuilder {
                 this.getArgTransformer(), true,
                 getSystemManager(),
                 getHealthService(),
-                getStatsCollector());
+                getStatsCollector(), getTimer(), getStatsFlushRateSeconds(), getCheckTimingEveryXCalls());
 
 
         final ProtocolParser parser = QBit.factory().createProtocolParser();
@@ -446,5 +468,24 @@ public class EndpointServerBuilder {
                 .setRequestQueueBuilder(this.getHttpRequestQueueBuilder())
                 .setSystemManager(getSystemManager())
                 .setWebSocketMessageQueueBuilder(this.getWebSocketMessageQueueBuilder()).build();
+    }
+
+
+    public int getStatsFlushRateSeconds() {
+        return statsFlushRateSeconds;
+    }
+
+    public EndpointServerBuilder setStatsFlushRateSeconds(int statsFlushRateSeconds) {
+        this.statsFlushRateSeconds = statsFlushRateSeconds;
+        return this;
+    }
+
+    public int getCheckTimingEveryXCalls() {
+        return checkTimingEveryXCalls;
+    }
+
+    public EndpointServerBuilder setCheckTimingEveryXCalls(int checkTimingEveryXCalls) {
+        this.checkTimingEveryXCalls = checkTimingEveryXCalls;
+        return this;
     }
 }

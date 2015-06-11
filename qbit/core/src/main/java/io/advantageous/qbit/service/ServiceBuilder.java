@@ -20,6 +20,8 @@ package io.advantageous.qbit.service;
 
 import io.advantageous.qbit.QBit;
 import io.advantageous.qbit.annotation.QueueCallback;
+import io.advantageous.qbit.concurrent.PeriodicScheduler;
+import io.advantageous.qbit.message.Event;
 import io.advantageous.qbit.message.MethodCall;
 import io.advantageous.qbit.message.Request;
 import io.advantageous.qbit.message.Response;
@@ -30,6 +32,7 @@ import io.advantageous.qbit.service.impl.NoOpAfterMethodCall;
 import io.advantageous.qbit.service.impl.NoOpInputMethodCallQueueListener;
 import io.advantageous.qbit.service.impl.ServiceConstants;
 import io.advantageous.qbit.service.impl.ServiceQueueImpl;
+import io.advantageous.qbit.service.stats.ServiceQueueSizer;
 import io.advantageous.qbit.service.stats.ServiceStatsListener;
 import io.advantageous.qbit.service.stats.StatsCollector;
 import io.advantageous.qbit.system.QBitSystemManager;
@@ -40,6 +43,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -72,6 +76,8 @@ public class ServiceBuilder {
     private QBitSystemManager qBitSystemManager;
     private List<QueueCallBackHandler> queueCallBackHandlers;
     private Timer timer;
+    private StatsConfig statsConfig;
+
 
 
     public static ServiceBuilder serviceBuilder() {
@@ -316,9 +322,7 @@ public class ServiceBuilder {
             final int flushTimeSeconds,
             final int sampleEvery) {
 
-        this.addQueueCallbackHandler(new ServiceStatsListener(serviceName, statsCollector,
-                getTimer(),flushTimeSeconds, TimeUnit.SECONDS, sampleEvery ));
-
+        statsConfig = new StatsConfig(serviceName, statsCollector, flushTimeSeconds, sampleEvery);
         return this;
     }
 
@@ -351,6 +355,18 @@ public class ServiceBuilder {
 
         if (debug) logger.debug("Building a service");
 
+        ServiceQueueSizer serviceQueueSizer =  null;
+
+        if (statsConfig!=null) {
+
+
+            serviceQueueSizer = new ServiceQueueSizer();
+            this.addQueueCallbackHandler(new ServiceStatsListener(statsConfig.serviceName,
+                    statsConfig.statsCollector,
+                    getTimer(),statsConfig.flushTimeSeconds, TimeUnit.SECONDS,
+                    statsConfig.sampleEvery, serviceQueueSizer));
+        }
+
         ServiceQueue serviceQueue = new ServiceQueueImpl(this.getRootAddress(),
                 this.getServiceAddress(),
                 this.getServiceObject(),
@@ -363,9 +379,14 @@ public class ServiceBuilder {
                 this.getSystemManager(),
                 buildQueueCallBackHandler());
 
+        if (serviceQueueSizer!=null) {
+            serviceQueueSizer.setServiceQueue(serviceQueue);
+        }
+
         if (qBitSystemManager != null) {
             qBitSystemManager.registerService(serviceQueue);
         }
+
 
         return serviceQueue;
     }
@@ -378,6 +399,22 @@ public class ServiceBuilder {
     public ServiceQueue buildAndStart() {
 
         return build().startServiceQueue();
+    }
+
+
+
+    private static class StatsConfig  {
+        final String serviceName;
+        final StatsCollector statsCollector;
+        final int flushTimeSeconds;
+        final int sampleEvery;
+
+        private StatsConfig(String serviceName, StatsCollector statsCollector, int flushTimeSeconds, int sampleEvery) {
+            this.serviceName = serviceName;
+            this.statsCollector = statsCollector;
+            this.flushTimeSeconds = flushTimeSeconds;
+            this.sampleEvery = sampleEvery;
+        }
     }
 
 }

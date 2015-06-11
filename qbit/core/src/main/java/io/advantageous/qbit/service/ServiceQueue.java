@@ -22,6 +22,7 @@ import io.advantageous.qbit.concurrent.PeriodicScheduler;
 import io.advantageous.qbit.message.Event;
 import io.advantageous.qbit.message.MethodCall;
 import io.advantageous.qbit.message.Response;
+import io.advantageous.qbit.queue.Queue;
 import io.advantageous.qbit.queue.ReceiveQueue;
 import io.advantageous.qbit.queue.SendQueue;
 
@@ -115,4 +116,7 @@ public interface ServiceQueue extends Stoppable, ServiceFlushable, Startable {
     default ServiceQueue start(boolean joinEventManager) {
         return this;
     }
+
+    Queue<MethodCall<Object>> requestQueue();
+    Queue<Response<Object>> responseQueue();
 }

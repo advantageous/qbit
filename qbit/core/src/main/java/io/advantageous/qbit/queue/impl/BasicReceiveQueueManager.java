@@ -58,11 +58,13 @@ public class BasicReceiveQueueManager<T> implements ReceiveQueueManager<T> {
         /* Continues forever or until someone calls stop. */
         while (true) {
 
+            if (item!=null) {
+                listener.startBatch();
+            }
 
             /* Collect a batch of items as long as no item is null. */
             while (item != null) {
 
-                listener.startBatch();
 
                 count++;
 

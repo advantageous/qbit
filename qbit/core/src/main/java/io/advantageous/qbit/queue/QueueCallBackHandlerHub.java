@@ -76,4 +76,23 @@ public class QueueCallBackHandlerHub implements QueueCallBackHandler{
         }
 
     }
+
+    @Override
+    public void beforeReceiveCalled() {
+
+        for (int index=0; index < callBackHandlers.length; index++) {
+            callBackHandlers[index].beforeReceiveCalled();
+        }
+
+    }
+
+
+    @Override
+    public void afterReceiveCalled() {
+
+        for (int index=0; index < callBackHandlers.length; index++) {
+            callBackHandlers[index].afterReceiveCalled();
+        }
+
+    }
 }

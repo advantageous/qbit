@@ -20,6 +20,7 @@ package io.advantageous.qbit.service;
 
 import io.advantageous.qbit.GlobalConstants;
 import io.advantageous.qbit.QBit;
+import io.advantageous.qbit.config.PropertyResolver;
 import io.advantageous.qbit.message.Request;
 import io.advantageous.qbit.message.Response;
 import io.advantageous.qbit.queue.Queue;
@@ -29,6 +30,9 @@ import io.advantageous.qbit.service.impl.ServiceConstants;
 import io.advantageous.qbit.service.stats.StatsCollector;
 import io.advantageous.qbit.system.QBitSystemManager;
 import io.advantageous.qbit.transforms.Transformer;
+import io.advantageous.qbit.util.Timer;
+
+import java.util.Properties;
 
 /**
  * Allows for the programmatic construction of a service bundle.
@@ -39,6 +43,7 @@ import io.advantageous.qbit.transforms.Transformer;
 public class ServiceBundleBuilder {
 
 
+    private static final String QBIT_SERVER_BUNDLE_BUILDER = "qbit.service.bundle.builder.";
     private QueueBuilder requestQueueBuilder;
     private QueueBuilder responseQueueBuilder;
     private QueueBuilder webResponseQueueBuilder;
@@ -51,6 +56,8 @@ public class ServiceBundleBuilder {
     private Queue<Response<Object>> responseQueue;
     private HealthServiceAsync healthService = null;
     private StatsCollector statsCollector = null;
+    private  int statsFlushRateSeconds;
+    private  int checkTimingEveryXCalls;
 
     /**
      * Allows interception of method calls before they get sent to a client.
@@ -66,10 +73,32 @@ public class ServiceBundleBuilder {
      * Allows transformation of arguments, for example from JSON to Java objects.
      */
     private Transformer<Request, Object> argTransformer = ServiceConstants.NO_OP_ARG_TRANSFORM;
+    private Timer timer;
 
     public static ServiceBundleBuilder serviceBundleBuilder() {
         return new ServiceBundleBuilder();
     }
+
+
+
+    public ServiceBundleBuilder(PropertyResolver propertyResolver) {
+        this.invokeDynamic = propertyResolver.getBooleanProperty("invokeDynamic", true);
+        this.pollTime = propertyResolver.getIntegerProperty("pollTime", pollTime);
+        this.requestBatchSize = propertyResolver
+                .getIntegerProperty("requestBatchSize", requestBatchSize);
+        this.statsFlushRateSeconds = propertyResolver.getIntegerProperty("statsFlushRateSeconds", 5);
+        this.checkTimingEveryXCalls = propertyResolver.getIntegerProperty("checkTimingEveryXCalls", 10000);
+
+    }
+
+    public ServiceBundleBuilder() {
+        this(PropertyResolver.createSystemPropertyResolver(QBIT_SERVER_BUNDLE_BUILDER));
+    }
+    public ServiceBundleBuilder(final Properties properties) {
+        this(PropertyResolver.createPropertiesPropertyResolver(
+                QBIT_SERVER_BUNDLE_BUILDER, properties));
+    }
+
 
     public QueueBuilder getWebResponseQueueBuilder() {
 
@@ -251,7 +280,13 @@ public class ServiceBundleBuilder {
                 getWebResponseQueueBuilder(),
                 QBit.factory(),
                 eachServiceInItsOwnThread, this.getBeforeMethodCall(), this.getBeforeMethodCallAfterTransform(),
-                this.getArgTransformer(), invokeDynamic, this.getSystemManager(), getHealthService(), getStatsCollector());
+                this.getArgTransformer(), invokeDynamic,
+                this.getSystemManager(),
+                getHealthService(),
+                getStatsCollector(),
+                getTimer(),
+                getStatsFlushRateSeconds(),
+                getCheckTimingEveryXCalls());
 
 
         if (serviceBundle != null && qBitSystemManager != null) {
@@ -271,6 +306,36 @@ public class ServiceBundleBuilder {
         final ServiceBundle build = build();
         build.startUpCallQueue();
         return build;
+    }
+
+    public ServiceBundleBuilder setTimer(Timer timer) {
+        this.timer = timer;
+        return this;
+    }
+
+    public Timer getTimer() {
+        if (timer == null) {
+            timer = Timer.timer();
+        }
+        return timer;
+    }
+
+    public int getStatsFlushRateSeconds() {
+        return statsFlushRateSeconds;
+    }
+
+    public ServiceBundleBuilder setStatsFlushRateSeconds(int statsFlushRateSeconds) {
+        this.statsFlushRateSeconds = statsFlushRateSeconds;
+        return this;
+    }
+
+    public int getCheckTimingEveryXCalls() {
+        return checkTimingEveryXCalls;
+    }
+
+    public ServiceBundleBuilder setCheckTimingEveryXCalls(int checkTimingEveryXCalls) {
+        this.checkTimingEveryXCalls = checkTimingEveryXCalls;
+        return this;
     }
 }
 

@@ -55,6 +55,7 @@ import io.advantageous.qbit.spi.*;
 import io.advantageous.qbit.system.QBitSystemManager;
 import io.advantageous.qbit.transforms.Transformer;
 import io.advantageous.qbit.util.MultiMap;
+import io.advantageous.qbit.util.Timer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -360,11 +361,15 @@ public class BoonQBitFactory implements Factory {
                                              final boolean invokeDynamic,
                                              final QBitSystemManager systemManager,
                                              final HealthServiceAsync healthService,
-                                             final StatsCollector statsCollector) {
+                                             final StatsCollector statsCollector,
+                                             final Timer timer,
+                                             final int statsFlushRateSeconds,
+                                             final int checkTimingEveryXCalls) {
         return new ServiceBundleImpl(address, requestQueueBuilder, responseQueueBuilder,
                 webResponseQueueBuilder,
                 factory, asyncCalls, beforeMethodCall, beforeMethodCallAfterTransform,
-                argTransformer, invokeDynamic, systemManager, healthService, statsCollector);
+                argTransformer, invokeDynamic, systemManager, healthService, statsCollector, timer,
+                statsFlushRateSeconds, checkTimingEveryXCalls);
     }
 
 

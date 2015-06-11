@@ -50,32 +50,38 @@ public class BasicQueue<T> implements Queue<T> {
     private final Logger logger = LoggerFactory.getLogger(BasicQueue.class);
     private final ReceiveQueueManager<T> receiveQueueManager;
     private final String name;
-    private final int waitTime;
-    private final TimeUnit timeUnit;
+    private final int pollTimeWait;
+    private final TimeUnit pollTimeTimeUnit;
     private final boolean tryTransfer;
     private final boolean debug = GlobalConstants.DEBUG;
     private final int checkEvery;
-    private AtomicBoolean stop = new AtomicBoolean();
+    private final AtomicBoolean stop = new AtomicBoolean();
     private ExecutorContext executorContext;
+    private final int enqueueTimeout;
+    private final TimeUnit enqueueTimeoutTimeUnit;
 
     public BasicQueue(final String name,
                       final int waitTime,
                       @SuppressWarnings("SameParameterValue") final TimeUnit timeUnit,
+                      final int enqueueTimeout,
+                      final TimeUnit enqueueTimeoutTimeUnit,
                       final int batchSize,
                       final Class<? extends BlockingQueue> queueClass,
                       final boolean checkIfBusy,
                       final int size,
                       final int checkEvery, boolean tryTransfer) {
 
-        logger.info("Queue created {} {} batchSize {} size {} checkEvery {} tryTransfer {}",
-                name, queueClass, batchSize, size, checkEvery, tryTransfer);
+        logger.info("Queue created {} {} batchSize {} size {} checkEvery {} tryTransfer {} pollTimeWait, enqueueTimeout",
+                name, queueClass, batchSize, size, checkEvery, tryTransfer, waitTime, enqueueTimeout);
 
 
+        this.enqueueTimeout = enqueueTimeout;
         this.tryTransfer = tryTransfer;
         this.name = name;
-        this.waitTime = waitTime;
-        this.timeUnit = timeUnit;
+        this.pollTimeWait = waitTime;
+        this.pollTimeTimeUnit = timeUnit;
         this.batchSize = batchSize;
+        this.enqueueTimeoutTimeUnit = enqueueTimeoutTimeUnit;
 
         boolean shouldCheckIfBusy;
 
@@ -110,8 +116,12 @@ public class BasicQueue<T> implements Queue<T> {
         this.checkEvery = checkEvery;
 
 
-        logger.info("Queue done creating {} batchSize {} checkEvery {} tryTransfer {}",
-                this.name, this.batchSize, this.checkEvery, this.tryTransfer);
+        logger.info("Queue done creating {} batchSize {} checkEvery {} tryTransfer {}" +
+                        "pollTimeWait/polltime {}, enqueueTimeout {}",
+                this.name, this.batchSize, this.checkEvery, this.tryTransfer,
+                this.pollTimeWait, this.enqueueTimeout);
+
+
     }
 
 
@@ -124,7 +134,7 @@ public class BasicQueue<T> implements Queue<T> {
     @Override
     public ReceiveQueue<T> receiveQueue() {
         logger.info("ReceiveQueue requested for {}", name);
-        return new BasicReceiveQueue<>(queue, waitTime, timeUnit, batchSize);
+        return new BasicReceiveQueue<>(queue, pollTimeWait, pollTimeTimeUnit, batchSize);
     }
 
     /**
@@ -136,7 +146,8 @@ public class BasicQueue<T> implements Queue<T> {
     @Override
     public SendQueue<T> sendQueue() {
         logger.info("SendQueue requested for {}", name);
-        return new BasicSendQueue<>(batchSize, this.queue, checkIfBusy, checkEvery, tryTransfer);
+        return new BasicSendQueue<>(name, batchSize, queue,
+                checkIfBusy, checkEvery, tryTransfer, enqueueTimeoutTimeUnit, enqueueTimeout);
     }
 
 
@@ -144,6 +155,7 @@ public class BasicQueue<T> implements Queue<T> {
     public void startListener(final ReceiveQueueListener<T> listener) {
 
 
+        stop.set(false);
         logger.info("Starting queue listener for  {} {}" , name, listener);
 
         if (executorContext != null) {
@@ -168,7 +180,12 @@ public class BasicQueue<T> implements Queue<T> {
         if (executorContext != null) {
             executorContext.stop();
         }
-        stop = new AtomicBoolean();
+
+    }
+
+    @Override
+    public int size() {
+        return queue.size();
     }
 
     private void manageQueue(ReceiveQueueListener<T> listener) {

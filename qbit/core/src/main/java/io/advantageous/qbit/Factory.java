@@ -47,6 +47,7 @@ import io.advantageous.qbit.spi.ProtocolParser;
 import io.advantageous.qbit.system.QBitSystemManager;
 import io.advantageous.qbit.transforms.Transformer;
 import io.advantageous.qbit.util.MultiMap;
+import io.advantageous.qbit.util.Timer;
 
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -131,7 +132,10 @@ public interface Factory {
                                               boolean invokeDynamic,
                                               final QBitSystemManager systemManager,
                                               final HealthServiceAsync healthService,
-                                              final StatsCollector statsCollector) {
+                                              final StatsCollector statsCollector,
+                                              final Timer timer,
+                                              final int statsFlushRateSeconds,
+                                              final int checkTimingEveryXCalls) {
         throw new UnsupportedOperationException();
     }
 
