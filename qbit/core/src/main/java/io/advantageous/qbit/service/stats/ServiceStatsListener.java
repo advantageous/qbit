@@ -161,6 +161,8 @@ public class ServiceStatsListener implements QueueCallBackHandler {
 
             statsCollector.recordCount(receiveCountKey, receiveCount);
             receiveCount = 0;
+
+            statsCollector.clientProxyFlush();
         }
 
     }
