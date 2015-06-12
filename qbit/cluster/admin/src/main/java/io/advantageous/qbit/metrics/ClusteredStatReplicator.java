@@ -293,6 +293,26 @@ public class ClusteredStatReplicator implements StatReplicator, ServiceChangedEv
 
         final Pair<EndpointDefinition, StatReplicator> statReplicatorPair = this.replicatorsMap.get(endpointDefinition.getId());
 
+        if (statReplicatorPair == null) {
+
+            logger.error(sputs("ClusteredStatReplicator::removeService() Trying to remove a service that we are not managing",
+                    serviceName, "END POINT ID", endpointDefinition.getId(), " replicator count ", replicatorsMap.size()));
+
+            return;
+
+        }
+
+
+        if (statReplicatorPair.getSecond() == null) {
+
+            logger.error(sputs("ClusteredStatReplicator::removeService() Trying to remove a service that we are nto managing" +
+                            "and the getSecond() is null",
+                    serviceName, "END POINT ID", endpointDefinition.getId(), " replicator count ", replicatorsMap.size()));
+
+            return;
+
+        }
+
         try {
             statReplicatorPair.getSecond().stop();
         } catch (Exception ex) {

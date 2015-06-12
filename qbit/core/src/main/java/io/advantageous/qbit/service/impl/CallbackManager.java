@@ -47,7 +47,7 @@ public class CallbackManager {
 
 
     public static CallbackManager callbackManager(String name) {
-        return new CallbackManager(Timer.timer(), name, true, 1000, 1000);
+        return new CallbackManager(Timer.timer(), name, false, 1000, 1000);
     }
 
 
