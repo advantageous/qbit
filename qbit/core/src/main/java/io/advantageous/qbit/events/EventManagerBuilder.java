@@ -51,7 +51,7 @@ public class EventManagerBuilder {
 
     public StatsCollector getStatsCollector() {
         if (statsCollector == null) {
-            logger.info("No stats collector registered with event manager, using default NO OP stats collector");
+            logger.debug("No stats collector registered with event manager, using default NO OP stats collector");
             statsCollector = DEFAULT_NO_STATS_COLLECTOR;
         }
         return statsCollector;
@@ -73,7 +73,7 @@ public class EventManagerBuilder {
 
     public EventConnector getEventConnector() {
         if (eventConnector == null) {
-            logger.info("Event Connector is null for {} event bus, creating NoOp Event Connector", getName());
+            logger.debug("Event Connector is null for {} event bus, creating NoOp Event Connector", getName());
             eventConnector = DEFAULT_NO_EVENT_CONNECTOR;
         }
         return eventConnector;

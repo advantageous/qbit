@@ -96,7 +96,7 @@ public class EventConnectorHub implements EventConnector, Iterable<EventConnecto
                 eventConnector = eventConnectors.get(index);
                 eventConnector.forwardEvent(event);
             } catch (Exception ex) {
-                logger.info("problem sending event to event connector", ex);
+                logger.error("problem sending event to event connector", ex);
 
                 if (eventConnector instanceof RemoteTCPClientProxy) {
                     if (!((RemoteTCPClientProxy) eventConnector).connected()) {

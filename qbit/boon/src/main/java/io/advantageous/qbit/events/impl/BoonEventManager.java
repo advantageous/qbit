@@ -224,7 +224,7 @@ public class BoonEventManager implements EventManager {
     private void doListen(final Object listener, final ServiceQueue serviceQueue) {
 
         if (debug) {
-            logger.info("EventManager {}  registering listener {} with serviceQueue {}",
+            logger.debug("EventManager {}  registering listener {} with serviceQueue {}",
                     name, listener, serviceQueue);
         }
         final ClassMeta<?> listenerClassMeta = ClassMeta.classMeta(listener.getClass());

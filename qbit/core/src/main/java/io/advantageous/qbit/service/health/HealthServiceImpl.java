@@ -47,6 +47,8 @@ public class HealthServiceImpl implements HealthService {
      */
     private final Logger logger = LoggerFactory.getLogger(HealthServiceImpl.class);
 
+    private final boolean debug = logger.isDebugEnabled();
+
 
     /**
      * Constructor.
@@ -87,11 +89,12 @@ public class HealthServiceImpl implements HealthService {
     public void checkInOk(final String name) {
 
 
-        logger.info("HealthService::checkInOk() {} ", name);
+        if (debug) logger.debug("HealthService::checkInOk() {} ", name);
         final NodeHealthStat nodeHealthStat = getServiceHealthStat(name);
 
 
         nodeHealthStat.setLastCheckIn(now);
+        nodeHealthStat.setReason(null);
         nodeHealthStat.setStatus(HealthStatus.PASS);
 
     }
@@ -105,30 +108,43 @@ public class HealthServiceImpl implements HealthService {
     @Override
     public void checkIn(final String name, final HealthStatus status) {
 
-        logger.info("HealthService::checkIn() {} {}", name, status);
+        if (status == HealthStatus.FAIL) {
+            logger.error("HealthService::checkIn() {} {}", name, status);
+        } else if  (status == HealthStatus.WARN) {
+            logger.warn("HealthService::checkIn() {} {}", name, status);
+        } else {
+            if (debug) logger.debug("HealthService::checkIn() {} {}", name, status);
+        }
 
         final NodeHealthStat nodeHealthStat = getServiceHealthStat(name);
 
         nodeHealthStat.setStatus(status);
+        nodeHealthStat.setReason(null);
         nodeHealthStat.setLastCheckIn(now);
     }
 
     @Override
     public boolean ok() {
-        logger.info("HealthService::ok()");
+        if (debug) logger.debug("HealthService::ok()");
 
         boolean ok = serviceHealthStatMap.values()
                 .stream()
                 .allMatch(serviceHealthStat -> serviceHealthStat.getStatus() == HealthStatus.PASS);
 
 
-        logger.info("HealthService::ok() was ok? {}", ok);
+        if (!ok) {
+            logger.error("HealthService::ok() was ok? {}", ok);
+        } else {
+           if (debug) logger.debug("HealthService::ok() was ok? {}", ok);
+        }
         return ok;
     }
 
     @Override
     public List<String> findHealthyNodes() {
 
+
+        logger.info("HealthService::findHealthyNodes() called");
         final List<String> names = new ArrayList<>();
 
         serviceHealthStatMap.values()
@@ -136,18 +152,24 @@ public class HealthServiceImpl implements HealthService {
                 .filter(serviceHealthStat -> serviceHealthStat.getStatus() == HealthStatus.PASS)
                 .forEach(serviceHealthStat -> names.add(serviceHealthStat.getName()));
 
+
+        logger.info("HealthService::findHealthyNodes() called returns {}", names);
         return names;
     }
 
     @Override
     public List<String> findAllNodes() {
 
+
+        logger.info("HealthService::findAllNodes() called");
         final List<String> names = new ArrayList<>();
 
         serviceHealthStatMap.values()
                 .stream()
                 .forEach(serviceHealthStat -> names.add(serviceHealthStat.getName()));
 
+
+        logger.info("HealthService::findAllNodes() called returns {}", names);
         return names;
     }
 
@@ -180,6 +202,8 @@ public class HealthServiceImpl implements HealthService {
 
     @Override
     public List<NodeHealthStat> loadNodes() {
+
+        logger.info("HealthService::loadNodes() called");
         return Lists.deepCopy(this.serviceHealthStatMap.values());
     }
 
@@ -202,7 +226,7 @@ public class HealthServiceImpl implements HealthService {
     }
 
     private void checkTTLs() {
-        Collection<NodeHealthStat> services = serviceHealthStatMap.values();
+        final Collection<NodeHealthStat> services = serviceHealthStatMap.values();
 
         //noinspection Convert2MethodRef
         services.forEach(serviceHealthStat -> checkTTL(serviceHealthStat));
@@ -211,7 +235,7 @@ public class HealthServiceImpl implements HealthService {
     private void checkTTL(final NodeHealthStat nodeHealthStat) {
 
 
-        logger.info("HealthService::checkTTL() {}", nodeHealthStat.getName());
+        if (debug) logger.debug("HealthService::checkTTL() {}", nodeHealthStat.getName());
 
         /* proceed to check the ttl if the status is pass. */
         boolean proceed = nodeHealthStat.getStatus() == HealthStatus.PASS;
@@ -228,7 +252,7 @@ public class HealthServiceImpl implements HealthService {
         if (duration > nodeHealthStat.getTtlInMS()) {
 
 
-            logger.info("HealthService::checkTTL() {} FAILED TTL check, duration {}",
+            logger.error("HealthService::checkTTL() {} FAILED TTL check, duration {}",
                     nodeHealthStat.getName(), duration);
 
             nodeHealthStat.setReason(HealthFailReason.FAILED_TTL);
@@ -251,6 +275,7 @@ public class HealthServiceImpl implements HealthService {
 
     public enum HealthFailReason {
         FAILED_TTL,
+        NONE,
         OTHER
     }
 

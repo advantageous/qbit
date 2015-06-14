@@ -116,7 +116,7 @@ public class WebSocketServiceServerHandler {
      */
     public void handleWebSocketCall(final WebSocketMessage webSocketMessage) {
 
-        if (debug) logger.info("WebSocket message: " + webSocketMessage);
+        if (debug) logger.debug("WebSocket message: " + webSocketMessage);
 
 
         WebSocketDelegate webSocketDelegate = webSocketDelegateMap.get(webSocketMessage.getRemoteAddress());

@@ -242,7 +242,7 @@ public class ClusteredStatReplicator implements StatReplicator, ServiceChangedEv
             ServiceProxyUtils.flushServiceProxy(statReplicator.getSecond());
         } catch (Exception exception) {
             badReplicators.add(statReplicator);
-            logger.info("Replicator failed" + statReplicator, exception);
+            logger.info("Replicator failed " + statReplicator, exception);
         }
     }
 
@@ -253,15 +253,13 @@ public class ClusteredStatReplicator implements StatReplicator, ServiceChangedEv
      */
     @Override
     public void servicePoolChanged(final String serviceName) {
-        logger.info("ClusteredStatReplicator::servicePoolChanged({})", serviceName);
         if (this.serviceName.equals(serviceName)) {
+            logger.info("ClusteredStatReplicator::servicePoolChanged({})", serviceName);
             updateServicePool(serviceName);
-        } else {
-            logger.info("ClusteredStatReplicator::servicePoolChanged({})",
+        } else if (debug) {
+            logger.debug("ClusteredStatReplicator::servicePoolChanged({})",
                     "got event for another service", serviceName);
         }
-
-
     }
 
     private void updateServicePool(final String serviceName) {

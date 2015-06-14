@@ -50,7 +50,7 @@ public class ConsulServiceDiscoveryProvider implements ServiceDiscoveryProvider 
             try {
                 consul.start();
             } catch (Exception ex) {
-                logger.info("Unable to connect to consul");
+                logger.error("Unable to connect to consul", ex);
             }
             return consul;
         }
