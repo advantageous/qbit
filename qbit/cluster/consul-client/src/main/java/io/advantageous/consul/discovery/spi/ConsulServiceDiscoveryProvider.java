@@ -42,23 +42,11 @@ public class ConsulServiceDiscoveryProvider implements ServiceDiscoveryProvider 
     private final Logger logger = LoggerFactory.getLogger(ConsulServiceDiscoveryProvider.class);
     private final boolean debug = GlobalConstants.DEBUG || logger.isDebugEnabled();
     private final boolean trace = logger.isTraceEnabled();
-    private final ThreadLocal<Consul> consulThreadLocal = new ThreadLocal<Consul>() {
-        @Override
-        protected Consul initialValue() {
-            final Consul consul = Consul.consul(consulHost, consulPort);
-
-            try {
-                consul.start();
-            } catch (Exception ex) {
-                logger.error("Unable to connect to consul", ex);
-            }
-            return consul;
-        }
-    };
     private final AtomicInteger lastIndex = new AtomicInteger();
     /* Used to manage consul retry logic. */
     private final AtomicInteger consulRetryCount = new AtomicInteger();
     private final AtomicLong lastResetTimestamp = new AtomicLong(Timer.clockTime());
+
 
 
     public ConsulServiceDiscoveryProvider(final String consulHost,
@@ -91,12 +79,14 @@ public class ConsulServiceDiscoveryProvider implements ServiceDiscoveryProvider 
 
 
         for (EndpointDefinition definition : endpointDefinitions) {
-            Consul consul = consulThreadLocal.get();
+            Consul consul = consul();
 
             try {
                 consul.agent().deregister(definition.getId());
             } catch (Exception ex) {
                 handleConsulRecovery(consul, ex);
+            } finally {
+                shutDownConsul(consul);
             }
         }
 
@@ -116,17 +106,20 @@ public class ConsulServiceDiscoveryProvider implements ServiceDiscoveryProvider 
 
         EndpointDefinition endpointDefinition = registerQueue.poll();
         if (endpointDefinition != null) {
-            Consul consul = consulThreadLocal.get();
-
-            while (endpointDefinition != null) {
-                try {
-                    consul.agent().registerService(endpointDefinition.getPort(),
-                            endpointDefinition.getTimeToLive(),
-                            endpointDefinition.getName(), endpointDefinition.getId(), tags);
-                } catch (Exception ex) {
-                    handleConsulRecovery(consul, ex);
+            final Consul consul = consul();
+            try {
+                while (endpointDefinition != null) {
+                    try {
+                        consul.agent().registerService(endpointDefinition.getPort(),
+                                endpointDefinition.getTimeToLive(),
+                                endpointDefinition.getName(), endpointDefinition.getId(), tags);
+                    } catch (Exception ex) {
+                        handleConsulRecovery(consul, ex);
+                    }
+                    endpointDefinition = registerQueue.poll();
                 }
-                endpointDefinition = registerQueue.poll();
+            } finally {
+                shutDownConsul(consul);
             }
         }
     }
@@ -150,9 +143,6 @@ public class ConsulServiceDiscoveryProvider implements ServiceDiscoveryProvider 
 
             logger.debug("problem running consul register service", ex);
             shutDownConsul(consul);
-            Consul consulNew = Consul.consul(consulHost, consulPort);
-            consulNew.start();
-            consulThreadLocal.set(consulNew);
         }
 
         if (ex instanceof RuntimeException) {
@@ -173,17 +163,19 @@ public class ConsulServiceDiscoveryProvider implements ServiceDiscoveryProvider 
         ServiceHealthCheckIn checkIn = checkInsQueue.poll();
 
         if (checkIn != null) {
-            Consul consul = consulThreadLocal.get();
+            Consul consul = consul();
 
-            while (checkIn != null) {
-                Status status = convertStatus(checkIn.getHealthStatus());
+            try {
+                while (checkIn != null) {
+                    Status status = convertStatus(checkIn.getHealthStatus());
 
-                try {
                     consul.agent().checkTtl(checkIn.getServiceId(), status, "" + checkIn.getHealthStatus());
-                } catch (Exception ex) {
-                    handleConsulRecovery(consul, ex);
+                    checkIn = checkInsQueue.poll();
                 }
-                checkIn = checkInsQueue.poll();
+            } catch (Exception ex) {
+                handleConsulRecovery(consul, ex);
+            } finally {
+                shutDownConsul(consul);
             }
 
         }
@@ -191,7 +183,9 @@ public class ConsulServiceDiscoveryProvider implements ServiceDiscoveryProvider 
 
     private void shutDownConsul(Consul consul) {
         try {
-            consul.stop();
+            if (consul!=null) {
+                consul.stop();
+            }
         } catch (Exception ex) {
             logger.warn("Shutting down consul", ex);
         }
@@ -259,9 +253,8 @@ public class ConsulServiceDiscoveryProvider implements ServiceDiscoveryProvider 
     }
 
 
-    private List<ServiceHealth> getHealthyServices(final String serviceName
-    ) {
-        Consul consul = consulThreadLocal.get();
+    private List<ServiceHealth> getHealthyServices(final String serviceName) {
+        Consul consul = consul();
 
         try {
 
@@ -281,6 +274,8 @@ public class ConsulServiceDiscoveryProvider implements ServiceDiscoveryProvider 
 
             handleConsulRecovery(consul, ex);
             return Collections.emptyList();
+        } finally {
+            shutDownConsul(consul);
         }
     }
 
@@ -301,5 +296,9 @@ public class ConsulServiceDiscoveryProvider implements ServiceDiscoveryProvider 
 
     }
 
+
+    private Consul consul()  {
+        return  Consul.consul(consulHost, consulPort);
+    }
 
 }

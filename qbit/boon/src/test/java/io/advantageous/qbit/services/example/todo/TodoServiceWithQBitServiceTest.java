@@ -24,6 +24,7 @@ import io.advantageous.qbit.message.MethodCall;
 import io.advantageous.qbit.message.Response;
 import io.advantageous.qbit.queue.ReceiveQueue;
 import io.advantageous.qbit.queue.SendQueue;
+import io.advantageous.qbit.service.ServiceProxyUtils;
 import io.advantageous.qbit.service.ServiceQueue;
 import org.junit.Test;
 
@@ -98,15 +99,19 @@ public class TodoServiceWithQBitServiceTest {
                 .setServiceObject(new TodoService())
                 .build();
 
-        serviceQueue.startServiceQueue().startCallBackHandler();
 
         TodoServiceClient todoServiceClient =
-                serviceQueue.createProxyWithAutoFlush(TodoServiceClient.class, 50, TimeUnit.MILLISECONDS);
+                serviceQueue.createProxyWithAutoFlush(TodoServiceClient.class, 25, TimeUnit.MILLISECONDS);
+
+        serviceQueue.start();
+        serviceQueue.startServiceQueue().startCallBackHandler();
 
         todoServiceClient.add(new TodoItem("foo", "foo", null));
 
+
         AtomicReference<List<TodoItem>> items = new AtomicReference<>();
         todoServiceClient.list(todoItems -> items.set(todoItems));
+
 
         Sys.sleep(2000);
 
