@@ -43,12 +43,10 @@ import io.advantageous.qbit.sender.Sender;
 import io.advantageous.qbit.sender.SenderEndPoint;
 import io.advantageous.qbit.server.ServiceEndpointServer;
 import io.advantageous.qbit.server.ServiceEndpointServerImpl;
-import io.advantageous.qbit.service.BeforeMethodCall;
-import io.advantageous.qbit.service.ServiceBundle;
-import io.advantageous.qbit.service.ServiceMethodHandler;
-import io.advantageous.qbit.service.ServiceQueue;
+import io.advantageous.qbit.service.*;
 import io.advantageous.qbit.service.health.HealthServiceAsync;
 import io.advantageous.qbit.service.impl.BoonServiceMethodCallHandler;
+import io.advantageous.qbit.service.impl.CallbackManager;
 import io.advantageous.qbit.service.impl.ServiceBundleImpl;
 import io.advantageous.qbit.service.impl.ServiceQueueImpl;
 import io.advantageous.qbit.service.stats.StatsCollector;
@@ -315,27 +313,10 @@ public class BoonQBitFactory implements Factory {
 
 
         return new ServiceQueueImpl(rootAddress, serviceAddress, service, null, null,
-                new BoonServiceMethodCallHandler(true), responseQueue, true, false, systemManager, null);
+                new BoonServiceMethodCallHandler(true), responseQueue, true, false, systemManager, null, CallbackManagerBuilder.callbackManagerBuilder().build());
 
     }
 
-    @Override
-    public ServiceQueue createService(final String rootAddress,
-                                      final String serviceAddress,
-                                      final Object object,
-                                      final Queue<Response<Object>> responseQueue,
-                                      final QueueBuilder requestQueueBuilder,
-                                      final QueueBuilder responseQueueBuilder,
-                                      final boolean async,
-                                      final boolean invokeDynamic,
-                                      final boolean handleCallbacks,
-                                      final QBitSystemManager systemManager) {
-
-        return new ServiceQueueImpl(rootAddress, serviceAddress, object, requestQueueBuilder,
-                responseQueueBuilder, new BoonServiceMethodCallHandler(invokeDynamic), responseQueue,
-                async, handleCallbacks, systemManager, null);
-
-    }
 
 
     @Override
@@ -354,12 +335,13 @@ public class BoonQBitFactory implements Factory {
                                              final StatsCollector statsCollector,
                                              final Timer timer,
                                              final int statsFlushRateSeconds,
-                                             final int checkTimingEveryXCalls) {
+                                             final int checkTimingEveryXCalls,
+                                             final CallbackManager callbackManager) {
         return new ServiceBundleImpl(address, requestQueueBuilder, responseQueueBuilder,
                 webResponseQueueBuilder,
                 factory, asyncCalls, beforeMethodCall, beforeMethodCallAfterTransform,
                 argTransformer, invokeDynamic, systemManager, healthService, statsCollector, timer,
-                statsFlushRateSeconds, checkTimingEveryXCalls);
+                statsFlushRateSeconds, checkTimingEveryXCalls, callbackManager);
     }
 
 

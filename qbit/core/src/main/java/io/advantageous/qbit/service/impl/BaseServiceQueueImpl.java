@@ -102,7 +102,7 @@ public class BaseServiceQueueImpl implements ServiceQueue {
     private final AfterMethodCall afterMethodCallAfterTransform = new NoOpAfterMethodCall();
     private Transformer<Request, Object> requestObjectTransformer = ServiceConstants.NO_OP_ARG_TRANSFORM;
     private Transformer<Response<Object>, Response> responseObjectTransformer = new NoOpResponseTransformer();
-    private CallbackManagerWithTimeout callbackManager;
+    private final CallbackManager callbackManager;
     private final QueueCallBackHandler queueCallBackHandler;
 
     public BaseServiceQueueImpl(final String rootAddress,
@@ -115,7 +115,10 @@ public class BaseServiceQueueImpl implements ServiceQueue {
                                 final boolean async,
                                 final boolean handleCallbacks,
                                 final QBitSystemManager systemManager,
-                                final QueueCallBackHandler queueCallBackHandler) {
+                                final QueueCallBackHandler queueCallBackHandler,
+                                final CallbackManager callbackManager) {
+
+        this.callbackManager = callbackManager;
 
         if (queueCallBackHandler==null) {
             this.queueCallBackHandler = new QueueCallBackHandler() {
@@ -295,7 +298,6 @@ public class BaseServiceQueueImpl implements ServiceQueue {
     public ServiceQueue startCallBackHandler() {
         if (!handleCallbacks) {
             /** Need to make this configurable. */
-            callbackManager = CallbackManagerWithTimeout.callbackManager(name());
             callbackManager.startReturnHandlerProcessor(this.responseQueue);
             return this;
         } else {
@@ -376,7 +378,6 @@ public class BaseServiceQueueImpl implements ServiceQueue {
                         responseQueue.receiveQueue() : null;
 
         if (handleCallbacks) {
-            this.callbackManager = CallbackManagerWithTimeout.callbackManager(name());
         }
 
         final ReceiveQueue<Event<Object>> eventReceiveQueue =

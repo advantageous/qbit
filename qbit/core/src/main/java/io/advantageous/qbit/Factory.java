@@ -40,6 +40,7 @@ import io.advantageous.qbit.service.ServiceBundle;
 import io.advantageous.qbit.service.ServiceMethodHandler;
 import io.advantageous.qbit.service.ServiceQueue;
 import io.advantageous.qbit.service.health.HealthServiceAsync;
+import io.advantageous.qbit.service.impl.CallbackManager;
 import io.advantageous.qbit.service.stats.StatsCollector;
 import io.advantageous.qbit.spi.FactorySPI;
 import io.advantageous.qbit.spi.ProtocolEncoder;
@@ -135,7 +136,8 @@ public interface Factory {
                                               final StatsCollector statsCollector,
                                               final Timer timer,
                                               final int statsFlushRateSeconds,
-                                              final int checkTimingEveryXCalls) {
+                                              final int checkTimingEveryXCalls,
+                                              final CallbackManager callbackManager) {
         throw new UnsupportedOperationException();
     }
 

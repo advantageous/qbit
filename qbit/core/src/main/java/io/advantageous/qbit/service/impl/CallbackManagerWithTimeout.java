@@ -34,7 +34,7 @@ import java.util.concurrent.ConcurrentHashMap;
 /**
  * Maps incoming call returns to client callback objects.
  */
-public class CallbackManagerWithTimeout {
+public class CallbackManagerWithTimeout implements CallbackManager {
 
     private final String name;
     private final boolean handleTimeouts;
@@ -43,10 +43,6 @@ public class CallbackManagerWithTimeout {
     private final Timer timer;
     private long lastCheckTime;
 
-
-    public static CallbackManagerWithTimeout callbackManager(String name) {
-        return new CallbackManagerWithTimeout(Timer.timer(), name, false, 1000, 1000);
-    }
 
 
     public CallbackManagerWithTimeout(final Timer timer, final String name, boolean handleTimeouts,
@@ -78,6 +74,7 @@ public class CallbackManagerWithTimeout {
     }
 
 
+    @Override
     public void registerCallbacks(MethodCall<Object> methodCall) {
         Object args = methodCall.body();
 
@@ -107,12 +104,14 @@ public class CallbackManagerWithTimeout {
      *
      * @param responseQueue response queue
      */
+    @Override
     public void startReturnHandlerProcessor(final Queue<Response<Object>> responseQueue) {
 
         //noinspection Convert2MethodRef
         responseQueue.startListener(response -> handleResponse(response));
     }
 
+    @Override
     public void handleResponse(Response<Object> response) {
         final Callback<Object> handler = handlers.get(new HandlerKey(response.returnAddress(), response.id(), now));
 
@@ -141,6 +140,7 @@ public class CallbackManagerWithTimeout {
     }
 
     private long now;
+    @Override
     public void process(long currentTime) {
 
         if (!handleTimeouts) {
@@ -173,7 +173,7 @@ public class CallbackManagerWithTimeout {
                 .forEach(handlerKeyCallbackEntry -> {
 
 
-                    logger.info("Call has timed out duration {} {} {}",
+                    logger.error("{} Call has timed out duration {} {} {}",name,
                             now - handlerKeyCallbackEntry.getKey().timestamp,
                             handlerKeyCallbackEntry.getKey().returnAddress,
                             handlerKeyCallbackEntry.getKey().messageId,

@@ -28,10 +28,7 @@ import io.advantageous.qbit.message.Response;
 import io.advantageous.qbit.queue.*;
 import io.advantageous.qbit.service.health.HealthServiceAsync;
 import io.advantageous.qbit.service.health.ServiceHealthListener;
-import io.advantageous.qbit.service.impl.NoOpAfterMethodCall;
-import io.advantageous.qbit.service.impl.NoOpInputMethodCallQueueListener;
-import io.advantageous.qbit.service.impl.ServiceConstants;
-import io.advantageous.qbit.service.impl.ServiceQueueImpl;
+import io.advantageous.qbit.service.impl.*;
 import io.advantageous.qbit.service.stats.ServiceQueueSizer;
 import io.advantageous.qbit.service.stats.ServiceStatsListener;
 import io.advantageous.qbit.service.stats.StatsCollector;
@@ -78,12 +75,42 @@ public class ServiceBuilder {
     private Timer timer;
     private StatsConfig statsConfig;
 
+    private CallbackManager callbackManager;
+    private CallbackManagerBuilder callbackManagerBuilder;
+
 
 
     public static ServiceBuilder serviceBuilder() {
         return new ServiceBuilder();
     }
 
+
+    public CallbackManagerBuilder getCallbackManagerBuilder() {
+        if (callbackManagerBuilder == null) {
+            callbackManagerBuilder = CallbackManagerBuilder.callbackManagerBuilder();
+            if (serviceObject!=null) {
+                callbackManagerBuilder.setName(serviceObject.getClass().getSimpleName());
+            }
+        }
+        return callbackManagerBuilder;
+    }
+
+    public ServiceBuilder setCallbackManagerBuilder(CallbackManagerBuilder callbackManagerBuilder) {
+        this.callbackManagerBuilder = callbackManagerBuilder;
+        return this;
+    }
+
+    public CallbackManager getCallbackManager() {
+        if (callbackManager == null) {
+            callbackManager = this.getCallbackManagerBuilder().build();
+        }
+        return callbackManager;
+    }
+
+    public ServiceBuilder setCallbackManager(CallbackManager callbackManager) {
+        this.callbackManager = callbackManager;
+        return this;
+    }
 
     public List<QueueCallBackHandler> getQueueCallBackHandlers() {
         if (queueCallBackHandlers==null) {
@@ -377,7 +404,7 @@ public class ServiceBuilder {
                 this.isAsyncResponse(),
                 this.isHandleCallbacks(),
                 this.getSystemManager(),
-                buildQueueCallBackHandler());
+                buildQueueCallBackHandler(), getCallbackManager());
 
         if (serviceQueueSizer!=null) {
             serviceQueueSizer.setServiceQueue(serviceQueue);

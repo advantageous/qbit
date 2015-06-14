@@ -21,11 +21,13 @@ package io.advantageous.qbit.service;
 import io.advantageous.qbit.GlobalConstants;
 import io.advantageous.qbit.QBit;
 import io.advantageous.qbit.config.PropertyResolver;
+import io.advantageous.qbit.message.MethodCall;
 import io.advantageous.qbit.message.Request;
 import io.advantageous.qbit.message.Response;
 import io.advantageous.qbit.queue.Queue;
 import io.advantageous.qbit.queue.QueueBuilder;
 import io.advantageous.qbit.service.health.HealthServiceAsync;
+import io.advantageous.qbit.service.impl.CallbackManager;
 import io.advantageous.qbit.service.impl.ServiceConstants;
 import io.advantageous.qbit.service.stats.StatsCollector;
 import io.advantageous.qbit.system.QBitSystemManager;
@@ -58,6 +60,41 @@ public class ServiceBundleBuilder {
     private StatsCollector statsCollector = null;
     private  int statsFlushRateSeconds;
     private  int checkTimingEveryXCalls;
+
+
+    private CallbackManager callbackManager;
+    private CallbackManagerBuilder callbackManagerBuilder;
+
+
+
+    public CallbackManagerBuilder getCallbackManagerBuilder() {
+        if (callbackManagerBuilder == null) {
+            callbackManagerBuilder = CallbackManagerBuilder.callbackManagerBuilder();
+            if (address!=null) {
+                callbackManagerBuilder.setName("ServiceBundle-" + address);
+            }
+        }
+        return callbackManagerBuilder;
+    }
+
+    public ServiceBundleBuilder setCallbackManagerBuilder(CallbackManagerBuilder callbackManagerBuilder) {
+        this.callbackManagerBuilder = callbackManagerBuilder;
+        return this;
+    }
+
+    public CallbackManager getCallbackManager() {
+        if (callbackManager == null) {
+
+            callbackManager = this.getCallbackManagerBuilder().build();
+        }
+        return callbackManager;
+    }
+
+    public ServiceBundleBuilder setCallbackManager(CallbackManager callbackManager) {
+        this.callbackManager = callbackManager;
+        return this;
+    }
+
 
     /**
      * Allows interception of method calls before they get sent to a client.
@@ -286,7 +323,7 @@ public class ServiceBundleBuilder {
                 getStatsCollector(),
                 getTimer(),
                 getStatsFlushRateSeconds(),
-                getCheckTimingEveryXCalls());
+                getCheckTimingEveryXCalls(), getCallbackManager());
 
 
         if (serviceBundle != null && qBitSystemManager != null) {

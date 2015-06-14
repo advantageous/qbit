@@ -39,9 +39,10 @@ public class ServiceQueueImpl extends BaseServiceQueueImpl {
                             final boolean async,
                             final boolean handleCallbacks,
                             final QBitSystemManager systemManager,
-                            final QueueCallBackHandler handler) {
+                            final QueueCallBackHandler handler,
+                            final CallbackManager callbackManager) {
         super(rootAddress, serviceAddress, service, requestQueueBuilder, responseQueueBuilder,
                 serviceMethodHandler, responseQueue,
-                async, handleCallbacks, systemManager, handler);
+                async, handleCallbacks, systemManager, handler, callbackManager);
     }
 }

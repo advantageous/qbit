@@ -28,8 +28,10 @@ import io.advantageous.qbit.message.Response;
 import io.advantageous.qbit.queue.Queue;
 import io.advantageous.qbit.queue.QueueBuilder;
 import io.advantageous.qbit.service.BeforeMethodCall;
+import io.advantageous.qbit.service.CallbackManagerBuilder;
 import io.advantageous.qbit.service.ServiceBundle;
 import io.advantageous.qbit.service.health.HealthServiceAsync;
+import io.advantageous.qbit.service.impl.CallbackManager;
 import io.advantageous.qbit.service.impl.ServiceConstants;
 import io.advantageous.qbit.service.stats.StatsCollector;
 import io.advantageous.qbit.spi.ProtocolEncoder;
@@ -77,6 +79,15 @@ public class EndpointServerBuilder {
 
     private  int statsFlushRateSeconds;
     private  int checkTimingEveryXCalls;
+
+
+    private CallbackManager callbackManager;
+    private CallbackManagerBuilder callbackManagerBuilder;
+
+
+
+
+
 
 
     public Timer getTimer() {
@@ -145,6 +156,32 @@ public class EndpointServerBuilder {
     }
 
 
+
+    public CallbackManagerBuilder getCallbackManagerBuilder() {
+        if (callbackManagerBuilder == null) {
+            callbackManagerBuilder = CallbackManagerBuilder.callbackManagerBuilder();
+            callbackManagerBuilder.setName("Endpoint-" + this.getUri() + " port " + getPort());
+        }
+        return callbackManagerBuilder;
+    }
+
+    public EndpointServerBuilder setCallbackManagerBuilder(CallbackManagerBuilder callbackManagerBuilder) {
+        this.callbackManagerBuilder = callbackManagerBuilder;
+        return this;
+    }
+
+    public CallbackManager getCallbackManager() {
+        if (callbackManager == null) {
+
+            callbackManager = this.getCallbackManagerBuilder().build();
+        }
+        return callbackManager;
+    }
+
+    public EndpointServerBuilder setCallbackManager(CallbackManager callbackManager) {
+        this.callbackManager = callbackManager;
+        return this;
+    }
     public HealthServiceAsync getHealthService() {
         return healthService;
     }
@@ -438,8 +475,10 @@ public class EndpointServerBuilder {
                 this.getArgTransformer(), true,
                 getSystemManager(),
                 getHealthService(),
-                getStatsCollector(), getTimer(), getStatsFlushRateSeconds(), getCheckTimingEveryXCalls());
-
+                getStatsCollector(), getTimer(),
+                getStatsFlushRateSeconds(),
+                getCheckTimingEveryXCalls(),
+                getCallbackManager());
 
         final ProtocolParser parser = QBit.factory().createProtocolParser();
 

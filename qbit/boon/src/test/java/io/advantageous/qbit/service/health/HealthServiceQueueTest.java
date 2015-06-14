@@ -38,6 +38,7 @@ public class HealthServiceQueueTest {
     public void testRegister() throws Exception {
 
         healthService.register("foo", 1, TimeUnit.SECONDS);
+        healthService.clientProxyFlush();
 
         countDownLatch = new CountDownLatch(1);
         result = new AtomicBoolean();
@@ -48,6 +49,8 @@ public class HealthServiceQueueTest {
                     countDownLatch.countDown();
                 }
         );
+
+        healthService.clientProxyFlush();
 
 
         countDownLatch.await(10, TimeUnit.SECONDS);
