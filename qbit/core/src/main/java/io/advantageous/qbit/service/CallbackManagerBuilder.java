@@ -40,32 +40,36 @@ public class CallbackManagerBuilder {
         return name;
     }
 
-    public void setName(String name) {
+    public CallbackManagerBuilder setName(String name) {
         this.name = name;
+        return this;
     }
 
     public boolean isHandleTimeouts() {
         return handleTimeouts;
     }
 
-    public void setHandleTimeouts(boolean handleTimeouts) {
+    public CallbackManagerBuilder setHandleTimeouts(boolean handleTimeouts) {
         this.handleTimeouts = handleTimeouts;
+        return this;
     }
 
     public long getTimeOutMS() {
         return timeOutMS;
     }
 
-    public void setTimeOutMS(long timeOutMS) {
+    public CallbackManagerBuilder setTimeOutMS(long timeOutMS) {
         this.timeOutMS = timeOutMS;
+        return this;
     }
 
     public long getCheckInterval() {
         return checkInterval;
     }
 
-    public void setCheckInterval(long checkInterval) {
+    public CallbackManagerBuilder setCheckInterval(long checkInterval) {
         this.checkInterval = checkInterval;
+        return this;
     }
 
     public Timer getTimer() {
@@ -75,8 +79,9 @@ public class CallbackManagerBuilder {
         return timer;
     }
 
-    public void setTimer(Timer timer) {
+    public CallbackManagerBuilder setTimer(Timer timer) {
         this.timer = timer;
+        return this;
     }
 
 
