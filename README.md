@@ -15,8 +15,7 @@ QBit is FAST!
 
 Status
 =====
-Lot's of progress. More people are helping out.
-QBit now works with Vertx (standalone or embedded), Jetty (standalone) or just plain Java Servlets.
+There is a lot of progress. The internal are maturing.
 
 
 License
