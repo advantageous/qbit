@@ -2,6 +2,7 @@ package io.advantageous.consul.discovery.spi;
 
 import io.advantageous.consul.Consul;
 import io.advantageous.consul.domain.ConsulResponse;
+import io.advantageous.consul.domain.NotRegisteredException;
 import io.advantageous.consul.domain.ServiceHealth;
 import io.advantageous.consul.domain.Status;
 import io.advantageous.consul.domain.option.Consistency;
@@ -18,10 +19,8 @@ import io.advantageous.qbit.util.Timer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Queue;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -46,6 +45,8 @@ public class ConsulServiceDiscoveryProvider implements ServiceDiscoveryProvider 
     /* Used to manage consul retry logic. */
     private final AtomicInteger consulRetryCount = new AtomicInteger();
     private final AtomicLong lastResetTimestamp = new AtomicLong(Timer.clockTime());
+
+    private final Map<String,EndpointDefinition> registrations = new ConcurrentHashMap<>();
 
 
 
@@ -82,6 +83,8 @@ public class ConsulServiceDiscoveryProvider implements ServiceDiscoveryProvider 
             Consul consul = consul();
 
             try {
+
+                registrations.remove(definition.getId());
                 consul.agent().deregister(definition.getId());
             } catch (Exception ex) {
                 handleConsulRecovery(consul, ex);
@@ -109,6 +112,7 @@ public class ConsulServiceDiscoveryProvider implements ServiceDiscoveryProvider 
             final Consul consul = consul();
             try {
                 while (endpointDefinition != null) {
+                    registrations.put(endpointDefinition.getId(), endpointDefinition);
                     try {
                         consul.agent().registerService(endpointDefinition.getPort(),
                                 endpointDefinition.getTimeToLive(),
@@ -169,7 +173,16 @@ public class ConsulServiceDiscoveryProvider implements ServiceDiscoveryProvider 
                 while (checkIn != null) {
                     Status status = convertStatus(checkIn.getHealthStatus());
 
-                    consul.agent().checkTtl(checkIn.getServiceId(), status, "" + checkIn.getHealthStatus());
+                    try {
+                        consul.agent().checkTtl(checkIn.getServiceId(), status, "" + checkIn.getHealthStatus());
+                    } catch (NotRegisteredException notRegisteredException) {
+                        final EndpointDefinition endpointDefinition = registrations.get(checkIn.getServiceId());
+                        if (endpointDefinition!=null) {
+                            consul.agent().registerService(endpointDefinition.getPort(),
+                                    endpointDefinition.getTimeToLive(),
+                                    endpointDefinition.getName(), endpointDefinition.getId(), tags);
+                        }
+                    }
                     checkIn = checkInsQueue.poll();
                 }
             } catch (Exception ex) {
