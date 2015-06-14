@@ -30,13 +30,11 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.function.Consumer;
-import java.util.function.Predicate;
 
 /**
  * Maps incoming call returns to client callback objects.
  */
-public class CallbackManager {
+public class CallbackManagerWithTimeout {
 
     private final String name;
     private final boolean handleTimeouts;
@@ -46,13 +44,13 @@ public class CallbackManager {
     private long lastCheckTime;
 
 
-    public static CallbackManager callbackManager(String name) {
-        return new CallbackManager(Timer.timer(), name, false, 1000, 1000);
+    public static CallbackManagerWithTimeout callbackManager(String name) {
+        return new CallbackManagerWithTimeout(Timer.timer(), name, false, 1000, 1000);
     }
 
 
-    public CallbackManager(final Timer timer, final String name, boolean handleTimeouts,
-                    long timeOutMS, long checkInterval) {
+    public CallbackManagerWithTimeout(final Timer timer, final String name, boolean handleTimeouts,
+                                      long timeOutMS, long checkInterval) {
 
         this.name = name;
         this.handleTimeouts = handleTimeouts;
@@ -61,7 +59,7 @@ public class CallbackManager {
         this.timer = timer;
     }
 
-    private final Logger logger = LoggerFactory.getLogger(CallbackManager.class);
+    private final Logger logger = LoggerFactory.getLogger(CallbackManagerWithTimeout.class);
     private final boolean debug = logger.isDebugEnabled();
     /**
      * Maps incoming calls with outgoing handlers (returns, async returns really).

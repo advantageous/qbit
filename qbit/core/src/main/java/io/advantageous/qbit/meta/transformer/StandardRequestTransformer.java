@@ -32,11 +32,14 @@ import io.advantageous.qbit.meta.RequestMetaData;
 import io.advantageous.qbit.meta.params.*;
 import io.advantageous.qbit.meta.provider.StandardMetaDataProvider;
 import io.advantageous.qbit.reactive.Callback;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Consumer;
 
 import static io.advantageous.boon.core.Str.sputs;
 
@@ -47,6 +50,9 @@ import static io.advantageous.boon.core.Str.sputs;
  */
 public class StandardRequestTransformer implements RequestTransformer {
 
+
+    private final Logger logger = LoggerFactory.getLogger(StandardRequestTransformer.class);
+    private final boolean debug = logger.isDebugEnabled();
 
     private final Map<RequestMethod, StandardMetaDataProvider> metaDataProviderMap;
 
@@ -81,6 +87,10 @@ public class StandardRequestTransformer implements RequestTransformer {
 
         if (metaData == null) {
             errorsList.add("Unable to find handler");
+            if (debug) {
+                standardMetaDataProvider.getPaths()
+                        .forEach(mappedPath -> logger.debug("Path not found path {}, mapped path {}", request.address(), mappedPath));
+            }
             return null;
         }
         methodCallBuilder.setName(metaData.getMethod().getName());

@@ -9,6 +9,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 
 public class StandardMetaDataProviderTest {
 
@@ -40,6 +41,13 @@ public class StandardMetaDataProviderTest {
 
         final RequestMetaData metaData = provider.get("/servicesengine/sample/service/method2");
         assertNotNull(metaData);
+    }
+
+    @Test
+    public void test2() throws Exception {
+
+        final RequestMetaData metaData = provider.get("/servicesengine/boo/baz/nothere");
+        assertNull(metaData);
     }
 
 }

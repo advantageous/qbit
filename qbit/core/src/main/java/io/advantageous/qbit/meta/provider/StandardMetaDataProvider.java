@@ -22,11 +22,12 @@ import io.advantageous.boon.core.Str;
 import io.advantageous.boon.core.StringScanner;
 import io.advantageous.qbit.annotation.RequestMethod;
 import io.advantageous.qbit.meta.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import java.util.Map;
-import java.util.NavigableMap;
-import java.util.TreeMap;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Consumer;
 
 /**
  * Holds a bunch of meta data about a service bundle.
@@ -34,9 +35,12 @@ import java.util.concurrent.ConcurrentHashMap;
 public class StandardMetaDataProvider implements MetaDataProvider {
 
 
-    final Map<String, RequestMetaData> metaDataMap = new ConcurrentHashMap<>(100);
-    final NavigableMap<String, RequestMetaData> treeMap = new TreeMap<>();
+    private final Map<String, RequestMetaData> metaDataMap = new ConcurrentHashMap<>(100);
+    private final NavigableMap<String, RequestMetaData> treeMap = new TreeMap<>();
     private final RequestMethod httpRequestMethod;
+
+    private final Logger logger = LoggerFactory.getLogger(StandardMetaDataProvider.class);
+    private final boolean debug = logger.isDebugEnabled();
 
 
     public StandardMetaDataProvider(final ContextMeta context, final RequestMethod method) {
@@ -120,8 +124,18 @@ public class StandardMetaDataProvider implements MetaDataProvider {
     public RequestMetaData get(final String path) {
         RequestMetaData requestMetaData = doGet(path);
         if (requestMetaData == null) {
-            return doGet(path.toLowerCase());
+            requestMetaData = doGet(path.toLowerCase());
+        }
+
+        if (debug && requestMetaData == null) {
+
+
+            this.metaDataMap.keySet().forEach(mappedPath -> logger.debug("Path not found path {}, mapped path {}", path, mappedPath));
         }
         return requestMetaData;
+    }
+
+    public List<String> getPaths() {
+        return new ArrayList<>(this.metaDataMap.keySet());
     }
 }

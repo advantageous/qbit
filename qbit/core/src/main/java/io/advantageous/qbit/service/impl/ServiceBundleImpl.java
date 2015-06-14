@@ -62,7 +62,7 @@ public class ServiceBundleImpl implements ServiceBundle {
     private final boolean asyncCalls;
     private final boolean invokeDynamic;
     private final QBitSystemManager systemManager;
-    private final CallbackManager callbackManager;
+    private final CallbackManagerWithTimeout callbackManager;
     /**
      * Keep track of servicesToStop to forwardEvent queue mappings.
      *///SendQueue<MethodCall<Object>>
@@ -167,7 +167,7 @@ public class ServiceBundleImpl implements ServiceBundle {
         this.timer = timer;
         this.sampleStatFlushRate = sampleStatFlushRate;
         this.checkTimingEveryXCalls = checkTimingEveryXCalls;
-        this.callbackManager  = CallbackManager.callbackManager("SERVICE BUNDLE" + address);
+        this.callbackManager  = CallbackManagerWithTimeout.callbackManager("SERVICE BUNDLE" + address);
 
         String rootAddress;
         if (address.endsWith("/")) {
