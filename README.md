@@ -1,3 +1,5 @@
+This is a copy of WIKI home. Do not edit. 
+
 #qbit - The Microservice Lib for Java - JSON, REST, WebSocket, Speed! [![Build Status](https://travis-ci.org/advantageous/qbit.svg)](https://travis-ci.org/advantageous/qbit)
 
 Got a question? Ask here: [QBit Google Group](https://groups.google.com/forum/#!forum/qbit-microservice).
