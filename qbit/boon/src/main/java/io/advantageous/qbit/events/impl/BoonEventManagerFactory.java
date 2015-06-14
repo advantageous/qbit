@@ -21,18 +21,20 @@ package io.advantageous.qbit.events.impl;
 import io.advantageous.qbit.events.EventManager;
 import io.advantageous.qbit.events.spi.EventConnector;
 import io.advantageous.qbit.events.spi.EventManagerFactory;
+import io.advantageous.qbit.service.stats.StatsCollector;
+
+import java.util.Objects;
 
 
 public class BoonEventManagerFactory implements EventManagerFactory {
 
     @Override
-    public EventManager createEventManager(final String name) {
-        return new BoonEventManager(name);
-    }
+    public EventManager createEventManager(String name, EventConnector eventConnector, StatsCollector statsCollector) {
 
-    @Override
-    public EventManager createEventManagerWithConnector(final String name,
-                                                        final EventConnector eventConnector) {
-        return new BoonEventManager(name, eventConnector);
+        if (Objects.isNull(name)) throw new IllegalArgumentException("Name cannot be null");
+        if (Objects.isNull(eventConnector)) throw new IllegalArgumentException("EventConnector cannot be null");
+        if (Objects.isNull(statsCollector)) throw new IllegalArgumentException("Stats collector cannot be null");
+        return new BoonEventManager(name, eventConnector, statsCollector);
+
     }
 }

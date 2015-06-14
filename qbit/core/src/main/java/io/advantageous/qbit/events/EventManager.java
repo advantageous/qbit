@@ -99,9 +99,8 @@ public interface EventManager {
      *
      * @param channelName array of channel names
      * @param listener    queue that is going to listen
-     * @param <T>         T
      */
-    <T> void subscribe(String channelName, SendQueue<Event<Object>> listener);
+    void subscribe(String channelName, SendQueue<Event<Object>> listener);
 
 
     /**
@@ -110,9 +109,8 @@ public interface EventManager {
      *
      * @param channelName channel name
      * @param listener    queue that is going to consume
-     * @param <T>         T
      */
-    <T> void consume(String channelName, SendQueue<Event<Object>> listener);
+    void consume(String channelName, SendQueue<Event<Object>> listener);
 
 
     /**
@@ -142,6 +140,6 @@ public interface EventManager {
     <T> void sendCopy(String channel, T event);
 
 
-    <T> void forwardEvent(EventTransferObject<Object> event);
+    void forwardEvent(EventTransferObject<Object> event);
 
 }

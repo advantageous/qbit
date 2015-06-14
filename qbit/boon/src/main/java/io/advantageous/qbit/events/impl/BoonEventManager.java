@@ -34,6 +34,7 @@ import io.advantageous.qbit.events.spi.EventTransferObject;
 import io.advantageous.qbit.message.Event;
 import io.advantageous.qbit.queue.SendQueue;
 import io.advantageous.qbit.service.ServiceQueue;
+import io.advantageous.qbit.service.stats.StatsCollector;
 import io.advantageous.qbit.util.Timer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,7 +42,6 @@ import org.slf4j.LoggerFactory;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
-import static io.advantageous.boon.core.IO.puts;
 import static io.advantageous.boon.core.reflection.ClassMeta.classMeta;
 import static io.advantageous.qbit.annotation.AnnotationUtils.*;
 import static io.advantageous.qbit.service.ServiceContext.serviceContext;
@@ -59,25 +59,24 @@ public class BoonEventManager implements EventManager {
     private final Map<String, List<Object>> eventMap = new ConcurrentHashMap<>();
     private final List<SendQueue<Event<Object>>> queuesToFlush = new ArrayList<>(100);
     private final HashSet<ServiceQueue> services = new HashSet<>();
-    private final boolean debug = GlobalConstants.DEBUG;
+    private final boolean debug = GlobalConstants.DEBUG || logger.isDebugEnabled();
     private final String name;
+    private final StatsCollector stats;
     private int messageCountSinceLastFlush = 0;
     private long flushCount = 0;
     private long lastFlushTime = 0;
     private long now;
+    private final String eventCountStatsKey;
 
-    public BoonEventManager(final String name, final EventConnector eventConnector) {
 
+    public BoonEventManager(final String name, EventConnector eventConnector, StatsCollector statsCollector) {
+
+        logger.info("Event manager created {} {} {}", name, eventConnector, statsCollector);
         this.name = name;
-        eventBus = new EventBusImpl(eventConnector);
+        this.eventBus = new EventBusImpl(name, eventConnector, statsCollector);
+        this.stats = statsCollector;
 
-    }
-
-
-    public BoonEventManager(final String name) {
-
-        this.name = name;
-        eventBus = new EventBusImpl();
+        eventCountStatsKey = "EventManager." + name.replace(" ", ".");
 
     }
 
@@ -86,10 +85,12 @@ public class BoonEventManager implements EventManager {
 
         flushCount++;
         lastFlushTime = now;
+
+        stats.recordCount(eventCountStatsKey, messageCountSinceLastFlush);
         messageCountSinceLastFlush = 0;
 
         if (debug) {
-            puts("BoonEventManager flushCount", flushCount);
+            logger.debug("EventManager {} flushCount {}", name, flushCount);
         }
 
 
@@ -131,6 +132,8 @@ public class BoonEventManager implements EventManager {
         if (messageCountSinceLastFlush > 100_000) {
 
             now = Timer.timer().now();
+            logger.debug("EventManager {}: Sending all " +
+                    "messages because we have more than 100K", name);
             sendMessages();
             return;
         }
@@ -139,6 +142,10 @@ public class BoonEventManager implements EventManager {
         long duration = now - lastFlushTime;
 
         if (duration > 50 && messageCountSinceLastFlush > 0) {
+            if (debug) {
+                logger.debug("EventManager {}: Sending all " +
+                        "messages because 50 MS elapsed and we have more than 0", name);
+            }
             sendMessages();
         }
 
@@ -176,8 +183,8 @@ public class BoonEventManager implements EventManager {
 
 
         if (services.contains(serviceQueue)) {
-            logger.info("EventManager::joinService: Service queue " +
-                    "is already a member of this event manager " + serviceQueue.name());
+            logger.info("EventManager{}::joinService: Service queue " +
+                    "is already a member of this event manager {}", name, serviceQueue.name());
             return;
         }
 
@@ -185,7 +192,7 @@ public class BoonEventManager implements EventManager {
         services.add(serviceQueue);
 
 
-        logger.info("EventManager::joinService::  {} joined {}", serviceQueue.name(), name);
+        logger.info("EventManager{}::joinService::  {} joined {}", name, serviceQueue.name(), name);
 
 
         doListen(serviceQueue.service(), serviceQueue);
@@ -197,7 +204,7 @@ public class BoonEventManager implements EventManager {
 
         final ServiceQueue serviceQueue = serviceContext().currentService();
         if (serviceQueue == null) {
-            throw new IllegalStateException("Must be called from inside of a Service");
+            throw new IllegalStateException(String.format("EventManager %s:: Must be called from inside of a Service", name));
         }
 
 
@@ -217,37 +224,48 @@ public class BoonEventManager implements EventManager {
     private void doListen(final Object listener, final ServiceQueue serviceQueue) {
 
         if (debug) {
-            puts("BoonEventManager registering listener", listener, serviceQueue);
+            logger.info("EventManager {}  registering listener {} with serviceQueue {}",
+                    name, listener, serviceQueue);
         }
-        final ClassMeta<?> classMeta = ClassMeta.classMeta(listener.getClass());
-        final Iterable<MethodAccess> methods = classMeta.methods();
+        final ClassMeta<?> listenerClassMeta = ClassMeta.classMeta(listener.getClass());
+        final Iterable<MethodAccess> listenerMethods = listenerClassMeta.methods();
 
-        for (final MethodAccess methodAccess : methods) {
-            AnnotationData listen = getListenAnnotation(methodAccess);
 
-            if (listen == null) continue;
-            extractEventListenerFromMethod(listener, methodAccess, listen, serviceQueue);
+        /* Add methods as listeners if they have a listen annotation. */
+        for (final MethodAccess methodAccess : listenerMethods) {
+            AnnotationData listenAnnotationData = getListenAnnotation(methodAccess);
+            if (listenAnnotationData == null) continue;
+            extractEventListenerFromMethod(listener, methodAccess, listenAnnotationData, serviceQueue);
         }
 
 
-        final Class<?>[] interfaces = classMeta.cls().getInterfaces();
+        /* Look for listener channel implementations. */
+        final Class<?>[] interfacesFromListener = listenerClassMeta.cls().getInterfaces();
 
-        for (Class<?> interfaceClass : interfaces) {
-            final ClassMeta<?> interfaceMeta = classMeta(interfaceClass);
+        /* Iterate through interfaces and see if any are marked with the event channel annotation. */
+        for (Class<?> interfaceClass : interfacesFromListener) {
+            final ClassMeta<?> metaFromListenerInterface = classMeta(interfaceClass);
 
-            final AnnotationData eventChannelAnnotation = interfaceMeta.annotation(AnnotationUtils.EVENT_CHANNEL_ANNOTATION_NAME);
+            final AnnotationData eventChannelAnnotation = metaFromListenerInterface
+                    .annotation(AnnotationUtils.EVENT_CHANNEL_ANNOTATION_NAME);
             if (eventChannelAnnotation == null) {
                 continue;
             }
 
-            final Iterable<MethodAccess> interfaceMethods = interfaceMeta.methods();
+            /* If we got this far, then we are dealing with an event channel interface
+            so register the methods from this interface as channel listeners.
+             */
+            final Iterable<MethodAccess> interfaceMethods = metaFromListenerInterface.methods();
 
-            final String classEventBusName = getClassEventChannelName(interfaceMeta, eventChannelAnnotation);
+            final String classEventBusName = getClassEventChannelName(metaFromListenerInterface, eventChannelAnnotation);
 
 
             for (MethodAccess methodAccess : interfaceMethods) {
 
 
+                /* By default the method name forms part of the event bus name,
+                but this can be overridden by the EVENT_CHANNEL_ANNOTATION_NAME annotation on the method.
+                 */
                 final AnnotationData methodAnnotation = methodAccess.annotation(AnnotationUtils.EVENT_CHANNEL_ANNOTATION_NAME);
 
                 String methodEventBusName = methodAnnotation != null && methodAnnotation.getValues().get("value") != null
@@ -272,9 +290,18 @@ public class BoonEventManager implements EventManager {
     }
 
 
-    private void extractEventListenerFromMethod(final Object listener, final MethodAccess methodAccess, final AnnotationData listen, final ServiceQueue serviceQueue) {
+    private void extractEventListenerFromMethod(final Object listener,
+                                                final MethodAccess methodAccess,
+                                                final AnnotationData listen,
+                                                final ServiceQueue serviceQueue) {
+
+        logger.info("EventManager {} ::extractEventListenerFromMethod  :: " +
+                        "{} is listening with method {} using annotation data {} ",
+                name, serviceQueue, methodAccess.name(), listen.getValues());
+
         final String channel = listen.getValues().get("value").toString();
         final boolean consume = (boolean) listen.getValues().get("consume");
+
 
 
         if (serviceQueue == null) {
@@ -285,7 +312,13 @@ public class BoonEventManager implements EventManager {
     }
 
 
-    private void extractListenerForService(ServiceQueue serviceQueue, final String channel, final boolean consume) {
+    private void extractListenerForService(final ServiceQueue serviceQueue,
+                                           final String channel,
+                                           final boolean consume) {
+
+
+        logger.info("EventManager {}:: {} is listening on channel {} and is consuming? {}",
+                name, serviceQueue.name(), channel, consume);
 
         final SendQueue<Event<Object>> events = serviceQueue.events();
         if (consume) {
@@ -297,8 +330,15 @@ public class BoonEventManager implements EventManager {
 
 
     @SuppressWarnings("Convert2Lambda")
-    private void extractListenerForRegularObject(final Object listener, final MethodAccess methodAccess, final String channel, final boolean consume) {
+    private void extractListenerForRegularObject(final Object listener,
+                                                 final MethodAccess methodAccess,
+                                                 final String channel,
+                                                 final boolean consume) {
+
+        logger.info("EventManager {}:: {} is listening with method {} on channel {} and is consuming? {}",
+            name, listener.getClass().getSimpleName(), methodAccess.name(), channel, consume);
         if (consume) {
+
 
             /* Do not use Lambda, this has to be a consume! */
             this.register(channel, new EventConsumer<Object>() {
@@ -361,8 +401,9 @@ public class BoonEventManager implements EventManager {
 
     @SuppressWarnings("Convert2Lambda")
     @Override
-    public <T> void subscribe(final String channelName, final SendQueue<Event<Object>> sendQueue) {
+    public void subscribe(final String channelName, final SendQueue<Event<Object>> sendQueue) {
 
+        logger.info("EventManager {}::subscribe() channel name {} sendQueue {}", name, channelName, sendQueue.name());
         queuesToFlush.add(sendQueue);
 
         //noinspection Anonymous2MethodRef
@@ -376,8 +417,9 @@ public class BoonEventManager implements EventManager {
 
     @SuppressWarnings("Convert2Lambda")
     @Override
-    public <T> void consume(final String channelName, final SendQueue<Event<Object>> sendQueue) {
+    public void consume(final String channelName, final SendQueue<Event<Object>> sendQueue) {
 
+        logger.info("EventManager {}::consume() channel name {} sendQueue {}", name, channelName, sendQueue.name());
 
         queuesToFlush.add(sendQueue);
 
@@ -423,7 +465,7 @@ public class BoonEventManager implements EventManager {
     }
 
     @Override
-    public <T> void forwardEvent(final EventTransferObject<Object> event) {
+    public void forwardEvent(final EventTransferObject<Object> event) {
         messageCountSinceLastFlush++;
         eventBus.forwardEvent(event);
     }

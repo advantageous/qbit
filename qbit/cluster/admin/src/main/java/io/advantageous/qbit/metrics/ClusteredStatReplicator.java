@@ -264,25 +264,30 @@ public class ClusteredStatReplicator implements StatReplicator, ServiceChangedEv
 
     }
 
-    private void updateServicePool(String serviceName) {
+    private void updateServicePool(final String serviceName) {
 
-        final List<EndpointDefinition> nodes = serviceDiscovery.loadServices(serviceName);
-        servicePool.setHealthyNodes(nodes, new ServicePoolListener() {
-            @Override
-            public void servicePoolChanged(String serviceName) {
-            }
 
-            @Override
-            public void serviceAdded(String serviceName, EndpointDefinition endpointDefinition) {
-                addService(endpointDefinition);
-            }
+        try {
+            final List<EndpointDefinition> nodes = serviceDiscovery.loadServices(serviceName);
+            servicePool.setHealthyNodes(nodes, new ServicePoolListener() {
+                @Override
+                public void servicePoolChanged(String serviceName) {
+                }
 
-            @Override
-            public void serviceRemoved(String serviceName, EndpointDefinition endpointDefinition) {
-                removeService(endpointDefinition);
-            }
+                @Override
+                public void serviceAdded(String serviceName, EndpointDefinition endpointDefinition) {
+                    addService(endpointDefinition);
+                }
 
-        });
+                @Override
+                public void serviceRemoved(String serviceName, EndpointDefinition endpointDefinition) {
+                    removeService(endpointDefinition);
+                }
+
+            });
+        }catch (Exception ex) {
+            logger.error("Error updating service pool");
+        }
     }
 
     private void removeService(final EndpointDefinition endpointDefinition) {

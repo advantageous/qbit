@@ -54,5 +54,9 @@ public interface SendQueue<T> extends Output {
     default void stop() {
     }
 
+    default String name()  {
+        return "NO OP";
+    }
+
 
 }

@@ -25,6 +25,7 @@ import io.advantageous.qbit.client.ServiceProxyFactory;
 import io.advantageous.qbit.concurrent.PeriodicScheduler;
 import io.advantageous.qbit.events.EventBusProxyCreator;
 import io.advantageous.qbit.events.EventManager;
+import io.advantageous.qbit.events.EventManagerBuilder;
 import io.advantageous.qbit.events.impl.BoonEventBusProxyCreator;
 import io.advantageous.qbit.events.spi.EventConnector;
 import io.advantageous.qbit.http.HttpTransport;
@@ -150,7 +151,8 @@ public class BoonQBitFactory implements Factory {
         EventManager proxy;
         if (systemEventManager.get() == null) {
             final ServiceQueue serviceQueue = serviceBuilder().setInvokeDynamic(false)
-                    .setServiceObject(createEventManager("QBIT_SYSTEM")).build().startServiceQueue();
+                    .setServiceObject(
+                            EventManagerBuilder.eventManagerBuilder().setName("QBIT_SYSTEM").build()).build().startServiceQueue();
 
             systemEventManager.set(serviceQueue);
             proxy = serviceQueue.createProxyWithAutoFlush(EventManager.class, 100, TimeUnit.MILLISECONDS);
@@ -230,18 +232,6 @@ public class BoonQBitFactory implements Factory {
     public HttpServer createHttpServer(HttpServerOptions options, QueueBuilder requestQueueBuilder, QueueBuilder responseQueueBuilder, QueueBuilder webSocketMessageQueueBuilder, QBitSystemManager systemManager) {
 
         return FactorySPI.getHttpServerFactory().create(options, requestQueueBuilder, responseQueueBuilder, webSocketMessageQueueBuilder, systemManager);
-    }
-
-    @Override
-    public EventManager createEventManager(final String name) {
-
-        return FactorySPI.getEventManagerFactory().createEventManager(name);
-    }
-
-
-    @Override
-    public EventManager createEventManagerWithConnector(final String name, final EventConnector eventConnector) {
-        return FactorySPI.getEventManagerFactory().createEventManagerWithConnector(name, eventConnector);
     }
 
     @Override

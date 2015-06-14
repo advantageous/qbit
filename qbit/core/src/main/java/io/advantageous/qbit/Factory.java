@@ -291,8 +291,9 @@ public interface Factory {
     }
 
 
-    default EventManager createEventManager(final String name) {
-        return FactorySPI.getEventManagerFactory().createEventManager(name);
+    default EventManager createEventManager(final String name, final EventConnector eventConnector,
+                                            final StatsCollector statsCollector) {
+        return FactorySPI.getEventManagerFactory().createEventManager(name, eventConnector, statsCollector);
     }
 
     default ServiceEndpointServer createServiceServer(final HttpTransport httpServer,
@@ -346,8 +347,5 @@ public interface Factory {
     }
 
 
-    default EventManager createEventManagerWithConnector(String name, EventConnector eventConnector) {
-        throw new UnsupportedOperationException();
-    }
 
 }

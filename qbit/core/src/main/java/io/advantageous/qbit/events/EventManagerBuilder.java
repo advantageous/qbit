@@ -1,9 +1,14 @@
 package io.advantageous.qbit.events;
 
+import io.advantageous.qbit.Factory;
 import io.advantageous.qbit.QBit;
 import io.advantageous.qbit.events.impl.ConditionalEventConnector;
 import io.advantageous.qbit.events.spi.EventConnector;
+import io.advantageous.qbit.events.spi.EventTransferObject;
 import io.advantageous.qbit.message.Event;
+import io.advantageous.qbit.service.stats.StatsCollector;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -18,12 +23,44 @@ public class EventManagerBuilder {
     private EventConnector eventConnector;
     private List<Predicate<Event<Object>>> eventConnectorPredicates = new ArrayList<>();
     private String name;
+    private StatsCollector statsCollector;
+    public static EventConnector DEFAULT_NO_EVENT_CONNECTOR = event -> {};
+    public static StatsCollector DEFAULT_NO_STATS_COLLECTOR = new StatsCollector() {};
+
+    private final Logger logger = LoggerFactory.getLogger(EventManagerBuilder.class);
+
+    Factory factory;
 
 
     public static EventManagerBuilder eventManagerBuilder() {
         return new EventManagerBuilder();
     }
 
+
+    public Factory getFactory() {
+        if (factory == null) {
+            factory = QBit.factory();
+        }
+        return factory;
+    }
+
+    public EventManagerBuilder setFactory(Factory factory) {
+        this.factory = factory;
+        return this;
+    }
+
+    public StatsCollector getStatsCollector() {
+        if (statsCollector == null) {
+            logger.info("No stats collector registered with event manager, using default NO OP stats collector");
+            statsCollector = DEFAULT_NO_STATS_COLLECTOR;
+        }
+        return statsCollector;
+    }
+
+    public EventManagerBuilder setStatsCollector(StatsCollector statsCollector) {
+        this.statsCollector = statsCollector;
+        return this;
+    }
 
     public String getName() {
         return name;
@@ -35,6 +72,10 @@ public class EventManagerBuilder {
     }
 
     public EventConnector getEventConnector() {
+        if (eventConnector == null) {
+            logger.info("Event Connector is null for {} event bus, creating NoOp Event Connector", getName());
+            eventConnector = DEFAULT_NO_EVENT_CONNECTOR;
+        }
         return eventConnector;
     }
 
@@ -67,22 +108,22 @@ public class EventManagerBuilder {
     }
 
     public EventManager build(final String name) {
-        if ( getEventConnector() == null) {
-            return QBit.factory().createEventManager(name);
 
+        if ( eventConnector == null) {
+            return getFactory().createEventManager(name, getEventConnector(), getStatsCollector());
         } else {
 
             if (getEventConnectorPredicates().size() == 0) {
-                return QBit.factory().createEventManagerWithConnector(name, eventConnector);
+                return getFactory().createEventManager(getName(), getEventConnector(), getStatsCollector());
             } else {
 
-                Predicate<Event<Object>> mainPredicate = eventConnectorPredicates.get(0);
+                Predicate<Event<Object>> mainPredicate = getEventConnectorPredicates().get(0);
 
                 for (int index = 1; index < eventConnectorPredicates.size(); index++) {
                     mainPredicate = mainPredicate.and(eventConnectorPredicates.get(index));
                 }
-                return QBit.factory().createEventManagerWithConnector(name,
-                        new ConditionalEventConnector(mainPredicate, eventConnector));
+                return getFactory().createEventManager(getName(),
+                        new ConditionalEventConnector(mainPredicate, getEventConnector()), getStatsCollector());
             }
 
         }

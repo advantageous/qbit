@@ -228,4 +228,9 @@ public class BasicSendQueue<T> implements SendQueue<T> {
     public int hashCode() {
         return queue.hashCode();
     }
+
+    @Override
+    public String name() {
+        return name;
+    }
 }

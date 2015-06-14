@@ -662,9 +662,8 @@ public class BaseServiceQueueImpl implements ServiceQueue {
 
     @Override
     public String toString() {
-        return "Service{" +
-                "debug=" + debug +
-                ", service=" + service.getClass().getSimpleName() +
+        return "ServiceQueue{" +
+                "service=" + service.getClass().getSimpleName() +
                 '}';
     }
 
@@ -759,4 +758,7 @@ public class BaseServiceQueueImpl implements ServiceQueue {
             return true;
         }
     }
+
+
+
 }

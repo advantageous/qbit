@@ -26,6 +26,7 @@ import io.advantageous.qbit.annotation.QueueCallback;
 import io.advantageous.qbit.annotation.QueueCallbackType;
 import io.advantageous.qbit.events.EventBusProxyCreator;
 import io.advantageous.qbit.events.EventManager;
+import io.advantageous.qbit.events.EventManagerBuilder;
 import io.advantageous.qbit.service.ServiceQueue;
 
 import static io.advantageous.qbit.service.ServiceBuilder.serviceBuilder;
@@ -46,7 +47,7 @@ public class EmployeeEventExampleUsingChannelsToSendEvents {
 
 
         /* Create you own private event bus. */
-        EventManager privateEventBus = QBit.factory().createEventManager("foo");
+        EventManager privateEventBus = EventManagerBuilder.eventManagerBuilder().setName("foo").build();
 
         /* Create a service queue for this event bus. */
         ServiceQueue privateEventBusServiceQueue = serviceBuilder()

@@ -21,6 +21,7 @@ package io.advantageous.qbit.example.events;
 import io.advantageous.boon.core.Sys;
 import io.advantageous.qbit.QBit;
 import io.advantageous.qbit.events.EventManager;
+import io.advantageous.qbit.events.EventManagerBuilder;
 import io.advantageous.qbit.service.ServiceQueue;
 
 import java.lang.annotation.ElementType;
@@ -44,7 +45,8 @@ public class EmployeeEventExampleUsingStandaloneEventBus {
 
 
         /* Create you own private event bus. */
-        EventManager privateEventBus = QBit.factory().createEventManager("foo");
+        EventManager privateEventBus =
+                EventManagerBuilder.eventManagerBuilder().setName("foo").build();
 
         /* Create a service queue for this event bus. */
         ServiceQueue privateEventBusServiceQueue = serviceBuilder()

@@ -20,6 +20,7 @@ package io.advantageous.qbit.events.impl;
 
 import io.advantageous.qbit.events.EventBus;
 import io.advantageous.qbit.events.EventConsumer;
+import io.advantageous.qbit.events.EventManagerBuilder;
 import io.advantageous.qbit.events.EventSubscriber;
 import io.advantageous.qbit.message.Event;
 import org.junit.Before;
@@ -42,7 +43,9 @@ public class EventBusImplTest {
 
     @Before
     public void setup() {
-        eventBusImpl = new EventBusImpl();
+        eventBusImpl = new EventBusImpl("EVENT BUS",
+                EventManagerBuilder.DEFAULT_NO_EVENT_CONNECTOR,
+                EventManagerBuilder.DEFAULT_NO_STATS_COLLECTOR);
         eventBus = eventBusImpl;
         subscriberMessageCount = 0;
         consumerCount = 0;

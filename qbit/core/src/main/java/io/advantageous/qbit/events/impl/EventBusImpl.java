@@ -23,6 +23,9 @@ import io.advantageous.qbit.events.EventListener;
 import io.advantageous.qbit.events.spi.EventConnector;
 import io.advantageous.qbit.events.spi.EventTransferObject;
 import io.advantageous.qbit.service.ServiceProxyUtils;
+import io.advantageous.qbit.service.stats.StatsCollector;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -33,17 +36,20 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class EventBusImpl implements EventBus {
 
+
+    private final Logger logger = LoggerFactory.getLogger(EventBusImpl.class);
     private final EventConnector eventConnector;
     final Map<String, ChannelManager<Object>> channelMap = new ConcurrentHashMap<>(20);
+    private final StatsCollector stats;
+    private final String name;
     long messageCounter = 0;
 
-    public EventBusImpl(EventConnector eventConnector) {
+    public EventBusImpl(final String name,
+                        final EventConnector eventConnector,
+                        final StatsCollector statsCollector) {
+        this.name = name;
         this.eventConnector = eventConnector;
-    }
-
-    public EventBusImpl() {
-        this.eventConnector = event -> {
-        };
+        this.stats = statsCollector;
     }
 
     @Override
@@ -58,7 +64,7 @@ public class EventBusImpl implements EventBus {
         if (channelManager == null) {
 
             //noinspection unchecked
-            channelManager = new ChannelManager(channelName);
+            channelManager = new ChannelManager(name, channelName, stats);
             channelMap.put(channelName, channelManager);
         }
         return channelManager;
@@ -69,7 +75,13 @@ public class EventBusImpl implements EventBus {
 
         messageCounter++;
         final EventTransferObject<Object> eventMessage = new EventTransferObject<>(event, messageCounter, channel);
-        eventConnector.forwardEvent(eventMessage);
+
+        try {
+            eventConnector.forwardEvent(eventMessage);
+        } catch (Exception ex) {
+            logger.error("EventBus " + name + " :: Error sending event " + eventMessage, ex );
+        }
+
         channel(channel).send(eventMessage);
 
     }

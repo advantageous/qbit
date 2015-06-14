@@ -19,16 +19,15 @@
 package io.advantageous.qbit.events.spi;
 
 import io.advantageous.qbit.events.EventManager;
+import io.advantageous.qbit.service.stats.StatsCollector;
 
 /**
  * @author rhightower
  */
 public interface EventManagerFactory {
-    default EventManager createEventManager(String name) {
-        return null;
-    }
-
-    default EventManager createEventManagerWithConnector(String name, EventConnector eventConnector) {
+    default EventManager createEventManager(final String name,
+                                            final EventConnector eventConnector,
+                                            final StatsCollector statsCollector) {
         return null;
     }
 }

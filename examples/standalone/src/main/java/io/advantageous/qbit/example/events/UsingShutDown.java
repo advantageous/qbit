@@ -26,6 +26,7 @@ import io.advantageous.qbit.annotation.QueueCallback;
 import io.advantageous.qbit.annotation.QueueCallbackType;
 import io.advantageous.qbit.events.EventBusProxyCreator;
 import io.advantageous.qbit.events.EventManager;
+import io.advantageous.qbit.events.EventManagerBuilder;
 import io.advantageous.qbit.service.ServiceBuilder;
 import io.advantageous.qbit.service.ServiceQueue;
 import io.advantageous.qbit.system.QBitSystemManager;
@@ -48,7 +49,7 @@ public class UsingShutDown {
 
 
         /* Create you own private event bus. */
-        EventManager privateEventBus = QBit.factory().createEventManager("foo");
+        EventManager privateEventBus = EventManagerBuilder.eventManagerBuilder().setName("foo").build();
 
 
         final EventBusProxyCreator eventBusProxyCreator =

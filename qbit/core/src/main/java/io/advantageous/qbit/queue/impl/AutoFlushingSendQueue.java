@@ -149,4 +149,9 @@ public class AutoFlushingSendQueue<T> implements SendQueue<T> {
             lock.unlock();
         }
     }
+
+    @Override
+    public String name() {
+        return sendQueue.name();
+    }
 }
