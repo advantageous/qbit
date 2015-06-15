@@ -30,6 +30,7 @@ import io.advantageous.qbit.http.request.HttpResponse;
 import io.advantageous.qbit.reactive.Callback;
 
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import static io.advantageous.boon.json.JsonFactory.fromJsonArray;
 import static io.advantageous.consul.domain.ConsulException.die;
@@ -348,7 +349,7 @@ public class HealthEndpoint {
 
         httpRequestBuilder.addParam("passing", "true");
 
-        final HttpResponse httpResponse = httpClient.sendRequestAndWait(httpRequestBuilder.build());
+        final HttpResponse httpResponse = httpClient.sendRequestAndWait(httpRequestBuilder.build(), 180, TimeUnit.SECONDS);
 
         if (httpResponse == null) {
             die("Unable to retrieve the service, consul request timed out", path);
