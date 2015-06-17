@@ -9,11 +9,6 @@ import java.util.function.Supplier;
 
 public class RoundRobinServiceWorkerBuilder {
 
-    /**
-     * Shard rule, if you don't set a shard rule, you get shard of first argument.
-     * Shard rule by default.
-     */
-    private ShardRule shardRule;
     private ServiceBuilder serviceBuilder;
     private ServiceWorkers serviceDispatcher;
     private int workerCount = -1;
@@ -21,7 +16,7 @@ public class RoundRobinServiceWorkerBuilder {
     private TimeUnit timeUnit = TimeUnit.MILLISECONDS;
     private Supplier<Object> serviceObjectSupplier;
 
-    public static RoundRobinServiceWorkerBuilder shardedServiceWorkerBuilder() {
+    public static RoundRobinServiceWorkerBuilder roundRobinServiceWorkerBuilder() {
         return new RoundRobinServiceWorkerBuilder();
     }
 
@@ -46,19 +41,6 @@ public class RoundRobinServiceWorkerBuilder {
         return this;
     }
 
-    public ShardRule getShardRule() {
-        if (shardRule == null) {
-            final int workerCount = this.getWorkerCount();
-            shardRule = (methodName, methodArgs, numWorkers) -> methodArgs[0].hashCode() % workerCount;
-        }
-        return shardRule;
-    }
-
-    public RoundRobinServiceWorkerBuilder setShardRule(ShardRule shardRule) {
-        this.shardRule = shardRule;
-        return this;
-    }
-
     public ServiceBuilder getServiceBuilder() {
         if (serviceBuilder == null) {
             serviceBuilder = ServiceBuilder.serviceBuilder();
@@ -75,11 +57,10 @@ public class RoundRobinServiceWorkerBuilder {
     public ServiceWorkers getServiceDispatcher() {
         if (serviceDispatcher == null) {
 
-            if (this.flushInterval == -1) {
-                serviceDispatcher = ServiceWorkers.shardedWorkers(getShardRule());
+            if (flushInterval == -1) {
+                serviceDispatcher = ServiceWorkers.workers();
             } else {
-                serviceDispatcher = ServiceWorkers.shardedWorkers(getFlushInterval(),
-                        getTimeUnit(), getShardRule());
+                serviceDispatcher = ServiceWorkers.workers(flushInterval, timeUnit);
             }
         }
         return serviceDispatcher;

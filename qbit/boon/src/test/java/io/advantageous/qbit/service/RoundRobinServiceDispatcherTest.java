@@ -58,27 +58,26 @@
 package io.advantageous.qbit.service;
 
 import io.advantageous.boon.core.Sys;
-import io.advantageous.qbit.queue.QueueBuilder;
-import io.advantageous.qbit.service.dispatchers.RoundRobinServiceDispatcher;
+import io.advantageous.qbit.reactive.Callback;
+import io.advantageous.qbit.service.dispatchers.RoundRobinServiceWorkerBuilder;
 import io.advantageous.qbit.service.dispatchers.ServiceMethodDispatcher;
 import io.advantageous.qbit.test.TimedTesting;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.util.concurrent.atomic.AtomicInteger;
+
 import static io.advantageous.boon.core.Exceptions.die;
 import static io.advantageous.boon.core.IO.puts;
-import static io.advantageous.qbit.queue.QueueBuilder.queueBuilder;
-import static io.advantageous.qbit.service.ServiceBuilder.serviceBuilder;
 import static io.advantageous.qbit.service.ServiceBundleBuilder.serviceBundleBuilder;
-import static io.advantageous.qbit.service.dispatchers.ServiceWorkers.workers;
+import static org.junit.Assert.assertEquals;
 
 public class RoundRobinServiceDispatcherTest extends TimedTesting {
 
 
     ServiceBundle bundle;
 
-    RoundRobinServiceDispatcher rrDispatcher;
     ServiceMethodDispatcher dispatcher;
     boolean ok = true;
 
@@ -86,21 +85,14 @@ public class RoundRobinServiceDispatcherTest extends TimedTesting {
     public void setup() {
 
         super.setupLatch();
-        QueueBuilder queueBuilder = queueBuilder().setBatchSize(1);
 
-        dispatcher = workers();
-        rrDispatcher = (RoundRobinServiceDispatcher) dispatcher;
+        dispatcher = RoundRobinServiceWorkerBuilder
+                .roundRobinServiceWorkerBuilder()
+                .setFlushInterval(1)
+                .setServiceObjectSupplier(() -> new MultiWorker())
+                .build();
 
-        final ServiceBuilder serviceBuilder = serviceBuilder()
-                .setRequestQueueBuilder(queueBuilder).setResponseQueueBuilder(queueBuilder);
-
-        final ServiceQueue serviceQueue1 = serviceBuilder.setServiceObject(new MultiWorker()).build();
-        final ServiceQueue serviceQueue2 = serviceBuilder.setServiceObject(new MultiWorker()).build();
-        final ServiceQueue serviceQueue3 = serviceBuilder.setServiceObject(new MultiWorker()).build();
-
-
-        rrDispatcher.addServices(serviceQueue1, serviceQueue2, serviceQueue3);
-        rrDispatcher.start();
+        dispatcher.start();
 
         bundle = serviceBundleBuilder().setAddress("/root").build();
 
@@ -137,10 +129,30 @@ public class RoundRobinServiceDispatcherTest extends TimedTesting {
     }
 
 
-    public interface MultiWorkerClient {
-        void doSomeWork();
+    @Test
+    public void testWithReturn() {
+
+        final MultiWorkerClient worker = bundle.createLocalProxy(MultiWorkerClient.class, "/workers");
+
+        final AtomicInteger callbackCounter = new AtomicInteger();
+
+        for (int index = 0; index < 200; index++) {
+            worker.doSomeWork2(integer -> callbackCounter.incrementAndGet());
+        }
+
+        ServiceProxyUtils.flushServiceProxy(worker);
+        super.waitForTrigger(30, o -> callbackCounter.get() >= 200);
+
+
+        assertEquals(200, callbackCounter.get());
+
     }
 
+    public interface MultiWorkerClient {
+        void doSomeWork();
+
+        void doSomeWork2(Callback<Integer> value);
+    }
     public static class MultiWorker {
 
         static volatile int totalCount;
@@ -151,6 +163,13 @@ public class RoundRobinServiceDispatcherTest extends TimedTesting {
             count++;
             totalCount++;
             puts(count, totalCount);
+        }
+
+        void doSomeWork2(Callback<Integer> value) {
+            count++;
+            totalCount++;
+            puts(count, totalCount);
+            value.accept(count);
         }
 
     }
