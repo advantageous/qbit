@@ -129,7 +129,8 @@ public class ShardedMethodDispatcherTest extends TimedTesting {
         Sys.sleep(1000);
         super.waitForTrigger(10, o -> ContentRulesEngine.totalCount.get() >= 200);
 
-        ok = ContentRulesEngine.totalCount.get() == 200 || die(ContentRulesEngine.totalCount);
+
+        assertEquals(200, ContentRulesEngine.totalCount.get());
 
 
     }

@@ -1,6 +1,7 @@
 package io.advantageous.qbit.service.health;
 
 import io.advantageous.boon.core.Sys;
+import io.advantageous.qbit.service.ServiceProxyUtils;
 import io.advantageous.qbit.util.TestTimer;
 import org.junit.Before;
 import org.junit.Test;
@@ -17,8 +18,7 @@ public class HealthServiceQueueTest {
 
     TestTimer timer;
     HealthServiceAsync healthService;
-    CountDownLatch countDownLatch;
-    AtomicBoolean result;
+
 
     HealthServiceBuilder healthServiceBuilder;
 
@@ -37,11 +37,12 @@ public class HealthServiceQueueTest {
     @Test
     public void testRegister() throws Exception {
 
-        healthService.register("foo", 1, TimeUnit.SECONDS);
-        healthService.clientProxyFlush();
 
-        countDownLatch = new CountDownLatch(1);
-        result = new AtomicBoolean();
+        final AtomicBoolean result = new AtomicBoolean();
+
+        healthService.register("foo", 1, TimeUnit.SECONDS);
+
+        final CountDownLatch countDownLatch = new CountDownLatch(1);
 
 
         healthService.findAllNodes(names -> {
@@ -50,52 +51,39 @@ public class HealthServiceQueueTest {
                 }
         );
 
-        healthService.clientProxyFlush();
-
 
         countDownLatch.await(10, TimeUnit.SECONDS);
 
 
         assertTrue("foo is found", result.get());
 
-        countDownLatch = new CountDownLatch(1);
-        result = new AtomicBoolean();
 
+        healthService.unregister("foo");
 
-        healthService.findHealthyNodes(names -> {
+        final CountDownLatch countDownLatch2 = new CountDownLatch(1);
+
+        result.set(false);
+        healthService.findAllNodes(names -> {
                     result.set(!names.stream().anyMatch(s -> s.equals("foo")));
-                    countDownLatch.countDown();
+                    countDownLatch2.countDown();
                 }
         );
 
 
-        countDownLatch = new CountDownLatch(1);
-        result = new AtomicBoolean();
-
-
-        healthService.findHealthyNodes(names -> {
-                    result.set(names.stream().anyMatch(s -> s.equals("foo")));
-                    countDownLatch.countDown();
-                }
-        );
-
-        countDownLatch.await(10, TimeUnit.SECONDS);
-
-
-        assertTrue("foo is not in healthy list", result.get());
-
+        countDownLatch2.await(10, TimeUnit.SECONDS);
 
     }
 
     @Test
     public void testCheckInOk() throws Exception {
 
+
+        final CountDownLatch countDownLatch = new CountDownLatch(1);
+        final AtomicBoolean result = new AtomicBoolean();
+
         healthService.register("foo", 1, TimeUnit.SECONDS);
 
         healthService.checkInOk("foo");
-
-        countDownLatch = new CountDownLatch(1);
-        result = new AtomicBoolean();
 
 
         healthService.findHealthyNodes(names -> {
@@ -115,12 +103,15 @@ public class HealthServiceQueueTest {
     @Test
     public void testCheckInOkUsingCheckIn() throws Exception {
 
+
+        final CountDownLatch countDownLatch = new CountDownLatch(1);
+        final AtomicBoolean result = new AtomicBoolean();
+
+
         healthService.register("foo", 1, TimeUnit.SECONDS);
 
         healthService.checkIn("foo", HealthStatus.PASS);
 
-        countDownLatch = new CountDownLatch(1);
-        result = new AtomicBoolean();
 
 
         healthService.findHealthyNodes(names -> {
@@ -129,6 +120,7 @@ public class HealthServiceQueueTest {
                 }
         );
 
+        ServiceProxyUtils.flushServiceProxy(healthService);
 
         countDownLatch.await(10, TimeUnit.SECONDS);
 
@@ -142,13 +134,15 @@ public class HealthServiceQueueTest {
     @Test
     public void transitionFromPassToFail() throws Exception {
 
+
+        final CountDownLatch countDownLatch = new CountDownLatch(1);
+        final AtomicBoolean result = new AtomicBoolean();
+
+
         healthService.register("foo", 1, TimeUnit.SECONDS);
 
         healthService.checkIn("foo", HealthStatus.PASS);
 
-
-        countDownLatch = new CountDownLatch(1);
-        result = new AtomicBoolean();
 
 
         healthService.findHealthyNodes(names -> {
@@ -164,18 +158,19 @@ public class HealthServiceQueueTest {
         healthService.checkIn("foo", HealthStatus.FAIL);
 
 
-        countDownLatch = new CountDownLatch(1);
-        result = new AtomicBoolean();
+
+        final CountDownLatch countDownLatch2 = new CountDownLatch(1);
+        result.set(false);
 
 
         healthService.findHealthyNodes(names -> {
                     result.set(!names.stream().anyMatch(s -> s.equals("foo")));
-                    countDownLatch.countDown();
+                    countDownLatch2.countDown();
                 }
         );
 
 
-        countDownLatch.await(10, TimeUnit.SECONDS);
+        countDownLatch2.await(10, TimeUnit.SECONDS);
 
 
         assertTrue("foo is NOT found among the healthy ",
@@ -187,13 +182,14 @@ public class HealthServiceQueueTest {
     @Test
     public void forceTTLExpire() throws Exception {
 
+        final CountDownLatch countDownLatch = new CountDownLatch(1);
+        final AtomicBoolean result = new AtomicBoolean();
+
         healthService.register("foo", 1, TimeUnit.SECONDS);
 
         healthService.checkIn("foo", HealthStatus.PASS);
 
 
-        countDownLatch = new CountDownLatch(1);
-        result = new AtomicBoolean();
         healthService.findAllNodes(names -> {
                     result.set(names.stream().anyMatch(s -> s.equals("foo")));
                     countDownLatch.countDown();
@@ -210,16 +206,16 @@ public class HealthServiceQueueTest {
         healthService.clientProxyFlush();
 
 
-        countDownLatch = new CountDownLatch(1);
-        result = new AtomicBoolean();
+        final CountDownLatch countDownLatch2 = new CountDownLatch(1);
 
+        result.set(false);
 
         healthService.findHealthyNodes(names -> {
                     result.set(!names.stream().anyMatch(s -> s.equals("foo")));
-                    countDownLatch.countDown();
+                    countDownLatch2.countDown();
                 }
         );
-        countDownLatch.await(10, TimeUnit.SECONDS);
+        countDownLatch2.await(10, TimeUnit.SECONDS);
         assertTrue("foo should not be found", result.get());
 
 
