@@ -6,6 +6,7 @@ import org.junit.Test;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Consumer;
 
 import static org.junit.Assert.*;
 
@@ -52,6 +53,131 @@ public class ReactorTest {
 
     }
 
+
+    @Test
+    public void testNormalCallback() throws Exception {
+
+
+        final TestTimer testTimer = new TestTimer();
+        final Reactor reactor = ReactorBuilder.reactorBuilder().setTimer(testTimer).build();
+        final AtomicBoolean timeoutFlag = new AtomicBoolean();
+        final AtomicInteger timeOutCounter = new AtomicInteger();
+        final AtomicBoolean callbackFlag = new AtomicBoolean();
+        final AtomicInteger callbackCounter = new AtomicInteger();
+
+
+        testTimer.setTime();
+
+        AsyncFutureCallback<Object> callback = reactor.callbackBuilder().setTimeoutTimeUnit(TimeUnit.SECONDS).setTimeoutDuration(1).setOnTimeout(() -> {
+            timeOutCounter.incrementAndGet();
+            timeoutFlag.set(true);
+        }).setCallback(Object.class, o -> {
+            callbackFlag.set(true);
+            callbackCounter.incrementAndGet();
+        })
+        .build();
+
+        reactor.process();
+
+        /* No timeouts yet and no callbacks. */
+        assertFalse(timeoutFlag.get());
+        assertFalse(callbackFlag.get());
+        assertEquals(0, timeOutCounter.get());
+        assertEquals(0, callbackCounter.get());
+        assertFalse(callback.isTimedOut());
+
+
+        /* Pretend like we have been called. */
+        callback.accept("callback arg");
+
+        /* Move five seconds into the future. */
+        testTimer.seconds(5);
+
+
+        reactor.process();
+        reactor.process();
+
+        /* Now there should be one callback and no timeouts. */
+        assertFalse(timeoutFlag.get());
+        assertTrue(callbackFlag.get());
+
+        assertEquals(0, timeOutCounter.get());
+        assertEquals(1, callbackCounter.get());
+        assertFalse(callback.isTimedOut());
+        assertTrue(callback.isDone());
+        assertNotNull(callback.get());
+        assertEquals("callback arg", callback.get());
+    }
+
+
+    @Test
+    public void testErrorCallback() throws Exception {
+
+
+        final TestTimer testTimer = new TestTimer();
+        final Reactor reactor = ReactorBuilder.reactorBuilder().setTimer(testTimer).build();
+        final AtomicBoolean timeoutFlag = new AtomicBoolean();
+        final AtomicInteger timeOutCounter = new AtomicInteger();
+        final AtomicBoolean callbackFlag = new AtomicBoolean();
+        final AtomicInteger callbackCounter = new AtomicInteger();
+        final AtomicBoolean errorFlag = new AtomicBoolean();
+        final AtomicInteger errorCounter = new AtomicInteger();
+
+
+        testTimer.setTime();
+
+        AsyncFutureCallback<Object> callback = reactor.callbackBuilder().setTimeoutTimeUnit(TimeUnit.SECONDS).setTimeoutDuration(1).setOnTimeout(() -> {
+            timeOutCounter.incrementAndGet();
+            timeoutFlag.set(true);
+        }).setCallback(Object.class, o -> {
+            callbackFlag.set(true);
+            callbackCounter.incrementAndGet();
+        }).setOnError(throwable -> {
+            errorCounter.incrementAndGet();
+            errorFlag.set(true);
+        })
+        .build();
+
+        reactor.process();
+
+        /* No timeouts yet and no callbacks. */
+        assertFalse(timeoutFlag.get());
+        assertFalse(callbackFlag.get());
+        assertEquals(0, timeOutCounter.get());
+        assertEquals(0, callbackCounter.get());
+        assertFalse(callback.isTimedOut());
+
+
+        /* Pretend like service threw an exception. */
+        callback.onError(new Exception("callback exception"));
+
+        /* Move five seconds into the future. */
+        testTimer.seconds(5);
+
+
+        reactor.process();
+        reactor.process();
+
+        /* Now there should be one callback and no timeouts. */
+        assertFalse(timeoutFlag.get());
+        assertFalse(callbackFlag.get());
+        assertTrue(errorFlag.get());
+
+        assertEquals(0, timeOutCounter.get());
+        assertEquals(0, callbackCounter.get());
+        assertEquals(1, errorCounter.get());
+
+        assertFalse(callback.isTimedOut());
+        assertTrue(callback.isDone());
+        assertFalse(callback.isCancelled());
+
+        try {
+            assertNotNull(callback.get());
+        }catch (Exception ex) {
+            assertTrue(ex.getMessage().endsWith("callback exception"));
+
+        }
+    }
 
     @Test
     public void testTimedTasks() throws Exception {
