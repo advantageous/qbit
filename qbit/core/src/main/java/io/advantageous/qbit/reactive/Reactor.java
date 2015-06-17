@@ -100,7 +100,12 @@ public class Reactor {
         }
     }
 
-    /** Add a task that gets repeated. */
+    /** Add a task that gets repeated.
+     *
+     * @param repeatEvery repeat Every time period
+     * @param timeUnit unit for repeatEvery
+     * @param task task to perform
+     */
     public void addRepeatingTask(final long repeatEvery, final TimeUnit timeUnit, final Runnable task) {
 
         repeatingTasks.add(new RepeatingTask( task, timeUnit, repeatEvery ));

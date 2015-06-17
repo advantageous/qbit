@@ -71,7 +71,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
 
-import static io.advantageous.boon.core.Exceptions.die;
 import static io.advantageous.qbit.service.ServiceBundleBuilder.serviceBundleBuilder;
 import static org.junit.Assert.assertEquals;
 
@@ -123,8 +122,8 @@ public class ShardedMethodDispatcherTest extends TimedTesting {
             worker.pickSuggestions("rickhigh" + index);
         }
 
-        worker.clientProxyFlush();
 
+        worker.clientProxyFlush();
 
         Sys.sleep(1000);
         super.waitForTrigger(10, o -> ContentRulesEngine.totalCount.get() >= 200);
@@ -155,8 +154,8 @@ public class ShardedMethodDispatcherTest extends TimedTesting {
                     "rickhigh" + index);
         }
 
-        worker.clientProxyFlush();
 
+        worker.clientProxyFlush();
         Sys.sleep(1000);
         super.waitForTrigger(10, o -> callbackCount.get() >= 200);
 
