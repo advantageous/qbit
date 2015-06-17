@@ -114,28 +114,6 @@ public class ShardedMethodDispatcherTest extends TimedTesting {
     }
 
     @Test
-    public void test() {
-
-        final MultiWorkerClient worker = bundle.createLocalProxy(MultiWorkerClient.class, "/workers");
-
-        for (int index = 0; index < 200; index++) {
-            worker.pickSuggestions("rickhigh" + index);
-        }
-
-
-        worker.clientProxyFlush();
-
-        Sys.sleep(1000);
-        super.waitForTrigger(10, o -> ContentRulesEngine.totalCount.get() >= 200);
-
-
-        assertEquals(200, ContentRulesEngine.totalCount.get());
-
-
-    }
-
-
-    @Test
     public void testWithReturns() {
 
 
@@ -164,27 +142,19 @@ public class ShardedMethodDispatcherTest extends TimedTesting {
     }
 
     public interface MultiWorkerClient extends ClientProxy {
-        void pickSuggestions(String username);
         void pickSuggestions2(Callback<String> returnValue, String username);
 
     }
 
     public static class ContentRulesEngine {
 
-        static AtomicInteger totalCount = new AtomicInteger();
 
         int count;
-
-        void pickSuggestions(String username) {
-            count++;
-            totalCount.incrementAndGet();
-        }
 
         void pickSuggestions2(Callback<String> returnValue,
                               String username) {
 
             count++;
-            totalCount.incrementAndGet();
             returnValue.accept(username);
 
         }
