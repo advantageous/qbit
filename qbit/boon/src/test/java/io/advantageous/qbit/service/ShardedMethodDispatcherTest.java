@@ -58,20 +58,22 @@
 package io.advantageous.qbit.service;
 
 import io.advantageous.qbit.client.ClientProxy;
-import io.advantageous.qbit.queue.QueueBuilder;
-import io.advantageous.qbit.service.dispatchers.ServiceWorkers;
+import io.advantageous.qbit.reactive.Callback;
+import io.advantageous.qbit.service.dispatchers.ServiceMethodDispatcher;
+import io.advantageous.qbit.service.dispatchers.ShardedServiceWorkerBuilder;
 import io.advantageous.qbit.test.TimedTesting;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.atomic.AtomicReference;
 
 import static io.advantageous.boon.core.Exceptions.die;
-import static io.advantageous.qbit.queue.QueueBuilder.queueBuilder;
-import static io.advantageous.qbit.service.ServiceBuilder.serviceBuilder;
 import static io.advantageous.qbit.service.ServiceBundleBuilder.serviceBundleBuilder;
-import static io.advantageous.qbit.service.dispatchers.ServiceWorkers.shardedWorkers;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 /**
  * @author rhightower
@@ -82,44 +84,27 @@ public class ShardedMethodDispatcherTest extends TimedTesting {
 
     ServiceBundle bundle;
 
-    ServiceWorkers dispatcher;
+    ServiceMethodDispatcher dispatcher;
     boolean ok = true;
 
     @Before
     public void setup() {
 
         super.setupLatch();
-        QueueBuilder queueBuilder = queueBuilder().setBatchSize(1001);
 
-        int workerCount = 10;//Runtime.getRuntime().availableProcessors();
+        final ShardedServiceWorkerBuilder shardedServiceWorkerBuilder =
+                            ShardedServiceWorkerBuilder
+                                .shardedServiceWorkerBuilder()
+                                .setWorkerCount(10)
+                                .setFlushInterval(50)
+                                .setServiceObjectSupplier(() -> new ContentRulesEngine());
 
-//        dispatcher = workers();
-
-
-        dispatcher = shardedWorkers((methodName, methodArgs, numWorkers) -> {
-            String userName = methodArgs[0].toString();
-            return userName.hashCode() % numWorkers;
-        });
-
-
-        final ServiceBuilder serviceBuilder = serviceBuilder()
-                .setRequestQueueBuilder(queueBuilder).setResponseQueueBuilder(queueBuilder);
-
-        for (int index = 0; index < workerCount; index++) {
-            final ServiceQueue serviceQueue = serviceBuilder
-                    .setServiceObject(new ContentRulesEngine()).build();
-            dispatcher.addServices(serviceQueue);
-
-        }
-
+        dispatcher = shardedServiceWorkerBuilder.build();
         dispatcher.start();
 
         bundle = serviceBundleBuilder().setAddress("/root").build();
-
-        //bundle.addServiceObject("/workers", new ContentRulesEngine());
         bundle.addServiceConsumer("/workers", dispatcher);
-
-        bundle.startUpCallQueue();
+        bundle.start();
 
     }
 
@@ -149,8 +134,39 @@ public class ShardedMethodDispatcherTest extends TimedTesting {
     }
 
 
+    @Test
+    public void testWithReturns() {
+
+
+        final MultiWorkerClient worker = bundle.createLocalProxy(MultiWorkerClient.class, "/workers");
+        final AtomicReference<String> value =new AtomicReference<>();
+        final AtomicLong callbackCount = new AtomicLong();
+
+        for (int index = 0; index < 20_000; index++) {
+            worker.pickSuggestions2(new Callback<String>() {
+                @Override
+                public void accept(String s) {
+                    callbackCount.incrementAndGet();
+                    value.set(s);
+                }
+            },
+                    "rickhigh" + index);
+        }
+
+        worker.clientProxyFlush();
+
+
+
+        super.waitForTrigger(5, o -> callbackCount.get() >= 20_000);
+
+        assertEquals(20_000, callbackCount.get());
+
+    }
+
     public interface MultiWorkerClient extends ClientProxy {
         void pickSuggestions(String username);
+        void pickSuggestions2(Callback<String> returnValue, String username);
+
     }
 
     public static class ContentRulesEngine {
@@ -163,6 +179,16 @@ public class ShardedMethodDispatcherTest extends TimedTesting {
             count++;
             totalCount.incrementAndGet();
         }
+
+        void pickSuggestions2(Callback<String> returnValue,
+                              String username) {
+
+            count++;
+            totalCount.incrementAndGet();
+            returnValue.accept(username);
+
+        }
+
 
     }
 

@@ -6,7 +6,6 @@ import io.advantageous.qbit.service.ServiceQueue;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
 
-import static io.advantageous.qbit.service.ServiceBundleBuilder.serviceBundleBuilder;
 
 public class ShardedServiceWorkerBuilder {
 
@@ -22,7 +21,7 @@ public class ShardedServiceWorkerBuilder {
     private TimeUnit timeUnit = TimeUnit.MILLISECONDS;
     private Supplier<Object> serviceObjectSupplier;
 
-    public ShardedServiceWorkerBuilder shardedServiceWorkerBuilder() {
+    public static ShardedServiceWorkerBuilder shardedServiceWorkerBuilder() {
         return new ShardedServiceWorkerBuilder();
     }
 
@@ -30,8 +29,9 @@ public class ShardedServiceWorkerBuilder {
         return serviceObjectSupplier;
     }
 
-    public void setServiceObjectSupplier(Supplier<Object> serviceObjectSupplier) {
+    public ShardedServiceWorkerBuilder setServiceObjectSupplier(Supplier<Object> serviceObjectSupplier) {
         this.serviceObjectSupplier = serviceObjectSupplier;
+        return this;
     }
 
     public int getWorkerCount() {
@@ -41,8 +41,9 @@ public class ShardedServiceWorkerBuilder {
         return workerCount;
     }
 
-    public void setWorkerCount(int workerCount) {
+    public ShardedServiceWorkerBuilder setWorkerCount(int workerCount) {
         this.workerCount = workerCount;
+        return this;
     }
 
     public ShardRule getShardRule() {
@@ -53,8 +54,9 @@ public class ShardedServiceWorkerBuilder {
         return shardRule;
     }
 
-    public void setShardRule(ShardRule shardRule) {
+    public ShardedServiceWorkerBuilder setShardRule(ShardRule shardRule) {
         this.shardRule = shardRule;
+        return this;
     }
 
     public ServiceBuilder getServiceBuilder() {

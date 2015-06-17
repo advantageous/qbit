@@ -183,13 +183,19 @@ public class ServiceWorkers implements ServiceMethodDispatcher {
         return this;
     }
 
-    public ServiceWorkers start() {
+    public void start() {
+        startServiceWorkers();
+    }
+
+    public ServiceWorkers startServiceWorkers() {
 
         serviceQueues = Collections.unmodifiableList(serviceQueues);
 
 
         if (startServices) {
             serviceQueues.forEach(io.advantageous.qbit.service.ServiceQueue::start);
+
+            serviceQueues.forEach(io.advantageous.qbit.service.ServiceQueue::startCallBackHandler);
         }
 
         for (ServiceQueue serviceQueue : serviceQueues) {

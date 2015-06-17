@@ -59,6 +59,7 @@ package io.advantageous.qbit.service.dispatchers;
 
 import io.advantageous.qbit.message.MethodCall;
 import io.advantageous.qbit.service.ServiceFlushable;
+import io.advantageous.qbit.service.Startable;
 import io.advantageous.qbit.service.Stoppable;
 
 import java.util.function.Consumer;
@@ -66,5 +67,5 @@ import java.util.function.Consumer;
 /**
  *  created by rhightower on 2/18/15.
  */
-public interface ServiceMethodDispatcher extends Consumer<MethodCall<Object>>, ServiceFlushable, Stoppable {
+public interface ServiceMethodDispatcher extends Consumer<MethodCall<Object>>, ServiceFlushable, Stoppable, Startable {
 }
