@@ -118,16 +118,16 @@ public class ShardedMethodDispatcherTest extends TimedTesting {
 
         final MultiWorkerClient worker = bundle.createLocalProxy(MultiWorkerClient.class, "/workers");
 
-        for (int index = 0; index < 20_000; index++) {
+        for (int index = 0; index < 200; index++) {
             worker.pickSuggestions("rickhigh" + index);
         }
 
         worker.clientProxyFlush();
 
 
-        super.waitForTrigger(5, o -> ContentRulesEngine.totalCount.get() >= 20_000);
+        super.waitForTrigger(5, o -> ContentRulesEngine.totalCount.get() >= 200);
 
-        ok = ContentRulesEngine.totalCount.get() == 20_000 || die(ContentRulesEngine.totalCount);
+        ok = ContentRulesEngine.totalCount.get() == 200 || die(ContentRulesEngine.totalCount);
 
 
     }
@@ -141,7 +141,7 @@ public class ShardedMethodDispatcherTest extends TimedTesting {
         final AtomicReference<String> value =new AtomicReference<>();
         final AtomicLong callbackCount = new AtomicLong();
 
-        for (int index = 0; index < 20_000; index++) {
+        for (int index = 0; index < 200; index++) {
             worker.pickSuggestions2(new Callback<String>() {
                 @Override
                 public void accept(String s) {
@@ -156,9 +156,9 @@ public class ShardedMethodDispatcherTest extends TimedTesting {
 
 
 
-        super.waitForTrigger(5, o -> callbackCount.get() >= 20_000);
+        super.waitForTrigger(5, o -> callbackCount.get() >= 200);
 
-        assertEquals(20_000, callbackCount.get());
+        assertEquals(200, callbackCount.get());
 
     }
 
