@@ -32,6 +32,7 @@ import io.advantageous.qbit.system.QBitSystemManager;
 import io.advantageous.qbit.util.Timer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.vertx.java.core.Handler;
 import org.vertx.java.core.Vertx;
 import org.vertx.java.core.VertxFactory;
 import org.vertx.java.core.buffer.Buffer;
@@ -198,12 +199,32 @@ public class HttpServerVertx implements HttpServer {
 
             case "PUT":
             case "POST":
-                request.bodyHandler((Buffer buffer) -> {
-                    final HttpRequest postRequest = vertxUtils.createRequest(request, buffer);
 
-                    simpleHttpServer.handleRequest(postRequest);
+                final String contentType = request.headers().get("Content-Type");
 
-                });
+
+
+                if ("application/x-www-form-urlencoded".equals(contentType)
+                    || "multipart/form-data".equals(contentType)) {
+
+                    request.expectMultiPart(true);
+                    request.endHandler(event -> {
+
+                        final HttpRequest postRequest = vertxUtils.createRequest(request, null);
+
+                        simpleHttpServer.handleRequest(postRequest);
+
+                    });
+
+                } else {
+
+                    request.bodyHandler((Buffer buffer) -> {
+                        final HttpRequest postRequest = vertxUtils.createRequest(request, buffer);
+
+                        simpleHttpServer.handleRequest(postRequest);
+
+                    });
+                }
                 break;
 
 

@@ -40,6 +40,7 @@ import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.util.Collection;
 import java.util.Map;
+import java.util.function.Consumer;
 
 import static io.advantageous.boon.core.Str.sputs;
 import static io.advantageous.qbit.http.websocket.WebSocketBuilder.webSocketBuilder;
@@ -73,16 +74,49 @@ public class VertxServerUtils {
 
     public HttpRequest createRequest(final HttpServerRequest request, final Buffer buffer) {
 
-
-        final MultiMap<String, String> params = request.params().size() == 0 ? MultiMap.empty() : new MultiMapWrapper(request.params());
         final MultiMap<String, String> headers = request.headers().size() == 0 ? MultiMap.empty() : new MultiMapWrapper(request.headers());
-        final byte[] body = buffer == null ? "".getBytes(StandardCharsets.UTF_8) : buffer.getBytes();
 
         final String contentType = request.headers().get("Content-Type");
+
+
+
+        final byte[] body = "application/x-www-form-urlencoded".equals(contentType)
+                || "multipart/form-data".equals(contentType) ||
+                buffer == null ?
+                new byte[0] : buffer.getBytes();
+
+        final MultiMap<String, String> params = buildParams(request, contentType);
 
         return new HttpRequest(requestId++, request.path(), request.method(), params, headers, body,
                 request.remoteAddress().toString(),
                 contentType, createResponse(request.response()), time == 0L ? Timer.timer().now() : time);
+    }
+
+    private MultiMap<String, String> buildParams(final HttpServerRequest request,
+                                                 final String contentType) {
+
+        if ("application/x-www-form-urlencoded".equals(contentType)
+                || "multipart/form-data".equals(contentType)) {
+
+            if (request.params().size()==0) {
+                return new MultiMapWrapper(request.formAttributes());
+            } else {
+                MultiMap<String, String> newParams = new MultiMapImpl<>();
+
+                request.formAttributes().forEach(entry ->
+                        newParams.add(entry.getKey(), entry.getValue()));
+
+                request.params().forEach(entry ->
+                        newParams.add(entry.getKey(), entry.getValue()));
+                return newParams;
+
+            }
+        } else {
+            return request.params().size() == 0 ? MultiMap.empty()
+                    : new MultiMapWrapper(request.params());
+
+        }
+
     }
 
     private HttpResponseReceiver createResponse(final HttpServerResponse response) {

@@ -149,7 +149,7 @@ public class HttpRequestBuilder {
     }
 
     public HttpRequestBuilder setBody(String body) {
-        this.body = body.getBytes(StandardCharsets.UTF_8);
+        setBodyBytes(body.getBytes(StandardCharsets.UTF_8));
         return this;
     }
 
@@ -196,7 +196,7 @@ public class HttpRequestBuilder {
                     break;
                 case "POST":
                 case "PUT":
-                    body = paramString.getBytes(StandardCharsets.UTF_8);
+                    setBodyBytes(paramString.getBytes(StandardCharsets.UTF_8));
                     contentType = "application/x-www-form-urlencoded";
                     break;
             }
@@ -243,10 +243,12 @@ public class HttpRequestBuilder {
         if (contentType != null) {
             this.addHeader("Content-Type", contentType);
         }
-        return new HttpRequest(this.getId(), newURI, this.getMethod(), this.getParams(),
+        final HttpRequest request = new HttpRequest(this.getId(), newURI, this.getMethod(), this.getParams(),
                 this.getHeaders(),
                 this.getBodyBytes() != null ? this.getBodyBytes() : new byte[]{},
                 this.getRemoteAddress(), this.getContentType(), httpResponse, this.getTimestamp());
+
+        return request;
     }
 
 
@@ -377,34 +379,36 @@ public class HttpRequestBuilder {
         }
 
 
+        params = MultiMap.empty();
         return paramString;
 
     }
 
 
     public HttpRequestBuilder setFormPutAndCreateFormBody() {
-        String paramString = paramString();
         if (params.size() == 0) {
             throw new IllegalStateException("Form must have params, you must add the params before you call this method");
         }
-        contentType = "application/x-www-form-urlencoded";
 
-        body = paramString.getBytes(StandardCharsets.UTF_8);
-        method = "PUT";
-
+        String paramString = paramString();
+        setContentType("application/x-www-form-urlencoded");
+        setMethod("PUT");
+        setBodyBytes(paramString.getBytes(StandardCharsets.UTF_8));
 
         return this;
     }
 
     public HttpRequestBuilder setFormPostAndCreateFormBody() {
-        String paramString = paramString();
-        if (params.size() == 0) {
+        if (getParams().size() == 0) {
             throw new IllegalStateException("Form must have params, you must add the params before you call this method");
         }
-        contentType = "application/x-www-form-urlencoded";
-        method = "POST";
+        String paramString = paramString();
 
-        body = paramString.getBytes(StandardCharsets.UTF_8);
+        setContentType("application/x-www-form-urlencoded");
+        setMethod("POST");
+
+        setBodyBytes(paramString.getBytes(StandardCharsets.UTF_8));
+
 
 
         return this;
