@@ -14,7 +14,7 @@ import java.util.List;
 @RequestMapping("/todo-service")
 public class TodoService {
 
-    List<TodoItem> items = new ArrayList<>();
+    private List<TodoItem> items = new ArrayList<>();
 
 
     @RequestMapping("/todo/count")

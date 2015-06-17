@@ -4,16 +4,12 @@ import io.advantageous.boon.json.JsonFactory;
 import io.advantageous.qbit.http.client.HttpClient;
 import io.advantageous.qbit.http.client.HttpClientBuilder;
 import io.advantageous.qbit.http.request.HttpResponse;
-import io.advantageous.qbit.http.request.HttpTextReceiver;
 
 import java.util.Date;
 
 import static io.advantageous.boon.core.IO.puts;
 
-/**
- * Created by rhightower on 6/8/15.
- */
-public class TodoClientTest {
+public class TodoRestClientExample {
 
     public static void main(String... args) {
         final HttpClient httpClient = HttpClientBuilder.httpClientBuilder().setPort(8080).build();

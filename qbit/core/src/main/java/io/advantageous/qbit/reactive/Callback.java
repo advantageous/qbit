@@ -27,7 +27,7 @@ import java.util.function.Consumer;
  * Note: This was boon Handler but we switched to JDK 8 Consumer style callbackWithTimeout.
  * <p>
  * created by gcc on 10/14/14.
- * Was called Handler and  created by Rick Hightower quite a bit before 10/14
+ * Was called Handler and created by Rick Hightower quite a bit before 10/14/14
  */
 
 public interface Callback<T> extends Consumer<T> {

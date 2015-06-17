@@ -1,6 +1,7 @@
 package io.advantageous.qbit.reactive;
 
 import io.advantageous.qbit.reactive.impl.AsyncFutureCallbackImpl;
+import io.advantageous.qbit.service.ServiceProxyUtils;
 import io.advantageous.qbit.util.Timer;
 
 import java.util.ArrayList;
@@ -15,40 +16,125 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 
 /**
- * Reactor
+ * You could use a reactor per service.
+ * Right now we don't use QBit queues, but we could. We need a way to flush the queues async.
+ * Reactor. We could get a lot perf from refactoring this to use QBit queues instead of BlockingQueue.
  * created by rhightower on 3/22/15.
  */
 @SuppressWarnings("UnusedReturnValue")
 public class Reactor {
 
+    /* The queues could benefit from being QBit queues. */
 
+    /* Future can come back on another thread so it has to be handled by thread safe queue. */
     private final BlockingQueue<AsyncFutureCallback<?>> futureQueue = new LinkedTransferQueue<>();
+
+    /* Future can come back on another thread so it has to be handled by thread safe queue. */
     private final BlockingQueue<AsyncFutureCallback<?>> removeFutureQueue = new LinkedTransferQueue<>();
 
+
+    /* Coordinator can come back on another thread so it has to be handled by thread safe queue. */
     private final BlockingQueue<CallbackCoordinator> coordinatorQueue = new LinkedTransferQueue<>();
+
+
+    /* Coordinator can come back on another thread so it has to be handled by thread safe queue. */
     private final BlockingQueue<CallbackCoordinator> removeCoordinatorQueue = new LinkedTransferQueue<>();
 
+
+    /** List of futures that we are managing. */
     private final Set<AsyncFutureCallback<?>> futureList = new HashSet<>();
+
+
+    /** List of coordinators that we are managing. */
     private final Set<CallbackCoordinator> coordinatorList = new HashSet<>();
+
+
+    /** Timer to keep track of current time. */
     private final Timer timer;
+
+    /** Time out to use if a timeout is not specified. */
     private final long defaultTimeOut;
 
+    /** Current time. */
     private long currentTime;
 
-    public Reactor(final Timer timer, long defaultTimeOut, TimeUnit timeUnit) {
+    /** Keeps list of repeating tasks. */
+    private List<RepeatingTask> repeatingTasks = new ArrayList<>(1);
 
+
+    /** Keeps list of collaborating services to flush. */
+    private List<Object> collaboratingServices = new ArrayList<>(1);
+
+    /**
+     * Reactor
+     * @param timer timer
+     * @param defaultTimeOut defaultTimeOut
+     * @param timeUnit time unit for default time out
+     */
+    public Reactor(final Timer timer, long defaultTimeOut, TimeUnit timeUnit) {
         this.timer = timer;
         currentTime = timer.now();
         this.defaultTimeOut = timeUnit.toMillis(defaultTimeOut);
     }
 
+
+
+    /** Add an object that is auto flushed.
+     *
+     * @param serviceObject as service object that will be auto-flushed.
+     */
+    public void addServiceToFlush(final Object serviceObject) {
+        collaboratingServices.add(serviceObject);
+    }
+
+    /** A repeating task. */
+    class RepeatingTask {
+        private long lastTimeInvoked;
+        private final Runnable task;
+        private final long repeatEveryMS;
+
+
+        public RepeatingTask(Runnable task, TimeUnit timeUnit, long repeatEvery) {
+            this.task = task;
+            this.repeatEveryMS = timeUnit.toMillis(repeatEvery);
+        }
+    }
+
+    /** Add a task that gets repeated. */
+    public void addRepeatingTask(final long repeatEvery, final TimeUnit timeUnit, final Runnable task) {
+
+        repeatingTasks.add(new RepeatingTask( task, timeUnit, repeatEvery ));
+    }
+
+    /** Process items in reactor. */
     public void process() {
 
-
+        /** Manages lists of coordinators, and callbacks which can come back async. */
         drainQueues();
+
         currentTime = timer.now();
+
+        /* Check to see if callbacks completed or timed out. */
         monitorCallBacks();
+
+        /* Check to see if coordinators completed or timed out. */
         monitorCallbackCoordinators();
+
+        /* flush services. */
+        collaboratingServices.forEach(ServiceProxyUtils::flushServiceProxy);
+
+        processRepeatingTasks();
+    }
+
+    public void processRepeatingTasks() {
+
+        /* Run repeating tasks if needed. */
+        repeatingTasks.forEach(repeatingTask -> {
+            if (currentTime - repeatingTask.lastTimeInvoked > repeatingTask.repeatEveryMS){
+                repeatingTask.lastTimeInvoked = currentTime;
+                repeatingTask.task.run();
+            }
+        });
     }
 
 
@@ -138,9 +224,13 @@ public class Reactor {
                         , onTimeout, onError);
 
         ref.set(asyncFutureCallback);
-        futureQueue.add(asyncFutureCallback);
+        addCallback(asyncFutureCallback);
         return asyncFutureCallback;
 
+    }
+
+    public <T> void addCallback(final AsyncFutureCallbackImpl<T> asyncFutureCallback) {
+        futureQueue.add(asyncFutureCallback);
     }
 
     private <T> Runnable createOnFinished(final AtomicReference<AsyncFutureCallback<T>> ref) {
@@ -273,7 +363,7 @@ public class Reactor {
 
         final List<AsyncFutureCallback<?>> removeList = new ArrayList<>();
 
-        long now = Timer.timer().now();
+        long now = currentTime;
         for (AsyncFutureCallback<?> callback : futureList) {
             if (callback.isDone()) {
                 callback.run();

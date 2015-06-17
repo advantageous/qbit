@@ -18,30 +18,35 @@ public class TodoClientMain {
         int port = 8080;
 
 
-        Client client = new ClientBuilder().setPort(port).setHost(host).setPollTime(10)
-                .setAutoFlush(true).setFlushInterval(50).setRequestBatchSize(50)
+        /* Create a client object.
+        * A client object connects to a ServiceEndpointServer so
+        * you can invoke a service over WebSocket.
+        */
+        final Client client = new ClientBuilder()
+                .setPort(port).setHost(host).setPollTime(10)
+                .setAutoFlush(true).setFlushInterval(50)
+                .setRequestBatchSize(50)
                 .setProtocolBatchSize(50).build();
 
-        TodoServiceClientInterface todoService =
+        client.start();
+
+        final TodoServiceClientInterface todoService =
                 client.createProxy(TodoServiceClientInterface.class, "todoService");
 
-        client.start();
 
 
         todoService.add(new TodoItem("Buy Milk"));
         todoService.add(new TodoItem("Buy Hot dogs"));
-
-        client.flush();
-
-
         todoService.list(todoItems -> { //LAMBDA EXPRESSION Java 8
 
             for (TodoItem item : todoItems) {
-                System.out.println("TODO ITEM " + item.getDescription() + " " + item.getName() + " " + item.getDue());
+                System.out.println("TODO ITEM " +
+                        item.getDescription() + " " +
+                        item.getName() + " " +
+                        item.getDue());
             }
         });
 
-        client.flush();
 
         Sys.sleep(1000);
 

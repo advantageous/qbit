@@ -18,8 +18,7 @@ public class TodoMainWithHealth {
                 .setHost("localhost")
                 .setPort(8080)
                 .setHealthService(healthService)
-                .build()
-                .startServer();
+                .build();
 
         final ServiceEndpointServer adminServer =
                 adminBuilder.build();
