@@ -57,6 +57,7 @@
 
 package io.advantageous.qbit.service;
 
+import io.advantageous.boon.core.Sys;
 import io.advantageous.qbit.client.ClientProxy;
 import io.advantageous.qbit.reactive.Callback;
 import io.advantageous.qbit.service.dispatchers.ServiceMethodDispatcher;
@@ -125,7 +126,8 @@ public class ShardedMethodDispatcherTest extends TimedTesting {
         worker.clientProxyFlush();
 
 
-        super.waitForTrigger(5, o -> ContentRulesEngine.totalCount.get() >= 200);
+        Sys.sleep(1000);
+        super.waitForTrigger(10, o -> ContentRulesEngine.totalCount.get() >= 200);
 
         ok = ContentRulesEngine.totalCount.get() == 200 || die(ContentRulesEngine.totalCount);
 
@@ -154,9 +156,8 @@ public class ShardedMethodDispatcherTest extends TimedTesting {
 
         worker.clientProxyFlush();
 
-
-
-        super.waitForTrigger(5, o -> callbackCount.get() >= 200);
+        Sys.sleep(1000);
+        super.waitForTrigger(10, o -> callbackCount.get() >= 200);
 
         assertEquals(200, callbackCount.get());
 
