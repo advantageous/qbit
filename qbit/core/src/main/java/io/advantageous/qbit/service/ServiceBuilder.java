@@ -425,8 +425,15 @@ public class ServiceBuilder {
      */
     public ServiceQueue buildAndStart() {
 
+        return build().startServiceQueue();
+    }
+
+
+    public ServiceQueue buildAndStartAll() {
+
         return build().startServiceQueue().startCallBackHandler();
     }
+
 
 
 

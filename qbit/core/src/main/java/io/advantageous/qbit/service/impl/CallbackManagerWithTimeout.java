@@ -115,8 +115,11 @@ public class CallbackManagerWithTimeout implements CallbackManager {
     }
 
     @Override
-    public void handleResponse(Response<Object> response) {
-        final Callback<Object> handler = handlers.get(new HandlerKey(response.returnAddress(), response.id(), now));
+    public void handleResponse(final Response<Object> response) {
+        final HandlerKey handlerKey = new HandlerKey(response.returnAddress(), response.id(), now);
+        final Callback<Object> handler = handlers.get(handlerKey);
+
+        handlers.remove(handlerKey);
 
         if (handler == null) {
             return;
@@ -140,6 +143,7 @@ public class CallbackManagerWithTimeout implements CallbackManager {
         } else {
             handler.accept(response.body());
         }
+
     }
 
     @Override
