@@ -425,7 +425,7 @@ public class ServiceBuilder {
      */
     public ServiceQueue buildAndStart() {
 
-        return build().startServiceQueue();
+        return build().startServiceQueue().startCallBackHandler();
     }
 
 

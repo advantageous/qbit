@@ -42,6 +42,7 @@ public class CallbackManagerWithTimeout implements CallbackManager {
     private final long checkInterval;
     private final Timer timer;
     private long lastCheckTime;
+    private long now;
 
 
 
@@ -52,6 +53,8 @@ public class CallbackManagerWithTimeout implements CallbackManager {
         this.handleTimeouts = handleTimeouts;
         this.timeOutMS = timeOutMS;
         this.checkInterval = checkInterval;
+        this.lastCheckTime = timer.now();
+        this.now = lastCheckTime;
         this.timer = timer;
     }
 
@@ -139,7 +142,6 @@ public class CallbackManagerWithTimeout implements CallbackManager {
         }
     }
 
-    private long now;
     @Override
     public void process(long currentTime) {
 
