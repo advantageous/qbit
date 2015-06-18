@@ -103,6 +103,9 @@ public class AsyncFutureCallbackImpl<T> implements AsyncFutureCallback<T> {
 
     @Override
     public void onTimeout() {
+        if (done.get()) {
+            return;
+        }
         if (onTimeout == null) {
             callback.onTimeout();
         } else {

@@ -42,5 +42,6 @@ public interface Callback<T> extends Consumer<T> {
     default void onTimeout() {
 
     }
+
 }
 

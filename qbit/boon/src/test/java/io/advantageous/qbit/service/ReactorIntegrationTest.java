@@ -10,7 +10,9 @@ import org.junit.Test;
 
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 
 public class ReactorIntegrationTest {
@@ -71,7 +73,7 @@ public class ReactorIntegrationTest {
 
         final SomeServiceA someServiceA = new SomeServiceA();
         final ServiceQueue serviceQueueA = ServiceBuilder.serviceBuilder()
-                .setServiceObject(someServiceA).buildAndStart();
+                .setServiceObject(someServiceA).buildAndStartAll();
         final ISomeService someServiceAProxy = serviceQueueA
                 .createProxyWithAutoFlush(ISomeService.class, 50, TimeUnit.MILLISECONDS);
 
@@ -80,7 +82,7 @@ public class ReactorIntegrationTest {
 
 
         final ServiceQueue serviceQueueB = ServiceBuilder.serviceBuilder()
-                .setServiceObject(someServiceB).buildAndStart();
+                .setServiceObject(someServiceB).buildAndStartAll();
         final ISomeService someServiceBProxy = serviceQueueB
                 .createProxyWithAutoFlush(ISomeService.class, 50, TimeUnit.MILLISECONDS);
 
@@ -89,6 +91,17 @@ public class ReactorIntegrationTest {
         Sys.sleep(5_000);
 
         assertFalse(timeout.get());
+
+        final AtomicInteger count = new AtomicInteger();
+        for (int index=0; index< 1000; index++) {
+            Sys.sleep(1);
+            someServiceBProxy.message(s -> count.incrementAndGet());
+        }
+
+
+        Sys.sleep(1_000);
+
+        assertEquals(1000, count.get());
     }
 
 

@@ -175,19 +175,22 @@ public class CallbackManagerWithTimeout implements CallbackManager {
 
         final ArrayList<Map.Entry<HandlerKey, Callback<Object>>> entries = new ArrayList<>(handlers.entrySet());
 
-        entries.stream().filter(handlerKeyCallbackEntry -> now - handlerKeyCallbackEntry.getKey().timestamp > timeOutMS)
-                .forEach(handlerKeyCallbackEntry -> {
+
+        for (Map.Entry<HandlerKey, Callback<Object>> entry : entries) {
+            long duration = now - entry.getKey().timestamp;
+            if (duration > timeOutMS) {
 
 
-                    logger.error("{} Call has timed out duration {} {} {}",name,
-                            now - handlerKeyCallbackEntry.getKey().timestamp,
-                            handlerKeyCallbackEntry.getKey().returnAddress,
-                            handlerKeyCallbackEntry.getKey().messageId,
-                            new Date(handlerKeyCallbackEntry.getKey().timestamp));
+                if (debug) logger.debug("{} Call has timed out duration {} {} {}",name,
+                        now - entry.getKey().timestamp,
+                        entry.getKey().returnAddress,
+                        entry.getKey().messageId,
+                        new Date(entry.getKey().timestamp));
 
-                    handlers.remove(handlerKeyCallbackEntry.getKey());
-                    handlerKeyCallbackEntry.getValue().onTimeout();
-                });
+                handlers.remove(entry.getKey());
+                entry.getValue().onTimeout();
+            }
+        }
 
     }
 
