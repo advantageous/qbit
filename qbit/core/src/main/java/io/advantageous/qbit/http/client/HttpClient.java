@@ -374,7 +374,9 @@ public interface HttpClient extends ServiceFlushable, Stoppable, Startable {
         return sendRequestAndWait(httpRequest, HTTP_CLIENT_DEFAULT_TIMEOUT, TimeUnit.SECONDS);
     }
 
-    default HttpResponse sendRequestAndWait(final HttpRequest httpRequest, long wait, TimeUnit timeUnit) {
+    default HttpResponse sendRequestAndWait(final HttpRequest httpRequest,
+                                            final long wait,
+                                            final TimeUnit timeUnit) {
 
 
         final CountDownLatch countDownLatchConnect = new CountDownLatch(1);
@@ -391,9 +393,8 @@ public interface HttpClient extends ServiceFlushable, Stoppable, Startable {
 
             countDownLatchConnect.await(500, TimeUnit.MILLISECONDS);
             checkClosed();
-            if (countDownLatch.getCount() > 0) {
-                countDownLatch.await(wait, timeUnit);
-            }
+            countDownLatch.await(wait, timeUnit);
+
         } catch (InterruptedException e) {
             if (Thread.currentThread().isInterrupted()) {
                 Thread.interrupted();
