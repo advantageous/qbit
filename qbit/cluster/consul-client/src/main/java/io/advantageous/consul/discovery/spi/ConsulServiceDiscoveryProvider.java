@@ -311,7 +311,9 @@ public class ConsulServiceDiscoveryProvider implements ServiceDiscoveryProvider 
 
 
     private Consul consul()  {
-        return  Consul.consul(consulHost, consulPort);
+        final Consul consul =  Consul.consul(consulHost, consulPort);
+        consul.start();
+        return consul;
     }
 
 }
