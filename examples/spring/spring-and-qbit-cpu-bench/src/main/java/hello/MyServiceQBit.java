@@ -22,6 +22,14 @@ public class MyServiceQBit {
     }
 
     public static void main(String... args) throws Exception {
+
+
+        System.setProperty("vertx.pool.worker.size", System.getProperty("vertx.pool.worker.size",
+                String.valueOf(200)));
+        System.setProperty("vertx.pool.eventloop.size", System.getProperty("vertx.pool.eventloop.size",
+                String.valueOf((Runtime.getRuntime().availableProcessors() * 4))));
+
+
         endpointServerBuilder()
                 .setPort(6060)
                 .build()

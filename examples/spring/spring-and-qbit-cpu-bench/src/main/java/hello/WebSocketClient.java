@@ -16,6 +16,8 @@ import java.util.concurrent.atomic.LongAdder;
 @SuppressWarnings("ALL")
 public class WebSocketClient {
 
+
+    static volatile long sentCount = 0L;
     static volatile long count = 0L;
 
     public static void main(String... args) {
@@ -27,11 +29,15 @@ public class WebSocketClient {
         List<Thread> threads = new ArrayList<>();
 
 
-        for (int numThreads = 0; numThreads < 10; numThreads++) {
+        final long start = System.currentTimeMillis();
+        for (int numThreads = 0; numThreads < 20; numThreads++) {
+
+            Sys.sleep((33 * numThreads) + 1);
             final Client client = new ClientBuilder()
                     .setPort(port)
                     .setHost(host)
-                    .setRequestBatchSize(700)
+                    .setRequestBatchSize(3_000)
+                    .setProtocolBatchSize(1_000)
                     .build();
 
             client.start();
@@ -45,8 +51,11 @@ public class WebSocketClient {
                 @Override
                 public void run() {
 
-                    for (int index = 0; index < 2_000_000; index++) {
+                    for (int index = 0; index < 10_000_000; index++) {
 
+                        if (index % 1000 == 0) {
+                            sentCount+=1000;
+                        }
                         final int findex = index;
                         myService.ping(new Callback<List<String>>() {
                             @Override
@@ -58,6 +67,21 @@ public class WebSocketClient {
                             }
                         });
 
+
+                        if (index%333_000==0) {
+                            Sys.sleep(333);
+                        }
+
+                        if (index%100_000==0) {
+
+                            for (int i = 0; i < 100; i++) {
+                                if (count < (sentCount - 99_000)) {
+                                    Sys.sleep(111 * (index % 9));
+                                }
+                            }
+                        }
+
+
                     }
                 }
             });
@@ -67,19 +91,22 @@ public class WebSocketClient {
         }
 
 
-        final double start = System.currentTimeMillis();
-        while (count < 10_000_000) {
-            for (int index = 0; index < 10; index++) {
-                Sys.sleep(100);
 
-                if (count > 10_000_000) {
-                    break;
-                }
+        loop:
+        for (int x =0; x < 10000; x++) {
+            Sys.sleep(1000);
+            if (count > 100_000_000) {
+                    break loop;
             }
-            double now = System.currentTimeMillis();
-            double c = count;
-            System.out.println((c / (now - start)) * 1000);
+
+
+
+            long now = System.currentTimeMillis();
+            long c = count;
+            long rate = (c / (now - start)) * 1000;
+            System.out.println( rate + " " + c + " " + rate *2);
         }
+
 
         System.out.println("Done");
     }
