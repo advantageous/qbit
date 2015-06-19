@@ -91,7 +91,6 @@ public class BaseServiceQueueImpl implements ServiceQueue {
     protected final QueueBuilder responseQueueBuilder;
     protected final boolean handleCallbacks;
     private final Factory factory;
-    protected final ReentrantLock responseLock = new ReentrantLock();
     protected volatile long lastResponseFlushTime = Timer.timer().now();
     protected final ServiceMethodHandler serviceMethodHandler;
     protected final SendQueue<Response<Object>> responseSendQueue;
@@ -157,7 +156,7 @@ public class BaseServiceQueueImpl implements ServiceQueue {
         }
 
 
-        this.responseSendQueue = this.responseQueue.sendQueue();
+        this.responseSendQueue = this.responseQueue.sendQueueWithAutoFlush(100, TimeUnit.MILLISECONDS);
         this.service = service;
         this.serviceMethodHandler = serviceMethodHandler;
         this.serviceMethodHandler.init(service, rootAddress, serviceAddress, responseSendQueue);
@@ -352,12 +351,7 @@ public class BaseServiceQueueImpl implements ServiceQueue {
             if (!afterMethodCallAfterTransform.after(methodCall, response)) {
                 return;
             }
-            responseLock.lock();
-            try {
-                responseSendQueue.send(response);
-            } finally {
-                responseLock.unlock();
-            }
+            responseSendQueue.send(response);
 
         }
     }
@@ -495,12 +489,7 @@ public class BaseServiceQueueImpl implements ServiceQueue {
         long now = Timer.timer().now();
         if (now - lastResponseFlushTime > 50) {
             lastResponseFlushTime = now;
-            responseLock.lock();
-            try {
-                responseSendQueue.flushSends();
-            } finally {
-                responseLock.unlock();
-            }
+            responseSendQueue.flushSends();
         }
     }
 

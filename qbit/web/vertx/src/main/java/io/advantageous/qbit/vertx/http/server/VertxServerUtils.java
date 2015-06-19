@@ -20,6 +20,7 @@ package io.advantageous.qbit.vertx.http.server;
 
 import io.advantageous.boon.core.Str;
 import io.advantageous.boon.core.StringScanner;
+import io.advantageous.qbit.http.HttpStatus;
 import io.advantageous.qbit.http.request.HttpRequest;
 import io.advantageous.qbit.http.request.HttpResponseReceiver;
 import io.advantageous.qbit.http.websocket.WebSocket;
@@ -141,6 +142,7 @@ public class VertxServerUtils {
 
                 response.putHeader("Content-Type", contentType);
                 response.setStatusCode(code);
+                response.setStatusMessage(HttpStatus.message(code));
 
 
                 Buffer buffer = createBuffer(body, response);

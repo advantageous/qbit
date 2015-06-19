@@ -922,7 +922,7 @@ public class BoonServiceMethodCallHandler implements ServiceMethodHandler {
         public void accept(Object result) {
             /* This wants to be periodic flush or flush based on size but this is a stop gap make something work for now.
              */
-            responseSendQueue.sendAndFlush(ResponseImpl.response(methodCall, result));
+            responseSendQueue.send(ResponseImpl.response(methodCall, result));
         }
     }
 
