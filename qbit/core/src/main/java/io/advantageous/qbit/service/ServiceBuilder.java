@@ -64,7 +64,7 @@ public class ServiceBuilder {
     private Transformer<Response<Object>, Response> responseObjectTransformer = new NoOpResponseTransformer();
     private Queue<Response<Object>> responseQueue;
     private QueueBuilder requestQueueBuilder;
-    private QueueBuilder responseQueueBuilder = new QueueBuilder();
+    private QueueBuilder responseQueueBuilder;
     private boolean asyncResponse = true;
     private boolean invokeDynamic = true;
     private String rootAddress;
@@ -159,6 +159,9 @@ public class ServiceBuilder {
     }
 
     public QueueBuilder getResponseQueueBuilder() {
+        if (responseQueueBuilder ==  null) {
+            this.responseQueueBuilder = QueueBuilder.queueBuilder();
+        }
         return responseQueueBuilder;
     }
 
@@ -284,6 +287,9 @@ public class ServiceBuilder {
     }
 
     public QueueBuilder getRequestQueueBuilder() {
+        if (requestQueueBuilder == null) {
+            requestQueueBuilder = QueueBuilder.queueBuilder();
+        }
         return requestQueueBuilder;
     }
 
