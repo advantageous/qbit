@@ -63,9 +63,14 @@ public class PerfMain {
         }
 
 
-        Client client = new ClientBuilder().setPort(port).setHost(host).setPollTime(10)
-                .setAutoFlush(true).setFlushInterval(50).setRequestBatchSize(50)
-                .setProtocolBatchSize(50).build();
+        final Client client = new ClientBuilder()
+                .setPort(port)
+                .setHost(host)
+                .setAutoFlush(true)
+                .setFlushInterval(100)
+                .setRequestBatchSize(1_000)
+                .setProtocolBatchSize(2_000)
+                .build();
 
         TodoServiceClient todoService = client.createProxy(TodoServiceClient.class, "todo-manager");
 
@@ -82,19 +87,19 @@ public class PerfMain {
 
         Date date = new Date();
 
-        for (int runs = 0; runs < 10000; runs++) {
+        for (int runs = 0; runs < 10_000; runs++) {
 
 
-            for (int index = 0; index < 200_000; index++) {
+            for (int index = 0; index < 50_000; index++) {
                 todoService.add(new TodoItem("a" + index, "b", date));
 
 
-                if (index % 40_000 == 0) {
+                if (index % 10_000 == 0) {
 
                     if (wait.get()) {
                         todoService.size(PerfMain::adjustSize);
                         puts("Waiting");
-                        Sys.sleep(1000);
+                        Sys.sleep(100);
                     }
 
                 }
@@ -104,7 +109,7 @@ public class PerfMain {
 
             client.flush();
 
-            totalSends.addAndGet(200_000);
+            totalSends.addAndGet(50_000);
             Sys.sleep(25);
 
 
@@ -132,7 +137,7 @@ public class PerfMain {
         int itemsReceived = size - startSize;
         int currentTotalSends = totalSends.get();
 
-        if (currentTotalSends - 400_000 > (itemsReceived)) {
+        if (currentTotalSends - 20_000 > (itemsReceived)) {
 
             puts("Waiting flag", "currentTotalSends", currentTotalSends, "itemsReceived", itemsReceived);
             wait.set(true);
