@@ -41,7 +41,7 @@ project('client') {
 
     apply plugin: 'application'
 
-    mainClassName = "io.advantageous.qbit.sample.server.TodoClientMain"
+    mainClassName = "io.advantageous.qbit.sample.server.PerfMain"
 
     dependencies {
         compile project(':examples:basic:model')
