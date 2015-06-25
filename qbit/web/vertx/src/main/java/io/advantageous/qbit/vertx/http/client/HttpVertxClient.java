@@ -33,6 +33,7 @@ import io.advantageous.qbit.http.websocket.WebSocketSender;
 import io.advantageous.qbit.network.NetSocket;
 import io.advantageous.qbit.util.MultiMap;
 import io.advantageous.qbit.vertx.MultiMapWrapper;
+import io.advantageous.qbit.vertx.http.util.VertxCreate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.vertx.java.core.Vertx;
@@ -103,7 +104,7 @@ public class HttpVertxClient implements HttpClient {
         this.host = host;
         this.timeOutInMilliseconds = timeOutInMilliseconds;
         this.poolSize = poolSize;
-        this.vertx = newVertx();
+        this.vertx = VertxCreate.newVertx();
         this.poolSize = poolSize;
         this.keepAlive = keepAlive;
         this.pipeline = pipeline;
@@ -112,36 +113,6 @@ public class HttpVertxClient implements HttpClient {
     }
 
 
-    static VertxFactory vertxFactory;
-
-    /** Spring boot when creating a giant jar
-     * has a problem running ServiceLoader multiple times or
-     * so it appears. This is a workaround.
-     * @return new vertx instance from cache vertxFactory
-     */
-    public static Vertx newVertx() {
-        final ClassMeta<VertxFactory> vertxFactoryClassMeta = ClassMeta.classMeta(VertxFactory.class);
-
-        final Iterable<MethodAccess> createVertxMethods = vertxFactoryClassMeta.methods("createVertx");
-
-
-        for (MethodAccess methodAccess : createVertxMethods) {
-            if (methodAccess.method().getParameterCount() == 0) {
-                return (Vertx) methodAccess.invoke(vertxFactory);
-            }
-
-        }
-        throw new IllegalStateException("Unable to load vertx");
-    }
-
-    static {
-        vertxFactory = loadFactory();
-    }
-
-    private static VertxFactory loadFactory() {
-        ServiceLoader<VertxFactory> factories = ServiceLoader.load(VertxFactory.class);
-        return factories.iterator().next();
-    }
 
     @Override
     public void sendHttpRequest(final HttpRequest request) {

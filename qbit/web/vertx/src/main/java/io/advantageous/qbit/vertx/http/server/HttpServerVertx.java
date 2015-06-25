@@ -30,11 +30,10 @@ import io.advantageous.qbit.http.server.websocket.WebSocketMessage;
 import io.advantageous.qbit.http.websocket.WebSocket;
 import io.advantageous.qbit.system.QBitSystemManager;
 import io.advantageous.qbit.util.Timer;
+import io.advantageous.qbit.vertx.http.util.VertxCreate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.core.Handler;
 import org.vertx.java.core.Vertx;
-import org.vertx.java.core.VertxFactory;
 import org.vertx.java.core.buffer.Buffer;
 import org.vertx.java.core.http.HttpServerRequest;
 import org.vertx.java.core.http.ServerWebSocket;
@@ -88,7 +87,7 @@ public class HttpServerVertx implements HttpServer {
                            QBitSystemManager systemManager) {
 
 
-        this(VertxFactory.newVertx(), options, systemManager);
+        this(VertxCreate.newVertx(), options, systemManager);
     }
 
 
