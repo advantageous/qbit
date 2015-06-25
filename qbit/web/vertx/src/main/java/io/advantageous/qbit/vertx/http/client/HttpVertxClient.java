@@ -20,6 +20,8 @@ package io.advantageous.qbit.vertx.http.client;
 
 import io.advantageous.boon.core.Str;
 import io.advantageous.boon.core.Sys;
+import io.advantageous.boon.core.reflection.ClassMeta;
+import io.advantageous.boon.core.reflection.MethodAccess;
 import io.advantageous.boon.primitive.CharBuf;
 import io.advantageous.qbit.GlobalConstants;
 import io.advantageous.qbit.concurrent.ExecutorContext;
@@ -45,6 +47,8 @@ import java.net.ConnectException;
 import java.net.URLEncoder;
 import java.util.Collection;
 import java.util.Map;
+import java.util.ServiceLoader;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 
@@ -99,12 +103,44 @@ public class HttpVertxClient implements HttpClient {
         this.host = host;
         this.timeOutInMilliseconds = timeOutInMilliseconds;
         this.poolSize = poolSize;
-        this.vertx = VertxFactory.newVertx();
+        this.vertx = newVertx();
         this.poolSize = poolSize;
         this.keepAlive = keepAlive;
         this.pipeline = pipeline;
         this.autoFlush = autoFlush;
 
+    }
+
+
+    static VertxFactory vertxFactory;
+
+    /** Spring boot when creating a giant jar
+     * has a problem running ServiceLoader multiple times or
+     * so it appears. This is a workaround.
+     * @return new vertx instance from cache vertxFactory
+     */
+    public static Vertx newVertx() {
+        final ClassMeta<VertxFactory> vertxFactoryClassMeta = ClassMeta.classMeta(VertxFactory.class);
+
+        final Iterable<MethodAccess> createVertxMethods = vertxFactoryClassMeta.methods("createVertx");
+
+
+        for (MethodAccess methodAccess : createVertxMethods) {
+            if (methodAccess.method().getParameterCount() == 0) {
+                return (Vertx) methodAccess.invoke(vertxFactory);
+            }
+
+        }
+        throw new IllegalStateException("Unable to load vertx");
+    }
+
+    static {
+        vertxFactory = loadFactory();
+    }
+
+    private static VertxFactory loadFactory() {
+        ServiceLoader<VertxFactory> factories = ServiceLoader.load(VertxFactory.class);
+        return factories.iterator().next();
     }
 
     @Override
