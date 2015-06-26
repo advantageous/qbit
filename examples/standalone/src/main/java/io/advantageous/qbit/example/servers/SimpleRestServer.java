@@ -44,7 +44,8 @@ public class SimpleRestServer {
     public static void main(String... args) throws Exception {
 
 
-        final ServiceEndpointServer serviceEndpointServer = new EndpointServerBuilder().setPort(6060)
+        final ServiceEndpointServer serviceEndpointServer = new EndpointServerBuilder()
+                .setFlushInterval(50).setRequestBatchSize(10).setPort(6060)
                 .build().initServices(new MyService()).startServer();
 
 
