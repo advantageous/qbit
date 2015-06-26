@@ -26,7 +26,9 @@ import io.advantageous.qbit.service.ServiceFlushable;
 import io.advantageous.qbit.service.Startable;
 import io.advantageous.qbit.service.Stoppable;
 import io.advantageous.qbit.util.MultiMap;
+import io.advantageous.qbit.util.Timer;
 
+import java.util.Date;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
@@ -401,15 +403,24 @@ public interface HttpClient extends ServiceFlushable, Stoppable, Startable {
             countDownLatch.await(wait, timeUnit);
 
         } catch (InterruptedException e) {
+
             if (Thread.currentThread().isInterrupted()) {
                 Thread.interrupted();
             }
         }
 
-        if (countDownLatch.getCount() > 0) {
-            throw new HttpClientTimeoutException();
+
+        final HttpResponse httpResponse = httpResponseAtomicReference.get();
+        if (httpResponse == null) {
+            if (countDownLatch.getCount() != 0) {
+                throw new HttpClientTimeoutException("Timeout start time " + new Date(httpRequest.getTimestamp()) +
+                        " now " + new Date(Timer.clockTime()) );
+            } else {
+                throw new HttpClientTimeoutException("Timeout: no response " + new Date(httpRequest.getTimestamp()) +
+                        " now " + new Date(Timer.clockTime()) );
+            }
         }
-        return httpResponseAtomicReference.get();
+        return httpResponse;
 
     }
 

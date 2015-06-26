@@ -98,7 +98,7 @@ public class Consul {
         if (!started) {
             started = true;
             httpClient.startClient();
-            agent.pingAgent();
+            //agent.pingAgent();
         }
     }
 
