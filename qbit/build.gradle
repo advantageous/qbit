@@ -56,7 +56,7 @@ subprojects {
     }
 
     signing {
-        required false
+        required true
         sign configurations.archives
     }
 
