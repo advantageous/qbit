@@ -22,6 +22,7 @@ package io.advantageous.qbit.vertx.http.server;
 import io.advantageous.boon.core.Str;
 import io.advantageous.boon.core.reflection.BeanUtils;
 import io.advantageous.qbit.GlobalConstants;
+import io.advantageous.qbit.http.HttpContentTypes;
 import io.advantageous.qbit.http.config.HttpServerOptions;
 import io.advantageous.qbit.http.request.HttpRequest;
 import io.advantageous.qbit.http.server.HttpServer;
@@ -202,9 +203,7 @@ public class HttpServerVertx implements HttpServer {
                 final String contentType = request.headers().get("Content-Type");
 
 
-
-                if ("application/x-www-form-urlencoded".equals(contentType)
-                    || "multipart/form-data".equals(contentType)) {
+                if (HttpContentTypes.isFormContentType(contentType)) {
 
                     request.expectMultiPart(true);
                     request.endHandler(event -> {
