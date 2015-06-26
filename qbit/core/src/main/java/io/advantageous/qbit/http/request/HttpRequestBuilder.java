@@ -20,6 +20,7 @@ package io.advantageous.qbit.http.request;
 
 import io.advantageous.boon.core.Str;
 import io.advantageous.boon.primitive.ByteBuf;
+import io.advantageous.qbit.client.ClientBuilder;
 import io.advantageous.qbit.util.GzipUtils;
 import io.advantageous.qbit.util.MultiMap;
 import io.advantageous.qbit.util.MultiMapImpl;
@@ -448,6 +449,22 @@ public class HttpRequestBuilder {
         } catch (Exception e) {
             throw new IllegalStateException(e);
         }
+
+        return this;
+    }
+
+    public HttpRequestBuilder initFormIfNeeded() {
+
+        if (getParams().size() == 0) {
+            return this;
+        }
+        if (getMethod().equals("POST") || getMethod().equals("PUT")) {
+            setContentType("application/x-www-form-urlencoded");
+            String paramString = paramString();
+            setBodyBytes(paramString.getBytes(StandardCharsets.UTF_8));
+        }
+
+
 
         return this;
     }

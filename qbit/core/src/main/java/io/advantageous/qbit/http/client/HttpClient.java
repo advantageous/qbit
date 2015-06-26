@@ -292,6 +292,7 @@ public interface HttpClient extends ServiceFlushable, Stoppable, Startable {
                 .setMethod(method)
                 .setUri(uri).setTextReceiver(httpTextReceiver)
                 .addParam(paramName0, value0 == null ? "" : value0.toString())
+                .initFormIfNeeded()
                 .build();
 
         sendHttpRequest(httpRequest);
@@ -307,6 +308,7 @@ public interface HttpClient extends ServiceFlushable, Stoppable, Startable {
                 .setUri(uri).setTextReceiver(httpTextReceiver)
                 .addParam(paramName0, value0 == null ? "" : value0.toString())
                 .addParam(paramName1, value1 == null ? "" : value1.toString())
+                .initFormIfNeeded()
                 .build();
         sendHttpRequest(httpRequest);
     }
@@ -322,6 +324,7 @@ public interface HttpClient extends ServiceFlushable, Stoppable, Startable {
                 .addParam(paramName0, value0 == null ? "" : value0.toString())
                 .addParam(paramName1, value1 == null ? "" : value1.toString())
                 .addParam(paramName2, value2 == null ? "" : value2.toString())
+                .initFormIfNeeded()
                 .build();
         sendHttpRequest(httpRequest);
     }
@@ -339,6 +342,7 @@ public interface HttpClient extends ServiceFlushable, Stoppable, Startable {
                 .addParam(paramName1, value1 == null ? "" : value1.toString())
                 .addParam(paramName2, value2 == null ? "" : value2.toString())
                 .addParam(paramName3, value3 == null ? "" : value3.toString())
+                .initFormIfNeeded()
                 .build();
         sendHttpRequest(httpRequest);
     }
@@ -359,6 +363,7 @@ public interface HttpClient extends ServiceFlushable, Stoppable, Startable {
                 .addParam(paramName2, value2 == null ? "" : value2.toString())
                 .addParam(paramName3, value3 == null ? "" : value3.toString())
                 .addParam(paramName4, value4 == null ? "" : value4.toString())
+                .initFormIfNeeded()
                 .build();
         sendHttpRequest(httpRequest);
     }
@@ -464,6 +469,7 @@ public interface HttpClient extends ServiceFlushable, Stoppable, Startable {
 
         final HttpRequest httpRequest = httpRequestBuilder().setMethod("POST")
                 .setUri(uri).addParam(key, value == null ? "" : value.toString())
+                .initFormIfNeeded()
                 .build();
 
         return sendRequestAndWait(httpRequest, time, timeUnit);
@@ -480,6 +486,7 @@ public interface HttpClient extends ServiceFlushable, Stoppable, Startable {
 
         final HttpRequest httpRequest = httpRequestBuilder().setMethod("PUT")
                 .setUri(uri).addParam(key, value == null ? "" : value.toString())
+                .initFormIfNeeded()
                 .build();
 
         return sendRequestAndWait(httpRequest, time, timeUnit);
@@ -527,6 +534,7 @@ public interface HttpClient extends ServiceFlushable, Stoppable, Startable {
                 .setUri(uri)
                 .addParam(key, value == null ? "" : value.toString())
                 .addParam(key1, value1 == null ? "" : value1.toString())
+                .initFormIfNeeded()
                 .build();
 
         return sendRequestAndWait(httpRequest, time, timeUnit);
@@ -553,6 +561,7 @@ public interface HttpClient extends ServiceFlushable, Stoppable, Startable {
                 .setUri(uri)
                 .addParam(key, value == null ? "" : value.toString())
                 .addParam(key1, value1 == null ? "" : value1.toString())
+                .initFormIfNeeded()
                 .build();
 
         return sendRequestAndWait(httpRequest, time, timeUnit);
@@ -613,6 +622,7 @@ public interface HttpClient extends ServiceFlushable, Stoppable, Startable {
                 .addParam(key, value == null ? "" : value.toString())
                 .addParam(key1, value1 == null ? "" : value1.toString())
                 .addParam(key2, value2 == null ? "" : value2.toString())
+                .initFormIfNeeded()
                 .build();
 
         return sendRequestAndWait(httpRequest, time, timeUnit);
@@ -646,6 +656,7 @@ public interface HttpClient extends ServiceFlushable, Stoppable, Startable {
                 .addParam(key, value == null ? "" : value.toString())
                 .addParam(key1, value1 == null ? "" : value1.toString())
                 .addParam(key2, value2 == null ? "" : value2.toString())
+                .initFormIfNeeded()
                 .build();
 
         return sendRequestAndWait(httpRequest, time, timeUnit);
@@ -715,6 +726,7 @@ public interface HttpClient extends ServiceFlushable, Stoppable, Startable {
                 .addParam(key1, value1 == null ? "" : value1.toString())
                 .addParam(key2, value2 == null ? "" : value2.toString())
                 .addParam(key3, value3 == null ? "" : value3.toString())
+                .initFormIfNeeded()
                 .build();
 
         return sendRequestAndWait(httpRequest, time, timeUnit);
@@ -751,6 +763,7 @@ public interface HttpClient extends ServiceFlushable, Stoppable, Startable {
                 .addParam(key1, value1 == null ? "" : value1.toString())
                 .addParam(key2, value2 == null ? "" : value2.toString())
                 .addParam(key3, value3 == null ? "" : value3.toString())
+                .initFormIfNeeded()
                 .build();
 
         return sendRequestAndWait(httpRequest, time, timeUnit);
@@ -787,6 +800,7 @@ public interface HttpClient extends ServiceFlushable, Stoppable, Startable {
                 .addParam(key2, value2 == null ? "" : value2.toString())
                 .addParam(key3, value3 == null ? "" : value3.toString())
                 .addParam(key4, value4 == null ? "" : value4.toString())
+                .initFormIfNeeded()
                 .build();
 
         return sendRequestAndWait(httpRequest, time, timeUnit);
@@ -827,6 +841,7 @@ public interface HttpClient extends ServiceFlushable, Stoppable, Startable {
                 .addParam(key2, value2 == null ? "" : value2.toString())
                 .addParam(key3, value3 == null ? "" : value3.toString())
                 .addParam(key4, value4 == null ? "" : value4.toString())
+                .initFormIfNeeded()
                 .build();
 
         return sendRequestAndWait(httpRequest, time, timeUnit);
@@ -867,6 +882,7 @@ public interface HttpClient extends ServiceFlushable, Stoppable, Startable {
                 .addParam(key2, value2 == null ? "" : value2.toString())
                 .addParam(key3, value3 == null ? "" : value3.toString())
                 .addParam(key4, value4 == null ? "" : value4.toString())
+                .initFormIfNeeded()
                 .build();
 
         return sendRequestAndWait(httpRequest, time, timeUnit);
