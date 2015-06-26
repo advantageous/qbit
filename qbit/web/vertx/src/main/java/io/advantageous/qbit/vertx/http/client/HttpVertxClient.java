@@ -20,6 +20,8 @@ package io.advantageous.qbit.vertx.http.client;
 
 import io.advantageous.boon.core.Str;
 import io.advantageous.boon.core.Sys;
+import io.advantageous.boon.core.reflection.ClassMeta;
+import io.advantageous.boon.core.reflection.MethodAccess;
 import io.advantageous.boon.primitive.CharBuf;
 import io.advantageous.qbit.GlobalConstants;
 import io.advantageous.qbit.concurrent.ExecutorContext;
@@ -31,6 +33,7 @@ import io.advantageous.qbit.http.websocket.WebSocketSender;
 import io.advantageous.qbit.network.NetSocket;
 import io.advantageous.qbit.util.MultiMap;
 import io.advantageous.qbit.vertx.MultiMapWrapper;
+import io.advantageous.qbit.vertx.http.util.VertxCreate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.vertx.java.core.Vertx;
@@ -45,6 +48,8 @@ import java.net.ConnectException;
 import java.net.URLEncoder;
 import java.util.Collection;
 import java.util.Map;
+import java.util.ServiceLoader;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 
@@ -99,13 +104,15 @@ public class HttpVertxClient implements HttpClient {
         this.host = host;
         this.timeOutInMilliseconds = timeOutInMilliseconds;
         this.poolSize = poolSize;
-        this.vertx = VertxFactory.newVertx();
+        this.vertx = VertxCreate.newVertx();
         this.poolSize = poolSize;
         this.keepAlive = keepAlive;
         this.pipeline = pipeline;
         this.autoFlush = autoFlush;
 
     }
+
+
 
     @Override
     public void sendHttpRequest(final HttpRequest request) {

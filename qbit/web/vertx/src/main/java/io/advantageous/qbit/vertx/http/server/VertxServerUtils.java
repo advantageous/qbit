@@ -20,6 +20,7 @@ package io.advantageous.qbit.vertx.http.server;
 
 import io.advantageous.boon.core.Str;
 import io.advantageous.boon.core.StringScanner;
+import io.advantageous.qbit.http.HttpContentTypes;
 import io.advantageous.qbit.http.HttpStatus;
 import io.advantageous.qbit.http.request.HttpRequest;
 import io.advantageous.qbit.http.request.HttpResponseReceiver;
@@ -81,8 +82,7 @@ public class VertxServerUtils {
 
 
 
-        final byte[] body = "application/x-www-form-urlencoded".equals(contentType)
-                || "multipart/form-data".equals(contentType) ||
+        final byte[] body = HttpContentTypes.isFormContentType(contentType) ||
                 buffer == null ?
                 new byte[0] : buffer.getBytes();
 
@@ -96,8 +96,7 @@ public class VertxServerUtils {
     private MultiMap<String, String> buildParams(final HttpServerRequest request,
                                                  final String contentType) {
 
-        if ("application/x-www-form-urlencoded".equals(contentType)
-                || "multipart/form-data".equals(contentType)) {
+        if (HttpContentTypes.isFormContentType(contentType)) {
 
             if (request.params().size()==0) {
                 return new MultiMapWrapper(request.formAttributes());

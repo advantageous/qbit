@@ -117,7 +117,6 @@ project('core') {
     dependencies {
         compile "io.advantageous.boon:boon-reflekt:$boonVersion"
         compile "io.advantageous.boon:boon-json:$boonVersion"
-        testCompile project(':qbit:test-support')
     }
 
     uploadArchives {
@@ -297,6 +296,12 @@ project('cluster:eventbus-replicator') {
 }
 
 project('test-support') {
+
+
+    dependencies {
+        compile project(':qbit:core')
+    }
+
     uploadArchives {
         repositories {
             mavenDeployer {

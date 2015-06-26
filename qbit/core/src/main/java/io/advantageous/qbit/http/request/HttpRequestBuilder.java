@@ -20,6 +20,8 @@ package io.advantageous.qbit.http.request;
 
 import io.advantageous.boon.core.Str;
 import io.advantageous.boon.primitive.ByteBuf;
+import io.advantageous.qbit.client.ClientBuilder;
+import io.advantageous.qbit.http.HttpContentTypes;
 import io.advantageous.qbit.util.GzipUtils;
 import io.advantageous.qbit.util.MultiMap;
 import io.advantageous.qbit.util.MultiMapImpl;
@@ -197,7 +199,7 @@ public class HttpRequestBuilder {
                 case "POST":
                 case "PUT":
                     setBodyBytes(paramString.getBytes(StandardCharsets.UTF_8));
-                    contentType = "application/x-www-form-urlencoded";
+                    setContentType(HttpContentTypes.FORM);
                     break;
             }
         }
@@ -391,7 +393,7 @@ public class HttpRequestBuilder {
         }
 
         String paramString = paramString();
-        setContentType("application/x-www-form-urlencoded");
+        setContentType(HttpContentTypes.FORM);
         setMethod("PUT");
         setBodyBytes(paramString.getBytes(StandardCharsets.UTF_8));
 
@@ -404,7 +406,7 @@ public class HttpRequestBuilder {
         }
         String paramString = paramString();
 
-        setContentType("application/x-www-form-urlencoded");
+        setContentType(HttpContentTypes.FORM);
         setMethod("POST");
 
         setBodyBytes(paramString.getBytes(StandardCharsets.UTF_8));
@@ -448,6 +450,22 @@ public class HttpRequestBuilder {
         } catch (Exception e) {
             throw new IllegalStateException(e);
         }
+
+        return this;
+    }
+
+    public HttpRequestBuilder initFormIfNeeded() {
+
+        if (getParams().size() == 0) {
+            return this;
+        }
+        if (getMethod().equals("POST") || getMethod().equals("PUT")) {
+            setContentType(HttpContentTypes.FORM);
+            String paramString = paramString();
+            setBodyBytes(paramString.getBytes(StandardCharsets.UTF_8));
+        }
+
+
 
         return this;
     }

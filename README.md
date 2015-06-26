@@ -2,6 +2,8 @@ This is a copy of WIKI home. Do not edit.
 
 #qbit - The Microservice Lib for Java - JSON, REST, WebSocket, Speed! [![Build Status](https://travis-ci.org/advantageous/qbit.svg)](https://travis-ci.org/advantageous/qbit)
 
+[![Join the chat at https://gitter.im/advantageous/qbit](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/advantageous/qbit?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 Got a question? Ask here: [QBit Google Group](https://groups.google.com/forum/#!forum/qbit-microservice).
 
 Everything is a queue. You have a choice. You can embrace it and control it. You can optimize for it.

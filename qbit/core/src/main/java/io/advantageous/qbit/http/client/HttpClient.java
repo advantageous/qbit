@@ -26,7 +26,9 @@ import io.advantageous.qbit.service.ServiceFlushable;
 import io.advantageous.qbit.service.Startable;
 import io.advantageous.qbit.service.Stoppable;
 import io.advantageous.qbit.util.MultiMap;
+import io.advantageous.qbit.util.Timer;
 
+import java.util.Date;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
@@ -292,6 +294,7 @@ public interface HttpClient extends ServiceFlushable, Stoppable, Startable {
                 .setMethod(method)
                 .setUri(uri).setTextReceiver(httpTextReceiver)
                 .addParam(paramName0, value0 == null ? "" : value0.toString())
+                .initFormIfNeeded()
                 .build();
 
         sendHttpRequest(httpRequest);
@@ -307,6 +310,7 @@ public interface HttpClient extends ServiceFlushable, Stoppable, Startable {
                 .setUri(uri).setTextReceiver(httpTextReceiver)
                 .addParam(paramName0, value0 == null ? "" : value0.toString())
                 .addParam(paramName1, value1 == null ? "" : value1.toString())
+                .initFormIfNeeded()
                 .build();
         sendHttpRequest(httpRequest);
     }
@@ -322,6 +326,7 @@ public interface HttpClient extends ServiceFlushable, Stoppable, Startable {
                 .addParam(paramName0, value0 == null ? "" : value0.toString())
                 .addParam(paramName1, value1 == null ? "" : value1.toString())
                 .addParam(paramName2, value2 == null ? "" : value2.toString())
+                .initFormIfNeeded()
                 .build();
         sendHttpRequest(httpRequest);
     }
@@ -339,6 +344,7 @@ public interface HttpClient extends ServiceFlushable, Stoppable, Startable {
                 .addParam(paramName1, value1 == null ? "" : value1.toString())
                 .addParam(paramName2, value2 == null ? "" : value2.toString())
                 .addParam(paramName3, value3 == null ? "" : value3.toString())
+                .initFormIfNeeded()
                 .build();
         sendHttpRequest(httpRequest);
     }
@@ -359,6 +365,7 @@ public interface HttpClient extends ServiceFlushable, Stoppable, Startable {
                 .addParam(paramName2, value2 == null ? "" : value2.toString())
                 .addParam(paramName3, value3 == null ? "" : value3.toString())
                 .addParam(paramName4, value4 == null ? "" : value4.toString())
+                .initFormIfNeeded()
                 .build();
         sendHttpRequest(httpRequest);
     }
@@ -396,15 +403,24 @@ public interface HttpClient extends ServiceFlushable, Stoppable, Startable {
             countDownLatch.await(wait, timeUnit);
 
         } catch (InterruptedException e) {
+
             if (Thread.currentThread().isInterrupted()) {
                 Thread.interrupted();
             }
         }
 
-        if (countDownLatch.getCount() > 0) {
-            throw new HttpClientTimeoutException();
+
+        final HttpResponse httpResponse = httpResponseAtomicReference.get();
+        if (httpResponse == null) {
+            if (countDownLatch.getCount() != 0) {
+                throw new HttpClientTimeoutException("Timeout start time " + new Date(httpRequest.getTimestamp()) +
+                        " now " + new Date(Timer.clockTime()) );
+            } else {
+                throw new HttpClientTimeoutException("Timeout: no response " + new Date(httpRequest.getTimestamp()) +
+                        " now " + new Date(Timer.clockTime()) );
+            }
         }
-        return httpResponseAtomicReference.get();
+        return httpResponse;
 
     }
 
@@ -464,6 +480,7 @@ public interface HttpClient extends ServiceFlushable, Stoppable, Startable {
 
         final HttpRequest httpRequest = httpRequestBuilder().setMethod("POST")
                 .setUri(uri).addParam(key, value == null ? "" : value.toString())
+                .initFormIfNeeded()
                 .build();
 
         return sendRequestAndWait(httpRequest, time, timeUnit);
@@ -480,6 +497,7 @@ public interface HttpClient extends ServiceFlushable, Stoppable, Startable {
 
         final HttpRequest httpRequest = httpRequestBuilder().setMethod("PUT")
                 .setUri(uri).addParam(key, value == null ? "" : value.toString())
+                .initFormIfNeeded()
                 .build();
 
         return sendRequestAndWait(httpRequest, time, timeUnit);
@@ -527,6 +545,7 @@ public interface HttpClient extends ServiceFlushable, Stoppable, Startable {
                 .setUri(uri)
                 .addParam(key, value == null ? "" : value.toString())
                 .addParam(key1, value1 == null ? "" : value1.toString())
+                .initFormIfNeeded()
                 .build();
 
         return sendRequestAndWait(httpRequest, time, timeUnit);
@@ -553,6 +572,7 @@ public interface HttpClient extends ServiceFlushable, Stoppable, Startable {
                 .setUri(uri)
                 .addParam(key, value == null ? "" : value.toString())
                 .addParam(key1, value1 == null ? "" : value1.toString())
+                .initFormIfNeeded()
                 .build();
 
         return sendRequestAndWait(httpRequest, time, timeUnit);
@@ -613,6 +633,7 @@ public interface HttpClient extends ServiceFlushable, Stoppable, Startable {
                 .addParam(key, value == null ? "" : value.toString())
                 .addParam(key1, value1 == null ? "" : value1.toString())
                 .addParam(key2, value2 == null ? "" : value2.toString())
+                .initFormIfNeeded()
                 .build();
 
         return sendRequestAndWait(httpRequest, time, timeUnit);
@@ -646,6 +667,7 @@ public interface HttpClient extends ServiceFlushable, Stoppable, Startable {
                 .addParam(key, value == null ? "" : value.toString())
                 .addParam(key1, value1 == null ? "" : value1.toString())
                 .addParam(key2, value2 == null ? "" : value2.toString())
+                .initFormIfNeeded()
                 .build();
 
         return sendRequestAndWait(httpRequest, time, timeUnit);
@@ -715,6 +737,7 @@ public interface HttpClient extends ServiceFlushable, Stoppable, Startable {
                 .addParam(key1, value1 == null ? "" : value1.toString())
                 .addParam(key2, value2 == null ? "" : value2.toString())
                 .addParam(key3, value3 == null ? "" : value3.toString())
+                .initFormIfNeeded()
                 .build();
 
         return sendRequestAndWait(httpRequest, time, timeUnit);
@@ -751,6 +774,7 @@ public interface HttpClient extends ServiceFlushable, Stoppable, Startable {
                 .addParam(key1, value1 == null ? "" : value1.toString())
                 .addParam(key2, value2 == null ? "" : value2.toString())
                 .addParam(key3, value3 == null ? "" : value3.toString())
+                .initFormIfNeeded()
                 .build();
 
         return sendRequestAndWait(httpRequest, time, timeUnit);
@@ -787,6 +811,7 @@ public interface HttpClient extends ServiceFlushable, Stoppable, Startable {
                 .addParam(key2, value2 == null ? "" : value2.toString())
                 .addParam(key3, value3 == null ? "" : value3.toString())
                 .addParam(key4, value4 == null ? "" : value4.toString())
+                .initFormIfNeeded()
                 .build();
 
         return sendRequestAndWait(httpRequest, time, timeUnit);
@@ -827,6 +852,7 @@ public interface HttpClient extends ServiceFlushable, Stoppable, Startable {
                 .addParam(key2, value2 == null ? "" : value2.toString())
                 .addParam(key3, value3 == null ? "" : value3.toString())
                 .addParam(key4, value4 == null ? "" : value4.toString())
+                .initFormIfNeeded()
                 .build();
 
         return sendRequestAndWait(httpRequest, time, timeUnit);
@@ -867,6 +893,7 @@ public interface HttpClient extends ServiceFlushable, Stoppable, Startable {
                 .addParam(key2, value2 == null ? "" : value2.toString())
                 .addParam(key3, value3 == null ? "" : value3.toString())
                 .addParam(key4, value4 == null ? "" : value4.toString())
+                .initFormIfNeeded()
                 .build();
 
         return sendRequestAndWait(httpRequest, time, timeUnit);
