@@ -48,9 +48,9 @@ subprojects {
         archives jar
         archives javadocJar
         archives sourcesJar
-        archives file("build/libs/qbit-${name}.jar.asc")
-        archives file("build/libs/qbit-${name}-javadoc.jar.asc")
-        archives file("build/libs/qbit-${name}-sources.jar.asc")
+        archives file("build/libs/qbit-${name}-${version}.jar.asc")
+        archives file("build/libs/qbit-${name}-${version}-javadoc.jar.asc")
+        archives file("build/libs/qbit-${name}-${version}-sources.jar.asc")
     }
 
     signing {
