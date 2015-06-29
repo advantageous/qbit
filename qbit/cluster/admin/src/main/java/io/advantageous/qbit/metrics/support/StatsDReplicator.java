@@ -11,8 +11,12 @@ import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.DatagramChannel;
+import java.util.Date;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Random;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Consumer;
 
 /**
  * created by rhightower on 5/22/15.
@@ -27,6 +31,8 @@ public class StatsDReplicator implements StatReplicator, QueueCallBackHandler {
     private final Logger logger = LoggerFactory.getLogger(StatsDReplicator.class);
     private final InetSocketAddress address;
     private final DatagramChannel channel;
+    private final ConcurrentHashMap<String, LocalCount> countMap = new ConcurrentHashMap<>();
+
 
     private long lastFlush;
     private long time;
@@ -219,12 +225,24 @@ If the count at flush is 0 then you can opt to send no metric at all for this se
 
     @Override
     public void replicateCount(final String name, final int count, final long time) {
-        increment(name, count);
+        if (count == 0) {
+            return;
+        }
+
+
+        LocalCount localCount = countMap.get(name);
+
+        if (localCount == null) {
+            localCount = new LocalCount();
+            localCount.name = name;
+            countMap.put(name, localCount);
+        }
+        localCount.count += count;
+
     }
 
     @Override
     public void replicateLevel(final String name, final int level, final long time) {
-
         gauge(name, level);
     }
 
@@ -253,6 +271,22 @@ If the count at flush is 0 then you can opt to send no metric at all for this se
     public void queueEmpty() {
 
         time = Timer.timer().now();
+
+        countMap.entrySet().forEach(entry -> {
+            if (entry.getValue().count != 0) {
+                increment(entry.getKey(), entry.getValue().count);
+                entry.getValue().count = 0;
+            }
+        });
+
         flushIfNeeded();
+    }
+
+
+    final static class LocalCount {
+
+        int count;
+        String name;
+
     }
 }
