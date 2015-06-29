@@ -253,6 +253,12 @@ If the count at flush is 0 then you can opt to send no metric at all for this se
     private void flushIfNeeded() {
         long delta = time - lastFlush;
         if (delta > flushRateIntervalMS) {
+            countMap.entrySet().forEach(entry -> {
+                if (entry.getValue().count != 0) {
+                    increment(entry.getKey(), entry.getValue().count);
+                    entry.getValue().count = 0;
+                }
+            });
             flushStatSend();
             lastFlush = time;
         }
@@ -270,12 +276,6 @@ If the count at flush is 0 then you can opt to send no metric at all for this se
 
         time = Timer.timer().now();
 
-        countMap.entrySet().forEach(entry -> {
-            if (entry.getValue().count != 0) {
-                increment(entry.getKey(), entry.getValue().count);
-                entry.getValue().count = 0;
-            }
-        });
 
         flushIfNeeded();
     }
