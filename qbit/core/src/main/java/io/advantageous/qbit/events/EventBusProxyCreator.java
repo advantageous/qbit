@@ -18,6 +18,8 @@
 
 package io.advantageous.qbit.events;
 
+import io.advantageous.qbit.QBit;
+
 /**
  * Creates a proxy object to an event channel.
  * EventBusProxyCreator
@@ -25,6 +27,9 @@ package io.advantageous.qbit.events;
  */
 public interface EventBusProxyCreator {
 
+    default <T> T createProxy(final Class<T> eventBusProxyInterface) {
+        return createProxy(QBit.factory().systemEventManager(), eventBusProxyInterface);
+    }
 
     <T> T createProxy(final EventManager eventManager, final Class<T> eventBusProxyInterface);
 
