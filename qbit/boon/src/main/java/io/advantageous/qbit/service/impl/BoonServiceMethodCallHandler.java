@@ -541,8 +541,8 @@ public class BoonServiceMethodCallHandler implements ServiceMethodHandler {
         //noinspection unchecked
         classMeta = (ClassMeta<Class<?>>) ClassMeta.classMeta(service.getClass());
 
-        addresses.add(classMeta.longName());
-        addresses.add(classMeta.longName().toLowerCase());
+        addresses.add(Str.add(rootAddress, "/", classMeta.longName()));
+        addresses.add(Str.add(rootAddress, "/" ,classMeta.longName().toLowerCase()));
 
         if (Str.isEmpty(serviceAddress)) {
             serviceAddress = readAddressFromAnnotation(classMeta);
