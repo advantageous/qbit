@@ -229,10 +229,8 @@ If the count at flush is 0 then you can opt to send no metric at all for this se
             return;
         }
 
-
-        LocalCount localCount = countMap.get(name);
-
-        if (localCount == null) {
+       LocalCount localCount = countMap.get(name);
+       if (localCount == null) {
             localCount = new LocalCount();
             localCount.name = name;
             countMap.put(name, localCount);
