@@ -540,6 +540,10 @@ public class BoonServiceMethodCallHandler implements ServiceMethodHandler {
         this.service = service;
         //noinspection unchecked
         classMeta = (ClassMeta<Class<?>>) ClassMeta.classMeta(service.getClass());
+
+        addresses.add(classMeta.longName());
+        addresses.add(classMeta.longName().toLowerCase());
+
         if (Str.isEmpty(serviceAddress)) {
             serviceAddress = readAddressFromAnnotation(classMeta);
         }
@@ -547,6 +551,7 @@ public class BoonServiceMethodCallHandler implements ServiceMethodHandler {
 
             serviceAddress = Str.camelCaseLower(classMeta.name());
         }
+
 
         this.name = readNameFromAnnotation(classMeta);
 
