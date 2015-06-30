@@ -1,7 +1,13 @@
 package io.advantageous.qbit.meta;
 
-/**
- * Created by rhightower on 6/29/15.
- */
+import java.util.Map;
+
 public class Definition {
+
+    private final Map<String, Schema> properties;
+
+
+    public Definition(Map<String, Schema> properties) {
+        this.properties = properties;
+    }
 }

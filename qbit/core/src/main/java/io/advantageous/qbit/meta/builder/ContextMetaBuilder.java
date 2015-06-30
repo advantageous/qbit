@@ -6,25 +6,147 @@ import io.advantageous.boon.core.reflection.Annotated;
 import io.advantageous.boon.core.reflection.AnnotationData;
 import io.advantageous.boon.core.reflection.ClassMeta;
 import io.advantageous.qbit.annotation.RequestMethod;
+import io.advantageous.qbit.config.PropertyResolver;
 import io.advantageous.qbit.meta.ContextMeta;
 import io.advantageous.qbit.meta.ServiceMeta;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 /**
+ * Making this more compatible with swagger.
  * Allows you to build a context for service definitions.
  */
 public class ContextMetaBuilder {
 
+    public final static String CONTEXT = "qbit.contextBuilder.";
     private String rootURI = "/services";
     private List<ServiceMeta> services = new ArrayList<>();
+    /**
+     * The title of the application.
+     */
+    private String title="application title goes here";
+
+    /**
+     * A short description of the application.
+     * GFM syntax can be used for rich text representation.
+     * GFM is https://help.github.com/articles/github-flavored-markdown/
+     * GitHub Flavored Markdown.
+     */
+    private String description=null;
+    private String contactName=null;
+    private String contactURL=null;
+    private String contactEmail=null;
+    private String licenseName=null;
+    private String licenseURL=null;
+    private String version="0.1";
+    private String hostAddress="localhost";
+
+
+    public ContextMetaBuilder(final PropertyResolver propertyResolver) {
+        description =  propertyResolver.getStringProperty( "description", description );
+        contactName =  propertyResolver.getStringProperty("contactName", contactName );
+        contactEmail =  propertyResolver.getStringProperty("contactEmail", contactEmail );
+        licenseName =  propertyResolver.getStringProperty("licenseName", licenseName );
+        licenseURL =  propertyResolver.getStringProperty("licenseURL", licenseURL );
+        version =  propertyResolver.getStringProperty("licenseURL", version );
+        hostAddress =  propertyResolver.getStringProperty("hostAddress", hostAddress );
+        title =  propertyResolver.getStringProperty("title", title );
+    }
+
+    public ContextMetaBuilder(final Properties properties) {
+        this(PropertyResolver.createPropertiesPropertyResolver(CONTEXT, properties));
+    }
+    public ContextMetaBuilder() {
+        this(PropertyResolver.createSystemPropertyResolver(CONTEXT));
+    }
+
 
     public static ContextMetaBuilder contextMetaBuilder() {
         return new ContextMetaBuilder();
     }
+
+
+    public String getTitle() {
+        return title;
+    }
+
+    public ContextMetaBuilder setTitle(String title) {
+        this.title = title;
+        return this;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public ContextMetaBuilder setDescription(String description) {
+        this.description = description;
+        return this;
+    }
+
+    public String getContactName() {
+        return contactName;
+    }
+
+    public ContextMetaBuilder setContactName(String contactName) {
+        this.contactName = contactName;
+        return this;
+    }
+
+    public String getContactURL() {
+        return contactURL;
+    }
+
+    public ContextMetaBuilder setContactURL(String contactURL) {
+        this.contactURL = contactURL;
+        return this;
+    }
+
+    public String getContactEmail() {
+        return contactEmail;
+    }
+
+    public ContextMetaBuilder setContactEmail(String contactEmail) {
+        this.contactEmail = contactEmail;
+        return this;
+    }
+
+    public String getLicenseName() {
+        return licenseName;
+    }
+
+    public ContextMetaBuilder setLicenseName(String licenseName) {
+        this.licenseName = licenseName;
+        return this;
+    }
+
+    public String getLicenseURL() {
+        return licenseURL;
+    }
+
+    public ContextMetaBuilder setLicenseURL(String licenseURL) {
+        this.licenseURL = licenseURL;
+        return this;
+    }
+
+    public String getVersion() {
+        return version;
+    }
+
+    public ContextMetaBuilder setVersion(String version) {
+        this.version = version;
+        return this;
+    }
+
+    public String getHostAddress() {
+        return hostAddress;
+    }
+
+    public ContextMetaBuilder setHostAddress(String hostAddress) {
+        this.hostAddress = hostAddress;
+        return this;
+    }
+
 
     public static List<String> getRequestPathsByAnnotated(Annotated classMeta, String name) {
         Object value = getRequestPath(classMeta, name);
@@ -184,6 +306,8 @@ public class ContextMetaBuilder {
     }
 
     public ContextMeta build() {
-        return new ContextMeta(rootURI, services);
+        return new ContextMeta(getRootURI(), getServices(),
+                getDescription(), getContactName(), getContactURL(), getContactEmail(),
+                getLicenseName(), getLicenseURL(), getVersion(), getHostAddress());
     }
 }

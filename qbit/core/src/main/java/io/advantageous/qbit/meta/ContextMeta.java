@@ -30,13 +30,42 @@ public class ContextMeta {
 
     private final String rootURI;
     private final List<ServiceMeta> services;
-    public ContextMeta(final String rootURI, final List<ServiceMeta> services) {
+
+    /**
+     * The title of the application.
+     */
+    private String title="application title goes here";
+
+    /**
+     * A short description of the application.
+     * GFM syntax can be used for rich text representation.
+     * GFM is https://help.github.com/articles/github-flavored-markdown/
+     * GitHub Flavored Markdown.
+     */
+    private final String description;
+    private final String contactName;
+    private final String contactURL;
+    private final String contactEmail;
+    private final String licenseName;
+    private final String licenseURL;
+    private final String version;
+    private final String hostAddress;
+
+    public ContextMeta(final String rootURI, final List<ServiceMeta> services, String description, String contactName, String contactURL, String contactEmail, String licenseName, String licenseURL, String version, String hostAddress) {
         this.rootURI = rootURI;
+        this.description = description;
+        this.contactName = contactName;
+        this.contactURL = contactURL;
+        this.contactEmail = contactEmail;
+        this.licenseName = licenseName;
+        this.licenseURL = licenseURL;
+        this.version = version;
+        this.hostAddress = hostAddress;
         this.services = Collections.unmodifiableList(services);
     }
 
     public static ContextMeta context(@SuppressWarnings("SameParameterValue") final String rootURI, final ServiceMeta... services) {
-        return new ContextMeta(rootURI, Lists.list(services));
+        return new ContextMeta(rootURI, Lists.list(services), null, null, null, null, null, null, null, null);
     }
 
     public String getRootURI() {
@@ -45,5 +74,41 @@ public class ContextMeta {
 
     public List<ServiceMeta> getServices() {
         return services;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public String getContactName() {
+        return contactName;
+    }
+
+    public String getContactURL() {
+        return contactURL;
+    }
+
+    public String getContactEmail() {
+        return contactEmail;
+    }
+
+    public String getLicenseName() {
+        return licenseName;
+    }
+
+    public String getLicenseURL() {
+        return licenseURL;
+    }
+
+    public String getVersion() {
+        return version;
+    }
+
+    public String getHostAddress() {
+        return hostAddress;
     }
 }
