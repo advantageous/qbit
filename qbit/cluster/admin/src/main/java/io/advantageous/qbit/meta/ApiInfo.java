@@ -28,12 +28,16 @@ public class ApiInfo {
      */
     private final String version;
 
-    public ApiInfo(String title, String description, String termsOfService, Contact contact, String version) {
+    private final License license;
+
+    public ApiInfo(final String title, final String description, final String termsOfService,
+                   final Contact contact, final String version, final License license) {
         this.title = title;
         this.description = description;
         this.termsOfService = termsOfService;
         this.contact = contact;
         this.version = version;
+        this.license = license;
     }
 
     public String getTitle() {
@@ -55,5 +59,9 @@ public class ApiInfo {
 
     public Contact getContact() {
         return contact;
+    }
+
+    public License getLicense() {
+        return license;
     }
 }

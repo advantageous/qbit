@@ -2,12 +2,13 @@ package io.advantageous.qbit.meta.builders;
 
 import io.advantageous.qbit.meta.ApiInfo;
 import io.advantageous.qbit.meta.Path;
+import io.advantageous.qbit.meta.ServiceEndpointInfo;
 
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class ServiceEndpointInfoBuilder {
 
+    private ApiInfoBuilder apiInfoBuilder;
 
     /**
      *  Specifies the Swagger Specification version being used.
@@ -68,6 +69,9 @@ public class ServiceEndpointInfoBuilder {
     }
 
     public ApiInfo getInfo() {
+        if (info == null) {
+            info = getApiInfoBuilder().build();
+        }
         return info;
     }
 
@@ -95,6 +99,13 @@ public class ServiceEndpointInfoBuilder {
     }
 
     public List<String> getSchemes() {
+        if (schemes == null) {
+            schemes = new ArrayList<>();
+            schemes.add("http");
+            schemes.add("https");
+            schemes.add("wss");
+            schemes.add("ws");
+        }
         return schemes;
     }
 
@@ -104,6 +115,10 @@ public class ServiceEndpointInfoBuilder {
     }
 
     public List<String> getConsumes() {
+        if (consumes == null) {
+            consumes = new ArrayList<>();
+            consumes.add("application/json");
+        }
         return consumes;
     }
 
@@ -113,6 +128,10 @@ public class ServiceEndpointInfoBuilder {
     }
 
     public List<String> getProduces() {
+        if (produces == null) {
+            produces = new ArrayList<>();
+            produces.add("application/json");
+        }
         return produces;
     }
 
@@ -122,11 +141,37 @@ public class ServiceEndpointInfoBuilder {
     }
 
     public Map<String, Path> getPaths() {
+        if (paths == null) {
+            paths = new LinkedHashMap<>();
+        }
         return paths;
+    }
+
+
+    public ServiceEndpointInfoBuilder addPath(String uri, Path path) {
+        getPaths().put(uri, path);
+        return this;
     }
 
     public ServiceEndpointInfoBuilder setPaths(Map<String, Path> paths) {
         this.paths = paths;
         return this;
+    }
+
+    public ApiInfoBuilder getApiInfoBuilder() {
+        if (apiInfoBuilder == null) {
+            apiInfoBuilder = new ApiInfoBuilder();
+        }
+        return apiInfoBuilder;
+    }
+
+    public void setApiInfoBuilder(ApiInfoBuilder apiInfoBuilder) {
+        this.apiInfoBuilder = apiInfoBuilder;
+    }
+
+    public ServiceEndpointInfo build() {
+        return new ServiceEndpointInfo(getInfo(), getHost(),
+                getBasePath(), getPaths(), getSchemes(),
+                getConsumes(), getProduces());
     }
 }

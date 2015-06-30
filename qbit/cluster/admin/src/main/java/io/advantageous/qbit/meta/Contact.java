@@ -12,4 +12,16 @@ public class Contact {
         this.url = url;
         this.email = email;
     }
+
+    public String getName() {
+        return name;
+    }
+
+    public String getUrl() {
+        return url;
+    }
+
+    public String getEmail() {
+        return email;
+    }
 }

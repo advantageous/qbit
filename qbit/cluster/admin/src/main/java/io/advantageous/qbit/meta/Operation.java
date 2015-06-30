@@ -5,8 +5,6 @@ import java.util.Map;
 
 public class Operation {
 
-
-
     private final String operationId;
     private final String summary;
     private final String description;
@@ -25,5 +23,37 @@ public class Operation {
         this.consumes = consumes;
         this.produces = produces;
         this.responses = responses;
+    }
+
+    public String getOperationId() {
+        return operationId;
+    }
+
+    public String getSummary() {
+        return summary;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public List<String> getTags() {
+        return tags;
+    }
+
+    public ExternalDocumentation getExternalDocs() {
+        return externalDocs;
+    }
+
+    public List<String> getConsumes() {
+        return consumes;
+    }
+
+    public List<String> getProduces() {
+        return produces;
+    }
+
+    public Map<Integer, Response> getResponses() {
+        return responses;
     }
 }

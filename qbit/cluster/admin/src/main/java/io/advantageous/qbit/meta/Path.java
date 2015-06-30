@@ -19,4 +19,32 @@ public class Path {
         this.head = head;
         this.patch = patch;
     }
+
+    public Operation getGet() {
+        return get;
+    }
+
+    public Operation getPut() {
+        return put;
+    }
+
+    public Operation getPost() {
+        return post;
+    }
+
+    public Operation getDelete() {
+        return delete;
+    }
+
+    public Operation getOptions() {
+        return options;
+    }
+
+    public Operation getHead() {
+        return head;
+    }
+
+    public Operation getPatch() {
+        return patch;
+    }
 }
