@@ -4,6 +4,7 @@ import io.advantageous.qbit.meta.ExternalDocumentation;
 import io.advantageous.qbit.meta.Operation;
 import io.advantageous.qbit.meta.Response;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -64,6 +65,9 @@ public class OperationBuilder {
     }
 
     public List<String> getConsumes() {
+        if (consumes == null) {
+            consumes = new ArrayList<>();
+        }
         return consumes;
     }
 
@@ -73,6 +77,9 @@ public class OperationBuilder {
     }
 
     public List<String> getProduces() {
+        if (produces == null) {
+            produces = new ArrayList<>();
+        }
         return produces;
     }
 

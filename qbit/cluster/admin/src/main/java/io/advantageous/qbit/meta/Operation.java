@@ -5,6 +5,8 @@ import java.util.Map;
 
 public class Operation {
 
+    //TODO add parameters
+
     private final String operationId;
     private final String summary;
     private final String description;
