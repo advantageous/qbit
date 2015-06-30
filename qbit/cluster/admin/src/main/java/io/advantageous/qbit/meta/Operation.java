@@ -14,7 +14,9 @@ public class Operation {
     private final List<String> produces;
     private final Map<Integer, Response> responses;
 
-    public Operation(String operationId, String summary, String description, List<String> tags, ExternalDocumentation externalDocs, List<String> consumes, List<String> produces, Map<Integer, Response> responses) {
+    public Operation(String operationId, String summary, String description, List<String> tags,
+                     ExternalDocumentation externalDocs, List<String> consumes,
+                     List<String> produces, Map<Integer, Response> responses) {
         this.operationId = operationId;
         this.summary = summary;
         this.description = description;

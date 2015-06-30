@@ -8,4 +8,12 @@ public class Response {
         this.description = description;
         this.schema = schema;
     }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public Schema getSchema() {
+        return schema;
+    }
 }

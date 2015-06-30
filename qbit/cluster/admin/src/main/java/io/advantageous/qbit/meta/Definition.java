@@ -8,4 +8,8 @@ public class Definition {
     public Definition(Map<String, Schema> properties) {
         this.properties = properties;
     }
+
+    public Map<String, Schema> getProperties() {
+        return properties;
+    }
 }
