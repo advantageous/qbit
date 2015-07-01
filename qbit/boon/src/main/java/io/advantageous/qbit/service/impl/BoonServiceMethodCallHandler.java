@@ -892,6 +892,7 @@ public class BoonServiceMethodCallHandler implements ServiceMethodHandler {
     public void empty() {
 
         queueCallBackHandler.queueEmpty();
+
     }
 
     @Override
