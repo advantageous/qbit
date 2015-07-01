@@ -1,6 +1,7 @@
 package io.advantageous.qbit.meta.swagger;
 
 import io.advantageous.boon.core.Maps;
+import io.advantageous.boon.core.TypeType;
 import io.advantageous.boon.core.reflection.ClassMeta;
 import io.advantageous.boon.core.reflection.fields.FieldAccess;
 import io.advantageous.qbit.meta.swagger.builders.DefinitionBuilder;
@@ -53,9 +54,45 @@ public class DefinitionClassCollector {
 
     }
 
+    public Schema getSchema(final Class<?> cls) {
+
+        Schema schema = mappings.get(cls);
+
+        if (schema != null) {
+            return schema;
+        }
+
+        /* This does not really handle generic returns or generic params which are collections but....
+                We know how to do this see io.advantageous.boon.core.reflection.fields.BaseField constructor
+                protected BaseField ( String name, Method getter, Method setter ) for an example.
+
+         */
+
+        TypeType type = TypeType.getType(cls);
+
+        if (type.isArray() || type.isCollection()) {
+            return Schema.array(Schema.definitionRef(cls.getComponentType().getSimpleName()));
+        }
+
+        return Schema.definitionRef(cls.getSimpleName());
+
+    }
+
     public void addClass(final Class<?> cls) {
 
-        ClassMeta<?> classMeta = ClassMeta.classMeta(cls);
+        /*
+        Don't add void.
+         */
+        if (cls == void.class || cls == Void.class) {
+            return;
+        }
+
+        /* If it is a common built in type, don't add. */
+        if (mappings.containsKey(cls)) {
+            return;
+        }
+
+        final ClassMeta<?> classMeta = ClassMeta.classMeta(cls);
         addClass(classMeta);
     }
 
@@ -100,7 +137,7 @@ public class DefinitionClassCollector {
 
     private Schema convertFieldToComplexSchema(final FieldAccess fieldAccess) {
 
-        if (fieldAccess.getComponentClass() != null) {
+        if (isArraySchema(fieldAccess)) {
 
             return convertFieldToArraySchema(fieldAccess);
         } else {
@@ -109,8 +146,21 @@ public class DefinitionClassCollector {
 
     }
 
+    private boolean isArraySchema(FieldAccess fieldAccess) {
+
+        switch (fieldAccess.typeEnum()) {
+            case LIST:
+                return true;
+            case COLLECTION:
+                return true;
+            case ARRAY:
+                return true;
+        }
+        return false;
+    }
+
     private Schema convertFieldToDefinitionRef(final FieldAccess fieldAccess) {
-        if (definitionMap.containsKey(fieldAccess.type().getSimpleName())) {
+        if (!definitionMap.containsKey(fieldAccess.type().getSimpleName())) {
             addClass(fieldAccess.type());
         }
        return Schema.definitionRef(fieldAccess.type().getSimpleName());

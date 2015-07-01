@@ -1,6 +1,7 @@
 package io.advantageous.qbit.meta.swagger.builders;
 
 import io.advantageous.qbit.meta.swagger.ApiInfo;
+import io.advantageous.qbit.meta.swagger.Definition;
 import io.advantageous.qbit.meta.swagger.Path;
 import io.advantageous.qbit.meta.swagger.ServiceEndpointInfo;
 
@@ -58,6 +59,27 @@ public class ServiceEndpointInfoBuilder {
      * Required. The available paths and operations for the API.
      */
     private Map<String, Path> paths;
+
+
+    private Map<String, Definition> definitions;
+
+
+    public Map<String, Definition> getDefinitions() {
+        if (definitions == null) {
+            definitions = new LinkedHashMap<>();
+        }
+        return definitions;
+    }
+
+    public ServiceEndpointInfoBuilder setDefinitions(Map<String, Definition> definitions) {
+        this.definitions = definitions;
+        return this;
+    }
+
+    public ServiceEndpointInfoBuilder addDefinition(final String name, final Definition definition) {
+        getDefinitions().put(name, definition);
+        return this;
+    }
 
     public String getSwagger() {
         return swagger;
@@ -172,6 +194,6 @@ public class ServiceEndpointInfoBuilder {
     public ServiceEndpointInfo build() {
         return new ServiceEndpointInfo(getInfo(), getHost(),
                 getBasePath(), getPaths(), getSchemes(),
-                getConsumes(), getProduces());
+                getConsumes(), getProduces(), getDefinitions());
     }
 }

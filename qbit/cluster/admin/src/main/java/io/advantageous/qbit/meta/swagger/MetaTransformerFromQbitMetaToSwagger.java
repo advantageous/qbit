@@ -1,5 +1,6 @@
 package io.advantageous.qbit.meta.swagger;
 
+import io.advantageous.boon.core.reflection.ClassMeta;
 import io.advantageous.boon.core.reflection.MethodAccess;
 import io.advantageous.qbit.annotation.RequestMethod;
 import io.advantageous.qbit.meta.ContextMeta;
@@ -13,6 +14,8 @@ import java.util.*;
 import java.util.function.Consumer;
 
 public class MetaTransformerFromQbitMetaToSwagger {
+
+    final DefinitionClassCollector definitionClassCollector = new DefinitionClassCollector();
 
     public ServiceEndpointInfo serviceEndpointInfo(final ContextMeta contextMeta) {
 
@@ -30,7 +33,9 @@ public class MetaTransformerFromQbitMetaToSwagger {
         final List<ServiceMeta> services = contextMeta.getServices();
         final Map<String, PathBuilder> pathBuilderMap = new HashMap<>();
 
-        final Map<String, Definition> stringDefinitionMap = buildDefinitionMap(services);
+        buildDefinitions(services);
+
+
 
         for (ServiceMeta serviceMeta : services) {
 
@@ -58,7 +63,8 @@ public class MetaTransformerFromQbitMetaToSwagger {
                         if (methodMeta.hasCallBack() || methodAccess.returnType() != void.class) {
 
                             ResponseBuilder responseBuilder = new ResponseBuilder();
-                            //TODO add schema for response
+
+                            responseBuilder.setSchema(definitionClassCollector.getSchema(methodAccess.returnType()));
                             operationBuilder.getResponses().put(200, responseBuilder.build());
                             operationBuilder.getProduces().add("application/json");
 
@@ -95,38 +101,41 @@ public class MetaTransformerFromQbitMetaToSwagger {
             }
         }
 
-        final Set<Map.Entry<String, PathBuilder>> entries = pathBuilderMap.entrySet();
+        final Set<Map.Entry<String, PathBuilder>> pathEntries = pathBuilderMap.entrySet();
 
-        for (Map.Entry<String, PathBuilder> entry : entries) {
+        for (Map.Entry<String, PathBuilder> entry : pathEntries) {
             builder.addPath(entry.getKey(), entry.getValue().build());
         }
+
+        final Map<String, Definition> definitionMap = definitionClassCollector.getDefinitionMap();
+
+        definitionMap.entrySet().forEach(entry -> {
+            builder.addDefinition(entry.getKey(), entry.getValue());
+        });
+
 
         return builder.build();
     }
 
-    private Map<String, Definition> buildDefinitionMap(final List<ServiceMeta> services) {
+    private void buildDefinitions(final List<ServiceMeta> services) {
 
-        final Map<String, Definition> definitionMap = new LinkedHashMap<>();
 
         services.forEach(serviceMeta -> {
-            populateDefinitionMapByService(definitionMap, serviceMeta);
+            populateDefinitionMapByService(serviceMeta);
         });
 
-        return definitionMap;
     }
 
-    private void populateDefinitionMapByService(final Map<String, Definition> definitionMap,
-                                       final ServiceMeta serviceMeta) {
-        serviceMeta.getMethods().forEach(new Consumer<ServiceMethodMeta>() {
-            @Override
-            public void accept(ServiceMethodMeta serviceMethodMeta) {
-                populateDefinitionMapByServiceMethod(definitionMap, serviceMethodMeta);
-            }
-        });
+    private void populateDefinitionMapByService(final ServiceMeta serviceMeta) {
+        serviceMeta.getMethods().forEach(serviceMethodMeta -> populateDefinitionMapByServiceMethod(serviceMethodMeta));
     }
 
-    private void populateDefinitionMapByServiceMethod(final Map<String, Definition> definitionMap,
-                                                      final ServiceMethodMeta serviceMethodMeta) {
+    private void populateDefinitionMapByServiceMethod(final ServiceMethodMeta serviceMethodMeta) {
 
+        MethodAccess methodAccess = serviceMethodMeta.getMethodAccess();
+        definitionClassCollector.addClass(methodAccess.returnType());
+        for (Class<?> paramType :  methodAccess.parameterTypes()) {
+            definitionClassCollector.addClass(paramType);
+        }
     }
 }

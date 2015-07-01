@@ -47,6 +47,7 @@ public class ServiceEndpointInfo {
      * on specific API calls. Value MUST be as described under Mime Types.
      */
     private final List<String> consumes;
+    private final Map<String, Definition> definitions;
 
     /**
      * A list of MIME types the APIs can consume. This is global to all APIs but can be overridden
@@ -61,7 +62,7 @@ public class ServiceEndpointInfo {
 
     public ServiceEndpointInfo(ApiInfo info, String host, String basePath, Map<String, Path> paths,
                                List<String> schemes,
-                               List<String> produces, List<String> consumes) {
+                               List<String> produces, List<String> consumes, Map<String, Definition> definitions) {
 
         this.schemes = schemes;
         this.produces = produces;
@@ -70,6 +71,7 @@ public class ServiceEndpointInfo {
         this.host = host;
         this.basePath = basePath;
         this.paths = paths;
+        this.definitions = definitions;
     }
 
     public String getSwagger() {
@@ -98,5 +100,13 @@ public class ServiceEndpointInfo {
 
     public List<String> getProduces() {
         return produces;
+    }
+
+    public Map<String, Definition> getDefinitions() {
+        return definitions;
+    }
+
+    public Map<String, Path> getPaths() {
+        return paths;
     }
 }

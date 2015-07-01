@@ -1,21 +1,13 @@
 package io.advantageous.qbit.meta.swagger;
 
-import io.advantageous.boon.json.JsonFactory;
+import io.advantageous.boon.json.JsonSerializer;
+import io.advantageous.boon.json.JsonSerializerFactory;
 import io.advantageous.qbit.meta.*;
 import io.advantageous.qbit.meta.builder.ContextMetaBuilder;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import static io.advantageous.qbit.meta.ParameterMeta.doubleParam;
-import static io.advantageous.qbit.meta.ParameterMeta.intParam;
-import static io.advantageous.qbit.meta.ParameterMeta.stringParam;
-import static io.advantageous.qbit.meta.RequestMeta.getRequest;
-import static io.advantageous.qbit.meta.ServiceMeta.service;
-import static io.advantageous.qbit.meta.ServiceMethodMeta.method;
-import static io.advantageous.qbit.meta.params.Param.headParam;
-import static io.advantageous.qbit.meta.params.Param.pathParam;
-import static io.advantageous.qbit.meta.params.Param.requestParam;
 
 public class MetaTransformerFromQbitMetaToSwaggerTest {
 
@@ -27,23 +19,28 @@ public class MetaTransformerFromQbitMetaToSwaggerTest {
         public void setUp() throws Exception {
             contextMetaBuilder = ContextMetaBuilder.contextMetaBuilder();
 
+            contextMetaBuilder.setContactEmail("rick@rick.com");
+            contextMetaBuilder.setContactName("Rick Hightower");
+            contextMetaBuilder.setContactURL("https://github.com/advantageous/qbit");
+            contextMetaBuilder.setHostAddress("localhost:9090");
+            contextMetaBuilder.setDescription("Test set of services");
+            contextMetaBuilder.setLicenseName("APACHE 2");
+            contextMetaBuilder.setLicenseURL("https://github.com/advantageous/qbit/blob/master/License");
             metaToSwagger = new MetaTransformerFromQbitMetaToSwagger();
 
             contextMetaBuilder.setRootURI(contextMetaBuilder.getRootURI() + "Engine");
 
+            contextMetaBuilder.addService(SampleService.class);
 
-
-            contextMetaBuilder.setRootURI(contextMetaBuilder.getRootURI() + "Engine");
-            contextMetaBuilder.addService(io.advantageous.qbit.meta.SampleService.class);
 
 
             final ContextMeta context = contextMetaBuilder.build();
 
             final ServiceEndpointInfo serviceEndpointInfo = metaToSwagger.serviceEndpointInfo(context);
 
-            final String json = JsonFactory.toJson(serviceEndpointInfo);
+            JsonSerializer jsonSerializer = new JsonSerializerFactory().setUseAnnotations(true).create();
 
-            System.out.println(json);
+            System.out.println(jsonSerializer.serialize(serviceEndpointInfo));
 
         }
 

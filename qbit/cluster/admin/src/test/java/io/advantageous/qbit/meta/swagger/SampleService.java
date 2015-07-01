@@ -65,4 +65,12 @@ public class SampleService {
     }
 
 
+
+    @RequestMapping("/add/dept/")
+    public Department addDepartment(final Department department) {
+
+        return department;
+    }
+
+
 }
