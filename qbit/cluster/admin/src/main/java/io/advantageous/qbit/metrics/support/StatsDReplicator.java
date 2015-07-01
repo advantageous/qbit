@@ -7,8 +7,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.net.InetAddress;
-import java.net.InetSocketAddress;
+import java.net.*;
 import java.nio.ByteBuffer;
 import java.nio.channels.DatagramChannel;
 import java.util.Date;
@@ -30,7 +29,8 @@ public class StatsDReplicator implements StatReplicator, QueueCallBackHandler {
     private final Random random = new Random();
     private final Logger logger = LoggerFactory.getLogger(StatsDReplicator.class);
     private final InetSocketAddress address;
-    private final DatagramChannel channel;
+    private final int bufferSize;
+    private  DatagramChannel channel;
     private final ConcurrentHashMap<String, LocalCount> countMap = new ConcurrentHashMap<>();
 
 
@@ -52,11 +52,35 @@ If the count at flush is 0 then you can opt to send no metric at all for this se
 
     public StatsDReplicator(InetAddress host, int port, boolean multiMetrics, int bufferSize, int flushRateIntervalMS) throws IOException {
         address = new InetSocketAddress(host, port);
-        channel = DatagramChannel.open();
+
+        this.bufferSize = bufferSize;
+
+        openChannel();
+
         this.multiMetrics = multiMetrics;
         this.flushRateIntervalMS = flushRateIntervalMS;
         sendBuffer = ByteBuffer.allocate(bufferSize);
 
+    }
+
+    private void openChannel() {
+
+        try {
+
+            if (channel!=null) {
+                try {
+                    channel.close();
+                }catch (Exception ex) {
+                    logger.debug("unable to clean up channel connection", ex);
+                }
+            }
+            channel = DatagramChannel.open();
+            channel.configureBlocking(false);
+            channel.setOption(StandardSocketOptions.SO_SNDBUF, bufferSize * 2);
+
+        }catch (Exception ex) {
+            logger.error("Unable to open channel", ex);
+        }
     }
 
     protected void finalize() throws Throwable {
@@ -241,12 +265,39 @@ If the count at flush is 0 then you can opt to send no metric at all for this se
 
     @Override
     public void replicateLevel(final String name, final int level, final long time) {
-        gauge(name, level);
+
+
+        LocalCount localCount = countMap.get(name);
+        if (localCount == null) {
+            localCount = new LocalCount();
+            localCount.name = name;
+            countMap.put(name, localCount);
+
+            /* Set the initial level. */
+            localCount.count = level;
+            /* Send the gauge. */
+            gauge(name, level);
+        }
+
+
+        /* Don't send a duplicate level. Only send level if it changes. */
+        if (localCount.count != level) {
+            gauge(name, level);
+
+            /* This level which was not equal to the last is the new level. */
+            localCount.count = level;
+        }
+
+
     }
 
     @Override
     public void replicateTiming(String name, int timed, long time) {
-        timing(name, timed);
+
+        /* A 0 timing is not useful. */
+        if (time > 0) {
+            timing(name, timed);
+        }
     }
 
 

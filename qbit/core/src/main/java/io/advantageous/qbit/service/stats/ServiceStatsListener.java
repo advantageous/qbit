@@ -37,6 +37,12 @@ public class ServiceStatsListener implements QueueCallBackHandler {
     private boolean timeIt;
 
 
+    /** Added these so we are only sending if they change and not all of the time. */
+    private int lastRequestSize=-1;
+    private int lastResponseSize=-1;
+
+
+
     public ServiceStatsListener(final String serviceName,
                                 final StatsCollector statsCollector,
                                 final Timer timer,
@@ -55,7 +61,7 @@ public class ServiceStatsListener implements QueueCallBackHandler {
         receiveTimeKey = serviceName + ".callTimeSample";
         this.queueRequestSizeKey =  serviceName + ".queueRequestSize";
         this.queueResponseSizeKey =  serviceName + ".queueResponseSize";
-        this.sampleEvery = sampleEvery;
+        this.sampleEvery = sampleEvery == 0 ? -1 : sampleEvery;
         this.serviceQueueSizer = serviceQueueSizer;
     }
 
@@ -67,6 +73,11 @@ public class ServiceStatsListener implements QueueCallBackHandler {
 
     @Override
     public void beforeReceiveCalled() {
+
+        if (sampleEvery == -1) {
+            return;
+        }
+
         sampleUntilCount++;
 
         if (sampleUntilCount > sampleEvery ) {
@@ -80,6 +91,12 @@ public class ServiceStatsListener implements QueueCallBackHandler {
 
     @Override
     public void afterReceiveCalled() {
+
+
+        if (sampleEvery == -1) {
+            return;
+        }
+
         receiveCount++;
 
         if (timeIt) {
@@ -87,7 +104,10 @@ public class ServiceStatsListener implements QueueCallBackHandler {
 
             long stopTime = System.nanoTime();
             long duration = stopTime - beforeReceiveTime;
-            statsCollector.recordTiming(receiveTimeKey, (int) duration);
+
+            if (duration > 0) {
+                statsCollector.recordTiming(receiveTimeKey, (int) duration);
+            }
         }
     }
 
@@ -131,6 +151,7 @@ public class ServiceStatsListener implements QueueCallBackHandler {
 
     }
 
+
     private void calculateSizeIfNeeded() {
 
         if (serviceQueueSizer == null) {
@@ -142,8 +163,20 @@ public class ServiceStatsListener implements QueueCallBackHandler {
 
         if (duration > checkQueueSizeInterval) {
             lastSizeCheck = now;
-            statsCollector.recordLevel(queueRequestSizeKey, serviceQueueSizer.requestSize());
-            statsCollector.recordLevel(queueResponseSizeKey, serviceQueueSizer.responseSize());
+
+            /* Changed this so we only add if the level is different than the one we sent before. */
+            final int requestSize = serviceQueueSizer.requestSize();
+            final int responseSize = serviceQueueSizer.responseSize();
+
+            if (requestSize != lastRequestSize) {
+                lastRequestSize = requestSize;
+                statsCollector.recordLevel(queueRequestSizeKey, requestSize);
+            }
+
+            if (responseSize != lastResponseSize) {
+                lastResponseSize = responseSize;
+                statsCollector.recordLevel(queueResponseSizeKey, responseSize);
+            }
         }
 
     }
@@ -155,11 +188,18 @@ public class ServiceStatsListener implements QueueCallBackHandler {
 
         if (duration > flushStatsInterval) {
             lastFlush = now;
-            statsCollector.recordCount(startBatchCountKey, startBatchCount);
+
+            /* We are only sending the count if it is not 0. */
+            if (startBatchCount > 0) {
+                statsCollector.recordCount(startBatchCountKey, startBatchCount);
+            }
             startBatchCount = 0;
 
 
-            statsCollector.recordCount(receiveCountKey, receiveCount);
+            /* We are only sending the count if it is not 0. */
+            if (receiveCount > 0) {
+                statsCollector.recordCount(receiveCountKey, receiveCount);
+            }
             receiveCount = 0;
 
             statsCollector.clientProxyFlush();

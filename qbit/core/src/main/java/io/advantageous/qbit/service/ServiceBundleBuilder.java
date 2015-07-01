@@ -59,7 +59,7 @@ public class ServiceBundleBuilder {
     private HealthServiceAsync healthService = null;
     private StatsCollector statsCollector = null;
     private  int statsFlushRateSeconds;
-    private  int checkTimingEveryXCalls;
+    private  int checkTimingEveryXCalls = -1;
 
 
     private CallbackManager callbackManager;
