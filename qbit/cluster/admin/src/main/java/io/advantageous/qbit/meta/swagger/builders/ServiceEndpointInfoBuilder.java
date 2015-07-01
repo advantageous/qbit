@@ -1,8 +1,8 @@
-package io.advantageous.qbit.meta.builders;
+package io.advantageous.qbit.meta.swagger.builders;
 
-import io.advantageous.qbit.meta.ApiInfo;
-import io.advantageous.qbit.meta.Path;
-import io.advantageous.qbit.meta.ServiceEndpointInfo;
+import io.advantageous.qbit.meta.swagger.ApiInfo;
+import io.advantageous.qbit.meta.swagger.Path;
+import io.advantageous.qbit.meta.swagger.ServiceEndpointInfo;
 
 import java.util.*;
 

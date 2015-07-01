@@ -1,7 +1,7 @@
-package io.advantageous.qbit.meta.builders;
+package io.advantageous.qbit.meta.swagger.builders;
 
-import io.advantageous.qbit.meta.Operation;
-import io.advantageous.qbit.meta.Path;
+import io.advantageous.qbit.meta.swagger.Operation;
+import io.advantageous.qbit.meta.swagger.Path;
 
 public class PathBuilder {
 

@@ -1,4 +1,4 @@
-package io.advantageous.qbit.meta;
+package io.advantageous.qbit.meta.swagger;
 
 import java.util.List;
 import java.util.Map;

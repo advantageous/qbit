@@ -1,6 +1,6 @@
-package io.advantageous.qbit.meta.builders;
+package io.advantageous.qbit.meta.swagger.builders;
 
-import io.advantageous.qbit.meta.Contact;
+import io.advantageous.qbit.meta.swagger.Contact;
 
 public class ContactBuilder {
 

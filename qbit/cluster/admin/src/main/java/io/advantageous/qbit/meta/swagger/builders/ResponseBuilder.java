@@ -1,7 +1,7 @@
-package io.advantageous.qbit.meta.builders;
+package io.advantageous.qbit.meta.swagger.builders;
 
-import io.advantageous.qbit.meta.Response;
-import io.advantageous.qbit.meta.Schema;
+import io.advantageous.qbit.meta.swagger.Response;
+import io.advantageous.qbit.meta.swagger.Schema;
 
 public class ResponseBuilder {
 

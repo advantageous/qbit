@@ -1,12 +1,10 @@
-package io.advantageous.qbit.meta.builders;
+package io.advantageous.qbit.meta.swagger.builders;
 
-import io.advantageous.qbit.meta.ExternalDocumentation;
-import io.advantageous.qbit.meta.Operation;
-import io.advantageous.qbit.meta.Response;
+import io.advantageous.qbit.meta.swagger.ExternalDocumentation;
+import io.advantageous.qbit.meta.swagger.Operation;
+import io.advantageous.qbit.meta.swagger.Response;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class OperationBuilder {
 
@@ -89,6 +87,9 @@ public class OperationBuilder {
     }
 
     public Map<Integer, Response> getResponses() {
+        if (responses == null) {
+            responses = new LinkedHashMap<>();
+        }
         return responses;
     }
 

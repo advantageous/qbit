@@ -1,8 +1,8 @@
-package io.advantageous.qbit.meta.builders;
+package io.advantageous.qbit.meta.swagger.builders;
 
-import io.advantageous.qbit.meta.ApiInfo;
-import io.advantageous.qbit.meta.Contact;
-import io.advantageous.qbit.meta.License;
+import io.advantageous.qbit.meta.swagger.ApiInfo;
+import io.advantageous.qbit.meta.swagger.Contact;
+import io.advantageous.qbit.meta.swagger.License;
 
 public class ApiInfoBuilder {
     /**

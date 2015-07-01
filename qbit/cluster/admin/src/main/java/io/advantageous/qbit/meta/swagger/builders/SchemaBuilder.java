@@ -1,6 +1,6 @@
-package io.advantageous.qbit.meta.builders;
+package io.advantageous.qbit.meta.swagger.builders;
 
-import io.advantageous.qbit.meta.Schema;
+import io.advantageous.qbit.meta.swagger.Schema;
 
 public class SchemaBuilder {
 
@@ -25,6 +25,6 @@ public class SchemaBuilder {
     }
 
     public Schema build() {
-        return new Schema(getType(), getFormat());
+        return new Schema(getType(), getFormat(), null);
     }
 }

@@ -1,6 +1,6 @@
-package io.advantageous.qbit.meta.builders;
+package io.advantageous.qbit.meta.swagger.builders;
 
-import io.advantageous.qbit.meta.License;
+import io.advantageous.qbit.meta.swagger.License;
 
 public class LicenseBuilder {
 

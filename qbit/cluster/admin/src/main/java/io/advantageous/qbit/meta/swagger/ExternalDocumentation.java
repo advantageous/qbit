@@ -1,4 +1,4 @@
-package io.advantageous.qbit.meta;
+package io.advantageous.qbit.meta.swagger;
 
 public class ExternalDocumentation {
 

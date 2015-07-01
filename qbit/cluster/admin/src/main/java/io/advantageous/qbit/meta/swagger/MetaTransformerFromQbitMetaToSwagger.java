@@ -1,14 +1,18 @@
-package io.advantageous.qbit.meta;
+package io.advantageous.qbit.meta.swagger;
 
 import io.advantageous.boon.core.reflection.MethodAccess;
 import io.advantageous.qbit.annotation.RequestMethod;
-import io.advantageous.qbit.meta.builders.*;
+import io.advantageous.qbit.meta.ContextMeta;
+import io.advantageous.qbit.meta.RequestMeta;
+import io.advantageous.qbit.meta.ServiceMeta;
+import io.advantageous.qbit.meta.ServiceMethodMeta;
+import io.advantageous.qbit.meta.swagger.builders.*;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
-public class MetaTransformer {
+import java.util.*;
+import java.util.function.Consumer;
+
+public class MetaTransformerFromQbitMetaToSwagger {
 
     public ServiceEndpointInfo serviceEndpointInfo(final ContextMeta contextMeta) {
 
@@ -25,6 +29,8 @@ public class MetaTransformer {
 
         final List<ServiceMeta> services = contextMeta.getServices();
         final Map<String, PathBuilder> pathBuilderMap = new HashMap<>();
+
+        final Map<String, Definition> stringDefinitionMap = buildDefinitionMap(services);
 
         for (ServiceMeta serviceMeta : services) {
 
@@ -89,6 +95,38 @@ public class MetaTransformer {
             }
         }
 
+        final Set<Map.Entry<String, PathBuilder>> entries = pathBuilderMap.entrySet();
+
+        for (Map.Entry<String, PathBuilder> entry : entries) {
+            builder.addPath(entry.getKey(), entry.getValue().build());
+        }
+
         return builder.build();
+    }
+
+    private Map<String, Definition> buildDefinitionMap(final List<ServiceMeta> services) {
+
+        final Map<String, Definition> definitionMap = new LinkedHashMap<>();
+
+        services.forEach(serviceMeta -> {
+            populateDefinitionMapByService(definitionMap, serviceMeta);
+        });
+
+        return definitionMap;
+    }
+
+    private void populateDefinitionMapByService(final Map<String, Definition> definitionMap,
+                                       final ServiceMeta serviceMeta) {
+        serviceMeta.getMethods().forEach(new Consumer<ServiceMethodMeta>() {
+            @Override
+            public void accept(ServiceMethodMeta serviceMethodMeta) {
+                populateDefinitionMapByServiceMethod(definitionMap, serviceMethodMeta);
+            }
+        });
+    }
+
+    private void populateDefinitionMapByServiceMethod(final Map<String, Definition> definitionMap,
+                                                      final ServiceMethodMeta serviceMethodMeta) {
+
     }
 }

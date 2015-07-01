@@ -1,0 +1,136 @@
+package io.advantageous.qbit.meta.swagger;
+
+import io.advantageous.boon.core.Maps;
+import io.advantageous.boon.core.reflection.ClassMeta;
+import io.advantageous.boon.core.reflection.fields.FieldAccess;
+import io.advantageous.qbit.meta.swagger.builders.DefinitionBuilder;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+
+public class DefinitionClassCollector {
+
+    private final Map<String, Definition> definitionMap = new HashMap<>();
+
+    private final  Map<Class, Schema> mappings =  Maps.map(
+            /* Adding common primitive and basic type mappings. */
+            String.class,           Schema.schema("string"),
+            StringBuffer.class,     Schema.schema("string"),
+            Date.class,             Schema.schema("string", "dateTime"),
+            Integer.class,          Schema.schema("integer", "int32"),
+            int.class,              Schema.schema("integer", "int32"),
+            Long.class,             Schema.schema("integer", "int64"),
+            long.class,             Schema.schema("integer", "int64"),
+            Float.class,            Schema.schema("number", "float"),
+            float.class,            Schema.schema("number", "float"),
+            Double.class,           Schema.schema("number", "double"),
+            double.class,           Schema.schema("number", "double"),
+            Boolean.class,          Schema.schema("boolean", ""),
+            boolean.class,          Schema.schema("boolean", ""),
+            byte.class,             Schema.schema("string", "byte"),
+            Byte.class,             Schema.schema("string", "byte")
+
+    );
+
+
+    {
+        /* Adding common primitive and basic type arrays. */
+        mappings.put(String[].class,        Schema.array(mappings.get(String.class)));
+        mappings.put(StringBuffer[].class,  Schema.array(mappings.get(StringBuffer.class)));
+        mappings.put(Date[].class,  Schema.array(mappings.get(Date.class)));
+        mappings.put(int[].class,  Schema.array(mappings.get(int.class)));
+        mappings.put(Integer[].class,  Schema.array(mappings.get(Integer.class)));
+        mappings.put(long[].class,  Schema.array(mappings.get(long.class)));
+        mappings.put(Long[].class,  Schema.array(mappings.get(Long.class)));
+        mappings.put(Double[].class,  Schema.array(mappings.get(Double.class)));
+        mappings.put(double[].class,  Schema.array(mappings.get(double.class)));
+        mappings.put(Float[].class,  Schema.array(mappings.get(Float.class)));
+        mappings.put(float[].class,  Schema.array(mappings.get(float.class)));
+        mappings.put(Boolean[].class,  Schema.array(mappings.get(Boolean.class)));
+        mappings.put(boolean[].class,  Schema.array(mappings.get(boolean.class)));
+        mappings.put(byte[].class,  Schema.array(mappings.get(byte.class)));
+        mappings.put(Byte[].class,  Schema.array(mappings.get(Byte.class)));
+
+    }
+
+    public void addClass(final Class<?> cls) {
+
+        ClassMeta<?> classMeta = ClassMeta.classMeta(cls);
+        addClass(classMeta);
+    }
+
+    private void addClass(final ClassMeta<?> classMeta) {
+
+        if(definitionMap.containsKey(classMeta.name())) {
+            return;
+        }
+
+        final DefinitionBuilder definitionBuilder = new DefinitionBuilder();
+
+        Map<String, FieldAccess> fieldAccessMap = classMeta.fieldMap();
+
+
+        fieldAccessMap.entrySet().forEach(fieldAccessEntry -> {
+
+            final FieldAccess fieldAccess = fieldAccessEntry.getValue();
+            if (fieldAccess.ignore() || fieldAccess.isStatic()) {
+                return;
+            }
+            definitionBuilder.addProperty(fieldAccess.name(), convertFieldToSchema(fieldAccess));
+
+        });
+
+        final Definition definition = definitionBuilder.build();
+
+        definitionMap.put(classMeta.name(), definition);
+    }
+
+    private Schema convertFieldToSchema(final FieldAccess fieldAccess) {
+
+        final Class<?> type = fieldAccess.type();
+        final Schema schema = mappings.get(type);
+
+        if (schema != null) {
+            return schema;
+        }
+
+        return convertFieldToComplexSchema(fieldAccess);
+
+    }
+
+    private Schema convertFieldToComplexSchema(final FieldAccess fieldAccess) {
+
+        if (fieldAccess.getComponentClass() != null) {
+
+            return convertFieldToArraySchema(fieldAccess);
+        } else {
+            return convertFieldToDefinitionRef(fieldAccess);
+        }
+
+    }
+
+    private Schema convertFieldToDefinitionRef(final FieldAccess fieldAccess) {
+        if (definitionMap.containsKey(fieldAccess.type().getSimpleName())) {
+            addClass(fieldAccess.type());
+        }
+       return Schema.definitionRef(fieldAccess.type().getSimpleName());
+    }
+
+    private Schema convertFieldToArraySchema(final FieldAccess fieldAccess) {
+
+        Schema componentSchema = mappings.get(fieldAccess.getComponentClass());
+            /* If it was not in the mapping, then it is complex. */
+        if (componentSchema == null) {
+            if (!definitionMap.containsKey(fieldAccess.getComponentClass().getSimpleName())) {
+                addClass(fieldAccess.getComponentClass());
+            }
+            componentSchema = Schema.definitionRef(fieldAccess.getComponentClass().getSimpleName());
+        }
+        return Schema.array(componentSchema);
+    }
+
+
+    public Map<String, Definition> getDefinitionMap() {
+        return definitionMap;
+    }
+}
