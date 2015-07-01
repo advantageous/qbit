@@ -29,12 +29,16 @@ public interface QueueCallBackHandler {
      * This is for periodic flushing to IO or CPU intensive services to improve throughput.
      * Larger batches can equate to a lot less thread sync for the hand-off.
      */
-    void queueLimit();
+    default void queueLimit() {
+        queueProcess();
+    }
 
     /**
      * Notification that there is nothing else in the queue.
      */
-    void queueEmpty();
+    default void queueEmpty() {
+        queueProcess();
+    }
 
 
     /**
@@ -63,6 +67,11 @@ public interface QueueCallBackHandler {
      * Callback for when the queue is idle.
      */
     default void queueIdle() {
+        queueProcess();
+    }
+
+    default void queueProcess() {
+
     }
 
     /**

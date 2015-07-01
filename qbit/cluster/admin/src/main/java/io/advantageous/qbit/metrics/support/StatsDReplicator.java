@@ -10,12 +10,9 @@ import java.io.IOException;
 import java.net.*;
 import java.nio.ByteBuffer;
 import java.nio.channels.DatagramChannel;
-import java.util.Date;
 import java.util.Locale;
-import java.util.Map;
 import java.util.Random;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.function.Consumer;
 
 /**
  * created by rhightower on 5/22/15.
@@ -36,6 +33,7 @@ public class StatsDReplicator implements StatReplicator, QueueCallBackHandler {
 
     private long lastFlush;
     private long time;
+    private long lastOpenTime;
 
     /*
     Sets
@@ -65,6 +63,10 @@ If the count at flush is 0 then you can opt to send no metric at all for this se
 
     private void openChannel() {
 
+
+        time = Timer.timer().now();
+
+
         try {
 
             if (channel!=null) {
@@ -75,6 +77,7 @@ If the count at flush is 0 then you can opt to send no metric at all for this se
                 }
             }
             channel = DatagramChannel.open();
+            lastOpenTime = time;
             channel.configureBlocking(false);
             channel.setOption(StandardSocketOptions.SO_SNDBUF, bufferSize * 2);
 
@@ -240,11 +243,26 @@ If the count at flush is 0 then you can opt to send no metric at all for this se
     }
 
     private int sendBufferOverChannel() throws IOException {
-        sendBuffer.flip();
-        final int sentByteCount = channel.send(sendBuffer, address);
-        sendBuffer.limit(sendBuffer.capacity());
-        sendBuffer.rewind();
-        return sentByteCount;
+
+        try {
+            sendBuffer.flip();
+            /* Made this async. */
+            final int sentByteCount = channel.send(sendBuffer, address);
+            sendBuffer.limit(sendBuffer.capacity());
+            sendBuffer.rewind();
+            return sentByteCount;
+        }catch (IOException ex) {
+
+            DatagramChannel oldChannel = channel;
+            channel = null;
+
+            /* Added recovery logic. */
+            if (oldChannel!=null) {
+                oldChannel.close();
+            }
+            openChannel();
+            return 0;
+        }
     }
 
     @Override
@@ -315,20 +333,20 @@ If the count at flush is 0 then you can opt to send no metric at all for this se
         }
     }
 
+
     @Override
-    public void queueLimit() {
+    public void queueProcess() {
 
         time = Timer.timer().now();
         flushIfNeeded();
-    }
 
-    @Override
-    public void queueEmpty() {
+        /* Reopen channel every hour so if there is a problem like last time
+        we are at least fixing it once an hour.
+         */
+        if (time - lastOpenTime > (60 * 60 * 1000) || channel == null) {
+            openChannel();
+        }
 
-        time = Timer.timer().now();
-
-
-        flushIfNeeded();
     }
 
 
