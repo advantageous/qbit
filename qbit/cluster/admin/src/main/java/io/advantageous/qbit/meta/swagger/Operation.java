@@ -5,7 +5,6 @@ import java.util.Map;
 
 public class Operation {
 
-    //TODO add parameters
 
     private final String operationId;
     private final String summary;
@@ -14,11 +13,14 @@ public class Operation {
     private final ExternalDocumentation externalDocs;
     private final List<String> consumes;
     private final List<String> produces;
+
+    private final List<Parameter> parameters;
+
     private final Map<Integer, Response> responses;
 
     public Operation(String operationId, String summary, String description, List<String> tags,
                      ExternalDocumentation externalDocs, List<String> consumes,
-                     List<String> produces, Map<Integer, Response> responses) {
+                     List<String> produces, Map<Integer, Response> responses, List<Parameter> parameters) {
         this.operationId = operationId;
         this.summary = summary;
         this.description = description;
@@ -27,6 +29,7 @@ public class Operation {
         this.consumes = consumes;
         this.produces = produces;
         this.responses = responses;
+        this.parameters = parameters;
     }
 
     public String getOperationId() {
@@ -59,5 +62,9 @@ public class Operation {
 
     public Map<Integer, Response> getResponses() {
         return responses;
+    }
+
+    public List<Parameter> getParameters() {
+        return parameters;
     }
 }

@@ -1,17 +1,15 @@
 package io.advantageous.qbit.meta.swagger;
 
-import io.advantageous.boon.core.reflection.ClassMeta;
+import io.advantageous.boon.core.Str;
+import io.advantageous.boon.core.TypeType;
 import io.advantageous.boon.core.reflection.MethodAccess;
 import io.advantageous.qbit.annotation.RequestMethod;
-import io.advantageous.qbit.meta.ContextMeta;
-import io.advantageous.qbit.meta.RequestMeta;
-import io.advantageous.qbit.meta.ServiceMeta;
-import io.advantageous.qbit.meta.ServiceMethodMeta;
+import io.advantageous.qbit.meta.*;
+import io.advantageous.qbit.meta.params.*;
 import io.advantageous.qbit.meta.swagger.builders.*;
 
 
 import java.util.*;
-import java.util.function.Consumer;
 
 public class MetaTransformerFromQbitMetaToSwagger {
 
@@ -44,6 +42,7 @@ public class MetaTransformerFromQbitMetaToSwagger {
                 final List<RequestMeta> requestEndpoints = methodMeta.getRequestEndpoints();
                 final MethodAccess methodAccess = methodMeta.getMethodAccess();
 
+
                 for (RequestMeta requestMeta : requestEndpoints) {
                     final String requestURI = requestMeta.getRequestURI();
 
@@ -57,7 +56,11 @@ public class MetaTransformerFromQbitMetaToSwagger {
 
 
                     for (RequestMethod requestMethod : requestMethods) {
-                        OperationBuilder operationBuilder = new OperationBuilder();
+                        final OperationBuilder operationBuilder = new OperationBuilder();
+
+
+                        addParameters(operationBuilder, requestMeta.getParameters(), methodAccess,
+                                requestMeta.getRequestURI(), contextMeta.getRootURI());
                         operationBuilder.setOperationId(methodAccess.name());
 
                         if (methodMeta.hasCallBack() || methodAccess.returnType() != void.class) {
@@ -115,6 +118,80 @@ public class MetaTransformerFromQbitMetaToSwagger {
 
 
         return builder.build();
+    }
+
+    private void addParameters(final OperationBuilder operationBuilder,
+                               final List<ParameterMeta> parameterMetaList,
+                               final MethodAccess methodAccess, final String requestURI,
+                               final String baseURI
+                               ) {
+
+
+        final String fullURI = (baseURI + requestURI).replaceAll("//", "/");
+        final String[] uriParts = Str.split(requestURI, '/');
+
+
+
+        for (ParameterMeta parameterMeta : parameterMetaList) {
+
+
+            ParameterBuilder parameterBuilder = new ParameterBuilder();
+
+
+            if (parameterMeta.getParam() instanceof NamedParam) {
+                parameterBuilder.setName(((NamedParam) parameterMeta.getParam()).getName());
+            }
+
+            if (parameterMeta.getParam() instanceof RequestParam) {
+                parameterBuilder.setIn("query");
+
+            }
+            if (parameterMeta.getParam() instanceof URINamedParam) {
+                parameterBuilder.setIn("path");
+
+            }
+
+            if (parameterMeta.getParam() instanceof HeaderParam) {
+                parameterBuilder.setIn("header");
+
+            }
+
+
+            if (parameterMeta.getParam() instanceof URIPositionalParam) {
+                parameterBuilder.setIn("THIS QBIT FEATURE URI POSITIONAL PARAM IS NOT SUPPORTED BY SWAGGER");
+
+            }
+
+
+            if (parameterMeta.getParam() instanceof BodyArrayParam) {
+                parameterBuilder.setIn("THIS QBIT FEATURE BodyArrayParam IS NOT SUPPORTED BY SWAGGER");
+
+            }
+
+
+            if (parameterMeta.getParam() instanceof BodyParam) {
+                parameterBuilder.setIn("body");
+                parameterBuilder.setName("body");
+
+                /** TODO handle generic types */
+                if (parameterMeta.getType() == TypeType.INSTANCE) {
+                    parameterBuilder.setSchema(Schema.definitionRef(parameterMeta.getClassType().getSimpleName()));
+                    parameterBuilder.setRequired(parameterMeta.getParam().isRequired());
+                    operationBuilder.addParameter(parameterBuilder.build());
+                    return;
+                }
+            }
+
+            Schema schema = definitionClassCollector.getSchema(parameterMeta.getClassType());
+            parameterBuilder.setType(schema.getType());
+
+            if (schema.getType().equals("array")) {
+                parameterBuilder.setItems(schema.getItems());
+                parameterBuilder.setCollectionFormat("csv");
+            }
+            parameterBuilder.setRequired(parameterMeta.getParam().isRequired());
+            operationBuilder.addParameter(parameterBuilder.build());
+        }
     }
 
     private void buildDefinitions(final List<ServiceMeta> services) {

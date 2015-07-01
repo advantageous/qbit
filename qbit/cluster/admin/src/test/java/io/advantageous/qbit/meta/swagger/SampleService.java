@@ -49,16 +49,6 @@ public class SampleService {
     }
 
 
-    //"/call2/{2}/{arg4}")
-    public String method2(final String arg1,
-                          final int arg2,
-                          final float arg3,
-                          final double arg4) {
-
-        return sputs(arg1, arg2, arg3, arg4);
-    }
-
-
     @RequestMapping("/simple2/path/")
     public String simple2(@RequestParam("arg1") final String arg1) {
         return "simple2";

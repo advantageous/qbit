@@ -2,6 +2,7 @@ package io.advantageous.qbit.meta.swagger.builders;
 
 import io.advantageous.qbit.meta.swagger.ExternalDocumentation;
 import io.advantageous.qbit.meta.swagger.Operation;
+import io.advantageous.qbit.meta.swagger.Parameter;
 import io.advantageous.qbit.meta.swagger.Response;
 
 import java.util.*;
@@ -16,6 +17,24 @@ public class OperationBuilder {
     private List<String> consumes;
     private List<String> produces;
     private Map<Integer, Response> responses;
+    private  List<Parameter> parameters;
+
+    public List<Parameter> getParameters() {
+        if (parameters == null) {
+            parameters = new ArrayList<>();
+        }
+        return parameters;
+    }
+
+    public OperationBuilder setParameters(List<Parameter> parameters) {
+        this.parameters = parameters;
+        return this;
+    }
+
+    public OperationBuilder addParameter(final Parameter parameter) {
+        this.getParameters().add(parameter);
+        return this;
+    }
 
     public String getOperationId() {
         return operationId;
@@ -101,6 +120,6 @@ public class OperationBuilder {
     public Operation build() {
         return new Operation(getOperationId(), getSummary(),
                 getDescription(), getTags(), getExternalDocs(), getConsumes(),
-                getProduces(), getResponses());
+                getProduces(), getResponses(), getParameters());
     }
 }
