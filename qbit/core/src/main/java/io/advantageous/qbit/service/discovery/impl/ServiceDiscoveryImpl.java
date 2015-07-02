@@ -321,6 +321,10 @@ public class ServiceDiscoveryImpl implements ServiceDiscovery {
             if (checkInsQueue.size() > 0) {
                 provider.checkIn(checkInsQueue);
             }
+
+            if (registerQueue.size() > 0) {
+                Sys.sleep(1_000);
+            }
         }
     }
 
