@@ -304,7 +304,7 @@ public class ServiceDiscoveryImpl implements ServiceDiscovery {
 
 
             if (registerQueue.size() > 0) {
-                executorService.submit(() -> provider.registerServices(registerQueue));
+                provider.registerServices(registerQueue);
             }
 
             if (doneQueue.size() > 0) {
@@ -319,10 +319,7 @@ public class ServiceDiscoveryImpl implements ServiceDiscovery {
 
 
             if (checkInsQueue.size() > 0) {
-                /* There is no rush, we are periodically checking in.
-                * Protect the service registry from too aggressive config. */
-                Sys.sleep(1000);
-                executorService.submit(() -> provider.checkIn(checkInsQueue));
+                provider.checkIn(checkInsQueue);
             }
         }
     }
