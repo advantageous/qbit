@@ -57,7 +57,7 @@ If the count at flush is 0 then you can opt to send no metric at all for this se
 
         this.multiMetrics = multiMetrics;
         this.flushRateIntervalMS = flushRateIntervalMS;
-        sendBuffer = ByteBuffer.allocate(bufferSize);
+        sendBuffer = ByteBuffer.allocate(bufferSize + 100);
 
     }
 
@@ -190,7 +190,10 @@ If the count at flush is 0 then you can opt to send no metric at all for this se
             // If we're going to go past the threshold of the buffer then flush.
             // the +1 is for the potential '\n' in multi_metrics below
             if (sendBuffer.remaining() < (data.length + 1)) {
-                flushStatSend();
+                if (!flushStatSend()) {
+                    logger.error("Buffer overflow, connection might be down");
+                    return false;
+                }
             }
 
             if (sendBuffer.position() > 0) {         // multiple metrics are separated by '\n'
