@@ -302,15 +302,26 @@ public class ServiceDiscoveryImpl implements ServiceDiscovery {
 
         while (!stop.get()) {
 
-            if (doneQueue.size() > 0) {
-                executorService.submit(() -> loadHealthyServices());
-            }
 
             if (registerQueue.size() > 0) {
                 executorService.submit(() -> provider.registerServices(registerQueue));
             }
 
+            if (doneQueue.size() > 0) {
+                executorService.submit(() -> {
+
+                    /* There is no rush, we are periodically checking in.
+                    * Protect the service registry from too aggressive config. */
+                    Sys.sleep(1000);
+                    loadHealthyServices();
+                });
+            }
+
+
             if (checkInsQueue.size() > 0) {
+                /* There is no rush, we are periodically checking in.
+                * Protect the service registry from too aggressive config. */
+                Sys.sleep(1000);
                 executorService.submit(() -> provider.checkIn(checkInsQueue));
             }
         }

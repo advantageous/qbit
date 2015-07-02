@@ -23,6 +23,7 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.function.Consumer;
 
 import static io.advantageous.boon.core.Str.sputs;
 
@@ -164,26 +165,15 @@ public class ConsulServiceDiscoveryProvider implements ServiceDiscoveryProvider 
             ));
         }
 
-        ServiceHealthCheckIn checkIn = checkInsQueue.poll();
+        /* This was added to remove duplicate check-ins. */
+        final Set<ServiceHealthCheckIn> uniqueCheckIns = createUniqueSetOfCheckins(checkInsQueue);
 
-        if (checkIn != null) {
+        if (uniqueCheckIns.size() > 0) {
             Consul consul = consul();
 
             try {
-                while (checkIn != null) {
-                    Status status = convertStatus(checkIn.getHealthStatus());
-
-                    try {
-                        consul.agent().checkTtl(checkIn.getServiceId(), status, "" + checkIn.getHealthStatus());
-                    } catch (NotRegisteredException notRegisteredException) {
-                        final EndpointDefinition endpointDefinition = registrations.get(checkIn.getServiceId());
-                        if (endpointDefinition!=null) {
-                            consul.agent().registerService(endpointDefinition.getPort(),
-                                    endpointDefinition.getTimeToLive(),
-                                    endpointDefinition.getName(), endpointDefinition.getId(), tags);
-                        }
-                    }
-                    checkIn = checkInsQueue.poll();
+                for (ServiceHealthCheckIn checkIn : uniqueCheckIns) {
+                    checkInWithConsul(consul, checkIn);
                 }
             } catch (Exception ex) {
                 handleConsulRecovery(consul, ex);
@@ -192,6 +182,30 @@ public class ConsulServiceDiscoveryProvider implements ServiceDiscoveryProvider 
             }
 
         }
+    }
+
+    private void checkInWithConsul(final Consul consul, final ServiceHealthCheckIn checkIn) {
+
+        final Status status = convertStatus(checkIn.getHealthStatus());
+
+        try {
+            consul.agent().checkTtl(checkIn.getServiceId(), status, "" + checkIn.getHealthStatus());
+        } catch (NotRegisteredException notRegisteredException) {
+            final EndpointDefinition endpointDefinition = registrations.get(checkIn.getServiceId());
+            if (endpointDefinition!=null) {
+                consul.agent().registerService(endpointDefinition.getPort(),
+                        endpointDefinition.getTimeToLive(),
+                        endpointDefinition.getName(), endpointDefinition.getId(), tags);
+            }
+        }
+
+    }
+
+    private Set<ServiceHealthCheckIn> createUniqueSetOfCheckins(final Queue<ServiceHealthCheckIn> checkInsQueue) {
+        LinkedHashSet<ServiceHealthCheckIn> set = new LinkedHashSet<>(checkInsQueue.size());
+
+        checkInsQueue.forEach(serviceHealthCheckIn -> set.add(serviceHealthCheckIn));
+        return set;
     }
 
     private void shutDownConsul(Consul consul) {
