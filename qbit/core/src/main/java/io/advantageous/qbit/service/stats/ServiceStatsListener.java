@@ -93,11 +93,12 @@ public class ServiceStatsListener implements QueueCallBackHandler {
     public void afterReceiveCalled() {
 
 
+        receiveCount++;
+
         if (sampleEvery == -1) {
             return;
         }
 
-        receiveCount++;
 
         if (timeIt) {
             timeIt = false;
