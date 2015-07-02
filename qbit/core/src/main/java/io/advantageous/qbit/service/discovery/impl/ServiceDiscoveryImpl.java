@@ -312,7 +312,6 @@ public class ServiceDiscoveryImpl implements ServiceDiscovery {
 
                     /* There is no rush, we are periodically checking in.
                     * Protect the service registry from too aggressive config. */
-                    Sys.sleep(1000);
                     loadHealthyServices();
                 });
             }
@@ -325,29 +324,38 @@ public class ServiceDiscoveryImpl implements ServiceDiscovery {
             if (registerQueue.size() > 0) {
                 Sys.sleep(1_000);
             }
+
+            if (doneQueue.size()==0) {
+                doneQueue.addAll(serviceNames);
+            }
         }
     }
 
     /** Iterate through the health service queue and load the services. */
     private void loadHealthyServices() {
-        String serviceName = doneQueue.poll();
 
-        while (serviceName != null) {
+        try {
+            String serviceName = doneQueue.poll();
 
-            final String serviceNameToFetch = serviceName;
+            while (serviceName != null) {
+
+                final String serviceNameToFetch = serviceName;
 
             /* Don't load the service if it is already being loaded. */
-            if (!serviceNamesBeingLoaded.contains(serviceNameToFetch)) {
-                serviceNamesBeingLoaded.add(serviceNameToFetch);
-                executorService.submit(() -> {
+                if (!serviceNamesBeingLoaded.contains(serviceNameToFetch)) {
+                    serviceNamesBeingLoaded.add(serviceNameToFetch);
+                    executorService.submit(() -> {
                      /*
                        Loading a service pool might take a while so
                        the actual load operation happens in its own thread.
                       */
-                     doLoadHealthServices(serviceNameToFetch);
-                });
+                        doLoadHealthServices(serviceNameToFetch);
+                    });
+                }
+                serviceName = doneQueue.poll();
             }
-            serviceName = doneQueue.poll();
+        }catch (Exception ex) {
+            ex.printStackTrace();
         }
     }
 
@@ -369,7 +377,6 @@ public class ServiceDiscoveryImpl implements ServiceDiscovery {
                  We are constantly loading services through long polling for changes.
              */
             serviceNamesBeingLoaded.remove(serviceNameToFetch);
-            doneQueue.offer(serviceNameToFetch);
         }
 
     }
