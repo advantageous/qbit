@@ -294,7 +294,7 @@ public class ContextMetaBuilder {
         }
 
         if (annotationData != null) {
-            name = annotationData.getValues().get("value");
+            name = annotationData.getValues().get("value").toString();
         }
 
         return name;
