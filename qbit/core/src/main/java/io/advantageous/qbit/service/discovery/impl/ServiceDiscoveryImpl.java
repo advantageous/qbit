@@ -19,7 +19,9 @@ import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
- * Service Discovery using consul
+ * Service Discovery. This is a generic service discovery class.
+ * It has two providers. If the primary provider fails, it uses the secondary provider.
+ *
  * created by rhightower on 3/23/15.
  */
 public class ServiceDiscoveryImpl implements ServiceDiscovery {
@@ -32,7 +34,6 @@ public class ServiceDiscoveryImpl implements ServiceDiscovery {
     private final ServicePoolListener servicePoolListener;
     private final ExecutorService executorService;
     private final ConcurrentHashMap<String, ServicePool> servicePoolMap = new ConcurrentHashMap<>();
-
     private final ConcurrentHashSet<EndpointDefinition> endpointDefinitions = new ConcurrentHashSet<>();
     private final ServiceDiscoveryProvider provider;
     private final Logger logger = LoggerFactory.getLogger(ServiceDiscoveryImpl.class);
@@ -71,7 +72,7 @@ public class ServiceDiscoveryImpl implements ServiceDiscovery {
         } : servicePoolListener;
 
         this.executorService = executorService == null ?
-                Executors.newFixedThreadPool(10) :
+                Executors.newCachedThreadPool(runnable -> new Thread(runnable, "ServiceDiscovery")) :
                 executorService;//Mostly sleeping threads doing long polls
 
 
@@ -300,48 +301,38 @@ public class ServiceDiscoveryImpl implements ServiceDiscovery {
     public void monitor() throws Exception {
 
         while (!stop.get()) {
-            loadHealthyServices();
-            provider.registerServices(registerQueue);
-            provider.checkIn(checkInsQueue);
+
+            if (doneQueue.size() > 0) {
+                executorService.submit(() -> loadHealthyServices());
+            }
+
+            if (registerQueue.size() > 0) {
+                executorService.submit(() -> provider.registerServices(registerQueue));
+            }
+
+            if (checkInsQueue.size() > 0) {
+                executorService.submit(() -> provider.checkIn(checkInsQueue));
+            }
         }
     }
 
-    private void loadHealthyServices() throws InterruptedException {
-        String serviceName = doneQueue.poll(50, TimeUnit.MILLISECONDS);
+    /** Iterate through the health service queue and load the services. */
+    private void loadHealthyServices() {
+        String serviceName = doneQueue.poll();
 
         while (serviceName != null) {
 
             final String serviceNameToFetch = serviceName;
 
+            /* Don't load the service if it is already being loaded. */
             if (!serviceNamesBeingLoaded.contains(serviceNameToFetch)) {
                 serviceNamesBeingLoaded.add(serviceNameToFetch);
                 executorService.submit(() -> {
-                    try {
-                        final List<EndpointDefinition> healthyServices = provider.loadServices(serviceNameToFetch);
-                        populateServiceMap(serviceNameToFetch, healthyServices);
-                        serviceNamesBeingLoaded.remove(serviceNameToFetch);
-                    } catch (Exception ex) {
-
-                        Sys.sleep(10_000); //primary is down so slow it down
-                        if (backupProvider != null) {
-
-                            if (debug) logger.debug("ServiceDiscoveryImpl::loadHealthyServices " +
-                                    "Error while loading healthy" +
-                                    " services for " + serviceNameToFetch, ex);
-
-                            final List<EndpointDefinition> healthyServices = backupProvider.loadServices(serviceNameToFetch);
-                            populateServiceMap(serviceNameToFetch, healthyServices);
-                            serviceNamesBeingLoaded.remove(serviceNameToFetch);
-
-
-                        } else {
-                            logger.error("ServiceDiscoveryImpl::loadHealthyServices " +
-                                    "Error while loading healthy" +
-                                    " services for " + serviceNameToFetch, ex);
-                        }
-                    } finally {
-                        doneQueue.offer(serviceNameToFetch);
-                    }
+                     /*
+                       Loading a service pool might take a while so
+                       the actual load operation happens in its own thread.
+                      */
+                     doLoadHealthServices(serviceNameToFetch);
                 });
             }
             serviceName = doneQueue.poll();
@@ -349,8 +340,72 @@ public class ServiceDiscoveryImpl implements ServiceDiscovery {
     }
 
 
-    private void populateServiceMap(final String serviceName, final List<EndpointDefinition> healthyServices) {
+    /**
+     * Loads the service from the remote service registry (i.e., consul).
+     * @param serviceNameToFetch service that we are loading a pool for.
+     */
+    private void doLoadHealthServices(final String serviceNameToFetch) {
+        try {
+            final List<EndpointDefinition> healthyServices = provider.loadServices(serviceNameToFetch);
+            populateServiceMap(serviceNameToFetch, healthyServices);
+        } catch (Exception ex) {
+            doFailOverHealthServicesLoad(serviceNameToFetch, ex);
+        } finally {
+            /*  Remove the service from the serviceNamesBeingLoaded
+                SET and add it back to the work pool
+                to get loaded again.
+                 We are constantly loading services through long polling for changes.
+             */
+            serviceNamesBeingLoaded.remove(serviceNameToFetch);
+            doneQueue.offer(serviceNameToFetch);
+        }
+
+    }
+
+    /**
+     * If the primary load failed, we could have a backup provider registered.
+     * @param serviceNameToFetch service pool to fetch
+     * @param ex
+     */
+    private void doFailOverHealthServicesLoad(final String serviceNameToFetch, Exception ex) {
+
+        /* If there is a backup provider, load from there. */
+        if (backupProvider != null) {
+
+            if (debug) logger.debug("ServiceDiscoveryImpl::loadHealthyServices " +
+                    "Error while loading healthy" +
+                    " services for " + serviceNameToFetch, ex);
+
+            final List<EndpointDefinition> healthyServices = backupProvider.loadServices(serviceNameToFetch);
+            populateServiceMap(serviceNameToFetch, healthyServices);
+            serviceNamesBeingLoaded.remove(serviceNameToFetch);
+
+
+        } else {
+
+            logger.error("ServiceDiscoveryImpl::loadHealthyServices " +
+                    "Error while loading healthy" +
+                    " services for " + serviceNameToFetch, ex);
+        }
+
+
+        Sys.sleep(10_000); //primary is down so slow it down so we don't flow the system with updates of service pools.
+
+    }
+
+    /**
+     * Populate the service map.
+     * Look up the service pool.
+     * Apply the healthy services so the pool can see if there were changes (additions, removal, etc.)
+     * @param serviceName service name
+     * @param healthyServices list of healthy services that we just loaded.
+     */
+    private void populateServiceMap(final String serviceName,
+                                    final List<EndpointDefinition> healthyServices) {
+
         final ServicePool servicePool = servicePool(serviceName);
+
+        /* If there were changes then send a service pool change event on the event channel. */
         if (servicePool.setHealthyNodes(healthyServices)) {
             serviceChangedEventChannel.servicePoolChanged(serviceName);
             serviceChangedEventChannel.flushEvents();
