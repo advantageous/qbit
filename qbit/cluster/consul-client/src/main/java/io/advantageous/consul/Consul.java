@@ -55,7 +55,8 @@ public class Consul {
         URI uri = URI.create(url + "/v1");
 
         final HttpClientBuilder httpClientBuilder = HttpClientBuilder
-                .httpClientBuilder().setAutoFlush(false).setTimeOutInMilliseconds(120_000).setPoolSize(10).setHost(uri.getHost()).setPort(uri.getPort());
+                .httpClientBuilder().setAutoFlush(false).setTimeOutInMilliseconds(120_000)
+                .setPoolSize(1).setHost(uri.getHost()).setPort(uri.getPort());
         httpClient = httpClientBuilder.build();
 
         final String rootPath = uri.getPath();
