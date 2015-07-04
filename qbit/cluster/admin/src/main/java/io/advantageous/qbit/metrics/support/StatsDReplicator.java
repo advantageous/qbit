@@ -14,6 +14,8 @@ import java.util.Locale;
 import java.util.Random;
 import java.util.concurrent.ConcurrentHashMap;
 
+import static io.advantageous.boon.core.IO.puts;
+
 /**
  * created by rhightower on 5/22/15.
  */
@@ -28,7 +30,7 @@ public class StatsDReplicator implements StatReplicator, QueueCallBackHandler {
     private final InetSocketAddress address;
     private final int bufferSize;
     private  DatagramChannel channel;
-    private final ConcurrentHashMap<String, LocalCount> countMap = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<String, Metric> countMap = new ConcurrentHashMap<>();
 
 
     private long lastFlush;
@@ -94,6 +96,8 @@ If the count at flush is 0 then you can opt to send no metric at all for this se
 
     @SuppressWarnings("UnusedReturnValue")
     public boolean timing(String key, int value) {
+
+        puts("timing", key, value);
         return timing(key, value, 1.0);
     }
 
@@ -134,6 +138,8 @@ If the count at flush is 0 then you can opt to send no metric at all for this se
 
     @SuppressWarnings("UnusedReturnValue")
     public boolean increment(String key, int magnitude) {
+
+        puts("increment", key, magnitude);
         return increment(key, magnitude, 1.0);
     }
 
@@ -152,6 +158,8 @@ If the count at flush is 0 then you can opt to send no metric at all for this se
 
     @SuppressWarnings("UnusedReturnValue")
     public boolean gauge(String key, double magnitude) {
+
+        puts("gauge", key, magnitude);
         return gauge(key, magnitude, 1.0);
     }
 
@@ -274,13 +282,13 @@ If the count at flush is 0 then you can opt to send no metric at all for this se
             return;
         }
 
-       LocalCount localCount = countMap.get(name);
+
+       Metric localCount = countMap.get(name);
        if (localCount == null) {
-            localCount = new LocalCount();
-            localCount.name = name;
+           localCount = Metric.count(name);
             countMap.put(name, localCount);
         }
-        localCount.count += count;
+        localCount.value += count;
 
     }
 
@@ -288,37 +296,48 @@ If the count at flush is 0 then you can opt to send no metric at all for this se
     public void replicateLevel(final String name, final int level, final long time) {
 
 
-        LocalCount localCount = countMap.get(name);
+        Metric localCount = countMap.get(name);
         if (localCount == null) {
-            localCount = new LocalCount();
-            localCount.name = name;
+
+            localCount = Metric.level(name);
             countMap.put(name, localCount);
 
             /* Set the initial level. */
-            localCount.count = level;
+            localCount.value = level;
             /* Send the gauge. */
             gauge(name, level);
         }
 
-
-        /* Don't send a duplicate level. Only send level if it changes. */
-        if (localCount.count != level) {
-            gauge(name, level);
-
-            /* This level which was not equal to the last is the new level. */
-            localCount.count = level;
-        }
-
+        localCount.value = level;
 
     }
 
     @Override
     public void replicateTiming(String name, int timed, long time) {
 
+
         /* A 0 timing is not useful. */
-        if (time > 0) {
+        if (timed <= 0) {
+            return;
+        }
+
+        Metric localCount = countMap.get(name);
+        if (localCount == null) {
+
+            localCount = Metric.timing(name);
+            countMap.put(name, localCount);
+
+            /* Set the initial timing. */
+            localCount.value = timed;
+            /* Send the timing. */
             timing(name, timed);
         }
+
+
+        /** It would be nice to average the time. */
+        localCount.value = timed;
+
+
     }
 
 
@@ -326,9 +345,23 @@ If the count at flush is 0 then you can opt to send no metric at all for this se
         long delta = time - lastFlush;
         if (delta > flushRateIntervalMS) {
             countMap.entrySet().forEach(entry -> {
-                if (entry.getValue().count != 0) {
-                    increment(entry.getKey(), entry.getValue().count);
-                    entry.getValue().count = 0;
+
+                if (entry.getValue().value != 0) {
+
+                    switch (entry.getValue().type) {
+
+                        case COUNT:
+                            increment(entry.getKey(), entry.getValue().value);
+                            break;
+                        case TIMING:
+                            timing(entry.getKey(), entry.getValue().value);
+                            break;
+                        case LEVEL:
+                            gauge(entry.getKey(), entry.getValue().value);
+                            break;
+                    }
+
+                    entry.getValue().value = 0;
                 }
             });
             flushStatSend();
@@ -353,10 +386,39 @@ If the count at flush is 0 then you can opt to send no metric at all for this se
     }
 
 
-    final static class LocalCount {
+    enum MetricType {
+        COUNT, LEVEL, TIMING;
+    }
 
-        int count;
-        String name;
+    final static class Metric {
 
+        int value;
+        final String name;
+        final MetricType type;
+
+
+        public static Metric count(String name) {
+
+            return new Metric(name, MetricType.COUNT);
+
+        }
+
+        public static Metric level(String name) {
+
+            return new Metric(name, MetricType.LEVEL);
+
+        }
+
+
+        public static Metric timing(String name) {
+
+            return new Metric(name, MetricType.TIMING);
+
+        }
+
+        public Metric(String name, MetricType type) {
+            this.name = name;
+            this.type = type;
+        }
     }
 }

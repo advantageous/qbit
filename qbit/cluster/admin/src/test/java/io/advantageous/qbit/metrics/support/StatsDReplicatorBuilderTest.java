@@ -21,17 +21,18 @@ public class StatsDReplicatorBuilderTest {
 
         final Random random = new Random();
 
-        for (int index = 0; index < 10; index++) {
-            statReplicator.replicateCount("foo.bar", index + 1, -1);
-            statReplicator.replicateLevel("foo.bar2", index + 1 * 100, -1);
+        //for (int index = 0; index < 200_000; index++) {
+        for (int index = 0; index < 10_000; index++) {
+
+            statReplicator.replicateCount("StatsDReplicatorBuilderTest.replicateCount", index + 1, -1);
+            statReplicator.replicateLevel("StatsDReplicatorBuilderTest.replicateLevel", index + 1 * 100, -1);
 
             int duration = (int) (400 * random.nextFloat()) + 200;
-            statReplicator.replicateTiming("foo.bar3", duration, -1);
+            statReplicator.replicateTiming("StatsDReplicatorBuilderTest.replicateTiming", duration, -1);
 
+            statReplicator.flush();
             Sys.sleep(1000);
         }
-
-        statReplicator.flush();
 
         Sys.sleep(1000);
     }
