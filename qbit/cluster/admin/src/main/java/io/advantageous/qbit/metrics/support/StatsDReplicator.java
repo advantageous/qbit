@@ -249,7 +249,14 @@ If the count at flush is 0 then you can opt to send no metric at all for this se
         }
     }
 
+    int resetDatagramEvery = 0;
+
     private int sendBufferOverChannel() throws IOException {
+
+        if (resetDatagramEvery++ > 10) {
+            openChannel();
+            resetDatagramEvery=0;
+        }
 
         try {
             sendBuffer.flip();
@@ -257,6 +264,8 @@ If the count at flush is 0 then you can opt to send no metric at all for this se
             final int sentByteCount = channel.send(sendBuffer, address);
             sendBuffer.limit(sendBuffer.capacity());
             sendBuffer.rewind();
+
+
             return sentByteCount;
         }catch (IOException ex) {
 

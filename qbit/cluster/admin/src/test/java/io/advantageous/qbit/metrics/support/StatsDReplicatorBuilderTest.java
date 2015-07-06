@@ -24,6 +24,41 @@ public class StatsDReplicatorBuilderTest {
         //for (int index = 0; index < 200_000; index++) {
         for (int index = 0; index < 10_000; index++) {
 
+
+            statReplicator.replicateCount("StatsDReplicatorBuilderTest.replicateCountB", index + 1, -1);
+
+            statReplicator.replicateCount("StatsDReplicatorBuilderTest.replicateCountC", index + 1, -1);
+
+            statReplicator.replicateCount("StatsDReplicatorBuilderTest.replicateCountD", index + 1, -1);
+
+            statReplicator.replicateCount("StatsDReplicatorBuilderTest.replicateCountE", index + 1, -1);
+
+            statReplicator.replicateCount("StatsDReplicatorBuilderTest.replicateCountF", index + 1, -1);
+
+            statReplicator.replicateCount("StatsDReplicatorBuilderTest.replicateCountH", index + 1, -1);
+
+            statReplicator.replicateCount("StatsDReplicatorBuilderTest.replicateCountI", index + 1, -1);
+
+            statReplicator.replicateCount("StatsDReplicatorBuilderTest.replicateCountJ", index + 1, -1);
+
+            statReplicator.replicateCount("StatsDReplicatorBuilderTest.replicateCountK", index + 1, -1);
+
+            statReplicator.replicateCount("StatsDReplicatorBuilderTest.replicateCountL", index + 1, -1);
+
+            statReplicator.replicateCount("StatsDReplicatorBuilderTest.replicateCountM", index + 1, -1);
+
+            statReplicator.replicateCount("StatsDReplicatorBuilderTest.replicateCountN", index + 1, -1);
+
+            statReplicator.replicateCount("StatsDReplicatorBuilderTest.replicateCountO", index + 1, -1);
+            statReplicator.replicateCount("StatsDReplicatorBuilderTest.replicateCountP", index + 1, -1);
+            statReplicator.replicateCount("StatsDReplicatorBuilderTest.replicateCountQ", index + 1, -1);
+            statReplicator.replicateCount("StatsDReplicatorBuilderTest.replicateCountR", index + 1, -1);
+
+            statReplicator.replicateCount("StatsDReplicatorBuilderTest.replicateCountS", index + 1, -1);
+
+            statReplicator.replicateCount("StatsDReplicatorBuilderTest.replicateCountT", index + 1, -1);
+
+            statReplicator.replicateCount("StatsDReplicatorBuilderTest.replicateCountU", index + 1, -1);
             statReplicator.replicateCount("StatsDReplicatorBuilderTest.replicateCount", index + 1, -1);
             statReplicator.replicateLevel("StatsDReplicatorBuilderTest.replicateLevel", index + 1 * 100, -1);
 
