@@ -218,8 +218,9 @@ public class BaseServiceQueueImpl implements ServiceQueue {
                 public SendQueue<MethodCall<Object>> sendQueue() {
                     return new SendQueue<MethodCall<Object>>() {
                         @Override
-                        public void send(MethodCall<Object> item) {
-                            doHandleMethodCall(item, serviceMethodHandler);
+                        public boolean send(MethodCall<Object> item) {
+
+                            return doHandleMethodCall(item, serviceMethodHandler);
                         }
 
                         @Override
@@ -315,13 +316,14 @@ public class BaseServiceQueueImpl implements ServiceQueue {
         return this;
     }
 
+
     /**
      * This method is where all of the action is.
      *
      * @param methodCall           methodCall
      * @param serviceMethodHandler handler
      */
-    private void doHandleMethodCall(MethodCall<Object> methodCall,
+    private boolean doHandleMethodCall(MethodCall<Object> methodCall,
                                     final ServiceMethodHandler serviceMethodHandler) {
         if (debug) {
             logger.debug("ServiceImpl::doHandleMethodCall() METHOD CALL" + methodCall);
@@ -334,7 +336,7 @@ public class BaseServiceQueueImpl implements ServiceQueue {
         methodCall = beforeMethodProcessing(methodCall, continueFlag);
         if (continueFlag[0]) {
             if (debug) logger.debug("ServiceImpl::doHandleMethodCall() before handling stopped processing");
-            return;
+            return false;
         }
         Response<Object> response = serviceMethodHandler.receiveMethodCall(methodCall);
         if (debug) {
@@ -343,17 +345,25 @@ public class BaseServiceQueueImpl implements ServiceQueue {
         if (response != ServiceConstants.VOID) {
 
             if (!afterMethodCall.after(methodCall, response)) {
-                return;
+                return false;
             }
             //noinspection unchecked
             response = responseObjectTransformer.transform(response);
 
             if (!afterMethodCallAfterTransform.after(methodCall, response)) {
-                return;
+                return false;
             }
-            responseSendQueue.send(response);
+
+            if (!responseSendQueue.send(response)) {
+                logger.error("Unable to send response {} for method {} for object {}",
+                        response,
+                        methodCall.name(),
+                        methodCall.objectName());
+            }
 
         }
+
+        return false;
     }
 
     private void start(final ServiceMethodHandler serviceMethodHandler,

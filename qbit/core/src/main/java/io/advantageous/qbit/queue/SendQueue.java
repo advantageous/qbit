@@ -31,7 +31,7 @@ import java.util.Collection;
  * @author rhightower
  */
 public interface SendQueue<T> extends Output {
-    void send(T item);
+    boolean send(T item);
 
     void sendAndFlush(T item);
 

@@ -56,6 +56,7 @@ public class BasicQueue<T> implements Queue<T> {
     private final boolean debug = GlobalConstants.DEBUG;
     private final int checkEvery;
     private final AtomicBoolean stop = new AtomicBoolean();
+    private final UnableToEnqueueHandler unableToEnqueueHandler;
     private ExecutorContext executorContext;
     private final int enqueueTimeout;
     private final TimeUnit enqueueTimeoutTimeUnit;
@@ -69,7 +70,9 @@ public class BasicQueue<T> implements Queue<T> {
                       final Class<? extends BlockingQueue> queueClass,
                       final boolean checkIfBusy,
                       final int size,
-                      final int checkEvery, boolean tryTransfer) {
+                      final int checkEvery,
+                      boolean tryTransfer,
+                      UnableToEnqueueHandler unableToEnqueueHandler) {
 
         logger.info("Queue created {} {} batchSize {} size {} checkEvery {} tryTransfer {} pollTimeWait, enqueueTimeout",
                 name, queueClass, batchSize, size, checkEvery, tryTransfer, waitTime, enqueueTimeout);
@@ -82,6 +85,7 @@ public class BasicQueue<T> implements Queue<T> {
         this.pollTimeTimeUnit = timeUnit;
         this.batchSize = batchSize;
         this.enqueueTimeoutTimeUnit = enqueueTimeoutTimeUnit;
+        this.unableToEnqueueHandler = unableToEnqueueHandler;
 
         boolean shouldCheckIfBusy;
 
@@ -147,7 +151,8 @@ public class BasicQueue<T> implements Queue<T> {
     public SendQueue<T> sendQueue() {
         logger.info("SendQueue requested for {}", name);
         return new BasicSendQueue<>(name, batchSize, queue,
-                checkIfBusy, checkEvery, tryTransfer, enqueueTimeoutTimeUnit, enqueueTimeout);
+                checkIfBusy, checkEvery, tryTransfer,
+                enqueueTimeoutTimeUnit, enqueueTimeout, unableToEnqueueHandler);
     }
 
 

@@ -14,7 +14,6 @@ import java.util.Locale;
 import java.util.Random;
 import java.util.concurrent.ConcurrentHashMap;
 
-import static io.advantageous.boon.core.IO.puts;
 
 /**
  * created by rhightower on 5/22/15.
@@ -97,7 +96,6 @@ If the count at flush is 0 then you can opt to send no metric at all for this se
     @SuppressWarnings("UnusedReturnValue")
     public boolean timing(String key, int value) {
 
-        puts("timing", key, value);
         return timing(key, value, 1.0);
     }
 
@@ -139,7 +137,6 @@ If the count at flush is 0 then you can opt to send no metric at all for this se
     @SuppressWarnings("UnusedReturnValue")
     public boolean increment(String key, int magnitude) {
 
-        puts("increment", key, magnitude);
         return increment(key, magnitude, 1.0);
     }
 
@@ -159,7 +156,6 @@ If the count at flush is 0 then you can opt to send no metric at all for this se
     @SuppressWarnings("UnusedReturnValue")
     public boolean gauge(String key, double magnitude) {
 
-        puts("gauge", key, magnitude);
         return gauge(key, magnitude, 1.0);
     }
 
@@ -349,7 +345,6 @@ If the count at flush is 0 then you can opt to send no metric at all for this se
                 if (entry.getValue().value != 0) {
 
                     switch (entry.getValue().type) {
-
                         case COUNT:
                             increment(entry.getKey(), entry.getValue().value);
                             break;
@@ -360,7 +355,6 @@ If the count at flush is 0 then you can opt to send no metric at all for this se
                             gauge(entry.getKey(), entry.getValue().value);
                             break;
                     }
-
                     entry.getValue().value = 0;
                 }
             });

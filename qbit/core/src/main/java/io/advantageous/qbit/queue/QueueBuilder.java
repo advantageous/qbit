@@ -46,6 +46,21 @@ public class QueueBuilder implements Cloneable {
     private TimeUnit enqueueTimeoutTimeUnit = TimeUnit.SECONDS;
     private int enqueueTimeout = 1000;
 
+    private UnableToEnqueueHandler unableToEnqueueHandler;
+
+    public UnableToEnqueueHandler getUnableToEnqueueHandler() {
+
+        if (unableToEnqueueHandler == null) {
+            unableToEnqueueHandler = new DefaultUnableToEnqueueHandler();
+        }
+
+        return unableToEnqueueHandler;
+    }
+
+    public QueueBuilder setUnableToEnqueueHandler(UnableToEnqueueHandler unableToEnqueueHandler) {
+        this.unableToEnqueueHandler = unableToEnqueueHandler;
+        return this;
+    }
 
     public QueueBuilder(PropertyResolver propertyResolver) {
         this.pollWait = propertyResolver
@@ -214,11 +229,18 @@ public class QueueBuilder implements Cloneable {
 
 
     public <T> Queue<T> build() {
-        return new BasicQueue<>(this.getName(), this.getPollWait(), this.getPollTimeUnit(),
+        return new BasicQueue<>(this.getName(),
+                this.getPollWait(),
+                this.getPollTimeUnit(),
                 this.getEnqueueTimeout(),
                 this.getEnqueueTimeoutTimeUnit(),
                 this.getBatchSize(),
-                this.queueClass, this.isCheckIfBusy(), this.getSize(), this.getCheckEvery(), this.isTryTransfer());
+                this.getQueueClass(),
+                this.isCheckIfBusy(),
+                this.getSize(),
+                this.getCheckEvery(),
+                this.isTryTransfer(),
+                this.getUnableToEnqueueHandler());
     }
 
 }

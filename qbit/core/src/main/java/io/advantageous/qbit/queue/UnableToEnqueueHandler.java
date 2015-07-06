@@ -1,7 +1,11 @@
 package io.advantageous.qbit.queue;
 
-/**
- * Created by rhightower on 7/6/15.
- */
-public class UnableToEnqueueHandler {
+import java.util.concurrent.BlockingQueue;
+
+public interface UnableToEnqueueHandler {
+
+    default boolean unableToEnqueue(BlockingQueue<Object> queue, String queueName) {
+        return false;
+    }
+
 }

@@ -85,6 +85,8 @@ public class BoonServiceMethodCallHandler implements ServiceMethodHandler {
                 return invokeByAddress(methodCall);
             }
         } catch (Exception ex) {
+
+
             if (ex.getCause() instanceof InvocationTargetException) {
                 InvocationTargetException tex = (InvocationTargetException) ex.getCause();
                 return new ResponseImpl<>(methodCall, tex.getTargetException());
@@ -502,7 +504,7 @@ public class BoonServiceMethodCallHandler implements ServiceMethodHandler {
         final MethodAccess method = classMeta.method(methodCall.name());
 
         if (method != null) {
-            return mapArgsAsyncHandlersAndInvoke(methodCall, method);
+             return mapArgsAsyncHandlersAndInvoke(methodCall, method);
         } else {
 
             if (methodCall.name().equals("toString")) {
@@ -926,8 +928,6 @@ public class BoonServiceMethodCallHandler implements ServiceMethodHandler {
 
         @Override
         public void accept(Object result) {
-            /* This wants to be periodic flush or flush based on size but this is a stop gap make something work for now.
-             */
             responseSendQueue.send(ResponseImpl.response(methodCall, result));
         }
     }

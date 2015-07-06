@@ -72,11 +72,11 @@ public class AutoFlushingSendQueue<T> implements SendQueue<T> {
     }
 
     @Override
-    public void send(T item) {
+    public boolean send(T item) {
 
         try {
             lock.lock();
-            sendQueue.send(item);
+            return sendQueue.send(item);
         } finally {
             lock.unlock();
         }

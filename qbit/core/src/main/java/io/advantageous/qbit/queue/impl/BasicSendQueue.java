@@ -20,6 +20,7 @@ package io.advantageous.qbit.queue.impl;
 
 import io.advantageous.qbit.queue.QueueException;
 import io.advantageous.qbit.queue.SendQueue;
+import io.advantageous.qbit.queue.UnableToEnqueueHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -54,6 +55,7 @@ public class BasicSendQueue<T> implements SendQueue<T> {
     private final boolean checkBusy;
     private final int batchSize;
     private final TimeUnit timeUnit;
+    private final UnableToEnqueueHandler unableToEnqueueHandler;
     private int index;
     private int checkEveryCount = 0;
     private final String name;
@@ -69,7 +71,8 @@ public class BasicSendQueue<T> implements SendQueue<T> {
             final int checkBusyEvery,
             final boolean tryTransfer,
             final TimeUnit timeUnit,
-            final int enqueueTimeout) {
+            final int enqueueTimeout,
+            final UnableToEnqueueHandler unableToEnqueueHandler) {
 
         this.timeUnit = timeUnit;
         this.enqueueTimeout = enqueueTimeout;
@@ -78,6 +81,7 @@ public class BasicSendQueue<T> implements SendQueue<T> {
         this.batchSize = batchSize;
         this.queue = queue;
         queueLocal = new Object[batchSize];
+        this.unableToEnqueueHandler = unableToEnqueueHandler;
         if (queue instanceof TransferQueue && checkBusy) {
             //noinspection unchecked
             transferQueue = ((TransferQueue) queue);
@@ -128,10 +132,11 @@ public class BasicSendQueue<T> implements SendQueue<T> {
     }
 
     @Override
-    public void send(T item) {
-        flushIfOverBatch();
+    public boolean send(T item) {
+        boolean ableToSend = flushIfOverBatch();
         queueLocal[index] = item;
         index++;
+        return ableToSend;
     }
 
     @Override
@@ -163,19 +168,20 @@ public class BasicSendQueue<T> implements SendQueue<T> {
 
     }
 
-    private void flushIfOverBatch() {
+    private boolean flushIfOverBatch() {
 
         if (index >= batchSize) {
-            sendLocalQueue();
+            return sendLocalQueue();
         } else if (checkBusy) {
             checkEveryCount++;
             if (checkEveryCount > this.checkBusyEvery) {
                 checkEveryCount = 0;
                 if (transferQueue.hasWaitingConsumer()) {
-                    sendLocalQueue();
+                    return sendLocalQueue();
                 }
             }
         }
+        return true;
     }
 
     @Override
@@ -190,21 +196,22 @@ public class BasicSendQueue<T> implements SendQueue<T> {
         }
     }
 
-    private void sendLocalQueue() {
+    private boolean sendLocalQueue() {
 
         final Object[] copy = fastObjectArraySlice(queueLocal, 0, index);
-        sendArray(copy);
+        boolean ableToSend = sendArray(copy);
         index = 0;
+        return ableToSend;
     }
 
-    private void sendArray(final Object[] array) {
+    private boolean sendArray(final Object[] array) {
 
         if (checkBusy && tryTransfer) {
             if (!transferQueue.tryTransfer(array)) {
-                transferQueue.offer(array);
+                return transferQueue.offer(array);
             }
         } else if (checkBusy) {
-            transferQueue.offer(array);
+            return transferQueue.offer(array);
         } else {
             try {
                 if (!queue.offer(array, enqueueTimeout, timeUnit)) {
@@ -212,8 +219,8 @@ public class BasicSendQueue<T> implements SendQueue<T> {
                                     " Size of queue {} ",
                             name, enqueueTimeout, timeUnit, queue.size());
 
-                    throw new QueueException("QUEUE FULL: Unable to send messages to queue " + name);
 
+                    return unableToEnqueueHandler.unableToEnqueue(queue, name);
                 }
             } catch (InterruptedException e) {
                 logger.error("Unable to send to queue {} timeout is {} {}" +
@@ -222,6 +229,8 @@ public class BasicSendQueue<T> implements SendQueue<T> {
                 throw new QueueException("Unable to send to queue " + name, e);
             }
         }
+
+        return false;
     }
 
     @Override
