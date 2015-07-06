@@ -22,7 +22,7 @@ public class StatsDReplicatorBuilderTest {
         final Random random = new Random();
 
         //for (int index = 0; index < 200_000; index++) {
-        for (int index = 0; index < 10_000; index++) {
+        for (int index = 0; index < 10; index++) {
 
 
             statReplicator.replicateCount("StatsDReplicatorBuilderTest.replicateCountB", index + 1, -1);
