@@ -140,7 +140,7 @@ public class ConsulServiceDiscoveryBuilder {
                     getPeriodicScheduler(), getServiceChangedEventChannel(),
                     consulServiceDiscoveryProvider, null,
                     getServicePoolListener(),
-                    getExecutorService(), 50);
+                    getExecutorService(), 5, 5);
         } else {
 
             final AtomicReference<ServiceDiscovery> ref = new AtomicReference<>();
@@ -163,7 +163,7 @@ public class ConsulServiceDiscoveryBuilder {
                     getPeriodicScheduler(), getServiceChangedEventChannel(),
                     consulServiceDiscoveryProvider, backup,
                     getServicePoolListener(),
-                    getExecutorService(), 50);
+                    getExecutorService(), 5, 5);
 
             ref.set(serviceDiscovery);
 

@@ -133,7 +133,7 @@ public class ServiceDiscoveryImplTest {
         registeredEndpointDefinitions = new ConcurrentHashSet<>(100);
         healthCheckIns = new ConcurrentHashSet<>(100);
 
-        serviceDiscovery = new ServiceDiscoveryImpl(createPeriodicScheduler(10), eventChannel, provider, null, servicePoolListener, null, 50);
+        serviceDiscovery = new ServiceDiscoveryImpl(createPeriodicScheduler(10), eventChannel, provider, null, servicePoolListener, null, 5, 5);
 
         healthyServices = new AtomicReference<>();
 

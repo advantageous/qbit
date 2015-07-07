@@ -25,16 +25,10 @@ import io.advantageous.consul.domain.ServiceHealth;
 import io.advantageous.consul.domain.Status;
 import io.advantageous.consul.domain.option.RequestOptions;
 import io.advantageous.qbit.http.HTTP;
-import io.advantageous.qbit.http.client.HttpClient;
 import io.advantageous.qbit.http.request.HttpRequestBuilder;
-import io.advantageous.qbit.http.request.HttpResponse;
-import io.advantageous.qbit.reactive.Callback;
 
 import java.net.URI;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
-
-import static io.advantageous.boon.json.JsonFactory.fromJsonArray;
 import static io.advantageous.consul.domain.ConsulException.die;
 
 /**
@@ -365,7 +359,8 @@ public class HealthEndpoint extends Endpoint {
         httpRequestBuilder.addParam("passing", "true");
 
 
-        final HTTP.Response httpResponse = HTTP.getResponse(uri.toString() + "?" + httpRequestBuilder.paramString());
+        final String url = uri.toString() + "?" + httpRequestBuilder.paramString();
+        final HTTP.Response httpResponse = HTTP.getResponse(url);
 
 
         if (httpResponse == null) {

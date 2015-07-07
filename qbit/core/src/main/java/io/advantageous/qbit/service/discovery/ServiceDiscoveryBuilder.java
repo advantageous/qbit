@@ -14,18 +14,19 @@ public class ServiceDiscoveryBuilder {
     private ExecutorService executorService;
     private ServiceDiscoveryProvider serviceDiscoveryProvider;
     private ServiceDiscoveryProvider backupProvider = null;
-    private int pollForServicesInterval = 50;
+    private int pollForServicesIntervalSeconds = 2;
+    private int checkInIntervalInSeconds = 2;
 
     public static ServiceDiscoveryBuilder serviceDiscoveryBuilder() {
         return new ServiceDiscoveryBuilder();
     }
 
-    public int getPollForServicesInterval() {
-        return pollForServicesInterval;
+    public int getPollForServicesIntervalSeconds() {
+        return pollForServicesIntervalSeconds;
     }
 
-    public ServiceDiscoveryBuilder setPollForServicesInterval(int pollForServicesInterval) {
-        this.pollForServicesInterval = pollForServicesInterval;
+    public ServiceDiscoveryBuilder setPollForServicesIntervalSeconds(int pollForServicesIntervalSeconds) {
+        this.pollForServicesIntervalSeconds = pollForServicesIntervalSeconds;
         return this;
     }
 
@@ -87,13 +88,25 @@ public class ServiceDiscoveryBuilder {
     }
 
 
+    public int getCheckInIntervalInSeconds() {
+        return checkInIntervalInSeconds;
+    }
+
+    public ServiceDiscoveryBuilder setCheckInIntervalInSeconds(int checkInIntervalInSeconds) {
+        this.checkInIntervalInSeconds = checkInIntervalInSeconds;
+        return this;
+    }
+
+
+
     public ServiceDiscoveryImpl build() {
 
         return new ServiceDiscoveryImpl(
                 getPeriodicScheduler(), getServiceChangedEventChannel(),
                 getServiceDiscoveryProvider(), getBackupProvider(),
                 getServicePoolListener(),
-                getExecutorService(), getPollForServicesInterval());
+                getExecutorService(), getPollForServicesIntervalSeconds(),
+                getCheckInIntervalInSeconds());
 
     }
 }

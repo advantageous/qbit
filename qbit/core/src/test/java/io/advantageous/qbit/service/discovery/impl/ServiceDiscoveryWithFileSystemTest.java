@@ -109,7 +109,7 @@ public class ServiceDiscoveryWithFileSystemTest {
                 .setServiceChangedEventChannel(eventChannel)
                 .setServicePoolListener(servicePoolListener)
                 .setServiceDiscoveryProvider(provider)
-                .setPollForServicesInterval(100).build();
+                .setPollForServicesIntervalSeconds(100).build();
 
 
         serviceDiscovery.start();

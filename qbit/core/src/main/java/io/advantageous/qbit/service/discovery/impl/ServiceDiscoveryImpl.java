@@ -8,6 +8,7 @@ import io.advantageous.qbit.service.discovery.*;
 import io.advantageous.qbit.service.discovery.spi.ServiceDiscoveryProvider;
 import io.advantageous.qbit.service.health.HealthStatus;
 import io.advantageous.qbit.util.ConcurrentHashSet;
+import io.advantageous.qbit.util.Timer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -17,6 +18,7 @@ import java.util.Set;
 import java.util.TreeSet;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
+
 
 /**
  * Service Discovery. This is a generic service discovery class.
@@ -39,11 +41,14 @@ public class ServiceDiscoveryImpl implements ServiceDiscovery {
     private final Logger logger = LoggerFactory.getLogger(ServiceDiscoveryImpl.class);
     private final boolean debug = GlobalConstants.DEBUG || logger.isDebugEnabled();
     private final boolean trace = logger.isTraceEnabled();
-    private final int pollForServicesInterval;
+    private final int pollForServicesIntervalMS;
+    private final int checkInIntervalInMS;
+
     private final ServiceDiscoveryProvider backupProvider;
     private final ConcurrentHashSet<String> serviceNamesBeingLoaded = new ConcurrentHashSet<>();
     private final AtomicBoolean stop = new AtomicBoolean();
     private final Set<String> serviceNames = new TreeSet<>();
+    private long lastCheckIn;
 
 
     public ServiceDiscoveryImpl(
@@ -53,12 +58,14 @@ public class ServiceDiscoveryImpl implements ServiceDiscovery {
             final ServiceDiscoveryProvider backupProvider,
             final ServicePoolListener servicePoolListener,
             final ExecutorService executorService,
-            final int pollForServicesInterval) {
+            final int pollForServicesIntervalSeconds,
+            final int checkInIntervalInSeconds) {
 
 
         this.backupProvider = backupProvider;
+        this.checkInIntervalInMS = checkInIntervalInSeconds * 1000;
         this.provider = provider;
-        this.pollForServicesInterval = pollForServicesInterval;
+        this.pollForServicesIntervalMS = pollForServicesIntervalSeconds * 1000;
 
         this.periodicScheduler =
                 periodicScheduler == null ? QBit.factory().periodicScheduler() : periodicScheduler;
@@ -295,13 +302,12 @@ public class ServiceDiscoveryImpl implements ServiceDiscovery {
                 logger.error("ServiceDiscoveryImpl::" +
                         "Error while running monitor", e);
             }
-        }, pollForServicesInterval, TimeUnit.MILLISECONDS);
+        }, pollForServicesIntervalMS, TimeUnit.MILLISECONDS);
     }
 
     public void monitor() throws Exception {
 
         while (!stop.get()) {
-
 
             if (registerQueue.size() > 0) {
                 provider.registerServices(registerQueue);
@@ -321,12 +327,17 @@ public class ServiceDiscoveryImpl implements ServiceDiscovery {
                 provider.checkIn(checkInsQueue);
             }
 
-            if (registerQueue.size() > 0) {
-                Sys.sleep(1_000);
+            if (registerQueue.size() == 0) {
+                Sys.sleep(pollForServicesIntervalMS);
             }
 
             if (doneQueue.size()==0) {
-                doneQueue.addAll(serviceNames);
+                long now = Timer.timer().now();
+                long duration = now - lastCheckIn;
+                if (duration > checkInIntervalInMS ) {
+                    lastCheckIn = now;
+                    doneQueue.addAll(serviceNames);
+                }
             }
         }
     }
@@ -341,7 +352,7 @@ public class ServiceDiscoveryImpl implements ServiceDiscovery {
 
                 final String serviceNameToFetch = serviceName;
 
-            /* Don't load the service if it is already being loaded. */
+                /* Don't load the service if it is already being loaded. */
                 if (!serviceNamesBeingLoaded.contains(serviceNameToFetch)) {
                     serviceNamesBeingLoaded.add(serviceNameToFetch);
                     executorService.submit(() -> {
@@ -365,6 +376,7 @@ public class ServiceDiscoveryImpl implements ServiceDiscovery {
      * @param serviceNameToFetch service that we are loading a pool for.
      */
     private void doLoadHealthServices(final String serviceNameToFetch) {
+
         try {
             final List<EndpointDefinition> healthyServices = provider.loadServices(serviceNameToFetch);
             populateServiceMap(serviceNameToFetch, healthyServices);

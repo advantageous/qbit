@@ -24,8 +24,6 @@ import io.advantageous.boon.json.JsonParserAndMapper;
 import io.advantageous.boon.json.JsonParserFactory;
 import io.advantageous.consul.domain.*;
 import io.advantageous.qbit.http.HTTP;
-import io.advantageous.qbit.http.client.HttpClient;
-import io.advantageous.qbit.http.request.HttpResponse;
 
 import java.net.URI;
 import java.util.Collections;
@@ -429,9 +427,6 @@ public class AgentEndpoint extends Endpoint {
 
         final HTTP.Response httpResponse = Str.isEmpty(note) ? HTTP.getResponse(uri.toString()) :
                 HTTP.getResponse(uri.toString() + "?note=" + note);
-
-
-
 
         if (httpResponse.code() != 200) {
             notRegistered("Unable to perform check", uri, httpResponse.code(), httpResponse.statusMessageAsString(),
