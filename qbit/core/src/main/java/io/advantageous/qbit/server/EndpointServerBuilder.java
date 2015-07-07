@@ -18,21 +18,26 @@
 
 package io.advantageous.qbit.server;
 
+import io.advantageous.boon.json.JsonFactory;
 import io.advantageous.qbit.QBit;
 import io.advantageous.qbit.config.PropertyResolver;
 import io.advantageous.qbit.http.HttpTransport;
+import io.advantageous.qbit.http.request.HttpRequest;
 import io.advantageous.qbit.http.server.HttpServer;
 import io.advantageous.qbit.json.JsonMapper;
 import io.advantageous.qbit.message.Request;
 import io.advantageous.qbit.message.Response;
 import io.advantageous.qbit.queue.Queue;
 import io.advantageous.qbit.queue.QueueBuilder;
+import io.advantageous.qbit.reactive.Callback;
 import io.advantageous.qbit.service.BeforeMethodCall;
 import io.advantageous.qbit.service.CallbackManagerBuilder;
 import io.advantageous.qbit.service.ServiceBundle;
 import io.advantageous.qbit.service.health.HealthServiceAsync;
+import io.advantageous.qbit.service.health.HealthServiceBuilder;
 import io.advantageous.qbit.service.impl.CallbackManager;
 import io.advantageous.qbit.service.impl.ServiceConstants;
+import io.advantageous.qbit.service.stats.StatCollection;
 import io.advantageous.qbit.service.stats.StatsCollector;
 import io.advantageous.qbit.spi.ProtocolEncoder;
 import io.advantageous.qbit.spi.ProtocolParser;
@@ -40,7 +45,9 @@ import io.advantageous.qbit.system.QBitSystemManager;
 import io.advantageous.qbit.transforms.Transformer;
 import io.advantageous.qbit.util.Timer;
 
+import java.util.Map;
 import java.util.Properties;
+import java.util.function.Predicate;
 
 import static io.advantageous.qbit.http.server.HttpServerBuilder.httpServerBuilder;
 
@@ -76,6 +83,8 @@ public class EndpointServerBuilder {
     private HealthServiceAsync healthService = null;
     private StatsCollector statsCollector = null;
     private Timer timer;
+    private boolean enableHealthEndpoint;
+    private boolean enableStatEndpoint;
 
     private  int statsFlushRateSeconds;
     private  int checkTimingEveryXCalls;
@@ -83,12 +92,27 @@ public class EndpointServerBuilder {
 
     private CallbackManager callbackManager;
     private CallbackManagerBuilder callbackManagerBuilder;
+    private HealthServiceBuilder healthServiceBuilder;
+    private StatCollection statsCollection;
 
 
+    public boolean isEnableHealthEndpoint() {
+        return enableHealthEndpoint;
+    }
 
+    public EndpointServerBuilder setEnableHealthEndpoint(boolean enableHealthEndpoint) {
+        this.enableHealthEndpoint = enableHealthEndpoint;
+        return this;
+    }
 
+    public boolean isEnableStatEndpoint() {
+        return enableStatEndpoint;
+    }
 
-
+    public EndpointServerBuilder setEnableStatEndpoint(boolean enableStatEndpoint) {
+        this.enableStatEndpoint = enableStatEndpoint;
+        return this;
+    }
 
     public Timer getTimer() {
         if (timer == null) {
@@ -182,7 +206,12 @@ public class EndpointServerBuilder {
         this.callbackManager = callbackManager;
         return this;
     }
+
     public HealthServiceAsync getHealthService() {
+        if (healthService == null) {
+            HealthServiceBuilder builder = getHealthServiceBuilder();
+            healthService = builder.setAutoFlush().buildAndStart();
+        }
         return healthService;
     }
 
@@ -458,6 +487,13 @@ public class EndpointServerBuilder {
             httpServer = createHttpServer();
         }
 
+
+        if (isEnableStatEndpoint() || isEnableHealthEndpoint()) {
+            setupHealthAndStats();
+        }
+
+
+
         final JsonMapper jsonMapper = QBit.factory().createJsonMapper();
         final ProtocolEncoder encoder = QBit.factory().createEncoder();
 
@@ -495,6 +531,51 @@ public class EndpointServerBuilder {
         return serviceEndpointServer;
     }
 
+    private void setupHealthAndStats() {
+
+
+        final boolean healthEnabled = isEnableHealthEndpoint();
+        final boolean statsEnabled = isEnableStatEndpoint();
+
+
+        final HealthServiceAsync healthServiceAsync = healthEnabled ? getHealthService() : null;
+
+        final StatCollection statCollection = statsEnabled ? getStatsCollection() : null;
+
+        httpServer.setShouldContinueHttpRequest(httpRequest -> {
+
+            if (httpRequest.getUri().startsWith("/__")) {
+                handleHealthAndStats(healthEnabled, statsEnabled, healthServiceAsync, statCollection, httpRequest);
+                return false;
+            } else {
+                return true;
+            }
+        });
+    }
+
+    private void handleHealthAndStats(boolean healthEnabled, boolean statsEnabled, HealthServiceAsync healthServiceAsync,
+                                      StatCollection statCollection, HttpRequest httpRequest) {
+        if (healthEnabled && httpRequest.getUri().startsWith("/__health")) {
+            healthServiceAsync.ok(ok -> {
+                if (ok) {
+                    httpRequest.getReceiver().respondOK("\"ok\"");
+                } else {
+                    httpRequest.getReceiver().error("\"fail\"");
+                }
+            });
+        } else if (statsEnabled && httpRequest.getUri().startsWith("/__stats")) {
+
+            if (statCollection!=null) {
+                statCollection.collect(stats -> {
+                    String json = JsonFactory.toJson(stats);
+                    httpRequest.getReceiver().respondOK(json);
+                });
+            } else {
+                httpRequest.getReceiver().error("\"failed to load stats collector\"");
+            }
+        }
+    }
+
     private HttpServer createHttpServer() {
 
         return httpServerBuilder().setPort(port)
@@ -525,6 +606,23 @@ public class EndpointServerBuilder {
 
     public EndpointServerBuilder setCheckTimingEveryXCalls(int checkTimingEveryXCalls) {
         this.checkTimingEveryXCalls = checkTimingEveryXCalls;
+        return this;
+    }
+
+    public HealthServiceBuilder getHealthServiceBuilder() {
+
+        if (healthServiceBuilder == null) {
+            healthServiceBuilder = HealthServiceBuilder.healthServiceBuilder();
+        }
+        return healthServiceBuilder;
+    }
+
+    public StatCollection getStatsCollection() {
+        return statsCollection;
+    }
+
+    public EndpointServerBuilder setStatsCollection(final StatCollection statsCollection) {
+        this.statsCollection = statsCollection;
         return this;
     }
 }
