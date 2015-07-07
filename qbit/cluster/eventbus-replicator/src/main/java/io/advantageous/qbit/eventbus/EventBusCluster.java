@@ -169,7 +169,7 @@ public class EventBusCluster implements Startable, Stoppable {
 
     private void checkInWithConsul() {
         try {
-            consul.get().agent().pass(localEventBusId, "still running");
+            consul.get().agent().pass(localEventBusId, "bus_ok");
         } catch (NotRegisteredException ex) {
             registerLocalBusInConsul();
         } catch (Exception ex) {
