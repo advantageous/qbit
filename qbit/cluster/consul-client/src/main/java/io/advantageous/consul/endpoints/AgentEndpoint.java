@@ -23,9 +23,11 @@ import io.advantageous.boon.core.Str;
 import io.advantageous.boon.json.JsonParserAndMapper;
 import io.advantageous.boon.json.JsonParserFactory;
 import io.advantageous.consul.domain.*;
+import io.advantageous.qbit.http.HTTP;
 import io.advantageous.qbit.http.client.HttpClient;
 import io.advantageous.qbit.http.request.HttpResponse;
 
+import java.net.URI;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -47,18 +49,16 @@ import static io.advantageous.consul.domain.NotRegisteredException.notRegistered
  * @see <a href="http://www.consul.io/docs/agent/http.html#agent">The Consul API Docs</a>
  */
 @SuppressWarnings("WeakerAccess")
-public class AgentEndpoint {
+public class AgentEndpoint extends Endpoint {
 
-    private final HttpClient httpClient;
-    private final String rootPath;
 
-    /**
-     * @param httpClient http client to make calls through
-     * @param rootPath   rootPath
-     */
-    public AgentEndpoint(final HttpClient httpClient, final String rootPath) {
-        this.httpClient = httpClient;
-        this.rootPath = rootPath;
+
+    public AgentEndpoint(String scheme, String host, String port, String rootPath) {
+        super(scheme, host, port, rootPath);
+    }
+
+    public AgentEndpoint(URI rootURI, String rootPath) {
+        super(rootURI, rootPath);
     }
 
     /**
@@ -77,15 +77,14 @@ public class AgentEndpoint {
      * Pings the Consul Agent.
      */
     public void pingAgent() {
-        final String path = rootPath + "/self";
-        final HttpResponse httpResponse = httpClient.get(path);
-        if (httpResponse == null) {
-            die("Error pinging Consul, no connection");
-        }
-        if (httpResponse.code() != 200) {
-            die("Error pinging Consul", httpResponse.body());
+
+        HTTP.Response response = HTTP.getResponse(createURI("/self").toString());
+
+        if (response.status() != 200) {
+            die("Error pinging Consul", response.payloadAsString());
         }
     }
+
 
     /**
      * Registers the client as a service with Consul.  Registration enables
@@ -155,10 +154,13 @@ public class AgentEndpoint {
      * @param registration The registration payload.
      */
     public void register(final Registration registration) {
-        final String path = rootPath + "/service/register";
-        final HttpResponse httpResponse = httpClient.putJson(path, toJson(registration));
-        if (httpResponse.code() != 200) {
-            die("Error registering service with Consul", path, registration, httpResponse.body());
+
+
+        final URI uri = createURI("/service/register");
+        HTTP.Response response = HTTP.jsonRestCallViaPUT(uri.toString(), toJson(registration));
+
+        if (response.status() != 200) {
+            die("Error registering service with Consul", uri, registration, response.payloadAsString());
         }
     }
 
@@ -168,12 +170,14 @@ public class AgentEndpoint {
      * @param serviceId the service id that you want to remove.
      */
     public void deregister(final String serviceId) {
-        final String path = rootPath + "/service/deregister/" + serviceId;
-        final HttpResponse httpResponse = httpClient.get(path);
 
-        if (httpResponse.code() != 200) {
+        final URI uri = createURI("/service/deregister/" + serviceId);
+
+        HTTP.Response response = HTTP.getResponse(uri.toString());
+
+        if (response.status() != 200) {
             die("Error removing registration of service with Consul",
-                    path, serviceId, httpResponse.code(), httpResponse.body());
+                    uri, serviceId, response.status(), response.payloadAsString());
         }
 
     }
@@ -246,11 +250,16 @@ public class AgentEndpoint {
      */
     public void registerCheck(Check check) {
 
-        final String path = rootPath + "/check/register";
-        final HttpResponse httpResponse = httpClient.putJson(path, toJson(check));
-        if (httpResponse.code() != 200) {
+
+        final URI uri = createURI("/check/register");
+
+
+        HTTP.Response response = HTTP.jsonRestCallViaPUT(uri.toString(), toJson(check));
+
+        if (response.status() != 200) {
             die("Error removing registration of service with Consul",
-                    path, check, httpResponse.code(), httpResponse.body());
+                    uri, check, response.status(), response.statusMessageAsString(),
+                    response.payloadAsString());
         }
     }
 
@@ -261,12 +270,17 @@ public class AgentEndpoint {
      */
     public void deregisterCheck(String checkId) {
 
-        final String path = rootPath + "/check/deregister/" + checkId;
-        final HttpResponse httpResponse = httpClient.get(path);
-        if (httpResponse.code() != 200) {
-            die("Error removing registration of check with Consul agent",
-                    path, checkId, httpResponse.code(), httpResponse.body());
+        final URI uri = createURI("/check/deregister/" + checkId);
+
+
+        HTTP.Response response = HTTP.getResponse(uri.toString());
+
+        if (response.status() != 200) {
+            die("Error removing registration of service with Consul",
+                    uri, checkId, response.status(), response.statusMessageAsString(),
+                    response.payloadAsString());
         }
+
 
     }
 
@@ -280,14 +294,19 @@ public class AgentEndpoint {
      */
     public AgentInfo getAgentInfo() {
 
-        final String path = rootPath + "/self";
-        final HttpResponse httpResponse = httpClient.get(path);
-        if (httpResponse.code() != 200) {
+        final URI uri = createURI("/self");
+
+
+        HTTP.Response response = HTTP.getResponse(uri.toString());
+
+        if (response.status() != 200) {
             die("Error getting info about this agent",
-                    path, httpResponse.code(), httpResponse.body());
+                    uri, response.status(), response.statusMessageAsString(),
+                    response.payloadAsString());
         }
 
-        return fromJson(httpResponse.body(), AgentInfo.class);
+
+        return fromJson(response.payloadAsString(), AgentInfo.class);
 
     }
 
@@ -300,11 +319,14 @@ public class AgentEndpoint {
      */
     public Map<String, HealthCheck> getChecks() {
 
-        final String path = rootPath + "/checks";
-        final HttpResponse httpResponse = httpClient.get(path);
+        final URI uri = createURI("/checks");
+
+
+        final HTTP.Response response = HTTP.getResponse(uri.toString());
+
         final JsonParserAndMapper jsonParserAndMapper = new JsonParserFactory().create();
-        if (httpResponse.code() == 200) {
-            final Map<String, Object> map = jsonParserAndMapper.parseMap(httpResponse.body());
+        if (response.status() == 200) {
+            final Map<String, Object> map = jsonParserAndMapper.parseMap(response.payloadAsString());
             final Map<String, HealthCheck> returnMap = new HashMap<>(map.size());
             map.entrySet().forEach(entry -> {
                 @SuppressWarnings("unchecked") HealthCheck healthCheck = fromMap((Map<String, Object>) entry.getValue(), HealthCheck.class);
@@ -313,7 +335,8 @@ public class AgentEndpoint {
             });
             return returnMap;
         }
-        die("Unable to get health checks", path, httpResponse.code(), httpResponse.body());
+        die("Unable to get health checks", uri, response.status(), response.statusMessageAsString(),
+                response.payloadAsString());
         return null;
     }
 
@@ -326,11 +349,19 @@ public class AgentEndpoint {
      */
     public Map<String, Service> getServices() {
 
-        final String path = rootPath + "/services";
-        final HttpResponse httpResponse = httpClient.get(path);
+
+
+
+
+        final URI uri = createURI("/services");
+
+
+        final HTTP.Response response = HTTP.getResponse(uri.toString());
+
+
         final JsonParserAndMapper jsonParserAndMapper = new JsonParserFactory().create();
-        if (httpResponse.code() == 200) {
-            final Map<String, Object> map = jsonParserAndMapper.parseMap(httpResponse.body());
+        if (response.status() == 200) {
+            final Map<String, Object> map = jsonParserAndMapper.parseMap(response.payloadAsString());
             final Map<String, Service> returnMap = new HashMap<>(map.size());
             map.entrySet().forEach(entry -> {
                 @SuppressWarnings("unchecked") Service service = fromMap((Map<String, Object>) entry.getValue(), Service.class);
@@ -340,7 +371,7 @@ public class AgentEndpoint {
             return returnMap;
         }
 
-        die("Unable to get list of services", path, httpResponse.code(), httpResponse.body());
+        die("Unable to get list of services", uri, response.status(), response.payloadAsString());
         return null;
     }
 
@@ -352,12 +383,13 @@ public class AgentEndpoint {
      * @return List of Members.
      */
     public List<Member> getMembers() {
-        final String path = rootPath + "/members";
-        final HttpResponse httpResponse = httpClient.get(path);
-        if (httpResponse.code() == 200) {
-            return fromJsonArray(httpResponse.body(), Member.class);
+
+        final URI uri = createURI("/members");
+        final HTTP.Response response = HTTP.getResponse(uri.toString());
+        if (response.code() == 200) {
+            return fromJsonArray(response.body(), Member.class);
         }
-        die("Unable to read members", path, httpResponse.code(), httpResponse.body());
+        die("Unable to read members", uri, response.code(), response.body());
         return Collections.emptyList();
 
     }
@@ -370,10 +402,13 @@ public class AgentEndpoint {
      * @param node node
      */
     public void forceLeave(String node) {
-        final String path = rootPath + "/force-leave";
-        final HttpResponse httpResponse = httpClient.get(path);
+
+
+        final URI uri = createURI("/force-leave/" + node);
+        final HTTP.Response httpResponse = HTTP.getResponse(uri.toString());
+
         if (httpResponse.code() != 200) {
-            die("Unable to force leave", path, httpResponse.code(), httpResponse.body());
+            die("Unable to force leave", uri, httpResponse.code(), httpResponse.body());
         }
     }
 
@@ -385,12 +420,22 @@ public class AgentEndpoint {
      * @param note    Any note to associate with the Check.
      */
     public void check(String checkId, Status status, String note) {
-        final String path = rootPath + "/check/" + status.getUri() + "/" + checkId;
-        final HttpResponse httpResponse = Str.isEmpty(note) ?
-                httpClient.getWith1Param(path, "note", note) :
-                httpClient.get(path);
+
+
+
+
+        final URI uri = createURI("/check/" + status.getUri() + "/" + checkId);
+
+
+        final HTTP.Response httpResponse = Str.isEmpty(note) ? HTTP.getResponse(uri.toString()) :
+                HTTP.getResponse(uri.toString() + "?note=" + note);
+
+
+
+
         if (httpResponse.code() != 200) {
-            notRegistered("Unable to perform check", path, httpResponse.code(), httpResponse.body());
+            notRegistered("Unable to perform check", uri, httpResponse.code(), httpResponse.statusMessageAsString(),
+                    httpResponse.body());
         }
 
     }

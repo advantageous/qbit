@@ -21,8 +21,6 @@ package io.advantageous.consul;
 
 import io.advantageous.consul.domain.ConsulException;
 import io.advantageous.consul.endpoints.*;
-import io.advantageous.qbit.http.client.HttpClient;
-import io.advantageous.qbit.http.client.HttpClientBuilder;
 
 import java.net.MalformedURLException;
 import java.net.URI;
@@ -37,7 +35,6 @@ import java.net.URL;
  */
 public class Consul {
 
-    private final HttpClient httpClient;
     private final AgentEndpoint agent;
     private final HealthEndpoint health;
     private final KeyValueStoreEndpoint keyValueStore;
@@ -54,18 +51,14 @@ public class Consul {
 
         URI uri = URI.create(url + "/v1");
 
-        final HttpClientBuilder httpClientBuilder = HttpClientBuilder
-                .httpClientBuilder().setAutoFlush(false).setTimeOutInMilliseconds(120_000)
-                .setPoolSize(1).setHost(uri.getHost()).setPort(uri.getPort());
-        httpClient = httpClientBuilder.build();
 
         final String rootPath = uri.getPath();
 
-        this.agent = new AgentEndpoint(httpClient, rootPath + "/agent");
-        this.health = new HealthEndpoint(httpClient, rootPath + "/health");
-        this.keyValueStore = new KeyValueStoreEndpoint(httpClient, rootPath + "/kv");
-        this.catalog = new CatalogEndpoint(httpClient, rootPath + "/catalog");
-        this.status = new StatusEndpoint(httpClient, rootPath + "/status");
+        this.agent = new AgentEndpoint(uri, rootPath + "/agent");
+        this.health = new HealthEndpoint(uri, rootPath + "/health");
+        this.keyValueStore = new KeyValueStoreEndpoint(uri, rootPath + "/kv");
+        this.catalog = new CatalogEndpoint(uri, rootPath + "/catalog");
+        this.status = new StatusEndpoint(uri, rootPath + "/status");
 
 
     }
@@ -98,15 +91,12 @@ public class Consul {
 
         if (!started) {
             started = true;
-            httpClient.startClient();
-            //agent.pingAgent();
         }
     }
 
     public void stop() {
 
         started = false;
-        httpClient.stop();
     }
 
     /**

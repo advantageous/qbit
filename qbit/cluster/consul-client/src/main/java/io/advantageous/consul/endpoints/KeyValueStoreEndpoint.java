@@ -23,10 +23,12 @@ import io.advantageous.boon.core.Str;
 import io.advantageous.consul.domain.KeyValue;
 import io.advantageous.consul.domain.option.KeyValuePutOptions;
 import io.advantageous.consul.domain.option.RequestOptions;
+import io.advantageous.qbit.http.HTTP;
 import io.advantageous.qbit.http.client.HttpClient;
 import io.advantageous.qbit.http.request.HttpRequestBuilder;
 import io.advantageous.qbit.http.request.HttpResponse;
 
+import java.net.URI;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -38,21 +40,16 @@ import static io.advantageous.consul.domain.ConsulException.die;
  * <p>
  * Note this class was heavily influenced and inspired by the Orbitz Consul client.
  */
-public class KeyValueStoreEndpoint {
+public class KeyValueStoreEndpoint extends Endpoint{
 
-
-    private final HttpClient httpClient;
-    private final String rootPath;
-
-
-    /**
-     * @param httpClient http client
-     * @param rootPath   root path
-     */
-    public KeyValueStoreEndpoint(final HttpClient httpClient, final String rootPath) {
-        this.httpClient = httpClient;
-        this.rootPath = rootPath;
+    public KeyValueStoreEndpoint(String scheme, String host, String port, String rootPath) {
+        super(scheme, host, port, rootPath);
     }
+
+    public KeyValueStoreEndpoint(URI rootURI, String rootPath) {
+        super(rootURI, rootPath);
+    }
+
 
 
     /**
@@ -80,25 +77,35 @@ public class KeyValueStoreEndpoint {
      */
     public Optional<KeyValue> getValue(final String key, RequestOptions requestOptions) {
 
-        final String path = rootPath + "/" + key;
+
+        final URI uri = createURI("/" + key);
+
 
         final HttpRequestBuilder httpRequestBuilder = RequestUtils
-                .getHttpRequestBuilder(null, null, requestOptions, path);
+                .getHttpRequestBuilder(null, null, requestOptions, "");
 
-        final HttpResponse httpResponse = httpClient.sendRequestAndWait(httpRequestBuilder.build());
+
+
+        final HTTP.Response httpResponse = HTTP.getResponse(uri.toString() + "?" + httpRequestBuilder.paramString());
 
         if (httpResponse.code() == 404) {
             return Optional.empty();
         }
 
         if (httpResponse.code() != 200) {
-            die("Unable to retrieve the key", key, path, httpResponse.code(), httpResponse.body());
+            die("Unable to retrieve the key", key, uri, httpResponse.code(), httpResponse.body());
         }
 
         return getKeyValueOptional(httpResponse);
     }
 
     private Optional<KeyValue> getKeyValueOptional(HttpResponse httpResponse) {
+        final List<KeyValue> keyValues = fromJsonArray(httpResponse.body(), KeyValue.class);
+
+        return keyValues != null && keyValues.size() > 0 ? Optional.of(keyValues.get(0)) : Optional.<KeyValue>empty();
+    }
+
+    private Optional<KeyValue> getKeyValueOptional(HTTP.Response httpResponse) {
         final List<KeyValue> keyValues = fromJsonArray(httpResponse.body(), KeyValue.class);
 
         return keyValues != null && keyValues.size() > 0 ? Optional.of(keyValues.get(0)) : Optional.<KeyValue>empty();
@@ -116,14 +123,18 @@ public class KeyValueStoreEndpoint {
     public List<KeyValue> getValues(String key) {
 
 
-        final String path = rootPath + "/" + key;
+        final URI uri = createURI("/" + key);
         final HttpRequestBuilder httpRequestBuilder = RequestUtils
-                .getHttpRequestBuilder(null, null, RequestOptions.BLANK, path);
+                .getHttpRequestBuilder(null, null, RequestOptions.BLANK, "");
+
+
         httpRequestBuilder.addParam("recurse", "true");
 
-        final HttpResponse httpResponse = httpClient.sendRequestAndWait(httpRequestBuilder.build());
+
+        final HTTP.Response httpResponse = HTTP.getResponse(uri.toString() + "?" + httpRequestBuilder.paramString());
+
         if (httpResponse.code() != 200) {
-            die("Unable to retrieve the service", path, httpResponse.code(), httpResponse.body());
+            die("Unable to retrieve the service", uri, httpResponse.code(), httpResponse.body());
         }
 
         return fromJsonArray(httpResponse.body(), KeyValue.class);
@@ -199,10 +210,14 @@ public class KeyValueStoreEndpoint {
         String acquire = putOptions.getAcquire();
 
 
-        final String path = rootPath + "/" + key;
-
+        final URI uri = createURI("/" + key);
         final HttpRequestBuilder httpRequestBuilder = RequestUtils
-                .getHttpRequestBuilder(null, null, RequestOptions.BLANK, path);
+                .getHttpRequestBuilder(null, null, RequestOptions.BLANK, "");
+
+
+//        httpRequestBuilder.addParam("recurse", "true");
+
+
 
 
         if (cas != null) {
@@ -221,14 +236,17 @@ public class KeyValueStoreEndpoint {
             httpRequestBuilder.addParam("flags", String.valueOf(flags));
         }
 
+
         httpRequestBuilder.setBody(value);
         httpRequestBuilder.setMethodPut();
-        final HttpResponse httpResponse = httpClient.sendRequestAndWait(httpRequestBuilder.build());
+
+        final HTTP.Response httpResponse = HTTP.jsonRestCallViaPUT(uri.toString() + "?" + httpRequestBuilder.paramString(),
+                value);
 
         if (httpResponse.code() == 200) {
             return Boolean.parseBoolean(httpResponse.body());
         } else {
-            die("Unable to put value", path, putOptions, httpResponse.code(), httpResponse.body());
+            die("Unable to put value", uri, putOptions, httpResponse.code(), httpResponse.body());
             return false;
         }
 
@@ -243,19 +261,23 @@ public class KeyValueStoreEndpoint {
      * @return A list of zero to many keys.
      */
     public List<String> getKeys(String key) {
-        final String path = rootPath + "/" + key;
 
+
+        final URI uri = createURI("/" + key);
         final HttpRequestBuilder httpRequestBuilder = RequestUtils
-                .getHttpRequestBuilder(null, null, RequestOptions.BLANK, path);
+                .getHttpRequestBuilder(null, null, RequestOptions.BLANK, "");
+
 
         httpRequestBuilder.addParam("keys", "true");
 
-        final HttpResponse httpResponse = httpClient.sendRequestAndWait(httpRequestBuilder.build());
+
+        final HTTP.Response httpResponse = HTTP.getResponse(uri.toString() + "?" + httpRequestBuilder.paramString());
+
 
         if (httpResponse.code() == 200) {
             return fromJsonArray(httpResponse.body(), String.class);
         } else {
-            die("Unable to get nested keys", path, key, httpResponse.code(), httpResponse.body());
+            die("Unable to get nested keys", uri, key, httpResponse.code(), httpResponse.body());
             return Collections.emptyList();
         }
     }
@@ -291,10 +313,14 @@ public class KeyValueStoreEndpoint {
      */
     private void delete(String key, Map<String, String> params) {
 
-        final String path = rootPath + "/" + key;
 
+        final URI uri = createURI("/" + key);
         final HttpRequestBuilder httpRequestBuilder = RequestUtils
-                .getHttpRequestBuilder(null, null, RequestOptions.BLANK, path);
+                .getHttpRequestBuilder(null, null, RequestOptions.BLANK, "");
+
+
+
+
 
 
         final Set<Map.Entry<String, String>> entries = params.entrySet();
@@ -303,12 +329,10 @@ public class KeyValueStoreEndpoint {
         }
 
         httpRequestBuilder.setMethodDelete();
-
-        final HttpResponse httpResponse = httpClient.sendRequestAndWait(httpRequestBuilder.build());
-
+        final HTTP.Response httpResponse = HTTP.deleteResponse(uri.toString() + "?" + httpRequestBuilder.paramString());
 
         if (httpResponse.code() != 200) {
-            die("Unable to delete key", path, key, httpResponse.code(), httpResponse.body());
+            die("Unable to delete key", uri, key, httpResponse.code(), httpResponse.body());
         }
     }
 }

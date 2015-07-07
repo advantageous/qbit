@@ -23,6 +23,7 @@ import io.advantageous.boon.core.Str;
 import io.advantageous.consul.domain.ConsulResponse;
 import io.advantageous.consul.domain.option.Consistency;
 import io.advantageous.consul.domain.option.RequestOptions;
+import io.advantageous.qbit.http.HTTP;
 import io.advantageous.qbit.http.request.HttpRequestBuilder;
 import io.advantageous.qbit.http.request.HttpResponse;
 
@@ -39,6 +40,39 @@ import static io.advantageous.consul.domain.ConsulException.die;
  * Note this class was heavily influenced and inspired by the Orbitz Consul client.
  */
 public class RequestUtils {
+
+    //
+
+    public static <T> ConsulResponse<T> consulResponse(final Class<T> responseType, final  HTTP.Response response) {
+
+        T responseObject = null;
+
+        if (response.code() == 200) {
+
+            if (!Str.isEmpty(response.body())) {
+                responseObject = fromJson(response.body(), responseType);
+            }
+
+        } else {
+            die("Unable to read response", response.code(), response.body());
+        }
+
+        List<String> strings = response.headers().get("X-Consul-Index");
+        int index = Integer.valueOf(strings.get(0));
+
+        strings = response.headers().get("X-Consul-Lastcontact");
+        long lastContact = Long.valueOf(strings.get(0));
+
+
+        strings = response.headers().get("X-Consul-Knownleader");
+        boolean knownLeader = Boolean.valueOf(strings.get(0));
+        //noinspection UnnecessaryLocalVariable
+        @SuppressWarnings("UnnecessaryLocalVariable")
+        ConsulResponse<T> consulResponse = new ConsulResponse<>(responseObject, lastContact, knownLeader, index);
+
+        return consulResponse;
+    }
+
 
     public static <T> ConsulResponse<T> consulResponse(final Class<T> responseType, final HttpResponse response) {
 
@@ -82,6 +116,39 @@ public class RequestUtils {
         int index = Integer.valueOf(response.headers().getFirst("X-Consul-Index"));
         long lastContact = Long.valueOf(response.headers().getFirst("X-Consul-Lastcontact"));
         boolean knownLeader = Boolean.valueOf(response.headers().getFirst("X-Consul-Knownleader"));
+
+        //noinspection UnnecessaryLocalVariable
+        @SuppressWarnings("UnnecessaryLocalVariable")
+        ConsulResponse<List<T>> consulResponse = new ConsulResponse<>(responseObject, lastContact, knownLeader, index);
+
+        return consulResponse;
+    }
+
+
+    public static <T> ConsulResponse<List<T>> consulResponseList(final Class<T> responseType, final HTTP.Response response) {
+
+        List<T> responseObject = null;
+
+        if (response.code() == 200) {
+
+            if (!Str.isEmpty(response.body())) {
+                responseObject = fromJsonArray(response.body(), responseType);
+            }
+
+        } else {
+            die("Unable to read response", response.code(), response.body());
+        }
+
+
+        List<String> strings = response.headers().get("X-Consul-Index");
+        int index = Integer.valueOf(strings.get(0));
+
+        strings = response.headers().get("X-Consul-Lastcontact");
+        long lastContact = Long.valueOf(strings.get(0));
+
+
+        strings = response.headers().get("X-Consul-Knownleader");
+        boolean knownLeader = Boolean.valueOf(strings.get(0));
 
         //noinspection UnnecessaryLocalVariable
         @SuppressWarnings("UnnecessaryLocalVariable")

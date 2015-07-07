@@ -344,7 +344,7 @@ public class HttpRequestBuilder {
         return this;
     }
 
-    private String paramString() {
+    public String paramString() {
         String paramString = "";
 
 

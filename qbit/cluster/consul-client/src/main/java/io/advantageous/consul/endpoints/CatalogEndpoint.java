@@ -24,10 +24,12 @@ import io.advantageous.consul.domain.CatalogService;
 import io.advantageous.consul.domain.ConsulResponse;
 import io.advantageous.consul.domain.Node;
 import io.advantageous.consul.domain.option.RequestOptions;
+import io.advantageous.qbit.http.HTTP;
 import io.advantageous.qbit.http.client.HttpClient;
 import io.advantageous.qbit.http.request.HttpRequestBuilder;
 import io.advantageous.qbit.http.request.HttpResponse;
 
+import java.net.URI;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -41,21 +43,15 @@ import static io.advantageous.consul.domain.ConsulException.die;
  * <p>
  * Note this class was heavily influenced and inspired by the Orbitz Consul client.
  */
-public class CatalogEndpoint {
+public class CatalogEndpoint extends Endpoint {
 
-    private final HttpClient httpClient;
-    private final String rootPath;
-
-
-    /**
-     * @param httpClient http client
-     * @param rootPath   root path
-     */
-    public CatalogEndpoint(final HttpClient httpClient, final String rootPath) {
-        this.httpClient = httpClient;
-        this.rootPath = rootPath;
+    public CatalogEndpoint(String scheme, String host, String port, String rootPath) {
+        super(scheme, host, port, rootPath);
     }
 
+    public CatalogEndpoint(URI rootURI, String rootPath) {
+        super(rootURI, rootPath);
+    }
 
     /**
      * Retrieves all datacenters.
@@ -66,13 +62,14 @@ public class CatalogEndpoint {
      */
     public List<String> getDatacenters() {
 
-        final String path = rootPath + "/datacenters";
-        final HttpResponse httpResponse = httpClient.get(path);
+        URI uri = createURI("/datacenters");
+
+        HTTP.Response httpResponse = HTTP.getResponse(uri.toString());
 
         if (httpResponse.code() == 200) {
             return fromJsonArray(httpResponse.body(), String.class);
         }
-        die("Unable to retrieve the datacenters", path, httpResponse.code(), httpResponse.body());
+        die("Unable to retrieve the datacenters", uri, httpResponse.code(), httpResponse.body());
         return Collections.emptyList();
     }
 
@@ -108,15 +105,20 @@ public class CatalogEndpoint {
             final RequestOptions requestOptions) {
 
 
-        final String path = rootPath + "/services";
 
 
-        final HttpRequestBuilder httpRequestBuilder = RequestUtils.getHttpRequestBuilder(datacenter, tag, requestOptions, path);
+        final URI uri = createURI("/services");
 
 
-        final HttpResponse httpResponse = httpClient.sendRequestAndWait(httpRequestBuilder.build());
+
+        final HttpRequestBuilder httpRequestBuilder = RequestUtils.getHttpRequestBuilder(datacenter, tag, requestOptions, "/");
+
+
+
+        HTTP.Response httpResponse = HTTP.getResponse(uri.toString() + "?" +  httpRequestBuilder.paramString());
+
         if (httpResponse.code() != 200) {
-            die("Unable to retrieve the datacenters", path, httpResponse.code(), httpResponse.body());
+            die("Unable to retrieve the datacenters", uri, httpResponse.code(), httpResponse.body());
         }
 
         //noinspection unchecked
@@ -184,15 +186,17 @@ public class CatalogEndpoint {
                                                            RequestOptions requestOptions) {
 
 
-        final String path = rootPath + "/service/" + serviceName;
+        final URI uri = createURI("/service/" + serviceName);
+
 
         final HttpRequestBuilder httpRequestBuilder = RequestUtils
-                .getHttpRequestBuilder(datacenter, tag, requestOptions, path);
+                .getHttpRequestBuilder(datacenter, tag, requestOptions, "/");
 
 
-        final HttpResponse httpResponse = httpClient.sendRequestAndWait(httpRequestBuilder.build());
+        HTTP.Response httpResponse = HTTP.getResponse(uri.toString() + "?" + httpRequestBuilder.paramString());
+
         if (httpResponse.code() != 200) {
-            die("Unable to retrieve the service", path, httpResponse.code(), httpResponse.body());
+            die("Unable to retrieve the service", uri, httpResponse.code(), httpResponse.body());
         }
 
         return RequestUtils.consulResponseList(CatalogService.class, httpResponse);
@@ -256,13 +260,14 @@ public class CatalogEndpoint {
                                                final String tag,
                                                final RequestOptions requestOptions) {
 
-        final String path = rootPath + "/node/" + node;
-        final HttpRequestBuilder httpRequestBuilder = RequestUtils
-                .getHttpRequestBuilder(datacenter, tag, requestOptions, path);
+        final URI uri = createURI("/node/" + node);
 
-        final HttpResponse httpResponse = httpClient.sendRequestAndWait(httpRequestBuilder.build());
+        final HttpRequestBuilder httpRequestBuilder = RequestUtils
+                .getHttpRequestBuilder(datacenter, tag, requestOptions, "");
+
+        final HTTP.Response httpResponse = HTTP.getResponse(uri + "?" +  httpRequestBuilder.paramString());
         if (httpResponse.code() != 200) {
-            die("Unable to retrieve the node", path, httpResponse.code(), httpResponse.body());
+            die("Unable to retrieve the node", uri, httpResponse.code(), httpResponse.body());
         }
         return RequestUtils.consulResponse(CatalogNode.class, httpResponse);
     }
@@ -272,13 +277,18 @@ public class CatalogEndpoint {
                                                final RequestOptions requestOptions) {
 
 
-        final String path = rootPath + "/nodes";
         final HttpRequestBuilder httpRequestBuilder = RequestUtils
-                .getHttpRequestBuilder(datacenter, tag, requestOptions, path);
+                .getHttpRequestBuilder(datacenter, tag, requestOptions, "");
 
-        final HttpResponse httpResponse = httpClient.sendRequestAndWait(httpRequestBuilder.build());
+
+
+        final URI uri = createURI("/nodes");
+
+
+        final HTTP.Response httpResponse = HTTP.getResponse(uri + "?" +  httpRequestBuilder.paramString());
+
         if (httpResponse.code() != 200) {
-            die("Unable to retrieve the nodes", path, httpResponse.code(), httpResponse.body());
+            die("Unable to retrieve the nodes", uri, httpResponse.code(), httpResponse.body());
         }
         return RequestUtils.consulResponseList(Node.class, httpResponse);
 

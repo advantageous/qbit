@@ -20,29 +20,25 @@
 package io.advantageous.consul.endpoints;
 
 import io.advantageous.consul.domain.option.RequestOptions;
-import io.advantageous.qbit.http.client.HttpClient;
+import io.advantageous.qbit.http.HTTP;
 import io.advantageous.qbit.http.request.HttpRequestBuilder;
-import io.advantageous.qbit.http.request.HttpResponse;
 
+import java.net.URI;
 import java.util.List;
 
 import static io.advantageous.boon.json.JsonFactory.fromJson;
 import static io.advantageous.boon.json.JsonFactory.fromJsonArray;
 import static io.advantageous.consul.domain.ConsulException.die;
 
-public class StatusEndpoint {
+public class StatusEndpoint extends Endpoint{
 
 
-    private final HttpClient httpClient;
-    private final String rootPath;
+    public StatusEndpoint(String scheme, String host, String port, String rootPath) {
+        super(scheme, host, port, rootPath);
+    }
 
-    /**
-     * @param httpClient http client
-     * @param rootPath   root path
-     */
-    public StatusEndpoint(final HttpClient httpClient, final String rootPath) {
-        this.httpClient = httpClient;
-        this.rootPath = rootPath;
+    public StatusEndpoint(URI rootURI, String rootPath) {
+        super(rootURI, rootPath);
     }
 
     /**
@@ -55,14 +51,15 @@ public class StatusEndpoint {
     public String getLeader() {
 
 
-        final String path = rootPath + "/leader";
+        final URI uri = createURI("/leader");
 
         final HttpRequestBuilder httpRequestBuilder = RequestUtils
-                .getHttpRequestBuilder(null, null, RequestOptions.BLANK, path);
+                .getHttpRequestBuilder(null, null, RequestOptions.BLANK, "");
 
-        final HttpResponse httpResponse = httpClient.sendRequestAndWait(httpRequestBuilder.build());
+        final HTTP.Response httpResponse = HTTP.getResponse(uri + "?" + httpRequestBuilder.paramString());
+
         if (httpResponse.code() != 200) {
-            die("Unable to retrieve the leader", path, httpResponse.code(), httpResponse.body());
+            die("Unable to retrieve the leader", uri, httpResponse.code(), httpResponse.body());
         }
 
         return fromJson(httpResponse.body(), String.class).replace("\"", "").trim();
@@ -77,14 +74,17 @@ public class StatusEndpoint {
      */
     public List<String> getPeers() {
 
-        final String path = rootPath + "/peers";
+
+
+        final URI uri = createURI("/peers");
 
         final HttpRequestBuilder httpRequestBuilder = RequestUtils
-                .getHttpRequestBuilder(null, null, RequestOptions.BLANK, path);
+                .getHttpRequestBuilder(null, null, RequestOptions.BLANK, "");
 
-        final HttpResponse httpResponse = httpClient.sendRequestAndWait(httpRequestBuilder.build());
+        final HTTP.Response httpResponse = HTTP.getResponse(uri + "?" + httpRequestBuilder.paramString());
+
         if (httpResponse.code() != 200) {
-            die("Unable to get the peers", path, httpResponse.code(), httpResponse.body());
+            die("Unable to get the peers", uri, httpResponse.code(), httpResponse.body());
         }
 
         return fromJsonArray(httpResponse.body(), String.class);

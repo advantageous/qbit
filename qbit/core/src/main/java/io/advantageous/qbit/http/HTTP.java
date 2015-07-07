@@ -10,14 +10,20 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 public class HTTP {
 
-    public static final int DEFAULT_TIMEOUT_SECONDS = Sys.sysProp("HTTP.timeout.seconds", 30);
+    public static final int DEFAULT_TIMEOUT_SECONDS = Sys.sysProp("HTTP.timeout.seconds", 180);
     public static final String APPLICATION_JSON = "application/json";
 
+    /**
+     * Does a simple HTTP get
+     * @param url pass the URL you want to get.
+     * @return contents as UTF-8 string
+     */
     public static String get(
             final String url ) {
 
@@ -38,6 +44,14 @@ public class HTTP {
     }
 
 
+
+
+    /**
+     * Does a simple blocking post
+     * @param url url you want to pass
+     * @param body body of POST
+     * @return contents as string
+     */
     public static String post(
             final String url,
             final String body ) {
@@ -46,6 +60,11 @@ public class HTTP {
     }
 
 
+    /**
+     * Does a get but you get a Response object
+     * @param url url
+     * @return Response object
+     */
     public static Response getResponse(
             final String url ) {
 
@@ -67,6 +86,33 @@ public class HTTP {
 
     }
 
+    public static Response deleteResponse(
+            final String url ) {
+
+        return Exceptions.tryIt( Response.class, new Exceptions.TrialWithReturn<Response>() {
+                    @Override
+                    public Response tryIt() throws Exception {
+                        URLConnection connection;
+
+                        final Map<String, String> accept = Maps.map(
+                                "Accept", "text/html,application/xhtml+xml,application/xml,application/json,text/plain;"
+                        );
+
+                        connection = doDelete( url, accept, null, null );
+                        return extractResponseObject(connection);
+                    }
+                }
+
+        );
+
+    }
+
+    /**
+     * GET that expects contents back as a byte array.
+     * @param url url
+     * @param contentType contentType
+     * @return bytes from location
+     */
     public static byte[] getBytes(
             final String url, final String contentType ) {
 
@@ -81,7 +127,15 @@ public class HTTP {
 
     }
 
-    public static byte[] getBytesWithHeaders(
+
+    /**
+     * GET that expects contents back as a byte array and allows you to pass headers.
+     * @param url url
+     * @param contentType contentType
+     * @param headers to pass.
+     * @return bytes from location
+     */
+    public static byte[] getBytesUsingHeaders(
             final String url, final String contentType, final Map<String, ?> headers ) {
 
         return Exceptions.tryIt( byte[].class, new Exceptions.TrialWithReturn<byte[]>() {
@@ -95,6 +149,13 @@ public class HTTP {
 
     }
 
+
+    /**
+     * GET that expects contents back as a byte array and allows you to pass headers.
+     * @param url url
+     * @param headers to pass.
+     * @return string from location
+     */
     public static String getWithHeaders(
             final String url,
             final Map<String, ?> headers ) {
@@ -110,7 +171,15 @@ public class HTTP {
 
     }
 
-    public static String getWithContentType(
+
+    /**
+     * GET that expects contents back as a string and allows you to pass headers and content type.
+     * @param url url
+     * @param headers to pass.
+     * @param contentType contentType
+     * @return UTF-8 string from location
+     */
+    public static String getWithContentTypeHeaders(
             final String url,
             final Map<String, ?> headers,
             final String contentType ) {
@@ -213,7 +282,7 @@ public class HTTP {
             final String url,
             final String jsonString ) {
 
-        return postBodyTextWithContentTypeReturnResponse(url, APPLICATION_JSON, jsonString);
+        return putBodyTextWithContentTypeReturnResponse(url, APPLICATION_JSON, jsonString);
     }
 
 
@@ -653,6 +722,27 @@ public class HTTP {
         return connection;
     }
 
+
+    private static URLConnection doDelete( String url, Map<String, ?> headers,
+                                        String contentType, String charset ) throws IOException {
+
+
+
+        HttpURLConnection connection;/* Handle output. */
+
+
+        connection = ( HttpURLConnection ) new URL( url ).openConnection();
+        connection.setConnectTimeout( DEFAULT_TIMEOUT_SECONDS * 1000 );
+
+        connection.setRequestMethod("DELETE");
+
+        manageContentTypeHeaders ( contentType, charset, connection );
+
+        manageHeaders( headers, connection );
+
+        return connection;
+    }
+
     private static URLConnection doGet( String url, Map<String, ?> headers,
                                         String contentType, String charset, Map<String, ?> params ) throws IOException {
 
@@ -683,13 +773,13 @@ public class HTTP {
     public static class Response {
 
         private final int status; //200 Ok, 500 error, etc. may not be HTTP could be some other scheme, but most likely HTTP codes
-        private final Object headers; //could be map or list or object or JSON string
+        private final Map<String, List<String>> headers; //could be map or list or object or JSON string
         private final Object statusMessage; //Could be "OK" or the message from a java exception
         private final Object payload;
         private final Class<? extends Enum> enumStatusClass;
 
 
-        public Response(int status, Object headers, Object statusMessage, Object payload) {
+        public Response(int status, Map<String, List<String>> headers, Object statusMessage, Object payload) {
             this.status = status;
             this.headers = headers;
             this.statusMessage = statusMessage;
@@ -698,7 +788,7 @@ public class HTTP {
         }
 
 
-        public Response(int status, Object headers, Object statusMessage, Object payload, Class<? extends Enum> enumStatusClass) {
+        public Response(int status, Map<String, List<String>> headers, Object statusMessage, Object payload, Class<? extends Enum> enumStatusClass) {
             this.status = status;
             this.headers = headers;
             this.statusMessage = statusMessage;
@@ -721,7 +811,7 @@ public class HTTP {
             return Conversions.toEnum(this.enumStatusClass, status);
         }
 
-        public Object headers() {
+        public Map<String, List<String>> headers() {
             return headers;
         }
 
@@ -749,7 +839,15 @@ public class HTTP {
             return Conversions.toString(payload);
         }
 
-        public static Response response(int status, Map headers, String statusMessage, String payload) {
+        public String body() {
+            return payloadAsString();
+        }
+
+        public int code() {
+            return status();
+        }
+
+        public static Response response(int status, Map<String, List<String>> headers, String statusMessage, String payload) {
             return new Response(status, headers, statusMessage, payload);
         }
     }

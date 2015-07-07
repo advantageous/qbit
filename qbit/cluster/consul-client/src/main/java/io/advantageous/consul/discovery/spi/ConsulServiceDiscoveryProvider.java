@@ -23,7 +23,6 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
-import java.util.function.Consumer;
 
 import static io.advantageous.boon.core.Str.sputs;
 
@@ -189,6 +188,9 @@ public class ConsulServiceDiscoveryProvider implements ServiceDiscoveryProvider 
         final Status status = convertStatus(checkIn.getHealthStatus());
 
         try {
+            if (debug) {
+                logger.debug("checkInWithConsul {} {} {}", checkIn.getServiceId(), status, checkIn.getHealthStatus());
+            }
             consul.agent().checkTtl(checkIn.getServiceId(), status, "" + checkIn.getHealthStatus());
         } catch (NotRegisteredException notRegisteredException) {
             final EndpointDefinition endpointDefinition = registrations.get(checkIn.getServiceId());
@@ -202,9 +204,21 @@ public class ConsulServiceDiscoveryProvider implements ServiceDiscoveryProvider 
     }
 
     private Set<ServiceHealthCheckIn> createUniqueSetOfCheckins(final Queue<ServiceHealthCheckIn> checkInsQueue) {
-        LinkedHashSet<ServiceHealthCheckIn> set = new LinkedHashSet<>(checkInsQueue.size());
 
-        checkInsQueue.forEach(serviceHealthCheckIn -> set.add(serviceHealthCheckIn));
+
+        ServiceHealthCheckIn poll = checkInsQueue.poll();
+
+        if (poll == null) {
+            return Collections.emptySet();
+        }
+
+        final LinkedHashSet<ServiceHealthCheckIn> set = new LinkedHashSet<>(checkInsQueue.size());
+
+        while (poll!=null) {
+            set.add(poll);
+            poll = checkInsQueue.poll();
+        }
+
         return set;
     }
 

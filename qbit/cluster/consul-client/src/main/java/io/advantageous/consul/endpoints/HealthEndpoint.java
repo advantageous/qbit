@@ -24,11 +24,13 @@ import io.advantageous.consul.domain.HealthCheck;
 import io.advantageous.consul.domain.ServiceHealth;
 import io.advantageous.consul.domain.Status;
 import io.advantageous.consul.domain.option.RequestOptions;
+import io.advantageous.qbit.http.HTTP;
 import io.advantageous.qbit.http.client.HttpClient;
 import io.advantageous.qbit.http.request.HttpRequestBuilder;
 import io.advantageous.qbit.http.request.HttpResponse;
 import io.advantageous.qbit.reactive.Callback;
 
+import java.net.URI;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -40,23 +42,15 @@ import static io.advantageous.consul.domain.ConsulException.die;
  * <p>
  * Note this class was heavily influenced and inspired by the Orbitz Consul client.
  */
-public class HealthEndpoint {
+public class HealthEndpoint extends Endpoint {
 
-
-    private final HttpClient httpClient;
-    private final String rootPath;
-
-    /**
-     * Constructs an instance of this class.
-     *
-     * @param httpClient http client
-     * @param rootPath   root path
-     */
-    public HealthEndpoint(final HttpClient httpClient, final String rootPath) {
-        this.httpClient = httpClient;
-        this.rootPath = rootPath;
+    public HealthEndpoint(String scheme, String host, String port, String rootPath) {
+        super(scheme, host, port, rootPath);
     }
 
+    public HealthEndpoint(URI rootURI, String rootPath) {
+        super(rootURI, rootPath);
+    }
 
     /**
      * Retrieves the healthchecks for a node.
@@ -119,15 +113,18 @@ public class HealthEndpoint {
                                                            final RequestOptions requestOptions) {
 
 
-        final String path = rootPath + "/node/" + node;
+        final URI uri = createURI("/node/" + node);
+
+
         final HttpRequestBuilder httpRequestBuilder = RequestUtils
-                .getHttpRequestBuilder(datacenter, tag, requestOptions, path);
+                .getHttpRequestBuilder(datacenter, tag, requestOptions, "");
 
-        final HttpResponse httpResponse = httpClient.sendRequestAndWait(httpRequestBuilder.build());
 
+
+        final HTTP.Response httpResponse = HTTP.getResponse(uri.toString() + "?" + httpRequestBuilder.paramString());
 
         if (httpResponse == null || httpResponse.code() != 200) {
-            die("Unable to retrieve the service", path, httpResponse);
+            die("Unable to retrieve the service", uri, httpResponse);
         }
 
         return RequestUtils.consulResponseList(HealthCheck.class, httpResponse);
@@ -193,14 +190,20 @@ public class HealthEndpoint {
                                                               final String tag,
                                                               RequestOptions requestOptions) {
 
-        final String path = rootPath + "/checks/" + service;
-        final HttpRequestBuilder httpRequestBuilder = RequestUtils
-                .getHttpRequestBuilder(datacenter, tag, requestOptions, path);
+        final URI uri = createURI("/checks/" + service);
 
-        final HttpResponse httpResponse = httpClient.sendRequestAndWait(httpRequestBuilder.build());
+
+        final HttpRequestBuilder httpRequestBuilder = RequestUtils
+                .getHttpRequestBuilder(datacenter, tag, requestOptions, "");
+
+
+
+        final HTTP.Response httpResponse = HTTP.getResponse(uri.toString() + "?" + httpRequestBuilder.paramString());
+
+
 
         if (httpResponse.code() != 200) {
-            die("Unable to retrieve the service", path, httpResponse.code(), httpResponse.body());
+            die("Unable to retrieve the service", uri, httpResponse.code(), httpResponse.body());
         }
 
         return RequestUtils.consulResponseList(HealthCheck.class, httpResponse);
@@ -267,14 +270,21 @@ public class HealthEndpoint {
                                                               final RequestOptions requestOptions) {
 
 
-        final String path = rootPath + "/state/" + status.getName();
-        final HttpRequestBuilder httpRequestBuilder = RequestUtils
-                .getHttpRequestBuilder(datacenter, tag, requestOptions, path);
 
-        final HttpResponse httpResponse = httpClient.sendRequestAndWait(httpRequestBuilder.build());
+        final URI uri = createURI("/state/" + status.getName());
+
+
+        final HttpRequestBuilder httpRequestBuilder = RequestUtils
+                .getHttpRequestBuilder(datacenter, tag, requestOptions, "");
+
+
+
+        final HTTP.Response httpResponse = HTTP.getResponse(uri.toString() + "?" + httpRequestBuilder.paramString());
+
+
 
         if (httpResponse.code() != 200) {
-            die("Unable to retrieve the service", path, httpResponse.code(), httpResponse.body());
+            die("Unable to retrieve the service", uri, httpResponse.code(), httpResponse.body());
         }
 
         return RequestUtils.consulResponseList(HealthCheck.class, httpResponse);
@@ -343,74 +353,30 @@ public class HealthEndpoint {
                                                                   final String tag,
                                                                   final RequestOptions requestOptions) {
 
-        final String path = rootPath + "/service/" + serviceName;
+
+
+        final URI uri = createURI("/service/" + serviceName);
+
+
         final HttpRequestBuilder httpRequestBuilder = RequestUtils
-                .getHttpRequestBuilder(datacenter, tag, requestOptions, path);
+                .getHttpRequestBuilder(datacenter, tag, requestOptions, "");
+
 
         httpRequestBuilder.addParam("passing", "true");
 
-        final HttpResponse httpResponse = httpClient.sendRequestAndWait(httpRequestBuilder.build(), 180, TimeUnit.SECONDS);
+
+        final HTTP.Response httpResponse = HTTP.getResponse(uri.toString() + "?" + httpRequestBuilder.paramString());
+
 
         if (httpResponse == null) {
-            die("Unable to retrieve the service, consul request timed out", path);
+            die("Unable to retrieve the service, consul request timed out", uri);
         }
 
         if (httpResponse.code() != 200) {
-            die("Unable to retrieve the service", path, httpResponse.code(), httpResponse.body());
+            die("Unable to retrieve the service", uri, httpResponse.code(), httpResponse.body());
         }
 
         return RequestUtils.consulResponseList(ServiceHealth.class, httpResponse);
-    }
-
-    /**
-     * Asynchronously retrieves the healthchecks for all healthy nodes in a given
-     * datacenter with {@link io.advantageous.consul.domain.option.RequestOptions}.
-     * <p>
-     * <code>GET /v1/health/service/{service}?dc={datacenter}&amp;passing</code>
-     * <p>
-     * Experimental.
-     *
-     * @param service        The service to query.
-     * @param datacenter     datacenter
-     * @param tag            tag
-     * @param requestOptions The Query Options to use.
-     * @param callback       Callback implemented by callee to handle results.
-     */
-    public void getHealthyServicesAsync(final String service,
-                                        final String datacenter,
-                                        final String tag,
-                                        final RequestOptions requestOptions,
-                                        final Callback<List<ServiceHealth>> callback) {
-
-        final String path = rootPath + "/service/" + service;
-        final HttpRequestBuilder httpRequestBuilder = RequestUtils
-                .getHttpRequestBuilder(datacenter, tag, requestOptions, path);
-
-        httpRequestBuilder.addParam("passing", "true");
-        httpRequestBuilder.setTextReceiver((code, contentType, body) -> {
-            final List<ServiceHealth> serviceHealths = fromJsonArray(body, ServiceHealth.class);
-            callback.accept(serviceHealths);
-        });
-    }
-
-    /**
-     * Asynchronously retrieves the healthchecks for all healthy nodes in a given
-     * datacenter with {@link io.advantageous.consul.domain.option.RequestOptions}.
-     * <p>
-     * <code>GET /v1/health/service/{service}?dc={datacenter}&amp;passing</code>
-     * <p>
-     * Experimental.
-     *
-     * @param service        The service to query.
-     * @param requestOptions The Query Options to use.
-     * @param callback       Callback implemented by callee to handle results.
-     */
-    public void getHealthyServicesAsync(String service, RequestOptions requestOptions,
-                                        Callback<List<ServiceHealth>> callback) {
-
-
-        getHealthyServicesAsync(service, null, null, requestOptions, callback);
-
     }
 
     /**
@@ -474,68 +440,25 @@ public class HealthEndpoint {
                                                            final String tag,
                                                            final RequestOptions requestOptions) {
 
-        final String path = rootPath + "/service/" + service;
-        final HttpRequestBuilder httpRequestBuilder = RequestUtils
-                .getHttpRequestBuilder(datacenter, tag, requestOptions, path);
 
-        final HttpResponse httpResponse = httpClient.sendRequestAndWait(httpRequestBuilder.build());
+
+        final URI uri = createURI("/service/" + service);
+
+
+        final HttpRequestBuilder httpRequestBuilder = RequestUtils
+                .getHttpRequestBuilder(datacenter, tag, requestOptions, "");
+
+
+        final HTTP.Response httpResponse = HTTP.getResponse(uri.toString() + "?" + httpRequestBuilder.paramString());
 
         if (httpResponse == null) {
             die("No response from server for get all nodes request");
         }
 
         if (httpResponse.code() != 200) {
-            die("Unable to retrieve the service", path, httpResponse.code(), httpResponse.body());
+            die("Unable to retrieve the service", uri, httpResponse.code(), httpResponse.body());
         }
 
         return RequestUtils.consulResponseList(ServiceHealth.class, httpResponse);
-    }
-
-    /**
-     * Asynchronously retrieves the healthchecks for all nodes in a given
-     * datacenter with {@link io.advantageous.consul.domain.option.RequestOptions}.
-     * <p>
-     * GET /v1/health/service/{service}?dc={datacenter}
-     * <p>
-     * Experimental.
-     *
-     * @param service        The service to query.
-     * @param datacenter     datacenter
-     * @param tag            tag
-     * @param requestOptions The Query Options to use.
-     * @param callback       Callback implemented by callee to handle results.
-     */
-    public void getAllNodes(final String service,
-                            final String datacenter,
-                            final String tag,
-                            final RequestOptions requestOptions,
-                            final Callback<List<ServiceHealth>> callback) {
-
-        final String path = rootPath + "/service/" + service;
-        final HttpRequestBuilder httpRequestBuilder = RequestUtils
-                .getHttpRequestBuilder(datacenter, tag, requestOptions, path);
-
-        httpRequestBuilder.setTextReceiver((code, contentType, body) -> {
-            final List<ServiceHealth> serviceHealths = fromJsonArray(body, ServiceHealth.class);
-            callback.accept(serviceHealths);
-        });
-
-    }
-
-    /**
-     * Asynchronously retrieves the healthchecks for all nodes in a given
-     * datacenter with {@link io.advantageous.consul.domain.option.RequestOptions}.
-     * <p>
-     * GET /v1/health/service/{service}?dc={datacenter}
-     * <p>
-     * Experimental.
-     *
-     * @param service        The service to query.
-     * @param requestOptions The Query Options to use.
-     * @param callback       Callback implemented by callee to handle results.
-     */
-    public void getAllNodes(String service, RequestOptions requestOptions,
-                            Callback<List<ServiceHealth>> callback) {
-        getAllNodes(service, null, null, requestOptions, callback);
     }
 }

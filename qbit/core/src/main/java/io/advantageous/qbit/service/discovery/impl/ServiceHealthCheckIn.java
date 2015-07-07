@@ -38,7 +38,7 @@ public class ServiceHealthCheckIn {
     @Override
     public int hashCode() {
         int result = serviceId != null ? serviceId.hashCode() : 0;
-        result = 31 * result + (healthStatus != null ? healthStatus.hashCode() : 0);
+        result = 31 * result + (healthStatus != null ? healthStatus.ordinal() : 0);
         return result;
     }
 
