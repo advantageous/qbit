@@ -151,7 +151,7 @@ public class ServiceDiscoveryImplTest {
         AtomicReference<EndpointDefinition> serviceDefinitionAtomicReference = new AtomicReference<>();
 
         for (int index = 0; index < 10; index++) {
-            Sys.sleep(100);
+            Sys.sleep(1000);
             registeredEndpointDefinitions.forEach(serviceDefinition -> {
                 if (serviceDefinition.getName().equals("fooBar")) {
                     puts(serviceDefinition);
@@ -179,7 +179,7 @@ public class ServiceDiscoveryImplTest {
         AtomicReference<ServiceHealthCheckIn> ref = new AtomicReference<>();
 
         for (int index = 0; index < 10; index++) {
-            Sys.sleep(100);
+            Sys.sleep(1000);
             healthCheckIns.forEach(healthCheckIn -> {
                 if (healthCheckIn.getServiceId().startsWith("fooBar-")) {
                     puts(healthCheckIn);
@@ -242,7 +242,7 @@ public class ServiceDiscoveryImplTest {
         );
         healthyServices.set(fooServices);
         loadServices(serviceName);
-        Sys.sleep(5000);
+        Sys.sleep(10_000);
         assertEquals(3, serviceAdded.get());
         assertEquals(0, serviceRemoved.get());
 
@@ -250,14 +250,16 @@ public class ServiceDiscoveryImplTest {
 
         /* Now remove one. */
         serviceAdded.set(0);
-        Sys.sleep(10000);
+        Sys.sleep(10_000);
 
         fooServices = serviceDefinitions(
                 endpointDefinition1,
                 endpointDefinition3
         );
         healthyServices.set(fooServices);
+        Sys.sleep(10_000);
         loadServices(serviceName);
+        Sys.sleep(10_000);
 
         assertEquals(1, serviceRemoved.get());
         assertEquals(0, serviceAdded.get());
@@ -275,7 +277,9 @@ public class ServiceDiscoveryImplTest {
                 endpointDefinition4
         );
         healthyServices.set(fooServices);
+        Sys.sleep(10_000);
         loadServices(serviceName);
+        Sys.sleep(10_000);
 
         assertEquals(0, serviceRemoved.get());
         assertEquals(2, serviceAdded.get());
