@@ -109,7 +109,7 @@ public class ServiceDiscoveryWithFileSystemTest {
                 .setServiceChangedEventChannel(eventChannel)
                 .setServicePoolListener(servicePoolListener)
                 .setServiceDiscoveryProvider(provider)
-                .setPollForServicesIntervalSeconds(100).build();
+                .setPollForServicesIntervalSeconds(1).build();
 
 
         serviceDiscovery.start();
@@ -136,7 +136,11 @@ public class ServiceDiscoveryWithFileSystemTest {
 
         write(fooServices);
 
+        Sys.sleep(10_000);
+
         loadServices(serviceName);
+
+        Sys.sleep(10_000);
 
         assertEquals(serviceName, servicePoolChangedServiceName.get());
         assertEquals(serviceName, servicePoolChangedServiceNameFromListener.get());
@@ -190,6 +194,7 @@ public class ServiceDiscoveryWithFileSystemTest {
 
         write(fooServices);
 
+        Sys.sleep(10_000);
         loadServices(serviceName);
 
         assertEquals(1, serviceRemoved.get());
@@ -210,6 +215,8 @@ public class ServiceDiscoveryWithFileSystemTest {
         );
 
         write(fooServices);
+
+        Sys.sleep(10_000);
         loadServices(serviceName);
 
         assertEquals(0, serviceRemoved.get());
