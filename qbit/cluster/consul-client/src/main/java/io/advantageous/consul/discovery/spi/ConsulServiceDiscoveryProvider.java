@@ -9,7 +9,6 @@ import io.advantageous.consul.domain.option.Consistency;
 import io.advantageous.consul.domain.option.RequestOptions;
 import io.advantageous.consul.domain.option.RequestOptionsBuilder;
 import io.advantageous.qbit.GlobalConstants;
-import io.advantageous.qbit.http.client.HttpClientClosedConnectionException;
 import io.advantageous.qbit.service.discovery.EndpointDefinition;
 import io.advantageous.qbit.service.discovery.impl.ServiceHealthCheckIn;
 import io.advantageous.qbit.service.discovery.spi.ServiceDiscoveryProvider;
@@ -81,16 +80,9 @@ public class ConsulServiceDiscoveryProvider implements ServiceDiscoveryProvider 
 
         for (EndpointDefinition definition : endpointDefinitions) {
             Consul consul = consul();
+            registrations.remove(definition.getId());
+            consul.agent().deregister(definition.getId());
 
-            try {
-
-                registrations.remove(definition.getId());
-                consul.agent().deregister(definition.getId());
-            } catch (Exception ex) {
-                handleConsulRecovery(consul, ex);
-            } finally {
-                shutDownConsul(consul);
-            }
         }
 
 
@@ -110,47 +102,14 @@ public class ConsulServiceDiscoveryProvider implements ServiceDiscoveryProvider 
         EndpointDefinition endpointDefinition = registerQueue.poll();
         if (endpointDefinition != null) {
             final Consul consul = consul();
-            try {
                 while (endpointDefinition != null) {
                     registrations.put(endpointDefinition.getId(), endpointDefinition);
-                    try {
-                        consul.agent().registerService(endpointDefinition.getPort(),
+                    consul.agent().registerService(endpointDefinition.getPort(),
                                 endpointDefinition.getTimeToLive(),
                                 endpointDefinition.getName(), endpointDefinition.getId(), tags);
-                    } catch (Exception ex) {
-                        handleConsulRecovery(consul, ex);
-                    }
                     endpointDefinition = registerQueue.poll();
                 }
-            } finally {
-                shutDownConsul(consul);
-            }
-        }
-    }
 
-    private void handleConsulRecovery(final Consul consul, final Exception ex) {
-        logger.warn("Unable to use consul", ex);
-        if (consulRetryCount.incrementAndGet() > 10) {
-
-            logger.info("Exceeded retry count with consul");
-            final long now = Timer.clockTime();
-            final long duration = now - lastResetTimestamp.get();
-
-            if (duration > 180_000) {
-
-                logger.info("Resetting retry count");
-                lastResetTimestamp.set(now);
-                consulRetryCount.set(0);
-            }
-
-        } else {
-
-            logger.debug("problem running consul register service", ex);
-            shutDownConsul(consul);
-        }
-
-        if (ex instanceof RuntimeException) {
-            throw ((RuntimeException) ex);
         }
     }
 
@@ -169,17 +128,9 @@ public class ConsulServiceDiscoveryProvider implements ServiceDiscoveryProvider 
 
         if (uniqueCheckIns.size() > 0) {
             Consul consul = consul();
-
-            try {
-                for (ServiceHealthCheckIn checkIn : uniqueCheckIns) {
+            for (ServiceHealthCheckIn checkIn : uniqueCheckIns) {
                     checkInWithConsul(consul, checkIn);
-                }
-            } catch (Exception ex) {
-                handleConsulRecovery(consul, ex);
-            } finally {
-                shutDownConsul(consul);
             }
-
         }
     }
 
@@ -222,15 +173,6 @@ public class ConsulServiceDiscoveryProvider implements ServiceDiscoveryProvider 
         return set;
     }
 
-    private void shutDownConsul(Consul consul) {
-        try {
-            if (consul!=null) {
-                consul.stop();
-            }
-        } catch (Exception ex) {
-            logger.warn("Shutting down consul", ex);
-        }
-    }
 
     @Override
     public List<EndpointDefinition> loadServices(final String serviceName) {
@@ -297,27 +239,19 @@ public class ConsulServiceDiscoveryProvider implements ServiceDiscoveryProvider 
     private List<ServiceHealth> getHealthyServices(final String serviceName) {
         Consul consul = consul();
 
-        try {
-
-            String tag = tags.length > 1 ? tags[0] : null;
-            final ConsulResponse<List<ServiceHealth>> consulResponse = consul.health()
+        String tag = tags.length > 1 ? tags[0] : null;
+        final ConsulResponse<List<ServiceHealth>> consulResponse = consul.health()
                     .getHealthyServices(serviceName, datacenter, tag, buildRequestOptions());
 
 
-            this.lastIndex.set(consulResponse.getIndex());
+        this.lastIndex.set(consulResponse.getIndex());
 
             //noinspection UnnecessaryLocalVariable
-            final List<ServiceHealth> healthyServices = consulResponse.getResponse();
+        final List<ServiceHealth> healthyServices = consulResponse.getResponse();
 
-            return healthyServices;
+        return healthyServices;
 
-        } catch (HttpClientClosedConnectionException ex) {
 
-            handleConsulRecovery(consul, ex);
-            return Collections.emptyList();
-        } finally {
-            shutDownConsul(consul);
-        }
     }
 
 
@@ -340,7 +274,6 @@ public class ConsulServiceDiscoveryProvider implements ServiceDiscoveryProvider 
 
     private Consul consul()  {
         final Consul consul =  Consul.consul(consulHost, consulPort);
-        consul.start();
         return consul;
     }
 

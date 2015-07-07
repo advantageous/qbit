@@ -42,7 +42,6 @@ public class ConsulServiceDiscoveryTest {
 
 
         for (int index = 0; index < 10; index++) {
-            Sys.sleep(1000);
 
             Sys.sleep(100);
             discovery1.checkIn(id1, HealthStatus.PASS);
@@ -57,7 +56,7 @@ public class ConsulServiceDiscoveryTest {
 
 
         for (int index = 0; index < 10; index++) {
-            Sys.sleep(1000);
+            Sys.sleep(100);
             discovery1.checkIn(id1, HealthStatus.PASS);
             discovery2.checkIn(id2, HealthStatus.FAIL);
             discovery3.checkIn(id3, HealthStatus.PASS);
@@ -66,7 +65,7 @@ public class ConsulServiceDiscoveryTest {
         Sys.sleep(1000);
 
 
-        endpointDefinitions = discovery1.loadServicesNow(serviceName);
+        endpointDefinitions = discovery1.loadServices(serviceName);
         assertEquals(2, endpointDefinitions.size());
     }
 }

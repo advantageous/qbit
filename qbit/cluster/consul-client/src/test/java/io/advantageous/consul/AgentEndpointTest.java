@@ -40,7 +40,6 @@ public class AgentEndpointTest {
     @Test
     public void deregister() throws Exception {
         Consul client = Consul.consul();
-        client.start();
         String serviceName = UUID.randomUUID().toString();
         String serviceId = UUID.randomUUID().toString();
 
@@ -56,13 +55,11 @@ public class AgentEndpointTest {
         }
 
         assertFalse(found);
-        client.stop();
     }
 
     @Test
     public void checks() {
         Consul client = Consul.consul();
-        client.start();
         String id = UUID.randomUUID().toString();
         client.agent().registerService(8080, 20L, UUID.randomUUID().toString(), id);
 
@@ -75,13 +72,11 @@ public class AgentEndpointTest {
         }
 
         assertTrue(found);
-        client.stop();
     }
 
     @Test
     public void services() {
         Consul client = Consul.consul();
-        client.start();
         String id = UUID.randomUUID().toString();
         client.agent().registerService(8080, 20L, UUID.randomUUID().toString(), id);
 
@@ -94,13 +89,11 @@ public class AgentEndpointTest {
         }
 
         assertTrue(found);
-        client.stop();
     }
 
     @Test
     public void warning() throws Exception {
         Consul client = Consul.consul();
-        client.start();
         String serviceName = UUID.randomUUID().toString();
         String serviceId = UUID.randomUUID().toString();
         String note = UUID.randomUUID().toString();
@@ -108,13 +101,11 @@ public class AgentEndpointTest {
         client.agent().warn(serviceId, note);
         Sys.sleep(100);
         verifyState("warning", client, serviceId, serviceName);
-        client.stop();
     }
 
     @Test
     public void critical() throws Exception {
         Consul client = Consul.consul();
-        client.start();
         String serviceName = UUID.randomUUID().toString();
         String serviceId = UUID.randomUUID().toString();
         String note = UUID.randomUUID().toString();
@@ -123,7 +114,6 @@ public class AgentEndpointTest {
         client.agent().fail(serviceId, note);
 
         verifyState("critical", client, serviceId, serviceName);
-        client.stop();
     }
 
     private void verifyState(String state, Consul client, String serviceId,
@@ -151,19 +141,16 @@ public class AgentEndpointTest {
     @Test
     public void retrieveAgentInformation() throws UnknownHostException {
         Consul client = Consul.consul();
-        client.start();
         AgentInfo agentInfo = client.agent().getAgentInfo();
 
         assertNotNull(agentInfo);
         assertEquals("127.0.0.1", agentInfo.getConfig().getClientAddr());
 
-        client.stop();
     }
 
     @Test
     public void register() throws UnknownHostException {
         Consul client = Consul.consul();
-        client.start();
 
         String serviceName = UUID.randomUUID().toString();
         String serviceId = UUID.randomUUID().toString();
@@ -178,7 +165,6 @@ public class AgentEndpointTest {
             }
         }
 
-        client.stop();
 
         assertTrue(found);
     }

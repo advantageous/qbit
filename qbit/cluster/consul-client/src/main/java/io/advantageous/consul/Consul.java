@@ -87,17 +87,6 @@ public class Consul {
         return consul("localhost", 8500);
     }
 
-    public void start() {
-
-        if (!started) {
-            started = true;
-        }
-    }
-
-    public void stop() {
-
-        started = false;
-    }
 
     /**
      * Catalog HTTP endpoint.

@@ -40,65 +40,53 @@ public class CatalogEndpointTest {
     @Test
     public void getServices() throws Exception {
         Consul client = Consul.consul();
-        client.start();
         CatalogEndpoint catalogClient = client.catalog();
         ConsulResponse<Map<String, List<String>>> services = catalogClient.getServices();
 
         assertTrue(services.getResponse().containsKey("consul"));
-        client.stop();
     }
 
 
     @Test
     public void nodes() throws UnknownHostException {
         Consul client = Consul.consul();
-        client.start();
         CatalogEndpoint catalogClient = client.catalog();
 
         assertFalse(catalogClient.getNodes().getResponse().isEmpty());
-        client.stop();
     }
 
 
     @Test
     public void getSingleService() throws Exception {
         Consul client = Consul.consul();
-        client.start();
         CatalogEndpoint catalogClient = client.catalog();
         ConsulResponse<List<CatalogService>> services = catalogClient.getService("consul");
 
         assertEquals("consul", services.getResponse().iterator().next().getServiceName());
-        client.stop();
     }
 
     @Test
     public void getSingleNode() throws Exception {
         Consul client = Consul.consul();
-        client.start();
         CatalogEndpoint catalogClient = client.catalog();
         ConsulResponse<CatalogNode> node = catalogClient.getNode(catalogClient.getNodes()
                 .getResponse().iterator().next().getNode());
 
         assertNotNull(node);
-        client.stop();
     }
 
 
     @Test
     public void nodesByDataCenter() throws UnknownHostException {
         Consul client = Consul.consul();
-        client.start();
         CatalogEndpoint catalogClient = client.catalog();
 
         assertFalse(catalogClient.getNodes("dc1", null).getResponse().isEmpty());
-
-        client.stop();
     }
 
     @Test
     public void blockingNodesByDataCenter() throws UnknownHostException {
         Consul client = Consul.consul();
-        client.start();
         CatalogEndpoint catalogClient = client.catalog();
 
         long start = System.currentTimeMillis();
@@ -108,19 +96,16 @@ public class CatalogEndpointTest {
 
         assertTrue(time >= 2000);
         assertFalse(response.getResponse().isEmpty());
-        client.stop();
     }
 
     @Test
     public void datacenters() throws UnknownHostException {
         Consul client = Consul.consul();
-        client.start();
         CatalogEndpoint catalogClient = client.catalog();
         List<String> datacenters = catalogClient.getDatacenters();
 
         assertEquals(1, datacenters.size());
         assertEquals("dc1", datacenters.iterator().next());
-        client.stop();
     }
 
 
