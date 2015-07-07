@@ -147,7 +147,6 @@ public class EventBusCluster implements Startable, Stoppable {
     @Override
     public void start() {
 
-        consul.get().start();
 
         if (eventServiceQueue != null) {
             eventServiceQueue.start();
@@ -191,23 +190,14 @@ public class EventBusCluster implements Startable, Stoppable {
 
             } else {
                 Consul oldConsul = consul.get();
-                consul.compareAndSet(oldConsul, startNewConsul(oldConsul));
+                consul.compareAndSet(oldConsul, startNewConsul());
             }
         }
     }
 
-    private Consul startNewConsul(final Consul oldConsul) {
-
-        if (oldConsul != null) {
-            try {
-                oldConsul.stop();
-            } catch (Exception ex) {
-                logger.debug("Unable to stop old consul", ex);
-            }
-        }
+    private Consul startNewConsul() {
 
         final Consul consul = Consul.consul(consulHost, consulPort);
-        consul.start();
         return consul;
     }
 
@@ -273,7 +263,7 @@ public class EventBusCluster implements Startable, Stoppable {
         } catch (Exception ex) {
             logger.error("unable to contact consul or problems rebuilding event hub", ex);
             Consul oldConsul = consul.get();
-            consul.compareAndSet(oldConsul, startNewConsul(oldConsul));
+            consul.compareAndSet(oldConsul, startNewConsul());
         }
 
     }
@@ -419,12 +409,6 @@ public class EventBusCluster implements Startable, Stoppable {
 
     @Override
     public void stop() {
-
-        try {
-            consul.get().stop();
-        } catch (Exception ex) {
-            logger.warn("EventBusCluster is unable to stop consul");
-        }
 
         try {
 
