@@ -153,6 +153,9 @@ public class LocalStatsCollector implements StatReplicator, QueueCallBackHandler
         final Map<String, Number> metricsCountMap = new HashMap<>();
         final Map<String, Number> metricsLevelMap = new HashMap<>();
 
+        Map map = metricMap;
+        map.put("version", 1);
+
         metricMap.put("MetricsMS", metricsTimingMap);
         metricMap.put("MetricsC", metricsCountMap);
         metricMap.put("MetricsKV", metricsLevelMap);
