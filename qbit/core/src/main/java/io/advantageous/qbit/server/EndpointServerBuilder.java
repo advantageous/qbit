@@ -577,6 +577,9 @@ public class EndpointServerBuilder {
             } else if (httpRequest.getUri().equals("/__stats/global")) {
                 /* We don't support global stats, yet. */
                 httpRequest.getReceiver().respondOK("{\"version\":1}");
+            } else {
+
+                httpRequest.getReceiver().notFound();
             }
         }
     }

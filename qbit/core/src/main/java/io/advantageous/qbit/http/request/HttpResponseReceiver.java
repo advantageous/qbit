@@ -70,4 +70,8 @@ public interface HttpResponseReceiver<T> {
 
         }
     }
+
+    default void notFound() {
+        respond(404, "\"not found\"");
+    }
 }
