@@ -563,7 +563,7 @@ public class EndpointServerBuilder {
                     httpRequest.getReceiver().error("\"fail\"");
                 }
             });
-        } else if (statsEnabled && httpRequest.getUri().startsWith("/__stats")) {
+        } else if (statsEnabled && httpRequest.getUri().startsWith("/__stats/instance")) {
 
             if (statCollection!=null) {
                 statCollection.collect(stats -> {
