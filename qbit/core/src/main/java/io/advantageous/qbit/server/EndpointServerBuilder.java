@@ -563,15 +563,20 @@ public class EndpointServerBuilder {
                     httpRequest.getReceiver().error("\"fail\"");
                 }
             });
-        } else if (statsEnabled && httpRequest.getUri().startsWith("/__stats/instance")) {
+        } else if (statsEnabled && httpRequest.getUri().startsWith("/__stats")) {
 
-            if (statCollection!=null) {
-                statCollection.collect(stats -> {
-                    String json = JsonFactory.toJson(stats);
-                    httpRequest.getReceiver().respondOK(json);
-                });
-            } else {
-                httpRequest.getReceiver().error("\"failed to load stats collector\"");
+            if (httpRequest.getUri().equals("/__stats/instance")) {
+                if (statCollection != null) {
+                    statCollection.collect(stats -> {
+                        String json = JsonFactory.toJson(stats);
+                        httpRequest.getReceiver().respondOK(json);
+                    });
+                } else {
+                    httpRequest.getReceiver().error("\"failed to load stats collector\"");
+                }
+            } else if (httpRequest.getUri().equals("/__stats/global")) {
+                /* We don't support global stats, yet. */
+                httpRequest.getReceiver().respondOK("{}");
             }
         }
     }
