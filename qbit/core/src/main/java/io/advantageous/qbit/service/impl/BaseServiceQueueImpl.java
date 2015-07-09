@@ -70,8 +70,6 @@ import java.util.Collection;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.locks.ReentrantLock;
-
 import static io.advantageous.qbit.QBit.factory;
 import static io.advantageous.qbit.service.ServiceContext.serviceContext;
 
@@ -103,7 +101,6 @@ public class BaseServiceQueueImpl implements ServiceQueue {
     private Transformer<Response<Object>, Response> responseObjectTransformer = new NoOpResponseTransformer();
     private final CallbackManager callbackManager;
     private final QueueCallBackHandler queueCallBackHandler;
-    private final AtomicBoolean failing = new AtomicBoolean();
 
     public BaseServiceQueueImpl(final String rootAddress,
                                 final String serviceAddress,
@@ -402,13 +399,15 @@ public class BaseServiceQueueImpl implements ServiceQueue {
 
             @Override
             public void init() {
+
+                serviceThreadLocal.set(BaseServiceQueueImpl.this);
                 queueCallBackHandler.queueInit();
                 serviceMethodHandler.init();
+                serviceThreadLocal.set(null);
             }
 
             @Override
             public void receive(MethodCall<Object> methodCall) {
-
                 queueCallBackHandler.beforeReceiveCalled();
                 doHandleMethodCall(methodCall, serviceMethodHandler);
                 queueCallBackHandler.afterReceiveCalled();
@@ -423,6 +422,7 @@ public class BaseServiceQueueImpl implements ServiceQueue {
 
             @Override
             public void startBatch() {
+                serviceThreadLocal.set(BaseServiceQueueImpl.this);
                 serviceMethodHandler.startBatch();
                 queueCallBackHandler.queueStartBatch();
             }
@@ -436,9 +436,13 @@ public class BaseServiceQueueImpl implements ServiceQueue {
 
             @Override
             public void shutdown() {
+
+                serviceThreadLocal.set(BaseServiceQueueImpl.this);
                 handle();
                 serviceMethodHandler.shutdown();
                 queueCallBackHandler.queueShutdown();
+
+                serviceThreadLocal.set(null);
             }
 
             @Override
@@ -449,6 +453,7 @@ public class BaseServiceQueueImpl implements ServiceQueue {
                 if (callbackManager!=null) {
                     callbackManager.process(0);
                 }
+                serviceThreadLocal.set(null);
             }
 
 
@@ -578,6 +583,7 @@ public class BaseServiceQueueImpl implements ServiceQueue {
     }
 
 
+    private AtomicBoolean failing = new AtomicBoolean();
     @Override
     public boolean failing() {
         return failing.get();
