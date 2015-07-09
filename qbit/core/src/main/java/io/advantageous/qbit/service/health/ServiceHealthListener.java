@@ -1,6 +1,8 @@
 package io.advantageous.qbit.service.health;
 
+import io.advantageous.qbit.annotation.Service;
 import io.advantageous.qbit.queue.QueueCallBackHandler;
+import io.advantageous.qbit.service.ServiceContext;
 import io.advantageous.qbit.util.Timer;
 
 import java.util.concurrent.TimeUnit;
@@ -46,7 +48,14 @@ public class ServiceHealthListener implements QueueCallBackHandler {
 
         if (duration > checkInIntervalMS) {
             lastCheckTime = now;
-            healthServiceAsync.checkInOk(serviceName);
+
+            boolean failing = ServiceContext.serviceContext().currentService().failing();
+
+            if (!failing) {
+                healthServiceAsync.checkInOk(serviceName);
+            } else {
+                healthServiceAsync.checkIn(serviceName, HealthStatus.FAIL);
+            }
             healthServiceAsync.clientProxyFlush();
         }
     }

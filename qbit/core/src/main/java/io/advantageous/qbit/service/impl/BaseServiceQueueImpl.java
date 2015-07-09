@@ -103,6 +103,7 @@ public class BaseServiceQueueImpl implements ServiceQueue {
     private Transformer<Response<Object>, Response> responseObjectTransformer = new NoOpResponseTransformer();
     private final CallbackManager callbackManager;
     private final QueueCallBackHandler queueCallBackHandler;
+    private final AtomicBoolean failing = new AtomicBoolean();
 
     public BaseServiceQueueImpl(final String rootAddress,
                                 final String serviceAddress,
@@ -574,6 +575,22 @@ public class BaseServiceQueueImpl implements ServiceQueue {
     public void flush() {
         lastResponseFlushTime = 0;
         manageResponseQueue();
+    }
+
+
+    @Override
+    public boolean failing() {
+        return failing.get();
+    }
+
+    @Override
+    public void setFailing() {
+        failing.set(true);
+    }
+
+    @Override
+    public void recover() {
+        failing.set(false);
     }
 
     public Object service() {

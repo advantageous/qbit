@@ -37,6 +37,16 @@ import java.util.concurrent.TimeUnit;
  */
 public interface ServiceQueue extends Stoppable, ServiceFlushable, Startable {
 
+
+
+    boolean failing();
+
+    void setFailing();
+
+    void recover();
+
+
+
     Object service();
 
     /**
