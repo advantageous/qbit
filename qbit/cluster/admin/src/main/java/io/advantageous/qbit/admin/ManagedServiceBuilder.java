@@ -1,13 +1,21 @@
 package io.advantageous.qbit.admin;
 
 import io.advantageous.boon.core.Str;
+import io.advantageous.qbit.annotation.AnnotationUtils;
 import io.advantageous.qbit.http.server.HttpServerBuilder;
 import io.advantageous.qbit.metrics.support.LocalStatsCollectorBuilder;
 import io.advantageous.qbit.metrics.support.StatServiceBuilder;
 import io.advantageous.qbit.server.EndpointServerBuilder;
+import io.advantageous.qbit.service.ServiceBuilder;
+import io.advantageous.qbit.service.ServiceBundleBuilder;
+import io.advantageous.qbit.service.health.HealthServiceAsync;
+import io.advantageous.qbit.service.health.HealthServiceBuilder;
 import io.advantageous.qbit.system.QBitSystemManager;
 
-/** This is a utility class for when you are running in a PaaS like Heroku or Docker. */
+/** This is a utility class for when you are running in a PaaS like Heroku or Docker.
+ *  It also allows you to share stat, health and system manager setup.
+ *
+ **/
 public class ManagedServiceBuilder {
 
 
@@ -19,6 +27,25 @@ public class ManagedServiceBuilder {
     private boolean enableLocalStats=true;
     private boolean enableStatsD=false;
     private boolean enableLocalHealth=true;
+    private HealthServiceBuilder healthServiceBuilder;
+    private HealthServiceAsync healthService;
+    private boolean enableStats = true;
+    private int sampleStatFlushRate = 5;
+    private int checkTimingEveryXCalls = 100;
+
+
+    public ManagedServiceBuilder setHealthServiceBuilder(final HealthServiceBuilder healthServiceBuilder) {
+        this.healthServiceBuilder = healthServiceBuilder;
+        return this;
+    }
+
+    public HealthServiceBuilder getHealthServiceBuilder() {
+
+        if (healthServiceBuilder == null) {
+            healthServiceBuilder = HealthServiceBuilder.healthServiceBuilder();
+        }
+        return healthServiceBuilder;
+    }
 
     public static ManagedServiceBuilder managedServiceBuilder() {
         return new ManagedServiceBuilder();
@@ -60,8 +87,9 @@ public class ManagedServiceBuilder {
         return localStatsCollectorBuilder;
     }
 
-    public void setLocalStatsCollectorBuilder(LocalStatsCollectorBuilder localStatsCollectorBuilder) {
+    public ManagedServiceBuilder setLocalStatsCollectorBuilder(LocalStatsCollectorBuilder localStatsCollectorBuilder) {
         this.localStatsCollectorBuilder = localStatsCollectorBuilder;
+        return this;
     }
 
     public boolean isEnableLocalStats() {
@@ -122,23 +150,142 @@ public class ManagedServiceBuilder {
         if (endpointServerBuilder==null) {
             endpointServerBuilder = EndpointServerBuilder.endpointServerBuilder();
             endpointServerBuilder.setEnableHealthEndpoint(isEnableLocalHealth());
+            endpointServerBuilder.setHealthService(getHealthService());
             endpointServerBuilder.setSystemManager(this.getSystemManager());
             endpointServerBuilder.setHttpServer(getHttpServerBuilder().build());
+            endpointServerBuilder.setStatsFlushRateSeconds(getSampleStatFlushRate());
+            endpointServerBuilder.setCheckTimingEveryXCalls(getCheckTimingEveryXCalls());
 
-            if (isEnableLocalStats()) {
 
-                endpointServerBuilder.setEnableStatEndpoint(true);
 
-                endpointServerBuilder.setStatsCollection(getLocalStatsCollectorBuilder().build());
+            if (isEnableStats()) {
+
                 endpointServerBuilder.setStatsCollector(getStatServiceBuilder().buildStatsCollectorWithAutoFlush());
             }
+
+            if (isEnableLocalStats()) {
+                endpointServerBuilder.setEnableStatEndpoint(true);
+                endpointServerBuilder.setStatsCollection(getLocalStatsCollectorBuilder().build());
+            }
+
         }
 
         return endpointServerBuilder;
     }
 
+
+    public EndpointServerBuilder createEndpointServerBuilder() {
+
+        EndpointServerBuilder endpointServerBuilder = EndpointServerBuilder.endpointServerBuilder();
+        endpointServerBuilder.setEnableHealthEndpoint(isEnableLocalHealth());
+        endpointServerBuilder.setSystemManager(this.getSystemManager());
+        endpointServerBuilder.setHealthService(getHealthService());
+        endpointServerBuilder.setStatsFlushRateSeconds(getSampleStatFlushRate());
+        endpointServerBuilder.setCheckTimingEveryXCalls(getCheckTimingEveryXCalls());
+
+
+        if (isEnableStats()) {
+
+            endpointServerBuilder.setStatsCollector(getStatServiceBuilder().buildStatsCollectorWithAutoFlush());
+        }
+
+        if (isEnableLocalStats()) {
+                endpointServerBuilder.setEnableStatEndpoint(true);
+                endpointServerBuilder.setStatsCollection(getLocalStatsCollectorBuilder().build());
+        }
+
+        return endpointServerBuilder;
+    }
+
+
+    public ServiceBundleBuilder createServiceBundleBuilder() {
+
+        ServiceBundleBuilder serviceBundleBuilder = ServiceBundleBuilder.serviceBundleBuilder();
+        serviceBundleBuilder.setSystemManager(this.getSystemManager());
+        serviceBundleBuilder.setHealthService(getHealthService());
+        serviceBundleBuilder.setCheckTimingEveryXCalls(this.getCheckTimingEveryXCalls());
+        serviceBundleBuilder.setStatsFlushRateSeconds(this.getSampleStatFlushRate());
+
+
+        if (isEnableStats()) {
+            serviceBundleBuilder.setStatsCollector(getStatServiceBuilder().buildStatsCollector());
+        }
+
+        return serviceBundleBuilder;
+    }
+
+
+    public ServiceBuilder createServiceBuilderForServiceObject(Object serviceObject) {
+
+        ServiceBuilder serviceBuilder = ServiceBuilder.serviceBuilder();
+        serviceBuilder.setSystemManager(this.getSystemManager());
+
+        final String bindStatHealthName =  AnnotationUtils.readServiceName(serviceObject);
+
+        if (isEnableLocalHealth()) {
+            serviceBuilder.registerHealthChecks(getHealthService(), bindStatHealthName);
+        }
+
+
+        if (isEnableStats()) {
+
+
+            serviceBuilder.registerStatsCollections(bindStatHealthName,
+                    getStatServiceBuilder().buildStatsCollector(), getSampleStatFlushRate(), getCheckTimingEveryXCalls());
+        }
+
+        return serviceBuilder;
+
+    }
+
     public ManagedServiceBuilder setEndpointServerBuilder(EndpointServerBuilder endpointServerBuilder) {
         this.endpointServerBuilder = endpointServerBuilder;
         return this;
+    }
+
+
+
+    public HealthServiceAsync getHealthService() {
+
+        if (healthServiceBuilder == null) {
+            if (healthService == null) {
+                HealthServiceBuilder builder = getHealthServiceBuilder();
+                healthService = builder.setAutoFlush().buildAndStart();
+            }
+
+            return healthService;
+        } else {
+            return healthServiceBuilder.buildHealthSystemReporter();
+        }
+    }
+
+    public ManagedServiceBuilder setHealthService(HealthServiceAsync healthServiceAsync) {
+        this.healthService = healthServiceAsync;
+        return this;
+    }
+
+    public boolean isEnableStats() {
+        return enableStats;
+    }
+
+    public void setEnableStats(boolean enableStats) {
+        this.enableStats = enableStats;
+    }
+
+
+    public int getSampleStatFlushRate() {
+        return sampleStatFlushRate;
+    }
+
+    public void setSampleStatFlushRate(int sampleStatFlushRate) {
+        this.sampleStatFlushRate = sampleStatFlushRate;
+    }
+
+    public int getCheckTimingEveryXCalls() {
+        return checkTimingEveryXCalls;
+    }
+
+    public void setCheckTimingEveryXCalls(int checkTimingEveryXCalls) {
+        this.checkTimingEveryXCalls = checkTimingEveryXCalls;
     }
 }
