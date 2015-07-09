@@ -43,7 +43,8 @@ public class BoonJsonMapper implements JsonMapper {
     private final ThreadLocal<JsonSerializer> serializer = new ThreadLocal<JsonSerializer>() {
         @Override
         protected JsonSerializer initialValue() {
-            return new JsonSerializerFactory().addFilter((parent, fieldAccess) -> !fieldAccess.name().equals("metaClass")).create();
+            return new JsonSerializerFactory().setUseAnnotations(true)
+                    .addFilter((parent, fieldAccess) -> !fieldAccess.name().equals("metaClass")).create();
         }
     };
 
