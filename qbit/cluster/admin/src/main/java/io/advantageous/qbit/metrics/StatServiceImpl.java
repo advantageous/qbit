@@ -254,8 +254,9 @@ public class StatServiceImpl implements QueueCallBackHandler, ServiceChangedEven
     }
 
     private void flushReplicas() {
-        ServiceProxyUtils.flushServiceProxy(replica);
-        replica.flush();
+        if (!ServiceProxyUtils.flushServiceProxy(replica)) {
+            replica.flush();
+        }
     }
 
     private void flushMinuteCheck() {

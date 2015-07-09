@@ -26,9 +26,13 @@ import io.advantageous.qbit.client.ClientProxy;
  */
 public class ServiceProxyUtils {
 
-    public static void flushServiceProxy(Object object) {
+    public static boolean flushServiceProxy(Object object) {
         if (object instanceof ClientProxy) {
             ((ClientProxy) object).clientProxyFlush();
+            return true;
+        } else {
+            return false;
         }
+
     }
 }
