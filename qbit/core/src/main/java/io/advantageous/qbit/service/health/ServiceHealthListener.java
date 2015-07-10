@@ -49,7 +49,7 @@ public class ServiceHealthListener implements QueueCallBackHandler {
         if (duration > checkInIntervalMS) {
             lastCheckTime = now;
 
-            ServiceQueue serviceQueue = ServiceContext.serviceContext().currentService();
+            final ServiceQueue serviceQueue = ServiceContext.serviceContext().currentService();
 
             boolean failing = serviceQueue.failing();
 

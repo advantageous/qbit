@@ -403,7 +403,6 @@ public class BaseServiceQueueImpl implements ServiceQueue {
                 serviceThreadLocal.set(BaseServiceQueueImpl.this);
                 queueCallBackHandler.queueInit();
                 serviceMethodHandler.init();
-                serviceThreadLocal.set(null);
             }
 
             @Override
@@ -447,6 +446,8 @@ public class BaseServiceQueueImpl implements ServiceQueue {
 
             @Override
             public void idle() {
+
+                serviceThreadLocal.set(BaseServiceQueueImpl.this);
                 handle();
                 serviceMethodHandler.idle();
                 queueCallBackHandler.queueIdle();
