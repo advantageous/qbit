@@ -1,7 +1,10 @@
 package io.advantageous.qbit.admin;
 
 import io.advantageous.boon.core.Str;
+import io.advantageous.qbit.Factory;
+import io.advantageous.qbit.QBit;
 import io.advantageous.qbit.annotation.AnnotationUtils;
+import io.advantageous.qbit.events.EventManager;
 import io.advantageous.qbit.http.server.HttpServerBuilder;
 import io.advantageous.qbit.metrics.support.LocalStatsCollectorBuilder;
 import io.advantageous.qbit.metrics.support.StatServiceBuilder;
@@ -33,6 +36,34 @@ public class ManagedServiceBuilder {
     private int sampleStatFlushRate = 5;
     private int checkTimingEveryXCalls = 100;
 
+    private EventManager eventManager;
+
+    private Factory factory;
+
+
+    public Factory getFactory() {
+        if (factory == null) {
+            factory = QBit.factory();
+        }
+        return factory;
+    }
+
+    public ManagedServiceBuilder setFactory(final Factory factory) {
+        this.factory = factory;
+        return this;
+    }
+
+    public EventManager getEventManager() {
+        if (eventManager == null) {
+            eventManager = getFactory().systemEventManager();
+        }
+        return eventManager;
+    }
+
+    public ManagedServiceBuilder setEventManager(EventManager eventManager) {
+        this.eventManager = eventManager;
+        return this;
+    }
 
     public ManagedServiceBuilder setHealthServiceBuilder(final HealthServiceBuilder healthServiceBuilder) {
         this.healthServiceBuilder = healthServiceBuilder;
@@ -215,10 +246,12 @@ public class ManagedServiceBuilder {
     }
 
 
-    public ServiceBuilder createServiceBuilderForServiceObject(Object serviceObject) {
+    public ServiceBuilder createServiceBuilderForServiceObject(final Object serviceObject) {
 
         ServiceBuilder serviceBuilder = ServiceBuilder.serviceBuilder();
         serviceBuilder.setSystemManager(this.getSystemManager());
+
+        serviceBuilder.setServiceObject(serviceObject);
 
         final String bindStatHealthName =  AnnotationUtils.readServiceName(serviceObject);
 
