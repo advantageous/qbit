@@ -553,8 +553,11 @@ public class EndpointServerBuilder {
         });
     }
 
-    private void handleHealthAndStats(boolean healthEnabled, boolean statsEnabled, HealthServiceAsync healthServiceAsync,
-                                      StatCollection statCollection, HttpRequest httpRequest) {
+    private void handleHealthAndStats(final boolean healthEnabled,
+                                      final boolean statsEnabled,
+                                      final HealthServiceAsync healthServiceAsync,
+                                      final StatCollection statCollection,
+                                      final HttpRequest httpRequest) {
         if (healthEnabled && httpRequest.getUri().startsWith("/__health")) {
             healthServiceAsync.ok(ok -> {
                 if (ok) {
@@ -581,6 +584,9 @@ public class EndpointServerBuilder {
 
                 httpRequest.getReceiver().notFound();
             }
+        } else {
+
+            httpRequest.getReceiver().notFound();
         }
     }
 
