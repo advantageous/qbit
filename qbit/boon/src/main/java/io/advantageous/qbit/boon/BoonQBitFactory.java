@@ -308,16 +308,6 @@ public class BoonQBitFactory implements Factory {
     }
 
 
-    @Override
-    public ServiceQueue createService(final String rootAddress, final String serviceAddress, final Object service, final Queue<Response<Object>> responseQueue, final QBitSystemManager systemManager) {
-
-
-        return new ServiceQueueImpl(rootAddress, serviceAddress, service, null, null,
-                new BoonServiceMethodCallHandler(true), responseQueue, true, false, systemManager, null, CallbackManagerBuilder.callbackManagerBuilder().build());
-
-    }
-
-
 
     @Override
     public ServiceBundle createServiceBundle(final String address,

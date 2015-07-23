@@ -22,6 +22,7 @@ import io.advantageous.qbit.json.JsonMapper;
 import io.advantageous.qbit.queue.QueueBuilder;
 import io.advantageous.qbit.reactive.CallbackBuilder;
 import io.advantageous.qbit.service.CallbackManagerBuilder;
+import io.advantageous.qbit.service.ServiceBuilder;
 import io.advantageous.qbit.service.ServiceQueue;
 import io.advantageous.qbit.service.impl.BoonServiceMethodCallHandler;
 import io.advantageous.qbit.service.impl.ServiceQueueImpl;
@@ -40,9 +41,8 @@ public class Services {
         JsonMapper mapper = new BoonJsonMapper();
 
 
-        ServiceQueueImpl serviceQueue =
-                new ServiceQueueImpl(null, name, service, new QueueBuilder(),
-                new QueueBuilder(), new BoonServiceMethodCallHandler(true), null, true, false, null, null, CallbackManagerBuilder.callbackManagerBuilder().build());
+        ServiceQueueImpl serviceQueue = (ServiceQueueImpl) ServiceBuilder.serviceBuilder().setServiceAddress(name).setServiceObject(service).build();
+
         serviceQueue.requestObjectTransformer(new JsonRequestBodyToArgListTransformer(mapper));
         serviceQueue.responseObjectTransformer(new JsonResponseTransformer(mapper));
         serviceQueue.start();
@@ -50,8 +50,11 @@ public class Services {
     }
 
     public static ServiceQueue regularService(final String name, Object service) {
-        return new ServiceQueueImpl(null, name, service, new QueueBuilder(),
-                new QueueBuilder(),
-                new BoonServiceMethodCallHandler(true), null, true, false, null, null, CallbackManagerBuilder.callbackManagerBuilder().build()).startServiceQueue();
+
+
+        ServiceQueueImpl serviceQueue = (ServiceQueueImpl) ServiceBuilder.serviceBuilder().setServiceAddress(name).setServiceObject(service).build();
+        serviceQueue.start();
+        return serviceQueue;
+
     }
 }

@@ -24,6 +24,7 @@ import io.advantageous.qbit.message.MethodCall;
 import io.advantageous.qbit.message.Response;
 import io.advantageous.qbit.queue.ReceiveQueue;
 import io.advantageous.qbit.queue.SendQueue;
+import io.advantageous.qbit.service.ServiceBuilder;
 import io.advantageous.qbit.service.ServiceProxyUtils;
 import io.advantageous.qbit.service.ServiceQueue;
 import org.junit.Test;
@@ -48,9 +49,12 @@ public class TodoServiceWithQBitServiceTest {
     @Test
     public void testCallbackWithObjectNameAndMethodName() {
 
+        ServiceQueue serviceQueue = ServiceBuilder.serviceBuilder().setRootAddress("/services")
+                .setServiceAddress("/todo-service")
+                .setServiceObject(new TodoService()).build().startServiceQueue();
 
-        ServiceQueue serviceQueue = QBit.factory().createService("/services", "/todo-service",
-                new TodoService(), null, null).startServiceQueue();
+                //QBit.factory().createService("/services", "/todo-service",
+                //new TodoService(), null, null).startServiceQueue();
 
 
         SendQueue<MethodCall<Object>> requests = serviceQueue.requests();
@@ -125,8 +129,12 @@ public class TodoServiceWithQBitServiceTest {
     public void testCallbackWithAddress() {
 
 
-        ServiceQueue serviceQueue = QBit.factory().createService("/services",
-                "/todo-service", new TodoService(), null, null).startServiceQueue();
+        ServiceQueue serviceQueue = ServiceBuilder.serviceBuilder().setRootAddress("/services")
+                .setServiceAddress("/todo-service")
+                .setServiceObject(new TodoService()).build().startServiceQueue();
+
+        //QBit.factory().createService("/services",
+               // "/todo-service", new TodoService(), null, null).startServiceQueue();
 
         SendQueue<MethodCall<Object>> requests = serviceQueue.requests();
 

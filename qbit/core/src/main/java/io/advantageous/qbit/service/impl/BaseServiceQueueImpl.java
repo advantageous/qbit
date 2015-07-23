@@ -93,10 +93,10 @@ public class BaseServiceQueueImpl implements ServiceQueue {
     protected final ServiceMethodHandler serviceMethodHandler;
     protected final SendQueue<Response<Object>> responseSendQueue;
     private final AtomicBoolean started = new AtomicBoolean(false);
-    private final BeforeMethodCall beforeMethodCall = ServiceConstants.NO_OP_BEFORE_METHOD_CALL;
-    private final BeforeMethodCall beforeMethodCallAfterTransform = ServiceConstants.NO_OP_BEFORE_METHOD_CALL;
-    private final AfterMethodCall afterMethodCall = new NoOpAfterMethodCall();
-    private final AfterMethodCall afterMethodCallAfterTransform = new NoOpAfterMethodCall();
+    private final BeforeMethodCall beforeMethodCall;
+    private final BeforeMethodCall beforeMethodCallAfterTransform;
+    private final AfterMethodCall afterMethodCall;
+    private final AfterMethodCall afterMethodCallAfterTransform;
     private Transformer<Request, Object> requestObjectTransformer = ServiceConstants.NO_OP_ARG_TRANSFORM;
     private Transformer<Response<Object>, Response> responseObjectTransformer = new NoOpResponseTransformer();
     private final CallbackManager callbackManager;
@@ -112,8 +112,16 @@ public class BaseServiceQueueImpl implements ServiceQueue {
                                 final boolean async,
                                 final boolean handleCallbacks,
                                 final QBitSystemManager systemManager,
+                                final BeforeMethodCall beforeMethodCall,
+                                final BeforeMethodCall beforeMethodCallAfterTransform,
+                                final AfterMethodCall afterMethodCall,
+                                final AfterMethodCall afterMethodCallAfterTransform,
                                 final QueueCallBackHandler queueCallBackHandler,
                                 final CallbackManager callbackManager) {
+        this.beforeMethodCall = beforeMethodCall;
+        this.beforeMethodCallAfterTransform = beforeMethodCallAfterTransform;
+        this.afterMethodCall = afterMethodCall;
+        this.afterMethodCallAfterTransform = afterMethodCallAfterTransform;
 
         this.callbackManager = callbackManager;
 

@@ -410,6 +410,10 @@ public class ServiceBuilder {
                 this.isAsyncResponse(),
                 this.isHandleCallbacks(),
                 this.getSystemManager(),
+                this.getBeforeMethodCall(),
+                this.getBeforeMethodCallAfterTransform(),
+                this.getAfterMethodCall(),
+                this.getAfterMethodCallAfterTransform(),
                 buildQueueCallBackHandler(), getCallbackManager());
 
         if (serviceQueueSizer!=null) {
