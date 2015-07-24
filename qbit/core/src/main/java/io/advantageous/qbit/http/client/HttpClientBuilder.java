@@ -38,23 +38,42 @@ public class HttpClientBuilder {
 
     private String host = "localhost";
     private int port = 8080;
-    private int poolSize = 20;
+    private int poolSize = 1;
     private int timeOutInMilliseconds = 3_000;
     private boolean autoFlush = true;
     private boolean keepAlive = true;
     private boolean pipeline = true;
-    private int flushInterval = 500;
+    private int flushInterval = 50;
+    private boolean ssl = false;
+    private boolean verifyHost = false;
+    private boolean trustAll = true;
+    private int maxWebSocketFrameSize = 100_000_000;
+    private boolean tryUseCompression;
+    private String trustStorePath;
+    private String trustStorePassword;
+    private boolean tcpNoDelay = true;
+    private int soLinger = 100;
 
 
     public HttpClientBuilder(PropertyResolver propertyResolver) {
-        this.autoFlush = propertyResolver.getBooleanProperty("autoFlush", true);
-        this.host = propertyResolver.getStringProperty("host", "localhost");
-        this.port = propertyResolver.getIntegerProperty("port", 8080);
-        this.poolSize = propertyResolver.getIntegerProperty("poolSize", 1);
-        this.keepAlive = propertyResolver.getBooleanProperty("keepAlive", true);
-        this.pipeline = propertyResolver.getBooleanProperty("pipeline", true);
-        this.timeOutInMilliseconds = propertyResolver.getIntegerProperty("timeOutInMilliseconds", 3000);
-        this.flushInterval = propertyResolver.getIntegerProperty("flushInterval", 500);
+        this.autoFlush = propertyResolver.getBooleanProperty("autoFlush", autoFlush);
+        this.host = propertyResolver.getStringProperty("host", host);
+        this.port = propertyResolver.getIntegerProperty("port", port);
+        this.poolSize = propertyResolver.getIntegerProperty("poolSize", poolSize);
+        this.keepAlive = propertyResolver.getBooleanProperty("keepAlive", keepAlive);
+        this.pipeline = propertyResolver.getBooleanProperty("pipeline", pipeline);
+        this.timeOutInMilliseconds = propertyResolver.getIntegerProperty("timeOutInMilliseconds", timeOutInMilliseconds);
+        this.flushInterval = propertyResolver.getIntegerProperty("flushInterval", flushInterval);
+        this.soLinger = propertyResolver.getIntegerProperty("soLinger", soLinger);
+        this.ssl = propertyResolver.getBooleanProperty("ssl", ssl);
+        this.verifyHost = propertyResolver.getBooleanProperty("verifyHost", verifyHost);
+        this.trustAll = propertyResolver.getBooleanProperty("trustAll", trustAll);
+        this.tryUseCompression = propertyResolver.getBooleanProperty("tryUseCompression", tryUseCompression);
+        this.tcpNoDelay = propertyResolver.getBooleanProperty("tcpNoDelay", tcpNoDelay);
+        this.trustStorePath = propertyResolver.getStringProperty("trustStorePath", trustStorePath);
+        this.trustStorePassword = propertyResolver.getStringProperty("trustStorePassword", trustStorePassword);
+
+
     }
 
 
@@ -147,6 +166,85 @@ public class HttpClientBuilder {
         return this;
     }
 
+    public boolean isSsl() {
+        return ssl;
+    }
+
+    public HttpClientBuilder setSsl(boolean ssl) {
+        this.ssl = ssl;
+        return this;
+    }
+
+    public boolean isVerifyHost() {
+        return verifyHost;
+    }
+
+    public HttpClientBuilder setVerifyHost(boolean verifyHost) {
+        this.verifyHost = verifyHost;
+        return this;
+    }
+
+    public boolean isTrustAll() {
+        return trustAll;
+    }
+
+    public HttpClientBuilder setTrustAll(boolean trustAll) {
+        this.trustAll = trustAll;
+        return this;
+    }
+
+    public int getMaxWebSocketFrameSize() {
+        return maxWebSocketFrameSize;
+    }
+
+    public HttpClientBuilder setMaxWebSocketFrameSize(int maxWebSocketFrameSize) {
+        this.maxWebSocketFrameSize = maxWebSocketFrameSize;
+        return this;
+    }
+
+    public boolean isTryUseCompression() {
+        return tryUseCompression;
+    }
+
+    public HttpClientBuilder setTryUseCompression(boolean tryUseCompression) {
+        this.tryUseCompression = tryUseCompression;
+        return this;
+    }
+
+    public String getTrustStorePath() {
+        return trustStorePath;
+    }
+
+    public HttpClientBuilder setTrustStorePath(String trustStorePath) {
+        this.trustStorePath = trustStorePath;
+        return this;
+    }
+
+    public String getTrustStorePassword() {
+        return trustStorePassword;
+    }
+
+    public HttpClientBuilder setTrustStorePassword(String trustStorePassword) {
+        this.trustStorePassword = trustStorePassword;
+        return this;
+    }
+
+    public boolean isTcpNoDelay() {
+        return tcpNoDelay;
+    }
+
+    public void setTcpNoDelay(boolean tcpNoDelay) {
+        this.tcpNoDelay = tcpNoDelay;
+    }
+
+    public int getSoLinger() {
+        return soLinger;
+    }
+
+    public void setSoLinger(int soLinger) {
+        this.soLinger = soLinger;
+    }
+
     public HttpClient build() {
         //noinspection UnnecessaryLocalVariable
         @SuppressWarnings("UnnecessaryLocalVariable") final HttpClient httpClient = QBit.factory().createHttpClient(
@@ -157,7 +255,16 @@ public class HttpClientBuilder {
                 this.isAutoFlush(),
                 this.getFlushInterval(),
                 this.isKeepAlive(),
-                this.isPipeline());
+                this.isPipeline(),
+                this.isSsl(),
+                this.isVerifyHost(),
+                this.isTrustAll(),
+                this.getMaxWebSocketFrameSize(),
+                this.isTryUseCompression(),
+                this.getTrustStorePath(),
+                this.getTrustStorePassword(),
+                this.isTcpNoDelay(),
+                this.getSoLinger());
 
         return httpClient;
     }

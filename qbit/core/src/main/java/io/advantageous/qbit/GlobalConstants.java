@@ -26,6 +26,6 @@ public class GlobalConstants {
 
     public final static boolean DEBUG = Boolean.valueOf(System.getProperty("io.advantageous.qbit.DEBUG", "false"));
 
-    public final static int NUM_BATCHES = Integer.valueOf(System.getProperty("io.advantageous.qbit.NUM_BATCHES", "100000"));
+    public final static int NUM_BATCHES = Integer.valueOf(System.getProperty("io.advantageous.qbit.NUM_BATCHES", "1000000"));
 
 }

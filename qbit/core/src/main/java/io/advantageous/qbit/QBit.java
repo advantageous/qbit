@@ -19,7 +19,9 @@
 package io.advantageous.qbit;
 
 import io.advantageous.boon.core.reflection.ClassMeta;
+import io.advantageous.qbit.http.client.HttpClient;
 import io.advantageous.qbit.spi.FactorySPI;
+import io.advantageous.qbit.spi.HttpClientFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -88,11 +90,10 @@ public class QBit {
             });
 
 
-            FactorySPI.setHttpClientFactory((host, port, timeOutInMilliseconds, poolSize,
-                                             autoFlush, flushRate, keepAlive, pipeLine) -> {
+            FactorySPI.setHttpClientFactory((host, port, timeOutInMilliseconds, poolSize, autoFlush, flushRate, keepAlive, pipeLine, ssl, verifyHost, trustAll, maxWebSocketFrameSize, tryUseCompression, trustStorePath, trustStorePassword, tcpNoDelay, soLinger) -> {
                 throw new IllegalStateException("Unable to load Vertx or Jetty network libs");
             });
-        }
+       }
     }
 
 }

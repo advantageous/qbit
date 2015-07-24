@@ -56,9 +56,10 @@ public class BoonClientTest {
         FactorySPI.setHttpClientFactory(new HttpClientFactory() {
 
             @Override
-            public HttpClient create(String host, int port, int timeOutInMilliseconds, int poolSize, boolean autoFlush, int flushRate, boolean keepAlive, boolean pipeLine) {
+            public HttpClient create(String host, int port, int timeOutInMilliseconds, int poolSize, boolean autoFlush, int flushRate, boolean keepAlive, boolean pipeLine, boolean ssl, boolean verifyHost, boolean trustAll, int maxWebSocketFrameSize, boolean tryUseCompression, String trustStorePath, String trustStorePassword, boolean tcpNoDelay, int soLinger) {
                 return new HttpClientMock();
             }
+
         });
 
 
@@ -108,8 +109,6 @@ public class BoonClientTest {
 
         final ClientBuilder clientBuilder = new ClientBuilder();
         ok = clientBuilder.setFlushInterval(100).getFlushInterval() == 100 || die();
-        ok = clientBuilder.setPollTime(51).getPollTime() == 51 || die();
-        ok = clientBuilder.setRequestBatchSize(13).getRequestBatchSize() == 13 || die();
         ok = clientBuilder.setAutoFlush(true).isAutoFlush() == true || die();
         ok = clientBuilder.setAutoFlush(false).isAutoFlush() == false || die();
         ok = clientBuilder.setAutoFlush(true).isAutoFlush() == true || die();
@@ -126,7 +125,6 @@ public class BoonClientTest {
 
         client = clientBuilder.build();
 
-        ok = clientBuilder.setProtocolBatchSize(-1).getProtocolBatchSize() == -1 || die();
 
         client = clientBuilder.build();
 

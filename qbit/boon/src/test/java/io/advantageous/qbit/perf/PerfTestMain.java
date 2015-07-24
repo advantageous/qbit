@@ -58,9 +58,10 @@ public class PerfTestMain {
 
 
             @Override
-            public HttpClient create(String host, int port, int timeOutInMilliseconds, int poolSize, boolean autoFlush, int flushRate, boolean keepAlive, boolean pipeLine) {
+            public HttpClient create(String host, int port, int timeOutInMilliseconds, int poolSize, boolean autoFlush, int flushRate, boolean keepAlive, boolean pipeLine, boolean ssl, boolean verifyHost, boolean trustAll, int maxWebSocketFrameSize, boolean tryUseCompression, String trustStorePath, String trustStorePassword, boolean tcpNoDelay, int soLinger) {
                 return new MockHttpClient();
             }
+
         });
 
         FactorySPI.setHttpServerFactory((options, requestQueueBuilder, respQB, webSocketMessageQueueBuilder, systemManager) -> new MockHttpServer());
@@ -73,7 +74,7 @@ public class PerfTestMain {
         puts("Server started");
 
 
-        Client client = new ClientBuilder().setPollTime(10).setAutoFlush(true).setFlushInterval(50).setProtocolBatchSize(100).setRequestBatchSize(10).build();
+        Client client = new ClientBuilder().setAutoFlush(true).setFlushInterval(50).setProtocolBatchSize(100).build();
 
         AdderClientInterface adder = client.createProxy(AdderClientInterface.class, "adderservice");
 

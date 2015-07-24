@@ -22,6 +22,7 @@ import io.advantageous.qbit.GlobalConstants;
 import io.advantageous.qbit.QBit;
 import io.advantageous.qbit.config.PropertyResolver;
 import io.advantageous.qbit.http.client.HttpClient;
+import io.advantageous.qbit.http.client.HttpClientBuilder;
 
 import java.net.InetSocketAddress;
 import java.net.URI;
@@ -35,35 +36,26 @@ public class ClientBuilder {
 
 
     public static final String QBIT_CLIENT_BUILDER = "qbit.client.builder.";
-    private String host;
-    private int port;
-    private boolean autoFlush;
-    private int pollTime;
-    private int poolSize;
-    private int requestBatchSize;
-    private boolean keepAlive;
-    private boolean pipeline;
-    private int timeOutInMilliseconds;
-    private int protocolBatchSize;
-    private int flushInterval;
+
+    private int protocolBatchSize = 10;
     private String uri;
-    private int timeoutSeconds = 30;
+    private HttpClientBuilder httpClientBuilder;
 
     public ClientBuilder(PropertyResolver propertyResolver) {
-        this.autoFlush = propertyResolver.getBooleanProperty("autoFlush", true);
-        this.host = propertyResolver.getStringProperty("host", "localhost");
-        this.port = propertyResolver.getIntegerProperty("port", 8080);
-        this.poolSize = propertyResolver.getIntegerProperty("poolSize", 1);
-        this.pollTime = propertyResolver.getIntegerProperty("pollTime", GlobalConstants.POLL_WAIT);
-        this.requestBatchSize = propertyResolver
-                .getIntegerProperty("requestBatchSize", GlobalConstants.BATCH_SIZE);
-        this.keepAlive = propertyResolver.getBooleanProperty("keepAlive", true);
-        this.pipeline = propertyResolver.getBooleanProperty("pipeline", true);
-        this.timeOutInMilliseconds = propertyResolver.getIntegerProperty("timeOutInMilliseconds", 3000);
-        this.protocolBatchSize = propertyResolver.getIntegerProperty("protocolBatchSize", -1);
-        this.flushInterval = propertyResolver.getIntegerProperty("flushInterval", 500);
+
+        HttpClientBuilder httpClientBuilder = getHttpClientBuilder();
+        httpClientBuilder.setAutoFlush(propertyResolver.getBooleanProperty("autoFlush", true));
+        httpClientBuilder.setHost(propertyResolver.getStringProperty("host", "localhost"));
+        httpClientBuilder.setPort(propertyResolver.getIntegerProperty("port", 8080));
+        httpClientBuilder.setPoolSize(propertyResolver.getIntegerProperty("poolSize", 1));
+        httpClientBuilder.setKeepAlive(propertyResolver.getBooleanProperty("keepAlive", true));
+        httpClientBuilder.setPipeline(propertyResolver.getBooleanProperty("pipeline", true));
+        httpClientBuilder.setTimeOutInMilliseconds(propertyResolver.getIntegerProperty("timeOutInMilliseconds", 3000));
+        this.protocolBatchSize = propertyResolver.getIntegerProperty("protocolBatchSize", protocolBatchSize);
+        httpClientBuilder.setTimeOutInMilliseconds(propertyResolver.getIntegerProperty("flushInterval", 500));
         this.uri = propertyResolver.getStringProperty("uri", "/services");
-        this.timeoutSeconds = propertyResolver.getIntegerProperty("timeoutSeconds", 30);
+        httpClientBuilder.setTimeOutInMilliseconds(propertyResolver.getIntegerProperty("timeoutSeconds", 30) * 1000);
+
     }
 
 
@@ -82,38 +74,39 @@ public class ClientBuilder {
     }
 
     public int getTimeOutInMilliseconds() {
-        return timeOutInMilliseconds;
+        return getHttpClientBuilder().getTimeOutInMilliseconds();
     }
 
     public ClientBuilder setTimeOutInMilliseconds(int timeOutInMilliseconds) {
-        this.timeOutInMilliseconds = timeOutInMilliseconds;
+        getHttpClientBuilder().setTimeOutInMilliseconds(timeOutInMilliseconds);
         return this;
     }
 
     public int getPoolSize() {
-        return poolSize;
+        return getHttpClientBuilder().getPoolSize();
     }
 
     public ClientBuilder setPoolSize(int poolSize) {
-        this.poolSize = poolSize;
+
+        getHttpClientBuilder().setPoolSize(poolSize);
         return this;
     }
 
     public boolean isKeepAlive() {
-        return keepAlive;
+        return getHttpClientBuilder().isKeepAlive();
     }
 
     public ClientBuilder setKeepAlive(boolean keepAlive) {
-        this.keepAlive = keepAlive;
+        getHttpClientBuilder().setKeepAlive(keepAlive);
         return this;
     }
 
     public boolean isPipeline() {
-        return pipeline;
+        return getHttpClientBuilder().isPipeline();
     }
 
     public ClientBuilder setPipeline(boolean pipeline) {
-        this.pipeline = pipeline;
+        getHttpClientBuilder().setPipeline(pipeline);
         return this;
     }
 
@@ -127,20 +120,30 @@ public class ClientBuilder {
     }
 
     public int getTimeoutSeconds() {
-        return timeoutSeconds;
+
+        int timeOutInMilliseconds = getHttpClientBuilder().getTimeOutInMilliseconds();
+        if (timeOutInMilliseconds > 0) {
+            return timeOutInMilliseconds / 1000;
+        } else {
+            return 0;
+        }
+
     }
 
     public ClientBuilder setTimeoutSeconds(int timeoutSeconds) {
-        this.timeoutSeconds = timeoutSeconds;
+
+        getHttpClientBuilder().setTimeOutInMilliseconds(timeoutSeconds*1000);
         return this;
     }
 
     public String getHost() {
-        return host;
+
+        return getHttpClientBuilder().getHost();
+
     }
 
     public ClientBuilder setHost(String host) {
-        this.host = host;
+        getHttpClientBuilder().setHost(host);
         return this;
     }
 
@@ -165,47 +168,31 @@ public class ClientBuilder {
     }
 
     public int getPort() {
-        return port;
+        return getHttpClientBuilder().getPort();
     }
 
     public ClientBuilder setPort(int port) {
-        this.port = port;
+        getHttpClientBuilder().setPort(port);
         return this;
     }
 
     public boolean isAutoFlush() {
-        return autoFlush;
+        return getHttpClientBuilder().isAutoFlush();
     }
 
     public ClientBuilder setAutoFlush(boolean autoFlush) {
-        this.autoFlush = autoFlush;
+        getHttpClientBuilder().setAutoFlush(autoFlush);
         return this;
     }
 
-    public int getPollTime() {
-        return pollTime;
-    }
 
-    public ClientBuilder setPollTime(int pollTime) {
-        this.pollTime = pollTime;
-        return this;
-    }
-
-    public int getRequestBatchSize() {
-        return requestBatchSize;
-    }
-
-    public ClientBuilder setRequestBatchSize(int requestBatchSize) {
-        this.requestBatchSize = requestBatchSize;
-        return this;
-    }
 
     public int getFlushInterval() {
-        return flushInterval;
+        return getHttpClientBuilder().getFlushInterval();
     }
 
     public ClientBuilder setFlushInterval(int flushInterval) {
-        this.flushInterval = flushInterval;
+        getHttpClientBuilder().setFlushInterval(flushInterval);
         return this;
     }
 
@@ -225,25 +212,25 @@ public class ClientBuilder {
          * String host, int port, int pollTime, int requestBatchSize, int timeOutInMilliseconds, int poolSize, boolean autoFlush
          */
 
-        final HttpClient httpClient = QBit.factory().createHttpClient(
-                this.getHost(),
-                this.getPort(),
-                this.getTimeOutInMilliseconds(),
-                this.getPoolSize(),
-                this.isAutoFlush(),
-                this.getFlushInterval(),
-                this.isKeepAlive(),
-                this.isPipeline());
+        final HttpClientBuilder httpClientBuilder = getHttpClientBuilder();
 
-        if (protocolBatchSize == -1) {
-            protocolBatchSize = requestBatchSize;
-        }
+
 
         //noinspection UnnecessaryLocalVariable
         @SuppressWarnings("UnnecessaryLocalVariable")
-        Client client = QBit.factory().createClient(uri, httpClient, protocolBatchSize);
+        Client client = QBit.factory().createClient(uri, httpClientBuilder.build(), protocolBatchSize);
         return client;
 
     }
 
+    public HttpClientBuilder getHttpClientBuilder() {
+        if (httpClientBuilder == null) {
+            httpClientBuilder =  HttpClientBuilder.httpClientBuilder();
+        }
+        return httpClientBuilder;
+    }
+
+    public void setHttpClientBuilder(HttpClientBuilder httpClientBuilder) {
+        this.httpClientBuilder = httpClientBuilder;
+    }
 }

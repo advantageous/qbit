@@ -281,10 +281,39 @@ public interface Factory {
             boolean autoFlush,
             int flushRate,
             boolean keepAlive,
-            boolean pipeline
+            boolean pipeline,
+            boolean ssl,
+            boolean verifyHost,
+            boolean trustAll,
+            int maxWebSocketFrameSize,
+            boolean tryUseCompression,
+            String trustStorePath,
+            String trustStorePassword,
+            boolean tcpNoDelay,
+            int soLinger
 
     ) {
-        throw new UnsupportedOperationException();
+        return FactorySPI.getHttpClientFactory().create(
+                host,
+                port,
+                timeOutInMilliseconds,
+                poolSize,
+                autoFlush,
+                flushRate,
+                keepAlive,
+                pipeline,
+                ssl,
+                verifyHost,
+                trustAll,
+                maxWebSocketFrameSize,
+                tryUseCompression,
+                trustStorePath,
+                trustStorePassword,
+                tcpNoDelay,
+                soLinger
+
+        );
+
     }
 
 

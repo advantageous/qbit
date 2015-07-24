@@ -153,6 +153,9 @@ public class HttpServerVertx implements HttpServer {
         httpServer.setMaxWebSocketFrameSize(options.getMaxWebSocketFrameSize());
         httpServer.websocketHandler(this::handleWebSocketMessage);
         httpServer.requestHandler(this::handleHttpRequest);
+        httpServer.setSSL(options.isSsl());
+        httpServer.setTrustStorePath(options.getTrustStorePath());
+        httpServer.setKeyStorePassword(options.getTrustStorePassword());
 
 
         if (Str.isEmpty(host)) {

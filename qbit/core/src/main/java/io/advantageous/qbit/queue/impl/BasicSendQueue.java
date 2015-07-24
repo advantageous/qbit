@@ -221,6 +221,8 @@ public class BasicSendQueue<T> implements SendQueue<T> {
 
 
                     return unableToEnqueueHandler.unableToEnqueue(queue, name);
+                } else {
+                    return true;
                 }
             } catch (InterruptedException e) {
                 logger.error("Unable to send to queue {} timeout is {} {}" +

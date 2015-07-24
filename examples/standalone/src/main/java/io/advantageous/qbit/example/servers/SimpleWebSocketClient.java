@@ -44,7 +44,7 @@ public class SimpleWebSocketClient {
         int port = args.length > 1 ? Integer.parseInt(args[1]) : 6060;
 
 
-        final Client client = new ClientBuilder().setPoolSize(1).setPort(port).setHost(host).setRequestBatchSize(10_000)
+        final Client client = new ClientBuilder().setPoolSize(1).setPort(port).setHost(host).setProtocolBatchSize(10_000)
                 .build();
 
         client.start();
@@ -80,7 +80,7 @@ public class SimpleWebSocketClient {
 
 
         for (int numThreads = 0; numThreads < 2; numThreads++) {
-            final Client client = new ClientBuilder().setPoolSize(1).setPort(port).setHost(host).setRequestBatchSize(10_000)
+            final Client client = new ClientBuilder().setPoolSize(1).setPort(port).setHost(host).setProtocolBatchSize(10_000)
                     .build();
 
             client.start();

@@ -51,7 +51,7 @@ public class SimpleRestServerWithURIParamsMain {
         server.start();
 
        /* Start QBit client for WebSocket calls. */
-        final Client client = clientBuilder().setPort(7000).setRequestBatchSize(1).build();
+        final Client client = clientBuilder().setPort(7000).setProtocolBatchSize(1).build();
 
 
        /* Create a proxy to the service. */

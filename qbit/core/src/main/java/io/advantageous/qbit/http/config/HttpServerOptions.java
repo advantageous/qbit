@@ -42,7 +42,9 @@ public class HttpServerOptions implements Cloneable {
     protected boolean compressionSupport = false;
     protected boolean reuseAddress = true;
     protected int idleTimeout = 30_000;
-
+    protected boolean ssl = false;
+    protected  String trustStorePath;
+    protected  String trustStorePassword;
 
     public HttpServerOptions() {
 
@@ -130,6 +132,18 @@ public class HttpServerOptions implements Cloneable {
         return idleTimeout;
     }
 
+    public boolean isSsl() {
+        return ssl;
+    }
+
+    public String getTrustStorePath() {
+        return trustStorePath;
+    }
+
+    public String getTrustStorePassword() {
+        return trustStorePassword;
+    }
+
     @Override
     public String toString() {
         return "HttpServerOptions{" +
@@ -152,4 +166,6 @@ public class HttpServerOptions implements Cloneable {
                 ", reuseAddress=" + reuseAddress +
                 '}';
     }
+
+
 }

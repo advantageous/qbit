@@ -81,6 +81,15 @@ public class HttpVertxClient implements HttpClient {
     protected final int port;
     protected final String host;
     protected final int timeOutInMilliseconds;
+    private final boolean ssl;
+    private final String trustStorePath;
+    private final String trustStorePassword;
+    private final boolean trustAll;
+    private final boolean verifyHost;
+    private final int maxWebSocketFrameSize;
+    private final boolean tryUseCompression;
+    private final boolean tcpNoDelay;
+    private final int soLinger;
     protected int poolSize;
     protected org.vertx.java.core.http.HttpClient httpClient;
     protected final Vertx vertx;
@@ -97,7 +106,16 @@ public class HttpVertxClient implements HttpClient {
                            final boolean autoFlush,
                            final int flushInterval,
                            final boolean keepAlive,
-                           final boolean pipeline) {
+                           final boolean pipeline,
+                           final boolean ssl,
+                           final boolean verifyHost,
+                           final boolean trustAll,
+                           final int maxWebSocketFrameSize,
+                           final boolean tryUseCompression,
+                           final String trustStorePath,
+                           final String trustStorePassword,
+                           final boolean tcpNoDelay,
+                           final int soLinger) {
 
         this.flushInterval = flushInterval;
         this.port = port;
@@ -109,6 +127,15 @@ public class HttpVertxClient implements HttpClient {
         this.keepAlive = keepAlive;
         this.pipeline = pipeline;
         this.autoFlush = autoFlush;
+        this.ssl = ssl;
+        this.verifyHost = verifyHost;
+        this.trustAll = trustAll;
+        this.maxWebSocketFrameSize = maxWebSocketFrameSize;
+        this.tryUseCompression = tryUseCompression;
+        this.trustStorePath = trustStorePath;
+        this.trustStorePassword = trustStorePassword;
+        this.tcpNoDelay = tcpNoDelay;
+        this.soLinger = soLinger;
 
     }
 
@@ -385,13 +412,34 @@ public class HttpVertxClient implements HttpClient {
 
 
     private void connect() {
+
+        /*
+            private final boolean ssl;
+    private final boolean verifyHost;
+    private final boolean trustAll;
+    private final int maxWebSocketFrameSize;
+    private final boolean tryUseCompression;
+    private final String trustStorePath;
+    private final boolean tcpNoDelay;
+    private final int soLinger;
+
+         */
         httpClient = vertx.createHttpClient().setHost(host).setPort(port)
                 .setConnectTimeout(timeOutInMilliseconds)
                 .setMaxPoolSize(poolSize)
-                .setKeepAlive(keepAlive).setPipelining(pipeline)
-                .setSoLinger(100)
-                .setTCPNoDelay(false)
-                .setMaxWebSocketFrameSize(100_000_000);
+                .setKeepAlive(keepAlive)
+                .setPipelining(pipeline)
+                .setSoLinger(soLinger)
+                .setTCPNoDelay(tcpNoDelay)
+                .setTryUseCompression(tryUseCompression)
+                .setSSL(ssl)
+                .setTrustAll(trustAll)
+                .setVerifyHost(verifyHost)
+                .setTrustStorePath(trustStorePath)
+                .setKeyStorePassword(trustStorePassword)
+                .setMaxWebSocketFrameSize(maxWebSocketFrameSize);
+
+
 
 
         httpClient.setUsePooledBuffers(true);

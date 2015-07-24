@@ -32,8 +32,8 @@ public class ServiceServerClient {
 
     public static void main(String... args) throws Exception {
 
-        Client client = new ClientBuilder().setPort(9998).setPollTime(10)
-                .setAutoFlush(true).setFlushInterval(50).setRequestBatchSize(50)
+        Client client = new ClientBuilder().setPort(9998)
+                .setAutoFlush(true).setFlushInterval(50)
                 .setProtocolBatchSize(50).build();
 
         PingService pingService = client.createProxy(PingService.class, "ping");

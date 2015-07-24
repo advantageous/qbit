@@ -36,7 +36,6 @@ public class WebSocketClient {
             final Client client = new ClientBuilder()
                     .setPort(port)
                     .setHost(host)
-                    .setRequestBatchSize(3_000)
                     .setProtocolBatchSize(1_000)
                     .build();
 

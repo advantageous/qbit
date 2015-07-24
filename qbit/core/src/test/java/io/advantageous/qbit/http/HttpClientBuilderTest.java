@@ -46,15 +46,26 @@ public class HttpClientBuilderTest {
             public HttpClient createHttpClient(String host, int port,
                                                int timeOutInMilliseconds, int poolSize, boolean autoFlush,
                                                int flushRate,
-                                               boolean keepAlive, boolean pipeline) {
+                                               boolean keepAlive, boolean pipeline,
+                                               boolean ssl,
+                                               boolean verifyHost,
+                                               boolean trustAll,
+                                               int maxWebSocketFrameSize,
+                                               boolean tryUseCompression,
+                                               String trustStorePath,
+                                               String trustStorePassword,
+                                               boolean tcpNoDelay,
+                                               int soLinger) {
                 return FactorySPI.getHttpClientFactory().create(host, port,
-                        timeOutInMilliseconds, poolSize, autoFlush, flushRate, keepAlive, pipeline);
+                        timeOutInMilliseconds, poolSize, autoFlush, flushRate, keepAlive, pipeline,
+                        ssl, verifyHost, trustAll, maxWebSocketFrameSize, tryUseCompression, trustStorePath, trustStorePassword, tcpNoDelay, soLinger);
             }
         });
 
         FactorySPI.setHttpClientFactory(
                 (host, port,  timeOutInMilliseconds,
-                 poolSize, autoFlush, flushRate, keepAlive, pipeLine) -> null);
+                 poolSize, autoFlush, flushRate, keepAlive, pipeLine, ssl, verifyHost, trustAll, maxWebSocketFrameSize,
+                 tryUseCompression, trustStorePath, trustStorePathPassword, tcpNoDelay, soLinger) -> null);
 
         Sys.sleep(100);
 

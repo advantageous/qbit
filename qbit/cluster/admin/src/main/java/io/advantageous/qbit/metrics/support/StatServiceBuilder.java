@@ -385,7 +385,6 @@ public class StatServiceBuilder {
 
             final ClientBuilder clientBuilder1 = getClientBuilder();
             final Client client = clientBuilder1.setPort(serviceDefinition.getPort())
-                    .setRequestBatchSize(1_000)
                     .setHost(serviceDefinition.getHost()).build();
 
             final StatReplicator proxy = client.createProxy(StatReplicator.class, serviceName);

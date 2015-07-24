@@ -232,10 +232,6 @@ public class BoonQBitFactory implements Factory {
         return FactorySPI.getHttpServerFactory().create(options, requestQueueBuilder, responseQueueBuilder, webSocketMessageQueueBuilder, systemManager);
     }
 
-    @Override
-    public HttpClient createHttpClient(String host, int port, int timeOutInMilliseconds, int poolSize, boolean autoFlush, int flushRate, boolean keepAlive, boolean pipeline) {
-        return FactorySPI.getHttpClientFactory().create(host, port, timeOutInMilliseconds, poolSize, autoFlush, flushRate, keepAlive, pipeline);
-    }
 
     @Override
     public ServiceEndpointServer createServiceServer(final HttpTransport httpServer, final ProtocolEncoder encoder,

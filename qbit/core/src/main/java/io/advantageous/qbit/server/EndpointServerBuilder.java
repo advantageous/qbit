@@ -62,13 +62,13 @@ public class EndpointServerBuilder {
     public static final String QBIT_ENDPOINT_SERVER_BUILDER = "qbit.endpoint.server.builder.";
     private Queue<Response<Object>> responseQueue;
     private String host;
-    private int port;
+    private int port = 8080;
     private boolean manageQueues = false;
     private int pollTime = 25;
-    private int requestBatchSize = 250;
+    private int requestBatchSize = 50;
     private int flushInterval = 200;
-    private String uri;
-    private int numberOfOutstandingRequests;
+    private String uri = "/services";
+    private int numberOfOutstandingRequests = 1_000_000;
     private int maxRequestBatches = 10_000;
     private int timeoutSeconds = 30;
     private boolean invokeDynamic = true;
@@ -86,8 +86,8 @@ public class EndpointServerBuilder {
     private boolean enableHealthEndpoint;
     private boolean enableStatEndpoint;
 
-    private  int statsFlushRateSeconds;
-    private  int checkTimingEveryXCalls;
+    private  int statsFlushRateSeconds = 5;
+    private  int checkTimingEveryXCalls = 1000;
 
 
     private CallbackManager callbackManager;
@@ -143,25 +143,25 @@ public class EndpointServerBuilder {
 
 
     public EndpointServerBuilder(PropertyResolver propertyResolver) {
-        this.eachServiceInItsOwnThread = propertyResolver.getBooleanProperty("eachServiceInItsOwnThread", true);
-        this.manageQueues = propertyResolver.getBooleanProperty("manageQueues", false);
-        this.invokeDynamic = propertyResolver.getBooleanProperty("invokeDynamic", true);
-        this.host = propertyResolver.getStringProperty("host", null);
-        this.port = propertyResolver.getIntegerProperty("port", 8080);
+        this.eachServiceInItsOwnThread = propertyResolver.getBooleanProperty("eachServiceInItsOwnThread", eachServiceInItsOwnThread);
+        this.manageQueues = propertyResolver.getBooleanProperty("manageQueues", manageQueues);
+        this.invokeDynamic = propertyResolver.getBooleanProperty("invokeDynamic", invokeDynamic);
+        this.host = propertyResolver.getStringProperty("host", host);
+        this.port = propertyResolver.getIntegerProperty("port", port);
         this.pollTime = propertyResolver.getIntegerProperty("pollTime", pollTime);
         this.requestBatchSize = propertyResolver
                 .getIntegerProperty("requestBatchSize", requestBatchSize);
 
         this.numberOfOutstandingRequests = propertyResolver
-                .getIntegerProperty("numberOfOutstandingRequests", 1_000_000);
+                .getIntegerProperty("numberOfOutstandingRequests", numberOfOutstandingRequests);
         this.maxRequestBatches = propertyResolver
-                .getIntegerProperty("maxRequestBatches", 10_000);
+                .getIntegerProperty("maxRequestBatches", maxRequestBatches);
 
-        this.flushInterval = propertyResolver.getIntegerProperty("flushInterval", 500);
-        this.uri = propertyResolver.getStringProperty("uri", "/services");
-        this.timeoutSeconds = propertyResolver.getIntegerProperty("timeoutSeconds", 30);
-        this.statsFlushRateSeconds = propertyResolver.getIntegerProperty("statsFlushRateSeconds", 5);
-        this.checkTimingEveryXCalls = propertyResolver.getIntegerProperty("checkTimingEveryXCalls", 1000);
+        this.flushInterval = propertyResolver.getIntegerProperty("flushInterval", flushInterval);
+        this.uri = propertyResolver.getStringProperty("uri", uri);
+        this.timeoutSeconds = propertyResolver.getIntegerProperty("timeoutSeconds", timeoutSeconds);
+        this.statsFlushRateSeconds = propertyResolver.getIntegerProperty("statsFlushRateSeconds", statsFlushRateSeconds);
+        this.checkTimingEveryXCalls = propertyResolver.getIntegerProperty("checkTimingEveryXCalls", checkTimingEveryXCalls);
 
     }
 

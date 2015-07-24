@@ -39,7 +39,6 @@ public class Five12Main {
                 .setHost(host)
                 .setAutoFlush(true)
                 .setFlushInterval(100)
-                .setRequestBatchSize(1_000)
                 .setProtocolBatchSize(2_000)
                 .build();
 

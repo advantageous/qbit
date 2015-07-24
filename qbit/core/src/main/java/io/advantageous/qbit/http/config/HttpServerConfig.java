@@ -97,4 +97,17 @@ public class HttpServerConfig extends HttpServerOptions {
     }
 
 
+    public void setSsl(boolean ssl) {
+        this.ssl = ssl;
+    }
+
+    public void setTrustStorePath(String trustStorePath) {
+        this.trustStorePath = trustStorePath;
+    }
+
+    public void setTrustStorePassword(String trustStorePassword) {
+        this.trustStorePassword = trustStorePassword;
+    }
+
+
 }
