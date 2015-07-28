@@ -259,7 +259,7 @@ public class ServiceEndpointServerImpl implements ServiceEndpointServer {
 
 
     @Override
-    public ServiceEndpointServer initServices(Iterable services) {
+    public ServiceEndpointServer initServices(Iterable<Object> services) {
 
 
         for (Object service : services) {

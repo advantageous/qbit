@@ -36,7 +36,7 @@ public interface ServiceEndpointServer extends Server {
         throw new IllegalStateException("Not implemented");
     }
 
-    default ServiceEndpointServer initServices(Iterable services) {
+    default ServiceEndpointServer initServices(Iterable<Object> services) {
         throw new IllegalStateException("Not implemented");
     }
 

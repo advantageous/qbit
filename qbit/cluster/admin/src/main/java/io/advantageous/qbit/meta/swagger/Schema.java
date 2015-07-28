@@ -7,11 +7,16 @@ public class Schema {
     private final String type;
     private final String format;
     private final Schema items;
+    private final Schema additionalProperties;
 
 
     @JsonProperty("$ref")
     private final String ref;
 
+
+    public static Schema map(Schema componentSchema) {
+        return  new Schema("object", null, null, componentSchema);
+    }
 
     public static Schema array(Schema items) {
         return new Schema("array", null, items);
@@ -38,6 +43,7 @@ public class Schema {
         this.format = format;
         this.items = items;
         ref =  null;
+        additionalProperties = null;
     }
 
     public Schema(String type, String format, Schema items, String $ref) {
@@ -45,6 +51,17 @@ public class Schema {
         this.format = format;
         this.items = items;
         this.ref =  $ref;
+
+        additionalProperties = null;
+    }
+
+    public Schema(String type, String format, Schema items, Schema additionalProperties) {
+        this.type = type;
+        this.format = format;
+        this.items = items;
+        this.ref =  null;
+
+        this.additionalProperties = additionalProperties;
     }
 
 
@@ -53,6 +70,8 @@ public class Schema {
         this.format = format;
         this.items = null;
         ref =  null;
+
+        additionalProperties = null;
     }
 
     public String getType() {
@@ -71,5 +90,9 @@ public class Schema {
 
     public String getRef() {
         return ref;
+    }
+
+    public Schema getAdditionalProperties() {
+        return additionalProperties;
     }
 }

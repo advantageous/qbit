@@ -6,8 +6,10 @@ import io.advantageous.qbit.QBit;
 import io.advantageous.qbit.annotation.AnnotationUtils;
 import io.advantageous.qbit.events.EventManager;
 import io.advantageous.qbit.http.server.HttpServerBuilder;
+import io.advantageous.qbit.meta.builder.ContextMetaBuilder;
 import io.advantageous.qbit.metrics.support.LocalStatsCollectorBuilder;
 import io.advantageous.qbit.metrics.support.StatServiceBuilder;
+import io.advantageous.qbit.metrics.support.StatsDReplicatorBuilder;
 import io.advantageous.qbit.server.EndpointServerBuilder;
 import io.advantageous.qbit.service.ServiceBuilder;
 import io.advantageous.qbit.service.ServiceBundleBuilder;
@@ -15,31 +17,162 @@ import io.advantageous.qbit.service.health.HealthServiceAsync;
 import io.advantageous.qbit.service.health.HealthServiceBuilder;
 import io.advantageous.qbit.system.QBitSystemManager;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /** This is a utility class for when you are running in a PaaS like Heroku or Docker.
  *  It also allows you to share stat, health and system manager setup.
  *
+ * If statsD is enabled then this will look for the statsd port and host from STATSD_PORT and STATSD_HOST environment
+ * variables.
+ *
+ *
+ * If you use the admin builder, the port for the admin will be from the environment variable
+ * QBIT_ADMIN_PORT. It can be overridden from system properties as well see AdminBuilder for more details.
+ *
+ *
+ * The main end point port will be read from the environment variable WEB_PORT and if not found then read from
+ * PORT.
+ *
+ * Defaults for ports and hosts can be overridden by their respective builders.
  **/
 public class ManagedServiceBuilder {
 
 
+    /** Holds the system manager used to register proper shutdown with JVM. */
     private QBitSystemManager systemManager;
+
+    /** Holds the stats service builder used to collect system stats. */
     private StatServiceBuilder statServiceBuilder;
+
+    /** EndpointServerBuilder used to hold the main EndpointServerBuilder. */
     private EndpointServerBuilder endpointServerBuilder;
+
+    /** Used to create LocalStatsCollection. */
     private LocalStatsCollectorBuilder localStatsCollectorBuilder;
+
+    /** Used to create the main http server. */
     private HttpServerBuilder httpServerBuilder;
+
+    /** Enables local stats collection. */
     private boolean enableLocalStats=true;
+
+    /** Enables sending stats to stats D. */
     private boolean enableStatsD=false;
+
+    /** Enables local health stats collection. */
     private boolean enableLocalHealth=true;
+
+    /** Used to create local health collector. */
     private HealthServiceBuilder healthServiceBuilder;
+
+    /** Health service used to collect health info from service queues. */
     private HealthServiceAsync healthService;
+
+    /** Enables the collection of stats. */
     private boolean enableStats = true;
+
+    /** How often stats should be flushed. */
     private int sampleStatFlushRate = 5;
+
+    /** How often timings should be collected defaults to every 100 calls. */
     private int checkTimingEveryXCalls = 100;
 
+    /** Event manager for services, service queues, and end point servers. */
     private EventManager eventManager;
 
+    /** Factory to create QBit parts. */
     private Factory factory;
 
+    /** Builder to hold context information about endpoints. */
+    private ContextMetaBuilder contextMetaBuilder;
+
+    /** Endpoint services that will be exposed through contextMetaBuilder. */
+    private List<Object> endpointServices;
+
+    /** The builder for the admin. */
+    private AdminBuilder adminBuilder;
+
+
+    private StatsDReplicatorBuilder statsDReplicatorBuilder;
+
+    public StatsDReplicatorBuilder getStatsDReplicatorBuilder() {
+        if (statsDReplicatorBuilder == null) {
+            statsDReplicatorBuilder = StatsDReplicatorBuilder.statsDReplicatorBuilder();
+
+            final String statsDPort = System.getenv("STATSD_PORT");
+
+            if (statsDPort!=null && !statsDPort.isEmpty()) {
+                statsDReplicatorBuilder.setPort(Integer.parseInt(statsDPort));
+            }
+
+            final String statsDHost = System.getenv("STATSD_HOST");
+
+
+            if (statsDHost!=null && !statsDHost.isEmpty()) {
+                statsDReplicatorBuilder.setHost(statsDHost);
+            }
+
+        }
+        return statsDReplicatorBuilder;
+    }
+
+    public ManagedServiceBuilder setStatsDReplicatorBuilder(
+            final StatsDReplicatorBuilder statsDReplicatorBuilder) {
+        this.statsDReplicatorBuilder = statsDReplicatorBuilder;
+        return this;
+    }
+
+    public AdminBuilder getAdminBuilder() {
+        if (adminBuilder == null) {
+            adminBuilder = AdminBuilder.adminBuilder();
+            final String qbitAdminPort = System.getenv("QBIT_ADMIN_PORT");
+            if (qbitAdminPort!=null && !qbitAdminPort.isEmpty()) {
+                adminBuilder.setPort(Integer.parseInt(qbitAdminPort));
+            }
+            adminBuilder.setContextBuilder(this.getContextMetaBuilder());
+            adminBuilder.setHealthService(getHealthService());
+        }
+        return adminBuilder;
+    }
+
+
+    public ManagedServiceBuilder setAdminBuilder(AdminBuilder adminBuilder) {
+        this.adminBuilder = adminBuilder;
+        return this;
+    }
+
+    public ContextMetaBuilder getContextMetaBuilder() {
+        if (contextMetaBuilder == null) {
+            contextMetaBuilder = ContextMetaBuilder.contextMetaBuilder();
+        }
+        return contextMetaBuilder;
+    }
+
+    public ManagedServiceBuilder setContextMetaBuilder(final ContextMetaBuilder contextMetaBuilder) {
+        this.contextMetaBuilder = contextMetaBuilder;
+        return this;
+    }
+
+    public List<Object> getEndpointServices() {
+        if (endpointServices == null) {
+            endpointServices = new ArrayList<>();
+        }
+
+        return endpointServices;
+    }
+
+    public ManagedServiceBuilder setEndpointServices(final List<Object> endpointServices) {
+        this.endpointServices = endpointServices;
+        return this;
+    }
+
+
+    public ManagedServiceBuilder addEndpointService(final Object endpointService) {
+        getContextMetaBuilder().addService(endpointService.getClass());
+        getEndpointServices().add(endpointService);
+        return this;
+    }
 
     public Factory getFactory() {
         if (factory == null) {
@@ -164,6 +297,10 @@ public class ManagedServiceBuilder {
                 statServiceBuilder.addReplicator(getLocalStatsCollectorBuilder().buildAndStart());
             }
 
+            if (enableStatsD) {
+                statServiceBuilder.addReplicator(getStatsDReplicatorBuilder().buildAndStart());
+            }
+
             statServiceBuilder.build();
             statServiceBuilder.buildServiceQueue().startCallBackHandler().start();
 
@@ -197,6 +334,10 @@ public class ManagedServiceBuilder {
             if (isEnableLocalStats()) {
                 endpointServerBuilder.setEnableStatEndpoint(true);
                 endpointServerBuilder.setStatsCollection(getLocalStatsCollectorBuilder().build());
+            }
+
+            if (endpointServices != null) {
+                endpointServerBuilder.setServices(endpointServices);
             }
 
         }
@@ -301,8 +442,9 @@ public class ManagedServiceBuilder {
         return enableStats;
     }
 
-    public void setEnableStats(boolean enableStats) {
+    public ManagedServiceBuilder setEnableStats(boolean enableStats) {
         this.enableStats = enableStats;
+        return this;
     }
 
 
@@ -310,15 +452,17 @@ public class ManagedServiceBuilder {
         return sampleStatFlushRate;
     }
 
-    public void setSampleStatFlushRate(int sampleStatFlushRate) {
+    public ManagedServiceBuilder setSampleStatFlushRate(int sampleStatFlushRate) {
         this.sampleStatFlushRate = sampleStatFlushRate;
+        return this;
     }
 
     public int getCheckTimingEveryXCalls() {
         return checkTimingEveryXCalls;
     }
 
-    public void setCheckTimingEveryXCalls(int checkTimingEveryXCalls) {
+    public ManagedServiceBuilder setCheckTimingEveryXCalls(int checkTimingEveryXCalls) {
         this.checkTimingEveryXCalls = checkTimingEveryXCalls;
+        return this;
     }
 }

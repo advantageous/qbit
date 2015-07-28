@@ -19,20 +19,43 @@
 package io.advantageous.qbit.admin;
 
 import io.advantageous.qbit.annotation.RequestMapping;
+import io.advantageous.qbit.meta.ContextMeta;
+import io.advantageous.qbit.meta.builder.ContextMetaBuilder;
+import io.advantageous.qbit.meta.swagger.MetaTransformerFromQbitMetaToSwagger;
+import io.advantageous.qbit.meta.swagger.ServiceEndpointInfo;
 import io.advantageous.qbit.reactive.Callback;
 import io.advantageous.qbit.service.health.HealthServiceAsync;
 import io.advantageous.qbit.service.health.NodeHealthStat;
 
 import java.util.List;
 
-@RequestMapping("/qbit-admin")
+@RequestMapping("/__admin")
 public class Admin {
 
 
     private final HealthServiceAsync healthService;
 
-    public Admin(final HealthServiceAsync healthService) {
+    private final ServiceEndpointInfo serviceEndpointInfo;
+
+    public Admin(final HealthServiceAsync healthService,
+                 final ContextMetaBuilder contextMetaBuilder) {
+
+
+
+        final ContextMeta context = contextMetaBuilder.build();
+        final MetaTransformerFromQbitMetaToSwagger metaToSwagger =
+                new MetaTransformerFromQbitMetaToSwagger();
+
+        serviceEndpointInfo = metaToSwagger.serviceEndpointInfo(context);
+
+
         this.healthService = healthService;
+    }
+
+    @RequestMapping("/meta")
+    public ServiceEndpointInfo getServiceEndpointInfo() {
+
+        return serviceEndpointInfo;
     }
 
     @RequestMapping("/ok")

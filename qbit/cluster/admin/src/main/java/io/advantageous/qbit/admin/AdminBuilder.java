@@ -5,6 +5,7 @@ import io.advantageous.boon.core.IO;
 import io.advantageous.qbit.config.PropertyResolver;
 import io.advantageous.qbit.http.server.HttpServer;
 import io.advantageous.qbit.http.server.HttpServerBuilder;
+import io.advantageous.qbit.meta.builder.ContextMetaBuilder;
 import io.advantageous.qbit.server.EndpointServerBuilder;
 import io.advantageous.qbit.server.ServiceEndpointServer;
 import io.advantageous.qbit.service.health.HealthServiceAsync;
@@ -34,6 +35,7 @@ public class AdminBuilder {
     private HttpServerBuilder httpServerBuilder;
     private String webPageContents;
     private Supplier<String> webPageContentsSupplier;
+    private ContextMetaBuilder contextBuilder;
 
 
     @SuppressWarnings("WeakerAccess")
@@ -177,7 +179,7 @@ public class AdminBuilder {
 
     public Admin getAdmin() {
         if (admin == null) {
-            admin = new Admin(getHealthService());
+            admin = new Admin(getHealthService(), getContextBuilder());
         }
         return admin;
     }
@@ -253,4 +255,16 @@ public class AdminBuilder {
         return serviceEndpointServer;
     }
 
+    public AdminBuilder setContextBuilder(final ContextMetaBuilder contextBuilder) {
+        this.contextBuilder = contextBuilder;
+        return this;
+    }
+
+    public ContextMetaBuilder getContextBuilder() {
+
+        if (contextBuilder == null) {
+            contextBuilder = ContextMetaBuilder.contextMetaBuilder();
+        }
+        return contextBuilder;
+    }
 }

@@ -274,7 +274,7 @@ public class ContextMetaBuilder {
         final ServiceMetaBuilder serviceMetaBuilder = ServiceMetaBuilder.serviceMetaBuilder()
                 .setRequestPaths(requestPaths).setName(name);
 
-        serviceMetaBuilder.addMethods(this.getRootURI(), classMeta.methods());
+        serviceMetaBuilder.addMethods(this.getRootURI(), Lists.list(classMeta.methods()));
 
 
         addService(serviceMetaBuilder.build());

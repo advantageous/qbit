@@ -185,7 +185,7 @@ public class MetaTransformerFromQbitMetaToSwagger {
             Schema schema = definitionClassCollector.getSchema(parameterMeta.getClassType());
             parameterBuilder.setType(schema.getType());
 
-            if (schema.getType().equals("array")) {
+            if ( "array".equals(schema.getType()) ) {
                 parameterBuilder.setItems(schema.getItems());
                 parameterBuilder.setCollectionFormat("csv");
             }

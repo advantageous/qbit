@@ -8,8 +8,10 @@ import io.advantageous.qbit.meta.ServiceMeta;
 import io.advantageous.qbit.meta.ServiceMethodMeta;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.function.Predicate;
 
 import static io.advantageous.qbit.meta.builder.ContextMetaBuilder.getRequestMethodsByAnnotated;
 import static io.advantageous.qbit.meta.builder.ContextMetaBuilder.getRequestPathsByAnnotated;
@@ -81,8 +83,9 @@ public class ServiceMetaBuilder {
         return new ServiceMeta(name, requestPaths, methods);
     }
 
-    public void addMethods(String path, Iterable<MethodAccess> methods) {
-        methods.forEach(methodAccess -> addMethod(path, methodAccess));
+    public void addMethods(String path, Collection<MethodAccess> methods) {
+        methods.stream().filter(methodAccess -> !methodAccess.isPrivate())
+                .forEach(methodAccess -> addMethod(path, methodAccess));
     }
 
     public ServiceMetaBuilder addMethod(final String rootPath, final MethodAccess methodAccess) {

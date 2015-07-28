@@ -45,6 +45,8 @@ import io.advantageous.qbit.system.QBitSystemManager;
 import io.advantageous.qbit.transforms.Transformer;
 import io.advantageous.qbit.util.Timer;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.function.Predicate;
@@ -94,6 +96,7 @@ public class EndpointServerBuilder {
     private CallbackManagerBuilder callbackManagerBuilder;
     private HealthServiceBuilder healthServiceBuilder;
     private StatCollection statsCollection;
+    private List<Object> services;
 
 
     public boolean isEnableHealthEndpoint() {
@@ -528,6 +531,11 @@ public class EndpointServerBuilder {
         if (serviceEndpointServer != null && qBitSystemManager != null) {
             qBitSystemManager.registerServer(serviceEndpointServer);
         }
+
+        if (services!=null) {
+            serviceEndpointServer.initServices(services);
+
+        }
         return serviceEndpointServer;
     }
 
@@ -638,5 +646,16 @@ public class EndpointServerBuilder {
     public EndpointServerBuilder setStatsCollection(final StatCollection statsCollection) {
         this.statsCollection = statsCollection;
         return this;
+    }
+
+    public void setServices(List<Object> services) {
+        this.services = services;
+    }
+
+    public List<Object> getServices() {
+        if (services == null) {
+            services = new ArrayList<>();
+        }
+        return services;
     }
 }

@@ -5,6 +5,8 @@ import io.advantageous.boon.core.TypeType;
 import io.advantageous.boon.core.reflection.ClassMeta;
 import io.advantageous.boon.core.reflection.fields.FieldAccess;
 import io.advantageous.qbit.meta.swagger.builders.DefinitionBuilder;
+
+import java.lang.reflect.Type;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -98,40 +100,50 @@ public class DefinitionClassCollector {
 
     private void addClass(final ClassMeta<?> classMeta) {
 
-        if(definitionMap.containsKey(classMeta.name())) {
-            return;
-        }
+        try {
 
-        final DefinitionBuilder definitionBuilder = new DefinitionBuilder();
-
-        Map<String, FieldAccess> fieldAccessMap = classMeta.fieldMap();
-
-
-        fieldAccessMap.entrySet().forEach(fieldAccessEntry -> {
-
-            final FieldAccess fieldAccess = fieldAccessEntry.getValue();
-            if (fieldAccess.ignore() || fieldAccess.isStatic()) {
+            if (definitionMap.containsKey(classMeta.name())) {
                 return;
             }
-            definitionBuilder.addProperty(fieldAccess.name(), convertFieldToSchema(fieldAccess));
 
-        });
+            final DefinitionBuilder definitionBuilder = new DefinitionBuilder();
 
-        final Definition definition = definitionBuilder.build();
+            Map<String, FieldAccess> fieldAccessMap = classMeta.fieldMap();
 
-        definitionMap.put(classMeta.name(), definition);
+
+            fieldAccessMap.entrySet().forEach(fieldAccessEntry -> {
+
+                final FieldAccess fieldAccess = fieldAccessEntry.getValue();
+                if (fieldAccess.ignore() || fieldAccess.isStatic()) {
+                    return;
+                }
+                definitionBuilder.addProperty(fieldAccess.name(), convertFieldToSchema(fieldAccess));
+
+            });
+
+            final Definition definition = definitionBuilder.build();
+
+            definitionMap.put(classMeta.name(), definition);
+        }catch (Exception ex) {
+            throw new RuntimeException("Unable to add class " + classMeta.longName(), ex);
+        }
     }
 
     private Schema convertFieldToSchema(final FieldAccess fieldAccess) {
 
-        final Class<?> type = fieldAccess.type();
-        final Schema schema = mappings.get(type);
+        try {
 
-        if (schema != null) {
-            return schema;
+            final Class<?> type = fieldAccess.type();
+            final Schema schema = mappings.get(type);
+
+            if (schema != null) {
+                return schema;
+            }
+
+            return convertFieldToComplexSchema(fieldAccess);
+        } catch (Exception ex) {
+            throw new RuntimeException("unable to convert field " + fieldAccess.name() + " from " + fieldAccess.declaringParent(), ex);
         }
-
-        return convertFieldToComplexSchema(fieldAccess);
 
     }
 
@@ -140,8 +152,33 @@ public class DefinitionClassCollector {
         if (isArraySchema(fieldAccess)) {
 
             return convertFieldToArraySchema(fieldAccess);
+        } else if (isMap(fieldAccess)) {
+
+            return convertFieldToMapSchema(fieldAccess);
         } else {
             return convertFieldToDefinitionRef(fieldAccess);
+        }
+
+    }
+
+    private Schema convertFieldToMapSchema(final FieldAccess fieldAccess) {
+
+        Type[] actualTypeArguments = fieldAccess.getParameterizedType().getActualTypeArguments();
+
+
+        if (actualTypeArguments[1] instanceof  Class) {
+
+            Schema componentSchema = mappings.get(actualTypeArguments[1]);
+            /* If it was not in the mapping, then it is complex. */
+            if (componentSchema == null) {
+                if (!definitionMap.containsKey(fieldAccess.getComponentClass().getSimpleName())) {
+                    addClass(fieldAccess.getComponentClass());
+                }
+                componentSchema = Schema.definitionRef(fieldAccess.getComponentClass().getSimpleName());
+            }
+            return Schema.map(componentSchema);
+        } else {
+            return null;
         }
 
     }
@@ -149,12 +186,26 @@ public class DefinitionClassCollector {
     private boolean isArraySchema(FieldAccess fieldAccess) {
 
         switch (fieldAccess.typeEnum()) {
+            case SET:
+                return true;
             case LIST:
                 return true;
             case COLLECTION:
                 return true;
             case ARRAY:
                 return true;
+        }
+        return false;
+    }
+
+
+
+    private boolean isMap(FieldAccess fieldAccess) {
+
+        switch (fieldAccess.typeEnum()) {
+            case MAP:
+                return true;
+
         }
         return false;
     }
