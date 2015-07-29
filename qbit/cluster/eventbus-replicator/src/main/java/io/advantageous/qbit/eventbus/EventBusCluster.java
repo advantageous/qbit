@@ -1,8 +1,6 @@
 package io.advantageous.qbit.eventbus;
 
 import io.advantageous.boon.core.Str;
-import io.advantageous.boon.core.Sys;
-import io.advantageous.consul.domain.ServiceHealth;
 import io.advantageous.qbit.GlobalConstants;
 import io.advantageous.qbit.QBit;
 import io.advantageous.qbit.client.Client;
@@ -20,20 +18,17 @@ import io.advantageous.qbit.service.discovery.EndpointDefinition;
 import io.advantageous.qbit.service.discovery.ServiceDiscovery;
 import io.advantageous.qbit.service.discovery.ServicePool;
 import io.advantageous.qbit.service.discovery.ServicePoolListener;
-import io.advantageous.qbit.util.Timer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.function.Consumer;
 
 import static io.advantageous.qbit.eventbus.EventBusRemoteReplicatorBuilder.eventBusRemoteReplicatorBuilder;
 import static io.advantageous.qbit.eventbus.EventBusReplicationClientBuilder.eventBusReplicationClientBuilder;
@@ -96,6 +91,8 @@ public class EventBusCluster implements Startable, Stoppable {
 
         endpointDefinition = serviceDiscovery.registerWithTTL(eventBusName, replicationPortLocal,
                 (int) replicationServerCheckInTimeUnit.toSeconds(replicationServerCheckInInterval));
+
+        serviceDiscovery.checkInOk(endpointDefinition.getId());
     }
 
     private String getHost(String replicationHostLocal) {
@@ -188,7 +185,7 @@ public class EventBusCluster implements Startable, Stoppable {
     private void healthyNodeMonitor() {
 
 
-        logger.info("EventBusCluster::healthyNodeMonitor " + eventConnectorHub.size());
+        if (debug) logger.debug("EventBusCluster::healthyNodeMonitor " + eventConnectorHub.size());
         final List<EndpointDefinition> endpointDefinitions = serviceDiscovery.loadServices(eventBusName);
         final List<EndpointDefinition> removeNodes = new ArrayList<>();
 
@@ -215,7 +212,7 @@ public class EventBusCluster implements Startable, Stoppable {
 
                     if (replicationHostLocal.equals(endpointDefinition.getHost()) &&
                             replicationPortLocal == endpointDefinition.getPort()) {
-                        logger.info("EventBusCluster:: Add event for self " + eventBusName + " " + endpointDefinition);
+                        if (debug) logger.debug("EventBusCluster:: Add event for self " + eventBusName + " " + endpointDefinition);
                     } else {
                         change.set(true);
                         addEventConnector(endpointDefinition.getHost(), endpointDefinition.getPort());
@@ -230,7 +227,7 @@ public class EventBusCluster implements Startable, Stoppable {
 
                     if (replicationHostLocal.equals(endpointDefinition.getHost()) &&
                             replicationPortLocal == endpointDefinition.getPort()) {
-                        logger.info("EventBusCluster:: Remove event for self " + eventBusName + " " + endpointDefinition);
+                        if (debug) logger.debug("EventBusCluster:: Remove event for self " + eventBusName + " " + endpointDefinition);
                     } else {
                         change.set(true);
                         removeNodes.add(endpointDefinition);
