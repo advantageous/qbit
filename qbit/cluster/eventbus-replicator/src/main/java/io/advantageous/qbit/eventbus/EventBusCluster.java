@@ -1,6 +1,7 @@
 package io.advantageous.qbit.eventbus;
 
 import io.advantageous.boon.core.Str;
+import io.advantageous.boon.core.Sys;
 import io.advantageous.consul.domain.ServiceHealth;
 import io.advantageous.qbit.GlobalConstants;
 import io.advantageous.qbit.QBit;
@@ -23,11 +24,16 @@ import io.advantageous.qbit.util.Timer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.Consumer;
 
 import static io.advantageous.qbit.eventbus.EventBusRemoteReplicatorBuilder.eventBusRemoteReplicatorBuilder;
 import static io.advantageous.qbit.eventbus.EventBusReplicationClientBuilder.eventBusReplicationClientBuilder;
@@ -82,13 +88,32 @@ public class EventBusCluster implements Startable, Stoppable {
         this.serviceDiscovery = serviceDiscovery;
 
         this.replicationPortLocal = replicationPortLocal;
-        this.replicationHostLocal = replicationHostLocal;
+
+        this.replicationHostLocal = getHost(replicationHostLocal);
 
         this.servicePool = new ServicePool(eventBusName, null);
 
 
         endpointDefinition = serviceDiscovery.registerWithTTL(eventBusName, replicationPortLocal,
-                (int) peerCheckTimeUnit.toSeconds(peerCheckTimeInterval));
+                (int) replicationServerCheckInTimeUnit.toSeconds(replicationServerCheckInInterval));
+    }
+
+    private String getHost(String replicationHostLocal) {
+        try {
+            return replicationHostLocal == null ? InetAddress.getLocalHost().getHostAddress() : replicationHostLocal;
+        } catch (UnknownHostException e) {
+            return "localhost";
+        }
+    }
+
+    /* These are used for spring integration. Do not delete. */
+    public EventManager eventManagerImpl() {
+        return eventManagerImpl;
+    }
+
+    /* These are used for spring integration. Do not delete. */
+    public ServiceQueue eventServiceQueue() {
+        return eventServiceQueue;
     }
 
     private EventManager wrapEventManager(final EventManager eventManager) {
@@ -104,16 +129,6 @@ public class EventBusCluster implements Startable, Stoppable {
 
     public EventManager eventManager() {
         return eventManager;
-    }
-
-
-    /** Do we need these? */
-    public EventManager eventManagerImpl() {
-        return eventManagerImpl;
-    }
-
-    public ServiceQueue eventServiceQueue() {
-        return eventServiceQueue;
     }
 
     private EventManager createEventManager() {
@@ -161,7 +176,7 @@ public class EventBusCluster implements Startable, Stoppable {
         replicatorBuilder.setName(this.eventBusName);
         replicatorBuilder.serviceServerBuilder().setPort(replicationPortLocal);
 
-        if (replicationHostLocal != null) {
+        if (!replicationHostLocal.equals("localhost")) {
             replicatorBuilder.serviceServerBuilder().setHost(replicationHostLocal);
         }
         replicatorBuilder.setEventManager(eventManager);
@@ -173,21 +188,39 @@ public class EventBusCluster implements Startable, Stoppable {
     private void healthyNodeMonitor() {
 
 
+        logger.info("EventBusCluster::healthyNodeMonitor " + eventConnectorHub.size());
         final List<EndpointDefinition> endpointDefinitions = serviceDiscovery.loadServices(eventBusName);
-
-
         final List<EndpointDefinition> removeNodes = new ArrayList<>();
+
+        final AtomicBoolean change = new AtomicBoolean();
 
         servicePool.setHealthyNodes(endpointDefinitions, new ServicePoolListener() {
             @Override
-            public void servicePoolChanged(String serviceName) {
+            public void servicePoolChanged(final String serviceName) {
 
+                if (serviceName.equals(eventBusName)) {
+
+                    change.set(true);
+                    logger.info("EventBusCluster:: Service pool changed " + eventBusName);
+                } else if (debug) {
+                    logger.debug("EventBusCluster:: some other pool changed - Service pool changed " + eventBusName);
+
+                }
             }
 
             @Override
             public void serviceAdded(String serviceName, EndpointDefinition endpointDefinition) {
                 if (serviceName.equals(eventBusName)) {
-                    addEventConnector(endpointDefinition.getHost(), endpointDefinition.getPort());
+
+
+                    if (replicationHostLocal.equals(endpointDefinition.getHost()) &&
+                            replicationPortLocal == endpointDefinition.getPort()) {
+                        logger.info("EventBusCluster:: Add event for self " + eventBusName + " " + endpointDefinition);
+                    } else {
+                        change.set(true);
+                        addEventConnector(endpointDefinition.getHost(), endpointDefinition.getPort());
+                        logger.info("EventBusCluster:: Adding event connector " + eventBusName + " " + endpointDefinition);
+                    }
                 }
             }
 
@@ -195,7 +228,15 @@ public class EventBusCluster implements Startable, Stoppable {
             public void serviceRemoved(String serviceName, EndpointDefinition endpointDefinition) {
                 if (serviceName.equals(eventBusName)) {
 
-                    removeNodes.add(endpointDefinition);
+                    if (replicationHostLocal.equals(endpointDefinition.getHost()) &&
+                            replicationPortLocal == endpointDefinition.getPort()) {
+                        logger.info("EventBusCluster:: Remove event for self " + eventBusName + " " + endpointDefinition);
+                    } else {
+                        change.set(true);
+                        removeNodes.add(endpointDefinition);
+                        logger.info("EventBusCluster:: Removing event connector " + eventBusName + " " + endpointDefinition);
+
+                    }
                 }
 
             }
@@ -203,7 +244,13 @@ public class EventBusCluster implements Startable, Stoppable {
         });
 
 
-        removeBadServices(removeNodes);
+        if (change.get()) {
+            if (removeNodes.size() > 0) {
+                removeServices(removeNodes);
+            }
+        } else {
+            removeBadServices();
+        }
 
 
     }
@@ -226,7 +273,48 @@ public class EventBusCluster implements Startable, Stoppable {
         eventConnectorHub.add(eventConnector);
     }
 
-    private int removeBadServices(List<EndpointDefinition> services) {
+    private int removeServices(List<EndpointDefinition> removeServicesList) {
+        final ListIterator<EventConnector> listIterator = eventConnectorHub.listIterator();
+
+        int removeCount = 0;
+        final List<EventConnector> connectorsToRemove = new ArrayList<>();
+
+        while (listIterator.hasNext()) {
+            final EventConnector connector = listIterator.next();
+
+
+            /** Remove ones in the removeServicesList. */
+            if (connector instanceof RemoteTCPClientProxy) {
+
+                final RemoteTCPClientProxy remoteTCPClientProxy = (RemoteTCPClientProxy) connector;
+                final String host = remoteTCPClientProxy.host();
+                final int port = remoteTCPClientProxy.port();
+                boolean found = false;
+                for (EndpointDefinition serviceHealth : removeServicesList) {
+                    final int healthyPort = serviceHealth.getPort();
+                    final String healthyHost = serviceHealth.getHost();
+
+                    if (healthyPort == port && healthyHost.equals(host)) {
+                        found = true;
+                        break;
+                    }
+                }
+                if (found) {
+                    removeCount++;
+                    connectorsToRemove.add(connector);
+                }
+            }
+        }
+
+        connectorsToRemove.forEach(eventConnectorHub::remove);
+
+
+
+        return removeCount;
+    }
+
+
+    private int removeBadServices() {
         final ListIterator<EventConnector> listIterator = eventConnectorHub.listIterator();
 
         int removeCount = 0;
@@ -236,7 +324,7 @@ public class EventBusCluster implements Startable, Stoppable {
             final EventConnector connector = listIterator.next();
 
 
-            /** Remove bad ones. */
+            /** Remove connections that are closed. */
             if (connector instanceof RemoteTCPClientProxy) {
 
                 final RemoteTCPClientProxy remoteTCPClientProxy = (RemoteTCPClientProxy) connector;
@@ -253,30 +341,22 @@ public class EventBusCluster implements Startable, Stoppable {
                     continue;
                 }
 
-                final String host = remoteTCPClientProxy.host();
-                final int port = remoteTCPClientProxy.port();
-                boolean found = false;
-                for (EndpointDefinition serviceHealth : services) {
-                    final int healthyPort = serviceHealth.getPort();
-                    final String healthyHost = serviceHealth.getHost();
 
-                    if (healthyPort == port && healthyHost.equals(host)) {
-                        found = true;
-                        break;
-                    }
-                }
-                if (!found) {
-                    removeCount++;
-                    badConnectors.add(connector);
-                }
             }
+
         }
 
+
+        /* Remove the closed ones. */
         badConnectors.forEach(eventConnectorHub::remove);
 
+        /* Now add them back again. */
+        badConnectors.forEach(eventConnector -> {
+            final RemoteTCPClientProxy remoteTCPClientProxy = (RemoteTCPClientProxy) eventConnector;
+            addEventConnector(remoteTCPClientProxy.host(), remoteTCPClientProxy.port());
+        });
         return removeCount;
     }
-
 
     @Override
     public void stop() {
