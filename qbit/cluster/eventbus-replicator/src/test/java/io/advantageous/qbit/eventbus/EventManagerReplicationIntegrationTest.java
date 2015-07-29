@@ -43,7 +43,7 @@ public class EventManagerReplicationIntegrationTest extends TimedTesting {
 
 
         /** Build B. */
-        EventManager eventManagerBImpl = eventManagerBuilderB.build();
+        EventManager eventManagerBImpl = eventManagerBuilderB.build("eventBusB");
 
 
         /** replicated to B. */
@@ -61,7 +61,7 @@ public class EventManagerReplicationIntegrationTest extends TimedTesting {
 
 
         /* Create A that connects to the replicator client. */
-        EventManager eventManagerAImpl = eventManagerBuilderA.setEventConnector(replicatorClient).build();
+        EventManager eventManagerAImpl = eventManagerBuilderA.setEventConnector(replicatorClient).build("eventBusA");
         serviceBundle.addServiceObject("eventManagerA", eventManagerAImpl);
         eventManagerA = serviceBundle.createLocalProxy(EventManager.class, "eventManagerA"); //wire A to Service Bundle
 

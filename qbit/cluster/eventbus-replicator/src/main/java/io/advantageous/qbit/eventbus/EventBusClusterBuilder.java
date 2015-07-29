@@ -1,5 +1,6 @@
 package io.advantageous.qbit.eventbus;
 
+import io.advantageous.consul.discovery.ConsulServiceDiscoveryBuilder;
 import io.advantageous.qbit.GlobalConstants;
 import io.advantageous.qbit.concurrent.PeriodicScheduler;
 import io.advantageous.qbit.events.EventManager;
@@ -19,37 +20,27 @@ public class EventBusClusterBuilder {
     private PeriodicScheduler periodicScheduler = null;
     private int peerCheckTimeInterval = 7;
     private TimeUnit peerCheckTimeUnit = TimeUnit.SECONDS;
-    private String consulHost = null;
-    private int consulPort = 8500;
-    private String datacenter = null;
-    private String tag = null;
     private int longPollTimeSeconds = 5;
-    private String localEventBusId;
     private int replicationPortLocal = 9090;
     private String replicationHostLocal = null;
     private EventManager eventManager = null;
-    private int replicationServerCheckInIntervalInSeconds = 5;
+    private int replicationServerCheckInInterval = 5;
+    private TimeUnit replicationServerCheckInTimeUnit = TimeUnit.SECONDS;
 
-    public static EventBusClusterBuilder eventBusRingBuilder() {
+    private ServiceDiscovery serviceDiscovery;
+
+
+    public static EventBusClusterBuilder eventBusClusterBuilder() {
         return new EventBusClusterBuilder();
     }
 
     public EventBusCluster build() {
 
-        if (consulHost == null) {
-            consulHost = "localhost";
-        }
+        return new EventBusCluster(getEventManager(), getEventBusName(), getEventConnectorHub(), getPeriodicScheduler(),
+                getPeerCheckTimeInterval(), getPeerCheckTimeUnit(), getReplicationServerCheckInInterval(),
+                getReplicationServerCheckInTimeUnit(), getServiceDiscovery(), getReplicationPortLocal(),
+                getReplicationHostLocal() );
 
-        if (localEventBusId == null) {
-            localEventBusId = eventBusName + "-" + ServiceDiscovery.uniqueString(replicationPortLocal);
-        }
-
-        return new EventBusCluster(getEventManager(), getEventBusName(), getLocalEventBusId(),
-                getEventConnectorHub(), getPeriodicScheduler(),
-                getPeerCheckTimeInterval(), getPeerCheckTimeUnit(), getConsulHost(),
-                getConsulPort(), getLongPollTimeSeconds(), getReplicationPortLocal(),
-                getReplicationHostLocal(), getDatacenter(), getTag(),
-                getReplicationServerCheckInIntervalInSeconds());
     }
 
     public String getEventBusName() {
@@ -97,41 +88,6 @@ public class EventBusClusterBuilder {
         return this;
     }
 
-    public String getConsulHost() {
-        return consulHost;
-    }
-
-    public EventBusClusterBuilder setConsulHost(String consulHost) {
-        this.consulHost = consulHost;
-        return this;
-    }
-
-    public int getConsulPort() {
-        return consulPort;
-    }
-
-    public EventBusClusterBuilder setConsulPort(int consulPort) {
-        this.consulPort = consulPort;
-        return this;
-    }
-
-    public String getDatacenter() {
-        return datacenter;
-    }
-
-    public EventBusClusterBuilder setDatacenter(String datacenter) {
-        this.datacenter = datacenter;
-        return this;
-    }
-
-    public String getTag() {
-        return tag;
-    }
-
-    public EventBusClusterBuilder setTag(String tag) {
-        this.tag = tag;
-        return this;
-    }
 
     public int getLongPollTimeSeconds() {
         return longPollTimeSeconds;
@@ -142,14 +98,6 @@ public class EventBusClusterBuilder {
         return this;
     }
 
-    public String getLocalEventBusId() {
-        return localEventBusId;
-    }
-
-    public EventBusClusterBuilder setLocalEventBusId(String localEventBusId) {
-        this.localEventBusId = localEventBusId;
-        return this;
-    }
 
     public int getReplicationPortLocal() {
         return replicationPortLocal;
@@ -178,12 +126,34 @@ public class EventBusClusterBuilder {
         return this;
     }
 
-    public int getReplicationServerCheckInIntervalInSeconds() {
-        return replicationServerCheckInIntervalInSeconds;
+    public int getReplicationServerCheckInInterval() {
+        return replicationServerCheckInInterval;
     }
 
-    public EventBusClusterBuilder setReplicationServerCheckInIntervalInSeconds(int replicationServerCheckInIntervalInSeconds) {
-        this.replicationServerCheckInIntervalInSeconds = replicationServerCheckInIntervalInSeconds;
+    public EventBusClusterBuilder setReplicationServerCheckInInterval(int replicationServerCheckInInterval) {
+        this.replicationServerCheckInInterval = replicationServerCheckInInterval;
+        return this;
+    }
+
+    public TimeUnit getReplicationServerCheckInTimeUnit() {
+        return replicationServerCheckInTimeUnit;
+    }
+
+    public EventBusClusterBuilder setReplicationServerCheckInTimeUnit(TimeUnit replicationServerCheckInTimeUnit) {
+        this.replicationServerCheckInTimeUnit = replicationServerCheckInTimeUnit;
+        return this;
+    }
+
+    public ServiceDiscovery getServiceDiscovery() {
+        if (serviceDiscovery == null) {
+            serviceDiscovery = ConsulServiceDiscoveryBuilder.consulServiceDiscoveryBuilder().build();
+            serviceDiscovery.start();
+        }
+        return serviceDiscovery;
+    }
+
+    public EventBusClusterBuilder setServiceDiscovery(ServiceDiscovery serviceDiscovery) {
+        this.serviceDiscovery = serviceDiscovery;
         return this;
     }
 }

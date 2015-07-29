@@ -41,9 +41,6 @@ public class ConsulServiceDiscoveryProvider implements ServiceDiscoveryProvider 
     private final boolean debug = GlobalConstants.DEBUG || logger.isDebugEnabled();
     private final boolean trace = logger.isTraceEnabled();
     private final AtomicInteger lastIndex = new AtomicInteger();
-    /* Used to manage consul retry logic. */
-    private final AtomicInteger consulRetryCount = new AtomicInteger();
-    private final AtomicLong lastResetTimestamp = new AtomicLong(Timer.clockTime());
 
     private final Map<String,EndpointDefinition> registrations = new ConcurrentHashMap<>();
 

@@ -27,7 +27,7 @@ public class ConsulServiceDiscoveryBuilder {
 
     private String consulHost = "localhost";
     private int consulPort = 8500;
-    private String datacenter;
+    private String datacenter = "dc1";
     private String tag;
     private int longPollTimeSeconds = 5;
     private PeriodicScheduler periodicScheduler;
