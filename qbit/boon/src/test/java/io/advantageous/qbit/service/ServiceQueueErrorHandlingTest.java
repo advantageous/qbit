@@ -26,7 +26,7 @@ public class ServiceQueueErrorHandlingTest {
 
     }
 
-    //Seems to work locally. 
+    //Seems to work locally.
     @Test
     public void test() throws InterruptedException {
 
@@ -61,6 +61,8 @@ public class ServiceQueueErrorHandlingTest {
         });
 
         Sys.sleep(100);
+
+        countDownLatch2.await();
 
 
         assertEquals(2, count.get());
