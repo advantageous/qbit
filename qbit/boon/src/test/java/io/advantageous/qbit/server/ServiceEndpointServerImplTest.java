@@ -82,7 +82,7 @@ public class ServiceEndpointServerImplTest extends TimedTesting {
 
 
         httpServer = new HttpServerMock();
-        serviceServerImpl = new ServiceEndpointServerImpl(httpServer, encoder, protocolParser, serviceBundle, mapper, 1, 100, 30, 10, null, "", null, 8080, 0);
+        serviceServerImpl = new ServiceEndpointServerImpl(httpServer, encoder, protocolParser, serviceBundle, mapper, 1, 100, 30, 10, null, "", null, 8080, 0, null);
 
 
         callMeCounter = 0;
@@ -112,7 +112,7 @@ public class ServiceEndpointServerImplTest extends TimedTesting {
 
         httpServer = new HttpServerMock();
         serviceServerImpl = new ServiceEndpointServerImpl(httpServer, encoder, protocolParser, serviceBundle,
-                mapper, 1, 100, 30, 10, null, null, null, 8080, 0);
+                mapper, 1, 100, 30, 10, null, null, null, 8080, 0, null);
 
 
         callMeCounter = 0;
@@ -162,7 +162,7 @@ public class ServiceEndpointServerImplTest extends TimedTesting {
 
         httpServer = new HttpServerMock();
         serviceServerImpl = new ServiceEndpointServerImpl(httpServer, encoder, protocolParser, serviceBundle,
-                mapper, 1, 100, 30, 10, null, null, null, 8080, 0);
+                mapper, 1, 100, 30, 10, null, null, null, 8080, 0, null);
 
 
         callMeCounter = 0;

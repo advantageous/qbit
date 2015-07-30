@@ -341,7 +341,8 @@ public interface Factory {
                                                       final String endpointName,
                                                       final ServiceDiscovery serviceDiscovery,
                                                       final int port,
-                                                      final int ttlSeconds
+                                                      final int ttlSeconds,
+                                                      final HealthServiceAsync healthServiceAsync
     ) {
         throw new UnsupportedOperationException();
     }

@@ -610,7 +610,7 @@ public class EndpointServerBuilder {
                 getEncoder(), getParser(), serviceBundle, getJsonMapper(), this.getTimeoutSeconds(),
                 this.getNumberOfOutstandingRequests(), this.getRequestBatchSize(),
                 this.getFlushInterval(), this.getSystemManager(), getEndpointName(),
-                getServiceDiscovery(), getPort(), getTtlSeconds());
+                getServiceDiscovery(), getPort(), getTtlSeconds(), getHealthService());
 
 
         if (serviceEndpointServer != null && qBitSystemManager != null) {

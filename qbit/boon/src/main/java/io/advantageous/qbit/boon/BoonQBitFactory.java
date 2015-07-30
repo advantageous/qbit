@@ -243,10 +243,11 @@ public class BoonQBitFactory implements Factory {
                                                      final String endpointName,
                                                      final ServiceDiscovery serviceDiscovery,
                                                      final int port,
-                                                     final int ttlSeconds) {
+                                                     final int ttlSeconds,
+                                                     final HealthServiceAsync healthServiceAsync) {
         return new ServiceEndpointServerImpl(httpServer, encoder, protocolParser, serviceBundle, jsonMapper,
                 timeOutInSeconds, numberOfOutstandingRequests, batchSize, flushInterval, systemManager,
-                endpointName, serviceDiscovery, port, ttlSeconds);
+                endpointName, serviceDiscovery, port, ttlSeconds, healthServiceAsync);
     }
 
 
