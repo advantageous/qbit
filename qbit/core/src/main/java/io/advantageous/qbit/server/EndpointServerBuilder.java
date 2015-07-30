@@ -33,6 +33,7 @@ import io.advantageous.qbit.reactive.Callback;
 import io.advantageous.qbit.service.BeforeMethodCall;
 import io.advantageous.qbit.service.CallbackManagerBuilder;
 import io.advantageous.qbit.service.ServiceBundle;
+import io.advantageous.qbit.service.discovery.ServiceDiscovery;
 import io.advantageous.qbit.service.health.HealthServiceAsync;
 import io.advantageous.qbit.service.health.HealthServiceBuilder;
 import io.advantageous.qbit.service.impl.CallbackManager;
@@ -98,6 +99,36 @@ public class EndpointServerBuilder {
     private StatCollection statsCollection;
     private List<Object> services;
 
+    private String endpointName;
+    private ServiceDiscovery serviceDiscovery;
+    private int ttlSeconds;
+
+    public String getEndpointName() {
+        return endpointName;
+    }
+
+    public EndpointServerBuilder setEndpointName(String endpointName) {
+        this.endpointName = endpointName;
+        return this;
+    }
+
+    public ServiceDiscovery getServiceDiscovery() {
+        return serviceDiscovery;
+    }
+
+    public EndpointServerBuilder setServiceDiscovery(ServiceDiscovery serviceDiscovery) {
+        this.serviceDiscovery = serviceDiscovery;
+        return this;
+    }
+
+    public int getTtlSeconds() {
+        return ttlSeconds;
+    }
+
+    public EndpointServerBuilder setTtlSeconds(int ttlSeconds) {
+        this.ttlSeconds = ttlSeconds;
+        return this;
+    }
 
     public boolean isEnableHealthEndpoint() {
         return enableHealthEndpoint;
@@ -525,7 +556,8 @@ public class EndpointServerBuilder {
         final ServiceEndpointServer serviceEndpointServer = QBit.factory().createServiceServer(httpServer,
                 encoder, parser, serviceBundle, jsonMapper, this.getTimeoutSeconds(),
                 this.getNumberOfOutstandingRequests(), this.getRequestBatchSize(),
-                this.getFlushInterval(), this.getSystemManager());
+                this.getFlushInterval(), this.getSystemManager(), getEndpointName(),
+                getServiceDiscovery(), getPort(), getTtlSeconds());
 
 
         if (serviceEndpointServer != null && qBitSystemManager != null) {
