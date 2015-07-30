@@ -29,6 +29,7 @@ import io.advantageous.qbit.message.Response;
 import io.advantageous.qbit.queue.ReceiveQueueListener;
 import io.advantageous.qbit.reactive.Callback;
 import io.advantageous.qbit.service.ServiceBundle;
+import io.advantageous.qbit.service.ServiceProxyUtils;
 import io.advantageous.qbit.service.ServiceQueue;
 import io.advantageous.qbit.service.Stoppable;
 import io.advantageous.qbit.service.discovery.EndpointDefinition;
@@ -203,9 +204,9 @@ public class ServiceEndpointServerImpl implements ServiceEndpointServer {
                     serviceDiscovery.checkIn(endpoint.getId(), HealthStatus.FAIL);
                 }
             }
-            
-            healthServiceAsync.ok(ok::set);
 
+            healthServiceAsync.ok(ok::set);
+            ServiceProxyUtils.flushServiceProxy(healthServiceAsync);
         });
     }
     public void stop() {
