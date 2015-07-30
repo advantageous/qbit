@@ -19,6 +19,7 @@
 package io.advantageous.qbit.server;
 
 import io.advantageous.boon.json.JsonFactory;
+import io.advantageous.qbit.Factory;
 import io.advantageous.qbit.QBit;
 import io.advantageous.qbit.config.PropertyResolver;
 import io.advantageous.qbit.http.HttpTransport;
@@ -102,6 +103,61 @@ public class EndpointServerBuilder {
     private String endpointName;
     private ServiceDiscovery serviceDiscovery;
     private int ttlSeconds;
+
+    private Factory factory;
+
+    private JsonMapper jsonMapper;
+    private ProtocolEncoder encoder;
+
+    public EndpointServerBuilder setParser(ProtocolParser parser) {
+        this.parser = parser;
+        return this;
+    }
+
+    private ProtocolParser parser;
+
+    public ProtocolParser getParser() {
+        if (parser==null) {
+            parser = getFactory().createProtocolParser();
+        }
+        return parser;
+    }
+
+    public Factory getFactory() {
+        if (factory == null) {
+            factory = QBit.factory();
+        }
+        return factory;
+    }
+
+    public void setFactory(Factory factory) {
+        this.factory = factory;
+    }
+
+    public JsonMapper getJsonMapper() {
+        if (jsonMapper == null) {
+
+            jsonMapper = getFactory().createJsonMapper();
+        }
+        return jsonMapper;
+    }
+
+    public EndpointServerBuilder setJsonMapper(JsonMapper jsonMapper) {
+        this.jsonMapper = jsonMapper;
+        return this;
+    }
+
+    public ProtocolEncoder getEncoder() {
+        if (encoder == null) {
+            encoder = getFactory().createEncoder();
+        }
+        return encoder;
+    }
+
+    public EndpointServerBuilder setEncoder(ProtocolEncoder encoder) {
+        this.encoder = encoder;
+        return this;
+    }
 
     public String getEndpointName() {
         return endpointName;
@@ -528,8 +584,6 @@ public class EndpointServerBuilder {
 
 
 
-        final JsonMapper jsonMapper = QBit.factory().createJsonMapper();
-        final ProtocolEncoder encoder = QBit.factory().createEncoder();
 
 
         final ServiceBundle serviceBundle;
@@ -539,7 +593,7 @@ public class EndpointServerBuilder {
                 getRequestQueueBuilder(),
                 getResponseQueueBuilder(),
                 getWebResponseQueueBuilder(),
-                QBit.factory(),
+                getFactory(),
                 eachServiceInItsOwnThread, this.getBeforeMethodCall(),
                 this.getBeforeMethodCallAfterTransform(),
                 this.getArgTransformer(), true,
@@ -550,11 +604,10 @@ public class EndpointServerBuilder {
                 getCheckTimingEveryXCalls(),
                 getCallbackManager());
 
-        final ProtocolParser parser = QBit.factory().createProtocolParser();
 
 
-        final ServiceEndpointServer serviceEndpointServer = QBit.factory().createServiceServer(httpServer,
-                encoder, parser, serviceBundle, jsonMapper, this.getTimeoutSeconds(),
+        final ServiceEndpointServer serviceEndpointServer = getFactory().createServiceServer(httpServer,
+                getEncoder(), getParser(), serviceBundle, getJsonMapper(), this.getTimeoutSeconds(),
                 this.getNumberOfOutstandingRequests(), this.getRequestBatchSize(),
                 this.getFlushInterval(), this.getSystemManager(), getEndpointName(),
                 getServiceDiscovery(), getPort(), getTtlSeconds());
