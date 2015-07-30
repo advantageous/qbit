@@ -52,7 +52,7 @@ public class Admin {
         this.healthService = healthService;
     }
 
-    @RequestMapping("/meta")
+    @RequestMapping("/meta/")
     public ServiceEndpointInfo getServiceEndpointInfo() {
 
         return serviceEndpointInfo;
@@ -74,7 +74,7 @@ public class Admin {
     }
 
 
-    @RequestMapping("/healthy-nodes")
+    @RequestMapping("/healthy-nodes/")
     public void findAllHealthyNodes(final Callback<List<String>> callback) {
 
         healthService.findHealthyNodes(callback::accept);
@@ -82,7 +82,7 @@ public class Admin {
     }
 
 
-    @RequestMapping("/load-nodes")
+    @RequestMapping("/load-nodes/")
     public void loadNodes(final Callback<List<NodeHealthStat>> callback) {
         healthService.loadNodes(callback);
         healthService.clientProxyFlush();
