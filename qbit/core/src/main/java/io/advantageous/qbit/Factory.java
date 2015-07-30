@@ -39,6 +39,7 @@ import io.advantageous.qbit.service.BeforeMethodCall;
 import io.advantageous.qbit.service.ServiceBundle;
 import io.advantageous.qbit.service.ServiceMethodHandler;
 import io.advantageous.qbit.service.ServiceQueue;
+import io.advantageous.qbit.service.discovery.ServiceDiscovery;
 import io.advantageous.qbit.service.health.HealthServiceAsync;
 import io.advantageous.qbit.service.impl.CallbackManager;
 import io.advantageous.qbit.service.stats.StatsCollector;
@@ -336,7 +337,12 @@ public interface Factory {
                                                       final int numberOfOutstandingRequests,
                                                       final int batchSize,
                                                       final int flushInterval,
-                                                      final QBitSystemManager systemManager
+                                                      final QBitSystemManager systemManager,
+                                                      final String endpointName,
+                                                      final ServiceDiscovery serviceDiscovery,
+                                                      final int port,
+                                                      final int ttlSeconds,
+                                                      final HealthServiceAsync healthServiceAsync
     ) {
         throw new UnsupportedOperationException();
     }

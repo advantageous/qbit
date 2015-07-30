@@ -109,12 +109,13 @@ public class EventManagerBuilder {
 
     public EventManager build(final String name) {
 
+
         if ( eventConnector == null) {
             return getFactory().createEventManager(name, getEventConnector(), getStatsCollector());
         } else {
 
             if (getEventConnectorPredicates().size() == 0) {
-                return getFactory().createEventManager(getName(), getEventConnector(), getStatsCollector());
+                return getFactory().createEventManager(name, getEventConnector(), getStatsCollector());
             } else {
 
                 Predicate<Event<Object>> mainPredicate = getEventConnectorPredicates().get(0);
@@ -122,7 +123,7 @@ public class EventManagerBuilder {
                 for (int index = 1; index < eventConnectorPredicates.size(); index++) {
                     mainPredicate = mainPredicate.and(eventConnectorPredicates.get(index));
                 }
-                return getFactory().createEventManager(getName(),
+                return getFactory().createEventManager(name,
                         new ConditionalEventConnector(mainPredicate, getEventConnector()), getStatsCollector());
             }
 

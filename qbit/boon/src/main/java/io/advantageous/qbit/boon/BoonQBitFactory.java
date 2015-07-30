@@ -44,6 +44,7 @@ import io.advantageous.qbit.sender.SenderEndPoint;
 import io.advantageous.qbit.server.ServiceEndpointServer;
 import io.advantageous.qbit.server.ServiceEndpointServerImpl;
 import io.advantageous.qbit.service.*;
+import io.advantageous.qbit.service.discovery.ServiceDiscovery;
 import io.advantageous.qbit.service.health.HealthServiceAsync;
 import io.advantageous.qbit.service.impl.BoonServiceMethodCallHandler;
 import io.advantageous.qbit.service.impl.CallbackManager;
@@ -238,8 +239,15 @@ public class BoonQBitFactory implements Factory {
                                                      final ProtocolParser protocolParser, final ServiceBundle serviceBundle,
                                                      final JsonMapper jsonMapper, final int timeOutInSeconds,
                                                      final int numberOfOutstandingRequests, final int batchSize,
-                                                     final int flushInterval, final QBitSystemManager systemManager) {
-        return new ServiceEndpointServerImpl(httpServer, encoder, protocolParser, serviceBundle, jsonMapper, timeOutInSeconds, numberOfOutstandingRequests, batchSize, flushInterval, systemManager);
+                                                     final int flushInterval, final QBitSystemManager systemManager,
+                                                     final String endpointName,
+                                                     final ServiceDiscovery serviceDiscovery,
+                                                     final int port,
+                                                     final int ttlSeconds,
+                                                     final HealthServiceAsync healthServiceAsync) {
+        return new ServiceEndpointServerImpl(httpServer, encoder, protocolParser, serviceBundle, jsonMapper,
+                timeOutInSeconds, numberOfOutstandingRequests, batchSize, flushInterval, systemManager,
+                endpointName, serviceDiscovery, port, ttlSeconds, healthServiceAsync);
     }
 
 

@@ -7,7 +7,6 @@ import org.junit.Before;
 import org.junit.Test;
 
 import static io.advantageous.boon.core.IO.puts;
-import static io.advantageous.qbit.eventbus.EventBusClusterBuilder.eventBusRingBuilder;
 import static io.advantageous.qbit.util.PortUtils.useOneOfThePortsInThisRange;
 
 public class EventBusRingBuilderTest {
@@ -29,8 +28,7 @@ public class EventBusRingBuilderTest {
     public void setup() {
 
         port = useOneOfThePortsInThisRange(9000, 9900);
-        EventBusClusterBuilder eventBusClusterBuilder = eventBusRingBuilder();
-        eventBusClusterBuilder.setConsulHost("localhost");
+        EventBusClusterBuilder eventBusClusterBuilder = EventBusClusterBuilder.eventBusClusterBuilder();
         eventBusClusterBuilder.setReplicationPortLocal(port);
 
         eventBusCluster = eventBusClusterBuilder.build();

@@ -58,7 +58,8 @@ public class ServerTest extends TimedTesting {
         JsonMapper mapper = new BoonJsonMapper();
 
 
-        ServiceEndpointServerImpl server = new ServiceEndpointServerImpl(httpServer, encoder, parser, serviceBundle, mapper, 30, 100, 30, 10, null);
+        ServiceEndpointServerImpl server = new ServiceEndpointServerImpl(httpServer, encoder,
+                parser, serviceBundle, mapper, 30, 100, 30, 10, null, null, null, 8080, 0, null);
 
         server.initServices(Sets.set(new TodoService()));
 
@@ -126,7 +127,10 @@ public class ServerTest extends TimedTesting {
         JsonMapper mapper = new BoonJsonMapper();
 
 
-        ServiceEndpointServerImpl server = new ServiceEndpointServerImpl(httpServer, encoder, QBit.factory().createProtocolParser(), serviceBundle, mapper, 1, 100, 30, 10, null);
+        ServiceEndpointServerImpl server = new ServiceEndpointServerImpl(httpServer, encoder,
+                QBit.factory().createProtocolParser(), serviceBundle, mapper, 1, 100, 30,
+                10, null,
+                null, null, 8080, 0, null);
 
         server.initServices(Sets.set(new TodoService()));
 
@@ -176,7 +180,9 @@ public class ServerTest extends TimedTesting {
         JsonMapper mapper = new BoonJsonMapper();
 
 
-        ServiceEndpointServerImpl server = new ServiceEndpointServerImpl(httpServer, encoder, QBit.factory().createProtocolParser(), serviceBundle, mapper, 1, 100, 30, 10, null);
+        ServiceEndpointServerImpl server = new ServiceEndpointServerImpl(
+                httpServer, encoder, QBit.factory().createProtocolParser(), serviceBundle, mapper, 1, 100, 30, 10,
+                null, null, null, 8080, 0, null);
 
         server.initServices(new TodoService());
 

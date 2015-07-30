@@ -55,20 +55,20 @@ public class EventManagerReplicationOverWebSocket extends TimedTesting {
         EventManagerBuilder eventManagerBuilderC = new EventManagerBuilder();
 
         /** Build A. */
-        EventManager eventManagerAImpl = eventManagerBuilderA.setEventConnector(replicatorHubA).build();
+        EventManager eventManagerAImpl = eventManagerBuilderA.setEventConnector(replicatorHubA).build("eventBusA");
         serviceBundleA = serviceBundleBuilder().build(); //build service bundle
         serviceBundleA.addServiceObject("eventManagerA", eventManagerAImpl);
         eventManagerA = serviceBundleA.createLocalProxy(EventManager.class, "eventManagerA"); //wire A to Service Bundle
 
 
         /** Build B. */
-        EventManager eventManagerBImpl = eventManagerBuilderB.setEventConnector(replicatorHubB).build();
+        EventManager eventManagerBImpl = eventManagerBuilderB.setEventConnector(replicatorHubB).build("eventBusB");
         serviceBundleB = serviceBundleBuilder().build(); //build service bundle
         serviceBundleB.addServiceObject("eventManagerB", eventManagerBImpl);
         eventManagerB = serviceBundleB.createLocalProxy(EventManager.class, "eventManagerB"); //wire B to Service Bundle
 
         /** Build C. */
-        EventManager eventManagerCImpl = eventManagerBuilderC.setEventConnector(replicatorHubC).build();
+        EventManager eventManagerCImpl = eventManagerBuilderC.setEventConnector(replicatorHubC).build("eventBusC");
         serviceBundleC = serviceBundleBuilder().build(); //build service bundle
         serviceBundleC.addServiceObject("eventManagerC", eventManagerCImpl);
         eventManagerC = serviceBundleC.createLocalProxy(EventManager.class, "eventManagerC"); //wire C to Service Bundle

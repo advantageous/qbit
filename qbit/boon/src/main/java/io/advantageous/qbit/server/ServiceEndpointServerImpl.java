@@ -27,18 +27,28 @@ import io.advantageous.qbit.message.MethodCall;
 import io.advantageous.qbit.message.Request;
 import io.advantageous.qbit.message.Response;
 import io.advantageous.qbit.queue.ReceiveQueueListener;
+import io.advantageous.qbit.reactive.Callback;
 import io.advantageous.qbit.service.ServiceBundle;
+import io.advantageous.qbit.service.ServiceProxyUtils;
 import io.advantageous.qbit.service.ServiceQueue;
 import io.advantageous.qbit.service.Stoppable;
+import io.advantageous.qbit.service.discovery.EndpointDefinition;
+import io.advantageous.qbit.service.discovery.ServiceDiscovery;
+import io.advantageous.qbit.service.health.HealthServiceAsync;
+import io.advantageous.qbit.service.health.HealthStatus;
 import io.advantageous.qbit.spi.ProtocolEncoder;
 import io.advantageous.qbit.spi.ProtocolParser;
 import io.advantageous.qbit.system.QBitSystemManager;
+import io.advantageous.qbit.util.Timer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
+import java.util.function.Consumer;
 
 
 /**
@@ -55,6 +65,8 @@ public class ServiceEndpointServerImpl implements ServiceEndpointServer {
     private final QBitSystemManager systemManager;
     protected final WebSocketServiceServerHandler webSocketHandler;
     protected final HttpRequestServiceServerHandler httpRequestServerHandler;
+    private final EndpointDefinition endpoint;
+    private final HealthServiceAsync healthServiceAsync;
     protected int timeoutInSeconds = 30;
     protected final ProtocolEncoder encoder;
     protected final HttpTransport httpServer;
@@ -63,6 +75,9 @@ public class ServiceEndpointServerImpl implements ServiceEndpointServer {
     protected final ProtocolParser parser;
 
     private final AtomicBoolean stop = new AtomicBoolean();
+
+    /* Used for service discovery and registration. */
+    private final ServiceDiscovery serviceDiscovery;
 
 
     public ServiceEndpointServerImpl(final HttpTransport httpServer, final ProtocolEncoder encoder,
@@ -73,7 +88,12 @@ public class ServiceEndpointServerImpl implements ServiceEndpointServer {
                                      final int numberOfOutstandingRequests,
                                      final int batchSize,
                                      final int flushInterval,
-                                     final QBitSystemManager systemManager) {
+                                     final QBitSystemManager systemManager,
+                                     final String endpointName,
+                                     final ServiceDiscovery serviceDiscovery,
+                                     final int port,
+                                     final int ttlSeconds,
+                                     final HealthServiceAsync healthServiceAsync) {
 
         this.systemManager = systemManager;
         this.encoder = encoder;
@@ -83,12 +103,34 @@ public class ServiceEndpointServerImpl implements ServiceEndpointServer {
         this.jsonMapper = jsonMapper;
         this.timeoutInSeconds = timeOutInSeconds;
         this.batchSize = batchSize;
+        
+        this.healthServiceAsync = healthServiceAsync;
 
-        webSocketHandler = new WebSocketServiceServerHandler(batchSize, serviceBundle, 4, 4);
+        this.webSocketHandler = new WebSocketServiceServerHandler(batchSize, serviceBundle, 4, 4);
+
+        this.serviceDiscovery = serviceDiscovery;
 
         httpRequestServerHandler =
                 new HttpRequestServiceServerHandlerUsingMetaImpl(this.timeoutInSeconds,
                         serviceBundle, jsonMapper, numberOfOutstandingRequests, flushInterval);
+
+        this.endpoint = createEndpoint(endpointName, port, ttlSeconds);
+
+
+    }
+
+    private EndpointDefinition createEndpoint(String endpointName, int port, int ttlSeconds) {
+
+        if (serviceDiscovery!=null) {
+
+            if (ttlSeconds > 0) {
+                return serviceDiscovery.registerWithTTL(endpointName, port, ttlSeconds);
+            } else {
+                return serviceDiscovery.register(endpointName, port);
+            }
+        }
+
+        return null;
     }
 
 
@@ -101,15 +143,72 @@ public class ServiceEndpointServerImpl implements ServiceEndpointServer {
         httpServer.setHttpRequestConsumer(httpRequestServerHandler::handleRestCall);
         httpServer.setWebSocketMessageConsumer(webSocketHandler::handleWebSocketCall);
         httpServer.setWebSocketCloseConsumer(webSocketHandler::handleWebSocketClose);
-        httpServer.setHttpRequestsIdleConsumer(httpRequestServerHandler::httpRequestQueueIdle);
+
+
+        if (endpoint!=null && endpoint.getTimeToLive() > 0) {
+            handleServiceDiscoveryCheckIn();
+        } else {
+            httpServer.setHttpRequestsIdleConsumer(httpRequestServerHandler::httpRequestQueueIdle);
+        }
 
         httpServer.setWebSocketIdleConsume(webSocketHandler::webSocketQueueIdle);
 
         serviceBundle.startUpCallQueue();
         startResponseQueueListener();
         httpServer.start();
+
     }
 
+    private void handleServiceDiscoveryCheckIn() {
+        final AtomicLong lastCheckIn = new AtomicLong(Timer.clockTime());
+
+        final long checkinDuration = endpoint.getTimeToLive() * 1000 / 2;
+
+        if (healthServiceAsync == null) {
+            handleDiscoveryCheckInNoHealth(lastCheckIn, checkinDuration);
+        } else {
+            handleDiscoveryCheckInWithHealth(lastCheckIn, checkinDuration);
+        }
+    }
+
+    private void handleDiscoveryCheckInNoHealth(final AtomicLong lastCheckIn,
+                                                final long checkInDuration) {
+        httpServer.setHttpRequestsIdleConsumer(aVoid -> {
+            httpRequestServerHandler.httpRequestQueueIdle(null);
+
+            long now = Timer.clockTime();
+
+            if (now > lastCheckIn.get() + checkInDuration) {
+                lastCheckIn.set(now);
+                serviceDiscovery.checkInOk(endpoint.getId());
+            }
+
+        });
+    }
+
+
+    private void handleDiscoveryCheckInWithHealth(final AtomicLong lastCheckIn,
+                                                  final long checkInDuration) {
+        final AtomicBoolean ok = new AtomicBoolean(true);
+        
+        httpServer.setHttpRequestsIdleConsumer(aVoid -> {
+            httpRequestServerHandler.httpRequestQueueIdle(null);
+
+            long now = Timer.clockTime();
+
+            if (now > lastCheckIn.get() + checkInDuration) {
+                lastCheckIn.set(now);
+                if (ok.get()) {
+                    serviceDiscovery.checkInOk(endpoint.getId());
+                } else {
+                    serviceDiscovery.checkIn(endpoint.getId(), HealthStatus.FAIL);
+                }
+            }
+
+            healthServiceAsync.ok(ok::set);
+            ServiceProxyUtils.flushServiceProxy(healthServiceAsync);
+        });
+    }
     public void stop() {
 
         try {
