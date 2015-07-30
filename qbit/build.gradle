@@ -257,6 +257,7 @@ project('cluster:admin') {
     test.onlyIf { Boolean.getBoolean('integration.tests') }
     dependencies {
         compile project(':qbit:boon')
+        compile project(':qbit:cluster:consul-client')
         compile project(':qbit:core')
         testCompile project(':qbit:cluster:consul-client')
         testCompile project(':qbit:test-support')

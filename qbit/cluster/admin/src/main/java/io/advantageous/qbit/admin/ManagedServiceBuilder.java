@@ -1,6 +1,7 @@
 package io.advantageous.qbit.admin;
 
 import io.advantageous.boon.core.Str;
+import io.advantageous.consul.discovery.ConsulServiceDiscoveryBuilder;
 import io.advantageous.qbit.Factory;
 import io.advantageous.qbit.QBit;
 import io.advantageous.qbit.annotation.AnnotationUtils;
@@ -13,12 +14,14 @@ import io.advantageous.qbit.metrics.support.StatsDReplicatorBuilder;
 import io.advantageous.qbit.server.EndpointServerBuilder;
 import io.advantageous.qbit.service.ServiceBuilder;
 import io.advantageous.qbit.service.ServiceBundleBuilder;
+import io.advantageous.qbit.service.discovery.ServiceDiscovery;
 import io.advantageous.qbit.service.health.HealthServiceAsync;
 import io.advantageous.qbit.service.health.HealthServiceBuilder;
 import io.advantageous.qbit.system.QBitSystemManager;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Supplier;
 
 /** This is a utility class for when you are running in a PaaS like Heroku or Docker.
  *  It also allows you to share stat, health and system manager setup.
@@ -95,6 +98,57 @@ public class ManagedServiceBuilder {
 
 
     private StatsDReplicatorBuilder statsDReplicatorBuilder;
+
+    private ServiceDiscovery serviceDiscovery;
+
+
+    private Supplier<ServiceDiscovery> serviceDiscoverySupplier;
+
+
+    public void enableConsulServiceDiscovery(String dataCenter) {
+        final ConsulServiceDiscoveryBuilder consulServiceDiscoveryBuilder = ConsulServiceDiscoveryBuilder.consulServiceDiscoveryBuilder();
+        consulServiceDiscoveryBuilder.setDatacenter(dataCenter);
+        serviceDiscoverySupplier = () -> consulServiceDiscoveryBuilder.build();
+    }
+
+    public void enableConsulServiceDiscovery(String dataCenter, String host) {
+        final ConsulServiceDiscoveryBuilder consulServiceDiscoveryBuilder = ConsulServiceDiscoveryBuilder.consulServiceDiscoveryBuilder();
+        consulServiceDiscoveryBuilder.setDatacenter(dataCenter);
+        consulServiceDiscoveryBuilder.setConsulHost(host);
+        serviceDiscoverySupplier = () -> consulServiceDiscoveryBuilder.build();
+    }
+
+
+    public void enableConsulServiceDiscovery(String dataCenter, String host, int port) {
+        final ConsulServiceDiscoveryBuilder consulServiceDiscoveryBuilder = ConsulServiceDiscoveryBuilder.consulServiceDiscoveryBuilder();
+        consulServiceDiscoveryBuilder.setDatacenter(dataCenter);
+        consulServiceDiscoveryBuilder.setConsulHost(host);
+        consulServiceDiscoveryBuilder.setConsulPort(port);
+        serviceDiscoverySupplier = () -> consulServiceDiscoveryBuilder.build();
+    }
+
+    public Supplier<ServiceDiscovery> getServiceDiscoverySupplier() {
+        return serviceDiscoverySupplier;
+    }
+
+    public ManagedServiceBuilder setServiceDiscoverySupplier(Supplier<ServiceDiscovery> serviceDiscoverySupplier) {
+        this.serviceDiscoverySupplier = serviceDiscoverySupplier;
+        return this;
+    }
+
+    public ServiceDiscovery getServiceDiscovery() {
+        if (serviceDiscovery == null) {
+            if (serviceDiscoverySupplier!=null) {
+                serviceDiscovery = serviceDiscoverySupplier.get();
+            }
+        }
+        return serviceDiscovery;
+    }
+
+    public ManagedServiceBuilder setServiceDiscovery(ServiceDiscovery serviceDiscovery) {
+        this.serviceDiscovery = serviceDiscovery;
+        return this;
+    }
 
     public StatsDReplicatorBuilder getStatsDReplicatorBuilder() {
         if (statsDReplicatorBuilder == null) {
@@ -323,6 +377,7 @@ public class ManagedServiceBuilder {
             endpointServerBuilder.setHttpServer(getHttpServerBuilder().build());
             endpointServerBuilder.setStatsFlushRateSeconds(getSampleStatFlushRate());
             endpointServerBuilder.setCheckTimingEveryXCalls(getCheckTimingEveryXCalls());
+            endpointServerBuilder.setServiceDiscovery(getServiceDiscovery());
 
 
 
@@ -354,6 +409,8 @@ public class ManagedServiceBuilder {
         endpointServerBuilder.setHealthService(getHealthService());
         endpointServerBuilder.setStatsFlushRateSeconds(getSampleStatFlushRate());
         endpointServerBuilder.setCheckTimingEveryXCalls(getCheckTimingEveryXCalls());
+        endpointServerBuilder.setServiceDiscovery(getServiceDiscovery());
+
 
 
         if (isEnableStats()) {
