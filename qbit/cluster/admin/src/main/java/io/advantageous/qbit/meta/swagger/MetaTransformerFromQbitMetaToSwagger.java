@@ -46,70 +46,14 @@ public class MetaTransformerFromQbitMetaToSwagger {
         for (ServiceMeta serviceMeta : services) {
 
             final List<ServiceMethodMeta> methodMetas = serviceMeta.getMethods();
-            for (ServiceMethodMeta methodMeta : methodMetas) {
-                final List<RequestMeta> requestEndpoints = methodMeta.getRequestEndpoints();
-                final MethodAccess methodAccess = methodMeta.getMethodAccess();
 
+            final List<String> serviceMetaRequestPaths = serviceMeta.getRequestPaths();
 
-                for (RequestMeta requestMeta : requestEndpoints) {
-                    final String requestURI = requestMeta.getRequestURI();
+            for (final String servicePath : serviceMetaRequestPaths) {
 
-                    PathBuilder pathBuilder = pathBuilderMap.get(requestURI);
-                    if (pathBuilder == null) {
-                        pathBuilder = new PathBuilder();
-                        pathBuilderMap.put(requestURI, pathBuilder);
-                    }
-
-                    final List<RequestMethod> requestMethods = requestMeta.getRequestMethods();
-
-
-                    for (RequestMethod requestMethod : requestMethods) {
-                        final OperationBuilder operationBuilder = new OperationBuilder();
-
-
-                        addParameters(operationBuilder, requestMeta.getParameters(), methodAccess,
-                                requestMeta.getRequestURI(), contextMeta.getRootURI());
-                        operationBuilder.setOperationId(methodAccess.name());
-
-                        if (methodMeta.hasCallBack() || methodAccess.returnType() != void.class) {
-
-                            ResponseBuilder responseBuilder = new ResponseBuilder();
-
-                            responseBuilder.setSchema(definitionClassCollector.getSchema(methodAccess.returnType()));
-                            operationBuilder.getResponses().put(200, responseBuilder.build());
-                            operationBuilder.getProduces().add("application/json");
-
-                        } else {
-                            ResponseBuilder responseBuilder = new ResponseBuilder();
-                            SchemaBuilder schemaBuilder = new SchemaBuilder();
-                            schemaBuilder.setType("string");
-                            operationBuilder.getResponses().put(201, responseBuilder.build());
-                        }
-
-                        switch (requestMethod) {
-                            case GET:
-                                pathBuilder.setGet(operationBuilder.build());
-                                break;
-                            case POST:
-                                pathBuilder.setPost(operationBuilder.build());
-                                break;
-                            case PUT:
-                                pathBuilder.setPut(operationBuilder.build());
-                                break;
-                            case OPTIONS:
-                                pathBuilder.setOptions(operationBuilder.build());
-                                break;
-                            case DELETE:
-                                pathBuilder.setDelete(operationBuilder.build());
-                                break;
-                            case HEAD:
-                                pathBuilder.setHead(operationBuilder.build());
-                                break;
-
-                        }
-                    }
-                }
+                extractPathsFromRequestMetaList(servicePath, contextMeta, pathBuilderMap, methodMetas);
             }
+
         }
 
         final Set<Map.Entry<String, PathBuilder>> pathEntries = pathBuilderMap.entrySet();
@@ -128,6 +72,85 @@ public class MetaTransformerFromQbitMetaToSwagger {
         return builder.build();
     }
 
+    private void extractPathsFromRequestMetaList(String servicePath, ContextMeta contextMeta, Map<String, PathBuilder> pathBuilderMap, List<ServiceMethodMeta> methodMetas) {
+        for (ServiceMethodMeta methodMeta : methodMetas) {
+            final List<RequestMeta> requestEndpoints = methodMeta.getRequestEndpoints();
+            final MethodAccess methodAccess = methodMeta.getMethodAccess();
+
+
+            for (RequestMeta requestMeta : requestEndpoints) {
+
+
+                final String requestURI = (servicePath + requestMeta.getRequestURI()).replaceAll("//", "/");
+
+                final PathBuilder pathBuilder = createPathBuilderIfAbsent(pathBuilderMap, requestURI);
+
+                final List<RequestMethod> requestMethods = requestMeta.getRequestMethods();
+
+
+                for (RequestMethod requestMethod : requestMethods) {
+                    extractPathFromRequestMeta(contextMeta, methodMeta, methodAccess, requestMeta,
+                            pathBuilder, requestMethod);
+                }
+            }
+        }
+    }
+
+    private void extractPathFromRequestMeta(ContextMeta contextMeta, ServiceMethodMeta methodMeta, MethodAccess methodAccess, RequestMeta requestMeta, PathBuilder pathBuilder, RequestMethod requestMethod) {
+        final OperationBuilder operationBuilder = new OperationBuilder();
+
+
+        addParameters(operationBuilder, requestMeta.getParameters(), methodAccess,
+                requestMeta.getRequestURI(), contextMeta.getRootURI());
+        operationBuilder.setOperationId(methodAccess.name());
+
+        if (methodMeta.hasCallBack() || methodAccess.returnType() != void.class) {
+
+            ResponseBuilder responseBuilder = new ResponseBuilder();
+
+            responseBuilder.setSchema(definitionClassCollector.getSchema(methodAccess.returnType()));
+            operationBuilder.getResponses().put(200, responseBuilder.build());
+            operationBuilder.getProduces().add("application/json");
+
+        } else {
+            ResponseBuilder responseBuilder = new ResponseBuilder();
+            SchemaBuilder schemaBuilder = new SchemaBuilder();
+            schemaBuilder.setType("string");
+            operationBuilder.getResponses().put(201, responseBuilder.build());
+        }
+
+        switch (requestMethod) {
+            case GET:
+                pathBuilder.setGet(operationBuilder.build());
+                break;
+            case POST:
+                pathBuilder.setPost(operationBuilder.build());
+                break;
+            case PUT:
+                pathBuilder.setPut(operationBuilder.build());
+                break;
+            case OPTIONS:
+                pathBuilder.setOptions(operationBuilder.build());
+                break;
+            case DELETE:
+                pathBuilder.setDelete(operationBuilder.build());
+                break;
+            case HEAD:
+                pathBuilder.setHead(operationBuilder.build());
+                break;
+
+        }
+    }
+
+    private PathBuilder createPathBuilderIfAbsent(Map<String, PathBuilder> pathBuilderMap, String requestURI) {
+        PathBuilder pathBuilder = pathBuilderMap.get(requestURI);
+        if (pathBuilder == null) {
+            pathBuilder = new PathBuilder();
+            pathBuilderMap.put(requestURI, pathBuilder);
+        }
+        return pathBuilder;
+    }
+
     private void addParameters(final OperationBuilder operationBuilder,
                                final List<ParameterMeta> parameterMetaList,
                                final MethodAccess methodAccess, final String requestURI,
@@ -135,7 +158,6 @@ public class MetaTransformerFromQbitMetaToSwagger {
                                ) {
 
 
-        final String fullURI = (baseURI + requestURI).replaceAll("//", "/");
         final String[] uriParts = Str.split(requestURI, '/');
 
 
