@@ -455,6 +455,7 @@ public class ManagedServiceBuilder {
             endpointServerBuilder.setStatsFlushRateSeconds(getSampleStatFlushRate());
             endpointServerBuilder.setCheckTimingEveryXCalls(getCheckTimingEveryXCalls());
             endpointServerBuilder.setServiceDiscovery(getServiceDiscovery());
+            endpointServerBuilder.setUri(getRootURI());
 
 
 
