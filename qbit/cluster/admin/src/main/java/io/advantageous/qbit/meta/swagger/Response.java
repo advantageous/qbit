@@ -4,8 +4,8 @@ public class Response {
     private final String description;
     private final Schema schema;
 
-    public Response(String description, Schema schema) {
-        this.description = description;
+    public Response(final String description, final Schema schema) {
+        this.description = description == null ? "returns" : description;
         this.schema = schema;
     }
 

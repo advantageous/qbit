@@ -19,9 +19,6 @@
 package io.advantageous.qbit.service;
 
 import io.advantageous.qbit.QBit;
-import io.advantageous.qbit.annotation.QueueCallback;
-import io.advantageous.qbit.concurrent.PeriodicScheduler;
-import io.advantageous.qbit.message.Event;
 import io.advantageous.qbit.message.MethodCall;
 import io.advantageous.qbit.message.Request;
 import io.advantageous.qbit.message.Response;
@@ -40,7 +37,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 

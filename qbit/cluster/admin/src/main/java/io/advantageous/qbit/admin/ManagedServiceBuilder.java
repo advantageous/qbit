@@ -104,6 +104,80 @@ public class ManagedServiceBuilder {
 
     private Supplier<ServiceDiscovery> serviceDiscoverySupplier;
 
+    private  String rootURI = "/services";
+
+
+    private  String publicHost = "localhost";
+
+    private int port = 8080;
+
+    private int publicPort = -1;
+
+    public String getPublicHost() {
+
+        if (System.getenv("PUBLIC_HOST")!=null) {
+            publicHost = System.getenv("PUBLIC_HOST");
+        }
+        return publicHost;
+    }
+
+    public ManagedServiceBuilder setPublicHost(String publicHost) {
+        this.publicHost = publicHost;
+        return this;
+    }
+
+    public int getPublicPort() {
+        if (publicPort==-1) {
+
+            String sport = System.getenv("PUBLIC_WEB_PORT");
+
+            if (!Str.isEmpty(sport)) {
+                publicPort = Integer.parseInt(sport);
+            }
+        }
+
+        if (publicPort==-1) {
+            publicPort = getPort();
+        }
+
+        return publicPort;
+    }
+
+    public ManagedServiceBuilder setPublicPort(int publicPort) {
+        this.publicPort = publicPort;
+        return this;
+    }
+
+    public int getPort() {
+
+        if (port==8080) {
+
+            String sport = System.getenv("WEB_PORT");
+            if (Str.isEmpty(sport)) {
+                sport = System.getenv("PORT");
+            }
+
+
+            if (!Str.isEmpty(sport)) {
+                port = Integer.parseInt(sport);
+            }
+        }
+        return port;
+    }
+
+    public ManagedServiceBuilder setPort(int port) {
+        this.port = port;
+        return this;
+    }
+
+    public String getRootURI() {
+        return rootURI;
+    }
+
+    public ManagedServiceBuilder setRootURI(String rootURI) {
+        this.rootURI = rootURI;
+        return this;
+    }
 
     public void enableConsulServiceDiscovery(String dataCenter) {
         final ConsulServiceDiscoveryBuilder consulServiceDiscoveryBuilder = ConsulServiceDiscoveryBuilder.consulServiceDiscoveryBuilder();
@@ -186,6 +260,7 @@ public class ManagedServiceBuilder {
             }
             adminBuilder.setContextBuilder(this.getContextMetaBuilder());
             adminBuilder.setHealthService(getHealthService());
+
         }
         return adminBuilder;
     }
@@ -199,6 +274,9 @@ public class ManagedServiceBuilder {
     public ContextMetaBuilder getContextMetaBuilder() {
         if (contextMetaBuilder == null) {
             contextMetaBuilder = ContextMetaBuilder.contextMetaBuilder();
+            contextMetaBuilder
+                    .setHostAddress(this.getPublicHost() + ":" + this.getPublicPort())
+                    .setRootURI(this.getRootURI());
         }
         return contextMetaBuilder;
     }
@@ -273,12 +351,11 @@ public class ManagedServiceBuilder {
         if (httpServerBuilder == null) {
             httpServerBuilder = HttpServerBuilder.httpServerBuilder();
 
-            String port = System.getenv("WEB_PORT");
-            if (Str.isEmpty(port)) {
-                port = System.getenv("PORT");
-            }
+            int port = getPort();
+
+
             if (!Str.isEmpty(port)) {
-                httpServerBuilder.setPort(Integer.parseInt(port));
+                httpServerBuilder.setPort(port);
             }
         }
         return httpServerBuilder;

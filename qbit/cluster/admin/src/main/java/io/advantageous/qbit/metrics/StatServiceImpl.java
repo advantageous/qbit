@@ -85,7 +85,7 @@ public class StatServiceImpl implements QueueCallBackHandler, ServiceChangedEven
 
 
     public void recordLevel(String name, int count) {
-        recordCountWithTime(name, count, now);
+        recordLevelWithTime(name, count, now);
     }
 
     public void recordTiming(String name, int duration) {

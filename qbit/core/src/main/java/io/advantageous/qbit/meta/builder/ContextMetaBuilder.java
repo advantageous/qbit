@@ -32,13 +32,13 @@ public class ContextMetaBuilder {
      * GFM is https://help.github.com/articles/github-flavored-markdown/
      * GitHub Flavored Markdown.
      */
-    private String description=null;
-    private String contactName=null;
-    private String contactURL=null;
-    private String contactEmail=null;
-    private String licenseName=null;
-    private String licenseURL=null;
-    private String version="0.1";
+    private String description="Description not set";
+    private String contactName="ContactName not set";
+    private String contactURL="Contact URL not set";
+    private String contactEmail="no.contact.email@set.me.please.com";
+    private String licenseName="licenseName not set";
+    private String licenseURL="http://www.license.url.com/not/set/";
+    private String version="0.1-NOT-SET";
     private String hostAddress="localhost";
 
 

@@ -202,14 +202,15 @@ public class LocalStatsCollector implements StatReplicator, QueueCallBackHandler
 
     private void collectLevel(final Metric metric, final  Map<String, Number> metricsLevelMap) {
         metricsLevelMap.put(metric.name, metric.value);
-        metricsLevelMap.put(metric.name + ".mean", metric.stats.mean());
-        metricsLevelMap.put(metric.name + ".std", metric.stats.standardDeviation());
-        metricsLevelMap.put(metric.name + ".median", metric.stats.median());
-        metricsLevelMap.put(metric.name + ".min", metric.stats.min());
-        metricsLevelMap.put(metric.name + ".max", metric.stats.max());
-        metricsLevelMap.put(metric.name + ".count", metric.stats.size());
-        metric.value = 0;
-        metric.stats.clear();
+
+        if (metric.stats.size()>1) {
+            metricsLevelMap.put(metric.name + ".mean", metric.stats.mean());
+            metricsLevelMap.put(metric.name + ".std", metric.stats.standardDeviation());
+            metricsLevelMap.put(metric.name + ".median", metric.stats.median());
+            metricsLevelMap.put(metric.name + ".min", metric.stats.min());
+            metricsLevelMap.put(metric.name + ".max", metric.stats.max());
+            metricsLevelMap.put(metric.name + ".count", metric.stats.size());
+        }
 
     }
 

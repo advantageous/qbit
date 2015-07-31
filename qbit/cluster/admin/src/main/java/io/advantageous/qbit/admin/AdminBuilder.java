@@ -231,8 +231,9 @@ public class AdminBuilder {
 
     public EndpointServerBuilder getEndpointServerBuilder() {
         if (endpointServerBuilder == null) {
-            endpointServerBuilder = EndpointServerBuilder.endpointServerBuilder().setPort(this.getPort());
-            endpointServerBuilder.setUri("/");
+            endpointServerBuilder = EndpointServerBuilder.endpointServerBuilder()
+                    .setUri("/")
+                    .setPort(this.getPort());
             if (host != null && !"".equals(host)) {
                 endpointServerBuilder.setHost(host);
             }

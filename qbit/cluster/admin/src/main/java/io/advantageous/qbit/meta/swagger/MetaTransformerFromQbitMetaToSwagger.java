@@ -25,6 +25,14 @@ public class MetaTransformerFromQbitMetaToSwagger {
         builder.getApiInfoBuilder().getLicenseBuilder().setName(contextMeta.getLicenseName());
         builder.getApiInfoBuilder().getLicenseBuilder().setUrl(contextMeta.getLicenseURL());
 
+        builder.getApiInfoBuilder().getContactBuilder().setEmail(contextMeta.getContactEmail());
+        builder.getApiInfoBuilder().getContactBuilder().setName(contextMeta.getContactName());
+        builder.getApiInfoBuilder().setDescription(contextMeta.getDescription());
+        builder.getApiInfoBuilder().getLicenseBuilder().setName(contextMeta.getLicenseName());
+        builder.getApiInfoBuilder().getLicenseBuilder().setUrl(contextMeta.getLicenseURL());
+        builder.getApiInfoBuilder().setTitle(contextMeta.getTitle());
+        builder.getApiInfoBuilder().setVersion(contextMeta.getVersion());
+
         builder.setBasePath(contextMeta.getRootURI());
         builder.setHost(contextMeta.getHostAddress());
 

@@ -84,7 +84,8 @@ public class ServiceMetaBuilder {
     }
 
     public void addMethods(String path, Collection<MethodAccess> methods) {
-        methods.stream().filter(methodAccess -> !methodAccess.isPrivate())
+        methods.stream().filter(methodAccess -> !methodAccess.isPrivate()
+                && !methodAccess.isStatic())
                 .forEach(methodAccess -> addMethod(path, methodAccess));
     }
 
@@ -99,12 +100,6 @@ public class ServiceMetaBuilder {
 
             final List<RequestMethod> requestMethods = getRequestMethodsByAnnotated(methodAccess);
 
-            //Commenting this out because it is legitimate to have more than 1
-            // request method on a single path so this check is invalid.
-            //TODO: Do we need a different check to perform here?
-//            if (requestPaths.size() != requestMethods.size()) {
-//                throw new IllegalStateException();
-//            }
 
             ServiceMethodMetaBuilder serviceMethodMetaBuilder = ServiceMethodMetaBuilder.serviceMethodMetaBuilder();
             serviceMethodMetaBuilder.setMethodAccess(methodAccess);
