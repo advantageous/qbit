@@ -75,15 +75,19 @@ public class DefinitionClassCollector {
 
          */
 
-        TypeType type = TypeType.getType(cls);
+        if (cls != null) {
+            TypeType type = TypeType.getType(cls);
 
-        if (type.isArray() ) {
-            return Schema.array(Schema.definitionRef(cls.getComponentType().getSimpleName()));
-        } else if (type.isCollection()) {
-            return Schema.array(Schema.definitionRef(componentClass.getSimpleName()));
+            if (type.isArray()) {
+                return Schema.array(Schema.definitionRef(cls.getComponentType().getSimpleName()));
+            } else if (type.isCollection()) {
+                return Schema.array(Schema.definitionRef(componentClass.getSimpleName()));
+            }
+
+            return Schema.definitionRef(cls.getSimpleName());
+        } else {
+              return Schema.schema("string");
         }
-
-        return Schema.definitionRef(cls.getSimpleName());
 
     }
 

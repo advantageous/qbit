@@ -17,11 +17,10 @@ package io.advantageous.qbit.meta.swagger;
  *
  * QBit - The Microservice lib for Java : JSON, WebSocket, REST. Be The Web!
  */
-import io.advantageous.qbit.annotation.HeaderParam;
-import io.advantageous.qbit.annotation.PathVariable;
-import io.advantageous.qbit.annotation.RequestMapping;
-import io.advantageous.qbit.annotation.RequestParam;
+import io.advantageous.qbit.annotation.*;
+import io.advantageous.qbit.reactive.Callback;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -70,6 +69,19 @@ public class SampleService {
     public List<Department> listDepts() {
         return Collections.emptyList();
     }
+
+
+    @RequestMapping(value = "/todo", method = RequestMethod.POST)
+    public void add(final Callback<Boolean> callback, final Department todo) {
+        callback.accept(true);
+    }
+
+
+    @RequestMapping(value = "/todo", method = RequestMethod.GET)
+    public void list(final Callback<ArrayList<Department>> callback) {
+        callback.accept(new ArrayList<>());
+    }
+
 
 
 }
