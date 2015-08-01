@@ -1,6 +1,5 @@
 package io.advantageous.qbit.meta.swagger;
 
-import io.advantageous.boon.core.Str;
 import io.advantageous.boon.core.TypeType;
 import io.advantageous.boon.core.reflection.MethodAccess;
 import io.advantageous.qbit.annotation.RequestMethod;
@@ -97,15 +96,14 @@ public class MetaTransformerFromQbitMetaToSwagger {
 
 
                 for (RequestMethod requestMethod : requestMethods) {
-                    extractPathFromRequestMeta(contextMeta, methodMeta, methodAccess, requestMeta,
+                    extractPathFromRequestMeta(methodMeta, methodAccess, requestMeta,
                             pathBuilder, requestMethod);
                 }
             }
         }
     }
 
-    private void extractPathFromRequestMeta(final ContextMeta contextMeta,
-                                            final ServiceMethodMeta methodMeta,
+    private void extractPathFromRequestMeta(final ServiceMethodMeta methodMeta,
                                             final MethodAccess methodAccess,
                                             final RequestMeta requestMeta,
                                             final PathBuilder pathBuilder,
@@ -132,7 +130,7 @@ public class MetaTransformerFromQbitMetaToSwagger {
 
             switch (returnType) {
                 case VOID:
-                    responseBuilder.setSchema(definitionClassCollector.getSchema(String.class));
+                    responseBuilder.setSchema(Schema.schema("string"));
                     operationBuilder.getResponses().put(201, responseBuilder.build());
                     operationBuilder.getProduces().add("application/json");
                     break;
@@ -182,6 +180,7 @@ public class MetaTransformerFromQbitMetaToSwagger {
             final ResponseBuilder responseBuilder = new ResponseBuilder();
             final SchemaBuilder schemaBuilder = new SchemaBuilder();
             schemaBuilder.setType("string");
+            responseBuilder.setSchema(schemaBuilder.build());
             operationBuilder.getResponses().put(201, responseBuilder.build());
         }
 
