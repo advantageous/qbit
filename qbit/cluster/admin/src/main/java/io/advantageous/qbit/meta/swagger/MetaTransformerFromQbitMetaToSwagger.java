@@ -1,12 +1,12 @@
 package io.advantageous.qbit.meta.swagger;
 
-import io.advantageous.boon.core.Str;
 import io.advantageous.boon.core.TypeType;
 import io.advantageous.boon.core.reflection.MethodAccess;
 import io.advantageous.qbit.annotation.RequestMethod;
 import io.advantageous.qbit.meta.*;
 import io.advantageous.qbit.meta.params.*;
 import io.advantageous.qbit.meta.swagger.builders.*;
+import io.advantageous.qbit.reactive.Callback;
 
 
 import java.lang.reflect.ParameterizedType;
@@ -15,25 +15,13 @@ import java.util.*;
 
 public class MetaTransformerFromQbitMetaToSwagger {
 
-    final DefinitionClassCollector definitionClassCollector = new DefinitionClassCollector();
+    private final DefinitionClassCollector definitionClassCollector = new DefinitionClassCollector();
 
     public ServiceEndpointInfo serviceEndpointInfo(final ContextMeta contextMeta) {
 
         final ServiceEndpointInfoBuilder builder = new ServiceEndpointInfoBuilder();
 
-        builder.getApiInfoBuilder().getContactBuilder().setEmail(contextMeta.getContactEmail());
-        builder.getApiInfoBuilder().getContactBuilder().setName(contextMeta.getContactName());
-        builder.getApiInfoBuilder().getContactBuilder().setUrl(contextMeta.getContactURL());
-        builder.getApiInfoBuilder().getLicenseBuilder().setName(contextMeta.getLicenseName());
-        builder.getApiInfoBuilder().getLicenseBuilder().setUrl(contextMeta.getLicenseURL());
-
-        builder.getApiInfoBuilder().getContactBuilder().setEmail(contextMeta.getContactEmail());
-        builder.getApiInfoBuilder().getContactBuilder().setName(contextMeta.getContactName());
-        builder.getApiInfoBuilder().setDescription(contextMeta.getDescription());
-        builder.getApiInfoBuilder().getLicenseBuilder().setName(contextMeta.getLicenseName());
-        builder.getApiInfoBuilder().getLicenseBuilder().setUrl(contextMeta.getLicenseURL());
-        builder.getApiInfoBuilder().setTitle(contextMeta.getTitle());
-        builder.getApiInfoBuilder().setVersion(contextMeta.getVersion());
+        populateAPIInfo(contextMeta, builder);
 
         builder.setBasePath(contextMeta.getRootURI());
         builder.setHost(contextMeta.getHostAddress());
@@ -41,10 +29,20 @@ public class MetaTransformerFromQbitMetaToSwagger {
         final List<ServiceMeta> services = contextMeta.getServices();
         final Map<String, PathBuilder> pathBuilderMap = new HashMap<>();
 
-        buildDefinitions(services);
+        buildDefinitions(builder, services);
+
+
+        buildPaths(contextMeta, builder, services, pathBuilderMap);
 
 
 
+        return builder.build();
+    }
+
+    private void buildPaths(final ContextMeta contextMeta,
+                            final ServiceEndpointInfoBuilder builder,
+                            final List<ServiceMeta> services,
+                            final Map<String, PathBuilder> pathBuilderMap) {
         for (ServiceMeta serviceMeta : services) {
 
             final List<ServiceMethodMeta> methodMetas = serviceMeta.getMethods();
@@ -63,15 +61,22 @@ public class MetaTransformerFromQbitMetaToSwagger {
         for (Map.Entry<String, PathBuilder> entry : pathEntries) {
             builder.addPath(entry.getKey(), entry.getValue().build());
         }
+    }
 
-        final Map<String, Definition> definitionMap = definitionClassCollector.getDefinitionMap();
+    private void populateAPIInfo(ContextMeta contextMeta, ServiceEndpointInfoBuilder builder) {
+        builder.getApiInfoBuilder().getContactBuilder().setEmail(contextMeta.getContactEmail());
+        builder.getApiInfoBuilder().getContactBuilder().setName(contextMeta.getContactName());
+        builder.getApiInfoBuilder().getContactBuilder().setUrl(contextMeta.getContactURL());
+        builder.getApiInfoBuilder().getLicenseBuilder().setName(contextMeta.getLicenseName());
+        builder.getApiInfoBuilder().getLicenseBuilder().setUrl(contextMeta.getLicenseURL());
 
-        definitionMap.entrySet().forEach(entry -> {
-            builder.addDefinition(entry.getKey(), entry.getValue());
-        });
-
-
-        return builder.build();
+        builder.getApiInfoBuilder().getContactBuilder().setEmail(contextMeta.getContactEmail());
+        builder.getApiInfoBuilder().getContactBuilder().setName(contextMeta.getContactName());
+        builder.getApiInfoBuilder().setDescription(contextMeta.getDescription());
+        builder.getApiInfoBuilder().getLicenseBuilder().setName(contextMeta.getLicenseName());
+        builder.getApiInfoBuilder().getLicenseBuilder().setUrl(contextMeta.getLicenseURL());
+        builder.getApiInfoBuilder().setTitle(contextMeta.getTitle());
+        builder.getApiInfoBuilder().setVersion(contextMeta.getVersion());
     }
 
     private void extractPathsFromRequestMetaList(String servicePath, ContextMeta contextMeta, Map<String, PathBuilder> pathBuilderMap, List<ServiceMethodMeta> methodMetas) {
@@ -91,15 +96,14 @@ public class MetaTransformerFromQbitMetaToSwagger {
 
 
                 for (RequestMethod requestMethod : requestMethods) {
-                    extractPathFromRequestMeta(contextMeta, methodMeta, methodAccess, requestMeta,
+                    extractPathFromRequestMeta(methodMeta, methodAccess, requestMeta,
                             pathBuilder, requestMethod);
                 }
             }
         }
     }
 
-    private void extractPathFromRequestMeta(final ContextMeta contextMeta,
-                                            final ServiceMethodMeta methodMeta,
+    private void extractPathFromRequestMeta(final ServiceMethodMeta methodMeta,
                                             final MethodAccess methodAccess,
                                             final RequestMeta requestMeta,
                                             final PathBuilder pathBuilder,
@@ -107,8 +111,7 @@ public class MetaTransformerFromQbitMetaToSwagger {
         final OperationBuilder operationBuilder = new OperationBuilder();
 
 
-        addParameters(operationBuilder, requestMeta.getParameters(), methodAccess,
-                requestMeta.getRequestURI(), contextMeta.getRootURI());
+        addParameters(operationBuilder, requestMeta.getParameters());
         operationBuilder.setOperationId(methodAccess.name());
 
         if (methodMeta.hasCallBack() || methodAccess.returnType() != void.class) {
@@ -116,17 +119,68 @@ public class MetaTransformerFromQbitMetaToSwagger {
             final ResponseBuilder responseBuilder = new ResponseBuilder();
 
 
-            final Class componentClassTypeForReturn = getComponentClassForReturnFromMethod(methodAccess);
+            final Class actualReturnType = !methodMeta.hasCallBack()
+                 ? methodAccess.returnType() :
+                    getComponentClassForReturnFromMethodFromCallback(methodAccess);
 
 
-            responseBuilder.setSchema(definitionClassCollector.getSchema(methodAccess.returnType(), componentClassTypeForReturn));
-            operationBuilder.getResponses().put(200, responseBuilder.build());
-            operationBuilder.getProduces().add("application/json");
+            TypeType returnType = actualReturnType==null ? TypeType.NULL :
+                    actualReturnType == void.class ? TypeType.VOID :
+                    TypeType.getType(actualReturnType);
+
+            switch (returnType) {
+                case VOID:
+                    responseBuilder.setSchema(Schema.schema("string"));
+                    operationBuilder.getResponses().put(201, responseBuilder.build());
+                    operationBuilder.getProduces().add("application/json");
+                    break;
+
+                case LIST:
+                case SET:
+                case COLLECTION:
+
+
+                    Class componentReturnType;
+
+                    if (methodMeta.hasCallBack()) {
+
+                        ParameterizedType parameterizedType = (ParameterizedType) methodAccess.method().getGenericParameterTypes()[0];
+
+                        ParameterizedType componentType = (ParameterizedType) parameterizedType.getActualTypeArguments()[0];
+                        componentReturnType  = (Class) componentType.getActualTypeArguments()[0];
+                    } else {
+                        componentReturnType = calculateReturnTypeComponentClassForCollection(methodAccess);
+                    }
+
+
+                    responseBuilder.setSchema(definitionClassCollector.getSchema(actualReturnType, componentReturnType));
+                    operationBuilder.getResponses().put(200, responseBuilder.build());
+                    operationBuilder.getProduces().add("application/json");
+
+                    break;
+
+
+                case ARRAY:
+
+                    responseBuilder.setSchema(definitionClassCollector.getSchema(actualReturnType,
+                            actualReturnType.getComponentType()));
+                    operationBuilder.getResponses().put(200, responseBuilder.build());
+                    operationBuilder.getProduces().add("application/json");
+
+
+                default:
+                    responseBuilder.setSchema(definitionClassCollector.getSchema(actualReturnType));
+                    operationBuilder.getResponses().put(200, responseBuilder.build());
+                    operationBuilder.getProduces().add("application/json");
+
+            }
+
 
         } else {
-            ResponseBuilder responseBuilder = new ResponseBuilder();
-            SchemaBuilder schemaBuilder = new SchemaBuilder();
+            final ResponseBuilder responseBuilder = new ResponseBuilder();
+            final SchemaBuilder schemaBuilder = new SchemaBuilder();
             schemaBuilder.setType("string");
+            responseBuilder.setSchema(schemaBuilder.build());
             operationBuilder.getResponses().put(201, responseBuilder.build());
         }
 
@@ -152,6 +206,35 @@ public class MetaTransformerFromQbitMetaToSwagger {
 
         }
     }
+
+    private Class getComponentClassForReturnFromMethodFromCallback(MethodAccess methodAccess) {
+
+        if (methodAccess.parameterTypes().length > 0) {
+
+            Type genericType = methodAccess.getGenericParameterTypes()[0];
+
+            if (genericType instanceof ParameterizedType) {
+
+                Type compType = ((ParameterizedType) genericType)
+                        .getActualTypeArguments()[0];
+
+                Class componentClassTypeForReturn = null;
+
+                if (compType instanceof ParameterizedType) {
+                    componentClassTypeForReturn = (Class) ((ParameterizedType) compType).getRawType();
+                } else {
+                    componentClassTypeForReturn = (Class) compType;
+                }
+
+
+                return componentClassTypeForReturn;
+            }
+        }
+
+        return Object.class;
+
+    }
+
 
     private Class getComponentClassForReturnFromMethod(MethodAccess methodAccess) {
         Class componentClassTypeForReturn = null;
@@ -187,20 +270,24 @@ public class MetaTransformerFromQbitMetaToSwagger {
     }
 
     private void addParameters(final OperationBuilder operationBuilder,
-                               final List<ParameterMeta> parameterMetaList,
-                               final MethodAccess methodAccess, final String requestURI,
-                               final String baseURI
+                               final List<ParameterMeta> parameterMetaList
+                               //final MethodAccess methodAccess, final String requestURI,
+                               //final String baseURI
                                ) {
 
 
-        final String[] uriParts = Str.split(requestURI, '/');
+        //final String[] uriParts = Str.split(requestURI, '/');
 
 
 
-        for (ParameterMeta parameterMeta : parameterMetaList) {
+        for (final ParameterMeta parameterMeta : parameterMetaList) {
 
 
-            ParameterBuilder parameterBuilder = new ParameterBuilder();
+            if (parameterMeta.getClassType() == Callback.class) {
+                continue;
+            }
+
+            final ParameterBuilder parameterBuilder = new ParameterBuilder();
 
 
             if (parameterMeta.getParam() instanceof NamedParam) {
@@ -259,12 +346,19 @@ public class MetaTransformerFromQbitMetaToSwagger {
         }
     }
 
-    private void buildDefinitions(final List<ServiceMeta> services) {
+    private void buildDefinitions(ServiceEndpointInfoBuilder builder, final List<ServiceMeta> services) {
 
 
         services.forEach(serviceMeta -> {
             populateDefinitionMapByService(serviceMeta);
         });
+
+        final Map<String, Definition> definitionMap = definitionClassCollector.getDefinitionMap();
+
+        definitionMap.entrySet().forEach(entry -> {
+            builder.addDefinition(entry.getKey(), entry.getValue());
+        });
+
 
     }
 
@@ -274,9 +368,10 @@ public class MetaTransformerFromQbitMetaToSwagger {
 
     private void populateDefinitionMapByServiceMethod(final ServiceMethodMeta serviceMethodMeta) {
 
-        MethodAccess methodAccess = serviceMethodMeta.getMethodAccess();
+        final MethodAccess methodAccess = serviceMethodMeta.getMethodAccess();
 
-        TypeType type = TypeType.getType(methodAccess.returnType());
+        final TypeType type = methodAccess.returnType() == void.class ? TypeType.VOID :
+                TypeType.getType(methodAccess.returnType());
 
         switch (type) {
             case LIST:
@@ -294,6 +389,18 @@ public class MetaTransformerFromQbitMetaToSwagger {
                 definitionClassCollector.addClass(methodAccess.returnType().getComponentType());
                 break;
 
+            case VOID:
+                Type[] genericParameterTypes = serviceMethodMeta.getMethodAccess().getGenericParameterTypes();
+                if (genericParameterTypes.length > 1) {
+
+                    Type genericParameterType = genericParameterTypes[0];
+
+                    if (genericParameterType instanceof Callback) {
+                        extractReturnTypeFromCallback(genericParameterType);
+                    }
+                }
+                break;
+
             default:
                 definitionClassCollector.addClass(methodAccess.returnType());
         }
@@ -302,9 +409,53 @@ public class MetaTransformerFromQbitMetaToSwagger {
         }
     }
 
+    private void extractReturnTypeFromCallback(Type genericParameterType) {
+        if (genericParameterType instanceof ParameterizedType) {
+            Type[] actualTypeArguments = ((ParameterizedType) genericParameterType).getActualTypeArguments();
+            Type argument = actualTypeArguments[0];
+            final Class actualReturnClass = (Class) argument;
+
+            final TypeType type = actualReturnClass == void.class ? TypeType.VOID :
+                    TypeType.getType(actualReturnClass);
+
+
+
+
+            switch (type) {
+                case LIST:
+                case SET:
+
+
+
+                    final Class componentClassTypeForReturn =
+                            calculateReturnTypeComponentFromGenericReturnType(genericParameterType);
+
+                    if (componentClassTypeForReturn!=null) {
+                        definitionClassCollector.addClass(componentClassTypeForReturn);
+                    }
+                    break;
+
+                case ARRAY:
+                    definitionClassCollector.addClass(actualReturnClass.getComponentType());
+                    break;
+
+
+                default:
+
+                    definitionClassCollector.addClass(actualReturnClass);
+            }
+
+        }
+    }
+
     private Class calculateReturnTypeComponentClassForCollection(MethodAccess methodAccess) {
-        Class componentClassTypeForReturn = null;
         final Type genericReturnType = methodAccess.method().getGenericReturnType();
+        return calculateReturnTypeComponentFromGenericReturnType(genericReturnType);
+
+    }
+
+    private Class calculateReturnTypeComponentFromGenericReturnType(final Type genericReturnType) {
+        Class componentClassTypeForReturn = null;
         if (genericReturnType instanceof ParameterizedType) {
             Type[] actualTypeArguments = ((ParameterizedType) genericReturnType).getActualTypeArguments();
             Type argument = actualTypeArguments[0];

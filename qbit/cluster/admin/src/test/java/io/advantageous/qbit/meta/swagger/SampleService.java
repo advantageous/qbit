@@ -17,11 +17,10 @@ package io.advantageous.qbit.meta.swagger;
  *
  * QBit - The Microservice lib for Java : JSON, WebSocket, REST. Be The Web!
  */
-import io.advantageous.qbit.annotation.HeaderParam;
-import io.advantageous.qbit.annotation.PathVariable;
-import io.advantageous.qbit.annotation.RequestMapping;
-import io.advantageous.qbit.annotation.RequestParam;
+import io.advantageous.qbit.annotation.*;
+import io.advantageous.qbit.reactive.Callback;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -34,42 +33,62 @@ import static io.advantageous.boon.core.Str.sputs;
 @RequestMapping("/sample/service")
 public class SampleService {
 
+//
+//    @RequestMapping("/simple1/")
+//    public String simple1() {
+//        return "simple1";
+//    }
+//
+//
+//    @RequestMapping("/call1/foo/{arg4}/{2}")
+//    public String method1(@RequestParam("arg1") final String arg1,
+//                          @HeaderParam("arg2") final int arg2,
+//                          @PathVariable final float arg3,
+//                          @PathVariable("arg4") final double arg4) {
+//
+//
+//        return sputs(arg1, arg2, arg3, arg4);
+//    }
+//
+//
+//    @RequestMapping("/simple2/path/")
+//    public String simple2(@RequestParam("arg1") final String arg1) {
+//        return "simple2";
+//    }
+//
+//
+//
+//    @RequestMapping("/add/dept/")
+//    public Department addDepartment(final Department department) {
+//
+//        return department;
+//
+//    }
+//
+//
+//    @RequestMapping("/add/dept/all")
+//    public List<Department> listDepts() {
+//        return Collections.emptyList();
+//    }
+//
+//
+//    @RequestMapping(value = "/todo", method = RequestMethod.POST)
+//    public void add(final Callback<Boolean> callback, final Department todo) {
+//        callback.accept(true);
+//    }
+//
+//
+//    @RequestMapping(value = "/todo", method = RequestMethod.GET)
+//    public void list(final Callback<ArrayList<Department>> callback) {
+//        callback.accept(new ArrayList<>());
+//    }
 
-    @RequestMapping("/simple1/")
-    public String simple1() {
-        return "simple1";
+
+
+    @RequestMapping("/add/dept/2")
+    public void addDepartment2(final Department department) {
+
+
     }
-
-
-    @RequestMapping("/call1/foo/{arg4}/{2}")
-    public String method1(@RequestParam("arg1") final String arg1,
-                          @HeaderParam("arg2") final int arg2,
-                          @PathVariable final float arg3,
-                          @PathVariable("arg4") final double arg4) {
-
-
-        return sputs(arg1, arg2, arg3, arg4);
-    }
-
-
-    @RequestMapping("/simple2/path/")
-    public String simple2(@RequestParam("arg1") final String arg1) {
-        return "simple2";
-    }
-
-
-
-    @RequestMapping("/add/dept/")
-    public Department addDepartment(final Department department) {
-
-        return department;
-    }
-
-
-    @RequestMapping("/add/dept/all")
-    public List<Department> listDepts() {
-        return Collections.emptyList();
-    }
-
 
 }
