@@ -22,6 +22,9 @@ import io.advantageous.qbit.annotation.PathVariable;
 import io.advantageous.qbit.annotation.RequestMapping;
 import io.advantageous.qbit.annotation.RequestParam;
 
+import java.util.Collections;
+import java.util.List;
+
 import static io.advantageous.boon.core.Str.sputs;
 
 
@@ -60,6 +63,12 @@ public class SampleService {
     public Department addDepartment(final Department department) {
 
         return department;
+    }
+
+
+    @RequestMapping("/add/dept/all")
+    public List<Department> listDepts() {
+        return Collections.emptyList();
     }
 
 

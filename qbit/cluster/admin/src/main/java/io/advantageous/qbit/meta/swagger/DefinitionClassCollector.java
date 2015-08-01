@@ -56,7 +56,12 @@ public class DefinitionClassCollector {
 
     }
 
+
     public Schema getSchema(final Class<?> cls) {
+        return getSchema(cls, null);
+    }
+
+    public Schema getSchema(final Class<?> cls, Class<?> componentClass) {
 
         Schema schema = mappings.get(cls);
 
@@ -72,8 +77,10 @@ public class DefinitionClassCollector {
 
         TypeType type = TypeType.getType(cls);
 
-        if (type.isArray() || type.isCollection()) {
+        if (type.isArray() ) {
             return Schema.array(Schema.definitionRef(cls.getComponentType().getSimpleName()));
+        } else if (type.isCollection()) {
+            return Schema.array(Schema.definitionRef(componentClass.getSimpleName()));
         }
 
         return Schema.definitionRef(cls.getSimpleName());
