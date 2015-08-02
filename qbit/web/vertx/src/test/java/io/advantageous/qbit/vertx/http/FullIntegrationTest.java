@@ -126,19 +126,16 @@ public class FullIntegrationTest extends TimedTesting {
         final HttpRequest request = new HttpRequestBuilder()
                 .setUri("/services/mockservice/ping")
                 .setJsonBodyForPost("\"hello\"")
-                .setTextReceiver(new HttpTextReceiver() {
-                    @Override
-                    public void response(int code, String mimeType, String body) {
+                .setTextReceiver((code, mimeType, body) -> {
 
-                        System.out.println(body);
+                    System.out.println(body);
 
-                        if (code == 200) {
-                            pongValue.set(body);
-                        } else {
-                            pongValue.set("ERROR " + body);
-                            throw new RuntimeException("ERROR " + code + " " + body);
+                    if (code == 200) {
+                        pongValue.set(body);
+                    } else {
+                        pongValue.set("ERROR " + body);
+                        throw new RuntimeException("ERROR " + code + " " + body);
 
-                        }
                     }
                 })
                 .build();

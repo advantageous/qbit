@@ -65,4 +65,6 @@ import io.advantageous.qbit.reactive.Callback;
 @SuppressWarnings("SameParameterValue")
 public interface ClientServiceInterface {
     String ping(Callback<String> callback, String ping);
+
+
 }
