@@ -18,6 +18,9 @@
 
 package io.advantageous.qbit.json;
 
+import java.util.List;
+import java.util.Map;
+
 /**
  * Abstraction for JSON parsing.
  * QBit allows Jackson, GSON, or Boon to be plugged in as JSON serializer providers.
@@ -30,6 +33,10 @@ public interface JsonMapper {
 
     <T> T fromJson(String json, Class<T> cls);
 
+
+    <T> List<T> fromJsonArray(String json, Class<T> componentClass);
+
     String toJson(Object object);
 
+    <K,V> Map<K, V> fromJsonMap(String json, Class<K> componentClassKey, Class<V> componentClassValue);
 }

@@ -19,11 +19,16 @@
 package io.advantageous.qbit;
 
 import io.advantageous.boon.core.Sets;
+import io.advantageous.boon.core.reflection.Mapper;
+import io.advantageous.boon.core.reflection.MapperComplex;
 import io.advantageous.boon.json.JsonParserAndMapper;
 import io.advantageous.boon.json.JsonParserFactory;
 import io.advantageous.boon.json.JsonSerializer;
 import io.advantageous.boon.json.JsonSerializerFactory;
 import io.advantageous.qbit.json.JsonMapper;
+
+import java.util.List;
+import java.util.Map;
 
 /**
  * created by gcc on 10/15/14.
@@ -60,8 +65,20 @@ public class BoonJsonMapper implements JsonMapper {
     }
 
     @Override
+    public <T> List<T> fromJsonArray(String json, Class<T> componentClass) {
+        return parser.get().parseList(componentClass, json);
+    }
+
+
+    @Override
     public String toJson(Object object) {
         return serializer.get().serialize(object).toString();
+    }
+
+    @Override
+    public <K, V> Map<K, V> fromJsonMap(String json, Class<K> componentClassKey, Class<V> componentClassValue) {
+
+        throw new RuntimeException("Not supported yet");
     }
 
 

@@ -39,7 +39,6 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Consumer;
 
 import static io.advantageous.boon.core.Str.sputs;
 
@@ -187,7 +186,15 @@ public class StandardRequestTransformer implements RequestTransformer {
 
                     }
 
-                    value = jsonMapper.get().fromJson(value.toString(), parameterMeta.getClassType());
+                    if (parameterMeta.isArray() || parameterMeta.isCollection()) {
+                        value = jsonMapper.get().fromJsonArray(value.toString(), parameterMeta.getComponentClass());
+                    } else if (parameterMeta.isMap()) {
+
+                        value = jsonMapper.get().fromJsonMap(value.toString(), parameterMeta.getComponentClassKey(),
+                                parameterMeta.getComponentClassValue());
+                    } else {
+                        value = jsonMapper.get().fromJson(value.toString(), parameterMeta.getClassType());
+                    }
                     break;
 
                 case BODY_BY_POSITION:
