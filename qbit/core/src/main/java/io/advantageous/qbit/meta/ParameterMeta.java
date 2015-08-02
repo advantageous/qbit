@@ -29,12 +29,48 @@ public class ParameterMeta {
     private final Class<?> classType;
     private final TypeType type;
     private final Param param;
+    private final boolean collection;
+    private final boolean map;
+    private final boolean array;
+    private final Class<?> componentClass;
+    private final Class<?> componentClassKey;
+    private final Class<?> componentClassValue;
 
-    public ParameterMeta(final Class<?> classType, final TypeType typeType, final Param param) {
-        this.type = typeType;
-        this.param = param;
+
+    public ParameterMeta(Class<?> classType,
+                         TypeType type,
+                         Param param,
+                         boolean isCollection,
+                         boolean isMap,
+                         boolean isArray,
+                         Class<?> returnTypeComponent,
+                         Class<?> returnTypeComponentKey,
+                         Class<?> returnTypeComponentValue) {
         this.classType = classType;
+        this.type = type;
+        this.param = param;
+        this.collection = isCollection;
+        this.map = isMap;
+        this.array = isArray;
+        this.componentClass = returnTypeComponent;
+        this.componentClassKey = returnTypeComponentKey;
+        this.componentClassValue = returnTypeComponentValue;
     }
+
+    public ParameterMeta(Class<?> classType,
+                         TypeType type,
+                         Param param) {
+        this.classType = classType;
+        this.type = type;
+        this.param = param;
+        this.collection = false;
+        this.map = false;
+        this.array = false;
+        this.componentClass = null;
+        this.componentClassKey = null;
+        this.componentClassValue = null;
+    }
+
 
     public static ParameterMeta[] parameters(final ParameterMeta... parameters) {
         return parameters;
@@ -49,19 +85,19 @@ public class ParameterMeta {
     }
 
     public static ParameterMeta intParam(final Param param) {
-        return new ParameterMeta(null, TypeType.INT, param);
+        return new ParameterMeta(int.class, TypeType.INT, param);
     }
 
     public static ParameterMeta floatParam(final Param param) {
-        return new ParameterMeta(null, TypeType.FLOAT, param);
+        return new ParameterMeta(float.class, TypeType.FLOAT, param);
     }
 
     public static ParameterMeta doubleParam(final Param param) {
-        return new ParameterMeta(null, TypeType.DOUBLE, param);
+        return new ParameterMeta(double.class, TypeType.DOUBLE, param);
     }
 
     public static ParameterMeta objectParam(final Param param) {
-        return new ParameterMeta(null, TypeType.OBJECT, param);
+        return new ParameterMeta(Object.class, TypeType.OBJECT, param);
     }
 
     public static ParameterMeta paramMeta(final TypeType typeType, final Param param) {
@@ -78,5 +114,29 @@ public class ParameterMeta {
 
     public Param getParam() {
         return param;
+    }
+
+    public boolean isCollection() {
+        return collection;
+    }
+
+    public boolean isMap() {
+        return map;
+    }
+
+    public boolean isArray() {
+        return array;
+    }
+
+    public Class<?> getComponentClass() {
+        return componentClass;
+    }
+
+    public Class<?> getComponentClassKey() {
+        return componentClassKey;
+    }
+
+    public Class<?> getComponentClassValue() {
+        return componentClassValue;
     }
 }

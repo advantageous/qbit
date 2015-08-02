@@ -23,6 +23,7 @@ import io.advantageous.boon.core.TypeType;
 import io.advantageous.boon.core.reflection.MethodAccess;
 import io.advantageous.qbit.annotation.JsonIgnore;
 
+import java.util.Collections;
 import java.util.List;
 
 
@@ -32,39 +33,76 @@ import java.util.List;
 public class ServiceMethodMeta {
 
 
-    private final List<RequestMeta> requestEndpoints;
     @JsonIgnore
     private final MethodAccess methodAccess;
     private final String name;
-    private final TypeType returnType;
+    private final List<RequestMeta> requestEndpoints;
+    private final TypeType returnTypeEnum;
     private final List<TypeType> paramTypes;
-    public ServiceMethodMeta(final MethodAccess methodAccess,
-                             final List<RequestMeta> requestMetaList) {
-        this.requestEndpoints = requestMetaList;
-        this.methodAccess = methodAccess;
-        this.name = methodAccess.name();
-        this.returnType = TypeType.getType(methodAccess.returnType());
-        this.paramTypes = methodAccess.paramTypeEnumList();
-    }
-    public ServiceMethodMeta(final String name,
-                             final List<RequestMeta> requestMetaList) {
-        this.requestEndpoints = requestMetaList;
-        this.methodAccess = null;
-        this.name = name;
-        this.returnType = null;
-        this.paramTypes = null;
-    }
-    public ServiceMethodMeta(final String name,
-                             final List<RequestMeta> requestMetaList,
-                             final TypeType returnType,
-                             final List<TypeType> paramTypes) {
+    private final boolean hasCallback;
+    private final boolean returnCollection;
+    private final boolean returnMap;
+    private final boolean returnArray;
+    private final Class<?> returnType;
+    private final Class<?> returnTypeComponent;
+    private final Class<?> returnTypeComponentKey;
+    private final Class<?> returnTypeComponentValue;
+    private final boolean hasReturn;
 
-        this.requestEndpoints = requestMetaList;
-        this.methodAccess = null;
+    public ServiceMethodMeta(boolean hasReturn,
+                             MethodAccess methodAccess,
+                             String name,
+                             List<RequestMeta> requestEndpoints,
+                             TypeType returnTypeEnum,
+                             List<TypeType> paramTypes,
+                             boolean hasCallback,
+                             boolean returnCollection,
+                             boolean returnMap,
+                             boolean returnArray,
+                             Class<?> returnType,
+                             Class<?> returnTypeComponent,
+                             Class<?> returnTypeComponentKey,
+                             Class<?> returnTypeComponentValue) {
+
+        this.hasReturn = hasReturn;
+        this.methodAccess = methodAccess;
         this.name = name;
-        this.returnType = returnType;
+        this.requestEndpoints = requestEndpoints;
+        this.returnTypeEnum = returnTypeEnum;
         this.paramTypes = paramTypes;
+        this.hasCallback = hasCallback;
+        this.returnCollection = returnCollection;
+        this.returnMap = returnMap;
+        this.returnArray = returnArray;
+        this.returnType = returnType;
+        this.returnTypeComponent = returnTypeComponent;
+        this.returnTypeComponentKey = returnTypeComponentKey;
+        this.returnTypeComponentValue = returnTypeComponentValue;
     }
+
+    public ServiceMethodMeta(String name, List<RequestMeta> requestEndpoints, TypeType returnTypeEnum,
+                             List<TypeType> paramTypes) {
+        this(true, null,name, requestEndpoints,
+                returnTypeEnum, paramTypes,
+                false, false, false, false, null, null, null, null);
+
+    }
+
+
+    public ServiceMethodMeta(MethodAccess methodAccess, List<RequestMeta> list) {
+        this(true, methodAccess, methodAccess.name(), list,
+                TypeType.OBJECT, Collections.emptyList(),
+                false, false, false, false, null, null, null, null);
+    }
+
+    public ServiceMethodMeta(String name, List<RequestMeta> list) {
+        this(true, null, name, list,
+                TypeType.OBJECT, Collections.emptyList(),
+                false, false, false, false, null, null, null, null);
+
+    }
+
+
 
     public static ServiceMethodMeta serviceMethod(final MethodAccess methodAccess,
                                                   final RequestMeta... requestMetas) {
@@ -97,8 +135,8 @@ public class ServiceMethodMeta {
         return name;
     }
 
-    public TypeType getReturnType() {
-        return returnType;
+    public TypeType getReturnTypeEnum() {
+        return returnTypeEnum;
     }
 
     public List<TypeType> getParamTypes() {
@@ -106,7 +144,47 @@ public class ServiceMethodMeta {
     }
 
     public boolean hasCallBack() {
-        return getMethodAccess().returnType() == void.class && paramTypes.size() > 0
-                && paramTypes.get(0) == TypeType.INTERFACE;
+        return hasCallback;
+    }
+
+    public boolean isHasCallback() {
+        return hasCallback;
+    }
+
+    public boolean isReturnCollection() {
+        return returnCollection;
+    }
+
+    public boolean isReturnMap() {
+        return returnMap;
+    }
+
+    public boolean isReturnArray() {
+        return returnArray;
+    }
+
+    public Class<?> getReturnType() {
+        return returnType;
+    }
+
+    public Class<?> getReturnTypeComponent() {
+        return returnTypeComponent;
+    }
+
+    public Class<?> getReturnTypeComponentKey() {
+        return returnTypeComponentKey;
+    }
+
+    public Class<?> getReturnTypeComponentValue() {
+        return returnTypeComponentValue;
+    }
+
+    public boolean isHasReturn() {
+        return hasReturn;
+    }
+
+
+    public boolean hasReturn() {
+        return hasReturn;
     }
 }

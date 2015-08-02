@@ -9,8 +9,6 @@ import io.advantageous.qbit.meta.swagger.builders.*;
 import io.advantageous.qbit.reactive.Callback;
 
 
-import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Type;
 import java.util.*;
 
 public class MetaTransformerFromQbitMetaToSwagger {
@@ -51,7 +49,7 @@ public class MetaTransformerFromQbitMetaToSwagger {
 
             for (final String servicePath : serviceMetaRequestPaths) {
 
-                extractPathsFromRequestMetaList(servicePath, contextMeta, pathBuilderMap, methodMetas);
+                extractPathsFromRequestMetaList(servicePath, pathBuilderMap, methodMetas);
             }
 
         }
@@ -79,7 +77,9 @@ public class MetaTransformerFromQbitMetaToSwagger {
         builder.getApiInfoBuilder().setVersion(contextMeta.getVersion());
     }
 
-    private void extractPathsFromRequestMetaList(String servicePath, ContextMeta contextMeta, Map<String, PathBuilder> pathBuilderMap, List<ServiceMethodMeta> methodMetas) {
+    private void extractPathsFromRequestMetaList(final String servicePath,
+                                                 final Map<String, PathBuilder> pathBuilderMap,
+                                                 final List<ServiceMethodMeta> methodMetas) {
         for (ServiceMethodMeta methodMeta : methodMetas) {
             final List<RequestMeta> requestEndpoints = methodMeta.getRequestEndpoints();
             final MethodAccess methodAccess = methodMeta.getMethodAccess();
@@ -114,64 +114,25 @@ public class MetaTransformerFromQbitMetaToSwagger {
         addParameters(operationBuilder, requestMeta.getParameters());
         operationBuilder.setOperationId(methodAccess.name());
 
-        if (methodMeta.hasCallBack() || methodAccess.returnType() != void.class) {
+        if (methodMeta.hasReturn()) {
 
             final ResponseBuilder responseBuilder = new ResponseBuilder();
 
+            if (methodMeta.isReturnMap()) {
+                //TODO
 
-            final Class actualReturnType = !methodMeta.hasCallBack()
-                 ? methodAccess.returnType() :
-                    getComponentClassForReturnFromMethodFromCallback(methodAccess);
+            } else if (methodMeta.isReturnCollection() || methodMeta.isReturnArray()) {
 
-
-            TypeType returnType = actualReturnType==null ? TypeType.NULL :
-                    actualReturnType == void.class ? TypeType.VOID :
-                    TypeType.getType(actualReturnType);
-
-            switch (returnType) {
-                case VOID:
-                    responseBuilder.setSchema(Schema.schema("string"));
-                    operationBuilder.getResponses().put(201, responseBuilder.build());
-                    operationBuilder.getProduces().add("application/json");
-                    break;
-
-                case LIST:
-                case SET:
-                case COLLECTION:
+                responseBuilder.setSchema(definitionClassCollector.getSchema(methodMeta.getReturnType(), methodMeta.getReturnTypeComponent()));
+                operationBuilder.getResponses().put(200, responseBuilder.build());
+                operationBuilder.getProduces().add("application/json");
 
 
-                    Class componentReturnType;
+            } else {
 
-                    if (methodMeta.hasCallBack()) {
-
-                        ParameterizedType parameterizedType = (ParameterizedType) methodAccess.method().getGenericParameterTypes()[0];
-
-                        ParameterizedType componentType = (ParameterizedType) parameterizedType.getActualTypeArguments()[0];
-                        componentReturnType  = (Class) componentType.getActualTypeArguments()[0];
-                    } else {
-                        componentReturnType = calculateReturnTypeComponentClassForCollection(methodAccess);
-                    }
-
-
-                    responseBuilder.setSchema(definitionClassCollector.getSchema(actualReturnType, componentReturnType));
-                    operationBuilder.getResponses().put(200, responseBuilder.build());
-                    operationBuilder.getProduces().add("application/json");
-
-                    break;
-
-
-                case ARRAY:
-
-                    responseBuilder.setSchema(definitionClassCollector.getSchema(actualReturnType,
-                            actualReturnType.getComponentType()));
-                    operationBuilder.getResponses().put(200, responseBuilder.build());
-                    operationBuilder.getProduces().add("application/json");
-
-
-                default:
-                    responseBuilder.setSchema(definitionClassCollector.getSchema(actualReturnType));
-                    operationBuilder.getResponses().put(200, responseBuilder.build());
-                    operationBuilder.getProduces().add("application/json");
+                responseBuilder.setSchema(definitionClassCollector.getSchema(methodMeta.getReturnType()));
+                operationBuilder.getResponses().put(200, responseBuilder.build());
+                operationBuilder.getProduces().add("application/json");
 
             }
 
@@ -207,60 +168,8 @@ public class MetaTransformerFromQbitMetaToSwagger {
         }
     }
 
-    private Class getComponentClassForReturnFromMethodFromCallback(MethodAccess methodAccess) {
-
-        if (methodAccess.parameterTypes().length > 0) {
-
-            Type genericType = methodAccess.getGenericParameterTypes()[0];
-
-            if (genericType instanceof ParameterizedType) {
-
-                Type compType = ((ParameterizedType) genericType)
-                        .getActualTypeArguments()[0];
-
-                Class componentClassTypeForReturn = null;
-
-                if (compType instanceof ParameterizedType) {
-                    componentClassTypeForReturn = (Class) ((ParameterizedType) compType).getRawType();
-                } else {
-                    componentClassTypeForReturn = (Class) compType;
-                }
-
-
-                return componentClassTypeForReturn;
-            }
-        }
-
-        return Object.class;
-
-    }
-
-
-    private Class getComponentClassForReturnFromMethod(MethodAccess methodAccess) {
-        Class componentClassTypeForReturn = null;
-
-        TypeType type = TypeType.getType(methodAccess.returnType());
-
-
-        switch (type) {
-            case LIST:
-            case SET:
-
-                componentClassTypeForReturn = calculateReturnTypeComponentClassForCollection(methodAccess);
-
-                break;
-
-            case ARRAY:
-                componentClassTypeForReturn =methodAccess.returnType().getComponentType();
-                break;
-
-            default:
-                componentClassTypeForReturn = null;
-        }
-        return componentClassTypeForReturn;
-    }
-
-    private PathBuilder createPathBuilderIfAbsent(Map<String, PathBuilder> pathBuilderMap, String requestURI) {
+    private PathBuilder createPathBuilderIfAbsent(final Map<String, PathBuilder> pathBuilderMap,
+                                                  final String requestURI) {
         PathBuilder pathBuilder = pathBuilderMap.get(requestURI);
         if (pathBuilder == null) {
             pathBuilder = new PathBuilder();
@@ -270,14 +179,7 @@ public class MetaTransformerFromQbitMetaToSwagger {
     }
 
     private void addParameters(final OperationBuilder operationBuilder,
-                               final List<ParameterMeta> parameterMetaList
-                               //final MethodAccess methodAccess, final String requestURI,
-                               //final String baseURI
-                               ) {
-
-
-        //final String[] uriParts = Str.split(requestURI, '/');
-
+                               final List<ParameterMeta> parameterMetaList) {
 
 
         for (final ParameterMeta parameterMeta : parameterMetaList) {
@@ -368,99 +270,33 @@ public class MetaTransformerFromQbitMetaToSwagger {
 
     private void populateDefinitionMapByServiceMethod(final ServiceMethodMeta serviceMethodMeta) {
 
-        final MethodAccess methodAccess = serviceMethodMeta.getMethodAccess();
+        if (serviceMethodMeta.isReturnMap()) {
+            definitionClassCollector.addClass(serviceMethodMeta.getReturnTypeComponentKey());
+            definitionClassCollector.addClass(serviceMethodMeta.getReturnTypeComponentValue());
+        } else if(serviceMethodMeta.isReturnCollection()) {
 
-        final TypeType type = methodAccess.returnType() == void.class ? TypeType.VOID :
-                TypeType.getType(methodAccess.returnType());
+            definitionClassCollector.addClass(serviceMethodMeta.getReturnTypeComponent());
+        } else {
+            definitionClassCollector.addClass(serviceMethodMeta.getReturnType());
+        }
 
-        switch (type) {
-            case LIST:
-            case SET:
+        serviceMethodMeta.getRequestEndpoints().forEach(requestMeta -> requestMeta.getParameters()
+                .forEach(parameterMeta -> {
+                    if (parameterMeta.isMap()) {
+                        definitionClassCollector.addClass(parameterMeta.getComponentClassKey());
 
+                        definitionClassCollector.addClass(parameterMeta.getComponentClassValue());
+                    } else if (parameterMeta.isCollection() || parameterMeta.isArray()){
 
-                final Class componentClassTypeForReturn = calculateReturnTypeComponentClassForCollection(methodAccess);
+                        definitionClassCollector.addClass(parameterMeta.getComponentClass());
 
-                if (componentClassTypeForReturn!=null) {
-                    definitionClassCollector.addClass(componentClassTypeForReturn);
-                }
-                break;
-
-            case ARRAY:
-                definitionClassCollector.addClass(methodAccess.returnType().getComponentType());
-                break;
-
-            case VOID:
-                Type[] genericParameterTypes = serviceMethodMeta.getMethodAccess().getGenericParameterTypes();
-                if (genericParameterTypes.length > 1) {
-
-                    Type genericParameterType = genericParameterTypes[0];
-
-                    if (genericParameterType instanceof Callback) {
-                        extractReturnTypeFromCallback(genericParameterType);
+                    } else {
+                        if (parameterMeta.getClassType()!=Callback.class) {
+                            definitionClassCollector.addClass(parameterMeta.getClassType());
+                        }
                     }
-                }
-                break;
 
-            default:
-                definitionClassCollector.addClass(methodAccess.returnType());
-        }
-        for (Class<?> paramType :  methodAccess.parameterTypes()) {
-            definitionClassCollector.addClass(paramType);
-        }
+        }));
     }
 
-    private void extractReturnTypeFromCallback(Type genericParameterType) {
-        if (genericParameterType instanceof ParameterizedType) {
-            Type[] actualTypeArguments = ((ParameterizedType) genericParameterType).getActualTypeArguments();
-            Type argument = actualTypeArguments[0];
-            final Class actualReturnClass = (Class) argument;
-
-            final TypeType type = actualReturnClass == void.class ? TypeType.VOID :
-                    TypeType.getType(actualReturnClass);
-
-
-
-
-            switch (type) {
-                case LIST:
-                case SET:
-
-
-
-                    final Class componentClassTypeForReturn =
-                            calculateReturnTypeComponentFromGenericReturnType(genericParameterType);
-
-                    if (componentClassTypeForReturn!=null) {
-                        definitionClassCollector.addClass(componentClassTypeForReturn);
-                    }
-                    break;
-
-                case ARRAY:
-                    definitionClassCollector.addClass(actualReturnClass.getComponentType());
-                    break;
-
-
-                default:
-
-                    definitionClassCollector.addClass(actualReturnClass);
-            }
-
-        }
-    }
-
-    private Class calculateReturnTypeComponentClassForCollection(MethodAccess methodAccess) {
-        final Type genericReturnType = methodAccess.method().getGenericReturnType();
-        return calculateReturnTypeComponentFromGenericReturnType(genericReturnType);
-
-    }
-
-    private Class calculateReturnTypeComponentFromGenericReturnType(final Type genericReturnType) {
-        Class componentClassTypeForReturn = null;
-        if (genericReturnType instanceof ParameterizedType) {
-            Type[] actualTypeArguments = ((ParameterizedType) genericReturnType).getActualTypeArguments();
-            Type argument = actualTypeArguments[0];
-            componentClassTypeForReturn = (Class) argument;
-        }
-        return componentClassTypeForReturn;
-    }
 }

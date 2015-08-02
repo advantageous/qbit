@@ -5,10 +5,11 @@ import io.advantageous.boon.core.TypeType;
 import io.advantageous.boon.core.reflection.MethodAccess;
 import io.advantageous.qbit.meta.RequestMeta;
 import io.advantageous.qbit.meta.ServiceMethodMeta;
+import io.advantageous.qbit.reactive.Callback;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
+import java.util.*;
 
 @SuppressWarnings("UnusedReturnValue")
 public class ServiceMethodMetaBuilder {
@@ -18,8 +19,19 @@ public class ServiceMethodMetaBuilder {
     private MethodAccess methodAccess;
     private String name;
     private String address;
-    private TypeType returnType;
+    private TypeType returnTypeEnum;
     private List<TypeType> paramTypes;
+    private boolean hasCallBack;
+    private boolean returnCollection;
+    private boolean returnMap;
+    private boolean returnArray;
+    private Class<?> returnType;
+    private Class<?> returnTypeComponent;
+    private Class<?> returnTypeComponentKey;
+    private Class<?> returnTypeComponentValue;
+    private boolean hasReturn;
+
+
 
     public static ServiceMethodMetaBuilder serviceMethodMetaBuilder() {
         return new ServiceMethodMetaBuilder();
@@ -65,6 +77,12 @@ public class ServiceMethodMetaBuilder {
     }
 
     public String getName() {
+
+        if (name == null) {
+            if (methodAccess!=null) {
+                name = methodAccess.name();
+            }
+        }
         return name;
     }
 
@@ -73,12 +91,12 @@ public class ServiceMethodMetaBuilder {
         return this;
     }
 
-    public TypeType getReturnType() {
-        return returnType;
+    public TypeType getReturnTypeEnum() {
+        return returnTypeEnum;
     }
 
-    public ServiceMethodMetaBuilder setReturnType(TypeType returnType) {
-        this.returnType = returnType;
+    public ServiceMethodMetaBuilder setReturnTypeEnum(TypeType returnTypeEnum) {
+        this.returnTypeEnum = returnTypeEnum;
         return this;
     }
 
@@ -93,10 +111,186 @@ public class ServiceMethodMetaBuilder {
 
     public ServiceMethodMeta build() {
         if (methodAccess != null) {
-            return new ServiceMethodMeta(getMethodAccess(), this.getRequestEndpoints());
+
+
+            setHasCallBack(detectCallback());
+
+            deduceReturnTypes();
+
+            return new ServiceMethodMeta(isHasReturn(), getMethodAccess(), getName(), getRequestEndpoints(),
+                    getReturnTypeEnum(), getParamTypes(), hasCallback(),isReturnCollection(),
+                    isReturnMap(), isReturnArray(), getReturnType(),
+                    getReturnTypeComponent(), getReturnTypeComponentKey(), getReturnTypeComponentValue());
         } else {
             return new ServiceMethodMeta(getName(), this.getRequestEndpoints(),
-                    this.getReturnType(), this.getParamTypes());
+                    this.getReturnTypeEnum(), this.getParamTypes());
         }
+    }
+
+    private void deduceReturnTypes() {
+
+        if (hasCallback()) {
+            deduceReturnInfoFromCallbackArg();
+
+        } else {
+
+            returnType = methodAccess.returnType();
+
+            returnTypeEnum = TypeType.getType(returnType);
+            if (Collection.class.isAssignableFrom(returnType)) {
+                returnCollection = true;
+                ParameterizedType genericReturnType = (ParameterizedType) methodAccess.method().getGenericReturnType();
+
+                this.returnTypeComponent = (Class) genericReturnType.getActualTypeArguments()[0];
+
+            } else if (Map.class.isAssignableFrom(returnType)) {
+                returnMap = true;
+                ParameterizedType genericReturnType = (ParameterizedType) methodAccess.method().getGenericReturnType();
+                this.returnTypeComponentKey = (Class) genericReturnType.getActualTypeArguments()[0];
+                this.returnTypeComponentValue = (Class) genericReturnType.getActualTypeArguments()[1];
+            } else {
+
+                if (returnType.isArray()) {
+                    returnArray = true;
+                }
+
+            }
+        }
+
+        if (returnType!= void.class && returnType !=Void.class) {
+
+            hasReturn = true;
+        }
+    }
+
+    private void deduceReturnInfoFromCallbackArg() {
+        Type[] genericParameterTypes = methodAccess.method().getGenericParameterTypes();
+        Type callback = genericParameterTypes[0];
+        if (callback instanceof ParameterizedType) {
+            Type callbackReturn = ((ParameterizedType) callback).getActualTypeArguments()[0];
+            /* Now we know it is a map or list */
+            if (callbackReturn instanceof ParameterizedType) {
+                Class containerType = (Class)((ParameterizedType) callbackReturn).getRawType();
+
+                this.returnTypeEnum = TypeType.getType(containerType);
+                this.returnType = containerType;
+
+                if (Collection.class.isAssignableFrom(containerType)) {
+                    returnCollection = true;
+                    this.returnTypeComponent =(Class) ((ParameterizedType) callbackReturn).getActualTypeArguments()[0];
+                } else if (Map.class.isAssignableFrom(containerType)) {
+                    returnMap = true;
+                    this.returnTypeComponentKey =(Class)((ParameterizedType) callbackReturn).getActualTypeArguments()[0];
+                    this.returnTypeComponentValue =(Class)((ParameterizedType) callbackReturn).getActualTypeArguments()[1];
+
+                }
+            }/* Now we know it is not a list or map */
+            else if (callbackReturn instanceof Class) {
+                this.returnType = ((Class) callbackReturn);
+
+                if (returnType.isArray()) {
+                    returnArray = true;
+                }
+                this.returnTypeEnum = TypeType.getType(returnType);
+            }
+        }
+    }
+
+
+    private boolean detectCallback() {
+        boolean hasCallback = false;
+        Class<?>[] classes = methodAccess.parameterTypes();
+        if (classes.length > 0) {
+            if (classes[0] == Callback.class) {
+                hasCallback = true;
+            }
+        }
+        return hasCallback;
+    }
+
+    public ServiceMethodMetaBuilder setHasCallBack(boolean hasCallBack) {
+        this.hasCallBack = hasCallBack;
+        return this;
+    }
+
+    public boolean isHasCallBack() {
+        return hasCallBack;
+    }
+
+
+    public boolean hasCallback() {
+        return hasCallBack;
+    }
+
+    public boolean isReturnCollection() {
+        return returnCollection;
+    }
+
+    public ServiceMethodMetaBuilder setReturnCollection(boolean returnCollection) {
+        this.returnCollection = returnCollection;
+        return this;
+    }
+
+    public boolean isReturnMap() {
+        return returnMap;
+    }
+
+    public ServiceMethodMetaBuilder setReturnMap(boolean returnMap) {
+        this.returnMap = returnMap;
+        return this;
+    }
+
+    public boolean isReturnArray() {
+        return returnArray;
+    }
+
+    public ServiceMethodMetaBuilder setReturnArray(boolean returnArray) {
+        this.returnArray = returnArray;
+        return this;
+    }
+
+    public Class<?> getReturnType() {
+        return returnType;
+    }
+
+    public ServiceMethodMetaBuilder setReturnType(Class<?> returnType) {
+        this.returnType = returnType;
+        return this;
+    }
+
+    public Class<?> getReturnTypeComponent() {
+        return returnTypeComponent;
+    }
+
+    public ServiceMethodMetaBuilder setReturnTypeComponent(Class<?> returnTypeComponent) {
+        this.returnTypeComponent = returnTypeComponent;
+        return this;
+    }
+
+    public Class<?> getReturnTypeComponentKey() {
+        return returnTypeComponentKey;
+    }
+
+    public ServiceMethodMetaBuilder setReturnTypeComponentKey(Class<?> returnTypeComponentKey) {
+        this.returnTypeComponentKey = returnTypeComponentKey;
+        return this;
+    }
+
+    public Class<?> getReturnTypeComponentValue() {
+        return returnTypeComponentValue;
+    }
+
+    public ServiceMethodMetaBuilder setReturnTypeComponentValue(Class<?> returnTypeComponentValue) {
+        this.returnTypeComponentValue = returnTypeComponentValue;
+        return this;
+    }
+
+    public boolean isHasReturn() {
+        return hasReturn;
+    }
+
+    public ServiceMethodMetaBuilder setHasReturn(boolean hasReturn) {
+        this.hasReturn = hasReturn;
+        return this;
     }
 }
