@@ -169,6 +169,7 @@ public class RequestMetaBuilder {
         } else {
             Class classType = methodAccess.method().getParameterTypes()[index];
             builder.setClassType(classType);
+            builder.setComponentClass(classType.getComponentType());
             builder.setArray(classType.isArray());
         }
 

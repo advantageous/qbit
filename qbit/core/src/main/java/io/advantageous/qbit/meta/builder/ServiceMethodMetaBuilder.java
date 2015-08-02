@@ -152,6 +152,7 @@ public class ServiceMethodMetaBuilder {
 
                 if (returnType.isArray()) {
                     returnArray = true;
+                    this.returnTypeComponent = returnType.getComponentType();
                 }
 
             }
