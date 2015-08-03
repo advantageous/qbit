@@ -10,9 +10,9 @@ import io.advantageous.qbit.meta.ParameterMeta;
 import io.advantageous.qbit.meta.RequestMeta;
 import io.advantageous.qbit.meta.params.*;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
+import java.util.*;
 
 /**
  * Allows you to build request meta data.
@@ -115,8 +115,9 @@ public class RequestMetaBuilder {
 
                 if (annotationDataList == null || annotationDataList.size() == 0) {
                     Param requestParam = getParam(finalPath, null, index);
-                    final ParameterMeta param = ParameterMeta.param(methodAccess.method().getParameterTypes()[index],
-                            typeTypes.get(index), requestParam);
+                    final ParameterMeta param = createParamMeta(methodAccess, index, typeTypes, requestParam);
+
+
                     params.add(param);
                     continue;
                 }
@@ -127,8 +128,7 @@ public class RequestMetaBuilder {
                     Param requestParam = getParam(finalPath, annotationData, index);
 
                     if (requestParam != null) {
-                        final ParameterMeta param = ParameterMeta.param(methodAccess.method().getParameterTypes()[index],
-                                typeTypes.get(index), requestParam);
+                        final ParameterMeta param = createParamMeta(methodAccess, index, typeTypes, requestParam);
                         params.add(param);
                         break;
                     }
@@ -139,6 +139,41 @@ public class RequestMetaBuilder {
         this.parameters.addAll(params);
 
 
+    }
+
+    private ParameterMeta createParamMeta(final MethodAccess methodAccess, final int index,
+                                          final List<TypeType> typeTypes, final Param requestParam) {
+
+        ParameterMetaBuilder builder = ParameterMetaBuilder.parameterMetaBuilder();
+        builder.setType(typeTypes.get(index));
+        builder.setParam(requestParam);
+
+        Type type = methodAccess.method().getGenericParameterTypes()[index];
+
+        if (type instanceof ParameterizedType) {
+
+            ParameterizedType parameterizedType = ((ParameterizedType) type);
+
+            Class containerClass = (Class) parameterizedType.getRawType();
+            builder.setClassType(containerClass);
+
+            /* It is a collection or a map. */
+            if (Collection.class.isAssignableFrom(containerClass)) {
+                builder.setCollection(true);
+                builder.setComponentClass((Class)parameterizedType.getActualTypeArguments()[0]);
+            } else if (Map.class.isAssignableFrom(containerClass)){
+                builder.setMap(true);
+                builder.setComponentClassKey((Class) parameterizedType.getActualTypeArguments()[0]);
+                builder.setComponentClassValue((Class) parameterizedType.getActualTypeArguments()[1]);
+            }
+        } else {
+            Class classType = methodAccess.method().getParameterTypes()[index];
+            builder.setClassType(classType);
+            builder.setComponentClass(classType.getComponentType());
+            builder.setArray(classType.isArray());
+        }
+
+        return builder.build();
     }
 
     private Param getParam(final String path, final AnnotationData annotationData, final int index) {

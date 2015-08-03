@@ -18,7 +18,12 @@
 
 package io.advantageous.qbit.example.hello;
 
+import io.advantageous.boon.core.Lists;
 import io.advantageous.qbit.annotation.RequestMapping;
+import io.advantageous.qbit.annotation.RequestMethod;
+import io.advantageous.qbit.reactive.Callback;
+
+import java.util.List;
 
 /**
  * created by rhightower on 2/10/15.
@@ -31,6 +36,21 @@ public class HelloService {
     @RequestMapping("/hello")
     public HelloObject hello() {
         return new HelloObject("Hello World!");
+    }
+
+
+    @RequestMapping("/hello2")
+    public void hello2(Callback<List<HelloObject>> listCallback) {
+
+        listCallback.accept(Lists.list(new HelloObject("Hello World!"),
+                new HelloObject("Hello World!")));
+    }
+
+
+    @RequestMapping(value = "/hello3", method = RequestMethod.POST)
+    public void hello3(Callback<List<HelloObject>> listCallback, List<HelloObject> helloObjects) {
+
+        listCallback.accept(helloObjects);
     }
 
 }
