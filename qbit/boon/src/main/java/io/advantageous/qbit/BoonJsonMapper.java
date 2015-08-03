@@ -18,17 +18,20 @@
 
 package io.advantageous.qbit;
 
+import io.advantageous.boon.core.Conversions;
 import io.advantageous.boon.core.Sets;
 import io.advantageous.boon.core.reflection.Mapper;
 import io.advantageous.boon.core.reflection.MapperComplex;
+import io.advantageous.boon.core.reflection.fields.FieldAccessMode;
+import io.advantageous.boon.core.value.ValueContainer;
 import io.advantageous.boon.json.JsonParserAndMapper;
 import io.advantageous.boon.json.JsonParserFactory;
 import io.advantageous.boon.json.JsonSerializer;
 import io.advantageous.boon.json.JsonSerializerFactory;
 import io.advantageous.qbit.json.JsonMapper;
 
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.function.Consumer;
 
 /**
  * created by gcc on 10/15/14.
@@ -50,6 +53,28 @@ public class BoonJsonMapper implements JsonMapper {
         protected JsonSerializer initialValue() {
             return new JsonSerializerFactory().setUseAnnotations(true)
                     .addFilter((parent, fieldAccess) -> !fieldAccess.name().equals("metaClass")).create();
+        }
+    };
+
+
+
+    private final ThreadLocal<Mapper> mapper = new ThreadLocal<Mapper>() {
+        @Override
+        protected Mapper initialValue() {
+
+            /**
+             * MapperComplex(FieldAccessMode fieldAccessType, boolean useAnnotations,
+             boolean caseInsensitiveFields, Set<String> ignoreSet,
+             String view, boolean respectIgnore, boolean acceptSingleValueAsArray) {
+             fieldsAccessor = FieldAccessMode.create( fieldAccessType, useAnnotations, caseInsensitiveFields );
+             this.ignoreSet = ignoreSet;
+             this.view = view;
+             this.respectIgnore = respectIgnore;
+             this.acceptSingleValueAsArray = acceptSingleValueAsArray;
+             this.outputType = true;
+             }
+             */
+            return new MapperComplex(false, FieldAccessMode.PROPERTY_THEN_FIELD, true, false, Collections.emptySet(), null, true, true);
         }
     };
 
@@ -78,7 +103,39 @@ public class BoonJsonMapper implements JsonMapper {
     @Override
     public <K, V> Map<K, V> fromJsonMap(String json, Class<K> componentClassKey, Class<V> componentClassValue) {
 
-        throw new RuntimeException("Not supported yet");
+        Map<Object, Object> map  = (Map) parser.get().parse(json);
+        Mapper mapper = this.mapper.get();
+
+        Map<K, V> results = new TreeMap<>();
+
+        map.entrySet().forEach(entry -> {
+
+            Object value = entry.getValue() instanceof ValueContainer ? ((ValueContainer) entry.getValue()).toValue(): entry.getValue();
+            Object key = entry.getKey() instanceof ValueContainer ? ((ValueContainer) entry.getKey()).toValue(): entry.getKey();
+
+
+            K convertedKey;
+
+            V convertedValue;
+
+            if (key instanceof Map) {
+                convertedKey = mapper.fromMap(((Map<String, Object>) key), componentClassKey);
+            }else {
+               convertedKey = Conversions.coerce(componentClassKey, key);
+            }
+
+            if (value instanceof Map) {
+                convertedValue = mapper.fromMap(((Map<String, Object>) value), componentClassValue);
+            }else {
+                convertedValue = Conversions.coerce(componentClassValue, value);
+            }
+
+            results.put(convertedKey, convertedValue);
+
+        });
+
+        return results;
+
     }
 
 

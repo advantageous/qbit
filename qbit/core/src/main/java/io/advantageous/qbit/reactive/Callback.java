@@ -43,5 +43,9 @@ public interface Callback<T> extends Consumer<T> {
 
     }
 
+    default void returnThis(T thisReturn) {
+        accept(thisReturn);
+    }
+
 }
 
