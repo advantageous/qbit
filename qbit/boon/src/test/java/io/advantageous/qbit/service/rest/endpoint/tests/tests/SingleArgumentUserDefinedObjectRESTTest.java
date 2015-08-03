@@ -1,9 +1,12 @@
-package io.advantageous.qbit.service.rest.endpoint.tests;
+package io.advantageous.qbit.service.rest.endpoint.tests.tests;
 
 import io.advantageous.boon.json.JsonFactory;
 import io.advantageous.qbit.http.request.HttpResponse;
 import io.advantageous.qbit.server.EndpointServerBuilder;
 import io.advantageous.qbit.server.ServiceEndpointServer;
+import io.advantageous.qbit.service.rest.endpoint.tests.model.Employee;
+import io.advantageous.qbit.service.rest.endpoint.tests.services.EmployeeServiceSingleObjectTestService;
+import io.advantageous.qbit.service.rest.endpoint.tests.sim.HttpServerSimulator;
 import org.junit.Before;
 import org.junit.Test;
 

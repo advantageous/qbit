@@ -1,4 +1,4 @@
-package io.advantageous.qbit.service.rest.endpoint.tests;
+package io.advantageous.qbit.service.rest.endpoint.tests.services;
 
 
 import io.advantageous.boon.core.Lists;
@@ -7,6 +7,7 @@ import io.advantageous.boon.core.Sets;
 import io.advantageous.qbit.annotation.RequestMapping;
 import io.advantageous.qbit.annotation.RequestMethod;
 import io.advantageous.qbit.reactive.Callback;
+import io.advantageous.qbit.service.rest.endpoint.tests.model.Employee;
 
 import java.util.List;
 import java.util.Map;

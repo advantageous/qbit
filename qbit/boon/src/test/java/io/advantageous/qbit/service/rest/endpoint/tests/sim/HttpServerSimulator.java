@@ -1,4 +1,4 @@
-package io.advantageous.qbit.service.rest.endpoint.tests;
+package io.advantageous.qbit.service.rest.endpoint.tests.sim;
 
 import io.advantageous.boon.core.Sys;
 import io.advantageous.boon.json.JsonFactory;

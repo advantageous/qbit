@@ -1,4 +1,4 @@
-package io.advantageous.qbit.service.rest.endpoint.tests;
+package io.advantageous.qbit.service.rest.endpoint.tests.model;
 
 import java.util.List;
 
