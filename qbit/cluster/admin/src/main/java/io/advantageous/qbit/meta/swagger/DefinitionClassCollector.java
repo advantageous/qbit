@@ -5,6 +5,8 @@ import io.advantageous.boon.core.TypeType;
 import io.advantageous.boon.core.reflection.ClassMeta;
 import io.advantageous.boon.core.reflection.fields.FieldAccess;
 import io.advantageous.qbit.meta.swagger.builders.DefinitionBuilder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Type;
 import java.util.Date;
@@ -14,6 +16,9 @@ import java.util.Map;
 public class DefinitionClassCollector {
 
     private final Map<String, Definition> definitionMap = new HashMap<>();
+
+
+    private final Logger logger = LoggerFactory.getLogger(DefinitionClassCollector.class);
 
     private final  Map<Class, Schema> mappings =  Maps.map(
             /* Adding common primitive and basic type mappings. */
@@ -136,7 +141,7 @@ public class DefinitionClassCollector {
 
             definitionMap.put(classMeta.name(), definition);
         }catch (Exception ex) {
-            throw new RuntimeException("Unable to add class " + classMeta.longName(), ex);
+            logger.warn("Unable to add class " + classMeta.longName(), ex);
         }
     }
 
@@ -153,7 +158,9 @@ public class DefinitionClassCollector {
 
             return convertFieldToComplexSchema(fieldAccess);
         } catch (Exception ex) {
-            throw new RuntimeException("unable to convert field " + fieldAccess.name() + " from " + fieldAccess.declaringParent(), ex);
+
+            logger.warn("unable to convert field " + fieldAccess.name() + " from " + fieldAccess.declaringParent(), ex);
+            return Schema.schema("error", "error.see.logs");
         }
 
     }

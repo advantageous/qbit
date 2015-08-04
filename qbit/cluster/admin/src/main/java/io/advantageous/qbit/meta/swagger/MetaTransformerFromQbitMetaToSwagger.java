@@ -7,6 +7,8 @@ import io.advantageous.qbit.meta.*;
 import io.advantageous.qbit.meta.params.*;
 import io.advantageous.qbit.meta.swagger.builders.*;
 import io.advantageous.qbit.reactive.Callback;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 import java.util.*;
@@ -14,6 +16,9 @@ import java.util.*;
 public class MetaTransformerFromQbitMetaToSwagger {
 
     private final DefinitionClassCollector definitionClassCollector = new DefinitionClassCollector();
+
+
+    private final Logger logger = LoggerFactory.getLogger(MetaTransformerFromQbitMetaToSwagger.class);
 
     public ServiceEndpointInfo serviceEndpointInfo(final ContextMeta contextMeta) {
 
@@ -30,15 +35,14 @@ public class MetaTransformerFromQbitMetaToSwagger {
         buildDefinitions(builder, services);
 
 
-        buildPaths(contextMeta, builder, services, pathBuilderMap);
+        buildPaths(builder, services, pathBuilderMap);
 
 
 
         return builder.build();
     }
 
-    private void buildPaths(final ContextMeta contextMeta,
-                            final ServiceEndpointInfoBuilder builder,
+    private void buildPaths(final ServiceEndpointInfoBuilder builder,
                             final List<ServiceMeta> services,
                             final Map<String, PathBuilder> pathBuilderMap) {
         for (ServiceMeta serviceMeta : services) {
@@ -96,8 +100,15 @@ public class MetaTransformerFromQbitMetaToSwagger {
 
 
                 for (RequestMethod requestMethod : requestMethods) {
-                    extractPathFromRequestMeta(methodMeta, methodAccess, requestMeta,
-                            pathBuilder, requestMethod);
+                    /* If one fails, we want to continue processing. */
+                    try {
+                        extractPathFromRequestMeta(methodMeta, methodAccess, requestMeta,
+                                pathBuilder, requestMethod);
+                    } catch (Exception ex) {
+
+                        logger.warn("Problem processing path {} {}", requestURI, methodAccess.name());
+                        logger.warn("Problem processing path", ex);
+                    }
                 }
             }
         }
@@ -252,7 +263,12 @@ public class MetaTransformerFromQbitMetaToSwagger {
 
 
         services.forEach(serviceMeta -> {
-            populateDefinitionMapByService(serviceMeta);
+            try {
+                populateDefinitionMapByService(serviceMeta);
+            } catch (Exception ex) {
+                logger.warn("Unable to create definitions from service {}", serviceMeta.getName());
+                logger.warn("Unable to create definitions from service", ex);
+            }
         });
 
         final Map<String, Definition> definitionMap = definitionClassCollector.getDefinitionMap();
@@ -265,38 +281,47 @@ public class MetaTransformerFromQbitMetaToSwagger {
     }
 
     private void populateDefinitionMapByService(final ServiceMeta serviceMeta) {
-        serviceMeta.getMethods().forEach(serviceMethodMeta -> populateDefinitionMapByServiceMethod(serviceMethodMeta));
+        serviceMeta.getMethods().forEach(serviceMethodMeta -> populateDefinitionMapByServiceMethod(serviceMeta, serviceMethodMeta));
     }
 
-    private void populateDefinitionMapByServiceMethod(final ServiceMethodMeta serviceMethodMeta) {
+    private void populateDefinitionMapByServiceMethod(final ServiceMeta serviceMeta, final ServiceMethodMeta serviceMethodMeta) {
 
-        if (serviceMethodMeta.isReturnMap()) {
-            definitionClassCollector.addClass(serviceMethodMeta.getReturnTypeComponentKey());
-            definitionClassCollector.addClass(serviceMethodMeta.getReturnTypeComponentValue());
-        } else if(serviceMethodMeta.isReturnCollection()) {
+        try {
 
-            definitionClassCollector.addClass(serviceMethodMeta.getReturnTypeComponent());
-        } else {
-            definitionClassCollector.addClass(serviceMethodMeta.getReturnType());
-        }
+            if (serviceMethodMeta.isReturnMap()) {
+                definitionClassCollector.addClass(serviceMethodMeta.getReturnTypeComponentKey());
+                definitionClassCollector.addClass(serviceMethodMeta.getReturnTypeComponentValue());
+            } else if (serviceMethodMeta.isReturnCollection()) {
 
-        serviceMethodMeta.getRequestEndpoints().forEach(requestMeta -> requestMeta.getParameters()
-                .forEach(parameterMeta -> {
-                    if (parameterMeta.isMap()) {
-                        definitionClassCollector.addClass(parameterMeta.getComponentClassKey());
+                definitionClassCollector.addClass(serviceMethodMeta.getReturnTypeComponent());
+            } else {
+                definitionClassCollector.addClass(serviceMethodMeta.getReturnType());
+            }
 
-                        definitionClassCollector.addClass(parameterMeta.getComponentClassValue());
-                    } else if (parameterMeta.isCollection() || parameterMeta.isArray()){
+            serviceMethodMeta.getRequestEndpoints().forEach(requestMeta -> requestMeta.getParameters()
+                    .forEach(parameterMeta -> {
+                        if (parameterMeta.isMap()) {
+                            definitionClassCollector.addClass(parameterMeta.getComponentClassKey());
 
-                        definitionClassCollector.addClass(parameterMeta.getComponentClass());
+                            definitionClassCollector.addClass(parameterMeta.getComponentClassValue());
+                        } else if (parameterMeta.isCollection() || parameterMeta.isArray()) {
 
-                    } else {
-                        if (parameterMeta.getClassType()!=Callback.class) {
-                            definitionClassCollector.addClass(parameterMeta.getClassType());
+                            definitionClassCollector.addClass(parameterMeta.getComponentClass());
+
+                        } else {
+                            if (parameterMeta.getClassType() != Callback.class) {
+                                definitionClassCollector.addClass(parameterMeta.getClassType());
+                            }
                         }
-                    }
 
-        }));
+                    }));
+        }catch (Exception ex) {
+
+            logger.warn("Unable to process service method " + serviceMethodMeta.getName(), ex);
+            logger.warn("Unable to process service method for service {} method name", serviceMeta.getName(),
+                    serviceMethodMeta.getName());
+
+        }
     }
 
 }
