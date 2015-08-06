@@ -21,7 +21,7 @@ package io.advantageous.qbit.example.servers;
 import io.advantageous.boon.core.Sys;
 import io.advantageous.qbit.http.client.HttpClient;
 import io.advantageous.qbit.http.request.HttpRequest;
-import io.advantageous.qbit.http.request.HttpResponse;
+import io.advantageous.qbit.http.request.HttpTextResponse;
 import io.advantageous.qbit.http.server.HttpServer;
 
 import java.util.HashMap;
@@ -79,7 +79,7 @@ public class EchoHttp {
 
     private static void sendGets(HttpClient httpClient) {
     /* Send no param get. */
-        HttpResponse httpResponse = httpClient.get("/hello/mom");
+        HttpTextResponse httpResponse = httpClient.get("/hello/mom");
         puts(httpResponse);
 
 
@@ -193,7 +193,7 @@ public class EchoHttp {
     private static void sendPosts(HttpClient httpClient) {
 
         /* Send no param post. */
-        HttpResponse httpResponse = httpClient.post("/hello/mom");
+        HttpTextResponse httpResponse = httpClient.post("/hello/mom");
         puts(httpResponse);
 
 
@@ -320,7 +320,7 @@ public class EchoHttp {
 
 
         /* Send no param post. */
-        HttpResponse httpResponse = httpClient.put("/hello/mom");
+        HttpTextResponse httpResponse = httpClient.put("/hello/mom");
         puts(httpResponse);
 
 

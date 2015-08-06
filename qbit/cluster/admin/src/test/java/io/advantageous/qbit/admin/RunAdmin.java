@@ -3,7 +3,7 @@ package io.advantageous.qbit.admin;
 import io.advantageous.boon.core.Sys;
 import io.advantageous.qbit.http.client.HttpClient;
 import io.advantageous.qbit.http.client.HttpClientBuilder;
-import io.advantageous.qbit.http.request.HttpResponse;
+import io.advantageous.qbit.http.request.HttpTextResponse;
 import io.advantageous.qbit.server.ServiceEndpointServer;
 import io.advantageous.qbit.service.health.HealthServiceAsync;
 
@@ -35,11 +35,11 @@ public class RunAdmin {
         final HttpClient client = HttpClientBuilder.httpClientBuilder()
                 .setPort(adminBuilder.getPort()).buildAndStart();
 
-        final HttpResponse httpResponse = client.get("/services/qbit-admin/ok");
+        final HttpTextResponse httpResponse = client.get("/services/qbit-admin/ok");
 
         puts(httpResponse.body());
 
-        final HttpResponse httpResponsePage = client.get("/qbit/admin.html");
+        final HttpTextResponse httpResponsePage = client.get("/qbit/admin.html");
 
         puts(httpResponsePage.body());
 

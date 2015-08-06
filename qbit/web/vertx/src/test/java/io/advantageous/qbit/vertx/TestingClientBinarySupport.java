@@ -5,7 +5,7 @@ import io.advantageous.qbit.http.client.HttpClient;
 import io.advantageous.qbit.http.client.HttpClientBuilder;
 import io.advantageous.qbit.http.request.HttpRequest;
 import io.advantageous.qbit.http.request.HttpRequestBuilder;
-import io.advantageous.qbit.http.request.HttpResponse;
+import io.advantageous.qbit.http.request.HttpTextResponse;
 import io.advantageous.qbit.http.server.HttpServer;
 import io.advantageous.qbit.http.server.HttpServerBuilder;
 
@@ -28,7 +28,7 @@ public class TestingClientBinarySupport {
         final File thisDir = new File(".");
         final File thisImage = new File(thisDir, "foo.jpg");
 
-        HttpResponse httpResponse = client.get("/3721/9207329484_ba28755ec4_o.jpg");
+        HttpTextResponse httpResponse = client.get("/3721/9207329484_ba28755ec4_o.jpg");
         puts(httpResponse.contentType());
 
         HttpRequest httpRequest = HttpRequestBuilder.httpRequestBuilder()

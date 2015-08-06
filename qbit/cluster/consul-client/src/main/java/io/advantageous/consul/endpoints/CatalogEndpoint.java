@@ -25,9 +25,7 @@ import io.advantageous.consul.domain.ConsulResponse;
 import io.advantageous.consul.domain.Node;
 import io.advantageous.consul.domain.option.RequestOptions;
 import io.advantageous.qbit.http.HTTP;
-import io.advantageous.qbit.http.client.HttpClient;
 import io.advantageous.qbit.http.request.HttpRequestBuilder;
-import io.advantageous.qbit.http.request.HttpResponse;
 
 import java.net.URI;
 import java.util.Collections;

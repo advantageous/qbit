@@ -25,7 +25,7 @@ import io.advantageous.consul.domain.option.Consistency;
 import io.advantageous.consul.domain.option.RequestOptions;
 import io.advantageous.qbit.http.HTTP;
 import io.advantageous.qbit.http.request.HttpRequestBuilder;
-import io.advantageous.qbit.http.request.HttpResponse;
+import io.advantageous.qbit.http.request.HttpTextResponse;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -74,7 +74,7 @@ public class RequestUtils {
     }
 
 
-    public static <T> ConsulResponse<T> consulResponse(final Class<T> responseType, final HttpResponse response) {
+    public static <T> ConsulResponse<T> consulResponse(final Class<T> responseType, final HttpTextResponse response) {
 
         T responseObject = null;
 
@@ -99,7 +99,7 @@ public class RequestUtils {
     }
 
 
-    public static <T> ConsulResponse<List<T>> consulResponseList(final Class<T> responseType, final HttpResponse response) {
+    public static <T> ConsulResponse<List<T>> consulResponseList(final Class<T> responseType, final HttpTextResponse response) {
 
         List<T> responseObject = null;
 

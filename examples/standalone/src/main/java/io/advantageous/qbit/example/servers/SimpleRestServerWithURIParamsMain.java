@@ -77,7 +77,7 @@ public class SimpleRestServerWithURIParamsMain {
         System.out.println(results);
 
 
-//        HttpResponse httpResponse = httpClient.get("/services/adder-service/foo/randomcrap/2");
+//        HttpTextResponse httpResponse = httpClient.get("/services/adder-service/foo/randomcrap/2");
 //        //System.out.println(httpResponse);
 //
 //

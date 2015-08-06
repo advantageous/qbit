@@ -6,6 +6,7 @@ import io.advantageous.qbit.annotation.RequestMethod;
 import io.advantageous.qbit.http.HttpStatus;
 import io.advantageous.qbit.http.request.HttpRequest;
 import io.advantageous.qbit.http.request.HttpResponseReceiver;
+import io.advantageous.qbit.http.request.HttpTextResponse;
 import io.advantageous.qbit.json.JsonMapper;
 import io.advantageous.qbit.message.MethodCall;
 import io.advantageous.qbit.message.Request;
@@ -239,7 +240,14 @@ public class HttpRequestServiceServerHandlerUsingMetaImpl implements HttpRequest
 
             }
         } else {
-            writeResponse(httpRequest.getReceiver(), HttpStatus.OK, "application/json", jsonMapper.toJson(response.body()), response.headers());
+            if (response.body() instanceof HttpTextResponse) {
+                HttpTextResponse httpResponse = (HttpTextResponse) response.body();
+                writeResponse(httpRequest.getReceiver(), httpResponse.code(),
+                        httpResponse.contentType(), httpResponse.body(), httpResponse.headers());
+            } else {
+                writeResponse(httpRequest.getReceiver(), HttpStatus.OK, "application/json", jsonMapper.toJson(response.body()), response.headers());
+
+            }
         }
 
 

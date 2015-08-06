@@ -4,7 +4,7 @@ import io.advantageous.boon.core.Sys;
 import io.advantageous.boon.json.JsonFactory;
 import io.advantageous.qbit.http.request.HttpRequest;
 import io.advantageous.qbit.http.request.HttpRequestBuilder;
-import io.advantageous.qbit.http.request.HttpResponse;
+import io.advantageous.qbit.http.request.HttpTextResponse;
 import io.advantageous.qbit.http.server.HttpServer;
 import io.advantageous.qbit.http.server.websocket.WebSocketMessage;
 import io.advantageous.qbit.util.MultiMap;
@@ -20,24 +20,24 @@ public class HttpServerSimulator implements HttpServer {
     private Consumer<Void> idleConsumer;
 
 
-    public final HttpResponse get(String uri) {
+    public final HttpTextResponse get(String uri) {
 
         final HttpRequestBuilder httpRequestBuilder = HttpRequestBuilder.httpRequestBuilder();
         httpRequestBuilder.setUri("/services" + uri);
-        final AtomicReference<HttpResponse> response = getHttpResponseAtomicReference(httpRequestBuilder);
+        final AtomicReference<HttpTextResponse> response = getHttpResponseAtomicReference(httpRequestBuilder);
 
         return response.get();
 
     }
 
 
-    public final HttpResponse postBody(String uri, Object object) {
+    public final HttpTextResponse postBody(String uri, Object object) {
 
         final HttpRequestBuilder httpRequestBuilder = HttpRequestBuilder.httpRequestBuilder();
         httpRequestBuilder.setMethodPost();
         httpRequestBuilder.setUri("/services" + uri);
         httpRequestBuilder.setBody(JsonFactory.toJson(object));
-        final AtomicReference<HttpResponse> response = getHttpResponseAtomicReference(httpRequestBuilder);
+        final AtomicReference<HttpTextResponse> response = getHttpResponseAtomicReference(httpRequestBuilder);
 
         return response.get();
 
@@ -50,8 +50,8 @@ public class HttpServerSimulator implements HttpServer {
         idleConsumer.accept(null);
     }
 
-    private AtomicReference<HttpResponse> getHttpResponseAtomicReference(HttpRequestBuilder httpRequestBuilder) {
-        final AtomicReference<HttpResponse> response = new AtomicReference<>();
+    private AtomicReference<HttpTextResponse> getHttpResponseAtomicReference(HttpRequestBuilder httpRequestBuilder) {
+        final AtomicReference<HttpTextResponse> response = new AtomicReference<>();
         final CountDownLatch latch = new CountDownLatch(1);
 
         httpRequestBuilder.setTextReceiver((code, contentType, body) ->
@@ -79,8 +79,8 @@ public class HttpServerSimulator implements HttpServer {
         return response;
     }
 
-    private HttpResponse createResponse(int code, String contentType, String body) {
-        return new HttpResponse() {
+    private HttpTextResponse createResponse(int code, String contentType, String body) {
+        return new HttpTextResponse() {
 
             @Override
             public MultiMap<String, String> headers() {

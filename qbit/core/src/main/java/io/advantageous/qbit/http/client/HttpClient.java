@@ -377,18 +377,18 @@ public interface HttpClient extends ServiceFlushable, Stoppable, Startable {
         sendHttpRequest(httpRequest);
     }
 
-    default HttpResponse sendRequestAndWait(final HttpRequest httpRequest) {
+    default HttpTextResponse sendRequestAndWait(final HttpRequest httpRequest) {
         return sendRequestAndWait(httpRequest, HTTP_CLIENT_DEFAULT_TIMEOUT, TimeUnit.SECONDS);
     }
 
-    default HttpResponse sendRequestAndWait(final HttpRequest httpRequest,
+    default HttpTextResponse sendRequestAndWait(final HttpRequest httpRequest,
                                             final long wait,
                                             final TimeUnit timeUnit) {
 
 
         final CountDownLatch countDownLatchConnect = new CountDownLatch(1);
         final CountDownLatch countDownLatch = new CountDownLatch(1);
-        final AtomicReference<HttpResponse> httpResponseAtomicReference = new AtomicReference<>();
+        final AtomicReference<HttpTextResponse> httpResponseAtomicReference = new AtomicReference<>();
 
 
         _createHttpTextReceiver(httpRequest, countDownLatch, countDownLatchConnect, httpResponseAtomicReference);
@@ -410,7 +410,7 @@ public interface HttpClient extends ServiceFlushable, Stoppable, Startable {
         }
 
 
-        final HttpResponse httpResponse = httpResponseAtomicReference.get();
+        final HttpTextResponse httpResponse = httpResponseAtomicReference.get();
         if (httpResponse == null) {
             if (countDownLatch.getCount() != 0) {
                 throw new HttpClientTimeoutException("Timeout start time " + new Date(httpRequest.getTimestamp()) +
@@ -424,40 +424,40 @@ public interface HttpClient extends ServiceFlushable, Stoppable, Startable {
 
     }
 
-    default HttpResponse get(String uri) {
+    default HttpTextResponse get(String uri) {
         return getWithTimeout(uri, HTTP_CLIENT_DEFAULT_TIMEOUT, TimeUnit.SECONDS);
     }
 
-    default HttpResponse getWithTimeout(String uri, long time, TimeUnit unit) {
+    default HttpTextResponse getWithTimeout(String uri, long time, TimeUnit unit) {
         final HttpRequest httpRequest = httpRequestBuilder()
                 .setUri(uri).build();
         return sendRequestAndWait(httpRequest, time, unit);
     }
 
 
-    default HttpResponse post(String uri) {
+    default HttpTextResponse post(String uri) {
         return postWithTimeout(uri, HTTP_CLIENT_DEFAULT_TIMEOUT, TimeUnit.SECONDS);
     }
 
-    default HttpResponse postWithTimeout(String uri, long time, TimeUnit unit) {
+    default HttpTextResponse postWithTimeout(String uri, long time, TimeUnit unit) {
         final HttpRequest httpRequest = httpRequestBuilder().setMethod("POST")
                 .setUri(uri).build();
         return sendRequestAndWait(httpRequest, time, unit);
     }
 
 
-    default HttpResponse put(String uri) {
+    default HttpTextResponse put(String uri) {
         return postWithTimeout(uri, HTTP_CLIENT_DEFAULT_TIMEOUT, TimeUnit.SECONDS);
     }
 
-    default HttpResponse putWithTimeout(String uri, long time, TimeUnit unit) {
+    default HttpTextResponse putWithTimeout(String uri, long time, TimeUnit unit) {
         final HttpRequest httpRequest = httpRequestBuilder().setMethod("PUT")
                 .setUri(uri).build();
         return sendRequestAndWait(httpRequest, time, unit);
     }
 
 
-    default HttpResponse getWith1ParamWithTimeout(String uri, String key, Object value,
+    default HttpTextResponse getWith1ParamWithTimeout(String uri, String key, Object value,
                                                   final long time,
                                                   final TimeUnit timeUnit) {
 
@@ -468,13 +468,13 @@ public interface HttpClient extends ServiceFlushable, Stoppable, Startable {
         return sendRequestAndWait(httpRequest, time, timeUnit);
     }
 
-    default HttpResponse getWith1Param(String uri, String key, Object value) {
+    default HttpTextResponse getWith1Param(String uri, String key, Object value) {
 
         return getWith1ParamWithTimeout(uri, key, value, HTTP_CLIENT_DEFAULT_TIMEOUT, TimeUnit.SECONDS);
     }
 
 
-    default HttpResponse postWith1ParamWithTimeout(String uri, String key, Object value,
+    default HttpTextResponse postWith1ParamWithTimeout(String uri, String key, Object value,
                                                    final long time,
                                                    final TimeUnit timeUnit) {
 
@@ -486,12 +486,12 @@ public interface HttpClient extends ServiceFlushable, Stoppable, Startable {
         return sendRequestAndWait(httpRequest, time, timeUnit);
     }
 
-    default HttpResponse postWith1Param(String uri, String key, Object value) {
+    default HttpTextResponse postWith1Param(String uri, String key, Object value) {
 
         return postWith1ParamWithTimeout(uri, key, value, HTTP_CLIENT_DEFAULT_TIMEOUT, TimeUnit.SECONDS);
     }
 
-    default HttpResponse putWith1ParamWithTimeout(String uri, String key, Object value,
+    default HttpTextResponse putWith1ParamWithTimeout(String uri, String key, Object value,
                                                   final long time,
                                                   final TimeUnit timeUnit) {
 
@@ -503,13 +503,13 @@ public interface HttpClient extends ServiceFlushable, Stoppable, Startable {
         return sendRequestAndWait(httpRequest, time, timeUnit);
     }
 
-    default HttpResponse putWith1Param(String uri, String key, Object value) {
+    default HttpTextResponse putWith1Param(String uri, String key, Object value) {
 
         return putWith1ParamWithTimeout(uri, key, value, HTTP_CLIENT_DEFAULT_TIMEOUT, TimeUnit.SECONDS);
     }
 
 
-    default HttpResponse getWith2ParamsWithTimeout(String uri,
+    default HttpTextResponse getWith2ParamsWithTimeout(String uri,
                                                    String key, Object value,
                                                    String key1, Object value1,
                                                    final long time,
@@ -525,7 +525,7 @@ public interface HttpClient extends ServiceFlushable, Stoppable, Startable {
     }
 
 
-    default HttpResponse getWith2Params(String uri,
+    default HttpTextResponse getWith2Params(String uri,
                                         String key, Object value,
                                         String key1, Object value1
     ) {
@@ -534,7 +534,7 @@ public interface HttpClient extends ServiceFlushable, Stoppable, Startable {
     }
 
 
-    default HttpResponse postWith2ParamsWithTimeout(String uri,
+    default HttpTextResponse postWith2ParamsWithTimeout(String uri,
                                                     String key, Object value,
                                                     String key1, Object value1,
                                                     final long time,
@@ -552,7 +552,7 @@ public interface HttpClient extends ServiceFlushable, Stoppable, Startable {
     }
 
 
-    default HttpResponse postWith2Params(String uri,
+    default HttpTextResponse postWith2Params(String uri,
                                          String key, Object value,
                                          String key1, Object value1
     ) {
@@ -561,7 +561,7 @@ public interface HttpClient extends ServiceFlushable, Stoppable, Startable {
     }
 
 
-    default HttpResponse putWith2ParamsWithTimeout(String uri,
+    default HttpTextResponse putWith2ParamsWithTimeout(String uri,
                                                    String key, Object value,
                                                    String key1, Object value1,
                                                    final long time,
@@ -579,7 +579,7 @@ public interface HttpClient extends ServiceFlushable, Stoppable, Startable {
     }
 
 
-    default HttpResponse putWith2Params(String uri,
+    default HttpTextResponse putWith2Params(String uri,
                                         String key, Object value,
                                         String key1, Object value1
     ) {
@@ -588,7 +588,7 @@ public interface HttpClient extends ServiceFlushable, Stoppable, Startable {
     }
 
 
-    default HttpResponse getWith3ParamsWithTimeout(String uri,
+    default HttpTextResponse getWith3ParamsWithTimeout(String uri,
                                                    String key, Object value,
                                                    String key1, Object value1,
                                                    String key2, Object value2,
@@ -606,7 +606,7 @@ public interface HttpClient extends ServiceFlushable, Stoppable, Startable {
     }
 
 
-    default HttpResponse getWith3Params(String uri,
+    default HttpTextResponse getWith3Params(String uri,
                                         String key, Object value,
                                         String key1, Object value1,
                                         String key2, Object value2) {
@@ -620,7 +620,7 @@ public interface HttpClient extends ServiceFlushable, Stoppable, Startable {
     }
 
 
-    default HttpResponse postWith3ParamsWithTimeout(String uri,
+    default HttpTextResponse postWith3ParamsWithTimeout(String uri,
                                                     String key, Object value,
                                                     String key1, Object value1,
                                                     String key2, Object value2,
@@ -640,7 +640,7 @@ public interface HttpClient extends ServiceFlushable, Stoppable, Startable {
     }
 
 
-    default HttpResponse postWith3Params(String uri,
+    default HttpTextResponse postWith3Params(String uri,
                                          String key, Object value,
                                          String key1, Object value1,
                                          String key2, Object value2) {
@@ -654,7 +654,7 @@ public interface HttpClient extends ServiceFlushable, Stoppable, Startable {
     }
 
 
-    default HttpResponse putWith3ParamsWithTimeout(String uri,
+    default HttpTextResponse putWith3ParamsWithTimeout(String uri,
                                                    String key, Object value,
                                                    String key1, Object value1,
                                                    String key2, Object value2,
@@ -674,7 +674,7 @@ public interface HttpClient extends ServiceFlushable, Stoppable, Startable {
     }
 
 
-    default HttpResponse putWith3Params(String uri,
+    default HttpTextResponse putWith3Params(String uri,
                                         String key, Object value,
                                         String key1, Object value1,
                                         String key2, Object value2) {
@@ -688,7 +688,7 @@ public interface HttpClient extends ServiceFlushable, Stoppable, Startable {
     }
 
 
-    default HttpResponse getWith4ParamsWithTimeout(String uri,
+    default HttpTextResponse getWith4ParamsWithTimeout(String uri,
                                                    String key, Object value,
                                                    String key1, Object value1,
                                                    String key2, Object value2,
@@ -708,7 +708,7 @@ public interface HttpClient extends ServiceFlushable, Stoppable, Startable {
     }
 
 
-    default HttpResponse getWith4Params(String uri,
+    default HttpTextResponse getWith4Params(String uri,
                                         String key, Object value,
                                         String key1, Object value1,
                                         String key2, Object value2,
@@ -722,7 +722,7 @@ public interface HttpClient extends ServiceFlushable, Stoppable, Startable {
     }
 
 
-    default HttpResponse postWith4ParamsWithTimeout(String uri,
+    default HttpTextResponse postWith4ParamsWithTimeout(String uri,
                                                     String key, Object value,
                                                     String key1, Object value1,
                                                     String key2, Object value2,
@@ -744,7 +744,7 @@ public interface HttpClient extends ServiceFlushable, Stoppable, Startable {
     }
 
 
-    default HttpResponse postWith4Params(String uri,
+    default HttpTextResponse postWith4Params(String uri,
                                          String key, Object value,
                                          String key1, Object value1,
                                          String key2, Object value2,
@@ -759,7 +759,7 @@ public interface HttpClient extends ServiceFlushable, Stoppable, Startable {
     }
 
 
-    default HttpResponse putWith4ParamsWithTimeout(String uri,
+    default HttpTextResponse putWith4ParamsWithTimeout(String uri,
                                                    String key, Object value,
                                                    String key1, Object value1,
                                                    String key2, Object value2,
@@ -781,7 +781,7 @@ public interface HttpClient extends ServiceFlushable, Stoppable, Startable {
     }
 
 
-    default HttpResponse putWith4Params(String uri,
+    default HttpTextResponse putWith4Params(String uri,
                                         String key, Object value,
                                         String key1, Object value1,
                                         String key2, Object value2,
@@ -795,7 +795,7 @@ public interface HttpClient extends ServiceFlushable, Stoppable, Startable {
                 HTTP_CLIENT_DEFAULT_TIMEOUT, TimeUnit.SECONDS);
     }
 
-    default HttpResponse getWith5ParamsWithTimeout(String uri,
+    default HttpTextResponse getWith5ParamsWithTimeout(String uri,
                                                    String key, Object value,
                                                    String key1, Object value1,
                                                    String key2, Object value2,
@@ -818,7 +818,7 @@ public interface HttpClient extends ServiceFlushable, Stoppable, Startable {
     }
 
 
-    default HttpResponse getWith5Params(String uri,
+    default HttpTextResponse getWith5Params(String uri,
                                         String key, Object value,
                                         String key1, Object value1,
                                         String key2, Object value2,
@@ -835,7 +835,7 @@ public interface HttpClient extends ServiceFlushable, Stoppable, Startable {
     }
 
 
-    default HttpResponse postWith5ParamsWithTimeout(String uri,
+    default HttpTextResponse postWith5ParamsWithTimeout(String uri,
                                                     String key, Object value,
                                                     String key1, Object value1,
                                                     String key2, Object value2,
@@ -859,7 +859,7 @@ public interface HttpClient extends ServiceFlushable, Stoppable, Startable {
     }
 
 
-    default HttpResponse postWith5Params(String uri,
+    default HttpTextResponse postWith5Params(String uri,
                                          String key, Object value,
                                          String key1, Object value1,
                                          String key2, Object value2,
@@ -876,7 +876,7 @@ public interface HttpClient extends ServiceFlushable, Stoppable, Startable {
     }
 
 
-    default HttpResponse putWith5ParamsWithTimeout(String uri,
+    default HttpTextResponse putWith5ParamsWithTimeout(String uri,
                                                    String key, Object value,
                                                    String key1, Object value1,
                                                    String key2, Object value2,
@@ -900,7 +900,7 @@ public interface HttpClient extends ServiceFlushable, Stoppable, Startable {
     }
 
 
-    default HttpResponse putWith5Params(String uri,
+    default HttpTextResponse putWith5Params(String uri,
                                         String key, Object value,
                                         String key1, Object value1,
                                         String key2, Object value2,
@@ -938,7 +938,7 @@ public interface HttpClient extends ServiceFlushable, Stoppable, Startable {
         sendHttpRequest(httpRequest);
     }
 
-    default HttpResponse postJson(final String uri,
+    default HttpTextResponse postJson(final String uri,
                                   final String body) {
 
         final HttpRequest httpRequest = httpRequestBuilder()
@@ -949,7 +949,7 @@ public interface HttpClient extends ServiceFlushable, Stoppable, Startable {
     }
 
 
-    default HttpResponse postJsonGzip(final String uri,
+    default HttpTextResponse postJsonGzip(final String uri,
                                       final String body) {
 
         final HttpRequest httpRequest = httpRequestBuilder()
@@ -960,7 +960,7 @@ public interface HttpClient extends ServiceFlushable, Stoppable, Startable {
     }
 
 
-    default HttpResponse putJsonGzip(final String uri,
+    default HttpTextResponse putJsonGzip(final String uri,
                                      final String body) {
 
         final HttpRequest httpRequest = httpRequestBuilder()
@@ -970,7 +970,7 @@ public interface HttpClient extends ServiceFlushable, Stoppable, Startable {
         return sendRequestAndWait(httpRequest);
     }
 
-    default HttpResponse putJson(final String uri,
+    default HttpTextResponse putJson(final String uri,
                                  final String body) {
 
         final HttpRequest httpRequest = httpRequestBuilder()
@@ -1071,7 +1071,7 @@ public interface HttpClient extends ServiceFlushable, Stoppable, Startable {
     static void _createHttpTextReceiver(final HttpRequest httpRequest,
                                         final CountDownLatch countDownLatch,
                                         final CountDownLatch countDownLatch2,
-                                        final AtomicReference<HttpResponse> httpResponseAtomicReference) {
+                                        final AtomicReference<HttpTextResponse> httpResponseAtomicReference) {
 
         final HttpTextReceiver httpTextReceiver = new HttpTextReceiver() {
             @Override
@@ -1087,7 +1087,7 @@ public interface HttpClient extends ServiceFlushable, Stoppable, Startable {
                     final MultiMap<String, String> headers) {
 
                 httpResponseAtomicReference.set(
-                        new HttpResponse() {
+                        new HttpTextResponse() {
                             @Override
                             public MultiMap<String, String> headers() {
                                 return headers;
@@ -1109,7 +1109,7 @@ public interface HttpClient extends ServiceFlushable, Stoppable, Startable {
                             }
 
                             public String toString() {
-                                return ("HttpResponse(" + "code:" + code +
+                                return ("HttpTextResponse(" + "code:" + code +
                                         "contentType:" + contentType +
                                         "\nbody:\n" +
                                         body + "\n)"
