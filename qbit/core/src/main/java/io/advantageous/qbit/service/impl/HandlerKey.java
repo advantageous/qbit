@@ -25,30 +25,48 @@ package io.advantageous.qbit.service.impl;
  */
 class HandlerKey {
     final String returnAddress;
+    final String address;
     final long messageId;
     final long timestamp;
 
-    HandlerKey(String returnAddress, long messageId, long now) {
+
+    HandlerKey(String returnAddress, String address, long messageId, long timestamp) {
         this.returnAddress = returnAddress;
+        this.address = address;
         this.messageId = messageId;
-        this.timestamp = now;
+        this.timestamp = timestamp;
     }
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        final HandlerKey that = (HandlerKey) o;
-        return messageId == that.messageId
-                && !(returnAddress != null
-                ? !returnAddress.equals(that.returnAddress)
-                : that.returnAddress != null);
+        if (!(o instanceof HandlerKey)) return false;
+
+        HandlerKey that = (HandlerKey) o;
+
+        if (messageId != that.messageId) return false;
+        if (timestamp != that.timestamp) return false;
+        if (returnAddress != null ? !returnAddress.equals(that.returnAddress) : that.returnAddress != null)
+            return false;
+
+        return true;
     }
 
     @Override
     public int hashCode() {
         int result = returnAddress != null ? returnAddress.hashCode() : 0;
         result = 31 * result + (int) (messageId ^ (messageId >>> 32));
+        result = 31 * result + (int) (timestamp ^ (timestamp >>> 32));
         return result;
+    }
+
+    @Override
+    public String toString() {
+        return "HandlerKey{" +
+                "returnAddress='" + returnAddress + '\'' +
+                ", address='" + address + '\'' +
+                ", messageId=" + messageId +
+                ", timestamp=" + timestamp +
+                '}';
     }
 }
