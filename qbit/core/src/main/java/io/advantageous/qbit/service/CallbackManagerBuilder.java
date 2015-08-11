@@ -13,7 +13,7 @@ public class CallbackManagerBuilder {
     private  String name;
     private  boolean handleTimeouts = false;
     private  long timeOutMS = 30_000;
-    private  long checkInterval = 30_000;
+    private  long checkInterval = 5_000;
     private  Timer timer;
 
     public static String CONTEXT = "qbit.callbackmanager.";

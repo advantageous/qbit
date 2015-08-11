@@ -54,7 +54,7 @@ public class CallbackManagerWithTimeout implements CallbackManager {
         this.handleTimeouts = handleTimeouts;
 
         this.timeOutMS = timeOutMS;
-        this.checkInterval = checkInterval;
+        this.checkInterval = checkInterval > 0 ? checkInterval : 5_000;
         this.lastCheckTime = timer.now();
         this.now = lastCheckTime;
         this.timer = timer;
@@ -76,7 +76,7 @@ public class CallbackManagerWithTimeout implements CallbackManager {
     private void registerHandlerCallbackForClient(final MethodCall<Object> methodCall,
                                                   final Callback<Object> handler) {
         handlers.put(new HandlerKey(methodCall.returnAddress(), methodCall.address(),
-                methodCall.id(), now), handler);
+                methodCall.id(), methodCall.timestamp()), handler);
     }
 
 
@@ -124,7 +124,7 @@ public class CallbackManagerWithTimeout implements CallbackManager {
                 response.returnAddress(),
                 response.address(),
                 response.id(),
-                now);
+                response.timestamp());
 
         final Callback<Object> handler = handlers.remove(handlerKey);
 
@@ -156,35 +156,37 @@ public class CallbackManagerWithTimeout implements CallbackManager {
 
     @Override
     public void process(long currentTime) {
-
-        if (handlers.size() > 8_000) {
-            logger.error("Issue with handlers growing too large size {} " +
-                            "service name {}",
-                    handlers.size(), this.name);
-        }
-
-
-        if (handlers.size() > 32_000) {
-            logger.error("Issue with handlers growing very large size {} " +
-                            "service name {}",
-                    handlers.size(), this.name);
-            checkForTimeOuts(60_000);
-        }
-        if (!handleTimeouts) {
-            return;
-        }
-
         if (currentTime != 0) {
             this.now = currentTime;
         } else {
             this.now = timer.now();
         }
 
+
         long duration = this.now - lastCheckTime;
 
         if (duration > checkInterval) {
-            checkForTimeOuts(timeOutMS);
             lastCheckTime = this.now;
+            if (handleTimeouts) {
+                checkForTimeOuts(timeOutMS);
+            } else {
+                if (handlers.size() > 8_000) {
+                    if (debug) {
+                        logger.debug("Issue with handlers growing too large size {} " +
+                                        "service name {}",
+                                handlers.size(), this.name);
+                    }
+                }
+
+
+                if (handlers.size() > 32_000) {
+                    logger.error("Issue with handlers growing very large size {} " +
+                                    "service name {}",
+                            handlers.size(), this.name);
+                    checkForTimeOuts(60_000);
+                }
+
+            }
         }
 
     }

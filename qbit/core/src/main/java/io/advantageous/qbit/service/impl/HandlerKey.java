@@ -45,7 +45,6 @@ class HandlerKey {
         HandlerKey that = (HandlerKey) o;
 
         if (messageId != that.messageId) return false;
-        if (timestamp != that.timestamp) return false;
         if (returnAddress != null ? !returnAddress.equals(that.returnAddress) : that.returnAddress != null)
             return false;
 
@@ -56,7 +55,6 @@ class HandlerKey {
     public int hashCode() {
         int result = returnAddress != null ? returnAddress.hashCode() : 0;
         result = 31 * result + (int) (messageId ^ (messageId >>> 32));
-        result = 31 * result + (int) (timestamp ^ (timestamp >>> 32));
         return result;
     }
 
