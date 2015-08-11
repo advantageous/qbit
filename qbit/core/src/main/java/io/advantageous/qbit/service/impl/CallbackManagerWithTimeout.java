@@ -157,18 +157,18 @@ public class CallbackManagerWithTimeout implements CallbackManager {
     @Override
     public void process(long currentTime) {
 
-        if (handlers.size() > 1_000) {
+        if (handlers.size() > 8_000) {
             logger.error("Issue with handlers growing too large size {} " +
                             "service name {}",
                     handlers.size(), this.name);
         }
 
 
-        if (handlers.size() > 100_000) {
+        if (handlers.size() > 32_000) {
             logger.error("Issue with handlers growing very large size {} " +
                             "service name {}",
                     handlers.size(), this.name);
-            checkForTimeOuts(60_000 * 5);
+            checkForTimeOuts(60_000);
         }
         if (!handleTimeouts) {
             return;
