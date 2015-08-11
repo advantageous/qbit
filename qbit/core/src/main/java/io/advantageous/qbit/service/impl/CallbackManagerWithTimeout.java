@@ -46,11 +46,13 @@ public class CallbackManagerWithTimeout implements CallbackManager {
 
 
 
-    public CallbackManagerWithTimeout(final Timer timer, final String name, boolean handleTimeouts,
+    public CallbackManagerWithTimeout(final Timer timer, final String name,
+                                      boolean handleTimeouts,
                                       long timeOutMS, long checkInterval) {
 
         this.name = name;
         this.handleTimeouts = handleTimeouts;
+
         this.timeOutMS = timeOutMS;
         this.checkInterval = checkInterval;
         this.lastCheckTime = timer.now();
@@ -73,7 +75,8 @@ public class CallbackManagerWithTimeout implements CallbackManager {
      */
     private void registerHandlerCallbackForClient(final MethodCall<Object> methodCall,
                                                   final Callback<Object> handler) {
-        handlers.put(new HandlerKey(methodCall.returnAddress(), methodCall.id(), now), handler);
+        handlers.put(new HandlerKey(methodCall.returnAddress(), methodCall.address(),
+                methodCall.id(), now), handler);
     }
 
 
@@ -116,12 +119,17 @@ public class CallbackManagerWithTimeout implements CallbackManager {
 
     @Override
     public void handleResponse(final Response<Object> response) {
-        final HandlerKey handlerKey = new HandlerKey(response.returnAddress(), response.id(), now);
-        final Callback<Object> handler = handlers.get(handlerKey);
 
-        handlers.remove(handlerKey);
+        final HandlerKey handlerKey = new HandlerKey(
+                response.returnAddress(),
+                response.address(),
+                response.id(),
+                now);
+
+        final Callback<Object> handler = handlers.remove(handlerKey);
 
         if (handler == null) {
+            logger.error("Could not find handler for key {}", handlerKey);
             return;
         }
 
@@ -149,9 +157,23 @@ public class CallbackManagerWithTimeout implements CallbackManager {
     @Override
     public void process(long currentTime) {
 
+        if (handlers.size() > 8_000) {
+            logger.error("Issue with handlers growing too large size {} " +
+                            "service name {}",
+                    handlers.size(), this.name);
+        }
+
+
+        if (handlers.size() > 32_000) {
+            logger.error("Issue with handlers growing very large size {} " +
+                            "service name {}",
+                    handlers.size(), this.name);
+            checkForTimeOuts(60_000);
+        }
         if (!handleTimeouts) {
             return;
         }
+
         if (currentTime != 0) {
             this.now = currentTime;
         } else {
@@ -161,13 +183,13 @@ public class CallbackManagerWithTimeout implements CallbackManager {
         long duration = this.now - lastCheckTime;
 
         if (duration > checkInterval) {
-            checkForTimeOuts();
+            checkForTimeOuts(timeOutMS);
             lastCheckTime = this.now;
         }
 
     }
 
-    private void checkForTimeOuts() {
+    private void checkForTimeOuts(long timeOutMS) {
 
         if (debug) {
             logger.debug("checking for timeouts");

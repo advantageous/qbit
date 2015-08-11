@@ -203,10 +203,9 @@ public class ServiceEndpointServerImpl implements ServiceEndpointServer {
                 } else {
                     serviceDiscovery.checkIn(endpoint.getId(), HealthStatus.FAIL);
                 }
+                healthServiceAsync.ok(ok::set);
+                ServiceProxyUtils.flushServiceProxy(healthServiceAsync);
             }
-
-            healthServiceAsync.ok(ok::set);
-            ServiceProxyUtils.flushServiceProxy(healthServiceAsync);
         });
     }
     public void stop() {
