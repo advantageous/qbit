@@ -433,7 +433,8 @@ public class ManagedServiceBuilder {
             }
 
             statServiceBuilder.build();
-            statServiceBuilder.buildServiceQueue().startCallBackHandler().start();
+            statServiceBuilder.buildServiceQueueWithCallbackHandler()
+                    .startCallBackHandler().start();
 
         }
         return statServiceBuilder;

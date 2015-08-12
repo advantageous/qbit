@@ -260,7 +260,9 @@ public class StatServiceBuilder {
     public ServiceQueue buildServiceQueue() {
         ServiceBuilder serviceBuilder = getServiceBuilder()
                 .setRequestQueueBuilder(getSendQueueBuilder())
-                .setServiceObject(getStatServiceImpl());
+                .setServiceObject(getStatServiceImpl())
+                .setCreateCallbackHandler(false);
+
         serviceQueue = serviceBuilder.build();
 
         if (serviceDiscovery != null) {
@@ -273,6 +275,23 @@ public class StatServiceBuilder {
         return serviceQueue;
     }
 
+    public ServiceQueue buildServiceQueueWithCallbackHandler() {
+        ServiceBuilder serviceBuilder = getServiceBuilder()
+                .setRequestQueueBuilder(getSendQueueBuilder())
+                .setServiceObject(getStatServiceImpl())
+                .setCreateCallbackHandler(true);
+
+        serviceQueue = serviceBuilder.build();
+
+        if (serviceDiscovery != null) {
+
+            if (eventManager != null && eventManager != QBit.factory().systemEventManager()) {
+
+                eventManager.joinService(serviceQueue);
+            }
+        }
+        return serviceQueue;
+    }
 
     public ServiceEndpointServer buildServiceServer() {
 

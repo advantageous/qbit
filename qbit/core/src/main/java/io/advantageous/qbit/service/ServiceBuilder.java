@@ -74,15 +74,25 @@ public class ServiceBuilder {
     private CallbackManager callbackManager;
     private CallbackManagerBuilder callbackManagerBuilder;
 
-
+    private boolean createCallbackHandler = true;
 
     public static ServiceBuilder serviceBuilder() {
         return new ServiceBuilder();
     }
 
 
+
+    public boolean isCreateCallbackHandler() {
+        return createCallbackHandler;
+    }
+
+    public ServiceBuilder setCreateCallbackHandler(boolean createCallbackHandler) {
+        this.createCallbackHandler = createCallbackHandler;
+        return this;
+    }
+
     public CallbackManagerBuilder getCallbackManagerBuilder() {
-        if (callbackManagerBuilder == null) {
+        if (callbackManagerBuilder == null && isCreateCallbackHandler()) {
             callbackManagerBuilder = CallbackManagerBuilder.callbackManagerBuilder();
             if (serviceObject!=null) {
                 callbackManagerBuilder.setName(serviceObject.getClass().getSimpleName());
@@ -97,7 +107,7 @@ public class ServiceBuilder {
     }
 
     public CallbackManager getCallbackManager() {
-        if (callbackManager == null) {
+        if (callbackManager == null && isCreateCallbackHandler()) {
             callbackManager = this.getCallbackManagerBuilder().build();
         }
         return callbackManager;
@@ -437,6 +447,7 @@ public class ServiceBuilder {
 
     public ServiceQueue buildAndStartAll() {
 
+        this.setCreateCallbackHandler(true);
         return build().startServiceQueue().startCallBackHandler();
     }
 

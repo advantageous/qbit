@@ -287,7 +287,7 @@ public class ServiceBundleImpl implements ServiceBundle {
                 .setSystemManager(systemManager)
                 .setRequestQueueBuilder(BeanUtils.copy(this.requestQueueBuilder))
                 .setRequestQueueBuilder(requestQueueBuilder)
-                .setHandleCallbacks(false);
+                .setHandleCallbacks(false).setCreateCallbackHandler(false);
 
 
         final String bindStatHealthName = serviceAddress == null
