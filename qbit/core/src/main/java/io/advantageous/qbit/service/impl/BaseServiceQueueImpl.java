@@ -49,11 +49,13 @@ package io.advantageous.qbit.service.impl;
 
 import io.advantageous.boon.core.reflection.BeanUtils;
 import io.advantageous.qbit.Factory;
+import io.advantageous.qbit.GlobalConstants;
 import io.advantageous.qbit.client.ClientProxy;
 import io.advantageous.qbit.concurrent.PeriodicScheduler;
 import io.advantageous.qbit.events.EventManager;
 import io.advantageous.qbit.message.*;
 import io.advantageous.qbit.queue.*;
+import io.advantageous.qbit.reactive.Callback;
 import io.advantageous.qbit.service.*;
 import io.advantageous.qbit.system.QBitSystemManager;
 import io.advantageous.qbit.transforms.NoOpResponseTransformer;
@@ -80,7 +82,7 @@ public class BaseServiceQueueImpl implements ServiceQueue {
     private static final ThreadLocal<ServiceQueue> serviceThreadLocal = new ThreadLocal<>();
     protected final QBitSystemManager systemManager;
     protected final Logger logger = LoggerFactory.getLogger(ServiceQueueImpl.class);
-    protected final boolean debug = logger.isDebugEnabled();
+    protected final boolean debug = GlobalConstants.DEBUG && logger.isDebugEnabled();
     protected final Object service;
     protected final Queue<Response<Object>> responseQueue;
     protected final Queue<MethodCall<Object>> requestQueue;
@@ -345,9 +347,9 @@ public class BaseServiceQueueImpl implements ServiceQueue {
             return false;
         }
         Response<Object> response = serviceMethodHandler.receiveMethodCall(methodCall);
-        if (debug) {
-            logger.debug("ServiceImpl::receive() \nRESPONSE\n" + response + "\nFROM CALL\n" + methodCall + " name " + methodCall.name() + "\n\n");
-        }
+//        if (debug) {
+//            logger.debug("ServiceImpl::receive() \nRESPONSE\n" + response + "\nFROM CALL\n" + methodCall + " name " + methodCall.name() + "\n\n");
+//        }
         if (response != ServiceConstants.VOID) {
 
             if (!afterMethodCall.after(methodCall, response)) {
@@ -646,7 +648,7 @@ public class BaseServiceQueueImpl implements ServiceQueue {
 
     private <T> T proxy(Class<T> serviceInterface, final SendQueue<MethodCall<Object>> methodCallSendQueue) {
 
-        final String uuid = UUID.randomUUID().toString();
+        final String uuid = serviceInterface.getName() + "::" + UUID.randomUUID().toString();
         if (!started.get()) {
             logger.warn("ServiceQueue::create(...), A proxy is being asked for a service that is not started ", name());
         }
@@ -711,13 +713,35 @@ public class BaseServiceQueueImpl implements ServiceQueue {
 
         private final String uuid;
         private final long messageId;
+        private final boolean hasCallback;
 
-        public MethodCallLocal(String name, final String uuid, long timestamp, long messageId, Object[] args) {
+        @Override
+        public boolean hasCallback() {
+            return hasCallback;
+        }
+
+        public MethodCallLocal(final String name, final String uuid,
+                               final long timestamp, final long messageId, final Object[] args) {
             this.name = name;
             this.timestamp = timestamp;
             this.arguments = args;
             this.uuid = uuid;
             this.messageId = messageId;
+            this.hasCallback = detectCallback();
+        }
+
+
+        private boolean detectCallback() {
+            final Object[] args = arguments;
+            if (args == null) {
+                return false;
+            }
+            for (int index = 0; index < args.length; index++) {
+                if (args[index] instanceof Callback) {
+                    return true;
+                }
+            }
+            return false;
         }
 
         @Override

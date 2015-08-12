@@ -32,6 +32,7 @@ public interface MethodCall<T> extends Request<T> {
 
     String objectName();
 
+    boolean hasCallback();
 
     default Object[] args() {
         Object body = this.body();

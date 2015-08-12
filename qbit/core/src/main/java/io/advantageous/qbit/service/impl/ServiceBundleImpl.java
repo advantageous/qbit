@@ -58,7 +58,7 @@ public class ServiceBundleImpl implements ServiceBundle {
      * Logger.
      */
     private final Logger logger = LoggerFactory.getLogger(ServiceBundleImpl.class);
-    private final boolean debug = GlobalConstants.DEBUG || logger.isDebugEnabled();
+    private final boolean debug = GlobalConstants.DEBUG && logger.isDebugEnabled();
     private final boolean asyncCalls;
     private final boolean invokeDynamic;
     private final QBitSystemManager systemManager;
@@ -408,7 +408,7 @@ public class ServiceBundleImpl implements ServiceBundle {
      */
     @Override
     @SuppressWarnings("unchecked")
-    public void call(MethodCall<Object> methodCall) {
+    public void call(final MethodCall<Object> methodCall) {
 
         if (debug) {
             logger.debug(ServiceBundleImpl.class.getName() + "::call() " +

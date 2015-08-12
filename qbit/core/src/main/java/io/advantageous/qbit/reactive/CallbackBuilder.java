@@ -168,8 +168,61 @@ public class CallbackBuilder {
 
         }
 
-        //noinspection unchecked
-        return reactor.callback(this.callback);
+        if (reactor != null) {
+            return reactor.callback(this.getCallback());
+        } else {
+
+            final Callback callback = this.getCallback();
+            return new AsyncFutureCallback<T>() {
+                @Override
+                public boolean checkTimeOut(long now) {
+                    return false;
+                }
+
+                @Override
+                public void accept(T t) {
+
+                    callback.accept(t);
+                }
+
+                @Override
+                public void onError(Throwable error) {
+
+                    callback.onError(error);
+                }
+
+                @Override
+                public void run() {
+
+                }
+
+                @Override
+                public boolean cancel(boolean mayInterruptIfRunning) {
+                    throw new IllegalStateException("You need to register a reactor to use this feature");
+
+                }
+
+                @Override
+                public boolean isCancelled() {
+                    throw new IllegalStateException("You need to register a reactor to use this feature");
+                }
+
+                @Override
+                public boolean isDone() {
+                    throw new IllegalStateException("You need to register a reactor to use this feature");
+                }
+
+                @Override
+                public T get() {
+                    throw new IllegalStateException("You need to register a reactor to use this feature");
+                }
+
+                @Override
+                public T get(long timeout, TimeUnit unit) {
+                    throw new IllegalStateException("You need to register a reactor to use this feature");
+                }
+            };
+        }
     }
 
     public <T> AsyncFutureCallback<T> build(Class<T> returnType) {

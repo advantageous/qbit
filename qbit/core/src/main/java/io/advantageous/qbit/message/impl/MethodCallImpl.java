@@ -20,6 +20,7 @@ package io.advantageous.qbit.message.impl;
 
 import io.advantageous.qbit.message.MethodCall;
 import io.advantageous.qbit.message.Request;
+import io.advantageous.qbit.reactive.Callback;
 import io.advantageous.qbit.util.MultiMap;
 
 /**
@@ -39,9 +40,15 @@ public class MethodCallImpl implements MethodCall<Object> {
     private final Object body;
     private final String objectName;
     private final String returnAddress;
+    private final boolean hasCallback;
     private Object transformedBody;
     private Request<Object> originatingRequest;
 
+
+    @Override
+    public boolean hasCallback() {
+        return true;
+    }
 
     public MethodCallImpl(long timestamp, long id, String name, String address, MultiMap<String, String> params, MultiMap<String, String> headers, Object body, String objectName, String returnAddress, Request<Object> originatingRequest) {
         this.timestamp = timestamp;
@@ -54,6 +61,18 @@ public class MethodCallImpl implements MethodCall<Object> {
         this.objectName = objectName;
         this.returnAddress = returnAddress;
         this.originatingRequest = originatingRequest;
+
+        this.hasCallback = detectCallback();
+    }
+
+    private boolean detectCallback() {
+        final Object[] args = this.args();
+        for (int index = 0; index < args.length; index++) {
+            if (args[index] instanceof Callback) {
+                return true;
+            }
+        }
+        return false;
     }
 
     @Override

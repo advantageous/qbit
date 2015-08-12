@@ -129,7 +129,9 @@ public class CallbackManagerWithTimeout implements CallbackManager {
         final Callback<Object> handler = handlers.remove(handlerKey);
 
         if (handler == null) {
-            logger.error("Could not find handler for key {}", handlerKey);
+            if (response.request().hasCallback()) {
+                logger.error("Could not find handler for key {}", handlerKey);
+            }
             return;
         }
 
@@ -218,5 +220,9 @@ public class CallbackManagerWithTimeout implements CallbackManager {
 
     }
 
+
+    public int outstandingCallbacksCount() {
+        return handlers.size();
+    }
 
 }

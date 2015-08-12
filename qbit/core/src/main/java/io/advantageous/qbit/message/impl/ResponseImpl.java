@@ -192,9 +192,15 @@ public class ResponseImpl<T> implements Response<T> {
     @Override
     public String toString() {
         return "ResponseImpl{" +
-                "address='" + address + '\'' +
+                "request=" + request +
+                ", address='" + address + '\'' +
+                ", returnAddress='" + returnAddress + '\'' +
                 ", params=" + params +
                 ", body=" + body +
+                ", id=" + id +
+                ", timestamp=" + timestamp +
+                ", transformedBody=" + transformedBody +
+                ", errors=" + errors +
                 '}';
     }
 }

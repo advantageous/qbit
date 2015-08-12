@@ -66,7 +66,7 @@ public class BoonServiceProxyFactory implements ServiceProxyFactory {
         final String objectAddress = endPoint != null ? Str.add(endPoint.address(), "/", serviceName) : "";
 
 
-        if (!Str.isEmpty(returnAddressArg)) {
+        if (Str.isEmpty(returnAddressArg)) {
             returnAddressArg = Str.add(objectAddress, "/" + UUID.randomUUID());
         }
 
