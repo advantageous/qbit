@@ -45,6 +45,16 @@ public class SingleArgumentUserDefinedObjectRESTTest {
         assertEquals("\"success\"", httpResponse.body());
     }
 
+    @Test
+    public void addEmployeeBadJSON() {
+        final HttpTextResponse httpResponse = httpServerSimulator.postBodyPlain("/es/employee-ack",
+                "{rick:name}");
+
+        assertEquals(500, httpResponse.code());
+        assertTrue(httpResponse.body().startsWith("[\"Unable to JSON parse"));
+    }
+
+
 
     @Test
     public void addEmployeeWithReturn() {

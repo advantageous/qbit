@@ -43,6 +43,19 @@ public class HttpServerSimulator implements HttpServer {
 
     }
 
+    public final HttpTextResponse postBodyPlain(String uri, String object) {
+
+        final HttpRequestBuilder httpRequestBuilder = HttpRequestBuilder.httpRequestBuilder();
+        httpRequestBuilder.setMethodPost();
+        httpRequestBuilder.setUri("/services" + uri);
+        httpRequestBuilder.setBody(object);
+        final AtomicReference<HttpTextResponse> response = getHttpResponseAtomicReference(httpRequestBuilder);
+
+        return response.get();
+
+    }
+
+
     private void callService(final HttpRequest request) {
 
         httpRequestConsumer.accept(request);
