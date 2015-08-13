@@ -186,14 +186,19 @@ public class StandardRequestTransformer implements RequestTransformer {
 
                     }
 
-                    if (parameterMeta.isArray() || parameterMeta.isCollection()) {
-                        value = jsonMapper.get().fromJsonArray(value.toString(), parameterMeta.getComponentClass());
-                    } else if (parameterMeta.isMap()) {
+                    try {
+                        if (parameterMeta.isArray() || parameterMeta.isCollection()) {
+                            value = jsonMapper.get().fromJsonArray(value.toString(), parameterMeta.getComponentClass());
+                        } else if (parameterMeta.isMap()) {
 
-                        value = jsonMapper.get().fromJsonMap(value.toString(), parameterMeta.getComponentClassKey(),
-                                parameterMeta.getComponentClassValue());
-                    } else {
-                        value = jsonMapper.get().fromJson(value.toString(), parameterMeta.getClassType());
+                            value = jsonMapper.get().fromJsonMap(value.toString(), parameterMeta.getComponentClassKey(),
+                                    parameterMeta.getComponentClassValue());
+                        } else {
+                            value = jsonMapper.get().fromJson(value.toString(), parameterMeta.getClassType());
+                        }
+                    }catch (Exception exception) {
+                        errorsList.add("Unable to JSON parse body :: " + exception.getMessage());
+                        logger.warn("Unable to parse object", exception);
                     }
                     break;
 
