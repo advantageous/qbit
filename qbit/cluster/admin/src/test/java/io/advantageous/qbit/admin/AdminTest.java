@@ -3,7 +3,7 @@ package io.advantageous.qbit.admin;
 import io.advantageous.boon.core.Sys;
 import io.advantageous.qbit.http.client.HttpClient;
 import io.advantageous.qbit.http.client.HttpClientBuilder;
-import io.advantageous.qbit.http.request.HttpResponse;
+import io.advantageous.qbit.http.request.HttpTextResponse;
 import io.advantageous.qbit.server.ServiceEndpointServer;
 import io.advantageous.qbit.service.health.HealthStatus;
 import io.advantageous.qbit.util.PortUtils;
@@ -59,7 +59,7 @@ public class AdminTest {
     @Test
     public void testOk() throws Exception {
 
-        HttpResponse httpResponse = httpClient.get("/services/qbit-admin/ok");
+        HttpTextResponse httpResponse = httpClient.get("/services/qbit-admin/ok");
 
         assertTrue(httpResponse.code() == 200);
 
@@ -70,7 +70,7 @@ public class AdminTest {
     @Test
     public void testFindAllNodes() throws Exception {
 
-        HttpResponse httpResponse = httpClient.get("/services/qbit-admin/all-nodes/");
+        HttpTextResponse httpResponse = httpClient.get("/services/qbit-admin/all-nodes/");
 
         assertTrue(httpResponse.code() == 200);
 
@@ -86,7 +86,7 @@ public class AdminTest {
         adminBuilder.getHealthService().clientProxyFlush();
         Sys.sleep(1000);
 
-        HttpResponse httpResponse = httpClient.get("/services/qbit-admin/all-nodes/");
+        HttpTextResponse httpResponse = httpClient.get("/services/qbit-admin/all-nodes/");
 
         assertTrue(httpResponse.code() == 200);
 

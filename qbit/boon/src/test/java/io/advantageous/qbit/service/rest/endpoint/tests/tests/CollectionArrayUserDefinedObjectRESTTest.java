@@ -4,7 +4,7 @@ import io.advantageous.boon.core.Lists;
 import io.advantageous.boon.core.Maps;
 import io.advantageous.boon.json.JsonFactory;
 import io.advantageous.qbit.BoonJsonMapper;
-import io.advantageous.qbit.http.request.HttpResponse;
+import io.advantageous.qbit.http.request.HttpTextResponse;
 import io.advantageous.qbit.server.EndpointServerBuilder;
 import io.advantageous.qbit.server.ServiceEndpointServer;
 import io.advantageous.qbit.service.rest.endpoint.tests.model.Employee;
@@ -38,7 +38,7 @@ public class CollectionArrayUserDefinedObjectRESTTest {
     @Test
     public void testList() {
 
-        final HttpResponse httpResponse = httpServerSimulator.postBody("/es/sendEmployees",
+        final HttpTextResponse httpResponse = httpServerSimulator.postBody("/es/sendEmployees",
                 Lists.list(new Employee(1, "Rick"),
                         new Employee(2, "Diana")));
 
@@ -51,7 +51,7 @@ public class CollectionArrayUserDefinedObjectRESTTest {
     @Test
     public void testListWithReturn() {
 
-        final HttpResponse httpResponse = httpServerSimulator.postBody("/es/sendEmployeesWithReturn",
+        final HttpTextResponse httpResponse = httpServerSimulator.postBody("/es/sendEmployeesWithReturn",
                 Lists.list(new Employee(1, "Rick"),
                         new Employee(2, "Diana")));
 
@@ -66,7 +66,7 @@ public class CollectionArrayUserDefinedObjectRESTTest {
     @Test
     public void testReturnList() {
 
-        final HttpResponse httpResponse = httpServerSimulator.get("/es/returnList");
+        final HttpTextResponse httpResponse = httpServerSimulator.get("/es/returnList");
 
         assertEquals(200, httpResponse.code());
 
@@ -81,7 +81,7 @@ public class CollectionArrayUserDefinedObjectRESTTest {
     @Test
     public void testReturnListByCallback() {
 
-        final HttpResponse httpResponse = httpServerSimulator.get("/es/returnListByCallback");
+        final HttpTextResponse httpResponse = httpServerSimulator.get("/es/returnListByCallback");
 
         assertEquals(200, httpResponse.code());
 
@@ -97,7 +97,7 @@ public class CollectionArrayUserDefinedObjectRESTTest {
     @Test
     public void testReturnSet() {
 
-        final HttpResponse httpResponse = httpServerSimulator.get("/es/returnSet");
+        final HttpTextResponse httpResponse = httpServerSimulator.get("/es/returnSet");
 
         assertEquals(200, httpResponse.code());
 
@@ -116,7 +116,7 @@ public class CollectionArrayUserDefinedObjectRESTTest {
     @Test
     public void testReturnArrayByCallback() {
 
-        final HttpResponse httpResponse = httpServerSimulator.get("/es/returnArrayByCallback");
+        final HttpTextResponse httpResponse = httpServerSimulator.get("/es/returnArrayByCallback");
 
         System.out.println(httpResponse.body());
 
@@ -133,7 +133,7 @@ public class CollectionArrayUserDefinedObjectRESTTest {
     @Test
     public void testReturnArray() {
 
-        final HttpResponse httpResponse = httpServerSimulator.get("/es/returnArray");
+        final HttpTextResponse httpResponse = httpServerSimulator.get("/es/returnArray");
 
         assertEquals(200, httpResponse.code());
 
@@ -149,7 +149,7 @@ public class CollectionArrayUserDefinedObjectRESTTest {
     @Test
     public void testReturnSetByCallback() {
 
-        final HttpResponse httpResponse = httpServerSimulator.get("/es/returnSetByCallback");
+        final HttpTextResponse httpResponse = httpServerSimulator.get("/es/returnSetByCallback");
 
         assertEquals(200, httpResponse.code());
 
@@ -167,7 +167,7 @@ public class CollectionArrayUserDefinedObjectRESTTest {
     @Test
     public void testReturnMap() {
 
-        final HttpResponse httpResponse = httpServerSimulator.get("/es/returnMap");
+        final HttpTextResponse httpResponse = httpServerSimulator.get("/es/returnMap");
 
         assertEquals(200, httpResponse.code());
 
@@ -183,7 +183,7 @@ public class CollectionArrayUserDefinedObjectRESTTest {
     @Test
     public void testReturnMapByCallback() {
 
-        final HttpResponse httpResponse = httpServerSimulator.get("/es/returnMapByCallback");
+        final HttpTextResponse httpResponse = httpServerSimulator.get("/es/returnMapByCallback");
 
         assertEquals(200, httpResponse.code());
 
@@ -199,7 +199,7 @@ public class CollectionArrayUserDefinedObjectRESTTest {
     @Test
     public void testSendEmployeesWithCallback() {
 
-        final HttpResponse httpResponse = httpServerSimulator.postBody("/es/sendEmployeesWithCallback",
+        final HttpTextResponse httpResponse = httpServerSimulator.postBody("/es/sendEmployeesWithCallback",
                 Lists.list(new Employee(1, "Rick"),
                         new Employee(2, "Diana")));
 
@@ -212,7 +212,7 @@ public class CollectionArrayUserDefinedObjectRESTTest {
     @Test
     public void testSet() {
 
-        final HttpResponse httpResponse = httpServerSimulator.postBody("/es/sendEmployeesSet",
+        final HttpTextResponse httpResponse = httpServerSimulator.postBody("/es/sendEmployeesSet",
                 Lists.list(new Employee(1, "Rick"),
                         new Employee(2, "Diana")));
 
@@ -225,7 +225,7 @@ public class CollectionArrayUserDefinedObjectRESTTest {
     @Test
     public void testListWithReturnSet() {
 
-        final HttpResponse httpResponse = httpServerSimulator.postBody("/es/sendEmployeesWithReturnSet",
+        final HttpTextResponse httpResponse = httpServerSimulator.postBody("/es/sendEmployeesWithReturnSet",
                 Lists.list(new Employee(1, "Rick"),
                         new Employee(2, "Diana")));
 
@@ -238,7 +238,7 @@ public class CollectionArrayUserDefinedObjectRESTTest {
     @Test
     public void testSendEmployeesWithCallbackSet() {
 
-        final HttpResponse httpResponse = httpServerSimulator.postBody("/es/sendEmployeesWithCallbackSet",
+        final HttpTextResponse httpResponse = httpServerSimulator.postBody("/es/sendEmployeesWithCallbackSet",
                 Lists.list(new Employee(1, "Rick"),
                         new Employee(2, "Diana")));
 
@@ -258,7 +258,7 @@ public class CollectionArrayUserDefinedObjectRESTTest {
     @Test
     public void testArray() {
 
-        final HttpResponse httpResponse = httpServerSimulator.postBody("/es/sendEmployeesArray",
+        final HttpTextResponse httpResponse = httpServerSimulator.postBody("/es/sendEmployeesArray",
                 Lists.list(new Employee(1, "Rick"),
                         new Employee(2, "Diana")));
 
@@ -271,7 +271,7 @@ public class CollectionArrayUserDefinedObjectRESTTest {
     @Test
     public void testListWithReturnArray() {
 
-        final HttpResponse httpResponse = httpServerSimulator.postBody("/es/sendEmployeesWithReturnArray",
+        final HttpTextResponse httpResponse = httpServerSimulator.postBody("/es/sendEmployeesWithReturnArray",
                 Lists.list(new Employee(1, "Rick"),
                         new Employee(2, "Diana")));
 
@@ -284,7 +284,7 @@ public class CollectionArrayUserDefinedObjectRESTTest {
     @Test
     public void testSendEmployeesWithCallbackArray() {
 
-        final HttpResponse httpResponse = httpServerSimulator.postBody("/es/sendEmployeesWithCallbackArray",
+        final HttpTextResponse httpResponse = httpServerSimulator.postBody("/es/sendEmployeesWithCallbackArray",
                 Lists.list(new Employee(1, "Rick"),
                         new Employee(2, "Diana")));
 
@@ -297,7 +297,7 @@ public class CollectionArrayUserDefinedObjectRESTTest {
     @Test
     public void testSendEmployeesWithCallbackMap() {
 
-        final HttpResponse httpResponse = httpServerSimulator.postBody("/es/sendEmployeesWithCallbackMap",
+        final HttpTextResponse httpResponse = httpServerSimulator.postBody("/es/sendEmployeesWithCallbackMap",
                 Maps.map("1", new Employee(1, "Rick"), "2",
                         new Employee(2, "Diana")));
 

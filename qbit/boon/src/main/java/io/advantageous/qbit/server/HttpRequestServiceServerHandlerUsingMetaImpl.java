@@ -4,8 +4,7 @@ import io.advantageous.boon.core.Str;
 import io.advantageous.qbit.GlobalConstants;
 import io.advantageous.qbit.annotation.RequestMethod;
 import io.advantageous.qbit.http.HttpStatus;
-import io.advantageous.qbit.http.request.HttpRequest;
-import io.advantageous.qbit.http.request.HttpResponseReceiver;
+import io.advantageous.qbit.http.request.*;
 import io.advantageous.qbit.json.JsonMapper;
 import io.advantageous.qbit.message.MethodCall;
 import io.advantageous.qbit.message.Request;
@@ -239,11 +238,29 @@ public class HttpRequestServiceServerHandlerUsingMetaImpl implements HttpRequest
 
             }
         } else {
-            writeResponse(httpRequest.getReceiver(), HttpStatus.OK, "application/json", jsonMapper.toJson(response.body()), response.headers());
+            if (response.body() instanceof HttpResponse) {
+                writeHttpResponse(httpRequest.getReceiver(), ((HttpResponse) response.body()));
+            } else {
+                writeResponse(httpRequest.getReceiver(), HttpStatus.OK, "application/json", jsonMapper.toJson(response.body()), response.headers());
+
+            }
         }
 
 
     }
+
+    private void writeHttpResponse(HttpResponseReceiver<Object> receiver, HttpResponse httpResponse) {
+        if (httpResponse instanceof HttpTextResponse) {
+            HttpTextResponse httpTextResponse = (HttpTextResponse) httpResponse;
+            writeResponse(receiver, httpResponse.code(),
+                    httpResponse.contentType(), httpTextResponse.body(), httpTextResponse.headers());
+        } else if (httpResponse instanceof HttpBinaryResponse) {
+            HttpBinaryResponse httpBinaryResponse = ((HttpBinaryResponse) httpResponse);
+            receiver.response(httpResponse.code(), httpResponse.contentType(), httpBinaryResponse.body(),
+                    httpBinaryResponse.headers());
+        }
+    }
+
 
 
     private void writeResponse(HttpResponseReceiver response, int code, String mimeType, String responseString,

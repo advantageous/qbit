@@ -44,7 +44,7 @@ public class SimpleRestClient {
 //
 //        for (int index = 0; index < 10; index++) {
 //
-//            final HttpResponse httpResponse =
+//            final HttpTextResponse httpResponse =
 //                    httpClient.get("/services/myservice/ping");
 //
 //            puts(httpResponse.body());

@@ -3,7 +3,7 @@ package io.advantageous.qbit.vertx;
 import io.advantageous.boon.core.Sys;
 import io.advantageous.qbit.http.client.HttpClient;
 import io.advantageous.qbit.http.client.HttpClientBuilder;
-import io.advantageous.qbit.http.request.HttpResponse;
+import io.advantageous.qbit.http.request.HttpTextResponse;
 import io.advantageous.qbit.http.server.HttpServer;
 import io.advantageous.qbit.http.server.HttpServerBuilder;
 import io.advantageous.qbit.util.MultiMap;
@@ -38,7 +38,7 @@ public class TestHeaderFidelity {
 
         client.start();
 
-        final HttpResponse httpResponse = client.get("/hi");
+        final HttpTextResponse httpResponse = client.get("/hi");
 
         Sys.sleep(1000);
         puts(httpResponse.headers());

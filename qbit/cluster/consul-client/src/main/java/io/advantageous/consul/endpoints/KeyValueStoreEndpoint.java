@@ -24,9 +24,8 @@ import io.advantageous.consul.domain.KeyValue;
 import io.advantageous.consul.domain.option.KeyValuePutOptions;
 import io.advantageous.consul.domain.option.RequestOptions;
 import io.advantageous.qbit.http.HTTP;
-import io.advantageous.qbit.http.client.HttpClient;
 import io.advantageous.qbit.http.request.HttpRequestBuilder;
-import io.advantageous.qbit.http.request.HttpResponse;
+import io.advantageous.qbit.http.request.HttpTextResponse;
 
 import java.net.URI;
 import java.util.*;
@@ -99,7 +98,7 @@ public class KeyValueStoreEndpoint extends Endpoint{
         return getKeyValueOptional(httpResponse);
     }
 
-    private Optional<KeyValue> getKeyValueOptional(HttpResponse httpResponse) {
+    private Optional<KeyValue> getKeyValueOptional(HttpTextResponse httpResponse) {
         final List<KeyValue> keyValues = fromJsonArray(httpResponse.body(), KeyValue.class);
 
         return keyValues != null && keyValues.size() > 0 ? Optional.of(keyValues.get(0)) : Optional.<KeyValue>empty();

@@ -1,7 +1,7 @@
 package io.advantageous.qbit.service.rest.endpoint.tests.tests;
 
 import io.advantageous.boon.json.JsonFactory;
-import io.advantageous.qbit.http.request.HttpResponse;
+import io.advantageous.qbit.http.request.HttpTextResponse;
 import io.advantageous.qbit.server.EndpointServerBuilder;
 import io.advantageous.qbit.server.ServiceEndpointServer;
 import io.advantageous.qbit.service.rest.endpoint.tests.model.Employee;
@@ -31,14 +31,14 @@ public class SingleArgumentUserDefinedObjectRESTTest {
 
     @Test
     public void testPing() {
-        final HttpResponse httpResponse = httpServerSimulator.get("/es/ping");
+        final HttpTextResponse httpResponse = httpServerSimulator.get("/es/ping");
         assertEquals(200, httpResponse.code());
         assertEquals("true", httpResponse.body());
     }
 
     @Test
     public void addEmployeeAsyncNoReturn() {
-        final HttpResponse httpResponse = httpServerSimulator.postBody("/es/employee-add-async-no-return",
+        final HttpTextResponse httpResponse = httpServerSimulator.postBody("/es/employee-add-async-no-return",
                 new Employee(1, "Rick"));
 
         assertEquals(202, httpResponse.code());
@@ -48,7 +48,7 @@ public class SingleArgumentUserDefinedObjectRESTTest {
 
     @Test
     public void addEmployeeWithReturn() {
-        final HttpResponse httpResponse = httpServerSimulator.postBody("/es/employee-ack",
+        final HttpTextResponse httpResponse = httpServerSimulator.postBody("/es/employee-ack",
                 new Employee(1, "Rick"));
 
         assertEquals(200, httpResponse.code());
@@ -58,7 +58,7 @@ public class SingleArgumentUserDefinedObjectRESTTest {
 
     @Test
     public void addEmployeeUsingCallback() {
-        final HttpResponse httpResponse = httpServerSimulator.postBody("/es/employee-async-ack",
+        final HttpTextResponse httpResponse = httpServerSimulator.postBody("/es/employee-async-ack",
                 new Employee(1, "Rick"));
 
         assertEquals(200, httpResponse.code());
@@ -67,7 +67,7 @@ public class SingleArgumentUserDefinedObjectRESTTest {
 
     @Test
     public void addEmployeeThrowException() {
-        final HttpResponse httpResponse = httpServerSimulator.postBody("/es/throw",
+        final HttpTextResponse httpResponse = httpServerSimulator.postBody("/es/throw",
                 new Employee(1, "Rick"));
 
         assertEquals(500, httpResponse.code());
@@ -77,7 +77,7 @@ public class SingleArgumentUserDefinedObjectRESTTest {
 
     @Test
     public void testReturnEmployee() {
-        final HttpResponse httpResponse = httpServerSimulator.get("/es/returnemployee");
+        final HttpTextResponse httpResponse = httpServerSimulator.get("/es/returnemployee");
 
         assertEquals(200, httpResponse.code());
 
@@ -91,7 +91,7 @@ public class SingleArgumentUserDefinedObjectRESTTest {
 
     @Test
     public void testReturnEmployeeCaseDoesNotMatter() {
-        final HttpResponse httpResponse = httpServerSimulator.get("/es/Returnemployee");
+        final HttpTextResponse httpResponse = httpServerSimulator.get("/es/Returnemployee");
 
         assertEquals(200, httpResponse.code());
 
@@ -105,7 +105,7 @@ public class SingleArgumentUserDefinedObjectRESTTest {
 
     @Test
     public void returnEmployeeCallback() {
-        final HttpResponse httpResponse = httpServerSimulator.get("/es/returnEmployeeCallback");
+        final HttpTextResponse httpResponse = httpServerSimulator.get("/es/returnEmployeeCallback");
 
         assertEquals(200, httpResponse.code());
 
