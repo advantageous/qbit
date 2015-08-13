@@ -18,9 +18,12 @@
 
 package io.advantageous.qbit.http.server;
 
+import io.advantageous.qbit.Factory;
 import io.advantageous.qbit.QBit;
 import io.advantageous.qbit.http.config.HttpServerConfig;
 import io.advantageous.qbit.queue.QueueBuilder;
+import io.advantageous.qbit.service.discovery.ServiceDiscovery;
+import io.advantageous.qbit.service.health.HealthServiceAsync;
 import io.advantageous.qbit.system.QBitSystemManager;
 
 import java.util.function.Consumer;
@@ -34,10 +37,43 @@ import java.util.function.Consumer;
 public class HttpServerBuilder {
 
     private HttpServerConfig httpServerConfig = new HttpServerConfig();
-    private QueueBuilder requestQueueBuilder;
-    private QueueBuilder responseQueueBuilder;
-    private QueueBuilder webSocketMessageQueueBuilder;
     private QBitSystemManager qBitSystemManager;
+    private ServiceDiscovery serviceDiscovery;
+    private HealthServiceAsync healthServiceAsync;
+    private Factory factory;
+    private String endpointName;
+
+
+
+    public ServiceDiscovery getServiceDiscovery() {
+        return serviceDiscovery;
+    }
+
+    public HttpServerBuilder setServiceDiscovery(ServiceDiscovery serviceDiscovery) {
+        this.serviceDiscovery = serviceDiscovery;
+        return this;
+    }
+
+    public HealthServiceAsync getHealthServiceAsync() {
+        return healthServiceAsync;
+    }
+
+    public HttpServerBuilder setHealthServiceAsync(HealthServiceAsync healthServiceAsync) {
+        this.healthServiceAsync = healthServiceAsync;
+        return this;
+    }
+
+    public Factory getFactory() {
+        if (factory == null) {
+            factory = QBit.factory();
+        }
+        return factory;
+    }
+
+    public HttpServerBuilder setFactory(Factory factory) {
+        this.factory = factory;
+        return this;
+    }
 
     public static HttpServerBuilder httpServerBuilder() {
         return new HttpServerBuilder();
@@ -62,32 +98,7 @@ public class HttpServerBuilder {
     }
 
 
-    public QueueBuilder getResponseQueueBuilder() {
-        return responseQueueBuilder;
-    }
 
-    public HttpServerBuilder setResponseQueueBuilder(QueueBuilder responseQueueBuilder) {
-        this.responseQueueBuilder = responseQueueBuilder;
-        return this;
-    }
-
-    public QueueBuilder getRequestQueueBuilder() {
-        return requestQueueBuilder;
-    }
-
-    public HttpServerBuilder setRequestQueueBuilder(QueueBuilder requestQueueBuilder) {
-        this.requestQueueBuilder = requestQueueBuilder;
-        return this;
-    }
-
-    public QueueBuilder getWebSocketMessageQueueBuilder() {
-        return webSocketMessageQueueBuilder;
-    }
-
-    public HttpServerBuilder setWebSocketMessageQueueBuilder(QueueBuilder webSocketMessageQueueBuilder) {
-        this.webSocketMessageQueueBuilder = webSocketMessageQueueBuilder;
-        return this;
-    }
 
     public int getMaxRequestBatches() {
         return httpServerConfig.getMaxRequestBatches();
@@ -190,10 +201,13 @@ public class HttpServerBuilder {
 
     public HttpServer build() {
 
-        final HttpServer httpServer = QBit.factory().createHttpServer(
-                this.getConfig(), this.getRequestQueueBuilder(), this.getResponseQueueBuilder(),
-                this.getWebSocketMessageQueueBuilder(),
-                getSystemManager());
+        final HttpServer httpServer = getFactory().createHttpServer(
+                this.getConfig(),
+                this.getEndpointName(),
+                this.getSystemManager(),
+                this.getServiceDiscovery(),
+                this.getHealthServiceAsync()
+        );
 
         if (qBitSystemManager != null) {
             qBitSystemManager.registerServer(httpServer);
@@ -201,4 +215,12 @@ public class HttpServerBuilder {
         return httpServer;
     }
 
+    public String getEndpointName() {
+        return endpointName;
+    }
+
+    public HttpServerBuilder setEndpointName(String endpointName) {
+        this.endpointName = endpointName;
+        return this;
+    }
 }

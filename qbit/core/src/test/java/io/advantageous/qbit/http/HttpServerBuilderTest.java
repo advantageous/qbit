@@ -27,7 +27,10 @@ import io.advantageous.qbit.http.server.HttpServerBuilder;
 import io.advantageous.qbit.http.server.impl.SimpleHttpServer;
 import io.advantageous.qbit.http.server.websocket.WebSocketMessage;
 import io.advantageous.qbit.queue.QueueBuilder;
+import io.advantageous.qbit.service.discovery.ServiceDiscovery;
+import io.advantageous.qbit.service.health.HealthServiceAsync;
 import io.advantageous.qbit.spi.FactorySPI;
+import io.advantageous.qbit.spi.HttpServerFactory;
 import io.advantageous.qbit.system.QBitSystemManager;
 import org.junit.Before;
 import org.junit.Test;
@@ -60,17 +63,18 @@ public class HttpServerBuilderTest {
 
         FactorySPI.setFactory(new Factory() {
 
-            @Override
-            public HttpServer createHttpServer(HttpServerOptions options, QueueBuilder requestQueueBuilder,
-                                               QueueBuilder rspQB,
-                                               QueueBuilder webSocketMessageQueueBuilder, QBitSystemManager systemManager) {
-                return null;
+
+            public HttpServer createHttpServer(HttpServerOptions options,
+                                               String endpointName,
+                                               QBitSystemManager systemManager,
+                                               ServiceDiscovery serviceDiscovery,
+                                               HealthServiceAsync healthServiceAsync) {
+
+                return FactorySPI.getHttpServerFactory().create(options, endpointName, systemManager, serviceDiscovery, healthServiceAsync);
             }
         });
 
-        FactorySPI.setHttpServerFactory((options, requestQueueBuilder, resQB,
-                                         webSocketMessageQueueBuilder, systemManager) -> new SimpleHttpServer());
-
+        FactorySPI.setHttpServerFactory((options, name, systemManager, serviceDiscovery, healthServiceAsync) -> new SimpleHttpServer());
         Sys.sleep(100);
 
     }

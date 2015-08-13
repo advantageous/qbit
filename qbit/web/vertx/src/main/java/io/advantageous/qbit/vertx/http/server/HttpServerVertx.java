@@ -29,6 +29,8 @@ import io.advantageous.qbit.http.server.HttpServer;
 import io.advantageous.qbit.http.server.impl.SimpleHttpServer;
 import io.advantageous.qbit.http.server.websocket.WebSocketMessage;
 import io.advantageous.qbit.http.websocket.WebSocket;
+import io.advantageous.qbit.service.discovery.ServiceDiscovery;
+import io.advantageous.qbit.service.health.HealthServiceAsync;
 import io.advantageous.qbit.system.QBitSystemManager;
 import io.advantageous.qbit.util.Timer;
 import io.advantageous.qbit.vertx.http.util.VertxCreate;
@@ -69,10 +71,14 @@ public class HttpServerVertx implements HttpServer {
 
 
     public HttpServerVertx(final Vertx vertx,
+                           final String endpointName,
                            final HttpServerOptions options,
-                           final QBitSystemManager systemManager) {
+                           final QBitSystemManager systemManager,
+                           final ServiceDiscovery serviceDiscovery,
+                           final HealthServiceAsync healthServiceAsync) {
 
-        this.simpleHttpServer = new SimpleHttpServer(null, options.getFlushInterval());
+        this.simpleHttpServer = new SimpleHttpServer(endpointName, systemManager,
+                options.getFlushInterval(), options.getPort(), serviceDiscovery, healthServiceAsync);
         this.vertx = vertx;
         this.systemManager = systemManager;
         this.port = options.getPort();
@@ -84,12 +90,6 @@ public class HttpServerVertx implements HttpServer {
         });
     }
 
-    public HttpServerVertx(HttpServerOptions options,
-                           QBitSystemManager systemManager) {
-
-
-        this(VertxCreate.newVertx(), options, systemManager);
-    }
 
 
     @Override

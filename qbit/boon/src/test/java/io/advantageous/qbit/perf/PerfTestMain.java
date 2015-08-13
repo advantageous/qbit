@@ -22,6 +22,7 @@ import io.advantageous.boon.core.Sys;
 import io.advantageous.qbit.client.Client;
 import io.advantageous.qbit.client.ClientBuilder;
 import io.advantageous.qbit.http.client.HttpClient;
+import io.advantageous.qbit.http.config.HttpServerOptions;
 import io.advantageous.qbit.http.request.HttpRequest;
 import io.advantageous.qbit.http.server.HttpServer;
 import io.advantageous.qbit.http.server.websocket.WebSocketMessage;
@@ -32,8 +33,12 @@ import io.advantageous.qbit.queue.SendQueue;
 import io.advantageous.qbit.reactive.Callback;
 import io.advantageous.qbit.server.EndpointServerBuilder;
 import io.advantageous.qbit.server.ServiceEndpointServer;
+import io.advantageous.qbit.service.discovery.ServiceDiscovery;
+import io.advantageous.qbit.service.health.HealthServiceAsync;
 import io.advantageous.qbit.spi.FactorySPI;
 import io.advantageous.qbit.spi.HttpClientFactory;
+import io.advantageous.qbit.spi.HttpServerFactory;
+import io.advantageous.qbit.system.QBitSystemManager;
 
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Consumer;
@@ -64,8 +69,8 @@ public class PerfTestMain {
 
         });
 
-        FactorySPI.setHttpServerFactory((options, requestQueueBuilder, respQB, webSocketMessageQueueBuilder, systemManager) -> new MockHttpServer());
 
+        FactorySPI.setHttpServerFactory((options, name, systemManager, serviceDiscovery, healthServiceAsync) -> new MockHttpServer());
         ServiceEndpointServer server = new EndpointServerBuilder().setRequestBatchSize(10_000).build();
         server.initServices(new AdderService());
         server.start();

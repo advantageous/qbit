@@ -692,9 +692,7 @@ public class EndpointServerBuilder {
                 .setPollTime(this.getPollTime())
                 .setRequestBatchSize(this.getRequestBatchSize())
                 .setMaxRequestBatches(this.getMaxRequestBatches())
-                .setRequestQueueBuilder(this.getHttpRequestQueueBuilder())
-                .setSystemManager(getSystemManager())
-                .setWebSocketMessageQueueBuilder(this.getWebSocketMessageQueueBuilder()).build();
+                .setSystemManager(getSystemManager()).build();
     }
 
 

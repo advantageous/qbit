@@ -376,10 +376,11 @@ public interface Factory {
     }
 
     default HttpServer createHttpServer(HttpServerOptions options,
-                                        QueueBuilder requestQueueBuilder,
-                                        QueueBuilder responseQueueBuilder,
-                                        QueueBuilder webSocketMessageQueueBuilder,
-                                        QBitSystemManager systemManager) {
+                                        String endpointName,
+                                        QBitSystemManager systemManager,
+                                        ServiceDiscovery serviceDiscovery,
+                                        HealthServiceAsync healthServiceAsync) {
+
         throw new UnsupportedOperationException();
     }
 

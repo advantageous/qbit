@@ -260,6 +260,7 @@ public class ManagedServiceBuilder {
             }
             adminBuilder.setContextBuilder(this.getContextMetaBuilder());
             adminBuilder.setHealthService(getHealthService());
+            adminBuilder.registerJavaVMStatsJob(getStatServiceBuilder().buildStatsCollector());
 
         }
         return adminBuilder;

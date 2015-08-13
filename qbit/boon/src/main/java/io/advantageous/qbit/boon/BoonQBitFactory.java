@@ -228,9 +228,13 @@ public class BoonQBitFactory implements Factory {
     }
 
 
-    public HttpServer createHttpServer(HttpServerOptions options, QueueBuilder requestQueueBuilder, QueueBuilder responseQueueBuilder, QueueBuilder webSocketMessageQueueBuilder, QBitSystemManager systemManager) {
+    public HttpServer createHttpServer(HttpServerOptions options,
+                                       String endpointName,
+                                       QBitSystemManager systemManager,
+                                       ServiceDiscovery serviceDiscovery,
+                                       HealthServiceAsync healthServiceAsync) {
 
-        return FactorySPI.getHttpServerFactory().create(options, requestQueueBuilder, responseQueueBuilder, webSocketMessageQueueBuilder, systemManager);
+        return FactorySPI.getHttpServerFactory().create(options, endpointName, systemManager, serviceDiscovery, healthServiceAsync);
     }
 
 

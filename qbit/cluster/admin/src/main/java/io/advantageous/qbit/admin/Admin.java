@@ -18,12 +18,15 @@
 
 package io.advantageous.qbit.admin;
 
+import io.advantageous.qbit.annotation.QueueCallback;
+import io.advantageous.qbit.annotation.QueueCallbackType;
 import io.advantageous.qbit.annotation.RequestMapping;
 import io.advantageous.qbit.meta.ContextMeta;
 import io.advantageous.qbit.meta.builder.ContextMetaBuilder;
 import io.advantageous.qbit.meta.swagger.MetaTransformerFromQbitMetaToSwagger;
 import io.advantageous.qbit.meta.swagger.ServiceEndpointInfo;
 import io.advantageous.qbit.reactive.Callback;
+import io.advantageous.qbit.reactive.Reactor;
 import io.advantageous.qbit.service.health.HealthServiceAsync;
 import io.advantageous.qbit.service.health.NodeHealthStat;
 
@@ -36,11 +39,19 @@ public class Admin {
     private final HealthServiceAsync healthService;
 
     private final ServiceEndpointInfo serviceEndpointInfo;
+    private final Reactor reactor;
+
 
     public Admin(final HealthServiceAsync healthService,
-                 final ContextMetaBuilder contextMetaBuilder) {
+                 final ContextMetaBuilder contextMetaBuilder,
+                 final List<AdminJob> adminJobs,
+                 final Reactor reactor) {
 
-
+        this.reactor = reactor;
+        for (AdminJob adminJob : adminJobs) {
+            reactor.addRepeatingTask(adminJob.every(), adminJob.timeUnit(),
+                    adminJob.runnable());
+        }
 
         final ContextMeta context = contextMetaBuilder.build();
         final MetaTransformerFromQbitMetaToSwagger metaToSwagger =
@@ -86,6 +97,13 @@ public class Admin {
     public void loadNodes(final Callback<List<NodeHealthStat>> callback) {
         healthService.loadNodes(callback);
         healthService.clientProxyFlush();
+    }
+
+
+    @QueueCallback({QueueCallbackType.IDLE, QueueCallbackType.EMPTY,
+    QueueCallbackType.LIMIT})
+    public void process() {
+        this.reactor.process();
     }
 
 

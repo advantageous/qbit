@@ -21,9 +21,12 @@ package io.advantageous.qbit.vertx.http.server;
 import io.advantageous.qbit.http.config.HttpServerOptions;
 import io.advantageous.qbit.http.server.HttpServer;
 import io.advantageous.qbit.queue.QueueBuilder;
+import io.advantageous.qbit.service.discovery.ServiceDiscovery;
+import io.advantageous.qbit.service.health.HealthServiceAsync;
 import io.advantageous.qbit.spi.HttpServerFactory;
 import io.advantageous.qbit.system.QBitSystemManager;
 import io.advantageous.qbit.vertx.http.server.HttpServerVertx;
+import io.advantageous.qbit.vertx.http.util.VertxCreate;
 
 /**
  * @author rhightower on 1/26/15.
@@ -33,13 +36,13 @@ public class HttpServerVertxFactory implements HttpServerFactory {
 
     @Override
     public HttpServer create(final HttpServerOptions options,
-                             final QueueBuilder requestQueueBuilder,
-                             final QueueBuilder responseQueueBuilder,
-                             final QueueBuilder webSocketMessageQueueBuilder,
-                             final QBitSystemManager systemManager) {
+                             final String endPointName,
+                             final QBitSystemManager systemManager,
+                             final ServiceDiscovery serviceDiscovery,
+                             final HealthServiceAsync healthServiceAsync) {
 
 
-        return new HttpServerVertx(options, systemManager);
+        return new HttpServerVertx(VertxCreate.newVertx(), endPointName, options, systemManager, serviceDiscovery, healthServiceAsync);
 
     }
 }

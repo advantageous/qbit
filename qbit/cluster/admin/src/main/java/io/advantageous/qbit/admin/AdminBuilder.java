@@ -2,17 +2,24 @@ package io.advantageous.qbit.admin;
 
 
 import io.advantageous.boon.core.IO;
+import io.advantageous.qbit.admin.jobs.JavaStatsCollectorJob;
 import io.advantageous.qbit.config.PropertyResolver;
 import io.advantageous.qbit.http.server.HttpServer;
 import io.advantageous.qbit.http.server.HttpServerBuilder;
 import io.advantageous.qbit.meta.builder.ContextMetaBuilder;
+import io.advantageous.qbit.reactive.Reactor;
+import io.advantageous.qbit.reactive.ReactorBuilder;
 import io.advantageous.qbit.server.EndpointServerBuilder;
 import io.advantageous.qbit.server.ServiceEndpointServer;
 import io.advantageous.qbit.service.health.HealthServiceAsync;
 import io.advantageous.qbit.service.health.HealthServiceBuilder;
+import io.advantageous.qbit.service.stats.StatsCollector;
 
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Properties;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
 
 @SuppressWarnings("WeakerAccess")
@@ -35,8 +42,71 @@ public class AdminBuilder {
     private HttpServerBuilder httpServerBuilder;
     private String webPageContents;
     private Supplier<String> webPageContentsSupplier;
+
+    /** Used to generate meta data. */
     private ContextMetaBuilder contextBuilder;
 
+    /** Used to manage admin jobs. */
+    private List<AdminJob> adminJobs;
+
+    /** Reactor to schedule admin jobs. */
+    private Reactor reactor;
+
+
+    /** Reactor to schedule admin jobs. */
+    private ReactorBuilder reactorBuilder;
+
+    public Reactor getReactor() {
+        if (reactor == null) {
+            reactor = getReactorBuilder().build();
+        }
+        return reactor;
+    }
+
+    public AdminBuilder setReactor(Reactor reactor) {
+        this.reactor = reactor;
+        return this;
+    }
+
+    public ReactorBuilder getReactorBuilder() {
+        if (reactorBuilder == null) {
+            reactorBuilder = ReactorBuilder.reactorBuilder();
+        }
+        return reactorBuilder;
+    }
+
+    public AdminBuilder setReactorBuilder(ReactorBuilder reactorBuilder) {
+        this.reactorBuilder = reactorBuilder;
+        return this;
+    }
+
+    public List<AdminJob> getAdminJobs() {
+        if (adminJobs == null) {
+            adminJobs = new ArrayList<>();
+        }
+        return adminJobs;
+    }
+
+    public AdminBuilder addAdminJob(final AdminJob adminJob) {
+        getAdminJobs().add(adminJob);
+        return this;
+    }
+
+    public AdminBuilder registerJavaVMStatsJob(final StatsCollector statsCollector) {
+        final JavaStatsCollectorJob jvmStatsJob = new JavaStatsCollectorJob(60, TimeUnit.SECONDS, statsCollector);
+        return addAdminJob(jvmStatsJob);
+    }
+
+    public AdminBuilder registerJavaVMStatsJobEveryNSeconds(final StatsCollector statsCollector, final int everySeconds) {
+        final JavaStatsCollectorJob jvmStatsJob = new JavaStatsCollectorJob(everySeconds, TimeUnit.SECONDS, statsCollector);
+        return addAdminJob(jvmStatsJob);
+    }
+
+
+    public AdminBuilder setAdminJobs(final List<AdminJob> adminJobs) {
+        this.adminJobs = adminJobs;
+        return this;
+    }
 
     @SuppressWarnings("WeakerAccess")
     public AdminBuilder(final PropertyResolver propertyResolver) {
@@ -179,7 +249,8 @@ public class AdminBuilder {
 
     public Admin getAdmin() {
         if (admin == null) {
-            admin = new Admin(getHealthService(), getContextBuilder());
+            admin = new Admin(getHealthService(), getContextBuilder(),
+                    getAdminJobs(), getReactor());
         }
         return admin;
     }

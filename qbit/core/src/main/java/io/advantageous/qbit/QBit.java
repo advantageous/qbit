@@ -20,8 +20,14 @@ package io.advantageous.qbit;
 
 import io.advantageous.boon.core.reflection.ClassMeta;
 import io.advantageous.qbit.http.client.HttpClient;
+import io.advantageous.qbit.http.config.HttpServerOptions;
+import io.advantageous.qbit.http.server.HttpServer;
+import io.advantageous.qbit.service.discovery.ServiceDiscovery;
+import io.advantageous.qbit.service.health.HealthServiceAsync;
 import io.advantageous.qbit.spi.FactorySPI;
 import io.advantageous.qbit.spi.HttpClientFactory;
+import io.advantageous.qbit.spi.HttpServerFactory;
+import io.advantageous.qbit.system.QBitSystemManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -83,15 +89,14 @@ public class QBit {
 
             }
         } catch (Exception ex) {
-            FactorySPI.setHttpServerFactory((options, requestQueueBuilder, responseQueueBuilder,
-                                             webSocketMessageQueueBuilder, systemManager) -> {
+            FactorySPI.setHttpServerFactory((options, name, systemManager, serviceDiscovery, healthServiceAsync) -> {
 
-                throw new IllegalStateException("Unable to load Vertx or Jetty network libs");
+                throw new IllegalStateException("Unable to load Vertx network libs");
             });
 
 
             FactorySPI.setHttpClientFactory((host, port, timeOutInMilliseconds, poolSize, autoFlush, flushRate, keepAlive, pipeLine, ssl, verifyHost, trustAll, maxWebSocketFrameSize, tryUseCompression, trustStorePath, trustStorePassword, tcpNoDelay, soLinger) -> {
-                throw new IllegalStateException("Unable to load Vertx or Jetty network libs");
+                throw new IllegalStateException("Unable to load Vertx network libs");
             });
        }
     }

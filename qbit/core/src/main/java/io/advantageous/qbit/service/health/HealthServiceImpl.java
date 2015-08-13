@@ -4,6 +4,7 @@ package io.advantageous.qbit.service.health;
 import io.advantageous.boon.core.Lists;
 import io.advantageous.qbit.annotation.QueueCallback;
 import io.advantageous.qbit.annotation.QueueCallbackType;
+import io.advantageous.qbit.service.Stoppable;
 import io.advantageous.qbit.util.Timer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,7 +20,7 @@ import java.util.concurrent.TimeUnit;
 /**
  * Manages health status of internal nodes/services.
  */
-public class HealthServiceImpl implements HealthService {
+public class HealthServiceImpl implements HealthService, Stoppable {
 
     /**
      * Timer.
@@ -279,4 +280,9 @@ public class HealthServiceImpl implements HealthService {
         OTHER
     }
 
+
+    @Override
+    public void stop() {
+        logger.info("Health Service stopped");
+    }
 }

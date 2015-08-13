@@ -19,18 +19,25 @@
 package io.advantageous.qbit.http.server.impl;
 
 import io.advantageous.qbit.GlobalConstants;
+import io.advantageous.qbit.client.ServiceProxyFactory;
 import io.advantageous.qbit.concurrent.ExecutorContext;
 import io.advantageous.qbit.http.request.HttpRequest;
 import io.advantageous.qbit.http.server.HttpServer;
 import io.advantageous.qbit.http.server.websocket.WebSocketMessage;
 import io.advantageous.qbit.http.websocket.WebSocket;
 import io.advantageous.qbit.http.websocket.WebSocketSender;
+import io.advantageous.qbit.service.ServiceProxyUtils;
+import io.advantageous.qbit.service.discovery.ServiceDiscovery;
+import io.advantageous.qbit.service.health.HealthServiceAsync;
+import io.advantageous.qbit.service.health.HealthStatus;
 import io.advantageous.qbit.system.QBitSystemManager;
 import io.advantageous.qbit.util.Timer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.nio.charset.StandardCharsets;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
@@ -48,6 +55,11 @@ public class SimpleHttpServer implements HttpServer {
     private final boolean debug = GlobalConstants.DEBUG || logger.isDebugEnabled();
     private final QBitSystemManager systemManager;
     private final int flushInterval;
+    private final ServiceDiscovery serviceDiscovery;
+    private final HealthServiceAsync healthServiceAsync;
+    private final String name;
+    private final int port;
+
     private Consumer<WebSocketMessage> webSocketMessageConsumer = webSocketMessage -> {
     };
     private Consumer<WebSocketMessage> webSocketCloseMessageConsumer = webSocketMessage -> {
@@ -64,14 +76,33 @@ public class SimpleHttpServer implements HttpServer {
     private ExecutorContext executorContext;
     private Predicate<WebSocket> shouldContinueWebSocket = webSocket -> true;
 
-    public SimpleHttpServer(QBitSystemManager systemManager, int flushInterval) {
+
+    public SimpleHttpServer(
+            final String endpointName,
+            final QBitSystemManager systemManager,
+                            final int flushInterval,
+                            final int port,
+                            final ServiceDiscovery serviceDiscovery,
+                            final HealthServiceAsync healthServiceAsync) {
+
+
+        this.name = endpointName == null ? "HTTP_SERVER_" + port : endpointName;
+        this.port = port;
         this.systemManager = systemManager;
         this.flushInterval = flushInterval;
+        this.serviceDiscovery = serviceDiscovery;
+        this.healthServiceAsync = healthServiceAsync;
     }
 
+
     public SimpleHttpServer() {
+
+        this.port = 8080;
+        this.name = "HTTP_SERVER";
         this.systemManager = null;
-        flushInterval = 50;
+        this.flushInterval = 1;
+        this.serviceDiscovery = null;
+        this.healthServiceAsync = null;
     }
 
     /**
@@ -144,6 +175,10 @@ public class SimpleHttpServer implements HttpServer {
         }
 
         startPeriodicFlush();
+
+        if (serviceDiscovery!=null) {
+            serviceDiscovery.registerWithTTL(name, port, 60_000);
+        }
     }
 
     private void startPeriodicFlush() {
@@ -177,6 +212,7 @@ public class SimpleHttpServer implements HttpServer {
         if (executorContext != null) {
             executorContext.stop();
         }
+
     }
 
     public void handleWebSocketQueueIdle() {
@@ -185,7 +221,45 @@ public class SimpleHttpServer implements HttpServer {
 
 
     public void handleRequestQueueIdle() {
+
+        if (serviceDiscovery!=null) {
+            handleCheckIn();
+        }
         requestIdleConsumer.accept(null);
+    }
+
+    final AtomicLong lastCheckIn = new AtomicLong(Timer.clockTime());
+
+    final AtomicBoolean ok = new AtomicBoolean(true);
+
+    private void handleCheckIn() {
+
+        if (healthServiceAsync == null) {
+            if (Timer.clockTime() - lastCheckIn.get() > 30_000) {
+                lastCheckIn.set(Timer.clockTime());
+                serviceDiscovery.checkInOk("HTTP_SERVER");
+
+            }
+
+        } else {
+
+            if (Timer.clockTime() - lastCheckIn.get() > 10_000) {
+                lastCheckIn.set(Timer.clockTime());
+
+                healthServiceAsync.ok(ok::set);
+                ServiceProxyUtils.flushServiceProxy(healthServiceAsync);
+
+                if (ok.get()) {
+                    serviceDiscovery.checkInOk(name);
+                } else {
+                    serviceDiscovery.checkIn(name, HealthStatus.FAIL);
+                }
+
+
+                ServiceProxyUtils.flushServiceProxy(serviceDiscovery);
+
+            }
+        }
     }
 
     public void handleOpenWebSocket(final WebSocket webSocket) {
