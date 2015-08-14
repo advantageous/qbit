@@ -150,6 +150,7 @@ public class MetaTransformerFromQbitMetaToSwagger {
             } else {
 
                 responseBuilder.setSchema(definitionClassCollector.getSchema(methodMeta.getReturnType()));
+                responseBuilder.setDescription(methodMeta.getReturnDescription());
                 operationBuilder.getResponses().put(200, responseBuilder.build());
                 operationBuilder.getProduces().add("application/json");
 
@@ -161,6 +162,7 @@ public class MetaTransformerFromQbitMetaToSwagger {
             final SchemaBuilder schemaBuilder = new SchemaBuilder();
             schemaBuilder.setType("string");
             responseBuilder.setSchema(schemaBuilder.build());
+            responseBuilder.setDescription("returns success");
             operationBuilder.getResponses().put(202, responseBuilder.build());
         }
 
