@@ -153,7 +153,7 @@ public class MetaTransformerFromQbitMetaToSwagger {
             final SchemaBuilder schemaBuilder = new SchemaBuilder();
             schemaBuilder.setType("string");
             responseBuilder.setSchema(schemaBuilder.build());
-            operationBuilder.getResponses().put(201, responseBuilder.build());
+            operationBuilder.getResponses().put(202, responseBuilder.build());
         }
 
         switch (requestMethod) {
