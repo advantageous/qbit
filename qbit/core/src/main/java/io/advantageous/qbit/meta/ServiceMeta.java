@@ -31,32 +31,34 @@ public class ServiceMeta {
     private final String name;
     private final List<String> requestPaths;
     private final List<ServiceMethodMeta> methods;
+    private final String description;
 
     public ServiceMeta(final String name, final List<String> requestPaths,
-                       final List<ServiceMethodMeta> methods) {
+                       final List<ServiceMethodMeta> methods, String description) {
         this.name = name;
+        this.description = description;
         this.requestPaths = Collections.unmodifiableList(requestPaths);
         this.methods = Collections.unmodifiableList(methods);
     }
 
     public static ServiceMeta serviceMeta(final String name, final String address,
                                           final ServiceMethodMeta... serviceMethods) {
-        return new ServiceMeta(name, Lists.list(address), Lists.list(serviceMethods));
+        return new ServiceMeta(name, Lists.list(address), Lists.list(serviceMethods), null);
     }
 
     public static ServiceMeta service(final String name, final String address,
                                       final ServiceMethodMeta... serviceMethods) {
-        return new ServiceMeta(name, Lists.list(address), Lists.list(serviceMethods));
+        return new ServiceMeta(name, Lists.list(address), Lists.list(serviceMethods), null);
     }
 
     public static ServiceMeta serviceMeta(final String name, final List<String> requestPaths,
                                           final ServiceMethodMeta... serviceMethods) {
-        return new ServiceMeta(name, requestPaths, Lists.list(serviceMethods));
+        return new ServiceMeta(name, requestPaths, Lists.list(serviceMethods), null);
     }
 
     public static ServiceMeta service(final String name, final List<String> requestPaths,
                                       final ServiceMethodMeta... serviceMethods) {
-        return new ServiceMeta(name, requestPaths, Lists.list(serviceMethods));
+        return new ServiceMeta(name, requestPaths, Lists.list(serviceMethods), null);
     }
 
     public String getName() {
@@ -69,5 +71,9 @@ public class ServiceMeta {
 
     public List<ServiceMethodMeta> getMethods() {
         return methods;
+    }
+
+    public String getDescription() {
+        return description;
     }
 }

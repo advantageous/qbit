@@ -25,8 +25,9 @@ public class PositionalParam extends Param {
 
     private final int position;
 
-    public PositionalParam(final boolean required, int position, Object defaultValue, final ParamType paramType) {
-        super(required, defaultValue, paramType);
+    public PositionalParam(final boolean required, int position, Object defaultValue, final ParamType paramType,
+                           final String description) {
+        super(required, defaultValue, paramType, description);
         this.position = position;
     }
 

@@ -32,6 +32,19 @@ public class ServiceMethodMetaBuilder {
     private boolean hasReturn;
 
 
+    private String description;
+    private String summary;
+    private String returnDescription;
+
+    public String getDescription() {
+        return description;
+    }
+
+    public ServiceMethodMetaBuilder setDescription(String description) {
+        this.description = description;
+        return this;
+    }
+
 
     public static ServiceMethodMetaBuilder serviceMethodMetaBuilder() {
         return new ServiceMethodMetaBuilder();
@@ -120,7 +133,8 @@ public class ServiceMethodMetaBuilder {
             return new ServiceMethodMeta(isHasReturn(), getMethodAccess(), getName(), getRequestEndpoints(),
                     getReturnTypeEnum(), getParamTypes(), hasCallback(),isReturnCollection(),
                     isReturnMap(), isReturnArray(), getReturnType(),
-                    getReturnTypeComponent(), getReturnTypeComponentKey(), getReturnTypeComponentValue());
+                    getReturnTypeComponent(), getReturnTypeComponentKey(), getReturnTypeComponentValue(),
+                    getDescription(), getSummary(), getReturnDescription());
         } else {
             return new ServiceMethodMeta(getName(), this.getRequestEndpoints(),
                     this.getReturnTypeEnum(), this.getParamTypes());
@@ -293,5 +307,24 @@ public class ServiceMethodMetaBuilder {
     public ServiceMethodMetaBuilder setHasReturn(boolean hasReturn) {
         this.hasReturn = hasReturn;
         return this;
+    }
+
+    public ServiceMethodMetaBuilder setSummary(String summary) {
+        this.summary = summary;
+        return this;
+    }
+
+    public String getSummary() {
+        return summary;
+    }
+
+    public ServiceMethodMetaBuilder setReturnDescription(String returnDescription) {
+        this.returnDescription = returnDescription;
+        return this;
+    }
+
+
+    public String getReturnDescription() {
+        return returnDescription;
     }
 }

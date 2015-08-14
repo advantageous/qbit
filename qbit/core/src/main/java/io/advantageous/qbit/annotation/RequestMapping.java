@@ -49,4 +49,23 @@ public @interface RequestMapping {
      * @return or RequestMethods that are supported by this end point
      */
     RequestMethod[] method() default {RequestMethod.GET};
+
+    /**
+     * Used to document endpoint
+     * @return description
+     */
+    String description() default "no description";
+
+
+    /**
+     * Used to document endpoint
+     * @return description
+     */
+    String returnDescription() default "no return description";
+
+    /**
+     * Used to document endpoint
+     * @return summary
+     */
+    String summary() default "no summary";
 }

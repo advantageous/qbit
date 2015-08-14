@@ -148,6 +148,7 @@ public class ContextMetaBuilder {
     }
 
 
+
     public static List<String> getRequestPathsByAnnotated(Annotated classMeta, String name) {
         Object value = getRequestPath(classMeta, name);
 
@@ -224,6 +225,42 @@ public class ContextMetaBuilder {
         }
     }
 
+
+    static String getDescriptionFromRequestMapping(Annotated annotated) {
+        final AnnotationData requestMapping = annotated.annotation("RequestMapping");
+
+        if (requestMapping != null) {
+            Object value = requestMapping.getValues().get("description");
+            return value.toString();
+        } else {
+            return "no description";
+        }
+    }
+
+
+    static String getReturnDescriptionFromRequestMapping(Annotated annotated) {
+        final AnnotationData requestMapping = annotated.annotation("RequestMapping");
+
+        if (requestMapping != null) {
+            Object value = requestMapping.getValues().get("returnDescription");
+            return value.toString();
+        } else {
+            return "no description of return";
+        }
+    }
+
+    static String getSummaryFromRequestMapping(Annotated annotated) {
+        final AnnotationData requestMapping = annotated.annotation("RequestMapping");
+
+        if (requestMapping != null) {
+            Object value = requestMapping.getValues().get("summary");
+            return value.toString();
+        } else {
+            return "no summary";
+        }
+    }
+
+
     public static String asPath(String s) {
         String path = s;
         if (!s.startsWith("/")) {
@@ -270,9 +307,11 @@ public class ContextMetaBuilder {
 
         final List<String> requestPaths = getRequestPathsByAnnotated(classMeta, name);
 
+        final String description = getDescriptionFromRequestMapping(classMeta);
+
 
         final ServiceMetaBuilder serviceMetaBuilder = ServiceMetaBuilder.serviceMetaBuilder()
-                .setRequestPaths(requestPaths).setName(name);
+                .setRequestPaths(requestPaths).setName(name).setDescription(description);
 
         serviceMetaBuilder.addMethods(this.getRootURI(), Lists.list(classMeta.methods()));
 

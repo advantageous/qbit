@@ -23,6 +23,8 @@ public class RequestMetaBuilder {
     private String requestURI;
     private List<ParameterMeta> parameters = new ArrayList<>();
     private List<RequestMethod> requestMethods = new ArrayList<>();
+    private  String description;
+
 
     public static RequestMetaBuilder requestMetaBuilder() {
         return new RequestMetaBuilder();
@@ -40,6 +42,16 @@ public class RequestMetaBuilder {
             }
         }
         return position;
+    }
+
+
+    public String getDescription() {
+        return description;
+    }
+
+    public RequestMetaBuilder setDescription(String description) {
+        this.description = description;
+        return this;
     }
 
     public CallType getCallType() {
@@ -179,7 +191,7 @@ public class RequestMetaBuilder {
     private Param getParam(final String path, final AnnotationData annotationData, final int index) {
 
         if (annotationData == null) {
-            return new BodyParam(true, null);
+            return new BodyParam(true, null, null);
         }
 
         Param param;
@@ -187,15 +199,17 @@ public class RequestMetaBuilder {
 
         boolean required = getRequired(annotationData);
 
+        String description = getParamDescription(annotationData);
+
 
         String defaultValue = getDefaultValue(annotationData);
 
         switch (annotationData.getName()) {
             case "requestParam":
-                param = new RequestParam(required, paramName, defaultValue);
+                param = new RequestParam(required, paramName, defaultValue, description);
                 break;
             case "headerParam":
-                param = new HeaderParam(required, paramName, defaultValue);
+                param = new HeaderParam(required, paramName, defaultValue, description);
                 break;
             case "pathVariable":
 
@@ -208,11 +222,11 @@ public class RequestMetaBuilder {
 
                     int position = findURIPosition(path, findString);
 
-                    param = new URIPositionalParam(required, index, defaultValue, position);
+                    param = new URIPositionalParam(required, index, defaultValue, position, description);
                 } else {
                     String findString = "{" + paramName + "}";
                     int position = findURIPosition(path, findString);
-                    param = new URINamedParam(required, paramName, defaultValue, position);
+                    param = new URINamedParam(required, paramName, defaultValue, position, description);
                 }
                 break;
             default:
@@ -248,6 +262,18 @@ public class RequestMetaBuilder {
         return value.toString();
     }
 
+    private String getParamDescription(AnnotationData annotationData) {
+
+        if (annotationData == null)
+            return null;
+
+        final Object value = annotationData.getValues().get("description");
+        if (value == null) {
+            return null;
+        }
+
+        return value.toString();
+    }
 
     private Boolean getRequired(AnnotationData annotationData) {
 

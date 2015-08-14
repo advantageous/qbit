@@ -16,6 +16,18 @@ public class ParameterMetaBuilder {
     private  Class<?> componentClassKey;
     private  Class<?> componentClassValue;
 
+    private String description;
+
+    public String getDescription() {
+        return description;
+    }
+
+    public ParameterMetaBuilder setDescription(String description) {
+        this.description = description;
+        return this;
+    }
+
+
     public Class<?> getComponentClassValue() {
         return componentClassValue;
     }

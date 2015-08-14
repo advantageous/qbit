@@ -124,6 +124,9 @@ public class MetaTransformerFromQbitMetaToSwagger {
                                             final RequestMethod requestMethod) {
         final OperationBuilder operationBuilder = new OperationBuilder();
 
+        operationBuilder.setDescription(methodMeta.getDescription());
+        operationBuilder.setSummary(methodMeta.getSummary());
+
 
         addParameters(operationBuilder, requestMeta.getParameters());
         operationBuilder.setOperationId(methodAccess.name());
@@ -257,6 +260,7 @@ public class MetaTransformerFromQbitMetaToSwagger {
                 parameterBuilder.setItems(schema.getItems());
                 parameterBuilder.setCollectionFormat("csv");
             }
+            parameterBuilder.setDescription(parameterMeta.getParam().getDescription());
             parameterBuilder.setRequired(parameterMeta.getParam().isRequired());
             operationBuilder.addParameter(parameterBuilder.build());
         }

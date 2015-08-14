@@ -38,4 +38,11 @@ public @interface RequestParam {
 
     String defaultValue() default "";
 
+    /**
+     * Used to document endpoint
+     * @return description
+     */
+    String description() default "no description";
+
+
 }

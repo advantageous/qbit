@@ -13,8 +13,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.function.Predicate;
 
-import static io.advantageous.qbit.meta.builder.ContextMetaBuilder.getRequestMethodsByAnnotated;
-import static io.advantageous.qbit.meta.builder.ContextMetaBuilder.getRequestPathsByAnnotated;
+import static io.advantageous.qbit.meta.builder.ContextMetaBuilder.*;
 
 
 /**
@@ -27,6 +26,18 @@ public class ServiceMetaBuilder {
     private String name;
     private List<String> requestPaths = new ArrayList<>();
     private List<ServiceMethodMeta> methods = new ArrayList<>();
+
+
+    private String description;
+
+    public String getDescription() {
+        return description;
+    }
+
+    public ServiceMetaBuilder setDescription(String description) {
+        this.description = description;
+        return this;
+    }
 
     public static ServiceMetaBuilder serviceMetaBuilder() {
         return new ServiceMetaBuilder();
@@ -80,8 +91,11 @@ public class ServiceMetaBuilder {
     }
 
     public ServiceMeta build() {
-        return new ServiceMeta(name, requestPaths, methods);
+
+        return new ServiceMeta(getName(), getRequestPaths(), getMethods(), getDescription());
     }
+
+
 
     public void addMethods(String path, Collection<MethodAccess> methods) {
         methods.stream().filter(methodAccess -> !methodAccess.isPrivate()
@@ -97,12 +111,20 @@ public class ServiceMetaBuilder {
             final List<String> requestPaths
                     = getRequestPathsByAnnotated(methodAccess, methodAccess.name().toLowerCase());
 
+            final String description = getDescriptionFromRequestMapping(methodAccess);
+
+            final String returnDescription = getReturnDescriptionFromRequestMapping(methodAccess);
+
+            final String summary = getSummaryFromRequestMapping(methodAccess);
 
             final List<RequestMethod> requestMethods = getRequestMethodsByAnnotated(methodAccess);
 
 
             ServiceMethodMetaBuilder serviceMethodMetaBuilder = ServiceMethodMetaBuilder.serviceMethodMetaBuilder();
             serviceMethodMetaBuilder.setMethodAccess(methodAccess);
+            serviceMethodMetaBuilder.setDescription(description);
+            serviceMethodMetaBuilder.setSummary(summary);
+            serviceMethodMetaBuilder.setReturnDescription(returnDescription);
 
             for (String path : requestPaths) {
                 CallType callType = path.contains("{") ? CallType.ADDRESS_WITH_PATH_PARAMS : CallType.ADDRESS;

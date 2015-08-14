@@ -26,8 +26,9 @@ public class URIPositionalParam extends PositionalParam {
     private final int indexIntoURI;
 
     public URIPositionalParam(final boolean required, final int position,
-                              final Object defaultValue, int indexIntoURI) {
-        super(required, position, defaultValue, ParamType.PATH_BY_POSITION);
+                              final Object defaultValue, int indexIntoURI,
+                              final String description) {
+        super(required, position, defaultValue, ParamType.PATH_BY_POSITION, description);
         this.indexIntoURI = indexIntoURI;
     }
 

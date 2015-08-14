@@ -48,6 +48,9 @@ public class ServiceMethodMeta {
     private final Class<?> returnTypeComponentKey;
     private final Class<?> returnTypeComponentValue;
     private final boolean hasReturn;
+    private final String description;
+    private final String summary;
+    private final String returnDescription;
 
     public ServiceMethodMeta(boolean hasReturn,
                              MethodAccess methodAccess,
@@ -62,7 +65,10 @@ public class ServiceMethodMeta {
                              Class<?> returnType,
                              Class<?> returnTypeComponent,
                              Class<?> returnTypeComponentKey,
-                             Class<?> returnTypeComponentValue) {
+                             Class<?> returnTypeComponentValue,
+                             String description,
+                             String summary,
+                             String returnDescription) {
 
         this.hasReturn = hasReturn;
         this.methodAccess = methodAccess;
@@ -78,13 +84,16 @@ public class ServiceMethodMeta {
         this.returnTypeComponent = returnTypeComponent;
         this.returnTypeComponentKey = returnTypeComponentKey;
         this.returnTypeComponentValue = returnTypeComponentValue;
+        this.description = description;
+        this.summary = summary;
+        this.returnDescription = returnDescription;
     }
 
     public ServiceMethodMeta(String name, List<RequestMeta> requestEndpoints, TypeType returnTypeEnum,
                              List<TypeType> paramTypes) {
         this(true, null,name, requestEndpoints,
                 returnTypeEnum, paramTypes,
-                false, false, false, false, null, null, null, null);
+                false, false, false, false, null, null, null, null, null, null, null);
 
     }
 
@@ -92,13 +101,13 @@ public class ServiceMethodMeta {
     public ServiceMethodMeta(MethodAccess methodAccess, List<RequestMeta> list) {
         this(true, methodAccess, methodAccess.name(), list,
                 TypeType.OBJECT, Collections.emptyList(),
-                false, false, false, false, null, null, null, null);
+                false, false, false, false, null, null, null, null, null, null, null);
     }
 
     public ServiceMethodMeta(String name, List<RequestMeta> list) {
         this(true, null, name, list,
                 TypeType.OBJECT, Collections.emptyList(),
-                false, false, false, false, null, null, null, null);
+                false, false, false, false, null, null, null, null, null, null, null);
 
     }
 
@@ -186,5 +195,17 @@ public class ServiceMethodMeta {
 
     public boolean hasReturn() {
         return hasReturn;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public String getSummary() {
+        return summary;
+    }
+
+    public String getReturnDescription() {
+        return returnDescription;
     }
 }

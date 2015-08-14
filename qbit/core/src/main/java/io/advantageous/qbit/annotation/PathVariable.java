@@ -34,4 +34,11 @@ import java.lang.annotation.Target;
 public @interface PathVariable {
 
     String value() default "";
+
+    /**
+     * Used to document endpoint
+     * @return description
+     */
+    String description() default "no description";
+
 }
