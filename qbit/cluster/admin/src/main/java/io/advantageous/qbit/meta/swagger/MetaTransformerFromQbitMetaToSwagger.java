@@ -26,6 +26,7 @@ public class MetaTransformerFromQbitMetaToSwagger {
 
         populateAPIInfo(contextMeta, builder);
 
+
         builder.setBasePath(contextMeta.getRootURI());
         builder.setHost(contextMeta.getHostAddress());
 
@@ -66,6 +67,8 @@ public class MetaTransformerFromQbitMetaToSwagger {
     }
 
     private void populateAPIInfo(ContextMeta contextMeta, ServiceEndpointInfoBuilder builder) {
+
+        builder.getApiInfoBuilder().setTitle(contextMeta.getTitle());
         builder.getApiInfoBuilder().getContactBuilder().setEmail(contextMeta.getContactEmail());
         builder.getApiInfoBuilder().getContactBuilder().setName(contextMeta.getContactName());
         builder.getApiInfoBuilder().getContactBuilder().setUrl(contextMeta.getContactURL());
