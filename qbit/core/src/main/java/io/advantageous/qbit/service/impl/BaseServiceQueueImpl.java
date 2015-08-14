@@ -662,7 +662,7 @@ public class BaseServiceQueueImpl implements ServiceQueue {
             public Object invoke(final Object proxy, final Method method, final Object[] args) throws Throwable {
 
                 if (method.getName().equals("toString")) {
-                    return "PROXY OBJECT" + address();
+                    return "PROXY OBJECT " + address();
                 }
                 if (method.getName().equals("clientProxyFlush")) {
                     methodCallSendQueue.flushSends();
