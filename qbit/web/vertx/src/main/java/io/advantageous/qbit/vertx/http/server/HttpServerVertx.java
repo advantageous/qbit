@@ -78,7 +78,7 @@ public class HttpServerVertx implements HttpServer {
                            final HealthServiceAsync healthServiceAsync) {
 
         this.simpleHttpServer = new SimpleHttpServer(endpointName, systemManager,
-                options.getFlushInterval(), options.getPort(), serviceDiscovery, healthServiceAsync);
+                options.getFlushInterval(), options.getPort(), serviceDiscovery, healthServiceAsync, options.getCorsSupport());
         this.vertx = vertx;
         this.systemManager = systemManager;
         this.port = options.getPort();

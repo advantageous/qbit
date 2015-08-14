@@ -21,6 +21,7 @@ package io.advantageous.qbit.http.server.impl;
 import io.advantageous.qbit.GlobalConstants;
 import io.advantageous.qbit.client.ServiceProxyFactory;
 import io.advantageous.qbit.concurrent.ExecutorContext;
+import io.advantageous.qbit.http.config.CorsSupport;
 import io.advantageous.qbit.http.request.HttpRequest;
 import io.advantageous.qbit.http.server.HttpServer;
 import io.advantageous.qbit.http.server.websocket.WebSocketMessage;
@@ -59,6 +60,7 @@ public class SimpleHttpServer implements HttpServer {
     private final HealthServiceAsync healthServiceAsync;
     private final String name;
     private final int port;
+    private final CorsSupport corsSupport;
 
     private Consumer<WebSocketMessage> webSocketMessageConsumer = webSocketMessage -> {
     };
@@ -83,7 +85,8 @@ public class SimpleHttpServer implements HttpServer {
                             final int flushInterval,
                             final int port,
                             final ServiceDiscovery serviceDiscovery,
-                            final HealthServiceAsync healthServiceAsync) {
+                            final HealthServiceAsync healthServiceAsync,
+                            final CorsSupport corsSupport) {
 
 
         this.name = endpointName == null ? "HTTP_SERVER_" + port : endpointName;
@@ -92,6 +95,7 @@ public class SimpleHttpServer implements HttpServer {
         this.flushInterval = flushInterval;
         this.serviceDiscovery = serviceDiscovery;
         this.healthServiceAsync = healthServiceAsync;
+        this.corsSupport = corsSupport;
     }
 
 
@@ -103,6 +107,7 @@ public class SimpleHttpServer implements HttpServer {
         this.flushInterval = 1;
         this.serviceDiscovery = null;
         this.healthServiceAsync = null;
+        this.corsSupport = null;
     }
 
     /**

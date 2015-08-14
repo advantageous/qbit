@@ -4,7 +4,9 @@ import io.advantageous.boon.core.Str;
 import io.advantageous.qbit.GlobalConstants;
 import io.advantageous.qbit.annotation.RequestMethod;
 import io.advantageous.qbit.http.HttpStatus;
+import io.advantageous.qbit.http.config.CorsSupport;
 import io.advantageous.qbit.http.request.*;
+import io.advantageous.qbit.http.server.CorsService;
 import io.advantageous.qbit.json.JsonMapper;
 import io.advantageous.qbit.message.MethodCall;
 import io.advantageous.qbit.message.Request;
@@ -21,6 +23,7 @@ import io.advantageous.qbit.util.Timer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
@@ -48,6 +51,7 @@ public class HttpRequestServiceServerHandlerUsingMetaImpl implements HttpRequest
     private ContextMetaBuilder contextMetaBuilder = ContextMetaBuilder.contextMetaBuilder();
     private StandardRequestTransformer standardRequestTransformer;
     private final Map<RequestMethod, StandardMetaDataProvider> metaDataProviderMap = new ConcurrentHashMap<>();
+    private final CorsService corsService;
 
     public HttpRequestServiceServerHandlerUsingMetaImpl(int timeoutInSeconds, ServiceBundle serviceBundle,
                                                         JsonMapper jsonMapper,
@@ -62,6 +66,11 @@ public class HttpRequestServiceServerHandlerUsingMetaImpl implements HttpRequest
         this.flushInterval = flushInterval;
 
         contextMetaBuilder = ContextMetaBuilder.contextMetaBuilder();
+
+        //TODO: Rick - can't for the life of me figure out how to get the cors support from the options
+        // HttpServerOptions options in HttpServerVertx into here!  This constructor needs not these defaults
+        // but the ones configured in HttpServerBuilder.withCorsSupport(CorsSupportBuilder.blah.blah.build())
+        corsService = new CorsService(new CorsSupport());
     }
 
     @Override
@@ -226,7 +235,7 @@ public class HttpRequestServiceServerHandlerUsingMetaImpl implements HttpRequest
         //noinspection UnnecessaryLocalVariable
         @SuppressWarnings("UnnecessaryLocalVariable") final HttpRequest httpRequest = originatingRequest;
 
-        if (response.wasErrors()) {
+        if (response.wasErrors()) {  //TODO: if CorsService sets its own errors it needs to execute before this line...
 
             Object obj = response.body();
 
@@ -239,6 +248,12 @@ public class HttpRequestServiceServerHandlerUsingMetaImpl implements HttpRequest
             }
         } else {
             if (response.body() instanceof HttpResponse) {
+                try {
+                    //will check, and decorate if appropriate.
+                    corsService.checkCors(originatingRequest, ((HttpResponse)response.body()));
+                } catch(IOException e) {
+                    writeResponse(httpRequest.getReceiver(), HttpStatus.ERROR, "application/json", jsonMapper.toJson(response.body()), response.headers());
+                }
                 writeHttpResponse(httpRequest.getReceiver(), ((HttpResponse) response.body()));
             } else {
                 writeResponse(httpRequest.getReceiver(), HttpStatus.OK, "application/json", jsonMapper.toJson(response.body()), response.headers());
@@ -260,7 +275,6 @@ public class HttpRequestServiceServerHandlerUsingMetaImpl implements HttpRequest
                     httpBinaryResponse.headers());
         }
     }
-
 
 
     private void writeResponse(HttpResponseReceiver response, int code, String mimeType, String responseString,

@@ -17,12 +17,13 @@
  */
 
 ext {
-    projectVersion = '0.8.18-SNAPSHOT'
+    projectVersion = '0.8.18.cors-SNAPSHOT'
     boonVersion = '0.5.5'
 }
 
 allprojects {
     apply plugin: 'idea'
+    apply plugin: 'maven'
 }
 
 subprojects {

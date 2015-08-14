@@ -20,12 +20,15 @@ package io.advantageous.qbit.http.server;
 
 import io.advantageous.qbit.Factory;
 import io.advantageous.qbit.QBit;
+import io.advantageous.qbit.bindings.HttpMethod;
+import io.advantageous.qbit.http.config.CorsSupport;
 import io.advantageous.qbit.http.config.HttpServerConfig;
 import io.advantageous.qbit.queue.QueueBuilder;
 import io.advantageous.qbit.service.discovery.ServiceDiscovery;
 import io.advantageous.qbit.service.health.HealthServiceAsync;
 import io.advantageous.qbit.system.QBitSystemManager;
 
+import java.util.List;
 import java.util.function.Consumer;
 
 /**
@@ -196,6 +199,12 @@ public class HttpServerBuilder {
 
     public HttpServerBuilder withConfig(Consumer<HttpServerConfig> config) {
         config.accept(this.httpServerConfig);
+        return this;
+    }
+
+
+    public HttpServerBuilder withCorsSupport(CorsSupport corsSupport) {
+        this.httpServerConfig.setCorsSupport(corsSupport);
         return this;
     }
 

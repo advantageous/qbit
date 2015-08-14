@@ -11,6 +11,10 @@ public class HttpStatus {
     public final static int ERROR = 500;
     public final static String ERROR_MSG = "SERVER ERROR";
 
+
+    public final static int SC_FORBIDDEN = 403;
+    public final static String SC_FORBIDDEN_MSG = "REQUEST FORBIDDEN";
+
     public final static int NOT_FOUND = 404;
     public final static String NOT_FOUND_MSG = "RESOURCE NOT FOUND";
 
