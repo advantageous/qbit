@@ -10,6 +10,7 @@ import io.advantageous.qbit.service.rest.endpoint.tests.sim.HttpServerSimulator;
 import org.junit.Before;
 import org.junit.Test;
 
+import static io.advantageous.boon.core.IO.puts;
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertTrue;
 
@@ -82,6 +83,8 @@ public class SingleArgumentUserDefinedObjectRESTTest {
 
         assertEquals(500, httpResponse.code());
         assertTrue(httpResponse.body().startsWith("{\"detailMessage"));
+
+        puts(httpResponse.body());
 
     }
 
