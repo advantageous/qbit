@@ -16,9 +16,12 @@ import io.advantageous.qbit.service.health.HealthServiceBuilder;
 import io.advantageous.qbit.service.stats.StatsCollector;
 
 import java.io.InputStream;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
+import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
 
@@ -43,6 +46,8 @@ public class AdminBuilder {
     private String webPageContents;
     private Supplier<String> webPageContentsSupplier;
 
+    private String microServiceName = null;
+
     /** Used to generate meta data. */
     private ContextMetaBuilder contextBuilder;
 
@@ -55,6 +60,8 @@ public class AdminBuilder {
 
     /** Reactor to schedule admin jobs. */
     private ReactorBuilder reactorBuilder;
+    private String hostName;
+    private String machinName;
 
     public Reactor getReactor() {
         if (reactor == null) {
@@ -92,13 +99,49 @@ public class AdminBuilder {
         return this;
     }
 
+    public String getMicroServiceName() {
+        if (microServiceName == null) {
+
+
+            if (microServiceName == null) {
+
+                microServiceName = System.getenv("MICRO_SERVICE_NAME");
+            }
+
+
+            if (microServiceName == null) {
+
+                microServiceName = System.getenv("APP_NAME");
+            }
+
+            if (microServiceName == null) {
+                final String title = getContextBuilder().getTitle();
+
+                if (title != null && !title.isEmpty()) {
+                    microServiceName = title.toLowerCase().replace(" ", ".");
+                }
+
+            }
+
+            if (microServiceName == null) {
+                microServiceName = "my.app";
+            }
+        }
+        return microServiceName;
+    }
+
+    public void setMicroServiceName(String microServiceName) {
+        this.microServiceName = microServiceName;
+    }
+
     public AdminBuilder registerJavaVMStatsJob(final StatsCollector statsCollector) {
-        final JavaStatsCollectorJob jvmStatsJob = new JavaStatsCollectorJob(60, TimeUnit.SECONDS, statsCollector);
+
+        final JavaStatsCollectorJob jvmStatsJob = new JavaStatsCollectorJob(60, TimeUnit.SECONDS, statsCollector, getMachinName());
         return addAdminJob(jvmStatsJob);
     }
 
     public AdminBuilder registerJavaVMStatsJobEveryNSeconds(final StatsCollector statsCollector, final int everySeconds) {
-        final JavaStatsCollectorJob jvmStatsJob = new JavaStatsCollectorJob(everySeconds, TimeUnit.SECONDS, statsCollector);
+        final JavaStatsCollectorJob jvmStatsJob = new JavaStatsCollectorJob(everySeconds, TimeUnit.SECONDS, statsCollector, getMachinName());
         return addAdminJob(jvmStatsJob);
     }
 
@@ -339,5 +382,34 @@ public class AdminBuilder {
             contextBuilder = ContextMetaBuilder.contextMetaBuilder();
         }
         return contextBuilder;
+    }
+
+    public String getHostName() {
+        if (hostName == null) {
+
+            try {
+                hostName = InetAddress.getLocalHost().getHostName();
+            } catch (UnknownHostException e) {
+                hostName = UUID.randomUUID().toString();
+            }
+        }
+        return hostName;
+    }
+
+    public AdminBuilder setHostName(String hostName) {
+        this.hostName = hostName;
+        return this;
+    }
+
+    public String getMachinName() {
+        if (machinName == null) {
+            machinName = getMicroServiceName() + "." + getHostName();
+        }
+        return machinName;
+    }
+
+    public AdminBuilder setMachinName(String machinName) {
+        this.machinName = machinName;
+        return this;
     }
 }
