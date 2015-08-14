@@ -650,7 +650,7 @@ public class BaseServiceQueueImpl implements ServiceQueue {
 
         final String uuid = serviceInterface.getName() + "::" + UUID.randomUUID().toString();
         if (!started.get()) {
-            logger.warn("ServiceQueue::create(...), A proxy is being asked for a service that is not started ", name());
+            logger.info("ServiceQueue::create(...), A proxy is being asked for a service that is not started ", name());
         }
         InvocationHandler invocationHandler = new InvocationHandler() {
 
