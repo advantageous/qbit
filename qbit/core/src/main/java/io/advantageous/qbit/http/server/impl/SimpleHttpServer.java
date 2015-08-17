@@ -192,8 +192,8 @@ public class SimpleHttpServer implements HttpServer {
                 .setPeriod(flushInterval)
                 .setDescription("HttpServer Periodic Flush")
                 .setRunnable(() -> {
-                    handleCheckIn();
-                    webSocketIdleConsumer.accept(null);
+                    handleRequestQueueIdle();
+                    handleWebSocketQueueIdle();
                 })
                 .build();
 
@@ -216,6 +216,7 @@ public class SimpleHttpServer implements HttpServer {
     }
 
     public void handleWebSocketQueueIdle() {
+
         webSocketIdleConsumer.accept(null);
     }
 
@@ -232,15 +233,13 @@ public class SimpleHttpServer implements HttpServer {
 
     final AtomicBoolean ok = new AtomicBoolean(true);
 
-    private void handleCheckIn() {
+    public void handleCheckIn() {
 
         if (healthServiceAsync == null) {
             if (Timer.clockTime() - lastCheckIn.get() > 30_000) {
                 lastCheckIn.set(Timer.clockTime());
                 serviceDiscovery.checkInOk("HTTP_SERVER");
-
             }
-
         } else {
 
             if (Timer.clockTime() - lastCheckIn.get() > 10_000) {
