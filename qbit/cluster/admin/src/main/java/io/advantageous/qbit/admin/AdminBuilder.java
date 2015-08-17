@@ -130,8 +130,9 @@ public class AdminBuilder {
         return microServiceName;
     }
 
-    public void setMicroServiceName(String microServiceName) {
+    public AdminBuilder setMicroServiceName(final String microServiceName) {
         this.microServiceName = microServiceName;
+        return this;
     }
 
     public AdminBuilder registerJavaVMStatsJob(final StatsCollector statsCollector) {
@@ -178,12 +179,13 @@ public class AdminBuilder {
         return htmlPageLocation;
     }
 
-    public void setHtmlPageLocation(String htmlPageLocation) {
+    public AdminBuilder setHtmlPageLocation(final String htmlPageLocation) {
         this.htmlPageLocation = htmlPageLocation;
+        return this;
     }
 
 
-    public AdminBuilder setWebCotentsSupplier(Supplier<String> webPageContentsSupplier) {
+    public AdminBuilder setWebCotentsSupplier(final Supplier<String> webPageContentsSupplier) {
         this.webPageContentsSupplier = webPageContentsSupplier;
         return this;
     }
@@ -251,8 +253,10 @@ public class AdminBuilder {
         return httpServer;
     }
 
-    public void setHttpServer(HttpServer httpServer) {
+    public AdminBuilder setHttpServer(HttpServer httpServer) {
+
         this.httpServer = httpServer;
+        return this;
     }
 
     public HttpServerBuilder getHttpServerBuilder() {
@@ -262,8 +266,9 @@ public class AdminBuilder {
         return httpServerBuilder;
     }
 
-    public void setHttpServerBuilder(HttpServerBuilder httpServerBuilder) {
+    public AdminBuilder setHttpServerBuilder(HttpServerBuilder httpServerBuilder) {
         this.httpServerBuilder = httpServerBuilder;
+        return this;
     }
 
     public HealthServiceAsync getHealthService() {
@@ -298,8 +303,9 @@ public class AdminBuilder {
         return admin;
     }
 
-    public void setAdmin(Admin admin) {
+    public AdminBuilder setAdmin(Admin admin) {
         this.admin = admin;
+        return this;
     }
 
     public String getName() {
@@ -320,8 +326,9 @@ public class AdminBuilder {
         return serviceEndpointServer;
     }
 
-    public void setServiceEndpointServer(ServiceEndpointServer serviceEndpointServer) {
+    public AdminBuilder setServiceEndpointServer(final ServiceEndpointServer serviceEndpointServer) {
         this.serviceEndpointServer = serviceEndpointServer;
+        return this;
     }
 
     public int getPort() {
