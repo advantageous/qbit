@@ -410,7 +410,7 @@ public class AdminBuilder {
 
     public String getMachinName() {
         if (machinName == null) {
-            machinName = getMicroServiceName() + "." + getHostName();
+            machinName = (getMicroServiceName() + "." + getHostName()).replace("..", ".");
         }
         return machinName;
     }
