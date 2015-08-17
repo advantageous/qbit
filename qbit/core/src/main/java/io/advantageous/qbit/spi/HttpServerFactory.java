@@ -25,6 +25,8 @@ import io.advantageous.qbit.service.discovery.ServiceDiscovery;
 import io.advantageous.qbit.service.health.HealthServiceAsync;
 import io.advantageous.qbit.system.QBitSystemManager;
 
+import java.util.concurrent.TimeUnit;
+
 
 /**
  * Creates an HttpServer.
@@ -36,5 +38,7 @@ public interface HttpServerFactory {
             String endPointName,
             QBitSystemManager systemManager,
             ServiceDiscovery serviceDiscovery,
-            HealthServiceAsync healthServiceAsync);
+            HealthServiceAsync healthServiceAsync,
+            final int serviceDiscoveryTtl,
+            final TimeUnit serviceDiscoveryTtlTimeUnit);
 }

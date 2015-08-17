@@ -35,6 +35,7 @@ import io.advantageous.qbit.system.QBitSystemManager;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
 import static io.advantageous.boon.core.Exceptions.die;
@@ -68,13 +69,17 @@ public class HttpServerBuilderTest {
                                                String endpointName,
                                                QBitSystemManager systemManager,
                                                ServiceDiscovery serviceDiscovery,
-                                               HealthServiceAsync healthServiceAsync) {
+                                               HealthServiceAsync healthServiceAsync,
+                                               final int serviceDiscoveryTtl,
+                                               final TimeUnit serviceDiscoveryTtlTimeUnit) {
 
-                return FactorySPI.getHttpServerFactory().create(options, endpointName, systemManager, serviceDiscovery, healthServiceAsync);
+                return FactorySPI.getHttpServerFactory().create(options, endpointName, systemManager, serviceDiscovery,
+                        healthServiceAsync, serviceDiscoveryTtl, serviceDiscoveryTtlTimeUnit);
             }
         });
 
-        FactorySPI.setHttpServerFactory((options, name, systemManager, serviceDiscovery, healthServiceAsync) -> new SimpleHttpServer());
+        FactorySPI.setHttpServerFactory((options, name, systemManager, serviceDiscovery, healthServiceAsync, a, b)
+                -> new SimpleHttpServer());
         Sys.sleep(100);
 
     }

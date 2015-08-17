@@ -28,6 +28,8 @@ import io.advantageous.qbit.system.QBitSystemManager;
 import io.advantageous.qbit.vertx.http.server.HttpServerVertx;
 import io.advantageous.qbit.vertx.http.util.VertxCreate;
 
+import java.util.concurrent.TimeUnit;
+
 /**
  * @author rhightower on 1/26/15.
  */
@@ -39,10 +41,14 @@ public class HttpServerVertxFactory implements HttpServerFactory {
                              final String endPointName,
                              final QBitSystemManager systemManager,
                              final ServiceDiscovery serviceDiscovery,
-                             final HealthServiceAsync healthServiceAsync) {
+                             final HealthServiceAsync healthServiceAsync,
+                             final int serviceDiscoveryTtl,
+                             final TimeUnit serviceDiscoveryTtlTimeUnit) {
 
 
-        return new HttpServerVertx(VertxCreate.newVertx(), endPointName, options, systemManager, serviceDiscovery, healthServiceAsync);
+        return new HttpServerVertx(VertxCreate.newVertx(), endPointName, options,
+                systemManager, serviceDiscovery, healthServiceAsync,
+                serviceDiscoveryTtl, serviceDiscoveryTtlTimeUnit);
 
     }
 }

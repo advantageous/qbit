@@ -89,7 +89,7 @@ public class QBit {
 
             }
         } catch (Exception ex) {
-            FactorySPI.setHttpServerFactory((options, name, systemManager, serviceDiscovery, healthServiceAsync) -> {
+            FactorySPI.setHttpServerFactory((options, name, systemManager, serviceDiscovery, healthServiceAsync, a, b) -> {
 
                 throw new IllegalStateException("Unable to load Vertx network libs");
             });

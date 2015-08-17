@@ -232,9 +232,13 @@ public class BoonQBitFactory implements Factory {
                                        String endpointName,
                                        QBitSystemManager systemManager,
                                        ServiceDiscovery serviceDiscovery,
-                                       HealthServiceAsync healthServiceAsync) {
+                                       HealthServiceAsync healthServiceAsync,
+                                       final int serviceDiscoveryTtl,
+                                       final TimeUnit serviceDiscoveryTtlTimeUnit️) {
 
-        return FactorySPI.getHttpServerFactory().create(options, endpointName, systemManager, serviceDiscovery, healthServiceAsync);
+        return FactorySPI.getHttpServerFactory().create(options, endpointName,
+                systemManager, serviceDiscovery, healthServiceAsync,
+                serviceDiscoveryTtl, serviceDiscoveryTtlTimeUnit️);
     }
 
 

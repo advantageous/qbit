@@ -52,6 +52,7 @@ import io.advantageous.qbit.util.MultiMap;
 import io.advantageous.qbit.util.Timer;
 
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
@@ -379,7 +380,9 @@ public interface Factory {
                                         String endpointName,
                                         QBitSystemManager systemManager,
                                         ServiceDiscovery serviceDiscovery,
-                                        HealthServiceAsync healthServiceAsync) {
+                                        HealthServiceAsync healthServiceAsync,
+                                        final int serviceDiscoveryTtl,
+                                        final TimeUnit serviceDiscoveryTtlTimeUnit) {
 
         throw new UnsupportedOperationException();
     }

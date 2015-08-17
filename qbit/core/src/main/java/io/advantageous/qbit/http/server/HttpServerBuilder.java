@@ -26,6 +26,7 @@ import io.advantageous.qbit.service.discovery.ServiceDiscovery;
 import io.advantageous.qbit.service.health.HealthServiceAsync;
 import io.advantageous.qbit.system.QBitSystemManager;
 
+import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
 /**
@@ -42,6 +43,8 @@ public class HttpServerBuilder {
     private HealthServiceAsync healthServiceAsync;
     private Factory factory;
     private String endpointName;
+    private int serviceDiscoveryTtl = 60;
+    private TimeUnit serviceDiscoveryTtlTimeUnit = TimeUnit.SECONDS;
 
 
 
@@ -206,7 +209,9 @@ public class HttpServerBuilder {
                 this.getEndpointName(),
                 this.getSystemManager(),
                 this.getServiceDiscovery(),
-                this.getHealthServiceAsync()
+                this.getHealthServiceAsync(),
+                this.getServiceDiscoveryTtl(),
+                this.getServiceDiscoveryTtlTimeUnit()
         );
 
         if (qBitSystemManager != null) {
@@ -221,6 +226,24 @@ public class HttpServerBuilder {
 
     public HttpServerBuilder setEndpointName(String endpointName) {
         this.endpointName = endpointName;
+        return this;
+    }
+
+    public int getServiceDiscoveryTtl() {
+        return serviceDiscoveryTtl;
+    }
+
+    public HttpServerBuilder setServiceDiscoveryTtl(int serviceDiscoveryTtl) {
+        this.serviceDiscoveryTtl = serviceDiscoveryTtl;
+        return this;
+    }
+
+    public TimeUnit getServiceDiscoveryTtlTimeUnit() {
+        return serviceDiscoveryTtlTimeUnit;
+    }
+
+    public HttpServerBuilder setServiceDiscoveryTtlTimeUnit(TimeUnit serviceDiscoveryTtlTimeUnit) {
+        this.serviceDiscoveryTtlTimeUnit = serviceDiscoveryTtlTimeUnit;
         return this;
     }
 }

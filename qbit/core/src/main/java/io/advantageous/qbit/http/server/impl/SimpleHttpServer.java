@@ -37,6 +37,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.nio.charset.StandardCharsets;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Consumer;
@@ -60,6 +61,7 @@ public class SimpleHttpServer implements HttpServer {
     private final HealthServiceAsync healthServiceAsync;
     private final String name;
     private final int port;
+    private final long checkInEveryMiliDuration;
 
     private Consumer<WebSocketMessage> webSocketMessageConsumer = webSocketMessage -> {
     };
@@ -85,7 +87,9 @@ public class SimpleHttpServer implements HttpServer {
                             final int flushInterval,
                             final int port,
                             final ServiceDiscovery serviceDiscovery,
-                            final HealthServiceAsync healthServiceAsync) {
+                            final HealthServiceAsync healthServiceAsync,
+                            final int serviceDiscoveryTtl,
+                            final TimeUnit serviceDiscoveryTtlTimeUnit) {
 
 
         this.name = endpointName == null ? "HTTP_SERVER_" + port : endpointName;
@@ -94,15 +98,19 @@ public class SimpleHttpServer implements HttpServer {
         this.flushInterval = flushInterval;
         this.serviceDiscovery = serviceDiscovery;
         this.healthServiceAsync = healthServiceAsync;
+        this.endpointDefinition = createEndpointDefinition(serviceDiscoveryTtl,
+                serviceDiscoveryTtlTimeUnit);
 
-        this.endpointDefinition = createEndpointDefinition();
+        this.checkInEveryMiliDuration =
+                serviceDiscoveryTtlTimeUnit.toMillis(serviceDiscoveryTtl) / 3;
     }
 
-    EndpointDefinition createEndpointDefinition() {
+    EndpointDefinition createEndpointDefinition(int serviceDiscoveryTtl, TimeUnit serviceDiscoveryTtlTimeUnit) {
         EndpointDefinition endpointDefinition;
         if (serviceDiscovery!=null) {
-            endpointDefinition = serviceDiscovery.registerWithTTL(name, port, 60);
-            serviceDiscovery.checkInOk(name);
+            endpointDefinition = serviceDiscovery.registerWithTTL(name, port,
+                    (int) serviceDiscoveryTtlTimeUnit.toSeconds(serviceDiscoveryTtl));
+            serviceDiscovery.checkInOk(endpointDefinition.getId());
         } else {
             endpointDefinition = null;
         }
@@ -119,6 +127,7 @@ public class SimpleHttpServer implements HttpServer {
         this.serviceDiscovery = null;
         this.healthServiceAsync = null;
         this.endpointDefinition = null;
+        this.checkInEveryMiliDuration = 100_000;
     }
 
     /**
@@ -249,13 +258,13 @@ public class SimpleHttpServer implements HttpServer {
     public void handleCheckIn() {
 
         if (healthServiceAsync == null) {
-            if (Timer.clockTime() - lastCheckIn.get() > 30_000) {
+            if (Timer.clockTime() - lastCheckIn.get() > checkInEveryMiliDuration) {
                 lastCheckIn.set(Timer.clockTime());
                 serviceDiscovery.checkInOk(endpointDefinition.getId());
             }
         } else {
 
-            if (Timer.clockTime() - lastCheckIn.get() > 10_000) {
+            if (Timer.clockTime() - lastCheckIn.get() > checkInEveryMiliDuration) {
                 lastCheckIn.set(Timer.clockTime());
 
                 healthServiceAsync.ok(ok::set);

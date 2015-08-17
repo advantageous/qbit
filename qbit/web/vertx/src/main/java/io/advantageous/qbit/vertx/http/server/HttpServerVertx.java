@@ -41,6 +41,7 @@ import org.vertx.java.core.buffer.Buffer;
 import org.vertx.java.core.http.HttpServerRequest;
 import org.vertx.java.core.http.ServerWebSocket;
 
+import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
@@ -75,10 +76,13 @@ public class HttpServerVertx implements HttpServer {
                            final HttpServerOptions options,
                            final QBitSystemManager systemManager,
                            final ServiceDiscovery serviceDiscovery,
-                           final HealthServiceAsync healthServiceAsync) {
+                           final HealthServiceAsync healthServiceAsync,
+                           final int serviceDiscoveryTtl,
+                           final TimeUnit serviceDiscoveryTtlTimeUnit) {
 
         this.simpleHttpServer = new SimpleHttpServer(endpointName, systemManager,
-                options.getFlushInterval(), options.getPort(), serviceDiscovery, healthServiceAsync);
+                options.getFlushInterval(), options.getPort(), serviceDiscovery,
+                healthServiceAsync, serviceDiscoveryTtl, serviceDiscoveryTtlTimeUnit);
         this.vertx = vertx;
         this.systemManager = systemManager;
         this.port = options.getPort();
