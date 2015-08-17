@@ -27,6 +27,7 @@ import io.advantageous.qbit.http.server.websocket.WebSocketMessage;
 import io.advantageous.qbit.http.websocket.WebSocket;
 import io.advantageous.qbit.http.websocket.WebSocketSender;
 import io.advantageous.qbit.service.ServiceProxyUtils;
+import io.advantageous.qbit.service.discovery.EndpointDefinition;
 import io.advantageous.qbit.service.discovery.ServiceDiscovery;
 import io.advantageous.qbit.service.health.HealthServiceAsync;
 import io.advantageous.qbit.service.health.HealthStatus;
@@ -75,6 +76,7 @@ public class SimpleHttpServer implements HttpServer {
 
     private ExecutorContext executorContext;
     private Predicate<WebSocket> shouldContinueWebSocket = webSocket -> true;
+    private final EndpointDefinition endpointDefinition;
 
 
     public SimpleHttpServer(
@@ -92,6 +94,19 @@ public class SimpleHttpServer implements HttpServer {
         this.flushInterval = flushInterval;
         this.serviceDiscovery = serviceDiscovery;
         this.healthServiceAsync = healthServiceAsync;
+
+        this.endpointDefinition = createEndpointDefinition();
+    }
+
+    EndpointDefinition createEndpointDefinition() {
+        EndpointDefinition endpointDefinition;
+        if (serviceDiscovery!=null) {
+            endpointDefinition = serviceDiscovery.registerWithTTL(name, port, 60);
+            serviceDiscovery.checkInOk(name);
+        } else {
+            endpointDefinition = null;
+        }
+        return endpointDefinition;
     }
 
 
@@ -103,6 +118,7 @@ public class SimpleHttpServer implements HttpServer {
         this.flushInterval = 1;
         this.serviceDiscovery = null;
         this.healthServiceAsync = null;
+        this.endpointDefinition = null;
     }
 
     /**
@@ -176,9 +192,6 @@ public class SimpleHttpServer implements HttpServer {
 
         startPeriodicFlush();
 
-        if (serviceDiscovery!=null) {
-            serviceDiscovery.registerWithTTL(name, port, 60_000);
-        }
     }
 
     private void startPeriodicFlush() {
@@ -238,7 +251,7 @@ public class SimpleHttpServer implements HttpServer {
         if (healthServiceAsync == null) {
             if (Timer.clockTime() - lastCheckIn.get() > 30_000) {
                 lastCheckIn.set(Timer.clockTime());
-                serviceDiscovery.checkInOk("HTTP_SERVER");
+                serviceDiscovery.checkInOk(endpointDefinition.getId());
             }
         } else {
 
@@ -249,9 +262,9 @@ public class SimpleHttpServer implements HttpServer {
                 ServiceProxyUtils.flushServiceProxy(healthServiceAsync);
 
                 if (ok.get()) {
-                    serviceDiscovery.checkInOk(name);
+                    serviceDiscovery.checkInOk(endpointDefinition.getId());
                 } else {
-                    serviceDiscovery.checkIn(name, HealthStatus.FAIL);
+                    serviceDiscovery.checkIn(endpointDefinition.getId(), HealthStatus.FAIL);
                 }
 
 
