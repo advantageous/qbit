@@ -192,7 +192,7 @@ public class SimpleHttpServer implements HttpServer {
                 .setPeriod(flushInterval)
                 .setDescription("HttpServer Periodic Flush")
                 .setRunnable(() -> {
-                    requestIdleConsumer.accept(null);
+                    handleCheckIn();
                     webSocketIdleConsumer.accept(null);
                 })
                 .build();
