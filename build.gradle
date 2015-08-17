@@ -17,7 +17,7 @@
  */
 
 ext {
-    projectVersion = '0.8.18-SNAPSHOT'
+    projectVersion = '0.8.18'
     boonVersion = '0.5.5'
 }
 
