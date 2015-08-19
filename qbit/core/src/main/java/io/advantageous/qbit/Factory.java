@@ -384,7 +384,10 @@ public interface Factory {
                                         final int serviceDiscoveryTtl,
                                         final TimeUnit serviceDiscoveryTtlTimeUnit) {
 
-        throw new UnsupportedOperationException();
+
+        return FactorySPI.getHttpServerFactory().create(options, endpointName,
+                systemManager, serviceDiscovery, healthServiceAsync,
+                serviceDiscoveryTtl, serviceDiscoveryTtlTimeUnit);
     }
 
 

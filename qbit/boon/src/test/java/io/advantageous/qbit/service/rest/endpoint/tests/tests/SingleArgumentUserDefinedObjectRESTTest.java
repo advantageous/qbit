@@ -7,6 +7,7 @@ import io.advantageous.qbit.server.ServiceEndpointServer;
 import io.advantageous.qbit.service.rest.endpoint.tests.model.Employee;
 import io.advantageous.qbit.service.rest.endpoint.tests.services.EmployeeServiceSingleObjectTestService;
 import io.advantageous.qbit.service.rest.endpoint.tests.sim.HttpServerSimulator;
+import io.advantageous.qbit.spi.FactorySPI;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -24,8 +25,14 @@ public class SingleArgumentUserDefinedObjectRESTTest {
     @Before
     public void before() {
         httpServerSimulator = new HttpServerSimulator();
+
+
+        FactorySPI.setHttpServerFactory((options, endPointName, systemManager, serviceDiscovery,
+                                         healthServiceAsync, serviceDiscoveryTtl, serviceDiscoveryTtlTimeUnit)
+                -> httpServerSimulator);
+
         serviceEndpointServer = EndpointServerBuilder.endpointServerBuilder()
-                .setHttpServer(httpServerSimulator).build()
+                .build()
                 .initServices(new EmployeeServiceSingleObjectTestService()).startServer();
     }
 

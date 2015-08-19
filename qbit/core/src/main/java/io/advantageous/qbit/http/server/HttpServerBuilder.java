@@ -21,6 +21,7 @@ package io.advantageous.qbit.http.server;
 import io.advantageous.qbit.Factory;
 import io.advantageous.qbit.QBit;
 import io.advantageous.qbit.http.config.HttpServerConfig;
+import io.advantageous.qbit.http.request.HttpRequest;
 import io.advantageous.qbit.queue.QueueBuilder;
 import io.advantageous.qbit.service.discovery.ServiceDiscovery;
 import io.advantageous.qbit.service.health.HealthServiceAsync;
@@ -28,6 +29,7 @@ import io.advantageous.qbit.system.QBitSystemManager;
 
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
+import java.util.function.Predicate;
 
 /**
  * Allows one to build an HTTP server.
@@ -45,7 +47,24 @@ public class HttpServerBuilder {
     private String endpointName;
     private int serviceDiscoveryTtl = 60;
     private TimeUnit serviceDiscoveryTtlTimeUnit = TimeUnit.SECONDS;
+    private RequestContinuePredicate requestContinuePredicate = null;
 
+    public RequestContinuePredicate getRequestContinuePredicate() {
+        if (requestContinuePredicate == null) {
+            requestContinuePredicate = new RequestContinuePredicate();
+        }
+        return requestContinuePredicate;
+    }
+
+    public HttpServerBuilder setRequestContinuePredicate(final RequestContinuePredicate requestContinuePredicate) {
+        this.requestContinuePredicate = requestContinuePredicate;
+        return this;
+    }
+
+    public HttpServerBuilder addShouldContinueHttpRequestPredicate(final Predicate<HttpRequest> predicate) {
+        getRequestContinuePredicate().add(predicate);
+        return this;
+    }
 
 
     public ServiceDiscovery getServiceDiscovery() {
@@ -213,6 +232,10 @@ public class HttpServerBuilder {
                 this.getServiceDiscoveryTtl(),
                 this.getServiceDiscoveryTtlTimeUnit()
         );
+
+        if (requestContinuePredicate!=null) {
+            httpServer.setShouldContinueHttpRequest(requestContinuePredicate);
+        }
 
         if (qBitSystemManager != null) {
             qBitSystemManager.registerServer(httpServer);

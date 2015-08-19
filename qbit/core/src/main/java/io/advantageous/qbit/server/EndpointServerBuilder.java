@@ -25,6 +25,7 @@ import io.advantageous.qbit.config.PropertyResolver;
 import io.advantageous.qbit.http.HttpTransport;
 import io.advantageous.qbit.http.request.HttpRequest;
 import io.advantageous.qbit.http.server.HttpServer;
+import io.advantageous.qbit.http.server.HttpServerBuilder;
 import io.advantageous.qbit.json.JsonMapper;
 import io.advantageous.qbit.message.Request;
 import io.advantageous.qbit.message.Response;
@@ -108,6 +109,7 @@ public class EndpointServerBuilder {
 
     private JsonMapper jsonMapper;
     private ProtocolEncoder encoder;
+    private HttpServerBuilder httpServerBuilder;
 
     public EndpointServerBuilder setParser(ProtocolParser parser) {
         this.parser = parser;
@@ -359,6 +361,9 @@ public class EndpointServerBuilder {
     }
 
     public HttpTransport getHttpServer() {
+        if (httpServer == null) {
+             httpServer = getHttpServerBuilder().build();
+        }
         return httpServer;
     }
 
@@ -573,14 +578,7 @@ public class EndpointServerBuilder {
 
     public ServiceEndpointServer build() {
 
-        if (httpServer == null) {
-            httpServer = createHttpServer();
-        }
 
-
-        if (isEnableStatEndpoint() || isEnableHealthEndpoint()) {
-            setupHealthAndStats();
-        }
 
 
 
@@ -606,7 +604,7 @@ public class EndpointServerBuilder {
 
 
 
-        final ServiceEndpointServer serviceEndpointServer = getFactory().createServiceServer(httpServer,
+        final ServiceEndpointServer serviceEndpointServer = getFactory().createServiceServer(getHttpServer(),
                 getEncoder(), getParser(), serviceBundle, getJsonMapper(), this.getTimeoutSeconds(),
                 this.getNumberOfOutstandingRequests(), this.getRequestBatchSize(),
                 this.getFlushInterval(), this.getSystemManager(), getEndpointName(),
@@ -622,77 +620,6 @@ public class EndpointServerBuilder {
 
         }
         return serviceEndpointServer;
-    }
-
-    private void setupHealthAndStats() {
-
-
-        final boolean healthEnabled = isEnableHealthEndpoint();
-        final boolean statsEnabled = isEnableStatEndpoint();
-
-
-        final HealthServiceAsync healthServiceAsync = healthEnabled ? getHealthService() : null;
-
-        final StatCollection statCollection = statsEnabled ? getStatsCollection() : null;
-
-        httpServer.setShouldContinueHttpRequest(httpRequest -> {
-
-            if (httpRequest.getUri().startsWith("/__")) {
-                handleHealthAndStats(healthEnabled, statsEnabled, healthServiceAsync, statCollection, httpRequest);
-                return false;
-            } else {
-                return true;
-            }
-        });
-    }
-
-    private void handleHealthAndStats(final boolean healthEnabled,
-                                      final boolean statsEnabled,
-                                      final HealthServiceAsync healthServiceAsync,
-                                      final StatCollection statCollection,
-                                      final HttpRequest httpRequest) {
-        if (healthEnabled && httpRequest.getUri().startsWith("/__health")) {
-            healthServiceAsync.ok(ok -> {
-                if (ok) {
-                    httpRequest.getReceiver().respondOK("\"ok\"");
-                } else {
-                    httpRequest.getReceiver().error("\"fail\"");
-                }
-            });
-        } else if (statsEnabled && httpRequest.getUri().startsWith("/__stats")) {
-
-            if (httpRequest.getUri().equals("/__stats/instance")) {
-                if (statCollection != null) {
-                    statCollection.collect(stats -> {
-                        String json = JsonFactory.toJson(stats);
-                        httpRequest.getReceiver().respondOK(json);
-                    });
-                } else {
-                    httpRequest.getReceiver().error("\"failed to load stats collector\"");
-                }
-            } else if (httpRequest.getUri().equals("/__stats/global")) {
-                /* We don't support global stats, yet. */
-                httpRequest.getReceiver().respondOK("{\"version\":1}");
-            } else {
-
-                httpRequest.getReceiver().notFound();
-            }
-        } else {
-
-            httpRequest.getReceiver().notFound();
-        }
-    }
-
-    private HttpServer createHttpServer() {
-
-        return httpServerBuilder().setPort(port)
-                .setHost(host)
-                .setManageQueues(this.isManageQueues())
-                .setFlushInterval(this.getFlushInterval())
-                .setPollTime(this.getPollTime())
-                .setRequestBatchSize(this.getRequestBatchSize())
-                .setMaxRequestBatches(this.getMaxRequestBatches())
-                .setSystemManager(getSystemManager()).build();
     }
 
 
@@ -741,4 +668,72 @@ public class EndpointServerBuilder {
         }
         return services;
     }
+
+    public EndpointServerBuilder addService(Object service) {
+        getServices().add(service);
+        return this;
+    }
+
+
+    public EndpointServerBuilder addServices(Object... services) {
+        for (Object service : services) {
+            getServices().add(service);
+        }
+        return this;
+    }
+
+
+    public HttpServerBuilder getHttpServerBuilder() {
+
+        if (httpServerBuilder == null) {
+
+            httpServerBuilder = httpServerBuilder().setPort(getPort())
+                    .setHost(getHost())
+                    .setManageQueues(this.isManageQueues())
+                    .setFlushInterval(this.getFlushInterval())
+                    .setPollTime(this.getPollTime())
+                    .setRequestBatchSize(this.getRequestBatchSize())
+                    .setMaxRequestBatches(this.getMaxRequestBatches())
+                    .setSystemManager(getSystemManager());
+
+
+                setupHealthAndStats(httpServerBuilder);
+
+        }
+
+        return httpServerBuilder;
+    }
+
+    public EndpointServerBuilder setHttpServerBuilder(HttpServerBuilder httpServerBuilder) {
+        this.httpServerBuilder = httpServerBuilder;
+        return this;
+    }
+
+
+
+
+    public EndpointServerBuilder setupHealthAndStats(final HttpServerBuilder httpServerBuilder) {
+
+        if (isEnableStatEndpoint() || isEnableHealthEndpoint()) {
+            final boolean healthEnabled = isEnableHealthEndpoint();
+            final boolean statsEnabled = isEnableStatEndpoint();
+
+
+            final HealthServiceAsync healthServiceAsync = healthEnabled ? getHealthService() : null;
+
+            final StatCollection statCollection = statsEnabled ? getStatsCollection() : null;
+
+            httpServerBuilder.addShouldContinueHttpRequestPredicate(
+                    new EndPointHealthPredicate(healthEnabled, statsEnabled,
+                            healthServiceAsync, statCollection));
+        }
+
+
+        return this;
+    }
+
+
+
+
+
 }
