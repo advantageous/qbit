@@ -60,12 +60,9 @@ public class SupportingGetAndPostForSameServicesUnderSameURI extends TimedTestin
     @Test
     public void testWebSocket() throws Exception {
 
-        clientProxy.ping(new Callback<String>() {
-            @Override
-            public void accept(String s) {
-                puts(s);
-                pongValue.set(s);
-            }
+        clientProxy.ping(s -> {
+            puts(s);
+            pongValue.set(s);
         }, "hi");
 
         ServiceProxyUtils.flushServiceProxy(clientProxy);

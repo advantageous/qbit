@@ -453,12 +453,13 @@ public class ManagedServiceBuilder {
             endpointServerBuilder.setEnableHealthEndpoint(isEnableLocalHealth());
             endpointServerBuilder.setHealthService(getHealthService());
             endpointServerBuilder.setSystemManager(this.getSystemManager());
-            endpointServerBuilder.setHttpServer(getHttpServerBuilder().build());
+            endpointServerBuilder.setHttpServerBuilder(getHttpServerBuilder());
             endpointServerBuilder.setStatsFlushRateSeconds(getSampleStatFlushRate());
             endpointServerBuilder.setCheckTimingEveryXCalls(getCheckTimingEveryXCalls());
             endpointServerBuilder.setServiceDiscovery(getServiceDiscovery());
             endpointServerBuilder.setUri(getRootURI());
 
+            endpointServerBuilder.setupHealthAndStats(getHttpServerBuilder());
 
 
             if (isEnableStats()) {

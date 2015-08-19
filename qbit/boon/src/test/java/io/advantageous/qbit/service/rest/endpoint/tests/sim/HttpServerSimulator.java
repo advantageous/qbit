@@ -13,11 +13,13 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
+import java.util.function.Predicate;
 
 public class HttpServerSimulator implements HttpServer {
 
     private Consumer<HttpRequest> httpRequestConsumer;
     private Consumer<Void> idleConsumer;
+    private Predicate<HttpRequest> predicate;
 
 
     public final HttpTextResponse get(String uri) {
@@ -58,9 +60,17 @@ public class HttpServerSimulator implements HttpServer {
 
     private void callService(final HttpRequest request) {
 
-        httpRequestConsumer.accept(request);
-        Sys.sleep(100);
-        idleConsumer.accept(null);
+        if (predicate!=null ) {
+            if (predicate.test(request)) {
+                httpRequestConsumer.accept(request);
+                Sys.sleep(100);
+                idleConsumer.accept(null);
+            }
+        } else {
+            httpRequestConsumer.accept(request);
+            Sys.sleep(100);
+            idleConsumer.accept(null);
+        }
     }
 
     private AtomicReference<HttpTextResponse> getHttpResponseAtomicReference(HttpRequestBuilder httpRequestBuilder) {
@@ -146,5 +156,11 @@ public class HttpServerSimulator implements HttpServer {
     @Override
     public void start() {
 
+    }
+
+
+    @Override
+    public void setShouldContinueHttpRequest(Predicate<HttpRequest> predicate) {
+        this.predicate = predicate;
     }
 }
