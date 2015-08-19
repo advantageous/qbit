@@ -451,6 +451,8 @@ public class ManagedServiceBuilder {
         if (endpointServerBuilder==null) {
             endpointServerBuilder = EndpointServerBuilder.endpointServerBuilder();
             endpointServerBuilder.setEnableHealthEndpoint(isEnableLocalHealth());
+            endpointServerBuilder.setEnableStatEndpoint(isEnableLocalStats());
+
             endpointServerBuilder.setHealthService(getHealthService());
             endpointServerBuilder.setSystemManager(this.getSystemManager());
             endpointServerBuilder.setHttpServerBuilder(getHttpServerBuilder());
@@ -459,7 +461,6 @@ public class ManagedServiceBuilder {
             endpointServerBuilder.setServiceDiscovery(getServiceDiscovery());
             endpointServerBuilder.setUri(getRootURI());
 
-            endpointServerBuilder.setupHealthAndStats(getHttpServerBuilder());
 
 
             if (isEnableStats()) {
@@ -471,6 +472,8 @@ public class ManagedServiceBuilder {
                 endpointServerBuilder.setEnableStatEndpoint(true);
                 endpointServerBuilder.setStatsCollection(getLocalStatsCollectorBuilder().build());
             }
+
+            endpointServerBuilder.setupHealthAndStats(getHttpServerBuilder());
 
             if (endpointServices != null) {
                 endpointServerBuilder.setServices(endpointServices);
