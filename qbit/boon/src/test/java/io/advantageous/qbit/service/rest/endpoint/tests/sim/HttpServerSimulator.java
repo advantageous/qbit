@@ -9,6 +9,7 @@ import io.advantageous.qbit.http.server.HttpServer;
 import io.advantageous.qbit.http.server.websocket.WebSocketMessage;
 import io.advantageous.qbit.util.MultiMap;
 
+import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
@@ -36,6 +37,21 @@ public class HttpServerSimulator implements HttpServer {
     public final HttpTextResponse postBody(String uri, Object object) {
 
         final HttpRequestBuilder httpRequestBuilder = HttpRequestBuilder.httpRequestBuilder();
+        httpRequestBuilder.setMethodPost();
+        httpRequestBuilder.setUri("/services" + uri);
+        httpRequestBuilder.setBody(JsonFactory.toJson(object));
+        final AtomicReference<HttpTextResponse> response = getHttpResponseAtomicReference(httpRequestBuilder);
+
+        return response.get();
+
+    }
+
+
+    public final HttpTextResponse postBodyWithHeaders(String uri, Object object, Map<String, String> headers) {
+
+        final HttpRequestBuilder httpRequestBuilder = HttpRequestBuilder.httpRequestBuilder();
+
+        httpRequestBuilder.setHeaders(headers);
         httpRequestBuilder.setMethodPost();
         httpRequestBuilder.setUri("/services" + uri);
         httpRequestBuilder.setBody(JsonFactory.toJson(object));

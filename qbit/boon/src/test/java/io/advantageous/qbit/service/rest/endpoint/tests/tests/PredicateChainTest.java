@@ -1,7 +1,6 @@
 package io.advantageous.qbit.service.rest.endpoint.tests.tests;
 
 import io.advantageous.boon.core.Lists;
-import io.advantageous.qbit.http.request.HttpRequest;
 import io.advantageous.qbit.http.request.HttpTextResponse;
 import io.advantageous.qbit.http.server.HttpServerBuilder;
 import io.advantageous.qbit.server.EndpointServerBuilder;
