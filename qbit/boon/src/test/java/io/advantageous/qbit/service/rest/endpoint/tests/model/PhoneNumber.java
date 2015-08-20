@@ -8,4 +8,8 @@ public class PhoneNumber {
         this.phoneNumber = phoneNumber;
     }
 
+
+    public String getPhoneNumber() {
+        return phoneNumber;
+    }
 }

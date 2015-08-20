@@ -8,7 +8,7 @@ public class Employee {
 
     private final long id;
     private final String name;
-    private final List<PhoneNumber> phoneNumbers;
+    private  List<PhoneNumber> phoneNumbers;
 
 
     public Employee(long id, String name, List<PhoneNumber> phoneNumbers) {
@@ -44,6 +44,9 @@ public class Employee {
     }
 
     public void addPhoneNumber(PhoneNumber phoneNumber) {
+        if (this.phoneNumbers == null) {
+            phoneNumbers = new ArrayList<>();
+        }
         phoneNumbers.add(phoneNumber);
     }
 
