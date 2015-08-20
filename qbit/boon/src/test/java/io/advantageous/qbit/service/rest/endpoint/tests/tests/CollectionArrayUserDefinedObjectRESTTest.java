@@ -4,26 +4,18 @@ import io.advantageous.boon.core.Lists;
 import io.advantageous.boon.core.Maps;
 import io.advantageous.boon.json.JsonFactory;
 import io.advantageous.qbit.BoonJsonMapper;
-import io.advantageous.qbit.QBit;
-import io.advantageous.qbit.http.config.HttpServerOptions;
 import io.advantageous.qbit.http.request.HttpTextResponse;
-import io.advantageous.qbit.http.server.HttpServer;
 import io.advantageous.qbit.server.EndpointServerBuilder;
 import io.advantageous.qbit.server.ServiceEndpointServer;
-import io.advantageous.qbit.service.discovery.ServiceDiscovery;
-import io.advantageous.qbit.service.health.HealthServiceAsync;
 import io.advantageous.qbit.service.rest.endpoint.tests.model.Employee;
 import io.advantageous.qbit.service.rest.endpoint.tests.services.EmployeeServiceCollectionTestService;
 import io.advantageous.qbit.service.rest.endpoint.tests.sim.HttpServerSimulator;
 import io.advantageous.qbit.spi.FactorySPI;
-import io.advantageous.qbit.spi.HttpServerFactory;
-import io.advantageous.qbit.system.QBitSystemManager;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.TimeUnit;
 
 import static junit.framework.Assert.assertEquals;
 

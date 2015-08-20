@@ -36,15 +36,17 @@ public class StandardMetaDataProvider implements MetaDataProvider {
 
 
     private final Map<String, RequestMetaData> metaDataMap = new ConcurrentHashMap<>(100);
-    private final NavigableMap<String, RequestMetaData> treeMap = new TreeMap<>();
+    private final NavigableMap<String, NavigableMap<Integer,RequestMetaData>> treeMap = new TreeMap<>();
     private final RequestMethod httpRequestMethod;
 
     private final Logger logger = LoggerFactory.getLogger(StandardMetaDataProvider.class);
     private final boolean debug = logger.isDebugEnabled();
+    private final String rootURI;
 
 
     public StandardMetaDataProvider(final ContextMeta context, final RequestMethod method) {
         this.httpRequestMethod = method;
+        this.rootURI = context.getRootURI();
         context.getServices().forEach(service -> addService(context, service));
     }
 
@@ -81,21 +83,52 @@ public class StandardMetaDataProvider implements MetaDataProvider {
             return;
         }
 
-        final String requestPath = requestMeta.getCallType() == CallType.ADDRESS ? requestMeta.getRequestURI() :
-                StringScanner.substringBefore(requestMeta.getRequestURI(), "{");
-        final String path = Str.join('/', context.getRootURI(), servicePath, requestPath).replace("//", "/");
+        if (requestMeta.getCallType() == CallType.ADDRESS) {
+            final String requestPath = requestMeta.getRequestURI();
+            final String path = Str.join('/', context.getRootURI(), servicePath, requestPath).replace("//", "/");
 
-        addRequestEndPointUsingPath(context, service, method, requestMeta, path.toLowerCase());
+            addRequestEndPointUsingPath(context, service, method, requestMeta, path.toLowerCase(),
+                    requestMeta.getRequestURI(), servicePath);
+
+        } else if (requestMeta.getCallType() == CallType.ADDRESS_WITH_PATH_PARAMS) {
+
+            final String requestPath =
+                StringScanner.substringBefore(requestMeta.getRequestURI(), "{");
+
+
+            final String path = Str.join('/', context.getRootURI(), servicePath, requestPath).replace("//", "/");
+
+            addRequestEndPointUsingPath(context, service, method, requestMeta, path.toLowerCase(), requestMeta.getRequestURI(),
+                    servicePath);
+
+        }
 
     }
 
-    private void addRequestEndPointUsingPath(ContextMeta context, ServiceMeta service, ServiceMethodMeta method, RequestMeta requestMeta, String path) {
+    private void addRequestEndPointUsingPath(final ContextMeta context,
+                                             final ServiceMeta service,
+                                             final ServiceMethodMeta method,
+                                             final RequestMeta requestMeta,
+                                             final String path,
+                                             final String requestURI,
+                                             final String servicePath) {
         RequestMetaData metaData = new RequestMetaData(path, context, requestMeta, method, service);
 
         if (requestMeta.getCallType() == CallType.ADDRESS) {
             metaDataMap.put(path, metaData);
         } else {
-            treeMap.put(path, metaData);
+            NavigableMap<Integer, RequestMetaData> map = treeMap.get(path);
+
+            if (map == null) {
+                map = new TreeMap<>();
+                treeMap.put(path, map);
+            }
+
+
+            int count = Str.split(servicePath+requestURI, '/').length -1;
+
+            map.put(count, metaData);
+
         }
     }
 
@@ -105,13 +138,21 @@ public class StandardMetaDataProvider implements MetaDataProvider {
         RequestMetaData requestMetaData = metaDataMap.get(path);
 
         if (requestMetaData == null) {
-            final Map.Entry<String, RequestMetaData> entry = treeMap.lowerEntry(path);
+            Map.Entry<String, NavigableMap<Integer, RequestMetaData>> uriParamNumMapEntry = treeMap.lowerEntry(path);
 
-            if (entry == null) {
+            if (uriParamNumMapEntry == null) {
                 return null;
             }
-            if (path.startsWith(entry.getKey())) {
-                return entry.getValue();
+
+            final String requestURI = StringScanner.substringAfter(path, rootURI);
+
+            int count = Str.split(requestURI, '/').length -1;
+            NavigableMap<Integer, RequestMetaData> uriParamMap = uriParamNumMapEntry.getValue();
+
+            requestMetaData = uriParamMap.get(count);
+
+            if (requestMetaData!=null && path.startsWith(requestMetaData.getPath())) {
+                return requestMetaData;
             } else {
                 return null;
             }

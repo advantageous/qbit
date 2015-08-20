@@ -27,6 +27,7 @@ import io.advantageous.qbit.util.MultiMap;
 import io.advantageous.qbit.util.MultiMapImpl;
 
 import java.nio.charset.StandardCharsets;
+import java.util.Map;
 import java.util.Set;
 import java.util.function.Consumer;
 
@@ -303,10 +304,18 @@ public class HttpRequestBuilder {
         return headers == null ? MultiMap.EMPTY : headers;
     }
 
-    public HttpRequestBuilder setHeaders(MultiMap<String, String> headers) {
+    public HttpRequestBuilder setHeaders(final MultiMap<String, String> headers) {
         this.headers = headers;
         return this;
     }
+
+
+    public HttpRequestBuilder setHeaders(final Map<String, String> headerMap) {
+
+        headerMap.entrySet().forEach(entry -> addHeader(entry.getKey(), entry.getValue()));
+        return this;
+    }
+
 
     public HttpRequestBuilder setJsonContentType() {
 
