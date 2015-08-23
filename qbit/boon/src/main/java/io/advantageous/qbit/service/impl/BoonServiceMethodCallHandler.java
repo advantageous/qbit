@@ -43,6 +43,7 @@ import io.advantageous.qbit.service.ServiceMethodHandler;
 import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeoutException;
 
 import static io.advantageous.boon.core.Exceptions.die;
 import static io.advantageous.boon.core.IO.puts;
@@ -929,6 +930,17 @@ public class BoonServiceMethodCallHandler implements ServiceMethodHandler {
         @Override
         public void accept(Object result) {
             responseSendQueue.send(ResponseImpl.response(methodCall, result));
+        }
+
+
+        @Override
+        public void onError(Throwable error) {
+            responseSendQueue.send(ResponseImpl.error(methodCall, error));
+        }
+
+        @Override
+        public void onTimeout() {
+            responseSendQueue.send(ResponseImpl.error(methodCall, new TimeoutException("Method call " + methodCall.name() + " timed out ")));
         }
     }
 
