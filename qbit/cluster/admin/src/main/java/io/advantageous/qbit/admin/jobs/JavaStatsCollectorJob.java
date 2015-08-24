@@ -27,7 +27,7 @@ public class JavaStatsCollectorJob extends AdminJobBase {
             lastCollectionCount = collectionCount;
             lastCollectionTime = collectionTime;
             String name = gcName.replace(" ", ".").toLowerCase();
-            statName = "jvm.gc.collector." + name;
+            statName = ".jvm.gc.collector." + name;
             this.gcName = gcName;
         }
 
