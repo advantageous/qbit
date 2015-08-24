@@ -55,6 +55,18 @@ public class JavaStatsCollectorJob extends AdminJobBase {
         public String getStatName() {
             return statName;
         }
+
+        @Override
+        public String toString() {
+            return "GCInfo{" +
+                    "gcName='" + gcName + '\'' +
+                    ", statName='" + statName + '\'' +
+                    ", lastCollectionCount=" + lastCollectionCount +
+                    ", lastCollectionTime=" + lastCollectionTime +
+                    ", currentCollectionCount=" + currentCollectionCount +
+                    ", currentCollectionTime=" + currentCollectionTime +
+                    '}';
+        }
     }
 
     static class JavaStatsCollectorRunnable implements Runnable {
@@ -125,13 +137,22 @@ public class JavaStatsCollectorJob extends AdminJobBase {
                 return;
             }
 
+            gcInfo.setCurrentCollectionCount(garbageCollectorMXBean.getCollectionCount());
+            gcInfo.setCurrentCollectionTime(garbageCollectorMXBean.getCollectionTime());
 
-            statsCollector.recordCount(prefix + gcInfo.getStatName() + "collection.count",
-                    (int) gcInfo.getCollectionCount());
+            int collectionCount = (int) gcInfo.getCollectionCount();
 
+            int collectionTime = (int) gcInfo.getCollectionTime();
 
-            statsCollector.recordTiming(prefix + gcInfo.getStatName() + "collection.time",
-                    (int) gcInfo.getCollectionTime());
+            if (collectionCount>0) {
+                statsCollector.recordCount(prefix + gcInfo.getStatName() + "collection.count",
+                        collectionCount);
+            }
+
+            if (collectionTime>0) {
+                statsCollector.recordTiming(prefix + gcInfo.getStatName() + "collection.time",
+                        collectionTime);
+            }
         }
 
         private void collectThreadStats() {
