@@ -214,7 +214,7 @@ usability.
 The JSON support uses Boon by default which is up to 4x faster than other JSON parsers for the
 REST/JSON, WebSocket/JSON use case.
 
-** Reactive Programming **
+**Reactive Programming**
 QBit provides a **Reactor** to manage async calls. This allows callbacks to be handled on the same thread that called them and it provides for timeout and error handling. Read [Reactor tutorial for creating reactive micro service programming](https://github.com/MammatusTech/qbit-microservices-examples/wiki/Reactor-tutorial--%7C-reactively-handling-async-calls-with-QBit-Reactive-Microservices)
 
 **Service Discovery**
