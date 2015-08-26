@@ -28,7 +28,7 @@ public class SingleArgumentUserDefinedObjectRESTTest {
 
 
         FactorySPI.setHttpServerFactory((options, endPointName, systemManager, serviceDiscovery,
-                                         healthServiceAsync, serviceDiscoveryTtl, serviceDiscoveryTtlTimeUnit)
+                                         healthServiceAsync, serviceDiscoveryTtl, serviceDiscoveryTtlTimeUnit, a, b)
                 -> httpServerSimulator);
 
         serviceEndpointServer = EndpointServerBuilder.endpointServerBuilder()

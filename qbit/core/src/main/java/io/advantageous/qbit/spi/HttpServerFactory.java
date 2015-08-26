@@ -18,6 +18,8 @@
 
 package io.advantageous.qbit.spi;
 
+import io.advantageous.qbit.http.HttpResponseCreator;
+import io.advantageous.qbit.http.HttpResponseDecorator;
 import io.advantageous.qbit.http.config.HttpServerOptions;
 import io.advantageous.qbit.http.server.HttpServer;
 import io.advantageous.qbit.queue.QueueBuilder;
@@ -25,6 +27,7 @@ import io.advantageous.qbit.service.discovery.ServiceDiscovery;
 import io.advantageous.qbit.service.health.HealthServiceAsync;
 import io.advantageous.qbit.system.QBitSystemManager;
 
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.TimeUnit;
 
 
@@ -40,5 +43,7 @@ public interface HttpServerFactory {
             ServiceDiscovery serviceDiscovery,
             HealthServiceAsync healthServiceAsync,
             final int serviceDiscoveryTtl,
-            final TimeUnit serviceDiscoveryTtlTimeUnit);
+            final TimeUnit serviceDiscoveryTtlTimeUnit,
+            final CopyOnWriteArrayList<HttpResponseDecorator> decorators,
+            final HttpResponseCreator httpResponseCreator);
 }

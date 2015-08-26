@@ -20,6 +20,9 @@ package io.advantageous.qbit.http.server;
 
 import io.advantageous.qbit.Factory;
 import io.advantageous.qbit.QBit;
+import io.advantageous.qbit.http.HttpResponseCreator;
+import io.advantageous.qbit.http.HttpResponseCreatorDefault;
+import io.advantageous.qbit.http.HttpResponseDecorator;
 import io.advantageous.qbit.http.config.HttpServerConfig;
 import io.advantageous.qbit.http.request.HttpRequest;
 import io.advantageous.qbit.queue.QueueBuilder;
@@ -27,6 +30,7 @@ import io.advantageous.qbit.service.discovery.ServiceDiscovery;
 import io.advantageous.qbit.service.health.HealthServiceAsync;
 import io.advantageous.qbit.system.QBitSystemManager;
 
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
@@ -48,6 +52,34 @@ public class HttpServerBuilder {
     private int serviceDiscoveryTtl = 60;
     private TimeUnit serviceDiscoveryTtlTimeUnit = TimeUnit.SECONDS;
     private RequestContinuePredicate requestContinuePredicate = null;
+    private CopyOnWriteArrayList<HttpResponseDecorator> responseDecorators = new CopyOnWriteArrayList<>();
+    private HttpResponseCreator httpResponseCreator = new HttpResponseCreatorDefault();
+
+    public CopyOnWriteArrayList<HttpResponseDecorator> getResponseDecorators() {
+        return responseDecorators;
+    }
+
+    public HttpServerBuilder setResponseDecorators(CopyOnWriteArrayList<HttpResponseDecorator> decorators) {
+        this.responseDecorators = decorators;
+        return this;
+    }
+
+
+    public HttpServerBuilder addResponseDecorator(final HttpResponseDecorator decorator) {
+        responseDecorators.add(decorator);
+        return this;
+    }
+
+    public HttpResponseCreator getHttpResponseCreator() {
+        return httpResponseCreator;
+    }
+
+    public HttpServerBuilder setHttpResponseCreator(HttpResponseCreator httpResponseCreator) {
+        this.httpResponseCreator = httpResponseCreator;
+        return null;
+    }
+
+
 
     public RequestContinuePredicate getRequestContinuePredicate() {
         if (requestContinuePredicate == null) {
@@ -230,7 +262,9 @@ public class HttpServerBuilder {
                 this.getServiceDiscovery(),
                 this.getHealthServiceAsync(),
                 this.getServiceDiscoveryTtl(),
-                this.getServiceDiscoveryTtlTimeUnit()
+                this.getServiceDiscoveryTtlTimeUnit(),
+                this.getResponseDecorators(),
+                this.getHttpResponseCreator()
         );
 
         if (requestContinuePredicate!=null) {

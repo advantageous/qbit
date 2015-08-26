@@ -35,6 +35,7 @@ import io.advantageous.qbit.system.QBitSystemManager;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
@@ -71,14 +72,16 @@ public class HttpServerBuilderTest {
                                                ServiceDiscovery serviceDiscovery,
                                                HealthServiceAsync healthServiceAsync,
                                                final int serviceDiscoveryTtl,
-                                               final TimeUnit serviceDiscoveryTtlTimeUnit) {
+                                               final TimeUnit serviceDiscoveryTtlTimeUnit,
+                                               final CopyOnWriteArrayList<HttpResponseDecorator> decorators,
+                                               final HttpResponseCreator httpResponseCreator) {
 
                 return FactorySPI.getHttpServerFactory().create(options, endpointName, systemManager, serviceDiscovery,
-                        healthServiceAsync, serviceDiscoveryTtl, serviceDiscoveryTtlTimeUnit);
+                        healthServiceAsync, serviceDiscoveryTtl, serviceDiscoveryTtlTimeUnit, decorators, httpResponseCreator);
             }
         });
 
-        FactorySPI.setHttpServerFactory((options, name, systemManager, serviceDiscovery, healthServiceAsync, a, b)
+        FactorySPI.setHttpServerFactory((options, name, systemManager, serviceDiscovery, healthServiceAsync, a, b, c, d)
                 -> new SimpleHttpServer());
         Sys.sleep(100);
 

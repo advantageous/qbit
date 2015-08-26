@@ -228,19 +228,6 @@ public class BoonQBitFactory implements Factory {
     }
 
 
-    public HttpServer createHttpServer(HttpServerOptions options,
-                                       String endpointName,
-                                       QBitSystemManager systemManager,
-                                       ServiceDiscovery serviceDiscovery,
-                                       HealthServiceAsync healthServiceAsync,
-                                       final int serviceDiscoveryTtl,
-                                       final TimeUnit serviceDiscoveryTtlTimeUnit️) {
-
-        return FactorySPI.getHttpServerFactory().create(options, endpointName,
-                systemManager, serviceDiscovery, healthServiceAsync,
-                serviceDiscoveryTtl, serviceDiscoveryTtlTimeUnit️);
-    }
-
 
     @Override
     public ServiceEndpointServer createServiceServer(final HttpTransport httpServer, final ProtocolEncoder encoder,
