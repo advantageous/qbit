@@ -137,4 +137,20 @@ public class SingleArgumentUserDefinedObjectRESTTest {
 
     }
 
+
+    @Test
+    public void returnEmployeeCallback2() {
+        final HttpTextResponse httpResponse = httpServerSimulator.get("/es/returnEmployeeCallback2");
+
+        assertEquals(777, httpResponse.code());
+
+
+        assertEquals("crap/crap", httpResponse.contentType());
+
+        assertEquals("Employee{id=1, name='Rick'}", httpResponse.body());
+
+        puts(httpResponse);
+
+    }
+
 }

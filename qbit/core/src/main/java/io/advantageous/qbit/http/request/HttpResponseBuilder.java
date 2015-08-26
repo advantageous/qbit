@@ -13,7 +13,7 @@ public class HttpResponseBuilder {
     private Object body;
     private MultiMap<String, String> headers;
 
-    public HttpResponseBuilder httpResponseBuilder() {
+    public static HttpResponseBuilder httpResponseBuilder() {
         return new HttpResponseBuilder();
     }
 
