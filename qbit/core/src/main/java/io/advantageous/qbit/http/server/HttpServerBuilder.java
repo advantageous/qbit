@@ -20,12 +20,11 @@ package io.advantageous.qbit.http.server;
 
 import io.advantageous.qbit.Factory;
 import io.advantageous.qbit.QBit;
-import io.advantageous.qbit.http.HttpResponseCreator;
-import io.advantageous.qbit.http.HttpResponseCreatorDefault;
-import io.advantageous.qbit.http.HttpResponseDecorator;
+import io.advantageous.qbit.http.request.HttpResponseCreator;
+import io.advantageous.qbit.http.request.impl.HttpResponseCreatorDefault;
+import io.advantageous.qbit.http.request.HttpResponseDecorator;
 import io.advantageous.qbit.http.config.HttpServerConfig;
 import io.advantageous.qbit.http.request.HttpRequest;
-import io.advantageous.qbit.queue.QueueBuilder;
 import io.advantageous.qbit.service.discovery.ServiceDiscovery;
 import io.advantageous.qbit.service.health.HealthServiceAsync;
 import io.advantageous.qbit.system.QBitSystemManager;

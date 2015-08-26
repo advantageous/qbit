@@ -18,16 +18,14 @@
 
 package io.advantageous.qbit.vertx.http.server;
 
-import io.advantageous.qbit.http.HttpResponseCreator;
-import io.advantageous.qbit.http.HttpResponseDecorator;
+import io.advantageous.qbit.http.request.HttpResponseCreator;
+import io.advantageous.qbit.http.request.HttpResponseDecorator;
 import io.advantageous.qbit.http.config.HttpServerOptions;
 import io.advantageous.qbit.http.server.HttpServer;
-import io.advantageous.qbit.queue.QueueBuilder;
 import io.advantageous.qbit.service.discovery.ServiceDiscovery;
 import io.advantageous.qbit.service.health.HealthServiceAsync;
 import io.advantageous.qbit.spi.HttpServerFactory;
 import io.advantageous.qbit.system.QBitSystemManager;
-import io.advantageous.qbit.vertx.http.server.HttpServerVertx;
 import io.advantageous.qbit.vertx.http.util.VertxCreate;
 
 import java.util.concurrent.CopyOnWriteArrayList;

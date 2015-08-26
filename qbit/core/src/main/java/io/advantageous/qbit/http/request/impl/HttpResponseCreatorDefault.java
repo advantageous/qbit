@@ -1,8 +1,6 @@
-package io.advantageous.qbit.http;
+package io.advantageous.qbit.http.request.impl;
 
-import io.advantageous.qbit.http.request.HttpBinaryResponse;
-import io.advantageous.qbit.http.request.HttpResponse;
-import io.advantageous.qbit.http.request.HttpTextResponse;
+import io.advantageous.qbit.http.request.*;
 import io.advantageous.qbit.util.MultiMap;
 
 import java.util.concurrent.CopyOnWriteArrayList;

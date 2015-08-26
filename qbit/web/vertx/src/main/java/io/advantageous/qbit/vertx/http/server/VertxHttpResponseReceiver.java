@@ -1,7 +1,7 @@
 package io.advantageous.qbit.vertx.http.server;
 
-import io.advantageous.qbit.http.HttpResponseCreator;
-import io.advantageous.qbit.http.HttpResponseDecorator;
+import io.advantageous.qbit.http.request.HttpResponseCreator;
+import io.advantageous.qbit.http.request.HttpResponseDecorator;
 import io.advantageous.qbit.http.HttpStatus;
 import io.advantageous.qbit.http.request.HttpResponse;
 import io.advantageous.qbit.http.request.HttpResponseReceiver;
