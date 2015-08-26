@@ -7,12 +7,16 @@ import io.advantageous.qbit.util.MultiMap;
 public interface HttpResponseDecorator {
 
 
-    boolean decorateTextResponse(String requestPath, int code, String contentType, String payload,
-                                 MultiMap<String, String> headers,
-                                 HttpTextResponse[] responseHolder);
+    boolean decorateTextResponse(HttpTextResponse[] responseHolder,
+                                 String requestPath, int code, String contentType, String payload,
+                                 final MultiMap<String, String> responseHeaders,
+                                 final MultiMap<String, String> requestHeaders,
+                                 final MultiMap<String, String> requestParams);
 
 
-    boolean decorateBinaryResponse(String requestPath, int code, String contentType, byte[] payload,
-                                   MultiMap<String, String> headers,
-                                   HttpBinaryResponse[] responseHolder);
+    boolean decorateBinaryResponse(HttpBinaryResponse[] responseHolder,
+                                   String requestPath, int code, String contentType, byte[] payload,
+                                   final MultiMap<String, String> responseHeaders,
+                                   final MultiMap<String, String> requestHeaders,
+                                   final MultiMap<String, String> requestParams);
 }
