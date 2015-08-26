@@ -179,6 +179,12 @@ public class HttpRequestBuilder {
         return this;
     }
 
+    public HttpRequestBuilder setResponse(HttpResponseReceiver response) {
+        this.receiver = response;
+        return this;
+    }
+
+
     public HttpRequestBuilder setBinaryReceiver(HttpBinaryReceiver response) {
         this.receiver = response;
         return this;
