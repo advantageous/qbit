@@ -1,6 +1,5 @@
 package io.advantageous.qbit.service.rest.endpoint.tests.tests;
 
-import com.sun.deploy.net.HttpResponse;
 import io.advantageous.boon.core.Lists;
 import io.advantageous.qbit.http.request.HttpBinaryResponse;
 import io.advantageous.qbit.http.request.HttpResponseBuilder;
