@@ -1,8 +1,8 @@
-This is a copy of WIKI home. Do not edit. 
+The Java microservice lib. QBit is a reactive programming lib for building microservices - JSON, HTTP, WebSocket, and REST. QBit uses reactive programming to build elastic REST, and WebSockets based cloud friendly, web services. SOA evolved for mobile and cloud.  ServiceDiscovery, Health, reactive StatService, events, Java idiomatic reactive programming for Microservices.
 
-#qbit - The Microservice Lib for Java - JSON, REST, WebSocket, Speed! [![Build Status](https://travis-ci.org/advantageous/qbit.svg)](https://travis-ci.org/advantageous/qbit)
+Do not edit. This is a copy of wiki home.
 
-[![Join the chat at https://gitter.im/advantageous/qbit](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/advantageous/qbit?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+#qbit - The Microservice Lib for Java - JSON, REST, WebSocket, Speed! [![Build Status](https://travis-ci.org/advantageous/qbit.svg)](https://travis-ci.org/advantageous/qbit) [![Join the chat at https://gitter.im/advantageous/qbit](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/advantageous/qbit?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 Got a question? Ask here: [QBit Google Group](https://groups.google.com/forum/#!forum/qbit-microservice).
 
@@ -19,7 +19,8 @@ QBit is FAST!
 
 Status
 =====
-There is a lot of progress. The internal are maturing.
+Lot's of progress. More people are helping out.
+QBit now works with Vertx (standalone or embedded), Jetty (standalone) or just plain Java Servlets.
 
 
 License
@@ -212,6 +213,17 @@ More work needs to be done to improve speed, but now it is fast enough where we 
 usability.
 The JSON support uses Boon by default which is up to 4x faster than other JSON parsers for the
 REST/JSON, WebSocket/JSON use case.
+
+**Reactive Programming**
+QBit provides a **Reactor** to manage async calls. This allows callbacks to be handled on the same thread that called them and it provides for timeout and error handling. Read [Reactor tutorial for creating reactive micro service programming](https://github.com/MammatusTech/qbit-microservices-examples/wiki/Reactor-tutorial--%7C-reactively-handling-async-calls-with-QBit-Reactive-Microservices)
+
+**Service Discovery**
+Built in support for service discovery. This includes integration with Consul.
+
+
+**StatService**
+Built in support for stats. The **StatService** can be integrated with **StatsD** (Graphite, Grafana, DataDog, etc.) to publish passive stats. Or you can query the stats engine and react to the stats (counts, timings and levels). The **StatsService** is a reactive stats system that can be clustered. The StatService is reactive in that your services can publish to it and query it and react based on the results. You can implement things like rate limiting and react to an increased rate of something. The ServiceDiscovery system integrates with the HealthSystem and Consul to roll up each of your internal services that make up you micro service and publish the composite availably of your micro service to a single HTTP endpoint or a dead mans switch in Consul (TTL). 
+
 
 
 ### CURLable REST services example

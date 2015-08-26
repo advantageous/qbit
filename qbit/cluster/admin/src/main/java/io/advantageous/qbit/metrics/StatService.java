@@ -31,12 +31,15 @@ public interface StatService extends ClientProxy, StatsCollector {
     default void recordCount(String name, int count) {
     }
 
+    default void increment(String name) {
+        recordCount(name, 1);
+    }
+
     default void recordLevel(String name, int level) {
     }
 
     default void recordTiming(String name, int duration) {
     }
-
 
     default void statsForLastSeconds(Callback<Stats> callback, String name, int secondCount) {
     }
@@ -63,17 +66,14 @@ public interface StatService extends ClientProxy, StatsCollector {
     default void lastNSecondsCount(Callback<Integer> callback, String name, int secondCount) {
     }
 
-
     default void lastNSecondsCountExact(Callback<Integer> callback, String name, int secondCount) {
     }
-
 
     default void lastTenSecondCountExact(Callback<Integer> callback, String name) {
     }
 
     default void lastFiveSecondCountExact(Callback<Integer> callback, String name) {
     }
-
 
     default void recordWithTime(String name, int count, long timestamp) {
     }

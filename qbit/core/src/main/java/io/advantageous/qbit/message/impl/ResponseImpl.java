@@ -203,4 +203,8 @@ public class ResponseImpl<T> implements Response<T> {
                 ", errors=" + errors +
                 '}';
     }
+
+    public static Response<Object> error(MethodCall<Object> methodCall, Throwable error) {
+        return new ResponseImpl<>(methodCall, error);
+    }
 }
