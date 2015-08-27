@@ -257,6 +257,7 @@ project('spring') {
         compile project(':qbit:admin')
         compile project(':qbit:consul-client')
         compile project(":qbit:eventbus-replicator")
+        compile 'javax.inject:javax.inject:1'
         compile "org.springframework.boot:spring-boot-starter:1.2.5.RELEASE"
         testCompile project(':qbit:test-support')
     }
