@@ -18,9 +18,9 @@
 rootProject.name = 'qbit-bundle'
 
 include 'qbit'
-include 'qbit:boon', 'qbit:core', 'qbit:cluster', 'qbit:test-support'
-include 'qbit:web:servlet', 'qbit:web:vertx'
-include 'qbit:cluster:consul-client', 'qbit:cluster:eventbus-replicator', 'qbit:cluster:admin'
+include 'qbit:boon', 'qbit:core', 'qbit:test-support', 'qbit:spring'
+include 'qbit:servlet', 'qbit:vertx'
+include 'qbit:consul-client', 'qbit:eventbus-replicator', 'qbit:admin'
 
 include 'examples:standalone'
 include 'examples:basic', 'examples:basic:model', 'examples:basic:client', 'examples:basic:server'
