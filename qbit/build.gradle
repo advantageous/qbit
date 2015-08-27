@@ -151,19 +151,7 @@ project('boon') {
     }
 }
 
-project('web') {
-    uploadArchives {
-        repositories {
-            mavenDeployer {
-                pom.project {
-                    description 'HTTP integrations for qbit'
-                }
-            }
-        }
-    }
-}
-
-project('web:servlet') {
+project('servlet') {
 
     dependencies {
         compile project(':qbit:boon')
@@ -191,7 +179,7 @@ project('web:servlet') {
     }
 }
 
-project('web:vertx') {
+project('vertx') {
 
     ext {
         vertxVersion = '2.1.1'
@@ -217,27 +205,13 @@ project('web:vertx') {
     }
 }
 
-project('cluster') {
-
-    test.onlyIf { Boolean.getBoolean('integration.tests') }
-    uploadArchives {
-        repositories {
-            mavenDeployer {
-                pom.project {
-                    description 'libraries for running qbit in a cluster'
-                }
-            }
-        }
-    }
-}
-
-project('cluster:consul-client') {
+project('consul-client') {
 
 
     test.onlyIf { Boolean.getBoolean('integration.tests') }
 
     dependencies {
-        compile project(":qbit:web:vertx")
+        compile project(":qbit:vertx")
     }
 
     uploadArchives {
@@ -251,17 +225,17 @@ project('cluster:consul-client') {
     }
 }
 
-project('cluster:admin') {
+project('admin') {
 
 
     test.onlyIf { Boolean.getBoolean('integration.tests') }
     dependencies {
         compile project(':qbit:boon')
-        compile project(':qbit:cluster:consul-client')
+        compile project(':qbit:consul-client')
         compile project(':qbit:core')
-        testCompile project(':qbit:cluster:consul-client')
+        testCompile project(':qbit:consul-client')
         testCompile project(':qbit:test-support')
-        compile project(":qbit:web:vertx")
+        compile project(":qbit:vertx")
     }
 
     uploadArchives {
@@ -275,15 +249,38 @@ project('cluster:admin') {
     }
 }
 
-project('cluster:eventbus-replicator') {
+project('spring') {
+
+    test.onlyIf { Boolean.getBoolean('integration.tests') }
+    dependencies {
+        compile project(':qbit:vertx')
+        compile project(':qbit:admin')
+        compile project(':qbit:consul-client')
+        compile project(":qbit:eventbus-replicator")
+        compile "org.springframework.boot:spring-boot-starter:1.2.5.RELEASE"
+        testCompile project(':qbit:test-support')
+    }
+
+    uploadArchives {
+        repositories {
+            mavenDeployer {
+                pom.project {
+                    description 'Spring support for QBit'
+                }
+            }
+        }
+    }
+}
+
+project('eventbus-replicator') {
 
     test.onlyIf { Boolean.getBoolean('integration.tests') }
 
     dependencies {
         compile project(':qbit:boon')
         compile project(':qbit:core')
-        compile project(':qbit:cluster:consul-client')
-        compile project(":qbit:web:vertx")
+        compile project(':qbit:consul-client')
+        compile project(":qbit:vertx")
         testCompile project(':qbit:test-support')
     }
 
