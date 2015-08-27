@@ -18,16 +18,17 @@
 
 package io.advantageous.qbit.vertx.http.server;
 
+import io.advantageous.qbit.http.request.HttpResponseCreator;
+import io.advantageous.qbit.http.request.HttpResponseDecorator;
 import io.advantageous.qbit.http.config.HttpServerOptions;
 import io.advantageous.qbit.http.server.HttpServer;
-import io.advantageous.qbit.queue.QueueBuilder;
 import io.advantageous.qbit.service.discovery.ServiceDiscovery;
 import io.advantageous.qbit.service.health.HealthServiceAsync;
 import io.advantageous.qbit.spi.HttpServerFactory;
 import io.advantageous.qbit.system.QBitSystemManager;
-import io.advantageous.qbit.vertx.http.server.HttpServerVertx;
 import io.advantageous.qbit.vertx.http.util.VertxCreate;
 
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -43,12 +44,14 @@ public class HttpServerVertxFactory implements HttpServerFactory {
                              final ServiceDiscovery serviceDiscovery,
                              final HealthServiceAsync healthServiceAsync,
                              final int serviceDiscoveryTtl,
-                             final TimeUnit serviceDiscoveryTtlTimeUnit) {
+                             final TimeUnit serviceDiscoveryTtlTimeUnit,
+                             final CopyOnWriteArrayList<HttpResponseDecorator> decorators,
+                             final HttpResponseCreator httpResponseCreator) {
 
 
         return new HttpServerVertx(VertxCreate.newVertx(), endPointName, options,
                 systemManager, serviceDiscovery, healthServiceAsync,
-                serviceDiscoveryTtl, serviceDiscoveryTtlTimeUnit);
+                serviceDiscoveryTtl, serviceDiscoveryTtlTimeUnit, decorators, httpResponseCreator);
 
     }
 }

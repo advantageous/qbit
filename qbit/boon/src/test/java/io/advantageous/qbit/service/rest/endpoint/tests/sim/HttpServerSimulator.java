@@ -2,14 +2,14 @@ package io.advantageous.qbit.service.rest.endpoint.tests.sim;
 
 import io.advantageous.boon.core.Sys;
 import io.advantageous.boon.json.JsonFactory;
-import io.advantageous.qbit.http.request.HttpRequest;
-import io.advantageous.qbit.http.request.HttpRequestBuilder;
-import io.advantageous.qbit.http.request.HttpTextResponse;
+import io.advantageous.qbit.http.request.*;
+import io.advantageous.qbit.http.request.impl.HttpResponseCreatorDefault;
 import io.advantageous.qbit.http.server.HttpServer;
 import io.advantageous.qbit.http.server.websocket.WebSocketMessage;
 import io.advantageous.qbit.util.MultiMap;
 
 import java.util.Map;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
@@ -21,6 +21,17 @@ public class HttpServerSimulator implements HttpServer {
     private Consumer<HttpRequest> httpRequestConsumer;
     private Consumer<Void> idleConsumer;
     private Predicate<HttpRequest> predicate;
+
+    private  CopyOnWriteArrayList<HttpResponseDecorator> decorators = new CopyOnWriteArrayList<>();
+
+
+    private final HttpResponseCreator httpResponseCreator = new HttpResponseCreatorDefault();
+
+
+    public void addDecorator(HttpResponseDecorator decorator) {
+        decorators.add(decorator);
+    }
+
 
 
     public final HttpTextResponse get(String uri) {
@@ -89,17 +100,29 @@ public class HttpServerSimulator implements HttpServer {
         }
     }
 
-    private AtomicReference<HttpTextResponse> getHttpResponseAtomicReference(HttpRequestBuilder httpRequestBuilder) {
+    private AtomicReference<HttpTextResponse> getHttpResponseAtomicReference(final HttpRequestBuilder httpRequestBuilder) {
         final AtomicReference<HttpTextResponse> response = new AtomicReference<>();
         final CountDownLatch latch = new CountDownLatch(1);
 
-        httpRequestBuilder.setTextReceiver((code, contentType, body) ->
+        httpRequestBuilder.setTextReceiver(
 
-                {
 
-                    response.set(createResponse(code, contentType, body));
-                    latch.countDown();
-                }
+        new HttpTextReceiver() {
+
+
+            public void response(int code, String contentType, String body, MultiMap<String, String> headers) {
+                response.set(HttpServerSimulator.this.createResponse(httpRequestBuilder, code, contentType, body, headers));
+                latch.countDown();
+            }
+
+            @Override
+            public void response(int code, String contentType, String body) {
+
+                response.set(HttpServerSimulator.this.createResponse(httpRequestBuilder, code, contentType, body, null));
+                latch.countDown();
+            }
+
+        }
 
         );
 
@@ -118,29 +141,23 @@ public class HttpServerSimulator implements HttpServer {
         return response;
     }
 
-    private HttpTextResponse createResponse(int code, String contentType, String body) {
-        return new HttpTextResponse() {
+    private HttpTextResponse createResponse(HttpRequestBuilder httpRequestBuilder,
+                                            int code,
+                                            String contentType,
+                                            String body,
+                                            MultiMap<String, String> headers) {
 
-            @Override
-            public MultiMap<String, String> headers() {
-                return MultiMap.empty();
-            }
 
-            @Override
-            public int code() {
-                return code;
-            }
+        HttpTextResponse httpTextResponse = (HttpTextResponse) httpResponseCreator.createResponse(decorators,
+                httpRequestBuilder.getUri(), code, contentType,
+                body, headers, httpRequestBuilder.getHeaders(), httpRequestBuilder.getParams());
 
-            @Override
-            public String contentType() {
-                return contentType;
-            }
+        if (httpTextResponse == null) {
+            httpTextResponse = (HttpTextResponse) HttpResponseBuilder.httpResponseBuilder().setBody(body)
+                    .setCode(code).setContentType(contentType).setHeaders(headers).build();
+        }
 
-            @Override
-            public String body() {
-                return body;
-            }
-        };
+        return httpTextResponse;
     }
 
     @Override
@@ -178,5 +195,9 @@ public class HttpServerSimulator implements HttpServer {
     @Override
     public void setShouldContinueHttpRequest(Predicate<HttpRequest> predicate) {
         this.predicate = predicate;
+    }
+
+    public void setResponseDecorators(CopyOnWriteArrayList<HttpResponseDecorator> responseDecorators) {
+        this.decorators = responseDecorators;
     }
 }

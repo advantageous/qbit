@@ -23,6 +23,8 @@ import io.advantageous.qbit.concurrent.PeriodicScheduler;
 import io.advantageous.qbit.events.EventBusProxyCreator;
 import io.advantageous.qbit.events.EventManager;
 import io.advantageous.qbit.events.spi.EventConnector;
+import io.advantageous.qbit.http.request.HttpResponseCreator;
+import io.advantageous.qbit.http.request.HttpResponseDecorator;
 import io.advantageous.qbit.http.HttpTransport;
 import io.advantageous.qbit.http.client.HttpClient;
 import io.advantageous.qbit.http.config.HttpServerOptions;
@@ -52,6 +54,7 @@ import io.advantageous.qbit.util.MultiMap;
 import io.advantageous.qbit.util.Timer;
 
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -382,12 +385,14 @@ public interface Factory {
                                         ServiceDiscovery serviceDiscovery,
                                         HealthServiceAsync healthServiceAsync,
                                         final int serviceDiscoveryTtl,
-                                        final TimeUnit serviceDiscoveryTtlTimeUnit) {
+                                        final TimeUnit serviceDiscoveryTtlTimeUnit,
+                                        final CopyOnWriteArrayList<HttpResponseDecorator> decorators,
+                                        final HttpResponseCreator httpResponseCreator) {
 
 
         return FactorySPI.getHttpServerFactory().create(options, endpointName,
                 systemManager, serviceDiscovery, healthServiceAsync,
-                serviceDiscoveryTtl, serviceDiscoveryTtlTimeUnit);
+                serviceDiscoveryTtl, serviceDiscoveryTtlTimeUnit, decorators, httpResponseCreator);
     }
 
 

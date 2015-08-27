@@ -25,14 +25,13 @@ import io.advantageous.qbit.client.Client;
 import io.advantageous.qbit.client.ClientBuilder;
 import io.advantageous.qbit.http.client.HttpClient;
 import io.advantageous.qbit.http.client.HttpClientBuilder;
-import io.advantageous.qbit.http.request.HttpRequest;
-import io.advantageous.qbit.http.request.HttpRequestBuilder;
-import io.advantageous.qbit.http.request.HttpTextReceiver;
+import io.advantageous.qbit.http.request.*;
 import io.advantageous.qbit.reactive.Callback;
 import io.advantageous.qbit.server.EndpointServerBuilder;
 import io.advantageous.qbit.server.ServiceEndpointServer;
 import io.advantageous.qbit.service.ServiceProxyUtils;
 import io.advantageous.qbit.test.TimedTesting;
+import io.advantageous.qbit.util.MultiMap;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -41,6 +40,8 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import static io.advantageous.boon.core.Exceptions.die;
 import static io.advantageous.boon.core.IO.puts;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 
 /**
@@ -54,6 +55,8 @@ public class SupportingGetAndPostForSameServicesUnderSameURI extends TimedTestin
     ClientServiceInterface clientProxy;
     volatile int callCount;
     AtomicReference<String> pongValue;
+
+    AtomicReference<MultiMap<String, String>> headers;
     boolean ok;
     int port = 8888;
 
@@ -124,6 +127,18 @@ public class SupportingGetAndPostForSameServicesUnderSameURI extends TimedTestin
 
                         }
                     }
+
+                    @Override
+                    public void response(int code, String mimeType, String body, MultiMap<String, String> theHeaders) {
+                        if (code == 200) {
+                            pongValue.set(body);
+                        } else {
+                            pongValue.set("ERROR " + body);
+                            throw new RuntimeException("ERROR " + code + " " + body);
+
+                        }
+                        headers.set(theHeaders);
+                    }
                 })
                 .build();
 
@@ -138,6 +153,10 @@ public class SupportingGetAndPostForSameServicesUnderSameURI extends TimedTestin
         final String pongValue = this.pongValue.get();
         ok = pongValue.equals("\"pong\"") || die(pongValue);
 
+        assertNotNull(headers.get());
+
+        assertEquals("TEST", headers.get().get("TEST_HEADER"));
+
     }
 
     @Before
@@ -146,10 +165,34 @@ public class SupportingGetAndPostForSameServicesUnderSameURI extends TimedTestin
 
         pongValue = new AtomicReference<>();
 
+        headers = new AtomicReference<>();
+
         httpClient = new HttpClientBuilder().setPort(port).build();
 
         client = new ClientBuilder().setPort(port).build();
-        server = new EndpointServerBuilder().setPort(port).build();
+
+        EndpointServerBuilder endpointServerBuilder = EndpointServerBuilder.endpointServerBuilder();
+
+        endpointServerBuilder.setPort(port).getHttpServerBuilder();
+        endpointServerBuilder.getHttpServerBuilder().addResponseDecorator(new HttpResponseDecorator() {
+            @Override
+            public boolean decorateTextResponse(HttpTextResponse[] responseHolder, String requestPath, int code,
+                                                String contentType, String payload, MultiMap<String, String> responseHeaders,
+                                                MultiMap<String, String> requestHeaders, MultiMap<String, String> requestParams) {
+
+                responseHolder[0] = (HttpTextResponse) HttpResponseBuilder.httpResponseBuilder().setCode(code).setContentType(contentType)
+                        .addHeader("TEST_HEADER", "TEST").setBody(payload).build();
+                return true;
+            }
+
+            @Override
+            public boolean decorateBinaryResponse(HttpBinaryResponse[] responseHolder, String requestPath, int code, String contentType, byte[] payload, MultiMap<String, String> responseHeaders, MultiMap<String, String> requestHeaders, MultiMap<String, String> requestParams) {
+                return false;
+            }
+        });
+
+
+        server = endpointServerBuilder.build();
 
         server.initServices(new MockService());
 

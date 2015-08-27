@@ -23,6 +23,8 @@ import io.advantageous.boon.core.Str;
 import io.advantageous.boon.core.reflection.BeanUtils;
 import io.advantageous.qbit.GlobalConstants;
 import io.advantageous.qbit.http.HttpContentTypes;
+import io.advantageous.qbit.http.request.HttpResponseCreator;
+import io.advantageous.qbit.http.request.HttpResponseDecorator;
 import io.advantageous.qbit.http.config.HttpServerOptions;
 import io.advantageous.qbit.http.request.HttpRequest;
 import io.advantageous.qbit.http.server.HttpServer;
@@ -33,7 +35,6 @@ import io.advantageous.qbit.service.discovery.ServiceDiscovery;
 import io.advantageous.qbit.service.health.HealthServiceAsync;
 import io.advantageous.qbit.system.QBitSystemManager;
 import io.advantageous.qbit.util.Timer;
-import io.advantageous.qbit.vertx.http.util.VertxCreate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.vertx.java.core.Vertx;
@@ -41,6 +42,7 @@ import org.vertx.java.core.buffer.Buffer;
 import org.vertx.java.core.http.HttpServerRequest;
 import org.vertx.java.core.http.ServerWebSocket;
 
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
@@ -78,11 +80,14 @@ public class HttpServerVertx implements HttpServer {
                            final ServiceDiscovery serviceDiscovery,
                            final HealthServiceAsync healthServiceAsync,
                            final int serviceDiscoveryTtl,
-                           final TimeUnit serviceDiscoveryTtlTimeUnit) {
+                           final TimeUnit serviceDiscoveryTtlTimeUnit,
+                           final CopyOnWriteArrayList<HttpResponseDecorator> decorators,
+                           final HttpResponseCreator httpResponseCreator) {
 
         this.simpleHttpServer = new SimpleHttpServer(endpointName, systemManager,
                 options.getFlushInterval(), options.getPort(), serviceDiscovery,
-                healthServiceAsync, serviceDiscoveryTtl, serviceDiscoveryTtlTimeUnit);
+                healthServiceAsync, serviceDiscoveryTtl, serviceDiscoveryTtlTimeUnit,
+                decorators, httpResponseCreator);
         this.vertx = vertx;
         this.systemManager = systemManager;
         this.port = options.getPort();
@@ -215,7 +220,8 @@ public class HttpServerVertx implements HttpServer {
                     request.expectMultiPart(true);
                     request.endHandler(event -> {
 
-                        final HttpRequest postRequest = vertxUtils.createRequest(request, null);
+                        final HttpRequest postRequest = vertxUtils.createRequest(request, null,
+                                simpleHttpServer.getDecorators(), simpleHttpServer.getHttpResponseCreator());
 
                         simpleHttpServer.handleRequest(postRequest);
 
@@ -224,7 +230,8 @@ public class HttpServerVertx implements HttpServer {
                 } else {
 
                     request.bodyHandler((Buffer buffer) -> {
-                        final HttpRequest postRequest = vertxUtils.createRequest(request, buffer);
+                        final HttpRequest postRequest = vertxUtils.createRequest(request, buffer,
+                                simpleHttpServer.getDecorators(), simpleHttpServer.getHttpResponseCreator());
 
                         simpleHttpServer.handleRequest(postRequest);
 
@@ -238,7 +245,8 @@ public class HttpServerVertx implements HttpServer {
             case "DELETE":
             case "GET":
                 final HttpRequest getRequest;
-                getRequest = vertxUtils.createRequest(request, null);
+                getRequest = vertxUtils.createRequest(request, null,
+                        simpleHttpServer.getDecorators(), simpleHttpServer.getHttpResponseCreator());
                 simpleHttpServer.handleRequest(getRequest);
                 break;
 
@@ -283,6 +291,7 @@ public class HttpServerVertx implements HttpServer {
     public void setWebSocketOnOpenConsumer(Consumer<WebSocket> onOpenConsumer) {
         this.simpleHttpServer.setWebSocketOnOpenConsumer(onOpenConsumer);
     }
+
 
 
 }

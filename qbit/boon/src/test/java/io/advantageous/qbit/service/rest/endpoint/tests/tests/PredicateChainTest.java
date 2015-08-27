@@ -1,6 +1,9 @@
 package io.advantageous.qbit.service.rest.endpoint.tests.tests;
 
 import io.advantageous.boon.core.Lists;
+import io.advantageous.qbit.http.request.HttpBinaryResponse;
+import io.advantageous.qbit.http.request.HttpResponseBuilder;
+import io.advantageous.qbit.http.request.HttpResponseDecorator;
 import io.advantageous.qbit.http.request.HttpTextResponse;
 import io.advantageous.qbit.http.server.HttpServerBuilder;
 import io.advantageous.qbit.server.EndpointServerBuilder;
@@ -9,12 +12,15 @@ import io.advantageous.qbit.service.rest.endpoint.tests.model.Employee;
 import io.advantageous.qbit.service.rest.endpoint.tests.services.EmployeeServiceCollectionTestService;
 import io.advantageous.qbit.service.rest.endpoint.tests.sim.HttpServerSimulator;
 import io.advantageous.qbit.spi.FactorySPI;
+import io.advantageous.qbit.util.MultiMap;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static junit.framework.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 
 public class PredicateChainTest {
@@ -29,8 +35,13 @@ public class PredicateChainTest {
         httpServerSimulator = new HttpServerSimulator();
 
         FactorySPI.setHttpServerFactory((options, endPointName, systemManager, serviceDiscovery,
-                                         healthServiceAsync, serviceDiscoveryTtl, serviceDiscoveryTtlTimeUnit)
-                -> httpServerSimulator);
+                                         healthServiceAsync, serviceDiscoveryTtl, serviceDiscoveryTtlTimeUnit,
+                                         decorators, httpResponseCreator)
+                -> {
+
+            httpServerSimulator.setResponseDecorators(decorators);
+            return
+            httpServerSimulator;});
 
 
         serviceEndpointServer = EndpointServerBuilder.endpointServerBuilder()
@@ -62,6 +73,58 @@ public class PredicateChainTest {
 
 
         assertNull(httpResponse);
+    }
+
+
+    @Test
+    public void testResponseDecorator() {
+
+
+        EndpointServerBuilder endpointServerBuilder = EndpointServerBuilder.endpointServerBuilder()
+                .setEnableHealthEndpoint(true).setEnableStatEndpoint(true);
+
+        HttpServerBuilder httpServerBuilder = endpointServerBuilder.getHttpServerBuilder();
+
+        httpServerBuilder.addResponseDecorator(new HttpResponseDecorator() {
+            @Override
+            public boolean decorateTextResponse(HttpTextResponse[] responseHolder, String requestPath,
+                                                int code, String contentType, String payload,
+                                                MultiMap<String, String> responseHeaders,
+                                                MultiMap<String, String> requestHeaders,
+                                                MultiMap<String, String> requestParams) {
+
+                responseHolder[0] = (HttpTextResponse) HttpResponseBuilder.httpResponseBuilder()
+                        .setCode(999).setContentType("foo/bar").addHeader("foo", "bar").setBody("DECORATED" + payload).build();
+                return true;
+            }
+
+            @Override
+            public boolean decorateBinaryResponse(HttpBinaryResponse[] responseHolder, String requestPath, int code, String contentType, byte[] payload, MultiMap<String, String> responseHeaders, MultiMap<String, String> requestHeaders, MultiMap<String, String> requestParams) {
+                return false;
+            }
+        });
+
+        serviceEndpointServer  = endpointServerBuilder.addService(new EmployeeServiceCollectionTestService()).build();
+
+        serviceEndpointServer.startServer();
+
+
+        final HttpTextResponse httpResponse = httpServerSimulator.postBody("/es/sendEmployees",
+                Lists.list(new Employee(1, "Rick"),
+                        new Employee(2, "Diana")));
+
+
+        assertNotNull(httpResponse);
+
+        Assert.assertEquals(999, httpResponse.code());
+
+        Assert.assertTrue(httpResponse.headers().keySet().contains("foo"));
+
+
+        Assert.assertEquals("bar", httpResponse.headers().getFirst("foo"));
+
+
+        System.out.println(httpResponse);
     }
 
 

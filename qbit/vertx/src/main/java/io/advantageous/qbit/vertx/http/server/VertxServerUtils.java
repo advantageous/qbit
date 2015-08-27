@@ -21,8 +21,10 @@ package io.advantageous.qbit.vertx.http.server;
 import io.advantageous.boon.core.Str;
 import io.advantageous.boon.core.StringScanner;
 import io.advantageous.qbit.http.HttpContentTypes;
-import io.advantageous.qbit.http.HttpStatus;
+import io.advantageous.qbit.http.request.HttpResponseCreator;
+import io.advantageous.qbit.http.request.HttpResponseDecorator;
 import io.advantageous.qbit.http.request.HttpRequest;
+import io.advantageous.qbit.http.request.HttpRequestBuilder;
 import io.advantageous.qbit.http.request.HttpResponseReceiver;
 import io.advantageous.qbit.http.websocket.WebSocket;
 import io.advantageous.qbit.http.websocket.WebSocketSender;
@@ -39,10 +41,8 @@ import org.vertx.java.core.http.ServerWebSocket;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
-import java.nio.charset.StandardCharsets;
-import java.util.Collection;
-import java.util.Map;
-import java.util.function.Consumer;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.atomic.AtomicLong;
 
 import static io.advantageous.boon.core.Str.sputs;
 import static io.advantageous.qbit.http.websocket.WebSocketBuilder.webSocketBuilder;
@@ -51,32 +51,20 @@ import static io.advantageous.qbit.http.websocket.WebSocketBuilder.webSocketBuil
 public class VertxServerUtils {
     private final Logger logger = LoggerFactory.getLogger(VertxServerUtils.class);
 
-    private volatile long requestId;
+    private AtomicLong requestId = new AtomicLong();
     private volatile long time;
 
-    private static Buffer createBuffer(Object body, HttpServerResponse response) {
-        Buffer buffer = null;
-
-        if (body instanceof byte[]) {
-            byte[] bBody = ((byte[]) body);
-            response.putHeader("Content-Length", String.valueOf(bBody.length));
-            buffer = new Buffer(bBody);
-        } else if (body instanceof String) {
-            String sBody = ((String) body);
-            byte[] bBody = sBody.getBytes(StandardCharsets.UTF_8);
-            response.putHeader("Content-Length", String.valueOf(bBody.length));
-            buffer = new Buffer(bBody);
-        }
-        return buffer;
-    }
 
     public void setTime(long time) {
         this.time = time;
     }
 
-    public HttpRequest createRequest(final HttpServerRequest request, final Buffer buffer) {
+    public HttpRequest createRequest(final HttpServerRequest request, final Buffer buffer,
+                                     final CopyOnWriteArrayList<HttpResponseDecorator> decorators,
+                                     final HttpResponseCreator httpResponseCreator) {
 
-        final MultiMap<String, String> headers = request.headers().size() == 0 ? MultiMap.empty() : new MultiMapWrapper(request.headers());
+        final MultiMap<String, String> headers = request.headers().size() == 0 ? MultiMap.empty() :
+                new MultiMapWrapper(request.headers());
 
         final String contentType = request.headers().get("Content-Type");
 
@@ -88,9 +76,20 @@ public class VertxServerUtils {
 
         final MultiMap<String, String> params = buildParams(request, contentType);
 
-        return new HttpRequest(requestId++, request.path(), request.method(), params, headers, body,
-                request.remoteAddress().toString(),
-                contentType, createResponse(request.response()), time == 0L ? Timer.timer().now() : time);
+        final HttpRequestBuilder httpRequestBuilder = HttpRequestBuilder.httpRequestBuilder();
+
+        final String requestPath = request.path();
+
+        httpRequestBuilder.setId(requestId.incrementAndGet())
+                .setUri(requestPath).setMethod(request.method())
+                .setParams(params).setBodyBytes(body)
+                .setRemoteAddress(request.remoteAddress().toString())
+                .setResponse(createResponse(requestPath, headers, params, request.response(), decorators, httpResponseCreator))
+                .setTimestamp(time == 0L ? Timer.timer().now() : time)
+                .setHeaders(headers);
+
+
+        return httpRequestBuilder.build();
     }
 
     private MultiMap<String, String> buildParams(final HttpServerRequest request,
@@ -119,35 +118,13 @@ public class VertxServerUtils {
 
     }
 
-    private HttpResponseReceiver createResponse(final HttpServerResponse response) {
+    private HttpResponseReceiver createResponse(
+            final String requestPath,
+            MultiMap<String, String> headers, MultiMap<String, String> params, final HttpServerResponse response,
+            final CopyOnWriteArrayList<HttpResponseDecorator> decorators,
+            final HttpResponseCreator httpResponseCreator) {
 
-        return new HttpResponseReceiver<Object>() {
-
-            @Override
-            public void response(int code, String contentType, Object body) {
-
-                response(code, contentType, body, MultiMap.empty());
-            }
-
-            @Override
-            public void response(final int code, final String contentType, final Object body, final MultiMap<String, String> headers) {
-
-
-                if (!headers.isEmpty()) {
-                    for (Map.Entry<String, Collection<String>> entry : headers) {
-                        response.putHeader(entry.getKey(), entry.getValue());
-                    }
-                }
-
-                response.putHeader("Content-Type", contentType);
-                response.setStatusCode(code);
-                response.setStatusMessage(HttpStatus.message(code));
-
-
-                Buffer buffer = createBuffer(body, response);
-                response.end(buffer);
-            }
-        };
+        return new VertxHttpResponseReceiver(requestPath, headers, params, response, decorators, httpResponseCreator);
 
     }
 

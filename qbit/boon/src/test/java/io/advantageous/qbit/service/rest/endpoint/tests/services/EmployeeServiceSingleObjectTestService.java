@@ -2,6 +2,8 @@ package io.advantageous.qbit.service.rest.endpoint.tests.services;
 
 import io.advantageous.qbit.annotation.RequestMapping;
 import io.advantageous.qbit.annotation.RequestMethod;
+import io.advantageous.qbit.http.request.HttpResponseBuilder;
+import io.advantageous.qbit.http.request.HttpTextResponse;
 import io.advantageous.qbit.reactive.Callback;
 import io.advantageous.qbit.service.rest.endpoint.tests.model.Employee;
 
@@ -90,6 +92,17 @@ public class EmployeeServiceSingleObjectTestService {
 
     }
 
+
+    @RequestMapping("/returnEmployeeCallback2")
+    public void returnEmployeeWithCallback2(Callback<HttpTextResponse> employeeCallback) {
+
+        HttpTextResponse response = (HttpTextResponse) HttpResponseBuilder.httpResponseBuilder()
+                .setBody("" + new Employee(1, "Rick"))
+                .setContentType("crap/crap").setCode(777).build();
+
+        employeeCallback.returnThis(response);
+
+    }
 
 
 

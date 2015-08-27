@@ -19,8 +19,10 @@
 package io.advantageous.qbit.http.server.impl;
 
 import io.advantageous.qbit.GlobalConstants;
-import io.advantageous.qbit.client.ServiceProxyFactory;
 import io.advantageous.qbit.concurrent.ExecutorContext;
+import io.advantageous.qbit.http.request.HttpResponseCreator;
+import io.advantageous.qbit.http.request.impl.HttpResponseCreatorDefault;
+import io.advantageous.qbit.http.request.HttpResponseDecorator;
 import io.advantageous.qbit.http.request.HttpRequest;
 import io.advantageous.qbit.http.server.HttpServer;
 import io.advantageous.qbit.http.server.websocket.WebSocketMessage;
@@ -37,6 +39,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.nio.charset.StandardCharsets;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
@@ -62,6 +65,11 @@ public class SimpleHttpServer implements HttpServer {
     private final String name;
     private final int port;
     private final long checkInEveryMiliDuration;
+    private final CopyOnWriteArrayList<HttpResponseDecorator> decorators;
+
+
+    private final HttpResponseCreator httpResponseCreator;
+
 
     private Consumer<WebSocketMessage> webSocketMessageConsumer = webSocketMessage -> {
     };
@@ -84,12 +92,16 @@ public class SimpleHttpServer implements HttpServer {
     public SimpleHttpServer(
             final String endpointName,
             final QBitSystemManager systemManager,
-                            final int flushInterval,
-                            final int port,
-                            final ServiceDiscovery serviceDiscovery,
-                            final HealthServiceAsync healthServiceAsync,
-                            final int serviceDiscoveryTtl,
-                            final TimeUnit serviceDiscoveryTtlTimeUnit) {
+            final int flushInterval,
+            final int port,
+            final ServiceDiscovery serviceDiscovery,
+            final HealthServiceAsync healthServiceAsync,
+            final int serviceDiscoveryTtl,
+            final TimeUnit serviceDiscoveryTtlTimeUnit,
+            final CopyOnWriteArrayList<HttpResponseDecorator> decorators,
+            final HttpResponseCreator httpResponseCreator) {
+        this.decorators = decorators;
+        this.httpResponseCreator = httpResponseCreator;
 
 
         this.name = endpointName == null ? "HTTP_SERVER_" + port : endpointName;
@@ -128,6 +140,8 @@ public class SimpleHttpServer implements HttpServer {
         this.healthServiceAsync = null;
         this.endpointDefinition = null;
         this.checkInEveryMiliDuration = 100_000;
+        this.decorators = new CopyOnWriteArrayList<>();
+        this.httpResponseCreator = new HttpResponseCreatorDefault();
     }
 
     /**
@@ -361,4 +375,14 @@ public class SimpleHttpServer implements HttpServer {
     public void setWebSocketOnOpenConsumer(Consumer<WebSocket> onOpenConsumer) {
         this.webSocketConsumer = onOpenConsumer;
     }
+
+    public CopyOnWriteArrayList<HttpResponseDecorator> getDecorators() {
+        return decorators;
+    }
+
+
+    public HttpResponseCreator getHttpResponseCreator() {
+        return httpResponseCreator;
+    }
+
 }

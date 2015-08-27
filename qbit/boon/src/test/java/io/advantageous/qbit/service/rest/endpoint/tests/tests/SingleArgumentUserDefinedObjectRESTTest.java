@@ -28,7 +28,7 @@ public class SingleArgumentUserDefinedObjectRESTTest {
 
 
         FactorySPI.setHttpServerFactory((options, endPointName, systemManager, serviceDiscovery,
-                                         healthServiceAsync, serviceDiscoveryTtl, serviceDiscoveryTtlTimeUnit)
+                                         healthServiceAsync, serviceDiscoveryTtl, serviceDiscoveryTtlTimeUnit, a, b)
                 -> httpServerSimulator);
 
         serviceEndpointServer = EndpointServerBuilder.endpointServerBuilder()
@@ -134,6 +134,22 @@ public class SingleArgumentUserDefinedObjectRESTTest {
         assertEquals(1, employee.getId());
 
         assertEquals("Rick", employee.getName());
+
+    }
+
+
+    @Test
+    public void returnEmployeeCallback2() {
+        final HttpTextResponse httpResponse = httpServerSimulator.get("/es/returnEmployeeCallback2");
+
+        assertEquals(777, httpResponse.code());
+
+
+        assertEquals("crap/crap", httpResponse.contentType());
+
+        assertEquals("Employee{id=1, name='Rick'}", httpResponse.body());
+
+        puts(httpResponse);
 
     }
 
