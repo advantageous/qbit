@@ -96,7 +96,7 @@ and the Mechnical Sympathy papers.
 QBit has ideas that are similar to many frameworks. We are all reading the same papers.
 QBit got inspiration from the LMAX disruptor papers and this blog post about
 [link transfer queue versus disruptor](http://php.sabscape.com/blog/?p=557). We had some theories about
-queues that blog post insprired us to try them out. Some of these theories are deployed at some of the
+queues that blog post inspired us to try them out. Some of these theories are deployed at some of the
 biggest middleware backends and whose name brands are known around the world. And thus QBit was born.
 
 QBit also took an lot of inspiration by the great work done
