@@ -94,12 +94,12 @@ If the count at flush is 0 then you can opt to send no metric at all for this se
 
 
     @SuppressWarnings("UnusedReturnValue")
-    public boolean timing(String key, int value) {
+    public boolean timing(String key, long value) {
 
         return timing(key, value, 1.0);
     }
 
-    public boolean timing(String key, int value, double sampleRate) {
+    public boolean timing(String key, long value, double sampleRate) {
         return send(sampleRate, String.format(Locale.ENGLISH, "%s:%d|ms", key, value));
     }
 
@@ -135,17 +135,17 @@ If the count at flush is 0 then you can opt to send no metric at all for this se
     }
 
     @SuppressWarnings("UnusedReturnValue")
-    public boolean increment(String key, int magnitude) {
+    public boolean increment(String key, long magnitude) {
 
         return increment(key, magnitude, 1.0);
     }
 
-    public boolean increment(String key, int magnitude, double sampleRate) {
+    public boolean increment(String key, long magnitude, double sampleRate) {
         String stat = String.format(Locale.ENGLISH, "%s:%s|c", key, magnitude);
         return send(sampleRate, stat);
     }
 
-    public boolean increment(int magnitude, double sampleRate, String... keys) {
+    public boolean increment(long magnitude, double sampleRate, String... keys) {
         String[] stats = new String[keys.length];
         for (int i = 0; i < keys.length; i++) {
             stats[i] = String.format(Locale.ENGLISH, "%s:%s|c", keys[i], magnitude);
@@ -282,7 +282,7 @@ If the count at flush is 0 then you can opt to send no metric at all for this se
     }
 
     @Override
-    public void replicateCount(final String name, final int count, final long time) {
+    public void replicateCount(final String name, final long count, final long time) {
         if (count == 0) {
             return;
         }
@@ -298,7 +298,7 @@ If the count at flush is 0 then you can opt to send no metric at all for this se
     }
 
     @Override
-    public void replicateLevel(final String name, final int level, final long time) {
+    public void replicateLevel(final String name, final long level, final long time) {
 
 
         Metric localCount = countMap.get(name);
@@ -318,7 +318,7 @@ If the count at flush is 0 then you can opt to send no metric at all for this se
     }
 
     @Override
-    public void replicateTiming(String name, int timed, long time) {
+    public void replicateTiming(String name, long timed, long time) {
 
 
         /* A 0 timing is not useful. */
@@ -395,7 +395,7 @@ If the count at flush is 0 then you can opt to send no metric at all for this se
 
     final static class Metric {
 
-        int value;
+        long value;
         final String name;
         final MetricType type;
 

@@ -1,12 +1,11 @@
 package io.advantageous.qbit.metrics.support;
 
-import io.advantageous.boon.primitive.Int;
+import io.advantageous.boon.primitive.Lng;
 
 import java.util.AbstractList;
 import java.util.Arrays;
 
-import static io.advantageous.boon.primitive.Int.bigSum;
-import static io.advantageous.boon.primitive.Int.varianceDouble;
+import static io.advantageous.boon.primitive.Lng.varianceDouble;
 
 /**
  * Holds primitive values in a list like object for ints.
@@ -18,13 +17,13 @@ import static io.advantageous.boon.primitive.Int.varianceDouble;
  *
  * @author Rick Hightower
  */
-public class StatList extends AbstractList<Integer> {
+public class StatList extends AbstractList<Long> {
 
 
     /**
      * Values in this list.
      */
-    private int[] values;
+    private long[] values;
     /**
      * Index of last value added.
      */
@@ -36,7 +35,7 @@ public class StatList extends AbstractList<Integer> {
      * @param capacity capacity
      */
     public StatList(final int capacity) {
-        this.values = new int[capacity];
+        this.values = new long[capacity];
     }
 
 
@@ -44,7 +43,7 @@ public class StatList extends AbstractList<Integer> {
      * Create a new list with exactly 10 items in it.
      */
     public StatList() {
-        this.values = new int[10];
+        this.values = new long[10];
     }
 
 
@@ -53,19 +52,19 @@ public class StatList extends AbstractList<Integer> {
      *
      * @param values values
      */
-    public StatList(int values[]) {
+    public StatList(long values[]) {
         this.values = values;
         this.end = values.length;
     }
 
-    private static double meanDouble(int[] values, final int start, final int length) {
+    private static double meanDouble(long[] values, final int start, final int length) {
         //noinspection UnnecessaryLocalVariable
         @SuppressWarnings("UnnecessaryLocalVariable") double mean = ((double) bigSum(values, start, length)) / ((double) length);
         return mean;
     }
 
     public void clear() {
-        this.values = new int[10];
+        this.values = new long[10];
         this.end = 0;
     }
 
@@ -76,7 +75,7 @@ public class StatList extends AbstractList<Integer> {
      * @return value
      */
     @Override
-    public Integer get(int index) {
+    public Long get(int index) {
         return values[index];
     }
 
@@ -86,7 +85,7 @@ public class StatList extends AbstractList<Integer> {
      * @param index index
      * @return value
      */
-    public final int getInt(int index) {
+    public final long getLong(int index) {
         return values[index];
     }
 
@@ -97,9 +96,9 @@ public class StatList extends AbstractList<Integer> {
      * @return was able to add.
      */
     @Override
-    public boolean add(Integer integer) {
+    public boolean add(Long integer) {
         if (end + 1 >= values.length) {
-            values = Int.grow(values);
+            values = Lng.grow(values);
         }
         values[end] = integer;
         end++;
@@ -112,9 +111,9 @@ public class StatList extends AbstractList<Integer> {
      * @param integer new value
      * @return was able to add.
      */
-    public boolean addInt(int integer) {
+    public boolean addLong(int integer) {
         if (end + 1 >= values.length) {
-            values = Int.grow(values);
+            values = Lng.grow(values);
         }
         values[end] = integer;
         end++;
@@ -130,7 +129,7 @@ public class StatList extends AbstractList<Integer> {
     @SuppressWarnings("UnusedReturnValue")
     public StatList add(int integer) {
         if (end + 1 >= values.length) {
-            values = Int.grow(values);
+            values = Lng.grow(values);
         }
         values[end] = integer;
         end++;
@@ -143,9 +142,9 @@ public class StatList extends AbstractList<Integer> {
      * @param newValues new values
      * @return was able to add.
      */
-    public boolean addArray(int... newValues) {
+    public boolean addArray(long... newValues) {
         if (end + newValues.length >= values.length) {
-            values = Int.grow(values, (values.length + newValues.length) * 2);
+            values = Lng.grow(values, (values.length + newValues.length) * 2);
         }
 
         System.arraycopy(newValues, 0, values, end, newValues.length);
@@ -161,8 +160,8 @@ public class StatList extends AbstractList<Integer> {
      * @return old value at this index
      */
     @Override
-    public Integer set(int index, Integer element) {
-        int oldValue = values[index];
+    public Long set(int index, Long element) {
+        long oldValue = values[index];
         values[index] = element;
         return oldValue;
     }
@@ -174,8 +173,8 @@ public class StatList extends AbstractList<Integer> {
      * @param element new value
      * @return old value at this index
      */
-    public int setInt(int index, int element) {
-        int oldValue = values[index];
+    public long setLong(int index, long element) {
+        long oldValue = values[index];
         values[index] = element;
         return oldValue;
     }
@@ -195,9 +194,9 @@ public class StatList extends AbstractList<Integer> {
      *
      * @return sum
      */
-    public int sum() {
+    public long sum() {
 
-        return Int.sum(values, end);
+        return Lng.sum(values, end);
     }
 
     /**
@@ -205,7 +204,7 @@ public class StatList extends AbstractList<Integer> {
      *
      * @return array
      */
-    public int[] toValueArray() {
+    public long[] toValueArray() {
 
         return java.util.Arrays.copyOfRange(values, 0, end);
     }
@@ -217,7 +216,7 @@ public class StatList extends AbstractList<Integer> {
      * @return array
      */
     public long reduceBy(Object function) {
-        return Int.reduceBy(values, end, function);
+        return Lng.reduceBy(values, end, function);
     }
 
     /**
@@ -228,15 +227,15 @@ public class StatList extends AbstractList<Integer> {
      * @return result
      */
     public long reduceBy(Object function, String name) {
-        return Int.reduceBy(values, end, function, name);
+        return Lng.reduceBy(values, end, function, name);
     }
 
     /**
      * @param reduceBy reduceBy function
      * @return the reduction
      */
-    public long reduceBy(Int.ReduceBy reduceBy) {
-        return Int.reduceBy(values, end, reduceBy);
+    public long reduceBy(Lng.ReduceBy reduceBy) {
+        return Lng.reduceBy(values, end, reduceBy);
     }
 
     /**
@@ -274,8 +273,8 @@ public class StatList extends AbstractList<Integer> {
      *
      * @return max
      */
-    public int max() {
-        return Int.max(values, end);
+    public long max() {
+        return Lng.max(values, end);
     }
 
 
@@ -284,8 +283,8 @@ public class StatList extends AbstractList<Integer> {
      *
      * @return min
      */
-    public int min() {
-        return Int.min(values, end);
+    public long min() {
+        return Lng.min(values, end);
     }
 
 
@@ -294,8 +293,8 @@ public class StatList extends AbstractList<Integer> {
      *
      * @return median
      */
-    public int median() {
-        return Int.median(values, end);
+    public long median() {
+        return Lng.median(values, end);
     }
 
 
@@ -316,16 +315,56 @@ public class StatList extends AbstractList<Integer> {
 
         //noinspection SimplifiableIfStatement
         if (end != integers.end) return false;
-        return Int.equals(0, end, values, integers.values);
+        return Lng.equals(0, end, values, integers.values);
 
     }
 
     @Override
     public int hashCode() {
         int result = 1;
-        result = 31 * result + (values != null ? Int.hashCode(0, end, values) : 0);
+        result = 31 * result + (values != null ? Lng.hashCode(0, end, values) : 0);
         result = 31 * result + end;
         return result;
     }
+
+
+
+    /**
+     * Sum
+     * Provides overflow protection.
+     * @param values values in int
+     * @return sum
+     */
+    public static long bigSum( long[] values ) {
+        return bigSum(values, 0, values.length);
+    }
+
+
+    /**
+     * Sum
+     * Provides overflow protection.
+     * @param values values in int
+     * @return sum
+     */
+    public static long bigSum( long[] values,  int length ) {
+        return bigSum(values, 0, length);
+    }
+
+    /**
+     * Big Sum
+     * @param values values in int
+     * @return sum
+     */
+    public static long bigSum( long[] values, int start, int length ) {
+        long sum = 0;
+        for (int index = start; index < length; index++ ) {
+            sum+= values[index];
+        }
+
+        return sum;
+
+
+    }
+
 }
 

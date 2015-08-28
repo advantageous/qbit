@@ -47,7 +47,7 @@ public class StatServiceImpl implements QueueCallBackHandler, ServiceChangedEven
     private final int sizeOfMaps;
     private final Logger logger = LoggerFactory.getLogger(StatServiceImpl.class);
     private final boolean debug = GlobalConstants.DEBUG || logger.isDebugEnabled();
-    private final int timeToLiveCheckInterval;
+    private final long timeToLiveCheckInterval;
     private Map<String, MinuteStat> currentMinuteOfStatsMap;
     private Map<String, MinuteStat> lastMinuteOfStatsMap;
     private long lastHealthCheck = 0;
@@ -61,7 +61,7 @@ public class StatServiceImpl implements QueueCallBackHandler, ServiceChangedEven
                            final ServiceDiscovery serviceDiscovery,
                            final String serviceId,
                            final int numStats,
-                           final int timeToLiveCheckInterval) {
+                           final long timeToLiveCheckInterval) {
 
         this.serviceId = serviceId;
         this.serviceDiscovery = serviceDiscovery;
@@ -79,16 +79,16 @@ public class StatServiceImpl implements QueueCallBackHandler, ServiceChangedEven
     }
 
 
-    public void recordCount(String name, int count) {
+    public void recordCount(String name, long count) {
         recordCountWithTime(name, count, now);
     }
 
 
-    public void recordLevel(String name, int count) {
+    public void recordLevel(String name, long count) {
         recordLevelWithTime(name, count, now);
     }
 
-    public void recordTiming(String name, int duration) {
+    public void recordTiming(String name, long duration) {
         recordTimingWithTime(name, duration, now);
     }
 
@@ -106,95 +106,95 @@ public class StatServiceImpl implements QueueCallBackHandler, ServiceChangedEven
         return oneMinuteOfStats(name).statsForLastSeconds(now, secondCount);
     }
 
-    public int averageLastLevel(String name, int secondCount) {
+    public long averageLastLevel(String name, int secondCount) {
         return oneMinuteOfStats(name).averageLastLevel(now, secondCount);
     }
 
-    public int currentMinuteCount(String name) {
+    public long currentMinuteCount(String name) {
         return oneMinuteOfStats(name).getTotalCount();
     }
 
-    public int lastTenSecondCount(String name) {
+    public long lastTenSecondCount(String name) {
         return oneMinuteOfStats(name).countLastTenSeconds(now);
     }
 
-    public int lastFiveSecondCount(String name) {
+    public long lastFiveSecondCount(String name) {
         return oneMinuteOfStats(name).countLastFiveSeconds(now);
     }
 
-    public int lastNSecondsCount(String name, int secondCount) {
+    public long lastNSecondsCount(String name, int secondCount) {
         return oneMinuteOfStats(name).countLastSeconds(now, secondCount);
     }
 
-    public int lastNSecondsCountExact(String name, int secondCount) {
-        int count = oneMinuteOfStats(name).countLastSeconds(now, secondCount);
-        int count2 = lastOneMinuteOfStats(name).countLastSeconds(now, secondCount);
+    public long lastNSecondsCountExact(String name, int secondCount) {
+        long count = oneMinuteOfStats(name).countLastSeconds(now, secondCount);
+        long count2 = lastOneMinuteOfStats(name).countLastSeconds(now, secondCount);
         return count + count2;
     }
 
-    public int lastTenSecondCountExact(String name) {
+    public long lastTenSecondCountExact(String name) {
 
         return oneMinuteOfStats(name).countLastTenSeconds(now) +
                 lastOneMinuteOfStats(name).countLastTenSeconds(now);
     }
 
-    public int lastFiveSecondCountExact(String name) {
+    public long lastFiveSecondCountExact(String name) {
         return oneMinuteOfStats(name).countLastFiveSeconds(now) +
                 lastOneMinuteOfStats(name).countLastTenSeconds(now);
 
     }
 
-    public int currentSecondCount(String name) {
+    public long currentSecondCount(String name) {
         return oneMinuteOfStats(name).countThisSecond(now);
     }
 
-    public int lastSecondCount(String name) {
+    public long lastSecondCount(String name) {
         return oneMinuteOfStats(name).countLastSecond(now);
     }
 
-    public void recordCountWithTime(String name, int count, long now) {
+    public void recordCountWithTime(String name, long count, long now) {
         oneMinuteOfStats(name).changeBy(count, now);
         replica.replicateCount(name, count, now);
     }
 
-    public void recordTimingWithTime(String name, int duration, long now) {
+    public void recordTimingWithTime(String name, long duration, long now) {
         oneMinuteOfStats(name).recordLevel(duration, now);
         replica.replicateTiming(name, duration, now);
     }
 
 
-    public void recordLevelWithTime(String name, int level, long now) {
+    public void recordLevelWithTime(String name, long level, long now) {
         oneMinuteOfStats(name).recordLevel(level, now);
         replica.replicateLevel(name, level, now);
     }
 
 
-    public void replicateCount(String name, int count, long time) {
+    public void replicateCount(String name, long count, long time) {
         oneMinuteOfStats(name).changeBy(count, time);
     }
 
-    public void replicateLevel(String name, int level, long time) {
+    public void replicateLevel(String name, long level, long time) {
         oneMinuteOfStats(name).recordLevel(level, time);
     }
 
     public void recordAll(final long timestamp,
                           final String[] names,
-                          final int[] counts) {
+                          final long[] counts) {
         for (int index = 0; index < names.length; index++) {
             String name = names[index];
-            int count = counts[index];
+            long count = counts[index];
             recordCountWithTime(name, count, timestamp);
         }
     }
 
     public void recordAllWithTimes(
             final String[] names,
-            final int[] counts,
+            final long[] counts,
             final long[] times) {
 
         for (int index = 0; index < names.length; index++) {
             String name = names[index];
-            int count = counts[index];
+            long count = counts[index];
             long now = times[index];
             recordCountWithTime(name, count, now);
         }
@@ -272,7 +272,7 @@ public class StatServiceImpl implements QueueCallBackHandler, ServiceChangedEven
         }
     }
 
-    public int lastMinuteCount(String name) {
+    public long lastMinuteCount(String name) {
 
         return lastOneMinuteOfStats(name).getTotalCount();
     }

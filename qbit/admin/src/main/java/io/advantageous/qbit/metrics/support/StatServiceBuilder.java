@@ -424,18 +424,18 @@ public class StatServiceBuilder {
                 }
 
                 @Override
-                public void replicateCount(String name, int count, long now) {
+                public void replicateCount(String name, long count, long now) {
 
                     proxy.replicateCount(name, count, now);
                 }
 
                 @Override
-                public void replicateLevel(String name, int level, long time) {
+                public void replicateLevel(String name, long level, long time) {
                     proxy.replicateLevel(name, level, time);
                 }
 
                 @Override
-                public void replicateTiming(String name, int level, long time) {
+                public void replicateTiming(String name, long level, long time) {
                     proxy.replicateTiming(name, level, time);
                 }
 

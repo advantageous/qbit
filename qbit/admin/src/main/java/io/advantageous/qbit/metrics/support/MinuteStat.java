@@ -30,14 +30,14 @@ public class MinuteStat {
 
     private final String name;
     private final long startTime;
-    private final int[] secondCounts;
+    private final long[] secondCounts;
     private long endTime;
     private int totalCount;
 
     public MinuteStat(long now, String name) {
         startTime = now;
 
-        secondCounts = new int[60];
+        secondCounts = new long[60];
 
         for (int index = 0; index < 60; index++) {
             secondCounts[index] = -1;
@@ -47,7 +47,7 @@ public class MinuteStat {
     }
 
 
-    public int countLastSecond(long now) {
+    public long countLastSecond(long now) {
         int secondIndex = secondIndex(now);
 
 
@@ -59,14 +59,14 @@ public class MinuteStat {
     }
 
 
-    public int countLastTenSeconds(long now) {
+    public long countLastTenSeconds(long now) {
         return countLastSeconds(now, 10);
     }
 
 
-    public int countLastSeconds(long now, int secondCount) {
+    public long countLastSeconds(long now, int secondCount) {
 
-        int sum = 0;
+        long sum = 0;
 
         int secondIndex = secondIndex(now);
 
@@ -87,7 +87,7 @@ public class MinuteStat {
                 continue;
             }
             index++;
-            int value = secondCounts[secondIndex];
+            long value = secondCounts[secondIndex];
 
             if (value != -1) {
                 sum += value;
@@ -126,7 +126,7 @@ public class MinuteStat {
             index++;
 
 
-            int value = secondCounts[secondIndex];
+            long value = secondCounts[secondIndex];
 
             if (value != -1) {
                 list.add(value);
@@ -141,9 +141,9 @@ public class MinuteStat {
 
     }
 
-    public int averageLastLevel(long now, int secondCount) {
+    public long averageLastLevel(long now, int secondCount) {
 
-        int sum = 0;
+        long sum = 0;
 
         int secondIndex = secondIndex(now);
 
@@ -168,7 +168,7 @@ public class MinuteStat {
             index++;
 
 
-            int value = secondCounts[secondIndex];
+            long value = secondCounts[secondIndex];
             if (value != -1) {
                 sum += value;
                 readingCount++;
@@ -181,12 +181,12 @@ public class MinuteStat {
         return (readingCount!=0) ?  sum / readingCount : -1;
     }
 
-    public int countLastFiveSeconds(long now) {
+    public long countLastFiveSeconds(long now) {
 
         return countLastSeconds(now, 5);
     }
 
-    public int countThisSecond(long now) {
+    public long countThisSecond(long now) {
         int secondIndex = secondIndex(now);
 
 
@@ -198,7 +198,7 @@ public class MinuteStat {
     }
 
     @SuppressWarnings("UnusedReturnValue")
-    public int changeBy(int count, long now) {
+    public long changeBy(long count, long now) {
         totalCount += count;
 
         int secondIndex = secondIndex(now);
@@ -208,7 +208,7 @@ public class MinuteStat {
             return 0;
         }
 
-        int value = secondCounts[secondIndex];
+        long value = secondCounts[secondIndex];
 
         if (value == -1) {
             value = 0;
@@ -239,7 +239,7 @@ public class MinuteStat {
         return endTime;
     }
 
-    public int[] getSecondCounts() {
+    public long[] getSecondCounts() {
         return secondCounts;
     }
 
@@ -258,11 +258,11 @@ public class MinuteStat {
                 '}';
     }
 
-    public int getTotalCount() {
+    public long getTotalCount() {
         return totalCount;
     }
 
-    public void recordLevel(int level, long now) {
+    public void recordLevel(long level, long now) {
         int secondIndex = secondIndex(now);
 
 

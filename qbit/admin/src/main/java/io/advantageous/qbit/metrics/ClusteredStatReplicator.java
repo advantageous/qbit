@@ -65,7 +65,7 @@ public class ClusteredStatReplicator implements StatReplicator, ServiceChangedEv
     }
 
     @Override
-    public void replicateCount(final String name, final int count, final long now) {
+    public void replicateCount(final String name, final long count, final long now) {
 
         if (trace) logger.trace(sputs("ClusteredStatReplicator::replicateCount()",
                 serviceName, name, count, now));
@@ -89,7 +89,7 @@ public class ClusteredStatReplicator implements StatReplicator, ServiceChangedEv
     }
 
     @Override
-    public void replicateLevel(String name, int level, long time) {
+    public void replicateLevel(final String name, long level, long time) {
 
         LocalCount localCount = countMap.get(name);
 
@@ -102,7 +102,7 @@ public class ClusteredStatReplicator implements StatReplicator, ServiceChangedEv
     }
 
     @Override
-    public void replicateTiming(String name, int level, long time) {
+    public void replicateTiming(String name, long level, long time) {
 
         LocalCount localCount = countMap.get(name);
 
@@ -115,7 +115,7 @@ public class ClusteredStatReplicator implements StatReplicator, ServiceChangedEv
     }
 
     private void doRecordCount(Pair<EndpointDefinition, StatReplicator> statReplicator,
-                               final String name, final int count, final long now) {
+                               final String name, final long count, final long now) {
 
         try {
             statReplicator.getSecond().replicateCount(name, count, now);
@@ -355,7 +355,7 @@ public class ClusteredStatReplicator implements StatReplicator, ServiceChangedEv
 
     final static class LocalCount {
 
-        int count;
+        long count;
         String name;
 
     }

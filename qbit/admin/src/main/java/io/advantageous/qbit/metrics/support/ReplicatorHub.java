@@ -35,14 +35,14 @@ public class ReplicatorHub implements StatReplicator, ServiceChangedEventChannel
     }
 
     @Override
-    public void replicateCount(String name, int count, long now) {
+    public void replicateCount(String name, long count, long now) {
         for (StatReplicator replicator : list) {
             replicator.replicateCount(name, count, now);
         }
     }
 
     @Override
-    public void replicateLevel(String name, int level, long time) {
+    public void replicateLevel(String name, long level, long time) {
         for (StatReplicator replicator : list) {
             replicator.replicateLevel(name, level, time);
         }
@@ -50,7 +50,7 @@ public class ReplicatorHub implements StatReplicator, ServiceChangedEventChannel
     }
 
     @Override
-    public void replicateTiming(String name, int level, long time) {
+    public void replicateTiming(String name, long level, long time) {
         for (StatReplicator replicator : list) {
             replicator.replicateTiming(name, level, time);
         }

@@ -59,9 +59,9 @@ public class MinuteMeasurementTest {
 
         measurement.changeBy(6, time + 59000);
 
-        int status = measurement.changeBy(7, time + 61000);
+        long status = measurement.changeBy(7, time + 61000);
 
-        final int[] secondCounts = measurement.getSecondCounts();
+        final long[] secondCounts = measurement.getSecondCounts();
 
         ok = measurement.getTotalCount() == 28 || die();
         ok = secondCounts[0] == 1 || die(secondCounts[0]);
@@ -75,22 +75,22 @@ public class MinuteMeasurementTest {
 
         puts(measurement);
 
-        final int countLastSecond = measurement.countLastSecond(time + 6000);
+        final long countLastSecond = measurement.countLastSecond(time + 6000);
 
         ok = countLastSecond == 3 || die(countLastSecond);
 
 
-        final int countThisSecond = measurement.countThisSecond(time + 5000);
+        final long countThisSecond = measurement.countThisSecond(time + 5000);
 
         ok = countThisSecond == 3 || die(countLastSecond);
 
 
-        final int crap = measurement.countThisSecond(Long.MAX_VALUE);
+        final long crap = measurement.countThisSecond(Long.MAX_VALUE);
 
         ok = crap == Integer.MIN_VALUE || die(crap);
 
 
-        final int crap2 = measurement.countLastSecond(Long.MAX_VALUE);
+        final long crap2 = measurement.countLastSecond(Long.MAX_VALUE);
 
         ok = crap2 == 6 || die(crap2);
 

@@ -6,10 +6,10 @@ public class Stats {
     private final float mean;
     private final float stdDev;
     private final float variance;
-    private final int sum;
-    private final int max;
-    private final int min;
-    private final int median;
+    private final long sum;
+    private final long max;
+    private final long min;
+    private final long median;
 
     private final int readingCount;
 
@@ -36,19 +36,19 @@ public class Stats {
         return variance;
     }
 
-    public int getSum() {
+    public long getSum() {
         return sum;
     }
 
-    public int getMax() {
+    public long getMax() {
         return max;
     }
 
-    public int getMin() {
+    public long getMin() {
         return min;
     }
 
-    public int getMedian() {
+    public long getMedian() {
         return median;
     }
 
