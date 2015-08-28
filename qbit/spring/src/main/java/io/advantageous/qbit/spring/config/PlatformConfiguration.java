@@ -57,7 +57,7 @@ public class PlatformConfiguration {
                 .setMicroServiceName(props.getPrefix())
                 .setHealthService(healthServiceAsync);
 
-        if (statsCollector.isPresent()) {
+        if (statsCollector.isPresent() && props.getJvmStatsRefresh() > 0) {
             adminBuilder.registerJavaVMStatsJobEveryNSeconds(statsCollector.get(), props.getJvmStatsRefresh());
         }
 
