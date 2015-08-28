@@ -4,6 +4,7 @@ import io.advantageous.qbit.metrics.StatReplicator;
 import io.advantageous.qbit.queue.QueueCallBackHandler;
 import io.advantageous.qbit.reactive.Reactor;
 import io.advantageous.qbit.reactive.ReactorBuilder;
+import io.advantageous.qbit.service.stats.StatList;
 import io.advantageous.qbit.util.Timer;
 
 import java.util.*;
@@ -32,7 +33,7 @@ public class LocalStatsCollector implements StatReplicator, QueueCallBackHandler
     final static class Metric {
 
         final StatList stats;
-        int value;
+        long value;
         final String name;
         final MetricType type;
 
@@ -65,7 +66,7 @@ public class LocalStatsCollector implements StatReplicator, QueueCallBackHandler
 
 
     @Override
-    public void replicateCount(String name, int count, long time) {
+    public void replicateCount(String name, long count, long time) {
 
         Metric metric = statsMap.get(name);
         if (metric == null) {
@@ -79,7 +80,7 @@ public class LocalStatsCollector implements StatReplicator, QueueCallBackHandler
     }
 
     @Override
-    public void replicateLevel(String name, int level, long time) {
+    public void replicateLevel(String name, long level, long time) {
 
 
         Metric metric = statsMap.get(name);
@@ -95,7 +96,7 @@ public class LocalStatsCollector implements StatReplicator, QueueCallBackHandler
     }
 
     @Override
-    public void replicateTiming(String name, int timing, long time) {
+    public void replicateTiming(String name, long timing, long time) {
 
         Metric metric = statsMap.get(name);
         if (metric == null) {

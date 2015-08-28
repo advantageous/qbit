@@ -26,15 +26,15 @@ import io.advantageous.qbit.metrics.StatReplicator;
  */
 public class NoOpReplicator implements StatReplicator {
     @Override
-    public final void replicateCount(String name, int count, long now) {
+    public final void replicateCount(String name, long count, long now) {
     }
 
     @Override
-    public final void replicateLevel(String name, int count, long now) {
+    public final void replicateLevel(String name, long level, long now) {
     }
 
     @Override
-    public void replicateTiming(String name, int level, long time) {
+    public void replicateTiming(String name, long level, long time) {
 
     }
 }

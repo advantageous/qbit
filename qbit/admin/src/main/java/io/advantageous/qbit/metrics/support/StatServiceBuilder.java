@@ -33,6 +33,7 @@ import io.advantageous.qbit.service.ServiceBuilder;
 import io.advantageous.qbit.service.ServiceQueue;
 import io.advantageous.qbit.service.discovery.ServiceDiscovery;
 import io.advantageous.qbit.service.stats.StatsCollector;
+import io.advantageous.qbit.service.stats.StatsCollectorBuffer;
 import io.advantageous.qbit.util.Timer;
 
 import java.util.ArrayList;
@@ -424,18 +425,18 @@ public class StatServiceBuilder {
                 }
 
                 @Override
-                public void replicateCount(String name, int count, long now) {
+                public void replicateCount(String name, long count, long now) {
 
                     proxy.replicateCount(name, count, now);
                 }
 
                 @Override
-                public void replicateLevel(String name, int level, long time) {
+                public void replicateLevel(String name, long level, long time) {
                     proxy.replicateLevel(name, level, time);
                 }
 
                 @Override
-                public void replicateTiming(String name, int level, long time) {
+                public void replicateTiming(String name, long level, long time) {
                     proxy.replicateTiming(name, level, time);
                 }
 
@@ -496,11 +497,11 @@ public class StatServiceBuilder {
     }
 
     public StatsCollector buildStatsCollector() {
-        return getServiceQueue().createProxy(StatService.class);
+        return new StatsCollectorBuffer(getServiceQueue().createProxy(StatService.class));
     }
 
 
     public StatsCollector buildStatsCollectorWithAutoFlush() {
-        return getServiceQueue().createProxyWithAutoFlush(StatsCollector.class, 1, TimeUnit.SECONDS);
+        return new StatsCollectorBuffer(getServiceQueue().createProxyWithAutoFlush(StatsCollector.class, 1, TimeUnit.SECONDS));
     }
 }

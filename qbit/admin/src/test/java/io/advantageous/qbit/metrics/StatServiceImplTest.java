@@ -75,7 +75,7 @@ public class StatServiceImplTest {
         statServiceImpl.tick();
 
 
-        int count = statServiceImpl.lastFiveSecondCount("mystat");
+        long count = statServiceImpl.lastFiveSecondCount("mystat");
 
         assertEquals(5, count);
 
@@ -95,7 +95,7 @@ public class StatServiceImplTest {
         statServiceImpl.tick();
 
 
-        int count = statServiceImpl.lastTenSecondCount("mystat");
+        long count = statServiceImpl.lastTenSecondCount("mystat");
 
         assertEquals(10, count);
 
@@ -115,7 +115,7 @@ public class StatServiceImplTest {
         statServiceImpl.tick();
 
 
-        int count = statServiceImpl.lastNSecondsCount("mystat", 7);
+        long count = statServiceImpl.lastNSecondsCount("mystat", 7);
 
         assertEquals(7, count);
 
@@ -132,7 +132,7 @@ public class StatServiceImplTest {
         }
 
 
-        int count = statServiceImpl.lastNSecondsCount("mystat", 20);
+        long count = statServiceImpl.lastNSecondsCount("mystat", 20);
 
         assertEquals(10, count);
 
@@ -149,7 +149,7 @@ public class StatServiceImplTest {
         }
 
 
-        int count = statServiceImpl.currentMinuteCount("mystat");
+        long count = statServiceImpl.currentMinuteCount("mystat");
 
         assertEquals(60, count);
 
@@ -166,7 +166,7 @@ public class StatServiceImplTest {
         }
 
 
-        int count = statServiceImpl.currentMinuteCount("mystat");
+        long count = statServiceImpl.currentMinuteCount("mystat");
 
         assertEquals(18, count);
 
@@ -214,7 +214,7 @@ public class StatServiceImplTest {
 
 
         String[] names = Arry.array("stat1", "stat2");
-        int[] counts = Int.array(1, 2);
+        long[] counts = Lng.array(1, 2);
         //long[] times = Lng.array(Timer.timer().now(), Timer.timer().now() + 2000);
 
         statServiceImpl.recordAll(Timer.timer().now(), names, counts);
@@ -250,7 +250,7 @@ public class StatServiceImplTest {
 
 
         String[] names = Arry.array("stat1", "stat2");
-        int[] counts = Int.array(1, 2);
+        long[] counts = Lng.array(1, 2);
         long[] times = Lng.array(Timer.timer().now(), Timer.timer().now() + 2000);
 
         statServiceImpl.recordAllWithTimes(names, counts, times);

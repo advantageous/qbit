@@ -6,6 +6,7 @@ import io.advantageous.qbit.metrics.support.StatServiceBuilder;
 import io.advantageous.qbit.metrics.support.StatsDReplicatorBuilder;
 import io.advantageous.qbit.service.ServiceQueue;
 import io.advantageous.qbit.service.stats.StatsCollector;
+import io.advantageous.qbit.service.stats.StatsCollectorBuffer;
 import io.advantageous.qbit.spring.properties.StatsdProperties;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
@@ -57,6 +58,6 @@ public class StatsConfiguration {
     public StatsCollector qbitStatsCollector(final @Qualifier("qbitStatsServiceQueue")
                                              ServiceQueue qbitStatsServiceQueue) {
 
-        return qbitStatsServiceQueue.createProxy(StatsCollector.class);
+        return new StatsCollectorBuffer(qbitStatsServiceQueue.createProxy(StatsCollector.class));
     }
 }

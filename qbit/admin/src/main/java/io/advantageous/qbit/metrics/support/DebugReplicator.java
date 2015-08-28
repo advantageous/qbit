@@ -22,6 +22,7 @@ package io.advantageous.qbit.metrics.support;
 import io.advantageous.qbit.metrics.StatReplicator;
 
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
 
 
 /**
@@ -29,7 +30,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public class DebugReplicator implements StatReplicator {
 
-    public final AtomicInteger count = new AtomicInteger();
+    public final AtomicLong count = new AtomicLong();
 
     public boolean out = false;
 
@@ -42,20 +43,20 @@ public class DebugReplicator implements StatReplicator {
 
 
     @Override
-    public void replicateCount(String name, int count, long now) {
+    public void replicateCount(String name, long count, long now) {
         this.count.addAndGet(count);
         if (out) System.out.println("DEBUG REPLICATOR" + name + count + now + this.count.get());
     }
 
 
     @Override
-    public void replicateLevel(String name, int level, long now) {
+    public void replicateLevel(String name, long level, long now) {
         this.count.set(level);
         if (out) System.out.println("DEBUG REPLICATOR" + name + count + now + this.count.get());
     }
 
     @Override
-    public void replicateTiming(String name, int level, long time) {
+    public void replicateTiming(String name, long level, long time) {
         this.count.set(level);
         if (out) System.out.println("DEBUG REPLICATOR" + name + count + time + this.count.get());
 

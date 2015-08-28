@@ -8,7 +8,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
-import java.util.function.Consumer;
 
 public class JavaStatsCollectorJob extends AdminJobBase {
 
@@ -99,10 +98,13 @@ public class JavaStatsCollectorJob extends AdminJobBase {
         @Override
         public void run() {
             statsCollector.recordLevel(prefix + ".jvm.os.load.level",
-                    (int) operatingSystemMXBean.getSystemLoadAverage() * 100);
+                    (long) operatingSystemMXBean.getSystemLoadAverage() );
 
             statsCollector.recordLevel(prefix + ".jvm.up.time.seconds",
-                    (int) (runtimeMXBean.getUptime() / 1_000));
+                    (runtimeMXBean.getUptime() / 1_000));
+
+            statsCollector.recordLevel(prefix + ".jvm.up.time.minutes",
+                    (runtimeMXBean.getUptime() / (1_000 * 60)));
 
             collectMemoryStats();
             collectThreadStats();
@@ -140,9 +142,9 @@ public class JavaStatsCollectorJob extends AdminJobBase {
             gcInfo.setCurrentCollectionCount(garbageCollectorMXBean.getCollectionCount());
             gcInfo.setCurrentCollectionTime(garbageCollectorMXBean.getCollectionTime());
 
-            int collectionCount = (int) gcInfo.getCollectionCount();
+            final long collectionCount = gcInfo.getCollectionCount();
 
-            int collectionTime = (int) gcInfo.getCollectionTime();
+            final long collectionTime = gcInfo.getCollectionTime();
 
             if (collectionCount>0) {
                 statsCollector.recordCount(prefix + gcInfo.getStatName() + "collection.count",
@@ -159,24 +161,22 @@ public class JavaStatsCollectorJob extends AdminJobBase {
             statsCollector.recordLevel(prefix + ".jvm.thread.count", threadMXBean.getThreadCount());
             statsCollector.recordLevel(prefix + ".jvm.thread.peak.count", threadMXBean.getPeakThreadCount());
             statsCollector.recordLevel(prefix + ".jvm.thread.daemon.count", threadMXBean.getDaemonThreadCount());
-            statsCollector.recordLevel(prefix + ".jvm.thread.started.count",
-                    threadMXBean.getTotalStartedThreadCount() > Integer.MAX_VALUE ? Integer.MAX_VALUE
-                            : (int) threadMXBean.getTotalStartedThreadCount());
+            statsCollector.recordLevel(prefix + ".jvm.thread.started.count", threadMXBean.getTotalStartedThreadCount());
         }
 
         private void collectMemoryStats() {
-            statsCollector.recordLevel(prefix + ".jvm.mem.heap.max.mb",
-                    (int) (memoryMXBean.getHeapMemoryUsage().getMax() / 1_000_000));
-            statsCollector.recordLevel(prefix + ".jvm.mem.heap.used.mb",
-                    (int) (memoryMXBean.getHeapMemoryUsage().getUsed() / 1_000_000));
-            statsCollector.recordLevel(prefix + ".jvm.mem.non.heap.max.mb",
-                    (int) (memoryMXBean.getNonHeapMemoryUsage().getMax() / 1_000_000));
-            statsCollector.recordLevel(prefix + ".jvm.mem.non.heap.used.mb",
-                    (int) (memoryMXBean.getNonHeapMemoryUsage().getUsed() / 1_000_000));
-            statsCollector.recordLevel(prefix + ".jvm.mem.heap.free.mb",
-                    (int) (Runtime.getRuntime().freeMemory() / 1_000_000));
-            statsCollector.recordLevel(prefix + ".jvm.mem.total.mb", (int) (
-                    Runtime.getRuntime().totalMemory() / 1_000_000));
+            statsCollector.recordLevel(prefix + ".jvm.mem.heap.max",
+                     (memoryMXBean.getHeapMemoryUsage().getMax() ));
+            statsCollector.recordLevel(prefix + ".jvm.mem.heap.used",
+                     (memoryMXBean.getHeapMemoryUsage().getUsed() ));
+            statsCollector.recordLevel(prefix + ".jvm.mem.non.heap.max",
+                     (memoryMXBean.getNonHeapMemoryUsage().getMax() ));
+            statsCollector.recordLevel(prefix + ".jvm.mem.non.heap.used",
+                     (memoryMXBean.getNonHeapMemoryUsage().getUsed() ));
+            statsCollector.recordLevel(prefix + ".jvm.mem.heap.free",
+                    (Runtime.getRuntime().freeMemory() ));
+            statsCollector.recordLevel(prefix + ".jvm.mem.total", (int) (
+                    Runtime.getRuntime().totalMemory() ));
         }
     }
 

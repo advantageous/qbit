@@ -55,26 +55,26 @@ public class ServiceBundleBuilderTest {
     @Test
     public void testSetStatsCollector() throws Exception {
 
-        Map<String, Integer> stats = new ConcurrentHashMap<>();
+        Map<String, Long> stats = new ConcurrentHashMap<>();
 
         serviceBundleBuilder.getRequestQueueBuilder().setBatchSize(6);
         final ServiceBundle serviceBundle = serviceBundleBuilder
                 .setStatsCollector(new StatsCollector() {
                     @Override
-                    public void recordCount(String name, int count) {
+                    public void recordCount(String name, long count) {
                         puts("recordCount", name, count);
                         stats.put(name, count);
                     }
 
                     @Override
-                    public void recordLevel(String name, int level) {
+                    public void recordLevel(String name, long level) {
                         puts("recordLevel", name, level);
                         stats.put(name, level);
 
                     }
 
                     @Override
-                    public void recordTiming(String name, int duration) {
+                    public void recordTiming(String name, long duration) {
                         puts("recordTiming", name, duration);
                         stats.put(name, duration);
 
