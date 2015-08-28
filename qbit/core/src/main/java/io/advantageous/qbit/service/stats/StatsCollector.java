@@ -8,13 +8,13 @@ import io.advantageous.qbit.client.ClientProxy;
  */
 public interface StatsCollector extends ClientProxy {
 
-    default void recordCount(String name, int count) {
+    default void recordCount(String name, long count) {
     }
 
-    default void recordLevel(String name, int level) {
+    default void recordLevel(String name, long level) {
     }
 
-    default void recordTiming(String name, int duration) {
+    default void recordTiming(String name, long duration) {
     }
 
 }

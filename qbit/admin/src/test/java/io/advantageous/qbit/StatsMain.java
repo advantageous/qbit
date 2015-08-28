@@ -32,16 +32,16 @@ public class StatsMain {
             Sys.sleep(1000);
 
             serviceBundle.flushSends();
-            statService.lastTenSecondCount(new Callback<Integer>() {
+            statService.lastTenSecondCount(new Callback<Long>() {
                 @Override
-                public void accept(Integer integer) {
+                public void accept(Long integer) {
                     puts("Last ten second count for abc.count", integer);
                 }
             }, "abc.count");
 
-            statService.averageLastLevel(new Callback<Integer>() {
+            statService.averageLastLevel(new Callback<Long>() {
                 @Override
-                public void accept(Integer integer) {
+                public void accept(Long integer) {
                     puts("Average level  second count for abc.level", integer);
                 }
             }, "abc.level", 10);

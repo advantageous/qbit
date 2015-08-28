@@ -22,7 +22,7 @@ import io.advantageous.boon.core.Sys;
 import io.advantageous.boon.core.reflection.ClassMeta;
 import io.advantageous.boon.core.reflection.MethodAccess;
 import io.advantageous.boon.primitive.Arry;
-import io.advantageous.boon.primitive.Int;
+import io.advantageous.boon.primitive.Lng;
 import io.advantageous.qbit.metrics.support.*;
 import io.advantageous.qbit.queue.QueueBuilder;
 import io.advantageous.qbit.service.ServiceBundle;
@@ -127,7 +127,7 @@ public class StatServiceImplBundleTest extends TimedTesting {
 
 
         String[] names = Arry.array("stat1", "stat2");
-        int[] counts = Int.array(1, 2);
+        long[] counts = Lng.array(1, 2);
 
         statServiceClient.recordAll(Timer.timer().now(), names, counts);
         serviceBundle.flush();
