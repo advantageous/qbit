@@ -1,4 +1,4 @@
-package io.advantageous.qbit.metrics.support;
+package io.advantageous.qbit.service.stats;
 
 import io.advantageous.boon.primitive.Lng;
 
@@ -111,7 +111,7 @@ public class StatList extends AbstractList<Long> {
      * @param integer new value
      * @return was able to add.
      */
-    public boolean addLong(int integer) {
+    public boolean addLong(long integer) {
         if (end + 1 >= values.length) {
             values = Lng.grow(values);
         }

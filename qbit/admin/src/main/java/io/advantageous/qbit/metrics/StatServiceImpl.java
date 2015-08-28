@@ -25,6 +25,7 @@ import io.advantageous.qbit.queue.QueueCallBackHandler;
 import io.advantageous.qbit.service.ServiceProxyUtils;
 import io.advantageous.qbit.service.discovery.ServiceChangedEventChannel;
 import io.advantageous.qbit.service.discovery.ServiceDiscovery;
+import io.advantageous.qbit.service.stats.Stats;
 import io.advantageous.qbit.util.Timer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

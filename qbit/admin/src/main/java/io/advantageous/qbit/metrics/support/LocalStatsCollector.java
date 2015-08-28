@@ -4,6 +4,7 @@ import io.advantageous.qbit.metrics.StatReplicator;
 import io.advantageous.qbit.queue.QueueCallBackHandler;
 import io.advantageous.qbit.reactive.Reactor;
 import io.advantageous.qbit.reactive.ReactorBuilder;
+import io.advantageous.qbit.service.stats.StatList;
 import io.advantageous.qbit.util.Timer;
 
 import java.util.*;

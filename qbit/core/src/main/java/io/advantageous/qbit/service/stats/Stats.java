@@ -1,6 +1,5 @@
-package io.advantageous.qbit.metrics;
+package io.advantageous.qbit.service.stats;
 
-import io.advantageous.qbit.metrics.support.StatList;
 
 public class Stats {
     private final float mean;

@@ -18,7 +18,8 @@
 
 package io.advantageous.qbit.metrics.support;
 
-import io.advantageous.qbit.metrics.Stats;
+import io.advantageous.qbit.service.stats.StatList;
+import io.advantageous.qbit.service.stats.Stats;
 
 import java.util.Arrays;
 
