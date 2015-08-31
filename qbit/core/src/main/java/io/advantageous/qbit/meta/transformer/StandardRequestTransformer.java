@@ -35,6 +35,8 @@ import io.advantageous.qbit.reactive.Callback;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
@@ -69,6 +71,13 @@ public class StandardRequestTransformer implements RequestTransformer {
         this.metaDataProviderMap = metaDataProviderMap;
     }
 
+    private final String decodeURLEncoding(String value) {
+        try {
+            return URLDecoder.decode(value, "UTF-8");
+        } catch (UnsupportedEncodingException e) {
+            return value;
+        }
+    }
 
     @Override
     public MethodCall<Object> transform(final HttpRequest request,
@@ -80,7 +89,7 @@ public class StandardRequestTransformer implements RequestTransformer {
         final RequestMetaData metaData = standardMetaDataProvider.get(request.address());
 
 
-        MethodCallBuilder methodCallBuilder = new MethodCallBuilder();
+        final MethodCallBuilder methodCallBuilder = new MethodCallBuilder();
         methodCallBuilder.setAddress(request.address());
         methodCallBuilder.setOriginatingRequest(request);
 
@@ -117,11 +126,14 @@ public class StandardRequestTransformer implements RequestTransformer {
                 case REQUEST:
                     namedParam = ((NamedParam) parameterMeta.getParam());
                     value = request.params().get(namedParam.getName());
+
                     if (namedParam.isRequired() && value == null) {
                         errorsList.add(sputs("Unable to find required request param", namedParam.getName()));
                         return null;
 
                     }
+                    value = value !=null ? decodeURLEncoding(value.toString()) : value;
+
                     break;
                 case HEADER:
                     namedParam = ((NamedParam) parameterMeta.getParam());
@@ -130,6 +142,8 @@ public class StandardRequestTransformer implements RequestTransformer {
                         errorsList.add(sputs("Unable to find required header param", namedParam.getName()));
                         return null;
                     }
+
+                    value = value !=null ? decodeURLEncoding(value.toString()) : value;
                     break;
                 case PATH_BY_NAME:
                     URINamedParam uriNamedParam = ((URINamedParam) parameterMeta.getParam());
@@ -148,6 +162,8 @@ public class StandardRequestTransformer implements RequestTransformer {
                         errorsList.add(sputs("Unable to find required path param", uriNamedParam.getName()));
                         return null;
                     }
+
+                    value = value !=null ? decodeURLEncoding(value.toString()) : value;
                     break;
 
                 case PATH_BY_POSITION:
@@ -169,6 +185,8 @@ public class StandardRequestTransformer implements RequestTransformer {
                                 positionalParam.getIndexIntoURI()));
                         return null;
                     }
+
+                    value = value !=null ? decodeURLEncoding(value.toString()) : value;
                     break;
 
                 case BODY:
