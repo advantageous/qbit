@@ -33,9 +33,12 @@ import io.advantageous.qbit.service.health.NodeHealthStat;
 import io.advantageous.qbit.service.stats.StatsCollector;
 
 import java.lang.management.*;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.function.Consumer;
+import java.util.function.Predicate;
 
 @RequestMapping("/__admin")
 public class Admin {
@@ -104,14 +107,26 @@ public class Admin {
     }
 
     @RequestMapping("/system/property/")
-    public Properties getSystemProperties() {
-        return System.getProperties();
+    public Map<String, String> getSystemProperties() {
+        Map<String, String> propertyMap = new LinkedHashMap<>(System.getProperties().size());
+
+        System.getProperties().entrySet().stream()
+                .filter(entry ->
+                    !entry.getKey().toString().toUpperCase().contains("PASSWORD"))
+                .forEach(
+                    entry -> propertyMap.put(entry.getKey().toString(), entry.getValue().toString()));
+        return propertyMap;
     }
 
 
     @RequestMapping("/system/property")
-    public String getSystemProperty(@RequestParam("p") final String propertyName) {
-        return System.getProperties().getProperty(propertyName);
+    public String getSystemProperty(@RequestParam(value = "p", required = true) final String propertyName) {
+
+        if (!(propertyName.toUpperCase().contains("PASSWORD"))) {
+            return System.getProperties().getProperty(propertyName);
+        } else {
+            return "***********";
+        }
     }
 
 
