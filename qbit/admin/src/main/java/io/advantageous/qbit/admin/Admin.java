@@ -30,38 +30,74 @@ import io.advantageous.qbit.reactive.Callback;
 import io.advantageous.qbit.reactive.Reactor;
 import io.advantageous.qbit.service.health.HealthServiceAsync;
 import io.advantageous.qbit.service.health.NodeHealthStat;
-import io.advantageous.qbit.service.stats.StatsCollector;
 
 import java.lang.management.*;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
-import java.util.function.Consumer;
 import java.util.function.Predicate;
 
+
+/**
+ * Health system is used to provide information about the microserivce for health,
+ * JVM parameters for debugging, system properties, info about the OS and Swagger
+ * meta data for API gateway documents and client generation. 
+ */
 @RequestMapping("/__admin")
 public class Admin {
 
 
+    /** Health service. Admin provides a facade to the health service. */
     private final HealthServiceAsync healthService;
 
     private final ServiceEndpointInfo serviceEndpointInfo;
+
+    /**
+     * Admin uses the reactor to manage callbacks and periodic jobs.
+     */
     private final Reactor reactor;
 
 
+    /**
+     * Memory JMX bean to query JVM state.
+     */
     private final MemoryMXBean memoryMXBean;
+
+    /**
+     * OS JMX bean to query OS info.
+     */
     private final OperatingSystemMXBean operatingSystemMXBean;
+
+    /**
+     * Thread JMX bean to query # of threads.
+     */
     private final ThreadMXBean threadMXBean;
+
+    /**
+     * Runtime JMX bean to query info about JVM version.
+     */
     private final RuntimeMXBean runtimeMXBean;
 
 
+    /**
+     * List of blacklisted words that we do not allow when we query the env variables and system properties.
+     */
+    private final  List<String> blackListForSystemProperties;
 
 
+    /**
+     * Construct the admin
+     * @param healthService health service
+     * @param contextMetaBuilder meta data support
+     * @param adminJobs list of periodic admin jobs
+     * @param reactor reactor
+     * @param blackListForSystemProperties black list for env variables and system properties we don't want queried.
+     */
     public Admin(final HealthServiceAsync healthService,
                  final ContextMetaBuilder contextMetaBuilder,
                  final List<AdminJob> adminJobs,
-                 final Reactor reactor) {
+                 final Reactor reactor,
+                 final List<String> blackListForSystemProperties) {
 
         this.reactor = reactor;
         for (AdminJob adminJob : adminJobs) {
@@ -82,16 +118,33 @@ public class Admin {
         operatingSystemMXBean = ManagementFactory.getOperatingSystemMXBean();
         threadMXBean = ManagementFactory.getThreadMXBean();
         runtimeMXBean = ManagementFactory.getRuntimeMXBean();
+        this.blackListForSystemProperties = blackListForSystemProperties;
 
     }
 
-    @RequestMapping("/meta/")
+    /**
+     * Read annotation.
+     * @return swagger meta data
+     */
+    @RequestMapping(value = "/meta/", summary = "swagger meta data about this service",
+                    description = "Swagger meta data. Swagger is used to generate " +
+                            "documents and clients.",
+                    returnDescription = "returns Swagger 2.0 JSON meta data."
+                    )
     public ServiceEndpointInfo getServiceEndpointInfo() {
 
         return serviceEndpointInfo;
     }
 
-    @RequestMapping("/ok")
+    /**
+     *
+     * Read annotation.
+     * @param callback callback
+     */
+    @RequestMapping(value = "/ok",
+            summary = "simple health check",
+            description = "Health check. This returns true if all nodes (service actors) are healthy",
+            returnDescription = "true if all nodes are healthy, false if all nodes are not healthy")
     public void ok(final Callback<Boolean> callback) {
 
         healthService.ok(callback::accept);
@@ -99,30 +152,60 @@ public class Admin {
     }
 
 
-    @RequestMapping("/all-nodes/")
+    /**
+     *
+     * Read annotation.
+     * @param callback callback
+     */
+    @RequestMapping(value = "/all-nodes/",
+        summary = "Finds all nodes that have registered with health system",
+        description = "Finds all service actors and endpoints that are registered with the health system." +
+                "Each node will periodically check in with the health system." +
+                "Nodes can mark themselves unhealthy or just fail to check in",
+        returnDescription = "List of node names")
     public void findAllNodes(final Callback<List<String>> callback) {
 
         healthService.findAllNodes(callback::accept);
         healthService.clientProxyFlush();
     }
 
-    @RequestMapping("/system/property/")
+    /**
+     * Checks to see if the key is black listed
+     * @param key key
+     * @return true if blacklisted
+     */
+    private final boolean isBlackListed(final String key){
+        return blackListForSystemProperties.stream().anyMatch(new Predicate<String>() {
+            @Override
+            public boolean test(final String blackListedWord) {
+                return key.toUpperCase().contains(blackListedWord.toUpperCase());
+            }
+        });
+    }
+
+
+    @RequestMapping(value = "/system/property/",
+            summary = "",
+            description = "",
+            returnDescription = "")
     public Map<String, String> getSystemProperties() {
         Map<String, String> propertyMap = new LinkedHashMap<>(System.getProperties().size());
 
         System.getProperties().entrySet().stream()
-                .filter(entry ->
-                    !entry.getKey().toString().toUpperCase().contains("PASSWORD"))
+                .filter(entry -> !isBlackListed((String) entry.getKey()))
                 .forEach(
-                    entry -> propertyMap.put(entry.getKey().toString(), entry.getValue().toString()));
+                        entry -> propertyMap.put(entry.getKey().toString(), entry.getValue().toString()));
         return propertyMap;
     }
 
 
-    @RequestMapping("/system/property")
+    @RequestMapping(value = "/system/property",
+            summary = "",
+            description = "",
+            returnDescription = "")
     public String getSystemProperty(@RequestParam(value = "p", required = true) final String propertyName) {
 
-        if (!(propertyName.toUpperCase().contains("PASSWORD"))) {
+        if (!isBlackListed(propertyName)) {
             return System.getProperties().getProperty(propertyName);
         } else {
             return "***********";
@@ -131,129 +214,219 @@ public class Admin {
 
 
 
-    @RequestMapping("/env/variable/")
+    @RequestMapping(value = "/env/variable/",
+            summary = "",
+            description = "",
+            returnDescription = "")
     public Map<String, String> getEnvironmentVariables() {
-        return System.getenv();
+
+        final Map<String, String> envMap = new LinkedHashMap<>(System.getenv().size());
+        System.getenv().entrySet().stream()
+                .filter(entry->!isBlackListed(entry.getKey()))
+                .forEach(entry->envMap.put(entry.getKey(), entry.getValue()));
+
+        return envMap;
     }
 
-    @RequestMapping("/env/variable")
-    public String getEnvironmentVariable(@RequestParam("v") final String variableName) {
-        return System.getProperties().getProperty(variableName);
+    @RequestMapping(value = "/env/variable",
+            summary = "",
+            description = "",
+            returnDescription = "")
+    public String getEnvironmentVariable(@RequestParam(value = "v", required = true)
+                                             final String variableName) {
+
+        if (!isBlackListed(variableName)) {
+            return System.getProperties().getProperty(variableName);
+
+        } else {
+            return "***********";
+        }
     }
 
-    @RequestMapping("/available-processors")
+    @RequestMapping(value = "/available-processors",
+            summary = "Available Processors",
+            description = "This value may change during a particular invocation of the virtual" +
+                    " machine.  Applications that are sensitive to the number of available" +
+                    " processors should therefore occasionally poll this property and adjust" +
+                    " their resource usage appropriately.",
+            returnDescription = "the maximum number of processors available to the virtual" +
+                    "machine; never smaller than one")
     public int getAvailableProcessors() {
         return Runtime.getRuntime().availableProcessors();
     }
 
 
-    @RequestMapping("/memory/free")
+    @RequestMapping(value = "/memory/free",
+            summary = "Free Memory",
+            description = "The amount of free memory in the Java Virtual Machine." +
+                    "Calling the `gc` method may result in increasing the value returned" +
+                    "by `freeMemory`.",
+            returnDescription = "Returns the amount of free memory in the Java Virtual Machine.")
     public long getFreeMemory() {
         return Runtime.getRuntime().freeMemory();
     }
 
 
-    @RequestMapping("/memory/total")
+    @RequestMapping(value = "/memory/total",
+            summary = "Total Memory",
+            description = "Total Memory",
+            returnDescription = "Total Memory")
     public long getTotalMemory() {
         return Runtime.getRuntime().totalMemory();
     }
 
 
-    @RequestMapping("/memory/max")
+    @RequestMapping(value = "/memory/max",
+            summary = "Max Memory",
+            description = "Max Memory",
+            returnDescription = "Max Memory")
     public long getMaxMemory() {
         return Runtime.getRuntime().maxMemory();
     }
 
-    @RequestMapping("/memory/heap/usage")
+    @RequestMapping(value = "/memory/heap/usage",
+            summary = "Heap Usage",
+            description = "Heap Usage",
+            returnDescription = "Heap Usage")
     public long getMemoryHeapUsage() {
 
         return memoryMXBean.getHeapMemoryUsage().getUsed();
     }
 
-    @RequestMapping("/memory/non-heap/usage")
+    @RequestMapping(value = "/memory/non-heap/usage",
+            summary = "Non-heap Usage",
+            description = "Non-heap Usage",
+            returnDescription = "Non-heap Usage")
     public long getMemoryNonHeapUsage() {
         return memoryMXBean.getNonHeapMemoryUsage().getUsed();
     }
 
 
-    @RequestMapping("/thread/count")
+    @RequestMapping(value = "/thread/count",
+            summary = "Thread count",
+            description = "Thread count",
+            returnDescription = "Thread count")
     public int getThreadCount() {
         return threadMXBean.getThreadCount();
     }
 
 
-    @RequestMapping("/os/load-average")
+    @RequestMapping(value = "/os/load-average",
+            summary = "OS load average for last minute",
+            description = "The system load average is the sum of the number of runnable entities" +
+                    " queued to the {@linkplain #getAvailableProcessors available processors}" +
+                    " and the number of runnable entities running on the available processors" +
+                    " averaged over a period of time." +
+                    " The way in which the load average is calculated is operating system" +
+                    " specific but is typically a damped time-dependent average.",
+            returnDescription = "Returns the system load average for the last minute.")
     public double getSystemLoadAverage() {
         return operatingSystemMXBean.getSystemLoadAverage();
     }
 
 
-    @RequestMapping("/os/name")
+    @RequestMapping(value = "/os/name",
+            summary = "OS Name",
+            description = "The operating system name",
+            returnDescription = "Returns the operating system name")
     public String getOSName() {
         return operatingSystemMXBean.getName();
     }
 
-    @RequestMapping("/os/arch")
+    @RequestMapping(value = "/os/arch",
+            summary = "OS Architecture",
+            description = "OS Architecture",
+            returnDescription = "OS Architecture")
     public String getOSArch() {
         return operatingSystemMXBean.getArch();
     }
 
 
-    @RequestMapping("/os/version")
+    @RequestMapping(value = "/os/version",
+            summary = "OS Version",
+            description = "OS Version",
+            returnDescription = "OS Version")
     public String getOSVersion() {
         return operatingSystemMXBean.getVersion();
     }
 
 
-    @RequestMapping("/runtime/classpath")
+    @RequestMapping(value = "/runtime/classpath",
+            summary = "Classpath",
+            description = "The classpath of the JVM that is running",
+            returnDescription = "Classpath")
     public String getClassPath() {
         return runtimeMXBean.getClassPath();
     }
 
 
-    @RequestMapping("/runtime/boot-classpath")
+    @RequestMapping(value = "/runtime/boot-classpath",
+            summary = "Boot classpath",
+            description = "Boot classpath",
+            returnDescription = "Boot classpath")
     public String getBootClassPath() {
         return runtimeMXBean.getBootClassPath();
     }
 
 
-    @RequestMapping("/runtime/vm-version")
+    @RequestMapping(value = "/runtime/vm-version",
+            summary = "JVM version",
+            description = "JVM version",
+            returnDescription = "JVM version")
     public String getVmVersion() {
         return runtimeMXBean.getVmVersion();
     }
 
 
-    @RequestMapping("/runtime/vm-vendor")
+    @RequestMapping(value = "/runtime/vm-vendor",
+            summary = "JVM Vendor",
+            description = "JVM Vendor",
+            returnDescription = "JVM Vendor")
     public String getVmVendor() {
         return runtimeMXBean.getVmVendor();
     }
 
 
-    @RequestMapping("/runtime/lib-pat")
+    @RequestMapping(value = "/runtime/lib-path",
+            summary = "Runtime library path",
+            description = "Runtime library path",
+            returnDescription = "Runtime library path")
     public String getLibPath() {
         return runtimeMXBean.getLibraryPath();
     }
 
 
-    @RequestMapping("/runtime/spec-name")
+    @RequestMapping(value = "/runtime/spec-name",
+            summary = "Spec name",
+            description = "Specification of JVM name",
+            returnDescription = "Spec name")
     public String getSpecName() {
         return runtimeMXBean.getSpecName();
     }
 
 
 
-    @RequestMapping("/runtime/spec-version")
+    @RequestMapping(value = "/runtime/spec-version",
+            summary = "Spec version",
+            description = "Spec version",
+            returnDescription = "Spec version")
     public String getSpecVersion() {
         return runtimeMXBean.getSpecVersion();
     }
 
-    @RequestMapping("/runtime/spec-vendor")
+    @RequestMapping(value = "/runtime/spec-vendor",
+            summary = "Spec vendor",
+            description = "Spec vendor",
+            returnDescription = "Spec vendor")
     public String getSpecVendor() {
         return runtimeMXBean.getSpecVendor();
     }
 
 
-    @RequestMapping("/healthy-nodes/")
+    @RequestMapping(value = "/healthy-nodes/",
+            summary = "List of healthy nodes",
+            description = "List of nodes that are healthy.",
+            returnDescription = "List of healthy nodes")
     public void findAllHealthyNodes(final Callback<List<String>> callback) {
 
         healthService.findHealthyNodes(callback::accept);
@@ -261,7 +434,10 @@ public class Admin {
     }
 
 
-    @RequestMapping("/load-nodes/")
+    @RequestMapping(value = "/load-nodes/",
+            summary = "Load all health info about all nodes",
+            description = "Load all health info about all nodes",
+            returnDescription = "list of healthy nodes")
     public void loadNodes(final Callback<List<NodeHealthStat>> callback) {
         healthService.loadNodes(callback);
         healthService.clientProxyFlush();

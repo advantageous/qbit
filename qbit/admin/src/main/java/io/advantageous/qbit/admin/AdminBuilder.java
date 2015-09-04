@@ -2,6 +2,8 @@ package io.advantageous.qbit.admin;
 
 
 import io.advantageous.boon.core.IO;
+import io.advantageous.boon.core.Lists;
+import io.advantageous.boon.core.Str;
 import io.advantageous.qbit.admin.jobs.JavaStatsCollectorJob;
 import io.advantageous.qbit.config.PropertyResolver;
 import io.advantageous.qbit.http.server.HttpServer;
@@ -15,7 +17,6 @@ import io.advantageous.qbit.service.health.HealthServiceAsync;
 import io.advantageous.qbit.service.health.HealthServiceBuilder;
 import io.advantageous.qbit.service.stats.StatsCollector;
 
-import java.io.InputStream;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
@@ -46,6 +47,9 @@ public class AdminBuilder {
     private String webPageContents;
     private Supplier<String> webPageContentsSupplier;
 
+
+    private List<String> blackListForSystemProperties;
+
     private String microServiceName = null;
 
     /** Used to generate meta data. */
@@ -61,7 +65,42 @@ public class AdminBuilder {
     /** Reactor to schedule admin jobs. */
     private ReactorBuilder reactorBuilder;
     private String hostName;
-    private String machinName;
+    private String machineName;
+
+
+    public List<String> getBlackListForSystemProperties() {
+
+        if (blackListForSystemProperties == null) {
+
+            final String blackListForSystemProps = System.getenv().get("BLACK_LIST_FOR_SYSTEM_PROPS");
+
+            if (blackListForSystemProps==null) {
+
+                blackListForSystemProperties = new ArrayList<>();
+                blackListForSystemProperties.add("PWD");
+                blackListForSystemProperties.add("PASSWORD");
+            } else {
+                final String[] names = Str.splitComma(blackListForSystemProps);
+                final List<String> list = Lists.list(names);
+                blackListForSystemProperties = list;
+            }
+        }
+        return blackListForSystemProperties;
+    }
+
+    public AdminBuilder setBlackListForSystemProperties(
+            final List<String> blackListForSystemProperties) {
+        this.blackListForSystemProperties =
+                blackListForSystemProperties;
+        return this;
+    }
+
+    public AdminBuilder addBlackListSystemProperty(final String pattern) {
+
+        getBlackListForSystemProperties().add(pattern);
+        return this;
+    }
+
 
     public Reactor getReactor() {
         if (reactor == null) {
@@ -137,12 +176,12 @@ public class AdminBuilder {
 
     public AdminBuilder registerJavaVMStatsJob(final StatsCollector statsCollector) {
 
-        final JavaStatsCollectorJob jvmStatsJob = new JavaStatsCollectorJob(60, TimeUnit.SECONDS, statsCollector, getMachinName());
+        final JavaStatsCollectorJob jvmStatsJob = new JavaStatsCollectorJob(60, TimeUnit.SECONDS, statsCollector, getMachineName());
         return addAdminJob(jvmStatsJob);
     }
 
     public AdminBuilder registerJavaVMStatsJobEveryNSeconds(final StatsCollector statsCollector, final int everySeconds) {
-        final JavaStatsCollectorJob jvmStatsJob = new JavaStatsCollectorJob(everySeconds, TimeUnit.SECONDS, statsCollector, getMachinName());
+        final JavaStatsCollectorJob jvmStatsJob = new JavaStatsCollectorJob(everySeconds, TimeUnit.SECONDS, statsCollector, getMachineName());
         return addAdminJob(jvmStatsJob);
     }
 
@@ -298,7 +337,7 @@ public class AdminBuilder {
     public Admin getAdmin() {
         if (admin == null) {
             admin = new Admin(getHealthService(), getContextBuilder(),
-                    getAdminJobs(), getReactor());
+                    getAdminJobs(), getReactor(), new ArrayList<>(this.getBlackListForSystemProperties()));
         }
         return admin;
     }
@@ -408,15 +447,15 @@ public class AdminBuilder {
         return this;
     }
 
-    public String getMachinName() {
-        if (machinName == null) {
-            machinName = (getMicroServiceName() + "." + getHostName()).replace("..", ".");
+    public String getMachineName() {
+        if (machineName == null) {
+            machineName = (getMicroServiceName() + "." + getHostName()).replace("..", ".");
         }
-        return machinName;
+        return machineName;
     }
 
-    public AdminBuilder setMachinName(String machinName) {
-        this.machinName = machinName;
+    public AdminBuilder setMachineName(String machineName) {
+        this.machineName = machineName;
         return this;
     }
 }
