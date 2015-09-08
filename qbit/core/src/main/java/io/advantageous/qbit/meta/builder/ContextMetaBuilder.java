@@ -345,7 +345,7 @@ public class ContextMetaBuilder {
     }
 
     public ContextMeta build() {
-        return new ContextMeta(getRootURI(), getServices(),
+        return new ContextMeta(getTitle(), getRootURI(), getServices(),
                 getDescription(), getContactName(), getContactURL(), getContactEmail(),
                 getLicenseName(), getLicenseURL(), getVersion(), getHostAddress());
     }
