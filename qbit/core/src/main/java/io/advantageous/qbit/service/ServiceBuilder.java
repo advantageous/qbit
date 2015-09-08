@@ -214,7 +214,7 @@ public class ServiceBuilder {
 
         Set<String> methodNames = new HashSet<>();
 
-        int size = 0;
+        int size;
 
         for (MethodAccess methodAccess : methods) {
 
