@@ -18,6 +18,8 @@
 
 package io.advantageous.qbit.service;
 
+import io.advantageous.boon.core.reflection.ClassMeta;
+import io.advantageous.boon.core.reflection.MethodAccess;
 import io.advantageous.qbit.QBit;
 import io.advantageous.qbit.message.MethodCall;
 import io.advantageous.qbit.message.Request;
@@ -37,7 +39,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -198,7 +202,31 @@ public class ServiceBuilder {
         return serviceObject;
     }
 
-    public ServiceBuilder setServiceObject(Object serviceObject) {
+    public ServiceBuilder setServiceObject(final Object serviceObject) {
+
+        if (serviceObject == null) {
+            throw new IllegalArgumentException("ServiceBuilder setServiceObject:: serviceObject cant be null");
+        }
+
+        ClassMeta<?> classMeta = ClassMeta.classMeta(serviceObject.getClass());
+
+        Iterable<MethodAccess> methods = classMeta.methods();
+
+        Set<String> methodNames = new HashSet<>();
+
+        int size = 0;
+
+        for (MethodAccess methodAccess : methods) {
+
+            size = methodNames.size();
+
+            methodNames.add(methodAccess.name());
+
+            if (size == methodNames.size()) {
+                throw new IllegalStateException("QBit does not support method overloading");
+            }
+        }
+
         this.serviceObject = serviceObject;
         return this;
     }

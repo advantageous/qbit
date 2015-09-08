@@ -152,22 +152,6 @@ public class Admin {
     }
 
 
-    /**
-     *
-     * Read annotation.
-     * @param callback callback
-     */
-    @RequestMapping(value = "/all-nodes/",
-        summary = "Finds all nodes that have registered with health system",
-        description = "Finds all service actors and endpoints that are registered with the health system." +
-                "Each node will periodically check in with the health system." +
-                "Nodes can mark themselves unhealthy or just fail to check in",
-        returnDescription = "List of node names")
-    public void findAllNodes(final Callback<List<String>> callback) {
-
-        healthService.findAllNodes(callback::accept);
-        healthService.clientProxyFlush();
-    }
 
     /**
      * Checks to see if the key is black listed
@@ -440,6 +424,23 @@ public class Admin {
             returnDescription = "list of healthy nodes")
     public void loadNodes(final Callback<List<NodeHealthStat>> callback) {
         healthService.loadNodes(callback);
+        healthService.clientProxyFlush();
+    }
+
+    /**
+     *
+     * Read annotation.
+     * @param callback callback
+     */
+    @RequestMapping(value = "/all-nodes/",
+            summary = "Finds all nodes that have registered with health system",
+            description = "Finds all service actors and endpoints that are registered with the health system." +
+                    "Each node will periodically check in with the health system." +
+                    "Nodes can mark themselves unhealthy or just fail to check in",
+            returnDescription = "List of node names")
+    public void findAllNodes(final Callback<List<String>> callback) {
+
+        healthService.findAllNodes(callback::accept);
         healthService.clientProxyFlush();
     }
 
