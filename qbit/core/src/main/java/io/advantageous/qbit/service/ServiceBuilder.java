@@ -226,7 +226,8 @@ public class ServiceBuilder {
             methodNames.add(methodAccess.name());
 
             if (size == methodNames.size()) {
-                throw new IllegalStateException("QBit does not support method overloading method name "
+                throw new IllegalStateException("QBit does not support method overloading methods in Service Queues" +
+                        " problem name "
                         + methodAccess.name() + " is overloaded " + methodNames + " from class "
                         + classMeta.longName());
             }
