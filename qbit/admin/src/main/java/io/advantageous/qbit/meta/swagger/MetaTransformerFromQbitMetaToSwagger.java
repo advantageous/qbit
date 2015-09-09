@@ -250,7 +250,7 @@ public class MetaTransformerFromQbitMetaToSwagger {
 
                 /** TODO handle generic types */
                 if (parameterMeta.getType() == TypeType.INSTANCE) {
-                    parameterBuilder.setSchema(Schema.definitionRef(parameterMeta.getClassType().getSimpleName()));
+                    parameterBuilder.setSchema(Schema.definitionRef(parameterMeta.getClassType().getSimpleName(), ""));
                     parameterBuilder.setRequired(parameterMeta.getParam().isRequired());
                     operationBuilder.addParameter(parameterBuilder.build());
                     return;

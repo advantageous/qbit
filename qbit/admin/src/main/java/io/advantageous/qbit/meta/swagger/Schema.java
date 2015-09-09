@@ -8,71 +8,58 @@ public class Schema {
     private final String format;
     private final Schema items;
     private final Schema additionalProperties;
-
+    private final String description;
 
     @JsonProperty("$ref")
     private final String ref;
 
 
-    public static Schema map(Schema componentSchema) {
-        return  new Schema("object", null, null, componentSchema);
+    public static Schema map(Schema componentSchema, String description) {
+        return  new Schema("object", null, null, componentSchema, null, description);
     }
+
+    public static Schema array(Schema items, String description) {
+        return new Schema("array", null, items, null, null, description);
+    }
+
 
     public static Schema array(Schema items) {
-        return new Schema("array", null, items);
+        return new Schema("array", null, items, null, null, null);
     }
+
 
     public static Schema schema(String type) {
-        return new Schema(type, null, null);
+        return new Schema(type, null, null, null, null, null);
     }
 
 
-    public static Schema schema(String type, String format) {
-        return new Schema(type, format, null);
+    public static Schema schemaWithFormat(String type, String format) {
+        return new Schema(type, format, null, null, null, null);
     }
 
 
-    public static Schema definitionRef(String type) {
-        return new Schema(null, null, null, "#/definitions/" + type);
+    public static Schema definitionRef(String type, String description) {
+        return new Schema(null, null, null, null, "#/definitions/" + type, description);
+    }
+
+
+    public static Schema schemaWithDescription(Schema schema, String description) {
+        return new Schema(schema.type, schema.format, schema.items,
+                schema.additionalProperties, schema.ref, description);
     }
 
 
 
-    public Schema(String type, String format, Schema items) {
+    public Schema(final String type, final String format, final Schema items,
+                  final Schema additionalProperties, final String ref, final String description) {
         this.type = type;
         this.format = format;
         this.items = items;
-        ref =  null;
-        additionalProperties = null;
-    }
-
-    public Schema(String type, String format, Schema items, String $ref) {
-        this.type = type;
-        this.format = format;
-        this.items = items;
-        this.ref =  $ref;
-
-        additionalProperties = null;
-    }
-
-    public Schema(String type, String format, Schema items, Schema additionalProperties) {
-        this.type = type;
-        this.format = format;
-        this.items = items;
-        this.ref =  null;
-
+        this.ref =  ref;
         this.additionalProperties = additionalProperties;
+        this.description = description;
     }
 
-
-    public Schema(String type, String format) {
-        this.type = type;
-        this.format = format;
-        this.items = null;
-        ref =  null;
-
-        additionalProperties = null;
-    }
 
     public String getType() {
         return type;
@@ -95,4 +82,9 @@ public class Schema {
     public Schema getAdditionalProperties() {
         return additionalProperties;
     }
+
+    public String getDescription() {
+        return description;
+    }
+
 }
