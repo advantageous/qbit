@@ -218,12 +218,17 @@ public class ServiceBuilder {
 
         for (MethodAccess methodAccess : methods) {
 
+            if (!methodAccess.method().getDeclaringClass().isInterface()) {
+                    continue;
+            }
             size = methodNames.size();
 
             methodNames.add(methodAccess.name());
 
             if (size == methodNames.size()) {
-                throw new IllegalStateException("QBit does not support method overloading");
+                throw new IllegalStateException("QBit does not support method overloading method name "
+                        + methodAccess.name() + " is overloaded " + methodNames + " from class "
+                        + classMeta.longName());
             }
         }
 
