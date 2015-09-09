@@ -2,6 +2,7 @@ package io.advantageous.qbit.meta.swagger;
 
 import io.advantageous.boon.core.Maps;
 import io.advantageous.boon.core.TypeType;
+import io.advantageous.boon.core.reflection.AnnotationData;
 import io.advantageous.boon.core.reflection.ClassMeta;
 import io.advantageous.boon.core.reflection.fields.FieldAccess;
 import io.advantageous.qbit.meta.swagger.builders.DefinitionBuilder;
@@ -24,19 +25,19 @@ public class DefinitionClassCollector {
             /* Adding common primitive and basic type mappings. */
             String.class,           Schema.schema("string"),
             StringBuffer.class,     Schema.schema("string"),
-            Date.class,             Schema.schema("string", "dateTime"),
-            Integer.class,          Schema.schema("integer", "int32"),
-            int.class,              Schema.schema("integer", "int32"),
-            Long.class,             Schema.schema("integer", "int64"),
-            long.class,             Schema.schema("integer", "int64"),
-            Float.class,            Schema.schema("number", "float"),
-            float.class,            Schema.schema("number", "float"),
-            Double.class,           Schema.schema("number", "double"),
-            double.class,           Schema.schema("number", "double"),
-            Boolean.class,          Schema.schema("boolean", ""),
-            boolean.class,          Schema.schema("boolean", ""),
-            byte.class,             Schema.schema("string", "byte"),
-            Byte.class,             Schema.schema("string", "byte")
+            Date.class,             Schema.schemaWithFormat("string", "dateTime"),
+            Integer.class,          Schema.schemaWithFormat("integer", "int32"),
+            int.class,              Schema.schemaWithFormat("integer", "int32"),
+            Long.class,             Schema.schemaWithFormat("integer", "int64"),
+            long.class,             Schema.schemaWithFormat("integer", "int64"),
+            Float.class,            Schema.schemaWithFormat("number", "float"),
+            float.class,            Schema.schemaWithFormat("number", "float"),
+            Double.class,           Schema.schemaWithFormat("number", "double"),
+            double.class,           Schema.schemaWithFormat("number", "double"),
+            Boolean.class,          Schema.schemaWithFormat("boolean", ""),
+            boolean.class,          Schema.schemaWithFormat("boolean", ""),
+            byte.class,             Schema.schemaWithFormat("string", "byte"),
+            Byte.class,             Schema.schemaWithFormat("string", "byte")
 
     );
 
@@ -74,22 +75,19 @@ public class DefinitionClassCollector {
             return schema;
         }
 
-        /* This does not really handle generic returns or generic params which are collections but....
-                We know how to do this see io.advantageous.boon.core.reflection.fields.BaseField constructor
-                protected BaseField ( String name, Method getter, Method setter ) for an example.
-
-         */
-
         if (cls != null) {
             TypeType type = TypeType.getType(cls);
 
             if (type.isArray()) {
-                return Schema.array(Schema.definitionRef(cls.getComponentType().getSimpleName()));
+                final Schema componentSchema = Schema.definitionRef(cls.getComponentType().getSimpleName(), "");
+                return Schema.array(componentSchema, "");
             } else if (type.isCollection()) {
-                return Schema.array(Schema.definitionRef(componentClass.getSimpleName()));
+
+
+                return Schema.array(Schema.definitionRef(componentClass.getSimpleName(), ""), "");
             }
 
-            return Schema.definitionRef(cls.getSimpleName());
+            return Schema.definitionRef(cls.getSimpleName(), "");
         } else {
               return Schema.schema("string");
         }
@@ -123,6 +121,10 @@ public class DefinitionClassCollector {
             }
 
             final DefinitionBuilder definitionBuilder = new DefinitionBuilder();
+
+            final String description = getDescription(classMeta);
+
+            definitionBuilder.setDescription(description);
 
             Map<String, FieldAccess> fieldAccessMap = classMeta.fieldMap();
 
@@ -160,7 +162,7 @@ public class DefinitionClassCollector {
         } catch (Exception ex) {
 
             logger.warn("unable to convert field " + fieldAccess.name() + " from " + fieldAccess.declaringParent(), ex);
-            return Schema.schema("error", "error.see.logs");
+            return Schema.schemaWithFormat("error", "error.see.logs");
         }
 
     }
@@ -181,7 +183,9 @@ public class DefinitionClassCollector {
 
     private Schema convertFieldToMapSchema(final FieldAccess fieldAccess) {
 
-        Type[] actualTypeArguments = fieldAccess.getParameterizedType().getActualTypeArguments();
+        final Type[] actualTypeArguments = fieldAccess.getParameterizedType().getActualTypeArguments();
+
+        final String description = getDescription(fieldAccess);
 
 
         if (actualTypeArguments[1] instanceof  Class) {
@@ -192,9 +196,9 @@ public class DefinitionClassCollector {
                 if (!definitionMap.containsKey(fieldAccess.getComponentClass().getSimpleName())) {
                     addClass(fieldAccess.getComponentClass());
                 }
-                componentSchema = Schema.definitionRef(fieldAccess.getComponentClass().getSimpleName());
+                componentSchema = Schema.definitionRef(fieldAccess.getComponentClass().getSimpleName(), "");
             }
-            return Schema.map(componentSchema);
+            return Schema.map(componentSchema, description);
         } else {
             return null;
         }
@@ -229,13 +233,50 @@ public class DefinitionClassCollector {
     }
 
     private Schema convertFieldToDefinitionRef(final FieldAccess fieldAccess) {
+
+
         if (!definitionMap.containsKey(fieldAccess.type().getSimpleName())) {
             addClass(fieldAccess.type());
         }
-       return Schema.definitionRef(fieldAccess.type().getSimpleName());
+
+        final String description = getDescription(fieldAccess);
+        return Schema.definitionRef(fieldAccess.type().getSimpleName(), description);
+    }
+
+    private String getDescription(final FieldAccess fieldAccess) {
+        String description = "";
+        final Map<String, Object> descriptionMap = fieldAccess.getAnnotationData("Description");
+        if (descriptionMap != null) {
+
+            if (descriptionMap.containsKey("value")) {
+                description = descriptionMap.get("value").toString();
+            }
+        }
+        return description;
+    }
+
+
+    private String getDescription(ClassMeta classMeta) {
+        String description = "";
+
+        AnnotationData annotationData = classMeta.annotation("Description");
+
+        if (annotationData == null) {
+            return "";
+        }
+
+        final Map<String, Object> descriptionMap = annotationData.getValues();
+        if (descriptionMap != null) {
+            if (descriptionMap.containsKey("value")) {
+                description = descriptionMap.get("value").toString();
+            }
+        }
+        return description;
     }
 
     private Schema convertFieldToArraySchema(final FieldAccess fieldAccess) {
+
+        String description = getDescription(fieldAccess);
 
         Schema componentSchema = mappings.get(fieldAccess.getComponentClass());
             /* If it was not in the mapping, then it is complex. */
@@ -243,7 +284,7 @@ public class DefinitionClassCollector {
             if (!definitionMap.containsKey(fieldAccess.getComponentClass().getSimpleName())) {
                 addClass(fieldAccess.getComponentClass());
             }
-            componentSchema = Schema.definitionRef(fieldAccess.getComponentClass().getSimpleName());
+            componentSchema = Schema.definitionRef(fieldAccess.getComponentClass().getSimpleName(), description);
         }
         return Schema.array(componentSchema);
     }
