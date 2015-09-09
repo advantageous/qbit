@@ -214,23 +214,24 @@ public class ServiceBuilder {
 
         Set<String> methodNames = new HashSet<>();
 
-        int size;
 
         for (MethodAccess methodAccess : methods) {
 
             if (methodAccess.method().getDeclaringClass().isInterface()) {
                     continue;
             }
-            size = methodNames.size();
 
-            methodNames.add(methodAccess.name());
 
-            if (size == methodNames.size()) {
-                throw new IllegalStateException("QBit does not support method overloading methods in Service Queues" +
+            if (methodNames.contains(methodAccess.name())) {
+                logger.error("QBit does not support method overloading methods in Service Queues" +
                         " problem name "
                         + methodAccess.name() + " is overloaded " + methodNames + " from class "
                         + classMeta.longName());
+
+            } else {
+                methodNames.add(methodAccess.name());
             }
+
         }
 
         this.serviceObject = serviceObject;
