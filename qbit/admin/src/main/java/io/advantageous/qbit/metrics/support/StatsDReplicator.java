@@ -96,70 +96,36 @@ If the count at flush is 0 then you can opt to send no metric at all for this se
     @SuppressWarnings("UnusedReturnValue")
     public boolean timing(String key, long value) {
 
-        return timing(key, value, 1.0);
+        return timingWithSampleRate(key, value, 1.0);
     }
 
-    public boolean timing(String key, long value, double sampleRate) {
+    public boolean timingWithSampleRate(String key, long value, double sampleRate) {
         return send(sampleRate, String.format(Locale.ENGLISH, "%s:%d|ms", key, value));
     }
 
-    public boolean decrement(String key) {
-        return increment(key, -1, 1.0);
-    }
-
-    public boolean decrement(String key, int magnitude) {
-        return decrement(key, magnitude, 1.0);
-    }
-
-    public boolean decrement(String key, int magnitude, double sampleRate) {
-        magnitude = magnitude < 0 ? magnitude : -magnitude;
-        return increment(key, magnitude, sampleRate);
-    }
-
-    public boolean decrement(String... keys) {
-        return increment(-1, 1.0, keys);
-    }
-
-    public boolean decrement(int magnitude, String... keys) {
-        magnitude = magnitude < 0 ? magnitude : -magnitude;
-        return increment(magnitude, 1.0, keys);
-    }
-
-    public boolean decrement(int magnitude, double sampleRate, String... keys) {
-        magnitude = magnitude < 0 ? magnitude : -magnitude;
-        return increment(magnitude, sampleRate, keys);
-    }
 
     public boolean increment(String key) {
-        return increment(key, 1, 1.0);
+        return incrementWithMagnitudeAndSampleRate(key, 1, 1.0);
     }
 
-    @SuppressWarnings("UnusedReturnValue")
-    public boolean increment(String key, long magnitude) {
 
-        return increment(key, magnitude, 1.0);
+    public boolean incrementBy(String key, long increment) {
+        return incrementWithMagnitudeAndSampleRate(key, increment, 1.0);
     }
 
-    public boolean increment(String key, long magnitude, double sampleRate) {
+    public boolean incrementWithMagnitudeAndSampleRate(String key, long magnitude, double sampleRate) {
         String stat = String.format(Locale.ENGLISH, "%s:%s|c", key, magnitude);
         return send(sampleRate, stat);
     }
 
-    public boolean increment(long magnitude, double sampleRate, String... keys) {
-        String[] stats = new String[keys.length];
-        for (int i = 0; i < keys.length; i++) {
-            stats[i] = String.format(Locale.ENGLISH, "%s:%s|c", keys[i], magnitude);
-        }
-        return send(sampleRate, stats);
-    }
 
     @SuppressWarnings("UnusedReturnValue")
     public boolean gauge(String key, double magnitude) {
 
-        return gauge(key, magnitude, 1.0);
+        return gaugeWithSampleRate(key, magnitude, 1.0);
     }
 
-    public boolean gauge(String key, double magnitude, double sampleRate) {
+    public boolean gaugeWithSampleRate(String key, double magnitude, double sampleRate) {
         final String stat = String.format(Locale.ENGLISH, "%s:%s|g", key, magnitude);
         return send(sampleRate, stat);
     }
@@ -321,7 +287,7 @@ If the count at flush is 0 then you can opt to send no metric at all for this se
     public void replicateTiming(String name, long timed, long time) {
 
 
-        /* A 0 timing is not useful. */
+        /* A 0 timingWithSampleRate is not useful. */
         if (timed <= 0) {
             return;
         }
@@ -332,9 +298,9 @@ If the count at flush is 0 then you can opt to send no metric at all for this se
             localCount = Metric.timing(name);
             countMap.put(name, localCount);
 
-            /* Set the initial timing. */
+            /* Set the initial timingWithSampleRate. */
             localCount.value = timed;
-            /* Send the timing. */
+            /* Send the timingWithSampleRate. */
             timing(name, timed);
         }
 
@@ -355,7 +321,7 @@ If the count at flush is 0 then you can opt to send no metric at all for this se
 
                     switch (entry.getValue().type) {
                         case COUNT:
-                            increment(entry.getKey(), entry.getValue().value);
+                            incrementBy(entry.getKey(), entry.getValue().value);
                             break;
                         case TIMING:
                             timing(entry.getKey(), entry.getValue().value);
@@ -390,7 +356,7 @@ If the count at flush is 0 then you can opt to send no metric at all for this se
 
 
     enum MetricType {
-        COUNT, LEVEL, TIMING;
+        COUNT, LEVEL, TIMING
     }
 
     final static class Metric {
