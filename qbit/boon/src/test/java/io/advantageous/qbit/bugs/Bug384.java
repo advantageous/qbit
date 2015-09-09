@@ -53,7 +53,7 @@ public class Bug384 {
     }
 
 
-    @Test (expected = IllegalStateException.class)
+    @Test //(expected = IllegalStateException.class)
     public void noOverloading() {
 
         ServiceQueue serviceQueue = ServiceBuilder.serviceBuilder().setServiceObject(new MyService()).build();
@@ -61,7 +61,7 @@ public class Bug384 {
     }
 
 
-    @Test (expected = IllegalStateException.class)
+    @Test //(expected = IllegalStateException.class)
     public void noOverloadingBundle() {
 
         ServiceBundleBuilder.serviceBundleBuilder().build().addService(new MyService()).start();
