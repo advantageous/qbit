@@ -55,9 +55,10 @@ public class StatsConfiguration {
 
     @Bean
     @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
-    public StatsCollector qbitStatsCollector(final @Qualifier("qbitStatsServiceQueue")
-                                             ServiceQueue qbitStatsServiceQueue) {
+    public StatsCollector qbitStatsCollector(final @Qualifier("qbitStatService")
+                                                StatService qbitStatService ) {
 
-        return new StatsCollectorBuffer(qbitStatsServiceQueue.createProxy(StatsCollector.class));
+        return new StatsCollectorBuffer(qbitStatService);
     }
+
 }
