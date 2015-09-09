@@ -8,6 +8,9 @@ import io.advantageous.qbit.client.ClientProxy;
  */
 public interface StatsCollector extends ClientProxy {
 
+    default void increment(String name) {
+    }
+
     default void recordCount(String name, long count) {
     }
 

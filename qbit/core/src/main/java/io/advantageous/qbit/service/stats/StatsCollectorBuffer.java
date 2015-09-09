@@ -63,6 +63,13 @@ public class StatsCollectorBuffer implements StatsCollector {
             this.lastLevelSent = lastLevelSent;
         }
     }
+
+
+    @Override
+    public void increment(final String name) {
+        recordCount(name, 1L);
+    }
+
     @Override
     public void recordCount(final String name, final long count) {
         RecordCount recordCount = counts.get(name);
