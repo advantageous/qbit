@@ -218,7 +218,7 @@ public class ServiceBuilder {
 
         for (MethodAccess methodAccess : methods) {
 
-            if (!methodAccess.method().getDeclaringClass().isInterface()) {
+            if (methodAccess.method().getDeclaringClass().isInterface()) {
                     continue;
             }
             size = methodNames.size();
