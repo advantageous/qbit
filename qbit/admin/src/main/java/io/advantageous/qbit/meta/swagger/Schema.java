@@ -43,6 +43,12 @@ public class Schema {
     }
 
 
+    public static Schema schemaWithDescription(Schema schema, String description) {
+        return new Schema(schema.type, schema.format, schema.items,
+                schema.additionalProperties, schema.ref, description);
+    }
+
+
 
     public Schema(final String type, final String format, final Schema items,
                   final Schema additionalProperties, final String ref, final String description) {
@@ -80,4 +86,5 @@ public class Schema {
     public String getDescription() {
         return description;
     }
+
 }

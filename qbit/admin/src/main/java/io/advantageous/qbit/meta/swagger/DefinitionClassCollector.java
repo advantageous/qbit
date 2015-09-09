@@ -154,8 +154,16 @@ public class DefinitionClassCollector {
             final Class<?> type = fieldAccess.type();
             final Schema schema = mappings.get(type);
 
+            final String description = getDescription(fieldAccess);
+
             if (schema != null) {
-                return schema;
+
+                if (description == null) {
+                    return schema;
+                } else {
+                    return Schema.schemaWithDescription(schema, description);
+
+                }
             }
 
             return convertFieldToComplexSchema(fieldAccess);
