@@ -173,8 +173,11 @@ public class HttpServerVertx implements HttpServer {
             httpServer.listen(port, host);
         }
 
-        logger.info("HTTP SERVER started on port " + port + " host " + host);
-
+        if (Str.isEmpty(host)) {
+            logger.info("HTTP SERVER started on port " + port + " default host ");
+        } else {
+            logger.info("HTTP SERVER started on port " + port + " host " + host);
+        }
     }
 
 
