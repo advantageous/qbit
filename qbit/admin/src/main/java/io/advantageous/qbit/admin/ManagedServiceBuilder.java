@@ -251,10 +251,19 @@ public class ManagedServiceBuilder {
         return this;
     }
 
+    public String findAdminPort() {
+        String qbitAdminPort = getAdminPort("QBIT_ADMIN_PORT");
+        if (Str.isEmpty(qbitAdminPort)) {
+            qbitAdminPort = getAdminPort("ADMIN_PORT");
+        }
+        return qbitAdminPort;
+    }
+
     public AdminBuilder getAdminBuilder() {
         if (adminBuilder == null) {
             adminBuilder = AdminBuilder.adminBuilder();
-            final String qbitAdminPort = System.getenv("QBIT_ADMIN_PORT");
+
+            final String qbitAdminPort = findAdminPort();
             if (qbitAdminPort!=null && !qbitAdminPort.isEmpty()) {
                 adminBuilder.setPort(Integer.parseInt(qbitAdminPort));
             }
@@ -264,6 +273,10 @@ public class ManagedServiceBuilder {
 
         }
         return adminBuilder;
+    }
+
+    private String getAdminPort(String qbit_admin_port) {
+        return System.getenv(qbit_admin_port);
     }
 
 
