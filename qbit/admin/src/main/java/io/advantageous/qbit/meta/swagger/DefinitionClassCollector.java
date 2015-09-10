@@ -64,10 +64,10 @@ public class DefinitionClassCollector {
 
 
     public Schema getSchema(final Class<?> cls) {
-        return getSchema(cls, null);
+        return getSchemaWithComponentClass(cls, null);
     }
 
-    public Schema getSchema(final Class<?> cls, Class<?> componentClass) {
+    public Schema getSchemaWithComponentClass(final Class<?> cls, Class<?> componentClass) {
 
         Schema schema = mappings.get(cls);
 
@@ -84,7 +84,12 @@ public class DefinitionClassCollector {
             } else if (type.isCollection()) {
 
 
-                return Schema.array(Schema.definitionRef(componentClass.getSimpleName(), ""), "");
+                if (componentClass != null) {
+                    return Schema.array(Schema.definitionRef(componentClass.getSimpleName(), ""), "");
+                } else {
+                    logger.info("Component class was null defaulting to string");
+                    return Schema.array(Schema.definitionRef("string", ""), "");
+                }
             }
 
             return Schema.definitionRef(cls.getSimpleName(), "");

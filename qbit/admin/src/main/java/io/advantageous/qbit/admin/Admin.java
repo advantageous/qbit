@@ -30,6 +30,8 @@ import io.advantageous.qbit.reactive.Callback;
 import io.advantageous.qbit.reactive.Reactor;
 import io.advantageous.qbit.service.health.HealthServiceAsync;
 import io.advantageous.qbit.service.health.NodeHealthStat;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.lang.management.*;
 import java.util.LinkedHashMap;
@@ -51,6 +53,9 @@ public class Admin {
     private final HealthServiceAsync healthService;
 
     private final ServiceEndpointInfo serviceEndpointInfo;
+
+
+    private final Logger logger = LoggerFactory.getLogger(Admin.class);
 
     /**
      * Admin uses the reactor to manage callbacks and periodic jobs.
@@ -109,8 +114,16 @@ public class Admin {
         final MetaTransformerFromQbitMetaToSwagger metaToSwagger =
                 new MetaTransformerFromQbitMetaToSwagger();
 
-        serviceEndpointInfo = metaToSwagger.serviceEndpointInfo(context);
+        ServiceEndpointInfo serviceEndpointInfo;
 
+        try {
+            serviceEndpointInfo = metaToSwagger.serviceEndpointInfo(context);
+        } catch (Exception ex) {
+            serviceEndpointInfo = null;
+            logger.warn("Unable to handle initialize swagger meta-data. The admin will still start.", ex);
+        }
+
+        this.serviceEndpointInfo = serviceEndpointInfo;
 
         this.healthService = healthService;
 
