@@ -140,7 +140,7 @@ public class MetaTransformerFromQbitMetaToSwagger {
 
             } else if (methodMeta.isReturnCollection() || methodMeta.isReturnArray()) {
 
-                responseBuilder.setSchema(definitionClassCollector.getSchema(methodMeta.getReturnType(),
+                responseBuilder.setSchema(definitionClassCollector.getSchemaWithComponentClass(methodMeta.getReturnType(),
                         methodMeta.getReturnTypeComponent()));
                 responseBuilder.setDescription(methodMeta.getReturnDescription());
                 operationBuilder.getResponses().put(200, responseBuilder.build());
