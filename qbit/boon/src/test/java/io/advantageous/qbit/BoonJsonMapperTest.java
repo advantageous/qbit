@@ -47,5 +47,8 @@ public class BoonJsonMapperTest {
 
         assertEquals("genre", value);
 
+
+        assertEquals(String.class, jsonMap.get("name").getClass());
+
     }
 }

@@ -138,7 +138,15 @@ public class BoonJsonMapper implements JsonMapper {
                     }
                 }
             }else {
-                convertedValue = Conversions.coerce(componentClassValue, value);
+                if (!(componentClassValue == Object.class)) {
+                    convertedValue = Conversions.coerce(componentClassValue, value);
+                } else {
+                    if (value instanceof Value) {
+                        convertedValue =  (V)((Value) value).toValue();
+                    } else {
+                        convertedValue = (V) value;
+                    }
+                }
             }
 
             results.put(convertedKey, convertedValue);
