@@ -20,10 +20,12 @@ package io.advantageous.qbit;
 
 import io.advantageous.boon.core.Conversions;
 import io.advantageous.boon.core.Sets;
+import io.advantageous.boon.core.Value;
 import io.advantageous.boon.core.reflection.Mapper;
 import io.advantageous.boon.core.reflection.MapperComplex;
 import io.advantageous.boon.core.reflection.fields.FieldAccessMode;
 import io.advantageous.boon.core.value.ValueContainer;
+import io.advantageous.boon.core.value.ValueMap;
 import io.advantageous.boon.json.JsonParserAndMapper;
 import io.advantageous.boon.json.JsonParserFactory;
 import io.advantageous.boon.json.JsonSerializer;
@@ -125,7 +127,16 @@ public class BoonJsonMapper implements JsonMapper {
             }
 
             if (value instanceof Map) {
-                convertedValue = mapper.fromMap(((Map<String, Object>) value), componentClassValue);
+                if (! (componentClassValue == Object.class) ) {
+                    convertedValue = mapper.fromMap(((Map<String, Object>) value), componentClassValue);
+                } else {
+
+                    if (value instanceof ValueMap) {
+                        convertedValue = convertToMap((ValueMap) value);
+                    } else {
+                        convertedValue = (V) value;
+                    }
+                }
             }else {
                 convertedValue = Conversions.coerce(componentClassValue, value);
             }
@@ -136,6 +147,31 @@ public class BoonJsonMapper implements JsonMapper {
 
         return results;
 
+    }
+
+    private <V> V convertToMap(ValueMap valueMap) {
+        final Map<String, Object> map = new LinkedHashMap<>(valueMap.size());
+
+        valueMap.entrySet().forEach(new Consumer<Map.Entry<String, Object>>() {
+            @Override
+            public void accept(Map.Entry<String, Object> entry) {
+
+                Object value = entry.getValue();
+                if (value instanceof ValueContainer) {
+                    ValueContainer valueContainer = ((ValueContainer) entry.getValue());
+                    value = valueContainer.toValue();
+                }
+
+                if (value instanceof Value) {
+                    map.put(entry.getKey(), ((Value) entry.getValue()).toValue());
+                } else if (value instanceof ValueMap) {
+                    map.put(entry.getKey(), convertToMap(((ValueMap) value)));
+                }
+
+            }
+        });
+
+        return (V) map;
     }
 
 
