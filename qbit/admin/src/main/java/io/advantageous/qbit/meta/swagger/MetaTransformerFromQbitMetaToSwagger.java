@@ -96,6 +96,10 @@ public class MetaTransformerFromQbitMetaToSwagger {
                 continue;
             }
 
+            if (methodAccess.annotation("HideMethod")!=null) {
+                continue;
+            }
+
 
             for (RequestMeta requestMeta : requestEndpoints) {
 

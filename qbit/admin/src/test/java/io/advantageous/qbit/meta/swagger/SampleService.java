@@ -34,6 +34,11 @@ import static io.advantageous.boon.core.Str.sputs;
 public class SampleService {
 
 
+    @HideMethod
+    public String hideMe() {
+        return "simple1";
+    }
+
     @RequestMapping("/simple1/")
     public String simple1() {
         return "simple1";
