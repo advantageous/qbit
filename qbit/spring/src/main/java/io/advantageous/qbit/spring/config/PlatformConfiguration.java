@@ -42,7 +42,7 @@ public class PlatformConfiguration {
     @Bean
     @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
     public HealthServiceAsync healthServiceAsync() {
-        return HealthServiceBuilder.healthServiceBuilder().buildHealthSystemReporter();
+        return HealthServiceBuilder.healthServiceBuilder().buildAndStart();
     }
 
     @Bean
