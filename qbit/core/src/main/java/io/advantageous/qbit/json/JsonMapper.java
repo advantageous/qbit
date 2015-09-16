@@ -63,7 +63,7 @@ public interface JsonMapper {
     String toJson(Object object);
 
     /**
-     * Converts from a json string using componentClassKey & componentClassValue as a guide to a Map.
+     * Converts from a json string using componentClassKey and componentClassValue as a guide to a Map.
      *
      * @param json json string
      * @param componentClassKey componentClassKey type of Key

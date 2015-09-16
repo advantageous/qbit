@@ -344,6 +344,7 @@ public class StatList extends AbstractList<Long> {
      * Sum
      * Provides overflow protection.
      * @param values values in int
+     * @param length length
      * @return sum
      */
     public static long bigSum( long[] values,  int length ) {
@@ -353,6 +354,8 @@ public class StatList extends AbstractList<Long> {
     /**
      * Big Sum
      * @param values values in int
+     * @param length length
+     * @param start start
      * @return sum
      */
     public static long bigSum( long[] values, int start, int length ) {
