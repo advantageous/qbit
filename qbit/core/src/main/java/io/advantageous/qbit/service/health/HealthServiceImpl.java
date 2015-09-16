@@ -50,6 +50,10 @@ public class HealthServiceImpl implements HealthService, Stoppable {
 
     private final boolean debug = logger.isDebugEnabled();
 
+    private static int healthServiceCount;
+
+
+
 
     /**
      * Constructor.
@@ -65,6 +69,20 @@ public class HealthServiceImpl implements HealthService, Stoppable {
         recheckIntervalMS = timeUnit.toMillis(recheckInterval);
         now = timer.now();
         lastCheckIn = now;
+        healthServiceCount ++;
+
+        if (logger.isDebugEnabled()) {
+            Exception ex = new Exception();
+            ex.fillInStackTrace();
+            logger.debug("Health Service CREATED", ex);
+        }
+
+        if (healthServiceCount > 1) {
+            logger.info("More than ONE Health Service created {}, if that is not intended turn on debugging", healthServiceCount);
+        }
+
+
+        logger.info("Health Service CREATED {}", this.hashCode());
     }
 
     /**

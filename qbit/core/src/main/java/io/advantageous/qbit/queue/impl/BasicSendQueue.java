@@ -18,6 +18,7 @@
 
 package io.advantageous.qbit.queue.impl;
 
+import io.advantageous.qbit.queue.Queue;
 import io.advantageous.qbit.queue.QueueException;
 import io.advantageous.qbit.queue.SendQueue;
 import io.advantageous.qbit.queue.UnableToEnqueueHandler;
@@ -61,6 +62,8 @@ public class BasicSendQueue<T> implements SendQueue<T> {
     private final String name;
     private final int enqueueTimeout;
 
+    private final Queue<T> owner;
+
 
 
     public BasicSendQueue(
@@ -72,7 +75,8 @@ public class BasicSendQueue<T> implements SendQueue<T> {
             final boolean tryTransfer,
             final TimeUnit timeUnit,
             final int enqueueTimeout,
-            final UnableToEnqueueHandler unableToEnqueueHandler) {
+            final UnableToEnqueueHandler unableToEnqueueHandler,
+            final Queue<T> owner) {
 
         this.timeUnit = timeUnit;
         this.enqueueTimeout = enqueueTimeout;
@@ -80,6 +84,8 @@ public class BasicSendQueue<T> implements SendQueue<T> {
         this.tryTransfer = tryTransfer;
         this.batchSize = batchSize;
         this.queue = queue;
+
+        this.owner = owner;
         queueLocal = new Object[batchSize];
         this.unableToEnqueueHandler = unableToEnqueueHandler;
         if (queue instanceof TransferQueue && checkBusy) {
@@ -133,15 +139,28 @@ public class BasicSendQueue<T> implements SendQueue<T> {
 
     @Override
     public boolean send(T item) {
+        checkStarted();
         boolean ableToSend = flushIfOverBatch();
         queueLocal[index] = item;
         index++;
         return ableToSend;
     }
 
+    int checkEveryStarted = 0;
+    private void checkStarted() {
+
+        if (checkEveryStarted % 100 == 0) {
+            if (!owner.started()) {
+                logger.warn("BasicSendQueue:: name {} send queue", name);
+            }
+        }
+
+        checkEveryStarted++;
+    }
+
     @Override
     public void sendAndFlush(T item) {
-
+        checkStarted();
         send(item);
         flushSends();
     }
@@ -149,12 +168,14 @@ public class BasicSendQueue<T> implements SendQueue<T> {
     @SafeVarargs
     @Override
     public final void sendMany(T... items) {
+        checkStarted();
         flushSends();
         sendArray(items);
     }
 
     @Override
     public void sendBatch(Iterable<T> items) {
+        checkStarted();
         flushSends();
         final Object[] array = objectArray(items);
         sendArray(array);
@@ -162,6 +183,7 @@ public class BasicSendQueue<T> implements SendQueue<T> {
 
     @Override
     public void sendBatch(Collection<T> items) {
+        checkStarted();
         flushSends();
         final Object[] array = objectArray(items);
         sendArray(array);

@@ -61,6 +61,8 @@ public class BasicQueue<T> implements Queue<T> {
     private final int enqueueTimeout;
     private final TimeUnit enqueueTimeoutTimeUnit;
 
+    private transient boolean started;
+
     public BasicQueue(final String name,
                       final int waitTime,
                       @SuppressWarnings("SameParameterValue") final TimeUnit timeUnit,
@@ -152,7 +154,7 @@ public class BasicQueue<T> implements Queue<T> {
         logger.info("SendQueue requested for {}", name);
         return new BasicSendQueue<>(name, batchSize, queue,
                 checkIfBusy, checkEvery, tryTransfer,
-                enqueueTimeoutTimeUnit, enqueueTimeout, unableToEnqueueHandler);
+                enqueueTimeoutTimeUnit, enqueueTimeout, unableToEnqueueHandler, this);
     }
 
 
@@ -160,6 +162,7 @@ public class BasicQueue<T> implements Queue<T> {
     public void startListener(final ReceiveQueueListener<T> listener) {
 
 
+        started = true;
         stop.set(false);
         logger.info("Starting queue listener for  {} {}" , name, listener);
 
@@ -191,6 +194,11 @@ public class BasicQueue<T> implements Queue<T> {
     @Override
     public int size() {
         return queue.size();
+    }
+
+    @Override
+    public boolean started() {
+        return started;
     }
 
     private void manageQueue(ReceiveQueueListener<T> listener) {
