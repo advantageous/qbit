@@ -125,6 +125,8 @@ public class DefinitionClassCollector {
                 return;
             }
 
+            definitionMap.put(classMeta.name(), null);
+
             final DefinitionBuilder definitionBuilder = new DefinitionBuilder();
 
             final String description = getDescription(classMeta);
@@ -146,7 +148,9 @@ public class DefinitionClassCollector {
 
             final Definition definition = definitionBuilder.build();
 
+
             definitionMap.put(classMeta.name(), definition);
+
         }catch (Exception ex) {
             logger.warn("Unable to add class " + classMeta.longName(), ex);
         }

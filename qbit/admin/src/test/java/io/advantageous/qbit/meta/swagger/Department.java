@@ -7,4 +7,6 @@ public class Department {
     Set<Employee> employeeList;
     Map<String, String> tags;
     Employee[] employeeArray;
+
+    Department parent;
 }
