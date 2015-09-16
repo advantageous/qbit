@@ -92,6 +92,11 @@ public class MetaTransformerFromQbitMetaToSwagger {
             final MethodAccess methodAccess = methodMeta.getMethodAccess();
 
 
+            if (methodAccess.method().isSynthetic()) {
+                continue;
+            }
+
+
             for (RequestMeta requestMeta : requestEndpoints) {
 
 
