@@ -151,7 +151,7 @@ public class BasicSendQueue<T> implements SendQueue<T> {
 
         if (checkEveryStarted % 100 == 0) {
             if (!owner.started()) {
-                logger.warn("BasicSendQueue:: name {} send queue", name);
+                logger.warn("BasicSendQueue:: name {} send queue NOT STARTED", name);
             }
         }
 

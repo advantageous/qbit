@@ -61,7 +61,6 @@ public class BasicQueue<T> implements Queue<T> {
     private final int enqueueTimeout;
     private final TimeUnit enqueueTimeoutTimeUnit;
 
-    private transient boolean started;
 
     public BasicQueue(final String name,
                       final int waitTime,
@@ -161,8 +160,6 @@ public class BasicQueue<T> implements Queue<T> {
     @Override
     public void startListener(final ReceiveQueueListener<T> listener) {
 
-
-        started = true;
         stop.set(false);
         logger.info("Starting queue listener for  {} {}" , name, listener);
 
@@ -198,7 +195,7 @@ public class BasicQueue<T> implements Queue<T> {
 
     @Override
     public boolean started() {
-        return started;
+        return !stop.get();
     }
 
     private void manageQueue(ReceiveQueueListener<T> listener) {
