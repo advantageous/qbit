@@ -25,7 +25,8 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Give something a name.
+ * Give something a description.
+ * Used mainly for Swagger documentation.
  *
  * @author Rick Hightower
  */
