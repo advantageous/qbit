@@ -82,4 +82,8 @@ public interface Queue<T> {
     void stop();
 
     int size();
+
+    default boolean started() {
+        return true;
+    }
 }
