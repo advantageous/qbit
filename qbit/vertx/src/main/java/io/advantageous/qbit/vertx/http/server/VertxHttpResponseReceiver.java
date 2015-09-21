@@ -65,8 +65,9 @@ public class VertxHttpResponseReceiver implements HttpResponseReceiver<Object> {
         }
     }
 
-    private void doResponse(int code, String contentType, Object body, MultiMap<String, String> headers) {
-        if (!headers.isEmpty()) {
+    private void doResponse(final int code, final String contentType, final Object body,
+                            final MultiMap<String, String> headers) {
+        if (headers!= null && !headers.isEmpty()) {
             for (Map.Entry<String, Collection<String>> entry : headers) {
                 this.response.putHeader(entry.getKey(), entry.getValue());
             }
@@ -77,7 +78,7 @@ public class VertxHttpResponseReceiver implements HttpResponseReceiver<Object> {
         this.response.setStatusMessage(HttpStatus.message(code));
 
 
-        Buffer buffer = createBuffer(body, this.response);
+        final Buffer buffer = createBuffer(body, this.response);
         this.response.end(buffer);
     }
 
