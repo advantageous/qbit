@@ -62,6 +62,8 @@ public class SupportingGetAndPostForSameServicesUnderSameURI extends TimedTestin
     @Test
     public void testWebSocket() throws Exception {
 
+        Sys.sleep(200);
+
         clientProxy.ping(s -> {
             puts(s);
             pongValue.set(s);

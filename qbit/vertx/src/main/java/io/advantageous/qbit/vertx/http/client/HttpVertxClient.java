@@ -38,6 +38,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.UnsupportedEncodingException;
+import java.net.ConnectException;
 import java.net.URLEncoder;
 import java.util.Collection;
 import java.util.Map;
@@ -205,15 +206,30 @@ public class HttpVertxClient implements HttpClient {
             logger.debug(sputs("HTTP CLIENT: sendHttpRequest:: \n{}\n", request, "\nparams\n", request.params()));
         }
 
-        String uri = getURICreateParamsIfNeeded(request);
+        final String uri = getURICreateParamsIfNeeded(request);
 
-        HttpMethod httpMethod = HttpMethod.valueOf(request.getMethod());
+        final HttpMethod httpMethod = HttpMethod.valueOf(request.getMethod());
 
         final HttpClientRequest httpClientRequest = httpClient.request(
                 httpMethod, uri,
                 httpClientResponse -> handleResponse(request, httpClientResponse));
 
         final MultiMap<String, String> headers = request.getHeaders();
+
+        httpClientRequest.exceptionHandler(error -> {
+
+        if (error instanceof ConnectException) {
+            closed.set(true);
+            try {
+                stop();
+            } catch (Exception ex) {
+                logger.warn("Unable to stop client " +
+                        "after failed connection", ex);
+            }
+        } else {
+            logger.error("Unable to connect to " + host + " port " + port, error);
+        }
+        });
 
         if (headers != null) {
 
@@ -359,6 +375,7 @@ public class HttpVertxClient implements HttpClient {
             @Override
             public void openWebSocket(WebSocket webSocket) {
 
+
                 httpClient.websocket(uri, vertxWebSocket -> {
                     this.vertxWebSocket = vertxWebSocket;
 
@@ -372,6 +389,13 @@ public class HttpVertxClient implements HttpClient {
 
                     /* Handle on Exception. */
                     vertxWebSocket.exceptionHandler(event -> {
+
+                        if (event instanceof ConnectException) {
+
+                            logger.error("Unable to connect to " + host + " port " + port, event);
+                            closed.set(true);
+                        }
+
                         if (event instanceof Exception) {
                             webSocket.onError((Exception) event);
                         } else {
@@ -459,17 +483,6 @@ public class HttpVertxClient implements HttpClient {
 
     private void connect() {
 
-        /*
-            private final boolean ssl;
-    private final boolean verifyHost;
-    private final boolean trustAll;
-    private final int maxWebSocketFrameSize;
-    private final boolean tryUseCompression;
-    private final String trustStorePath;
-    private final boolean tcpNoDelay;
-    private final int soLinger;
-
-         */
         final HttpClientOptions httpClientOptions = new HttpClientOptions();
         final JksOptions jksOptions = new JksOptions();
         jksOptions.setPath(trustStorePath).setPassword(trustStorePassword);
@@ -492,24 +505,8 @@ public class HttpVertxClient implements HttpClient {
 
         httpClient = vertx.createHttpClient(httpClientOptions);
 
-
-
         if (debug) logger.debug("HTTP CLIENT: connect:: \nhost {} \nport {}\n", host, port);
-//
-//        httpClient.exceptionHandler(throwable -> {
-//
-//            if (throwable instanceof ConnectException) {
-//                closed.set(true);
-//                try {
-//                    stop();
-//                } catch (Exception ex) {
-//                    logger.warn("Unable to stop client " +
-//                            "after failed connection", ex);
-//                }
-//            } else {
-//                logger.error("Unable to connect to " + host + " port " + port, throwable);
-//            }
-//        });
+
 
         Sys.sleep(100);
 
