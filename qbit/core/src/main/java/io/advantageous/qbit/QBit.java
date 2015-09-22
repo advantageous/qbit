@@ -36,6 +36,12 @@ import org.slf4j.LoggerFactory;
  * Main interface to QBit.
  * created by Richard on 9/26/14.
  *
+ * ##### Usage
+ * ```java
+ *     Factory factory = QBit.factory();
+ * ```
+ *
+ * Added Markdown support to JavaDoc.
  * @author rhightower
  */
 public class QBit {

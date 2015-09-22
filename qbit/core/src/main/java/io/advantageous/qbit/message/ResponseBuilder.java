@@ -4,12 +4,22 @@ import io.advantageous.qbit.message.impl.ResponseImpl;
 
 import java.util.Map;
 
+/** Builds a response. */
 public class ResponseBuilder {
 
 
+    /** The request that originated the response. */
     private Request<Object> request;
+
+    /** Address. */
     private String address;
+
+
+    /** Return Address. */
     private String returnAddress;
+
+
+    /** Params. */
     private Map<String, Object> params;
     private Object body;
     private long id;

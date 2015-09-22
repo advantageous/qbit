@@ -52,8 +52,12 @@ public class AdminBuilder {
 
     private String microServiceName = null;
 
-    /** Used to generate meta data. */
+    /** Used to generate meta data for services. */
     private ContextMetaBuilder contextBuilder;
+
+
+    /** Used to generate meta data for admin. */
+    private ContextMetaBuilder adminContextBuilder;
 
     /** Used to manage admin jobs. */
     private List<AdminJob> adminJobs;
@@ -336,7 +340,7 @@ public class AdminBuilder {
 
     public Admin getAdmin() {
         if (admin == null) {
-            admin = new Admin(getHealthService(), getContextBuilder(),
+            admin = new Admin(getHealthService(), getContextBuilder(), getAdminContextBuilder(),
                     getAdminJobs(), getReactor(), new ArrayList<>(this.getBlackListForSystemProperties()));
         }
         return admin;
@@ -456,6 +460,31 @@ public class AdminBuilder {
 
     public AdminBuilder setMachineName(String machineName) {
         this.machineName = machineName;
+        return this;
+    }
+
+    public ContextMetaBuilder getAdminContextBuilder() {
+        if (adminContextBuilder == null) {
+            adminContextBuilder = ContextMetaBuilder.contextMetaBuilder();
+            adminContextBuilder.setDescription("QBit Admin interface, used to administrate and query status of QBit services");
+            adminContextBuilder.setTitle("QBit Admin interface");
+            adminContextBuilder.setVersion("0.9");
+            adminContextBuilder.setLicenseURL("https://github.com/advantageous/qbit/blob/master/License");
+            adminContextBuilder.setContactURL("http://www.mammatustech.com/");
+            adminContextBuilder.setRootURI(this.getEndpointServerBuilder().getUri());
+            if (this.getEndpointServerBuilder().getHost()!=null) {
+                adminContextBuilder.setHostAddress(this.getEndpointServerBuilder().getHost() + ":" + this.getEndpointServerBuilder().getPort());
+            } else {
+                adminContextBuilder.setHostAddress("localhost:" + this.getEndpointServerBuilder().getPort());
+            }
+            adminContextBuilder.addService(Admin.class);
+        }
+        return adminContextBuilder;
+
+    }
+
+    public AdminBuilder setAdminContextBuilder(final ContextMetaBuilder adminContextBuilder) {
+        this.adminContextBuilder = adminContextBuilder;
         return this;
     }
 }
