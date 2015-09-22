@@ -19,9 +19,6 @@
 package io.advantageous.qbit.vertx.http.client;
 
 import io.advantageous.boon.core.Str;
-import io.advantageous.boon.core.Sys;
-import io.advantageous.boon.core.reflection.ClassMeta;
-import io.advantageous.boon.core.reflection.MethodAccess;
 import io.advantageous.boon.primitive.CharBuf;
 import io.advantageous.qbit.GlobalConstants;
 import io.advantageous.qbit.concurrent.ExecutorContext;
@@ -34,22 +31,20 @@ import io.advantageous.qbit.network.NetSocket;
 import io.advantageous.qbit.util.MultiMap;
 import io.advantageous.qbit.vertx.MultiMapWrapper;
 import io.advantageous.qbit.vertx.http.util.VertxCreate;
+import io.vertx.core.Vertx;
+import io.vertx.core.buffer.Buffer;
+import io.vertx.core.http.HttpClientOptions;
+import io.vertx.core.http.HttpClientRequest;
+import io.vertx.core.http.HttpClientResponse;
+import io.vertx.core.http.HttpHeaders;
+import io.vertx.core.net.JksOptions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.core.Vertx;
-import org.vertx.java.core.VertxFactory;
-import org.vertx.java.core.buffer.Buffer;
-import org.vertx.java.core.http.HttpClientRequest;
-import org.vertx.java.core.http.HttpClientResponse;
-import org.vertx.java.core.http.HttpHeaders;
 
 import java.io.UnsupportedEncodingException;
-import java.net.ConnectException;
 import java.net.URLEncoder;
 import java.util.Collection;
 import java.util.Map;
-import java.util.ServiceLoader;
-import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 
@@ -91,7 +86,7 @@ public class HttpVertxClient implements HttpClient {
     private final boolean tcpNoDelay;
     private final int soLinger;
     protected int poolSize;
-    protected org.vertx.java.core.http.HttpClient httpClient;
+    protected io.vertx.core.http.HttpClient httpClient;
     protected final Vertx vertx;
     volatile long responseCount = 0;
     private ExecutorContext executorContext;
@@ -180,7 +175,7 @@ public class HttpVertxClient implements HttpClient {
 
                 httpClientRequest.putHeader("Content-Type", request.getContentType());
             }
-            httpClientRequest.end(new Buffer(request.getBody()));
+            httpClientRequest.end( Buffer.buffer(request.getBody()));
 
         } else {
             httpClientRequest.end();
@@ -259,7 +254,8 @@ public class HttpVertxClient implements HttpClient {
 
         if (vertx != null) {
             try {
-                vertx.stop();
+                vertx.close();
+
             } catch (Exception ex) {
                 logger.debug("problem shutting down vertx for QBIT Http Client", ex);
 
@@ -303,21 +299,21 @@ public class HttpVertxClient implements HttpClient {
 
     private WebSocketSender createWebSocketSender(String uri) {
         return new WebSocketSender() {
-            volatile org.vertx.java.core.http.WebSocket vertxWebSocket;
+            volatile io.vertx.core.http.WebSocket vertxWebSocket;
 
             @Override
             public void sendText(String message) {
-                vertxWebSocket.writeTextFrame(message);
+                vertxWebSocket.writeFinalTextFrame(message);
             }
 
             @Override
             public void openWebSocket(WebSocket webSocket) {
 
-                httpClient.connectWebsocket(uri, vertxWebSocket -> {
+                httpClient.websocket(uri, vertxWebSocket -> {
                     this.vertxWebSocket = vertxWebSocket;
 
                     /* Handle on Message. */
-                    vertxWebSocket.dataHandler(
+                    vertxWebSocket.handler(
                             buffer -> webSocket.onTextMessage(buffer.toString("UTF-8"))
                     );
 
@@ -346,7 +342,7 @@ public class HttpVertxClient implements HttpClient {
 
             @Override
             public void sendBytes(byte[] message) {
-                vertxWebSocket.writeBinaryFrame(new Buffer(message));
+                vertxWebSocket.writeFinalBinaryFrame(Buffer.buffer(message));
             }
         };
     }
@@ -424,44 +420,48 @@ public class HttpVertxClient implements HttpClient {
     private final int soLinger;
 
          */
-        httpClient = vertx.createHttpClient().setHost(host).setPort(port)
+        final HttpClientOptions httpClientOptions = new HttpClientOptions();
+        final JksOptions jksOptions = new JksOptions();
+        jksOptions.setPath(trustStorePath).setPassword(trustStorePassword);
+
+        httpClientOptions.setDefaultHost(host).setDefaultPort(port)
                 .setConnectTimeout(timeOutInMilliseconds)
                 .setMaxPoolSize(poolSize)
                 .setKeepAlive(keepAlive)
                 .setPipelining(pipeline)
                 .setSoLinger(soLinger)
-                .setTCPNoDelay(tcpNoDelay)
+                .setTcpNoDelay(tcpNoDelay)
                 .setTryUseCompression(tryUseCompression)
-                .setSSL(ssl)
+                .setSsl(ssl)
                 .setTrustAll(trustAll)
                 .setVerifyHost(verifyHost)
-                .setTrustStorePath(trustStorePath)
-                .setKeyStorePassword(trustStorePassword)
-                .setMaxWebSocketFrameSize(maxWebSocketFrameSize);
+                .setMaxWebsocketFrameSize(maxWebSocketFrameSize)
+                .setUsePooledBuffers(true);
 
 
 
+        httpClient = vertx.createHttpClient(httpClientOptions);
 
-        httpClient.setUsePooledBuffers(true);
+
 
         if (debug) logger.debug("HTTP CLIENT: connect:: \nhost {} \nport {}\n", host, port);
+//
+//        httpClient.exceptionHandler(throwable -> {
+//
+//            if (throwable instanceof ConnectException) {
+//                closed.set(true);
+//                try {
+//                    stop();
+//                } catch (Exception ex) {
+//                    logger.warn("Unable to stop client " +
+//                            "after failed connection", ex);
+//                }
+//            } else {
+//                logger.error("Unable to connect to " + host + " port " + port, throwable);
+//            }
+//        });
 
-        httpClient.exceptionHandler(throwable -> {
-
-            if (throwable instanceof ConnectException) {
-                closed.set(true);
-                try {
-                    stop();
-                } catch (Exception ex) {
-                    logger.warn("Unable to stop client " +
-                            "after failed connection", ex);
-                }
-            } else {
-                logger.error("Unable to connect to " + host + " port " + port, throwable);
-            }
-        });
-
-        Sys.sleep(100);
+//        Sys.sleep(100);
 
         closed.set(false);
 

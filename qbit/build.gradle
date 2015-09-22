@@ -210,14 +210,14 @@ project('vertx') {
 project('vertx3') {
 
     ext {
-        vertxVersion = '2.1.1'
+        vertxVersion = '3.0.0'
     }
 
     dependencies {
         compile project(':qbit:boon')
         compile project(':qbit:core')
         compile group: 'io.vertx', name: 'vertx-core', version: vertxVersion
-        compile group: 'io.vertx', name: 'vertx-platform', version: vertxVersion
+        compile group: 'io.vertx', name: 'vertx-web', version: vertxVersion
 
         testCompile project(':qbit:test-support')
     }
