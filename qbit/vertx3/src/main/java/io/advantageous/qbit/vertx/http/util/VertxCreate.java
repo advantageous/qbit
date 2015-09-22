@@ -2,8 +2,8 @@ package io.advantageous.qbit.vertx.http.util;
 
 import io.advantageous.boon.core.reflection.ClassMeta;
 import io.advantageous.boon.core.reflection.MethodAccess;
-import org.vertx.java.core.Vertx;
-import org.vertx.java.core.VertxFactory;
+import io.vertx.core.Vertx;
+import io.vertx.core.spi.VertxFactory;
 
 import java.util.ServiceLoader;
 
@@ -31,7 +31,7 @@ public class VertxCreate {
     public static Vertx newVertx() {
         final ClassMeta<VertxFactory> vertxFactoryClassMeta = ClassMeta.classMeta(VertxFactory.class);
 
-        final Iterable<MethodAccess> createVertxMethods = vertxFactoryClassMeta.methods("createVertx");
+        final Iterable<MethodAccess> createVertxMethods = vertxFactoryClassMeta.methods("vertx");
 
 
         for (MethodAccess methodAccess : createVertxMethods) {

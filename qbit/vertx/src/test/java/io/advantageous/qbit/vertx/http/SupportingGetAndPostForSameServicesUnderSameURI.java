@@ -34,6 +34,7 @@ import io.advantageous.qbit.test.TimedTesting;
 import io.advantageous.qbit.util.MultiMap;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.util.concurrent.atomic.AtomicReference;
@@ -47,6 +48,7 @@ import static org.junit.Assert.assertNotNull;
 /**
  * created by rhightower on 1/19/15.
  */
+@Ignore
 public class SupportingGetAndPostForSameServicesUnderSameURI extends TimedTesting {
 
     Client client;

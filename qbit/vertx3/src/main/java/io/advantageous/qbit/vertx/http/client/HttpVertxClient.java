@@ -33,10 +33,7 @@ import io.advantageous.qbit.vertx.MultiMapWrapper;
 import io.advantageous.qbit.vertx.http.util.VertxCreate;
 import io.vertx.core.Vertx;
 import io.vertx.core.buffer.Buffer;
-import io.vertx.core.http.HttpClientOptions;
-import io.vertx.core.http.HttpClientRequest;
-import io.vertx.core.http.HttpClientResponse;
-import io.vertx.core.http.HttpHeaders;
+import io.vertx.core.http.*;
 import io.vertx.core.net.JksOptions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -147,8 +144,10 @@ public class HttpVertxClient implements HttpClient {
 
         String uri = getURICreateParamsIfNeeded(request);
 
+        HttpMethod httpMethod = HttpMethod.valueOf(request.getMethod());
+
         final HttpClientRequest httpClientRequest = httpClient.request(
-                request.getMethod(), uri,
+                httpMethod, uri,
                 httpClientResponse -> handleResponse(request, httpClientResponse));
 
         final MultiMap<String, String> headers = request.getHeaders();
