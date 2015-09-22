@@ -32,6 +32,7 @@ import io.advantageous.qbit.server.ServiceEndpointServer;
 import io.advantageous.qbit.service.ServiceProxyUtils;
 import io.advantageous.qbit.test.TimedTesting;
 import io.advantageous.qbit.util.MultiMap;
+import io.advantageous.qbit.util.PortUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Ignore;
@@ -45,10 +46,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 
-/**
- * created by rhightower on 1/19/15.
- */
-@Ignore
 public class SupportingGetAndPostForSameServicesUnderSameURI extends TimedTesting {
 
     Client client;
@@ -165,6 +162,7 @@ public class SupportingGetAndPostForSameServicesUnderSameURI extends TimedTestin
     public void setup() throws Exception {
         super.setupLatch();
 
+        port = PortUtils.findOpenPortStartAt(8888);
         pongValue = new AtomicReference<>();
 
         headers = new AtomicReference<>();
