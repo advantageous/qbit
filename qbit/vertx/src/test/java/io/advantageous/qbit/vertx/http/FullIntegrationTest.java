@@ -33,6 +33,7 @@ import io.advantageous.qbit.server.EndpointServerBuilder;
 import io.advantageous.qbit.server.ServiceEndpointServer;
 import io.advantageous.qbit.service.ServiceProxyUtils;
 import io.advantageous.qbit.test.TimedTesting;
+import io.advantageous.qbit.util.PortUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -65,12 +66,11 @@ public class FullIntegrationTest extends TimedTesting {
     @Test
     public void testWebSocket() throws Exception {
 
-        clientProxy.ping(new Callback<String>() {
-            @Override
-            public void accept(String s) {
-                puts(s);
-                pongValue.set(s);
-            }
+
+        //Sys.sleep(100);
+        clientProxy.ping(s -> {
+            puts(s);
+            pongValue.set(s);
         }, "hi");
 
         ServiceProxyUtils.flushServiceProxy(clientProxy);
@@ -158,7 +158,7 @@ public class FullIntegrationTest extends TimedTesting {
 
         super.setupLatch();
 
-        port += 10;
+        port = PortUtils.findOpenPortStartAt(7000);
         pongValue = new AtomicReference<>();
         returnCount.set(0);
 
@@ -192,7 +192,6 @@ public class FullIntegrationTest extends TimedTesting {
     @After
     public void teardown() throws Exception {
 
-        port++;
 
         if (!ok) {
             die("NOT OK");

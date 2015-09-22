@@ -19,6 +19,7 @@
 package io.advantageous.qbit.vertx.http.client;
 
 import io.advantageous.boon.core.Str;
+import io.advantageous.boon.core.Sys;
 import io.advantageous.boon.primitive.CharBuf;
 import io.advantageous.qbit.GlobalConstants;
 import io.advantageous.qbit.http.client.HttpClient;
@@ -510,7 +511,7 @@ public class HttpVertxClient implements HttpClient {
 //            }
 //        });
 
-//        Sys.sleep(100);
+        Sys.sleep(100);
 
         closed.set(false);
 
