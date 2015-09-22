@@ -17,7 +17,7 @@ import io.vertx.ext.web.Router;
  * If you are using routing or you want to limit this HttpServer to one route then you can
  * pass routes.
  *
- * This class allows you to mix and match Vertx routes and QBit REST routing. 
+ * This class allows you to mix and match Vertx routes and QBit REST routing.
  *
  * ##Usage
  *
