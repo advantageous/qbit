@@ -41,7 +41,7 @@ import org.slf4j.LoggerFactory;
  *     Factory factory = QBit.factory();
  * ```
  *
- * Added Markdown support to JavaDoc. 
+ * Added Markdown support to JavaDoc.
  * @author rhightower
  */
 public class QBit {

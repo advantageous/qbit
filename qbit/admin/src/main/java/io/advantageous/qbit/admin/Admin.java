@@ -52,6 +52,16 @@ public class Admin {
     /** Health service. Admin provides a facade to the health service. */
     private final HealthServiceAsync healthService;
 
+
+    /**
+     * End point that describes the admin.
+     */
+    private final ServiceEndpointInfo adminServiceEndpoint;
+
+
+    /**
+     * End point that describes the services.
+     */
     private final ServiceEndpointInfo serviceEndpointInfo;
 
 
@@ -93,6 +103,7 @@ public class Admin {
     /**
      * Construct the admin
      * @param healthService health service
+     * @param adminContextMetaBuilder meta data support for the Admin itself.
      * @param contextMetaBuilder meta data support
      * @param adminJobs list of periodic admin jobs
      * @param reactor reactor
@@ -100,6 +111,7 @@ public class Admin {
      */
     public Admin(final HealthServiceAsync healthService,
                  final ContextMetaBuilder contextMetaBuilder,
+                 final ContextMetaBuilder adminContextMetaBuilder,
                  final List<AdminJob> adminJobs,
                  final Reactor reactor,
                  final List<String> blackListForSystemProperties) {
@@ -109,6 +121,21 @@ public class Admin {
             reactor.addRepeatingTask(adminJob.every(), adminJob.timeUnit(),
                     adminJob.runnable());
         }
+
+        this.serviceEndpointInfo = createServiceEndpointInfo(contextMetaBuilder);
+        this.adminServiceEndpoint = createServiceEndpointInfo(adminContextMetaBuilder);
+        this.healthService = healthService;
+
+        memoryMXBean = ManagementFactory.getMemoryMXBean();
+        operatingSystemMXBean = ManagementFactory.getOperatingSystemMXBean();
+        threadMXBean = ManagementFactory.getThreadMXBean();
+        runtimeMXBean = ManagementFactory.getRuntimeMXBean();
+        this.blackListForSystemProperties = blackListForSystemProperties;
+
+    }
+
+    private ServiceEndpointInfo createServiceEndpointInfo(final ContextMetaBuilder contextMetaBuilder) {
+
 
         final ContextMeta context = contextMetaBuilder.build();
         final MetaTransformerFromQbitMetaToSwagger metaToSwagger =
@@ -122,17 +149,7 @@ public class Admin {
             serviceEndpointInfo = null;
             logger.warn("Unable to handle initialize swagger meta-data. The admin will still start.", ex);
         }
-
-        this.serviceEndpointInfo = serviceEndpointInfo;
-
-        this.healthService = healthService;
-
-        memoryMXBean = ManagementFactory.getMemoryMXBean();
-        operatingSystemMXBean = ManagementFactory.getOperatingSystemMXBean();
-        threadMXBean = ManagementFactory.getThreadMXBean();
-        runtimeMXBean = ManagementFactory.getRuntimeMXBean();
-        this.blackListForSystemProperties = blackListForSystemProperties;
-
+        return serviceEndpointInfo;
     }
 
     /**
@@ -148,6 +165,22 @@ public class Admin {
 
         return serviceEndpointInfo;
     }
+
+
+    /**
+     * Read annotation.
+     * @return swagger meta data for admin
+     */
+    @RequestMapping(value = "/admin-meta/", summary = "swagger meta data about the admin services",
+            description = "Swagger admin meta data for the admin itself. Swagger is used to generate " +
+                    "documents and clients.",
+            returnDescription = "returns Swagger 2.0 JSON meta data."
+    )
+    public ServiceEndpointInfo getAdminServiceEndpoint() {
+
+        return adminServiceEndpoint;
+    }
+
 
     /**
      *
