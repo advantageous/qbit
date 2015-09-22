@@ -18,7 +18,6 @@
 
 package io.advantageous.qbit.http.client;
 
-import io.advantageous.qbit.GlobalConstants;
 import io.advantageous.qbit.QBit;
 import io.advantageous.qbit.config.PropertyResolver;
 

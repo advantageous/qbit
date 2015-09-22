@@ -30,7 +30,6 @@ import io.advantageous.qbit.http.websocket.WebSocketSender;
 import io.advantageous.qbit.network.NetSocket;
 import io.advantageous.qbit.util.MultiMap;
 import io.advantageous.qbit.vertx.MultiMapWrapper;
-import io.advantageous.qbit.vertx.http.util.VertxCreate;
 import io.vertx.core.Vertx;
 import io.vertx.core.buffer.Buffer;
 import io.vertx.core.http.*;
@@ -114,7 +113,7 @@ public class HttpVertxClient implements HttpClient {
         this.host = host;
         this.timeOutInMilliseconds = timeOutInMilliseconds;
         this.poolSize = poolSize;
-        this.vertx = VertxCreate.newVertx();
+        this.vertx = Vertx.vertx();
         this.poolSize = poolSize;
         this.keepAlive = keepAlive;
         this.pipeline = pipeline;
@@ -131,6 +130,68 @@ public class HttpVertxClient implements HttpClient {
 
     }
 
+
+    /**
+     * Constructor that allows you to pass a vertx object.
+     * @param vertx vertx
+     * @param host host
+     * @param port port
+     * @param timeOutInMilliseconds timout milis
+     * @param poolSize poolsize
+     * @param autoFlush autoflush
+     * @param flushInterval flush interval
+     * @param keepAlive keepAlive
+     * @param pipeline pipeline enabled
+     * @param ssl ssl enabled
+     * @param verifyHost verify host enabled
+     * @param trustAll trust all
+     * @param maxWebSocketFrameSize maxWebSocketFrameSize
+     * @param tryUseCompression tryUseCompression
+     * @param trustStorePath trustStorePath
+     * @param trustStorePassword trustStorePassword
+     * @param tcpNoDelay tcpNoDelay
+     * @param soLinger soLinger
+     */
+    public HttpVertxClient(final Vertx vertx,
+                           final String host,
+                           final int port,
+                           final int timeOutInMilliseconds,
+                           final int poolSize,
+                           final boolean autoFlush,
+                           final int flushInterval,
+                           final boolean keepAlive,
+                           final boolean pipeline,
+                           final boolean ssl,
+                           final boolean verifyHost,
+                           final boolean trustAll,
+                           final int maxWebSocketFrameSize,
+                           final boolean tryUseCompression,
+                           final String trustStorePath,
+                           final String trustStorePassword,
+                           final boolean tcpNoDelay,
+                           final int soLinger) {
+
+        this.flushInterval = flushInterval;
+        this.port = port;
+        this.host = host;
+        this.timeOutInMilliseconds = timeOutInMilliseconds;
+        this.poolSize = poolSize;
+        this.vertx = vertx;
+        this.poolSize = poolSize;
+        this.keepAlive = keepAlive;
+        this.pipeline = pipeline;
+        this.autoFlush = autoFlush;
+        this.ssl = ssl;
+        this.verifyHost = verifyHost;
+        this.trustAll = trustAll;
+        this.maxWebSocketFrameSize = maxWebSocketFrameSize;
+        this.tryUseCompression = tryUseCompression;
+        this.trustStorePath = trustStorePath;
+        this.trustStorePassword = trustStorePassword;
+        this.tcpNoDelay = tcpNoDelay;
+        this.soLinger = soLinger;
+
+    }
 
 
     @Override
@@ -272,6 +333,7 @@ public class HttpVertxClient implements HttpClient {
         connect();
         if (autoFlush) {
 
+            /** TODO Get rid of ExecutorContext and use vertx. */
             if (executorContext != null) {
                 throw new IllegalStateException(sputs("Unable to startClient up Vertx client, it is already started"));
             }
