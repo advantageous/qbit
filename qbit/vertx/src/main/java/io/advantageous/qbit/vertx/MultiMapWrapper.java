@@ -32,9 +32,9 @@ import static io.advantageous.boon.core.Str.sputs;
 public class MultiMapWrapper implements MultiMap<String, String> {
 
 
-    final org.vertx.java.core.MultiMap vertxMap;
+    final io.vertx.core.MultiMap vertxMap;
 
-    public MultiMapWrapper(org.vertx.java.core.MultiMap vertxMap) {
+    public MultiMapWrapper(io.vertx.core.MultiMap vertxMap) {
         this.vertxMap = vertxMap;
     }
 

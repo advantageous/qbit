@@ -181,33 +181,6 @@ project('servlet') {
 
 project('vertx') {
 
-    ext {
-        vertxVersion = '2.1.1'
-    }
-
-    dependencies {
-        compile project(':qbit:boon')
-        compile project(':qbit:core')
-        compile group: 'io.vertx', name: 'vertx-core', version: vertxVersion
-        compile group: 'io.vertx', name: 'vertx-platform', version: vertxVersion
-
-        testCompile project(':qbit:test-support')
-    }
-
-    uploadArchives {
-        repositories {
-            mavenDeployer {
-                pom.project {
-                    description 'Vertx support for qbit'
-                }
-            }
-        }
-    }
-}
-
-
-
-project('vertx3') {
 
     ext {
         vertxVersion = '3.0.0'
@@ -233,13 +206,15 @@ project('vertx3') {
     }
 }
 
+
+
 project('consul-client') {
 
 
     test.onlyIf { Boolean.getBoolean('integration.tests') }
 
     dependencies {
-        compile project(":qbit:vertx3")
+        compile project(":qbit:vertx")
     }
 
     uploadArchives {
@@ -263,7 +238,7 @@ project('admin') {
         compile project(':qbit:core')
         testCompile project(':qbit:consul-client')
         testCompile project(':qbit:test-support')
-        compile project(":qbit:vertx3")
+        compile project(":qbit:vertx")
     }
 
     uploadArchives {
@@ -281,7 +256,7 @@ project('spring') {
 
     test.onlyIf { Boolean.getBoolean('integration.tests') }
     dependencies {
-        compile project(':qbit:vertx3')
+        compile project(':qbit:vertx')
         compile project(':qbit:admin')
         compile project(':qbit:consul-client')
         compile project(":qbit:eventbus-replicator")
@@ -309,7 +284,7 @@ project('eventbus-replicator') {
         compile project(':qbit:boon')
         compile project(':qbit:core')
         compile project(':qbit:consul-client')
-        compile project(":qbit:vertx3")
+        compile project(":qbit:vertx")
         testCompile project(':qbit:test-support')
     }
 

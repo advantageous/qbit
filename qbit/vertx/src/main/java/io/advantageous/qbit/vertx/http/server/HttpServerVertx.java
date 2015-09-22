@@ -35,12 +35,13 @@ import io.advantageous.qbit.service.discovery.ServiceDiscovery;
 import io.advantageous.qbit.service.health.HealthServiceAsync;
 import io.advantageous.qbit.system.QBitSystemManager;
 import io.advantageous.qbit.util.Timer;
+import io.vertx.core.Vertx;
+import io.vertx.core.buffer.Buffer;
+import io.vertx.core.http.HttpServerRequest;
+import io.vertx.core.http.ServerWebSocket;
+import io.vertx.core.net.JksOptions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.core.Vertx;
-import org.vertx.java.core.buffer.Buffer;
-import org.vertx.java.core.http.HttpServerRequest;
-import org.vertx.java.core.http.ServerWebSocket;
 
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.TimeUnit;
@@ -61,7 +62,8 @@ public class HttpServerVertx implements HttpServer {
     private final Vertx vertx;
     private final HttpServerOptions options;
     private final VertxServerUtils vertxUtils = new VertxServerUtils();
-    private org.vertx.java.core.http.HttpServer httpServer;
+    private final boolean startedVertx;
+    private io.vertx.core.http.HttpServer httpServer;
 
     /**
      * For Metrics.
@@ -73,7 +75,8 @@ public class HttpServerVertx implements HttpServer {
     private volatile int closeCount;
 
 
-    public HttpServerVertx(final Vertx vertx,
+    public HttpServerVertx(final boolean startedVertx,
+                           final Vertx vertx,
                            final String endpointName,
                            final HttpServerOptions options,
                            final QBitSystemManager systemManager,
@@ -83,6 +86,8 @@ public class HttpServerVertx implements HttpServer {
                            final TimeUnit serviceDiscoveryTtlTimeUnit,
                            final CopyOnWriteArrayList<HttpResponseDecorator> decorators,
                            final HttpResponseCreator httpResponseCreator) {
+
+        this.startedVertx = startedVertx;
 
         this.simpleHttpServer = new SimpleHttpServer(endpointName, systemManager,
                 options.getFlushInterval(), options.getPort(), serviceDiscovery,
@@ -150,22 +155,32 @@ public class HttpServerVertx implements HttpServer {
         if (debug) {
             vertx.setPeriodic(10_000, event -> logger.info("Exception Count {} Close Count {}", exceptionCount, closeCount));
         }
-        httpServer = vertx.createHttpServer();
 
-        httpServer.setTCPNoDelay(options.isTcpNoDelay());
-        httpServer.setSoLinger(options.getSoLinger());
-        httpServer.setUsePooledBuffers(options.isUsePooledBuffers());
-        httpServer.setReuseAddress(options.isReuseAddress());
-        httpServer.setAcceptBacklog(options.getAcceptBackLog());
-        httpServer.setTCPKeepAlive(options.isKeepAlive());
-        httpServer.setCompressionSupported(options.isCompressionSupport());
-        httpServer.setMaxWebSocketFrameSize(options.getMaxWebSocketFrameSize());
+
+
+        final io.vertx.core.http.HttpServerOptions vertxOptions = new io.vertx.core.http.HttpServerOptions();
+
+
+        vertxOptions.setTcpNoDelay(options.isTcpNoDelay());
+        vertxOptions.setSoLinger(options.getSoLinger());
+        vertxOptions.setUsePooledBuffers(options.isUsePooledBuffers());
+        vertxOptions.setReuseAddress(options.isReuseAddress());
+        vertxOptions.setAcceptBacklog(options.getAcceptBackLog());
+        vertxOptions.setTcpKeepAlive(options.isKeepAlive());
+        vertxOptions.setCompressionSupported(options.isCompressionSupport());
+        vertxOptions.setMaxWebsocketFrameSize(options.getMaxWebSocketFrameSize());
+        vertxOptions.setSsl(options.isSsl());
+
+
+        final JksOptions jksOptions = new JksOptions();
+        jksOptions.setPath(options.getTrustStorePath());
+        jksOptions.setPassword(options.getTrustStorePassword());
+
+        vertxOptions.setTrustStoreOptions(jksOptions);
+        httpServer = vertx.createHttpServer(vertxOptions);
+
         httpServer.websocketHandler(this::handleWebSocketMessage);
         httpServer.requestHandler(this::handleHttpRequest);
-        httpServer.setSSL(options.isSsl());
-        httpServer.setTrustStorePath(options.getTrustStorePath());
-        httpServer.setKeyStorePassword(options.getTrustStorePassword());
-
 
         if (Str.isEmpty(host)) {
             httpServer.listen(port);
@@ -190,8 +205,8 @@ public class HttpServerVertx implements HttpServer {
                 httpServer.close();
             }
 
-            if (vertx != null) {
-                vertx.stop();
+            if (startedVertx && vertx != null) {
+                vertx.close();
             }
         } catch (Exception ex) {
 
@@ -210,7 +225,7 @@ public class HttpServerVertx implements HttpServer {
             logger.debug("HttpServerVertx::handleHttpRequest::{}:{}", request.method(), request.uri());
         }
 
-        switch (request.method()) {
+        switch (request.method().toString()) {
 
             case "PUT":
             case "POST":
@@ -220,7 +235,8 @@ public class HttpServerVertx implements HttpServer {
 
                 if (HttpContentTypes.isFormContentType(contentType)) {
 
-                    request.expectMultiPart(true);
+                    request.setExpectMultipart(true);
+
                     request.endHandler(event -> {
 
                         final HttpRequest postRequest = vertxUtils.createRequest(request, null,
