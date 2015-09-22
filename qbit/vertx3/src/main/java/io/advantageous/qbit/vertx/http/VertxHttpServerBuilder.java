@@ -59,10 +59,32 @@ import io.vertx.ext.web.Router;
  *  Note that you can pass `HttpServerBuilder` or a `HttpServer` to `EndpointServerBuilder`
  *  to use that builder instead or `HttpServer` instead of the default.
  *
+ *  #### EndpointServerBuilder integration
+ *  ```java
+ *
+ *      //Like before
+ *      vertxHttpServerBuilder = VertxHttpServerBuilder.vertxHttpServerBuilder()
+ *                   .setVertx(vertx).setHttpServer(httpServer).setRouter(router);
+ *      //Now just inject it into the vertxHttpServerBuilder before you call build
+ *      HttpServer httpServer = vertxHttpServerBuilder.build();
+ *      endpointServerBuilder.setHttpServer(httpServer);
+ *  ```
+ *
  *  If you are using QBit REST with Vertx, that is one integration point.
  *
  *  Also note that you can pass `HttpServerBuilder` or a `HttpServer` to `ManagedServiceBuilder`
  *  to use that builder instead or `HttpServer` instead of the default.
+ *
+ *  #### ManagedServiceBuilder integration
+ *  ```java
+ *     //Like before
+ *     vertxHttpServerBuilder = VertxHttpServerBuilder.vertxHttpServerBuilder()
+ *            .setVertx(vertx).setHttpServer(httpServer).setRouter(router);
+ *
+ *     //Now just inject it into the vertxHttpServerBuilder before you call build
+ *     HttpServer httpServer = vertxHttpServerBuilder.build();
+ *     managedServiceBuilder.setHttpServer(httpServer);
+ *  ```
  *
  *  If you wanted to use QBit REST and QBit Swagger support with Vertx then you
  *  would want to use `ManagedServiceBuilder` with this class.
