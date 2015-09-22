@@ -21,7 +21,6 @@ package io.advantageous.qbit.vertx.http.client;
 import io.advantageous.boon.core.Str;
 import io.advantageous.boon.primitive.CharBuf;
 import io.advantageous.qbit.GlobalConstants;
-import io.advantageous.qbit.concurrent.ExecutorContext;
 import io.advantageous.qbit.http.client.HttpClient;
 import io.advantageous.qbit.http.request.HttpRequest;
 import io.advantageous.qbit.http.request.HttpResponseReceiver;
@@ -85,10 +84,11 @@ public class HttpVertxClient implements HttpClient {
     protected io.vertx.core.http.HttpClient httpClient;
     protected final Vertx vertx;
     volatile long responseCount = 0;
-    private ExecutorContext executorContext;
     private final boolean autoFlush;
     private Consumer<Void> periodicFlushCallback = aVoid -> {
     };
+    private long flushTimerId;
+    private final boolean startedVertx;
 
     public HttpVertxClient(final String host,
                            final int port,
@@ -114,6 +114,7 @@ public class HttpVertxClient implements HttpClient {
         this.timeOutInMilliseconds = timeOutInMilliseconds;
         this.poolSize = poolSize;
         this.vertx = Vertx.vertx();
+        this.startedVertx = true;
         this.poolSize = poolSize;
         this.keepAlive = keepAlive;
         this.pipeline = pipeline;
@@ -177,6 +178,7 @@ public class HttpVertxClient implements HttpClient {
         this.timeOutInMilliseconds = timeOutInMilliseconds;
         this.poolSize = poolSize;
         this.vertx = vertx;
+        this.startedVertx = false;
         this.poolSize = poolSize;
         this.keepAlive = keepAlive;
         this.pipeline = pipeline;
@@ -298,10 +300,7 @@ public class HttpVertxClient implements HttpClient {
 
         this.closed.set(true);
 
-        if (executorContext != null) {
-            executorContext.stop();
-            executorContext = null;
-        }
+        this.vertx.cancelTimer(flushTimerId);
 
         try {
             if (httpClient != null) {
@@ -312,7 +311,7 @@ public class HttpVertxClient implements HttpClient {
             logger.debug("problem shutting down vertx httpClient for QBIT Http Client", ex);
         }
 
-        if (vertx != null) {
+        if (startedVertx && vertx != null) {
             try {
                 vertx.close();
 
@@ -333,18 +332,8 @@ public class HttpVertxClient implements HttpClient {
         connect();
         if (autoFlush) {
 
-            /** TODO Get rid of ExecutorContext and use vertx. */
-            if (executorContext != null) {
-                throw new IllegalStateException(sputs("Unable to startClient up Vertx client, it is already started"));
-            }
 
-            this.executorContext = scheduledExecutorBuilder()
-                    .setThreadName("HttpClient")
-                    .setInitialDelay(50)
-                    .setPeriod(this.flushInterval).setRunnable(this::autoFlush)
-                    .build();
-
-            executorContext.start();
+            flushTimerId = vertx.setPeriodic(this.flushInterval, event -> autoFlush());
         }
         return this;
     }

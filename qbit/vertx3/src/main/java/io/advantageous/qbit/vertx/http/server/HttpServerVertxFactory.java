@@ -49,7 +49,7 @@ public class HttpServerVertxFactory implements HttpServerFactory {
                              final HttpResponseCreator httpResponseCreator) {
 
 
-        return new HttpServerVertx(Vertx.vertx(), endPointName, options,
+        return new HttpServerVertx(true, Vertx.vertx(), endPointName, options,
                 systemManager, serviceDiscovery, healthServiceAsync,
                 serviceDiscoveryTtl, serviceDiscoveryTtlTimeUnit, decorators, httpResponseCreator);
 
