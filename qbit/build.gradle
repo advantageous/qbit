@@ -239,7 +239,7 @@ project('consul-client') {
     test.onlyIf { Boolean.getBoolean('integration.tests') }
 
     dependencies {
-        compile project(":qbit:vertx")
+        compile project(":qbit:vertx3")
     }
 
     uploadArchives {
@@ -263,7 +263,7 @@ project('admin') {
         compile project(':qbit:core')
         testCompile project(':qbit:consul-client')
         testCompile project(':qbit:test-support')
-        compile project(":qbit:vertx")
+        compile project(":qbit:vertx3")
     }
 
     uploadArchives {
@@ -281,7 +281,7 @@ project('spring') {
 
     test.onlyIf { Boolean.getBoolean('integration.tests') }
     dependencies {
-        compile project(':qbit:vertx')
+        compile project(':qbit:vertx3')
         compile project(':qbit:admin')
         compile project(':qbit:consul-client')
         compile project(":qbit:eventbus-replicator")
@@ -309,7 +309,7 @@ project('eventbus-replicator') {
         compile project(':qbit:boon')
         compile project(':qbit:core')
         compile project(':qbit:consul-client')
-        compile project(":qbit:vertx")
+        compile project(":qbit:vertx3")
         testCompile project(':qbit:test-support')
     }
 
