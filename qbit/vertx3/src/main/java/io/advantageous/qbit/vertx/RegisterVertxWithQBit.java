@@ -15,16 +15,21 @@
  *
  * QBit - The Microservice lib for Java : JSON, WebSocket, REST. Be The Web!
  */
-rootProject.name = 'qbit-bundle'
 
-include 'qbit'
-include 'qbit:boon', 'qbit:core', 'qbit:test-support', 'qbit:spring'
-include 'qbit:servlet', 'qbit:vertx', 'qbit:vertx3'
-include 'qbit:consul-client', 'qbit:eventbus-replicator', 'qbit:admin'
+package io.advantageous.qbit.vertx;
 
-include 'examples:standalone'
-include 'examples:basic', 'examples:basic:model', 'examples:basic:client', 'examples:basic:server'
-include 'examples:spring:spring-and-qbit-cpu-bench', 'examples:spring:spring-boot'
+import io.advantageous.qbit.spi.FactorySPI;
+import io.advantageous.qbit.vertx.http.client.HttpVertxClientFactory;
+import io.advantageous.qbit.vertx.http.server.HttpServerVertxFactory;
+import io.advantageous.qbit.vertx.http.client.HttpVertxClient;
 
-include 'testing:performance'
-include 'testing:performance:client', 'testing:performance:server'
+/**
+ * @author rhightower on 11/6/14.
+ */
+public class RegisterVertxWithQBit {
+
+    public static void registerVertxWithQBit() {
+        FactorySPI.setHttpServerFactory(new HttpServerVertxFactory());
+        FactorySPI.setHttpClientFactory(new HttpVertxClientFactory());
+    }
+}
