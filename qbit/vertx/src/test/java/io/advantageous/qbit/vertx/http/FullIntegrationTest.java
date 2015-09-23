@@ -27,7 +27,6 @@ import io.advantageous.qbit.http.client.HttpClient;
 import io.advantageous.qbit.http.client.HttpClientBuilder;
 import io.advantageous.qbit.http.request.HttpRequest;
 import io.advantageous.qbit.http.request.HttpRequestBuilder;
-import io.advantageous.qbit.http.request.HttpTextReceiver;
 import io.advantageous.qbit.reactive.Callback;
 import io.advantageous.qbit.server.EndpointServerBuilder;
 import io.advantageous.qbit.server.ServiceEndpointServer;
@@ -43,19 +42,16 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import static io.advantageous.boon.core.Exceptions.die;
 import static io.advantageous.boon.core.IO.puts;
+import static org.junit.Assert.assertNotNull;
 
 
 public class FullIntegrationTest extends TimedTesting {
 
-    static volatile int port = 7777;
     Client client;
     ServiceEndpointServer server;
     HttpClient httpClient;
     ClientServiceInterface clientProxy;
     AtomicInteger callCount = new AtomicInteger();
-    AtomicReference<String> pongValue;
-    boolean ok;
-    AtomicInteger returnCount = new AtomicInteger();
 
     /**
      * Holds on to Boon cache so we don't have to recreate reflected gak.
@@ -66,8 +62,8 @@ public class FullIntegrationTest extends TimedTesting {
     @Test
     public void testWebSocket() throws Exception {
 
+        final AtomicReference<String> pongValue = new AtomicReference<>();
 
-        //Sys.sleep(100);
         clientProxy.ping(s -> {
             puts(s);
             pongValue.set(s);
@@ -75,11 +71,14 @@ public class FullIntegrationTest extends TimedTesting {
 
         ServiceProxyUtils.flushServiceProxy(clientProxy);
 
-        waitForTrigger(20, o -> this.pongValue.get() != null);
+        waitForTrigger(2, o -> pongValue.get() != null);
 
 
-        final String pongValue = this.pongValue.get();
-        ok = pongValue.equals("hi pong") || die();
+        final String value = pongValue.get();
+
+        assertNotNull(value);
+
+        ok = value.equals("hi pong") || die();
 
     }
 
@@ -87,11 +86,12 @@ public class FullIntegrationTest extends TimedTesting {
     public void testWebSocketSend10() throws Exception {
 
 
+        final AtomicInteger returnCount = new AtomicInteger();
+
         final Callback<String> callback = s -> {
             returnCount.incrementAndGet();
 
             puts("                     PONG");
-            pongValue.set(s);
         };
 
         for (int index = 0; index < 20; index++) {
@@ -123,6 +123,9 @@ public class FullIntegrationTest extends TimedTesting {
     @Test
     public void testRestCallSimple() throws Exception {
 
+
+        final AtomicReference<String> pongValue = new AtomicReference<>();
+
         final HttpRequest request = new HttpRequestBuilder()
                 .setUri("/services/mockservice/ping")
                 .setJsonBodyForPost("\"hello\"")
@@ -144,11 +147,11 @@ public class FullIntegrationTest extends TimedTesting {
 
         httpClient.flush();
 
-        waitForTrigger(20, o -> this.pongValue.get() != null);
+        waitForTrigger(20, o -> pongValue.get() != null);
 
 
-        final String pongValue = this.pongValue.get();
-        ok = pongValue.equals("\"hello pong\"") || die(pongValue);
+        final String value = pongValue.get();
+        ok = value.equals("\"hello pong\"") || die(pongValue);
 
     }
 
@@ -158,9 +161,7 @@ public class FullIntegrationTest extends TimedTesting {
 
         super.setupLatch();
 
-        port = PortUtils.findOpenPortStartAt(7000);
-        pongValue = new AtomicReference<>();
-        returnCount.set(0);
+        int port = PortUtils.findOpenPortStartAt(7000);
 
         httpClient = new HttpClientBuilder().setPort(port).build();
 
@@ -173,18 +174,14 @@ public class FullIntegrationTest extends TimedTesting {
 
         server.start();
 
-        Sys.sleep(200);
+        Sys.sleep(1000);
 
         clientProxy = client.createProxy(ClientServiceInterface.class, "mockService");
-        Sys.sleep(100);
         httpClient.startClient();
-        Sys.sleep(100);
         client.start();
 
         callCount.set(0);
-        pongValue.set(null);
 
-        Sys.sleep(200);
 
 
     }
@@ -193,16 +190,9 @@ public class FullIntegrationTest extends TimedTesting {
     public void teardown() throws Exception {
 
 
-        if (!ok) {
-            die("NOT OK");
-        }
-
-        Sys.sleep(200);
         server.stop();
-        Sys.sleep(200);
         client.stop();
         httpClient.stop();
-        Sys.sleep(200);
         server = null;
         client = null;
         System.gc();
