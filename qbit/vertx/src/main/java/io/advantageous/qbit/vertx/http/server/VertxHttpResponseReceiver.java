@@ -6,8 +6,8 @@ import io.advantageous.qbit.http.HttpStatus;
 import io.advantageous.qbit.http.request.HttpResponse;
 import io.advantageous.qbit.http.request.HttpResponseReceiver;
 import io.advantageous.qbit.util.MultiMap;
-import org.vertx.java.core.buffer.Buffer;
-import org.vertx.java.core.http.HttpServerResponse;
+import io.vertx.core.buffer.Buffer;
+import io.vertx.core.http.HttpServerResponse;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Collection;
@@ -88,12 +88,12 @@ public class VertxHttpResponseReceiver implements HttpResponseReceiver<Object> {
         if (body instanceof byte[]) {
             byte[] bBody = ((byte[]) body);
             response.putHeader("Content-Length", String.valueOf(bBody.length));
-            buffer = new Buffer(bBody);
+            buffer = Buffer.buffer(bBody);
         } else if (body instanceof String) {
             String sBody = ((String) body);
             byte[] bBody = sBody.getBytes(StandardCharsets.UTF_8);
             response.putHeader("Content-Length", String.valueOf(bBody.length));
-            buffer = new Buffer(bBody);
+            buffer = Buffer.buffer(bBody);
         }
         return buffer;
     }

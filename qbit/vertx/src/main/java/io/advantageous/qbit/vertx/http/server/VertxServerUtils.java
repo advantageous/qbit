@@ -32,12 +32,12 @@ import io.advantageous.qbit.util.MultiMap;
 import io.advantageous.qbit.util.MultiMapImpl;
 import io.advantageous.qbit.util.Timer;
 import io.advantageous.qbit.vertx.MultiMapWrapper;
+import io.vertx.core.buffer.Buffer;
+import io.vertx.core.http.HttpServerRequest;
+import io.vertx.core.http.HttpServerResponse;
+import io.vertx.core.http.ServerWebSocket;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.core.buffer.Buffer;
-import org.vertx.java.core.http.HttpServerRequest;
-import org.vertx.java.core.http.HttpServerResponse;
-import org.vertx.java.core.http.ServerWebSocket;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
@@ -81,7 +81,7 @@ public class VertxServerUtils {
         final String requestPath = request.path();
 
         httpRequestBuilder.setId(requestId.incrementAndGet())
-                .setUri(requestPath).setMethod(request.method())
+                .setUri(requestPath).setMethod(request.method().toString())
                 .setParams(params).setBodyBytes(body)
                 .setRemoteAddress(request.remoteAddress().toString())
                 .setResponse(createResponse(requestPath, headers, params, request.response(), decorators, httpResponseCreator))
@@ -144,12 +144,12 @@ public class VertxServerUtils {
                 .setWebSocketSender(new WebSocketSender() {
                     @Override
                     public void sendText(String message) {
-                        vertxServerWebSocket.writeTextFrame(message);
+                        vertxServerWebSocket.writeFinalTextFrame(message);
                     }
 
                     @Override
                     public void sendBytes(byte[] message) {
-                        vertxServerWebSocket.writeBinaryFrame(new Buffer(message));
+                        vertxServerWebSocket.writeFinalBinaryFrame(Buffer.buffer(message));
                     }
 
                     @Override
@@ -169,7 +169,7 @@ public class VertxServerUtils {
 
 
         /* Handle message. */
-        vertxServerWebSocket.dataHandler(buffer -> {
+        vertxServerWebSocket.handler(buffer -> {
             final String message = buffer.toString("UTF-8");
             webSocket.onTextMessage(message);
         });

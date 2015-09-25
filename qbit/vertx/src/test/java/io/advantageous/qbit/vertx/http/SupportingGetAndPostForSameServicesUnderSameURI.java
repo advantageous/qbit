@@ -29,9 +29,9 @@ import io.advantageous.qbit.http.request.*;
 import io.advantageous.qbit.reactive.Callback;
 import io.advantageous.qbit.server.EndpointServerBuilder;
 import io.advantageous.qbit.server.ServiceEndpointServer;
-import io.advantageous.qbit.service.ServiceProxyUtils;
 import io.advantageous.qbit.test.TimedTesting;
 import io.advantageous.qbit.util.MultiMap;
+import io.advantageous.qbit.util.PortUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -44,9 +44,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 
-/**
- * created by rhightower on 1/19/15.
- */
 public class SupportingGetAndPostForSameServicesUnderSameURI extends TimedTesting {
 
     Client client;
@@ -59,24 +56,6 @@ public class SupportingGetAndPostForSameServicesUnderSameURI extends TimedTestin
     AtomicReference<MultiMap<String, String>> headers;
     boolean ok;
     int port = 8888;
-
-    @Test
-    public void testWebSocket() throws Exception {
-
-        clientProxy.ping(s -> {
-            puts(s);
-            pongValue.set(s);
-        }, "hi");
-
-        ServiceProxyUtils.flushServiceProxy(clientProxy);
-
-        waitForTrigger(20, o -> this.pongValue.get() != null);
-
-
-        final String pongValue = this.pongValue.get();
-        ok = pongValue.equals("hi pong") || die();
-
-    }
 
     @Test
     public void testRestCallSimplePOST() throws Exception {
@@ -163,6 +142,7 @@ public class SupportingGetAndPostForSameServicesUnderSameURI extends TimedTestin
     public void setup() throws Exception {
         super.setupLatch();
 
+        port = PortUtils.findOpenPortStartAt(8888);
         pongValue = new AtomicReference<>();
 
         headers = new AtomicReference<>();

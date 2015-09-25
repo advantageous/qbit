@@ -20,7 +20,7 @@ package io.advantageous.qbit.vertx;
 
 import io.advantageous.qbit.util.MultiMap;
 import io.advantageous.qbit.util.MultiMapImpl;
-import org.vertx.java.core.buffer.Buffer;
+import io.vertx.core.buffer.Buffer;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Collection;
