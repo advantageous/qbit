@@ -152,6 +152,21 @@ public class Admin {
         return serviceEndpointInfo;
     }
 
+
+
+    /**
+     * Run a gc if possible.
+     * @return true if no exceptions
+     */
+    @RequestMapping(value = "/suggest-gc", summary = "run a gc if possible",
+            description = "Run a System.gc().",
+            returnDescription = "if run and there were no exceptions, returns true"
+    )
+    public boolean suggestGC() {
+        System.gc();
+        return true;
+    }
+
     /**
      * Read annotation.
      * @return swagger meta data
