@@ -42,7 +42,7 @@ import java.util.function.Predicate;
  */
 public class HttpServerBuilder {
 
-    private HttpServerConfig httpServerConfig = new HttpServerConfig();
+    private HttpServerConfig httpServerConfig;
     private QBitSystemManager qBitSystemManager;
     private ServiceDiscovery serviceDiscovery;
     private HealthServiceAsync healthServiceAsync;
@@ -142,6 +142,10 @@ public class HttpServerBuilder {
     }
 
     public HttpServerConfig getHttpServerConfig() {
+        if (httpServerConfig == null) {
+            httpServerConfig = new HttpServerConfig();
+            httpServerConfig.setFlushInterval(50);
+        }
         return httpServerConfig;
     }
 
@@ -154,87 +158,87 @@ public class HttpServerBuilder {
 
 
     public int getMaxRequestBatches() {
-        return httpServerConfig.getMaxRequestBatches();
+        return getHttpServerConfig().getMaxRequestBatches();
     }
 
 
     public HttpServerBuilder setMaxRequestBatches(int maxRequestBatches) {
-        this.httpServerConfig.setMaxRequestBatches(maxRequestBatches);
+        this.getHttpServerConfig().setMaxRequestBatches(maxRequestBatches);
         return this;
     }
 
     public int getWorkers() {
-        return httpServerConfig.getWorkers();
+        return getHttpServerConfig().getWorkers();
     }
 
     public HttpServerBuilder setWorkers(int workers) {
-        this.httpServerConfig.setWorkers(workers);
+        this.getHttpServerConfig().setWorkers(workers);
         return this;
     }
 
 
     public boolean isPipeline() {
 
-        return this.httpServerConfig.isPipeline();
+        return this.getHttpServerConfig().isPipeline();
     }
 
     public HttpServerBuilder setPipeline(boolean pipeline) {
-        this.httpServerConfig.setPipeline(pipeline);
+        this.getHttpServerConfig().setPipeline(pipeline);
         return this;
     }
 
     public String getHost() {
 
-        return this.httpServerConfig.getHost();
+        return this.getHttpServerConfig().getHost();
     }
 
     public HttpServerBuilder setHost(String host) {
-        this.httpServerConfig.setHost(host);
+        this.getHttpServerConfig().setHost(host);
         return this;
     }
 
     public int getPort() {
-        return this.httpServerConfig.getPort();
+        return this.getHttpServerConfig().getPort();
     }
 
     public HttpServerBuilder setPort(int port) {
-        this.httpServerConfig.setPort(port);
+        this.getHttpServerConfig().setPort(port);
         return this;
     }
 
     public boolean isManageQueues() {
-        return this.httpServerConfig.isManageQueues();
+        return this.getHttpServerConfig().isManageQueues();
     }
 
     public HttpServerBuilder setManageQueues(boolean manageQueues) {
-        this.httpServerConfig.setManageQueues(manageQueues);
+        this.getHttpServerConfig().setManageQueues(manageQueues);
         return this;
     }
 
     public int getPollTime() {
-        return this.httpServerConfig.getPollTime();
+        return this.getHttpServerConfig().getPollTime();
     }
 
     public HttpServerBuilder setPollTime(int pollTime) {
-        this.httpServerConfig.setPollTime(pollTime);
+        this.getHttpServerConfig().setPollTime(pollTime);
         return this;
     }
 
     public int getRequestBatchSize() {
-        return this.httpServerConfig.getRequestBatchSize();
+        return this.getHttpServerConfig().getRequestBatchSize();
     }
 
     public HttpServerBuilder setRequestBatchSize(int requestBatchSize) {
-        this.httpServerConfig.setRequestBatchSize(requestBatchSize);
+        this.getHttpServerConfig().setRequestBatchSize(requestBatchSize);
         return this;
     }
 
     public int getFlushInterval() {
-        return this.httpServerConfig.getFlushInterval();
+        return this.getHttpServerConfig().getFlushInterval();
     }
 
     public HttpServerBuilder setFlushInterval(int flushInterval) {
-        this.httpServerConfig.setFlushInterval(flushInterval);
+        this.getHttpServerConfig().setFlushInterval(flushInterval);
         return this;
     }
 

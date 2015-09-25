@@ -20,8 +20,8 @@ package io.advantageous.qbit.vertx;
 
 import io.advantageous.qbit.util.MultiMap;
 import io.advantageous.qbit.util.MultiMapImpl;
+import io.vertx.core.buffer.Buffer;
 import org.junit.Test;
-import org.vertx.java.core.buffer.Buffer;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Collection;
@@ -37,7 +37,7 @@ public class BufferUtilsTest {
     @Test
     public void testWriteString() throws Exception {
 
-        Buffer buffer = new Buffer();
+        Buffer buffer = Buffer.buffer();
         BufferUtils.writeString(buffer, "hi mom");
 
         final short size = buffer.getShort(0);
@@ -54,7 +54,8 @@ public class BufferUtilsTest {
     @Test
     public void testReadString() throws Exception {
 
-        Buffer buffer = new Buffer();
+
+        Buffer buffer = Buffer.buffer();
         BufferUtils.writeString(buffer, "hi mom");
 
         int[] location = new int[]{0};
@@ -70,8 +71,8 @@ public class BufferUtilsTest {
     @Test
     public void testWriteMap() throws Exception {
 
-        Buffer buffer = new Buffer();
 
+        Buffer buffer = Buffer.buffer();
         MultiMap<String, String> map = new MultiMapImpl<>();
 
         map.put("key", "value");
@@ -94,7 +95,8 @@ public class BufferUtilsTest {
     @Test
     public void testWriteMapTwoValues() throws Exception {
 
-        Buffer buffer = new Buffer();
+
+        Buffer buffer = Buffer.buffer();
 
         MultiMap<String, String> map = new MultiMapImpl<>();
 
