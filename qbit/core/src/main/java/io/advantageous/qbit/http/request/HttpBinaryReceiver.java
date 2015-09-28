@@ -18,7 +18,6 @@
 
 package io.advantageous.qbit.http.request;
 
-import io.advantageous.boon.core.Str;
 
 import java.nio.charset.StandardCharsets;
 

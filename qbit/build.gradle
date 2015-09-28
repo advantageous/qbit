@@ -179,6 +179,35 @@ project('servlet') {
     }
 }
 
+
+project('scala') {
+
+
+    apply plugin: 'scala'
+
+    dependencies {
+        compile project(':qbit:boon')
+        compile project(':qbit:core')
+        compile 'org.scala-lang:scala-library:2.11.5'
+        testCompile project(':qbit:test-support')
+        testCompile 'org.scalatest:scalatest_2.10:2.2.5'
+    }
+
+    uploadArchives {
+        repositories {
+            mavenDeployer {
+                pom.project {
+                    description 'Scala support for qbit'
+                }
+            }
+        }
+    }
+
+    tasks.withType(ScalaCompile) {
+        scalaCompileOptions.useAnt = false
+    }
+}
+
 project('vertx') {
 
 

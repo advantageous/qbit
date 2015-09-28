@@ -30,18 +30,34 @@ import java.util.function.Consumer;
  * Was called Handler and created by Rick Hightower quite a bit before 10/14/14
  */
 
-public interface Callback<T> extends Consumer<T> {
+public interface Callback<T> {
 
-    default void onError(Throwable error) {
+
+    /**
+     * Called when there is an error
+     * @param error error
+     */
+    default void onError(final Throwable error) {
 
         LoggerFactory.getLogger(Callback.class)
                 .error(error.getMessage(), error);
     }
 
 
+    /**
+     * Called if there is a timeout.
+     */
     default void onTimeout() {
 
     }
+
+    /**
+     * Performs this operation on the given argument.
+     *
+     * @param t the input argument
+     */
+    void accept(T t);
+
 
     default void returnThis(T thisReturn) {
         accept(thisReturn);
