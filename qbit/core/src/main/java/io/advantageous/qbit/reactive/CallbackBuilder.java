@@ -1,5 +1,9 @@
 package io.advantageous.qbit.reactive;
 
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
@@ -50,6 +54,31 @@ public class CallbackBuilder {
         this.callback = callback;
         return this;
     }
+
+
+    public <T> CallbackBuilder setCallbackReturnsList(Class<T> componentClass, Callback<List<T>> callback) {
+        this.callback = callback;
+        return this;
+    }
+
+    public <T> CallbackBuilder setCallbackReturnsSet(Class<T> componentClass, Callback<Set<T>> callback) {
+        this.callback = callback;
+        return this;
+    }
+
+    public <T> CallbackBuilder setCallbackReturnsCollection(Class<T> componentClass, Callback<Collection<T>> callback) {
+        this.callback = callback;
+        return this;
+    }
+
+    public <K, V> CallbackBuilder setCallbackReturnsMap(Class<K> keyClass, Class<V> valueClass,
+                                                        Callback<Map<K, V>> callback) {
+        this.callback = callback;
+        return this;
+    }
+
+
+
 
 
     public Runnable getOnTimeout() {
