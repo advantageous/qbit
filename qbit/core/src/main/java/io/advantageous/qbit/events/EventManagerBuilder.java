@@ -26,10 +26,8 @@ public class EventManagerBuilder {
     private StatsCollector statsCollector;
     public static EventConnector DEFAULT_NO_EVENT_CONNECTOR = event -> {};
     public static StatsCollector DEFAULT_NO_STATS_COLLECTOR = new StatsCollector() {};
-
     private final Logger logger = LoggerFactory.getLogger(EventManagerBuilder.class);
-
-    Factory factory;
+    private Factory factory;
 
 
     public static EventManagerBuilder eventManagerBuilder() {
