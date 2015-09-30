@@ -19,7 +19,7 @@ public class CallbackBuilder {
     private Consumer<Throwable> onError;
 
     /**
-     * depricated.  this will become private.  Use the static method to get one.
+     * Deprecated.  this will become private.  Use the static method to get one.
      * @param reactor
      */
     @Deprecated
@@ -28,7 +28,7 @@ public class CallbackBuilder {
     }
 
     /**
-     * depricated.  this will become private.  Use the static method to get one.
+     * Deprecated.  this will become private.  Use the static method to get one.
      * @param reactor
      */
     @Deprecated
@@ -36,7 +36,7 @@ public class CallbackBuilder {
     }
 
     /**
-     * depricated.  use newBuilderWithReactor(Reactor r) instead
+     * Deprecated.  use newBuilderWithReactor(Reactor r) instead
      *
      * @param reactor
      * @return
@@ -51,7 +51,7 @@ public class CallbackBuilder {
     }
 
     /**
-     * depricated.  use newBuilder() instead
+     * Deprecated.  use newBuilder() instead
      *
      * @param reactor
      * @return
@@ -66,7 +66,7 @@ public class CallbackBuilder {
     }
 
     /**
-     * This is depricated. this will become private. Builders should be only used to build in a local scope so this is
+     * This is Deprecated. this will become private. Builders should be only used to build in a local scope so this is
      * something that you should have just set.
      *
      * @return
@@ -77,7 +77,7 @@ public class CallbackBuilder {
     }
 
     /**
-     * This is depricated.  this will become private.  Builders should be only used to build in a local scope so this is
+     * This is Deprecated.  this will become private.  Builders should be only used to build in a local scope so this is
      * something that you should have just set.
      *
      * @return
@@ -142,7 +142,7 @@ public class CallbackBuilder {
     }
 
     /**
-     * This is depricated.  this will become private.  Builders should be only used to build in a local scope so this is
+     * This is Deprecated.  this will become private.  Builders should be only used to build in a local scope so this is
      * something that you should have just set.
      *
      * @return
@@ -153,11 +153,12 @@ public class CallbackBuilder {
     }
 
     /**
-     * depricated.  use withTimeoutHandler instead.
+     * Deprecated.  use withTimeoutHandler instead.
      *
      * @param onTimeout
      * @return
      */
+    @Deprecated
     public CallbackBuilder setOnTimeout(Runnable onTimeout) {
         this.onTimeout = onTimeout;
         return this;
@@ -175,7 +176,7 @@ public class CallbackBuilder {
     }
 
     /**
-     * This is depricated.  this will become private.  Builders should be only used to build in a local scope so this is
+     * This is Deprecated.  this will become private.  Builders should be only used to build in a local scope so this is
      * something that you should have just set.
      *
      * @return
@@ -186,10 +187,11 @@ public class CallbackBuilder {
     }
 
     /**
-     * depricated. use withTimeoutInstead
+     * Deprecated. use withTimeoutInstead
      * @param timeoutDuration
      * @return
      */
+    @Deprecated
     public CallbackBuilder setTimeoutDuration(@SuppressWarnings("SameParameterValue") long timeoutDuration) {
         this.timeoutDuration = timeoutDuration;
         return this;
@@ -201,7 +203,7 @@ public class CallbackBuilder {
     }
 
     /**
-     * This is depricated.  this will become private.  Builders should be only used to build in a local scope so this is
+     * This is Deprecated.  this will become private.  Builders should be only used to build in a local scope so this is
      * something that you should have just set.
      *
      * @return
@@ -212,7 +214,7 @@ public class CallbackBuilder {
     }
 
     /**
-     * depricated.  use withTimeoutTimeUnit instead.
+     * Deprecated.  use withTimeoutTimeUnit instead.
      * @param timeoutTimeUnit
      * @return
      */
@@ -228,7 +230,7 @@ public class CallbackBuilder {
     }
 
     /**
-     * This is depricated.  this will become private.  Builders should be only used to build in a local scope so this is
+     * This is Deprecated.  this will become private.  Builders should be only used to build in a local scope so this is
      * something that you should have just set.
      *
      * @return
@@ -239,10 +241,11 @@ public class CallbackBuilder {
     }
 
     /**
-     * depricated. use withErrorHandler instead.
+     * Deprecated. use withErrorHandler instead.
      *
      * @return
      */
+    @Deprecated
     public CallbackBuilder setOnError(Consumer<Throwable> onError) {
         this.onError = onError;
         return this;
