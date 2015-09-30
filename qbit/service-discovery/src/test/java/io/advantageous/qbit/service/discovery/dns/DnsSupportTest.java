@@ -198,7 +198,7 @@ public class DnsSupportTest {
         final AtomicReference<List<EndpointDefinition>> endPointsRef = new AtomicReference<>();
 
         dnsSupport.loadServiceEndpointsByServiceName(
-                CallbackBuilder.callbackBuilder().setCallbackReturnsList(EndpointDefinition.class,
+                CallbackBuilder.newCallbackBuilder().withCallbackReturnsList(EndpointDefinition.class,
                         endpointDefinitions ->
                         {
 
@@ -209,7 +209,7 @@ public class DnsSupportTest {
                                     System.out.printf("%s %s %s \n", endpointDefinition.getPort(),
                                             endpointDefinition.getHost(),
                                             endpointDefinition.getId()));
-                        }).setOnError(Throwable::printStackTrace)
+                        }).withErrorHandler(Throwable::printStackTrace)
                         .build(), "dbService");
 
         final List<EndpointDefinition> endpointDefinitionList = endPointsRef.get();

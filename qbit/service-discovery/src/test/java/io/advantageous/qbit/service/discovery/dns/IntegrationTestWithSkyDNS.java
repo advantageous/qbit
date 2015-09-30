@@ -14,14 +14,14 @@ public class IntegrationTestWithSkyDNS {
                 Maps.map("db", "dbService"), ".skydns.local");
 
         dnsSupport.loadServiceEndpointsByServiceName(
-                CallbackBuilder.callbackBuilder().setCallbackReturnsList(EndpointDefinition.class,
+                CallbackBuilder.newCallbackBuilder().withCallbackReturnsList(EndpointDefinition.class,
                         endpointDefinitions ->
                         {
                             endpointDefinitions.forEach(endpointDefinition ->
                                     System.out.printf("%s %s %s \n", endpointDefinition.getPort(),
                                             endpointDefinition.getHost(),
                                             endpointDefinition.getId()));
-                        }).setOnError(Throwable::printStackTrace)
+                        }).withErrorHandler(Throwable::printStackTrace)
                         .build(), "dbService");
 
     }
