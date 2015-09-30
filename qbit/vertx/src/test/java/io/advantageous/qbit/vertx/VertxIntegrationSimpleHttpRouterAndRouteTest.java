@@ -22,8 +22,7 @@ import java.util.concurrent.TimeUnit;
 
 import static org.junit.Assert.assertEquals;
 
-public class VertxIntegrationSimpleHttpRouterTest {
-
+public class VertxIntegrationSimpleHttpRouterAndRouteTest {
 
     private Vertx vertx;
     private TestVerticle testVerticle;
@@ -52,13 +51,14 @@ public class VertxIntegrationSimpleHttpRouterTest {
                     response.end("route1");
                 });
 
+                final Route qbitRoute = router.route().path("/hello/*");
 
 
                 io.vertx.core.http.HttpServer vertxHttpServer =
                         this.getVertx().createHttpServer(options);
 
                 HttpServer httpServer = VertxHttpServerBuilder.vertxHttpServerBuilder()
-                        .setRouter(router)
+                        .setRoute(qbitRoute)
                         .setHttpServer(vertxHttpServer)
                         .setVertx(getVertx())
                         .build();
@@ -141,5 +141,4 @@ public class VertxIntegrationSimpleHttpRouterTest {
         testVerticle = null;
 
     }
-
 }
