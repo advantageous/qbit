@@ -10,6 +10,9 @@ import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Vertx;
 import io.vertx.core.VertxOptions;
 import io.vertx.core.http.HttpServerOptions;
+import io.vertx.core.http.HttpServerResponse;
+import io.vertx.ext.web.Route;
+import io.vertx.ext.web.Router;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -19,7 +22,7 @@ import java.util.concurrent.TimeUnit;
 
 import static org.junit.Assert.assertEquals;
 
-public class VertxIntegrationTest {
+public class VertxIntegrationSimpleHttpRouterTest {
 
     private Vertx vertx;
     private TestVerticle testVerticle;
@@ -41,12 +44,25 @@ public class VertxIntegrationTest {
                 HttpServerOptions options = new HttpServerOptions().setMaxWebsocketFrameSize(1000000);
                 options.setPort(port);
 
+                Router router = Router.router(vertx); //Vertx router
+                router.route("/svr/rout1/").handler(routingContext -> {
+                    HttpServerResponse response = routingContext.response();
+                    response.setStatusCode(202);
+                    response.end("route1");
+                });
+
+                final Route qbitRoute = router.route().path("/hello/*");
+
+                qbitRoute.order(-1);
 
                 io.vertx.core.http.HttpServer vertxHttpServer =
                         this.getVertx().createHttpServer(options);
 
                 HttpServer httpServer = VertxHttpServerBuilder.vertxHttpServerBuilder()
-                        .setVertx(getVertx()).setHttpServer(vertxHttpServer).build();
+                        .setRoute(qbitRoute)
+                        .setHttpServer(vertxHttpServer)
+                        .setVertx(getVertx())
+                        .build();
 
 
                 httpServer.setHttpRequestConsumer(httpRequest -> {
@@ -58,7 +74,7 @@ public class VertxIntegrationTest {
 
                 httpServer.start();
 
-                vertxHttpServer.listen();
+                vertxHttpServer.requestHandler(router::accept).listen();
             }catch (Exception ex) {
                 ex.printStackTrace();
             }
@@ -95,9 +111,14 @@ public class VertxIntegrationTest {
     public void test() {
 
         final HttpClient client = HttpClientBuilder.httpClientBuilder().setHost("localhost").setPort(port).buildAndStart();
-        final HttpTextResponse response = client.postJson("/hello/world", "\"hi\"");
-        assertEquals(200, response.code());
-        assertEquals("\"hi\"", response.body());
+        final HttpTextResponse response = client.postJson("/svr/rout1/", "\"hi\"");
+        assertEquals(202, response.code());
+        assertEquals("route1", response.body());
+
+
+        final HttpTextResponse response2 = client.postJson("/hello/world", "\"hi\"");
+        assertEquals(200, response2.code());
+        assertEquals("\"hi\"", response2.body());
 
     }
 
