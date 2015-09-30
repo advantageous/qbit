@@ -243,6 +243,9 @@ public class HttpServerBuilder {
     }
 
     public HttpServerConfig getConfig() {
+        if (httpServerConfig == null) {
+            httpServerConfig = new HttpServerConfig();
+        }
         return httpServerConfig;
     }
 
