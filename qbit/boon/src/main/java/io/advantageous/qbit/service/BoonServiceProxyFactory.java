@@ -16,7 +16,7 @@
  * QBit - The Microservice lib for Java : JSON, WebSocket, REST. Be The Web!
  */
 
-package io.advantageous.qbit.boon;
+package io.advantageous.qbit.service;
 
 import io.advantageous.boon.core.Str;
 import io.advantageous.boon.primitive.CharBuf;

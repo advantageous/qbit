@@ -1,5 +1,9 @@
 package io.advantageous.qbit.reactive;
 
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
@@ -20,7 +24,7 @@ public class CallbackBuilder {
 
     /**
      * Deprecated.  this will become private.  Use the static method to get one.
-     * @param reactor
+     * @param reactor reactor
      */
     @Deprecated
     public CallbackBuilder(final Reactor reactor) {
@@ -29,7 +33,6 @@ public class CallbackBuilder {
 
     /**
      * Deprecated.  this will become private.  Use the static method to get one.
-     * @param reactor
      */
     @Deprecated
     public CallbackBuilder() {
@@ -38,7 +41,7 @@ public class CallbackBuilder {
     /**
      * Deprecated.  use newBuilderWithReactor(Reactor r) instead
      *
-     * @param reactor
+     * @param reactor reactor
      * @return
      */
     @Deprecated
@@ -53,7 +56,6 @@ public class CallbackBuilder {
     /**
      * Deprecated.  use newBuilder() instead
      *
-     * @param reactor
      * @return
      */
     @Deprecated
@@ -80,7 +82,7 @@ public class CallbackBuilder {
      * This is Deprecated.  this will become private.  Builders should be only used to build in a local scope so this is
      * something that you should have just set.
      *
-     * @return
+     * @return callback
      */
     @Deprecated
     public <T> Callback<T> getCallback() {
@@ -91,10 +93,8 @@ public class CallbackBuilder {
     /**
      * Builder method to add a callback handler.  This is depricated.  Use withCallback instead.
      *
-     * @param returnType
-     * @param callback
-     * @param <T>
-     * @return
+     * @param callback callback
+     * @return this
      */
     @Deprecated
     public CallbackBuilder setCallback(Callback callback) {
@@ -105,10 +105,10 @@ public class CallbackBuilder {
     /**
      * Builder method to add a callback handler.  This is depricated.  Use withCallback instead.
      *
-     * @param returnType
-     * @param callback
-     * @param <T>
-     * @return
+     * @param returnType returnType
+     * @param callback callback
+     * @param <T> T
+     * @return this
      */
     @Deprecated
     public <T> CallbackBuilder setCallback(Class<T> returnType, Callback<T> callback) {
@@ -131,15 +131,39 @@ public class CallbackBuilder {
     /**
      * Builder method to set the callback handler.
      *
-     * @param returnType
-     * @param callback
-     * @param <T>
-     * @return
+     * @param callback callback
+     * @param <T> T
+     * @return callback
      */
     public <T> CallbackBuilder withCallback(Callback<T> callback) {
         this.callback = callback;
         return this;
     }
+
+    public <T> CallbackBuilder setCallbackReturnsList(Class<T> componentClass, Callback<List<T>> callback) {
+        this.callback = callback;
+        return this;
+    }
+
+    public <T> CallbackBuilder setCallbackReturnsSet(Class<T> componentClass, Callback<Set<T>> callback) {
+        this.callback = callback;
+        return this;
+    }
+
+    public <T> CallbackBuilder setCallbackReturnsCollection(Class<T> componentClass, Callback<Collection<T>> callback) {
+        this.callback = callback;
+        return this;
+    }
+
+    public <K, V> CallbackBuilder setCallbackReturnsMap(Class<K> keyClass, Class<V> valueClass,
+                                                        Callback<Map<K, V>> callback) {
+        this.callback = callback;
+        return this;
+    }
+
+
+
+
 
     /**
      * This is Deprecated.  this will become private.  Builders should be only used to build in a local scope so this is
@@ -155,11 +179,11 @@ public class CallbackBuilder {
     /**
      * Deprecated.  use withTimeoutHandler instead.
      *
-     * @param onTimeout
+     * @param onTimeout onTimeout
      * @return
      */
     @Deprecated
-    public CallbackBuilder setOnTimeout(Runnable onTimeout) {
+    public CallbackBuilder setOnTimeout(final Runnable onTimeout) {
         this.onTimeout = onTimeout;
         return this;
     }
@@ -167,10 +191,10 @@ public class CallbackBuilder {
     /**
      * Add a timeout handler to the callback.
      *
-     * @param timeoutHandler
+     * @param timeoutHandler timeoutHandler
      * @return
      */
-    public CallbackBuilder withTimeoutHandler(Runnable timeoutHandler) {
+    public CallbackBuilder withTimeoutHandler(final Runnable timeoutHandler) {
         this.onTimeout = timeoutHandler;
         return this;
     }

@@ -16,12 +16,11 @@
  * QBit - The Microservice lib for Java : JSON, WebSocket, REST. Be The Web!
  */
 
-package io.advantageous.qbit.boon;
+package io.advantageous.qbit.service;
 
 import io.advantageous.qbit.QBit;
 import io.advantageous.qbit.client.ServiceProxyFactory;
 import io.advantageous.qbit.message.MethodCall;
-import io.advantageous.qbit.service.EndPoint;
 import org.junit.Before;
 import org.junit.Test;
 
