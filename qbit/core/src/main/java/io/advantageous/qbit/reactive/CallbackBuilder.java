@@ -18,79 +18,248 @@ public class CallbackBuilder {
     private TimeUnit timeoutTimeUnit = TimeUnit.SECONDS;
     private Consumer<Throwable> onError;
 
+    /**
+     * depricated.  this will become private.  Use the static method to get one.
+     * @param reactor
+     */
+    @Deprecated
     public CallbackBuilder(final Reactor reactor) {
         this.reactor = reactor;
     }
+
+    /**
+     * depricated.  this will become private.  Use the static method to get one.
+     * @param reactor
+     */
+    @Deprecated
     public CallbackBuilder() {
     }
 
+    /**
+     * depricated.  use newBuilderWithReactor(Reactor r) instead
+     *
+     * @param reactor
+     * @return
+     */
+    @Deprecated
     public static CallbackBuilder callbackBuilder(final Reactor reactor) {
         return new CallbackBuilder(reactor);
     }
 
+    public static CallbackBuilder newBuilderWithReactor(final Reactor reactor) {
+        return new CallbackBuilder(reactor);
+    }
+
+    /**
+     * depricated.  use newBuilder() instead
+     *
+     * @param reactor
+     * @return
+     */
+    @Deprecated
     public static CallbackBuilder callbackBuilder() {
         return new CallbackBuilder();
     }
 
+    public static CallbackBuilder newBuilder() {
+        return new CallbackBuilder();
+    }
+
+    /**
+     * This is depricated. this will become private. Builders should be only used to build in a local scope so this is
+     * something that you should have just set.
+     *
+     * @return
+     */
+    @Deprecated
     public Reactor getReactor() {
         return reactor;
     }
 
+    /**
+     * This is depricated.  this will become private.  Builders should be only used to build in a local scope so this is
+     * something that you should have just set.
+     *
+     * @return
+     */
+    @Deprecated
     public <T> Callback<T> getCallback() {
         //noinspection unchecked
         return callback;
     }
 
+    /**
+     * Builder method to add a callback handler.  This is depricated.  Use withCallback instead.
+     *
+     * @param returnType
+     * @param callback
+     * @param <T>
+     * @return
+     */
+    @Deprecated
     public CallbackBuilder setCallback(Callback callback) {
         this.callback = callback;
         return this;
     }
 
+    /**
+     * Builder method to add a callback handler.  This is depricated.  Use withCallback instead.
+     *
+     * @param returnType
+     * @param callback
+     * @param <T>
+     * @return
+     */
+    @Deprecated
     public <T> CallbackBuilder setCallback(Class<T> returnType, Callback<T> callback) {
+        return withCallback(returnType, callback);
+    }
+
+    /**
+     * Builder method to set the callback handler.
+     *
+     * @param returnType
+     * @param callback
+     * @param <T>
+     * @return
+     */
+    public <T> CallbackBuilder withCallback(Class<T> returnType, Callback<T> callback) {
         this.callback = callback;
         return this;
     }
 
+    /**
+     * Builder method to set the callback handler.
+     *
+     * @param returnType
+     * @param callback
+     * @param <T>
+     * @return
+     */
+    public <T> CallbackBuilder withCallback(Callback<T> callback) {
+        this.callback = callback;
+        return this;
+    }
 
+    /**
+     * This is depricated.  this will become private.  Builders should be only used to build in a local scope so this is
+     * something that you should have just set.
+     *
+     * @return
+     */
+    @Deprecated
     public Runnable getOnTimeout() {
         return onTimeout;
     }
 
+    /**
+     * depricated.  use withTimeoutHandler instead.
+     *
+     * @param onTimeout
+     * @return
+     */
     public CallbackBuilder setOnTimeout(Runnable onTimeout) {
         this.onTimeout = onTimeout;
         return this;
     }
 
+    /**
+     * Add a timeout handler to the callback.
+     *
+     * @param timeoutHandler
+     * @return
+     */
+    public CallbackBuilder withTimeoutHandler(Runnable timeoutHandler) {
+        this.onTimeout = timeoutHandler;
+        return this;
+    }
+
+    /**
+     * This is depricated.  this will become private.  Builders should be only used to build in a local scope so this is
+     * something that you should have just set.
+     *
+     * @return
+     */
+    @Deprecated
     public long getTimeoutDuration() {
         return timeoutDuration;
     }
 
+    /**
+     * depricated. use withTimeoutInstead
+     * @param timeoutDuration
+     * @return
+     */
     public CallbackBuilder setTimeoutDuration(@SuppressWarnings("SameParameterValue") long timeoutDuration) {
         this.timeoutDuration = timeoutDuration;
         return this;
     }
 
+    public CallbackBuilder withTimeout(@SuppressWarnings("SameParameterValue") long timeoutDuration) {
+        this.timeoutDuration = timeoutDuration;
+        return this;
+    }
+
+    /**
+     * This is depricated.  this will become private.  Builders should be only used to build in a local scope so this is
+     * something that you should have just set.
+     *
+     * @return
+     */
+    @Deprecated
     public TimeUnit getTimeoutTimeUnit() {
         return timeoutTimeUnit;
     }
 
+    /**
+     * depricated.  use withTimeoutTimeUnit instead.
+     * @param timeoutTimeUnit
+     * @return
+     */
+    @Deprecated
     public CallbackBuilder setTimeoutTimeUnit(TimeUnit timeoutTimeUnit) {
         this.timeoutTimeUnit = timeoutTimeUnit;
         return this;
     }
 
+    public CallbackBuilder withTimoutTimeUnit(TimeUnit timeoutTimeUnit) {
+        this.timeoutTimeUnit = timeoutTimeUnit;
+        return this;
+    }
+
+    /**
+     * This is depricated.  this will become private.  Builders should be only used to build in a local scope so this is
+     * something that you should have just set.
+     *
+     * @return
+     */
+    @Deprecated
     public Consumer<Throwable> getOnError() {
         return onError;
     }
 
+    /**
+     * depricated. use withErrorHandler instead.
+     *
+     * @return
+     */
     public CallbackBuilder setOnError(Consumer<Throwable> onError) {
         this.onError = onError;
         return this;
     }
 
+    /**
+     * Add an error handler to the callback.
+     *
+     * @param onError
+     * @return
+     */
+    public CallbackBuilder withErrorHandler(Consumer<Throwable> onError) {
+        this.onError = onError;
+        return this;
+    }
 
     public <T> AsyncFutureCallback<T> build() {
-
 
         if (getOnError() != null || getOnTimeout() != null || timeoutDuration != -1) {
 
@@ -98,8 +267,7 @@ public class CallbackBuilder {
                 timeoutDuration = 30;
             }
 
-
-            if (reactor!=null) {
+            if (reactor != null) {
                 //noinspection unchecked
                 return reactor.callbackWithTimeoutAndErrorHandlerAndOnTimeout(
                         (Callback<T>) getCallback(),
