@@ -46,7 +46,7 @@ public class CallbackBuilder {
         return new CallbackBuilder(reactor);
     }
 
-    public static CallbackBuilder newBuilderWithReactor(final Reactor reactor) {
+    public static CallbackBuilder newCallbackBuilderWithReactor(final Reactor reactor) {
         return new CallbackBuilder(reactor);
     }
 
@@ -61,7 +61,7 @@ public class CallbackBuilder {
         return new CallbackBuilder();
     }
 
-    public static CallbackBuilder newBuilder() {
+    public static CallbackBuilder newCallbackBuilder() {
         return new CallbackBuilder();
     }
 
