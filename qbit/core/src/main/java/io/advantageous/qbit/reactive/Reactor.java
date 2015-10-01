@@ -176,7 +176,7 @@ public class Reactor {
     }
 
     public CallbackBuilder callbackBuilder() {
-        return CallbackBuilder.callbackBuilder(this);
+        return CallbackBuilder.newCallbackBuilderWithReactor(this);
     }
 
     public CoordinatorBuilder coordinatorBuilder() {
@@ -617,7 +617,7 @@ public class Reactor {
         }).setOnTimeout(() -> {
             logger.error("TIMEOUT calling {}", operationDescription);
             errorHandler.onTimeout();
-        }).setTimeoutTimeUnit(timeUnit).setTimeoutDuration(timeoutDuration)
+        }).withTimeoutTimeUnit(timeUnit).setTimeoutDuration(timeoutDuration)
                 .build();
     }
 }
