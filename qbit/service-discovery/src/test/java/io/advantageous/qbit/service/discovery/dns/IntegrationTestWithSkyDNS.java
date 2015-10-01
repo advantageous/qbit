@@ -14,7 +14,7 @@ public class IntegrationTestWithSkyDNS {
                 Maps.map("db", "dbService"), ".skydns.local");
 
         dnsSupport.loadServiceEndpointsByServiceName(
-                CallbackBuilder.newCallbackBuilder().withCallbackReturnsList(EndpointDefinition.class,
+                CallbackBuilder.newCallbackBuilder().withListCallback(EndpointDefinition.class,
                         endpointDefinitions ->
                         {
                             endpointDefinitions.forEach(endpointDefinition ->

@@ -198,7 +198,7 @@ public class DnsSupportTest {
         final AtomicReference<List<EndpointDefinition>> endPointsRef = new AtomicReference<>();
 
         dnsSupport.loadServiceEndpointsByServiceName(
-                CallbackBuilder.newCallbackBuilder().withCallbackReturnsList(EndpointDefinition.class,
+                CallbackBuilder.newCallbackBuilder().withListCallback(EndpointDefinition.class,
                         endpointDefinitions ->
                         {
 

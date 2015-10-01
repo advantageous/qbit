@@ -157,7 +157,7 @@ public class CallbackBuilder {
      * @param <T> T
      * @return this
      */
-    public <T> CallbackBuilder withCallbackReturnsList(final Class<T> componentClass,
+    public <T> CallbackBuilder withListCallback(final Class<T> componentClass,
                                                        final Callback<List<T>> callback) {
         this.callback = callback;
         return this;
@@ -171,7 +171,7 @@ public class CallbackBuilder {
      * @param <T> T
      * @return this
      */
-    public <T> CallbackBuilder withCallbackReturnsSet(final Class<T> componentClass,
+    public <T> CallbackBuilder withSetCallback(final Class<T> componentClass,
                                                      final Callback<Set<T>> callback) {
         this.callback = callback;
         return this;
@@ -185,7 +185,7 @@ public class CallbackBuilder {
      * @param <T> T
      * @return this
      */
-    public <T> CallbackBuilder withCallbackReturnsCollection(final Class<T> componentClass,
+    public <T> CallbackBuilder withCollectionCallback(final Class<T> componentClass,
                                                             final Callback<Collection<T>> callback) {
         this.callback = callback;
         return this;
@@ -201,13 +201,55 @@ public class CallbackBuilder {
      * @param <V> value type
      * @return this
      */
-    public <K, V> CallbackBuilder withCallbackReturnsMap(final Class<K> keyClass,
+    public <K, V> CallbackBuilder withMapCallback(final Class<K> keyClass,
                                                         final Class<V> valueClass,
                                                         final Callback<Map<K, V>> callback) {
         this.callback = callback;
         return this;
     }
 
+
+    /**
+     * Builder method to set callback handler that takes a boolean
+     * @param callback callback
+     * @return this
+     */
+    public CallbackBuilder withBooleanCallback(final Callback<Boolean> callback) {
+        this.callback = callback;
+        return this;
+    }
+
+    /**
+     * Builder method to set callback handler that takes a integer
+     * @param callback callback
+     * @return this
+     */
+    public CallbackBuilder withIntCallback(final Callback<Integer> callback) {
+        this.callback = callback;
+        return this;
+    }
+
+
+    /**
+     * Builder method to set callback handler that takes a long
+     * @param callback callback
+     * @return this
+     */
+    public CallbackBuilder withLongCallback(final Callback<Long> callback) {
+        this.callback = callback;
+        return this;
+    }
+
+
+    /**
+     * Builder method to set callback handler that takes a string
+     * @param callback callback
+     * @return this
+     */
+    public CallbackBuilder withStringCallback(final Callback<String> callback) {
+        this.callback = callback;
+        return this;
+    }
 
 
 
