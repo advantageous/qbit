@@ -12,7 +12,6 @@ import io.advantageous.qbit.system.QBitSystemManager;
 import io.advantageous.qbit.util.PortUtils;
 import io.advantageous.qbit.vertx.http.VertxHttpServerBuilder;
 import io.vertx.core.AbstractVerticle;
-import io.vertx.core.Future;
 import io.vertx.core.Vertx;
 import io.vertx.core.VertxOptions;
 import io.vertx.core.http.HttpServerResponse;

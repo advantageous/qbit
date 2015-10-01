@@ -23,7 +23,8 @@ import io.advantageous.qbit.service.ServiceFlushable;
 import io.advantageous.qbit.service.Stoppable;
 
 /**
- * Stat Replicator
+ * Stat Replicator.
+ * This is used to replicate stats to another system.
  * created by rhightower on 1/28/15.
  */
 public interface StatReplicator extends RemoteTCPClientProxy, ServiceFlushable, Stoppable {

@@ -1,6 +1,7 @@
 package io.advantageous.qbit.admin;
 
 import io.advantageous.boon.core.Str;
+import io.advantageous.boon.core.Sys;
 import io.advantageous.consul.discovery.ConsulServiceDiscoveryBuilder;
 import io.advantageous.qbit.Factory;
 import io.advantageous.qbit.QBit;
@@ -75,12 +76,6 @@ public class ManagedServiceBuilder {
     /** Enables the collection of stats. */
     private boolean enableStats = true;
 
-    /** How often stats should be flushed. */
-    private int sampleStatFlushRate = 5;
-
-    /** How often timings should be collected defaults to every 100 calls. */
-    private int checkTimingEveryXCalls = 100;
-
     /** Event manager for services, service queues, and end point servers. */
     private EventManager eventManager;
 
@@ -96,22 +91,85 @@ public class ManagedServiceBuilder {
     /** The builder for the admin. */
     private AdminBuilder adminBuilder;
 
-
+    /** StatsD replicator builder. */
     private StatsDReplicatorBuilder statsDReplicatorBuilder;
 
+
+    /** Service Discovery. */
     private ServiceDiscovery serviceDiscovery;
 
-
+    /** Service Discovery supplier. */
     private Supplier<ServiceDiscovery> serviceDiscoverySupplier;
 
-    private  String rootURI = "/services";
+
+    /** Default Root URI.  */
+    private  String rootURI = Sys.sysProp(ManagedServiceBuilder.class.getName()
+            + ".rootURI", "/services");
+
+    /** Default public host used for swagger. */
+    private  String publicHost = Sys.sysProp(ManagedServiceBuilder.class.getName()
+            + ".publicHost", "localhost");
+
+    /** Actual port. */
+    private int port = Sys.sysProp(ManagedServiceBuilder.class.getName()
+            + ".port", 8080);
+
+    /** Public port used for swagger. */
+    private int publicPort = Sys.sysProp(ManagedServiceBuilder.class.getName()
+            + ".publicPort", -1);
 
 
-    private  String publicHost = "localhost";
+    /** How often stats should be flushed. */
+    private int sampleStatFlushRate = Sys.sysProp(ManagedServiceBuilder.class.getName()
+            + ".sampleStatFlushRate", 5);
 
-    private int port = 8080;
+    /** How often timings should be collected defaults to every 100 calls. */
+    private int checkTimingEveryXCalls = Sys.sysProp(ManagedServiceBuilder.class.getName()
+            + ".checkTimingEveryXCalls", 100);
 
-    private int publicPort = -1;
+
+    public ManagedServiceBuilder(String serviceName) {
+        if (serviceName != null) {
+
+
+            final MicroserviceConfig config = MicroserviceConfig.readConfig(serviceName);
+
+            /** Configure ManagedServiceBuilder. */
+            this.setRootURI(config.getRootURI());
+            this.setPublicHost(config.getPublicHost());
+            this.setPublicPort(config.getPublicPort());
+            this.setPort(config.getPort());
+
+
+            /** Configure ManagedServiceBuilder. */
+            final ContextMetaBuilder contextMetaBuilder = this.getContextMetaBuilder();
+            contextMetaBuilder.setLicenseName(config.getLicenseName());
+            contextMetaBuilder.setLicenseURL(config.getLicenseURL());
+            contextMetaBuilder.setContactURL(config.getContactURL());
+            contextMetaBuilder.setTitle(config.getTitle());
+            contextMetaBuilder.setVersion(config.getVersion());
+            contextMetaBuilder.setContactName(config.getContactName());
+            contextMetaBuilder.setContactEmail(config.getContactEmail());
+            contextMetaBuilder.setDescription(config.getDescription());
+
+            /** Configure statsD. */
+            if (config.isStatsD()) {
+                this.setEnableStatsD(true);
+                this.getStatsDReplicatorBuilder().setHost(config.getStatsDHost());
+
+                if (config.getStatsDPort() != -1) {
+                    this.getStatsDReplicatorBuilder().setPort(config.getStatsDPort());
+                }
+            }
+
+            this.setCheckTimingEveryXCalls(config.getCheckTimingEveryXCalls());
+            this.setSampleStatFlushRate(config.getSampleStatFlushRate());
+
+            this.setEnableLocalStats(config.isEnableLocalStats());
+            this.setEnableStats(config.isEnableStats());
+            this.setEnableLocalHealth(config.isEnableLocalHealth());
+        }
+    }
 
     public String getPublicHost() {
 
@@ -358,7 +416,12 @@ public class ManagedServiceBuilder {
     }
 
     public static ManagedServiceBuilder managedServiceBuilder() {
-        return new ManagedServiceBuilder();
+        return new ManagedServiceBuilder(null);
+    }
+
+
+    public static ManagedServiceBuilder managedServiceBuilder(final String serviceName) {
+        return new ManagedServiceBuilder(serviceName);
     }
 
     public HttpServerBuilder getHttpServerBuilder() {
