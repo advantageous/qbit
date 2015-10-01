@@ -59,7 +59,7 @@ public class DnsServiceDiscoveryProvider implements ServiceDiscoveryProvider {
         final AtomicReference<Throwable> exceptionAtomicReference = new AtomicReference<>();
 
         dnsSupport.loadServiceEndpointsByServiceName(CallbackBuilder.callbackBuilder()
-                .setCallbackReturnsList(EndpointDefinition.class,
+                .withCallbackReturnsList(EndpointDefinition.class,
                         endpointDefinitions ->
                         {
 

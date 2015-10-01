@@ -40,7 +40,7 @@ public class CallbackManagerWithTimeoutTest {
                 .setTimer(testTimer).setName("testBuilder").build();
         callbackManagerWithTimeout = ((CallbackManagerWithTimeout) callbackManager);
         methodCallBuilder = MethodCallBuilder.methodCallBuilder();
-        callbackBuilder = CallbackBuilder.callbackBuilder();
+        callbackBuilder = CallbackBuilder.newCallbackBuilder();
         result = new AtomicReference<>("none");
 
         continueMethod = new CountDownLatch(1);

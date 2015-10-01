@@ -23,32 +23,36 @@ public class CallbackBuilder {
     private Consumer<Throwable> onError;
 
     /**
-     * Deprecated.  this will become private.  Use the static method to get one.
      * @param reactor reactor
      */
-    @Deprecated
-    public CallbackBuilder(final Reactor reactor) {
+    private CallbackBuilder(final Reactor reactor) {
         this.reactor = reactor;
     }
 
     /**
-     * Deprecated.  this will become private.  Use the static method to get one.
+     *
      */
-    @Deprecated
-    public CallbackBuilder() {
+    private  CallbackBuilder() {
     }
 
     /**
      * Deprecated.  use newBuilderWithReactor(Reactor r) instead
      *
      * @param reactor reactor
-     * @return
+     * @return CallbackBuilder
      */
     @Deprecated
     public static CallbackBuilder callbackBuilder(final Reactor reactor) {
         return new CallbackBuilder(reactor);
     }
 
+
+    /**
+     *
+     * Creating callback builder.
+     * @param reactor reactor
+     * @return CallbackBuilder
+     */
     public static CallbackBuilder newCallbackBuilderWithReactor(final Reactor reactor) {
         return new CallbackBuilder(reactor);
     }
@@ -56,13 +60,18 @@ public class CallbackBuilder {
     /**
      * Deprecated.  use newBuilder() instead
      *
-     * @return
+     * @return CallbackBuilder
      */
     @Deprecated
     public static CallbackBuilder callbackBuilder() {
         return new CallbackBuilder();
     }
 
+
+    /**
+     *
+     * @return CallbackBuilder
+     */
     public static CallbackBuilder newCallbackBuilder() {
         return new CallbackBuilder();
     }
@@ -71,7 +80,7 @@ public class CallbackBuilder {
      * This is Deprecated. this will become private. Builders should be only used to build in a local scope so this is
      * something that you should have just set.
      *
-     * @return
+     * @return Reactor
      */
     @Deprecated
     public Reactor getReactor() {
@@ -97,7 +106,7 @@ public class CallbackBuilder {
      * @return this
      */
     @Deprecated
-    public CallbackBuilder setCallback(Callback callback) {
+    public CallbackBuilder setCallback(final Callback callback) {
         this.callback = callback;
         return this;
     }
@@ -111,19 +120,20 @@ public class CallbackBuilder {
      * @return this
      */
     @Deprecated
-    public <T> CallbackBuilder setCallback(Class<T> returnType, Callback<T> callback) {
+    public <T> CallbackBuilder setCallback(final Class<T> returnType, final Callback<T> callback) {
         return withCallback(returnType, callback);
     }
 
     /**
      * Builder method to set the callback handler.
      *
-     * @param returnType
-     * @param callback
-     * @param <T>
-     * @return
+     * @param returnType returnType
+     * @param callback callback
+     * @param <T> T
+     * @return this
      */
-    public <T> CallbackBuilder withCallback(Class<T> returnType, Callback<T> callback) {
+    public <T> CallbackBuilder withCallback(final Class<T> returnType,
+                                            final Callback<T> callback) {
         this.callback = callback;
         return this;
     }
@@ -135,28 +145,65 @@ public class CallbackBuilder {
      * @param <T> T
      * @return callback
      */
-    public <T> CallbackBuilder withCallback(Callback<T> callback) {
+    public <T> CallbackBuilder withCallback(final Callback<T> callback) {
         this.callback = callback;
         return this;
     }
 
-    public <T> CallbackBuilder setCallbackReturnsList(Class<T> componentClass, Callback<List<T>> callback) {
+    /**
+     * Builder method to set callback handler that takes a list
+     * @param componentClass  componentClass
+     * @param callback callback
+     * @param <T> T
+     * @return this
+     */
+    public <T> CallbackBuilder withCallbackReturnsList(final Class<T> componentClass,
+                                                       final Callback<List<T>> callback) {
         this.callback = callback;
         return this;
     }
 
-    public <T> CallbackBuilder setCallbackReturnsSet(Class<T> componentClass, Callback<Set<T>> callback) {
+
+    /**
+     * Builder method to set callback handler that takes a set
+     * @param componentClass  componentClass
+     * @param callback callback
+     * @param <T> T
+     * @return this
+     */
+    public <T> CallbackBuilder withCallbackReturnsSet(final Class<T> componentClass,
+                                                     final Callback<Set<T>> callback) {
         this.callback = callback;
         return this;
     }
 
-    public <T> CallbackBuilder setCallbackReturnsCollection(Class<T> componentClass, Callback<Collection<T>> callback) {
+
+    /**
+     * Builder method to set callback handler that takes a collection
+     * @param componentClass  componentClass
+     * @param callback callback
+     * @param <T> T
+     * @return this
+     */
+    public <T> CallbackBuilder withCallbackReturnsCollection(final Class<T> componentClass,
+                                                            final Callback<Collection<T>> callback) {
         this.callback = callback;
         return this;
     }
 
-    public <K, V> CallbackBuilder setCallbackReturnsMap(Class<K> keyClass, Class<V> valueClass,
-                                                        Callback<Map<K, V>> callback) {
+
+    /**
+     * Builder method to set callback handler that takes a map
+     * @param keyClass  keyClass
+     * @param valueClass  valueClass
+     * @param callback callback
+     * @param <K> key type
+     * @param <V> value type
+     * @return this
+     */
+    public <K, V> CallbackBuilder withCallbackReturnsMap(final Class<K> keyClass,
+                                                        final Class<V> valueClass,
+                                                        final Callback<Map<K, V>> callback) {
         this.callback = callback;
         return this;
     }
@@ -169,7 +216,7 @@ public class CallbackBuilder {
      * This is Deprecated.  this will become private.  Builders should be only used to build in a local scope so this is
      * something that you should have just set.
      *
-     * @return
+     * @return runnable
      */
     @Deprecated
     public Runnable getOnTimeout() {
@@ -180,7 +227,7 @@ public class CallbackBuilder {
      * Deprecated.  use withTimeoutHandler instead.
      *
      * @param onTimeout onTimeout
-     * @return
+     * @return this
      */
     @Deprecated
     public CallbackBuilder setOnTimeout(final Runnable onTimeout) {
@@ -192,7 +239,7 @@ public class CallbackBuilder {
      * Add a timeout handler to the callback.
      *
      * @param timeoutHandler timeoutHandler
-     * @return
+     * @return this
      */
     public CallbackBuilder withTimeoutHandler(final Runnable timeoutHandler) {
         this.onTimeout = timeoutHandler;
@@ -203,7 +250,7 @@ public class CallbackBuilder {
      * This is Deprecated.  this will become private.  Builders should be only used to build in a local scope so this is
      * something that you should have just set.
      *
-     * @return
+     * @return timeout duration
      */
     @Deprecated
     public long getTimeoutDuration() {
@@ -212,8 +259,8 @@ public class CallbackBuilder {
 
     /**
      * Deprecated. use withTimeoutInstead
-     * @param timeoutDuration
-     * @return
+     * @param timeoutDuration timeoutDuration
+     * @return this
      */
     @Deprecated
     public CallbackBuilder setTimeoutDuration(@SuppressWarnings("SameParameterValue") long timeoutDuration) {
@@ -221,6 +268,12 @@ public class CallbackBuilder {
         return this;
     }
 
+
+    /**
+     *
+     * @param timeoutDuration timeoutDuration
+     * @return this
+     */
     public CallbackBuilder withTimeout(@SuppressWarnings("SameParameterValue") long timeoutDuration) {
         this.timeoutDuration = timeoutDuration;
         return this;
@@ -230,7 +283,7 @@ public class CallbackBuilder {
      * This is Deprecated.  this will become private.  Builders should be only used to build in a local scope so this is
      * something that you should have just set.
      *
-     * @return
+     * @return time unit
      */
     @Deprecated
     public TimeUnit getTimeoutTimeUnit() {
@@ -239,16 +292,21 @@ public class CallbackBuilder {
 
     /**
      * Deprecated.  use withTimeoutTimeUnit instead.
-     * @param timeoutTimeUnit
-     * @return
+     * @param timeoutTimeUnit timeoutTimeUnit
+     * @return this
      */
     @Deprecated
-    public CallbackBuilder setTimeoutTimeUnit(TimeUnit timeoutTimeUnit) {
+    public CallbackBuilder setTimeoutTimeUnit(final TimeUnit timeoutTimeUnit) {
         this.timeoutTimeUnit = timeoutTimeUnit;
         return this;
     }
 
-    public CallbackBuilder withTimoutTimeUnit(TimeUnit timeoutTimeUnit) {
+
+    /**
+     * @param timeoutTimeUnit timeoutTimeUnit
+     * @return this
+     */
+    public CallbackBuilder withTimeoutTimeUnit(final TimeUnit timeoutTimeUnit) {
         this.timeoutTimeUnit = timeoutTimeUnit;
         return this;
     }
@@ -257,7 +315,7 @@ public class CallbackBuilder {
      * This is Deprecated.  this will become private.  Builders should be only used to build in a local scope so this is
      * something that you should have just set.
      *
-     * @return
+     * @return error handler
      */
     @Deprecated
     public Consumer<Throwable> getOnError() {
@@ -267,7 +325,7 @@ public class CallbackBuilder {
     /**
      * Deprecated. use withErrorHandler instead.
      *
-     * @return
+     * @return this
      */
     @Deprecated
     public CallbackBuilder setOnError(Consumer<Throwable> onError) {
@@ -278,10 +336,10 @@ public class CallbackBuilder {
     /**
      * Add an error handler to the callback.
      *
-     * @param onError
-     * @return
+     * @param onError onerror
+     * @return this
      */
-    public CallbackBuilder withErrorHandler(Consumer<Throwable> onError) {
+    public CallbackBuilder withErrorHandler(final Consumer<Throwable> onError) {
         this.onError = onError;
         return this;
     }
@@ -428,7 +486,7 @@ public class CallbackBuilder {
 
     public <T> AsyncFutureCallback<T> build(Callback<T> callback) {
 
-        this.setCallback(callback);
+        this.withCallback(callback);
 
         return build();
     }
