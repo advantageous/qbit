@@ -1,5 +1,6 @@
 package io.advantageous.qbit.vertx;
 
+import io.advantageous.qbit.admin.ManagedServiceBuilder;
 import io.advantageous.qbit.annotation.RequestMapping;
 import io.advantageous.qbit.annotation.RequestMethod;
 import io.advantageous.qbit.http.client.HttpClient;
@@ -7,9 +8,11 @@ import io.advantageous.qbit.http.client.HttpClientBuilder;
 import io.advantageous.qbit.http.request.HttpTextResponse;
 import io.advantageous.qbit.http.server.HttpServer;
 import io.advantageous.qbit.server.ServiceEndpointServer;
+import io.advantageous.qbit.system.QBitSystemManager;
 import io.advantageous.qbit.util.PortUtils;
 import io.advantageous.qbit.vertx.http.VertxHttpServerBuilder;
 import io.vertx.core.AbstractVerticle;
+import io.vertx.core.Future;
 import io.vertx.core.Vertx;
 import io.vertx.core.VertxOptions;
 import io.vertx.core.http.HttpServerResponse;
@@ -22,10 +25,9 @@ import org.junit.Test;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
-import static io.advantageous.qbit.server.EndpointServerBuilder.endpointServerBuilder;
 import static org.junit.Assert.assertEquals;
 
-public class VertxRESTIntegrationTest {
+public class VertxManagedServiceBuilderIntegrationTest {
 
     private Vertx vertx;
     private TestVerticle testVerticle;
@@ -43,6 +45,8 @@ public class VertxRESTIntegrationTest {
     public static class TestVerticle extends AbstractVerticle {
 
         private final int port;
+
+        private  QBitSystemManager systemManager;
 
         public TestVerticle(int port) {
             this.port = port;
@@ -79,11 +83,20 @@ public class VertxRESTIntegrationTest {
                         .build();
 
 
+                /** Use a managed service builder. */
+                final ManagedServiceBuilder managedServiceBuilder = ManagedServiceBuilder.managedServiceBuilder();
+
+                systemManager = managedServiceBuilder.getSystemManager();
+
                 /*
                  * Create a new service endpointServer.
                  */
-                final ServiceEndpointServer endpointServer = endpointServerBuilder().setUri("/")
-                        .addService(new TestRestService()).setHttpServer(httpServer).build();
+                final ServiceEndpointServer endpointServer = managedServiceBuilder
+                        .getEndpointServerBuilder().setUri("/")
+                        .addService(new TestRestService())
+                        .setHttpServer(httpServer).build();
+
+
 
                 endpointServer.startServer();
 
@@ -100,6 +113,10 @@ public class VertxRESTIntegrationTest {
         }
 
         public void stop() {
+
+            if (systemManager!=null) {
+                systemManager.shutDown();
+            }
         }
 
     }
