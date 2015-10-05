@@ -12,6 +12,7 @@ import org.junit.Test;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
 
 import static io.advantageous.boon.core.IO.puts;
 import static org.junit.Assert.*;
@@ -57,7 +58,11 @@ public class ServiceBundleBuilderTest {
 
         Map<String, Long> stats = new ConcurrentHashMap<>();
 
-        serviceBundleBuilder.getRequestQueueBuilder().setBatchSize(6);
+        serviceBundleBuilder.getRequestQueueBuilder()
+                .setBatchSize(6)
+                .setEnqueueTimeout(1)
+                .setEnqueueTimeoutTimeUnit(TimeUnit.SECONDS);
+        
         final ServiceBundle serviceBundle = serviceBundleBuilder
                 .setStatsCollector(new StatsCollector() {
                     @Override

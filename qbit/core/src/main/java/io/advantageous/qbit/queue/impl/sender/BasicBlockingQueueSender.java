@@ -42,7 +42,7 @@ public class BasicBlockingQueueSender<T> extends AbstractBasicSendQueue<T> {
                 logger.error("Unable to send to queue {} " +
                                 " Size of queue {} ",
                         name,   queue.size());
-                return unableToEnqueueHandler.unableToEnqueue(queue, name);
+                return unableToEnqueueHandler.unableToEnqueue(queue, name, array);
             } else {
                 return true;
             }

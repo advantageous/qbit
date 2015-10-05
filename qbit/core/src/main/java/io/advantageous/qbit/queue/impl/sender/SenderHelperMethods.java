@@ -20,20 +20,19 @@ public class SenderHelperMethods {
 
     public static Object[] objectArrayFromIterable(final Iterable iter) {
         if (iter instanceof Collection) {
-            final Collection collection = (Collection) iter;
-            return collection.toArray(new Object[collection.size()]);
+            return objectArrayFromCollection(((Collection) iter));
         } else {
-            return objectArrayFromIterable(list(iter));
+            return objectArrayFromCollection(iter2List(iter));
         }
     }
 
 
-    public static Object[] objectArray(final Collection collection) {
+    public static Object[] objectArrayFromCollection(final Collection collection) {
             return collection.toArray(new Object[collection.size()]);
     }
 
     /** This seems horrible. */
-    public static <V> List<V> list(final Iterable<V> iterable) {
+    private static <V> List<V> iter2List(final Iterable<V> iterable) {
         final List<V> list = new ArrayList<>();
         for (V o : iterable) {
             list.add(o);

@@ -8,7 +8,7 @@ import java.util.Collection;
 import java.util.concurrent.BlockingQueue;
 
 import static io.advantageous.qbit.queue.impl.sender.SenderHelperMethods.fastObjectArraySlice;
-import static io.advantageous.qbit.queue.impl.sender.SenderHelperMethods.objectArray;
+import static io.advantageous.qbit.queue.impl.sender.SenderHelperMethods.objectArrayFromCollection;
 import static io.advantageous.qbit.queue.impl.sender.SenderHelperMethods.objectArrayFromIterable;
 
 public abstract class AbstractBasicSendQueue <T> implements SendQueue<T> {
@@ -92,7 +92,7 @@ public abstract class AbstractBasicSendQueue <T> implements SendQueue<T> {
     public final void sendBatch(Collection<T> items) {
         checkStarted();
         flushSends();
-        final Object[] array = objectArray(items);
+        final Object[] array = objectArrayFromCollection(items);
         sendArray(array);
 
     }

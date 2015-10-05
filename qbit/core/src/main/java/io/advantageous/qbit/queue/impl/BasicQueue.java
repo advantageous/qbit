@@ -90,7 +90,6 @@ public class BasicQueue<T> implements Queue<T> {
                 this.queue = (BlockingQueue<Object>) constructor.create(size);
             } else {
                 final ConstructorAccess<? extends BlockingQueue> constructorAccess = classMeta.noArgConstructor();
-
                 //noinspection unchecked
                 this.queue = (BlockingQueue<Object>) constructorAccess.create();
             }

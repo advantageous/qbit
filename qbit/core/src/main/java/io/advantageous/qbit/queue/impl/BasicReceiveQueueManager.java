@@ -181,6 +181,7 @@ public class BasicReceiveQueueManager<T> implements ReceiveQueueManager<T> {
     @Override
     public void stop() {
 
+        stop.set(true);
         if (this.executorContext != null) {
             executorContext.stop();
         }

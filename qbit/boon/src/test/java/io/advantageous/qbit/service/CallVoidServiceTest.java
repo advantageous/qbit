@@ -25,7 +25,8 @@ public class CallVoidServiceTest {
         final ServiceBuilder serviceBuilder = ServiceBuilder.serviceBuilder();
 
         final QueueBuilder responseQueueBuilder = serviceBuilder.getResponseQueueBuilder();
-        final QueueBuilder requestQueueBuilder = serviceBuilder.getRequestQueueBuilder();
+        final QueueBuilder requestQueueBuilder = serviceBuilder.getRequestQueueBuilder()
+                .setEnqueueTimeout(1).setEnqueueTimeoutTimeUnit(TimeUnit.SECONDS);
 
         responseQueueBuilder.setBatchSize(5);
         responseQueueBuilder.setSize(5);
