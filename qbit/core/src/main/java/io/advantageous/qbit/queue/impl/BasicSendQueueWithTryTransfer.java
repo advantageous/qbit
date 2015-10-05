@@ -19,103 +19,54 @@
 package io.advantageous.qbit.queue.impl;
 
 import io.advantageous.qbit.queue.Queue;
-import io.advantageous.qbit.queue.QueueException;
 import io.advantageous.qbit.queue.SendQueue;
-import io.advantageous.qbit.queue.UnableToEnqueueHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TransferQueue;
+
+import static io.advantageous.qbit.queue.impl.SenderHelperMethods.objectArray;
+import static io.advantageous.qbit.queue.impl.SenderHelperMethods.objectArrayFromIterable;
 
 /**
  * This is not thread safe.
  * Create a new for every thread by calling BasicQueue.sendQueue().
  * <p>
- * created by Richard on 9/8/14.
+ * created by Richard on 10/5/15.
  *
  * @author rhightower
  */
-@Deprecated
-public class BasicSendQueue<T> implements SendQueue<T> {
-
-    private final Logger logger = LoggerFactory.getLogger(BasicSendQueue.class);
-    //private final boolean debug = GlobalConstants.DEBUG || logger.isDebugEnabled();
+public class BasicSendQueueWithTryTransfer<T> implements SendQueue<T> {
 
 
-    private final BlockingQueue<Object> queue;
-
-    private final TransferQueue<Object> transferQueue;
-
+    private final Logger logger = LoggerFactory.getLogger(BasicSendQueueWithTryTransfer.class);
+    private final TransferQueue<Object> queue;
     private final Object[] queueLocal;
     private final int checkBusyEvery;
-    private final boolean tryTransfer;
-    private final boolean checkBusy;
     private final int batchSize;
-    private final TimeUnit timeUnit;
-    private final UnableToEnqueueHandler unableToEnqueueHandler;
     private int index;
     private int checkEveryCount = 0;
     private final String name;
-    private final int enqueueTimeout;
-
     private final Queue<T> owner;
+    private int checkEveryStarted = 0;
 
 
-
-    public BasicSendQueue(
+    public BasicSendQueueWithTryTransfer(
             final String name,
             final int batchSize,
-            final BlockingQueue<Object> queue,
-            final boolean checkBusy,
+            final TransferQueue<Object> queue,
             final int checkBusyEvery,
-            final boolean tryTransfer,
-            final TimeUnit timeUnit,
-            final int enqueueTimeout,
-            final UnableToEnqueueHandler unableToEnqueueHandler,
             final Queue<T> owner) {
 
-        this.timeUnit = timeUnit;
-        this.enqueueTimeout = enqueueTimeout;
         this.name = name + "|SEND QUEUE";
-        this.tryTransfer = tryTransfer;
         this.batchSize = batchSize;
-        this.queue = queue;
-
         this.owner = owner;
-        queueLocal = new Object[batchSize];
-        this.unableToEnqueueHandler = unableToEnqueueHandler;
-        if (queue instanceof TransferQueue && checkBusy) {
-            //noinspection unchecked
-            transferQueue = ((TransferQueue) queue);
-            this.checkBusy = true;
-        } else {
-            this.checkBusy = false;
-            transferQueue = null;
-        }
+        this.queueLocal = new Object[batchSize];
+        this.queue = queue;
         this.checkBusyEvery = checkBusyEvery;
     }
 
-    static Object[] objectArray(final Iterable iter) {
-        if (iter instanceof Collection) {
-            final Collection collection = (Collection) iter;
-            return collection.toArray(new Object[collection.size()]);
-        } else {
-            return objectArray(list(iter));
-        }
-    }
-
-    static <V> List<V> list(final Iterable<V> iterable) {
-        final List<V> list = new ArrayList<>();
-        for (V o : iterable) {
-            list.add(o);
-        }
-        return list;
-    }
 
     static Object[] fastObjectArraySlice(final Object[] array,
                                          @SuppressWarnings("SameParameterValue") final int start,
@@ -127,15 +78,7 @@ public class BasicSendQueue<T> implements SendQueue<T> {
     }
 
     public boolean shouldBatch() {
-
-        //noinspection SimplifiableIfStatement
-        if (checkBusy) {
-            return !transferQueue.hasWaitingConsumer();
-
-        }
-
-        return true;//might be other ways to determine this like flow control, not implemented yet.
-
+        return !queue.hasWaitingConsumer();
     }
 
     @Override
@@ -147,7 +90,6 @@ public class BasicSendQueue<T> implements SendQueue<T> {
         return ableToSend;
     }
 
-    int checkEveryStarted = 0;
     private void checkStarted() {
 
         if (checkEveryStarted % 100 == 0) {
@@ -178,7 +120,7 @@ public class BasicSendQueue<T> implements SendQueue<T> {
     public void sendBatch(Iterable<T> items) {
         checkStarted();
         flushSends();
-        final Object[] array = objectArray(items);
+        final Object[] array = objectArrayFromIterable(items);
         sendArray(array);
     }
 
@@ -195,13 +137,13 @@ public class BasicSendQueue<T> implements SendQueue<T> {
 
         if (index >= batchSize) {
             return sendLocalQueue();
-        } else if (checkBusy) {
-            checkEveryCount++;
-            if (checkEveryCount > this.checkBusyEvery) {
-                checkEveryCount = 0;
-                if (transferQueue.hasWaitingConsumer()) {
-                    return sendLocalQueue();
-                }
+        }
+
+        checkEveryCount++;
+        if (checkEveryCount > this.checkBusyEvery) {
+            checkEveryCount = 0;
+            if (queue.hasWaitingConsumer()) {
+                return sendLocalQueue();
             }
         }
         return true;
@@ -229,33 +171,7 @@ public class BasicSendQueue<T> implements SendQueue<T> {
 
     private boolean sendArray(final Object[] array) {
 
-        if (checkBusy && tryTransfer) {
-            if (!transferQueue.tryTransfer(array)) {
-                return transferQueue.offer(array);
-            }
-        } else if (checkBusy) {
-            return transferQueue.offer(array);
-        } else {
-            try {
-                if (!queue.offer(array, enqueueTimeout, timeUnit)) {
-                    logger.error("Unable to send to queue {} timeout is {} {}" +
-                                    " Size of queue {} ",
-                            name, enqueueTimeout, timeUnit, queue.size());
-
-
-                    return unableToEnqueueHandler.unableToEnqueue(queue, name);
-                } else {
-                    return true;
-                }
-            } catch (InterruptedException e) {
-                logger.error("Unable to send to queue {} timeout is {} {}" +
-                                " Size of queue {} ",
-                        name, enqueueTimeout, timeUnit, queue.size());
-                throw new QueueException("Unable to send to queue " + name, e);
-            }
-        }
-
-        return false;
+        return queue.tryTransfer(array) || queue.offer(array);
     }
 
     @Override
