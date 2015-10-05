@@ -62,7 +62,7 @@ public class ServiceBundleBuilderTest {
                 .setBatchSize(6)
                 .setEnqueueTimeout(1)
                 .setEnqueueTimeoutTimeUnit(TimeUnit.SECONDS);
-        
+
         final ServiceBundle serviceBundle = serviceBundleBuilder
                 .setStatsCollector(new StatsCollector() {
                     @Override

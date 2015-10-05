@@ -96,7 +96,6 @@ public class BasicReceiveQueueManager<T> implements ReceiveQueueManager<T> {
         T item = inputQueue.poll(); //Initialize things.
 
         int count = 0;
-        long longCount = 0;
 
         /* Continues forever or until someone calls stop. */
         while (true) {
@@ -107,27 +106,23 @@ public class BasicReceiveQueueManager<T> implements ReceiveQueueManager<T> {
 
             /* Collect a batch of items as long as no item is null. */
             while (item != null) {
-
-
                 count++;
-
                 /* Notify listener that we have an item. */
                 listener.receive(item);
 
-
                 /* If the batch size has hit the max then we need to call limit. */
                 if (count >= batchSize) {
-
                     if (debug) {
                         logger.debug("BasicReceiveQueueManager {} limit reached batch size = {}", name, batchSize);
                     }
+                    /* Notify that a limit has been met and reset the count to 0. */
                     listener.limit();
+                    count = 0;
                     break;
                 }
                 /* Grab the next item from the queue. */
                 item = inputQueue.poll();
                 count++;
-
             }
 
             /* Notify listener that the queue is empty. */
@@ -137,43 +132,29 @@ public class BasicReceiveQueueManager<T> implements ReceiveQueueManager<T> {
                 logger.debug("BasicReceiveQueueManager {} empty queue count was {}", name, count);
             }
 
-            count = 0;
-
-
-
-            /* Get the next item, but wait this time since the queue was empty. */
+            /* Get the next item, but wait this time since the queue was empty.
+            * This pauses the queue handling so we don't eat up all of the CPU.
+            * */
             item = inputQueue.pollWait();
 
-
             if (item == null) {
-                if (longCount % 100 == 0) {
-                    if (Thread.currentThread().isInterrupted()) {
+                if (Thread.currentThread().isInterrupted()) {
                         if (stop.get()) {
                             listener.shutdown();
                             return;
+                        } else {
+                            Thread.interrupted();
                         }
-                    }
-                } else if (longCount % 1000 == 0 && stop.get()) {
+                }
+                else if (stop.get()) {
                     listener.shutdown();
+                    return;
                 }
                 /* Idle means we yielded and then waited a full wait time, so idle might be a good time to do clean up
                 or timed tasks.
                  */
                 listener.idle();
-
-                if (stop.get()) {
-                    listener.shutdown();
-                    return;
-                }
-
-
-                if (debug) {
-                    logger.info("BasicReceiveQueueManager idle");
-                }
-
-
             }
-            longCount++;
         }
 
     }
@@ -192,69 +173,8 @@ public class BasicReceiveQueueManager<T> implements ReceiveQueueManager<T> {
                                   final ReceiveQueue<T> inputQueue,
                                   final ReceiveQueueListener<T> listener,
                                   final int batchSize) {
-
-
-        queueInfo = new QueueInfo(name, inputQueue, listener, batchSize);
-
+        
+        queueInfo = new QueueInfo<>(name, inputQueue, listener, batchSize);
 
     }
-
-//    /*
-//
-//            if (sleepWait) {
-//
-//                item = inputQueue.poll();
-//
-//            /* See if a yield helps. Try to keep the thread alive. */
-//    if (item != null) {
-//        continue;
-//    } else {
-//        Thread.yield();
-//    }
-//
-//
-//    item = inputQueue.poll();
-//
-//            /* See if a yield helps. Try to keep the thread alive. */
-//    if (item != null) {
-//        continue;
-//    } else {
-//        LockSupport.parkNanos(1_000_000);
-//    }
-//
-//
-//    item = inputQueue.poll();
-//
-//            /* See if a yield helps. Try to keep the thread alive. */
-//    if (item != null) {
-//        continue;
-//    } else {
-//
-//        LockSupport.parkNanos(2_000_000);
-//    }
-//
-//
-//    item = inputQueue.poll();
-//
-//            /* See if a yield helps. Try to keep the thread alive. */
-//    if (item != null) {
-//        continue;
-//    } else {
-//
-//        LockSupport.parkNanos(4_000_000);
-//    }
-//
-//
-//    item = inputQueue.poll();
-//
-//            /* See if a yield helps. Try to keep the thread alive. */
-//    if (item != null) {
-//        continue;
-//    } else {
-//        LockSupport.parkNanos(8_000_000);
-//
-//    }
-//}
-//
-//*/
 }
