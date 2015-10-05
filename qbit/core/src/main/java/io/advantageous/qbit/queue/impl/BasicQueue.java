@@ -20,7 +20,6 @@ package io.advantageous.qbit.queue.impl;
 
 import io.advantageous.boon.core.reflection.ClassMeta;
 import io.advantageous.boon.core.reflection.ConstructorAccess;
-import io.advantageous.qbit.concurrent.ExecutorContext;
 import io.advantageous.qbit.queue.*;
 import io.advantageous.qbit.queue.impl.sender.BasicBlockingQueueSender;
 import io.advantageous.qbit.queue.impl.sender.BasicSendQueueWithTransferQueue;
@@ -34,8 +33,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TransferQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Supplier;
-
-import static io.advantageous.qbit.concurrent.ScheduledExecutorBuilder.scheduledExecutorBuilder;
 
 /**
  * This is the base for all the queues we use.
@@ -51,20 +48,17 @@ public class BasicQueue<T> implements Queue<T> {
     private final int batchSize;
     private final Logger logger = LoggerFactory.getLogger(BasicQueue.class);
     private final boolean debug = logger.isDebugEnabled();
-    private final ReceiveQueueManager<T> receiveQueueManager;
+    private ReceiveQueueManager<T> receiveQueueManager;
     private final String name;
     private final int pollTimeWait;
     private final TimeUnit pollTimeTimeUnit;
     private final AtomicBoolean stop = new AtomicBoolean();
-    private ExecutorContext executorContext;
     private final Supplier<SendQueue<T>> sendQueueSupplier;
 
 
     public BasicQueue(final String name,
                       final int waitTime,
                       @SuppressWarnings("SameParameterValue") final TimeUnit timeUnit,
-                      final int enqueueTimeout,
-                      final TimeUnit enqueueTimeoutTimeUnit,
                       final int batchSize,
                       final Class<? extends BlockingQueue> queueClass,
                       final boolean checkIfBusy,
@@ -73,18 +67,14 @@ public class BasicQueue<T> implements Queue<T> {
                       boolean tryTransfer,
                       UnableToEnqueueHandler unableToEnqueueHandler) {
 
-        logger.info("Queue created {} {} batchSize {} size {} checkEvery {} tryTransfer {} pollTimeWait, enqueueTimeout",
-                name, queueClass, batchSize, size, checkEvery, tryTransfer, waitTime, enqueueTimeout);
+        logger.info("Queue created {} {} batchSize {} size {} checkEvery {} tryTransfer {} waitTime {}",
+                name, queueClass, batchSize, size, checkEvery, tryTransfer, waitTime);
 
 
         this.name = name;
         this.pollTimeWait = waitTime;
         this.pollTimeTimeUnit = timeUnit;
         this.batchSize = batchSize;
-
-
-        this.receiveQueueManager = new BasicReceiveQueueManager<>();
-
 
         if (size == -1) {
 
@@ -124,9 +114,9 @@ public class BasicQueue<T> implements Queue<T> {
 
 
         logger.info("Queue done creating {} batchSize {} checkEvery {} tryTransfer {}" +
-                        "pollTimeWait/polltime {}, enqueueTimeout {}",
+                        "pollTimeWait/polltime {}",
                 this.name, this.batchSize, checkEvery, tryTransfer,
-                this.pollTimeWait, enqueueTimeout);
+                this.pollTimeWait);
 
 
     }
@@ -140,7 +130,7 @@ public class BasicQueue<T> implements Queue<T> {
      */
     @Override
     public ReceiveQueue<T> receiveQueue() {
-        logger.info("ReceiveQueue requested for {}", name);
+        if (debug) logger.debug("ReceiveQueue requested for {}", name);
         return new BasicReceiveQueue<>(queue, pollTimeWait, pollTimeTimeUnit, batchSize);
     }
 
@@ -152,45 +142,27 @@ public class BasicQueue<T> implements Queue<T> {
      */
     @Override
     public SendQueue<T> sendQueue() {
-        logger.info("SendQueue requested for {}", name);
-
+        if (debug) logger.debug("SendQueue requested for {}", name);
         return sendQueueSupplier.get();
-
     }
 
 
     @Override
     public void startListener(final ReceiveQueueListener<T> listener) {
-
+        this.receiveQueueManager = new BasicReceiveQueueManager<>(name);
         stop.set(false);
-        logger.info("Starting queue listener for  {} {}" , name, listener);
-
-        if (executorContext != null) {
-            if (debug) {
-                logger.debug("Unable to start up this basic queue twice {}", name);
-            }
-            throw new IllegalStateException("Queue.startListener::Unable to startClient up twice: " + name);
-        }
-
-        this.executorContext = scheduledExecutorBuilder()
-                .setThreadName("QueueListener " + name)
-                .setInitialDelay(50)
-                .setPeriod(50).setRunnable(() -> manageQueue(listener))
-                .build();
-
-        executorContext.start();
+        logger.info("Starting queue listener for  {} {}", name, listener);
+        this.receiveQueueManager.addQueueToManage(name, this.receiveQueue(), listener, batchSize);
+        this.receiveQueueManager.start();
     }
 
     @Override
     public void stop() {
-
         logger.info("Stopping queue  {}", name);
-
         stop.set(true);
-        if (executorContext != null) {
-            executorContext.stop();
+        if (receiveQueueManager != null) {
+            receiveQueueManager.stop();
         }
-
     }
 
     @Override
@@ -203,14 +175,15 @@ public class BasicQueue<T> implements Queue<T> {
         return !stop.get();
     }
 
-    private void manageQueue(ReceiveQueueListener<T> listener) {
-        this.receiveQueueManager.manageQueue(receiveQueue(), listener, batchSize, stop);
-    }
-
     @Override
     public String toString() {
         return "BasicQueue{" +
                 "name='" + name + '\'' +
                 '}';
+    }
+
+    @Override
+    public String name() {
+        return name;
     }
 }

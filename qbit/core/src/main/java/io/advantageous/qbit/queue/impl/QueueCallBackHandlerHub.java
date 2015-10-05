@@ -1,7 +1,8 @@
-package io.advantageous.qbit.queue;
+package io.advantageous.qbit.queue.impl;
 
 
 import io.advantageous.boon.primitive.Arry;
+import io.advantageous.qbit.queue.QueueCallBackHandler;
 
 import java.util.List;
 
@@ -10,7 +11,7 @@ import java.util.List;
  * This is useful for registering auto-health checks and such.
  * Created by rick on 6/6/15.
  */
-public class QueueCallBackHandlerHub implements QueueCallBackHandler{
+public class QueueCallBackHandlerHub implements QueueCallBackHandler {
 
     final QueueCallBackHandler[] callBackHandlers;
 

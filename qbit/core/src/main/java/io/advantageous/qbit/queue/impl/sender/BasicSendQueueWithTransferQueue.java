@@ -18,7 +18,6 @@
 package io.advantageous.qbit.queue.impl.sender;
 
 import io.advantageous.qbit.queue.Queue;
-import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.TransferQueue;
@@ -35,7 +34,6 @@ import java.util.concurrent.TransferQueue;
  */
 public class BasicSendQueueWithTransferQueue<T> extends AbstractBasicSendQueue<T> {
 
-    private final Logger logger = LoggerFactory.getLogger(BasicSendQueueWithTransferQueue.class);
     private final TransferQueue<Object> queue;
     private final int checkBusyEvery;
     private int checkEveryCount = 0;

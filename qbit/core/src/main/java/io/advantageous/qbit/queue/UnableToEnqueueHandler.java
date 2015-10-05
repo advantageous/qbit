@@ -4,7 +4,7 @@ import java.util.concurrent.BlockingQueue;
 
 public interface UnableToEnqueueHandler {
 
-    default boolean unableToEnqueue(BlockingQueue<Object> queue, String queueName) {
+    default boolean unableToEnqueue(final BlockingQueue<Object> queue, final String queueName) {
         return false;
     }
 

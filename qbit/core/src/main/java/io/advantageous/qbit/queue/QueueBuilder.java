@@ -21,6 +21,7 @@ package io.advantageous.qbit.queue;
 import io.advantageous.qbit.GlobalConstants;
 import io.advantageous.qbit.config.PropertyResolver;
 import io.advantageous.qbit.queue.impl.BasicQueue;
+import io.advantageous.qbit.queue.impl.DefaultUnableToEnqueueHandler;
 
 import java.util.Properties;
 import java.util.concurrent.*;
@@ -232,8 +233,6 @@ public class QueueBuilder implements Cloneable {
         return new BasicQueue<>(this.getName(),
                 this.getPollWait(),
                 this.getPollTimeUnit(),
-                this.getEnqueueTimeout(),
-                this.getEnqueueTimeoutTimeUnit(),
                 this.getBatchSize(),
                 this.getQueueClass(),
                 this.isCheckIfBusy(),

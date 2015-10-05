@@ -19,6 +19,7 @@
 package io.advantageous.qbit.queue.impl;
 
 import io.advantageous.qbit.GlobalConstants;
+import io.advantageous.qbit.concurrent.ExecutorContext;
 import io.advantageous.qbit.queue.ReceiveQueue;
 import io.advantageous.qbit.queue.ReceiveQueueListener;
 import io.advantageous.qbit.queue.ReceiveQueueManager;
@@ -26,6 +27,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.atomic.AtomicBoolean;
+
+import static io.advantageous.qbit.concurrent.ScheduledExecutorBuilder.scheduledExecutorBuilder;
 
 
 /**
@@ -35,18 +38,58 @@ import java.util.concurrent.atomic.AtomicBoolean;
  */
 public class BasicReceiveQueueManager<T> implements ReceiveQueueManager<T> {
 
-    private final boolean debug = GlobalConstants.DEBUG;
 
 
     private final Logger logger = LoggerFactory.getLogger(BasicReceiveQueueManager.class);
+    private final boolean debug = logger.isDebugEnabled();
+    private final String name;
+    private ExecutorContext executorContext;
+    private final AtomicBoolean stop = new AtomicBoolean();
+    private  QueueInfo<T> queueInfo;
+
+    private static final class QueueInfo<T> {
+        final String name;
+        final ReceiveQueue<T> inputQueue;
+        final ReceiveQueueListener<T> listener;
+        final int batchSize;
+
+        private QueueInfo(String name, ReceiveQueue<T> inputQueue,
+                          ReceiveQueueListener<T> listener, int batchSize) {
+            this.name = name;
+            this.inputQueue = inputQueue;
+            this.listener = listener;
+            this.batchSize = batchSize;
+        }
+    }
 
 
+    public BasicReceiveQueueManager(final String name) {
+        this.name = name;
+    }
 
     @Override
-    public void manageQueue(final ReceiveQueue<T> inputQueue,
-                            final ReceiveQueueListener<T> listener,
-                            final int batchSize,
-                            final AtomicBoolean stop) {
+    public void start() {
+
+        this.executorContext = scheduledExecutorBuilder()
+                .setThreadName("QueueListener|" + name)
+                .setInitialDelay(50)
+                .setPeriod(50).setRunnable(this::manageQueue)
+                .build();
+
+        executorContext.start();
+    }
+
+    private void manageQueue() {
+
+        if (queueInfo==null) {
+            return;
+        }
+
+        final String name = queueInfo.name;
+        final ReceiveQueue<T> inputQueue = queueInfo.inputQueue;
+        final ReceiveQueueListener<T> listener = queueInfo.listener;
+        final int batchSize = queueInfo.batchSize;
+
 
         listener.init();
 
@@ -72,11 +115,11 @@ public class BasicReceiveQueueManager<T> implements ReceiveQueueManager<T> {
                 listener.receive(item);
 
 
-                /* If the batch size has hit the max then we need to break. */
+                /* If the batch size has hit the max then we need to call limit. */
                 if (count >= batchSize) {
 
                     if (debug) {
-                        System.out.println("BasicReceiveQueueManager limit reached " + batchSize);
+                        logger.debug("BasicReceiveQueueManager {} limit reached batch size = {}", name, batchSize);
                     }
                     listener.limit();
                     break;
@@ -91,7 +134,7 @@ public class BasicReceiveQueueManager<T> implements ReceiveQueueManager<T> {
             listener.empty();
 
             if (debug) {
-                logger.info("BasicReceiveQueueManager empty queue count was " + count + " " + Thread.currentThread().getName());
+                logger.debug("BasicReceiveQueueManager {} empty queue count was {}", name, count);
             }
 
             count = 0;
@@ -99,7 +142,6 @@ public class BasicReceiveQueueManager<T> implements ReceiveQueueManager<T> {
 
 
             /* Get the next item, but wait this time since the queue was empty. */
-
             item = inputQueue.pollWait();
 
 
@@ -131,12 +173,27 @@ public class BasicReceiveQueueManager<T> implements ReceiveQueueManager<T> {
 
 
             }
-
-
             longCount++;
-
-
         }
+
+    }
+
+    @Override
+    public void stop() {
+
+        if (this.executorContext != null) {
+            executorContext.stop();
+        }
+    }
+
+    @Override
+    public void addQueueToManage( final String name,
+                                  final ReceiveQueue<T> inputQueue,
+                                  final ReceiveQueueListener<T> listener,
+                                  final int batchSize) {
+
+
+        queueInfo = new QueueInfo(name, inputQueue, listener, batchSize);
 
 
     }

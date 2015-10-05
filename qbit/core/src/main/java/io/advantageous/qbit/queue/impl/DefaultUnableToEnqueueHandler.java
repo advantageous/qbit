@@ -1,4 +1,7 @@
-package io.advantageous.qbit.queue;
+package io.advantageous.qbit.queue.impl;
+
+import io.advantageous.qbit.queue.QueueException;
+import io.advantageous.qbit.queue.UnableToEnqueueHandler;
 
 import java.util.concurrent.BlockingQueue;
 

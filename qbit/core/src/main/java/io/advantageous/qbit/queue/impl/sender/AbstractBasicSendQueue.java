@@ -53,11 +53,11 @@ public abstract class AbstractBasicSendQueue <T> implements SendQueue<T> {
     }
 
 
-    private final void checkStarted() {
+    private void checkStarted() {
 
         if (checkEveryStarted % 100 == 0) {
             if (!owner.started()) {
-                logger.warn("BasicSendQueue:: name {} send queue NOT STARTED", name);
+                logger.warn("{} :: name {} send queue NOT STARTED", this.getClass().getSimpleName(), name);
             }
         }
 

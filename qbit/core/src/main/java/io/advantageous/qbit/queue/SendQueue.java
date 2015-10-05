@@ -19,6 +19,8 @@
 package io.advantageous.qbit.queue;
 
 import io.advantageous.qbit.Output;
+import io.advantageous.qbit.service.Startable;
+import io.advantageous.qbit.service.Stoppable;
 
 import java.util.Collection;
 
@@ -30,28 +32,45 @@ import java.util.Collection;
  *
  * @author rhightower
  */
-public interface SendQueue<T> extends Output {
-    boolean send(T item);
-
-    void sendAndFlush(T item);
-
-    @SuppressWarnings("unchecked")
-    void sendMany(T... item);
-
-    void sendBatch(Collection<T> item);
-
-    void sendBatch(Iterable<T> item);
-
-    boolean shouldBatch();
-
-    void flushSends();
-
-    int size();
-
-    default void start() {
+public interface SendQueue<T> extends Output, Startable, Stoppable {
+    default boolean send(T item) {
+        return true;
     }
 
-    default void stop() {
+    default void sendAndFlush(T item) {
+        send(item);
+        flushSends();
+    }
+
+    @SuppressWarnings("unchecked")
+    default void sendMany(T... items){
+        for (T i : items) {
+            send(i);
+        }
+    }
+
+    default void sendBatch(Collection<T> items) {
+        for (T i : items) {
+            send(i);
+        }
+    }
+
+    default void sendBatch(Iterable<T> items) {
+        for (T i : items) {
+            send(i);
+        }
+    }
+
+    default boolean shouldBatch() {
+        return true;
+    }
+
+    default void flushSends() {
+
+    }
+
+    default int size() {
+        return 0;
     }
 
     default String name()  {

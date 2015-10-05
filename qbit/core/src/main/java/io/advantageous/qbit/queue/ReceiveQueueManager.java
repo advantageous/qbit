@@ -18,7 +18,9 @@
 
 package io.advantageous.qbit.queue;
 
-import java.util.concurrent.atomic.AtomicBoolean;
+import io.advantageous.qbit.service.Startable;
+import io.advantageous.qbit.service.Stoppable;
+
 
 /**
  * created by Richard on 9/8/14.
@@ -28,7 +30,11 @@ import java.util.concurrent.atomic.AtomicBoolean;
  *
  * @author rhightower
  */
-public interface ReceiveQueueManager<T> {
+public interface ReceiveQueueManager<T> extends Startable, Stoppable{
 
-    void manageQueue(ReceiveQueue<T> queue, ReceiveQueueListener<T> listener, int batchSize, AtomicBoolean stop);
+
+    void addQueueToManage(String name,
+                          ReceiveQueue<T> queue,
+                          ReceiveQueueListener<T> listener,
+                          int batchSize);
 }
