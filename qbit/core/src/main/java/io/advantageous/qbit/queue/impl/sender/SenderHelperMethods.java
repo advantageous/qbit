@@ -1,4 +1,4 @@
-package io.advantageous.qbit.queue.impl;
+package io.advantageous.qbit.queue.impl.sender;
 
 import java.util.ArrayList;
 import java.util.Collection;

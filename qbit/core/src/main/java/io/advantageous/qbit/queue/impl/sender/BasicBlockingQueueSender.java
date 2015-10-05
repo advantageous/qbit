@@ -1,4 +1,4 @@
-package io.advantageous.qbit.queue.impl;
+package io.advantageous.qbit.queue.impl.sender;
 
 import io.advantageous.qbit.queue.Queue;
 import io.advantageous.qbit.queue.UnableToEnqueueHandler;
@@ -8,9 +8,7 @@ import org.slf4j.LoggerFactory;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.TransferQueue;
 
-import static io.advantageous.qbit.queue.impl.SenderHelperMethods.fastObjectArraySlice;
-
-public class BasicBlockingQueueSender<T> extends AbstractBasicSendQueue <T> {
+public class BasicBlockingQueueSender<T> extends AbstractBasicSendQueue<T> {
 
     private final Logger logger = LoggerFactory.getLogger(BasicBlockingQueueSender.class);
     private final UnableToEnqueueHandler unableToEnqueueHandler;
@@ -38,14 +36,6 @@ public class BasicBlockingQueueSender<T> extends AbstractBasicSendQueue <T> {
         return index < batchSize || sendLocalQueue();
     }
 
-
-    protected final boolean sendLocalQueue() {
-
-        final Object[] copy = fastObjectArraySlice(queueLocal, 0, index);
-        boolean ableToSend = sendArray(copy);
-        index = 0;
-        return ableToSend;
-    }
 
     protected final  boolean sendArray(final Object[] array) {
             if (!queue.offer(array)) {

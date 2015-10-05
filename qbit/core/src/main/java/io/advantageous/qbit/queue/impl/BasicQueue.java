@@ -22,6 +22,9 @@ import io.advantageous.boon.core.reflection.ClassMeta;
 import io.advantageous.boon.core.reflection.ConstructorAccess;
 import io.advantageous.qbit.concurrent.ExecutorContext;
 import io.advantageous.qbit.queue.*;
+import io.advantageous.qbit.queue.impl.sender.BasicBlockingQueueSender;
+import io.advantageous.qbit.queue.impl.sender.BasicSendQueueWithTransferQueue;
+import io.advantageous.qbit.queue.impl.sender.BasicSendQueueWithTryTransfer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
