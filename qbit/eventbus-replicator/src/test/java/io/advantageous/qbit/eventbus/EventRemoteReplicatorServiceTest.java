@@ -5,7 +5,7 @@ import io.advantageous.qbit.events.EventManager;
 import io.advantageous.qbit.events.spi.EventConnector;
 import io.advantageous.qbit.events.spi.EventTransferObject;
 import io.advantageous.qbit.spi.FactorySPI;
-import io.advantageous.qbit.spi.RegisterBoonWithQBit;
+import io.advantageous.qbit.boon.spi.RegisterBoonWithQBit;
 import org.junit.Before;
 import org.junit.Test;
 

@@ -25,6 +25,7 @@ import io.advantageous.qbit.message.MethodCall;
 import io.advantageous.qbit.message.Request;
 import io.advantageous.qbit.message.Response;
 import io.advantageous.qbit.queue.*;
+import io.advantageous.qbit.queue.impl.QueueCallBackHandlerHub;
 import io.advantageous.qbit.service.health.HealthServiceAsync;
 import io.advantageous.qbit.service.health.ServiceHealthListener;
 import io.advantageous.qbit.service.impl.*;

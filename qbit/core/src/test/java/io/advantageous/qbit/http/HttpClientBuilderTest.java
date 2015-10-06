@@ -74,7 +74,8 @@ public class HttpClientBuilderTest {
 
     @After
     public void tearDown() throws Exception {
-
+        FactorySPI.setFactory(null);
+        FactorySPI.setHttpClientFactory(null);
     }
 
     @Test

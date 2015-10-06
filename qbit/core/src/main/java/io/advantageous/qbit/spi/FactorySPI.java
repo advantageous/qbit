@@ -19,6 +19,7 @@
 package io.advantageous.qbit.spi;
 
 import io.advantageous.qbit.Factory;
+import io.advantageous.qbit.boon.BoonQBitFactory;
 import io.advantageous.qbit.events.spi.EventManagerFactory;
 
 import java.util.concurrent.atomic.AtomicReference;
@@ -54,8 +55,17 @@ public class FactorySPI {
     }
 
 
-    public static void setFactory(Factory factory) {
+    public static void setFactory(final Factory factory) {
+
+        if (!(factory instanceof BoonQBitFactory)) {
+
+            Exception exception = new Exception();
+            exception.fillInStackTrace();
+            exception.printStackTrace();
+        }
+
         ref.set(factory);
+
     }
 
 

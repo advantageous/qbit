@@ -32,6 +32,7 @@ import io.advantageous.qbit.service.discovery.ServiceDiscovery;
 import io.advantageous.qbit.service.health.HealthServiceAsync;
 import io.advantageous.qbit.spi.FactorySPI;
 import io.advantageous.qbit.system.QBitSystemManager;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -84,6 +85,12 @@ public class HttpServerBuilderTest {
         FactorySPI.setHttpServerFactory((options, name, systemManager, serviceDiscovery, healthServiceAsync, a, b, c, d)
                 -> new SimpleHttpServer());
         Sys.sleep(100);
+
+    }
+
+    @After
+    public void tearDown() {
+        FactorySPI.setFactory(null);
 
     }
 
