@@ -42,7 +42,7 @@ public interface Queue<T> extends Stoppable {
     ReceiveQueue<T> receiveQueue();
 
     /**
-     * This returns a NON-thread safe forwardEvent queue.
+     * This returns a NON-thread safe SendQueue queue.
      * It is not thread safe so that you can batch sends to minimize thread hand-off
      * and to maximize IO throughput. Each call to this method returns a forwardEvent queue
      * that can only be access from one thread.
