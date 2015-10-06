@@ -116,8 +116,7 @@ public class StatsDReplicatorBuilder {
         final ServiceBuilder serviceBuilder = this.getServiceBuilder();
         serviceBuilder.getRequestQueueBuilder().setUnableToEnqueueHandler(
                 new UnableToEnqueueHandler() {
-                    @Override
-                    public boolean unableToEnqueue(BlockingQueue<Object> queue, String queueName) {
+                    public boolean unableToEnqueue(BlockingQueue<Object> queue, String queueName, Object item) {
 
                         final Logger logger = LoggerFactory.getLogger(StatsDReplicator.class);
 
@@ -129,11 +128,12 @@ public class StatsDReplicatorBuilder {
         );
 
         serviceBuilder.getResponseQueueBuilder().setUnableToEnqueueHandler(new UnableToEnqueueHandler() {
-            @Override
-            public boolean unableToEnqueue(BlockingQueue<Object> queue, String queueName) {
 
+
+            public boolean unableToEnqueue(BlockingQueue<Object> queue, String queueName, Object item) {
 
                 final Logger logger = LoggerFactory.getLogger(StatsDReplicator.class);
+
 
                 logger.error("Unable to send response from method call from StatsDReplicator "  + queueName);
                 queue.clear();
