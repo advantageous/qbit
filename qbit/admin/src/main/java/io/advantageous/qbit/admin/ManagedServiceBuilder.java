@@ -526,6 +526,7 @@ public class ManagedServiceBuilder {
     public EndpointServerBuilder getEndpointServerBuilder() {
         if (endpointServerBuilder==null) {
             endpointServerBuilder = EndpointServerBuilder.endpointServerBuilder();
+            endpointServerBuilder.setPort(this.getPort());
             endpointServerBuilder.setEnableHealthEndpoint(isEnableLocalHealth());
             endpointServerBuilder.setEnableStatEndpoint(isEnableLocalStats());
 
