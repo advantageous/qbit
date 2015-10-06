@@ -62,5 +62,5 @@ package io.advantageous.qbit.service;
  */
 public interface Startable {
 
-    void start();
+    default void start(){}
 }

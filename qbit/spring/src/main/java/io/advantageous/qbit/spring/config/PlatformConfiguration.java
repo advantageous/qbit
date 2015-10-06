@@ -10,7 +10,7 @@ import io.advantageous.qbit.server.ServiceEndpointServer;
 import io.advantageous.qbit.service.ServiceBuilder;
 import io.advantageous.qbit.service.health.HealthServiceAsync;
 import io.advantageous.qbit.service.health.HealthServiceBuilder;
-import io.advantageous.qbit.service.impl.BoonServiceMethodCallHandler;
+import io.advantageous.qbit.boon.service.impl.BoonServiceMethodCallHandler;
 import io.advantageous.qbit.service.stats.StatsCollector;
 import io.advantageous.qbit.spring.ApplicationInitializer;
 import io.advantageous.qbit.spring.ServiceQueueInitializer;

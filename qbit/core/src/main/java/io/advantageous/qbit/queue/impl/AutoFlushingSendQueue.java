@@ -43,10 +43,7 @@ public class AutoFlushingSendQueue<T> implements SendQueue<T> {
     private final SendQueue<T> sendQueue;
     private final ReentrantLock lock = new ReentrantLock();
 
-    private final PeriodicScheduler periodicScheduler;
-    private final int interval;
-    private final TimeUnit timeUnit;
-
+    private  PeriodicScheduler periodicScheduler;
     private ScheduledFuture scheduledFuture;
 
     public AutoFlushingSendQueue(final SendQueue<T> sendQueue,
@@ -56,14 +53,8 @@ public class AutoFlushingSendQueue<T> implements SendQueue<T> {
         this.sendQueue = sendQueue;
 
         this.periodicScheduler = periodicScheduler;
-        this.interval = interval;
-        this.timeUnit = timeUnit;
-    }
 
-    @Override
-    public void start() {
-        //noinspection Convert2MethodRef
-        scheduledFuture = periodicScheduler.repeat(() -> flushSends(), interval, timeUnit);
+        this.scheduledFuture = periodicScheduler.repeat(() -> flushSends(), interval, timeUnit);
     }
 
     @Override

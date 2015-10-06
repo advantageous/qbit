@@ -82,4 +82,10 @@ public interface Queue<T> extends Stoppable {
     default boolean started() {
         return true;
     }
+
+
+
+    default String name()  {
+        return "NO OP";
+    }
 }

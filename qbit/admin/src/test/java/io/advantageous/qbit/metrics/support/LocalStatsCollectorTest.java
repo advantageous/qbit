@@ -38,7 +38,7 @@ public class LocalStatsCollectorTest {
         final Map<String, ?> metricsC = collectMap.get("MetricsC");
 
 
-        assertEquals(9, metricsC.get("foo.bar.count1"));
+        assertEquals(9L, metricsC.get("foo.bar.count1"));
     }
 
 
@@ -53,7 +53,7 @@ public class LocalStatsCollectorTest {
         final Map<String, ?> metricsC = collectMap.get("MetricsKV");
 
 
-        assertEquals(4, metricsC.get("foo.bar.level1"));
+        assertEquals(4L, metricsC.get("foo.bar.level1"));
     }
 
 
@@ -83,7 +83,7 @@ public class LocalStatsCollectorTest {
         final Map<String, ?> metricsC = referenceMap.get().get("MetricsKV");
 
 
-        assertEquals(4, metricsC.get("foo.bar.level1"));
+        assertEquals(4L, metricsC.get("foo.bar.level1"));
     }
 
 
@@ -100,7 +100,7 @@ public class LocalStatsCollectorTest {
         final Map<String, ?> metricsC = collectMap.get("MetricsKV");
 
 
-        assertEquals(999, metricsC.get("foo.bar.level1"));
+        assertEquals(999L, metricsC.get("foo.bar.level1"));
 
         puts(collectMap);
     }
@@ -119,7 +119,7 @@ public class LocalStatsCollectorTest {
         final Map<String, ?> metricsC = collectMap.get("MetricsMS");
 
 
-        assertEquals(Lists.list(2, 3, 4), metricsC.get("foo.bar.timing1"));
+        assertEquals(Lists.list(2L, 3L, 4L), metricsC.get("foo.bar.timing1"));
     }
 
 
@@ -137,7 +137,7 @@ public class LocalStatsCollectorTest {
         final Map<String, ?> metricsC = collectMap.get("MetricsMS");
 
 
-        assertEquals(Lists.list(2, 3, 4), metricsC.get("foo.bar.timing1"));
+        assertEquals(Lists.list(2L, 3L, 4L), metricsC.get("foo.bar.timing1"));
     }
 
 

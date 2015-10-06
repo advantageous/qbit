@@ -9,6 +9,7 @@ import io.advantageous.qbit.queue.SendQueue;
 import io.advantageous.qbit.service.ServiceQueue;
 import io.advantageous.qbit.service.stats.StatsCollector;
 import io.advantageous.qbit.spi.FactorySPI;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -81,6 +82,13 @@ public class EventManagerBuilderTest {
 
     }
 
+
+
+    @After
+    public void teardown() {
+
+        FactorySPI.setFactory(null);
+    }
 
     @Test
     public void testWithConnector() {

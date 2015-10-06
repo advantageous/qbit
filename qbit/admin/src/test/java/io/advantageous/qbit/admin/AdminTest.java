@@ -59,7 +59,7 @@ public class AdminTest {
     @Test
     public void testOk() throws Exception {
 
-        HttpTextResponse httpResponse = httpClient.get("/services/qbit-admin/ok");
+        HttpTextResponse httpResponse = httpClient.get("/__admin/ok");
 
         assertTrue(httpResponse.code() == 200);
 
@@ -70,7 +70,7 @@ public class AdminTest {
     @Test
     public void testFindAllNodes() throws Exception {
 
-        HttpTextResponse httpResponse = httpClient.get("/services/qbit-admin/all-nodes/");
+        HttpTextResponse httpResponse = httpClient.get("/__admin/all-nodes/");
 
         assertTrue(httpResponse.code() == 200);
 
@@ -86,7 +86,7 @@ public class AdminTest {
         adminBuilder.getHealthService().clientProxyFlush();
         Sys.sleep(1000);
 
-        HttpTextResponse httpResponse = httpClient.get("/services/qbit-admin/all-nodes/");
+        HttpTextResponse httpResponse = httpClient.get("/__admin/all-nodes/");
 
         assertTrue(httpResponse.code() == 200);
 
