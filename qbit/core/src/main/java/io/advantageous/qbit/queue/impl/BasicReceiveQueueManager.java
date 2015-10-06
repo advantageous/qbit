@@ -138,15 +138,7 @@ public class BasicReceiveQueueManager<T> implements ReceiveQueueManager<T> {
             item = inputQueue.pollWait();
 
             if (item == null) {
-                if (Thread.currentThread().isInterrupted()) {
-                        if (stop.get()) {
-                            listener.shutdown();
-                            return;
-                        } else {
-                            Thread.interrupted();
-                        }
-                }
-                else if (stop.get()) {
+                if (stop.get()) {
                     listener.shutdown();
                     return;
                 }
@@ -173,7 +165,7 @@ public class BasicReceiveQueueManager<T> implements ReceiveQueueManager<T> {
                                   final ReceiveQueue<T> inputQueue,
                                   final ReceiveQueueListener<T> listener,
                                   final int batchSize) {
-        
+
         queueInfo = new QueueInfo<>(name, inputQueue, listener, batchSize);
 
     }
