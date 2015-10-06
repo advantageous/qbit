@@ -10,6 +10,7 @@ import org.junit.Test;
 import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.*;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -105,12 +106,7 @@ public abstract class BasicSendReceiveTest {
     public void basicSendTwoItemsWithRealIterable() {
 
         final List<String> list = Lists.list("hi", "mom");
-        Iterable<String> iterable = new Iterable<String>() {
-            @Override
-            public Iterator<String> iterator() {
-                return list.iterator();
-            }
-        };
+        Iterable<String> iterable = list::iterator;
         sendQueue.sendBatch(iterable);
         sendQueue.flushSends();
         final String item1 = receiveQueue.pollWait();
@@ -220,23 +216,82 @@ public abstract class BasicSendReceiveTest {
             }
         });
 
-        final AtomicReference<Thread> threadAtomicReference = new AtomicReference<>();
+
+        final AtomicBoolean stop = new AtomicBoolean();
 
         final PeriodicScheduler periodicScheduler = (runnable, interval, timeUnit) -> {
             final Thread thread = new Thread(() -> {
-
                 while (true) {
                     Sys.sleep(timeUnit.toMillis(interval));
-
                     runnable.run();
+                    if (stop.get()) {
+                        return;
+                    }
                 }
             });
             thread.start();
-            threadAtomicReference.set(thread);
-            return null;
+            return new ScheduledFuture<Object>() {
+                @Override
+                public int compareTo(Delayed o) {
+                    return 0;
+                }
+
+                @Override
+                public long getDelay(TimeUnit unit) {
+                    return 0;
+                }
+
+                public int compareTo(ScheduledFuture o) {
+                    return 0;
+                }
+
+
+                @Override
+                public boolean cancel(boolean mayInterruptIfRunning) {
+                    return false;
+                }
+
+                @Override
+                public boolean isCancelled() {
+                    return false;
+                }
+
+                @Override
+                public boolean isDone() {
+                    return false;
+                }
+
+                @Override
+                public Object get() throws InterruptedException, ExecutionException {
+                    return null;
+                }
+
+                @Override
+                public Object get(long timeout, TimeUnit unit) throws InterruptedException, ExecutionException, TimeoutException {
+                    return null;
+                }
+            };
         };
 
         sendQueue = queue.sendQueueWithAutoFlush(periodicScheduler, 100, TimeUnit.MILLISECONDS);
+
+
+        sendQueue.sendAndFlush("mom");
+        count.incrementAndGet();
+
+        sendQueue.sendMany("mom", "dad");
+        count.addAndGet(2);
+
+        sendQueue.sendBatch(Lists.list("mom", "dad"));
+        count.addAndGet(2);
+
+        sendQueue.sendBatch(() -> Lists.list("mom", "dad").iterator());
+        count.addAndGet(2);
+
+        assertTrue(sendQueue.shouldBatch());
+        assertTrue(sendQueue.size() > -1);
+        assertTrue(sendQueue.name() !=null);
+
 
 
         for (int index = 0; index< amount; index++) {
@@ -248,6 +303,10 @@ public abstract class BasicSendReceiveTest {
         latch.await(5, TimeUnit.SECONDS);
 
         assertEquals(0, count.get());
+
+        stop.set(true);
+        sendQueue.stop();
+
     }
 
 
@@ -275,7 +334,6 @@ public abstract class BasicSendReceiveTest {
         for (int index = 0; index< amount; index++) {
             sendQueue.send("" + index);
         }
-
 
 
         latch.await(5, TimeUnit.SECONDS);
