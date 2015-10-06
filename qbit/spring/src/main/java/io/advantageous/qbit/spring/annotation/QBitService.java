@@ -19,5 +19,4 @@ public @interface QBitService {
     boolean remoteEventListener() default false;
 
     Class asyncInterface() default NoAsyncInterface.class;
-
 }

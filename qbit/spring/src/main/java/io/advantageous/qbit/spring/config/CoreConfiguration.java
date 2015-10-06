@@ -1,23 +1,16 @@
 package io.advantageous.qbit.spring.config;
 
 import io.advantageous.qbit.QBit;
-import io.advantageous.qbit.admin.AdminBuilder;
 import io.advantageous.qbit.events.EventBusProxyCreator;
 import io.advantageous.qbit.message.Response;
 import io.advantageous.qbit.queue.Queue;
 import io.advantageous.qbit.queue.QueueBuilder;
-import io.advantageous.qbit.server.ServiceEndpointServer;
 import io.advantageous.qbit.service.ServiceBuilder;
-import io.advantageous.qbit.service.health.HealthServiceAsync;
-import io.advantageous.qbit.service.health.HealthServiceBuilder;
 import io.advantageous.qbit.service.impl.BoonServiceMethodCallHandler;
-import io.advantageous.qbit.service.stats.StatsCollector;
 import io.advantageous.qbit.spring.ApplicationInitializer;
 import io.advantageous.qbit.spring.ServiceQueueInitializer;
-import io.advantageous.qbit.spring.properties.AppProperties;
 import io.advantageous.qbit.spring.properties.RequestQueueProperties;
 import io.advantageous.qbit.spring.properties.ResponseQueueProperties;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -25,8 +18,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.Scope;
-
-import java.util.Optional;
 
 /**
  * Main QBit configuration.  This sets up the event bus infrastructure and provides queue builders for the request and
@@ -36,33 +27,8 @@ import java.util.Optional;
  */
 @Configuration
 @Import({ServiceQueueCreator.class})
-@EnableConfigurationProperties({AppProperties.class, RequestQueueProperties.class, ResponseQueueProperties.class})
-public class PlatformConfiguration {
-
-    @Bean
-    @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
-    public HealthServiceAsync healthServiceAsync() {
-        return HealthServiceBuilder.healthServiceBuilder().buildAndStart();
-    }
-
-    @Bean
-    public ServiceEndpointServer adminServiceEndpointServer(final HealthServiceAsync healthServiceAsync,
-                                                            final @Qualifier("qbitStatsCollector")
-                                                            Optional<StatsCollector> statsCollector,
-                                                            final AppProperties props) {
-
-        final AdminBuilder adminBuilder = AdminBuilder.adminBuilder()
-                .setPort(props.getAdminPort())
-                .setHost(props.getAdminHost())
-                .setMicroServiceName(props.getPrefix())
-                .setHealthService(healthServiceAsync);
-
-        if (statsCollector.isPresent() && props.getJvmStatsRefresh() > 0) {
-            adminBuilder.registerJavaVMStatsJobEveryNSeconds(statsCollector.get(), props.getJvmStatsRefresh());
-        }
-
-        return adminBuilder.build().startServer();
-    }
+@EnableConfigurationProperties({RequestQueueProperties.class, ResponseQueueProperties.class})
+public class CoreConfiguration {
 
     @Bean
     public QueueBuilder requestQueueBuilder(final RequestQueueProperties properties) {
