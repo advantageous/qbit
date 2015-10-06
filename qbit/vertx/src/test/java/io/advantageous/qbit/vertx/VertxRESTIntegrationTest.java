@@ -25,9 +25,6 @@ import java.util.concurrent.TimeUnit;
 import static io.advantageous.qbit.server.EndpointServerBuilder.endpointServerBuilder;
 import static org.junit.Assert.assertEquals;
 
-/**
- * Created by rick on 9/29/15.
- */
 public class VertxRESTIntegrationTest {
 
     private Vertx vertx;
@@ -56,6 +53,7 @@ public class VertxRESTIntegrationTest {
             try {
 
 
+                /* Route one call to a vertx handler. */
                 final Router router = Router.router(vertx); //Vertx router
                 router.route("/svr/rout1/").handler(routingContext -> {
                     HttpServerResponse response = routingContext.response();
@@ -63,19 +61,27 @@ public class VertxRESTIntegrationTest {
                     response.end("route1");
                 });
 
+                /* Route everything under /hello to QBit http server. */
                 final Route qbitRoute = router.route().path("/hello/*");
 
 
+                /* Vertx HTTP Server. */
                 final io.vertx.core.http.HttpServer vertxHttpServer =
                         this.getVertx().createHttpServer();
 
-                HttpServer httpServer = VertxHttpServerBuilder.vertxHttpServerBuilder()
+                /*
+                 * Use the VertxHttpServerBuilder which is a special builder for Vertx/Qbit integration.
+                 */
+                final HttpServer httpServer = VertxHttpServerBuilder.vertxHttpServerBuilder()
                         .setRoute(qbitRoute)
                         .setHttpServer(vertxHttpServer)
                         .setVertx(getVertx())
                         .build();
 
 
+                /*
+                 * Create a new service endpointServer.
+                 */
                 final ServiceEndpointServer endpointServer = endpointServerBuilder().setUri("/")
                         .addService(new TestRestService()).setHttpServer(httpServer).build();
 
@@ -83,9 +89,13 @@ public class VertxRESTIntegrationTest {
 
 
 
+                /*
+                 * Associate the router as a request handler for the vertxHttpServer.
+                 */
                 vertxHttpServer.requestHandler(router::accept).listen(port);
             }catch (Exception ex) {
                 ex.printStackTrace();
+                throw new IllegalStateException(ex);
             }
         }
 

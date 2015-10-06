@@ -18,7 +18,7 @@
 
 subprojects {
     dependencies {
-        compile project(':qbit:boon')
+        compile project(':qbit:core')
         compile project(':qbit:vertx')
         compile "io.advantageous.boon:boon-util:$boonVersion"
         compile 'ch.qos.logback:logback-classic:1.1.2'

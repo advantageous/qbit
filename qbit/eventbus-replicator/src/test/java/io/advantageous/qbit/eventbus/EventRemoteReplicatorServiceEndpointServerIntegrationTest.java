@@ -6,7 +6,7 @@ import io.advantageous.qbit.events.EventManager;
 import io.advantageous.qbit.events.spi.EventConnector;
 import io.advantageous.qbit.events.spi.EventTransferObject;
 import io.advantageous.qbit.server.ServiceEndpointServer;
-import io.advantageous.qbit.spi.RegisterBoonWithQBit;
+import io.advantageous.qbit.boon.spi.RegisterBoonWithQBit;
 import io.advantageous.qbit.test.TimedTesting;
 import io.advantageous.qbit.util.PortUtils;
 import io.advantageous.qbit.vertx.RegisterVertxWithQBit;

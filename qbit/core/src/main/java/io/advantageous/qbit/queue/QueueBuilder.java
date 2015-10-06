@@ -20,7 +20,9 @@ package io.advantageous.qbit.queue;
 
 import io.advantageous.qbit.GlobalConstants;
 import io.advantageous.qbit.config.PropertyResolver;
+import io.advantageous.qbit.queue.impl.AddTimeoutUnableToEnqueueHandler;
 import io.advantageous.qbit.queue.impl.BasicQueue;
+import io.advantageous.qbit.queue.impl.DefaultUnableToEnqueueHandler;
 
 import java.util.Properties;
 import java.util.concurrent.*;
@@ -43,7 +45,7 @@ public class QueueBuilder implements Cloneable {
     private Class<? extends BlockingQueue> queueClass = ArrayBlockingQueue.class;
     private boolean checkIfBusy = false;
     private TimeUnit pollTimeUnit = TimeUnit.MILLISECONDS;
-    private TimeUnit enqueueTimeoutTimeUnit = TimeUnit.SECONDS;
+    private TimeUnit enqueueTimeoutTimeUnit = null;
     private int enqueueTimeout = 1000;
 
     private UnableToEnqueueHandler unableToEnqueueHandler;
@@ -51,7 +53,12 @@ public class QueueBuilder implements Cloneable {
     public UnableToEnqueueHandler getUnableToEnqueueHandler() {
 
         if (unableToEnqueueHandler == null) {
-            unableToEnqueueHandler = new DefaultUnableToEnqueueHandler();
+
+            if (enqueueTimeoutTimeUnit == null) {
+                unableToEnqueueHandler = new DefaultUnableToEnqueueHandler();
+            } else {
+                unableToEnqueueHandler = new AddTimeoutUnableToEnqueueHandler(enqueueTimeout, enqueueTimeoutTimeUnit);
+            }
         }
 
         return unableToEnqueueHandler;
@@ -232,8 +239,6 @@ public class QueueBuilder implements Cloneable {
         return new BasicQueue<>(this.getName(),
                 this.getPollWait(),
                 this.getPollTimeUnit(),
-                this.getEnqueueTimeout(),
-                this.getEnqueueTimeoutTimeUnit(),
                 this.getBatchSize(),
                 this.getQueueClass(),
                 this.isCheckIfBusy(),
