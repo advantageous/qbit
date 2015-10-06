@@ -20,13 +20,20 @@ public class AddTimeoutUnableToEnqueueHandler implements UnableToEnqueueHandler 
     public boolean unableToEnqueue(BlockingQueue<Object> queue, String name, Object item) {
         try {
             if (!queue.offer(item, timeout, timeUnit)) {
-
-                throw new QueueException("QUEUE FULL: After timeout Unable to send messages to queue " + name);
+                throw new QueueException("QUEUE FULL: After timeout Unable to send messages to queue " + this);
             }
             return true;
         } catch (InterruptedException e) {
             throw new QueueException("QUEUE FULL: Unable to send messages to queue " + name);
         }
 
+    }
+
+    @Override
+    public String toString() {
+        return "AddTimeoutUnableToEnqueueHandler{" +
+                "timeout=" + timeout +
+                ", timeUnit=" + timeUnit +
+                '}';
     }
 }

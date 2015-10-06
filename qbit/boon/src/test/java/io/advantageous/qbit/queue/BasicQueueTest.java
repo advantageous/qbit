@@ -332,7 +332,6 @@ public class BasicQueueTest {
         final SendQueue<String> sendQueue = queue.sendQueueWithAutoFlush(50, TimeUnit.MILLISECONDS);
         final ReceiveQueue<String> receiveQueue = queue.receiveQueue();
 
-        sendQueue.start();
 
         Thread writerThread = new Thread(() -> {
             for (int index = 0; index < 1000; index++) {

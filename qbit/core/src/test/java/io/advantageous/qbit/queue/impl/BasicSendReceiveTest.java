@@ -2,21 +2,21 @@ package io.advantageous.qbit.queue.impl;
 
 import io.advantageous.boon.core.Lists;
 import io.advantageous.boon.core.Sys;
+import io.advantageous.qbit.concurrent.PeriodicScheduler;
 import io.advantageous.qbit.queue.*;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import java.util.Iterator;
 import java.util.List;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-public class BasicSendReceiveTest {
+public abstract class BasicSendReceiveTest {
 
 
     protected Queue<String> queue;
@@ -204,6 +204,55 @@ public class BasicSendReceiveTest {
 
 
     @Test
+    public void startQueueAndListenerWithAutoFlush() throws InterruptedException {
+
+
+        final int amount = 100;
+
+        final AtomicInteger count = new AtomicInteger(amount);
+
+        final CountDownLatch latch = new CountDownLatch(1);
+
+        queue.startListener(item -> {
+            count.decrementAndGet();
+            if (count.get() == 0) {
+                latch.countDown();
+            }
+        });
+
+        final AtomicReference<Thread> threadAtomicReference = new AtomicReference<>();
+
+        final PeriodicScheduler periodicScheduler = (runnable, interval, timeUnit) -> {
+            final Thread thread = new Thread(() -> {
+
+                while (true) {
+                    Sys.sleep(timeUnit.toMillis(interval));
+
+                    runnable.run();
+                }
+            });
+            thread.start();
+            threadAtomicReference.set(thread);
+            return null;
+        };
+
+        sendQueue = queue.sendQueueWithAutoFlush(periodicScheduler, 100, TimeUnit.MILLISECONDS);
+
+
+        for (int index = 0; index< amount; index++) {
+            sendQueue.send("" + index);
+        }
+
+
+
+        latch.await(5, TimeUnit.SECONDS);
+
+        assertEquals(0, count.get());
+    }
+
+
+
+    @Test
     public void stopQueueTest() throws InterruptedException {
 
 
@@ -238,57 +287,58 @@ public class BasicSendReceiveTest {
 
 
 
-    @Test
-    @Ignore //I thought QueueCallBackHandler was wired at the QueueBuilder but it is not.
-    public void queueCallbackListener() throws InterruptedException {
-
-
-        final int amount = 10_000;
-
-        final AtomicInteger count = new AtomicInteger(amount);
-
-        final CountDownLatch latch = new CountDownLatch(1);
-
-        final QueueBuilder queueBuilder = QueueBuilder.queueBuilder()
-                .setName("Queue CallbackListener").setPollTimeUnit(TimeUnit.MILLISECONDS)
-                .setPollWait(50);
-
-
-        if (this.getClass().getName().contains("Transfer")) {
-            queueBuilder.setLinkTransferQueue();
-        } else {
-            queueBuilder.setArrayBlockingQueue();
-        }
-
-        if (this.getClass().getName().contains("TryTransfer")) {
-            queueBuilder.setTryTransfer(true);
-        }
-
-
-        queue = queueBuilder.build();
-
-
-
-
-        queue.startListener(item -> {
-            count.decrementAndGet();
-            if (count.get() % 100 == 0) {
-                Sys.sleep(10);
-            }
-        });
-
-
-
-        for (int index = 0; index< amount; index++) {
-            sendQueue.send("" + index);
-        }
-
-
-
-        latch.await(5, TimeUnit.SECONDS);
-
-        queue.stop();
-
-        assertTrue(count.get() < 1_000);
-    }
+//
+//    @Test
+//    @Ignore //I thought QueueCallBackHandler was wired at the QueueBuilder but it is not.
+//    public void queueCallbackListener() throws InterruptedException {
+//
+//
+//        final int amount = 10_000;
+//
+//        final AtomicInteger count = new AtomicInteger(amount);
+//
+//        final CountDownLatch latch = new CountDownLatch(1);
+//
+//        final QueueBuilder queueBuilder = QueueBuilder.queueBuilder()
+//                .setName("Queue CallbackListener").setPollTimeUnit(TimeUnit.MILLISECONDS)
+//                .setPollWait(50);
+//
+//
+//        if (this.getClass().getName().contains("Transfer")) {
+//            queueBuilder.setLinkTransferQueue();
+//        } else {
+//            queueBuilder.setArrayBlockingQueue();
+//        }
+//
+//        if (this.getClass().getName().contains("TryTransfer")) {
+//            queueBuilder.setTryTransfer(true);
+//        }
+//
+//
+//        queue = queueBuilder.build();
+//
+//
+//
+//
+//        queue.startListener(item -> {
+//            count.decrementAndGet();
+//            if (count.get() % 100 == 0) {
+//                Sys.sleep(10);
+//            }
+//        });
+//
+//
+//
+//        for (int index = 0; index< amount; index++) {
+//            sendQueue.send("" + index);
+//        }
+//
+//
+//
+//        latch.await(5, TimeUnit.SECONDS);
+//
+//        queue.stop();
+//
+//        assertTrue(count.get() < 1_000);
+//    }
 }

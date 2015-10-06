@@ -117,20 +117,22 @@ public class BasicReceiveQueueManager<T> implements ReceiveQueueManager<T> {
                     }
                     /* Notify that a limit has been met and reset the count to 0. */
                     listener.limit();
+                    if (stop.get()) {
+                        listener.shutdown();
+                        return;
+                    }
                     count = 0;
-                    break;
                 }
                 /* Grab the next item from the queue. */
                 item = inputQueue.poll();
                 count++;
             }
 
+            count = 0;
+
             /* Notify listener that the queue is empty. */
             listener.empty();
 
-            if (debug) {
-                logger.debug("BasicReceiveQueueManager {} empty queue count was {}", name, count);
-            }
 
             /* Get the next item, but wait this time since the queue was empty.
             * This pauses the queue handling so we don't eat up all of the CPU.
