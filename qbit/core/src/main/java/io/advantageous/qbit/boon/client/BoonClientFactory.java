@@ -15,16 +15,18 @@
  *
  * QBit - The Microservice lib for Java : JSON, WebSocket, REST. Be The Web!
  */
-rootProject.name = 'qbit-bundle'
 
-include 'qbit'
-include 'qbit:core', 'qbit:test-support', 'qbit:spring'
-include 'qbit:servlet', 'qbit:vertx', 'qbit:scala', "qbit:service-discovery"
-include 'qbit:consul-client', 'qbit:eventbus-replicator', 'qbit:admin'
+package io.advantageous.qbit.boon.client;
 
-include 'examples:standalone'
-include 'examples:basic', 'examples:basic:model', 'examples:basic:client', 'examples:basic:server'
-include 'examples:spring:spring-and-qbit-cpu-bench', 'examples:spring:spring-boot'
+import io.advantageous.qbit.client.Client;
+import io.advantageous.qbit.http.client.HttpClient;
+import io.advantageous.qbit.spi.ClientFactory;
 
-include 'testing:performance'
-include 'testing:performance:client', 'testing:performance:server'
+public class BoonClientFactory implements ClientFactory {
+
+
+    @Override
+    public Client create(String uri, HttpClient httpClient, int requestBatchSize) {
+        return new BoonClient(uri, httpClient, requestBatchSize);
+    }
+}

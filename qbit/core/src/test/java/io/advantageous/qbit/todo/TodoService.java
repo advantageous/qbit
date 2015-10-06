@@ -15,16 +15,33 @@
  *
  * QBit - The Microservice lib for Java : JSON, WebSocket, REST. Be The Web!
  */
-rootProject.name = 'qbit-bundle'
 
-include 'qbit'
-include 'qbit:core', 'qbit:test-support', 'qbit:spring'
-include 'qbit:servlet', 'qbit:vertx', 'qbit:scala', "qbit:service-discovery"
-include 'qbit:consul-client', 'qbit:eventbus-replicator', 'qbit:admin'
+package io.advantageous.qbit.todo;
 
-include 'examples:standalone'
-include 'examples:basic', 'examples:basic:model', 'examples:basic:client', 'examples:basic:server'
-include 'examples:spring:spring-and-qbit-cpu-bench', 'examples:spring:spring-boot'
+import java.util.ArrayList;
+import java.util.List;
 
-include 'testing:performance'
-include 'testing:performance:client', 'testing:performance:server'
+import static io.advantageous.boon.core.IO.puts;
+
+
+/**
+ * created by rhightower on 10/24/14.
+ */
+public class TodoService {
+
+
+    private List<TodoItem> items = new ArrayList<>();
+
+    public void add(TodoItem todoItem) {
+
+        puts("add serviceCall was called", todoItem);
+        items.add(todoItem);
+
+        puts("add serviceCall AFTER called", items);
+    }
+
+    public List<TodoItem> list() {
+        puts("List serviceCall was called", items);
+        return new ArrayList<>(items);
+    }
+}

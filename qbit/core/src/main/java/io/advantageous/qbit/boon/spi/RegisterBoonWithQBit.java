@@ -16,34 +16,26 @@
  * QBit - The Microservice lib for Java : JSON, WebSocket, REST. Be The Web!
  */
 
-subprojects {
-    dependencies {
-        compile project(':qbit:core')
-        compile project(':qbit:vertx')
-        compile "io.advantageous.boon:boon-util:$boonVersion"
-        compile 'ch.qos.logback:logback-classic:1.1.2'
-        testCompile group: 'junit', name: 'junit', version: '4.10'
-    }
-}
+package io.advantageous.qbit.boon.spi;
 
-project('server') {
+import io.advantageous.qbit.boon.BoonQBitFactory;
+import io.advantageous.qbit.boon.client.BoonClientFactory;
+import io.advantageous.qbit.boon.events.impl.BoonEventManagerFactory;
+import io.advantageous.qbit.spi.FactorySPI;
 
-    apply plugin: 'application'
+/**
+ * created by rhightower on 10/19/14.
+ *
+ * @author rhightower
+ *         Helper class to marry Boon with QBit while keeping QBit seperate from Boon.
+ */
+public class RegisterBoonWithQBit {
 
-    mainClassName = "io.advantageous.qbit.sample.server.TodoServerMain"
+    public static void registerBoonWithQBit() {
 
-    dependencies {
-        compile project(':examples:basic:model')
-    }
-}
+        FactorySPI.setFactory(new BoonQBitFactory());
+        FactorySPI.setClientFactory(new BoonClientFactory());
+        FactorySPI.setEventManagerFactory(new BoonEventManagerFactory());
 
-project('client') {
-
-    apply plugin: 'application'
-
-    mainClassName = "io.advantageous.qbit.sample.server.PerfMain"
-
-    dependencies {
-        compile project(':examples:basic:model')
     }
 }

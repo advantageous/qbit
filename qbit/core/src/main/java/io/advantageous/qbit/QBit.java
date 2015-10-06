@@ -71,7 +71,7 @@ public class QBit {
 
     private void registerReflectionAndJsonParser() {
         try {
-            final Class<?> boonFactory = Class.forName("io.advantageous.qbit.spi.RegisterBoonWithQBit");
+            final Class<?> boonFactory = Class.forName("io.advantageous.qbit.boon.spi.RegisterBoonWithQBit");
             ClassMeta.classMeta(boonFactory).invokeStatic("registerBoonWithQBit");
         } catch (ClassNotFoundException e) {
             throw new IllegalStateException("Could not find reflection lib or JSON parser");
