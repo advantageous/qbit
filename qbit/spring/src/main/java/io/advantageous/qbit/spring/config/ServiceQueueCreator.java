@@ -80,6 +80,7 @@ public class ServiceQueueCreator implements BeanFactoryPostProcessor {
                             .addPropertyReference("requestQueueBuilder", "requestQueueBuilder")
                             .addPropertyReference("serviceMethodHandler", "dynamicInvokingBoonServiceMethodCallHandler")
                             .addPropertyReference("responseQueue", "sharedResponseQueue")
+                            .addPropertyValue("createCallbackHandler", true)
                             .getBeanDefinition();
                     registry.registerBeanDefinition(queueBeanName, serviceQueueDefinition);
 
