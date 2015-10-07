@@ -53,6 +53,7 @@ public class ServiceQueueInitializer implements ApplicationListener<ContextRefre
 
             logger.info("Starting service queue {}", serviceQueue.name());
             serviceQueue.start();
+            serviceQueue.startCallBackHandler();
         });
         if (serviceEndpointServer != null) {
             serviceEndpointServer.start();
