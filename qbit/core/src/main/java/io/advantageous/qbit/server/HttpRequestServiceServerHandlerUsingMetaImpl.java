@@ -233,31 +233,33 @@ public class HttpRequestServiceServerHandlerUsingMetaImpl implements HttpRequest
         @SuppressWarnings("UnnecessaryLocalVariable") final HttpRequest httpRequest = originatingRequest;
 
         if (response.wasErrors()) {
-
-            Object obj = response.body();
-
-            if (obj instanceof ServiceMethodNotFoundException) {
-                writeResponse(httpRequest.getReceiver(), HttpStatus.NOT_FOUND, "application/json", jsonMapper.toJson(response.body()), response.headers());
-
-            } else if (obj instanceof Throwable){
-
-                writeResponse(httpRequest.getReceiver(), HttpStatus.ERROR, "application/json", asJson(((Throwable) obj)), response.headers());
-
-            }
+            handleError(response, httpRequest);
         } else {
             if (response.body() instanceof HttpResponse) {
                 writeHttpResponse(httpRequest.getReceiver(), ((HttpResponse) response.body()));
             } else {
+                //TODO this is where you would add J-SEND SUPPORT #379 https://github.com/advantageous/qbit/issues/379
                 writeResponse(httpRequest.getReceiver(), HttpStatus.OK, "application/json", jsonMapper.toJson(response.body()), response.headers());
-
             }
         }
 
 
     }
 
+    private void handleError(Response<Object> response, HttpRequest httpRequest) {
+        final Object obj = response.body();
 
+        if (obj instanceof ServiceMethodNotFoundException) {
+            writeResponse(httpRequest.getReceiver(), HttpStatus.NOT_FOUND, "application/json", jsonMapper.toJson(response.body()), response.headers());
 
+        } else if (obj instanceof Throwable){
+
+            writeResponse(httpRequest.getReceiver(), HttpStatus.ERROR, "application/json", asJson(((Throwable) obj)), response.headers());
+
+        } else {
+            writeResponse(httpRequest.getReceiver(), HttpStatus.ERROR, "application/json", jsonMapper.toJson(response.body()), response.headers());
+        }
+    }
 
 
     private void writeHttpResponse(HttpResponseReceiver<Object> receiver, HttpResponse httpResponse) {
@@ -334,6 +336,7 @@ public class HttpRequestServiceServerHandlerUsingMetaImpl implements HttpRequest
 
 
 
+    //TODO https://github.com/advantageous/qbit/issues/403 #403
     public static String asJson(final Throwable ex) {
         final CharBuf buffer = CharBuf.create(255);
 
