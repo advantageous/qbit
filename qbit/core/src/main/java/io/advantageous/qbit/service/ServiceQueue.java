@@ -97,6 +97,13 @@ public interface ServiceQueue extends Stoppable, ServiceFlushable, Startable {
     @SuppressWarnings("UnusedReturnValue")
     ServiceQueue startCallBackHandler();
 
+
+    default ServiceQueue startAll() {
+        startServiceQueue();
+        startCallBackHandler();
+        return this;
+    }
+
     /**
      * Return a list of addresses.
      *
