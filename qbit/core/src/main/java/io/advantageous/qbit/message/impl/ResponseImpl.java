@@ -18,6 +18,7 @@
 
 package io.advantageous.qbit.message.impl;
 
+import io.advantageous.boon.core.Exceptions;
 import io.advantageous.qbit.annotation.JsonIgnore;
 import io.advantageous.qbit.message.MethodCall;
 import io.advantageous.qbit.message.Request;
@@ -64,17 +65,14 @@ public class ResponseImpl<T> implements Response<T> {
         this.timestamp = methodCall.timestamp();
         this.id = methodCall.id();
 
-        final Map<String, Object> body = new HashMap<>(8);
-        this.body = body;
-        this.transformedBody = ex;
-        this.address = methodCall.address();
-        body.put("Error", ex.getMessage());
-        body.put("Cause", "" + ex.getCause());
-        body.put("Message", "Problem while calling method " + methodCall.name());
-
-        if (ex instanceof Exception) {
-            body.put("Details", ex);
+        if (ex instanceof Exceptions.SoftenedException) {
+            this.body = ex.getCause();
+        } else {
+            this.body = ex;
         }
+        this.transformedBody = null;
+        this.address = methodCall.address();
+
         this.errors = true;
         this.params = null;
         this.request = methodCall;
