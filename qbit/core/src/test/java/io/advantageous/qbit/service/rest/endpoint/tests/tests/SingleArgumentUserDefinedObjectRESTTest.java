@@ -89,7 +89,7 @@ public class SingleArgumentUserDefinedObjectRESTTest {
                 new Employee(1, "Rick"));
 
         assertEquals(500, httpResponse.code());
-        assertTrue(httpResponse.body().startsWith("{\"detailMessage"));
+        assertTrue(httpResponse.body().contains("\"message\":"));
 
         puts(httpResponse.body());
 

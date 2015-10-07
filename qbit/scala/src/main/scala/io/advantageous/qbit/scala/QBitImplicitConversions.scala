@@ -1,6 +1,6 @@
 package io.advantageous.qbit.scala
 
-import java.util.function.Consumer
+import java.util.function.{Predicate, Consumer}
 
 import io.advantageous.qbit.http.request.HttpResponseBuilder._
 import io.advantageous.qbit.http.request._
@@ -13,7 +13,7 @@ object QBitImplicitConversions {
      * @param func scala function
      * @return new Runnable
      */
-    implicit def convertFunctionToRunnable(func: () => Unit) : Runnable = new Runnable() { def run() = func() }
+    implicit def convertFunction2Runnable(func: () => Unit) : Runnable = new Runnable() { def run() = func() }
 
 
     /**
@@ -21,9 +21,10 @@ object QBitImplicitConversions {
      * @param function scala function
      * @return new Consumer
      */
-    implicit def convertFunctionToConsumer[A](function: A => Unit): Consumer[A] = new Consumer[A]() {
+    implicit def convertFunction2Consumer[A](function: A => Unit): Consumer[A] = new Consumer[A]() {
       override def accept(arg: A): Unit = function.apply(arg)
     }
+
 
       /**
        * Convert a Scala function to a QBit Callback
@@ -31,7 +32,7 @@ object QBitImplicitConversions {
        * @tparam A param A
        * @return QBit Callback
        */
-    implicit def convertFunctionToCallback[A](function: A => Unit): Callback[A] = new Callback[A]() {
+    implicit def convertFunction2Callback[A](function: A => Unit): Callback[A] = new Callback[A]() {
         override def accept(arg: A): Unit = function.apply(arg)
     }
 
@@ -40,7 +41,7 @@ object QBitImplicitConversions {
     * @param function function
     * @return http text receiver
     */
-    implicit def convertFuncHttpTextReceiver(function: HttpTextResponse => Unit): HttpTextReceiver = new HttpTextReceiver() {
+    implicit def convertFunc2HttpTextReceiver(function: HttpTextResponse => Unit): HttpTextReceiver = new HttpTextReceiver() {
       override def response(code: Int, contentType: String, body: String): Unit = {
           val builder = httpResponseBuilder()
           builder.setBody(body)
@@ -55,7 +56,7 @@ object QBitImplicitConversions {
    * @param function function
    * @return http text receiver
    */
-  implicit def convertFuncHttpBinaryReceiver(function: HttpBinaryResponse => Unit): HttpBinaryReceiver = new HttpBinaryReceiver() {
+  implicit def convertFunc2HttpBinaryReceiver(function: HttpBinaryResponse => Unit): HttpBinaryReceiver = new HttpBinaryReceiver() {
     override def response(code: Int, contentType: String, body: Array[Byte]): Unit = {
       val builder = httpResponseBuilder()
       builder.setBody(body)

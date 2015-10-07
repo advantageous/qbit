@@ -484,7 +484,7 @@ public class ServiceBuilder {
     public ServiceQueue buildAndStartAll() {
 
         this.setCreateCallbackHandler(true);
-        return build().startServiceQueue().startCallBackHandler();
+        return build().startAll();
     }
 
 

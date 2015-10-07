@@ -1,6 +1,7 @@
 package io.advantageous.qbit.server;
 
 import io.advantageous.boon.core.Str;
+import io.advantageous.boon.primitive.CharBuf;
 import io.advantageous.qbit.GlobalConstants;
 import io.advantageous.qbit.annotation.RequestMethod;
 import io.advantageous.qbit.http.HttpStatus;
@@ -22,16 +23,21 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
+import static io.advantageous.boon.core.Sets.set;
+import static io.advantageous.boon.core.Str.startsWithItemInCollection;
+import static io.advantageous.boon.primitive.Arry.array;
+
 public class HttpRequestServiceServerHandlerUsingMetaImpl implements HttpRequestServiceServerHandler {
+
+    private static final Set<String> ignorePackages = set("sun.", "com.sun.",
+            "javax.java", "java.",  "oracle.", "com.oracle.", "org.junit",
+            "com.intellij", "io.advantageous.boon");
 
 
     private final int timeoutInSeconds;
@@ -227,27 +233,34 @@ public class HttpRequestServiceServerHandlerUsingMetaImpl implements HttpRequest
         @SuppressWarnings("UnnecessaryLocalVariable") final HttpRequest httpRequest = originatingRequest;
 
         if (response.wasErrors()) {
-
-            Object obj = response.body();
-
-            if (obj instanceof ServiceMethodNotFoundException) {
-                writeResponse(httpRequest.getReceiver(), HttpStatus.NOT_FOUND, "application/json", jsonMapper.toJson(response.body()), response.headers());
-
-            } else {
-                writeResponse(httpRequest.getReceiver(), HttpStatus.ERROR, "application/json", jsonMapper.toJson(response.body()), response.headers());
-
-            }
+            handleError(response, httpRequest);
         } else {
             if (response.body() instanceof HttpResponse) {
                 writeHttpResponse(httpRequest.getReceiver(), ((HttpResponse) response.body()));
             } else {
+                //TODO this is where you would add J-SEND SUPPORT #379 https://github.com/advantageous/qbit/issues/379
                 writeResponse(httpRequest.getReceiver(), HttpStatus.OK, "application/json", jsonMapper.toJson(response.body()), response.headers());
-
             }
         }
 
 
     }
+
+    private void handleError(Response<Object> response, HttpRequest httpRequest) {
+        final Object obj = response.body();
+
+        if (obj instanceof ServiceMethodNotFoundException) {
+            writeResponse(httpRequest.getReceiver(), HttpStatus.NOT_FOUND, "application/json", jsonMapper.toJson(response.body()), response.headers());
+
+        } else if (obj instanceof Throwable){
+
+            writeResponse(httpRequest.getReceiver(), HttpStatus.ERROR, "application/json", asJson(((Throwable) obj)), response.headers());
+
+        } else {
+            writeResponse(httpRequest.getReceiver(), HttpStatus.ERROR, "application/json", jsonMapper.toJson(response.body()), response.headers());
+        }
+    }
+
 
     private void writeHttpResponse(HttpResponseReceiver<Object> receiver, HttpResponse httpResponse) {
         if (httpResponse instanceof HttpTextResponse) {
@@ -289,4 +302,141 @@ public class HttpRequestServiceServerHandlerUsingMetaImpl implements HttpRequest
 
         return outstandingRequestMap.size() < numberOfOutstandingRequests;
     }
+
+
+
+    public static StackTraceElement[] getFilteredStackTrace(StackTraceElement[] stackTrace) {
+
+
+        if (stackTrace == null || stackTrace.length == 0) {
+            return new StackTraceElement[0];
+        }
+        List<StackTraceElement> list = new ArrayList<>();
+        Set<String> seenThisBefore = new HashSet<>();
+
+        for (StackTraceElement st : stackTrace) {
+            if ( startsWithItemInCollection( st.getClassName(), ignorePackages ) ) {
+
+                continue;
+            }
+
+            String key =   Str.sputs(st.getClassName(), st.getFileName(), st.getMethodName(), st.getLineNumber());
+            if (seenThisBefore.contains(key)) {
+                continue;
+            } else {
+                seenThisBefore.add(key);
+            }
+
+            list.add(st);
+        }
+
+        return array( StackTraceElement.class, list );
+
+    }
+
+
+
+    //TODO https://github.com/advantageous/qbit/issues/403 #403
+    public static String asJson(final Throwable ex) {
+        final CharBuf buffer = CharBuf.create(255);
+
+        buffer.add('{');
+
+        buffer.addLine().indent(5).addJsonFieldName("message")
+                .asJsonString(ex.getMessage()).addLine(',');
+
+
+        buffer.addLine().indent(5).addJsonFieldName("exception")
+                .asJsonString(ex.getClass().getSimpleName()).addLine(',');
+
+        if (ex.getCause()!=null) {
+            buffer.addLine().indent(5).addJsonFieldName("causeMessage")
+                    .asJsonString(ex.getCause().getMessage()).addLine(',');
+
+
+            if (ex.getCause().getCause()!=null) {
+                buffer.addLine().indent(5).addJsonFieldName("cause2Message")
+                        .asJsonString(ex.getCause().getCause().getMessage()).addLine(',');
+
+                if (ex.getCause().getCause().getCause()!=null) {
+                    buffer.addLine().indent(5).addJsonFieldName("cause3Message")
+                            .asJsonString(ex.getCause().getCause().getCause().getMessage()).addLine(',');
+
+                    if (ex.getCause().getCause().getCause().getCause()!=null) {
+                        buffer.addLine().indent(5).addJsonFieldName("cause4Message")
+                                .asJsonString(ex.getCause().getCause().getCause().getCause().getMessage()).addLine(',');
+
+                    }
+
+                }
+
+            }
+
+        }
+
+
+
+
+
+        final StackTraceElement[] stackTrace = getFilteredStackTrace(ex.getStackTrace());
+
+        if ( stackTrace!=null && stackTrace.length > 0 ) {
+
+            buffer.addLine().indent(5).addJsonFieldName("stackTrace").addLine();
+
+            stackTraceToJson(buffer, stackTrace);
+
+            buffer.add(',');
+        }
+
+        buffer.addLine().indent(5).addJsonFieldName("fullStackTrace").addLine();
+
+        final StackTraceElement[] fullStackTrace = ex.getStackTrace();
+        stackTraceToJson(buffer, fullStackTrace);
+
+        buffer.add('}');
+        return buffer.toString();
+
+    }
+
+
+
+    public static void stackTraceToJson(CharBuf buffer, StackTraceElement[] stackTrace) {
+
+        if (stackTrace.length==0) {
+            buffer.addLine("[]");
+            return;
+        }
+
+
+        buffer.multiply(' ', 16).addLine('[');
+
+        for ( int index = 0; index <  stackTrace.length; index++ ) {
+            StackTraceElement element = stackTrace[ index ];
+
+            if (element.getClassName().contains("Exceptions")) {
+                continue;
+            }
+            buffer.indent(17).add("[  ").asJsonString(element.getMethodName())
+                    .add(',');
+
+
+            buffer.indent(3).asJsonString(element.getClassName());
+
+
+            if (element.getLineNumber()>0) {
+                buffer.add(",");
+                buffer.indent(3).asJsonString(""+element.getLineNumber())
+                        .addLine("   ],");
+            } else {
+                buffer.addLine(" ],");
+            }
+
+        }
+        buffer.removeLastChar(); //trailing \n
+        buffer.removeLastChar(); //trailing ,
+
+        buffer.addLine().multiply(' ', 15).add(']');
+    }
+
 }
