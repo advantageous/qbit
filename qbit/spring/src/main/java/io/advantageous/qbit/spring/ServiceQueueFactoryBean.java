@@ -22,10 +22,10 @@ public class ServiceQueueFactoryBean extends ServiceBuilder implements FactoryBe
     @Qualifier("qbitStatsCollector")
     private StatsCollector statsCollector;
 
-    @Autowired
+    @Autowired(required = false)
     private HealthServiceAsync healthServiceAsync;
 
-    @Autowired
+    @Autowired(required = false)
     private AppProperties appProperties;
 
     private String beanName;
@@ -41,14 +41,15 @@ public class ServiceQueueFactoryBean extends ServiceBuilder implements FactoryBe
     @Override
     public ServiceQueue getObject() throws Exception {
 
-        final String longName = appProperties.getPrefix() + this.getBeanName();
-        registerHealthChecksWithTTLInSeconds(healthServiceAsync, longName, appProperties.getHealthCheckTtlSeconds());
-        final int flushTimeSeconds = appProperties.getStatsFlushSeconds();
-        final int sampleEvery = appProperties.getSampleEvery();
+        if (appProperties != null && healthServiceAsync != null) {
+            final String longName = appProperties.getPrefix() + this.getBeanName();
+            registerHealthChecksWithTTLInSeconds(healthServiceAsync, longName, appProperties.getHealthCheckTtlSeconds());
+            final int flushTimeSeconds = appProperties.getStatsFlushSeconds();
+            final int sampleEvery = appProperties.getSampleEvery();
 
-        if (statsCollector != null)
-            this.registerStatsCollections(longName, statsCollector, flushTimeSeconds, sampleEvery);
-
+            if (statsCollector != null)
+                this.registerStatsCollections(longName, statsCollector, flushTimeSeconds, sampleEvery);
+        }
         return super.build();
     }
 
