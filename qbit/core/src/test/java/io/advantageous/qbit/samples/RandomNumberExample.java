@@ -1,5 +1,6 @@
 package io.advantageous.qbit.samples;
 
+import io.advantageous.boon.core.Sys;
 import io.advantageous.qbit.reactive.AsyncFutureCallback;
 import io.advantageous.qbit.reactive.Callback;
 import io.advantageous.qbit.reactive.CallbackBuilder;
@@ -27,14 +28,25 @@ public class RandomNumberExample {
 
             final AsyncFutureCallback<Integer> callback = CallbackBuilder.newCallbackBuilder()
                     .withCallback(l -> System.out.println("" + l))
-                    .withErrorHandler(e -> System.out.println("blew up" +  e.getCause()))
+                    .withErrorHandler(RandomNumberExample::handleError)
                     .<Integer>build();
             randomNumberServiceAsync.getRandom(callback, 100, a);
         }
 
         ServiceProxyUtils.flushServiceProxy(randomNumberServiceAsync);
 
+        Sys.sleep(1000);
+
+
+        serviceQueue.stop();
+
     }
+
+
+    private static void handleError(Throwable e) {
+        System.out.println("blew up" + e);
+    }
+
 
 
     public static RandomNumberService randomNumberService() {
