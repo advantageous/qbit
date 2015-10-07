@@ -1,16 +1,12 @@
 package io.advantageous.qbit.spring.config;
 
 import io.advantageous.qbit.QBit;
+import io.advantageous.qbit.boon.service.impl.BoonServiceMethodCallHandler;
 import io.advantageous.qbit.events.EventBusProxyCreator;
 import io.advantageous.qbit.message.Response;
 import io.advantageous.qbit.queue.Queue;
 import io.advantageous.qbit.queue.QueueBuilder;
 import io.advantageous.qbit.service.ServiceBuilder;
-import io.advantageous.qbit.service.impl.BoonServiceMethodCallHandler;
-import io.advantageous.qbit.service.health.HealthServiceAsync;
-import io.advantageous.qbit.service.health.HealthServiceBuilder;
-import io.advantageous.qbit.boon.service.impl.BoonServiceMethodCallHandler;
-import io.advantageous.qbit.service.stats.StatsCollector;
 import io.advantageous.qbit.spring.ApplicationInitializer;
 import io.advantageous.qbit.spring.ServiceQueueInitializer;
 import io.advantageous.qbit.spring.properties.RequestQueueProperties;
