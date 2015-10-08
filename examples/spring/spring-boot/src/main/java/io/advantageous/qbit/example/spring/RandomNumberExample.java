@@ -38,7 +38,7 @@ public class RandomNumberExample {
                 randomNumberServiceAsync.getRandom(
                         CallbackBuilder.newCallbackBuilder()
                                 .withCallback(l -> logger.info("Here's a random number: " + l))
-                                .withErrorHandler(e -> logger.error("blew up: " + e.getCause()))
+                                .withErrorHandler(e -> logger.error("blew up: " + e.getMessage()))
                                 .<Integer>build(),
                         0, 100
                 );
@@ -53,7 +53,7 @@ public class RandomNumberExample {
         return (min, max) -> {
             final Random random = new Random();
             final int result = random.nextInt(max - min + 1) + min;
-            if (String.valueOf(result).contains("7")) throw new RuntimeException("Oh no!  Not a seven!");
+            if (String.valueOf(result).contains("7")) throw new RuntimeException("Oh no!  It's a seven!");
             return result;
         };
     }
