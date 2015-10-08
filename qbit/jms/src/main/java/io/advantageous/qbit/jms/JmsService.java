@@ -8,6 +8,7 @@ import java.lang.IllegalStateException;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
@@ -136,16 +137,40 @@ public class JmsService implements Stoppable, Startable{
         sendTextMessageWithDestination(defaultDestination, messageContent);
     }
 
+
+    public void listenTextMessagesWithDestination(final String destinationName,
+                                                  final Consumer<String> messageListener) {
+        final MessageConsumer consumer  = getConsumer(destinationName);
+        try {
+            consumer.setMessageListener(message -> {
+                try {
+                    messageListener.accept(
+                            ((TextMessage) message).getText()
+                    );
+                } catch (JMSException e) {
+
+                    throw new IllegalStateException("Unable to register get text from message in listener " + destinationName, e);
+                }
+            });
+        } catch (JMSException e) {
+
+            throw new IllegalStateException("Unable to register message listener " + destinationName, e);
+        }
+    }
+
+    public void listenTextMessages(final Consumer<String> messageListener) {
+         listenTextMessagesWithDestination(defaultDestination, messageListener);
+    }
     public String receiveTextMessageFromDestinationWithTimeout(final String destinationName, final int timeout) {
         MessageConsumer consumer  = getConsumer(destinationName);
-        Optional<TextMessage> message;
+        TextMessage message;
         try {
             if (timeout == 0) {
-                message = Optional.of((TextMessage) consumer.receive());
+                message = (TextMessage) consumer.receiveNoWait();
             }else {
-                message = Optional.of((TextMessage) consumer.receive(timeout));
+                message = (TextMessage) consumer.receive(timeout);
             }
-            return (message.isPresent()) ? message.get().getText() : null;
+            return message == null ? null : message.getText();
         } catch (JMSException e) {
             throw new IllegalStateException("Unable to receive message from " + destinationName, e);
         }

@@ -34,7 +34,7 @@ public class JmsServiceBuilder {
     private String defaultDestination;
     private Supplier<Connection> connectionSupplier;
     private Function<String, Destination> destinationSupplier;
-    private int defaultTimeout;
+    private int defaultTimeout=100;
 
     private Context context;
 
@@ -305,8 +305,8 @@ public class JmsServiceBuilder {
         properties.put(Context.INITIAL_CONTEXT_FACTORY, getInitialContextFactory());
         properties.put(Context.PROVIDER_URL, getProviderURL());
 
-        if (jndiSettings!=null) {
-            jndiSettings.entrySet().forEach(entry -> properties.put(entry.getKey(), entry.getValue()));
+        if (getJndiSettings()!=null) {
+            getJndiSettings().entrySet().forEach(entry -> properties.put(entry.getKey(), entry.getValue()));
         }
         return properties;
     }
