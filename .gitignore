@@ -27,5 +27,5 @@ gradlew
 gradlew.bat
 
 examples/tutorial/todo-service/gradle/wrapper/gradle-wrapper.jar
-
 examples/tutorial/todo-service/gradle/wrapper/gradle-wrapper.properties
+qbit/jms/activemq-data/

@@ -31,7 +31,7 @@ public class JmsTextReceiveQueue implements ReceiveQueue<String> {
     }
 
     @Override
-    public Iterable<String> readBatch(final int max) {
+    public Iterable<String> readBatch(int max) {
 
         String item = this.poll();
         if (item == null) {
@@ -48,22 +48,9 @@ public class JmsTextReceiveQueue implements ReceiveQueue<String> {
 
     @Override
     public Iterable<String> readBatch() {
-
-        String item = this.poll();
-        if (item == null) {
-            return Collections.emptyList();
-        } else {
-            List<String> batch = new ArrayList<>();
-            batch.add(item);
-            while ((item = this.poll()) != null) {
-                batch.add(item);
-                if (batch.size() > 10) {
-                    break;
-                }
-            }
-            return batch;
-        }
+        return readBatch(10);
     }
+
 
     @Override
     public void stop() {

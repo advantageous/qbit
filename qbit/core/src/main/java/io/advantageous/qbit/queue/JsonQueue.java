@@ -79,6 +79,11 @@ public class JsonQueue <T> implements Queue<T>{
                 final Iterable<String> iterable = receiveQueue.readBatch();
                 return getParsedItems(iterable);
             }
+
+            @Override
+            public void stop() {
+                receiveQueue.stop();
+            }
         };
     }
 
@@ -152,6 +157,11 @@ public class JsonQueue <T> implements Queue<T>{
             @Override
             public String name() {
                 return sendQueue.name();
+            }
+
+            @Override
+            public void stop() {
+                sendQueue.stop();
             }
         };
     }

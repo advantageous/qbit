@@ -31,17 +31,20 @@ public class JmsTextQueue implements Queue<String> {
 
     @Override
     public SendQueue<String> sendQueueWithAutoFlush(int interval, TimeUnit timeUnit) {
-        return null;
+        return sendQueue();
     }
 
     @Override
     public SendQueue<String> sendQueueWithAutoFlush(PeriodicScheduler periodicScheduler, int interval, TimeUnit timeUnit) {
-        return null;
+        return sendQueue();
     }
 
     @Override
-    public void startListener(ReceiveQueueListener<String> listener) {
+    public void startListener(final ReceiveQueueListener<String> listener) {
 
+        final JmsService jmsService = builder.build();
+
+        jmsService.listenTextMessages(listener::receive);
     }
 
     @Override
@@ -51,12 +54,12 @@ public class JmsTextQueue implements Queue<String> {
 
     @Override
     public boolean started() {
-        return false;
+        return true;
     }
 
     @Override
     public String name() {
-        return null;
+        return builder.getDefaultDestination();
     }
 
     @Override
