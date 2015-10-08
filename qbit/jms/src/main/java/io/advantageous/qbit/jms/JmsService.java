@@ -140,7 +140,11 @@ public class JmsService implements Stoppable, Startable{
         MessageConsumer consumer  = getConsumer(destinationName);
         Optional<TextMessage> message;
         try {
-            message = Optional.of((TextMessage)consumer.receive(timeout));
+            if (timeout == 0) {
+                message = Optional.of((TextMessage) consumer.receive());
+            }else {
+                message = Optional.of((TextMessage) consumer.receive(timeout));
+            }
             return (message.isPresent()) ? message.get().getText() : null;
         } catch (JMSException e) {
             throw new IllegalStateException("Unable to receive message from " + destinationName, e);
@@ -154,6 +158,11 @@ public class JmsService implements Stoppable, Startable{
 
     public String receiveTextMessage() {
         return receiveTextMessageFromDestination(defaultDestination);
+    }
+
+
+    public String receiveTextMessageWithTimeout(final int timeout) {
+        return receiveTextMessageFromDestinationWithTimeout(defaultDestination, timeout);
     }
 
     @Override
