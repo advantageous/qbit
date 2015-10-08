@@ -1,6 +1,7 @@
 package io.advantageous.qbit.samples;
 
 import io.advantageous.boon.core.Sys;
+import io.advantageous.qbit.QBit;
 import io.advantageous.qbit.reactive.AsyncFutureCallback;
 import io.advantageous.qbit.reactive.Callback;
 import io.advantageous.qbit.reactive.CallbackBuilder;
@@ -42,6 +43,7 @@ public class RandomNumberExampleUsingServiceBundle {
 
         Sys.sleep(1_000);
         serviceBundle.stop();
+        QBit.factory().shutdownSystemEventBus();
 
     }
 

@@ -71,6 +71,7 @@ public class BasicReceiveQueueManager<T> implements ReceiveQueueManager<T> {
     public void start() {
 
         this.executorContext = scheduledExecutorBuilder()
+                //.setDaemon(true) TODO #444 https://github.com/advantageous/qbit/issues/444
                 .setThreadName("QueueListener|" + name)
                 .setInitialDelay(50)
                 .setPeriod(50).setRunnable(this::manageQueue)
