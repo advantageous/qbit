@@ -6,12 +6,12 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public class JmsTextRecieveQueue implements ReceiveQueue<String> {
+public class JmsTextReceiveQueue implements ReceiveQueue<String> {
 
 
     private final JmsService service;
 
-    public JmsTextRecieveQueue(JmsService service) {
+    public JmsTextReceiveQueue(JmsService service) {
         this.service = service;
     }
 

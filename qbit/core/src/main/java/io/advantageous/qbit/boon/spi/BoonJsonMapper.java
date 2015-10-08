@@ -59,7 +59,7 @@ public class BoonJsonMapper implements JsonMapper {
 
 
     /**
-     * Hols the JsonSerializer to deserialize JSON into Java objects.
+     * Holds the JsonSerializer to deserialize JSON into Java objects.
      */
     private final ThreadLocal<JsonSerializer> serializer = new ThreadLocal<JsonSerializer>() {
         @Override

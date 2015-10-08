@@ -18,12 +18,15 @@ public class JmsTextQueue implements Queue<String> {
 
     @Override
     public ReceiveQueue<String> receiveQueue() {
-        return new JmsTextRecieveQueue(builder.build());
+
+        return new JmsTextReceiveQueue(builder.build());
     }
 
     @Override
     public SendQueue<String> sendQueue() {
-        return null;
+
+        return new JmsTextSenderQueue(builder.build());
+
     }
 
     @Override
