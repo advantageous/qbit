@@ -13,6 +13,8 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import java.util.Optional;
+
 /**
  * Configuration for a service endpoint server.  This is enabled by the @EnableQBitServiceEndpointServer annotation.
  *
@@ -26,22 +28,24 @@ public class ServiceEndpointServerConfiguration {
 
     @Bean
     public ServiceEndpointServer serviceEndpointServer(final Queue<Response<Object>> queue,
-                                                       final ServiceDiscovery serviceDiscovery,
-                                                       final HealthServiceAsync healthServiceAsync,
+                                                       final Optional<ServiceDiscovery> serviceDiscovery,
+                                                       final Optional<HealthServiceAsync> healthServiceAsync,
                                                        final ServiceEndpointServerProperties props) {
 
         logger.info("Binding service {} with {} ttl to {}", props.getPort(), props.getTtlSeconds(), props.getPort());
 
-        return EndpointServerBuilder.endpointServerBuilder()
+        final EndpointServerBuilder builder = EndpointServerBuilder.endpointServerBuilder()
                 .setResponseQueue(queue)
-                .setHealthService(healthServiceAsync)
-                .setServiceDiscovery(serviceDiscovery)
                 .setEndpointName(props.getName())
                 .setUri(props.getBasePath())
                 .setRequestBatchSize(100)
                 .setFlushInterval(50)
                 .setPort(props.getPort())
-                .setTtlSeconds(props.getTtlSeconds())
-                .build();
+                .setTtlSeconds(props.getTtlSeconds());
+
+        if (serviceDiscovery.isPresent()) builder.setServiceDiscovery(serviceDiscovery.get());
+        if (healthServiceAsync.isPresent()) builder.setHealthService(healthServiceAsync.get());
+
+        return builder.build();
     }
 }

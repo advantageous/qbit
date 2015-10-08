@@ -1,6 +1,8 @@
-package io.advantageous.qbit.example.spring;
+package io.advantageous.qbit.example.spring.local;
 
-import io.advantageous.qbit.reactive.Callback;
+import io.advantageous.qbit.example.spring.common.RandomNumberService;
+import io.advantageous.qbit.example.spring.common.RandomNumberServiceAsync;
+import io.advantageous.qbit.example.spring.common.RandomNumberServiceImpl;
 import io.advantageous.qbit.reactive.CallbackBuilder;
 import io.advantageous.qbit.spring.annotation.AutoFlush;
 import io.advantageous.qbit.spring.annotation.EnableQBit;
@@ -12,8 +14,6 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.ansi.AnsiOutput;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
-
-import java.util.Random;
 
 /**
  * Example of an async service with a callback.
@@ -50,20 +50,7 @@ public class RandomNumberExample {
     @AutoFlush
     @QBitService(asyncInterface = RandomNumberServiceAsync.class)
     public RandomNumberService randomNumberService() {
-        return (min, max) -> {
-            final Random random = new Random();
-            final int result = random.nextInt(max - min + 1) + min;
-            if (String.valueOf(result).contains("7")) throw new RuntimeException("Oh no!  It's a seven!");
-            return result;
-        };
-    }
-
-    private interface RandomNumberService {
-        int getRandom(int min, int max);
-    }
-
-    private interface RandomNumberServiceAsync {
-        void getRandom(Callback<Integer> callback, int min, int max);
+        return new RandomNumberServiceImpl();
     }
 
 }
