@@ -18,4 +18,8 @@ public class JmsTextSenderQueue implements SendQueue<String> {
     }
 
 
+    @Override
+    public void stop() {
+        jmsService.stop();
+    }
 }

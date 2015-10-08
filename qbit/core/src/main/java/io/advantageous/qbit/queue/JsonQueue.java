@@ -1,8 +1,9 @@
 package io.advantageous.qbit.queue;
 
-import io.advantageous.boon.core.Sets;
 import io.advantageous.boon.json.JsonParserAndMapper;
 import io.advantageous.boon.json.JsonParserFactory;
+import io.advantageous.boon.json.JsonSerializer;
+import io.advantageous.boon.json.JsonSerializerFactory;
 import io.advantageous.qbit.concurrent.PeriodicScheduler;
 
 import java.util.ArrayList;
@@ -25,7 +26,8 @@ public class JsonQueue <T> implements Queue<T>{
     public ReceiveQueue<T> receiveQueue() {
 
         final ReceiveQueue<String> receiveQueue = queue.receiveQueue();
-        final JsonParserAndMapper jsonParserAndMapper = new JsonParserFactory().setIgnoreSet(Sets.set("metaClass")).createFastObjectMapperParser();
+        final JsonParserAndMapper jsonParserAndMapper = new JsonParserFactory()
+                .createFastObjectMapperParser();
 
         return new ReceiveQueue<T>() {
             @Override
@@ -82,86 +84,118 @@ public class JsonQueue <T> implements Queue<T>{
 
     @Override
     public SendQueue<T> sendQueue() {
+
+        final SendQueue<String> sendQueue = queue.sendQueue();
+
+        return createJsonSendQueue(sendQueue);
+    }
+
+    private SendQueue<T> createJsonSendQueue(final SendQueue<String> sendQueue) {
+        final JsonSerializer jsonSerializer = new JsonSerializerFactory()
+                .setUseAnnotations(true)
+                .create();
+
         return new SendQueue<T>() {
             @Override
             public boolean send(T item) {
+
+                sendQueue.send(jsonSerializer.serialize(item).toString());
                 return false;
             }
 
             @Override
             public void sendAndFlush(T item) {
 
+                sendQueue.sendAndFlush(jsonSerializer.serialize(item).toString());
             }
 
             @Override
             public void sendMany(T... items) {
 
+                for (T item : items) {
+                    sendQueue.send(jsonSerializer.serialize(item).toString());
+                }
             }
 
             @Override
             public void sendBatch(Collection<T> items) {
 
+                for (T item : items) {
+                    sendQueue.send(jsonSerializer.serialize(item).toString());
+                }
             }
 
             @Override
             public void sendBatch(Iterable<T> items) {
 
+                for (T item : items) {
+                    sendQueue.send(jsonSerializer.serialize(item).toString());
+                }
             }
 
             @Override
             public boolean shouldBatch() {
-                return false;
+                return sendQueue.shouldBatch();
             }
 
             @Override
             public void flushSends() {
 
+                sendQueue.flushSends();
             }
 
             @Override
             public int size() {
-                return 0;
+                return sendQueue.size();
             }
 
             @Override
             public String name() {
-                return null;
+                return sendQueue.name();
             }
         };
     }
 
     @Override
     public SendQueue<T> sendQueueWithAutoFlush(int interval, TimeUnit timeUnit) {
-        return null;
+        final SendQueue<String> sendQueue = queue.sendQueueWithAutoFlush(interval, timeUnit);
+        return createJsonSendQueue(sendQueue);
     }
 
     @Override
     public SendQueue<T> sendQueueWithAutoFlush(PeriodicScheduler periodicScheduler, int interval, TimeUnit timeUnit) {
-        return null;
+        final SendQueue<String> sendQueue = queue.sendQueueWithAutoFlush(periodicScheduler, interval, timeUnit);
+        return createJsonSendQueue(sendQueue);
     }
 
     @Override
-    public void startListener(ReceiveQueueListener<T> listener) {
+    public void startListener(final ReceiveQueueListener<T> listener) {
+
+
+        final JsonParserAndMapper jsonParserAndMapper = new JsonParserFactory()
+                .createFastObjectMapperParser();
+
+        queue.startListener(item -> listener.receive(jsonParserAndMapper.parse(classType, item)));
 
     }
 
     @Override
     public int size() {
-        return 0;
+        return queue.size();
     }
 
     @Override
     public boolean started() {
-        return false;
+        return queue.started();
     }
 
     @Override
     public String name() {
-        return null;
+        return queue.name();
     }
 
     @Override
     public void stop() {
-
+        queue.stop();
     }
 }

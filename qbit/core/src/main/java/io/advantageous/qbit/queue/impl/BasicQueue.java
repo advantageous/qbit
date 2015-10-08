@@ -52,7 +52,7 @@ public class BasicQueue<T> implements Queue<T> {
     private final String name;
     private final int pollTimeWait;
     private final TimeUnit pollTimeTimeUnit;
-    private final AtomicBoolean stop = new AtomicBoolean();
+    private final AtomicBoolean stop = new AtomicBoolean(true);
     private final Supplier<SendQueue<T>> sendQueueSupplier;
 
 

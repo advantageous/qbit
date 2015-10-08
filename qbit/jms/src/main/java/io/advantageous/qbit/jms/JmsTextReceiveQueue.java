@@ -64,4 +64,9 @@ public class JmsTextReceiveQueue implements ReceiveQueue<String> {
             return batch;
         }
     }
+
+    @Override
+    public void stop() {
+        service.stop();
+    }
 }

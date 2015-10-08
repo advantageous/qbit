@@ -19,6 +19,7 @@
 package io.advantageous.qbit.queue;
 
 import io.advantageous.qbit.Input;
+import io.advantageous.qbit.service.Stoppable;
 
 
 /**
@@ -32,7 +33,7 @@ import io.advantageous.qbit.Input;
  *
  * @author Richard Hightower
  */
-public interface ReceiveQueue<T> extends Input {
+public interface ReceiveQueue<T> extends Input, Stoppable {
 
     /**
      * Gets the next item. If the item is null,
