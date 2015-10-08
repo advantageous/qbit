@@ -91,19 +91,17 @@ public class ServiceQueueCreator implements BeanFactoryPostProcessor {
                         final RootBeanDefinition proxyDef = new RootBeanDefinition(asyncInterface);
                         proxyDef.setScope(ConfigurableBeanFactory.SCOPE_PROTOTYPE);
                         proxyDef.setFactoryBeanName(queueBeanName);
+                        final ConstructorArgumentValues factoryParams = new ConstructorArgumentValues();
                         if (autoFlushMetadata == null) {
                             proxyDef.setFactoryMethodName("createProxy");
-                            final ConstructorArgumentValues factoryParams = new ConstructorArgumentValues();
                             factoryParams.addIndexedArgumentValue(0, asyncInterface);
-                            proxyDef.setConstructorArgumentValues(factoryParams);
                         } else {
                             proxyDef.setFactoryMethodName("createProxyWithAutoFlush");
-                            final ConstructorArgumentValues factoryParams = new ConstructorArgumentValues();
                             factoryParams.addIndexedArgumentValue(0, asyncInterface);
                             factoryParams.addIndexedArgumentValue(1, autoFlushMetadata.get("interval"));
                             factoryParams.addIndexedArgumentValue(2, autoFlushMetadata.get("timeUnit"));
-                            proxyDef.setConstructorArgumentValues(factoryParams);
                         }
+                        proxyDef.setConstructorArgumentValues(factoryParams);
                         registry.registerBeanDefinition(beanName + "Proxy", proxyDef);
                     }
                 });
