@@ -2,6 +2,7 @@ package io.advantageous.qbit.spring.config;
 
 import io.advantageous.qbit.spring.ServiceQueueFactoryBean;
 import io.advantageous.qbit.spring.ServiceQueueRegistry;
+import io.advantageous.qbit.spring.annotation.AutoFlush;
 import io.advantageous.qbit.spring.annotation.NoAsyncInterface;
 import io.advantageous.qbit.spring.annotation.QBitService;
 import io.advantageous.qbit.spring.properties.AppProperties;
@@ -54,17 +55,19 @@ public class ServiceQueueCreator implements BeanFactoryPostProcessor {
                      */
                     final String queueBeanName = beanName + "Queue";
                     //TODO: def might not have a factory method name if it was a component scan
-                    final Map<String, Object> metadata = def.getFactoryMethodMetadata()
+                    final Map<String, Object> serviceMetadata = def.getFactoryMethodMetadata()
                             .getAnnotationAttributes(QBitService.class.getCanonicalName());
+                    final Map<String, Object> autoFlushMetadata = def.getFactoryMethodMetadata()
+                            .getAnnotationAttributes(AutoFlush.class.getCanonicalName());
                     final String endpointLocation;
-                    final Class asyncInterface = (Class) metadata.get("asyncInterface");
+                    final Class asyncInterface = (Class) serviceMetadata.get("asyncInterface");
                     if (asyncInterface != null) {
                         endpointLocation = asyncInterface.getName();
                     } else {
                         endpointLocation = beanName;
                     }
-                    metadata.put("endpointLocation", endpointLocation);
-                    beanMetadataMap.put(queueBeanName, metadata);
+                    serviceMetadata.put("endpointLocation", endpointLocation);
+                    beanMetadataMap.put(queueBeanName, serviceMetadata);
 
                     /*
                     Generate a service queue for service implementations annotated with @QBitService
@@ -77,6 +80,7 @@ public class ServiceQueueCreator implements BeanFactoryPostProcessor {
                             .addPropertyReference("requestQueueBuilder", "requestQueueBuilder")
                             .addPropertyReference("serviceMethodHandler", "dynamicInvokingBoonServiceMethodCallHandler")
                             .addPropertyReference("responseQueue", "sharedResponseQueue")
+                            .addPropertyValue("createCallbackHandler", true)
                             .getBeanDefinition();
                     registry.registerBeanDefinition(queueBeanName, serviceQueueDefinition);
 
@@ -87,10 +91,19 @@ public class ServiceQueueCreator implements BeanFactoryPostProcessor {
                         final RootBeanDefinition proxyDef = new RootBeanDefinition(asyncInterface);
                         proxyDef.setScope(ConfigurableBeanFactory.SCOPE_PROTOTYPE);
                         proxyDef.setFactoryBeanName(queueBeanName);
-                        proxyDef.setFactoryMethodName("createProxy");
-                        final ConstructorArgumentValues factoryParams = new ConstructorArgumentValues();
-                        factoryParams.addIndexedArgumentValue(0, asyncInterface);
-                        proxyDef.setConstructorArgumentValues(factoryParams);
+                        if (autoFlushMetadata == null) {
+                            proxyDef.setFactoryMethodName("createProxy");
+                            final ConstructorArgumentValues factoryParams = new ConstructorArgumentValues();
+                            factoryParams.addIndexedArgumentValue(0, asyncInterface);
+                            proxyDef.setConstructorArgumentValues(factoryParams);
+                        } else {
+                            proxyDef.setFactoryMethodName("createProxyWithAutoFlush");
+                            final ConstructorArgumentValues factoryParams = new ConstructorArgumentValues();
+                            factoryParams.addIndexedArgumentValue(0, asyncInterface);
+                            factoryParams.addIndexedArgumentValue(1, autoFlushMetadata.get("interval"));
+                            factoryParams.addIndexedArgumentValue(2, autoFlushMetadata.get("timeUnit"));
+                            proxyDef.setConstructorArgumentValues(factoryParams);
+                        }
                         registry.registerBeanDefinition(beanName + "Proxy", proxyDef);
                     }
                 });
