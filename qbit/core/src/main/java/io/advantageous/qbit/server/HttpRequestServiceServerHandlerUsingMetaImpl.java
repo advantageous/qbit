@@ -70,6 +70,65 @@ public class HttpRequestServiceServerHandlerUsingMetaImpl implements HttpRequest
         contextMetaBuilder = ContextMetaBuilder.contextMetaBuilder();
     }
 
+
+
+    /** MOST IMPORTANT METHOD FOR DEBUGGING WHY SOMETHING IS NOT CALLED. */
+    @Override
+    public void handleRestCall(final HttpRequest request) {
+
+        final List<String> errorList = new ArrayList<>(0);
+        final MethodCall<Object> methodCall = standardRequestTransformer.transform(request, errorList);
+
+        if (methodCall != null && errorList.size() == 0) {
+            if (!addRequestToCheckForTimeouts(request)) {
+                handleOverflow(request);
+                return;
+            }
+            sendMethodToServiceBundle(methodCall);
+        } else {
+            handleErrorConverting(request, errorList, methodCall);
+            return;
+        }
+
+        final RequestMetaData requestMetaData = metaDataProviderMap
+                .get(RequestMethod.valueOf(request.getMethod())).get(request.address());
+
+        if (requestMetaData.getMethod().getMethodAccess().returnType() == void.class
+                && !requestMetaData.getMethod().hasCallBack()) {
+
+            request.handled();
+            writeResponse(request.getReceiver(), HttpStatus.ACCEPTED,
+                    "application/json", "\"success\"", MultiMap.empty());
+
+        }
+
+
+    }
+
+
+    /** 2nd MOST IMPORTANT METHOD FOR DEBUGGING WHY SOMETHING IS NOT CALLED. */
+    @Override
+    public void handleResponseFromServiceToHttpResponse(final Response<Object> response, final HttpRequest originatingRequest) {
+
+        final String key = Str.add("" + originatingRequest.id(), "|", originatingRequest.returnAddress());
+        this.outstandingRequestMap.remove(key);
+
+
+        if (response.wasErrors()) {
+            handleError(response, originatingRequest);
+        } else {
+            if (response.body() instanceof HttpResponse) {
+                writeHttpResponse(originatingRequest.getReceiver(), ((HttpResponse) response.body()));
+            } else {
+                //TODO this is where you would add J-SEND SUPPORT #379 https://github.com/advantageous/qbit/issues/379
+                writeResponse(originatingRequest.getReceiver(), HttpStatus.OK, "application/json", jsonMapper.toJson(response.body()), response.headers());
+            }
+        }
+
+
+    }
+
+
     @Override
     public void httpRequestQueueIdle(Void v) {
         long lastFlush = lastFlushTime;
@@ -103,37 +162,6 @@ public class HttpRequestServiceServerHandlerUsingMetaImpl implements HttpRequest
         standardRequestTransformer = new StandardRequestTransformer(metaDataProviderMap);
     }
 
-    @Override
-    public void handleRestCall(final HttpRequest request) {
-
-        List<String> errorList = new ArrayList<>(0);
-        final MethodCall<Object> methodCall = standardRequestTransformer.transform(request, errorList);
-
-        if (methodCall != null && errorList.size() == 0) {
-            if (!addRequestToCheckForTimeouts(request)) {
-                handleOverflow(request);
-                return;
-            }
-            sendMethodToServiceBundle(methodCall);
-        } else {
-            handleErrorConverting(request, errorList, methodCall);
-            return;
-        }
-
-        final RequestMetaData requestMetaData = metaDataProviderMap
-                .get(RequestMethod.valueOf(request.getMethod())).get(request.address());
-
-        if (requestMetaData.getMethod().getMethodAccess().returnType() == void.class
-                && !requestMetaData.getMethod().hasCallBack()) {
-
-            request.handled();
-            writeResponse(request.getReceiver(), HttpStatus.ACCEPTED,
-                    "application/json", "\"success\"", MultiMap.empty());
-
-        }
-
-
-    }
 
     private void handleOverflow(HttpRequest request) {
         writeResponse(request.getReceiver(), HttpStatus.TOO_MANY_REQUEST, "application/json",
@@ -223,28 +251,6 @@ public class HttpRequestServiceServerHandlerUsingMetaImpl implements HttpRequest
     }
 
 
-    @Override
-    public void handleResponseFromServiceToHttpResponse(final Response<Object> response, final HttpRequest originatingRequest) {
-
-        String key = Str.add("" + originatingRequest.id(), "|", originatingRequest.returnAddress());
-        this.outstandingRequestMap.remove(key);
-
-        //noinspection UnnecessaryLocalVariable
-        @SuppressWarnings("UnnecessaryLocalVariable") final HttpRequest httpRequest = originatingRequest;
-
-        if (response.wasErrors()) {
-            handleError(response, httpRequest);
-        } else {
-            if (response.body() instanceof HttpResponse) {
-                writeHttpResponse(httpRequest.getReceiver(), ((HttpResponse) response.body()));
-            } else {
-                //TODO this is where you would add J-SEND SUPPORT #379 https://github.com/advantageous/qbit/issues/379
-                writeResponse(httpRequest.getReceiver(), HttpStatus.OK, "application/json", jsonMapper.toJson(response.body()), response.headers());
-            }
-        }
-
-
-    }
 
     private void handleError(Response<Object> response, HttpRequest httpRequest) {
         final Object obj = response.body();
