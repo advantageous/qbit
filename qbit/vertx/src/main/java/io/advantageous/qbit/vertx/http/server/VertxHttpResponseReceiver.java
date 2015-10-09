@@ -50,18 +50,18 @@ public class VertxHttpResponseReceiver implements HttpResponseReceiver<Object> {
 
 
 
-        final HttpResponse<?> response = decorators.size() > 0 ? httpResponseCreator.createResponse(
+        final HttpResponse<?> decoratedResponse = decorators.size() > 0 ? httpResponseCreator.createResponse(
                 decorators, requestPath, code, contentType, body,
                 responseHeaders, this.requestHeaders,
                 this.requestParams) : null;
 
 
         /** Response was decorated. */
-        if (response == null) {
+        if (decoratedResponse == null) {
             doResponse(code, contentType, body, responseHeaders);
         } else {
             /** Response was not decorated. */
-            doResponse(response.code(), response.contentType(), response.body(), response.headers());
+            doResponse(decoratedResponse.code(), decoratedResponse.contentType(), decoratedResponse.body(), decoratedResponse.headers());
         }
     }
 
@@ -73,9 +73,15 @@ public class VertxHttpResponseReceiver implements HttpResponseReceiver<Object> {
             }
         }
 
-        this.response.putHeader("Content-Type", contentType);
+        if (contentType!=null) {
+            this.response.putHeader("Content-Type", contentType);
+        }
         this.response.setStatusCode(code);
-        this.response.setStatusMessage(HttpStatus.message(code));
+
+        final String message = HttpStatus.message(code);
+        if (message!=null) {
+            this.response.setStatusMessage(message);
+        }
 
 
         final Buffer buffer = createBuffer(body, this.response);
