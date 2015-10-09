@@ -10,10 +10,10 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 @ConfigurationProperties("qbit.service")
 public class ServiceEndpointServerProperties {
 
-    private String name;
-    private String basePath;
-    private int port;
-    private int ttlSeconds;
+    private String name = "service-endpoint";
+    private String basePath = "/services";
+    private int port = 8080;
+    private int ttlSeconds = 10;
 
     public String getName() {
         return name;
