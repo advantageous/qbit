@@ -13,13 +13,13 @@ import org.junit.Test;
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.JMSException;
+import javax.jms.Session;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 /**
@@ -39,17 +39,18 @@ public class JmsTest {
 
         port = PortUtils.findOpenPortStartAt(4000);
         broker= new BrokerService();
-        broker.addConnector("tcp://localhost:"+port);
+        broker.addConnector("tcp://localhost:" + port);
         broker.start();
 
         final JmsServiceBuilder jmsBuilder = JmsServiceBuilder.newJmsServiceBuilder()
-                .setDefaultDestination("foobarQueue").setPort(port);
+                .setDefaultDestination("foobarQueue").setAcknowledgeMode(Session.CLIENT_ACKNOWLEDGE).setPort(port);
 
         final Queue<String> textQueue = new JmsTextQueue(jmsBuilder);
 
         personQueue = new JsonQueue<>(Person.class, textQueue);
         personSendQueue = personQueue.sendQueue();
         personReceiveQueue = personQueue.receiveQueue();
+
 
 
         personSendQueue.shouldBatch();
@@ -186,14 +187,18 @@ public class JmsTest {
 
         personQueue.startListener(personsABQ::add);
 
+        Sys.sleep(100);
         int count = 0;
 
-        while (personsABQ.size() != 2) {
+        while (personsABQ.size() < 2) {
             Sys.sleep(1);
             count++;
             if (count > 100) break;
         }
 
+
+        Sys.sleep(1000);
+        assertEquals(2, personsABQ.size());
         final Person geoff = personsABQ.poll();
         final Person rick = personsABQ.poll();
 

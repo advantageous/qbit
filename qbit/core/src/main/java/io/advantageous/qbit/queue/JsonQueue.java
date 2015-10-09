@@ -182,10 +182,16 @@ public class JsonQueue <T> implements Queue<T>{
     public void startListener(final ReceiveQueueListener<T> listener) {
 
 
-        final JsonParserAndMapper jsonParserAndMapper = new JsonParserFactory()
-                .createFastObjectMapperParser();
+        final ThreadLocal<JsonParserAndMapper> jsonParserAndMapper = new ThreadLocal<JsonParserAndMapper>(){
+            @Override
+            protected JsonParserAndMapper initialValue() {
+                return new JsonParserFactory()
+                                .createFastObjectMapperParser();
+            }
+        };
 
-        queue.startListener(item -> listener.receive(jsonParserAndMapper.parse(classType, item)));
+
+        queue.startListener(item -> listener.receive(jsonParserAndMapper.get().parse(classType, item)));
 
     }
 

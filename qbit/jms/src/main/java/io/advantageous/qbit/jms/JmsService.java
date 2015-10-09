@@ -147,9 +147,17 @@ public class JmsService implements Stoppable, Startable{
                     messageListener.accept(
                             ((TextMessage) message).getText()
                     );
+
+                    if (acknowledgeMode==Session.CLIENT_ACKNOWLEDGE) {
+                        message.acknowledge();
+                    }
+
                 } catch (JMSException e) {
 
                     throw new IllegalStateException("Unable to register get text from message in listener " + destinationName, e);
+                } catch (Exception ex) {
+
+                    throw new IllegalStateException("Unable handle JMS Consumer  " + destinationName, ex);
                 }
             });
         } catch (JMSException e) {
@@ -170,7 +178,15 @@ public class JmsService implements Stoppable, Startable{
             }else {
                 message = (TextMessage) consumer.receive(timeout);
             }
-            return message == null ? null : message.getText();
+            if (message !=null) {
+
+                if (acknowledgeMode==Session.CLIENT_ACKNOWLEDGE) {
+                    message.acknowledge();
+                }
+                return message.getText();
+            } else {
+                return null;
+            }
         } catch (JMSException e) {
             throw new IllegalStateException("Unable to receive message from " + destinationName, e);
         }
