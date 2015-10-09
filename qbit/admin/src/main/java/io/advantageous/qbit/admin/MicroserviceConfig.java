@@ -219,7 +219,7 @@ public class MicroserviceConfig {
     }
 
     public int getPort() {
-        return port;
+        return port == 0 ? 8080 : port;
     }
 
     public String getLicenseName() {
@@ -255,7 +255,7 @@ public class MicroserviceConfig {
     }
 
     public int getStatsDPort() {
-        return statsDPort;
+        return statsDPort<=0 ? 8125 : statsDPort;
     }
 
     public void setStatsDPort(int statsDPort) {

@@ -312,7 +312,7 @@ public class ManagedServiceBuilder {
     public String findAdminPort() {
         String qbitAdminPort = getAdminPort("QBIT_ADMIN_PORT");
         if (Str.isEmpty(qbitAdminPort)) {
-            qbitAdminPort = getAdminPort("ADMIN_PORT");
+            qbitAdminPort = getAdminPort("PORT_ADMIN");
         }
         return qbitAdminPort;
     }
