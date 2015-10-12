@@ -210,7 +210,7 @@ public class ManagedServiceBuilder {
 
         if (port==8080) {
 
-            String sport = System.getenv("WEB_PORT");
+            String sport = System.getenv("PORT_WEB");
             if (Str.isEmpty(sport)) {
                 sport = System.getenv("PORT");
             }
