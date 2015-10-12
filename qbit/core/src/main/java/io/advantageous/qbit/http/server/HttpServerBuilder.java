@@ -156,17 +156,6 @@ public class HttpServerBuilder {
 
 
 
-
-    public int getMaxRequestBatches() {
-        return getHttpServerConfig().getMaxRequestBatches();
-    }
-
-
-    public HttpServerBuilder setMaxRequestBatches(int maxRequestBatches) {
-        this.getHttpServerConfig().setMaxRequestBatches(maxRequestBatches);
-        return this;
-    }
-
     public int getWorkers() {
         return getHttpServerConfig().getWorkers();
     }
@@ -203,33 +192,6 @@ public class HttpServerBuilder {
 
     public HttpServerBuilder setPort(int port) {
         this.getHttpServerConfig().setPort(port);
-        return this;
-    }
-
-    public boolean isManageQueues() {
-        return this.getHttpServerConfig().isManageQueues();
-    }
-
-    public HttpServerBuilder setManageQueues(boolean manageQueues) {
-        this.getHttpServerConfig().setManageQueues(manageQueues);
-        return this;
-    }
-
-    public int getPollTime() {
-        return this.getHttpServerConfig().getPollTime();
-    }
-
-    public HttpServerBuilder setPollTime(int pollTime) {
-        this.getHttpServerConfig().setPollTime(pollTime);
-        return this;
-    }
-
-    public int getRequestBatchSize() {
-        return this.getHttpServerConfig().getRequestBatchSize();
-    }
-
-    public HttpServerBuilder setRequestBatchSize(int requestBatchSize) {
-        this.getHttpServerConfig().setRequestBatchSize(requestBatchSize);
         return this;
     }
 

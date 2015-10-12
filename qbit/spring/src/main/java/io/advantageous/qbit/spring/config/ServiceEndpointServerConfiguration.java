@@ -38,7 +38,6 @@ public class ServiceEndpointServerConfiguration {
                 .setResponseQueue(queue)
                 .setEndpointName(props.getName())
                 .setUri(props.getBasePath())
-                .setRequestBatchSize(100)
                 .setFlushInterval(50)
                 .setPort(props.getPort())
                 .setTtlSeconds(props.getTtlSeconds());

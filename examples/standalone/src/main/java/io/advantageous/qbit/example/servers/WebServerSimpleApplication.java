@@ -35,9 +35,6 @@ public class WebServerSimpleApplication {
 
         final HttpServer httpServer = new HttpServerBuilder().setPort(9090)
                 .setFlushInterval(500)
-                .setPollTime(20)
-                .setRequestBatchSize(40)
-                .setManageQueues(true)
                 .build();
 
         httpServer.setHttpRequestConsumer(request -> request.getReceiver().response(200, "application/json", "\"ok\""));

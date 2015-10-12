@@ -18,10 +18,8 @@
 
 package io.advantageous.qbit.service;
 
-import io.advantageous.qbit.GlobalConstants;
 import io.advantageous.qbit.QBit;
 import io.advantageous.qbit.config.PropertyResolver;
-import io.advantageous.qbit.message.MethodCall;
 import io.advantageous.qbit.message.Request;
 import io.advantageous.qbit.message.Response;
 import io.advantageous.qbit.queue.Queue;
@@ -49,8 +47,6 @@ public class ServiceBundleBuilder {
     private QueueBuilder requestQueueBuilder;
     private QueueBuilder responseQueueBuilder;
     private QueueBuilder webResponseQueueBuilder;
-    private int pollTime = GlobalConstants.POLL_WAIT;
-    private int requestBatchSize = GlobalConstants.BATCH_SIZE;
     private boolean invokeDynamic = true;
     private String address = "/services";
     private boolean eachServiceInItsOwnThread = true;
@@ -120,9 +116,6 @@ public class ServiceBundleBuilder {
 
     public ServiceBundleBuilder(PropertyResolver propertyResolver) {
         this.invokeDynamic = propertyResolver.getBooleanProperty("invokeDynamic", true);
-        this.pollTime = propertyResolver.getIntegerProperty("pollTime", pollTime);
-        this.requestBatchSize = propertyResolver
-                .getIntegerProperty("requestBatchSize", requestBatchSize);
         this.statsFlushRateSeconds = propertyResolver.getIntegerProperty("statsFlushRateSeconds", 5);
         this.checkTimingEveryXCalls = propertyResolver.getIntegerProperty("checkTimingEveryXCalls", 10000);
 
@@ -140,8 +133,7 @@ public class ServiceBundleBuilder {
     public QueueBuilder getWebResponseQueueBuilder() {
 
         if (webResponseQueueBuilder == null) {
-            webResponseQueueBuilder = new QueueBuilder().setBatchSize(this.getRequestBatchSize())
-                    .setPollWait(this.getPollTime());
+            webResponseQueueBuilder = new QueueBuilder();
         }
         return webResponseQueueBuilder;
     }
@@ -217,29 +209,10 @@ public class ServiceBundleBuilder {
         return this;
     }
 
-    public int getPollTime() {
-        return pollTime;
-    }
-
-    public ServiceBundleBuilder setPollTime(int pollTime) {
-        this.pollTime = pollTime;
-        return this;
-    }
-
-    public int getRequestBatchSize() {
-        return requestBatchSize;
-    }
-
-    public ServiceBundleBuilder setRequestBatchSize(int requestBatchSize) {
-        this.requestBatchSize = requestBatchSize;
-        return this;
-    }
-
     public QueueBuilder getRequestQueueBuilder() {
 
         if (requestQueueBuilder == null) {
-            requestQueueBuilder = new QueueBuilder().setBatchSize(this.getRequestBatchSize())
-                    .setPollWait(this.getPollTime());
+            requestQueueBuilder = QueueBuilder.queueBuilder();
         }
         return requestQueueBuilder;
     }
@@ -266,7 +239,7 @@ public class ServiceBundleBuilder {
 
             } else {
 
-                responseQueueBuilder = new QueueBuilder().setBatchSize(this.getRequestBatchSize()).setPollWait(this.getPollTime());
+                responseQueueBuilder = QueueBuilder.queueBuilder();
             }
 
         }

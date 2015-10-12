@@ -26,11 +26,7 @@ public class HttpServerOptions implements Cloneable {
 
     protected String host;
     protected int port = 8080;
-    protected boolean manageQueues = false;
-    protected int maxRequestBatches = 1_000_000;
     protected boolean pipeline = true;
-    protected int pollTime = 100;
-    protected int requestBatchSize = 10;
     protected int flushInterval = 100;
     protected int workers = -1;
     protected boolean tcpNoDelay = true;
@@ -67,25 +63,10 @@ public class HttpServerOptions implements Cloneable {
         return port;
     }
 
-    public boolean isManageQueues() {
-        return manageQueues;
-    }
-
-    public int getMaxRequestBatches() {
-        return maxRequestBatches;
-    }
-
     public boolean isPipeline() {
         return pipeline;
     }
 
-    public int getPollTime() {
-        return pollTime;
-    }
-
-    public int getRequestBatchSize() {
-        return requestBatchSize;
-    }
 
     public int getFlushInterval() {
         return flushInterval;
@@ -127,7 +108,6 @@ public class HttpServerOptions implements Cloneable {
         return reuseAddress;
     }
 
-
     public int getIdleTimeout() {
         return idleTimeout;
     }
@@ -149,11 +129,7 @@ public class HttpServerOptions implements Cloneable {
         return "HttpServerOptions{" +
                 "host='" + host + '\'' +
                 ", port=" + port +
-                ", manageQueues=" + manageQueues +
-                ", maxRequestBatches=" + maxRequestBatches +
                 ", pipeline=" + pipeline +
-                ", pollTime=" + pollTime +
-                ", requestBatchSize=" + requestBatchSize +
                 ", flushInterval=" + flushInterval +
                 ", workers=" + workers +
                 ", tcpNoDelay=" + tcpNoDelay +

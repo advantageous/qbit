@@ -47,7 +47,7 @@ public class CPUIntensiveService {
                 )
                 .setResponseQueueBuilder(QueueBuilder.queueBuilder()
                         .setBatchSize(250).setLinkTransferQueue().setCheckEvery(5))
-                .setPort(6060).setFlushInterval(10).setRequestBatchSize(100)
+                .setPort(6060).setFlushInterval(10)
                 .setTimeoutSeconds(60)
                 .build();
 

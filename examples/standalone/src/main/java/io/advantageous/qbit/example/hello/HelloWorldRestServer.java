@@ -19,6 +19,7 @@
 package io.advantageous.qbit.example.hello;
 
 import io.advantageous.qbit.http.server.HttpServer;
+import io.advantageous.qbit.server.EndpointServerBuilder;
 import io.advantageous.qbit.server.ServiceEndpointServer;
 import io.advantageous.qbit.system.QBitSystemManager;
 
@@ -38,9 +39,9 @@ public class HelloWorldRestServer {
     public static void main(String... args) {
 
         /* Create the system manager to manage the shutdown. */
-        QBitSystemManager systemManager = new QBitSystemManager();
+        final QBitSystemManager systemManager = new QBitSystemManager();
 
-        HttpServer httpServer = httpServerBuilder()
+        final HttpServer httpServer = httpServerBuilder()
                 .setPort(9999).build();
 
         /* Register the Predicate using a Java 8 lambda expression. */
@@ -55,9 +56,15 @@ public class HelloWorldRestServer {
         });
 
 
+        final EndpointServerBuilder endpointServerBuilder = endpointServerBuilder();
+        endpointServerBuilder.getRequestQueueBuilder();
+
         /* Start the service. */
-        final ServiceEndpointServer serviceEndpointServer = endpointServerBuilder().setSystemManager(systemManager)
-                .setHttpServer(httpServer).build().initServices(new HelloService()).startServer();
+        final ServiceEndpointServer serviceEndpointServer = endpointServerBuilder
+                    .setSystemManager(systemManager)
+                    .setHttpServer(httpServer)
+                    .build().initServices(new HelloService())
+                    .startServer();
 
         /* Wait for the service to shutdown. */
         systemManager.waitForShutdown();

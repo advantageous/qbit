@@ -256,8 +256,8 @@ public class LoadTestingTest {
         httpClient = new HttpClientBuilder().setPort(port).build();
 
         client = new ClientBuilder().setFlushInterval(200).setPort(port).build();
-        server = new EndpointServerBuilder().setRequestBatchSize(20000).setFlushInterval(200).setTimeoutSeconds(20)
-                .setPollTime(10).setPort(port).build();
+        server = new EndpointServerBuilder().setFlushInterval(200).setTimeoutSeconds(20)
+                .setPort(port).build();
 
         server.initServices(new MockService());
 
