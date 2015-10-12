@@ -1,5 +1,6 @@
 package io.advantageous.qbit.spring.properties;
 
+import io.advantageous.boon.core.Sys;
 import io.advantageous.qbit.GlobalConstants;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
@@ -10,9 +11,9 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
  */
 @ConfigurationProperties("qbit.queue.request")
 public class RequestQueueProperties {
-    private int batchSize = GlobalConstants.BATCH_SIZE;
-    private int batchCount = GlobalConstants.NUM_BATCHES;
-    private int pollWait = GlobalConstants.POLL_WAIT;
+    private int batchSize = Sys.sysProp(RequestQueueProperties.class.getName() + ".batchSize", 1_000);
+    private int batchCount =  Sys.sysProp(RequestQueueProperties.class.getName() + ".batchCount", 100_000);
+    private int pollWait = Sys.sysProp(RequestQueueProperties.class.getName() + ".pollWait", 15);
 
     public int getBatchSize() {
         return batchSize;

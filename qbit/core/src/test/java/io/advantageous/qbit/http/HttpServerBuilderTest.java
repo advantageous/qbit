@@ -100,21 +100,16 @@ public class HttpServerBuilderTest {
 
         ok = objectUnderTest.setHost("host").getHost().equals("host") || die();
         ok = objectUnderTest.setHost("localhost").getHost().equals("localhost") || die();
-        ok = objectUnderTest.setManageQueues(true).isManageQueues() || die();
-        ok = !objectUnderTest.setManageQueues(false).isManageQueues() || die();
 
         ok = objectUnderTest.setPipeline(true).isPipeline() || die();
         ok = !objectUnderTest.setPipeline(false).isPipeline() || die();
 
-        ok = objectUnderTest.setPollTime(7).getPollTime() == 7 || die();
         ok = objectUnderTest.setPort(9090).getPort() == 9090 || die();
         ok = objectUnderTest.setPort(8080).getPort() == 8080 || die();
 
         ok = objectUnderTest.setFlushInterval(909).getFlushInterval() == 909 || die();
         ok = objectUnderTest.setFlushInterval(808).getFlushInterval() == 808 || die();
 
-        ok = objectUnderTest.setRequestBatchSize(13).getRequestBatchSize() == 13
-                || die();
 
         objectUnderTest.build();
 

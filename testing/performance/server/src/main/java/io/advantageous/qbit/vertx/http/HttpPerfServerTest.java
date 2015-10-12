@@ -89,9 +89,6 @@ public class HttpPerfServerTest {
         final HttpServer server = new HttpServerBuilder()
                 .setPort(port)
                 .setHost(host)
-                .setPollTime(pollTime)
-                .setManageQueues(true)
-                .setRequestBatchSize(batchSize)
                 .setFlushInterval(flushRate)
                 .build();
 

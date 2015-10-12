@@ -47,10 +47,7 @@ import io.advantageous.qbit.util.Timer;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Properties;
-import java.util.function.Predicate;
-
 import static io.advantageous.qbit.http.server.HttpServerBuilder.httpServerBuilder;
 
 /**
@@ -59,19 +56,14 @@ import static io.advantageous.qbit.http.server.HttpServerBuilder.httpServerBuild
  * @author rhightower
  *         created by Richard on 11/14/14.
  */
-
 public class EndpointServerBuilder {
     public static final String QBIT_ENDPOINT_SERVER_BUILDER = "qbit.endpoint.server.builder.";
     private Queue<Response<Object>> responseQueue;
     private String host;
     private int port = 8080;
-    private boolean manageQueues = false;
-    private int pollTime = 25;
-    private int requestBatchSize = 50;
-    private int flushInterval = 200;
+    private int flushInterval = 50;
     private String uri = "/services";
     private int numberOfOutstandingRequests = 1_000_000;
-    private int maxRequestBatches = 10_000;
     private int timeoutSeconds = 30;
     private boolean invokeDynamic = true;
     private QueueBuilder httpRequestQueueBuilder;
@@ -233,19 +225,11 @@ public class EndpointServerBuilder {
 
     public EndpointServerBuilder(PropertyResolver propertyResolver) {
         this.eachServiceInItsOwnThread = propertyResolver.getBooleanProperty("eachServiceInItsOwnThread", eachServiceInItsOwnThread);
-        this.manageQueues = propertyResolver.getBooleanProperty("manageQueues", manageQueues);
         this.invokeDynamic = propertyResolver.getBooleanProperty("invokeDynamic", invokeDynamic);
         this.host = propertyResolver.getStringProperty("host", host);
         this.port = propertyResolver.getIntegerProperty("port", port);
-        this.pollTime = propertyResolver.getIntegerProperty("pollTime", pollTime);
-        this.requestBatchSize = propertyResolver
-                .getIntegerProperty("requestBatchSize", requestBatchSize);
-
         this.numberOfOutstandingRequests = propertyResolver
                 .getIntegerProperty("numberOfOutstandingRequests", numberOfOutstandingRequests);
-        this.maxRequestBatches = propertyResolver
-                .getIntegerProperty("maxRequestBatches", maxRequestBatches);
-
         this.flushInterval = propertyResolver.getIntegerProperty("flushInterval", flushInterval);
         this.uri = propertyResolver.getStringProperty("uri", uri);
         this.timeoutSeconds = propertyResolver.getIntegerProperty("timeoutSeconds", timeoutSeconds);
@@ -321,8 +305,7 @@ public class EndpointServerBuilder {
     public QueueBuilder getRequestQueueBuilder() {
 
         if (requestQueueBuilder == null) {
-            requestQueueBuilder = new QueueBuilder().setBatchSize(this.getRequestBatchSize())
-                    .setPollWait(this.getPollTime());
+            requestQueueBuilder = QueueBuilder.queueBuilder();
         }
 
         return requestQueueBuilder;
@@ -336,8 +319,7 @@ public class EndpointServerBuilder {
 
     public QueueBuilder getWebResponseQueueBuilder() {
         if (webResponseQueueBuilder == null) {
-            webResponseQueueBuilder = QueueBuilder.queueBuilder()
-                    .setBatchSize(requestBatchSize).setPollWait(pollTime);
+            webResponseQueueBuilder = QueueBuilder.queueBuilder();
         }
         return webResponseQueueBuilder;
     }
@@ -405,14 +387,6 @@ public class EndpointServerBuilder {
         return this;
     }
 
-    public int getMaxRequestBatches() {
-        return maxRequestBatches;
-    }
-
-    public EndpointServerBuilder setMaxRequestBatches(int maxRequestBatches) {
-        this.maxRequestBatches = maxRequestBatches;
-        return this;
-    }
 
     public boolean isEachServiceInItsOwnThread() {
         return eachServiceInItsOwnThread;
@@ -496,32 +470,7 @@ public class EndpointServerBuilder {
         return this;
     }
 
-    public boolean isManageQueues() {
-        return manageQueues;
-    }
 
-    public EndpointServerBuilder setManageQueues(boolean manageQueues) {
-        this.manageQueues = manageQueues;
-        return this;
-    }
-
-    public int getPollTime() {
-        return pollTime;
-    }
-
-    public EndpointServerBuilder setPollTime(int pollTime) {
-        this.pollTime = pollTime;
-        return this;
-    }
-
-    public int getRequestBatchSize() {
-        return requestBatchSize;
-    }
-
-    public EndpointServerBuilder setRequestBatchSize(int requestBatchSize) {
-        this.requestBatchSize = requestBatchSize;
-        return this;
-    }
 
     public int getFlushInterval() {
         return flushInterval;
@@ -537,8 +486,7 @@ public class EndpointServerBuilder {
         if (responseQueueBuilder == null) {
 
             if (responseQueue == null) {
-                responseQueueBuilder = new QueueBuilder().setBatchSize(this.getRequestBatchSize())
-                        .setPollWait(this.getPollTime());
+                responseQueueBuilder = QueueBuilder.queueBuilder();
             } else {
 
 
@@ -603,7 +551,7 @@ public class EndpointServerBuilder {
 
         final ServiceEndpointServer serviceEndpointServer = getFactory().createServiceServer(getHttpServer(),
                 getEncoder(), getParser(), serviceBundle, getJsonMapper(), this.getTimeoutSeconds(),
-                this.getNumberOfOutstandingRequests(), this.getRequestBatchSize(),
+                this.getNumberOfOutstandingRequests(), this.getRequestQueueBuilder().getBatchSize(),
                 this.getFlushInterval(), this.getSystemManager(), getEndpointName(),
                 getServiceDiscovery(), getPort(), getTtlSeconds(), getHealthService());
 
@@ -686,11 +634,7 @@ public class EndpointServerBuilder {
 
             httpServerBuilder = httpServerBuilder().setPort(getPort())
                     .setHost(getHost())
-                    .setManageQueues(this.isManageQueues())
                     .setFlushInterval(this.getFlushInterval())
-                    .setPollTime(this.getPollTime())
-                    .setRequestBatchSize(this.getRequestBatchSize())
-                    .setMaxRequestBatches(this.getMaxRequestBatches())
                     .setSystemManager(getSystemManager());
 
 

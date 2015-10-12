@@ -67,7 +67,7 @@ public class PerfTestMain {
 
         FactorySPI.setHttpServerFactory((options, name, systemManager, serviceDiscovery, healthServiceAsync, a, b, c , d)
                 -> new MockHttpServer());
-        ServiceEndpointServer server = new EndpointServerBuilder().setRequestBatchSize(10_000).build();
+        ServiceEndpointServer server = new EndpointServerBuilder().build();
         server.initServices(new AdderService());
         server.start();
 
