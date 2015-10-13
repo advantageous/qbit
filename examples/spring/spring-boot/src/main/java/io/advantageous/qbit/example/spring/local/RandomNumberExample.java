@@ -11,7 +11,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
-import org.springframework.boot.ansi.AnsiOutput;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 
@@ -27,17 +26,16 @@ public class RandomNumberExample {
     private final Logger logger = LoggerFactory.getLogger(RandomNumberExample.class);
 
     public static void main(String[] args) {
-        AnsiOutput.setEnabled(AnsiOutput.Enabled.ALWAYS);
         SpringApplication.run(RandomNumberExample.class);
     }
 
     @Bean
     public CommandLineRunner runner(final RandomNumberServiceAsync randomNumberServiceAsync) {
         return args -> {
-            for (int a = 0; a < 100; a++) {
+            for (int i = 0; i < 100; i++) {
                 randomNumberServiceAsync.getRandom(
                         CallbackBuilder.newCallbackBuilder()
-                                .withCallback(l -> logger.info("Here's a random number: " + l))
+                                .withCallback(n -> logger.info("Here's a random number: " + n))
                                 .withErrorHandler(e -> logger.error("blew up: " + e.getMessage()))
                                 .<Integer>build(),
                         0, 100
