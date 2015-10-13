@@ -443,9 +443,15 @@ public class BoonEventManager implements EventManager {
     @SafeVarargs
     @Override
     public final <T> void sendArray(final String channel, T... event) {
-
         this.send(channel, event);
     }
+
+    @SafeVarargs
+    @Override
+    public final <T> void sendArguments(final String channel, T... event) {
+        this.send(channel, event);
+    }
+
 
     private List<Object> events(String channel) {
         List<Object> events = this.eventMap.get(channel);

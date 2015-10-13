@@ -59,9 +59,6 @@ public class FactorySPI {
 
         if (!(factory instanceof BoonQBitFactory)) {
 
-            Exception exception = new Exception();
-            exception.fillInStackTrace();
-            exception.printStackTrace();
         }
 
         ref.set(factory);
