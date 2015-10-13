@@ -14,76 +14,202 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
+/**
+ * This class is used to create a JMS client (called JmsService) that can send and receive messages via JMS.
+ * @author rick hightower
+ */
 public class JmsServiceBuilder {
 
 
+    /**
+     * JNDI name of initial factory. Default works with ActiveMQ.
+     */
     private String initialContextFactory ="org.apache.activemq.jndi.ActiveMQInitialContextFactory";
-    private String connectionFactoryName = "ConnectionFactory";
-    private String userName=null;
-    private String password = null;
-    private String host = "localhost";
-    private int port = 61616;
-    private boolean startConnection = true;
-    private boolean transacted = false;
-    private int acknowledgeMode = Session.AUTO_ACKNOWLEDGE;
-    private Map<String, Object> jndiSettings;
-    private String providerURLPattern = "tcp://#host#:#port#";
-    private String providerURL =null;
-    private ConnectionFactory connectionFactory;
-    private String destinationPrefix = "dynamicQueues/";
-    private String defaultDestination;
-    private Supplier<Connection> connectionSupplier;
-    private Function<String, Destination> destinationSupplier;
-    private int defaultTimeout=100;
 
+
+    /**
+     * JNDI Lookup name of ConnectionFactory.
+     */
+    private String connectionFactoryName = "ConnectionFactory";
+
+    /**
+     * JMS user name.
+     */
+    private String userName=null;
+
+
+    /**
+     * JMS password.
+     */
+    private String password = null;
+
+    /**
+     * Host for JMS broker.
+     */
+    private String host = "localhost";
+
+
+    /**
+     * Port for JMS broker.
+     */
+    private int port = 61616;
+
+
+    /** Are we just looking up the connection or should we start it to? */
+    private boolean startConnection = true;
+
+
+    /** Should access to the destination be transacted? */
+    private boolean transacted = false;
+
+
+    /** Session acknowledgement mode from `java.jms.Session`. */
+    private int acknowledgeMode = Session.AUTO_ACKNOWLEDGE;
+
+    /** Additional JNDI setting, usually not needed. */
+    private Map<String, Object> jndiSettings;
+
+    /** Pattern to create JNDI URL connect string from host and port. Default works with ActiveMQ.
+     * Replaces #host# with host and #port# with port. */
+    private String providerURLPattern = "tcp://#host#:#port#";
+
+    /** Provider URL to JMS Broker which if not set will be constructed based on host, port and providerURLPattern. */
+    private String providerURL =null;
+
+    /**
+     * JMS Connection factory. If not set, will be looked up in JNDI.
+     */
+    private ConnectionFactory connectionFactory;
+
+    /**
+     * JNDI Prefix for destination lookup. Default will lookup destination from ActiveMQ `dynamicQueues` which
+     * will create the queue on the fly.
+     */
+    private String destinationPrefix = "dynamicQueues/";
+
+
+    /** Name of our default destination which can be a queue or topic. */
+    private String defaultDestination;
+
+
+    /** Supplies a JMS connection. Allows you to get the connection in the most convenient way possible.
+     *  If this is setup, a connection will not be looked up in JNDI.
+     *  By implementing this, you are saying, I know how to get the connection from my JMS provider.
+     * */
+    private Supplier<Connection> connectionSupplier;
+
+    /** Supplies a JMS destination given the name of a destination.
+     * Allows you to get the destination in the most convenient way possible.
+     *  If this is setup, a destination will not be looked up in JNDI.
+     *  By implementing this, you are saying, I know how to get the destination from my JMS provider.
+     * */
+    private Function<String, Destination> destinationSupplier;
+
+    /**
+     * Default timeout in milliseconds.
+     */
+    private int defaultTimeout=10;
+
+
+    /**
+     * Initial JNDI context, if set, it will not be created by using the `initialContextFactory`.
+     */
     private Context context;
 
+    /**
+     * Create a new JMS Service Builder.
+     * @return JmsServiceBuilder
+     */
     public static JmsServiceBuilder newJmsServiceBuilder() {
         return new JmsServiceBuilder();
     }
 
+    /**
+     *
+     * @return providerURLPattern
+     */
     public String getProviderURLPattern() {
         return providerURLPattern;
     }
 
+    /**
+     *
+     * @return initialContextFactory
+     */
     public String getInitialContextFactory() {
         return initialContextFactory;
     }
 
 
+    /**
+     *
+     * @return userName
+     */
     public String getUserName() {
         return userName;
     }
 
 
+    /**
+     *
+     * @return password
+     */
     public String getPassword() {
         return password;
     }
 
+
+    /**
+     *
+     * @return host
+     */
     public String getHost() {
         return host;
     }
 
 
+    /**
+     *
+     * @return port
+     */
     public int getPort() {
         return port;
     }
 
 
+    /**
+     *
+     * @return startConnection
+     */
     public boolean isStartConnection() {
         return startConnection;
     }
 
+    /**
+     *
+     * @return transacted
+     */
     public boolean isTransacted() {
         return transacted;
     }
 
 
+
+    /**
+     *
+     * @see JmsServiceBuilder#acknowledgeMode
+     * @return acknowledgeMode
+     */
     public int getAcknowledgeMode() {
         return acknowledgeMode;
     }
 
 
+    /**
+     * If null, will build based on host, port and provider url pattern.
+     * @see JmsServiceBuilder#providerURL
+     * @return providerURL
+     */
     public String getProviderURL() {
 
         if (providerURL == null) {
@@ -93,6 +219,10 @@ public class JmsServiceBuilder {
         return providerURL;
     }
 
+    /**
+     * @see JmsServiceBuilder#jndiSettings
+     * @return jndi settings
+     */
     public Map<String, Object> getJndiSettings() {
         if (jndiSettings==null) {
             jndiSettings = new LinkedHashMap<>();
@@ -101,6 +231,16 @@ public class JmsServiceBuilder {
         return jndiSettings;
     }
 
+    /**
+     * Gets the initial JNDI context, if not set uses the jndi settings and `initialContextFactory` to create
+     * a JNDI initial context.
+     *
+     * @see JmsServiceBuilder#context
+     * @see JmsServiceBuilder#initialContextFactory
+     * @see JmsServiceBuilder#jndiSettings
+     *
+     * @return JNDI initial context.
+     */
     public Context getContext() {
         if (context == null) {
             try {
@@ -112,18 +252,38 @@ public class JmsServiceBuilder {
         return context;
     }
 
+    /**
+     *
+     * @see JmsServiceBuilder#connectionFactory
+     * @return connection factory
+     */
     public String getConnectionFactoryName() {
         return connectionFactoryName;
     }
 
+
+    /**
+     *
+     * @see JmsServiceBuilder#destinationPrefix
+     * @return destination prefix
+     */
     public String getDestinationPrefix() {
         return destinationPrefix;
     }
 
+    /**
+     * @see JmsServiceBuilder#defaultDestination
+     * @return default JMS Destination Queue or Topic
+     */
     public String getDefaultDestination() {
         return defaultDestination;
     }
 
+    /**
+     * If the user name is set, use the user name and password to create the JMS connection.
+     * @see JmsServiceBuilder#connectionSupplier
+     * @return connection supplier
+     */
     public Supplier<Connection> getConnectionSupplier() {
         final boolean startConnection = isStartConnection();
 
@@ -160,6 +320,10 @@ public class JmsServiceBuilder {
         return connectionSupplier;
     }
 
+    /**
+     * @see JmsServiceBuilder#destinationSupplier
+     * @return destination
+     */
     public Function<String, Destination> getDestinationSupplier() {
 
         final Context context = getContext();
@@ -179,35 +343,29 @@ public class JmsServiceBuilder {
         return destinationSupplier;
     }
 
+    /**
+     * @see JmsServiceBuilder#defaultTimeout
+     * @return defaultTimeout
+     */
     public int getDefaultTimeout() {
         return defaultTimeout;
     }
 
+    /**
+     *
+     * @param defaultTimeout default timeout
+     * @return this
+     */
     public JmsServiceBuilder setDefaultTimeout(int defaultTimeout) {
         this.defaultTimeout = defaultTimeout;
         return this;
     }
 
-    public JmsServiceBuilder setDestinationSupplier(final Function<String, Destination> destinationSupplier) {
-        this.destinationSupplier = destinationSupplier;
-        return this;
-    }
 
-    public JmsServiceBuilder setConnectionSupplier(Supplier<Connection> connectionSupplier) {
-        this.connectionSupplier = connectionSupplier;
-        return this;
-    }
-
-    public JmsServiceBuilder setDestinationPrefix(String destinationPrefix) {
-        this.destinationPrefix = destinationPrefix;
-        return this;
-    }
-
-    public JmsServiceBuilder setDefaultDestination(String defaultDestination) {
-        this.defaultDestination = defaultDestination;
-        return this;
-    }
-
+    /**
+     * @see JmsServiceBuilder#connectionFactory
+     * @return connection factory
+     */
     public ConnectionFactory getConnectionFactory() {
         if (connectionFactory == null) {
             try {
@@ -219,86 +377,216 @@ public class JmsServiceBuilder {
         return connectionFactory;
     }
 
+
+    /**
+     *
+     * @param destinationSupplier destinationSupplier
+     * @return this
+     */
+    public JmsServiceBuilder setDestinationSupplier(final Function<String, Destination> destinationSupplier) {
+        this.destinationSupplier = destinationSupplier;
+        return this;
+    }
+
+    /**
+     *
+     * @param connectionSupplier connection supplier
+     * @return this
+     */
+    public JmsServiceBuilder setConnectionSupplier(Supplier<Connection> connectionSupplier) {
+        this.connectionSupplier = connectionSupplier;
+        return this;
+    }
+
+    /**
+     *
+     * @param destinationPrefix destination prefix
+     * @return this
+     */
+    public JmsServiceBuilder setDestinationPrefix(String destinationPrefix) {
+        this.destinationPrefix = destinationPrefix;
+        return this;
+    }
+
+    /**
+     *
+     * @param defaultDestination defaultDestination
+     * @return this
+     */
+    public JmsServiceBuilder setDefaultDestination(String defaultDestination) {
+        this.defaultDestination = defaultDestination;
+        return this;
+    }
+
+    /**
+     *
+     * @param connectionFactory connectionFactory
+     * @return this
+     */
     public JmsServiceBuilder setConnectionFactory(ConnectionFactory connectionFactory) {
         this.connectionFactory = connectionFactory;
         return this;
     }
+
+    /**
+     *
+     * @param connectionFactoryName connectionFactoryName
+     * @return this
+     */
     public JmsServiceBuilder setConnectionFactoryName(String connectionFactoryName) {
         this.connectionFactoryName = connectionFactoryName;
         return this;
     }
 
 
+    /**
+     *
+     * @param context context
+     * @return this
+     */
     public JmsServiceBuilder setContext(Context context) {
         this.context = context;
         return this;
     }
 
+    /**
+     *
+     * @param jndiSettings jndiSettings
+     * @return this
+     */
     public JmsServiceBuilder setJndiSettings(Map<String, Object> jndiSettings) {
         this.jndiSettings = jndiSettings;
         return this;
     }
 
 
+    /**
+     *
+     * @param key key for JNDI setting
+     * @param value value for JNDI setting
+     * @return this
+     */
     public JmsServiceBuilder addJndiSetting(final String key, final Object value) {
         this.getJndiSettings().put(key, value);
         return this;
     }
 
 
+    /**
+     *
+     * @param acknowledgeMode Session acknowledge Mode
+     * @return this
+     */
     public JmsServiceBuilder setAcknowledgeMode(int acknowledgeMode) {
         this.acknowledgeMode = acknowledgeMode;
         return this;
     }
+
+    /**
+     *
+     * @param providerURL providerURL
+     * @return this
+     */
     public JmsServiceBuilder setProviderURL(String providerURL) {
         this.providerURL = providerURL;
         return this;
     }
 
+    /**
+     *
+     * @param providerURLPattern providerURLPattern
+     * @return this
+     */
     public JmsServiceBuilder setProviderURLPattern(String providerURLPattern) {
         this.providerURLPattern = providerURLPattern;
         return this;
     }
 
+    /**
+     *
+     * @param initialContextFactory initialContextFactory
+     * @return this
+     */
     public JmsServiceBuilder setInitialContextFactory(String initialContextFactory) {
         this.initialContextFactory = initialContextFactory;
         return this;
     }
 
 
+    /**
+     *
+     * @param password password
+     * @return this
+     */
     public JmsServiceBuilder setPassword(String password) {
         this.password = password;
         return this;
     }
 
+    /**
+     *
+     * @param host host
+     * @return this
+     */
     public JmsServiceBuilder setHost(String host) {
         this.host = host;
         return this;
     }
 
+    /**
+     *
+     * @param port port
+     * @return this
+     */
     public JmsServiceBuilder setPort(int port) {
         this.port = port;
         return this;
     }
 
 
+    /**
+     *
+     * @param startConnection startConnection
+     * @return this
+     */
     public JmsServiceBuilder setStartConnection(boolean startConnection) {
         this.startConnection = startConnection;
         return this;
     }
 
+    /**
+     *
+     * @param transacted transacted
+     * @return this
+     */
     public JmsServiceBuilder setTransacted(boolean transacted) {
         this.transacted = transacted;
         return this;
     }
 
 
+    /**
+     *
+     * @param userName user name
+     * @return this
+     */
     public JmsServiceBuilder setUserName(String userName) {
         this.userName = userName;
         return this;
     }
 
 
+    /**
+     * Used to construct properties for JMS JNDI context.
+     * Populates with
+     *
+     * ```
+     *  properties.put(Context.INITIAL_CONTEXT_FACTORY, getInitialContextFactory());
+     *  properties.put(Context.PROVIDER_URL, getProviderURL());
+     * ```
+     * Then adds all of the setting in jndi settings.
+     * @return this
+     */
     private Hashtable<Object,  Object> createProperties () {
         Hashtable<Object,  Object> properties = new Hashtable<>();
 
@@ -311,6 +599,10 @@ public class JmsServiceBuilder {
         return properties;
     }
 
+    /**
+     * Build JMS Service
+     * @return new JMS Service
+     */
     public JmsService build() {
         return new JmsService(
                  getConnectionSupplier(), getDestinationSupplier(), isTransacted(),
