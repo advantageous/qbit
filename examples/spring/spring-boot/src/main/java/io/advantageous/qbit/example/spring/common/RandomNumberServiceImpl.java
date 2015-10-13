@@ -2,6 +2,12 @@ package io.advantageous.qbit.example.spring.common;
 
 import java.util.Random;
 
+/**
+ * Simple implementation of the {@link RandomNumberService RandomNumberService}.  Returns a number between the min and
+ * max parameters and blows up if it contains a seven do demonstrate error handling.
+ *
+ * @author geoffc@gmail.com (Geoff Chandler)
+ */
 public class RandomNumberServiceImpl implements RandomNumberService {
 
     @Override
