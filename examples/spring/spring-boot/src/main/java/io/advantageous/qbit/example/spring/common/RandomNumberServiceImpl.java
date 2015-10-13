@@ -4,7 +4,7 @@ import java.util.Random;
 
 /**
  * Simple implementation of the {@link RandomNumberService RandomNumberService}.  Returns a number between the min and
- * max parameters and blows up if it contains a seven.
+ * max parameters and blows up if it contains a seven do demonstrate error handling.
  *
  * @author geoffc@gmail.com (Geoff Chandler)
  */
