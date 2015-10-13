@@ -69,7 +69,7 @@ public class ServiceBundleAndEvents extends TimedTesting {
         testService.method1("HELLO");
         testService.clientProxyFlush();
 
-        waitForTrigger(1, o -> (method.get() != null) &&
+        waitForTrigger(4, o -> (method.get() != null) &&
                 method.get().equals("method1 HELLO"));
 
         assertEquals("method1 HELLO\n", method.get());
