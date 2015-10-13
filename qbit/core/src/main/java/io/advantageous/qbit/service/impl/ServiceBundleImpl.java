@@ -23,6 +23,7 @@ import io.advantageous.boon.core.reflection.BeanUtils;
 import io.advantageous.qbit.Factory;
 import io.advantageous.qbit.GlobalConstants;
 import io.advantageous.qbit.annotation.AnnotationUtils;
+import io.advantageous.qbit.events.EventManager;
 import io.advantageous.qbit.message.MethodCall;
 import io.advantageous.qbit.message.MethodCallBuilder;
 import io.advantageous.qbit.message.Request;
@@ -143,6 +144,7 @@ public class ServiceBundleImpl implements ServiceBundle {
     private final Timer timer;
     private final int sampleStatFlushRate;
     private final int checkTimingEveryXCalls;
+    private final EventManager eventManager;
 
     public ServiceBundleImpl(final String address,
                              final QueueBuilder requestQueueBuilder,
@@ -159,7 +161,7 @@ public class ServiceBundleImpl implements ServiceBundle {
                              final Timer timer,
                              final int sampleStatFlushRate,
                              final int checkTimingEveryXCalls,
-                             final CallbackManager callbackManager) {
+                             final CallbackManager callbackManager, EventManager eventManager) {
 
         this.healthService = healthService;
         this.statsCollector = statsCollector;
@@ -188,6 +190,7 @@ public class ServiceBundleImpl implements ServiceBundle {
         this.responseQueue = responseQueueBuilder.setName("Response Queue " + address).build();
         this.webResponseQueue = webResponseQueueBuilder.setName("Web Response Queue " + address).build();
         this.methodSendQueue = methodQueue.sendQueue();
+        this.eventManager = eventManager;
     }
 
 
@@ -287,7 +290,9 @@ public class ServiceBundleImpl implements ServiceBundle {
                 .setSystemManager(systemManager)
                 .setRequestQueueBuilder(BeanUtils.copy(this.requestQueueBuilder))
                 .setRequestQueueBuilder(requestQueueBuilder)
-                .setHandleCallbacks(false).setCreateCallbackHandler(false);
+                .setHandleCallbacks(false)
+                .setCreateCallbackHandler(false)
+                .setEventManager(eventManager);
 
 
         final String bindStatHealthName = serviceAddress == null

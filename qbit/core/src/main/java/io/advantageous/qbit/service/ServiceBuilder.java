@@ -21,6 +21,7 @@ package io.advantageous.qbit.service;
 import io.advantageous.boon.core.reflection.ClassMeta;
 import io.advantageous.boon.core.reflection.MethodAccess;
 import io.advantageous.qbit.QBit;
+import io.advantageous.qbit.events.EventManager;
 import io.advantageous.qbit.message.MethodCall;
 import io.advantageous.qbit.message.Request;
 import io.advantageous.qbit.message.Response;
@@ -80,6 +81,7 @@ public class ServiceBuilder {
     private CallbackManagerBuilder callbackManagerBuilder;
 
     private boolean createCallbackHandler = true;
+    private EventManager eventManager;
 
     public static ServiceBuilder serviceBuilder() {
         return new ServiceBuilder();
@@ -466,6 +468,9 @@ public class ServiceBuilder {
             qBitSystemManager.registerService(serviceQueue);
         }
 
+        if (eventManager!=null) {
+            eventManager.joinService(serviceQueue);
+        }
 
         return serviceQueue;
     }
@@ -487,7 +492,14 @@ public class ServiceBuilder {
         return build().startAll();
     }
 
+    public ServiceBuilder setEventManager(EventManager eventManager) {
+        this.eventManager = eventManager;
+        return this;
+    }
 
+    public EventManager getEventManager() {
+        return eventManager;
+    }
 
 
     private static class StatsConfig  {

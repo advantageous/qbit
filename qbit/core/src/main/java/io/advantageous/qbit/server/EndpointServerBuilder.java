@@ -21,6 +21,7 @@ package io.advantageous.qbit.server;
 import io.advantageous.qbit.Factory;
 import io.advantageous.qbit.QBit;
 import io.advantageous.qbit.config.PropertyResolver;
+import io.advantageous.qbit.events.EventManager;
 import io.advantageous.qbit.http.HttpTransport;
 import io.advantageous.qbit.http.server.HttpServer;
 import io.advantageous.qbit.http.server.HttpServerBuilder;
@@ -99,6 +100,7 @@ public class EndpointServerBuilder {
     private JsonMapper jsonMapper;
     private ProtocolEncoder encoder;
     private HttpServerBuilder httpServerBuilder;
+    private EventManager eventManager;
 
     public EndpointServerBuilder setParser(ProtocolParser parser) {
         this.parser = parser;
@@ -545,7 +547,8 @@ public class EndpointServerBuilder {
                 getStatsCollector(), getTimer(),
                 getStatsFlushRateSeconds(),
                 getCheckTimingEveryXCalls(),
-                getCallbackManager());
+                getCallbackManager(),
+                getEventManager());
 
 
 
@@ -674,7 +677,12 @@ public class EndpointServerBuilder {
     }
 
 
+    public EventManager getEventManager() {
+        return eventManager;
+    }
 
-
-
+    public EndpointServerBuilder setEventManager(EventManager eventManager) {
+        this.eventManager = eventManager;
+        return this;
+    }
 }

@@ -20,6 +20,7 @@ package io.advantageous.qbit.service;
 
 import io.advantageous.qbit.QBit;
 import io.advantageous.qbit.config.PropertyResolver;
+import io.advantageous.qbit.events.EventManager;
 import io.advantageous.qbit.message.Request;
 import io.advantageous.qbit.message.Response;
 import io.advantageous.qbit.queue.Queue;
@@ -60,7 +61,7 @@ public class ServiceBundleBuilder {
 
     private CallbackManager callbackManager;
     private CallbackManagerBuilder callbackManagerBuilder;
-
+    private EventManager eventManager;
 
 
     public CallbackManagerBuilder getCallbackManagerBuilder() {
@@ -289,14 +290,19 @@ public class ServiceBundleBuilder {
                 getResponseQueueBuilder(),
                 getWebResponseQueueBuilder(),
                 QBit.factory(),
-                eachServiceInItsOwnThread, this.getBeforeMethodCall(), this.getBeforeMethodCallAfterTransform(),
-                this.getArgTransformer(), invokeDynamic,
+                eachServiceInItsOwnThread,
+                this.getBeforeMethodCall(),
+                this.getBeforeMethodCallAfterTransform(),
+                this.getArgTransformer(),
+                invokeDynamic,
                 this.getSystemManager(),
                 getHealthService(),
                 getStatsCollector(),
                 getTimer(),
                 getStatsFlushRateSeconds(),
-                getCheckTimingEveryXCalls(), getCallbackManager());
+                getCheckTimingEveryXCalls(),
+                getCallbackManager(),
+                getEventManager());
 
 
         if (serviceBundle != null && qBitSystemManager != null) {
@@ -346,6 +352,15 @@ public class ServiceBundleBuilder {
     public ServiceBundleBuilder setCheckTimingEveryXCalls(int checkTimingEveryXCalls) {
         this.checkTimingEveryXCalls = checkTimingEveryXCalls;
         return this;
+    }
+
+    public ServiceBundleBuilder setEventManager(EventManager eventManager) {
+        this.eventManager = eventManager;
+        return this;
+    }
+
+    public EventManager getEventManager() {
+        return eventManager;
     }
 }
 

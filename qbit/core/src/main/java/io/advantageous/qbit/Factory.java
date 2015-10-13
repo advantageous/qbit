@@ -142,7 +142,8 @@ public interface Factory {
                                               final Timer timer,
                                               final int statsFlushRateSeconds,
                                               final int checkTimingEveryXCalls,
-                                              final CallbackManager callbackManager) {
+                                              final CallbackManager callbackManager,
+                                              final EventManager eventManager) {
         throw new UnsupportedOperationException();
     }
 

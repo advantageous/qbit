@@ -322,12 +322,14 @@ public class BoonQBitFactory implements Factory {
                                              final Timer timer,
                                              final int statsFlushRateSeconds,
                                              final int checkTimingEveryXCalls,
-                                             final CallbackManager callbackManager) {
+                                             final CallbackManager callbackManager,
+                                             final EventManager eventManager) {
         return new ServiceBundleImpl(address, requestQueueBuilder, responseQueueBuilder,
                 webResponseQueueBuilder,
                 factory, asyncCalls, beforeMethodCall, beforeMethodCallAfterTransform,
                 argTransformer, invokeDynamic, systemManager, healthService, statsCollector, timer,
-                statsFlushRateSeconds, checkTimingEveryXCalls, callbackManager);
+                statsFlushRateSeconds, checkTimingEveryXCalls, callbackManager,
+                eventManager);
     }
 
 

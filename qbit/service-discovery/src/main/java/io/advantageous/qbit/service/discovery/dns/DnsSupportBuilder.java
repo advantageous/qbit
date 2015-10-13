@@ -57,7 +57,12 @@ public class DnsSupportBuilder {
 
     public Supplier<DnsClient> getDnsClientProvider() {
         if (dnsClientProvider == null) {
-            dnsClientProvider = new DnsClientProvider(getVertx(), getHost(), getPort());
+
+            if (port != -1) {
+                dnsClientProvider = new DnsClientSupplier(getVertx(), getHost(), getPort());
+            } else {
+                dnsClientProvider = new DnsClientFromResolveConfSupplier(getVertx());
+            }
         }
         return dnsClientProvider;
     }

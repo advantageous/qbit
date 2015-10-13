@@ -8,7 +8,7 @@ import java.util.function.Supplier;
 /**
  * Provider abstracts how the DNS Client is created so we can unit test it.
  */
-public class DnsClientProvider implements Supplier<DnsClient> {
+public class DnsClientSupplier implements Supplier<DnsClient> {
 
 
     /**
@@ -27,12 +27,12 @@ public class DnsClientProvider implements Supplier<DnsClient> {
     private final String host;
 
     /**
-     * DnsClientProvider constructor.
+     * DnsClientSupplier constructor.
      * @param vertx vertx
      * @param host host
      * @param port port
      */
-    public DnsClientProvider(final Vertx vertx, final String host, final int port) {
+    public DnsClientSupplier(final Vertx vertx, final String host, final int port) {
         this.vertx = vertx;
         this.port = port;
         this.host = host;

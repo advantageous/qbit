@@ -25,19 +25,12 @@ import static org.mockito.Mockito.when;
 
 public class EventManagerBuilderTest {
 
-
     EventManagerFactory eventManagerFactory;
-
     Factory factory;
-
     EventManager eventManager;
-
     EventConnector eventConnector;
-
     EventManager eventManagerWithConnector;
-
     String testChannel = "test.channel";
-
     EventTransferObject<Object> testEvent = new EventTransferObject<>("body", 1L, testChannel);
 
 
@@ -353,6 +346,11 @@ public class EventManagerBuilderTest {
 
             @Override
             public <T> void sendArray(String channel, T... event) {
+
+            }
+
+            @Override
+            public <T> void sendArguments(String channel, T... event) {
 
             }
 

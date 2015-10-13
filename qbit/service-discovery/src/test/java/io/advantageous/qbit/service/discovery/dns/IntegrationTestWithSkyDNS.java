@@ -10,8 +10,12 @@ public class IntegrationTestWithSkyDNS {
 
     public static void main(String... args) {
         final Vertx vertx = Vertx.vertx();
-        final DnsSupport dnsSupport = new DnsSupport(new DnsClientProvider(vertx, "localhost", 5354),
-                Maps.map("db", "dbService"), ".skydns.local");
+        //final DnsSupport dnsSupport = new DnsSupport(new DnsClientSupplier(vertx, "localhost", 5354),
+        //        Maps.map("db", "dbService"), ".skydns.local");
+
+        final DnsSupport dnsSupport = new DnsSupport(new DnsClientFromResolveConfSupplier(vertx),
+                Maps.map("db", "dbService"),
+                ".skydns.local");
 
         dnsSupport.loadServiceEndpointsByServiceName(
                 CallbackBuilder.newCallbackBuilder().withListCallback(EndpointDefinition.class,
