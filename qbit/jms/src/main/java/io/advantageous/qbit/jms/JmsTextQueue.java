@@ -8,6 +8,10 @@ import io.advantageous.qbit.queue.SendQueue;
 
 import java.util.concurrent.TimeUnit;
 
+/**
+ * Adapts JMS as QBit `Queue`.
+ * @see Queue
+ */
 public class JmsTextQueue implements Queue<String> {
 
     private final JmsServiceBuilder builder;

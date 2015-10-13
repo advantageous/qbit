@@ -6,6 +6,11 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+/**
+ * Adapts a JMS Destination as a QBit `ReceiveQueue`.
+ *
+ * @see ReceiveQueue
+ */
 public class JmsTextReceiveQueue implements ReceiveQueue<String> {
 
 
