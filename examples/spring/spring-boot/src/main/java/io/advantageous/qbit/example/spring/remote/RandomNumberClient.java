@@ -17,7 +17,7 @@ import java.net.URI;
  * Spring boot application that connects to a locally running {@link RandomNumberServer RandomNumberServer} and executes
  * a bunch of remote async calls.
  *
- * @author Geoff Chandler (geoffc@gmail.com)
+ * @author geoffc@gmail.com (Geoff Chandler)
  */
 @Configuration
 @EnableAutoConfiguration

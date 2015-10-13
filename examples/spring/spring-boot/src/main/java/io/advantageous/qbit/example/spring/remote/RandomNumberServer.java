@@ -17,7 +17,7 @@ import org.springframework.context.annotation.Configuration;
  * {@link io.advantageous.qbit.spring.properties.ServiceEndpointServerProperties ServiceEndpointServerProperties}.
  * These defaults can be overridden by creating an application.properties or application.yml in the classpath root.
  *
- * @author Geoff Chandler (geoffc@gmail.com)
+ * @author geoffc@gmail.com (Geoff Chandler)
  */
 @EnableQBit
 @EnableQBitServiceEndpointServer
