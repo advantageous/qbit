@@ -11,7 +11,14 @@ import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-
+/**
+ * This is a qbit service running on an HTTP server.  Start this service, then run the client.
+ * The port and path come from the default settings in
+ * {@link io.advantageous.qbit.spring.properties.ServiceEndpointServerProperties ServiceEndpointServerProperties}.
+ * These defaults can be overridden by creating an application.properties or application.yml in the classpath root.
+ *
+ * @author Geoff Chandler (geoffc@gmail.com)
+ */
 @EnableQBit
 @EnableQBitServiceEndpointServer
 @Configuration

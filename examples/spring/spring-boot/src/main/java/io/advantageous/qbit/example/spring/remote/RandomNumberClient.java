@@ -14,6 +14,12 @@ import org.springframework.context.annotation.Configuration;
 
 import java.net.URI;
 
+/**
+ * Spring boot application that connects to a locally running {@link RandomNumberServer RandomNumberServer} and executes
+ * a bunch of remote async calls.
+ *
+ * @author Geoff Chandler (geoffc@gmail.com)
+ */
 @Configuration
 @EnableAutoConfiguration
 public class RandomNumberClient {
@@ -40,6 +46,15 @@ public class RandomNumberClient {
         };
     }
 
+    /**
+     * Creates a remote proxy to the remote service using the remote factory.  The uri is based on defaults for a
+     * locally running instance of the {@link RandomNumberServer RandomNumberServer}.
+     * The port and path come from the default settings in
+     * {@link io.advantageous.qbit.spring.properties.ServiceEndpointServerProperties ServiceEndpointServerProperties}.
+     * These defaults can be overridden by creating an application.properties or application.yml in the classpath root.
+     *
+     * @return an async proxy to the remote service
+     */
     @Bean
     public RandomNumberServiceAsync remoteService() {
         return RemoteFactoryUtil.getRemote(
