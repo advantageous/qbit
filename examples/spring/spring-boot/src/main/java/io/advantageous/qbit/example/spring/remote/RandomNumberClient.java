@@ -29,6 +29,13 @@ public class RandomNumberClient {
         SpringApplication.run(RandomNumberClient.class);
     }
 
+    /**
+     * This is the main class of the example client.  I'm using a {@link CommandLineRunner CommandLineRunner} here to
+     * keep the example simple, but this could be any spring bean that needs a QBit proxy injected.
+     *
+     * @param randomNumberServiceAsync this is the async service that is injected by Spring
+     * @return the runner instance.
+     */
     @Bean
     public CommandLineRunner runner(final RandomNumberServiceAsync randomNumberServiceAsync) {
         return args -> {
