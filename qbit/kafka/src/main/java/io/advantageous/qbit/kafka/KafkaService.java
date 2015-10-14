@@ -10,6 +10,7 @@ import java.util.Optional;
 import java.util.function.Supplier;
 
 public class KafkaService {
+    
 
     private final Supplier<KafkaProducer<String, String>> kafkaProducerSupplier;
     private final Supplier<ConsumerConnector> consumerConnectorSupplier;
