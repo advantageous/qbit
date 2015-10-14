@@ -2,6 +2,11 @@ package io.advantageous.qbit.jms;
 
 import io.advantageous.qbit.queue.SendQueue;
 
+/**
+ * Adapts a JMS destination as a QBit `SendQueue`.
+ *
+ * @see SendQueue
+ */
 public class JmsTextSenderQueue implements SendQueue<String> {
 
 

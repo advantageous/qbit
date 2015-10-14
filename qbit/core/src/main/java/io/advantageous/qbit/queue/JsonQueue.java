@@ -12,6 +12,10 @@ import java.util.concurrent.TimeUnit;
 
 import java.util.List;
 
+/**
+ * Wraps a QBit Queue<String> and converts items into JSON and from JSON.
+ * @param <T> convert to this type.
+ */
 public class JsonQueue <T> implements Queue<T>{
 
     private final Class<T> classType;

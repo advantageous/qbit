@@ -23,9 +23,12 @@ import io.advantageous.qbit.message.Response;
 import io.advantageous.qbit.queue.Queue;
 import io.advantageous.qbit.queue.ReceiveQueueListener;
 import io.advantageous.qbit.queue.SendQueue;
+import io.advantageous.qbit.service.dispatchers.RoundRobinServiceWorkerBuilder;
+import io.advantageous.qbit.service.dispatchers.ServiceMethodDispatcher;
 
 import java.util.List;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 /**
  * A service bundle is a collection of services.
@@ -54,6 +57,21 @@ public interface ServiceBundle extends EndPoint, Startable {
 
     default ServiceBundle addServiceConsumer(String address, Consumer<MethodCall<Object>> service) {
         this.addServiceObject(address, service);
+        return this;
+    }
+
+    default ServiceBundle addRoundRobinService(final String address, final int numServices,
+                                               final Supplier<Object> serviceInstanceSupplier) {
+
+        RoundRobinServiceWorkerBuilder roundRobinServiceWorkerBuilder = RoundRobinServiceWorkerBuilder
+                .roundRobinServiceWorkerBuilder().setWorkerCount(numServices);
+
+        roundRobinServiceWorkerBuilder.setServiceObjectSupplier(serviceInstanceSupplier);
+
+        ServiceMethodDispatcher serviceMethodDispatcher = roundRobinServiceWorkerBuilder.build();
+        serviceMethodDispatcher.start();
+
+        this.addServiceConsumer(address, serviceMethodDispatcher);
         return this;
     }
 

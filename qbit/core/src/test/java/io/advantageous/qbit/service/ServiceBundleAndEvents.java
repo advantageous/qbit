@@ -69,12 +69,13 @@ public class ServiceBundleAndEvents extends TimedTesting {
         testService.method1("HELLO");
         testService.clientProxyFlush();
 
-        waitForTrigger(4, o -> (method.get() != null) &&
+        waitForTrigger(2, o -> (method.get() != null) &&
                 method.get().equals("method1 HELLO"));
 
         assertEquals("method1 HELLO\n", method.get());
 
         sender.event("EVENT 1");
+        sender.clientProxyFlush();
 
 
         waitForTrigger(4, o -> (event.get() != null) &&
@@ -83,7 +84,6 @@ public class ServiceBundleAndEvents extends TimedTesting {
 
         assertEquals("GOT EVENT EVENT 1\n", event.get());
 
-        sender.event("EVENT 2");
 
 
     }
@@ -109,16 +109,16 @@ public class ServiceBundleAndEvents extends TimedTesting {
 
     public class TestServiceImpl implements EventChannel1 {
         public void method1(String arg) {
-
-            method.set(sputs("method1", arg));
             puts("method1", arg);
+            method.set(sputs("method1", arg));
         }
 
         @Override
         public void event(String arg) {
-            event.set(sputs("GOT EVENT", arg));
 
             puts("GOT EVENT", arg);
+            event.set(sputs("GOT EVENT", arg));
+
         }
     }
 }

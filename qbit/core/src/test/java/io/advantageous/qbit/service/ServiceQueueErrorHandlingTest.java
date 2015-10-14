@@ -86,7 +86,7 @@ public class ServiceQueueErrorHandlingTest {
         public void process() {
 
             if (forceError) {
-                throw new RuntimeException();
+                throw new RuntimeException("Exception was thrown on purpose");
             }
         }
 

@@ -346,7 +346,7 @@ project('eventbus-replicator') {
 project('jms') {
 
     dependencies {
-        compile project(":qbit:vertx")
+        compile project(":qbit:core")
         testCompile project(':qbit:test-support')
 
         compile 'org.apache.activemq:activemq-all:5.9.1'
@@ -362,6 +362,30 @@ project('jms') {
             mavenDeployer {
                 pom.project {
                     description 'JMS Support'
+                }
+            }
+        }
+    }
+}
+
+
+project('kafka') {
+
+    dependencies {
+
+        compile project(":qbit:core")
+        testCompile project(':qbit:test-support')
+        compile 'org.apache.kafka:kafka_2.10:0.8.2.0'
+        compile 'ch.qos.logback:logback-core:1.1.3'
+        compile 'ch.qos.logback:logback-classic:1.1.3'
+        compile 'org.slf4j:slf4j-api:1.7.12'
+    }
+
+    uploadArchives {
+        repositories {
+            mavenDeployer {
+                pom.project {
+                    description 'Kafka Support'
                 }
             }
         }

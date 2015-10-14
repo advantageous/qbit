@@ -12,28 +12,68 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
+/**
+ * This class is used to startup a JMS client that can send and receive messages via JMS.
+ * @author rick hightower
+ */
 public class JmsService implements Stoppable, Startable{
 
+    /** Supply a JMS connection. Allows you to get the connection in the most convenient way possible. */
     private final Supplier<Connection> connectionSupplier;
+
+    /** Supply a destination supplier. Given a queue or topic name, it supplies a destination which will be a Queue or topic.*/
     private final Function<String, Destination> destinationSupplier;
+
+    /** Should access to the destination be transacted? */
     private final boolean transacted;
+
+    /** Session acknowledgement mode from java.jms.Session. */
     private final int acknowledgeMode;
+
+    /** Are we just looking up the connection or should we start it to. */
     private final boolean startConnection;
+
+    /** Name of our default destination which can be a queue or topic. */
     private final String defaultDestination;
+
+
+    /** How long should we wait to receive a message? */
     private final int defaultTimeout;
+
+    /** Holds the current connection to JMS if connected. */
     private Optional<Connection> connectionOption=Optional.empty();
+
+
+    /** Holds the current session to JMS if we have a session. */
     private Optional<Session> sessionOption=Optional.empty();
+
+    /** Holds a map of names to destinations. */
     private Map<String, Destination> destinations = new LinkedHashMap<>();
+
+
+    /** Holds a map of names to `MessageProducer`s. */
     private Map<String, MessageProducer> producers = new LinkedHashMap<>();
+
+    /** Holds a map of names to `MessageConsumer`s. */
     private Map<String, MessageConsumer> consumers = new LinkedHashMap<>();
 
 
-    public JmsService(Supplier<Connection> connectionSupplier,
-                      Function<String, Destination> destinationSupplier,
-                      boolean transacted,
-                      int acknowledgeMode,
-                      boolean startConnection,
-                      String defaultDestination,
+    /**
+     * Create a new JMS Service.
+     * @param connectionSupplier connectionSupplier
+     * @param destinationSupplier destinationSupplier
+     * @param transacted transacted
+     * @param acknowledgeMode acknowledgeMode
+     * @param startConnection startConnection
+     * @param defaultDestination defaultDestination
+     * @param defaultTimeout defaultTimeout
+     */
+    public JmsService(final Supplier<Connection> connectionSupplier,
+                      final Function<String, Destination> destinationSupplier,
+                      final boolean transacted,
+                      final int acknowledgeMode,
+                      final boolean startConnection,
+                      final String defaultDestination,
                       final int defaultTimeout) {
 
         this.connectionSupplier = connectionSupplier;
@@ -46,6 +86,11 @@ public class JmsService implements Stoppable, Startable{
 
     }
 
+    /**
+     * Get the destination.
+     * @param destinationName destinationName
+     * @return JMS destination which is a queue or topic.
+     */
     private Destination getDestination(final String destinationName) {
         if (!destinations.containsKey(destinationName)) {
             Destination destination = destinationSupplier.apply(destinationName);
@@ -55,6 +100,12 @@ public class JmsService implements Stoppable, Startable{
     }
 
 
+
+    /**
+     * Get the `MessageConsumer`.
+     * @param destinationName destinationName
+     * @return JMS `MessageConsumer`.
+     */
     private MessageConsumer getConsumer(final String destinationName) {
         if (!consumers.containsKey(destinationName)) {
             Session session = getSession();
@@ -71,6 +122,12 @@ public class JmsService implements Stoppable, Startable{
     }
 
 
+
+    /**
+     * Get the `MessageProducer` or create one from the JMS session.
+     * @param destinationName destinationName
+     * @return JMS `MessageProducer`.
+     */
     private MessageProducer getProducer(final String destinationName) {
 
 
@@ -92,6 +149,10 @@ public class JmsService implements Stoppable, Startable{
     }
 
 
+    /**
+     * Get the current session or create one from the JMS connection.
+     * @return JMS Session
+     */
     private Session getSession ()  {
 
         if (!sessionOption.isPresent()) {
@@ -105,6 +166,10 @@ public class JmsService implements Stoppable, Startable{
     }
 
 
+    /**
+     * Get the current connection or create one using the connectionSupplier.
+     * @return JMS Connection
+     */
     private Connection getConnection() {
 
         if (!connectionOption.isPresent()) {
@@ -122,6 +187,11 @@ public class JmsService implements Stoppable, Startable{
     }
 
 
+    /**
+     * Send a text message given a queue or topic name and a text message.
+     * @param destinationName destinationName
+     * @param messageContent messageContent
+     */
     public void sendTextMessageWithDestination(final String destinationName, final String messageContent)  {
         final Session session = getSession();
         final MessageProducer producer = getProducer(destinationName);
@@ -133,11 +203,20 @@ public class JmsService implements Stoppable, Startable{
         }
     }
 
+    /**
+     * Send a text message to the default queue.
+     * @param messageContent message content
+     */
     public void sendTextMessage(String messageContent)  {
         sendTextMessageWithDestination(defaultDestination, messageContent);
     }
 
 
+    /**
+     * Listen to a message from JMS from a given destination by name.
+     * @param destinationName destinationName
+     * @param messageListener messageListener
+     */
     public void listenTextMessagesWithDestination(final String destinationName,
                                                   final Consumer<String> messageListener) {
         final MessageConsumer consumer  = getConsumer(destinationName);
@@ -166,9 +245,20 @@ public class JmsService implements Stoppable, Startable{
         }
     }
 
+    /**
+     * Listen for message on default destination.
+     * @param messageListener messageListener
+     */
     public void listenTextMessages(final Consumer<String> messageListener) {
          listenTextMessagesWithDestination(defaultDestination, messageListener);
     }
+
+    /**
+     * Receive a message from  destination with timeout.
+     * @param destinationName destinationName
+     * @param timeout timeout
+     * @return message
+     */
     public String receiveTextMessageFromDestinationWithTimeout(final String destinationName, final int timeout) {
         MessageConsumer consumer  = getConsumer(destinationName);
         TextMessage message;
@@ -192,20 +282,36 @@ public class JmsService implements Stoppable, Startable{
         }
     }
 
+    /**
+     * Receive a message from  destination using default timeout.
+     * @param destinationName destination name
+     * @return message
+     */
     public String receiveTextMessageFromDestination(final String destinationName) {
         return receiveTextMessageFromDestinationWithTimeout(destinationName, defaultTimeout);
     }
 
 
+    /**
+     * Receive a message from  destination using default timeout and default destination.
+     * @return received message
+     */
     public String receiveTextMessage() {
         return receiveTextMessageFromDestination(defaultDestination);
     }
 
 
+    /**
+     * Receive a message from  destination with timeout.
+     * @return received message
+     */
     public String receiveTextMessageWithTimeout(final int timeout) {
         return receiveTextMessageFromDestinationWithTimeout(defaultDestination, timeout);
     }
 
+    /**
+     * Stop the service
+     */
     @Override
     public void stop() {
         if (connectionOption.isPresent()) {
@@ -224,6 +330,10 @@ public class JmsService implements Stoppable, Startable{
         }
     }
 
+
+    /** Start the service
+     *
+     */
     @Override
     public void start() {
         getConnection();

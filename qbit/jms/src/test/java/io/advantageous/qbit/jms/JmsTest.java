@@ -187,11 +187,11 @@ public class JmsTest {
 
         personQueue.startListener(personsABQ::add);
 
-        Sys.sleep(100);
+        Sys.sleep(1000);
         int count = 0;
 
         while (personsABQ.size() < 2) {
-            Sys.sleep(1);
+            Sys.sleep(100);
             count++;
             if (count > 100) break;
         }
@@ -277,6 +277,7 @@ public class JmsTest {
         }
 
         broker = null;
+        Sys.sleep(1000);
     }
 
 
