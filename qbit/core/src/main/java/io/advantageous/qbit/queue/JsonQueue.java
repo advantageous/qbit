@@ -49,7 +49,6 @@ public class JsonQueue <T> implements Queue<T>{
 
     }
 
-
     /**
      *
      * @param componentClass component class type
@@ -86,8 +85,6 @@ public class JsonQueue <T> implements Queue<T>{
                 json -> jsonMapper.fromJsonMap(json, mapKeyClass, valueKeyClass),
                 jsonMapper::toJson);
     }
-
-
 
     /**
      * Create a  JsonQueue that can send a Map of values
@@ -215,7 +212,7 @@ public class JsonQueue <T> implements Queue<T>{
     /**
      * Create a wrapper SendQueue that encoders the objects to JSON
      * before putting them into the queue.
-     * @return returns wrapped SendQueue tht does JSON ecoding.
+     * @return returns wrapped SendQueue tht does JSON encoding.
      */
     @Override
     public SendQueue<T> sendQueue() {
@@ -225,6 +222,11 @@ public class JsonQueue <T> implements Queue<T>{
         return createJsonSendQueue(sendQueue);
     }
 
+    /** Helper method to create SendQueue wrappers that do JSON encoding.
+     *
+     * @param sendQueue sendQueue
+     * @return sendQueue decorated with JSON encoding.
+     */
     private SendQueue<T> createJsonSendQueue(final SendQueue<String> sendQueue) {
 
         return new SendQueue<T>() {
@@ -292,39 +294,77 @@ public class JsonQueue <T> implements Queue<T>{
             }
         };
     }
-    
+
+
+    /**
+     * Create a wrapper SendQueue that encoders the objects to JSON
+     * before putting them into the queue.
+     * @param interval interval
+     * @param timeUnit timeUnit
+     * @return returns wrapped SendQueue tht does JSON encoding.
+     */
     @Override
     public SendQueue<T> sendQueueWithAutoFlush(int interval, TimeUnit timeUnit) {
         final SendQueue<String> sendQueue = queue.sendQueueWithAutoFlush(interval, timeUnit);
         return createJsonSendQueue(sendQueue);
     }
 
+
+    /**
+     * Create a wrapper SendQueue that encoders the objects to JSON
+     * before putting them into the queue.
+     * @return returns wrapped SendQueue tht does JSON encoding.
+     *
+     * @param periodicScheduler periodicScheduler
+     * @param interval interval
+     * @param timeUnit timeUnit
+     * @return sendQueue
+     */
     @Override
     public SendQueue<T> sendQueueWithAutoFlush(PeriodicScheduler periodicScheduler, int interval, TimeUnit timeUnit) {
         final SendQueue<String> sendQueue = queue.sendQueueWithAutoFlush(periodicScheduler, interval, timeUnit);
         return createJsonSendQueue(sendQueue);
     }
 
+    /**
+     * Start a listener.
+     * @param listener listener
+     */
     @Override
     public void startListener(final ReceiveQueueListener<T> listener) {
         queue.startListener(item -> listener.receive(fromJsonFunction.apply(item)));
     }
 
+    /**
+     * size
+     * @return size
+     */
     @Override
     public int size() {
         return queue.size();
     }
 
+    /**
+     * started
+     * @return started
+     */
     @Override
     public boolean started() {
         return queue.started();
     }
 
+    /**
+     * name of queue
+     * @return name
+     */
     @Override
     public String name() {
         return queue.name();
     }
 
+    /**
+     * Stop the queue.
+     */
     @Override
     public void stop() {
         queue.stop();
