@@ -20,7 +20,7 @@ subprojects {
 
     apply plugin: 'maven'
     apply plugin: 'signing'
-    apply plugin: "jacoco"
+    //apply plugin: "jacoco"
 
     group = 'io.advantageous.qbit'
     version = projectVersion
@@ -62,16 +62,16 @@ subprojects {
     }
 
     test {
-        jacoco {
-            append = false
-            destinationFile = file("$buildDir/jacoco/jacocoTest.exec")
-            classDumpFile = file("$buildDir/jacoco/classpathdumps")
-        }
+//        jacoco {
+//            append = false
+//            destinationFile = file("$buildDir/jacoco/jacocoTest.exec")
+//            classDumpFile = file("$buildDir/jacoco/classpathdumps")
+//        }
     }
 
-    jacoco {
-        reportsDir = file("$buildDir/customJacocoReportDir")
-    }
+//    jacoco {
+//        reportsDir = file("$buildDir/customJacocoReportDir")
+//    }
 
     uploadArchives {
         repositories {
