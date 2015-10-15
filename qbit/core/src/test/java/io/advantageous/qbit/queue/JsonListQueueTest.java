@@ -2,14 +2,11 @@ package io.advantageous.qbit.queue;
 
 import io.advantageous.boon.core.Lists;
 import io.advantageous.boon.core.Sys;
-import io.advantageous.qbit.QBit;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.util.List;
-import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.TimeUnit;
 
 import static org.junit.Assert.*;
 
