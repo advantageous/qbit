@@ -92,7 +92,7 @@ public class ServiceBundleBuilderTest {
         serviceBundle.addService(new MyService());
         final IMyService proxy = serviceBundle.createLocalProxy(IMyService.class, "A");
 
-        for (int index = 0; index < 1_000_000; index++) {
+        for (int index = 0; index < 1_000; index++) {
             proxy.foo();
             timer.seconds(6);
 
@@ -101,7 +101,7 @@ public class ServiceBundleBuilderTest {
         }
 
 
-        Sys.sleep(10_000);
+        Sys.sleep(1_000);
 
 
         assertTrue(stats.containsKey("A.queueRequestSize"));
@@ -109,7 +109,7 @@ public class ServiceBundleBuilderTest {
         assertTrue(stats.containsKey("A.startBatchCount"));
 
 
-        for (int index = 0; index < 1_000_000; index++) {
+        for (int index = 0; index < 1_000; index++) {
             proxy.foo();
             timer.seconds(6);
 
@@ -118,7 +118,7 @@ public class ServiceBundleBuilderTest {
         }
 
 
-        Sys.sleep(2000);
+        Sys.sleep(1_000);
 
     }
 }
