@@ -16,6 +16,7 @@ import io.vertx.ext.web.Route;
 import io.vertx.ext.web.Router;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.util.concurrent.CountDownLatch;
@@ -23,6 +24,7 @@ import java.util.concurrent.TimeUnit;
 
 import static org.junit.Assert.assertEquals;
 
+@Ignore
 public class VertxIntegrationSimpleHttpRouterAndRouteTest {
 
     private Vertx vertx;
