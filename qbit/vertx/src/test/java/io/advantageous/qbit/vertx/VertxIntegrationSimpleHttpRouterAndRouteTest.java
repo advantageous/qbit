@@ -1,5 +1,6 @@
 package io.advantageous.qbit.vertx;
 
+import io.advantageous.boon.core.Sys;
 import io.advantageous.qbit.http.client.HttpClient;
 import io.advantageous.qbit.http.client.HttpClientBuilder;
 import io.advantageous.qbit.http.request.HttpTextResponse;
@@ -104,12 +105,14 @@ public class VertxIntegrationSimpleHttpRouterAndRouteTest {
 
 
         latch.await(5, TimeUnit.SECONDS);
+        Sys.sleep(1_000);
     }
 
     @Test
     public void test() {
 
         final HttpClient client = HttpClientBuilder.httpClientBuilder().setHost("localhost").setPort(port).buildAndStart();
+        Sys.sleep(100);
         final HttpTextResponse response = client.postJson("/svr/rout1/", "\"hi\"");
         assertEquals(202, response.code());
         assertEquals("route1", response.body());
