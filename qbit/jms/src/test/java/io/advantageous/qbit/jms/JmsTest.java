@@ -8,6 +8,7 @@ import io.advantageous.qbit.util.PortUtils;
 import org.apache.activemq.broker.BrokerService;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import javax.jms.Connection;
@@ -175,7 +176,7 @@ public class JmsTest {
     }
 
 
-    @Test
+    @Test @Ignore
     public void testSendConsume8() throws Exception {
 
         final ArrayBlockingQueue<Person> personsABQ = new ArrayBlockingQueue<>(100);
