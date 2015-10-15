@@ -21,10 +21,8 @@ import static org.junit.Assert.*;
 public class ServiceWorkersTest {
 
 
-    RoundRobinServiceWorkerBuilder roundRobinServiceWorkerBuilder;
     ServiceBundleBuilder serviceBundleBuilder;
     ServiceBundle serviceBundle;
-    ServiceMethodDispatcher serviceMethodDispatcher;
     QBitSystemManager systemManager;
     IMyService myService;
     int numServices = 4;
@@ -44,18 +42,8 @@ public class ServiceWorkersTest {
         serviceBundleBuilder = ServiceBundleBuilder.serviceBundleBuilder().setSystemManager(systemManager);
         serviceBundle = serviceBundleBuilder.build();
 
-        roundRobinServiceWorkerBuilder = RoundRobinServiceWorkerBuilder
-                .roundRobinServiceWorkerBuilder().setWorkerCount(numServices);
 
-        roundRobinServiceWorkerBuilder.setServiceObjectSupplier(() -> myServiceList.get(serviceCount.getAndIncrement()));
-
-
-        serviceMethodDispatcher = roundRobinServiceWorkerBuilder.build();
-        serviceMethodDispatcher.start();
-
-
-        serviceBundle.addServiceConsumer("/myService", serviceMethodDispatcher);
-
+        serviceBundle.addRoundRobinService("/myService", numServices, () -> myServiceList.get(serviceCount.getAndIncrement()));
         serviceBundle.start();
 
         myService = serviceBundle.createLocalProxy(IMyService.class, "/myService");
@@ -124,7 +112,7 @@ public class ServiceWorkersTest {
             Sys.sleep(10);
             if (count.get() == 100) break;
         }
-        
+
         assertFalse(fail.get());
 
         myServiceList.forEach(myService1 -> {

@@ -18,7 +18,7 @@ public class JsonQueueTest {
 
     private Queue<Person> personQueue;
     private SendQueue<Person> personSendQueue;
-    private  ReceiveQueue<Person> personReceiveQueue;
+    private ReceiveQueue<Person> personReceiveQueue;
 
     @Before
     public void setUp() throws Exception {
