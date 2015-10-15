@@ -1,16 +1,16 @@
 package io.advantageous.qbit.queue;
 
-import io.advantageous.boon.json.JsonParserAndMapper;
-import io.advantageous.boon.json.JsonParserFactory;
-import io.advantageous.boon.json.JsonSerializer;
-import io.advantageous.boon.json.JsonSerializerFactory;
+import io.advantageous.qbit.QBit;
 import io.advantageous.qbit.concurrent.PeriodicScheduler;
+import io.advantageous.qbit.json.JsonMapper;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import java.util.List;
+import java.util.function.Function;
 
 /**
  * Wraps a QBit Queue<String> and converts items into JSON and from JSON.
@@ -18,20 +18,73 @@ import java.util.List;
  */
 public class JsonQueue <T> implements Queue<T>{
 
-    private final Class<T> classType;
     private final Queue<String> queue;
+    private final Function<String, T> fromJsonFunction;
+    private final Function<T, String> toJsonFunction;
+
+    public JsonQueue(final Queue<String> queue,
+                     final Function<String, T> fromJsonFunction,
+                    final Function<T, String> toJsonFunction) {
+        this.queue = queue;
+        this.fromJsonFunction = fromJsonFunction;
+        this.toJsonFunction = toJsonFunction;
+    }
+
+
+    public JsonQueue(final Class<T> classType,
+                     final Queue<String> queue,
+                     final JsonMapper jsonMapper) {
+        this(queue, json -> jsonMapper.fromJson(json, classType), jsonMapper::toJson);
+    }
+
+    public static <K,V> JsonQueue<Map<K, V>> createMapQueueWithMapper(final Class<K> mapKey,
+                     final Class<V> valueKey,
+                     final Queue<String> queue,
+                     final JsonMapper jsonMapper) {
+
+        return new JsonQueue<>(queue,
+                json -> jsonMapper.fromJsonMap(json, mapKey, valueKey),
+                jsonMapper::toJson);
+    }
+
+
+    public static <K,V> JsonQueue<Map<K, V>> createMapQueue(final Class<K> mapKey,
+                                                                      final Class<V> valueKey,
+                                                                      final Queue<String> queue) {
+
+
+        final JsonMapper jsonMapper = QBit.factory().createJsonMapper();
+
+        return createMapQueueWithMapper(mapKey, valueKey, queue, jsonMapper);
+    }
+
+    public static <T> JsonQueue<List<T>> createListQueue(final Class<T> componentClass,
+                     final Queue<String> queue) {
+
+        final JsonMapper jsonMapper = QBit.factory().createJsonMapper();
+        return createListQueueWithMapper(componentClass, queue,jsonMapper);
+
+    }
+
+
+    public static <T> JsonQueue<List<T>> createListQueueWithMapper(final Class<T> componentClass,
+                                                         final Queue<String> queue,
+                                                         final JsonMapper jsonMapper) {
+        return new JsonQueue<>(queue,
+                json -> jsonMapper.fromJsonArray(json, componentClass),
+                jsonMapper::toJson);
+
+    }
+
 
     public JsonQueue(Class<T> classType, Queue<String> queue) {
-        this.classType = classType;
-        this.queue = queue;
+       this(classType, queue, QBit.factory().createJsonMapper());
     }
 
     @Override
     public ReceiveQueue<T> receiveQueue() {
 
         final ReceiveQueue<String> receiveQueue = queue.receiveQueue();
-        final JsonParserAndMapper jsonParserAndMapper = new JsonParserFactory()
-                .createFastObjectMapperParser();
 
         return new ReceiveQueue<T>() {
             @Override
@@ -41,8 +94,7 @@ public class JsonQueue <T> implements Queue<T>{
             }
             private T getParsedItem(String item) {
                 if (item !=null) {
-                    final T parsedItem = jsonParserAndMapper.parse(classType, item);
-                    return parsedItem;
+                    return fromJsonFunction.apply(item);
                 } else {
                     return null;
                 }
@@ -100,29 +152,26 @@ public class JsonQueue <T> implements Queue<T>{
     }
 
     private SendQueue<T> createJsonSendQueue(final SendQueue<String> sendQueue) {
-        final JsonSerializer jsonSerializer = new JsonSerializerFactory()
-                .setUseAnnotations(true)
-                .create();
 
         return new SendQueue<T>() {
             @Override
             public boolean send(T item) {
 
-                sendQueue.send(jsonSerializer.serialize(item).toString());
+                sendQueue.send(toJsonFunction.apply(item));
                 return false;
             }
 
             @Override
             public void sendAndFlush(T item) {
 
-                sendQueue.sendAndFlush(jsonSerializer.serialize(item).toString());
+                sendQueue.sendAndFlush(toJsonFunction.apply(item));
             }
 
             @Override
             public void sendMany(T... items) {
 
                 for (T item : items) {
-                    sendQueue.send(jsonSerializer.serialize(item).toString());
+                    sendQueue.send(toJsonFunction.apply(item));
                 }
             }
 
@@ -130,7 +179,7 @@ public class JsonQueue <T> implements Queue<T>{
             public void sendBatch(Collection<T> items) {
 
                 for (T item : items) {
-                    sendQueue.send(jsonSerializer.serialize(item).toString());
+                    sendQueue.send(toJsonFunction.apply(item));
                 }
             }
 
@@ -138,7 +187,7 @@ public class JsonQueue <T> implements Queue<T>{
             public void sendBatch(Iterable<T> items) {
 
                 for (T item : items) {
-                    sendQueue.send(jsonSerializer.serialize(item).toString());
+                    sendQueue.send(toJsonFunction.apply(item));
                 }
             }
 
@@ -184,19 +233,7 @@ public class JsonQueue <T> implements Queue<T>{
 
     @Override
     public void startListener(final ReceiveQueueListener<T> listener) {
-
-
-        final ThreadLocal<JsonParserAndMapper> jsonParserAndMapper = new ThreadLocal<JsonParserAndMapper>(){
-            @Override
-            protected JsonParserAndMapper initialValue() {
-                return new JsonParserFactory()
-                                .createFastObjectMapperParser();
-            }
-        };
-
-
-        queue.startListener(item -> listener.receive(jsonParserAndMapper.get().parse(classType, item)));
-
+        queue.startListener(item -> listener.receive(fromJsonFunction.apply(item)));
     }
 
     @Override
