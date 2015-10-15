@@ -279,7 +279,7 @@ public class ServiceDiscoveryImplTest {
         healthyServices.set(fooServices);
         Sys.sleep(2_000);
         loadServices(serviceName);
-        Sys.sleep(2_000);
+        Sys.sleep(7_000);
 
         assertEquals(0, serviceRemoved.get());
         assertEquals(2, serviceAdded.get());
