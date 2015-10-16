@@ -217,6 +217,10 @@ public class HttpServerVertx implements HttpServer {
     }
 
 
+    /**
+     * Handle a vertx request by converting it into a QBit request.
+     * @param request request
+     */
     private void handleHttpRequest(final HttpServerRequest request) {
 
 
@@ -229,44 +233,16 @@ public class HttpServerVertx implements HttpServer {
 
             case "PUT":
             case "POST":
-
-                final String contentType = request.headers().get("Content-Type");
-
-
-                if (HttpContentTypes.isFormContentType(contentType)) {
-
-                    request.setExpectMultipart(true);
-
-                    request.endHandler(event -> {
-
-                        final HttpRequest postRequest = vertxUtils.createRequest(request, null,
-                                simpleHttpServer.getDecorators(), simpleHttpServer.getHttpResponseCreator());
-
-                        simpleHttpServer.handleRequest(postRequest);
-
-                    });
-
-                } else {
-
-                    request.bodyHandler((Buffer buffer) -> {
-                        final HttpRequest postRequest = vertxUtils.createRequest(request, buffer,
-                                simpleHttpServer.getDecorators(), simpleHttpServer.getHttpResponseCreator());
-
-                        simpleHttpServer.handleRequest(postRequest);
-
-                    });
-                }
+            case "OPTIONS":
+            case "TRACE":
+            case "DELETE":
+            case "CONNECT":
+                handleRequestWithBody(request);
                 break;
 
-
             case "HEAD":
-            case "OPTIONS":
-            case "DELETE":
             case "GET":
-                final HttpRequest getRequest;
-                getRequest = vertxUtils.createRequest(request, null,
-                        simpleHttpServer.getDecorators(), simpleHttpServer.getHttpResponseCreator());
-                simpleHttpServer.handleRequest(getRequest);
+                handleRequestWithNoBody(request);
                 break;
 
             default:
@@ -274,6 +250,42 @@ public class HttpServerVertx implements HttpServer {
 
         }
 
+    }
+
+    private void handleRequestWithNoBody(HttpServerRequest request) {
+        final HttpRequest getRequest;
+        getRequest = vertxUtils.createRequest(request, null,
+                simpleHttpServer.getDecorators(), simpleHttpServer.getHttpResponseCreator());
+        simpleHttpServer.handleRequest(getRequest);
+    }
+
+    private void handleRequestWithBody(HttpServerRequest request) {
+        final String contentType = request.headers().get("Content-Type");
+
+
+        if (HttpContentTypes.isFormContentType(contentType)) {
+
+            request.setExpectMultipart(true);
+
+            request.endHandler(event -> {
+
+                final HttpRequest postRequest = vertxUtils.createRequest(request, null,
+                        simpleHttpServer.getDecorators(), simpleHttpServer.getHttpResponseCreator());
+
+                simpleHttpServer.handleRequest(postRequest);
+
+            });
+
+        } else {
+
+            request.bodyHandler((Buffer buffer) -> {
+                final HttpRequest postRequest = vertxUtils.createRequest(request, buffer,
+                        simpleHttpServer.getDecorators(), simpleHttpServer.getHttpResponseCreator());
+
+                simpleHttpServer.handleRequest(postRequest);
+
+            });
+        }
     }
 
 
