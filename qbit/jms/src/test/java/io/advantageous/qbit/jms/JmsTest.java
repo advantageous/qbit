@@ -136,6 +136,8 @@ public class JmsTest {
         personSendQueue.sendBatch(persons);
         personSendQueue.flushSends();
 
+        Sys.sleep(1000);
+
         final Person geoff = personReceiveQueue.pollWait();
         final Person rick = personReceiveQueue.pollWait();
 
