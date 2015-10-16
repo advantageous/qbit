@@ -5,9 +5,24 @@ import io.advantageous.qbit.queue.Queue;
 public class EventBusQueueAdapterBuilder {
 
 
+    /**
+     * Queue queue.
+     */
     private Queue queue;
+
+    /**
+     * Event manager where we are pushing events here.
+     */
     private EventManager eventManager;
+
+    /**
+     * Event channel where we send events from the queue to.
+     */
     private String channel;
+
+    public static EventBusQueueAdapterBuilder eventBusQueueAdapterBuilder () {
+        return new EventBusQueueAdapterBuilder();
+    }
 
     public Queue getQueue() {
         return queue;

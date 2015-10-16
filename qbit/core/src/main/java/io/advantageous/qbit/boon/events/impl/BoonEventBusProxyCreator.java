@@ -70,7 +70,7 @@ public class BoonEventBusProxyCreator implements EventBusProxyCreator {
                 return null;
             }
             final String channelName = methodToChannelMap.get(method.toString());
-            eventManager.sendArray(channelName, args);
+            eventManager.sendArguments(channelName, args);
 
             return null;
         };
