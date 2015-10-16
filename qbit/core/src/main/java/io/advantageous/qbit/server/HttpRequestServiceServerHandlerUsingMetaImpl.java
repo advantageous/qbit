@@ -187,7 +187,7 @@ public class HttpRequestServiceServerHandlerUsingMetaImpl implements HttpRequest
             }
         } else {
             if (errorList.size() > 0) {
-                request.getReceiver().response(HttpStatus.ERROR, "application/json", jsonMapper.toJson(errorList));
+                request.getReceiver().response(HttpStatus.BAD_REQUEST, "application/json", jsonMapper.toJson(errorList));
             } else {
                 request.getReceiver().response(HttpStatus.ERROR, "application/json", "\"unable to make call\"");
             }

@@ -14,6 +14,14 @@ public class HttpStatus {
     public final static int NOT_FOUND = 404;
     public final static String NOT_FOUND_MSG = "RESOURCE NOT FOUND";
 
+
+    public final static int BAD_REQUEST = 400;
+    public final static String BAD_REQUEST_MSG = "BAD REQUEST";
+
+
+    public final static int UNAUTHORIZED = 401;
+    public final static String UNAUTHORIZED_MSG = "UNAUTHORIZED";
+
     public final static int TIMED_OUT = 408;
     public final static String TIMED_OUT_MSG = "REQUEST TIMED OUT";
 
@@ -24,11 +32,12 @@ public class HttpStatus {
         switch (code) {
             case OK: return OK_MSG;
             case NOT_FOUND: return NOT_FOUND_MSG;
+            case BAD_REQUEST: return BAD_REQUEST_MSG;
+            case UNAUTHORIZED: return UNAUTHORIZED_MSG;
             case TIMED_OUT: return TIMED_OUT_MSG;
             case TOO_MANY_REQUEST: return TOO_MANY_REQUEST_MSG;
             case ERROR: return ERROR_MSG;
             case ACCEPTED: return ACCEPTED_MSG;
-
             default: return "CODE = " + code;
         }
     }

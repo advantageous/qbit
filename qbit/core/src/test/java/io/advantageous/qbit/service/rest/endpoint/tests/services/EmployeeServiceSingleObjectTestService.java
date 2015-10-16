@@ -2,6 +2,7 @@ package io.advantageous.qbit.service.rest.endpoint.tests.services;
 
 import io.advantageous.qbit.annotation.RequestMapping;
 import io.advantageous.qbit.annotation.RequestMethod;
+import io.advantageous.qbit.annotation.RequestParam;
 import io.advantageous.qbit.http.request.HttpResponseBuilder;
 import io.advantageous.qbit.http.request.HttpTextResponse;
 import io.advantageous.qbit.reactive.Callback;
@@ -17,6 +18,17 @@ public class EmployeeServiceSingleObjectTestService {
 
 
     private final List<Employee> employeeList  = new ArrayList<>();
+
+
+    @RequestMapping("/echo1")
+    public String echoParamRequired(@RequestParam(value = "foo", required = true) String foo) {
+        return foo;
+    }
+
+    @RequestMapping("/echo2")
+    public String echoDefaultParam(@RequestParam(value = "foo", defaultValue = "mom") String foo) {
+        return foo;
+    }
 
 
     @RequestMapping("/ping")

@@ -27,6 +27,7 @@ import io.advantageous.qbit.util.MultiMap;
 import io.advantageous.qbit.util.MultiMapImpl;
 
 import java.nio.charset.StandardCharsets;
+import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Consumer;
@@ -481,6 +482,39 @@ public class HttpRequestBuilder {
         }
 
 
+
+        return this;
+    }
+
+    /**
+     *
+     * Copies the request's body, headers, uri, request params, content type, etc into this builder
+     * @param request request to copy
+     * @return this
+     */
+    public HttpRequestBuilder copyRequest(final HttpRequest request) {
+
+
+        this.setContentType(request.getContentType());
+
+        if (request.getHeaders().size()>0) {
+            final MultiMap<String, String> headers = this.getHeaders();
+            request.getHeaders().forEach(entry -> {
+                entry.getValue().forEach(value -> headers.add(entry.getKey(), value));
+            });
+        }
+
+        if (request.getParams().size()>0) {
+            final MultiMap<String, String> params = this.getParams();
+            request.getParams().forEach(entry -> {
+                entry.getValue().forEach(value -> params.add(entry.getKey(), value));
+            });
+        }
+
+        final byte[] body = request.getBody();
+        this.setBodyBytes(body);
+        this.setParams(request.getParams());
+        this.setUri(request.getUri());
 
         return this;
     }

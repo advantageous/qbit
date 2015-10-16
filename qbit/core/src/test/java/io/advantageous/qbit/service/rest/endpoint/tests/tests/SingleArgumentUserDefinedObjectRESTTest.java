@@ -1,6 +1,7 @@
 package io.advantageous.qbit.service.rest.endpoint.tests.tests;
 
 import io.advantageous.boon.json.JsonFactory;
+import io.advantageous.qbit.http.request.HttpRequestBuilder;
 import io.advantageous.qbit.http.request.HttpTextResponse;
 import io.advantageous.qbit.server.EndpointServerBuilder;
 import io.advantageous.qbit.server.ServiceEndpointServer;
@@ -21,9 +22,13 @@ public class SingleArgumentUserDefinedObjectRESTTest {
     ServiceEndpointServer serviceEndpointServer;
 
     HttpServerSimulator httpServerSimulator;
+    HttpRequestBuilder httpRequestBuilder;
+
 
     @Before
     public void before() {
+        httpRequestBuilder = HttpRequestBuilder.httpRequestBuilder();
+
         httpServerSimulator = new HttpServerSimulator();
 
 
@@ -44,6 +49,45 @@ public class SingleArgumentUserDefinedObjectRESTTest {
         assertEquals("true", httpResponse.body());
     }
 
+
+    @Test
+    public void testRequiredParam() {
+
+        final HttpTextResponse httpResponse = httpServerSimulator.sendRequest(
+                httpRequestBuilder.setUri("/es/echo1").addParam("foo", "bar").build()
+        );
+
+        puts(httpResponse);
+        assertEquals(200, httpResponse.code());
+        assertEquals("\"bar\"", httpResponse.body());
+    }
+
+
+    @Test
+    public void testRequiredParamMissing() {
+
+        final HttpTextResponse httpResponse = httpServerSimulator.sendRequest(
+                httpRequestBuilder.setUri("/es/echo1").build()
+        );
+
+        puts(httpResponse);
+        assertEquals(400, httpResponse.code());
+        assertEquals("[\"Unable to find required request param foo\\n\"]", httpResponse.body());
+    }
+
+
+    @Test
+    public void testDefaultParam() {
+
+        final HttpTextResponse httpResponse = httpServerSimulator.sendRequest(
+                httpRequestBuilder.setUri("/es/echo2").build()
+        );
+
+        puts(httpResponse);
+        assertEquals(200, httpResponse.code());
+        assertEquals("\"mom\"", httpResponse.body());
+    }
+
     @Test
     public void addEmployeeAsyncNoReturn() {
         final HttpTextResponse httpResponse = httpServerSimulator.postBody("/es/employee-add-async-no-return",
@@ -58,7 +102,7 @@ public class SingleArgumentUserDefinedObjectRESTTest {
         final HttpTextResponse httpResponse = httpServerSimulator.postBodyPlain("/es/employee-ack",
                 "{rick:name}");
 
-        assertEquals(500, httpResponse.code());
+        assertEquals(400, httpResponse.code());
         assertTrue(httpResponse.body().startsWith("[\"Unable to JSON parse"));
     }
 
