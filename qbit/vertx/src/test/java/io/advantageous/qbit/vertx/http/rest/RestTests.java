@@ -140,6 +140,7 @@ public class RestTests {
         serviceEndpointServer = EndpointServerBuilder.endpointServerBuilder().setPort(openPort).build();
         serviceEndpointServer.initServices(new TestService());
         serviceEndpointServer.start();
+        Sys.sleep(1000);
 
     }
 

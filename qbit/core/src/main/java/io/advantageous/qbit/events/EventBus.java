@@ -55,5 +55,9 @@ public interface EventBus extends ServiceFlushable {
     <T> void unregister(String channelName, EventListener<T> listener);
 
 
+    /**
+     * Forward an event.
+     * @param event event
+     */
     void forwardEvent(EventTransferObject<Object> event);
 }
