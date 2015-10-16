@@ -1,5 +1,6 @@
 package io.advantageous.qbit.vertx;
 
+import io.advantageous.boon.core.Sys;
 import io.advantageous.qbit.annotation.RequestMapping;
 import io.advantageous.qbit.annotation.RequestMethod;
 import io.advantageous.qbit.http.client.HttpClient;
@@ -130,6 +131,7 @@ public class VertxRESTIntegrationTest {
     public void test() {
 
         final HttpClient client = HttpClientBuilder.httpClientBuilder().setHost("localhost").setPort(port).buildAndStart();
+        Sys.sleep(1000);
         final HttpTextResponse response = client.postJson("/svr/rout1/", "\"hi\"");
         assertEquals(202, response.code());
         assertEquals("route1", response.body());
