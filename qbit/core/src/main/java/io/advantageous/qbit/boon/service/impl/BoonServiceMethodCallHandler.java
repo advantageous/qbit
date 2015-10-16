@@ -601,6 +601,8 @@ public class BoonServiceMethodCallHandler implements ServiceMethodHandler {
         final Class<?>[] interfaces = classMeta.cls().getInterfaces();
         for (Class<?> interfaceClass : interfaces) {
 
+            if(interfaceClass.getName().equals("groovy.lang.GroovyObject")) continue;
+
             final ClassMeta<?> interfaceMeta = ClassMeta.classMeta(interfaceClass);
 
             final AnnotationData channelAnnotation =
