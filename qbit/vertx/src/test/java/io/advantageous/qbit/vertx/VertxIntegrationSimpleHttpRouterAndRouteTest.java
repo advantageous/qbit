@@ -114,7 +114,7 @@ public class VertxIntegrationSimpleHttpRouterAndRouteTest {
     public void test() {
 
         final HttpClient client = HttpClientBuilder.httpClientBuilder().setHost("localhost").setPort(port).buildAndStart();
-        Sys.sleep(100);
+        Sys.sleep(1000);
         final HttpTextResponse response = client.postJson("/svr/rout1/", "\"hi\"");
         assertEquals(202, response.code());
         assertEquals("route1", response.body());
