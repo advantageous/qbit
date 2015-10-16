@@ -3,6 +3,7 @@ package io.advantageous.qbit.service.rest.endpoint.tests.services;
 import io.advantageous.qbit.annotation.RequestMapping;
 import io.advantageous.qbit.annotation.RequestMethod;
 import io.advantageous.qbit.annotation.RequestParam;
+import io.advantageous.qbit.http.HttpStatusCodeException;
 import io.advantageous.qbit.http.request.HttpResponseBuilder;
 import io.advantageous.qbit.http.request.HttpTextResponse;
 import io.advantageous.qbit.reactive.Callback;
@@ -28,6 +29,29 @@ public class EmployeeServiceSingleObjectTestService {
     @RequestMapping("/echo2")
     public String echoDefaultParam(@RequestParam(value = "foo", defaultValue = "mom") String foo) {
         return foo;
+    }
+
+    @RequestMapping("/echo3")
+    public String echoException() {
+        throw new HttpStatusCodeException(700, "Ouch!");
+
+    }
+
+    @RequestMapping("/echo4")
+    public void echoException2(final Callback<String> callback) {
+        callback.onError(HttpStatusCodeException.httpError(900, "Ouch!!"));
+    }
+
+    @RequestMapping("/echo5")
+    public void echoException3(final Callback<String> callback) {
+
+        try {
+
+            throw new IllegalStateException("Shoot!!");
+        }catch (Exception ex) {
+            callback.onError(HttpStatusCodeException.httpError(666, ex.getMessage(), ex));
+
+        }
     }
 
 

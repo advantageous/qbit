@@ -88,6 +88,45 @@ public class SingleArgumentUserDefinedObjectRESTTest {
         assertEquals("\"mom\"", httpResponse.body());
     }
 
+
+    @Test
+    public void testCustomHttpExceptionCode() {
+
+        final HttpTextResponse httpResponse = httpServerSimulator.sendRequest(
+                httpRequestBuilder.setUri("/es/echo3").build()
+        );
+
+        puts(httpResponse);
+        assertEquals(700, httpResponse.code());
+        assertEquals("\"Ouch!\"", httpResponse.body());
+    }
+
+    @Test
+    public void testCustomHttpExceptionCode2() {
+
+        final HttpTextResponse httpResponse = httpServerSimulator.sendRequest(
+                httpRequestBuilder.setUri("/es/echo4").build()
+        );
+
+        puts(httpResponse);
+        assertEquals(900, httpResponse.code());
+        assertEquals("\"Ouch!!\"", httpResponse.body());
+    }
+
+
+    @Test
+    public void testCustomHttpExceptionCode3() {
+
+        final HttpTextResponse httpResponse = httpServerSimulator.sendRequest(
+                httpRequestBuilder.setUri("/es/echo5").build()
+        );
+
+        puts(httpResponse);
+        assertEquals(666, httpResponse.code());
+        assertEquals("\"Shoot!!\"", httpResponse.body());
+    }
+
+
     @Test
     public void addEmployeeAsyncNoReturn() {
         final HttpTextResponse httpResponse = httpServerSimulator.postBody("/es/employee-add-async-no-return",
