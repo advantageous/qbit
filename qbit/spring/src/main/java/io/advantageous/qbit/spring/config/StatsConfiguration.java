@@ -28,20 +28,25 @@ public class StatsConfiguration {
     @Bean
     public StatReplicator statsDReplicator(final StatsdProperties statsD) {
 
-        return StatsDReplicatorBuilder.statsDReplicatorBuilder()
-                .setBufferSize(statsD.getBufferSize())
-                .setFlushRateIntervalMS(statsD.getFlushRateIntervalMS())
-                .setHost(statsD.getHost())
-                .setPort(statsD.getPort())
-                .buildAndStart();
+        if (statsD.isEnabled()) {
+            return StatsDReplicatorBuilder.statsDReplicatorBuilder()
+                    .setBufferSize(statsD.getBufferSize())
+                    .setFlushRateIntervalMS(statsD.getFlushRateIntervalMS())
+                    .setHost(statsD.getHost())
+                    .setPort(statsD.getPort())
+                    .buildAndStart();
+        } else {
+            return null;
+        }
     }
 
     @Bean
     public ServiceQueue qbitStatsServiceQueue(final @Qualifier("statsDReplicator") StatReplicator statReplicator) {
-
-        return StatServiceBuilder.statServiceBuilder()
-                .setTimeToLiveCheckInterval(1_000)
-                .addReplicator(statReplicator)
+        final StatServiceBuilder statServiceBuilder = StatServiceBuilder.statServiceBuilder();
+        if (statReplicator!=null) {
+            statServiceBuilder.addReplicator(statReplicator);
+        }
+        return statServiceBuilder.setTimeToLiveCheckInterval(1_000)
                 .buildServiceQueue()
                 .startServiceQueue();
     }

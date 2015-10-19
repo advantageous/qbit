@@ -1,4 +1,4 @@
-package io.advantageous.qbit.spring;
+package io.advantageous.qbit.spring.rest;
 
 
 import io.advantageous.qbit.annotation.RequestMapping;
@@ -9,6 +9,7 @@ public class HelloWorld {
 
     @RequestMapping("/hello/")
     public String hello() {
+        System.out.println("HELLO!");
         return "hello";
     }
 }

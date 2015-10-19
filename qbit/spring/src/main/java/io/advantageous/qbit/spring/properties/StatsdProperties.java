@@ -16,6 +16,16 @@ public class StatsdProperties {
     private int bufferSize;
     private int flushRateIntervalMS;
 
+    private boolean enabled;
+
+    public boolean isEnabled() {
+        return enabled;
+    }
+
+    public void setEnabled(boolean enabled) {
+        this.enabled = enabled;
+    }
+
     public String getHost() {
         return host;
     }
