@@ -5,6 +5,7 @@ import io.advantageous.boon.primitive.CharBuf;
 import io.advantageous.qbit.GlobalConstants;
 import io.advantageous.qbit.annotation.RequestMethod;
 import io.advantageous.qbit.http.HttpStatus;
+import io.advantageous.qbit.http.HttpStatusCodeException;
 import io.advantageous.qbit.http.request.*;
 import io.advantageous.qbit.json.JsonMapper;
 import io.advantageous.qbit.message.MethodCall;
@@ -187,7 +188,7 @@ public class HttpRequestServiceServerHandlerUsingMetaImpl implements HttpRequest
             }
         } else {
             if (errorList.size() > 0) {
-                request.getReceiver().response(HttpStatus.ERROR, "application/json", jsonMapper.toJson(errorList));
+                request.getReceiver().response(HttpStatus.BAD_REQUEST, "application/json", jsonMapper.toJson(errorList));
             } else {
                 request.getReceiver().response(HttpStatus.ERROR, "application/json", "\"unable to make call\"");
             }
@@ -256,14 +257,21 @@ public class HttpRequestServiceServerHandlerUsingMetaImpl implements HttpRequest
         final Object obj = response.body();
 
         if (obj instanceof ServiceMethodNotFoundException) {
-            writeResponse(httpRequest.getReceiver(), HttpStatus.NOT_FOUND, "application/json", jsonMapper.toJson(response.body()), response.headers());
+            writeResponse(httpRequest.getReceiver(), HttpStatus.NOT_FOUND, "application/json",
+                    jsonMapper.toJson(response.body()), response.headers());
+
+        } else if (obj instanceof HttpStatusCodeException) {
+            final HttpStatusCodeException httpStatusCodeException = ((HttpStatusCodeException) obj);
+            writeResponse(httpRequest.getReceiver(), httpStatusCodeException.code(), "application/json",
+                    jsonMapper.toJson(httpStatusCodeException.getMessage()), response.headers());
 
         } else if (obj instanceof Throwable){
 
             writeResponse(httpRequest.getReceiver(), HttpStatus.ERROR, "application/json", asJson(((Throwable) obj)), response.headers());
 
         } else {
-            writeResponse(httpRequest.getReceiver(), HttpStatus.ERROR, "application/json", jsonMapper.toJson(response.body()), response.headers());
+            writeResponse(httpRequest.getReceiver(), HttpStatus.ERROR, "application/json",
+                    jsonMapper.toJson(response.body()), response.headers());
         }
     }
 

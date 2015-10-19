@@ -109,6 +109,7 @@ public class StandardRequestTransformer implements RequestTransformer {
 
         final List<Object> args = new ArrayList<>(parameters.size());
 
+        loop:
         for (ParameterMeta parameterMeta : parameters) {
 
             ParamType paramType = parameterMeta.getParam().getParamType();
@@ -127,10 +128,13 @@ public class StandardRequestTransformer implements RequestTransformer {
                     namedParam = ((NamedParam) parameterMeta.getParam());
                     value = request.params().get(namedParam.getName());
 
-                    if (namedParam.isRequired() && value == null) {
+                    if (namedParam.isRequired() &&  Str.isEmpty(value)) {
                         errorsList.add(sputs("Unable to find required request param", namedParam.getName()));
-                        return null;
+                        break loop;
 
+                    }
+                    if (Str.isEmpty(value)) {
+                        value = namedParam.getDefaultValue();
                     }
                     value = value !=null ? decodeURLEncoding(value.toString()) : value;
 
@@ -138,11 +142,14 @@ public class StandardRequestTransformer implements RequestTransformer {
                 case HEADER:
                     namedParam = ((NamedParam) parameterMeta.getParam());
                     value = request.headers().get(namedParam.getName());
-                    if (namedParam.isRequired() && value == null) {
+                    if (namedParam.isRequired() && Str.isEmpty(value)) {
                         errorsList.add(sputs("Unable to find required header param", namedParam.getName()));
-                        return null;
+                        break loop;
                     }
 
+                    if (Str.isEmpty(value)) {
+                        value = namedParam.getDefaultValue();
+                    }
                     value = value !=null ? decodeURLEncoding(value.toString()) : value;
                     break;
                 case PATH_BY_NAME:
@@ -153,16 +160,17 @@ public class StandardRequestTransformer implements RequestTransformer {
                     if (uriNamedParam.getIndexIntoURI() >= split.length) {
                         if (uriNamedParam.isRequired()) {
                             errorsList.add(sputs("Unable to find required path param", uriNamedParam.getName()));
-                            return null;
+                            break loop;
                         }
                     }
-
                     value = split[uriNamedParam.getIndexIntoURI()];
-                    if (uriNamedParam.isRequired()) {
+                    if (uriNamedParam.isRequired() && Str.isEmpty(value)) {
                         errorsList.add(sputs("Unable to find required path param", uriNamedParam.getName()));
-                        return null;
+                        break loop;
                     }
-
+                    if (Str.isEmpty(value)) {
+                        value = uriNamedParam.getDefaultValue();
+                    }
                     value = value !=null ? decodeURLEncoding(value.toString()) : value;
                     break;
 
@@ -175,17 +183,19 @@ public class StandardRequestTransformer implements RequestTransformer {
                         if (positionalParam.isRequired()) {
                             errorsList.add(sputs("Unable to find required path param",
                                     positionalParam.getIndexIntoURI()));
-                            return null;
+                            break loop;
                         }
                     }
 
                     value = pathSplit[positionalParam.getIndexIntoURI()];
-                    if (positionalParam.isRequired()) {
+                    if (positionalParam.isRequired() && Str.isEmpty(value)) {
                         errorsList.add(sputs("Unable to find required path param",
                                 positionalParam.getIndexIntoURI()));
-                        return null;
+                        break loop;
                     }
-
+                    if (Str.isEmpty(value)) {
+                        value = positionalParam.getDefaultValue();
+                    }
                     value = value !=null ? decodeURLEncoding(value.toString()) : value;
                     break;
 
@@ -200,8 +210,13 @@ public class StandardRequestTransformer implements RequestTransformer {
                     if (bodyParam.isRequired() && Str.isEmpty(value)) {
 
                         errorsList.add("Unable to find body");
-                        return null;
+                        break loop;
 
+                    }
+
+
+                    if (Str.isEmpty(value)) {
+                        value = bodyParam.getDefaultValue();
                     }
 
                     try {
@@ -231,8 +246,12 @@ public class StandardRequestTransformer implements RequestTransformer {
                     if (bodyArrayParam.isRequired() && Str.isEmpty(value)) {
 
                         errorsList.add("Unable to find body");
-                        return null;
+                        break loop;
 
+                    }
+
+                    if (Str.isEmpty(value)) {
+                        value = bodyArrayParam.getDefaultValue();
                     }
 
                     value = jsonMapper.get().fromJson(value.toString());
