@@ -4,10 +4,13 @@ import io.advantageous.boon.core.Sys;
 import io.advantageous.qbit.http.client.HttpClient;
 import io.advantageous.qbit.http.client.HttpClientBuilder;
 import io.advantageous.qbit.http.request.HttpTextResponse;
+import io.advantageous.qbit.message.Response;
+import io.advantageous.qbit.queue.Queue;
 import io.advantageous.qbit.server.EndpointServerBuilder;
 import io.advantageous.qbit.server.ServiceEndpointServer;
 import io.advantageous.qbit.service.ServiceBuilder;
 import io.advantageous.qbit.service.ServiceBundle;
+import io.advantageous.qbit.service.ServiceQueue;
 import io.advantageous.qbit.util.PortUtils;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -18,6 +21,7 @@ public class NotUsingSpring {
 
 
     @Test
+    //Ignore
     public void test() {
 
         final int port = PortUtils.findOpenPort();
@@ -40,16 +44,27 @@ public class NotUsingSpring {
 
 
     @Test
-    @Ignore
+    //@Ignore
     public void usingServiceInjectedIntoEndPointLikeSpring() {
 
         final int port = PortUtils.findOpenPort();
-        final ServiceEndpointServer serviceEndpointServer = EndpointServerBuilder.endpointServerBuilder()
-                .setPort(port).build().startServer();
+        final ServiceEndpointServer serviceEndpointServer = EndpointServerBuilder
+                .endpointServerBuilder()
+                .setPort(port).build();
 
-        final ServiceBuilder serviceBuilder = ServiceBuilder.serviceBuilder().setServiceObject(new HelloWorld());
+        final Queue<Response<Object>> responses = serviceEndpointServer.serviceBundle().responses();
 
-        serviceEndpointServer.addServiceQueue("hw", serviceBuilder.build());
+        final ServiceBuilder serviceBuilder = ServiceBuilder
+                .serviceBuilder().setResponseQueue(responses)
+                .setServiceObject(new HelloWorld());
+
+        final ServiceQueue serviceQueue = serviceBuilder.build();
+        serviceEndpointServer.addServiceQueue("helloworld", serviceQueue);
+
+        serviceQueue.startServiceQueue();
+
+
+        serviceEndpointServer.startServer();
         Sys.sleep(1_000);
 
         final HttpClient httpClient = HttpClientBuilder.httpClientBuilder()

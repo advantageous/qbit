@@ -1,6 +1,5 @@
 package io.advantageous.qbit.spring.rest;
 
-import io.advantageous.qbit.service.health.HealthServiceAsync;
 import io.advantageous.qbit.spring.annotation.QBitService;
 import io.advantageous.qbit.spring.annotation.QBitSpringApplication;
 import org.springframework.context.annotation.Bean;

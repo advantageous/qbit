@@ -20,7 +20,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringApplicationConfiguration(classes = {SpringConfig.class})
 @EnableConfigurationProperties({ServiceEndpointServerProperties.class})
-@Ignore //added to make travis happy
+//@Ignore //added to make travis happy
 public class RestQBitSpringTest {
 
 
