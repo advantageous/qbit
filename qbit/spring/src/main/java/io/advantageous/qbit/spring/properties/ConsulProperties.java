@@ -16,6 +16,8 @@ public class ConsulProperties {
     private String host;
     private String backupDir;
 
+    private boolean enableConsul = false;
+
     public String getDatacenter() {
         return datacenter;
     }
@@ -46,6 +48,14 @@ public class ConsulProperties {
 
     public void setBackupDir(String backupDir) {
         this.backupDir = backupDir;
+    }
+
+    public boolean isEnableConsul() {
+        return enableConsul;
+    }
+
+    public void setEnableConsul(boolean enableConsul) {
+        this.enableConsul = enableConsul;
     }
 
     @Override
