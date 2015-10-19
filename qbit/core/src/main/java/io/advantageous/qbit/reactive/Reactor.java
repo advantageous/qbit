@@ -2,6 +2,7 @@ package io.advantageous.qbit.reactive;
 
 import io.advantageous.qbit.reactive.impl.AsyncFutureCallbackImpl;
 import io.advantageous.qbit.service.ServiceProxyUtils;
+import io.advantageous.qbit.time.Duration;
 import io.advantageous.qbit.util.Timer;
 import org.slf4j.Logger;
 
@@ -111,6 +112,17 @@ public class Reactor {
 
         repeatingTasks.add(new RepeatingTask( task, timeUnit, repeatEvery ));
     }
+
+    /** Add a task that gets repeated.
+     *
+     * @param repeatEvery repeat Every time period
+     * @param task task to perform
+     */
+    public void addRepeatingTask(final Duration repeatEvery, final Runnable task) {
+
+        repeatingTasks.add(new RepeatingTask( task, repeatEvery.getTimeUnit(), repeatEvery.getDuration() ));
+    }
+
 
     /** Process items in reactor. */
     public void process() {
