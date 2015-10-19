@@ -12,19 +12,9 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 public class StatsdProperties {
 
     private String host;
-    private int port;
-    private int bufferSize;
-    private int flushRateIntervalMS;
-
-    private boolean enabled;
-
-    public boolean isEnabled() {
-        return enabled;
-    }
-
-    public void setEnabled(boolean enabled) {
-        this.enabled = enabled;
-    }
+    private int port = 8125;
+    private int bufferSize = 1500;
+    private int flushRateIntervalMS = 2000;
 
     public String getHost() {
         return host;

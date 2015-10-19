@@ -12,11 +12,9 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 public class ConsulProperties {
 
     private String datacenter;
-    private int port;
-    private String host;
+    private int port = 8500;
+    private String host = "127.0.0.1";
     private String backupDir;
-
-    private boolean enableConsul = false;
 
     public String getDatacenter() {
         return datacenter;
@@ -48,14 +46,6 @@ public class ConsulProperties {
 
     public void setBackupDir(String backupDir) {
         this.backupDir = backupDir;
-    }
-
-    public boolean isEnableConsul() {
-        return enableConsul;
-    }
-
-    public void setEnableConsul(boolean enableConsul) {
-        this.enableConsul = enableConsul;
     }
 
     @Override

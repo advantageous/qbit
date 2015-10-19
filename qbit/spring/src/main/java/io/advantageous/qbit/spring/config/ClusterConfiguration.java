@@ -57,8 +57,7 @@ public class ClusterConfiguration {
                                              ServiceChangedEventChannel servicePoolUpdateEventChannel,
                                              final ServiceDiscoveryProperties discoveryProperties) {
 
-        if (consulProperties.isEnableConsul()) {
-
+        if (!(consulProperties.getDatacenter() == null || consulProperties.getDatacenter().isEmpty())) {
 
             /** Depending on consul as the default or only seems like a mistake. */
             final ConsulServiceDiscoveryBuilder consulServiceDiscoveryBuilder = consulServiceDiscoveryBuilder();
@@ -98,9 +97,6 @@ public class ClusterConfiguration {
                                            final ServiceDiscovery serviceDiscovery,
                                            final EventBusProperties props) {
 
-        if (props.isEnabled() == false) {
-            return null;
-        }
         logger.info("Binding event bus to " + props.getPort());
         final EventBusClusterBuilder clusterBuilder = EventBusClusterBuilder.eventBusClusterBuilder();
         clusterBuilder.setServiceDiscovery(serviceDiscovery);
