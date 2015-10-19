@@ -8,7 +8,7 @@ import org.springframework.context.annotation.Bean;
 public class SpringConfig {
 
     @Bean
-    @QBitService(exposeRemoteEndpoint = true)
+    @QBitService(exposeRemoteEndpoint = true, asyncInterface = HelloWorld.class)
     public HelloWorldImpl helloWorld() {
         return new HelloWorldImpl();
     }
