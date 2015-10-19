@@ -9,8 +9,8 @@ public class SpringConfig {
 
     @Bean
     @QBitService(exposeRemoteEndpoint = true)
-    public HelloWorld helloWorld() {
-        return new HelloWorld();
+    public HelloWorldImpl helloWorld() {
+        return new HelloWorldImpl();
     }
 
 

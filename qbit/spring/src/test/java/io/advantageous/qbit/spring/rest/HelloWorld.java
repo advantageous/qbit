@@ -1,15 +1,7 @@
 package io.advantageous.qbit.spring.rest;
 
+import io.advantageous.qbit.reactive.Callback;
 
-import io.advantageous.qbit.annotation.RequestMapping;
-
-@RequestMapping("/hw")
-public class HelloWorld {
-
-
-    @RequestMapping("/hello/")
-    public String hello() {
-        System.out.println("HELLO!");
-        return "hello";
-    }
+public interface HelloWorld {
+    public void hello(Callback<String> callback);
 }
