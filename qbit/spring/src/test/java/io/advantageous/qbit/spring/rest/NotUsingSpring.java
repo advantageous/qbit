@@ -49,7 +49,7 @@ public class NotUsingSpring {
 
         final ServiceBuilder serviceBuilder = ServiceBuilder.serviceBuilder().setServiceObject(new HelloWorld());
 
-        serviceEndpointServer.addServiceQueue("/services/hw", serviceBuilder.build());
+        serviceEndpointServer.addServiceQueue("hw", serviceBuilder.build());
         Sys.sleep(1_000);
 
         final HttpClient httpClient = HttpClientBuilder.httpClientBuilder()
