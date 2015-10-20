@@ -88,12 +88,16 @@ public class VertxRESTIntegrationTest {
 
                 endpointServer.startServer();
 
+                Sys.sleep(500);
+
 
 
                 /*
                  * Associate the router as a request handler for the vertxHttpServer.
                  */
                 vertxHttpServer.requestHandler(router::accept).listen(port);
+
+                Sys.sleep(500);
             }catch (Exception ex) {
                 ex.printStackTrace();
                 throw new IllegalStateException(ex);
