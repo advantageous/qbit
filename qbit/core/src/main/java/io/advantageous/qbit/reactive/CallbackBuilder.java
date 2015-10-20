@@ -1,9 +1,8 @@
 package io.advantageous.qbit.reactive;
 
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import org.slf4j.Logger;
+
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
@@ -138,6 +137,49 @@ public class CallbackBuilder {
         return this;
     }
 
+
+    /**
+     * Builder method to delegate timeout and error handling to other callback.
+     *
+     * @param callback callback
+     * @param <T> T
+     * @return this
+     */
+    public <T> CallbackBuilder delegate(final Callback<T> callback) {
+
+        this.withErrorHandler(callback::onError);
+
+        this.withTimeoutHandler(callback::onTimeout);
+
+        this.callback = callback;
+        return this;
+    }
+
+
+    /**
+     * Builder method to delegate timeout and error handling to other callback.
+     *
+     * @param callback callback
+     * @param <T> T
+     * @return this
+     */
+    public <T> CallbackBuilder delegateWithLogging(final Callback<T> callback, final Logger logger,
+                                                   final String operationName) {
+
+        this.withErrorHandler(throwable -> {
+            logger.error(operationName + " error ", throwable);
+            callback.onError(throwable);
+        });
+
+        this.withTimeoutHandler(() -> {
+            logger.error(operationName + " TIMED OUT ");
+            callback.onTimeout();
+        });
+
+        this.callback = callback;
+        return this;
+    }
+
     /**
      * Builder method to set the callback handler.
      *
@@ -251,6 +293,29 @@ public class CallbackBuilder {
         return this;
     }
 
+
+
+    /**
+     * Builder method to set callback handler that takes an optional string
+     * @param callback callback
+     * @return this
+     */
+    public CallbackBuilder withOptionalStringCallback(final Callback<Optional<String>> callback) {
+        this.callback = callback;
+        return this;
+    }
+
+
+
+    /**
+     * Builder method to set callback handler that takes an optional string
+     * @param callback callback
+     * @return this
+     */
+    public <T> CallbackBuilder withOptionalCallback(final Class<T> cls, final Callback<Optional<T>> callback) {
+        this.callback = callback;
+        return this;
+    }
 
 
 

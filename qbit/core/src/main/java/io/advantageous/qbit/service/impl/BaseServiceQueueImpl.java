@@ -58,6 +58,7 @@ import io.advantageous.qbit.queue.*;
 import io.advantageous.qbit.reactive.Callback;
 import io.advantageous.qbit.service.*;
 import io.advantageous.qbit.system.QBitSystemManager;
+import io.advantageous.qbit.time.Duration;
 import io.advantageous.qbit.transforms.NoOpResponseTransformer;
 import io.advantageous.qbit.transforms.Transformer;
 import io.advantageous.qbit.util.MultiMap;
@@ -626,6 +627,11 @@ public class BaseServiceQueueImpl implements ServiceQueue {
         methodCallSendQueue.start();
         return proxy(serviceInterface, methodCallSendQueue);
 
+    }
+
+    @Override
+    public <T> T createProxyWithAutoFlush(Class<T> serviceInterface, Duration duration) {
+        return createProxyWithAutoFlush(serviceInterface, (int)duration.getDuration(), duration.getTimeUnit());
     }
 
 

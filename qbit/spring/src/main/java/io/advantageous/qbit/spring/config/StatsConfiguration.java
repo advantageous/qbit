@@ -15,6 +15,8 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Scope;
 
+import java.util.Optional;
+
 /**
  * Configuration for QBit stats.  The stats server collects and aggregates data for stats publication.
  *
@@ -28,20 +30,27 @@ public class StatsConfiguration {
     @Bean
     public StatReplicator statsDReplicator(final StatsdProperties statsD) {
 
-        return StatsDReplicatorBuilder.statsDReplicatorBuilder()
-                .setBufferSize(statsD.getBufferSize())
-                .setFlushRateIntervalMS(statsD.getFlushRateIntervalMS())
-                .setHost(statsD.getHost())
-                .setPort(statsD.getPort())
-                .buildAndStart();
+        if (statsD.getHost() != null && !statsD.getHost().isEmpty()) {
+            return StatsDReplicatorBuilder.statsDReplicatorBuilder()
+                    .setBufferSize(statsD.getBufferSize())
+                    .setFlushRateIntervalMS(statsD.getFlushRateIntervalMS())
+                    .setHost(statsD.getHost())
+                    .setPort(statsD.getPort())
+                    .buildAndStart();
+        } else {
+            return null;
+        }
     }
 
     @Bean
-    public ServiceQueue qbitStatsServiceQueue(final @Qualifier("statsDReplicator") StatReplicator statReplicator) {
+    public ServiceQueue qbitStatsServiceQueue(final @Qualifier("statsDReplicator")
+                                              Optional<StatReplicator> statReplicator) {
 
-        return StatServiceBuilder.statServiceBuilder()
-                .setTimeToLiveCheckInterval(1_000)
-                .addReplicator(statReplicator)
+        final StatServiceBuilder statServiceBuilder = StatServiceBuilder.statServiceBuilder();
+        if (statReplicator.isPresent()) {
+            statServiceBuilder.addReplicator(statReplicator.get());
+        }
+        return statServiceBuilder.setTimeToLiveCheckInterval(1_000)
                 .buildServiceQueue()
                 .startServiceQueue();
     }
@@ -56,7 +65,7 @@ public class StatsConfiguration {
     @Bean
     @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
     public StatsCollector qbitStatsCollector(final @Qualifier("qbitStatService")
-                                                StatService qbitStatService ) {
+                                             StatService qbitStatService) {
 
         return new StatsCollectorBuffer(qbitStatService);
     }

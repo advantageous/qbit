@@ -10,15 +10,19 @@ import io.advantageous.qbit.events.impl.EventConnectorHub;
 import io.advantageous.qbit.service.ServiceQueue;
 import io.advantageous.qbit.service.discovery.ServiceChangedEventChannel;
 import io.advantageous.qbit.service.discovery.ServiceDiscovery;
+import io.advantageous.qbit.service.discovery.ServiceDiscoveryBuilder;
 import io.advantageous.qbit.service.discovery.impl.ServiceDiscoveryImpl;
+import io.advantageous.qbit.service.discovery.spi.ServiceDiscoveryFileSystemProvider;
 import io.advantageous.qbit.spring.annotation.Clustered;
 import io.advantageous.qbit.spring.annotation.QBitPublisher;
 import io.advantageous.qbit.spring.properties.ConsulProperties;
 import io.advantageous.qbit.spring.properties.EventBusProperties;
+import io.advantageous.qbit.spring.properties.ServiceDiscoveryProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -35,7 +39,8 @@ import static io.advantageous.consul.discovery.ConsulServiceDiscoveryBuilder.con
  * @author geoffc@gmail.com (Geoff Chandler)
  */
 @Configuration
-@EnableConfigurationProperties({ConsulProperties.class, EventBusProperties.class})
+@EnableConfigurationProperties({ConsulProperties.class, EventBusProperties.class,
+        ServiceDiscoveryProperties.class})
 public class ClusterConfiguration {
 
     private final Logger logger = LoggerFactory.getLogger(ClusterConfiguration.class);
@@ -46,29 +51,44 @@ public class ClusterConfiguration {
     }
 
     @Bean
+    @ConditionalOnMissingBean(ServiceDiscovery.class)
     public ServiceDiscovery serviceDiscovery(final ConsulProperties consulProperties,
                                              final @QBitPublisher
-                                             ServiceChangedEventChannel servicePoolUpdateEventChannel) {
+                                             ServiceChangedEventChannel servicePoolUpdateEventChannel,
+                                             final ServiceDiscoveryProperties discoveryProperties) {
 
-        final ConsulServiceDiscoveryBuilder consulServiceDiscoveryBuilder = consulServiceDiscoveryBuilder();
+        if (!(consulProperties.getDatacenter() == null || consulProperties.getDatacenter().isEmpty())) {
 
-        final File backupDir = new File(consulProperties.getBackupDir());
-        if (!backupDir.exists()) {
-            if (!backupDir.mkdirs()) {
-                logger.error(String.format("Backup dir %s does not exist and can't be created", backupDir));
+            /** Depending on consul as the default or only seems like a mistake. */
+            final ConsulServiceDiscoveryBuilder consulServiceDiscoveryBuilder = consulServiceDiscoveryBuilder();
+
+            consulServiceDiscoveryBuilder
+                    .setConsulHost(consulProperties.getHost())
+                    .setConsulPort(consulProperties.getPort())
+                    .setDatacenter(consulProperties.getDatacenter())
+                    .setServiceChangedEventChannel(servicePoolUpdateEventChannel)
+                    .build();
+
+
+            if (consulProperties.getBackupDir() != null) {
+                final File backupDir = new File(consulProperties.getBackupDir());
+                if (!backupDir.exists()) {
+                    if (!backupDir.mkdirs()) {
+                        logger.error(String.format("Backup dir %s does not exist and can't be created", backupDir));
+                    }
+                }
+                consulServiceDiscoveryBuilder.setBackupDir(backupDir);
             }
+
+            final ServiceDiscoveryImpl serviceDiscovery = consulServiceDiscoveryBuilder.build();
+            serviceDiscovery.start();
+            return serviceDiscovery;
+        } else {
+            final ServiceDiscoveryBuilder serviceDiscoveryBuilder = ServiceDiscoveryBuilder.serviceDiscoveryBuilder()
+                    .setServiceDiscoveryProvider(new ServiceDiscoveryFileSystemProvider(discoveryProperties.getDir(),
+                            discoveryProperties.getCheckIntervalMS()));
+            return serviceDiscoveryBuilder.build();
         }
-
-        final ServiceDiscoveryImpl serviceDiscovery = consulServiceDiscoveryBuilder
-                .setConsulHost(consulProperties.getHost())
-                .setConsulPort(consulProperties.getPort())
-                .setDatacenter(consulProperties.getDatacenter())
-                .setBackupDir(backupDir)
-                .setServiceChangedEventChannel(servicePoolUpdateEventChannel)
-                .build();
-
-        serviceDiscovery.start();
-        return serviceDiscovery;
     }
 
     @Bean
@@ -110,6 +130,10 @@ public class ClusterConfiguration {
     @Bean
     public ServiceQueue clusteredEventManagerServiceQueue(final @Qualifier("eventBusCluster")
                                                           EventBusCluster eventBusCluster) {
+
+        if (eventBusCluster == null) {
+            return null;
+        }
         return eventBusCluster.eventServiceQueue();
     }
 

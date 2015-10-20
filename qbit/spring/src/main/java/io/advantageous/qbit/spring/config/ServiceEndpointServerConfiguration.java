@@ -13,6 +13,7 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import javax.inject.Named;
 import java.util.Optional;
 
 /**
@@ -27,7 +28,9 @@ public class ServiceEndpointServerConfiguration {
     private final Logger logger = LoggerFactory.getLogger(ServiceEndpointServerConfiguration.class);
 
     @Bean
-    public ServiceEndpointServer serviceEndpointServer(final Queue<Response<Object>> queue,
+    public ServiceEndpointServer serviceEndpointServer(
+            @Named("sharedResponseQueue")
+            final Queue<Response<Object>> queue,
                                                        final Optional<ServiceDiscovery> serviceDiscovery,
                                                        final Optional<HealthServiceAsync> healthServiceAsync,
                                                        final ServiceEndpointServerProperties props) {

@@ -9,10 +9,10 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
  */
 @ConfigurationProperties("qbit.eventbus")
 public class EventBusProperties {
-    private String name;
-    private Integer periodicCheckInSeconds;
-    private Integer ttl;
-    private int port;
+    private String name = "event-bus";
+    private Integer periodicCheckInSeconds = 5;
+    private Integer ttl = 20;
+    private int port = 9090;
 
     public String getName() {
         return name;

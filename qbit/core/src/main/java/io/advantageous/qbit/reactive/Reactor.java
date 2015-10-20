@@ -2,6 +2,7 @@ package io.advantageous.qbit.reactive;
 
 import io.advantageous.qbit.reactive.impl.AsyncFutureCallbackImpl;
 import io.advantageous.qbit.service.ServiceProxyUtils;
+import io.advantageous.qbit.time.Duration;
 import io.advantageous.qbit.util.Timer;
 import org.slf4j.Logger;
 
@@ -111,6 +112,17 @@ public class Reactor {
 
         repeatingTasks.add(new RepeatingTask( task, timeUnit, repeatEvery ));
     }
+
+    /** Add a task that gets repeated.
+     *
+     * @param repeatEvery repeat Every time period
+     * @param task task to perform
+     */
+    public void addRepeatingTask(final Duration repeatEvery, final Runnable task) {
+
+        repeatingTasks.add(new RepeatingTask( task, repeatEvery.getTimeUnit(), repeatEvery.getDuration() ));
+    }
+
 
     /** Process items in reactor. */
     public void process() {
@@ -486,7 +498,7 @@ public class Reactor {
                                         final Logger logger) {
 
         /* Set the callback to delegate to this callback. */
-        return callbackBuilder().setCallback(new Callback<T>() {
+        Callback<T> reactiveCallback = callbackBuilder().withCallback(new Callback<T>() {
             @Override
             public void accept(T t) {
                 if (logger.isDebugEnabled()) {
@@ -496,16 +508,18 @@ public class Reactor {
             }
 
         /* Provide some boiler plate error handling. */
-        }).setOnError(error -> {
+        }).withErrorHandler(error -> {
             logger.error(String.format("ERROR calling %s", operationDescription), error);
             callback.onError(error);
 
         /* Provide some boiler timeout handling. */
-        }).setOnTimeout(() -> {
+        }).withTimeoutHandler(() -> {
             logger.error("TIMEOUT calling {}", operationDescription);
             callback.onTimeout();
         })
         .build();
+
+        return reactiveCallback;
     }
 
 
