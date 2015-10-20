@@ -232,7 +232,7 @@ project('service-discovery') {
 
 
     ext {
-        vertxVersion = '3.0.0'
+        vertxVersion = '3.1.0'
     }
 
     dependencies {
@@ -395,13 +395,22 @@ project('kafka') {
 
 project('redis') {
 
+    ext {
+        vertxVersion = '3.1.0'
+    }
+
     dependencies {
 
         compile project(":qbit:core")
+
+        compile project(":qbit:vertx")
         testCompile project(':qbit:test-support')
         compile 'ch.qos.logback:logback-core:1.1.3'
         compile 'ch.qos.logback:logback-classic:1.1.3'
         compile 'org.slf4j:slf4j-api:1.7.12'
+
+
+        compile group: 'io.vertx', name: 'vertx-redis-client', version: vertxVersion
 
     }
 
