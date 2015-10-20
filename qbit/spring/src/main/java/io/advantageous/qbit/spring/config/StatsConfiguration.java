@@ -28,17 +28,17 @@ import java.util.Optional;
 public class StatsConfiguration {
 
     @Bean
-    public Optional<StatReplicator> statsDReplicator(final StatsdProperties statsD) {
+    public StatReplicator statsDReplicator(final StatsdProperties statsD) {
 
         if (statsD.getHost() != null && !statsD.getHost().isEmpty()) {
-            return Optional.of(StatsDReplicatorBuilder.statsDReplicatorBuilder()
+            return StatsDReplicatorBuilder.statsDReplicatorBuilder()
                     .setBufferSize(statsD.getBufferSize())
                     .setFlushRateIntervalMS(statsD.getFlushRateIntervalMS())
                     .setHost(statsD.getHost())
                     .setPort(statsD.getPort())
-                    .buildAndStart());
+                    .buildAndStart();
         } else {
-            return Optional.empty();
+            return null;
         }
     }
 
