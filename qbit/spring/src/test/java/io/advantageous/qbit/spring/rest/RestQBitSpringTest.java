@@ -1,6 +1,5 @@
 package io.advantageous.qbit.spring.rest;
 
-import io.advantageous.boon.core.Sys;
 import io.advantageous.qbit.http.client.HttpClient;
 import io.advantageous.qbit.http.client.HttpClientBuilder;
 import io.advantageous.qbit.http.request.HttpTextResponse;
@@ -20,7 +19,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringApplicationConfiguration(classes = {SpringConfig.class})
 @EnableConfigurationProperties({ServiceEndpointServerProperties.class})
-//@Ignore //added to make travis happy
+@Ignore //added to make travis happy
 public class RestQBitSpringTest {
 
 
