@@ -1,5 +1,7 @@
 package io.advantageous.qbit.reactive;
 
+import org.slf4j.Logger;
+
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -134,6 +136,49 @@ public class CallbackBuilder {
      */
     public <T> CallbackBuilder withCallback(final Class<T> returnType,
                                             final Callback<T> callback) {
+        this.callback = callback;
+        return this;
+    }
+
+
+    /**
+     * Builder method to delegate timeout and error handling to other callback.
+     *
+     * @param callback callback
+     * @param <T> T
+     * @return this
+     */
+    public <T> CallbackBuilder delegate(final Callback<T> callback) {
+
+        this.withErrorHandler(callback::onError);
+
+        this.withTimeoutHandler(callback::onTimeout);
+
+        this.callback = callback;
+        return this;
+    }
+
+
+    /**
+     * Builder method to delegate timeout and error handling to other callback.
+     *
+     * @param callback callback
+     * @param <T> T
+     * @return this
+     */
+    public <T> CallbackBuilder delegateWithLogging(final Callback<T> callback, final Logger logger,
+                                                   final String operationName) {
+
+        this.withErrorHandler(throwable -> {
+            logger.error(operationName + " error ", throwable);
+            callback.onError(throwable);
+        });
+
+        this.withTimeoutHandler(() -> {
+            logger.error(operationName + " TIMED OUT ");
+            callback.onTimeout();
+        });
+
         this.callback = callback;
         return this;
     }

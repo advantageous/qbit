@@ -12,15 +12,15 @@ import static org.junit.Assert.*;
 /** Testing an async interface but it is not  yet async. */
 public class LocalKeyValueStoreServiceTest {
 
-    private LocalKeyValueStoreService localKeyValueStoreService;
-    private LocalKeyValueStoreServiceBuilder localKeyValueStoreServiceBuilder;
+    private LowLevelLocalKeyValueStoreService localKeyValueStoreService;
+    private LowLevelLocalKeyValueStoreServiceBuilder localKeyValueStoreServiceBuilder;
 
     private TestTimer testTimer;
 
     @Before
     public void before() {
         localKeyValueStoreServiceBuilder =
-        LocalKeyValueStoreServiceBuilder.localKeyValueStoreBuilder();
+        LowLevelLocalKeyValueStoreServiceBuilder.localKeyValueStoreBuilder();
 
         testTimer = new TestTimer();
         testTimer.setTime();

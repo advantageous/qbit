@@ -498,7 +498,7 @@ public class Reactor {
                                         final Logger logger) {
 
         /* Set the callback to delegate to this callback. */
-        return callbackBuilder().setCallback(new Callback<T>() {
+        return callbackBuilder().withCallback(new Callback<T>() {
             @Override
             public void accept(T t) {
                 if (logger.isDebugEnabled()) {
@@ -508,12 +508,12 @@ public class Reactor {
             }
 
         /* Provide some boiler plate error handling. */
-        }).setOnError(error -> {
+        }).withErrorHandler(error -> {
             logger.error(String.format("ERROR calling %s", operationDescription), error);
             callback.onError(error);
 
         /* Provide some boiler timeout handling. */
-        }).setOnTimeout(() -> {
+        }).withTimeoutHandler(() -> {
             logger.error("TIMEOUT calling {}", operationDescription);
             callback.onTimeout();
         })

@@ -16,7 +16,7 @@ import java.util.Optional;
 import static io.advantageous.qbit.time.Duration.FIVE_SECONDS;
 import static io.advantageous.qbit.time.Duration.TEN_SECONDS;
 
-public class LocalKeyValueStoreService implements KeyValueStoreService{
+public class LowLevelLocalKeyValueStoreService implements LowLevelKeyValueStoreService {
 
     private final int localCacheSize;
     private final Timer timer;
@@ -30,15 +30,15 @@ public class LocalKeyValueStoreService implements KeyValueStoreService{
 
     private long time;
 
-    private final Logger logger = LoggerFactory.getLogger(LocalKeyValueStoreService.class);
+    private final Logger logger = LoggerFactory.getLogger(LowLevelLocalKeyValueStoreService.class);
 
 
-    public LocalKeyValueStoreService(final Timer timer,
-                                     final Reactor reactor,
-                                     final int localCacheSize,
-                                     final StatsCollector statsCollector,
-                                     final Optional<Duration> flushCacheDuration,
-                                     final boolean debug) {
+    public LowLevelLocalKeyValueStoreService(final Timer timer,
+                                             final Reactor reactor,
+                                             final int localCacheSize,
+                                             final StatsCollector statsCollector,
+                                             final Optional<Duration> flushCacheDuration,
+                                             final boolean debug) {
         this.localCacheSize = localCacheSize;
         this.timer = timer;
         this.reactor = reactor;

@@ -8,7 +8,7 @@ import io.advantageous.qbit.util.Timer;
 
 import java.util.Optional;
 
-public class LocalKeyValueStoreServiceBuilder {
+public class LowLevelLocalKeyValueStoreServiceBuilder {
     private Timer timer;
     private Reactor reactor;
     private int localCacheSize = 1_000;
@@ -23,7 +23,7 @@ public class LocalKeyValueStoreServiceBuilder {
         return timer;
     }
 
-    public LocalKeyValueStoreServiceBuilder setTimer(Timer timer) {
+    public LowLevelLocalKeyValueStoreServiceBuilder setTimer(Timer timer) {
         this.timer = timer;
         return this;
     }
@@ -35,7 +35,7 @@ public class LocalKeyValueStoreServiceBuilder {
         return reactor;
     }
 
-    public LocalKeyValueStoreServiceBuilder setReactor(Reactor reactor) {
+    public LowLevelLocalKeyValueStoreServiceBuilder setReactor(Reactor reactor) {
         this.reactor = reactor;
         return this;
     }
@@ -44,7 +44,7 @@ public class LocalKeyValueStoreServiceBuilder {
         return localCacheSize;
     }
 
-    public LocalKeyValueStoreServiceBuilder setLocalCacheSize(int localCacheSize) {
+    public LowLevelLocalKeyValueStoreServiceBuilder setLocalCacheSize(int localCacheSize) {
         this.localCacheSize = localCacheSize;
         return this;
     }
@@ -76,7 +76,7 @@ public class LocalKeyValueStoreServiceBuilder {
         return statsCollector;
     }
 
-    public LocalKeyValueStoreServiceBuilder setStatsCollector(StatsCollector statsCollector) {
+    public LowLevelLocalKeyValueStoreServiceBuilder setStatsCollector(StatsCollector statsCollector) {
         this.statsCollector = statsCollector;
         return this;
     }
@@ -88,12 +88,12 @@ public class LocalKeyValueStoreServiceBuilder {
         return flushCacheDuration;
     }
 
-    public LocalKeyValueStoreServiceBuilder useDefaultFlushCacheDuration() {
+    public LowLevelLocalKeyValueStoreServiceBuilder useDefaultFlushCacheDuration() {
         getFlushCacheDuration();
         return this;
     }
 
-    public LocalKeyValueStoreServiceBuilder setFlushCacheDuration(Duration flushCacheDuration) {
+    public LowLevelLocalKeyValueStoreServiceBuilder setFlushCacheDuration(Duration flushCacheDuration) {
         this.flushCacheDuration = flushCacheDuration;
         return this;
     }
@@ -102,13 +102,13 @@ public class LocalKeyValueStoreServiceBuilder {
         return debug;
     }
 
-    public LocalKeyValueStoreServiceBuilder setDebug(boolean debug) {
+    public LowLevelLocalKeyValueStoreServiceBuilder setDebug(boolean debug) {
         this.debug = debug;
         return this;
     }
 
-    public LocalKeyValueStoreService build() {
-        return new LocalKeyValueStoreService(
+    public LowLevelLocalKeyValueStoreService build() {
+        return new LowLevelLocalKeyValueStoreService(
                 getTimer(),
                 getReactor(),
                 getLocalCacheSize(),
@@ -118,7 +118,7 @@ public class LocalKeyValueStoreServiceBuilder {
                 isDebug());
     }
 
-    public static LocalKeyValueStoreServiceBuilder localKeyValueStoreBuilder() {
-        return new LocalKeyValueStoreServiceBuilder();
+    public static LowLevelLocalKeyValueStoreServiceBuilder localKeyValueStoreBuilder() {
+        return new LowLevelLocalKeyValueStoreServiceBuilder();
     }
 }
