@@ -498,7 +498,7 @@ public class Reactor {
                                         final Logger logger) {
 
         /* Set the callback to delegate to this callback. */
-        return callbackBuilder().withCallback(new Callback<T>() {
+        Callback<T> reactiveCallback = callbackBuilder().withCallback(new Callback<T>() {
             @Override
             public void accept(T t) {
                 if (logger.isDebugEnabled()) {
@@ -518,6 +518,8 @@ public class Reactor {
             callback.onTimeout();
         })
         .build();
+
+        return reactiveCallback;
     }
 
 

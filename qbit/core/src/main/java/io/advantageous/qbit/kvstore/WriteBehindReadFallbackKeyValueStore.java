@@ -47,7 +47,7 @@ public class WriteBehindReadFallbackKeyValueStore implements LowLevelKeyValueSto
                         long currentCount = count.incrementAndGet();
 
                         logger.info("CURRENT COUNT {}", currentCount);
-            })
+                    })
             .withErrorHandler(error -> {
                 logger.error(String.format("Failed to put key %s", key), error);
                 failed.set(true);
@@ -237,7 +237,7 @@ public class WriteBehindReadFallbackKeyValueStore implements LowLevelKeyValueSto
     }
 
 
-    @QueueCallback({QueueCallbackType.EMPTY, QueueCallbackType.LIMIT})
+    @QueueCallback({QueueCallbackType.EMPTY, QueueCallbackType.LIMIT, QueueCallbackType.IDLE})
     public void process() {
         reactor.process();
         remoteKeyValueStore.process();

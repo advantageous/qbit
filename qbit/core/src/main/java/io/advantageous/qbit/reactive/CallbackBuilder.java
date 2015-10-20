@@ -296,11 +296,23 @@ public class CallbackBuilder {
 
 
     /**
-     * Builder method to set callback handler that takes a string
+     * Builder method to set callback handler that takes an optional string
      * @param callback callback
      * @return this
      */
     public CallbackBuilder withOptionalStringCallback(final Callback<Optional<String>> callback) {
+        this.callback = callback;
+        return this;
+    }
+
+
+
+    /**
+     * Builder method to set callback handler that takes an optional string
+     * @param callback callback
+     * @return this
+     */
+    public <T> CallbackBuilder withOptionalCallback(final Class<T> cls, final Callback<Optional<T>> callback) {
         this.callback = callback;
         return this;
     }

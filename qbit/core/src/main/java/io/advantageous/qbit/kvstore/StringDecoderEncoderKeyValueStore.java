@@ -119,7 +119,7 @@ public class StringDecoderEncoderKeyValueStore<T> implements KeyValueStoreServic
     }
 
 
-    @QueueCallback({QueueCallbackType.EMPTY, QueueCallbackType.LIMIT})
+    @QueueCallback({QueueCallbackType.EMPTY, QueueCallbackType.LIMIT, QueueCallbackType.IDLE})
     public void process() {
         kvStore.process();
         reactor.process();
