@@ -1,5 +1,6 @@
 package io.advantageous.qbit.vertx;
 
+import io.advantageous.boon.core.Sys;
 import io.advantageous.qbit.http.client.HttpClient;
 import io.advantageous.qbit.http.client.HttpClientBuilder;
 import io.advantageous.qbit.http.request.HttpTextResponse;
@@ -74,6 +75,8 @@ public class VertxIntegrationSimpleHttpRouterTest {
                 httpServer.start();
 
                 vertxHttpServer.requestHandler(router::accept).listen();
+
+                Sys.sleep(1000);
             }catch (Exception ex) {
                 ex.printStackTrace();
             }

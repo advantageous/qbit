@@ -306,8 +306,12 @@ project('spring') {
         compile project(':qbit:consul-client')
         compile project(":qbit:eventbus-replicator")
         compile 'javax.inject:javax.inject:1'
-        compile "org.springframework.boot:spring-boot-starter:1.2.5.RELEASE"
+        compile "org.springframework.boot:spring-boot-starter:$springBootVersion"
         testCompile project(':qbit:test-support')
+        testCompile(
+                "org.springframework:spring-web:$springFrameworkVersion",
+                "org.springframework.boot:spring-boot-starter-test:$springBootVersion"
+        )
     }
 
     uploadArchives {

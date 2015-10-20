@@ -19,6 +19,8 @@
 ext {
     projectVersion = '0.9.1-SNAPSHOT'
     boonVersion = '0.5.5'
+    springFrameworkVersion = '4.2.1.RELEASE'
+    springBootVersion = '1.2.6.RELEASE'
 }
 
 allprojects {

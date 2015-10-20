@@ -12,8 +12,8 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 public class ConsulProperties {
 
     private String datacenter;
-    private int port;
-    private String host;
+    private int port = 8500;
+    private String host = "127.0.0.1";
     private String backupDir;
 
     public String getDatacenter() {

@@ -15,7 +15,7 @@ public class EventBusClusterBuilder {
 
     private final Logger logger = LoggerFactory.getLogger(EventBusClusterBuilder.class);
     private final boolean debug = GlobalConstants.DEBUG || logger.isDebugEnabled();
-    private String eventBusName = "eventBus";
+    private String eventBusName = "event-bus";
     private EventConnectorHub eventConnectorHub = null;
     private PeriodicScheduler periodicScheduler = null;
     private int peerCheckTimeInterval = 7;
