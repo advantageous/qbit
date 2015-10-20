@@ -49,11 +49,15 @@ public class ServiceQueueInitializer implements ApplicationListener<ContextRefre
                 final String endpointLocation = (String) item.getValue().get("endpointLocation");
                 logger.info(AnsiOutput.toString("Registering endpoint: ", BOLD, GREEN, endpointLocation, NORMAL));
                 serviceEndpointServer.addServiceQueue(endpointLocation, serviceQueue);
+
+                logger.info("Starting service queue as part of endpoint {}", serviceQueue.name());
+                serviceQueue.startServiceQueue();
+            } else {
+                logger.info("Starting service queue standalone {}", serviceQueue.name());
+                serviceQueue.start();
+                serviceQueue.startCallBackHandler();
             }
 
-            logger.info("Starting service queue {}", serviceQueue.name());
-            serviceQueue.start();
-            serviceQueue.startCallBackHandler();
         });
         if (serviceEndpointServer != null) {
             serviceEndpointServer.start();

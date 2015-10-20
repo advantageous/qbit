@@ -20,7 +20,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringApplicationConfiguration(classes = {SpringConfig.class})
 @EnableConfigurationProperties({ServiceEndpointServerProperties.class})
-@Ignore //added to make travis happy
+//@Ignore //added to make travis happy
 public class RestQBitSpringTest {
 
 
@@ -29,9 +29,6 @@ public class RestQBitSpringTest {
 
     @Test
     public void test() {
-
-        Sys.sleep(2_000); //We need to not start up until the app has initialized
-
         final HttpClient httpClient = HttpClientBuilder.httpClientBuilder()
                 .setPort(serviceEndpointServerProperties.getPort()).buildAndStart();
 
