@@ -4,6 +4,7 @@ import io.advantageous.qbit.annotation.QueueCallback;
 import io.advantageous.qbit.annotation.QueueCallbackType;
 import io.advantageous.qbit.reactive.Callback;
 import io.advantageous.qbit.reactive.CallbackBuilder;
+import io.advantageous.qbit.reactive.CallbackCoordinator;
 import io.advantageous.qbit.reactive.Reactor;
 import io.advantageous.qbit.time.Duration;
 import org.slf4j.Logger;
@@ -31,6 +32,8 @@ public class WriteBehindReadFallbackKeyValueStore implements LowLevelKeyValueSto
         this.localKeyValueStore = localKeyValueStore;
         this.remoteKeyValueStore = remoteKeyValueStore;
         this.reactor = reactor;
+        this.reactor.addServiceToFlush(this.localKeyValueStore);
+        this.reactor.addServiceToFlush(this.remoteKeyValueStore);
     }
 
 
@@ -60,16 +63,21 @@ public class WriteBehindReadFallbackKeyValueStore implements LowLevelKeyValueSto
                 count.incrementAndGet();
             });
 
-        reactor.coordinatorBuilder()
-                .setCoordinator(() -> {
-                    if (count.get() >= 2) {
+        final CallbackCoordinator callbackCoordinator = new CallbackCoordinator() {
+            @Override
+            public boolean checkComplete() {
 
-                        logger.info("DONE PROCESSING");
-                        return true;
-                    }
-                    return false;
+                if (count.get() >= 2) {
+
+                    logger.info("DONE PROCESSING");
+                    return true;
                 }
-                )
+                return false;
+
+            }
+        };
+        reactor.coordinatorBuilder()
+                .setCoordinator(callbackCoordinator)
                 .setFinishedHandler(() -> {
 
                     if (failed.get()) {
@@ -85,7 +93,7 @@ public class WriteBehindReadFallbackKeyValueStore implements LowLevelKeyValueSto
                 logger.error(String.format("Timeout trying to put key %s", key));
                 confirmation.onTimeout();
 
-        });
+        }).build();
         return callbackBuilder;
     }
 

@@ -2,6 +2,7 @@ package io.advantageous.qbit.kvstore;
 
 import io.advantageous.boon.core.Sys;
 import io.advantageous.qbit.reactive.CallbackBuilder;
+import io.advantageous.qbit.reactive.ReactorBuilder;
 import io.advantageous.qbit.service.ServiceBuilder;
 import io.advantageous.qbit.service.ServiceProxyUtils;
 import io.advantageous.qbit.time.Duration;
@@ -221,6 +222,124 @@ public class RedisKeyValueStoreTest {
         getCallbackBuilder.withErrorHandler(throwable -> {
             getFailed.set(true);
             putLatch.countDown();
+        });
+
+
+        /* Setup callback timeout handler. */
+        getCallbackBuilder.withTimeoutHandler(() -> getTimeout.set(true));
+
+
+
+        todoKVStore.get(getCallbackBuilder.build(), "testPutWithConfirmationWrapped");
+        ServiceProxyUtils.flushServiceProxy(todoKVStore);
+
+
+        getLatch.await(3, TimeUnit.SECONDS);
+
+
+        assertFalse(getTimeout.get());
+        assertFalse(getFailed.get());
+        assertNotNull(getCallbackResult.get());
+        assertEquals(value, getCallbackResult.get().name);
+
+    }
+
+
+    @Test
+    public void testPutWithConfirmationFallback() throws Exception{
+
+        final LowLevelLocalKeyValueStoreServiceBuilder lowLevelLocalKeyValueStoreServiceBuilder = LowLevelLocalKeyValueStoreServiceBuilder.localKeyValueStoreBuilder();
+
+
+        final WriteBehindReadFallbackKeyValueStore writeBehindReadFallbackKeyValueStoreInternal =
+                new WriteBehindReadFallbackKeyValueStore(lowLevelLocalKeyValueStoreServiceBuilder.build(),
+                        keyValueStore,
+                    ReactorBuilder.reactorBuilder().build());
+
+        final LowLevelKeyValueStoreService lowLevelKeyValueStoreService = ServiceBuilder.serviceBuilder()
+                .setServiceObject(writeBehindReadFallbackKeyValueStoreInternal)
+                .buildAndStartAll()
+                .createProxyWithAutoFlush(LowLevelKeyValueStoreService.class, Duration.FIFTY_MILLIS);
+
+
+        final KeyValueStoreService<Todo> todoKVStoreInternal = JsonKeyValueStoreServiceBuilder.jsonKeyValueStoreServiceBuilder()
+                .setLowLevelKeyValueStoreService(lowLevelKeyValueStoreService).buildKeyValueStore(Todo.class);
+
+
+        final KeyValueStoreService<Todo> todoKVStore = ServiceBuilder.serviceBuilder()
+                .setServiceObject(todoKVStoreInternal)
+                .buildAndStartAll()
+                .createProxyWithAutoFlush(KeyValueStoreService.class, Duration.FIFTY_MILLIS);
+
+        final String value = "success-" + System.currentTimeMillis();
+
+        final CountDownLatch putLatch = new CountDownLatch(1);
+        final AtomicBoolean putCallbackResult = new AtomicBoolean();
+        final AtomicBoolean putFailed = new AtomicBoolean();
+        final AtomicBoolean putTimeout = new AtomicBoolean();
+
+        final CallbackBuilder putCallbackBuilder = CallbackBuilder.newCallbackBuilder();
+
+
+        /* Setup callback boolean. */
+        putCallbackBuilder.withBooleanCallback(result -> {
+            putCallbackResult.set(result);
+            putLatch.countDown();
+        });
+
+
+        /* Setup callback error handler. */
+        putCallbackBuilder.withErrorHandler(throwable -> {
+            putFailed.set(true);
+            putLatch.countDown();
+        });
+
+
+        /* Setup callback timeout handler. */
+        putCallbackBuilder.withTimeoutHandler(() -> putTimeout.set(true));
+
+
+
+        todoKVStore.putWithConfirmation(putCallbackBuilder.build(), "testPutWithConfirmationWrapped", new Todo(value));
+        ServiceProxyUtils.flushServiceProxy(todoKVStore);
+
+        putLatch.await(3, TimeUnit.SECONDS);
+
+
+        assertFalse(putTimeout.get());
+        assertFalse(putFailed.get());
+        assertTrue(putCallbackResult.get());
+
+
+
+        //Now test get
+
+
+        final CountDownLatch getLatch = new CountDownLatch(1);
+        final AtomicReference<Todo> getCallbackResult = new AtomicReference<>();
+        final AtomicBoolean getFailed = new AtomicBoolean();
+        final AtomicBoolean getTimeout = new AtomicBoolean();
+        final CallbackBuilder getCallbackBuilder = CallbackBuilder.newCallbackBuilder();
+
+
+
+        /* Setup callback boolean. */
+        getCallbackBuilder.withOptionalCallback(Todo.class, result -> {
+
+            if (result.isPresent()) {
+                getCallbackResult.set(result.get());
+            } else {
+
+                getCallbackResult.set(null);
+            }
+            getLatch.countDown();
+        });
+
+
+        /* Setup callback error handler. */
+        getCallbackBuilder.withErrorHandler(throwable -> {
+            getFailed.set(true);
+            getLatch.countDown();
         });
 
 
