@@ -230,6 +230,8 @@ public class RedisKeyValueStoreTest {
 
 
         todoKVStore.get(getCallbackBuilder.build(), "testPutWithConfirmationWrapped");
+        ServiceProxyUtils.flushServiceProxy(todoKVStore);
+
 
         getLatch.await(3, TimeUnit.SECONDS);
 
