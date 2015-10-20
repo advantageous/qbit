@@ -1,6 +1,8 @@
 package io.advantageous.qbit.kvstore;
 
 import io.advantageous.boon.core.Sys;
+import io.advantageous.qbit.reactive.Callback;
+import io.advantageous.qbit.reactive.CallbackBuilder;
 import io.advantageous.qbit.time.Duration;
 import org.junit.Before;
 
@@ -11,9 +13,11 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Consumer;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 @Ignore
 public class RedisKeyValueStoreTest {
@@ -33,6 +37,97 @@ public class RedisKeyValueStoreTest {
         builder.setVertx(null);
         builder.setVertxOptions(null);
         keyValueStore = builder.build();
+    }
+
+
+    @Test
+    public void testPutWithConfirmation() throws Exception{
+
+        final String value = "success-" + System.currentTimeMillis();
+
+        final CountDownLatch putLatch = new CountDownLatch(1);
+        final AtomicBoolean putCallbackResult = new AtomicBoolean();
+        final AtomicBoolean putFailed = new AtomicBoolean();
+        final AtomicBoolean putTimeout = new AtomicBoolean();
+
+        final CallbackBuilder putCallbackBuilder = CallbackBuilder.newCallbackBuilder();
+
+
+        /* Setup callback boolean. */
+        putCallbackBuilder.withBooleanCallback(result -> {
+            putCallbackResult.set(result);
+            putLatch.countDown();
+        });
+
+
+        /* Setup callback error handler. */
+        putCallbackBuilder.withErrorHandler(throwable -> {
+            putFailed.set(true);
+            putLatch.countDown();
+        });
+
+
+        /* Setup callback timeout handler. */
+        putCallbackBuilder.withTimeoutHandler(() -> putTimeout.set(true));
+
+
+
+        keyValueStore.putStringWithConfirmation(putCallbackBuilder.build(), "testPutWithConfirmation", value);
+
+        putLatch.await(3, TimeUnit.SECONDS);
+
+
+        assertFalse(putTimeout.get());
+        assertFalse(putFailed.get());
+        assertTrue(putCallbackResult.get());
+
+
+
+        //Now test get
+
+
+        final CountDownLatch getLatch = new CountDownLatch(1);
+        final AtomicReference<String> getCallbackResult = new AtomicReference<>();
+        final AtomicBoolean getFailed = new AtomicBoolean();
+        final AtomicBoolean getTimeout = new AtomicBoolean();
+        final CallbackBuilder getCallbackBuilder = CallbackBuilder.newCallbackBuilder();
+
+
+
+        /* Setup callback boolean. */
+        getCallbackBuilder.withOptionalStringCallback(result -> {
+
+            if (result.isPresent()) {
+                getCallbackResult.set(result.get());
+            } else {
+
+                getCallbackResult.set("NONE");
+            }
+            putLatch.countDown();
+        });
+
+
+        /* Setup callback error handler. */
+        getCallbackBuilder.withErrorHandler(throwable -> {
+            getFailed.set(true);
+            putLatch.countDown();
+        });
+
+
+        /* Setup callback timeout handler. */
+        getCallbackBuilder.withTimeoutHandler(() -> getTimeout.set(true));
+
+
+
+        keyValueStore.getString(getCallbackBuilder.build(), "testPutWithConfirmation");
+
+        getLatch.await(3, TimeUnit.SECONDS);
+
+
+        assertFalse(getTimeout.get());
+        assertFalse(getFailed.get());
+        assertEquals(value, getCallbackResult.get());
+
     }
 
     @Test

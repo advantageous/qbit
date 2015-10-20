@@ -2,10 +2,7 @@ package io.advantageous.qbit.reactive;
 
 import org.slf4j.Logger;
 
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
@@ -296,6 +293,17 @@ public class CallbackBuilder {
         return this;
     }
 
+
+
+    /**
+     * Builder method to set callback handler that takes a string
+     * @param callback callback
+     * @return this
+     */
+    public CallbackBuilder withOptionalStringCallback(final Callback<Optional<String>> callback) {
+        this.callback = callback;
+        return this;
+    }
 
 
 

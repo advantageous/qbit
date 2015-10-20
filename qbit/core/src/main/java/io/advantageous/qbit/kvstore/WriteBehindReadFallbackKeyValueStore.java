@@ -41,17 +41,35 @@ public class WriteBehindReadFallbackKeyValueStore implements LowLevelKeyValueSto
 
         final CallbackBuilder callbackBuilder = reactor.callbackBuilder();
 
-        callbackBuilder.withBooleanCallback(success -> count.incrementAndGet()).withErrorHandler(error -> {
-            logger.error(String.format("Failed to put key %s", key), error);
-            failed.set(true);
-        }).withTimeoutHandler(() -> {
-            logger.error(String.format("Timeout trying to put key %s", key));
-            failed.set(true);
-            confirmation.onTimeout();
-        });
+        callbackBuilder
+            .withBooleanCallback(
+                    success -> {
+                        long currentCount = count.incrementAndGet();
+
+                        logger.info("CURRENT COUNT {}", currentCount);
+            })
+            .withErrorHandler(error -> {
+                logger.error(String.format("Failed to put key %s", key), error);
+                failed.set(true);
+                count.incrementAndGet();
+            })
+            .withTimeoutHandler(() -> {
+                logger.error(String.format("Timeout trying to put key %s", key));
+                failed.set(true);
+                confirmation.onTimeout();
+                count.incrementAndGet();
+            });
 
         reactor.coordinatorBuilder()
-                .setCoordinator(() -> count.get() == 2)
+                .setCoordinator(() -> {
+                    if (count.get() >= 2) {
+
+                        logger.info("DONE PROCESSING");
+                        return true;
+                    }
+                    return false;
+                }
+                )
                 .setFinishedHandler(() -> {
 
                     if (failed.get()) {
@@ -60,12 +78,12 @@ public class WriteBehindReadFallbackKeyValueStore implements LowLevelKeyValueSto
                     confirmation.accept(true);
                 }).setTimeOutHandler(() -> {
 
-            if (failed.get()) {
-                return;
-            }
-            failed.set(true);
-            logger.error(String.format("Timeout trying to put key %s", key));
-            confirmation.onTimeout();
+                if (failed.get()) {
+                    return;
+                }
+                failed.set(true);
+                logger.error(String.format("Timeout trying to put key %s", key));
+                confirmation.onTimeout();
 
         });
         return callbackBuilder;

@@ -1,12 +1,10 @@
 package io.advantageous.qbit.kvstore;
 
-import io.advantageous.qbit.reactive.Callback;
 import io.advantageous.qbit.reactive.ReactorBuilder;
 import io.advantageous.qbit.util.TestTimer;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.util.Optional;
 
 import static io.advantageous.qbit.time.Duration.TEN_SECONDS;
 import static org.junit.Assert.*;
