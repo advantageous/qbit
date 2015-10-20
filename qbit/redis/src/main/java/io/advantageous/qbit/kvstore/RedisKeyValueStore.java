@@ -12,22 +12,17 @@ import java.util.Optional;
 
 public class RedisKeyValueStore implements LowLevelKeyValueStoreService {
 
-
     private final RedisClient redisClient;
-
     private final Logger logger = LoggerFactory.getLogger(RedisKeyValueStore.class);
 
     public RedisKeyValueStore(final RedisClient redisClient) {
-
         this.redisClient = redisClient;
-
     }
 
     @Override
     public void putString(final String key, final String value) {
 
         redisClient.set(key, value, event -> {
-
             if (event.failed()) {
                 logger.error(String.format("Error calling put string %s", key),
                         event.cause());
@@ -39,16 +34,13 @@ public class RedisKeyValueStore implements LowLevelKeyValueStoreService {
     public void putStringWithConfirmation(final Callback<Boolean> confirmation,
                                           final String key,
                                           final String value) {
-
         redisClient.set(key, value, event -> {
-
             if (event.failed()) {
                 confirmation.onError(event.cause());
             } else {
                 confirmation.accept(true);
             }
         });
-
     }
 
     @Override
@@ -56,7 +48,6 @@ public class RedisKeyValueStore implements LowLevelKeyValueStoreService {
                                                     final String key,
                                                     final String value,
                                                     final Duration expiry) {
-
         final SetOptions setOptions = new SetOptions();
         setOptions.setPX(expiry.toMillis());
         redisClient.setWithOptions(key, value, setOptions, event -> {
@@ -66,14 +57,12 @@ public class RedisKeyValueStore implements LowLevelKeyValueStoreService {
                 confirmation.accept(true);
             }
         });
-
     }
 
     @Override
     public void putStringWithTimeout(final String key,
                                      final String value,
                                      final Duration expiry) {
-
         final SetOptions setOptions = new SetOptions();
         setOptions.setPX(expiry.toMillis());
         redisClient.setWithOptions(key, value, setOptions, event -> {
@@ -87,7 +76,6 @@ public class RedisKeyValueStore implements LowLevelKeyValueStoreService {
     @Override
     public void getString(final Callback<Optional<String>> callback,
                           final String key) {
-
         redisClient.get(key, event -> {
             if (event.failed()) {
                 callback.onError(event.cause());
@@ -99,12 +87,10 @@ public class RedisKeyValueStore implements LowLevelKeyValueStoreService {
                 }
             }
         });
-
     }
 
     @Override
     public void putBytes(final String key, final byte[] value) {
-
         /* This redis client does not support this.
          * https://github.com/vert-x3/vertx-redis-client/issues/41
          * https://github.com/vert-x3/vertx-redis-client/issues/40
@@ -122,8 +108,6 @@ public class RedisKeyValueStore implements LowLevelKeyValueStoreService {
     public void putBytesWithConfirmation(final Callback<Boolean> confirmation,
                                          final String key,
                                          final byte[] value) {
-
-
         /* This redis client does not support this.
          * https://github.com/vert-x3/vertx-redis-client/issues/41
          * https://github.com/vert-x3/vertx-redis-client/issues/40
@@ -142,12 +126,8 @@ public class RedisKeyValueStore implements LowLevelKeyValueStoreService {
                                                    final String key,
                                                    final byte[] value,
                                                    final Duration expiry) {
-
-
         final SetOptions setOptions = new SetOptions();
         setOptions.setPX(expiry.toMillis());
-
-
         /* This redis client does not support this.
          * https://github.com/vert-x3/vertx-redis-client/issues/41
          * https://github.com/vert-x3/vertx-redis-client/issues/40
@@ -167,8 +147,6 @@ public class RedisKeyValueStore implements LowLevelKeyValueStoreService {
 
         final SetOptions setOptions = new SetOptions();
         setOptions.setPX(expiry.toMillis());
-
-
         /* This redis client does not support this.
          * https://github.com/vert-x3/vertx-redis-client/issues/41
          * https://github.com/vert-x3/vertx-redis-client/issues/40
@@ -185,8 +163,6 @@ public class RedisKeyValueStore implements LowLevelKeyValueStoreService {
 
     @Override
     public void getBytes(Callback<Optional<byte[]>> callback, String key) {
-
-
         /* This redis client does not support this.
          * https://github.com/vert-x3/vertx-redis-client/issues/41
          * https://github.com/vert-x3/vertx-redis-client/issues/40
@@ -207,26 +183,19 @@ public class RedisKeyValueStore implements LowLevelKeyValueStoreService {
     @Override
     public void hasKey(final Callback<Boolean> hasKeyCallback,
                        final String key) {
-
-
         redisClient.exists(key, event -> {
-
             if (event.failed()) {
                 hasKeyCallback.onError(event.cause());
             } else {
                 hasKeyCallback.returnThis(event.result()==1);
             }
         });
-
     }
 
     @Override
     public void delete(final String key) {
-
         redisClient.del(key, event -> {
-
             if (event.failed()) {
-
                 logger.error(String.format("Error calling put bytes %s", key),
                         event.cause());
             }
@@ -236,9 +205,7 @@ public class RedisKeyValueStore implements LowLevelKeyValueStoreService {
     @Override
     public void deleteWithConfirmation(final Callback<Boolean> confirmation,
                                        final String key) {
-
         redisClient.del(key, event -> {
-
             if (event.failed()) {
                 confirmation.onError(event.cause());
             }else {
@@ -250,6 +217,5 @@ public class RedisKeyValueStore implements LowLevelKeyValueStoreService {
     @Override
     public void process() {
         //No op
-
     }
 }
