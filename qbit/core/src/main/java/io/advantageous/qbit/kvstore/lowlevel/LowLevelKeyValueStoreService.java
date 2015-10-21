@@ -1,4 +1,4 @@
-package io.advantageous.qbit.kvstore;
+package io.advantageous.qbit.kvstore.lowlevel;
 
 import io.advantageous.qbit.reactive.Callback;
 import io.advantageous.qbit.time.Duration;

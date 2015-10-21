@@ -1,4 +1,4 @@
-package io.advantageous.qbit.kvstore;
+package io.advantageous.qbit.kvstore.lowlevel;
 
 import io.advantageous.boon.primitive.SimpleLRUCache;
 import io.advantageous.qbit.annotation.QueueCallback;

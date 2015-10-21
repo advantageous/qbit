@@ -1,5 +1,9 @@
-package io.advantageous.qbit.kvstore;
+package io.advantageous.qbit.kvstore.impl;
 
+import io.advantageous.qbit.kvstore.JsonKeyValueStoreServiceBuilder;
+import io.advantageous.qbit.kvstore.KeyValueStoreService;
+import io.advantageous.qbit.kvstore.lowlevel.LowLevelLocalKeyValueStoreService;
+import io.advantageous.qbit.kvstore.lowlevel.LowLevelLocalKeyValueStoreServiceBuilder;
 import io.advantageous.qbit.util.TestTimer;
 import org.junit.Before;
 import org.junit.Test;

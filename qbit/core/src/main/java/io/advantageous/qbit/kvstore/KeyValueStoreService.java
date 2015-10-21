@@ -57,10 +57,10 @@ public interface KeyValueStoreService<T> {
 
     /**
      * Get a String key value.
-     * @param confirmation confirmation
+     * @param callback callback
      * @param key key
      */
-    void get( final Callback<Optional<T>> confirmation,
+    void get( final Callback<Optional<T>> callback,
                     final String key);
 
 
@@ -88,6 +88,13 @@ public interface KeyValueStoreService<T> {
     void deleteWithConfirmation(    final Callback<Boolean> confirmation,
                                     final java.lang.String key);
 
+
+    /**
+     * Only used for local caches, not remote.
+     */
+    default void wipeCache() {
+
+    }
 
     void process();
 }

@@ -1,7 +1,8 @@
-package io.advantageous.qbit.kvstore;
+package io.advantageous.qbit.kvstore.lowlevel;
 
 import io.advantageous.qbit.annotation.QueueCallback;
 import io.advantageous.qbit.annotation.QueueCallbackType;
+import io.advantageous.qbit.kvstore.impl.StringDecoderEncoderKeyValueStore;
 import io.advantageous.qbit.reactive.Callback;
 import io.advantageous.qbit.reactive.CallbackBuilder;
 import io.advantageous.qbit.reactive.CallbackCoordinator;
@@ -17,7 +18,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 /**
  * Allows you to specify two kvstores that will be both written to and read from in order
  */
-public class WriteBehindReadFallbackKeyValueStore implements LowLevelKeyValueStoreService{
+public class LowLevelWriteBehindReadFallbackKeyValueStore implements LowLevelKeyValueStoreService {
 
 
     /**
@@ -42,9 +43,9 @@ public class WriteBehindReadFallbackKeyValueStore implements LowLevelKeyValueSto
      */
     private final Reactor reactor;
 
-    public WriteBehindReadFallbackKeyValueStore(LowLevelKeyValueStoreService localKeyValueStore,
-                                                LowLevelKeyValueStoreService remoteKeyValueStore,
-                                                Reactor reactor) {
+    public LowLevelWriteBehindReadFallbackKeyValueStore(LowLevelKeyValueStoreService localKeyValueStore,
+                                                        LowLevelKeyValueStoreService remoteKeyValueStore,
+                                                        Reactor reactor) {
         this.localKeyValueStore = localKeyValueStore;
         this.remoteKeyValueStore = remoteKeyValueStore;
         this.reactor = reactor;

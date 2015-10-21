@@ -1,6 +1,9 @@
 package io.advantageous.qbit.kvstore;
 
 import io.advantageous.boon.core.Sys;
+import io.advantageous.qbit.kvstore.lowlevel.LowLevelKeyValueStoreService;
+import io.advantageous.qbit.kvstore.lowlevel.LowLevelLocalKeyValueStoreServiceBuilder;
+import io.advantageous.qbit.kvstore.lowlevel.LowLevelWriteBehindReadFallbackKeyValueStore;
 import io.advantageous.qbit.reactive.CallbackBuilder;
 import io.advantageous.qbit.reactive.ReactorBuilder;
 import io.advantageous.qbit.service.ServiceBuilder;
@@ -254,8 +257,8 @@ public class RedisKeyValueStoreTest {
                 LowLevelLocalKeyValueStoreServiceBuilder.localKeyValueStoreBuilder();
 
 
-        final WriteBehindReadFallbackKeyValueStore writeBehindReadFallbackKeyValueStoreInternal =
-                new WriteBehindReadFallbackKeyValueStore(lowLevelLocalKeyValueStoreServiceBuilder.build(),
+        final LowLevelWriteBehindReadFallbackKeyValueStore writeBehindReadFallbackKeyValueStoreInternal =
+                new LowLevelWriteBehindReadFallbackKeyValueStore(lowLevelLocalKeyValueStoreServiceBuilder.build(),
                         keyValueStore,
                     ReactorBuilder.reactorBuilder().build());
 

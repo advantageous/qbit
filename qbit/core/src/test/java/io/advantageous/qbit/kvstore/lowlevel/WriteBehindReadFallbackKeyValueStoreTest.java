@@ -1,5 +1,7 @@
-package io.advantageous.qbit.kvstore;
+package io.advantageous.qbit.kvstore.lowlevel;
 
+import io.advantageous.qbit.kvstore.JsonKeyValueStoreServiceBuilder;
+import io.advantageous.qbit.kvstore.KeyValueStoreService;
 import io.advantageous.qbit.reactive.ReactorBuilder;
 import io.advantageous.qbit.util.TestTimer;
 import org.junit.Before;
@@ -19,7 +21,7 @@ public class WriteBehindReadFallbackKeyValueStoreTest {
     private KeyValueStoreService<Todo> keyValueStoreService;
     private JsonKeyValueStoreServiceBuilder jsonKeyValueStoreServiceBuilder;
 
-    private WriteBehindReadFallbackKeyValueStore writeBehindReadFallbackKeyValueStore;
+    private LowLevelWriteBehindReadFallbackKeyValueStore writeBehindReadFallbackKeyValueStore;
 
     private class Todo {
         final String name;
@@ -53,7 +55,7 @@ public class WriteBehindReadFallbackKeyValueStoreTest {
 
         jsonKeyValueStoreServiceBuilder = JsonKeyValueStoreServiceBuilder.jsonKeyValueStoreServiceBuilder();
 
-        writeBehindReadFallbackKeyValueStore = new WriteBehindReadFallbackKeyValueStore(localKeyValueStoreService,
+        writeBehindReadFallbackKeyValueStore = new LowLevelWriteBehindReadFallbackKeyValueStore(localKeyValueStoreService,
                 remoteKeyValueStoreService, ReactorBuilder.reactorBuilder().build());
 
         jsonKeyValueStoreServiceBuilder.setLowLevelKeyValueStoreService(writeBehindReadFallbackKeyValueStore);

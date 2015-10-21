@@ -1,6 +1,10 @@
 package io.advantageous.qbit.kvstore;
 
 import io.advantageous.boon.core.Sys;
+import io.advantageous.qbit.kvstore.impl.StringDecoderEncoderKeyValueStore;
+import io.advantageous.qbit.kvstore.lowlevel.LowLevelLocalKeyValueStoreService;
+import io.advantageous.qbit.kvstore.lowlevel.LowLevelLocalKeyValueStoreServiceBuilder;
+import io.advantageous.qbit.kvstore.lowlevel.LowLevelWriteBehindReadFallbackKeyValueStore;
 import io.advantageous.qbit.reactive.Callback;
 import io.advantageous.qbit.reactive.ReactorBuilder;
 import io.advantageous.qbit.service.ServiceBuilder;
@@ -36,7 +40,7 @@ public class RedisStoreTestWithFallback {
     private KeyValueStoreService<Todo> keyValueStoreService;
     private JsonKeyValueStoreServiceBuilder jsonKeyValueStoreServiceBuilder;
 
-    private WriteBehindReadFallbackKeyValueStore writeBehindReadFallbackKeyValueStore;
+    private LowLevelWriteBehindReadFallbackKeyValueStore writeBehindReadFallbackKeyValueStore;
 
 
 
@@ -65,7 +69,7 @@ public class RedisStoreTestWithFallback {
 
         jsonKeyValueStoreServiceBuilder = JsonKeyValueStoreServiceBuilder.jsonKeyValueStoreServiceBuilder();
 
-        writeBehindReadFallbackKeyValueStore = new WriteBehindReadFallbackKeyValueStore(localKeyValueStoreService,
+        writeBehindReadFallbackKeyValueStore = new LowLevelWriteBehindReadFallbackKeyValueStore(localKeyValueStoreService,
                 keyValueStore, ReactorBuilder.reactorBuilder().build());
 
         jsonKeyValueStoreServiceBuilder.setLowLevelKeyValueStoreService(writeBehindReadFallbackKeyValueStore);

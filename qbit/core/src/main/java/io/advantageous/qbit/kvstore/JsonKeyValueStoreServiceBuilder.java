@@ -2,6 +2,8 @@ package io.advantageous.qbit.kvstore;
 
 import io.advantageous.qbit.QBit;
 import io.advantageous.qbit.json.JsonMapper;
+import io.advantageous.qbit.kvstore.impl.StringDecoderEncoderKeyValueStore;
+import io.advantageous.qbit.kvstore.lowlevel.LowLevelKeyValueStoreService;
 import io.advantageous.qbit.reactive.Reactor;
 import io.advantageous.qbit.reactive.ReactorBuilder;
 

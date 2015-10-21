@@ -1,6 +1,7 @@
 package io.advantageous.qbit.kvstore;
 
 import io.advantageous.boon.core.Str;
+import io.advantageous.qbit.kvstore.lowlevel.LowLevelKeyValueStoreService;
 import io.advantageous.qbit.reactive.Callback;
 import io.advantageous.qbit.time.Duration;
 import io.vertx.redis.RedisClient;

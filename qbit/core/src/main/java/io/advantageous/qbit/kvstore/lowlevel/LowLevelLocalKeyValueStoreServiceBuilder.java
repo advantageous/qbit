@@ -1,7 +1,9 @@
-package io.advantageous.qbit.kvstore;
+package io.advantageous.qbit.kvstore.lowlevel;
 
 import io.advantageous.qbit.reactive.Reactor;
 import io.advantageous.qbit.reactive.ReactorBuilder;
+import io.advantageous.qbit.service.ServiceBuilder;
+import io.advantageous.qbit.service.ServiceQueue;
 import io.advantageous.qbit.service.stats.StatsCollector;
 import io.advantageous.qbit.time.Duration;
 import io.advantageous.qbit.util.Timer;
@@ -15,6 +17,20 @@ public class LowLevelLocalKeyValueStoreServiceBuilder {
     private StatsCollector statsCollector;
     private Duration flushCacheDuration;
     private boolean debug;
+    private ServiceBuilder serviceBuilder;
+
+
+    public ServiceBuilder getServiceBuilder() {
+        if (serviceBuilder == null) {
+            serviceBuilder = new ServiceBuilder();
+        }
+        return serviceBuilder;
+    }
+
+    public LowLevelLocalKeyValueStoreServiceBuilder setServiceBuilder(ServiceBuilder serviceBuilder) {
+        this.serviceBuilder = serviceBuilder;
+        return this;
+    }
 
     public Timer getTimer() {
         if (timer == null) {
@@ -116,6 +132,19 @@ public class LowLevelLocalKeyValueStoreServiceBuilder {
                 (flushCacheDuration==null) ? Optional.<Duration>empty() :
                         Optional.of(getFlushCacheDuration()),
                 isDebug());
+    }
+
+
+    public ServiceQueue buildAsService(){
+        final LowLevelLocalKeyValueStoreService kvStoreInternal = build();
+        return getServiceBuilder().setServiceObject(kvStoreInternal).build();
+    }
+
+
+    public ServiceQueue buildAsServiceAndStartAll(){
+        final ServiceQueue serviceQueue = buildAsService();
+        serviceQueue.startAll();
+        return serviceQueue;
     }
 
     public static LowLevelLocalKeyValueStoreServiceBuilder localKeyValueStoreBuilder() {
