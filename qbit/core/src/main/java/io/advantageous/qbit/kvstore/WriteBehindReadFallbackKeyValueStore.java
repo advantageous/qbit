@@ -14,6 +14,9 @@ import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
+/**
+ * Allows you to specify two kvstores that will be both written to and read from in order
+ */
 public class WriteBehindReadFallbackKeyValueStore implements LowLevelKeyValueStoreService{
 
 
@@ -22,8 +25,21 @@ public class WriteBehindReadFallbackKeyValueStore implements LowLevelKeyValueSto
      */
     private final Logger logger = LoggerFactory.getLogger(StringDecoderEncoderKeyValueStore.class);
 
+    /**
+     * Write to the local first, and read from it first.
+     */
     private final LowLevelKeyValueStoreService localKeyValueStore;
+
+
+    /**
+     * Write to the remote last, and write to it last.
+     */
     private final LowLevelKeyValueStoreService remoteKeyValueStore;
+
+
+    /**
+     * Reactor
+     */
     private final Reactor reactor;
 
     public WriteBehindReadFallbackKeyValueStore(LowLevelKeyValueStoreService localKeyValueStore,
@@ -63,18 +79,15 @@ public class WriteBehindReadFallbackKeyValueStore implements LowLevelKeyValueSto
                 count.incrementAndGet();
             });
 
-        final CallbackCoordinator callbackCoordinator = new CallbackCoordinator() {
-            @Override
-            public boolean checkComplete() {
+        final CallbackCoordinator callbackCoordinator = () -> {
 
-                if (count.get() >= 2) {
+            if (count.get() >= 2) {
 
-                    logger.info("DONE PROCESSING");
-                    return true;
-                }
-                return false;
-
+                logger.info("DONE PROCESSING");
+                return true;
             }
+            return false;
+
         };
         reactor.coordinatorBuilder()
                 .setCoordinator(callbackCoordinator)

@@ -144,8 +144,10 @@ public class RedisKeyValueStoreTest {
     @Test
     public void testPutWithConfirmationWrapped() throws Exception{
 
-        final KeyValueStoreService<Todo> todoKVStoreInternal = JsonKeyValueStoreServiceBuilder.jsonKeyValueStoreServiceBuilder()
-                .setLowLevelKeyValueStoreService(keyValueStore).buildKeyValueStore(Todo.class);
+        final KeyValueStoreService<Todo> todoKVStoreInternal = JsonKeyValueStoreServiceBuilder
+                .jsonKeyValueStoreServiceBuilder()
+                .setLowLevelKeyValueStoreService(keyValueStore)
+                .buildKeyValueStore(Todo.class);
 
 
         final KeyValueStoreService<Todo> todoKVStore = ServiceBuilder.serviceBuilder()
@@ -248,7 +250,8 @@ public class RedisKeyValueStoreTest {
     @Test
     public void testPutWithConfirmationFallback() throws Exception{
 
-        final LowLevelLocalKeyValueStoreServiceBuilder lowLevelLocalKeyValueStoreServiceBuilder = LowLevelLocalKeyValueStoreServiceBuilder.localKeyValueStoreBuilder();
+        final LowLevelLocalKeyValueStoreServiceBuilder lowLevelLocalKeyValueStoreServiceBuilder =
+                LowLevelLocalKeyValueStoreServiceBuilder.localKeyValueStoreBuilder();
 
 
         final WriteBehindReadFallbackKeyValueStore writeBehindReadFallbackKeyValueStoreInternal =

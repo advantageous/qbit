@@ -12,6 +12,10 @@ import org.slf4j.LoggerFactory;
 import java.util.Optional;
 import java.util.function.Function;
 
+/**
+ * allows you to specify an encoder and decoder to convert objects to/fro Strings
+ * @param <T>
+ */
 public class StringDecoderEncoderKeyValueStore<T> implements KeyValueStoreService<T>{
 
 
