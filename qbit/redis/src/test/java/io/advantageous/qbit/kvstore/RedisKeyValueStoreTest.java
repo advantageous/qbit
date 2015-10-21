@@ -14,6 +14,8 @@ import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -41,6 +43,12 @@ public class RedisKeyValueStoreTest {
         builder.setRedisOptions(null);
         builder.setVertx(null);
         builder.setVertxOptions(null);
+
+        try {
+            builder.setRedisUri(new URI("redis://redisdb:foo@localhost:6379/0"));
+        } catch (URISyntaxException e) {
+            e.printStackTrace();
+        }
         keyValueStore = builder.build();
     }
 
