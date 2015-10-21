@@ -1,6 +1,9 @@
 package io.advantageous.qbit.kvstore;
 
 import io.advantageous.boon.core.Sys;
+import io.advantageous.qbit.kvstore.lowlevel.LowLevelKeyValueStoreService;
+import io.advantageous.qbit.kvstore.lowlevel.LowLevelLocalKeyValueStoreServiceBuilder;
+import io.advantageous.qbit.kvstore.lowlevel.LowLevelWriteBehindReadFallbackKeyValueStore;
 import io.advantageous.qbit.reactive.CallbackBuilder;
 import io.advantageous.qbit.reactive.ReactorBuilder;
 import io.advantageous.qbit.service.ServiceBuilder;
@@ -11,6 +14,8 @@ import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -38,6 +43,12 @@ public class RedisKeyValueStoreTest {
         builder.setRedisOptions(null);
         builder.setVertx(null);
         builder.setVertxOptions(null);
+
+        try {
+            builder.setRedisUri(new URI("redis://redisdb:foo@localhost:6379/0"));
+        } catch (URISyntaxException e) {
+            e.printStackTrace();
+        }
         keyValueStore = builder.build();
     }
 
@@ -144,8 +155,10 @@ public class RedisKeyValueStoreTest {
     @Test
     public void testPutWithConfirmationWrapped() throws Exception{
 
-        final KeyValueStoreService<Todo> todoKVStoreInternal = JsonKeyValueStoreServiceBuilder.jsonKeyValueStoreServiceBuilder()
-                .setLowLevelKeyValueStoreService(keyValueStore).buildKeyValueStore(Todo.class);
+        final KeyValueStoreService<Todo> todoKVStoreInternal = JsonKeyValueStoreServiceBuilder
+                .jsonKeyValueStoreServiceBuilder()
+                .setLowLevelKeyValueStoreService(keyValueStore)
+                .buildKeyValueStore(Todo.class);
 
 
         final KeyValueStoreService<Todo> todoKVStore = ServiceBuilder.serviceBuilder()
@@ -248,11 +261,12 @@ public class RedisKeyValueStoreTest {
     @Test
     public void testPutWithConfirmationFallback() throws Exception{
 
-        final LowLevelLocalKeyValueStoreServiceBuilder lowLevelLocalKeyValueStoreServiceBuilder = LowLevelLocalKeyValueStoreServiceBuilder.localKeyValueStoreBuilder();
+        final LowLevelLocalKeyValueStoreServiceBuilder lowLevelLocalKeyValueStoreServiceBuilder =
+                LowLevelLocalKeyValueStoreServiceBuilder.localKeyValueStoreBuilder();
 
 
-        final WriteBehindReadFallbackKeyValueStore writeBehindReadFallbackKeyValueStoreInternal =
-                new WriteBehindReadFallbackKeyValueStore(lowLevelLocalKeyValueStoreServiceBuilder.build(),
+        final LowLevelWriteBehindReadFallbackKeyValueStore writeBehindReadFallbackKeyValueStoreInternal =
+                new LowLevelWriteBehindReadFallbackKeyValueStore(lowLevelLocalKeyValueStoreServiceBuilder.build(),
                         keyValueStore,
                     ReactorBuilder.reactorBuilder().build());
 

@@ -1,9 +1,12 @@
 package io.advantageous.qbit.kvstore;
 
+import io.advantageous.boon.core.Str;
 import io.vertx.core.Vertx;
 import io.vertx.core.VertxOptions;
 import io.vertx.redis.RedisClient;
 import io.vertx.redis.RedisOptions;
+
+import java.net.URI;
 
 public class RedisKeyValueStoreBuilder {
 
@@ -11,6 +14,27 @@ public class RedisKeyValueStoreBuilder {
     private Vertx vertx;
     private RedisClient redisClient;
     private VertxOptions vertxOptions;
+
+    /**
+     * RedisKeyValueStoreBuilder redis://redisdb:<password>@<host>:<port>/0
+     * @return this
+     */
+    public RedisKeyValueStoreBuilder setRedisUri(final URI uri) {
+
+        getRedisOptions().setPort(uri.getPort());
+        getRedisOptions().setHost(uri.getHost());
+
+        final String userInfo = uri.getUserInfo();
+        final String[] split = Str.split(userInfo);
+
+        if (split.length ==2) {
+            getRedisOptions().setAuth(split[1]);
+        } else if (split.length == 1) {
+            getRedisOptions().setAuth(split[0]);
+        }
+
+        return this;
+    }
 
     public VertxOptions getVertxOptions() {
         if (vertxOptions==null) {
@@ -28,6 +52,7 @@ public class RedisKeyValueStoreBuilder {
 
         if (redisClient == null) {
             redisClient = RedisClient.create(getVertx(), getRedisOptions());
+
         }
         return redisClient;
     }

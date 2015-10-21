@@ -1,7 +1,9 @@
-package io.advantageous.qbit.kvstore;
+package io.advantageous.qbit.kvstore.impl;
 
 import io.advantageous.qbit.annotation.QueueCallback;
 import io.advantageous.qbit.annotation.QueueCallbackType;
+import io.advantageous.qbit.kvstore.KeyValueStoreService;
+import io.advantageous.qbit.kvstore.lowlevel.LowLevelKeyValueStoreService;
 import io.advantageous.qbit.reactive.Callback;
 import io.advantageous.qbit.reactive.CallbackBuilder;
 import io.advantageous.qbit.reactive.Reactor;
@@ -12,7 +14,11 @@ import org.slf4j.LoggerFactory;
 import java.util.Optional;
 import java.util.function.Function;
 
-public class StringDecoderEncoderKeyValueStore<T> implements KeyValueStoreService<T>{
+/**
+ * allows you to specify an encoder and decoder to convert objects to/fro Strings
+ * @param <T>
+ */
+public class StringDecoderEncoderKeyValueStore<T> implements KeyValueStoreService<T> {
 
 
     /**

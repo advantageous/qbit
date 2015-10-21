@@ -2,11 +2,40 @@ package io.advantageous.qbit.kvstore;
 
 import io.advantageous.qbit.QBit;
 import io.advantageous.qbit.json.JsonMapper;
+import io.advantageous.qbit.kvstore.impl.StringDecoderEncoderKeyValueStore;
+import io.advantageous.qbit.kvstore.lowlevel.LowLevelKeyValueStoreService;
 import io.advantageous.qbit.reactive.Reactor;
 import io.advantageous.qbit.reactive.ReactorBuilder;
 
 import java.util.List;
 
+/**
+ * ***JsonKeyValueStoreServiceBuilder*** produces `StringDecoderEncoderKeyValueStore`
+ * that can serialize/parse object to/for Java/JSON.
+ * You don't typically use the `StringDecoderEncoderKeyValueStore` directly but you could.
+ * Instead you use it in conjunction with the ***JsonKeyValueStoreServiceBuilder*** which constructs
+ * `StringDecoderEncoderKeyValueStore` that do JSON encoding and decoding.
+ *
+ * #### Example using JsonKeyValueStoreServiceBuilder
+ *
+ * ```java
+ *
+ *
+ * private JsonKeyValueStoreServiceBuilder jsonKeyValueStoreServiceBuilder;
+ * private LowLevelLocalKeyValueStoreService localKeyValueStoreService = ...;
+ * private KeyValueStoreService<Todo> keyValueStoreService;
+ *
+ * jsonKeyValueStoreServiceBuilder.setLowLevelKeyValueStoreService(localKeyValueStoreService);
+ *
+ * keyValueStoreService = jsonKeyValueStoreServiceBuilder.buildKeyValueStore(Todo.class);
+ * keyValueStoreService.put("key", new Todo("value"));
+ *
+ *
+ * ```
+ *
+ * Essentially `JsonKeyValueStoreServiceBuilder` can turn a `LowLevelLocalKeyValueStoreService`
+ * into a `KeyValueStoreService<Todo>` (object store).
+ */
 public class JsonKeyValueStoreServiceBuilder {
 
     private LowLevelKeyValueStoreService lowLevelKeyValueStoreService;

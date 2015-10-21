@@ -18,7 +18,7 @@ public interface KeyValueStoreService<T> {
      * @param key key
      * @param value value
      */
-    void put(final String key, final T value);
+    default void put(final String key, final T value){}
 
     /**
      * Store a value and get a confirmation that it was stored.
@@ -26,9 +26,11 @@ public interface KeyValueStoreService<T> {
      * @param key key
      * @param value value
      */
-    void putWithConfirmation(final Callback<Boolean> confirmation,
+    default void putWithConfirmation(final Callback<Boolean> confirmation,
                                    final String key,
-                                   final T value);
+                                   final T value) {
+        confirmation.accept(true);
+    }
 
     /**
      * Store a key value with an expiry ad confirmation.
@@ -37,11 +39,13 @@ public interface KeyValueStoreService<T> {
      * @param value value
      * @param expiry expiry
      */
-    void putWithConfirmationAndTimeout(
+    default void putWithConfirmationAndTimeout(
             final Callback<Boolean> confirmation,
             final String key,
             final T value,
-            final Duration expiry);
+            final Duration expiry) {
+        confirmation.accept(true);
+    }
 
     /**
      * Store a key value with a timeout expiry.
@@ -49,19 +53,23 @@ public interface KeyValueStoreService<T> {
      * @param value value
      * @param expiry expiry
      */
-    void putWithTimeout(
+    default void putWithTimeout(
             final String key,
             final T value,
-            final Duration expiry);
+            final Duration expiry) {
+
+    }
 
 
     /**
      * Get a String key value.
-     * @param confirmation confirmation
+     * @param callback callback
      * @param key key
      */
-    void get( final Callback<Optional<T>> confirmation,
-                    final String key);
+    default void get( final Callback<Optional<T>> callback,
+                    final String key) {
+        callback.returnThis(Optional.<T>empty());
+    }
 
 
     /**
@@ -69,15 +77,17 @@ public interface KeyValueStoreService<T> {
      * @param hasKeyCallback hasKeyCallback
      * @param key key
      */
-    void hasKey(    final Callback<Boolean> hasKeyCallback,
-                    final java.lang.String key);
+    default void hasKey(    final Callback<Boolean> hasKeyCallback,
+                    final java.lang.String key) {
+        hasKeyCallback.returnThis(false);
+    }
 
 
     /**
      * Delete the key.
      * @param key key
      */
-    void delete(final String key);
+    default void delete(final String key){}
 
 
 
@@ -85,9 +95,20 @@ public interface KeyValueStoreService<T> {
      * Delete the key with confirmation.
      * @param key key
      */
-    void deleteWithConfirmation(    final Callback<Boolean> confirmation,
-                                    final java.lang.String key);
+    default void deleteWithConfirmation(    final Callback<Boolean> confirmation,
+                                    final java.lang.String key){
+        confirmation.returnThis(true);
+    }
 
 
-    void process();
+    /**
+     * Only used for local caches, not remote.
+     */
+    default void wipeCache() {
+
+    }
+
+    default void process() {
+
+    }
 }

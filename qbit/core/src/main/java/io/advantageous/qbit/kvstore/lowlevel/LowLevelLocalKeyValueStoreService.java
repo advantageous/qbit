@@ -1,4 +1,4 @@
-package io.advantageous.qbit.kvstore;
+package io.advantageous.qbit.kvstore.lowlevel;
 
 import io.advantageous.boon.primitive.SimpleLRUCache;
 import io.advantageous.qbit.annotation.QueueCallback;
@@ -16,6 +16,10 @@ import java.util.Optional;
 import static io.advantageous.qbit.time.Duration.FIVE_SECONDS;
 import static io.advantageous.qbit.time.Duration.TEN_SECONDS;
 
+/**
+ * ***LowLevelLocalKeyValueStoreService*** (implements `LowLevelKeyValueStoreService`)
+ * is a near cache (in memory) for byte arrays and strings.
+ */
 public class LowLevelLocalKeyValueStoreService implements LowLevelKeyValueStoreService {
 
     private final int localCacheSize;

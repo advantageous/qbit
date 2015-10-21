@@ -1,7 +1,8 @@
-package io.advantageous.qbit.kvstore;
+package io.advantageous.qbit.kvstore.lowlevel;
 
 import io.advantageous.qbit.annotation.QueueCallback;
 import io.advantageous.qbit.annotation.QueueCallbackType;
+import io.advantageous.qbit.kvstore.impl.StringDecoderEncoderKeyValueStore;
 import io.advantageous.qbit.reactive.Callback;
 import io.advantageous.qbit.reactive.CallbackBuilder;
 import io.advantageous.qbit.reactive.CallbackCoordinator;
@@ -14,7 +15,10 @@ import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class WriteBehindReadFallbackKeyValueStore implements LowLevelKeyValueStoreService{
+/**
+ * Allows you to specify two kvstores that will be both written to and read from in order
+ */
+public class LowLevelWriteBehindReadFallbackKeyValueStore implements LowLevelKeyValueStoreService {
 
 
     /**
@@ -22,13 +26,26 @@ public class WriteBehindReadFallbackKeyValueStore implements LowLevelKeyValueSto
      */
     private final Logger logger = LoggerFactory.getLogger(StringDecoderEncoderKeyValueStore.class);
 
+    /**
+     * Write to the local first, and read from it first.
+     */
     private final LowLevelKeyValueStoreService localKeyValueStore;
+
+
+    /**
+     * Write to the remote last, and write to it last.
+     */
     private final LowLevelKeyValueStoreService remoteKeyValueStore;
+
+
+    /**
+     * Reactor
+     */
     private final Reactor reactor;
 
-    public WriteBehindReadFallbackKeyValueStore(LowLevelKeyValueStoreService localKeyValueStore,
-                                                LowLevelKeyValueStoreService remoteKeyValueStore,
-                                                Reactor reactor) {
+    public LowLevelWriteBehindReadFallbackKeyValueStore(LowLevelKeyValueStoreService localKeyValueStore,
+                                                        LowLevelKeyValueStoreService remoteKeyValueStore,
+                                                        Reactor reactor) {
         this.localKeyValueStore = localKeyValueStore;
         this.remoteKeyValueStore = remoteKeyValueStore;
         this.reactor = reactor;
@@ -63,18 +80,15 @@ public class WriteBehindReadFallbackKeyValueStore implements LowLevelKeyValueSto
                 count.incrementAndGet();
             });
 
-        final CallbackCoordinator callbackCoordinator = new CallbackCoordinator() {
-            @Override
-            public boolean checkComplete() {
+        final CallbackCoordinator callbackCoordinator = () -> {
 
-                if (count.get() >= 2) {
+            if (count.get() >= 2) {
 
-                    logger.info("DONE PROCESSING");
-                    return true;
-                }
-                return false;
-
+                logger.info("DONE PROCESSING");
+                return true;
             }
+            return false;
+
         };
         reactor.coordinatorBuilder()
                 .setCoordinator(callbackCoordinator)

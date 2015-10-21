@@ -151,9 +151,27 @@ public class CallbackBuilder {
 
         this.withTimeoutHandler(callback::onTimeout);
 
-        this.callback = callback;
         return this;
     }
+
+    /**
+     * Builder method to wrap and delegate, timeout and error handling and callback itself.
+     *
+     * @param callback callback
+     * @param <T> T
+     * @return this
+     */
+    public <T> CallbackBuilder wrap(final Callback<T> callback) {
+
+        this.withErrorHandler(callback::onError);
+
+        this.withTimeoutHandler(callback::onTimeout);
+
+        this.withCallback(callback);
+
+        return this;
+    }
+
 
 
     /**
@@ -167,6 +185,29 @@ public class CallbackBuilder {
                                                    final String operationName) {
 
         this.withErrorHandler(throwable -> {
+            logger.error(operationName + " ERROR ", throwable);
+            callback.onError(throwable);
+        });
+
+        this.withTimeoutHandler(() -> {
+            logger.error(operationName + " TIMED OUT ");
+            callback.onTimeout();
+        });
+
+        return this;
+    }
+
+    /**
+     * Builder method to wrap / delegate timeout and error handling as well as callback itself.
+     *
+     * @param callback callback
+     * @param <T> T
+     * @return this
+     */
+    public <T> CallbackBuilder wrapWithLogging(final Callback<T> callback, final Logger logger,
+                                                   final String operationName) {
+
+        this.withErrorHandler(throwable -> {
             logger.error(operationName + " error ", throwable);
             callback.onError(throwable);
         });
@@ -176,9 +217,12 @@ public class CallbackBuilder {
             callback.onTimeout();
         });
 
-        this.callback = callback;
+
+
+        this.withCallback(callback);
         return this;
     }
+
 
     /**
      * Builder method to set the callback handler.
@@ -424,7 +468,6 @@ public class CallbackBuilder {
      *
      * @return error handler
      */
-    @Deprecated
     public Consumer<Throwable> getOnError() {
         return onError;
     }

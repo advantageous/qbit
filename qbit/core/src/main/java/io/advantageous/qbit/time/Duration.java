@@ -8,6 +8,8 @@ import java.util.concurrent.TimeUnit;
  */
 public class Duration {
 
+
+    public static final Duration NEVER = new Duration(Long.MAX_VALUE, TimeUnit.SECONDS);
     public static final Duration NANOSECONDS = new Duration(1, TimeUnit.NANOSECONDS);
     public static final Duration SECOND = new Duration(1, TimeUnit.SECONDS);
     public static final Duration ONE_SECOND = SECOND;

@@ -1,303 +1,373 @@
 package io.advantageous.qbit.kvstore;
 
-import io.advantageous.qbit.reactive.ReactorBuilder;
+import io.advantageous.boon.core.Sys;
+import io.advantageous.qbit.kvstore.lowlevel.LowLevelKeyValueStoreService;
+import io.advantageous.qbit.kvstore.lowlevel.LowLevelLocalKeyValueStoreServiceBuilder;
+import io.advantageous.qbit.service.ServiceProxyUtils;
+import io.advantageous.qbit.time.Duration;
 import io.advantageous.qbit.util.TestTimer;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.util.Optional;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
 
-import static io.advantageous.qbit.time.Duration.TEN_SECONDS;
 import static org.junit.Assert.*;
 
-/** Testing an async interface but it is not  yet async. */
 public class LocalKeyValueStoreServiceTest {
 
-    private LowLevelLocalKeyValueStoreService localKeyValueStoreService;
-    private LowLevelLocalKeyValueStoreServiceBuilder localKeyValueStoreServiceBuilder;
+    KeyValueStoreService<Todo> kvStore;
+    LowLevelKeyValueStoreService lowLevelKVStore;
+    TestTimer timer;
 
-    private TestTimer testTimer;
+
+    public static class Todo {
+        final String name;
+        public Todo(String name) {
+            this.name = name;
+        }
+        @Override
+        public String toString() {return name;}
+    }
 
     @Before
-    public void before() {
-        localKeyValueStoreServiceBuilder =
-        LowLevelLocalKeyValueStoreServiceBuilder.localKeyValueStoreBuilder();
+    public void setup() {
 
-        testTimer = new TestTimer();
-        testTimer.setTime();
+        timer = new TestTimer();
 
-        localKeyValueStoreServiceBuilder.useDefaultFlushCacheDuration();
-        localKeyValueStoreServiceBuilder.setTimer(testTimer).build();
-        localKeyValueStoreService = localKeyValueStoreServiceBuilder.setDebug(true).build();
+        lowLevelKVStore = LowLevelLocalKeyValueStoreServiceBuilder.localKeyValueStoreBuilder()
+                .setTimer(timer)
+                .buildAsServiceAndStartAll()
+                .createProxy(LowLevelKeyValueStoreService.class);
 
-        localKeyValueStoreService.process();
+        kvStore = LocalKeyValueStoreServiceBuilder.localKeyValueStoreServiceBuilder(Todo.class)
+                .setTimer(timer)
+                .setWriteBehindAndReadFallbackAsLowLevel(lowLevelKVStore)
+                .buildAsServiceAndStartAll().createProxy(KeyValueStoreService.class);
+
+        Sys.sleep(100);
+
     }
 
+    public void setupWithDebug() {
+        lowLevelKVStore = LowLevelLocalKeyValueStoreServiceBuilder.localKeyValueStoreBuilder()
+                .setTimer(timer)
+                .buildAsServiceAndStartAll()
+                .createProxy(LowLevelKeyValueStoreService.class);
 
-    @Test
-    public void testString() {
-        final boolean[] hasKeyRef = new boolean[1];
-        final String[] valueHolder = new String[1];
-        localKeyValueStoreService.hasKey(hasKey -> hasKeyRef[0] = hasKey, "key");
-        assertEquals(false, hasKeyRef[0]);
-        localKeyValueStoreService.putString("key", "value");
-        localKeyValueStoreService.hasKey(hasKey -> hasKeyRef[0] = hasKey, "key");
-        assertEquals(true, hasKeyRef[0]);
+        kvStore = LocalKeyValueStoreServiceBuilder.localKeyValueStoreServiceBuilder(Todo.class)
+                .setTimer(timer).setDebug(true).setDebugInterval(Duration.ONE_HOUR)
+                .setWriteBehindAndReadFallbackAsLowLevel(lowLevelKVStore)
+                .buildAsServiceAndStartAll().createProxy(KeyValueStoreService.class);
 
-        localKeyValueStoreService.getString(returnValue -> {
+        timer = new TestTimer();
 
-            if (returnValue.isPresent()) {
-                valueHolder[0] = returnValue.get();
-            }
-        }, "key");
-        assertEquals("value", valueHolder[0]);
-
-        localKeyValueStoreService.delete("key");
-        localKeyValueStoreService.hasKey(hasKey -> hasKeyRef[0] = hasKey, "key");
-        assertEquals(false, hasKeyRef[0]);
-
-
-        localKeyValueStoreService.putStringWithTimeout("key", "value", TEN_SECONDS);
-        localKeyValueStoreService.hasKey(hasKey -> hasKeyRef[0] = hasKey, "key");
-        assertEquals(true, hasKeyRef[0]);
-
-
-
-        testTimer.seconds(5);
-        localKeyValueStoreService.process();
-        localKeyValueStoreService.hasKey(hasKey -> hasKeyRef[0] = hasKey, "key");
-        assertEquals(true, hasKeyRef[0]);
-
-        localKeyValueStoreService.getString(returnValue -> {
-
-            if (returnValue.isPresent()) {
-                valueHolder[0] = returnValue.get();
-            }
-        }, "key");
-        assertEquals("value", valueHolder[0]);
-
-
-        testTimer.seconds(6);
-        localKeyValueStoreService.process();
-        localKeyValueStoreService.hasKey(hasKey -> hasKeyRef[0] = hasKey, "key");
-        assertEquals(false, hasKeyRef[0]);
-
-
-        valueHolder[0] = null;
-
-        localKeyValueStoreService.getString(returnValue -> {
-
-            if (returnValue.isPresent()) {
-                valueHolder[0] = returnValue.get();
-            }
-        }, "key");
-        assertNull(valueHolder[0]);
-
-
-        //
-
-
-        localKeyValueStoreService.putStringWithTimeout("key", "value", TEN_SECONDS);
-        localKeyValueStoreService.hasKey(hasKey -> hasKeyRef[0] = hasKey, "key");
-        assertEquals(true, hasKeyRef[0]);
-
-
-
-        testTimer.seconds(5);
-        localKeyValueStoreService.process();
-
-        localKeyValueStoreService.getString(returnValue -> {
-
-            if (returnValue.isPresent()) {
-                valueHolder[0] = returnValue.get();
-            }
-        }, "key");
-        assertEquals("value", valueHolder[0]);
-
-
-        testTimer.seconds(6);
-        localKeyValueStoreService.process();
-
-
-        valueHolder[0] = null;
-
-        localKeyValueStoreService.getString(returnValue -> {
-
-            if (returnValue.isPresent()) {
-                valueHolder[0] = returnValue.get();
-            }
-        }, "key");
-        assertNull(valueHolder[0]);
-
-        //
-
-        localKeyValueStoreService.putStringWithConfirmation(
-                aBoolean -> {
-                }
-                , "key", "value");
-        localKeyValueStoreService.hasKey(hasKey -> hasKeyRef[0] = hasKey, "key");
-        assertEquals(true, hasKeyRef[0]);
-        localKeyValueStoreService.delete("key");
-
-
-        //
-
-        localKeyValueStoreService.putStringWithConfirmationAndTimeout(
-                aBoolean -> {
-                }
-                , "key", "value", TEN_SECONDS);
-        localKeyValueStoreService.hasKey(hasKey -> hasKeyRef[0] = hasKey, "key");
-
-        assertEquals(true, hasKeyRef[0]);
-        localKeyValueStoreService.delete("key");
-
+        Sys.sleep(100);
 
     }
 
 
     @Test
-    public void testBytes() {
-        final boolean[] hasKeyRef = new boolean[1];
-        final byte[][] valueHolder = new byte[1][];
-        localKeyValueStoreService.hasKey(hasKey -> hasKeyRef[0] = hasKey, "key");
-        assertEquals(false, hasKeyRef[0]);
-        localKeyValueStoreService.putBytes("key", "value".getBytes());
-        localKeyValueStoreService.hasKey(hasKey -> hasKeyRef[0] = hasKey, "key");
-        assertEquals(true, hasKeyRef[0]);
-
-        localKeyValueStoreService.getBytes(returnValue -> {
-
-            if (returnValue.isPresent()) {
-                valueHolder[0] = returnValue.get();
-            }
-        }, "key");
-        assertArrayEquals("value".getBytes(), valueHolder[0]);
-
-
-
-        localKeyValueStoreService.deleteWithConfirmation(aBoolean -> {
-
-        }, "key");
-        localKeyValueStoreService.hasKey(hasKey -> hasKeyRef[0] = hasKey, "key");
-        assertEquals(false, hasKeyRef[0]);
-
-
-        localKeyValueStoreService.putBytesWithTimeout("key", "value".getBytes(), TEN_SECONDS);
-        localKeyValueStoreService.hasKey(hasKey -> hasKeyRef[0] = hasKey, "key");
-        assertEquals(true, hasKeyRef[0]);
-
-
-        testTimer.seconds(5);
-        localKeyValueStoreService.process();
-        localKeyValueStoreService.hasKey(hasKey -> hasKeyRef[0] = hasKey, "key");
-        assertEquals(true, hasKeyRef[0]);
-
-
-        localKeyValueStoreService.getBytes(returnValue -> {
-
-            if (returnValue.isPresent()) {
-                valueHolder[0] = returnValue.get();
-            }
-        }, "key");
-        assertArrayEquals("value".getBytes(), valueHolder[0]);
-
-
-        testTimer.seconds(6);
-        localKeyValueStoreService.process();
-        localKeyValueStoreService.hasKey(hasKey -> hasKeyRef[0] = hasKey, "key");
-        assertEquals(false, hasKeyRef[0]);
-
-
-        valueHolder[0] = null;
-
-        localKeyValueStoreService.getBytes(returnValue -> {
-
-            if (returnValue.isPresent()) {
-                valueHolder[0] = returnValue.get();
-            }
-        }, "key");
-        assertNull(valueHolder[0]);
-
-
-
-
-        //
-
-
-        localKeyValueStoreService.putBytesWithTimeout("key", "value".getBytes(), TEN_SECONDS);
-        localKeyValueStoreService.hasKey(hasKey -> hasKeyRef[0] = hasKey, "key");
-        assertEquals(true, hasKeyRef[0]);
-
-
-        testTimer.seconds(5);
-        localKeyValueStoreService.process();
-
-
-        localKeyValueStoreService.getBytes(returnValue -> {
-
-            if (returnValue.isPresent()) {
-                valueHolder[0] = returnValue.get();
-            }
-        }, "key");
-        assertArrayEquals("value".getBytes(), valueHolder[0]);
-
-
-        testTimer.seconds(6);
-        localKeyValueStoreService.process();
-
-
-        valueHolder[0] = null;
-
-        localKeyValueStoreService.getBytes(returnValue -> {
-
-            if (returnValue.isPresent()) {
-                valueHolder[0] = returnValue.get();
-            }
-        }, "key");
-        assertNull(valueHolder[0]);
-
-
-        //
-
-        localKeyValueStoreService.putBytesWithConfirmation(
-                aBoolean -> {
-                }
-                , "key", "value".getBytes());
-        localKeyValueStoreService.hasKey(hasKey -> hasKeyRef[0] = hasKey, "key");
-        assertEquals(true, hasKeyRef[0]);
-        localKeyValueStoreService.delete("key");
-
-
-        //
-
-        localKeyValueStoreService.putBytesWithConfirmationAndTimeout(
-                aBoolean -> {
-                }
-                , "key", "value".getBytes(), TEN_SECONDS);
-        localKeyValueStoreService.hasKey(hasKey -> hasKeyRef[0] = hasKey, "key");
-
-        assertEquals(true, hasKeyRef[0]);
-
-        localKeyValueStoreService.delete("key");
-
-
-        testTimer.minutes(10);
-
-
-        localKeyValueStoreService.process();
-
-
-        localKeyValueStoreServiceBuilder.setFlushCacheDuration(null);
-        localKeyValueStoreServiceBuilder.build();
-
-        localKeyValueStoreServiceBuilder.setLocalCacheSize(10);
-        localKeyValueStoreServiceBuilder.setReactor(ReactorBuilder.reactorBuilder().build());
-
-
-        localKeyValueStoreServiceBuilder.setTimer(null);
-
-        localKeyValueStoreServiceBuilder.setStatsCollector(null);
-        localKeyValueStoreServiceBuilder.build();
-
-        assertNotNull(localKeyValueStoreServiceBuilder.getTimer());
+    public void testAllDebug() throws InterruptedException {
+        setupWithDebug();
+        test();
+        setupWithDebug();
+        this.putWithConfirmation();
+        setupWithDebug();
+        this.testDelete();
+        setupWithDebug();
+        this.testDeleteWithConfirmation();
     }
+
+    @Test
+    public void test() throws InterruptedException {
+
+        kvStore.put("testKey", new Todo("testValue"));
+        ServiceProxyUtils.flushServiceProxy(kvStore);
+        Sys.sleep(100);
+
+
+        final Optional<Todo> todoOptional = getTodoForKey("testKey");
+
+        assertTrue(todoOptional.isPresent());
+        assertEquals("testValue", todoOptional.get().name);
+
+
+        final Optional<String> todoForKeyFromBacking = getTodoForKeyFromBacking("testKey");
+
+        assertTrue(todoForKeyFromBacking.isPresent());
+        assertEquals("{\"name\":\"testValue\"}", todoForKeyFromBacking.get());
+
+    }
+
+
+
+    public Optional<Todo> getTodoForKey(String key) throws InterruptedException {
+        final CountDownLatch getLatch = new CountDownLatch(1);
+        final AtomicReference<Optional<Todo>> reference = new AtomicReference<>();
+
+
+        kvStore.get(todo -> {
+            reference.set(todo);
+            getLatch.countDown();
+        }, key);
+        Sys.sleep(100);
+        ServiceProxyUtils.flushServiceProxy(kvStore);
+
+        getLatch.await(2, TimeUnit.SECONDS);
+
+        assertNotNull(reference.get());
+
+        return reference.get();
+    }
+
+
+    public boolean hasKey(String key) throws InterruptedException {
+        final CountDownLatch getLatch = new CountDownLatch(1);
+        final AtomicBoolean reference = new AtomicBoolean();
+
+
+        kvStore.hasKey(present -> {
+            reference.set(present);
+            getLatch.countDown();
+        }, key);
+        Sys.sleep(100);
+        ServiceProxyUtils.flushServiceProxy(kvStore);
+
+        getLatch.await(2, TimeUnit.SECONDS);
+
+
+        return reference.get();
+    }
+
+
+    public Optional<String> getTodoForKeyFromBacking(String key) throws InterruptedException {
+        final CountDownLatch getLatch = new CountDownLatch(1);
+        final AtomicReference<Optional<String>> reference = new AtomicReference<>();
+
+
+        lowLevelKVStore.getString(todo -> {
+            reference.set(todo);
+            getLatch.countDown();
+        }, key);
+        Sys.sleep(100);
+        ServiceProxyUtils.flushServiceProxy(lowLevelKVStore);
+
+        getLatch.await(2, TimeUnit.SECONDS);
+
+        assertNotNull(reference.get());
+
+        return reference.get();
+    }
+
+    @Test
+    public void testTimeout() throws InterruptedException {
+
+        timer.setTime();
+
+        kvStore.putWithTimeout("testKey2", new Todo("testValue2"), Duration.FIVE_SECONDS);
+        ServiceProxyUtils.flushServiceProxy(kvStore);
+        Sys.sleep(100);
+
+
+        final Optional<Todo> todoOptional = getTodoForKey("testKey2");
+
+        assertTrue(todoOptional.isPresent());
+        assertEquals("testValue2", todoOptional.get().name);
+
+
+        final Optional<String> todoForKeyFromBacking = getTodoForKeyFromBacking("testKey2");
+        assertTrue(todoForKeyFromBacking.isPresent());
+        assertEquals("{\"name\":\"testValue2\"}", todoForKeyFromBacking.get());
+
+        assertTrue(hasKey("testKey2"));
+
+        timer.seconds(6);
+        Sys.sleep(1000);
+
+        final Optional<Todo> todoOptional2 = getTodoForKey("testKey2");
+        assertFalse(todoOptional2.isPresent());
+
+
+        final Optional<String> todoForKeyFromBacking2 = getTodoForKeyFromBacking("testKey2");
+        assertFalse(todoForKeyFromBacking2.isPresent());
+
+
+
+        assertFalse(hasKey("testKey2"));
+
+
+        Sys.sleep(100);
+
+
+        final Optional<Todo> todoOptional3 = getTodoForKey("testKey2");
+        assertFalse(todoOptional3.isPresent());
+
+
+        final Optional<String> todoForKeyFromBacking3 = getTodoForKeyFromBacking("testKey2");
+        assertFalse(todoForKeyFromBacking3.isPresent());
+
+
+    }
+
+
+    @Test
+    public void testDelete() throws InterruptedException {
+
+
+        kvStore.put("testKey3", new Todo("testValue3"));
+        ServiceProxyUtils.flushServiceProxy(kvStore);
+        Sys.sleep(100);
+
+
+        final Optional<Todo> todoOptional = getTodoForKey("testKey3");
+
+        assertTrue(todoOptional.isPresent());
+        assertEquals("testValue3", todoOptional.get().name);
+
+
+        final Optional<String> todoForKeyFromBacking = getTodoForKeyFromBacking("testKey3");
+        assertTrue(todoForKeyFromBacking.isPresent());
+        assertEquals("{\"name\":\"testValue3\"}", todoForKeyFromBacking.get());
+
+
+        kvStore.delete("testKey3");
+        ServiceProxyUtils.flushServiceProxy(kvStore);
+        Sys.sleep(100);
+
+        final Optional<Todo> todoOptional2 = getTodoForKey("testKey3");
+        assertFalse(todoOptional2.isPresent());
+
+
+        final Optional<String> todoForKeyFromBacking2 = getTodoForKeyFromBacking("testKey3");
+        assertFalse(todoForKeyFromBacking2.isPresent());
+
+
+    }
+
+
+    @Test
+    public void testDeleteWithConfirmation() throws InterruptedException {
+
+
+        kvStore.put("testKey3", new Todo("testValue3"));
+        ServiceProxyUtils.flushServiceProxy(kvStore);
+        Sys.sleep(100);
+
+
+        final Optional<Todo> todoOptional = getTodoForKey("testKey3");
+
+        assertTrue(todoOptional.isPresent());
+        assertEquals("testValue3", todoOptional.get().name);
+
+
+        final Optional<String> todoForKeyFromBacking = getTodoForKeyFromBacking("testKey3");
+        assertTrue(todoForKeyFromBacking.isPresent());
+        assertEquals("{\"name\":\"testValue3\"}", todoForKeyFromBacking.get());
+
+
+        CountDownLatch latch = new CountDownLatch(1);
+        AtomicBoolean deleteConfirmation = new AtomicBoolean();
+
+
+        kvStore.deleteWithConfirmation(confirmed -> {
+            deleteConfirmation.set(confirmed);
+            latch.countDown();
+        }, "testKey3");
+        ServiceProxyUtils.flushServiceProxy(kvStore);
+
+        latch.await(1, TimeUnit.SECONDS);
+
+        assertTrue(deleteConfirmation.get());
+
+        final Optional<Todo> todoOptional2 = getTodoForKey("testKey3");
+        assertFalse(todoOptional2.isPresent());
+
+
+        final Optional<String> todoForKeyFromBacking2 = getTodoForKeyFromBacking("testKey3");
+        assertFalse(todoForKeyFromBacking2.isPresent());
+
+
+    }
+
+    @Test
+    public void putWithConfirmation() throws InterruptedException {
+
+
+        CountDownLatch latch = new CountDownLatch(1);
+        AtomicBoolean putConfirmation = new AtomicBoolean();
+
+
+        kvStore.putWithConfirmation(confirmed -> {
+            putConfirmation.set(confirmed);
+            latch.countDown();
+
+        }, "testKey", new Todo("testValue"));
+
+        ServiceProxyUtils.flushServiceProxy(kvStore);
+
+        latch.await(1, TimeUnit.SECONDS);
+
+
+
+        final Optional<Todo> todoOptional = getTodoForKey("testKey");
+
+        assertTrue(todoOptional.isPresent());
+        assertEquals("testValue", todoOptional.get().name);
+
+
+        final Optional<String> todoForKeyFromBacking = getTodoForKeyFromBacking("testKey");
+
+        assertTrue(todoForKeyFromBacking.isPresent());
+        assertEquals("{\"name\":\"testValue\"}", todoForKeyFromBacking.get());
+
+    }
+
+
+
+    @Test
+    public void testTimeoutWithPutConfirmation() throws InterruptedException {
+
+        timer.setTime();
+
+        CountDownLatch latch = new CountDownLatch(1);
+        AtomicBoolean putConfirmation = new AtomicBoolean();
+
+        kvStore.putWithConfirmationAndTimeout(confirmed -> {
+            putConfirmation.set(confirmed);
+            latch.countDown();
+        },"testKey2", new Todo("testValue2"), Duration.FIVE_SECONDS);
+        ServiceProxyUtils.flushServiceProxy(kvStore);
+
+        latch.await(1, TimeUnit.SECONDS);
+
+
+        final Optional<Todo> todoOptional = getTodoForKey("testKey2");
+
+        assertTrue(todoOptional.isPresent());
+        assertEquals("testValue2", todoOptional.get().name);
+
+
+        final Optional<String> todoForKeyFromBacking = getTodoForKeyFromBacking("testKey2");
+        assertTrue(todoForKeyFromBacking.isPresent());
+        assertEquals("{\"name\":\"testValue2\"}", todoForKeyFromBacking.get());
+
+        timer.seconds(6);
+
+
+        final Optional<Todo> todoOptional2 = getTodoForKey("testKey2");
+        assertFalse(todoOptional2.isPresent());
+
+
+        final Optional<String> todoForKeyFromBacking2 = getTodoForKeyFromBacking("testKey2");
+        assertFalse(todoForKeyFromBacking2.isPresent());
+
+
+    }
+
+
+
 }
