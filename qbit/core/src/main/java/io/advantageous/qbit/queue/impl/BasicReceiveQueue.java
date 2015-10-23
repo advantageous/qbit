@@ -52,7 +52,7 @@ class BasicReceiveQueue<T> implements ReceiveQueue<T> {
     @Override
     public T pollWait() {
         if (lastQueue != null) {
-            return getItemFromLocalQueue();
+             return  getItemFromLocalQueue();
         }
         try {
             Object o = queue.poll(waitTime, timeUnit);
@@ -66,6 +66,7 @@ class BasicReceiveQueue<T> implements ReceiveQueue<T> {
 
     private T getItemFromLocalQueue() {
         if (lastQueue.length == 0) {
+            lastQueue=null;
             return null;
         }
         @SuppressWarnings("unchecked") T item = (T) lastQueue[lastQueueIndex];

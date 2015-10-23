@@ -116,16 +116,18 @@ public abstract class AbstractBasicSendQueue <T> implements SendQueue<T> {
 
     @Override
     public final void flushSends() {
-        if (index > 0) {
-            sendLocalQueue();
-        }
+        sendLocalQueue();
     }
 
     protected final boolean sendLocalQueue() {
 
-        final Object[] copy = fastObjectArraySlice(queueLocal, 0, index);
-        boolean ableToSend = sendArray(copy);
-        index = 0;
-        return ableToSend;
+        if (index > 0) {
+            final Object[] copy = fastObjectArraySlice(queueLocal, 0, index);
+            boolean ableToSend = sendArray(copy);
+            index = 0;
+            return ableToSend;
+        } else {
+            return false;
+        }
     }
 }
