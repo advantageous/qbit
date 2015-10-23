@@ -11,6 +11,11 @@ public class Duration {
 
     public static final Duration NEVER = new Duration(Long.MAX_VALUE, TimeUnit.SECONDS);
     public static final Duration NANOSECONDS = new Duration(1, TimeUnit.NANOSECONDS);
+
+    public static final Duration MINUTE = new Duration(1, TimeUnit.MINUTES);
+    public static final Duration ONE_MINUTE = MINUTE;
+    public static final Duration MINUTES = MINUTE;
+
     public static final Duration SECOND = new Duration(1, TimeUnit.SECONDS);
     public static final Duration ONE_SECOND = SECOND;
     public static final Duration SECONDS = SECOND;
@@ -44,6 +49,17 @@ public class Duration {
      */
     public static Duration seconds(long units) {
         return SECONDS.units(units);
+    }
+
+
+
+    /** Used to create minute duration.
+     *
+     * @param units number of seconds
+     * @return Duration in seconds
+     */
+    public static Duration minutes(long units) {
+        return MINUTES.units(units);
     }
 
 
