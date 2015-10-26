@@ -15,16 +15,21 @@ public class JSendResponse<T> {
     @JsonInclude
     private final T data;
 
-    public JSendResponse(final Class<T> type, final T value) {
+    private final JSendStatus status;
+
+    public JSendResponse(final Class<T> type, final T value, JSendStatus status) {
         this.type = type;
         this.data = value;
+        this.status = status;
     }
 
 
-    public JSendResponse(final T value) {
-        this.type =  (Class<T>) (Object) Object.class;
-        this.data = value;
+    @Override
+    public String toString() {
+        return "JSendResponse{" +
+                "type=" + type +
+                ", data=" + data +
+                ", status=" + status +
+                '}';
     }
-
-
 }

@@ -13,4 +13,9 @@ public enum JSendStatus {
     JSendStatus(final String status) {
         this.status = status;
     }
+
+    @Override
+    public String toString() {
+        return status;
+    }
 }
