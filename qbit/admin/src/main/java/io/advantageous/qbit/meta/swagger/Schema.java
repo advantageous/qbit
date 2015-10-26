@@ -27,7 +27,6 @@ public class Schema {
         return new Schema("array", null, items, null, null, null);
     }
 
-
     public static Schema schema(String type) {
         return new Schema(type, null, null, null, null, null);
     }

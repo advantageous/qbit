@@ -220,12 +220,9 @@ public class Admin {
      * @return true if blacklisted
      */
     private final boolean isBlackListed(final String key){
-        return blackListForSystemProperties.stream().anyMatch(new Predicate<String>() {
-            @Override
-            public boolean test(final String blackListedWord) {
-                return key.toUpperCase().contains(blackListedWord.toUpperCase());
-            }
-        });
+        return blackListForSystemProperties.stream()
+                .anyMatch(blackListedWord -> key.toUpperCase()
+                .contains(blackListedWord.toUpperCase()));
     }
 
 
