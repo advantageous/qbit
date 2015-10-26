@@ -98,7 +98,9 @@ public class HttpRequestServiceServerHandlerUsingMetaImpl implements HttpRequest
                 && !requestMetaData.getMethod().hasCallBack()) {
 
             request.handled();
-            writeResponse(request.getReceiver(), HttpStatus.ACCEPTED,
+
+            final int responseCode = requestMetaData.getMethod().getResponseCode();
+            writeResponse(request.getReceiver(), responseCode == -1 ? HttpStatus.ACCEPTED: responseCode,
                     "application/json", "\"success\"", MultiMap.empty());
 
         }
@@ -121,8 +123,15 @@ public class HttpRequestServiceServerHandlerUsingMetaImpl implements HttpRequest
             if (response.body() instanceof HttpResponse) {
                 writeHttpResponse(originatingRequest.getReceiver(), ((HttpResponse) response.body()));
             } else {
-                //TODO this is where you would add J-SEND SUPPORT #379 https://github.com/advantageous/qbit/issues/379
-                writeResponse(originatingRequest.getReceiver(), HttpStatus.OK, "application/json", jsonMapper.toJson(response.body()), response.headers());
+                final RequestMetaData requestMetaData = metaDataProviderMap
+                        .get(RequestMethod.valueOf(originatingRequest.getMethod())).get(originatingRequest.address());
+
+                final int responseCode = requestMetaData.getMethod().getResponseCode();
+                writeResponse(originatingRequest.getReceiver(),
+                        responseCode == -1 ? HttpStatus.OK : responseCode,
+                        "application/json",
+                        jsonMapper.toJson(response.body()),
+                        response.headers());
             }
         }
 

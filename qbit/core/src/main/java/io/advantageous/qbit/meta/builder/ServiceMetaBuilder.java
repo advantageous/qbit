@@ -11,7 +11,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import java.util.function.Predicate;
 
 import static io.advantageous.qbit.meta.builder.ContextMetaBuilder.*;
 
@@ -117,6 +116,8 @@ public class ServiceMetaBuilder {
 
             final String summary = getSummaryFromRequestMapping(methodAccess);
 
+            final int code = getCodeFromRequestMapping(methodAccess);
+
             final List<RequestMethod> requestMethods = getRequestMethodsByAnnotated(methodAccess);
 
 
@@ -125,6 +126,7 @@ public class ServiceMetaBuilder {
             serviceMethodMetaBuilder.setDescription(description);
             serviceMethodMetaBuilder.setSummary(summary);
             serviceMethodMetaBuilder.setReturnDescription(returnDescription);
+            serviceMethodMetaBuilder.setResponseCode(code);
 
             for (String path : requestPaths) {
                 CallType callType = path.contains("{") ? CallType.ADDRESS_WITH_PATH_PARAMS : CallType.ADDRESS;

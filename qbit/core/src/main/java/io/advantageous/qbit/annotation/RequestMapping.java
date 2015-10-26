@@ -68,4 +68,15 @@ public @interface RequestMapping {
      * @return summary
      */
     String summary() default "no summary";
+
+
+    /**
+     * If successful and not set to -1, this will be the HTTP response code returned.
+     * If set to -1, then it it will be 200 (OK) if no exception is thrown and a return type or Callback is defined.
+     * Otherwise it will be a 202 (ACCEPTED) if there are no callbacks or a return.
+     * Note that if you want to get exceptions reported, you have to define a callback or return.
+     * This is only used for methods not classes.
+     * @return code
+     */
+    int code() default -1;
 }

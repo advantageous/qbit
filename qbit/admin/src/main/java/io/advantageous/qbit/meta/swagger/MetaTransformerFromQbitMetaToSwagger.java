@@ -141,25 +141,43 @@ public class MetaTransformerFromQbitMetaToSwagger {
 
             final ResponseBuilder responseBuilder = new ResponseBuilder();
 
-            if (methodMeta.isReturnMap()) {
 
+            switch (methodMeta.getGenericReturnType()) {
+                case MAP:
 
-                final Schema mapClassSchema = definitionClassCollector.getSchemaWithMapClass(methodMeta.getReturnType(),
-                        methodMeta.getReturnTypeComponentKey(), methodMeta.getReturnTypeComponentValue());
-                responseBuilder.setSchema(mapClassSchema);
+                    final Schema mapClassSchema = definitionClassCollector.getSchemaWithMapClass(methodMeta.getReturnType(),
+                            methodMeta.getReturnTypeComponentKey(), methodMeta.getReturnTypeComponentValue());
+                    responseBuilder.setSchema(mapClassSchema);
 
-            } else if (methodMeta.isReturnCollection() || methodMeta.isReturnArray()) {
-                responseBuilder.setSchema(definitionClassCollector.getSchemaWithComponentClass(methodMeta.getReturnType(),
-                        methodMeta.getReturnTypeComponent()));
+                    break;
 
-            } else {
+                case COLLECTION:
+                case OPTIONAL:
+                case ARRAY:
+                    responseBuilder.setSchema(definitionClassCollector.getSchemaWithComponentClass(methodMeta.getReturnType(),
+                            methodMeta.getReturnTypeComponent()));
+                    break;
 
-                responseBuilder.setSchema(definitionClassCollector.getSchema(methodMeta.getReturnType()));
+                case JSEND:
+                    responseBuilder.setSchema(definitionClassCollector.getSchemaForJSend(methodMeta.getReturnType(),
+                            methodMeta.getReturnTypeComponent()));
+                    break;
 
+                case JSEND_ARRAY:
+                    responseBuilder.setSchema(definitionClassCollector.getSchemaForJSendArray(methodMeta.getReturnType(),
+                            methodMeta.getReturnTypeComponent()));
+                    break;
+                default:
+                    responseBuilder.setSchema(definitionClassCollector.getSchema(methodMeta.getReturnType()));
             }
 
             responseBuilder.setDescription(methodMeta.getReturnDescription());
-            operationBuilder.getResponses().put(200, responseBuilder.build());
+
+            if (methodMeta.getResponseCode()==-1) {
+                operationBuilder.getResponses().put(200, responseBuilder.build());
+            } else {
+                operationBuilder.getResponses().put(methodMeta.getResponseCode(), responseBuilder.build());
+            }
             operationBuilder.getProduces().add("application/json");
 
 
@@ -169,7 +187,12 @@ public class MetaTransformerFromQbitMetaToSwagger {
             schemaBuilder.setType("string");
             responseBuilder.setSchema(schemaBuilder.build());
             responseBuilder.setDescription("returns success");
-            operationBuilder.getResponses().put(202, responseBuilder.build());
+
+            if (methodMeta.getResponseCode()==-1) {
+                operationBuilder.getResponses().put(202, responseBuilder.build());
+            } else {
+                operationBuilder.getResponses().put(methodMeta.getResponseCode(), responseBuilder.build());
+            }
         }
 
         switch (requestMethod) {
@@ -305,14 +328,28 @@ public class MetaTransformerFromQbitMetaToSwagger {
 
         try {
 
-            if (serviceMethodMeta.isReturnMap()) {
-                definitionClassCollector.addClass(serviceMethodMeta.getReturnTypeComponentKey());
-                definitionClassCollector.addClass(serviceMethodMeta.getReturnTypeComponentValue());
-            } else if (serviceMethodMeta.isReturnCollection()) {
 
-                definitionClassCollector.addClass(serviceMethodMeta.getReturnTypeComponent());
-            } else {
-                definitionClassCollector.addClass(serviceMethodMeta.getReturnType());
+            switch(serviceMethodMeta.getGenericReturnType()) {
+
+                case MAP:
+                    definitionClassCollector.addClass(serviceMethodMeta.getReturnTypeComponentKey());
+                    definitionClassCollector.addClass(serviceMethodMeta.getReturnTypeComponentValue());
+                    break;
+                case COLLECTION:
+                case OPTIONAL:
+                case ARRAY:
+                    definitionClassCollector.addClass(serviceMethodMeta.getReturnTypeComponent());
+                    break;
+                case JSEND:
+                    definitionClassCollector.addJSendClass(serviceMethodMeta.getReturnTypeComponent());
+                    break;
+
+                case JSEND_ARRAY:
+                    definitionClassCollector.addJSendArray(serviceMethodMeta.getReturnTypeComponent());
+                    break;
+                default:
+                    definitionClassCollector.addClass(serviceMethodMeta.getReturnType());
+
             }
 
             serviceMethodMeta.getRequestEndpoints().forEach(requestMeta -> requestMeta.getParameters()
