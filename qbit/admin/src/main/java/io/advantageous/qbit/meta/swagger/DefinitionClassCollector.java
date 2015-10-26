@@ -5,6 +5,7 @@ import io.advantageous.boon.core.TypeType;
 import io.advantageous.boon.core.reflection.AnnotationData;
 import io.advantageous.boon.core.reflection.ClassMeta;
 import io.advantageous.boon.core.reflection.fields.FieldAccess;
+import io.advantageous.qbit.jsend.JSendResponse;
 import io.advantageous.qbit.meta.swagger.builders.DefinitionBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,6 +14,7 @@ import java.lang.reflect.Type;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 public class DefinitionClassCollector {
 
@@ -193,15 +195,21 @@ public class DefinitionClassCollector {
     private Schema convertFieldToComplexSchema(final FieldAccess fieldAccess) {
 
         if (isArraySchema(fieldAccess)) {
-
             return convertFieldToArraySchema(fieldAccess);
         } else if (isMap(fieldAccess)) {
-
             return convertFieldToMapSchema(fieldAccess);
-        } else {
+        }
+        else if (isOptional(fieldAccess)) {
+            return null; //TODO not done
+        }
+        else{
             return convertFieldToDefinitionRef(fieldAccess);
         }
 
+    }
+
+    private Schema convertFieldToJSendResponse(final FieldAccess fieldAccess) {
+        return null;
     }
 
     private Schema convertFieldToMapSchema(final FieldAccess fieldAccess) {
@@ -254,6 +262,14 @@ public class DefinitionClassCollector {
         }
         return false;
     }
+
+
+    private boolean isOptional(FieldAccess fieldAccess) {
+
+        return  (fieldAccess.type() == Optional.class);
+    }
+
+
 
     private Schema convertFieldToDefinitionRef(final FieldAccess fieldAccess) {
 
