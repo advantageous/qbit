@@ -222,7 +222,7 @@ public class Admin {
     private final boolean isBlackListed(final String key){
         return blackListForSystemProperties.stream()
                 .anyMatch(blackListedWord -> key.toUpperCase()
-                .contains(blackListedWord.toUpperCase()));
+                        .contains(blackListedWord.toUpperCase()));
     }
 
 
@@ -278,7 +278,7 @@ public class Admin {
                                              final String variableName) {
 
         if (!isBlackListed(variableName)) {
-            return System.getProperties().getProperty(variableName);
+            return System.getenv(variableName);
 
         } else {
             return "***********";
