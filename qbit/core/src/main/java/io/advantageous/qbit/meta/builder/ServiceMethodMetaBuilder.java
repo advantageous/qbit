@@ -12,7 +12,6 @@ import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.*;
 
-import static io.advantageous.boon.core.IO.puts;
 
 @SuppressWarnings("UnusedReturnValue")
 public class ServiceMethodMetaBuilder {
@@ -40,6 +39,7 @@ public class ServiceMethodMetaBuilder {
     private String description;
     private String summary;
     private String returnDescription;
+    private int responseCode;
 
     public String getDescription() {
         return description;
@@ -138,7 +138,7 @@ public class ServiceMethodMetaBuilder {
             return new ServiceMethodMeta(isHasReturn(), getMethodAccess(), getName(), getRequestEndpoints(),
                     getReturnTypeEnum(), getParamTypes(), hasCallback(), getGenericReturnType(), getReturnType(),
                     getReturnTypeComponent(), getReturnTypeComponentKey(), getReturnTypeComponentValue(),
-                    getDescription(), getSummary(), getReturnDescription());
+                    getDescription(), getSummary(), getReturnDescription(), getResponseCode());
         } else {
             return new ServiceMethodMeta(getName(), this.getRequestEndpoints(),
                     this.getReturnTypeEnum(), this.getParamTypes());
@@ -425,5 +425,14 @@ public class ServiceMethodMetaBuilder {
     public ServiceMethodMetaBuilder setGenericReturnType(GenericReturnType genericReturnType) {
         this.genericReturnType = genericReturnType;
         return this;
+    }
+
+    public ServiceMethodMetaBuilder setResponseCode(int responseCode) {
+        this.responseCode = responseCode;
+        return this;
+    }
+
+    public int getResponseCode() {
+        return responseCode;
     }
 }

@@ -66,6 +66,13 @@ public class HelloWorldJSend {
                 "hello " + System.currentTimeMillis())).build());
     }
 
+
+    @RequestMapping(value = "/helloj7", code = 221)
+    public void helloJSend7(Callback<JSendResponse<List<String>>> callback) {
+        callback.returnThis(JSendResponseBuilder.jSendResponseBuilder(Lists.list(
+                "hello " + System.currentTimeMillis())).build());
+    }
+
     public static void main(final String... args) {
         final ManagedServiceBuilder managedServiceBuilder =
                 ManagedServiceBuilder.managedServiceBuilder().setRootURI("/root");

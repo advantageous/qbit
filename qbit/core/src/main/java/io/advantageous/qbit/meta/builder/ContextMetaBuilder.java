@@ -1,5 +1,6 @@
 package io.advantageous.qbit.meta.builder;
 
+import io.advantageous.boon.core.Conversions;
 import io.advantageous.boon.core.Lists;
 import io.advantageous.boon.core.Str;
 import io.advantageous.boon.core.reflection.Annotated;
@@ -234,6 +235,18 @@ public class ContextMetaBuilder {
             return value.toString();
         } else {
             return "no description";
+        }
+    }
+
+
+    static int getCodeFromRequestMapping(Annotated annotated) {
+        final AnnotationData requestMapping = annotated.annotation("RequestMapping");
+
+        if (requestMapping != null) {
+            Object value = requestMapping.getValues().get("code");
+            return Conversions.toInt(value);
+        } else {
+            return -1;
         }
     }
 

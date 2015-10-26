@@ -50,6 +50,7 @@ public class ServiceMethodMeta {
     private final String description;
     private final String summary;
     private final String returnDescription;
+    private final int responseCode;
 
     public ServiceMethodMeta(boolean hasReturn,
                              MethodAccess methodAccess,
@@ -65,7 +66,8 @@ public class ServiceMethodMeta {
                              Class<?> returnTypeComponentValue,
                              String description,
                              String summary,
-                             String returnDescription) {
+                             String returnDescription,
+                             int responseCode) {
 
         this.hasReturn = hasReturn;
         this.methodAccess = methodAccess;
@@ -82,13 +84,14 @@ public class ServiceMethodMeta {
         this.description = description;
         this.summary = summary;
         this.returnDescription = returnDescription;
+        this.responseCode = responseCode;
     }
 
     public ServiceMethodMeta(String name, List<RequestMeta> requestEndpoints, TypeType returnTypeEnum,
                              List<TypeType> paramTypes) {
         this(true, null,name, requestEndpoints,
                 returnTypeEnum, paramTypes,
-                false, GenericReturnType.NONE, null, null, null, null, null, null, null);
+                false, GenericReturnType.NONE, null, null, null, null, null, null, null, -1);
 
     }
 
@@ -96,14 +99,13 @@ public class ServiceMethodMeta {
     public ServiceMethodMeta(MethodAccess methodAccess, List<RequestMeta> list) {
         this(true, methodAccess, methodAccess.name(), list,
                 TypeType.OBJECT, Collections.emptyList(),
-                false, GenericReturnType.NONE, null, null, null, null, null, null, null);
+                false, GenericReturnType.NONE, null, null, null, null, null, null, null, -1);
     }
 
     public ServiceMethodMeta(String name, List<RequestMeta> list) {
         this(true, null, name, list,
                 TypeType.OBJECT, Collections.emptyList(),
-                false, GenericReturnType.NONE, null, null, null, null, null, null, null);
-
+                false, GenericReturnType.NONE, null, null, null, null, null, null, null, -1);
     }
 
 
@@ -206,5 +208,9 @@ public class ServiceMethodMeta {
 
     public GenericReturnType getGenericReturnType() {
         return genericReturnType;
+    }
+
+    public int getResponseCode() {
+        return responseCode;
     }
 }

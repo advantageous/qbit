@@ -172,7 +172,12 @@ public class MetaTransformerFromQbitMetaToSwagger {
             }
 
             responseBuilder.setDescription(methodMeta.getReturnDescription());
-            operationBuilder.getResponses().put(200, responseBuilder.build());
+
+            if (methodMeta.getResponseCode()==-1) {
+                operationBuilder.getResponses().put(200, responseBuilder.build());
+            } else {
+                operationBuilder.getResponses().put(methodMeta.getResponseCode(), responseBuilder.build());
+            }
             operationBuilder.getProduces().add("application/json");
 
 
@@ -182,7 +187,12 @@ public class MetaTransformerFromQbitMetaToSwagger {
             schemaBuilder.setType("string");
             responseBuilder.setSchema(schemaBuilder.build());
             responseBuilder.setDescription("returns success");
-            operationBuilder.getResponses().put(202, responseBuilder.build());
+
+            if (methodMeta.getResponseCode()==-1) {
+                operationBuilder.getResponses().put(202, responseBuilder.build());
+            } else {
+                operationBuilder.getResponses().put(methodMeta.getResponseCode(), responseBuilder.build());
+            }
         }
 
         switch (requestMethod) {
