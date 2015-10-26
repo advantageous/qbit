@@ -7,6 +7,8 @@ public enum GenericReturnType {
     COLLECTION,
     ARRAY,
     JSEND,
+    JSEND_ARRAY,
+    JSEND_MAP,
     NONE
 
 

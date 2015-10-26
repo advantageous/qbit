@@ -152,10 +152,19 @@ public class MetaTransformerFromQbitMetaToSwagger {
                     break;
 
                 case COLLECTION:
-                case JSEND:
                 case OPTIONAL:
                 case ARRAY:
                     responseBuilder.setSchema(definitionClassCollector.getSchemaWithComponentClass(methodMeta.getReturnType(),
+                            methodMeta.getReturnTypeComponent()));
+                    break;
+
+                case JSEND:
+                    responseBuilder.setSchema(definitionClassCollector.getSchemaForJSend(methodMeta.getReturnType(),
+                            methodMeta.getReturnTypeComponent()));
+                    break;
+
+                case JSEND_ARRAY:
+                    responseBuilder.setSchema(definitionClassCollector.getSchemaForJSendArray(methodMeta.getReturnType(),
                             methodMeta.getReturnTypeComponent()));
                     break;
                 default:
@@ -317,10 +326,16 @@ public class MetaTransformerFromQbitMetaToSwagger {
                     definitionClassCollector.addClass(serviceMethodMeta.getReturnTypeComponentValue());
                     break;
                 case COLLECTION:
-                case JSEND:
                 case OPTIONAL:
                 case ARRAY:
                     definitionClassCollector.addClass(serviceMethodMeta.getReturnTypeComponent());
+                    break;
+                case JSEND:
+                    definitionClassCollector.addJSendClass(serviceMethodMeta.getReturnTypeComponent());
+                    break;
+
+                case JSEND_ARRAY:
+                    definitionClassCollector.addJSendArray(serviceMethodMeta.getReturnTypeComponent());
                     break;
                 default:
                     definitionClassCollector.addClass(serviceMethodMeta.getReturnType());

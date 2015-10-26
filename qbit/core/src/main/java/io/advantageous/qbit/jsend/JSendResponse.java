@@ -15,12 +15,12 @@ public class JSendResponse<T> {
     @JsonInclude
     private final T data;
 
-    private final JSendStatus status;
+    private final String status;
 
-    public JSendResponse(final Class<T> type, final T value, JSendStatus status) {
+    public JSendResponse(final Class<T> type, final T value, final JSendStatus status) {
         this.type = type;
         this.data = value;
-        this.status = status;
+        this.status = status.toString();
     }
 
 

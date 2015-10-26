@@ -12,6 +12,8 @@ import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.*;
 
+import static io.advantageous.boon.core.IO.puts;
+
 @SuppressWarnings("UnusedReturnValue")
 public class ServiceMethodMetaBuilder {
 
@@ -169,7 +171,45 @@ public class ServiceMethodMetaBuilder {
             } else if (JSendResponse.class.isAssignableFrom(returnType)) {
                 genericReturnType = GenericReturnType.JSEND;
                 ParameterizedType genericReturnType = (ParameterizedType) methodAccess.method().getGenericReturnType();
-                this.returnTypeComponent = (Class) genericReturnType.getActualTypeArguments()[0];
+
+                final Type type = genericReturnType.getActualTypeArguments()[0];
+                if (type instanceof Class) {
+                    this.returnTypeComponent = (Class) type;
+                    this.genericReturnType = GenericReturnType.JSEND;
+                } else if (type instanceof ParameterizedType) {
+                    final ParameterizedType jsendGenericReturnType = ((ParameterizedType) type);
+
+                    if (jsendGenericReturnType.getRawType() instanceof Class) {
+
+                        final Class rawType = (Class) jsendGenericReturnType.getRawType();
+                        if (Collection.class.isAssignableFrom(rawType) || rawType.isArray()) {
+
+                            this.genericReturnType = GenericReturnType.JSEND_ARRAY;
+                            Type componentType = jsendGenericReturnType.getActualTypeArguments()[0];
+
+                            if (componentType instanceof Class) {
+                                this.returnTypeComponent = ((Class) componentType);
+                            }
+
+                        } else if (Map.class.isAssignableFrom(rawType)) {
+
+                            this.genericReturnType = GenericReturnType.JSEND_MAP;
+
+                            Type componentKey = jsendGenericReturnType.getActualTypeArguments()[0];
+
+                            if (componentKey instanceof Class) {
+                                this.returnTypeComponentKey = ((Class) componentKey);
+                            }
+
+                            this.genericReturnType = GenericReturnType.JSEND_MAP;
+                            Type componentValue = jsendGenericReturnType.getActualTypeArguments()[0];
+
+                            if (componentValue instanceof Class) {
+                                this.returnTypeComponentValue = ((Class) componentValue);
+                            }
+                        }
+                    }
+                }
             }
             else {
 
@@ -208,8 +248,46 @@ public class ServiceMethodMetaBuilder {
                     this.genericReturnType = GenericReturnType.OPTIONAL;
                     this.returnTypeComponent =(Class) ((ParameterizedType) callbackReturn).getActualTypeArguments()[0];
                 } else if (JSendResponse.class.isAssignableFrom(containerType)) {
-                    this.genericReturnType = GenericReturnType.JSEND;
-                    this.returnTypeComponent =(Class) ((ParameterizedType) callbackReturn).getActualTypeArguments()[0];
+                    final Type returnTypeForComponent = ((ParameterizedType) callbackReturn).getActualTypeArguments()[0];
+
+                    if (returnTypeForComponent instanceof Class) {
+                        this.returnTypeComponent = (Class) returnTypeForComponent;
+                        this.genericReturnType = GenericReturnType.JSEND;
+                    } else if (returnTypeForComponent instanceof ParameterizedType){
+                           final ParameterizedType jsendGenericReturnType = ((ParameterizedType) returnTypeForComponent);
+
+                            if (jsendGenericReturnType.getRawType() instanceof Class) {
+
+                                final Class rawType = (Class) jsendGenericReturnType.getRawType();
+                                if (Collection.class.isAssignableFrom(rawType) || rawType.isArray()) {
+
+                                    this.genericReturnType = GenericReturnType.JSEND_ARRAY;
+                                    Type componentType = jsendGenericReturnType.getActualTypeArguments()[0];
+
+                                    if (componentType instanceof Class) {
+                                        this.returnTypeComponent = ((Class) componentType);
+                                    }
+
+                                } else if (Map.class.isAssignableFrom(rawType)) {
+
+                                    this.genericReturnType = GenericReturnType.JSEND_MAP;
+
+                                    Type componentKey = jsendGenericReturnType.getActualTypeArguments()[0];
+
+                                    if (componentKey instanceof Class) {
+                                        this.returnTypeComponentKey = ((Class) componentKey);
+                                    }
+
+                                    this.genericReturnType = GenericReturnType.JSEND_MAP;
+                                    Type componentValue = jsendGenericReturnType.getActualTypeArguments()[0];
+
+                                    if (componentValue instanceof Class) {
+                                        this.returnTypeComponentValue = ((Class) componentValue);
+                                    }
+                                }
+                            }
+
+                    }
                 }
             }/* Now we know it is not a list or map */
             else if (callbackReturn instanceof Class) {

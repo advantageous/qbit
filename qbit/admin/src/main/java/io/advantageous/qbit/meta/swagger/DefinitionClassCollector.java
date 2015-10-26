@@ -107,6 +107,17 @@ public class DefinitionClassCollector {
 
     }
 
+    public Schema getSchemaForJSend(final Class<?> cls, Class<?> componentClass) {
+            return Schema.definitionRef("jsend-" + componentClass.getSimpleName(), "");
+
+    }
+
+    public void addJSendClass(final Class<?> cls) {
+        addClass(cls);
+        addJSendClass(ClassMeta.classMeta(cls));
+
+    }
+
     public void addClass(final Class<?> cls) {
 
         /*
@@ -141,7 +152,7 @@ public class DefinitionClassCollector {
 
             definitionBuilder.setDescription(description);
 
-            Map<String, FieldAccess> fieldAccessMap = classMeta.fieldMap();
+            final Map<String, FieldAccess> fieldAccessMap = classMeta.fieldMap();
 
 
             fieldAccessMap.entrySet().forEach(fieldAccessEntry -> {
@@ -163,6 +174,44 @@ public class DefinitionClassCollector {
             logger.warn("Unable to add class " + classMeta.longName(), ex);
         }
     }
+
+    private void addJSendClass(final ClassMeta<?> classMeta) {
+
+        try {
+
+            if (definitionMap.containsKey("jsend-" + classMeta.name())) {
+                return;
+            }
+
+            definitionMap.put("jsend-" + classMeta.name(), null);
+
+            final DefinitionBuilder definitionBuilder = new DefinitionBuilder();
+
+
+            definitionBuilder.setDescription("jsend standard response");
+
+            Schema schema = mappings.get(classMeta.cls());
+
+
+            if (schema!=null) {
+                definitionBuilder.addProperty("data", schema);
+            } else {
+                schema = convertFieldToDefinitionRef(classMeta);
+                definitionBuilder.addProperty("data", schema);
+            }
+            definitionBuilder.addProperty("status", Schema.schemaWithDescription(mappings.get(String.class),
+                    "Status of return, this can be 'success', 'fail' or 'error'"));
+
+            final Definition definition = definitionBuilder.build();
+
+
+            definitionMap.put("jsend-" + classMeta.name(), definition);
+
+        }catch (Exception ex) {
+            logger.warn("Unable to add class " + classMeta.longName(), ex);
+        }
+    }
+
 
     private Schema convertFieldToSchema(final FieldAccess fieldAccess) {
 
@@ -208,9 +257,6 @@ public class DefinitionClassCollector {
 
     }
 
-    private Schema convertFieldToJSendResponse(final FieldAccess fieldAccess) {
-        return null;
-    }
 
     private Schema convertFieldToMapSchema(final FieldAccess fieldAccess) {
 
@@ -282,6 +328,18 @@ public class DefinitionClassCollector {
         return Schema.definitionRef(fieldAccess.type().getSimpleName(), description);
     }
 
+    private Schema convertFieldToDefinitionRef(final ClassMeta classMeta) {
+
+
+        if (!definitionMap.containsKey(classMeta.name())) {
+            addClass(classMeta.cls());
+        }
+
+        final String description = getDescription(classMeta);
+        return Schema.definitionRef(classMeta.name(), description);
+    }
+
+
     private String getDescription(final FieldAccess fieldAccess) {
         String description = "";
         final Map<String, Object> descriptionMap = fieldAccess.getAnnotationData("Description");
@@ -328,6 +386,20 @@ public class DefinitionClassCollector {
         return Schema.array(componentSchema);
     }
 
+    private Schema convertFieldToArraySchema(final ClassMeta classMeta) {
+
+        String description = getDescription(classMeta);
+
+        Schema componentSchema = mappings.get(classMeta.cls());
+            /* If it was not in the mapping, then it is complex. */
+        if (componentSchema == null) {
+            if (!definitionMap.containsKey(classMeta.name())) {
+                addClass(classMeta.cls());
+            }
+            componentSchema = Schema.definitionRef(classMeta.name(), description);
+        }
+        return Schema.array(componentSchema);
+    }
 
     public Map<String, Definition> getDefinitionMap() {
         return definitionMap;
@@ -348,5 +420,56 @@ public class DefinitionClassCollector {
                     logger.info("Component class was null defaulting to string");
                     return Schema.map(Schema.definitionRef("string", ""), "");
                 }
+    }
+
+    public Schema getSchemaForJSendArray(Class<?> returnType, Class<?> returnTypeComponent) {
+
+        return Schema.definitionRef("jsend-array-" + returnTypeComponent.getSimpleName(), "");
+
+    }
+
+    public void addJSendArray(Class<?> cls) {
+        addClass(cls);
+        addJSendArray(ClassMeta.classMeta(cls));
+
+
+    }
+
+    public void addJSendArray(ClassMeta classMeta) {
+
+        try {
+
+            if (definitionMap.containsKey("jsend-array-" + classMeta.name())) {
+                return;
+            }
+
+            definitionMap.put("jsend-array-" + classMeta.name(), null);
+
+            final DefinitionBuilder definitionBuilder = new DefinitionBuilder();
+
+
+            definitionBuilder.setDescription("jsend standard response");
+
+            Schema schema = mappings.get(classMeta.cls());
+
+
+            if (schema!=null) {
+                definitionBuilder.addProperty("data", schema);
+            } else {
+                schema = convertFieldToArraySchema(classMeta);
+                definitionBuilder.addProperty("data", schema);
+            }
+
+            definitionBuilder.addProperty("status", Schema.schemaWithDescription(mappings.get(String.class),
+                    "Status of return, this can be 'success', 'fail' or 'error'"));
+
+            final Definition definition = definitionBuilder.build();
+
+
+            definitionMap.put("jsend-array-" + classMeta.name(), definition);
+
+        }catch (Exception ex) {
+            logger.warn("Unable to add class " + classMeta.longName(), ex);
+        }
     }
 }
