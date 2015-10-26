@@ -84,8 +84,14 @@ public class DefinitionClassCollector {
             } else if (type.isCollection()) {
 
 
+
                 if (componentClass != null) {
-                    return Schema.array(Schema.definitionRef(componentClass.getSimpleName(), ""), "");
+                    if (componentClass.getName().startsWith("java.lang")) {
+                        final Schema schemaForComponent = mappings.get(componentClass);
+                        return Schema.array(schemaForComponent, "");
+                    } else {
+                        return Schema.array(Schema.definitionRef(componentClass.getSimpleName(), ""), "");
+                    }
                 } else {
                     logger.info("Component class was null defaulting to string");
                     return Schema.array(Schema.definitionRef("string", ""), "");
@@ -309,5 +315,22 @@ public class DefinitionClassCollector {
 
     public Map<String, Definition> getDefinitionMap() {
         return definitionMap;
+    }
+
+    public Schema getSchemaWithMapClass(final Class<?> returnType,
+                                        final Class<?> returnTypeComponentKey,
+                                        final Class<?> returnTypeComponentValue) {
+
+                if (returnTypeComponentValue != null) {
+                    if (returnTypeComponentValue.getName().startsWith("java.lang")) {
+                        final Schema schemaForComponent = mappings.get(returnTypeComponentValue);
+                        return Schema.map(schemaForComponent, "");
+                    } else {
+                        return Schema.map(Schema.definitionRef(returnTypeComponentValue.getSimpleName(), ""), "");
+                    }
+                } else {
+                    logger.info("Component class was null defaulting to string");
+                    return Schema.map(Schema.definitionRef("string", ""), "");
+                }
     }
 }

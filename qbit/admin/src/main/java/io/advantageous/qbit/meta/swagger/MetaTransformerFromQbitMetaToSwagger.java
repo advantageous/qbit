@@ -132,11 +132,8 @@ public class MetaTransformerFromQbitMetaToSwagger {
                                             final PathBuilder pathBuilder,
                                             final RequestMethod requestMethod) {
         final OperationBuilder operationBuilder = new OperationBuilder();
-
         operationBuilder.setDescription(methodMeta.getDescription());
         operationBuilder.setSummary(methodMeta.getSummary());
-
-
         addParameters(operationBuilder, requestMeta.getParameters());
         operationBuilder.setOperationId(methodAccess.name());
 
@@ -145,25 +142,25 @@ public class MetaTransformerFromQbitMetaToSwagger {
             final ResponseBuilder responseBuilder = new ResponseBuilder();
 
             if (methodMeta.isReturnMap()) {
-                //TODO
+
+
+                final Schema mapClassSchema = definitionClassCollector.getSchemaWithMapClass(methodMeta.getReturnType(),
+                        methodMeta.getReturnTypeComponentKey(), methodMeta.getReturnTypeComponentValue());
+                responseBuilder.setSchema(mapClassSchema);
 
             } else if (methodMeta.isReturnCollection() || methodMeta.isReturnArray()) {
-
                 responseBuilder.setSchema(definitionClassCollector.getSchemaWithComponentClass(methodMeta.getReturnType(),
                         methodMeta.getReturnTypeComponent()));
-                responseBuilder.setDescription(methodMeta.getReturnDescription());
-                operationBuilder.getResponses().put(200, responseBuilder.build());
-                operationBuilder.getProduces().add("application/json");
-
 
             } else {
 
                 responseBuilder.setSchema(definitionClassCollector.getSchema(methodMeta.getReturnType()));
-                responseBuilder.setDescription(methodMeta.getReturnDescription());
-                operationBuilder.getResponses().put(200, responseBuilder.build());
-                operationBuilder.getProduces().add("application/json");
 
             }
+
+            responseBuilder.setDescription(methodMeta.getReturnDescription());
+            operationBuilder.getResponses().put(200, responseBuilder.build());
+            operationBuilder.getProduces().add("application/json");
 
 
         } else {
