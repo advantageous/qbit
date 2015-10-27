@@ -14,7 +14,7 @@ import java.util.function.Consumer;
 import java.util.function.Predicate;
 
 /**
- * Used to construct a proxy service to proxy call to a backend. 
+ * Used to construct a proxy service to proxy call to a backend.
  */
 public class ProxyBuilder {
 
@@ -106,7 +106,8 @@ public class ProxyBuilder {
 
     public HttpClientBuilder getHttpClientBuilder() {
         if (httpClientBuilder==null) {
-            httpClientBuilder = HttpClientBuilder.httpClientBuilder();
+            httpClientBuilder = HttpClientBuilder.httpClientBuilder().setPipeline(false)
+                    .setKeepAlive(false).setPoolSize(100);
         }
         return httpClientBuilder;
     }
