@@ -11,13 +11,17 @@ public class EchoClientMainWithServiceDiscovery {
 
         final ClientBuilder clientBuilder = ClientBuilder.clientBuilder();
         final Client client = clientBuilder.setServiceDiscovery(new ServiceDiscoveryMock(), "echo")
-                .setUri("/echo").build().startClient();
+                .setUri("/echo").setProtocolBatchSize(20).build().startClient();
 
         final EchoAsync echoClient = client.createProxy(EchoAsync.class, "echo");
 
 
-        for (int index = 0; index < 100; index++) {
+        for (int index = 0; index < 100000; index++) {
             echoClient.echo(s -> System.out.println(s), "index" + index);
+
+            if (index % 20 == 0) {
+                ServiceProxyUtils.flushServiceProxy(echoClient);
+            }
 
         }
 
