@@ -497,6 +497,8 @@ public class HttpRequestBuilder {
 
         this.setContentType(request.getContentType());
 
+        this.setMethod(request.getMethod());
+
         if (request.getHeaders().size()>0) {
             final MultiMap<String, String> headers = this.getHeaders();
             request.getHeaders().forEach(entry -> {
@@ -515,6 +517,7 @@ public class HttpRequestBuilder {
         this.setBodyBytes(body);
         this.setParams(request.getParams());
         this.setUri(request.getUri());
+
 
         return this;
     }
