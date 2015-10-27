@@ -161,18 +161,35 @@ public class ProxyServiceImpl implements ProxyService {
         }
     }
 
-    /** Trackes timeouts periodically if timeout tracking is enabled. */
+    /** Tracks timeouts periodically if timeout tracking is enabled. */
     private void trackTimeouts() {
         new ArrayList<>(httpRequestHolderList).forEach(httpRequestHolder -> {
 
-            long duration = time - httpRequestHolder.startTime;
+            /* If it is handled then remove it from the list. */
+            if (httpRequestHolder.request.isHandled()) {
+                httpRequestHolderList.remove(httpRequestHolder);
+                return;
+            }
+
+            /* Get the duration that this request has been around. */
+            final long duration = time - httpRequestHolder.startTime;
+
+            /* See if the duration is greater than the timeout time. */
             if (duration > timeOutIntervalMS) {
+
+                /* If we timed out, mark the request as handled, and then notify the client that the
+                backend timed out.
+                 */
                 httpRequestHolder.request.handled();
+
+                /* Tell client that the backend timed out. */
                 httpRequestHolder.request.getReceiver().timeoutWithMessage(String.format("\"TIMEOUT %s %s %s\"",
                         httpRequestHolder.request.address(),
                         httpRequestHolder.request.getRemoteAddress(),
                         httpRequestHolder.startTime
                 ));
+
+                /* If we timed out then remove this from the list. */
                 httpRequestHolderList.remove(httpRequestHolder); //Not very fast if you a lot of outstanding requests
             }
         });
@@ -242,9 +259,7 @@ public class ProxyServiceImpl implements ProxyService {
                         public void response(int code, String contentType, byte[] body) {
                             response(code, contentType, body, MultiMap.empty());
                         }
-                    }).setErrorHandler(e -> {
-                        handleHttpClientErrorsForBackend(clientRequest, e);
-                    });
+                    }).setErrorHandler(e -> handleHttpClientErrorsForBackend(clientRequest, e));
 
             /** Give user of the lib a chance to populate headers and such. */
             beforeSend.accept(httpRequestBuilder);
@@ -252,6 +267,7 @@ public class ProxyServiceImpl implements ProxyService {
             backendServiceHttpClient.sendHttpRequest(httpRequestBuilder.build());
         }catch (Exception ex) {
             errorCount.incrementAndGet();
+            errorHandler.accept(ex);
             logger.error("Unable to forward request", ex);
 
         }
@@ -278,6 +294,7 @@ public class ProxyServiceImpl implements ProxyService {
                         /* Log the error. */
         logger.error(errorMessage, e);
 
+        /* Don't send the error to the client if we already handled this, i.e., timedout already. */
         if (!clientRequest.isHandled()) {
             clientRequest.handled();
             /* Notify the client that there was an error. */
@@ -300,8 +317,14 @@ public class ProxyServiceImpl implements ProxyService {
                                               final String contentType,
                                               final byte[] body,
                                               final MultiMap<String, String> headers) {
+
+        /** If it is handled like it timed out already or some other error then don't do anything. */
         if (!clientRequest.isHandled()) {
+
+            /* If it was handled, let everyone know so we don't get a timeout. */
             clientRequest.handled();
+
+            /* Send the response out the front end. */
             clientRequest.getReceiver().response(code, contentType, body, headers);
         }
     }
