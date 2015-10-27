@@ -100,16 +100,16 @@ public interface ServiceDiscovery extends Startable, Stoppable {
 
     /**
      * Watch for changes in this service name and send change events if the service changes.
-     * @param serviceName
+     * @param serviceName serviceName
      */
-    void watch(String serviceName);
+    default void watch(String serviceName) {}
 
     /**
      * CheckIn with the service discovery mechanism. The service may be marked as down if it does
      * not check in, in the amount of time specified by the ttl if the service disovery provider supports
      * ttl and checkin (Consul does).
-     * @param serviceId
-     * @param healthStatus
+     * @param serviceId serviceId
+     * @param healthStatus healthStatus
      */
     default void checkIn(String serviceId, HealthStatus healthStatus) {
 

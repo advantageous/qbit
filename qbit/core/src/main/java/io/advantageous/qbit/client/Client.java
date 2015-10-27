@@ -18,6 +18,7 @@
 
 package io.advantageous.qbit.client;
 
+import io.advantageous.qbit.service.Startable;
 import io.advantageous.qbit.service.Stoppable;
 
 /**
@@ -27,7 +28,7 @@ import io.advantageous.qbit.service.Stoppable;
  *
  * @author rhightower
  */
-public interface Client extends Stoppable {
+public interface Client extends Stoppable, Startable {
 
 
     /**
@@ -44,9 +45,10 @@ public interface Client extends Stoppable {
 
     void flush();
 
-    void start();
-
-    void stop();
+    default Client startClient() {
+        start();
+        return this;
+    }
 
     boolean connected();
 

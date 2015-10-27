@@ -63,6 +63,14 @@ public class HttpVertxClient implements HttpClient {
 
 
     /**
+     * Holds on to Boon cache so we don't have to recreate reflected gak.
+     */
+    private Object context = Sys.contextToHold();
+
+
+
+
+    /**
      * Are we closed.
      */
     private final AtomicBoolean closed = new AtomicBoolean();

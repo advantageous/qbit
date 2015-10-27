@@ -1,4 +1,4 @@
-package io.advantageous.qbit.example;
+package io.advantageous.qbit.example.jsend;
 
 import io.advantageous.boon.core.Lists;
 import io.advantageous.qbit.admin.ManagedServiceBuilder;
