@@ -62,6 +62,20 @@ public interface HttpResponseReceiver<T> {
     }
 
 
+    default void errorWithCode(String json, int code) {
+        respond(code, json);
+    }
+
+    default void timeout() {
+        respond(408, "\"Timeout\"");
+    }
+
+
+    default void timeoutWithMessage(String json) {
+        respond(408, "\"Timeout\"");
+    }
+
+
     default void respond(int code, String json) {
         if (!isText()) {
             response(code, "application/json", (T) json.getBytes(StandardCharsets.UTF_8));
