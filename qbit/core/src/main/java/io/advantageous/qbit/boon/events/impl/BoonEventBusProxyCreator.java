@@ -41,6 +41,11 @@ import static io.advantageous.qbit.service.ServiceProxyUtils.flushServiceProxy;
 public class BoonEventBusProxyCreator implements EventBusProxyCreator {
 
 
+    /**
+     * Holds on to Boon cache so we don't have to recreate reflected gak.
+     */
+    Object context = Sys.contextToHold();
+
     private static final String flushMethodNames = Sys.sysProp("io.advantageous.qbit.events.EventBusProxyCreator.flushMethodNames",
             "clientProxyFlush,flushEvents");
 

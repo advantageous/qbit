@@ -19,6 +19,7 @@
 package io.advantageous.qbit.boon.service.impl;
 
 import io.advantageous.boon.core.Str;
+import io.advantageous.boon.core.Sys;
 import io.advantageous.boon.primitive.CharBuf;
 import io.advantageous.qbit.Factory;
 import io.advantageous.qbit.client.ClientProxy;
@@ -48,6 +49,12 @@ public class BoonServiceProxyFactory implements ServiceProxyFactory {
 
     private static AtomicLong  generatedMessageId = new AtomicLong();
     private final Factory factory;
+
+    /**
+     * Holds on to Boon cache so we don't have to recreate reflected gak.
+     */
+    Object context = Sys.contextToHold();
+
 
 
     public BoonServiceProxyFactory(Factory factory) {

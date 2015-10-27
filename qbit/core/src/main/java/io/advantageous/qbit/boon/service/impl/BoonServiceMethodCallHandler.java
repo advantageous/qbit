@@ -71,6 +71,12 @@ public class BoonServiceMethodCallHandler implements ServiceMethodHandler {
     private final Map<String, Map<String, Pair<MethodBinding, MethodAccess>>> methodMap = new LinkedHashMap<>();
 
     private SendQueue<Response<Object>> responseSendQueue;
+
+    /**
+     * Holds on to Boon cache so we don't have to recreate reflected gak.
+     */
+    Object context = Sys.contextToHold();
+
     private final Map<String, MethodAccess> eventMap = new ConcurrentHashMap<>();
 
     public BoonServiceMethodCallHandler(final boolean invokeDynamic) {

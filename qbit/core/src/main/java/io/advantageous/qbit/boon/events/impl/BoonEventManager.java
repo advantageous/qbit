@@ -19,6 +19,7 @@
 package io.advantageous.qbit.boon.events.impl;
 
 import io.advantageous.boon.core.Str;
+import io.advantageous.boon.core.Sys;
 import io.advantageous.boon.core.reflection.AnnotationData;
 import io.advantageous.boon.core.reflection.BeanUtils;
 import io.advantageous.boon.core.reflection.ClassMeta;
@@ -68,6 +69,12 @@ public class BoonEventManager implements EventManager {
     private long lastFlushTime = 0;
     private long now;
     private final String eventCountStatsKey;
+
+    /**
+     * Holds on to Boon cache so we don't have to recreate reflected gak.
+     */
+    Object context = Sys.contextToHold();
+
 
 
     public BoonEventManager(final String name, EventConnector eventConnector, StatsCollector statsCollector) {

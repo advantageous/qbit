@@ -18,6 +18,7 @@
 
 package io.advantageous.qbit.boon.events.impl;
 
+import io.advantageous.boon.core.Sys;
 import io.advantageous.qbit.events.EventManager;
 import io.advantageous.qbit.events.spi.EventConnector;
 import io.advantageous.qbit.events.spi.EventManagerFactory;
@@ -27,6 +28,11 @@ import java.util.Objects;
 
 
 public class BoonEventManagerFactory implements EventManagerFactory {
+
+    /**
+     * Holds on to Boon cache so we don't have to recreate reflected gak.
+     */
+    Object context = Sys.contextToHold();
 
     @Override
     public EventManager createEventManager(String name, EventConnector eventConnector, StatsCollector statsCollector) {

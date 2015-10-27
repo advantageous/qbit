@@ -20,6 +20,7 @@ package io.advantageous.qbit.vertx.http.server;
 
 
 import io.advantageous.boon.core.Str;
+import io.advantageous.boon.core.Sys;
 import io.advantageous.boon.core.reflection.BeanUtils;
 import io.advantageous.qbit.GlobalConstants;
 import io.advantageous.qbit.http.HttpContentTypes;
@@ -64,6 +65,12 @@ public class HttpServerVertx implements HttpServer {
     private final VertxServerUtils vertxUtils = new VertxServerUtils();
     private final boolean startedVertx;
     private io.vertx.core.http.HttpServer httpServer;
+
+    /**
+     * Holds on to Boon cache so we don't have to recreate reflected gak.
+     */
+    private Object context = Sys.contextToHold();
+
 
     /**
      * For Metrics.
