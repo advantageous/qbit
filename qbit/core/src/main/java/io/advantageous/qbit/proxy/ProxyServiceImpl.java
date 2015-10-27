@@ -4,6 +4,7 @@ import io.advantageous.qbit.annotation.QueueCallback;
 import io.advantageous.qbit.annotation.QueueCallbackType;
 import io.advantageous.qbit.http.client.HttpClient;
 import io.advantageous.qbit.http.client.HttpClientBuilder;
+import io.advantageous.qbit.http.client.HttpClientClosedConnectionException;
 import io.advantageous.qbit.http.request.HttpBinaryReceiver;
 import io.advantageous.qbit.http.request.HttpRequest;
 import io.advantageous.qbit.http.request.HttpRequestBuilder;
@@ -29,14 +30,20 @@ import java.util.function.Predicate;
 public class ProxyServiceImpl implements ProxyService {
 
 
-    /** Reactor used to manage the periodic jobs. */
+    /**
+     * Reactor used to manage the periodic jobs.
+     */
     private final Reactor reactor;
 
-    /** Timer used to get the current time in a cost effective manner. */
+    /**
+     * Timer used to get the current time in a cost effective manner.
+     */
     private final Timer timer;
 
 
-    /** HttpClientBuilder used to construct httpClients to talk to backend services. */
+    /**
+     * HttpClientBuilder used to construct httpClients to talk to backend services.
+     */
     private final HttpClientBuilder httpClientBuilder;
 
 
@@ -52,7 +59,9 @@ public class ProxyServiceImpl implements ProxyService {
      */
     private final long timeOutIntervalMS;
 
-    /** Logging. */
+    /**
+     * Logging.
+     */
     private final Logger logger = LoggerFactory.getLogger(ProxyServiceImpl.class);
 
 
@@ -75,10 +84,14 @@ public class ProxyServiceImpl implements ProxyService {
      */
     private final Predicate<HttpRequest> httpClientRequestPredicate;
 
-    /** Keep track of errors. */
+    /**
+     * Keep track of errors.
+     */
     private final AtomicInteger errorCount = new AtomicInteger();
 
-    /** Keep track of pings that were received. */
+    /**
+     * Keep track of pings that were received.
+     */
     private final AtomicInteger pingCount = new AtomicInteger();
 
 
@@ -98,7 +111,15 @@ public class ProxyServiceImpl implements ProxyService {
      */
     private long time;
 
-    /** Keeps a list of outstanding requests if timeout tracking is turned on. */
+
+    /**
+     * Keeps the current time.
+     */
+    private long lastHttpClientStart;
+
+    /**
+     * Keeps a list of outstanding requests if timeout tracking is turned on.
+     */
     private final List<HttpRequestHolder> httpRequestHolderList;
 
     /**
@@ -117,16 +138,17 @@ public class ProxyServiceImpl implements ProxyService {
 
     /**
      * Construct.
-     * @param reactor reactor
-     * @param timer timer
-     * @param httpClientBuilder client builder to build client to backend.
-     * @param beforeSend used if you want to populate the request builder before request is sent to the backend
-     * @param errorHandler used to pass a custom error handler
+     *
+     * @param reactor                    reactor
+     * @param timer                      timer
+     * @param httpClientBuilder          client builder to build client to backend.
+     * @param beforeSend                 used if you want to populate the request builder before request is sent to the backend
+     * @param errorHandler               used to pass a custom error handler
      * @param httpClientRequestPredicate httpClientRequestPredicate is used to see if this request should be forwarded to the backend.
-     * @param checkClientDuration checkClientDuration periodic check health of backend.
-     * @param pingBuilder if present used to build a ping request to backend to check client connectivity.
-     * @param trackTimeOuts if true track timeouts.
-     * @param timeOutInterval if tracking timeouts, what is considered a timeout.
+     * @param checkClientDuration        checkClientDuration periodic check health of backend.
+     * @param pingBuilder                if present used to build a ping request to backend to check client connectivity.
+     * @param trackTimeOuts              if true track timeouts.
+     * @param timeOutInterval            if tracking timeouts, what is considered a timeout.
      */
     public ProxyServiceImpl(final Reactor reactor,
                             final Timer timer,
@@ -153,7 +175,7 @@ public class ProxyServiceImpl implements ProxyService {
         if (trackTimeOuts) {
             this.httpRequestHolderList = new ArrayList<>();
             this.timeOutIntervalMS = timeOutInterval.toMillis();
-            this.reactor.addRepeatingTask(this.timeOutIntervalMS/2, TimeUnit.MILLISECONDS, this::trackTimeouts);
+            this.reactor.addRepeatingTask(this.timeOutIntervalMS / 2, TimeUnit.MILLISECONDS, this::trackTimeouts);
 
         } else {
             this.httpRequestHolderList = null;
@@ -161,7 +183,9 @@ public class ProxyServiceImpl implements ProxyService {
         }
     }
 
-    /** Tracks timeouts periodically if timeout tracking is enabled. */
+    /**
+     * Tracks timeouts periodically if timeout tracking is enabled.
+     */
     private void trackTimeouts() {
         new ArrayList<>(httpRequestHolderList).forEach(httpRequestHolder -> {
 
@@ -195,34 +219,54 @@ public class ProxyServiceImpl implements ProxyService {
         });
     }
 
-    /** Checks client health periodically to see if we are connected. Tries to reconnect if not connected. */
+    /**
+     * Checks client health periodically to see if we are connected. Tries to reconnect if not connected.
+     */
     private void checkClient() {
 
-        /** If the errorCount is greater than 0, make sure we are still connected. */
-        if (errorCount.get() > 0) {
-            if (backendServiceHttpClient.isClosed()) {
-                backendServiceHttpClient = httpClientBuilder.buildAndStart();
-            }
-        }
+        try {
 
-        /** If the ping builder is present, use it to ping the service. */
-        if (pingBuilder.isPresent()) {
-            pingBuilder.get().setBinaryReceiver((code, contentType, body) -> {
-                if (code >=200 && code < 299) {
-                    pingCount.incrementAndGet();
-                }else {
-                    errorCount.incrementAndGet();
+            /** If the errorCount is greater than 0, make sure we are still connected. */
+            if (errorCount.get() > 0) {
+                errorCount.set(0);
+                if (backendServiceHttpClient == null || backendServiceHttpClient.isClosed()) {
+
+                    lastHttpClientStart = time;
+                    backendServiceHttpClient = httpClientBuilder.buildAndStart();
                 }
+            }
 
-            }).setErrorHandler(e -> {
-                logger.error("Error doing ping operation", e);
-                errorCount.incrementAndGet();
-            });
+            /** If the ping builder is present, use it to ping the service. */
+            if (pingBuilder.isPresent()) {
+
+                if (backendServiceHttpClient != null) {
+                    pingBuilder.get().setBinaryReceiver((code, contentType, body) -> {
+                        if (code >= 200 && code < 299) {
+                            pingCount.incrementAndGet();
+                        } else {
+                            errorCount.incrementAndGet();
+                        }
+
+                    }).setErrorHandler(e -> {
+                        logger.error("Error doing ping operation", e);
+                        errorCount.incrementAndGet();
+                    });
+
+                    final HttpRequest httpRequest = pingBuilder.get().build();
+
+                    backendServiceHttpClient.sendHttpRequest(httpRequest);
+                }
+            }
+
+        }catch (Exception ex) {
+            errorHandler.accept(ex);
+            logger.error("Unable to check connection");
         }
 
     }
 
-    /** Request coming from the client side.
+    /**
+     * Request coming from the client side.
      *
      * @param clientRequest clientRequest
      */
@@ -240,10 +284,20 @@ public class ProxyServiceImpl implements ProxyService {
 
     /**
      * Creates a backend request from the client request and then forwards it.
+     *
      * @param clientRequest clientRequest
      */
     private void createBackEndRequestPopulateAndForward(final HttpRequest clientRequest) {
         try {
+
+            if (backendServiceHttpClient == null) {
+                handleHttpClientErrorsForBackend(clientRequest, new HttpClientClosedConnectionException("Not connected"));
+                long timeSinceLastStart = time - lastHttpClientStart;
+                if (timeSinceLastStart > 10_000) {
+                    checkClient();
+                }
+                return;
+            }
     /* forward request to backend client. */
             final HttpRequestBuilder httpRequestBuilder = HttpRequestBuilder.httpRequestBuilder()
                     .copyRequest(clientRequest).setBinaryReceiver(new HttpBinaryReceiver() {
@@ -265,18 +319,38 @@ public class ProxyServiceImpl implements ProxyService {
             beforeSend.accept(httpRequestBuilder);
 
             backendServiceHttpClient.sendHttpRequest(httpRequestBuilder.build());
-        }catch (Exception ex) {
+        } catch (HttpClientClosedConnectionException httpClientClosedConnectionException) {
+
+            errorCount.incrementAndGet();
+            errorHandler.accept(httpClientClosedConnectionException);
+            logger.error("Unable to forward request", httpClientClosedConnectionException);
+            handleHttpClientErrorsForBackend(clientRequest, httpClientClosedConnectionException);
+            backendServiceHttpClient = null;
+
+            long timeSinceLastStart = time - lastHttpClientStart;
+            if (timeSinceLastStart > 10_000) {
+                checkClient();
+            }
+
+        } catch (Exception ex) {
             errorCount.incrementAndGet();
             errorHandler.accept(ex);
             logger.error("Unable to forward request", ex);
+            handleHttpClientErrorsForBackend(clientRequest, ex);
+
+            long timeSinceLastStart = time - lastHttpClientStart;
+            if (timeSinceLastStart > 10_000) {
+                checkClient();
+            }
 
         }
     }
 
     /**
      * Handle errors.
+     *
      * @param clientRequest clientRequest
-     * @param e exception
+     * @param e             exception
      */
     private void handleHttpClientErrorsForBackend(final HttpRequest clientRequest, final Exception e) {
                 /* Notify error handler that we got an error. */
@@ -286,9 +360,8 @@ public class ProxyServiceImpl implements ProxyService {
         errorCount.incrementAndGet();
 
                 /* Create the error message. */
-        final String errorMessage = String.format("Unable to make request %s %s %s",
-                clientRequest.address(),
-                clientRequest.body(), e.getMessage());
+        final String errorMessage = String.format("Unable to make request %s ",
+                clientRequest.address());
 
 
                         /* Log the error. */
@@ -306,11 +379,12 @@ public class ProxyServiceImpl implements ProxyService {
 
     /**
      * Handle a response from the backend service
+     *
      * @param clientRequest clientRequest (original client request)
-     * @param code response code from the backend.
-     * @param contentType contentType from the backend.
-     * @param body body from the backend.
-     * @param headers headers from the backend.
+     * @param code          response code from the backend.
+     * @param contentType   contentType from the backend.
+     * @param body          body from the backend.
+     * @param headers       headers from the backend.
      */
     private void handleBackendClientResponses(final HttpRequest clientRequest,
                                               final int code,
@@ -329,7 +403,9 @@ public class ProxyServiceImpl implements ProxyService {
         }
     }
 
-    /** Manage periodic jobs. */
+    /**
+     * Manage periodic jobs.
+     */
     @QueueCallback({QueueCallbackType.EMPTY,
             QueueCallbackType.IDLE,
             QueueCallbackType.LIMIT})
