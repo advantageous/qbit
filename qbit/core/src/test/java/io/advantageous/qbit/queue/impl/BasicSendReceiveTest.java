@@ -230,6 +230,7 @@ public abstract class BasicSendReceiveTest {
                 }
             });
             thread.start();
+
             return new ScheduledFuture<Object>() {
                 @Override
                 public int compareTo(Delayed o) {
@@ -297,7 +298,6 @@ public abstract class BasicSendReceiveTest {
         for (int index = 0; index< amount; index++) {
             sendQueue.send("" + index);
         }
-
 
 
         latch.await(5, TimeUnit.SECONDS);
