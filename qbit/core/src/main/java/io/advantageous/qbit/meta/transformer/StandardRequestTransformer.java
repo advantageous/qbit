@@ -294,7 +294,7 @@ public class StandardRequestTransformer implements RequestTransformer {
     }
 
     private boolean isJsonContent(final String contentType) {
-        return contentType == null ||
+        return  Str.isEmpty(contentType) ||
                 contentType.equals("application/json") ||
                 contentType.equals("application/json;charset=utf-8") ||
                 contentType.startsWith("application/json");
