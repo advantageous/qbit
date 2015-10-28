@@ -139,4 +139,12 @@ public class ParameterMeta {
     public Class<?> getComponentClassValue() {
         return componentClassValue;
     }
+
+    public boolean isString() {
+        return type == TypeType.STRING;
+    }
+
+    public boolean isByteArray() {
+        return type == TypeType.ARRAY_BYTE;
+    }
 }

@@ -24,6 +24,8 @@ public class SingleArgumentUserDefinedObjectRESTTest {
     HttpServerSimulator httpServerSimulator;
     HttpRequestBuilder httpRequestBuilder;
 
+    EmployeeServiceSingleObjectTestService service;
+
 
     @Before
     public void before() {
@@ -31,6 +33,7 @@ public class SingleArgumentUserDefinedObjectRESTTest {
 
         httpServerSimulator = new HttpServerSimulator();
 
+        service = new EmployeeServiceSingleObjectTestService();
 
         FactorySPI.setHttpServerFactory((options, endPointName, systemManager, serviceDiscovery,
                                          healthServiceAsync, serviceDiscoveryTtl, serviceDiscoveryTtlTimeUnit, a, b)
@@ -38,7 +41,44 @@ public class SingleArgumentUserDefinedObjectRESTTest {
 
         serviceEndpointServer = EndpointServerBuilder.endpointServerBuilder()
                 .build()
-                .initServices(new EmployeeServiceSingleObjectTestService()).startServer();
+                .initServices(
+                    service
+                ).startServer();
+    }
+
+    @Test
+    public void testNoJSONParseWithBytes() {
+
+        final HttpTextResponse httpResponse = httpServerSimulator.sendRequest(
+                httpRequestBuilder.setUri("/es/body/bytes")
+                        .setMethodPost().setContentType("foo")
+                        .setBody("foo")
+                        .build()
+        );
+
+        puts(httpResponse);
+        assertEquals(200, httpResponse.code());
+
+        assertEquals("true", httpResponse.body());
+
+    }
+
+
+    @Test
+    public void testNoJSONParseWithString() {
+
+        final HttpTextResponse httpResponse = httpServerSimulator.sendRequest(
+                httpRequestBuilder.setUri("/es/body/string")
+                        .setMethodPost().setContentType("foo")
+                        .setBody("foo")
+                        .build()
+        );
+
+        puts(httpResponse);
+        assertEquals(200, httpResponse.code());
+
+        assertEquals("true", httpResponse.body());
+
     }
 
 
@@ -48,6 +88,7 @@ public class SingleArgumentUserDefinedObjectRESTTest {
         assertEquals(200, httpResponse.code());
         assertEquals("true", httpResponse.body());
     }
+
 
 
     @Test
@@ -61,6 +102,8 @@ public class SingleArgumentUserDefinedObjectRESTTest {
         assertEquals(200, httpResponse.code());
         assertEquals("\"bar\"", httpResponse.body());
     }
+
+
 
 
     @Test
