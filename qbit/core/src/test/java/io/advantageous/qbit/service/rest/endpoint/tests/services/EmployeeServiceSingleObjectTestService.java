@@ -9,8 +9,10 @@ import io.advantageous.qbit.http.request.HttpTextResponse;
 import io.advantageous.qbit.reactive.Callback;
 import io.advantageous.qbit.service.rest.endpoint.tests.model.Employee;
 
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicReference;
 
 import static io.advantageous.boon.core.IO.puts;
 
@@ -19,6 +21,18 @@ public class EmployeeServiceSingleObjectTestService {
 
 
     private final List<Employee> employeeList  = new ArrayList<>();
+
+
+    @RequestMapping(value = "/body/bytes", method = RequestMethod.POST)
+    public boolean bodyPostBytes( byte[] body) {
+        String string = new String(body, StandardCharsets.UTF_8);
+        return string.equals("foo");
+    }
+
+    @RequestMapping(value = "/body/string", method = RequestMethod.POST)
+    public boolean bodyPostString(String body) {
+        return body.equals("foo");
+    }
 
 
     @RequestMapping("/echo1")

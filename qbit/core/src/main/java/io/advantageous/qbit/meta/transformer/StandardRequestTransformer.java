@@ -200,38 +200,50 @@ public class StandardRequestTransformer implements RequestTransformer {
                     break;
 
                 case BODY:
-                    BodyParam bodyParam = (BodyParam) parameterMeta.getParam();
+                    final BodyParam bodyParam = (BodyParam) parameterMeta.getParam();
                     value = request.body();
-                    if (value instanceof byte[]) {
-                        final byte[] bytes = (byte[]) value;
-                        value = new String(bytes, StandardCharsets.UTF_8);
-                    }
 
-                    if (bodyParam.isRequired() && Str.isEmpty(value)) {
+                    final String contentType = request.getContentType();
 
-                        errorsList.add("Unable to find body");
-                        break loop;
-
-                    }
+                    if ( isJsonContent(contentType) ) {
 
 
-                    if (Str.isEmpty(value)) {
-                        value = bodyParam.getDefaultValue();
-                    }
-
-                    try {
-                        if (parameterMeta.isArray() || parameterMeta.isCollection()) {
-                            value = jsonMapper.get().fromJsonArray(value.toString(), parameterMeta.getComponentClass());
-                        } else if (parameterMeta.isMap()) {
-
-                            value = jsonMapper.get().fromJsonMap(value.toString(), parameterMeta.getComponentClassKey(),
-                                    parameterMeta.getComponentClassValue());
-                        } else {
-                            value = jsonMapper.get().fromJson(value.toString(), parameterMeta.getClassType());
+                        if (value instanceof byte[]) {
+                            final byte[] bytes = (byte[]) value;
+                            value = new String(bytes, StandardCharsets.UTF_8);
                         }
-                    }catch (Exception exception) {
-                        errorsList.add("Unable to JSON parse body :: " + exception.getMessage());
-                        logger.warn("Unable to parse object", exception);
+
+                        if (bodyParam.isRequired() && Str.isEmpty(value)) {
+
+                            errorsList.add("Unable to find body");
+                            break loop;
+
+                        }
+
+
+                        if (Str.isEmpty(value)) {
+                            value = bodyParam.getDefaultValue();
+                        }
+
+                        try {
+                            if (parameterMeta.isArray() || parameterMeta.isCollection()) {
+                                value = jsonMapper.get().fromJsonArray(value.toString(), parameterMeta.getComponentClass());
+                            } else if (parameterMeta.isMap()) {
+
+                                value = jsonMapper.get().fromJsonMap(value.toString(), parameterMeta.getComponentClassKey(),
+                                        parameterMeta.getComponentClassValue());
+                            } else {
+                                value = jsonMapper.get().fromJson(value.toString(), parameterMeta.getClassType());
+                            }
+                        } catch (Exception exception) {
+                            errorsList.add("Unable to JSON parse body :: " + exception.getMessage());
+                            logger.warn("Unable to parse object", exception);
+                        }
+                    } else if (parameterMeta.isString()) {
+                        if (value instanceof byte[]) {
+                            final byte[] bytes = (byte[]) value;
+                            value = new String(bytes, StandardCharsets.UTF_8);
+                        }
                     }
                     break;
 
@@ -279,5 +291,12 @@ public class StandardRequestTransformer implements RequestTransformer {
 
         return methodCallBuilder.build();
 
+    }
+
+    private boolean isJsonContent(final String contentType) {
+        return contentType == null ||
+                contentType.equals("application/json") ||
+                contentType.equals("application/json;charset=utf-8") ||
+                contentType.startsWith("application/json");
     }
 }
