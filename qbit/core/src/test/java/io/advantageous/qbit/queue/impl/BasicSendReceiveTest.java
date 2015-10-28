@@ -231,7 +231,6 @@ public abstract class BasicSendReceiveTest {
             });
             thread.start();
 
-            Sys.sleep(100);
             return new ScheduledFuture<Object>() {
                 @Override
                 public int compareTo(Delayed o) {
@@ -279,19 +278,15 @@ public abstract class BasicSendReceiveTest {
 
 
         sendQueue.sendAndFlush("mom");
-        Sys.sleep(10);
         count.incrementAndGet();
 
         sendQueue.sendMany("mom", "dad");
-        Sys.sleep(10);
         count.addAndGet(2);
 
         sendQueue.sendBatch(Lists.list("mom", "dad"));
-        Sys.sleep(10);
         count.addAndGet(2);
 
         sendQueue.sendBatch(() -> Lists.list("mom", "dad").iterator());
-        Sys.sleep(10);
         count.addAndGet(2);
 
         assertTrue(sendQueue.shouldBatch());
@@ -303,8 +298,7 @@ public abstract class BasicSendReceiveTest {
         for (int index = 0; index< amount; index++) {
             sendQueue.send("" + index);
         }
-        Sys.sleep(10);
-        
+
 
         latch.await(5, TimeUnit.SECONDS);
 
