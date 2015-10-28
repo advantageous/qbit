@@ -231,8 +231,15 @@ public class ProxyServiceImpl implements ProxyService {
                 errorCount.set(0);
                 if (backendServiceHttpClient == null || backendServiceHttpClient.isClosed()) {
 
-                    lastHttpClientStart = time;
+                    if (backendServiceHttpClient!=null) {
+                        try {
+                            backendServiceHttpClient.stop();
+                        } catch (Exception ex) {
+                            logger.debug("Was unable to stop the client connection", ex);
+                        }
+                    }
                     backendServiceHttpClient = httpClientBuilder.buildAndStart();
+                    lastHttpClientStart = time;
                 }
             }
 
