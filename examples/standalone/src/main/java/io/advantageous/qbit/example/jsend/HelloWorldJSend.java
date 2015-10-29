@@ -75,7 +75,7 @@ public class HelloWorldJSend {
 
     public static void main(final String... args) {
         final ManagedServiceBuilder managedServiceBuilder =
-                ManagedServiceBuilder.managedServiceBuilder().setRootURI("/root");
+                ManagedServiceBuilder.managedServiceBuilder().setRootURI("/");
 
         /* Start the service. */
         managedServiceBuilder.addEndpointService(new HelloWorldJSend())
