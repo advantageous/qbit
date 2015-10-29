@@ -71,7 +71,7 @@ public class JmsServiceBuilder {
 
     /** Pattern to create JNDI URL connect string from host and port. Default works with ActiveMQ.
      * Replaces #host# with host and #port# with port. */
-    private String providerURLPattern = "tcp://#host#:#port#";
+    private String providerURLPattern = "failover:tcp://#host#:#port#";
 
     /** Provider URL to JMS Broker which if not set will be constructed based on host, port and providerURLPattern. */
     private String providerURL =null;

@@ -10,7 +10,9 @@ public class EchoClientMain {
     public static void main(final String... args) throws Exception {
 
         final ClientBuilder clientBuilder = ClientBuilder.clientBuilder();
-        final Client client = clientBuilder.setHost("localhost").setPort(8080).setUri("/echo").build().startClient();
+        final Client client = clientBuilder.setHost("localhost")
+                .setPort(8080).setUri("/echo")
+                .build().startClient();
 
         final EchoAsync echoClient = client.createProxy(EchoAsync.class, "echo");
 

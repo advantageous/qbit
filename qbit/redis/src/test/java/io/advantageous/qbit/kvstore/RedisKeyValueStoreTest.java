@@ -195,7 +195,9 @@ public class RedisKeyValueStoreTest {
 
 
 
-        todoKVStore.putWithConfirmation(putCallbackBuilder.build(), "testPutWithConfirmationWrapped", new Todo(value));
+        todoKVStore.putWithConfirmation(putCallbackBuilder.build(),
+                "testPutWithConfirmationWrapped", new Todo(value));
+
         ServiceProxyUtils.flushServiceProxy(todoKVStore);
 
         putLatch.await(3, TimeUnit.SECONDS);
