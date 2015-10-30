@@ -2,6 +2,9 @@ package io.advantageous.qbit.service.discovery.dns;
 
 import io.advantageous.boon.core.IO;
 import io.advantageous.boon.core.Str;
+import io.advantageous.qbit.service.discovery.ServiceDiscovery;
+import io.advantageous.qbit.service.discovery.ServiceDiscoveryBuilder;
+import io.vertx.core.Vertx;
 
 import java.io.File;
 import java.net.URI;
@@ -45,6 +48,25 @@ public class DnsUtil {
             throw new IllegalStateException("/etc/resolv.conf not found");
         }
 
+    }
+
+    /** Create service discovery that can talk DNS. */
+    public static ServiceDiscovery createDnsServiceDiscovery() {
+
+
+        final ServiceDiscoveryBuilder serviceDiscoveryBuilder = ServiceDiscoveryBuilder.serviceDiscoveryBuilder();
+
+        final Vertx vertx = Vertx.vertx();
+        final DnsSupportBuilder dnsSupportBuilder = DnsSupportBuilder.dnsSupportBuilder(vertx)
+                .setDnsClientSupplier(new DnsClientFromResolveConfSupplier(vertx));
+
+        final DnsServiceDiscoveryProviderBuilder dnsServiceDiscoveryProviderBuilder =
+                DnsServiceDiscoveryProviderBuilder.dnsServiceDiscoveryProviderBuilder()
+                .setDnsSupport(dnsSupportBuilder.build());
+
+
+        return serviceDiscoveryBuilder
+                .setServiceDiscoveryProvider(dnsServiceDiscoveryProviderBuilder.build()).build();
     }
 
 }
