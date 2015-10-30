@@ -11,6 +11,7 @@ import java.util.function.Consumer;
 
 /**
  * This allows for a callback to be called in the context of a service.
+ * This is the original AsyncFutureCallbackImpl it does not support a synchronous get.
  *
  * @author rhightower
  */

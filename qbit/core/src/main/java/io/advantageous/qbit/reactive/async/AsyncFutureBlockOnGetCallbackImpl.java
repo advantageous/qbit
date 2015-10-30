@@ -9,6 +9,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 
+/** Used to make async calls into sync calls if needed using a latch. */
 public class AsyncFutureBlockOnGetCallbackImpl <T> implements AsyncFutureCallback<T> {
 
 
