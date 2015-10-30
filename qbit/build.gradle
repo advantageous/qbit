@@ -284,6 +284,7 @@ project('admin') {
         testCompile project(':qbit:consul-client')
         testCompile project(':qbit:test-support')
         compile project(":qbit:vertx")
+        compile project(":qbit:service-discovery")
     }
 
     uploadArchives {

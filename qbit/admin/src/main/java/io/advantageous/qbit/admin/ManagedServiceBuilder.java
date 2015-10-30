@@ -16,6 +16,7 @@ import io.advantageous.qbit.server.EndpointServerBuilder;
 import io.advantageous.qbit.service.ServiceBuilder;
 import io.advantageous.qbit.service.ServiceBundleBuilder;
 import io.advantageous.qbit.service.discovery.ServiceDiscovery;
+import io.advantageous.qbit.service.discovery.dns.DnsUtil;
 import io.advantageous.qbit.service.health.HealthServiceAsync;
 import io.advantageous.qbit.service.health.HealthServiceBuilder;
 import io.advantageous.qbit.system.QBitSystemManager;
@@ -683,4 +684,11 @@ public class ManagedServiceBuilder {
         this.checkTimingEveryXCalls = checkTimingEveryXCalls;
         return this;
     }
+
+    /** Sets up DNS based service discovery. */
+    public ManagedServiceBuilder useDnsServiceDiscovery() {
+        this.setServiceDiscovery(DnsUtil.createDnsServiceDiscovery());
+        return this;
+    }
+
 }
