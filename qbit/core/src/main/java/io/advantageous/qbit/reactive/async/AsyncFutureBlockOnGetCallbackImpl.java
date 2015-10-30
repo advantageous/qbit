@@ -1,4 +1,4 @@
-package io.advantageous.qbit.reactive.impl;
+package io.advantageous.qbit.reactive.async;
 
 import io.advantageous.qbit.reactive.AsyncFutureCallback;
 import io.advantageous.qbit.reactive.Callback;
@@ -42,7 +42,7 @@ public class AsyncFutureBlockOnGetCallbackImpl <T> implements AsyncFutureCallbac
 
     }
 
-    public static <T> AsyncFutureBlockOnGetCallbackImpl<T> callback(final Callback<T> callback,
+    public static <T> AsyncFutureCallback<T> callback(final Callback<T> callback,
                                                           final long startTime,
                                                           final long maxExecutionTime,
                                                           final Runnable onFinished,

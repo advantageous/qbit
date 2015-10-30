@@ -1,7 +1,7 @@
 package io.advantageous.qbit.reactive;
 
-import io.advantageous.qbit.reactive.impl.AsyncFutureBlockOnGetCallbackImpl;
-import io.advantageous.qbit.reactive.impl.AsyncFutureCallbackImpl;
+import io.advantageous.qbit.reactive.async.AsyncFutureBlockOnGetCallbackImpl;
+import io.advantageous.qbit.reactive.async.AsyncFutureCallbackImpl;
 import io.advantageous.qbit.service.ServiceProxyUtils;
 import io.advantageous.qbit.time.Duration;
 import io.advantageous.qbit.util.Timer;
