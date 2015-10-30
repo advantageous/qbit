@@ -5,6 +5,7 @@ import io.advantageous.qbit.reactive.Callback;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
@@ -43,7 +44,7 @@ public class AsyncFutureBlockOnGetCallbackImpl <T> implements AsyncFutureCallbac
 
     }
 
-    public static <T> AsyncFutureCallback<T> callback(final Callback<T> callback,
+    public static <T> AsyncFutureBlockOnGetCallbackImpl<T> callback(final Callback<T> callback,
                                                           final long startTime,
                                                           final long maxExecutionTime,
                                                           final Runnable onFinished,
@@ -153,14 +154,26 @@ public class AsyncFutureBlockOnGetCallbackImpl <T> implements AsyncFutureCallbac
     @Override
     public T get() {
         try {
-            latch.await(this.timeOutDuration(), TimeUnit.MILLISECONDS);
+            latch.await((long)(this.timeOutDuration() * 1.5), TimeUnit.MILLISECONDS);
         } catch (InterruptedException e) {
             Thread.interrupted();
         }
+
+
+        if (isTimedOut()) {
+            throw new IllegalStateException("Timed out");
+        }
+
+
+        if (isCancelled()) {
+            throw new IllegalStateException("Cancelled");
+        }
+
         //noinspection ThrowableResultOfMethodCallIgnored
         if (error.get() != null) {
-            throw new IllegalStateException(error.get());
+            throw new IllegalStateException("Operation failed", error.get());
         }
+
         return value.get();
     }
 
@@ -173,10 +186,22 @@ public class AsyncFutureBlockOnGetCallbackImpl <T> implements AsyncFutureCallbac
         } catch (InterruptedException e) {
             Thread.interrupted();
         }
+
+
+        if (isTimedOut()) {
+            throw new IllegalStateException("Timed out");
+        }
+
+
+        if (isCancelled()) {
+            throw new IllegalStateException("Cancelled");
+        }
+
         //noinspection ThrowableResultOfMethodCallIgnored
         if (error.get() != null) {
-            throw new IllegalStateException(error.get());
+            throw new IllegalStateException("Operation failed", error.get());
         }
+
         return value.get();
     }
 

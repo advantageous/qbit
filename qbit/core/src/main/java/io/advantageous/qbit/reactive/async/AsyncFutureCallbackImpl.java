@@ -46,7 +46,7 @@ public class AsyncFutureCallbackImpl<T> implements AsyncFutureCallback<T> {
 
     }
 
-    public static <T> AsyncFutureCallback<T> callback(final Callback<T> callback,
+    public static <T> AsyncFutureCallbackImpl<T> callback(final Callback<T> callback,
                                                           final long startTime,
                                                           final long maxExecutionTime,
                                                           final Runnable onFinished,

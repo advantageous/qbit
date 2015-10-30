@@ -147,4 +147,8 @@ public class AsyncFutureBuilder {
     }
 
 
+    public static AsyncFutureBuilder asyncFutureBuilder() {
+
+        return new AsyncFutureBuilder();
+    }
 }
