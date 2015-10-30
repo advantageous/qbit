@@ -20,6 +20,8 @@ public class CallbackBuilder {
     private long timeoutDuration = -1;
     private TimeUnit timeoutTimeUnit = TimeUnit.SECONDS;
     private Consumer<Throwable> onError;
+    private boolean supportLatch;
+
 
     /**
      * @param reactor reactor
@@ -496,20 +498,31 @@ public class CallbackBuilder {
 
     public <T> AsyncFutureCallback<T> build() {
 
-        if (getOnError() != null || getOnTimeout() != null || timeoutDuration != -1) {
+        if (getOnError() != null || getOnTimeout() != null) {
 
             if (timeoutDuration == -1) {
                 timeoutDuration = 30;
             }
 
             if (reactor != null) {
-                //noinspection unchecked
-                return reactor.callbackWithTimeoutAndErrorHandlerAndOnTimeout(
-                        (Callback<T>) getCallback(),
-                        getTimeoutDuration(),
-                        getTimeoutTimeUnit(),
-                        getOnTimeout(),
-                        getOnError());
+
+                if (this.isSupportLatch()) {
+                    return reactor.callbackWithTimeoutAndErrorHandlerAndOnTimeoutWithLatch(
+                            (Callback<T>) getCallback(),
+                            getTimeoutDuration(),
+                            getTimeoutTimeUnit(),
+                            getOnTimeout(),
+                            getOnError());
+
+                } else {
+                    //noinspection unchecked
+                    return reactor.callbackWithTimeoutAndErrorHandlerAndOnTimeout(
+                            (Callback<T>) getCallback(),
+                            getTimeoutDuration(),
+                            getTimeoutTimeUnit(),
+                            getOnTimeout(),
+                            getOnError());
+                }
             } else {
                 return new AsyncFutureCallback<T>() {
 
@@ -572,7 +585,11 @@ public class CallbackBuilder {
         }
 
         if (reactor != null) {
-            return reactor.callback(this.getCallback());
+            if (isSupportLatch()) {
+                return reactor.callback(this.getCallback());
+            } else {
+                return reactor.callbackWithLatch(this.getCallback());
+            }
         } else {
 
             final Callback callback = this.getCallback();
@@ -642,4 +659,12 @@ public class CallbackBuilder {
     }
 
 
+    public boolean isSupportLatch() {
+        return supportLatch;
+    }
+
+    public CallbackBuilder setSupportLatch(boolean supportLatch) {
+        this.supportLatch = supportLatch;
+        return this;
+    }
 }
