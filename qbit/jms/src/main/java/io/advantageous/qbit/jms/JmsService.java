@@ -2,12 +2,16 @@ package io.advantageous.qbit.jms;
 
 import io.advantageous.qbit.service.Startable;
 import io.advantageous.qbit.service.Stoppable;
+import org.apache.activemq.ActiveMQConnection;
+import org.apache.activemq.transport.TransportListener;
 
 import javax.jms.*;
+import java.io.IOException;
 import java.lang.IllegalStateException;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -57,6 +61,9 @@ public class JmsService implements Stoppable, Startable{
     /** Holds a map of names to `MessageConsumer`s. */
     private Map<String, MessageConsumer> consumers = new LinkedHashMap<>();
 
+    /** connected. */
+    private final AtomicBoolean connected = new AtomicBoolean();
+
 
     /**
      * Create a new JMS Service.
@@ -84,6 +91,8 @@ public class JmsService implements Stoppable, Startable{
         this.defaultDestination = defaultDestination;
         this.defaultTimeout = defaultTimeout;
 
+        getConnection();
+
     }
 
     /**
@@ -109,6 +118,7 @@ public class JmsService implements Stoppable, Startable{
     private MessageConsumer getConsumer(final String destinationName) {
         if (!consumers.containsKey(destinationName)) {
             Session session = getSession();
+
             Destination destination = getDestination(destinationName);
             try {
                 MessageConsumer consumer = session.createConsumer(destination);
@@ -174,6 +184,33 @@ public class JmsService implements Stoppable, Startable{
 
         if (!connectionOption.isPresent()) {
             Connection connection = connectionSupplier.get();
+
+            if (connection instanceof ActiveMQConnection) {
+                ((ActiveMQConnection) connection).addTransportListener(new TransportListener() {
+                    @Override
+                    public void onCommand(Object command) {
+
+                    }
+
+                    @Override
+                    public void onException(IOException error) {
+                    }
+
+                    @Override
+                    public void transportInterupted() {
+                        connected.set(false);
+                    }
+
+                    @Override
+                    public void transportResumed() {
+                        connected.set(true);
+                    }
+                });
+            }
+
+
+            connected.set(true);
+
             if (startConnection) {
                 try {
                     connection.start();
@@ -193,6 +230,11 @@ public class JmsService implements Stoppable, Startable{
      * @param messageContent messageContent
      */
     public void sendTextMessageWithDestination(final String destinationName, final String messageContent)  {
+
+        if (!this.isConnected()) {
+            throw new JmsNotConnectedException("JMS connection is down " + destinationName);
+        }
+
         final Session session = getSession();
         final MessageProducer producer = getProducer(destinationName);
         try {
@@ -260,6 +302,11 @@ public class JmsService implements Stoppable, Startable{
      * @return message
      */
     public String receiveTextMessageFromDestinationWithTimeout(final String destinationName, final int timeout) {
+
+
+        if (!this.isConnected()) {
+            throw new JmsNotConnectedException("Not connected");
+        }
         MessageConsumer consumer  = getConsumer(destinationName);
         TextMessage message;
         try {
@@ -337,5 +384,9 @@ public class JmsService implements Stoppable, Startable{
     @Override
     public void start() {
         getConnection();
+    }
+
+    public boolean isConnected() {
+        return connected.get();
     }
 }

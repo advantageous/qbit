@@ -138,6 +138,7 @@ public class JmsTest {
 
         Sys.sleep(1000);
 
+
         final Person geoff = personReceiveQueue.pollWait();
         final Person rick = personReceiveQueue.pollWait();
 
@@ -147,6 +148,45 @@ public class JmsTest {
 
     }
 
+
+    @Test(expected = JmsNotConnectedException.class)
+    public void testSendConsumeDown() throws Exception {
+        final List<Person> list = Lists.list(new Person("Geoff"), new Person("Rick"));
+
+        Iterable<Person> persons = list::iterator;
+
+
+        personSendQueue.sendBatch(persons);
+        personSendQueue.flushSends();
+
+
+        broker.stop();
+
+        Sys.sleep(1000);
+
+        personReceiveQueue.pollWait();
+
+    }
+
+
+    @Test(expected = JmsNotConnectedException.class)
+    public void testSendDown() throws Exception {
+        final List<Person> list = Lists.list(new Person("Geoff"), new Person("Rick"));
+
+        Iterable<Person> persons = list::iterator;
+
+
+        personSendQueue.sendBatch(persons);
+        personSendQueue.flushSends();
+
+
+        broker.stop();
+
+        Sys.sleep(1000);
+
+        personSendQueue.sendBatch(persons);
+
+    }
     @Test
     public void testSendConsume6() throws Exception {
 
