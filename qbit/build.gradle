@@ -350,6 +350,8 @@ project('eventbus-replicator') {
 
 project('jms') {
 
+    javadoc.onlyIf {false}
+
     dependencies {
         compile project(":qbit:core")
         testCompile project(':qbit:test-support')
