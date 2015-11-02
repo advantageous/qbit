@@ -5,6 +5,11 @@ public class HttpStatus {
     public final static int OK = 200;
     public final static String OK_MSG = "OK";
 
+
+    public final static int CREATED = 201;
+    public final static String CREATED_MSG = "CREATED";
+
+
     public final static int ACCEPTED = 202;
     public final static String ACCEPTED_MSG = "REQUEST ACCEPTED";
 
@@ -31,6 +36,7 @@ public class HttpStatus {
     public final static String message(int code) {
         switch (code) {
             case OK: return OK_MSG;
+            case CREATED: return CREATED_MSG;
             case NOT_FOUND: return NOT_FOUND_MSG;
             case BAD_REQUEST: return BAD_REQUEST_MSG;
             case UNAUTHORIZED: return UNAUTHORIZED_MSG;

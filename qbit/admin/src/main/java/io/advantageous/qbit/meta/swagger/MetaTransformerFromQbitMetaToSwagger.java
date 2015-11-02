@@ -119,7 +119,7 @@ public class MetaTransformerFromQbitMetaToSwagger {
                     } catch (Exception ex) {
 
                         logger.warn("Problem processing path {} {}", requestURI, methodAccess.name());
-                        logger.warn("Problem processing path", ex);
+                        logger.debug("Problem processing path", ex);
                     }
                 }
             }
@@ -158,6 +158,9 @@ public class MetaTransformerFromQbitMetaToSwagger {
                             methodMeta.getReturnTypeComponent()));
                     break;
 
+                case HTTP_BINARY_RESPONSE:
+                case HTTP_TEXT_RESPONSE:
+                    break;
                 case JSEND:
                     responseBuilder.setSchema(definitionClassCollector.getSchemaForJSend(methodMeta.getReturnType(),
                             methodMeta.getReturnTypeComponent()));
@@ -239,6 +242,8 @@ public class MetaTransformerFromQbitMetaToSwagger {
                 continue;
             }
 
+
+
             final ParameterBuilder parameterBuilder = new ParameterBuilder();
 
 
@@ -282,11 +287,11 @@ public class MetaTransformerFromQbitMetaToSwagger {
                     parameterBuilder.setSchema(Schema.definitionRef(parameterMeta.getClassType().getSimpleName(), ""));
                     parameterBuilder.setRequired(parameterMeta.getParam().isRequired());
                     operationBuilder.addParameter(parameterBuilder.build());
-                    return;
+                    continue;
                 }
             }
 
-            Schema schema = definitionClassCollector.getSchema(parameterMeta.getClassType());
+            final Schema schema = definitionClassCollector.getSchema(parameterMeta.getClassType());
             parameterBuilder.setType(schema.getType());
 
             if ( "array".equals(schema.getType()) ) {
@@ -324,7 +329,8 @@ public class MetaTransformerFromQbitMetaToSwagger {
         serviceMeta.getMethods().forEach(serviceMethodMeta -> populateDefinitionMapByServiceMethod(serviceMeta, serviceMethodMeta));
     }
 
-    private void populateDefinitionMapByServiceMethod(final ServiceMeta serviceMeta, final ServiceMethodMeta serviceMethodMeta) {
+    private void populateDefinitionMapByServiceMethod(final ServiceMeta serviceMeta,
+                                                      final ServiceMethodMeta serviceMethodMeta) {
 
         try {
 
@@ -339,6 +345,9 @@ public class MetaTransformerFromQbitMetaToSwagger {
                 case OPTIONAL:
                 case ARRAY:
                     definitionClassCollector.addClass(serviceMethodMeta.getReturnTypeComponent());
+                    break;
+                case HTTP_TEXT_RESPONSE:
+                case HTTP_BINARY_RESPONSE:
                     break;
                 case JSEND:
                     definitionClassCollector.addJSendClass(serviceMethodMeta.getReturnTypeComponent());
@@ -359,9 +368,7 @@ public class MetaTransformerFromQbitMetaToSwagger {
 
                             definitionClassCollector.addClass(parameterMeta.getComponentClassValue());
                         } else if (parameterMeta.isCollection() || parameterMeta.isArray()) {
-
                             definitionClassCollector.addClass(parameterMeta.getComponentClass());
-
                         } else {
                             if (parameterMeta.getClassType() != Callback.class) {
                                 definitionClassCollector.addClass(parameterMeta.getClassType());

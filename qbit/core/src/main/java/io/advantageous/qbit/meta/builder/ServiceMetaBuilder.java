@@ -124,6 +124,9 @@ public class ServiceMetaBuilder {
 
             final int code = getCodeFromRequestMapping(methodAccess);
 
+
+            final String contentType = getContentTypeFromRequestMapping(methodAccess);
+
             final List<RequestMethod> requestMethods = getRequestMethodsByAnnotated(methodAccess);
 
 
@@ -133,6 +136,7 @@ public class ServiceMetaBuilder {
             serviceMethodMetaBuilder.setSummary(summary);
             serviceMethodMetaBuilder.setReturnDescription(returnDescription);
             serviceMethodMetaBuilder.setResponseCode(code);
+            serviceMethodMetaBuilder.setContentType(contentType);
 
             for (String path : requestPaths) {
                 CallType callType = path.contains("{") ? CallType.ADDRESS_WITH_PATH_PARAMS : CallType.ADDRESS;

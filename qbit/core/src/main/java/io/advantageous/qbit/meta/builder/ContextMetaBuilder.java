@@ -170,7 +170,7 @@ public class ContextMetaBuilder {
 
     public static List<RequestMethod> getRequestMethodsByAnnotated(Annotated annotated) {
 
-        final AnnotationData requestMapping = annotated.annotation("RequestMapping");
+        final AnnotationData requestMapping = getAnnotationData(annotated);
 
         if (requestMapping == null) {
             return Collections.singletonList(RequestMethod.GET);
@@ -212,8 +212,27 @@ public class ContextMetaBuilder {
 
     }
 
+    private static AnnotationData getAnnotationData(Annotated annotated) {
+        AnnotationData requestMapping = annotated.annotation("RequestMapping");
+
+        if (requestMapping==null) {
+            requestMapping = annotated.annotation("GET");
+        }
+        if (requestMapping==null) {
+            requestMapping = annotated.annotation("POST");
+        }
+        if (requestMapping==null) {
+            requestMapping = annotated.annotation("PUT");
+        }
+        if (requestMapping==null) {
+            requestMapping = annotated.annotation("DELETE");
+        }
+
+        return requestMapping;
+    }
+
     static Object getRequestPath(Annotated classMeta, final String name) {
-        final AnnotationData requestMapping = classMeta.annotation("RequestMapping");
+        final AnnotationData requestMapping = getAnnotationData(classMeta);
 
         if (requestMapping != null) {
             Object value = requestMapping.getValues().get("value");
@@ -228,7 +247,7 @@ public class ContextMetaBuilder {
 
 
     static String getDescriptionFromRequestMapping(Annotated annotated) {
-        final AnnotationData requestMapping = annotated.annotation("RequestMapping");
+        final AnnotationData requestMapping = getAnnotationData(annotated);
 
         if (requestMapping != null) {
             Object value = requestMapping.getValues().get("description");
@@ -240,7 +259,7 @@ public class ContextMetaBuilder {
 
 
     static int getCodeFromRequestMapping(Annotated annotated) {
-        final AnnotationData requestMapping = annotated.annotation("RequestMapping");
+        final AnnotationData requestMapping = getAnnotationData(annotated);
 
         if (requestMapping != null) {
             Object value = requestMapping.getValues().get("code");
@@ -250,9 +269,20 @@ public class ContextMetaBuilder {
         }
     }
 
+    static String getContentTypeFromRequestMapping(Annotated annotated) {
+        final AnnotationData requestMapping = getAnnotationData(annotated);
+
+        if (requestMapping != null) {
+            Object value = requestMapping.getValues().get("contentType");
+            return Conversions.toString(value);
+        } else {
+            return "application/json";
+        }
+    }
+
 
     static String getReturnDescriptionFromRequestMapping(Annotated annotated) {
-        final AnnotationData requestMapping = annotated.annotation("RequestMapping");
+        final AnnotationData requestMapping = getAnnotationData(annotated);
 
         if (requestMapping != null) {
             Object value = requestMapping.getValues().get("returnDescription");
@@ -263,7 +293,7 @@ public class ContextMetaBuilder {
     }
 
     static String getSummaryFromRequestMapping(Annotated annotated) {
-        final AnnotationData requestMapping = annotated.annotation("RequestMapping");
+        final AnnotationData requestMapping = getAnnotationData(annotated);
 
         if (requestMapping != null) {
             Object value = requestMapping.getValues().get("summary");

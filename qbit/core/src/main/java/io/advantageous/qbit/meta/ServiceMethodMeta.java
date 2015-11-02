@@ -22,7 +22,6 @@ import io.advantageous.boon.core.Lists;
 import io.advantageous.boon.core.TypeType;
 import io.advantageous.boon.core.reflection.MethodAccess;
 import io.advantageous.qbit.annotation.JsonIgnore;
-import io.advantageous.qbit.meta.builder.GenericReturnType;
 
 import java.util.Collections;
 import java.util.List;
@@ -51,6 +50,7 @@ public class ServiceMethodMeta {
     private final String summary;
     private final String returnDescription;
     private final int responseCode;
+    private final String contentType;
 
     public ServiceMethodMeta(boolean hasReturn,
                              MethodAccess methodAccess,
@@ -67,7 +67,8 @@ public class ServiceMethodMeta {
                              String description,
                              String summary,
                              String returnDescription,
-                             int responseCode) {
+                             int responseCode,
+                             String contentType) {
 
         this.hasReturn = hasReturn;
         this.methodAccess = methodAccess;
@@ -85,13 +86,14 @@ public class ServiceMethodMeta {
         this.summary = summary;
         this.returnDescription = returnDescription;
         this.responseCode = responseCode;
+        this.contentType = contentType;
     }
 
     public ServiceMethodMeta(String name, List<RequestMeta> requestEndpoints, TypeType returnTypeEnum,
                              List<TypeType> paramTypes) {
         this(true, null,name, requestEndpoints,
                 returnTypeEnum, paramTypes,
-                false, GenericReturnType.NONE, null, null, null, null, null, null, null, -1);
+                false, GenericReturnType.NONE, null, null, null, null, null, null, null, -1, null);
 
     }
 
@@ -99,13 +101,13 @@ public class ServiceMethodMeta {
     public ServiceMethodMeta(MethodAccess methodAccess, List<RequestMeta> list) {
         this(true, methodAccess, methodAccess.name(), list,
                 TypeType.OBJECT, Collections.emptyList(),
-                false, GenericReturnType.NONE, null, null, null, null, null, null, null, -1);
+                false, GenericReturnType.NONE, null, null, null, null, null, null, null, -1, null);
     }
 
     public ServiceMethodMeta(String name, List<RequestMeta> list) {
         this(true, null, name, list,
                 TypeType.OBJECT, Collections.emptyList(),
-                false, GenericReturnType.NONE, null, null, null, null, null, null, null, -1);
+                false, GenericReturnType.NONE, null, null, null, null, null, null, null, -1, null);
     }
 
 
@@ -212,5 +214,9 @@ public class ServiceMethodMeta {
 
     public int getResponseCode() {
         return responseCode;
+    }
+
+    public String getContentType() {
+        return contentType;
     }
 }

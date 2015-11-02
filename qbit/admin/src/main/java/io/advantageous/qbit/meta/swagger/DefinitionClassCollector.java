@@ -5,6 +5,8 @@ import io.advantageous.boon.core.TypeType;
 import io.advantageous.boon.core.reflection.AnnotationData;
 import io.advantageous.boon.core.reflection.ClassMeta;
 import io.advantageous.boon.core.reflection.fields.FieldAccess;
+import io.advantageous.qbit.http.request.HttpBinaryResponse;
+import io.advantageous.qbit.http.request.HttpTextResponse;
 import io.advantageous.qbit.jsend.JSendResponse;
 import io.advantageous.qbit.meta.swagger.builders.DefinitionBuilder;
 import org.slf4j.Logger;
@@ -123,7 +125,7 @@ public class DefinitionClassCollector {
         /*
         Don't add void.
          */
-        if (cls == void.class || cls == Void.class) {
+        if (cls == void.class || cls == Void.class ) {
             return;
         }
 
