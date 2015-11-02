@@ -1,5 +1,6 @@
 package io.advantageous.qbit.queue.impl.sender;
 
+import io.advantageous.boon.core.Sys;
 import io.advantageous.qbit.queue.Queue;
 import io.advantageous.qbit.queue.SendQueue;
 import org.slf4j.Logger;
@@ -21,6 +22,10 @@ public abstract class AbstractBasicSendQueue <T> implements SendQueue<T> {
     protected int index;
     protected final String name;
     protected final Object[] queueLocal;
+    private final boolean checkStart = Sys.sysProp("QBIT_CHECK_START", false);
+    private final int checkStartWarnEvery = Sys.sysProp("QBIT_CHECK_START_WARN_EVERY", 100);
+    private final boolean checkQueueSize = Sys.sysProp("QBIT_CHECK_QUEUE_SIZE", false);
+    private final int checkQueueSizeWarnIfOver = Sys.sysProp("QBIT_CHECK_QUEUE_SIZE_WARN_IF_OVER", 10);
 
     public AbstractBasicSendQueue(final BlockingQueue<Object> queue, Queue<T> owner,
                                   final int batchSize,
@@ -55,13 +60,24 @@ public abstract class AbstractBasicSendQueue <T> implements SendQueue<T> {
 
     private void checkStarted() {
 
-        if (checkEveryStarted % 100 == 0) {
-            if (!owner.started()) {
-                logger.warn("{} :: name {} send queue NOT STARTED", this.getClass().getSimpleName(), name);
+
+        if (checkQueueSize)  {
+            if (queue.size() > checkQueueSizeWarnIfOver) {
+                logger.warn("{} :: name {} queue is filling up", this.getClass().getSimpleName(), name);
             }
         }
 
-        checkEveryStarted++;
+        if (checkStart) {
+
+            if (checkEveryStarted % checkStartWarnEvery == 0) {
+
+                if (!owner.started()) {
+                    logger.warn("{} :: name {} send queue NOT STARTED", this.getClass().getSimpleName(), name);
+                }
+            }
+
+            checkEveryStarted++;
+        }
     }
 
     @Override
