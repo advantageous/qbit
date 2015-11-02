@@ -77,10 +77,12 @@ public class HelloWorldJSend {
     }
 
 
-    @RequestMapping(value = "/hello8", contentType = "application/xml", code = HttpStatus.ACCEPTED)
+    @RequestMapping(value = "/hello8", contentType = "application/xml", code = HttpStatus.CREATED)
     public void hello8(final Callback<HttpTextResponse> callback) {
 
-        final HttpTextResponse response = HttpResponseBuilder.httpResponseBuilder().setBody("<xml><hi>hello world</hi></xml>")
+        final HttpTextResponse response = HttpResponseBuilder
+                .httpResponseBuilder()
+                .setBody("<xml><hi>hello world</hi></xml>")
                 .setCode(201).buildTextResponse();
         callback.returnThis(response);
     }

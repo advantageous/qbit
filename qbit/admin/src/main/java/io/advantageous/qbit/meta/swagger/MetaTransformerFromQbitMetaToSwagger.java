@@ -181,7 +181,7 @@ public class MetaTransformerFromQbitMetaToSwagger {
             } else {
                 operationBuilder.getResponses().put(methodMeta.getResponseCode(), responseBuilder.build());
             }
-            operationBuilder.getProduces().add("application/json");
+            operationBuilder.getProduces().add(methodMeta.getContentType());
 
 
         } else {
@@ -196,6 +196,8 @@ public class MetaTransformerFromQbitMetaToSwagger {
             } else {
                 operationBuilder.getResponses().put(methodMeta.getResponseCode(), responseBuilder.build());
             }
+
+            operationBuilder.getProduces().add(methodMeta.getContentType());
         }
 
         switch (requestMethod) {
