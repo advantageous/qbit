@@ -209,7 +209,12 @@ public class QueueBuilder implements Cloneable {
     }
 
     public QueueBuilder setBatchSize(int batchSize) {
+
+        if (batchSize==1) {
+            this.setLinkTransferQueue();
+        }
         this.batchSize = batchSize;
+
         return this;
     }
 

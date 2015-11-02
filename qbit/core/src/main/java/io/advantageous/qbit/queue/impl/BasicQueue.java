@@ -24,6 +24,7 @@ import io.advantageous.qbit.queue.*;
 import io.advantageous.qbit.queue.impl.sender.BasicBlockingQueueSender;
 import io.advantageous.qbit.queue.impl.sender.BasicSendQueueWithTransferQueue;
 import io.advantageous.qbit.queue.impl.sender.BasicSendQueueWithTryTransfer;
+import io.advantageous.qbit.queue.impl.sender.NoBatchSendQueue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -96,8 +97,14 @@ public class BasicQueue<T> implements Queue<T> {
         }
 
 
+        if (this.batchSize==1) {
 
-        if (queue instanceof LinkedTransferQueue) {
+            if (queue instanceof LinkedTransferQueue) {
+                sendQueueSupplier = () -> new NoBatchSendQueue<>((LinkedTransferQueue<Object>) queue, this, name);
+            } else {
+                throw new IllegalStateException("If batch size 1 queue must be a linked transfer queue");
+            }
+        } else if (queue instanceof LinkedTransferQueue) {
 
             if (tryTransfer) {
                 sendQueueSupplier = () -> new BasicSendQueueWithTryTransfer<>(name, batchSize, (TransferQueue<Object>) queue,
