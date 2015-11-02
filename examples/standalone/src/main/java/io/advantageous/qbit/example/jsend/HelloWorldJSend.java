@@ -3,6 +3,9 @@ package io.advantageous.qbit.example.jsend;
 import io.advantageous.boon.core.Lists;
 import io.advantageous.qbit.admin.ManagedServiceBuilder;
 import io.advantageous.qbit.annotation.RequestMapping;
+import io.advantageous.qbit.http.HttpStatus;
+import io.advantageous.qbit.http.request.HttpResponseBuilder;
+import io.advantageous.qbit.http.request.HttpTextResponse;
 import io.advantageous.qbit.jsend.JSendResponse;
 import io.advantageous.qbit.jsend.JSendResponseBuilder;
 import io.advantageous.qbit.reactive.Callback;
@@ -71,6 +74,17 @@ public class HelloWorldJSend {
     public void helloJSend7(Callback<JSendResponse<List<String>>> callback) {
         callback.returnThis(JSendResponseBuilder.jSendResponseBuilder(Lists.list(
                 "hello " + System.currentTimeMillis())).build());
+    }
+
+
+    @RequestMapping(value = "/hello8", contentType = "application/xml", code = HttpStatus.CREATED)
+    public void hello8(final Callback<HttpTextResponse> callback) {
+
+        final HttpTextResponse response = HttpResponseBuilder
+                .httpResponseBuilder()
+                .setBody("<xml><hi>hello world</hi></xml>")
+                .setCode(201).buildTextResponse();
+        callback.returnThis(response);
     }
 
     public static void main(final String... args) {

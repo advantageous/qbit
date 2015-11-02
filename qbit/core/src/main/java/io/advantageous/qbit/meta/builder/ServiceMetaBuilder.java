@@ -96,9 +96,15 @@ public class ServiceMetaBuilder {
 
 
 
-    public void addMethods(String path, Collection<MethodAccess> methods) {
-        methods.stream().filter(methodAccess -> !methodAccess.isPrivate()
-                && !methodAccess.isStatic() && !methodAccess.method().isSynthetic())
+    public void addMethods(final String path, final Collection<MethodAccess> methods) {
+
+        /* Only add methods that could be REST endpoints. */
+        methods.stream().filter(methodAccess ->
+                !methodAccess.isPrivate() && //No private methods
+                !methodAccess.isStatic() && //No static methods
+                !methodAccess.method().isSynthetic() && //No synthetic methods
+                !methodAccess.name().contains("$")) //No methods with $ as this could be Scala generated
+                                                    // method or byte code lib generated
                 .forEach(methodAccess -> addMethod(path, methodAccess));
     }
 
@@ -118,6 +124,9 @@ public class ServiceMetaBuilder {
 
             final int code = getCodeFromRequestMapping(methodAccess);
 
+
+            final String contentType = getContentTypeFromRequestMapping(methodAccess);
+
             final List<RequestMethod> requestMethods = getRequestMethodsByAnnotated(methodAccess);
 
 
@@ -127,6 +136,7 @@ public class ServiceMetaBuilder {
             serviceMethodMetaBuilder.setSummary(summary);
             serviceMethodMetaBuilder.setReturnDescription(returnDescription);
             serviceMethodMetaBuilder.setResponseCode(code);
+            serviceMethodMetaBuilder.setContentType(contentType);
 
             for (String path : requestPaths) {
                 CallType callType = path.contains("{") ? CallType.ADDRESS_WITH_PATH_PARAMS : CallType.ADDRESS;

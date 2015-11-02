@@ -3,7 +3,10 @@ package io.advantageous.qbit.meta.builder;
 
 import io.advantageous.boon.core.TypeType;
 import io.advantageous.boon.core.reflection.MethodAccess;
+import io.advantageous.qbit.http.request.HttpBinaryResponse;
+import io.advantageous.qbit.http.request.HttpTextResponse;
 import io.advantageous.qbit.jsend.JSendResponse;
+import io.advantageous.qbit.meta.GenericReturnType;
 import io.advantageous.qbit.meta.RequestMeta;
 import io.advantageous.qbit.meta.ServiceMethodMeta;
 import io.advantageous.qbit.reactive.Callback;
@@ -40,6 +43,7 @@ public class ServiceMethodMetaBuilder {
     private String summary;
     private String returnDescription;
     private int responseCode;
+    private String contentType;
 
     public String getDescription() {
         return description;
@@ -138,7 +142,7 @@ public class ServiceMethodMetaBuilder {
             return new ServiceMethodMeta(isHasReturn(), getMethodAccess(), getName(), getRequestEndpoints(),
                     getReturnTypeEnum(), getParamTypes(), hasCallback(), getGenericReturnType(), getReturnType(),
                     getReturnTypeComponent(), getReturnTypeComponentKey(), getReturnTypeComponentValue(),
-                    getDescription(), getSummary(), getReturnDescription(), getResponseCode());
+                    getDescription(), getSummary(), getReturnDescription(), getResponseCode(), getContentType());
         } else {
             return new ServiceMethodMeta(getName(), this.getRequestEndpoints(),
                     this.getReturnTypeEnum(), this.getParamTypes());
@@ -210,6 +214,10 @@ public class ServiceMethodMetaBuilder {
                         }
                     }
                 }
+            } else if (returnType == HttpTextResponse.class) {
+                genericReturnType = GenericReturnType.HTTP_TEXT_RESPONSE;
+            } else if (returnType == HttpBinaryResponse.class) {
+                genericReturnType = GenericReturnType.HTTP_BINARY_RESPONSE;
             }
             else {
 
@@ -293,7 +301,11 @@ public class ServiceMethodMetaBuilder {
             else if (callbackReturn instanceof Class) {
                 this.returnType = ((Class) callbackReturn);
 
-                if (returnType.isArray()) {
+                if (this.returnType == HttpTextResponse.class) {
+                    this.genericReturnType = GenericReturnType.HTTP_TEXT_RESPONSE;
+                }  else if (this.returnType == HttpBinaryResponse.class) {
+                    this.genericReturnType = GenericReturnType.HTTP_BINARY_RESPONSE;
+                } else  if (returnType.isArray()) {
                     this.genericReturnType = GenericReturnType.ARRAY;
                 }
                 this.returnTypeEnum = TypeType.getType(returnType);
@@ -434,5 +446,14 @@ public class ServiceMethodMetaBuilder {
 
     public int getResponseCode() {
         return responseCode;
+    }
+
+    public String getContentType() {
+        return contentType;
+    }
+
+    public ServiceMethodMetaBuilder setContentType(String contentType) {
+        this.contentType = contentType;
+        return this;
     }
 }

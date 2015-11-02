@@ -29,29 +29,23 @@ public class ParameterMeta {
     private final Class<?> classType;
     private final TypeType type;
     private final Param param;
-    private final boolean collection;
-    private final boolean map;
-    private final boolean array;
     private final Class<?> componentClass;
     private final Class<?> componentClassKey;
     private final Class<?> componentClassValue;
+    private final GenericParamType genericParamType;
 
 
     public ParameterMeta(Class<?> classType,
                          TypeType type,
                          Param param,
-                         boolean isCollection,
-                         boolean isMap,
-                         boolean isArray,
+                         GenericParamType genericParamType,
                          Class<?> returnTypeComponent,
                          Class<?> returnTypeComponentKey,
                          Class<?> returnTypeComponentValue) {
         this.classType = classType;
         this.type = type;
         this.param = param;
-        this.collection = isCollection;
-        this.map = isMap;
-        this.array = isArray;
+        this.genericParamType = genericParamType;
         this.componentClass = returnTypeComponent;
         this.componentClassKey = returnTypeComponentKey;
         this.componentClassValue = returnTypeComponentValue;
@@ -63,9 +57,8 @@ public class ParameterMeta {
         this.classType = classType;
         this.type = type;
         this.param = param;
-        this.collection = false;
-        this.map = false;
-        this.array = false;
+
+        this.genericParamType = GenericParamType.NONE;
         this.componentClass = null;
         this.componentClassKey = null;
         this.componentClassValue = null;
@@ -117,15 +110,15 @@ public class ParameterMeta {
     }
 
     public boolean isCollection() {
-        return collection;
+        return genericParamType==GenericParamType.COLLECTION;
     }
 
     public boolean isMap() {
-        return map;
+        return genericParamType==GenericParamType.MAP;
     }
 
     public boolean isArray() {
-        return array;
+        return genericParamType==GenericParamType.ARRAY;
     }
 
     public Class<?> getComponentClass() {
@@ -146,5 +139,9 @@ public class ParameterMeta {
 
     public boolean isByteArray() {
         return type == TypeType.ARRAY_BYTE;
+    }
+
+    public GenericParamType getGenericParamType() {
+        return genericParamType;
     }
 }

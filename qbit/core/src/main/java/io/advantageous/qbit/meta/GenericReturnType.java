@@ -1,4 +1,4 @@
-package io.advantageous.qbit.meta.builder;
+package io.advantageous.qbit.meta;
 
 public enum GenericReturnType {
 
@@ -9,6 +9,8 @@ public enum GenericReturnType {
     JSEND,
     JSEND_ARRAY,
     JSEND_MAP,
+    HTTP_TEXT_RESPONSE,
+    HTTP_BINARY_RESPONSE,
     NONE
 
 

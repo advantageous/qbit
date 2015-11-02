@@ -5,6 +5,8 @@ import io.advantageous.boon.core.TypeType;
 import io.advantageous.boon.core.reflection.AnnotationData;
 import io.advantageous.boon.core.reflection.MethodAccess;
 import io.advantageous.qbit.annotation.RequestMethod;
+import io.advantageous.qbit.http.request.HttpBinaryResponse;
+import io.advantageous.qbit.http.request.HttpTextResponse;
 import io.advantageous.qbit.meta.CallType;
 import io.advantageous.qbit.meta.ParameterMeta;
 import io.advantageous.qbit.meta.RequestMeta;
@@ -23,7 +25,7 @@ public class RequestMetaBuilder {
     private String requestURI;
     private List<ParameterMeta> parameters = new ArrayList<>();
     private List<RequestMethod> requestMethods = new ArrayList<>();
-    private  String description;
+    private String description;
 
 
     public static RequestMetaBuilder requestMetaBuilder() {
@@ -156,33 +158,36 @@ public class RequestMetaBuilder {
     private ParameterMeta createParamMeta(final MethodAccess methodAccess, final int index,
                                           final List<TypeType> typeTypes, final Param requestParam) {
 
-        ParameterMetaBuilder builder = ParameterMetaBuilder.parameterMetaBuilder();
+        final ParameterMetaBuilder builder = ParameterMetaBuilder.parameterMetaBuilder();
         builder.setType(typeTypes.get(index));
         builder.setParam(requestParam);
 
-        Type type = methodAccess.method().getGenericParameterTypes()[index];
+        final Type type = methodAccess.method().getGenericParameterTypes()[index];
 
         if (type instanceof ParameterizedType) {
 
-            ParameterizedType parameterizedType = ((ParameterizedType) type);
+            final ParameterizedType parameterizedType = ((ParameterizedType) type);
 
-            Class containerClass = (Class) parameterizedType.getRawType();
+            final Class containerClass = (Class) parameterizedType.getRawType();
             builder.setClassType(containerClass);
 
             /* It is a collection or a map. */
             if (Collection.class.isAssignableFrom(containerClass)) {
-                builder.setCollection(true);
+                builder.setCollection();
                 builder.setComponentClass((Class)parameterizedType.getActualTypeArguments()[0]);
             } else if (Map.class.isAssignableFrom(containerClass)){
-                builder.setMap(true);
+                builder.setMap();
                 builder.setComponentClassKey((Class) parameterizedType.getActualTypeArguments()[0]);
                 builder.setComponentClassValue((Class) parameterizedType.getActualTypeArguments()[1]);
             }
         } else {
-            Class classType = methodAccess.method().getParameterTypes()[index];
+            final Class classType = methodAccess.method().getParameterTypes()[index];
             builder.setClassType(classType);
-            builder.setComponentClass(classType.getComponentType());
-            builder.setArray(classType.isArray());
+            if (classType.isArray()) {
+                    builder.setComponentClass(classType.getComponentType());
+                    builder.setArray();
+            }
+
         }
 
         return builder.build();

@@ -12,6 +12,7 @@ import io.advantageous.qbit.message.MethodCall;
 import io.advantageous.qbit.message.Request;
 import io.advantageous.qbit.message.Response;
 import io.advantageous.qbit.meta.RequestMetaData;
+import io.advantageous.qbit.meta.ServiceMethodMeta;
 import io.advantageous.qbit.meta.builder.ContextMetaBuilder;
 import io.advantageous.qbit.meta.provider.StandardMetaDataProvider;
 import io.advantageous.qbit.meta.transformer.StandardRequestTransformer;
@@ -94,14 +95,16 @@ public class HttpRequestServiceServerHandlerUsingMetaImpl implements HttpRequest
         final RequestMetaData requestMetaData = metaDataProviderMap
                 .get(RequestMethod.valueOf(request.getMethod())).get(request.address());
 
-        if (requestMetaData.getMethod().getMethodAccess().returnType() == void.class
-                && !requestMetaData.getMethod().hasCallBack()) {
+        final ServiceMethodMeta serviceMethod = requestMetaData.getMethod();
+
+        if (serviceMethod.getMethodAccess().returnType() == void.class
+                && !serviceMethod.hasCallBack()) {
 
             request.handled();
 
-            final int responseCode = requestMetaData.getMethod().getResponseCode();
+            final int responseCode = serviceMethod.getResponseCode();
             writeResponse(request.getReceiver(), responseCode == -1 ? HttpStatus.ACCEPTED: responseCode,
-                    "application/json", "\"success\"", MultiMap.empty());
+                    serviceMethod.getContentType(), "\"success\"", MultiMap.empty());
 
         }
 
@@ -126,10 +129,11 @@ public class HttpRequestServiceServerHandlerUsingMetaImpl implements HttpRequest
                 final RequestMetaData requestMetaData = metaDataProviderMap
                         .get(RequestMethod.valueOf(originatingRequest.getMethod())).get(originatingRequest.address());
 
-                final int responseCode = requestMetaData.getMethod().getResponseCode();
+                final ServiceMethodMeta serviceMethodMeta = requestMetaData.getMethod();
+                final int responseCode = serviceMethodMeta.getResponseCode();
                 writeResponse(originatingRequest.getReceiver(),
                         responseCode == -1 ? HttpStatus.OK : responseCode,
-                        "application/json",
+                        serviceMethodMeta.getContentType(),
                         jsonMapper.toJson(response.body()),
                         response.headers());
             }
