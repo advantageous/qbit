@@ -96,9 +96,15 @@ public class ServiceMetaBuilder {
 
 
 
-    public void addMethods(String path, Collection<MethodAccess> methods) {
-        methods.stream().filter(methodAccess -> !methodAccess.isPrivate()
-                && !methodAccess.isStatic() && !methodAccess.method().isSynthetic())
+    public void addMethods(final String path, final Collection<MethodAccess> methods) {
+
+        /* Only add methods that could be REST endpoints. */
+        methods.stream().filter(methodAccess ->
+                !methodAccess.isPrivate() && //No private methods
+                !methodAccess.isStatic() && //No static methods
+                !methodAccess.method().isSynthetic() && //No synthetic methods
+                !methodAccess.name().contains("$")) //No methods with $ as this could be Scala generated
+                                                    // method or byte code lib generated
                 .forEach(methodAccess -> addMethod(path, methodAccess));
     }
 
