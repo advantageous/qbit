@@ -2,6 +2,8 @@ package io.advantageous.qbit.events;
 
 import io.advantageous.qbit.queue.Queue;
 
+import java.util.function.Supplier;
+
 public class EventBusQueueAdapterBuilder {
 
 
@@ -9,6 +11,9 @@ public class EventBusQueueAdapterBuilder {
      * Queue queue.
      */
     private Queue queue;
+
+
+    private Supplier<Queue> queueSupplier;
 
     /**
      * Event manager where we are pushing events here.
@@ -22,6 +27,24 @@ public class EventBusQueueAdapterBuilder {
 
     public static EventBusQueueAdapterBuilder eventBusQueueAdapterBuilder () {
         return new EventBusQueueAdapterBuilder();
+    }
+
+    public Supplier<Queue> getQueueSupplier() {
+        final Queue queue = this.queue;
+        if (queueSupplier == null) {
+            queueSupplier = new Supplier<Queue>() {
+                @Override
+                public Queue get() {
+                    return queue;
+                }
+            };
+        }
+        return queueSupplier;
+    }
+
+    public EventBusQueueAdapterBuilder setQueueSupplier(final Supplier<Queue> queueSupplier) {
+        this.queueSupplier = queueSupplier;
+        return this;
     }
 
     public Queue getQueue() {
@@ -52,6 +75,6 @@ public class EventBusQueueAdapterBuilder {
     }
 
     public <T> EventBusQueueAdapter<T> build() {
-        return new EventBusQueueAdapter<> ((Queue<T>) getQueue(), getEventManager(), getChannel());
+        return new EventBusQueueAdapter<> ((Supplier<Queue<T>>) (Object) getQueueSupplier(), getEventManager(), getChannel());
     }
 }
