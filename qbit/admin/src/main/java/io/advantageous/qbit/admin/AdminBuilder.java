@@ -4,6 +4,7 @@ package io.advantageous.qbit.admin;
 import io.advantageous.boon.core.IO;
 import io.advantageous.boon.core.Lists;
 import io.advantageous.boon.core.Str;
+import io.advantageous.boon.core.Sys;
 import io.advantageous.qbit.admin.jobs.JavaStatsCollectorJob;
 import io.advantageous.qbit.config.PropertyResolver;
 import io.advantageous.qbit.http.server.HttpServer;
@@ -70,6 +71,7 @@ public class AdminBuilder {
     private ReactorBuilder reactorBuilder;
     private String hostName;
     private String machineName;
+    private boolean useMachineName = Sys.sysProp("QBIT_USE_MACHINE_NAME_FOR_STATS", true);
 
 
     public List<String> getBlackListForSystemProperties() {
@@ -180,7 +182,8 @@ public class AdminBuilder {
 
     public AdminBuilder registerJavaVMStatsJob(final StatsCollector statsCollector) {
 
-        final JavaStatsCollectorJob jvmStatsJob = new JavaStatsCollectorJob(60, TimeUnit.SECONDS, statsCollector, getMachineName());
+        final JavaStatsCollectorJob jvmStatsJob = new JavaStatsCollectorJob(60, TimeUnit.SECONDS, statsCollector,
+                isUseMachineName() ? getMachineName() : getMicroServiceName());
         return addAdminJob(jvmStatsJob);
     }
 
@@ -485,6 +488,15 @@ public class AdminBuilder {
 
     public AdminBuilder setAdminContextBuilder(final ContextMetaBuilder adminContextBuilder) {
         this.adminContextBuilder = adminContextBuilder;
+        return this;
+    }
+
+    public boolean isUseMachineName() {
+        return useMachineName;
+    }
+
+    public AdminBuilder setUseMachineName(boolean useMachineName) {
+        this.useMachineName = useMachineName;
         return this;
     }
 }

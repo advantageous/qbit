@@ -9,6 +9,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
+import java.util.function.Supplier;
 
 /**
  * Sends an item from a QBit queue to the event bus.
@@ -20,7 +21,7 @@ public class EventBusQueueAdapter<T> implements Startable, Stoppable{
     /**
      * Queue.
      */
-    private final Queue<T> queue;
+    private Queue<T> queue;
     /**
      * Event Manager.
      */
@@ -45,17 +46,21 @@ public class EventBusQueueAdapter<T> implements Startable, Stoppable{
      * Debug is on or off.
      */
     private final boolean debug = logger.isDebugEnabled();
+    private final Supplier<Queue<T>> queueSupplier;
 
     /**
      *
-     * @param queue queue
+     * @param queueSupplier queueSupplier
      * @param eventManager event manager
      * @param channel channel
      */
-    public EventBusQueueAdapter(final Queue<T> queue,
-                                final EventManager eventManager,
+    public EventBusQueueAdapter(
+            final Supplier<Queue<T>> queueSupplier,
+            final EventManager eventManager,
                                 final String channel) {
-        this.queue = queue;
+
+        this.queueSupplier = queueSupplier;
+        this.queue = queueSupplier.get();
         this.eventManager = eventManager;
         this.channel = channel;
     }
@@ -65,13 +70,22 @@ public class EventBusQueueAdapter<T> implements Startable, Stoppable{
      */
     public void process() {
 
+        queue = queueSupplier.get();
         final ReceiveQueue<T> receiveQueue = queue.receiveQueue();
-        T item = receiveQueue.poll();
-        while (item !=null) {
 
-            sendToEventManager(item);
-            item = receiveQueue.poll();
-        }
+        T item;
+
+        do {
+           try {
+               item = receiveQueue.poll();
+           } catch (Exception ex) {
+               queue = queueSupplier.get();
+               item = null;
+           }
+           if (item!=null) {
+               sendToEventManager(item);
+           }
+        } while (item !=null);
     }
 
     /**
