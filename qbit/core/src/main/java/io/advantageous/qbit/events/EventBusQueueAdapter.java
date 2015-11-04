@@ -70,6 +70,7 @@ public class EventBusQueueAdapter<T> implements Startable, Stoppable{
      */
     public void process() {
 
+        queue = queueSupplier.get();
         final ReceiveQueue<T> receiveQueue = queue.receiveQueue();
 
         T item;
