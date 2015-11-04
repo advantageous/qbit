@@ -156,8 +156,14 @@ public class BoonJsonMapper implements JsonMapper {
     public <K, V> Map<K, V> fromJsonMap(String json, Class<K> componentClassKey, Class<V> componentClassValue) {
 
         final Map<Object, Object> map  = (Map) parser.get().parse(json);
-        Mapper mapper = this.mapper.get();
 
+        final Mapper mapper = this.mapper.get();
+
+        return extractMap(componentClassKey, componentClassValue, map, mapper);
+
+    }
+
+    private <K, V> Map<K, V> extractMap(Class<K> componentClassKey, Class<V> componentClassValue, Map<Object, Object> map, Mapper mapper) {
         final Map<K, V> results = new TreeMap<>();
 
         /* Convert each entry give the componentClassKey and the componentClassValue. */
@@ -198,7 +204,13 @@ public class BoonJsonMapper implements JsonMapper {
                         convertedValue = (V) value;
                     }
                 }
-            }else {
+            } else if (value instanceof List) {
+
+
+                convertedValue = (V) convertList(value, mapper);
+
+
+            } else {
                 /** We are not a map so just convert normally. */
                 if (!(componentClassValue == Object.class)) {
                     convertedValue = Conversions.coerce(componentClassValue, value);
@@ -217,7 +229,53 @@ public class BoonJsonMapper implements JsonMapper {
         });
 
         return results;
+    }
 
+    private Object convertList(Object value, Mapper mapper) {
+
+        final List list = (List) value;
+        final Object convertedValue;
+        if (list.size()==0) {
+            convertedValue =  list;
+        } else {
+            final List convertedList = new ArrayList(list.size());
+
+            list.forEach(item -> {
+
+                final Object itemValue;
+
+                if (item instanceof ValueContainer) {
+                    itemValue = ((ValueContainer) item).toValue();
+                } else {
+                    itemValue = item;
+                }
+
+                final Object newItemValue;
+                /** We are not a map so just convert normally. */
+                if (itemValue instanceof List) {
+                    newItemValue = convertList(itemValue, mapper);
+                } else if (itemValue instanceof Map) {
+                    Map m = ((Map) itemValue);
+
+                    if (m instanceof ValueMap) {
+                        newItemValue = convertToMap(((ValueMap) m));
+                    } else {
+                        newItemValue = extractMap(String.class, Object.class, m, mapper);
+                    }
+
+                } else {
+                    /** Unless componentClassValue is Object then we want to pull out the values. */
+                    if (itemValue instanceof Value) {
+                        newItemValue =  ((Value) itemValue).toValue();
+                    } else {
+                        newItemValue =  itemValue;
+                    }
+                }
+                convertedList.add(newItemValue);
+            });
+            convertedValue = convertedList;
+        }
+        return convertedValue;
     }
 
     /**
@@ -244,10 +302,12 @@ public class BoonJsonMapper implements JsonMapper {
 
                 /* If value is a Value then pull the real value. */
                 if (value instanceof Value) {
-                    map.put(entry.getKey(), ((Value) entry.getValue()).toValue());
+                    map.put(entry.getKey(), ((Value) value).toValue());
                 } else if (value instanceof ValueMap) {
                     /* If value is a value map then convert it into a regular map. */
                     map.put(entry.getKey(), convertToMap(((ValueMap) value)));
+                } else if (value instanceof List) {
+                    map.put(entry.getKey(), convertList(value, mapper.get()));
                 } else {
                     map.put(entry.getKey(), value);
                 }
