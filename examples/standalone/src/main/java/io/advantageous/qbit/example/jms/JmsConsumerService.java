@@ -4,6 +4,7 @@ import io.advantageous.qbit.admin.ManagedServiceBuilder;
 import io.advantageous.qbit.annotation.RequestMapping;
 import io.advantageous.qbit.annotation.http.GET;
 import io.advantageous.qbit.annotation.http.PUT;
+import io.advantageous.qbit.jms.JmsException;
 import io.advantageous.qbit.queue.Queue;
 import io.advantageous.qbit.queue.ReceiveQueue;
 import io.advantageous.qbit.reactive.Reactor;
@@ -41,7 +42,18 @@ public class JmsConsumerService extends BaseService {
         if (!consumeQueue.isPresent()) {
             initConsumeQueue();
         }
-        return consumeQueue.get().poll();
+
+        Todo todo;
+
+        try {
+            todo = consumeQueue.get().poll();
+        } catch (JmsException ex) {
+            queue = Optional.empty();
+            consumeQueue = Optional.empty();
+            initConsumeQueue();
+            todo = consumeQueue.get().poll();
+        }
+        return todo;
     }
 
     private void initConsumeQueue() {

@@ -297,7 +297,7 @@ public class JmsServiceBuilder {
                         }
                         return connection;
                     } catch (JMSException e) {
-                        throw new IllegalStateException("Unable to create context", e);
+                        throw new JmsNotConnectedException("Unable to create context", e);
                     }
                 };
             }else {
@@ -312,7 +312,7 @@ public class JmsServiceBuilder {
                         }
                         return connection;
                     } catch (JMSException e) {
-                        throw new IllegalStateException("Unable to create context for user " + userName, e);
+                        throw new JmsNotConnectedException("Unable to create context for user " + userName, e);
                     }
                 };
             }

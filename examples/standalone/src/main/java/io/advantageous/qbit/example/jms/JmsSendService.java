@@ -4,6 +4,7 @@ import io.advantageous.qbit.admin.ManagedServiceBuilder;
 import io.advantageous.qbit.annotation.RequestMapping;
 import io.advantageous.qbit.annotation.http.GET;
 import io.advantageous.qbit.annotation.http.PUT;
+import io.advantageous.qbit.jms.JmsException;
 import io.advantageous.qbit.queue.Queue;
 import io.advantageous.qbit.queue.SendQueue;
 import io.advantageous.qbit.reactive.Reactor;
@@ -14,6 +15,7 @@ import io.advantageous.qbit.time.Duration;
 import io.advantageous.qbit.util.Timer;
 
 import java.util.Optional;
+import java.util.function.Consumer;
 
 @RequestMapping("/jms")
 public class JmsSendService extends BaseService{
@@ -42,7 +44,14 @@ public class JmsSendService extends BaseService{
         if (!sendQueue.isPresent()) {
             initSendQueue();
         }
-        sendQueue.ifPresent(todoSendQueue -> todoSendQueue.send(todo));
+        try {
+            sendQueue.ifPresent(todoSendQueue -> todoSendQueue.send(todo));
+        } catch (JmsException ex) {
+            queue = Optional.empty();
+            sendQueue = Optional.empty();
+            initSendQueue();
+            sendQueue.ifPresent(todoSendQueue -> todoSendQueue.send(todo));
+        }
         return true;
     }
 
