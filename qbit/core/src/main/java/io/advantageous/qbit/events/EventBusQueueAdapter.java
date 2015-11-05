@@ -7,8 +7,10 @@ import io.advantageous.qbit.service.Stoppable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Optional;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
+import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 /**
@@ -21,7 +23,10 @@ public class EventBusQueueAdapter<T> implements Startable, Stoppable{
     /**
      * Queue.
      */
-    private Queue<T> queue;
+    private Optional<Queue<T>> queue = Optional.empty();
+    private Optional<ReceiveQueue<T>> receiveQueue = Optional.empty();
+
+
     /**
      * Event Manager.
      */
@@ -60,9 +65,39 @@ public class EventBusQueueAdapter<T> implements Startable, Stoppable{
                                 final String channel) {
 
         this.queueSupplier = queueSupplier;
-        this.queue = queueSupplier.get();
+        initQueue();
         this.eventManager = eventManager;
         this.channel = channel;
+    }
+
+    private void initQueue() {
+
+        /* Clean it up. */
+        queue.ifPresent(actualQueue -> {
+
+            try {
+                actualQueue.stop();
+            } catch (Exception ex) {
+                logger.debug("Unable to stop queue", ex);
+            }
+        });
+
+        receiveQueue.ifPresent(actualReceiveQueue -> {
+            try {
+                actualReceiveQueue.stop();
+            } catch (Exception ex) {
+                logger.debug("Unable to shut down receive queue", ex);
+            }
+        });
+
+        try {
+            this.queue = Optional.of(queueSupplier.get());
+            this.queue.ifPresent(actualQueue -> receiveQueue = Optional.of(actualQueue.receiveQueue()));
+        } catch (Exception ex) {
+            logger.error("Unable to create queue with queue supplier", ex);
+            this.queue = Optional.empty();
+            this.receiveQueue = Optional.empty();
+        }
     }
 
     /**
@@ -70,22 +105,29 @@ public class EventBusQueueAdapter<T> implements Startable, Stoppable{
      */
     public void process() {
 
-        queue = queueSupplier.get();
-        final ReceiveQueue<T> receiveQueue = queue.receiveQueue();
+        if (!receiveQueue.isPresent()) {
+            initQueue();
+        }
 
-        T item;
+        receiveQueue.ifPresent(receiveQueue -> {
 
-        do {
-           try {
-               item = receiveQueue.poll();
-           } catch (Exception ex) {
-               queue = queueSupplier.get();
-               item = null;
-           }
-           if (item!=null) {
-               sendToEventManager(item);
-           }
-        } while (item !=null);
+
+            T item;
+
+            do {
+                try {
+                    item = receiveQueue.poll();
+                } catch (Exception ex) {
+                    logger.debug("Unable to receive message", ex);
+                    initQueue();
+                    item = null;
+                }
+                if (item != null) {
+                    sendToEventManager(item);
+                }
+            } while (item != null);
+        });
+
     }
 
     /**
@@ -114,7 +156,10 @@ public class EventBusQueueAdapter<T> implements Startable, Stoppable{
      * Start listener. Once this is called messages can come in on a foreign thread.
      */
     public void start() {
-        queue.startListener(this::sendToEventManager);
+        if (!queue.isPresent()) {
+            initQueue();
+        }
+        queue.ifPresent(actualQueue -> actualQueue.startListener(EventBusQueueAdapter.this::sendToEventManager));
     }
 
 
@@ -122,6 +167,6 @@ public class EventBusQueueAdapter<T> implements Startable, Stoppable{
      * Stop the adapter.
      */
     public void stop() {
-        queue.stop();
+        queue.ifPresent(actualQueue -> actualQueue.stop());
     }
 }
