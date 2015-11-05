@@ -24,7 +24,12 @@
         </encoder>
     </appender>
 
-    <root level="ERROR">
+
+    <logger name="io.advantageous.qbit.jms" level="DEBUG" additivity="false">
+        <appender-ref ref="STDOUT"/>
+    </logger>
+
+    <root level="INFO">
         <appender-ref ref="STDOUT"/>
     </root>
 </configuration>

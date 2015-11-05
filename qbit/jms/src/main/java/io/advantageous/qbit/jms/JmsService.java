@@ -124,7 +124,7 @@ public class JmsService implements Stoppable, Startable{
                 MessageConsumer consumer = session.createConsumer(destination);
                 consumers.put(destinationName, consumer);
             } catch (JMSException e) {
-                throw new IllegalStateException("Unable to create consumer for destination "
+                throw new JmsException("Unable to create consumer for destination "
                         + destinationName, e);
             }
         }
@@ -149,7 +149,7 @@ public class JmsService implements Stoppable, Startable{
             try {
                 producer = session.createProducer(destination);
             } catch (JMSException e) {
-                throw new IllegalStateException("Unable to create producer for destination "
+                throw new JmsException("Unable to create producer for destination "
                         + destinationName, e);
             }
             producers.put(destinationName, producer);
@@ -169,7 +169,7 @@ public class JmsService implements Stoppable, Startable{
             try {
                 sessionOption = Optional.of(getConnection().createSession(transacted, acknowledgeMode));
             } catch (JMSException e) {
-                throw new IllegalStateException("Unable to get JMS session", e);
+                throw new JmsException("Unable to get JMS session", e);
             }
         }
         return sessionOption.get();
@@ -183,7 +183,7 @@ public class JmsService implements Stoppable, Startable{
     private Connection getConnection() {
 
         if (!connectionOption.isPresent()) {
-            Connection connection = connectionSupplier.get();
+            final Connection connection = connectionSupplier.get();
 
             if (connection instanceof ActiveMQConnection) {
                 ((ActiveMQConnection) connection).addTransportListener(new TransportListener() {
@@ -215,7 +215,7 @@ public class JmsService implements Stoppable, Startable{
                 try {
                     connection.start();
                 } catch (JMSException e) {
-                    throw new IllegalStateException("Unable to start JMS connection", e);
+                    throw new JmsException("Unable to start JMS connection", e);
                 }
             }
             connectionOption =Optional.of(connection);
@@ -241,7 +241,7 @@ public class JmsService implements Stoppable, Startable{
             TextMessage message = session.createTextMessage(messageContent);
             producer.send(message);
         } catch (JMSException e) {
-            throw new IllegalStateException("Unable to send message to " + destinationName, e);
+            throw new JmsException("Unable to send message to " + destinationName, e);
         }
     }
 
@@ -275,7 +275,7 @@ public class JmsService implements Stoppable, Startable{
 
                 } catch (JMSException e) {
 
-                    throw new IllegalStateException("Unable to register get text from message in listener " + destinationName, e);
+                    throw new JmsException("Unable to register get text from message in listener " + destinationName, e);
                 } catch (Exception ex) {
 
                     throw new IllegalStateException("Unable handle JMS Consumer  " + destinationName, ex);
@@ -283,7 +283,7 @@ public class JmsService implements Stoppable, Startable{
             });
         } catch (JMSException e) {
 
-            throw new IllegalStateException("Unable to register message listener " + destinationName, e);
+            throw new JmsException("Unable to register message listener " + destinationName, e);
         }
     }
 
@@ -325,7 +325,7 @@ public class JmsService implements Stoppable, Startable{
                 return null;
             }
         } catch (JMSException e) {
-            throw new IllegalStateException("Unable to receive message from " + destinationName, e);
+            throw new JmsException("Unable to receive message from " + destinationName, e);
         }
     }
 
@@ -367,7 +367,7 @@ public class JmsService implements Stoppable, Startable{
                 connectionOption.get().close();
             } catch (JMSException e) {
 
-                throw new IllegalStateException("Unable to stop ", e);
+                throw new JmsException("Unable to stop ", e);
             }
             connectionOption = Optional.empty();
             sessionOption = Optional.empty();
