@@ -149,7 +149,7 @@ public class JmsTest {
     }
 
 
-    @Test(expected = JmsNotConnectedException.class)
+    @Test(expected = JmsException.class)
     public void testSendConsumeDown() throws Exception {
         final List<Person> list = Lists.list(new Person("Geoff"), new Person("Rick"));
 
@@ -169,7 +169,7 @@ public class JmsTest {
     }
 
 
-    @Test(expected = JmsNotConnectedException.class)
+    @Test(expected = JmsException.class)
     public void testSendDown() throws Exception {
         final List<Person> list = Lists.list(new Person("Geoff"), new Person("Rick"));
 
