@@ -154,13 +154,9 @@ public class BoonJsonMapper implements JsonMapper {
      */
     @Override
     public <K, V> Map<K, V> fromJsonMap(String json, Class<K> componentClassKey, Class<V> componentClassValue) {
-
-        final Map<Object, Object> map  = (Map) parser.get().parse(json);
-
-        final Mapper mapper = this.mapper.get();
-
-        return extractMap(componentClassKey, componentClassValue, map, mapper);
-
+            Map map = (Map) parser.get().parse(json);
+            final Mapper mapper = this.mapper.get();
+            return extractMap(componentClassKey, componentClassValue, map, mapper);
     }
 
     private <K, V> Map<K, V> extractMap(Class<K> componentClassKey, Class<V> componentClassValue, Map<Object, Object> map, Mapper mapper) {
