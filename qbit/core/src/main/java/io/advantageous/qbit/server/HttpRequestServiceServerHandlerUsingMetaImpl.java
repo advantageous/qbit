@@ -104,7 +104,8 @@ public class HttpRequestServiceServerHandlerUsingMetaImpl implements HttpRequest
 
             final int responseCode = serviceMethod.getResponseCode();
             writeResponse(request.getReceiver(), responseCode == -1 ? HttpStatus.ACCEPTED: responseCode,
-                    serviceMethod.getContentType(), "\"success\"", MultiMap.empty());
+                    serviceMethod.getContentType(), "\"success\"",
+                            requestMetaData.getRequest().getResponseHeaders() );
 
         }
 
@@ -131,11 +132,35 @@ public class HttpRequestServiceServerHandlerUsingMetaImpl implements HttpRequest
 
                 final ServiceMethodMeta serviceMethodMeta = requestMetaData.getMethod();
                 final int responseCode = serviceMethodMeta.getResponseCode();
-                writeResponse(originatingRequest.getReceiver(),
-                        responseCode == -1 ? HttpStatus.OK : responseCode,
-                        serviceMethodMeta.getContentType(),
-                        jsonMapper.toJson(response.body()),
-                        response.headers());
+
+                if (requestMetaData.getRequest().hasResponseHeaders() ) {
+
+                    if (response.headers().size() > 0) {
+                        response.headers().putAll(requestMetaData.getRequest().getResponseHeaders());
+
+                        writeResponse(originatingRequest.getReceiver(),
+                                responseCode == -1 ? HttpStatus.OK : responseCode,
+                                serviceMethodMeta.getContentType(),
+                                jsonMapper.toJson(response.body()),
+                                response.headers());
+                    } else {
+
+                        writeResponse(originatingRequest.getReceiver(),
+                                responseCode == -1 ? HttpStatus.OK : responseCode,
+                                serviceMethodMeta.getContentType(),
+                                jsonMapper.toJson(response.body()),
+                                requestMetaData.getRequest().getResponseHeaders());
+                    }
+                } else {
+
+
+                    writeResponse(originatingRequest.getReceiver(),
+                            responseCode == -1 ? HttpStatus.OK : responseCode,
+                            serviceMethodMeta.getContentType(),
+                            jsonMapper.toJson(response.body()),
+                            response.headers());
+                }
+
             }
         }
 

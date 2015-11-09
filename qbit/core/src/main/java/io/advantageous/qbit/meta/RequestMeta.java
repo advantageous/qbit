@@ -19,6 +19,7 @@ package io.advantageous.qbit.meta;
 
 import io.advantageous.boon.core.Lists;
 import io.advantageous.qbit.annotation.RequestMethod;
+import io.advantageous.qbit.util.MultiMap;
 
 import java.util.Collections;
 import java.util.List;
@@ -33,16 +34,22 @@ public class RequestMeta {
     private final String requestURI;
     private final List<ParameterMeta> parameters;
     private final List<RequestMethod> requestMethods;
+    private final MultiMap<String, String> responseHeaders;
+    private final boolean hasResponseHeaders;
 
 
     public RequestMeta(final CallType callType,
                        final List<RequestMethod> requestMethods,
                        final String requestURI,
-                       final List<ParameterMeta> parameterMetaList) {
+                       final List<ParameterMeta> parameterMetaList,
+                       final MultiMap<String, String> responseHeaders,
+                       final boolean hasResponseHeaders) {
         this.callType = callType;
         this.requestURI = requestURI;
         this.parameters = parameterMetaList;
         this.requestMethods = requestMethods;
+        this.responseHeaders = responseHeaders;
+        this.hasResponseHeaders = hasResponseHeaders;
     }
 
     public static RequestMeta[] requests(final RequestMeta... requests) {
@@ -53,32 +60,8 @@ public class RequestMeta {
         return Lists.list(methods);
     }
 
-    public static RequestMeta requestMeta(final CallType callType,
-                                          final RequestMethod requestMethod,
-                                          final String requestURI,
-                                          final ParameterMeta... parameterMetaList) {
 
-        return new RequestMeta(callType, Collections.singletonList(requestMethod),
-                requestURI, Lists.list(parameterMetaList));
-    }
 
-    public static RequestMeta request(final CallType callType,
-                                      final RequestMethod requestMethod,
-                                      final String requestURI,
-                                      final ParameterMeta... parameterMetaList) {
-
-        return new RequestMeta(callType, Collections.singletonList(requestMethod),
-                requestURI, Lists.list(parameterMetaList));
-    }
-
-    public static RequestMeta request(final CallType callType,
-                                      final List<RequestMethod> requestMethods,
-                                      final String requestURI,
-                                      final ParameterMeta... parameterMetaList) {
-
-        return new RequestMeta(callType, requestMethods,
-                requestURI, Lists.list(parameterMetaList));
-    }
 
     public static RequestMeta requestByAddress(
             final RequestMethod requestMethod,
@@ -89,11 +72,11 @@ public class RequestMeta {
 
             return new RequestMeta(CallType.ADDRESS,
                     Collections.singletonList(requestMethod),
-                    requestURI, Lists.list(parameterMetaList));
+                    requestURI, Lists.list(parameterMetaList), MultiMap.empty(), false);
         } else {
             return new RequestMeta(CallType.ADDRESS_WITH_PATH_PARAMS,
                     Collections.singletonList(requestMethod),
-                    requestURI, Lists.list(parameterMetaList));
+                    requestURI, Lists.list(parameterMetaList), MultiMap.empty(), false);
         }
     }
 
@@ -143,4 +126,13 @@ public class RequestMeta {
     public List<RequestMethod> getRequestMethods() {
         return requestMethods;
     }
+
+    public boolean hasResponseHeaders() {
+        return hasResponseHeaders;
+    }
+
+    public MultiMap<String, String> getResponseHeaders() {
+        return responseHeaders;
+    }
+
 }

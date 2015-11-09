@@ -5,12 +5,12 @@ import io.advantageous.boon.core.TypeType;
 import io.advantageous.boon.core.reflection.AnnotationData;
 import io.advantageous.boon.core.reflection.MethodAccess;
 import io.advantageous.qbit.annotation.RequestMethod;
-import io.advantageous.qbit.http.request.HttpBinaryResponse;
-import io.advantageous.qbit.http.request.HttpTextResponse;
 import io.advantageous.qbit.meta.CallType;
 import io.advantageous.qbit.meta.ParameterMeta;
 import io.advantageous.qbit.meta.RequestMeta;
 import io.advantageous.qbit.meta.params.*;
+import io.advantageous.qbit.util.MultiMap;
+import io.advantageous.qbit.util.MultiMapImpl;
 
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
@@ -26,10 +26,29 @@ public class RequestMetaBuilder {
     private List<ParameterMeta> parameters = new ArrayList<>();
     private List<RequestMethod> requestMethods = new ArrayList<>();
     private String description;
+    private MultiMap<String, String> responseHeaders;
 
 
     public static RequestMetaBuilder requestMetaBuilder() {
         return new RequestMetaBuilder();
+    }
+
+    public MultiMap<String, String> getResponseHeaders() {
+        if (responseHeaders == null) {
+            responseHeaders = new MultiMapImpl<>();
+        }
+        return responseHeaders;
+    }
+
+    public RequestMetaBuilder setResponseHeaders(MultiMap<String, String> responseHeaders) {
+        this.responseHeaders = responseHeaders;
+        return this;
+    }
+
+
+    public RequestMetaBuilder addResponseHeaders(String name, String value) {
+        getResponseHeaders().add(name, value);
+        return this;
     }
 
     public static int findURIPosition(String path, String findString) {
@@ -105,7 +124,7 @@ public class RequestMetaBuilder {
 
     public RequestMeta build() {
         return new RequestMeta(getCallType(), getRequestMethods(),
-                getRequestURI(), getParameters());
+                getRequestURI(), getParameters(), responseHeaders, responseHeaders!=null && responseHeaders.size() > 0);
     }
 
     public void addParameters(final String rootPath, final String servicePath,

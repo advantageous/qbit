@@ -1,6 +1,7 @@
 package io.advantageous.qbit.service.rest.endpoint.tests.tests;
 
 import io.advantageous.boon.json.JsonFactory;
+import io.advantageous.qbit.http.HttpHeaders;
 import io.advantageous.qbit.http.request.HttpRequestBuilder;
 import io.advantageous.qbit.http.request.HttpTextResponse;
 import io.advantageous.qbit.server.EndpointServerBuilder;
@@ -9,8 +10,11 @@ import io.advantageous.qbit.service.rest.endpoint.tests.model.Employee;
 import io.advantageous.qbit.service.rest.endpoint.tests.services.EmployeeServiceSingleObjectTestService;
 import io.advantageous.qbit.service.rest.endpoint.tests.sim.HttpServerSimulator;
 import io.advantageous.qbit.spi.FactorySPI;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+
+import java.util.List;
 
 import static io.advantageous.boon.core.IO.puts;
 import static junit.framework.Assert.assertEquals;
@@ -44,6 +48,31 @@ public class SingleArgumentUserDefinedObjectRESTTest {
                 .initServices(
                     service
                 ).startServer();
+    }
+
+    @Test
+    public void testNoCacheHeaders() {
+
+        final HttpTextResponse httpResponse = httpServerSimulator.sendRequest(
+                httpRequestBuilder.setUri("/es/cache")
+                        .setMethodGet().setContentType("foo")
+                        .setBody("foo")
+                        .build()
+        );
+
+        assertEquals(200, httpResponse.code());
+
+
+        final List<String> controls = (List<String>) httpResponse.headers().getAll(HttpHeaders.CACHE_CONTROL);
+
+        Assert.assertEquals("max-age=0", controls.get(0));
+
+        Assert.assertEquals("no-cache, no-store", controls.get(1));
+
+        assertEquals("true", httpResponse.body());
+
+
+
     }
 
     @Test

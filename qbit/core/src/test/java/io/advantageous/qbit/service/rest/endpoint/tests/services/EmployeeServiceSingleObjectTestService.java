@@ -3,6 +3,7 @@ package io.advantageous.qbit.service.rest.endpoint.tests.services;
 import io.advantageous.qbit.annotation.RequestMapping;
 import io.advantageous.qbit.annotation.RequestMethod;
 import io.advantageous.qbit.annotation.RequestParam;
+import io.advantageous.qbit.annotation.http.NoCacheHeaders;
 import io.advantageous.qbit.http.HttpStatusCodeException;
 import io.advantageous.qbit.http.request.HttpResponseBuilder;
 import io.advantageous.qbit.http.request.HttpTextResponse;
@@ -22,6 +23,12 @@ public class EmployeeServiceSingleObjectTestService {
 
     private final List<Employee> employeeList  = new ArrayList<>();
 
+
+    @RequestMapping(value = "/cache", method = RequestMethod.GET)
+    @NoCacheHeaders
+    public boolean noCache( ) {
+        return true;
+    }
 
     @RequestMapping(value = "/body/bytes", method = RequestMethod.POST)
     public boolean bodyPostBytes( byte[] body) {
