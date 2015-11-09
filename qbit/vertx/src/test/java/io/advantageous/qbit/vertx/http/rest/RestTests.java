@@ -3,7 +3,9 @@ package io.advantageous.qbit.vertx.http.rest;
 import io.advantageous.boon.core.Sys;
 import io.advantageous.qbit.annotation.RequestMapping;
 import io.advantageous.qbit.annotation.RequestMethod;
+import io.advantageous.qbit.annotation.http.NoCacheHeaders;
 import io.advantageous.qbit.http.HTTP;
+import io.advantageous.qbit.http.HttpHeaders;
 import io.advantageous.qbit.http.request.HttpResponseBuilder;
 import io.advantageous.qbit.http.request.HttpTextResponse;
 import io.advantageous.qbit.reactive.Callback;
@@ -11,6 +13,7 @@ import io.advantageous.qbit.server.EndpointServerBuilder;
 import io.advantageous.qbit.server.ServiceEndpointServer;
 import io.advantageous.qbit.util.PortUtils;
 import org.junit.After;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -58,7 +61,7 @@ public class RestTests {
         }
 
 
-        @RequestMapping(method = RequestMethod.GET)
+        @RequestMapping(method = RequestMethod.GET) @NoCacheHeaders
         public void ping(Callback<String> callback) {
 
             callback.returnThis("love rocket");
@@ -91,6 +94,14 @@ public class RestTests {
     public void testPing() {
         HTTP.Response response = HTTP.getResponse(buildURL("ping"));
         assertEquals(200, response.status());
+
+
+        final List<String> controls =  response.headers().get(HttpHeaders.CACHE_CONTROL);
+
+        Assert.assertEquals("no-cache, no-store", controls.get(0));
+
+        Assert.assertEquals("max-age=0", controls.get(1));
+
         assertEquals("\"love rocket\"", response.body());
     }
 
