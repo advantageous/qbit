@@ -500,6 +500,9 @@ public class HttpRequestBuilder {
         this.setMethod(request.getMethod());
 
         if (request.getHeaders().size()>0) {
+            if (this.headers == null) {
+                this.setHeaders(new MultiMapImpl<>());
+            }
             final MultiMap<String, String> headers = this.getHeaders();
             request.getHeaders().forEach(entry -> {
                 entry.getValue().forEach(value -> headers.add(entry.getKey(), value));
@@ -507,6 +510,12 @@ public class HttpRequestBuilder {
         }
 
         if (request.getParams().size()>0) {
+
+
+            if (this.params==null) {
+                this.setParams(new MultiMapImpl<>());
+            }
+
             final MultiMap<String, String> params = this.getParams();
             request.getParams().forEach(entry -> {
                 entry.getValue().forEach(value -> params.add(entry.getKey(), value));

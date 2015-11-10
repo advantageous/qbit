@@ -136,6 +136,7 @@ public class StandardRequestTransformer implements RequestTransformer {
                     if (Str.isEmpty(value)) {
                         value = namedParam.getDefaultValue();
                     }
+
                     value = value !=null ? decodeURLEncoding(value.toString()) : value;
 
                     break;

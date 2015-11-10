@@ -69,4 +69,7 @@ public @interface GET {
      * @return contentType
      */
     String contentType() default "application/json";
+
+
+    boolean noCache() default false;
 }

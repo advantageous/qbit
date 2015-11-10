@@ -1,16 +1,18 @@
 package io.advantageous.qbit.meta.builder;
 
+import io.advantageous.boon.core.Conversions;
 import io.advantageous.boon.core.Str;
 import io.advantageous.boon.core.TypeType;
 import io.advantageous.boon.core.reflection.AnnotationData;
 import io.advantageous.boon.core.reflection.MethodAccess;
+import io.advantageous.qbit.annotation.AnnotationConstants;
 import io.advantageous.qbit.annotation.RequestMethod;
-import io.advantageous.qbit.http.request.HttpBinaryResponse;
-import io.advantageous.qbit.http.request.HttpTextResponse;
 import io.advantageous.qbit.meta.CallType;
 import io.advantageous.qbit.meta.ParameterMeta;
 import io.advantageous.qbit.meta.RequestMeta;
 import io.advantageous.qbit.meta.params.*;
+import io.advantageous.qbit.util.MultiMap;
+import io.advantageous.qbit.util.MultiMapImpl;
 
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
@@ -26,10 +28,29 @@ public class RequestMetaBuilder {
     private List<ParameterMeta> parameters = new ArrayList<>();
     private List<RequestMethod> requestMethods = new ArrayList<>();
     private String description;
+    private MultiMap<String, String> responseHeaders;
 
 
     public static RequestMetaBuilder requestMetaBuilder() {
         return new RequestMetaBuilder();
+    }
+
+    public MultiMap<String, String> getResponseHeaders() {
+        if (responseHeaders == null) {
+            responseHeaders = new MultiMapImpl<>();
+        }
+        return responseHeaders;
+    }
+
+    public RequestMetaBuilder setResponseHeaders(MultiMap<String, String> responseHeaders) {
+        this.responseHeaders = responseHeaders;
+        return this;
+    }
+
+
+    public RequestMetaBuilder addResponseHeaders(String name, String value) {
+        getResponseHeaders().add(name, value);
+        return this;
     }
 
     public static int findURIPosition(String path, String findString) {
@@ -105,7 +126,7 @@ public class RequestMetaBuilder {
 
     public RequestMeta build() {
         return new RequestMeta(getCallType(), getRequestMethods(),
-                getRequestURI(), getParameters());
+                getRequestURI(), getParameters(), responseHeaders, responseHeaders!=null && responseHeaders.size() > 0);
     }
 
     public void addParameters(final String rootPath, final String servicePath,
@@ -114,6 +135,9 @@ public class RequestMetaBuilder {
         final List<List<AnnotationData>> paramsAnnotationData = methodAccess.annotationDataForParams();
 
         final List<TypeType> typeTypes = methodAccess.paramTypeEnumList();
+
+
+        final Class<?>[] parameterTypes = methodAccess.method().getParameterTypes();
 
 
         final List<ParameterMeta> params = new ArrayList<>(typeTypes.size());
@@ -127,8 +151,10 @@ public class RequestMetaBuilder {
 
                 final String finalPath = Str.join("/", rootPath, servicePath, path).replace("//", "/");
 
+                final TypeType paramType = typeTypes.get(index);
+
                 if (annotationDataList == null || annotationDataList.size() == 0) {
-                    Param requestParam = getParam(finalPath, null, index);
+                    Param requestParam = getParam(finalPath, null, index, paramType, parameterTypes[index]);
                     final ParameterMeta param = createParamMeta(methodAccess, index, typeTypes, requestParam);
 
 
@@ -139,7 +165,7 @@ public class RequestMetaBuilder {
                 for (AnnotationData annotationData : annotationDataList) {
 
 
-                    Param requestParam = getParam(finalPath, annotationData, index);
+                    Param requestParam = getParam(finalPath, annotationData, index, paramType, parameterTypes[index]);
 
                     if (requestParam != null) {
                         final ParameterMeta param = createParamMeta(methodAccess, index, typeTypes, requestParam);
@@ -193,21 +219,17 @@ public class RequestMetaBuilder {
         return builder.build();
     }
 
-    private Param getParam(final String path, final AnnotationData annotationData, final int index) {
+    private Param getParam(final String path, final AnnotationData annotationData, final int index, TypeType paramType, Class<?> parameterType) {
 
         if (annotationData == null) {
             return new BodyParam(true, null, null);
         }
 
         Param param;
-        String paramName = getParamName(annotationData);
-
-        boolean required = getRequired(annotationData);
-
-        String description = getParamDescription(annotationData);
-
-
-        String defaultValue = getDefaultValue(annotationData);
+        final String paramName = getParamName(annotationData);
+        final boolean required = getRequired(annotationData);
+        final String description = getParamDescription(annotationData);
+        final Object defaultValue = getDefaultValue(annotationData, paramType, parameterType);
 
         switch (annotationData.getName()) {
             case "requestParam":
@@ -241,17 +263,42 @@ public class RequestMetaBuilder {
         return param;
     }
 
-    private String getDefaultValue(AnnotationData annotationData) {
+    private Object getDefaultValue(AnnotationData annotationData, TypeType paramType, Class<?> parameterType) {
 
         if (annotationData == null)
             return null;
 
         final Object value = annotationData.getValues().get("defaultValue");
+
         if (value == null) {
             return null;
         }
 
-        return value.toString();
+
+        /** Support not string objects if we want to create params with stronger typed annotations. */
+        if (! (value instanceof String)) {
+            return value;
+        }
+
+
+        if (value.equals(AnnotationConstants.NOT_SET)) {
+            switch (paramType) {
+                case STRING:
+                    return null;
+                case INT:
+                case FLOAT:
+                case DOUBLE:
+                case SHORT:
+                case CHAR:
+                    return 0;
+                case BOOLEAN:
+                    return false;
+                default:
+                    return null;
+            }
+        }
+
+        return Conversions.coerce(paramType, parameterType, value);
     }
 
     private String getParamName(AnnotationData annotationData) {
