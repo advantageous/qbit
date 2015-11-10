@@ -1,5 +1,6 @@
 package io.advantageous.qbit.service.rest.endpoint.tests.services;
 
+import io.advantageous.qbit.annotation.HeaderParam;
 import io.advantageous.qbit.annotation.RequestMapping;
 import io.advantageous.qbit.annotation.RequestMethod;
 import io.advantageous.qbit.annotation.RequestParam;
@@ -13,7 +14,6 @@ import io.advantageous.qbit.service.rest.endpoint.tests.model.Employee;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicReference;
 
 import static io.advantageous.boon.core.IO.puts;
 
@@ -24,11 +24,71 @@ public class EmployeeServiceSingleObjectTestService {
     private final List<Employee> employeeList  = new ArrayList<>();
 
 
+    @RequestMapping(value = "/integer-request-param", method = RequestMethod.GET)
+    @NoCacheHeaders
+    public Integer integerRequestParam(@RequestParam(value = "p", defaultValue = "99") final Integer p) {
+        return p;
+    }
+
+    @RequestMapping(value = "/integer-request-param-no-default", method = RequestMethod.GET)
+    @NoCacheHeaders
+    public Integer integerRequestParamNoDefault(@RequestParam(value = "p") final Integer p) {
+        return p;
+    }
+
+    @RequestMapping(value = "/int-request-param", method = RequestMethod.GET)
+    @NoCacheHeaders
+    public int intRequestParam(@RequestParam(value = "p", defaultValue = "99") final int p) {
+        return p;
+    }
+
+    @RequestMapping(value = "/int-request-param-no-default", method = RequestMethod.GET)
+    @NoCacheHeaders
+    public int intRequestParamNoDefault(@RequestParam(value = "p") final int p) {
+        return p;
+    }
+
+    @RequestMapping(value = "/boolean-request-param", method = RequestMethod.GET)
+    @NoCacheHeaders
+    public boolean booleanRequestParam(@RequestParam(value = "p", defaultValue = "true") final boolean p) {
+        return p;
+    }
+
+    @RequestMapping(value = "/boolean-request-param-no-default", method = RequestMethod.GET)
+    @NoCacheHeaders
+    public boolean booleanRequestParamNoDefault(@RequestParam(value = "p") final boolean p) {
+        return p;
+    }
+
+    @RequestMapping(value = "/string-request-param", method = RequestMethod.GET)
+    @NoCacheHeaders
+    public String stringRequestParam(@RequestParam(value = "p", defaultValue = "foo") final String p) {
+        return p;
+    }
+
+    @RequestMapping(value = "/string-request-param-no-default", method = RequestMethod.GET)
+    @NoCacheHeaders
+    public String stringRequestParamNoDefault(@RequestParam(value = "p") final String p) {
+        return p;
+    }
+
+    @RequestMapping(value = "/string-header-param-default", method = RequestMethod.GET)
+    public String stringHeaderParam(@HeaderParam(value = "p", defaultValue = "zoo") String p) {
+        return p;
+    }
+
+    @RequestMapping(value = "/string-header-param-no-default", method = RequestMethod.GET)
+    public String stringHeaderParamNoDefault(@HeaderParam(value = "p") String p) {
+        return p;
+    }
+
     @RequestMapping(value = "/cache", method = RequestMethod.GET)
     @NoCacheHeaders
     public boolean noCache( ) {
         return true;
     }
+
+
 
     @RequestMapping(value = "/body/bytes", method = RequestMethod.POST)
     public boolean bodyPostBytes( byte[] body) {

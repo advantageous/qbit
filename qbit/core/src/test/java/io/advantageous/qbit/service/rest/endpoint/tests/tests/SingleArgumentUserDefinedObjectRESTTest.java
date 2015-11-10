@@ -50,6 +50,288 @@ public class SingleArgumentUserDefinedObjectRESTTest {
                 ).startServer();
     }
 
+
+    @Test
+    public void testDefaultRequestParam() {
+
+        final HttpTextResponse httpResponse = httpServerSimulator.sendRequest(
+                httpRequestBuilder.setUri("/es/string-request-param")
+                        .setMethodGet()
+                        .build()
+        );
+
+        assertEquals(200, httpResponse.code());
+        assertEquals("\"foo\"", httpResponse.body());
+
+
+
+        final HttpTextResponse httpResponse2 = httpServerSimulator.sendRequest(
+                httpRequestBuilder.setUri("/es/string-request-param")
+                        .addParam("p", "something")
+                        .setMethodGet()
+                        .build()
+        );
+
+
+        assertEquals(200, httpResponse2.code());
+        assertEquals("\"something\"", httpResponse2.body());
+
+    }
+
+
+    @Test
+    public void testDefaultRequestParamNoDefault() {
+
+        final HttpTextResponse httpResponse = httpServerSimulator.sendRequest(
+                httpRequestBuilder.setUri("/es/string-request-param-no-default")
+                        .setMethodGet()
+                        .build()
+        );
+
+        assertEquals(200, httpResponse.code());
+        assertEquals("", httpResponse.body());
+
+
+
+        final HttpTextResponse httpResponse2 = httpServerSimulator.sendRequest(
+                httpRequestBuilder.setUri("/es/string-request-param-no-default")
+                        .addParam("p", "something")
+                        .setMethodGet()
+                        .build()
+        );
+
+
+        assertEquals(200, httpResponse2.code());
+        assertEquals("\"something\"", httpResponse2.body());
+
+    }
+
+
+    @Test
+    public void testDefaultBooleanRequestParam() {
+
+        final HttpTextResponse httpResponse = httpServerSimulator.sendRequest(
+                httpRequestBuilder.setUri("/es/boolean-request-param")
+                        .setMethodGet()
+                        .build()
+        );
+
+        assertEquals(200, httpResponse.code());
+        assertEquals("true", httpResponse.body());
+
+
+
+        final HttpTextResponse httpResponse2 = httpServerSimulator.sendRequest(
+                httpRequestBuilder.setUri("/es/boolean-request-param")
+                        .addParam("p", "false")
+                        .setMethodGet()
+                        .build()
+        );
+
+
+        assertEquals(200, httpResponse2.code());
+        assertEquals("false", httpResponse2.body());
+
+    }
+
+
+    @Test
+    public void testDefaultBooleanRequestParamNoDefault() {
+
+        final HttpTextResponse httpResponse = httpServerSimulator.sendRequest(
+                httpRequestBuilder.setUri("/es/boolean-request-param-no-default")
+                        .setMethodGet()
+                        .build()
+        );
+
+        assertEquals(200, httpResponse.code());
+        assertEquals("false", httpResponse.body());
+
+
+
+        final HttpTextResponse httpResponse2 = httpServerSimulator.sendRequest(
+                httpRequestBuilder.setUri("/es/boolean-request-param-no-default")
+                        .addParam("p", "true")
+                        .setMethodGet()
+                        .build()
+        );
+
+
+        assertEquals(200, httpResponse2.code());
+        assertEquals("true", httpResponse2.body());
+
+    }
+
+
+    @Test
+    public void testDefaultIntRequestParam() {
+
+        final HttpTextResponse httpResponse = httpServerSimulator.sendRequest(
+                httpRequestBuilder.setUri("/es/int-request-param")
+                        .setMethodGet()
+                        .build()
+        );
+
+        assertEquals(200, httpResponse.code());
+        assertEquals("99", httpResponse.body());
+
+
+
+        final HttpTextResponse httpResponse2 = httpServerSimulator.sendRequest(
+                httpRequestBuilder.setUri("/es/int-request-param")
+                        .addParam("p", "100")
+                        .setMethodGet()
+                        .build()
+        );
+
+
+        assertEquals(200, httpResponse2.code());
+        assertEquals("100", httpResponse2.body());
+
+    }
+
+
+    @Test
+    public void testDefaultIntRequestParamNoDefault() {
+
+        final HttpTextResponse httpResponse = httpServerSimulator.sendRequest(
+                httpRequestBuilder.setUri("/es/int-request-param-no-default")
+                        .setMethodGet()
+                        .build()
+        );
+
+        assertEquals(200, httpResponse.code());
+        assertEquals("0", httpResponse.body());
+
+
+
+        final HttpTextResponse httpResponse2 = httpServerSimulator.sendRequest(
+                httpRequestBuilder.setUri("/es/int-request-param-no-default")
+                        .addParam("p", "66")
+                        .setMethodGet()
+                        .build()
+        );
+
+
+        assertEquals(200, httpResponse2.code());
+        assertEquals("66", httpResponse2.body());
+
+    }
+
+
+
+
+    @Test
+    public void testDefaultIntegerRequestParam() {
+
+        final HttpTextResponse httpResponse = httpServerSimulator.sendRequest(
+                httpRequestBuilder.setUri("/es/integer-request-param")
+                        .setMethodGet()
+                        .build()
+        );
+
+        assertEquals(200, httpResponse.code());
+        assertEquals("99", httpResponse.body());
+
+
+
+        final HttpTextResponse httpResponse2 = httpServerSimulator.sendRequest(
+                httpRequestBuilder.setUri("/es/integer-request-param")
+                        .addParam("p", "100")
+                        .setMethodGet()
+                        .build()
+        );
+
+
+        assertEquals(200, httpResponse2.code());
+        assertEquals("100", httpResponse2.body());
+
+    }
+
+
+    @Test
+    public void testDefaultIntegerRequestParamNoDefault() {
+
+        final HttpTextResponse httpResponse = httpServerSimulator.sendRequest(
+                httpRequestBuilder.setUri("/es/integer-request-param-no-default")
+                        .setMethodGet()
+                        .build()
+        );
+
+        assertEquals(200, httpResponse.code());
+        assertEquals("", httpResponse.body());
+
+
+
+        final HttpTextResponse httpResponse2 = httpServerSimulator.sendRequest(
+                httpRequestBuilder.setUri("/es/integer-request-param-no-default")
+                        .addParam("p", "66")
+                        .setMethodGet()
+                        .build()
+        );
+
+
+        assertEquals(200, httpResponse2.code());
+        assertEquals("66", httpResponse2.body());
+
+    }
+
+    @Test
+    public void testDefaultHeaderParam() {
+
+        final HttpTextResponse httpResponse = httpServerSimulator.sendRequest(
+                httpRequestBuilder.setUri("/es/string-header-param-default")
+                        .setMethodGet()
+                        .build()
+        );
+
+        assertEquals(200, httpResponse.code());
+        assertEquals("\"zoo\"", httpResponse.body());
+
+
+
+        final HttpTextResponse httpResponse2 = httpServerSimulator.sendRequest(
+                httpRequestBuilder.setUri("/es/string-header-param-default")
+                        .addHeader("p", "something")
+                        .setMethodGet()
+                        .build()
+        );
+
+
+        assertEquals(200, httpResponse2.code());
+        assertEquals("\"something\"", httpResponse2.body());
+
+    }
+
+
+    @Test
+    public void testDefaultHeaderParamNoDefault() {
+
+        final HttpTextResponse httpResponse = httpServerSimulator.sendRequest(
+                httpRequestBuilder.setUri("/es/string-header-param-no-default")
+                        .setMethodGet()
+                        .build()
+        );
+
+        assertEquals(200, httpResponse.code());
+        assertEquals("", httpResponse.body());
+
+
+
+        final HttpTextResponse httpResponse2 = httpServerSimulator.sendRequest(
+                httpRequestBuilder.setUri("/es/string-header-param-no-default")
+                        .addHeader("p", "something")
+                        .setMethodGet()
+                        .build()
+        );
+
+
+        assertEquals(200, httpResponse2.code());
+        assertEquals("\"something\"", httpResponse2.body());
+
+    }
+
+
     @Test
     public void testNoCacheHeaders() {
 
