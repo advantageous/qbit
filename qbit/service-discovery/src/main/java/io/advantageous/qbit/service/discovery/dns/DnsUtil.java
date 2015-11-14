@@ -2,6 +2,7 @@ package io.advantageous.qbit.service.discovery.dns;
 
 import io.advantageous.boon.core.IO;
 import io.advantageous.boon.core.Str;
+import io.advantageous.boon.core.Sys;
 import io.advantageous.qbit.service.discovery.ServiceDiscovery;
 import io.advantageous.qbit.service.discovery.ServiceDiscoveryBuilder;
 import io.vertx.core.Vertx;
@@ -17,8 +18,10 @@ import java.util.stream.Collectors;
  */
 public class DnsUtil {
 
+    public static final String QBIT_DNS_RESOLV_CONF = "QBIT_DNS_RESOLV_CONF";
+
     public static List<URI> readDnsConf() {
-        final File file = new File("/etc/resolv.conf");
+        final File file = new File(Sys.sysProp(QBIT_DNS_RESOLV_CONF, "/etc/resolv.conf"));
 
 
         if (file.exists()) {
