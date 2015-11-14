@@ -68,6 +68,7 @@ public class JmsTest {
         personSendQueue.send(new Person("Geoff"));
         personSendQueue.send(new Person("Rick"));
         personSendQueue.flushSends();
+        Sys.sleep(1000);
 
         final Person geoff = personReceiveQueue.pollWait();
         final Person rick = personReceiveQueue.pollWait();
