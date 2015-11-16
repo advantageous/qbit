@@ -1,6 +1,7 @@
 package io.advantageous.qbit.service.discovery.dns;
 
 import io.advantageous.boon.core.Sys;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.net.URI;
@@ -9,6 +10,7 @@ import java.util.List;
 import static io.advantageous.boon.core.IO.puts;
 import static org.junit.Assert.*;
 
+@Ignore
 public class DnsUtilTest {
 
     @Test
