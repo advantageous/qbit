@@ -60,7 +60,7 @@ public class DnsSupport {
                       final String postFixURL) {
 
         this.dnsClientProvider = dnsClientProvider;
-        this.postfixURL = postFixURL;
+        this.postfixURL = postFixURL==null ? "" : postFixURL;
         this.dnsServiceNameToServiceName = dnsServiceNameToServiceName;
         this.serviceNameToDNSName = new HashMap<>(dnsServiceNameToServiceName.size());
 
@@ -86,7 +86,7 @@ public class DnsSupport {
      * @param serviceName serviceName
      * @return DNS service name (server field + name of SRV DNS Record).
      */
-    public String findDndServiceName(final String serviceName) {
+    public String findDnsServiceName(final String serviceName) {
         final String dnsServiceName = serviceNameToDNSName.get(serviceName);
         return (dnsServiceName == null ? serviceName : dnsServiceName) + postfixURL;
     }
@@ -101,7 +101,7 @@ public class DnsSupport {
     public void loadServiceEndpointsByServiceName(final Callback<List<EndpointDefinition>> callback,
                                                   final String serviceName) {
 
-        loadServiceEndpointsByDNSService(callback, findDndServiceName(serviceName));
+        loadServiceEndpointsByDNSService(callback, findDnsServiceName(serviceName));
     }
 
     /**

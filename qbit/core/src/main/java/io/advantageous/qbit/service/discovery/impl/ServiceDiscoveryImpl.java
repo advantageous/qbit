@@ -258,6 +258,16 @@ public class ServiceDiscoveryImpl implements ServiceDiscovery {
         return servicePool.services();
     }
 
+
+    public List<EndpointDefinition> loadServicesNowIfNotPresent(final String serviceName) {
+        final List<EndpointDefinition> endpointDefinitions = this.loadServices(serviceName);
+        if (endpointDefinitions.size()==0) {
+            return loadServicesNow(serviceName);
+        } else {
+            return endpointDefinitions;
+        }
+    }
+
     public List<EndpointDefinition> loadServicesNow(final String serviceName) {
 
 
