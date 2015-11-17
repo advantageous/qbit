@@ -86,11 +86,13 @@ public class DnsServiceDiscoveryProvider implements ServiceDiscoveryProvider {
         }
 
 
-        if (debug) logger.debug("DnsServiceDiscoveryProvider.loadServices SUCCESS");
 
         if (exceptionAtomicReference.get()!=null) {
+            logger.error("DnsServiceDiscoveryProvider.loadServices EXCEPTION", exceptionAtomicReference.get());
             throw new IllegalStateException("Unable to read from DNS", exceptionAtomicReference.get());
         } else {
+
+            if (debug) logger.debug("DnsServiceDiscoveryProvider.loadServices SUCCESS");
             return endPointsRef.get();
         }
 

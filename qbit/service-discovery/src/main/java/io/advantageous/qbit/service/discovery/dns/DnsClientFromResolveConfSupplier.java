@@ -21,7 +21,7 @@ public class DnsClientFromResolveConfSupplier implements Supplier<DnsClient>  {
 
 
 
-    private final Logger logger = LoggerFactory.getLogger(DnsSupport.class);
+    private final Logger logger = LoggerFactory.getLogger(DnsClientFromResolveConfSupplier.class);
 
     private final boolean debug = logger.isDebugEnabled();
 
