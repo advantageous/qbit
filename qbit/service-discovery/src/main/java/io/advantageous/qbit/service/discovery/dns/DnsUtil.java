@@ -48,7 +48,7 @@ public class DnsUtil {
                     })
                     .collect(Collectors.toList());
         } else {
-            throw new IllegalStateException("/etc/resolv.conf not found");
+            throw new IllegalStateException("" + file + " not found");
         }
 
     }

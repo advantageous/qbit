@@ -4,6 +4,8 @@ import io.advantageous.qbit.reactive.Callback;
 import io.advantageous.qbit.service.discovery.EndpointDefinition;
 import io.vertx.core.dns.DnsClient;
 import io.vertx.core.dns.SrvRecord;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.*;
 import java.util.function.Supplier;
@@ -22,6 +24,10 @@ import java.util.stream.Collectors;
  */
 public class DnsSupport {
 
+
+    private final Logger logger = LoggerFactory.getLogger(DnsSupport.class);
+
+    private final boolean debug = logger.isDebugEnabled();
 
     /**
      * Holds mappings from DNS names to service names.
@@ -60,7 +66,7 @@ public class DnsSupport {
                       final String postFixURL) {
 
         this.dnsClientProvider = dnsClientProvider;
-        this.postfixURL = postFixURL;
+        this.postfixURL = postFixURL==null ? "" : postFixURL;
         this.dnsServiceNameToServiceName = dnsServiceNameToServiceName;
         this.serviceNameToDNSName = new HashMap<>(dnsServiceNameToServiceName.size());
 
@@ -68,6 +74,12 @@ public class DnsSupport {
          * Build serviceNameToDNSName by reversing the dnsServiceNameToServiceName mappings.
          */
         dnsServiceNameToServiceName.entrySet().forEach(entry -> serviceNameToDNSName.put(entry.getValue(), entry.getKey()));
+
+
+        if (debug) {
+            logger.debug("DnsSupport dnsClientProvider={} postfixURL={} dnsServiceNameToServiceName={} serviceNameToDNSName={}",
+                    this.dnsClientProvider, this.postfixURL, this.dnsServiceNameToServiceName, this.serviceNameToDNSName);
+        }
     }
 
 
@@ -77,8 +89,12 @@ public class DnsSupport {
      * @return serviceName
      */
     public String findServiceName(final String dnsServiceName) {
-        final String serviceName = dnsServiceNameToServiceName.get(dnsServiceName);
-        return serviceName == null ? dnsServiceName : serviceName;
+        String serviceName = dnsServiceNameToServiceName.get(dnsServiceName);
+        serviceName = serviceName == null ? dnsServiceName : serviceName;
+
+        if (debug) logger.debug("FindServiceName dnsServiceName={} serviceName={}", dnsServiceName, serviceName);
+
+        return serviceName;
     }
 
     /**
@@ -86,9 +102,13 @@ public class DnsSupport {
      * @param serviceName serviceName
      * @return DNS service name (server field + name of SRV DNS Record).
      */
-    public String findDndServiceName(final String serviceName) {
-        final String dnsServiceName = serviceNameToDNSName.get(serviceName);
-        return (dnsServiceName == null ? serviceName : dnsServiceName) + postfixURL;
+    public String findDnsServiceName(final String serviceName) {
+        String dnsServiceName = serviceNameToDNSName.get(serviceName);
+        dnsServiceName = (dnsServiceName == null ? serviceName : dnsServiceName) + postfixURL;
+
+
+        if (debug) logger.debug("Find DNS_ServiceName dnsServiceName={} serviceName={}", dnsServiceName, serviceName);
+        return dnsServiceName;
     }
 
 
@@ -101,7 +121,7 @@ public class DnsSupport {
     public void loadServiceEndpointsByServiceName(final Callback<List<EndpointDefinition>> callback,
                                                   final String serviceName) {
 
-        loadServiceEndpointsByDNSService(callback, findDndServiceName(serviceName));
+        loadServiceEndpointsByDNSService(callback, findDnsServiceName(serviceName));
     }
 
     /**
@@ -115,8 +135,10 @@ public class DnsSupport {
         dnsClient.resolveSRV(serviceURL, event ->
                 {
                     if (event.succeeded()) {
+                        if (debug) logger.debug("loadServiceEndpointsByDNSService SUCCESS serviceURL={} ", serviceURL);
                         callback.returnThis(convertEndpoints(event.result()));
                     } else {
+                        if (debug) logger.debug("loadServiceEndpointsByDNSService FAILURE  " + serviceURL, event.cause());
                         callback.onError(event.cause());
                     }
                 }
