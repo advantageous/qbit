@@ -220,6 +220,10 @@ public class ServiceBuilder {
 
         for (MethodAccess methodAccess : methods) {
 
+            if (methodAccess.isPrivate()) {
+                continue;
+            }
+
             if (methodAccess.method().getDeclaringClass().isInterface()) {
                     continue;
             }
