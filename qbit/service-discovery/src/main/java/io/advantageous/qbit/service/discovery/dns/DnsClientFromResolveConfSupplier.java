@@ -2,6 +2,8 @@ package io.advantageous.qbit.service.discovery.dns;
 
 import io.vertx.core.Vertx;
 import io.vertx.core.dns.DnsClient;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.net.URI;
 import java.util.List;
@@ -17,6 +19,11 @@ import java.util.function.Supplier;
  */
 public class DnsClientFromResolveConfSupplier implements Supplier<DnsClient>  {
 
+
+
+    private final Logger logger = LoggerFactory.getLogger(DnsSupport.class);
+
+    private final boolean debug = logger.isDebugEnabled();
 
     /**
      * Vertx instance. Vertx is used to build dns client.
@@ -43,6 +50,8 @@ public class DnsClientFromResolveConfSupplier implements Supplier<DnsClient>  {
 
         this.vertx = vertx;
         addressList = DnsUtil.readDnsConf();
+
+        if (debug) logger.debug("DnsClientFromResolveConfSupplier {}", addressList);
     }
 
 
@@ -56,14 +65,21 @@ public class DnsClientFromResolveConfSupplier implements Supplier<DnsClient>  {
         final URI uri = addressList.get(index);
 
         try {
+
+            if (debug) logger.debug("DnsClient.get port {} host {}", uri.getPort(), uri.getHost());
             return vertx.createDnsClient(uri.getPort(), uri.getHost());
         } catch (Exception ex) {
+
+
+            logger.warn("DnsClient.get EXCEPTION port {} host {}", uri.getPort(), uri.getHost());
             if (index + 1 == addressList.size()) {
                 index = 0;
             } else {
                 index++;
             }
             final URI uri2 = addressList.get(index);
+
+            if (debug) logger.debug("DnsClient.get FAIL OVER port {} host {}", uri2.getPort(), uri2.getHost());
             return vertx.createDnsClient(uri2.getPort(), uri2.getHost());
         }
     }
