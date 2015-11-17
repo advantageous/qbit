@@ -2,6 +2,8 @@ package io.advantageous.qbit.service.discovery.dns;
 
 import io.vertx.core.Vertx;
 import io.vertx.core.dns.DnsClient;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.function.Supplier;
 
@@ -26,6 +28,11 @@ public class DnsClientSupplier implements Supplier<DnsClient> {
      */
     private final String host;
 
+
+    private final Logger logger = LoggerFactory.getLogger(DnsClientSupplier.class);
+
+    private final boolean debug = logger.isDebugEnabled();
+
     /**
      * DnsClientSupplier constructor.
      * @param vertx vertx
@@ -33,9 +40,14 @@ public class DnsClientSupplier implements Supplier<DnsClient> {
      * @param port port
      */
     public DnsClientSupplier(final Vertx vertx, final String host, final int port) {
+
+
+
         this.vertx = vertx;
         this.port = port;
         this.host = host;
+
+        if (debug) logger.debug("DnsClientSupplier( host = {}, port = {})", host, port);
     }
 
     /**
@@ -44,6 +56,8 @@ public class DnsClientSupplier implements Supplier<DnsClient> {
      */
     @Override
     public DnsClient get() {
+
+        if (debug) logger.debug("DnsClientSupplier.get()::host = {}, port = {}", host, port);
         return vertx.createDnsClient(port, host);
     }
 }
