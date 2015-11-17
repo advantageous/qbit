@@ -87,7 +87,7 @@ public class DnsServiceDiscoveryProvider implements ServiceDiscoveryProvider {
 
 
         if (debug) logger.debug("DnsServiceDiscoveryProvider.loadServices SUCCESS");
-        
+
         if (exceptionAtomicReference.get()!=null) {
             throw new IllegalStateException("Unable to read from DNS", exceptionAtomicReference.get());
         } else {

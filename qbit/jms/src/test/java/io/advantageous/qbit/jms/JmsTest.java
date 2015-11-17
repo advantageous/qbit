@@ -89,7 +89,7 @@ public class JmsTest {
         personSendQueue.sendAndFlush(new Person("Rick"));
 
         final Person geoff = personReceiveQueue.pollWait();
-        Sys.sleep(100);
+        Sys.sleep(1000);
         final Person rick = personReceiveQueue.poll();
 
 
