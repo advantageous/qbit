@@ -10,7 +10,7 @@ public class IntegrationTestWithSkyDNS {
 
     public static void main(String... args) {
         final Vertx vertx = Vertx.vertx();
-        //final DnsSupport dnsSupport = new DnsSupport(new DnsClientSupplier(vertx, "localhost", 5354),
+        //final DnsSupport dnsSupport = new DnsSupport(new DnsSingleClientSupplier(vertx, "localhost", 5354),
         //        Maps.map("db", "dbService"), ".skydns.local");
 
         final DnsSupport dnsSupport = new DnsSupport(new DnsClientFromResolveConfSupplier(vertx),

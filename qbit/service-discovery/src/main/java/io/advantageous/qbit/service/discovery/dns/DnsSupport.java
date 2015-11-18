@@ -53,7 +53,7 @@ public class DnsSupport {
     /**
      * Class that knows how to create an instance of DnsClient.
      */
-    private final Supplier<DnsClient> dnsClientProvider;
+    private final DnsClientSupplier dnsClientProvider;
 
     /**
      *
@@ -61,7 +61,7 @@ public class DnsSupport {
      * @param dnsServiceNameToServiceName dnsServiceNameToServiceName
      * @param postFixURL postFixURL
      */
-    public DnsSupport(final Supplier<DnsClient> dnsClientProvider,
+    public DnsSupport(final DnsClientSupplier dnsClientProvider,
                       final Map<String, String> dnsServiceNameToServiceName,
                       final String postFixURL) {
 
@@ -138,11 +138,37 @@ public class DnsSupport {
                         if (debug) logger.debug("loadServiceEndpointsByDNSService SUCCESS serviceURL={} ", serviceURL);
                         callback.returnThis(convertEndpoints(event.result()));
                     } else {
-                        if (debug) logger.debug("loadServiceEndpointsByDNSService FAILURE  " + serviceURL, event.cause());
-                        callback.onError(event.cause());
+
+                        Throwable error = event.cause();
+
+                        logger.info("loadServiceEndpointsByDNSService FAILURE  " + serviceURL, error);
+
+
+                        attemptRecover(callback, serviceURL, error);
+
                     }
                 }
         );
+    }
+
+    private void attemptRecover(final Callback<List<EndpointDefinition>> callback, final String serviceURL, final Throwable error) {
+        final DnsClient dnsClient2 = dnsClientProvider.getIfErrors();
+
+        dnsClient2.resolveSRV(serviceURL, event -> {
+
+            if (event.succeeded()) {
+
+                if (debug)
+                    logger.debug("loadServiceEndpointsByDNSService FAIL OVER SUCCESS serviceURL={} ", serviceURL);
+                callback.returnThis(convertEndpoints(event.result()));
+            } else {
+
+                logger.info("loadServiceEndpointsByDNSService FAIL OVER FAILURE  " + serviceURL, event.cause());
+
+                //Send the first failure
+                callback.onError(error);
+            }
+        });
     }
 
     /**

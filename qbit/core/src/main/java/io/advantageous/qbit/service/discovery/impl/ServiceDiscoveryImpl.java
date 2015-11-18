@@ -259,15 +259,6 @@ public class ServiceDiscoveryImpl implements ServiceDiscovery {
     }
 
 
-    public List<EndpointDefinition> loadServicesNowIfNotPresent(final String serviceName) {
-        final List<EndpointDefinition> endpointDefinitions = this.loadServices(serviceName);
-        if (endpointDefinitions.size()==0) {
-            return loadServicesNow(serviceName);
-        } else {
-            return endpointDefinitions;
-        }
-    }
-
     public List<EndpointDefinition> loadServicesNow(final String serviceName) {
 
 
@@ -278,7 +269,7 @@ public class ServiceDiscoveryImpl implements ServiceDiscovery {
         }
 
         ServicePool servicePool = servicePoolMap.get(serviceName);
-        if (servicePool == null) {
+        if (servicePool == null || servicePool.services() == null || servicePool.services().size() == 0) {
             servicePool = new ServicePool(serviceName, this.servicePoolListener);
             servicePoolMap.put(serviceName, servicePool);
             try {

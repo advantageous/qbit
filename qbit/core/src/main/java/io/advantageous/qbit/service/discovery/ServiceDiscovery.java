@@ -144,25 +144,6 @@ public interface ServiceDiscovery extends Startable, Stoppable {
 
 
     /**
-     * This will return right away without blocking if the services our found in
-     * the service discovery, which could be a cached call.
-     * If not found in the local cache, it will do a blocking call to load services.
-     * This is important for services that need to connect at startup.
-     * @param serviceName service name to lookup
-     * @return list of EndpointDefinition.
-     */
-    default List<EndpointDefinition> loadServicesNowIfNotPresent(final String serviceName) {
-
-        final List<EndpointDefinition> endpointDefinitions = this.loadServices(serviceName);
-        if (endpointDefinitions.size()==0) {
-            return loadServicesNow(serviceName);
-        } else {
-            return endpointDefinitions;
-        }
-
-    }
-
-    /**
      * See `loadServices` this is like `loadServices` except it forces a remote call.
      * This is a blocking call to loadServices.
      * @param serviceName service name.

@@ -17,7 +17,7 @@ import java.util.function.Supplier;
  * Every try that fails will try the current DNS URI and the next one if the first fails.
  *
  */
-public class DnsClientFromResolveConfSupplier implements Supplier<DnsClient>  {
+public class DnsClientFromResolveConfSupplier implements DnsClientSupplier  {
 
 
 
@@ -61,26 +61,30 @@ public class DnsClientFromResolveConfSupplier implements Supplier<DnsClient>  {
      */
     @Override
     public DnsClient get() {
-
         final URI uri = addressList.get(index);
-
         try {
-
             if (debug) logger.debug("DnsClient.get port {} host {}", uri.getPort(), uri.getHost());
             return vertx.createDnsClient(uri.getPort(), uri.getHost());
         } catch (Exception ex) {
-
-
-            logger.warn("DnsClient.get EXCEPTION port {} host {}", uri.getPort(), uri.getHost());
-            if (index + 1 == addressList.size()) {
-                index = 0;
-            } else {
-                index++;
-            }
-            final URI uri2 = addressList.get(index);
-
-            if (debug) logger.debug("DnsClient.get FAIL OVER port {} host {}", uri2.getPort(), uri2.getHost());
-            return vertx.createDnsClient(uri2.getPort(), uri2.getHost());
+            logger.error("DnsClient.get EXCEPTION ", ex);
+            logger.error("DnsClient.get EXCEPTION port {} host {}", uri.getPort(), uri.getHost());
+            return getIfErrors();
         }
+    }
+
+    private void nextAddress() {
+        if (index + 1 == addressList.size()) {
+            index = 0;
+        } else {
+            index++;
+        }
+    }
+
+    @Override
+    public DnsClient getIfErrors() {
+        nextAddress();
+        final URI uri = addressList.get(index);
+        if (debug) logger.debug("DnsClient.get FAIL OVER port {} host {}", uri.getPort(), uri.getHost());
+        return vertx.createDnsClient(uri.getPort(), uri.getHost());
     }
 }

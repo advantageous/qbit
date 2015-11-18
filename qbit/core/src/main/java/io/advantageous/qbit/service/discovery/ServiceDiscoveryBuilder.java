@@ -79,6 +79,10 @@ public class ServiceDiscoveryBuilder {
 
 
     public ServiceDiscoveryProvider getBackupProvider() {
+
+        if (backupProvider == null) {
+            backupProvider = new ServiceDiscoveryProvider() {};
+        }
         return backupProvider;
     }
 
@@ -100,7 +104,6 @@ public class ServiceDiscoveryBuilder {
 
 
     public ServiceDiscoveryImpl build() {
-
         return new ServiceDiscoveryImpl(
                 getPeriodicScheduler(), getServiceChangedEventChannel(),
                 getServiceDiscoveryProvider(), getBackupProvider(),
@@ -108,5 +111,12 @@ public class ServiceDiscoveryBuilder {
                 getExecutorService(), getPollForServicesIntervalSeconds(),
                 getCheckInIntervalInSeconds());
 
+    }
+
+
+    public ServiceDiscoveryImpl buildAndStart() {
+        final ServiceDiscoveryImpl serviceDiscovery = build();
+        serviceDiscovery.start();
+        return serviceDiscovery;
     }
 }

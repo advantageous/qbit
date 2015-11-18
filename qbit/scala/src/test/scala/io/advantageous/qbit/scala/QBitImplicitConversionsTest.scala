@@ -11,18 +11,18 @@ class QBitImplicitConversionsTest extends FlatSpec with Matchers {
 
 
   "A Function" should "convert to a callback" in {
-    CallbackBuilder.callbackBuilder().setCallback(classOf[String], (foo: String)=> {})
+    CallbackBuilder.newCallbackBuilder().withCallback(classOf[String], (foo: String)=> {})
   }
 
 
 
   "A Function" should "convert to a runnable" in {
-    CallbackBuilder.callbackBuilder().setOnTimeout(() => {})
+    CallbackBuilder.newCallbackBuilder().withTimeoutHandler(() => {})
   }
 
 
   "A Function" should "convert to a consumer" in {
-    CallbackBuilder.callbackBuilder().setOnError((error: Throwable)=> {})
+    CallbackBuilder.newCallbackBuilder().withErrorHandler((error: Throwable)=> {})
   }
 
 
