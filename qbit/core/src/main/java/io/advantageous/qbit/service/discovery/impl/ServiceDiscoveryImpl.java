@@ -298,7 +298,7 @@ public class ServiceDiscoveryImpl implements ServiceDiscovery {
 
         this.periodicScheduler.repeat(() -> {
             try {
-                logger.info("Starting Consul monitor");
+                logger.info("Starting Service Discovery monitor");
                 monitor();
             } catch (Exception e) {
                 logger.error("ServiceDiscoveryImpl::" +
