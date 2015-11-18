@@ -169,7 +169,7 @@ public interface ServiceDiscovery extends Startable, Stoppable {
 
     /**
      * This just loads the end points that were registered locally.
-     * This are the endpoints that this JVM and this ServiceDiscovery is managing.
+     * These are the endpoints that this JVM and this ServiceDiscovery is managing.
      * @return set of EndpointDefinitions
      */
     default Set<EndpointDefinition> localDefinitions() {

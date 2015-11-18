@@ -259,20 +259,6 @@ public class ServiceDiscoveryImpl implements ServiceDiscovery {
     }
 
 
-<<<<<<< HEAD
-=======
-    public List<EndpointDefinition> loadServicesNowIfNotPresent(final String serviceName) {
-
-        if (debug) logger.debug("Loading Service Name Now if not present {}", serviceName);
-        final List<EndpointDefinition> endpointDefinitions = this.loadServices(serviceName);
-        if (endpointDefinitions.size()==0) {
-            return loadServicesNow(serviceName);
-        } else {
-            return endpointDefinitions;
-        }
-    }
-
->>>>>>> origin/master
     public List<EndpointDefinition> loadServicesNow(final String serviceName) {
 
 
