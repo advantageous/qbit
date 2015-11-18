@@ -259,13 +259,25 @@ public class ServiceDiscoveryImpl implements ServiceDiscovery {
     }
 
 
+<<<<<<< HEAD
+=======
+    public List<EndpointDefinition> loadServicesNowIfNotPresent(final String serviceName) {
+
+        if (debug) logger.debug("Loading Service Name Now if not present {}", serviceName);
+        final List<EndpointDefinition> endpointDefinitions = this.loadServices(serviceName);
+        if (endpointDefinitions.size()==0) {
+            return loadServicesNow(serviceName);
+        } else {
+            return endpointDefinitions;
+        }
+    }
+
+>>>>>>> origin/master
     public List<EndpointDefinition> loadServicesNow(final String serviceName) {
 
 
-        if (trace) {
-            logger.trace(
-                    "ServiceDiscoveryImpl::loadServices()" + serviceName
-            );
+        if (debug) {
+            logger.debug("ServiceDiscoveryImpl::loadServicesNow {}", serviceName);
         }
 
         ServicePool servicePool = servicePoolMap.get(serviceName);
@@ -274,6 +286,9 @@ public class ServiceDiscoveryImpl implements ServiceDiscovery {
             servicePoolMap.put(serviceName, servicePool);
             try {
                 final List<EndpointDefinition> healthyServices = provider.loadServices(serviceName);
+                if (debug) {
+                    logger.debug("ServiceDiscoveryImpl::loadServicesNow {} healthyServices {}", serviceName, healthyServices);
+                }
                 servicePool.setHealthyNodes(healthyServices, this.servicePoolListener);
             } catch (Exception ex) {
                 logger.warn("Unable to load healthy nodes from primary service discovery provider", ex);
