@@ -63,7 +63,7 @@ public abstract class BaseService implements QueueCallBackHandler{
      * @param statKey statKey
      * @param timeSpan timeSpan
      */
-    protected void recordTime(String statKey, long timeSpan) {
+    protected void recordTiming(String statKey, long timeSpan) {
         final String longKey = getActualStatKey(statKey);
         statsCollector.recordTiming(longKey, timeSpan);
     }
