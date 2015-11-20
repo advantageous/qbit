@@ -89,7 +89,7 @@ public class BoonServiceProxyFactory implements ServiceProxyFactory {
         };
 
 
-        InvocationHandler invocationHandler = new InvocationHandler() {
+        final InvocationHandler invocationHandler = new InvocationHandler() {
 
             long timestamp = Timer.timer().now();
             int times = 10;
@@ -147,16 +147,17 @@ public class BoonServiceProxyFactory implements ServiceProxyFactory {
 
                 final String address = addressBuf.toString();
 
-
-                final MethodCall<Object> call = MethodCallBuilder.methodCallBuilder()
+                final MethodCallBuilder methodCallBuilder = MethodCallBuilder.methodCallBuilder()
                         .setId(messageId)
                         .setAddress(address)
                         .setObjectName(serviceName)
                         .setReturnAddress(returnAddress)
                         .setName(method.getName())
                         .setTimestamp(timestamp)
-                        .setBody(args)
-                        .build();
+                        .setBody(args);
+
+                beforeMethodSent.beforeMethodSent(methodCallBuilder);
+                final MethodCall<Object> call = methodCallBuilder.build();
 
                 assert endPoint != null;
                 endPoint.call(call);

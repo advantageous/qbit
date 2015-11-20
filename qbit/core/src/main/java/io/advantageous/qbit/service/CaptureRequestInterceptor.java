@@ -1,29 +1,23 @@
-package io.advantageous.qbit.http;
+package io.advantageous.qbit.service;
 
-import io.advantageous.qbit.http.request.HttpRequest;
 import io.advantageous.qbit.message.MethodCall;
 import io.advantageous.qbit.message.Response;
-import io.advantageous.qbit.service.AfterMethodCall;
-import io.advantageous.qbit.service.BeforeMethodCall;
 
 /**
- * Captures the HttpRequest if any present and puts it in the HttpRequestContext.
+ * Captures the Request if any present and puts it in the RequestContext.
  */
 public class CaptureRequestInterceptor implements BeforeMethodCall, AfterMethodCall {
 
 
     /** Captures the current method call and if originating as an HttpRequest,
-     * then we pass the HttpRequest into the the HttpRequestContext.
+     * then we pass the HttpRequest into the the RequestContext.
      * @param methodCall methodCall
      * @return always true which means continue.
      */
     @Override
     public boolean before(final MethodCall methodCall) {
 
-        if (methodCall.originatingRequest() instanceof HttpRequest) {
-            final HttpRequest httpRequest = ((HttpRequest) methodCall.originatingRequest());
-            HttpRequestContext.setHttpRequest(httpRequest);
-        }
+        RequestContext.setRequest(methodCall);
         return true;
     }
 
@@ -36,7 +30,7 @@ public class CaptureRequestInterceptor implements BeforeMethodCall, AfterMethodC
      */
     @Override
     public boolean after(final MethodCall methodCall, final Response response) {
-        HttpRequestContext.clearHttpRequest();
+        RequestContext.clear();
         return true;
     }
 

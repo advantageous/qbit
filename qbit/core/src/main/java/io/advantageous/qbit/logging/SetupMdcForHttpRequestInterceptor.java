@@ -3,6 +3,7 @@ package io.advantageous.qbit.logging;
 import io.advantageous.boon.core.Str;
 import io.advantageous.qbit.http.request.HttpRequest;
 import io.advantageous.qbit.message.MethodCall;
+import io.advantageous.qbit.message.Request;
 import io.advantageous.qbit.message.Response;
 import io.advantageous.qbit.service.AfterMethodCall;
 import io.advantageous.qbit.service.BeforeMethodCall;
@@ -10,6 +11,7 @@ import io.advantageous.qbit.util.MultiMap;
 import org.slf4j.MDC;
 
 import java.util.Collections;
+import java.util.Optional;
 import java.util.Set;
 
 /**
@@ -50,12 +52,22 @@ public class SetupMdcForHttpRequestInterceptor implements BeforeMethodCall, Afte
     @Override
     public boolean before(final MethodCall methodCall) {
 
-        if (methodCall.originatingRequest() instanceof HttpRequest) {
-            final HttpRequest httpRequest = ((HttpRequest) methodCall.originatingRequest());
-            extractRequestInfoAndPutItIntoMappedDiagnosticContext(httpRequest);
-
+        final Optional<HttpRequest> httpRequest = findHttpRequest(methodCall);
+        if (httpRequest.isPresent()) {
+            extractRequestInfoAndPutItIntoMappedDiagnosticContext(httpRequest.get());
         }
         return true;
+    }
+
+    private Optional<HttpRequest> findHttpRequest(Request<Object> request) {
+
+        if (request.originatingRequest() instanceof HttpRequest) {
+            return Optional.of(((HttpRequest) request.originatingRequest()));
+        } else if (request.originatingRequest()!=null) {
+            return findHttpRequest(request.originatingRequest());
+        } else {
+            return Optional.empty();
+        }
     }
 
 
