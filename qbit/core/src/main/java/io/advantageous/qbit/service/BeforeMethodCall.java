@@ -30,5 +30,10 @@ import io.advantageous.qbit.message.MethodCall;
 @SuppressWarnings("SameReturnValue")
 public interface BeforeMethodCall {
 
+    /**
+     *
+     * @param call method call
+     * @return true if the method call should continue.
+     */
     boolean before(MethodCall call);
 }

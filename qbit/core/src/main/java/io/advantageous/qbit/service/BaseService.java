@@ -8,6 +8,10 @@ import io.advantageous.qbit.util.Timer;
 
 import java.util.HashMap;
 
+/**
+ * There are certain things we seem to always use when we develop services.
+ * The BaseService handles this.
+ */
 public abstract class BaseService implements QueueCallBackHandler{
 
 
