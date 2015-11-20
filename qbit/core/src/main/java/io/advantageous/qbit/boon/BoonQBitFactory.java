@@ -23,6 +23,7 @@ import io.advantageous.qbit.Factory;
 import io.advantageous.qbit.boon.service.impl.BoonServiceProxyFactory;
 import io.advantageous.qbit.boon.spi.BoonProtocolEncoder;
 import io.advantageous.qbit.boon.spi.BoonProtocolParser;
+import io.advantageous.qbit.client.BeforeMethodSent;
 import io.advantageous.qbit.client.Client;
 import io.advantageous.qbit.client.ServiceProxyFactory;
 import io.advantageous.qbit.concurrent.PeriodicScheduler;
@@ -179,9 +180,9 @@ public class BoonQBitFactory implements Factory {
 
 
     @Override
-    public <T> T createLocalProxy(Class<T> serviceInterface, String serviceName, ServiceBundle serviceBundle) {
+    public <T> T createLocalProxy(Class<T> serviceInterface, String serviceName, ServiceBundle serviceBundle, BeforeMethodSent beforeMethodSent) {
 
-        return this.serviceProxyFactory.createProxy(serviceInterface, serviceName, serviceBundle);
+        return this.serviceProxyFactory.createProxy(serviceInterface, serviceName, serviceBundle, beforeMethodSent);
     }
 
 
@@ -195,13 +196,14 @@ public class BoonQBitFactory implements Factory {
                                                     final String returnAddressArg,
                                                     final Sender<String> sender,
                                                     final BeforeMethodCall beforeMethodCall,
-                                                    final int requestBatchSize) {
+                                                    final int requestBatchSize,
+                                                    final BeforeMethodSent beforeMethodSent) {
         return remoteServiceProxyFactory.createProxyWithReturnAddress(
                 serviceInterface,
                 serviceName,
                 host, port, connected,
                 returnAddressArg, new SenderEndPoint(this.createEncoder(), address, sender, beforeMethodCall,
-                        requestBatchSize));
+                        requestBatchSize), beforeMethodSent);
     }
 
 
@@ -244,8 +246,11 @@ public class BoonQBitFactory implements Factory {
 
 
     @Override
-    public Client createClient(String uri, HttpClient httpClient, int requestBatchSize) {
-        return FactorySPI.getClientFactory().create(uri, httpClient, requestBatchSize);
+    public Client createClient(final String uri,
+                               final HttpClient httpClient,
+                               final int requestBatchSize,
+                               final BeforeMethodSent beforeMethodSent) {
+        return FactorySPI.getClientFactory().create(uri, httpClient, requestBatchSize, beforeMethodSent);
     }
 
     @Override
@@ -323,13 +328,14 @@ public class BoonQBitFactory implements Factory {
                                              final int statsFlushRateSeconds,
                                              final int checkTimingEveryXCalls,
                                              final CallbackManager callbackManager,
-                                             final EventManager eventManager) {
+                                             final EventManager eventManager,
+                                             final BeforeMethodSent beforeMethodSent) {
         return new ServiceBundleImpl(address, requestQueueBuilder, responseQueueBuilder,
                 webResponseQueueBuilder,
                 factory, asyncCalls, beforeMethodCall, beforeMethodCallAfterTransform,
                 argTransformer, invokeDynamic, systemManager, healthService, statsCollector, timer,
                 statsFlushRateSeconds, checkTimingEveryXCalls, callbackManager,
-                eventManager);
+                eventManager, beforeMethodSent);
     }
 
 

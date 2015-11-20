@@ -19,6 +19,7 @@
 package io.advantageous.qbit.service;
 
 import io.advantageous.qbit.QBit;
+import io.advantageous.qbit.client.BeforeMethodSent;
 import io.advantageous.qbit.config.PropertyResolver;
 import io.advantageous.qbit.events.EventManager;
 import io.advantageous.qbit.message.Request;
@@ -57,12 +58,25 @@ public class ServiceBundleBuilder {
     private StatsCollector statsCollector = null;
     private  int statsFlushRateSeconds;
     private  int checkTimingEveryXCalls = -1;
+    private BeforeMethodSent beforeMethodSent;
 
 
     private CallbackManager callbackManager;
     private CallbackManagerBuilder callbackManagerBuilder;
     private EventManager eventManager;
 
+
+    public BeforeMethodSent getBeforeMethodSent() {
+        if (beforeMethodSent == null) {
+            beforeMethodSent = new BeforeMethodSent(){};
+        }
+        return beforeMethodSent;
+    }
+
+    public ServiceBundleBuilder setBeforeMethodSent(BeforeMethodSent beforeMethodSent) {
+        this.beforeMethodSent = beforeMethodSent;
+        return this;
+    }
 
     public CallbackManagerBuilder getCallbackManagerBuilder() {
         if (callbackManagerBuilder == null) {
@@ -302,7 +316,8 @@ public class ServiceBundleBuilder {
                 getStatsFlushRateSeconds(),
                 getCheckTimingEveryXCalls(),
                 getCallbackManager(),
-                getEventManager());
+                getEventManager(),
+                getBeforeMethodSent());
 
 
         if (serviceBundle != null && qBitSystemManager != null) {

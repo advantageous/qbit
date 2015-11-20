@@ -20,6 +20,7 @@ package io.advantageous.qbit.boon.client;
 
 import io.advantageous.boon.core.Sys;
 import io.advantageous.boon.core.reflection.BeanUtils;
+import io.advantageous.qbit.client.BeforeMethodSent;
 import io.advantageous.qbit.client.Client;
 import io.advantageous.qbit.client.ClientBuilder;
 import io.advantageous.qbit.client.ClientProxy;
@@ -55,15 +56,11 @@ public class BoonClientTest {
 
     @Before
     public void setUp() throws Exception {
-        client = new BoonClientFactory().create("/uri", new HttpClientMock(), 10);
-        FactorySPI.setHttpClientFactory(new HttpClientFactory() {
-
-            @Override
-            public HttpClient create(String host, int port, int timeOutInMilliseconds, int poolSize, boolean autoFlush, int flushRate, boolean keepAlive, boolean pipeLine, boolean ssl, boolean verifyHost, boolean trustAll, int maxWebSocketFrameSize, boolean tryUseCompression, String trustStorePath, String trustStorePassword, boolean tcpNoDelay, int soLinger) {
-                return new HttpClientMock();
-            }
-
-        });
+        client = new BoonClientFactory().create("/uri", new HttpClientMock(), 10, new BeforeMethodSent() {});
+        FactorySPI.setHttpClientFactory((host, port, timeOutInMilliseconds, poolSize, autoFlush, flushRate, keepAlive,
+                                         pipeLine, ssl, verifyHost, trustAll, maxWebSocketFrameSize,
+                                         tryUseCompression, trustStorePath, trustStorePassword, tcpNoDelay, soLinger) ->
+                new HttpClientMock());
 
 
     }

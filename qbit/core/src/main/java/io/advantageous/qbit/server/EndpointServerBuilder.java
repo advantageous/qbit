@@ -20,6 +20,7 @@ package io.advantageous.qbit.server;
 
 import io.advantageous.qbit.Factory;
 import io.advantageous.qbit.QBit;
+import io.advantageous.qbit.client.BeforeMethodSent;
 import io.advantageous.qbit.config.PropertyResolver;
 import io.advantageous.qbit.events.EventManager;
 import io.advantageous.qbit.http.HttpTransport;
@@ -101,6 +102,21 @@ public class EndpointServerBuilder {
     private ProtocolEncoder encoder;
     private HttpServerBuilder httpServerBuilder;
     private EventManager eventManager;
+
+    private BeforeMethodSent beforeMethodSent;
+
+    public BeforeMethodSent getBeforeMethodSent() {
+
+        if (beforeMethodSent==null) {
+            beforeMethodSent = new BeforeMethodSent() {};
+        }
+        return beforeMethodSent;
+    }
+
+    public EndpointServerBuilder setBeforeMethodSent(BeforeMethodSent beforeMethodSent) {
+        this.beforeMethodSent = beforeMethodSent;
+        return this;
+    }
 
     public EndpointServerBuilder setParser(ProtocolParser parser) {
         this.parser = parser;
@@ -534,7 +550,7 @@ public class EndpointServerBuilder {
         final ServiceBundle serviceBundle;
 
 
-        serviceBundle = QBit.factory().createServiceBundle(uri,
+        serviceBundle = getFactory().createServiceBundle(uri,
                 getRequestQueueBuilder(),
                 getResponseQueueBuilder(),
                 getWebResponseQueueBuilder(),
@@ -548,7 +564,9 @@ public class EndpointServerBuilder {
                 getStatsFlushRateSeconds(),
                 getCheckTimingEveryXCalls(),
                 getCallbackManager(),
-                getEventManager());
+                getEventManager(),
+                getBeforeMethodSent()
+                );
 
 
 

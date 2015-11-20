@@ -48,11 +48,25 @@ public class ClientBuilder {
     private  Factory factory;
     private String serviceName;
 
+    private BeforeMethodSent beforeMethodSent;
+
     public Factory getFactory() {
         if (factory == null) {
             factory = QBit.factory();
         }
         return factory;
+    }
+
+    public BeforeMethodSent getBeforeMethodSent() {
+        if (beforeMethodSent==null) {
+            beforeMethodSent = new BeforeMethodSent() {};
+        }
+        return beforeMethodSent;
+    }
+
+    public ClientBuilder setBeforeMethodSent(BeforeMethodSent beforeMethodSent) {
+        this.beforeMethodSent = beforeMethodSent;
+        return this;
     }
 
     public ClientBuilder setFactory(Factory factory) {
@@ -287,7 +301,7 @@ public class ClientBuilder {
 
         //noinspection UnnecessaryLocalVariable
         @SuppressWarnings("UnnecessaryLocalVariable")
-        Client client = getFactory().createClient(getUri(), httpClientBuilder.build(), getProtocolBatchSize());
+        Client client = getFactory().createClient(getUri(), httpClientBuilder.build(), getProtocolBatchSize(),getBeforeMethodSent());
         return client;
 
     }

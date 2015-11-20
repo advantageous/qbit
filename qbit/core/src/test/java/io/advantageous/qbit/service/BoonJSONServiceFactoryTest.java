@@ -20,6 +20,7 @@ package io.advantageous.qbit.service;
 
 import io.advantageous.qbit.QBit;
 import io.advantageous.qbit.boon.service.impl.BoonServiceProxyFactory;
+import io.advantageous.qbit.client.BeforeMethodSent;
 import io.advantageous.qbit.client.ServiceProxyFactory;
 import io.advantageous.qbit.message.MethodCall;
 import org.junit.Before;
@@ -52,7 +53,8 @@ public class BoonJSONServiceFactoryTest {
     public void testCreateProxy() throws Exception {
 
 
-        final MockServiceInterface service = boonJSONServiceFactory.createProxy(MockServiceInterface.class, "testService", new EndPointMock());
+        final MockServiceInterface service = boonJSONServiceFactory.createProxy(MockServiceInterface.class, "testService",
+                new EndPointMock(), new BeforeMethodSent() {});
         service.method1();
 
 

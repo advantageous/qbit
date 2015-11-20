@@ -22,6 +22,7 @@ import io.advantageous.boon.core.Sys;
 import io.advantageous.qbit.Factory;
 import io.advantageous.qbit.QBit;
 import io.advantageous.qbit.annotation.RequestMapping;
+import io.advantageous.qbit.client.BeforeMethodSent;
 import io.advantageous.qbit.message.MethodCall;
 import io.advantageous.qbit.message.Response;
 import io.advantageous.qbit.queue.Queue;
@@ -122,7 +123,7 @@ public class ServiceProxyFactoryTest {
 
         @Override
         public <T> T createLocalProxy(Class<T> serviceInterface, String serviceName) {
-            return factory.createLocalProxy(serviceInterface, serviceName, this);
+            return factory.createLocalProxy(serviceInterface, serviceName, this, new BeforeMethodSent() {});
         }
     };
     boolean calledMethod1;

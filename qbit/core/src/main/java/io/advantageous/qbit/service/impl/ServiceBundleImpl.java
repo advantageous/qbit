@@ -23,6 +23,7 @@ import io.advantageous.boon.core.reflection.BeanUtils;
 import io.advantageous.qbit.Factory;
 import io.advantageous.qbit.GlobalConstants;
 import io.advantageous.qbit.annotation.AnnotationUtils;
+import io.advantageous.qbit.client.BeforeMethodSent;
 import io.advantageous.qbit.events.EventManager;
 import io.advantageous.qbit.message.MethodCall;
 import io.advantageous.qbit.message.MethodCallBuilder;
@@ -104,6 +105,15 @@ public class ServiceBundleImpl implements ServiceBundle {
      * Access to QBit factory.
      */
     private final Factory factory;
+
+
+    /**
+     * Allows interception of method calls before they get encoded by the client proxy.
+     * This allows us to transform or reject method calls.
+     */
+    private final BeforeMethodSent beforeMethodSent;
+
+
     /**
      * Allows interception of method calls before they get sent to a client.
      * This allows us to transform or reject method calls.
@@ -161,7 +171,9 @@ public class ServiceBundleImpl implements ServiceBundle {
                              final Timer timer,
                              final int sampleStatFlushRate,
                              final int checkTimingEveryXCalls,
-                             final CallbackManager callbackManager, EventManager eventManager) {
+                             final CallbackManager callbackManager,
+                             final EventManager eventManager,
+                             final BeforeMethodSent beforeMethodSent) {
 
         this.healthService = healthService;
         this.statsCollector = statsCollector;
@@ -171,6 +183,7 @@ public class ServiceBundleImpl implements ServiceBundle {
         this.sampleStatFlushRate = sampleStatFlushRate;
         this.checkTimingEveryXCalls = checkTimingEveryXCalls;
         this.callbackManager  = callbackManager;
+        this.beforeMethodSent = beforeMethodSent;
 
         String rootAddress;
         if (address.endsWith("/")) {
@@ -450,7 +463,7 @@ public class ServiceBundleImpl implements ServiceBundle {
             logger.error("Service requested does not exist " + myService);
         }
 
-        return factory.createLocalProxy(serviceInterface, myService, this);
+        return factory.createLocalProxy(serviceInterface, myService, this, beforeMethodSent);
 
     }
 
@@ -468,7 +481,7 @@ public class ServiceBundleImpl implements ServiceBundle {
             return ((QueueDispatch) callConsumer).serviceQueue.createProxyWithAutoFlush(
                     serviceInterface, 100, TimeUnit.MILLISECONDS);
         } else {
-            return factory.createLocalProxy(serviceInterface, myService, this);
+            return factory.createLocalProxy(serviceInterface, myService, this, beforeMethodSent);
         }
     }
 
