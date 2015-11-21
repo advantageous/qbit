@@ -28,6 +28,7 @@ import io.advantageous.boon.core.reflection.MethodAccess;
 import io.advantageous.boon.primitive.Arry;
 import io.advantageous.qbit.GlobalConstants;
 import io.advantageous.qbit.QBit;
+import io.advantageous.qbit.client.BeforeMethodSent;
 import io.advantageous.qbit.client.Client;
 import io.advantageous.qbit.client.ClientProxy;
 import io.advantageous.qbit.http.client.HttpClient;
@@ -71,10 +72,16 @@ public class BoonClient implements Client {
      */
     private final HttpClient httpServerProxy;
     /**
+     * Logger.
+     */
+    private final Logger logger = LoggerFactory.getLogger(BoonClient.class);
+
+    /**
      * Request batch size for queuing.
      */
     private final int requestBatchSize;
-    private final boolean debug = GlobalConstants.DEBUG;
+    private final boolean debug = logger.isDebugEnabled();
+    private final BeforeMethodSent beforeMethodSent;
     /**
      * Holds on to Boon cache so we don't have to recreate reflected gak.
      */
@@ -83,10 +90,6 @@ public class BoonClient implements Client {
      * Map of handlers so we can do the whole async call back thing.
      */
     private final Map<HandlerKey, Callback<Object>> handlers = new ConcurrentHashMap<>();
-    /**
-     * Logger.
-     */
-    private final Logger logger = LoggerFactory.getLogger(BoonClient.class);
     /**
      * List of client proxies that we are managing for periodic flush.
      */
@@ -102,11 +105,13 @@ public class BoonClient implements Client {
      */
     public BoonClient(final String uri,
                       final HttpClient httpClient,
-                      final int requestBatchSize) {
+                      final int requestBatchSize,
+                      final BeforeMethodSent beforeMethodSent) {
 
         this.httpServerProxy = httpClient;
         this.uri = uri;
         this.requestBatchSize = requestBatchSize;
+        this.beforeMethodSent = beforeMethodSent;
     }
 
 
@@ -318,7 +323,7 @@ public class BoonClient implements Client {
                 httpServerProxy.getHost(),
                 httpServerProxy.getPort(),
                 connected,
-                returnAddressArg, sender, beforeMethodCall, requestBatchSize);
+                returnAddressArg, sender, beforeMethodCall, requestBatchSize, beforeMethodSent);
 
         if (proxy instanceof ClientProxy) {
             clientProxies.add((ClientProxy) proxy);

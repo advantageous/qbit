@@ -35,9 +35,11 @@ public interface ServiceProxyFactory {
                                        int port,
                                        AtomicBoolean connected,
                                        String returnAddressArg,
-                                       EndPoint serviceBundle);
+                                       EndPoint serviceBundle,
+                                       BeforeMethodSent beforeMethodSent);
 
     <T> T createProxy(Class<T> serviceInterface,
                       String serviceName,
-                      EndPoint serviceBundle);
+                      EndPoint serviceBundle,
+                      BeforeMethodSent beforeMethodSent);
 }

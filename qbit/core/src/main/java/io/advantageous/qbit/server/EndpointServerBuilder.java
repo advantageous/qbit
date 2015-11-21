@@ -20,6 +20,7 @@ package io.advantageous.qbit.server;
 
 import io.advantageous.qbit.Factory;
 import io.advantageous.qbit.QBit;
+import io.advantageous.qbit.client.BeforeMethodSent;
 import io.advantageous.qbit.config.PropertyResolver;
 import io.advantageous.qbit.events.EventManager;
 import io.advantageous.qbit.http.HttpTransport;
@@ -30,6 +31,7 @@ import io.advantageous.qbit.message.Request;
 import io.advantageous.qbit.message.Response;
 import io.advantageous.qbit.queue.Queue;
 import io.advantageous.qbit.queue.QueueBuilder;
+import io.advantageous.qbit.service.AfterMethodCall;
 import io.advantageous.qbit.service.BeforeMethodCall;
 import io.advantageous.qbit.service.CallbackManagerBuilder;
 import io.advantageous.qbit.service.ServiceBundle;
@@ -101,6 +103,23 @@ public class EndpointServerBuilder {
     private ProtocolEncoder encoder;
     private HttpServerBuilder httpServerBuilder;
     private EventManager eventManager;
+
+    private BeforeMethodSent beforeMethodSent;
+    private BeforeMethodCall beforeMethodCallOnServiceQueue;
+    private AfterMethodCall afterMethodCallOnServiceQueue;
+
+    public BeforeMethodSent getBeforeMethodSent() {
+
+        if (beforeMethodSent==null) {
+            beforeMethodSent = new BeforeMethodSent() {};
+        }
+        return beforeMethodSent;
+    }
+
+    public EndpointServerBuilder setBeforeMethodSent(BeforeMethodSent beforeMethodSent) {
+        this.beforeMethodSent = beforeMethodSent;
+        return this;
+    }
 
     public EndpointServerBuilder setParser(ProtocolParser parser) {
         this.parser = parser;
@@ -534,7 +553,7 @@ public class EndpointServerBuilder {
         final ServiceBundle serviceBundle;
 
 
-        serviceBundle = QBit.factory().createServiceBundle(uri,
+        serviceBundle = getFactory().createServiceBundle(uri,
                 getRequestQueueBuilder(),
                 getResponseQueueBuilder(),
                 getWebResponseQueueBuilder(),
@@ -548,7 +567,9 @@ public class EndpointServerBuilder {
                 getStatsFlushRateSeconds(),
                 getCheckTimingEveryXCalls(),
                 getCallbackManager(),
-                getEventManager());
+                getEventManager(),
+                getBeforeMethodSent(),
+                getBeforeMethodCallOnServiceQueue(), getAfterMethodCallOnServiceQueue());
 
 
 
@@ -683,6 +704,24 @@ public class EndpointServerBuilder {
 
     public EndpointServerBuilder setEventManager(EventManager eventManager) {
         this.eventManager = eventManager;
+        return this;
+    }
+
+    public BeforeMethodCall getBeforeMethodCallOnServiceQueue() {
+        return beforeMethodCallOnServiceQueue;
+    }
+
+    public EndpointServerBuilder setBeforeMethodCallOnServiceQueue(BeforeMethodCall beforeMethodCallOnServiceQueue) {
+        this.beforeMethodCallOnServiceQueue = beforeMethodCallOnServiceQueue;
+        return this;
+    }
+
+    public AfterMethodCall getAfterMethodCallOnServiceQueue() {
+        return afterMethodCallOnServiceQueue;
+    }
+
+    public EndpointServerBuilder setAfterMethodCallOnServiceQueue(AfterMethodCall afterMethodCallOnServiceQueue) {
+        this.afterMethodCallOnServiceQueue = afterMethodCallOnServiceQueue;
         return this;
     }
 }
