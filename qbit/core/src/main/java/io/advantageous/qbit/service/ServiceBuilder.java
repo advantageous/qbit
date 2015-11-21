@@ -265,6 +265,10 @@ public class ServiceBuilder {
     }
 
     public BeforeMethodCall getBeforeMethodCall() {
+
+        if (beforeMethodCall == null) {
+            beforeMethodCall = new NoOpBeforeMethodCall();
+        }
         return beforeMethodCall;
     }
 
@@ -285,6 +289,9 @@ public class ServiceBuilder {
     }
 
     public AfterMethodCall getAfterMethodCall() {
+        if (afterMethodCall==null) {
+            afterMethodCall = new NoOpAfterMethodCall();
+        }
         return afterMethodCall;
     }
 

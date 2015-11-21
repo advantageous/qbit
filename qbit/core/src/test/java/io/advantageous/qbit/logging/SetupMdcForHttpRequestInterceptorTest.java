@@ -16,6 +16,7 @@ import io.advantageous.qbit.service.RequestContext;
 import io.advantageous.qbit.service.ServiceBundle;
 import io.advantageous.qbit.service.ServiceBundleBuilder;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.slf4j.MDC;
 
@@ -173,7 +174,7 @@ public class SetupMdcForHttpRequestInterceptorTest {
     }
 
 
-    @Test
+    @Test @Ignore //NOT DONE YET
     public void testIntegrationWithServiceBundle() throws Exception{
 
 
