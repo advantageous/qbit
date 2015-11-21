@@ -38,10 +38,7 @@ import io.advantageous.qbit.queue.Queue;
 import io.advantageous.qbit.queue.QueueBuilder;
 import io.advantageous.qbit.sender.Sender;
 import io.advantageous.qbit.server.ServiceEndpointServer;
-import io.advantageous.qbit.service.BeforeMethodCall;
-import io.advantageous.qbit.service.ServiceBundle;
-import io.advantageous.qbit.service.ServiceMethodHandler;
-import io.advantageous.qbit.service.ServiceQueue;
+import io.advantageous.qbit.service.*;
 import io.advantageous.qbit.service.discovery.ServiceDiscovery;
 import io.advantageous.qbit.service.health.HealthServiceAsync;
 import io.advantageous.qbit.service.impl.CallbackManager;
@@ -145,7 +142,8 @@ public interface Factory {
                                               final int checkTimingEveryXCalls,
                                               final CallbackManager callbackManager,
                                               final EventManager eventManager,
-                                              final BeforeMethodSent beforeMethodSent) {
+                                              final BeforeMethodSent beforeMethodSent,
+                                              final BeforeMethodCall beforeMethodCallOnServiceQueue, AfterMethodCall afterMethodCallOnServiceQueue) {
         throw new UnsupportedOperationException();
     }
 

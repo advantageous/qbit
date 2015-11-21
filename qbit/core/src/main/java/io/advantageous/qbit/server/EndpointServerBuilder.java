@@ -31,6 +31,7 @@ import io.advantageous.qbit.message.Request;
 import io.advantageous.qbit.message.Response;
 import io.advantageous.qbit.queue.Queue;
 import io.advantageous.qbit.queue.QueueBuilder;
+import io.advantageous.qbit.service.AfterMethodCall;
 import io.advantageous.qbit.service.BeforeMethodCall;
 import io.advantageous.qbit.service.CallbackManagerBuilder;
 import io.advantageous.qbit.service.ServiceBundle;
@@ -104,6 +105,8 @@ public class EndpointServerBuilder {
     private EventManager eventManager;
 
     private BeforeMethodSent beforeMethodSent;
+    private BeforeMethodCall beforeMethodCallOnServiceQueue;
+    private AfterMethodCall afterMethodCallOnServiceQueue;
 
     public BeforeMethodSent getBeforeMethodSent() {
 
@@ -565,8 +568,8 @@ public class EndpointServerBuilder {
                 getCheckTimingEveryXCalls(),
                 getCallbackManager(),
                 getEventManager(),
-                getBeforeMethodSent()
-                );
+                getBeforeMethodSent(),
+                getBeforeMethodCallOnServiceQueue(), getAfterMethodCallOnServiceQueue());
 
 
 
@@ -701,6 +704,24 @@ public class EndpointServerBuilder {
 
     public EndpointServerBuilder setEventManager(EventManager eventManager) {
         this.eventManager = eventManager;
+        return this;
+    }
+
+    public BeforeMethodCall getBeforeMethodCallOnServiceQueue() {
+        return beforeMethodCallOnServiceQueue;
+    }
+
+    public EndpointServerBuilder setBeforeMethodCallOnServiceQueue(BeforeMethodCall beforeMethodCallOnServiceQueue) {
+        this.beforeMethodCallOnServiceQueue = beforeMethodCallOnServiceQueue;
+        return this;
+    }
+
+    public AfterMethodCall getAfterMethodCallOnServiceQueue() {
+        return afterMethodCallOnServiceQueue;
+    }
+
+    public EndpointServerBuilder setAfterMethodCallOnServiceQueue(AfterMethodCall afterMethodCallOnServiceQueue) {
+        this.afterMethodCallOnServiceQueue = afterMethodCallOnServiceQueue;
         return this;
     }
 }

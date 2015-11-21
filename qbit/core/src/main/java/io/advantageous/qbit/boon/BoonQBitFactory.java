@@ -329,13 +329,16 @@ public class BoonQBitFactory implements Factory {
                                              final int checkTimingEveryXCalls,
                                              final CallbackManager callbackManager,
                                              final EventManager eventManager,
-                                             final BeforeMethodSent beforeMethodSent) {
+                                             final BeforeMethodSent beforeMethodSent,
+                                             final BeforeMethodCall beforeMethodCallOnServiceQueue,
+                                             final AfterMethodCall afterMethodCallOnServiceQueue) {
         return new ServiceBundleImpl(address, requestQueueBuilder, responseQueueBuilder,
                 webResponseQueueBuilder,
                 factory, asyncCalls, beforeMethodCall, beforeMethodCallAfterTransform,
                 argTransformer, invokeDynamic, systemManager, healthService, statsCollector, timer,
                 statsFlushRateSeconds, checkTimingEveryXCalls, callbackManager,
-                eventManager, beforeMethodSent);
+                eventManager, beforeMethodSent, beforeMethodCallOnServiceQueue,
+                afterMethodCallOnServiceQueue);
     }
 
 

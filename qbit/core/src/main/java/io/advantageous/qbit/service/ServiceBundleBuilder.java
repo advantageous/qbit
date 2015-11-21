@@ -18,6 +18,7 @@
 
 package io.advantageous.qbit.service;
 
+import io.advantageous.qbit.Factory;
 import io.advantageous.qbit.QBit;
 import io.advantageous.qbit.client.BeforeMethodSent;
 import io.advantageous.qbit.config.PropertyResolver;
@@ -64,7 +65,17 @@ public class ServiceBundleBuilder {
     private CallbackManager callbackManager;
     private CallbackManagerBuilder callbackManagerBuilder;
     private EventManager eventManager;
+    private BeforeMethodCall beforeMethodCallOnServiceQueue;
 
+    private Factory factory;
+    private AfterMethodCall afterMethodCallOnServiceQueue;
+
+    public Factory getFactory() {
+        if (factory==null) {
+            factory = QBit.factory();
+        }
+        return factory;
+    }
 
     public BeforeMethodSent getBeforeMethodSent() {
         if (beforeMethodSent == null) {
@@ -299,11 +310,11 @@ public class ServiceBundleBuilder {
     public ServiceBundle build() {
 
 
-        final ServiceBundle serviceBundle = QBit.factory().createServiceBundle(this.getAddress(),
+        final ServiceBundle serviceBundle = getFactory().createServiceBundle(this.getAddress(),
                 getRequestQueueBuilder(),
                 getResponseQueueBuilder(),
                 getWebResponseQueueBuilder(),
-                QBit.factory(),
+                getFactory(),
                 eachServiceInItsOwnThread,
                 this.getBeforeMethodCall(),
                 this.getBeforeMethodCallAfterTransform(),
@@ -317,7 +328,9 @@ public class ServiceBundleBuilder {
                 getCheckTimingEveryXCalls(),
                 getCallbackManager(),
                 getEventManager(),
-                getBeforeMethodSent());
+                getBeforeMethodSent(),
+                getBeforeMethodCallOnServiceQueue(),
+                getAfterMethodCallOnServiceQueue());
 
 
         if (serviceBundle != null && qBitSystemManager != null) {
@@ -376,6 +389,24 @@ public class ServiceBundleBuilder {
 
     public EventManager getEventManager() {
         return eventManager;
+    }
+
+    public ServiceBundleBuilder setBeforeMethodCallOnServiceQueue(BeforeMethodCall beforeMethodCallOnServiceQueue) {
+        this.beforeMethodCallOnServiceQueue = beforeMethodCallOnServiceQueue;
+        return this;
+    }
+
+    public BeforeMethodCall getBeforeMethodCallOnServiceQueue() {
+        return beforeMethodCallOnServiceQueue;
+    }
+
+    public ServiceBundleBuilder setAfterMethodCallOnServiceQueue(AfterMethodCall afterMethodCallOnServiceQueue) {
+        this.afterMethodCallOnServiceQueue = afterMethodCallOnServiceQueue;
+        return this;
+    }
+
+    public AfterMethodCall getAfterMethodCallOnServiceQueue() {
+        return afterMethodCallOnServiceQueue;
     }
 }
 

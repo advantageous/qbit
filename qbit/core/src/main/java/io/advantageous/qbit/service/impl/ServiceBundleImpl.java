@@ -25,6 +25,8 @@ import io.advantageous.qbit.GlobalConstants;
 import io.advantageous.qbit.annotation.AnnotationUtils;
 import io.advantageous.qbit.client.BeforeMethodSent;
 import io.advantageous.qbit.events.EventManager;
+import io.advantageous.qbit.http.request.HttpRequest;
+import io.advantageous.qbit.http.server.websocket.WebSocketMessage;
 import io.advantageous.qbit.message.MethodCall;
 import io.advantageous.qbit.message.MethodCallBuilder;
 import io.advantageous.qbit.message.Request;
@@ -155,6 +157,8 @@ public class ServiceBundleImpl implements ServiceBundle {
     private final int sampleStatFlushRate;
     private final int checkTimingEveryXCalls;
     private final EventManager eventManager;
+    private final BeforeMethodCall beforeMethodCallOnServiceQueue;
+    private final AfterMethodCall afterMethodCallOnServiceQueue;
 
     public ServiceBundleImpl(final String address,
                              final QueueBuilder requestQueueBuilder,
@@ -173,7 +177,12 @@ public class ServiceBundleImpl implements ServiceBundle {
                              final int checkTimingEveryXCalls,
                              final CallbackManager callbackManager,
                              final EventManager eventManager,
-                             final BeforeMethodSent beforeMethodSent) {
+                             final BeforeMethodSent beforeMethodSent,
+                             final BeforeMethodCall beforeMethodCallOnServiceQueue,
+                             final AfterMethodCall afterMethodCallOnServiceQueue) {
+
+        this.beforeMethodCallOnServiceQueue = beforeMethodCallOnServiceQueue;
+        this.afterMethodCallOnServiceQueue = afterMethodCallOnServiceQueue;
 
         this.healthService = healthService;
         this.statsCollector = statsCollector;
@@ -305,7 +314,9 @@ public class ServiceBundleImpl implements ServiceBundle {
                 .setRequestQueueBuilder(requestQueueBuilder)
                 .setHandleCallbacks(false)
                 .setCreateCallbackHandler(false)
-                .setEventManager(eventManager);
+                .setEventManager(eventManager)
+                .setBeforeMethodCall(this.beforeMethodCallOnServiceQueue)
+                .setAfterMethodCall(this.afterMethodCallOnServiceQueue);
 
 
         final String bindStatHealthName = serviceAddress == null
@@ -664,8 +675,10 @@ public class ServiceBundleImpl implements ServiceBundle {
 
                 if (originatingRequest == null) {
                     callbackManager.handleResponse(response);
-                } else {
+                } else if (originatingRequest instanceof HttpRequest || originatingRequest instanceof WebSocketMessage) {
                     webResponseSendQueue.send(response);
+                } else {
+                    callbackManager.handleResponse(response);
                 }
             }
 
