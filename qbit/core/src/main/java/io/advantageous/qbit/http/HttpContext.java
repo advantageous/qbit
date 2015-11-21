@@ -14,19 +14,25 @@ public class HttpContext extends RequestContext {
      * @return Optional http request.
      */
     public Optional<HttpRequest> getHttpRequest() {
-
-        final Optional<Request> requestOptional = this.getRequest();
-
-        if (requestOptional.isPresent()) {
-            final Request request = requestOptional.get();
-            if (request.originatingRequest() instanceof HttpRequest) {
-                return Optional.of((HttpRequest)request.originatingRequest());
-            }
+        final Optional<Request<Object>> request = this.getRequest();
+        if (request.isPresent()) {
+            return findHttpRequest(request.get());
+        } else {
+            return Optional.empty();
         }
-
-        return Optional.empty();
-
     }
+
+    private Optional<HttpRequest> findHttpRequest(Request<Object> request) {
+
+        if (request.originatingRequest() instanceof HttpRequest) {
+            return Optional.of(((HttpRequest) request.originatingRequest()));
+        } else if (request.originatingRequest()!=null) {
+            return findHttpRequest(request.originatingRequest());
+        } else {
+            return Optional.empty();
+        }
+    }
+
 
 
 }

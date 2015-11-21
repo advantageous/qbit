@@ -1,5 +1,6 @@
 package io.advantageous.qbit.service;
 
+import io.advantageous.qbit.message.MethodCall;
 import io.advantageous.qbit.message.Request;
 
 import java.util.Optional;
@@ -10,16 +11,29 @@ import java.util.Optional;
 public class RequestContext {
 
     /** Current request. */
-    private final static ThreadLocal<Request> requestThreadLocal = new ThreadLocal<>();
+    private final static ThreadLocal<Request<Object>> requestThreadLocal = new ThreadLocal<>();
 
 
     /** Grab the current  request.
      *
      * @return Optional  request.
      */
-    public Optional<Request> getRequest() {
+    public Optional<Request<Object>> getRequest() {
         final Request request = requestThreadLocal.get();
         return Optional.ofNullable(request);
+
+    }
+
+    /** Grab the current  request.
+     *
+     * @return Optional  request.
+     */
+    public Optional<MethodCall<Object>> getMethodCall() {
+        final Request<Object> request = requestThreadLocal.get();
+        if (request instanceof MethodCall) {
+            return Optional.of(((MethodCall<Object>) request));
+        }
+        return Optional.empty();
 
     }
 
@@ -28,7 +42,7 @@ public class RequestContext {
      * Used from this package to populate request for this thread.
      * @param request request
      */
-    static void setRequest(final Request request) {
+    static void setRequest(final Request<Object> request) {
         requestThreadLocal.set(request);
     }
 

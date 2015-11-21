@@ -7,21 +7,35 @@ import io.advantageous.qbit.service.RequestContext;
 
 import java.util.Optional;
 
+/** This is used by proxies to find the parent request and forward it
+ * to the service that the parent calls.
+ */
 public class ForwardCallMethodInterceptor implements BeforeMethodSent {
 
-    final RequestContext requestContext;
+    /**
+     * Holds the request context, which holds the active request.
+     */
+    private final RequestContext requestContext;
 
+    /**
+     *
+     * @param requestContext request context
+     */
     public ForwardCallMethodInterceptor(final RequestContext requestContext) {
         this.requestContext = requestContext;
     }
 
+    /**
+     * Intercept the call before it gets sent to the service queue.
+     * @param methodBuilder methodBuilder
+     */
     @Override
     public void beforeMethodSent(final MethodCallBuilder methodBuilder) {
 
         if (methodBuilder.getOriginatingRequest() == null) {
-            final Optional<Request> request = requestContext.getRequest();
+            final Optional<Request<Object>> request = requestContext.getRequest();
             if (request.isPresent()) {
-                methodBuilder.setOriginatingRequest((Request<Object>)request.get());
+                methodBuilder.setOriginatingRequest(request.get());
             }
         }
     }
