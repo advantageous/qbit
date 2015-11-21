@@ -11,10 +11,7 @@ import io.advantageous.qbit.message.MethodCallBuilder;
 import io.advantageous.qbit.reactive.AsyncFutureCallback;
 import io.advantageous.qbit.reactive.Callback;
 import io.advantageous.qbit.reactive.async.AsyncFutureBuilder;
-import io.advantageous.qbit.service.CaptureRequestInterceptor;
-import io.advantageous.qbit.service.RequestContext;
-import io.advantageous.qbit.service.ServiceBundle;
-import io.advantageous.qbit.service.ServiceBundleBuilder;
+import io.advantageous.qbit.service.*;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -24,6 +21,7 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.Optional;
 
+import static io.advantageous.boon.core.IO.puts;
 import static org.junit.Assert.*;
 
 public class SetupMdcForHttpRequestInterceptorTest {
@@ -155,6 +153,8 @@ public class SetupMdcForHttpRequestInterceptorTest {
 
     interface MyService extends ClientProxy{
         void getRequestURI(Callback<String> stringCallback);
+
+        void getMDC(Callback<Map<String, String>> mapCallback);
     }
 
 
@@ -171,20 +171,27 @@ public class SetupMdcForHttpRequestInterceptorTest {
                 return "REQUEST NOT FOUND";
             }
         }
+
+        public Map<String, String> getMDC() {
+
+            return MDC.getCopyOfContextMap();
+        }
     }
 
 
-    @Test @Ignore //NOT DONE YET
+    @Test //@Ignore //NOT DONE YET
     public void testIntegrationWithServiceBundle() throws Exception{
 
+
+        mdcForHttpRequestInterceptor = new SetupMdcForHttpRequestInterceptor(Sets.set("foo"));
 
         final CaptureRequestInterceptor captureRequestInterceptor = new CaptureRequestInterceptor();
         captureRequestInterceptor.before(methodCallBuilder.setName("restMethod").setOriginatingRequest(httpRequest).build());
 
 
         final ServiceBundle serviceBundle = ServiceBundleBuilder.serviceBundleBuilder()
-                .setBeforeMethodCallOnServiceQueue(captureRequestInterceptor)
-                .setAfterMethodCallOnServiceQueue(captureRequestInterceptor)
+                .setBeforeMethodCallOnServiceQueue(BeforeMethodCallChain.beforeMethodCallChain(captureRequestInterceptor, mdcForHttpRequestInterceptor))
+                .setAfterMethodCallOnServiceQueue(AfterMethodCallChain.afterMethodCallChain(captureRequestInterceptor, mdcForHttpRequestInterceptor))
                 .setBeforeMethodSent(new ForwardCallMethodInterceptor(new RequestContext())).build().startServiceBundle();
 
 
@@ -201,11 +208,19 @@ public class SetupMdcForHttpRequestInterceptorTest {
         assertEquals("/foo", callback.get());
 
 
+
+        final AsyncFutureCallback<Map<String, String>> callbackMap = AsyncFutureBuilder.asyncFutureBuilder()
+                .buildMap(String.class, String.class);
+
+        localProxy.getMDC(callbackMap);
+
+        localProxy.clientProxyFlush();
+
+        validate(callbackMap.get());
+
         captureRequestInterceptor.after(null, null);
 
         serviceBundle.stop();
-
-        //TODO LEFT OFF HERE TESTING MDC
 
 
     }
