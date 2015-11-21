@@ -29,6 +29,10 @@ import java.util.Set;
  */
 public class SetupMdcForHttpRequestInterceptor implements BeforeMethodCall, AfterMethodCall {
 
+    public static final String REQUEST_URI = "request.URI";
+    public static final String REQUEST_REMOTE_ADDRESS = "request.remoteAddress";
+    public static final String REQUEST_HTTP_METHOD = "request.httpMethod";
+    public static final String REQUEST_HEADER_PREFIX = "request.header.";
     /**
      * Holds the headers that we want to extract from the request.
      */
@@ -89,9 +93,9 @@ public class SetupMdcForHttpRequestInterceptor implements BeforeMethodCall, Afte
      * @param httpRequest httpRequest
      */
     private void extractRequestInfoAndPutItIntoMappedDiagnosticContext(final HttpRequest httpRequest) {
-        MDC.put("request.URI", httpRequest.getUri());
-        MDC.put("request.remoteAddress", httpRequest.getRemoteAddress());
-        MDC.put("request.httpMethod", httpRequest.getMethod());
+        MDC.put(REQUEST_URI, httpRequest.getUri());
+        MDC.put(REQUEST_REMOTE_ADDRESS, httpRequest.getRemoteAddress());
+        MDC.put(REQUEST_HTTP_METHOD, httpRequest.getMethod());
 
         extractHeaders(httpRequest);
 
@@ -107,7 +111,7 @@ public class SetupMdcForHttpRequestInterceptor implements BeforeMethodCall, Afte
             headersToAddToLoggingMappingDiagnosticsContext.forEach(header -> {
                 String value = headers.getFirst(header);
                 if (!Str.isEmpty(value)) {
-                    MDC.put("request.header." + header, value);
+                    MDC.put(REQUEST_HEADER_PREFIX + header, value);
                 }
             });
         }
