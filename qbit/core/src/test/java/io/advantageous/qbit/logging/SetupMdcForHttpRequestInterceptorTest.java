@@ -13,7 +13,6 @@ import io.advantageous.qbit.reactive.Callback;
 import io.advantageous.qbit.reactive.async.AsyncFutureBuilder;
 import io.advantageous.qbit.service.*;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.slf4j.MDC;
 
@@ -21,7 +20,6 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.Optional;
 
-import static io.advantageous.boon.core.IO.puts;
 import static org.junit.Assert.*;
 
 public class SetupMdcForHttpRequestInterceptorTest {
@@ -179,7 +177,7 @@ public class SetupMdcForHttpRequestInterceptorTest {
     }
 
 
-    @Test //@Ignore //NOT DONE YET
+    @Test
     public void testIntegrationWithServiceBundle() throws Exception{
 
 
