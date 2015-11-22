@@ -21,6 +21,8 @@ package io.advantageous.qbit.service;
 import io.advantageous.boon.core.reflection.ClassMeta;
 import io.advantageous.boon.core.reflection.MethodAccess;
 import io.advantageous.qbit.QBit;
+import io.advantageous.qbit.client.BeforeMethodSent;
+import io.advantageous.qbit.client.BeforeMethodSentChain;
 import io.advantageous.qbit.events.EventManager;
 import io.advantageous.qbit.message.MethodCall;
 import io.advantageous.qbit.message.Request;
@@ -82,6 +84,7 @@ public class ServiceBuilder {
 
     private boolean createCallbackHandler = true;
     private EventManager eventManager;
+    private BeforeMethodSent beforeMethodSent;
 
     public static ServiceBuilder serviceBuilder() {
         return new ServiceBuilder();
@@ -469,7 +472,9 @@ public class ServiceBuilder {
                 this.getBeforeMethodCallAfterTransform(),
                 this.getAfterMethodCall(),
                 this.getAfterMethodCallAfterTransform(),
-                buildQueueCallBackHandler(), getCallbackManager());
+                buildQueueCallBackHandler(),
+                getCallbackManager(),
+                getBeforeMethodSent());
 
         if (serviceQueueSizer!=null) {
             serviceQueueSizer.setServiceQueue(serviceQueue);
@@ -512,6 +517,14 @@ public class ServiceBuilder {
         return eventManager;
     }
 
+    public ServiceBuilder setBeforeMethodSent(final BeforeMethodSent beforeMethodSent) {
+        this.beforeMethodSent = beforeMethodSent;
+        return this;
+    }
+
+    public BeforeMethodSent getBeforeMethodSent() {
+        return beforeMethodSent;
+    }
 
     private static class StatsConfig  {
         final String serviceName;

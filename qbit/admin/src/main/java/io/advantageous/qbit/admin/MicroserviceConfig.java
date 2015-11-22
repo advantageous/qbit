@@ -1,6 +1,7 @@
 package io.advantageous.qbit.admin;
 
 import io.advantageous.boon.core.IO;
+import io.advantageous.boon.core.Sys;
 import io.advantageous.boon.json.JsonFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -100,7 +101,7 @@ public class MicroserviceConfig {
      */
     @SuppressWarnings("WeakerAccess")
     public static final String resourceLocation =
-            System.getProperty(CONTEXT + "file", "/opt/qbit/conf/service.json");
+            Sys.sysProp(CONTEXT + "file", "/opt/qbit/conf/service.json");
 
     public static final String resourceLocationEnv = System.getenv("QBIT_CONF_FILE");
     private boolean statsD;

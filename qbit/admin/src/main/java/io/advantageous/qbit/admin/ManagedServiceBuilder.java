@@ -230,12 +230,16 @@ public class ManagedServiceBuilder {
      * services to pass the originating request, methodCall, etc. to downstream services.
      * Where it will be available via the RequestContext.
      * A MethodCall, HttpRequest, WebSocketMessage are all Requests in QBit.
-     * @return is call chain tracking enabled. 
+     * @return is call chain tracking enabled.
      */
     public boolean isEnableRequestChain() {
         return enableRequestChain;
     }
 
+    /**
+     * Create ManagedServiceBuilder which looks for MicroserviceConfig file.
+     * @param serviceName service name
+     */
     public ManagedServiceBuilder(final String serviceName) {
         if (serviceName != null) {
 
@@ -279,6 +283,10 @@ public class ManagedServiceBuilder {
         }
     }
 
+    /**
+     * Get the public host for service meta generation (Swagger)
+     * @return public host
+     */
     public String getPublicHost() {
 
         if (System.getenv("PUBLIC_HOST")!=null) {
@@ -287,11 +295,21 @@ public class ManagedServiceBuilder {
         return publicHost;
     }
 
+    /**
+     * Set the public host for service meta generation (Swagger)
+     * @param publicHost publicHost
+     * @return this
+     */
     public ManagedServiceBuilder setPublicHost(String publicHost) {
         this.publicHost = publicHost;
         return this;
     }
 
+
+    /**
+     * Get the public port for service meta generation (Swagger)
+     * @return public port
+     */
     public int getPublicPort() {
         if (publicPort==-1) {
 
@@ -309,11 +327,21 @@ public class ManagedServiceBuilder {
         return publicPort;
     }
 
+
+    /**
+     * Set the public port for service meta generation (Swagger)
+     * @param publicPort publicPort
+     * @return this
+     */
     public ManagedServiceBuilder setPublicPort(int publicPort) {
         this.publicPort = publicPort;
         return this;
     }
 
+    /**
+     * Get the actual port to bind to.
+     * @return actual http port to bind to.
+     */
     public int getPort() {
 
         if (port==8080) {
@@ -331,6 +359,11 @@ public class ManagedServiceBuilder {
         return port;
     }
 
+
+    /**
+     * Set the actual port to bind to.
+     * @return this
+     */
     public ManagedServiceBuilder setPort(int port) {
         this.port = port;
         return this;
@@ -707,6 +740,21 @@ public class ManagedServiceBuilder {
         }
     }
 
+
+    private void configureServiceBuilderForInterceptors(final ServiceBuilder serviceBuilder) {
+
+        final Interceptors interceptors = configureInterceptors();
+        if (interceptors.before.size() > 0) {
+            serviceBuilder.setBeforeMethodCall(new BeforeMethodCallChain(interceptors.before));
+        }
+        if (interceptors.after.size() > 0) {
+            serviceBuilder.setAfterMethodCall(new AfterMethodCallChain(interceptors.after));
+        }
+        if (interceptors.beforeSent.size() > 0) {
+            serviceBuilder.setBeforeMethodSent(new BeforeMethodSentChain(interceptors.beforeSent));
+        }
+    }
+
     private Interceptors configureInterceptors() {
         Interceptors interceptors = new Interceptors();
         SetupMdcForHttpRequestInterceptor setupMdcForHttpRequestInterceptor;
@@ -779,7 +827,7 @@ public class ManagedServiceBuilder {
 
     public ServiceBuilder createServiceBuilderForServiceObject(final Object serviceObject) {
 
-        ServiceBuilder serviceBuilder = ServiceBuilder.serviceBuilder();
+        final ServiceBuilder serviceBuilder = ServiceBuilder.serviceBuilder();
         serviceBuilder.setSystemManager(this.getSystemManager());
 
         serviceBuilder.setServiceObject(serviceObject);
@@ -790,6 +838,7 @@ public class ManagedServiceBuilder {
             serviceBuilder.registerHealthChecks(getHealthService(), bindStatHealthName);
         }
 
+        configureServiceBuilderForInterceptors(serviceBuilder);
 
         if (isEnableStats()) {
 
