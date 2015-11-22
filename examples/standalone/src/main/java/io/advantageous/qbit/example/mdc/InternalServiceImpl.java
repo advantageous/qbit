@@ -1,4 +1,4 @@
-package io.advantageous.qbit.example.mda;
+package io.advantageous.qbit.example.mdc;
 
 
 import io.advantageous.qbit.http.request.HttpRequest;
