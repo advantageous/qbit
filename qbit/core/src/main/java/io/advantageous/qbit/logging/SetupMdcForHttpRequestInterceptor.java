@@ -29,10 +29,10 @@ import java.util.Set;
  */
 public class SetupMdcForHttpRequestInterceptor implements BeforeMethodCall, AfterMethodCall {
 
-    public static final String REQUEST_URI = "request.URI";
-    public static final String REQUEST_REMOTE_ADDRESS = "request.remoteAddress";
-    public static final String REQUEST_HTTP_METHOD = "request.httpMethod";
-    public static final String REQUEST_HEADER_PREFIX = "request.header.";
+    public static final String REQUEST_URI = "requestUri";
+    public static final String REQUEST_REMOTE_ADDRESS = "requestRemoteAddress";
+    public static final String REQUEST_HTTP_METHOD = "requestHttpMethod";
+    public static final String REQUEST_HEADER_PREFIX = "requestHeader.";
     /**
      * Holds the headers that we want to extract from the request.
      */
