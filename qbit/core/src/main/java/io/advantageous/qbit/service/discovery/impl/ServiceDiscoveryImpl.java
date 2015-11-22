@@ -258,21 +258,23 @@ public class ServiceDiscoveryImpl implements ServiceDiscovery {
         return servicePool.services();
     }
 
+
     public List<EndpointDefinition> loadServicesNow(final String serviceName) {
 
 
-        if (trace) {
-            logger.trace(
-                    "ServiceDiscoveryImpl::loadServices()" + serviceName
-            );
+        if (debug) {
+            logger.debug("ServiceDiscoveryImpl::loadServicesNow {}", serviceName);
         }
 
         ServicePool servicePool = servicePoolMap.get(serviceName);
-        if (servicePool == null) {
+        if (servicePool == null || servicePool.services() == null || servicePool.services().size() == 0) {
             servicePool = new ServicePool(serviceName, this.servicePoolListener);
             servicePoolMap.put(serviceName, servicePool);
             try {
                 final List<EndpointDefinition> healthyServices = provider.loadServices(serviceName);
+                if (debug) {
+                    logger.debug("ServiceDiscoveryImpl::loadServicesNow {} healthyServices {}", serviceName, healthyServices);
+                }
                 servicePool.setHealthyNodes(healthyServices, this.servicePoolListener);
             } catch (Exception ex) {
                 logger.warn("Unable to load healthy nodes from primary service discovery provider", ex);
@@ -296,7 +298,7 @@ public class ServiceDiscoveryImpl implements ServiceDiscovery {
 
         this.periodicScheduler.repeat(() -> {
             try {
-                logger.info("Starting Consul monitor");
+                logger.info("Starting Service Discovery monitor");
                 monitor();
             } catch (Exception e) {
                 logger.error("ServiceDiscoveryImpl::" +

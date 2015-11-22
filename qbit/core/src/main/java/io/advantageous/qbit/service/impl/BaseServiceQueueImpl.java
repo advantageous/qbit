@@ -390,8 +390,6 @@ public class BaseServiceQueueImpl implements ServiceQueue {
                 this.handleCallbacks ?
                         responseQueue.receiveQueue() : null;
 
-        if (handleCallbacks) {
-        }
 
         final ReceiveQueue<Event<Object>> eventReceiveQueue =
                 eventQueue.receiveQueue();

@@ -15,7 +15,7 @@ public class DnsSupportBuilder {
     private final Vertx vertx;
     private int port = -1;
     private String host = null;
-    private  Supplier<DnsClient> dnsClientSupplier;
+    private  DnsClientSupplier dnsClientSupplier;
     private  Map<String, String> dnsServiceNameToServiceName;
     private  String postfixURL;
 
@@ -55,11 +55,11 @@ public class DnsSupportBuilder {
         return this;
     }
 
-    public Supplier<DnsClient> getDnsClientProvider() {
+    public DnsClientSupplier getDnsClientSupplier() {
         if (dnsClientSupplier == null) {
 
             if (port != -1) {
-                dnsClientSupplier = new DnsClientSupplier(getVertx(), getHost(), getPort());
+                dnsClientSupplier = new DnsSingleClientSupplier(getVertx(), getHost(), getPort());
             } else {
                 dnsClientSupplier = new DnsClientFromResolveConfSupplier(getVertx());
             }
@@ -67,14 +67,8 @@ public class DnsSupportBuilder {
         return dnsClientSupplier;
     }
 
-    @Deprecated
-    public DnsSupportBuilder setDnsClientProvider(Supplier<DnsClient> dnsClientProvider) {
-        this.dnsClientSupplier = dnsClientProvider;
-        return this;
-    }
 
-
-    public DnsSupportBuilder setDnsClientSupplier(Supplier<DnsClient> dnsClientSupplier) {
+    public DnsSupportBuilder setDnsClientSupplier(DnsClientSupplier dnsClientSupplier) {
         this.dnsClientSupplier = dnsClientSupplier;
         return this;
     }
@@ -100,7 +94,7 @@ public class DnsSupportBuilder {
     }
 
     public DnsSupport build() {
-        return new DnsSupport(getDnsClientProvider(),
+        return new DnsSupport(getDnsClientSupplier(),
                 getDnsServiceNameToServiceName(),
                 getPostfixURL());
     }

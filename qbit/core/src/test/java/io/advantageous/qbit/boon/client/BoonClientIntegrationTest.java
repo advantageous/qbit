@@ -21,6 +21,7 @@ package io.advantageous.qbit.boon.client;
 import io.advantageous.boon.core.Sys;
 import io.advantageous.boon.core.reflection.BeanUtils;
 import io.advantageous.qbit.QBit;
+import io.advantageous.qbit.client.BeforeMethodSent;
 import io.advantageous.qbit.client.Client;
 import io.advantageous.qbit.client.ClientProxy;
 import io.advantageous.qbit.http.client.HttpClient;
@@ -67,7 +68,7 @@ public class BoonClientIntegrationTest extends TimedTesting {
         setupLatch();
         sum = new AtomicInteger();
 
-        client = new BoonClientFactory().create("/services", new HttpClientMock(), 10);
+        client = new BoonClientFactory().create("/services", new HttpClientMock(), 10, new BeforeMethodSent() {});
 
         client.start();
         serviceBundle = new ServiceBundleBuilder().setAddress("/services").buildAndStart();

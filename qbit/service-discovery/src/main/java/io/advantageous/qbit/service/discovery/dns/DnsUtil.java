@@ -2,9 +2,12 @@ package io.advantageous.qbit.service.discovery.dns;
 
 import io.advantageous.boon.core.IO;
 import io.advantageous.boon.core.Str;
+import io.advantageous.boon.core.Sys;
 import io.advantageous.qbit.service.discovery.ServiceDiscovery;
 import io.advantageous.qbit.service.discovery.ServiceDiscoveryBuilder;
 import io.vertx.core.Vertx;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.net.URI;
@@ -17,17 +20,28 @@ import java.util.stream.Collectors;
  */
 public class DnsUtil {
 
+    public static final String QBIT_DNS_RESOLV_CONF = "QBIT_DNS_RESOLV_CONF";
+
     public static List<URI> readDnsConf() {
-        final File file = new File("/etc/resolv.conf");
+
+        final Logger logger = LoggerFactory.getLogger(DnsUtil.class);
+
+        final boolean debug = logger.isDebugEnabled();
+
+        final File file = new File(Sys.sysProp(QBIT_DNS_RESOLV_CONF, "/etc/resolv.conf"));
 
 
         if (file.exists()) {
             final List<String> lines = IO.readLines(file);
 
+            if (debug) logger.debug("file contents {}", lines);
+
             return lines.stream().filter(line -> line.startsWith("nameserver"))
                     .map(line ->
                     {
-                        String uriToParse = line.replace("nameserver ", "").trim();
+
+                        if (debug) logger.debug("file content line = {}", line);
+                        final String uriToParse = line.replace("nameserver ", "").trim();
                         final String[] split = Str.split(uriToParse, ':');
                         try {
 
@@ -45,7 +59,7 @@ public class DnsUtil {
                     })
                     .collect(Collectors.toList());
         } else {
-            throw new IllegalStateException("/etc/resolv.conf not found");
+            throw new IllegalStateException("" + file + " not found");
         }
 
     }

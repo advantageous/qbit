@@ -220,6 +220,10 @@ public class ServiceBuilder {
 
         for (MethodAccess methodAccess : methods) {
 
+            if (methodAccess.isPrivate()) {
+                continue;
+            }
+
             if (methodAccess.method().getDeclaringClass().isInterface()) {
                     continue;
             }
@@ -261,6 +265,10 @@ public class ServiceBuilder {
     }
 
     public BeforeMethodCall getBeforeMethodCall() {
+
+        if (beforeMethodCall == null) {
+            beforeMethodCall = new NoOpBeforeMethodCall();
+        }
         return beforeMethodCall;
     }
 
@@ -281,6 +289,9 @@ public class ServiceBuilder {
     }
 
     public AfterMethodCall getAfterMethodCall() {
+        if (afterMethodCall==null) {
+            afterMethodCall = new NoOpAfterMethodCall();
+        }
         return afterMethodCall;
     }
 

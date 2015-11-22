@@ -18,6 +18,7 @@
 
 package io.advantageous.qbit;
 
+import io.advantageous.qbit.client.BeforeMethodSent;
 import io.advantageous.qbit.client.Client;
 import io.advantageous.qbit.concurrent.PeriodicScheduler;
 import io.advantageous.qbit.events.EventBusProxyCreator;
@@ -37,10 +38,7 @@ import io.advantageous.qbit.queue.Queue;
 import io.advantageous.qbit.queue.QueueBuilder;
 import io.advantageous.qbit.sender.Sender;
 import io.advantageous.qbit.server.ServiceEndpointServer;
-import io.advantageous.qbit.service.BeforeMethodCall;
-import io.advantageous.qbit.service.ServiceBundle;
-import io.advantageous.qbit.service.ServiceMethodHandler;
-import io.advantageous.qbit.service.ServiceQueue;
+import io.advantageous.qbit.service.*;
 import io.advantageous.qbit.service.discovery.ServiceDiscovery;
 import io.advantageous.qbit.service.health.HealthServiceAsync;
 import io.advantageous.qbit.service.impl.CallbackManager;
@@ -143,7 +141,9 @@ public interface Factory {
                                               final int statsFlushRateSeconds,
                                               final int checkTimingEveryXCalls,
                                               final CallbackManager callbackManager,
-                                              final EventManager eventManager) {
+                                              final EventManager eventManager,
+                                              final BeforeMethodSent beforeMethodSent,
+                                              final BeforeMethodCall beforeMethodCallOnServiceQueue, AfterMethodCall afterMethodCallOnServiceQueue) {
         throw new UnsupportedOperationException();
     }
 
@@ -202,7 +202,8 @@ public interface Factory {
      * @param <T>              type of proxy
      * @return new proxy object
      */
-    default <T> T createLocalProxy(Class<T> serviceInterface, String serviceName, ServiceBundle serviceBundle) {
+    default <T> T createLocalProxy(Class<T> serviceInterface, String serviceName, ServiceBundle serviceBundle,
+                                   BeforeMethodSent beforeMethodSent) {
         throw new UnsupportedOperationException();
     }
 
@@ -229,7 +230,8 @@ public interface Factory {
                                                      String returnAddressArg,
                                                      Sender<String> sender,
                                                      BeforeMethodCall beforeMethodCall,
-                                                     int requestBatchSize) {
+                                                     int requestBatchSize,
+                                                     BeforeMethodSent beforeMethodSent) {
         throw new UnsupportedOperationException();
     }
 
@@ -353,7 +355,10 @@ public interface Factory {
     }
 
 
-    default Client createClient(String uri, HttpClient httpClient, int requestBatchSize) {
+    default Client createClient(String uri,
+                                HttpClient httpClient,
+                                int requestBatchSize,
+                                BeforeMethodSent beforeMethodSent) {
         throw new UnsupportedOperationException();
     }
 

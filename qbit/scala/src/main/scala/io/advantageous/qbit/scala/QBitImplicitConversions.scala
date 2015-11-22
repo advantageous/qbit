@@ -1,6 +1,6 @@
 package io.advantageous.qbit.scala
 
-import java.util.function.{Predicate, Consumer}
+import java.util.function.Consumer
 
 import io.advantageous.qbit.http.request.HttpResponseBuilder._
 import io.advantageous.qbit.http.request._
@@ -35,6 +35,8 @@ object QBitImplicitConversions {
     implicit def convertFunction2Callback[A](function: A => Unit): Callback[A] = new Callback[A]() {
         override def accept(arg: A): Unit = function.apply(arg)
     }
+
+
 
    /**
     * Convert a Scala function to a QBit HttpTextReceiver

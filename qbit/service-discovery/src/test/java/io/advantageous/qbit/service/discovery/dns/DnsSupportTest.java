@@ -186,8 +186,8 @@ public class DnsSupportTest {
 
 
         final DnsSupport dnsSupport = DnsSupportBuilder
-                                    .dnsSupportFactory(null)
-                                    .setDnsClientProvider(() -> client)
+                                    .dnsSupportBuilder(null)
+                                    .setDnsClientSupplier(() -> client)
                                     .addDnsServerToServiceNameMapping("db", "dbService")
                                     .setPostfixURL(".skydns.local.")
                                     .build();
