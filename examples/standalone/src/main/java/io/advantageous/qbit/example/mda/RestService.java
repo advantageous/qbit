@@ -2,6 +2,10 @@ package io.advantageous.qbit.example.mda;
 
 import io.advantageous.qbit.admin.ManagedServiceBuilder;
 import io.advantageous.qbit.annotation.RequestMapping;
+import io.advantageous.qbit.http.HttpContext;
+import io.advantageous.qbit.http.HttpHeaders;
+import io.advantageous.qbit.http.request.HttpRequest;
+import io.advantageous.qbit.message.MethodCall;
 import io.advantageous.qbit.reactive.Callback;
 import io.advantageous.qbit.reactive.Reactor;
 import io.advantageous.qbit.reactive.ReactorBuilder;
@@ -15,6 +19,7 @@ import org.slf4j.LoggerFactory;
 import org.slf4j.Logger;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 
 /**
@@ -66,6 +71,33 @@ public class RestService extends BaseService {
     }
 
 
+    @RequestMapping ("http-info")
+    public String httpInfo() {
+
+        final StringBuilder builder = new StringBuilder();
+        final HttpContext httpContext = new HttpContext();
+        final Optional<HttpRequest> httpRequest = httpContext.getHttpRequest();
+        if (httpRequest.isPresent()) {
+            builder.append("URI = ").append(httpRequest.get().getUri()).append("\n");
+            builder.append("HTTP Method = ").append(httpRequest.get().getMethod()).append("\n");
+            builder.append("USER AGENT = ").append(
+                    httpRequest.get().getHeaders().getFirst(HttpHeaders.USER_AGENT)).append("\n");
+        } else {
+            builder.append("request not found");
+        }
+
+
+        final RequestContext requestContext = new RequestContext();
+
+        if (requestContext.getMethodCall().isPresent()) {
+            final MethodCall<Object> methodCall = requestContext.getMethodCall().get();
+            builder.append("Object Name = ").append(methodCall.objectName()).append("\n");
+            builder.append("Method Name = ").append(methodCall.name()).append("\n");
+        }
+        return builder.toString();
+    }
+
+
     public static void main(String... args) throws Exception {
         final ManagedServiceBuilder managedServiceBuilder = ManagedServiceBuilder.managedServiceBuilder();
 
@@ -82,10 +114,11 @@ public class RestService extends BaseService {
         final InternalService internalServiceFromServiceBundle = getInternalServiceFromServiceBundle(managedServiceBuilder);
 
 
+        final StatsCollector statsCollectorForRest = managedServiceBuilder.getStatServiceBuilder().buildStatsCollector();
+
         final RestService restService = new RestService(internalServiceFromServiceBundle,
                 internalServiceFromServiceQueue,
-                ReactorBuilder.reactorBuilder().build(), Timer.timer(),
-                managedServiceBuilder.getStatServiceBuilder().buildStatsCollector());
+                ReactorBuilder.reactorBuilder().build(), Timer.timer(), statsCollectorForRest);
 
         managedServiceBuilder.addEndpointService(restService);
 

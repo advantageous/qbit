@@ -691,16 +691,17 @@ public class BaseServiceQueueImpl implements ServiceQueue {
                     timestamp++;
                 }
                 if (beforeMethodSent==null) {
-                    final MethodCallLocal call = new MethodCallLocal(method.getName(), uuid, timestamp, messageId, args);
+                    final MethodCallLocal call = new MethodCallLocal(method.getName(), uuid, timestamp, messageId, args, null);
                     methodCallSendQueue.send(call);
                 } else {
                     final String name = method.getName();
-
-                    final MethodCall<Object> call = MethodCallBuilder.methodCallBuilder()
+                    MethodCallBuilder methodCallBuilder = MethodCallBuilder.methodCallBuilder()
                             .setLocal(true).setAddress(name)
                             .setName(name).setReturnAddress(uuid)
                             .setTimestamp(timestamp).setId(messageId)
-                            .setBodyArgs(args).build();
+                            .setBodyArgs(args);
+                    beforeMethodSent.beforeMethodSent(methodCallBuilder);
+                    final MethodCall<Object> call = methodCallBuilder.build();
                     methodCallSendQueue.send(call);
                 }
                 return null;

@@ -22,7 +22,6 @@ import io.advantageous.qbit.message.impl.MethodCallImpl;
 import io.advantageous.qbit.message.impl.MethodCallLocal;
 import io.advantageous.qbit.service.Protocol;
 import io.advantageous.qbit.util.MultiMap;
-import io.advantageous.qbit.util.Timer;
 
 import java.util.Collections;
 import java.util.List;
@@ -207,7 +206,7 @@ public class MethodCallBuilder {
 
 
         if (isLocal()) {
-            return new MethodCallLocal(getName(), getReturnAddress(), getTimestamp(), getId(), getBodyArgs());
+            return new MethodCallLocal(getName(), getReturnAddress(), getTimestamp(), getId(), getBodyArgs(), getOriginatingRequest());
         } else {
             return new MethodCallImpl(getTimestamp(), getId(), getName(), getAddress(), getParams(), getHeaders(),
                     getBody(), getObjectName(), getReturnAddress(), getOriginatingRequest());
