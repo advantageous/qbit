@@ -760,7 +760,8 @@ public class ManagedServiceBuilder {
         SetupMdcForHttpRequestInterceptor setupMdcForHttpRequestInterceptor;
         if (enableLoggingMappedDiagnosticContext) {
             enableRequestChain = true;
-            if (requestHeadersToTrackForMappedDiagnosticContext.size()>0) {
+            if (requestHeadersToTrackForMappedDiagnosticContext!=null &&
+                    requestHeadersToTrackForMappedDiagnosticContext.size()>0) {
                 setupMdcForHttpRequestInterceptor = new SetupMdcForHttpRequestInterceptor(requestHeadersToTrackForMappedDiagnosticContext);
             }else {
                 setupMdcForHttpRequestInterceptor = new SetupMdcForHttpRequestInterceptor(Collections.emptySet());

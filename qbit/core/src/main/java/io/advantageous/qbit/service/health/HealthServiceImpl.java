@@ -72,7 +72,7 @@ public class HealthServiceImpl implements HealthService, Stoppable {
         healthServiceCount ++;
 
         if (logger.isDebugEnabled()) {
-            Exception ex = new Exception();
+            Exception ex = new Exception("Health Service init called");
             ex.fillInStackTrace();
             logger.debug("Health Service CREATED", ex);
         }
