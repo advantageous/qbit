@@ -18,6 +18,7 @@
 
 package io.advantageous.qbit.service.impl;
 
+import io.advantageous.qbit.client.BeforeMethodSent;
 import io.advantageous.qbit.message.Response;
 import io.advantageous.qbit.queue.Queue;
 import io.advantageous.qbit.queue.QueueBuilder;
@@ -46,10 +47,11 @@ public class ServiceQueueImpl extends BaseServiceQueueImpl {
                             final AfterMethodCall afterMethodCall,
                             final AfterMethodCall afterMethodCallAfterTransform,
                             final QueueCallBackHandler handler,
-                            final CallbackManager callbackManager) {
+                            final CallbackManager callbackManager,
+                            final BeforeMethodSent beforeMethodSent) {
         super(rootAddress, serviceAddress, service, requestQueueBuilder, responseQueueBuilder,
                 serviceMethodHandler, responseQueue,
                 async, handleCallbacks, systemManager, beforeMethodCall, beforeMethodCallAfterTransform,
-                afterMethodCall, afterMethodCallAfterTransform, handler, callbackManager);
+                afterMethodCall, afterMethodCallAfterTransform, handler, callbackManager, beforeMethodSent);
     }
 }

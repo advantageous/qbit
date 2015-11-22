@@ -25,7 +25,7 @@
     </appender>
 
 
-    <logger name="io.advantageous.qbit.jms" level="DEBUG" additivity="false">
+    <logger name="io.advantageous.qbit" level="DEBUG">
         <appender-ref ref="STDOUT"/>
     </logger>
 
