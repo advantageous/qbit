@@ -4,6 +4,8 @@ import io.advantageous.qbit.reactive.AsyncFutureCallback;
 import io.advantageous.qbit.reactive.Callback;
 import org.slf4j.LoggerFactory;
 
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
@@ -142,6 +144,16 @@ public class AsyncFutureBuilder {
 
 
     public <T> AsyncFutureCallback<T> build(Class<T> returnType) {
+
+        return build();
+    }
+
+    public <T> AsyncFutureCallback<List<T>> buildList(Class<T> returnType) {
+
+        return build();
+    }
+
+    public <K, V> AsyncFutureCallback<Map<K,V>> buildMap(Class<K> keyType, Class<V> valueType) {
 
         return build();
     }

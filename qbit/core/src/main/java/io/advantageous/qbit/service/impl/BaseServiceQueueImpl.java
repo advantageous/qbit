@@ -50,18 +50,18 @@ package io.advantageous.qbit.service.impl;
 import io.advantageous.boon.core.reflection.BeanUtils;
 import io.advantageous.qbit.Factory;
 import io.advantageous.qbit.GlobalConstants;
+import io.advantageous.qbit.client.BeforeMethodSent;
 import io.advantageous.qbit.client.ClientProxy;
 import io.advantageous.qbit.concurrent.PeriodicScheduler;
 import io.advantageous.qbit.events.EventManager;
 import io.advantageous.qbit.message.*;
+import io.advantageous.qbit.message.impl.MethodCallLocal;
 import io.advantageous.qbit.queue.*;
-import io.advantageous.qbit.reactive.Callback;
 import io.advantageous.qbit.service.*;
 import io.advantageous.qbit.system.QBitSystemManager;
 import io.advantageous.qbit.time.Duration;
 import io.advantageous.qbit.transforms.NoOpResponseTransformer;
 import io.advantageous.qbit.transforms.Transformer;
-import io.advantageous.qbit.util.MultiMap;
 import io.advantageous.qbit.util.Timer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -92,6 +92,7 @@ public class BaseServiceQueueImpl implements ServiceQueue {
     protected final QueueBuilder responseQueueBuilder;
     protected final boolean handleCallbacks;
     private final Factory factory;
+    private final BeforeMethodSent beforeMethodSent;
     protected volatile long lastResponseFlushTime = Timer.timer().now();
     protected final ServiceMethodHandler serviceMethodHandler;
     protected final SendQueue<Response<Object>> responseSendQueue;
@@ -120,7 +121,10 @@ public class BaseServiceQueueImpl implements ServiceQueue {
                                 final AfterMethodCall afterMethodCall,
                                 final AfterMethodCall afterMethodCallAfterTransform,
                                 final QueueCallBackHandler queueCallBackHandler,
-                                final CallbackManager callbackManager) {
+                                final CallbackManager callbackManager,
+                                final BeforeMethodSent beforeMethodSent) {
+
+        this.beforeMethodSent = beforeMethodSent;
         this.beforeMethodCall = beforeMethodCall;
         this.beforeMethodCallAfterTransform = beforeMethodCallAfterTransform;
         this.afterMethodCall = afterMethodCall;
@@ -650,7 +654,8 @@ public class BaseServiceQueueImpl implements ServiceQueue {
         return proxy(serviceInterface, methodCallSendQueue);
     }
 
-    private <T> T proxy(Class<T> serviceInterface, final SendQueue<MethodCall<Object>> methodCallSendQueue) {
+    private <T> T proxy(final Class<T> serviceInterface,
+                        final SendQueue<MethodCall<Object>> methodCallSendQueue) {
 
         final String uuid = serviceInterface.getName() + "::" + UUID.randomUUID().toString();
         if (!started.get()) {
@@ -685,8 +690,19 @@ public class BaseServiceQueueImpl implements ServiceQueue {
                 } else {
                     timestamp++;
                 }
-                final MethodCallLocal call = new MethodCallLocal(method.getName(), uuid, timestamp, messageId, args);
-                methodCallSendQueue.send(call);
+                if (beforeMethodSent==null) {
+                    final MethodCallLocal call = new MethodCallLocal(method.getName(), uuid, timestamp, messageId, args);
+                    methodCallSendQueue.send(call);
+                } else {
+                    final String name = method.getName();
+
+                    final MethodCall<Object> call = MethodCallBuilder.methodCallBuilder()
+                            .setLocal(true).setAddress(name)
+                            .setName(name).setReturnAddress(uuid)
+                            .setTimestamp(timestamp).setId(messageId)
+                            .setBodyArgs(args).build();
+                    methodCallSendQueue.send(call);
+                }
                 return null;
             }
         };
@@ -708,121 +724,6 @@ public class BaseServiceQueueImpl implements ServiceQueue {
                 "service=" + service.getClass().getSimpleName() +
                 '}';
     }
-
-    static class MethodCallLocal implements MethodCall<Object> {
-
-        private final String name;
-        private final long timestamp;
-        private final Object[] arguments;
-
-        private final String uuid;
-        private final long messageId;
-        private final boolean hasCallback;
-
-        @Override
-        public boolean hasCallback() {
-            return hasCallback;
-        }
-
-        public MethodCallLocal(final String name, final String uuid,
-                               final long timestamp, final long messageId, final Object[] args) {
-            this.name = name;
-            this.timestamp = timestamp;
-            this.arguments = args;
-            this.uuid = uuid;
-            this.messageId = messageId;
-            this.hasCallback = detectCallback();
-        }
-
-
-        private boolean detectCallback() {
-            final Object[] args = arguments;
-            if (args == null) {
-                return false;
-            }
-            for (int index = 0; index < args.length; index++) {
-                if (args[index] instanceof Callback) {
-                    return true;
-                }
-            }
-            return false;
-        }
-
-        @Override
-        public String name() {
-            return name;
-        }
-
-        @Override
-        public String address() {
-            return name;
-        }
-
-        @Override
-        public String returnAddress() {
-            return uuid;
-        }
-
-        @Override
-        public MultiMap<String, String> params() {
-            return null;
-        }
-
-        @Override
-        public MultiMap<String, String> headers() {
-            return null;
-        }
-
-        @Override
-        public boolean hasParams() {
-            return false;
-        }
-
-        @Override
-        public boolean hasHeaders() {
-            return false;
-        }
-
-        @Override
-        public long timestamp() {
-            return timestamp;
-        }
-
-        @Override
-        public boolean isHandled() {
-            return false;
-        }
-
-        @Override
-        public void handled() {
-        }
-
-        @Override
-        public String objectName() {
-            return "";
-        }
-
-        @Override
-        public Request<Object> originatingRequest() {
-            return null;
-        }
-
-        @Override
-        public long id() {
-            return messageId;
-        }
-
-        @Override
-        public Object body() {
-            return arguments;
-        }
-
-        @Override
-        public boolean isSingleton() {
-            return true;
-        }
-    }
-
 
 
 }
