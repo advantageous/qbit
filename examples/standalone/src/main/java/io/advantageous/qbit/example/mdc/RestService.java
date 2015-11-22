@@ -1,4 +1,4 @@
-package io.advantageous.qbit.example.mda;
+package io.advantageous.qbit.example.mdc;
 
 import io.advantageous.qbit.admin.ManagedServiceBuilder;
 import io.advantageous.qbit.annotation.RequestMapping;
