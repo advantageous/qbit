@@ -664,11 +664,6 @@ public class ManagedServiceBuilder {
         return this;
     }
 
-    private static class Interceptors {
-        List<BeforeMethodCall> before = new ArrayList<>();
-        List<AfterMethodCall> after = new ArrayList<>();
-        List<BeforeMethodSent> beforeSent = new ArrayList<>();
-    }
 
     public EndpointServerBuilder getEndpointServerBuilder() {
         if (endpointServerBuilder==null) {
@@ -755,6 +750,19 @@ public class ManagedServiceBuilder {
         }
     }
 
+    /**
+     * Hold lists of interceptors.
+     */
+    private static class Interceptors {
+        List<BeforeMethodCall> before = new ArrayList<>();
+        List<AfterMethodCall> after = new ArrayList<>();
+        List<BeforeMethodSent> beforeSent = new ArrayList<>();
+    }
+
+    /**
+     * Configure a list of common interceptors.
+     * @return
+     */
     private Interceptors configureInterceptors() {
         Interceptors interceptors = new Interceptors();
         SetupMdcForHttpRequestInterceptor setupMdcForHttpRequestInterceptor;
