@@ -6,6 +6,9 @@ import io.advantageous.qbit.service.RequestContext;
 
 import java.util.Optional;
 
+/**
+ * Holds current information about the HttpRequest.
+ */
 public class HttpContext extends RequestContext {
 
 

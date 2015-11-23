@@ -36,6 +36,11 @@ public class InternalServiceImpl {
 
         final List<String> callStack = new ArrayList<>();
         MethodCall<Object> methodCall = currentMethodCall.get();
+
+
+        callStack.add("Service Call(" + methodCall.objectName()
+                + "." + methodCall.name() + ")");
+
         while (methodCall!=null) {
 
             final Request<Object> request = methodCall.originatingRequest();

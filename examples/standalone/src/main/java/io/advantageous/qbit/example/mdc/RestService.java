@@ -62,6 +62,7 @@ public class RestService extends BaseService {
 
     @RequestMapping ("mdc")
     public void mdc(final Callback<Map<String,String>> callback) {
+        logger.info("CALLED MDC");
         callback.returnThis(MDC.getCopyOfContextMap());
     }
 
