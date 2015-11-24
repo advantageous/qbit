@@ -23,11 +23,23 @@ QBit is FAST!
 ![QBit the microservice framework for java](https://docs.google.com/spreadsheets/d/1kd3gjyyz1MyTJvNLJ-BC0YIkzIU-8YYLLrxpjUl0TBQ/pubchart?oid=781959089&format=image)
 
 
+Core Features
+============
+
+* Write REST based async microservices
+* Write Websocket based async microservices
+* Actor Service Queues using micro-batching for high-speed message passing
+* Strongly async typed event bus which can be distributed
+* Complex async call coordination (with the Reactor) for reactive programming
+* Built-in support for health checks (and integration with tools like Consul)
+* Built-in support for monitoring (and integration with wire protocols like StatsD)
+* Built-in support for Service Discovery (with integration with health system, DNS SRV records and Consul)
+* Integration with persistent queues
+
+
 Status
 =====
-Lot's of progress. More people are helping out.
-QBit now works with Vertx (standalone or embedded), Jetty (standalone) or just plain Java Servlets.
-
+Deployed at several large fortune 100 companies. QBit now works with Vertx (standalone or embedded). You can also use QBit no non-QBit projects, it is just a lib.
 
 License
 =====
