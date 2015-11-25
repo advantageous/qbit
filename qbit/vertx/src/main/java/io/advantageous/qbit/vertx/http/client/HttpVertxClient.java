@@ -401,23 +401,13 @@ public class HttpVertxClient implements HttpClient {
                             }
                     );
 
-                    this.vertxWebSocket.frameHandler(new Handler<WebSocketFrame>() {
-                        @Override
-                        public void handle(WebSocketFrame event) {
-
-                            if (event.isFinal()) {
-                                if (event.isBinary()) {
-                                    ((NetSocketBase) webSocket).setBinary();
-                                }
-
-                                if (webSocket.isBinary()) {
-                                    webSocket.onBinaryMessage(bufferRef[0].getBytes());
-                                }else {
-
-                                    webSocket.onTextMessage(bufferRef[0].toString("UTF-8"));
-                                }
-
-
+                    this.vertxWebSocket.frameHandler(event -> {
+                        if (event.isFinal()) {
+                            if (event.isBinary()) {
+                                ((NetSocketBase) webSocket).setBinary();
+                                webSocket.onBinaryMessage(bufferRef[0].getBytes());
+                            } else {
+                                webSocket.onTextMessage(bufferRef[0].toString("UTF-8"));
                             }
                         }
                     });

@@ -34,13 +34,10 @@ public class WebSocketTest {
             countDownLatch.countDown();
         });
 
-        httpServer.startServer();
-        Sys.sleep(2_000);
+        httpServer.startServerAndWait();
 
 
         final HttpClient httpClient = HttpClientBuilder.httpClientBuilder().setPort(port).buildAndStart();
-        Sys.sleep(1_000);
-
         final WebSocket webSocket = httpClient.createWebSocket("/foo");
 
 
@@ -54,7 +51,6 @@ public class WebSocketTest {
         webSocket.openAndWait();
 
         webSocket.sendText("hello");
-        Sys.sleep(1_000);
 
         countDownLatch.await(5, TimeUnit.SECONDS);
 
@@ -82,17 +78,11 @@ public class WebSocketTest {
             countDownLatch.countDown();
         });
 
-        httpServer.startServer();
-        Sys.sleep(2_000);
+        httpServer.startServerAndWait();
 
 
         final HttpClient httpClient = HttpClientBuilder.httpClientBuilder().setPort(port).buildAndStart();
-        Sys.sleep(1_000);
-
         final WebSocket webSocket = httpClient.createWebSocket("/foo");
-
-
-
         webSocket.setBinaryMessageConsumer(message -> {
 
             messageRef.set(message);
@@ -102,8 +92,6 @@ public class WebSocketTest {
         webSocket.openAndWait();
 
         webSocket.sendBinary("hello".getBytes());
-        Sys.sleep(1_000);
-
         countDownLatch.await(5, TimeUnit.SECONDS);
 
 

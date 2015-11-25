@@ -45,7 +45,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
@@ -144,6 +146,7 @@ public class HttpServerVertx implements HttpServer {
     }
 
 
+
     @Override
     public void setWebSocketIdleConsume(final Consumer<Void> idleWebSocketConsumer) {
         this.simpleHttpServer.setWebSocketIdleConsume(
@@ -185,24 +188,68 @@ public class HttpServerVertx implements HttpServer {
 
         vertxOptions.setTrustStoreOptions(jksOptions);
         httpServer = vertx.createHttpServer(vertxOptions);
-
         httpServer.websocketHandler(this::handleWebSocketMessage);
-
         httpServer.requestHandler(this::handleHttpRequest);
 
         if (Str.isEmpty(host)) {
-            httpServer.listen(port);
+            httpServer.listen(port, event -> {
+                if (event.failed()) {
+                    logger.error("HTTP SERVER unable to start on port " + port + " default host ");
+                    simpleHttpServer.getErrorHandler().accept(event.cause());
+                } else {
+
+                    logger.info("HTTP SERVER started on port " + port + " default host ");
+                    simpleHttpServer.getOnStart().run();
+                }
+            });
         } else {
-            httpServer.listen(port, host);
+            httpServer.listen(port, host, event->{
+                if (event.failed()) {
+                    logger.error("HTTP SERVER UNABLE to START on port " + port + " host " + host);
+                    simpleHttpServer.getErrorHandler().accept(event.cause());
+                } else {
+
+                    logger.info("HTTP SERVER started on port " + port + " host " + host);
+                    simpleHttpServer.getOnStart().run();
+                }
+            });
         }
 
-        if (Str.isEmpty(host)) {
-            logger.info("HTTP SERVER started on port " + port + " default host ");
-        } else {
-            logger.info("HTTP SERVER started on port " + port + " host " + host);
-        }
     }
 
+    @Override
+    public HttpServer startServerAndWait() {
+
+        final Runnable onStart = simpleHttpServer.getOnStart();
+        final CountDownLatch latch = new CountDownLatch(1);
+        final AtomicBoolean started = new AtomicBoolean();
+
+        final Runnable ourOnStart = new Runnable() {
+            @Override
+            public void run() {
+
+                started.set(true);
+                latch.countDown();
+                onStart.run();
+            }
+        };
+
+        simpleHttpServer.setOnStart(ourOnStart);
+        this.start();
+
+        try {
+            latch.await(5, TimeUnit.SECONDS);
+        } catch (InterruptedException e) {
+            Thread.interrupted();
+        } finally {
+            simpleHttpServer.setOnStart(onStart);
+        }
+
+        if (!started.get()) {
+            throw new IllegalStateException("Unable to start server");
+        }
+        return this;
+    }
 
     @Override
     public void stop() {

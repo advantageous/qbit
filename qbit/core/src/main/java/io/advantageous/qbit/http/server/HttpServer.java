@@ -37,4 +37,10 @@ public interface HttpServer extends Server, HttpTransport {
     }
 
 
+    default HttpServer startServerAndWait() {
+        start();
+        return this;
+    }
+
+
 }

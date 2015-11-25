@@ -49,6 +49,12 @@ public interface HttpTransport extends Startable {
         throw new RuntimeException("Not supported");
     }
 
+
+    default void setOnStart(Runnable runnable) {}
+
+
+    default void setOnError(Consumer<Throwable> exceptionConsumer) {}
+
     void setWebSocketMessageConsumer(Consumer<WebSocketMessage> webSocketMessageConsumer);
 
     void setWebSocketCloseConsumer(Consumer<WebSocketMessage> webSocketMessageConsumer);

@@ -87,7 +87,23 @@ public class SimpleHttpServer implements HttpServer {
     private ExecutorContext executorContext;
     private Predicate<WebSocket> shouldContinueWebSocket = webSocket -> true;
     private final EndpointDefinition endpointDefinition;
+    protected Runnable onStart;
+    protected Consumer<Throwable> errorHandler;
 
+    public Runnable getOnStart() {
+        if (onStart==null) {
+            onStart= () -> {
+            };
+        }
+        return onStart;
+    }
+
+    public Consumer<Throwable> getErrorHandler() {
+        if (errorHandler == null) {
+            errorHandler = Throwable::printStackTrace;
+        }
+        return errorHandler;
+    }
 
     public SimpleHttpServer(
             final String endpointName,
@@ -142,6 +158,17 @@ public class SimpleHttpServer implements HttpServer {
         this.checkInEveryMiliDuration = 100_000;
         this.decorators = new CopyOnWriteArrayList<>();
         this.httpResponseCreator = new HttpResponseCreatorDefault();
+    }
+
+
+    @Override
+    public void setOnStart(final Runnable runnable) {
+        this.onStart = runnable;
+    }
+
+    @Override
+    public void setOnError(final Consumer<Throwable> exceptionConsumer) {
+        this.errorHandler = exceptionConsumer;
     }
 
     /**
