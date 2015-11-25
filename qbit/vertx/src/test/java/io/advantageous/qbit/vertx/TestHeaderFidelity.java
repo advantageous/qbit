@@ -30,7 +30,7 @@ public class TestHeaderFidelity {
             serverRequest.getReceiver().response(200, "application/json", "true", headers);
         });
 
-        server.startServer();
+        server.startServerAndWait();
 
         HttpClient client = HttpClientBuilder.httpClientBuilder()
                 .setPort(openPortStartAt)
@@ -40,7 +40,6 @@ public class TestHeaderFidelity {
 
         final HttpTextResponse httpResponse = client.get("/hi");
 
-        Sys.sleep(1000);
         puts(httpResponse.headers());
 
 

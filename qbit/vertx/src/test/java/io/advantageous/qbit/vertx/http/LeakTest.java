@@ -13,9 +13,9 @@ public class LeakTest {
         final ServiceEndpointServer endpointServer = EndpointServerBuilder
                 .endpointServerBuilder().setPort(9000).build();
         endpointServer.addServiceObject("myservice", new MyServiceImpl());
-        endpointServer.startServer();
+        endpointServer.startServerAndWait();
 
-        final Client client = ClientBuilder.clientBuilder().setHost("localhost").setPort(9000).build();
+        final Client client = ClientBuilder.clientBuilder().setPoolSize(1).setHost("localhost").setPort(9000).build();
 
         MyService myservice = client.createProxy(MyService.class, "myservice");
         client.start();

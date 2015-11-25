@@ -7,9 +7,7 @@ import io.advantageous.qbit.http.request.HttpTextResponse;
 import io.advantageous.qbit.http.server.HttpServer;
 import io.advantageous.qbit.util.PortUtils;
 import io.advantageous.qbit.vertx.http.VertxHttpServerBuilder;
-import io.vertx.core.AbstractVerticle;
-import io.vertx.core.Vertx;
-import io.vertx.core.VertxOptions;
+import io.vertx.core.*;
 import io.vertx.core.http.HttpServerOptions;
 import io.vertx.core.http.HttpServerResponse;
 import io.vertx.ext.web.Route;
@@ -24,7 +22,6 @@ import java.util.concurrent.TimeUnit;
 
 import static org.junit.Assert.assertEquals;
 
-@Ignore
 public class VertxIntegrationSimpleHttpRouterAndRouteTest {
 
     private Vertx vertx;
@@ -35,8 +32,10 @@ public class VertxIntegrationSimpleHttpRouterAndRouteTest {
     public static class TestVerticle extends AbstractVerticle {
 
         private final int port;
+        private final CountDownLatch latch;
 
-        public TestVerticle(int port) {
+        public TestVerticle(int port, CountDownLatch latch) {
+            this.latch = latch;
             this.port = port;
         }
 
@@ -76,7 +75,26 @@ public class VertxIntegrationSimpleHttpRouterAndRouteTest {
 
                 httpServer.start();
 
-                vertxHttpServer.requestHandler(router::accept).listen();
+
+                vertxHttpServer.requestHandler(router::accept);
+
+                vertxHttpServer.listen(new Handler<AsyncResult<io.vertx.core.http.HttpServer>>() {
+                    @Override
+                    public void handle(AsyncResult<io.vertx.core.http.HttpServer> event) {
+
+                        if (event.succeeded()) {
+
+                        } else {
+                            event.cause().printStackTrace();
+                        }
+
+                        latch.countDown();
+                    }
+                });
+
+
+
+
             }catch (Exception ex) {
                 ex.printStackTrace();
             }
@@ -91,9 +109,9 @@ public class VertxIntegrationSimpleHttpRouterAndRouteTest {
     public void setup() throws Exception{
 
 
-        final CountDownLatch latch = new CountDownLatch(1);
+        final CountDownLatch latch = new CountDownLatch(2);
         port = PortUtils.findOpenPortStartAt(9000);
-        testVerticle = new TestVerticle(port);
+        testVerticle = new TestVerticle(port, latch);
         vertx = Vertx.vertx(new VertxOptions().setWorkerPoolSize(5));
         vertx.deployVerticle(testVerticle, res -> {
             if (res.succeeded()) {
@@ -114,7 +132,6 @@ public class VertxIntegrationSimpleHttpRouterAndRouteTest {
     public void test() {
 
         final HttpClient client = HttpClientBuilder.httpClientBuilder().setHost("localhost").setPort(port).buildAndStart();
-        Sys.sleep(1000);
         final HttpTextResponse response = client.postJson("/svr/rout1/", "\"hi\"");
         assertEquals(202, response.code());
         assertEquals("route1", response.body());

@@ -176,9 +176,8 @@ public class SupportingGetAndPostForSameServicesUnderSameURI extends TimedTestin
 
         server.initServices(new MockService());
 
-        server.start();
+        server.startServerAndWait();
 
-        Sys.sleep(200);
 
         clientProxy = client.createProxy(ClientServiceInterface.class, "pinger");
         client.start();
@@ -186,8 +185,6 @@ public class SupportingGetAndPostForSameServicesUnderSameURI extends TimedTestin
 
         callCount = 0;
         pongValue.set(null);
-
-        Sys.sleep(200);
 
         puts("STARTED..........");
 
@@ -203,16 +200,12 @@ public class SupportingGetAndPostForSameServicesUnderSameURI extends TimedTestin
             die("NOT OK");
         }
 
-        Sys.sleep(200);
         server.stop();
-        Sys.sleep(200);
         client.stop();
         httpClient.stop();
-        Sys.sleep(200);
         server = null;
         client = null;
         System.gc();
-        Sys.sleep(1000);
 
     }
 

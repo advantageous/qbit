@@ -150,9 +150,7 @@ public class RestTests {
         openPort = PortUtils.findOpenPort();
         serviceEndpointServer = EndpointServerBuilder.endpointServerBuilder().setPort(openPort).build();
         serviceEndpointServer.initServices(new TestService());
-        serviceEndpointServer.start();
-        Sys.sleep(1000);
-
+        serviceEndpointServer.startServerAndWait();
     }
 
     @After

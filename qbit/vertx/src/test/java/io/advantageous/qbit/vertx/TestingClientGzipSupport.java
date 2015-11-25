@@ -49,7 +49,7 @@ public class TestingClientGzipSupport {
             }
         });
 
-        server.startServer();
+        server.startServerAndWait();
 
         HttpClient client = HttpClientBuilder.httpClientBuilder()
                 .setPort(9999)

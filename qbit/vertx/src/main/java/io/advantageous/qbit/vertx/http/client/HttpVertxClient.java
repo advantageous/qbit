@@ -358,8 +358,6 @@ public class HttpVertxClient implements HttpClient {
     public HttpClient startClient() {
         connect();
         if (autoFlush) {
-
-
             flushTimerId = vertx.setPeriodic(this.flushInterval, event -> autoFlush());
         }
         return this;
