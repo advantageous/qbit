@@ -29,4 +29,5 @@ public interface WebSocket extends NetSocket {
     MultiMap<String, String> headers();
 
     MultiMap<String, String> params();
+
 }

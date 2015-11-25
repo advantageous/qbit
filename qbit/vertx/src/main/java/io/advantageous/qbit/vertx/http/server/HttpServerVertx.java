@@ -187,6 +187,7 @@ public class HttpServerVertx implements HttpServer {
         httpServer = vertx.createHttpServer(vertxOptions);
 
         httpServer.websocketHandler(this::handleWebSocketMessage);
+
         httpServer.requestHandler(this::handleHttpRequest);
 
         if (Str.isEmpty(host)) {

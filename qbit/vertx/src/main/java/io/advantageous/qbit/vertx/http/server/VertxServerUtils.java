@@ -28,14 +28,18 @@ import io.advantageous.qbit.http.request.HttpRequestBuilder;
 import io.advantageous.qbit.http.request.HttpResponseReceiver;
 import io.advantageous.qbit.http.websocket.WebSocket;
 import io.advantageous.qbit.http.websocket.WebSocketSender;
+import io.advantageous.qbit.http.websocket.impl.WebSocketImpl;
+import io.advantageous.qbit.network.impl.NetSocketBase;
 import io.advantageous.qbit.util.MultiMap;
 import io.advantageous.qbit.util.MultiMapImpl;
 import io.advantageous.qbit.util.Timer;
 import io.advantageous.qbit.vertx.MultiMapWrapper;
+import io.vertx.core.Handler;
 import io.vertx.core.buffer.Buffer;
 import io.vertx.core.http.HttpServerRequest;
 import io.vertx.core.http.HttpServerResponse;
 import io.vertx.core.http.ServerWebSocket;
+import io.vertx.core.http.WebSocketFrame;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -167,12 +171,33 @@ public class VertxServerUtils {
         /* Handle close. */
         vertxServerWebSocket.closeHandler(event -> webSocket.onClose());
 
+        final Buffer[] bufferRef = new Buffer[1];
+
 
         /* Handle message. */
         vertxServerWebSocket.handler(buffer -> {
-            final String message = buffer.toString("UTF-8");
-            webSocket.onTextMessage(message);
+
+            bufferRef[0] = buffer;
         });
+
+        vertxServerWebSocket.frameHandler(new Handler<WebSocketFrame>() {
+            @Override
+            public void handle(WebSocketFrame event) {
+                if (event.isFinal()) {
+                    if (event.isBinary()) {
+                        ((NetSocketBase) webSocket).setBinary();
+                    }
+                    if (!webSocket.isBinary()) {
+                        final String message = bufferRef[0].toString("UTF-8");
+                        webSocket.onTextMessage(message);
+
+                    } else {
+                        webSocket.onBinaryMessage(bufferRef[0].getBytes());
+                    }
+                }
+            }
+        });
+
 
         /* Handle error. */
         vertxServerWebSocket.exceptionHandler(event -> {

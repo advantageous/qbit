@@ -34,7 +34,7 @@ public class NetSocketBase implements NetSocket {
 
     private final String remoteAddress;
     private final String uri;
-    private final boolean binary;
+    private boolean binary; //this can't be final because we need the frame handler to know if the message is binary
     private final AtomicBoolean open = new AtomicBoolean();
     private NetworkSender networkSender;
     private Consumer<String> textMessageConsumer = text -> {
@@ -130,6 +130,10 @@ public class NetSocketBase implements NetSocket {
     @Override
     public boolean isOpen() {
         return open.get();
+    }
+
+    public void setBinary() {
+        this.binary = true;
     }
 
     @Override
