@@ -41,7 +41,7 @@ import static junit.framework.Assert.assertEquals;
 
 public class HttpClientVertxTest extends TimedTesting {
 
-    AtomicReference<String> messsageBody;
+    AtomicReference<String> messageBody;
 
     AtomicInteger responseCode;
     AtomicBoolean requestReceived;
@@ -57,11 +57,11 @@ public class HttpClientVertxTest extends TimedTesting {
         port = PortUtils.findOpenPortStartAt(port);
 
         server = new HttpServerBuilder().setPort(port).build();
-        client = new HttpClientBuilder().setPort(port).build();
+        client = new HttpClientBuilder().setPoolSize(1).setPort(port).build();
 
         requestReceived = new AtomicBoolean();
         responseReceived = new AtomicBoolean();
-        messsageBody = new AtomicReference<>();
+        messageBody = new AtomicReference<>();
         responseCode = new AtomicInteger();
         port++;
 
@@ -186,7 +186,7 @@ public class HttpClientVertxTest extends TimedTesting {
             requestReceived.set(true);
             puts("SERVER", serverRequest.getUri(), serverRequest.getBodyAsString());
 
-            messsageBody.set(serverRequest.getParams().get("foo"));
+            messageBody.set(serverRequest.getParams().get("foo"));
             serverRequest.getReceiver().response(200, "application/json", "\"ok\"");
 
         });
@@ -200,9 +200,9 @@ public class HttpClientVertxTest extends TimedTesting {
         waitForTrigger(20, o -> this.responseReceived.get());
 
 
-        puts("RESPONSE", responseCode, messsageBody, responseReceived);
+        puts("RESPONSE", responseCode, messageBody, responseReceived);
 
-        assertEquals("bar", messsageBody.get());
+        assertEquals("bar", messageBody.get());
 
         assertEquals(200, responseCode.get());
 
@@ -283,8 +283,8 @@ public class HttpClientVertxTest extends TimedTesting {
 
     public void run() {
 
-        server.startServer();
-        Sys.sleep(500);
+        server.startServerAndWait();
+
         client.startClient();
     }
 
@@ -295,7 +295,6 @@ public class HttpClientVertxTest extends TimedTesting {
         client.stop();
         server.stop();
 
-        Sys.sleep(500);
     }
 
     public void validate() {

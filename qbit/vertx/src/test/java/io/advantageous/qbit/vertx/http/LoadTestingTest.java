@@ -28,8 +28,10 @@ import io.advantageous.qbit.http.client.HttpClientBuilder;
 import io.advantageous.qbit.reactive.Callback;
 import io.advantageous.qbit.server.EndpointServerBuilder;
 import io.advantageous.qbit.server.ServiceEndpointServer;
+import io.advantageous.qbit.service.ServiceProxyUtils;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.util.concurrent.atomic.AtomicReference;
@@ -41,6 +43,7 @@ import static io.advantageous.boon.core.IO.puts;
 /**
  * created by rhightower on 1/21/15.
  */
+@Ignore
 public class LoadTestingTest {
 
     public static final int WARMUP = 10_000;
@@ -61,9 +64,13 @@ public class LoadTestingTest {
     AtomicReference<String> pongValue;
     boolean ok;
 
-    //@Test
-    public void warmup() throws Exception {
+    @Test
+    public void aWarmup() throws Exception {
 
+
+        returnCount = 0;
+        callCount = 0;
+        Sys.sleep(100);
 
         final long startTime = System.currentTimeMillis();
 
@@ -77,7 +84,8 @@ public class LoadTestingTest {
         client.flush();
 
         while (returnCount < WARMUP) {
-            Sys.sleep(10);
+            Sys.sleep(1000);
+            puts(returnCount);
         }
 
 
@@ -102,7 +110,7 @@ public class LoadTestingTest {
 
     }
 
-    //@Test
+    @Test
     public void test100K() throws Exception {
 
 
@@ -117,18 +125,15 @@ public class LoadTestingTest {
 
         final long startTime = System.currentTimeMillis();
 
-
         for (int index = 0; index < 100_000; index++) {
-
             clientProxy.ping(callback, "hi");
-
         }
-
 
         client.flush();
 
         while (returnCount < 100_000 - 1) {
-            Sys.sleep(1);
+            Sys.sleep(1000);
+            puts(returnCount);
         }
 
 
@@ -155,15 +160,13 @@ public class LoadTestingTest {
 
     }
 
-    //@Test
+    @Test
     public void test1M() throws Exception {
 
 
         returnCount = 0;
         callCount = 0;
-        Sys.sleep(10000);
-
-
+        Sys.sleep(100);
         returnCount = 0;
         callCount = 0;
 
@@ -175,6 +178,11 @@ public class LoadTestingTest {
 
             clientProxy.ping(callback, "hi");
 
+            if (index % 200_000 == 0) {
+                puts("SENT THIS MANY ", index);
+            }
+
+
 
         }
 
@@ -183,6 +191,8 @@ public class LoadTestingTest {
 
         while (returnCount < 1_000_000) {
             Sys.sleep(100);
+            puts(returnCount, callCount);
+
         }
 
 
@@ -201,7 +211,6 @@ public class LoadTestingTest {
 
         returnCount = 0;
         callCount = 0;
-        Sys.sleep(10000);
 
 
         returnCount = 0;
@@ -218,6 +227,10 @@ public class LoadTestingTest {
 
             clientProxy.ping(callback, "hi");
 
+            if (index % 1_000_000 == 0) {
+                puts("SENT THIS MANY ", index);
+            }
+
 
         }
 
@@ -226,6 +239,7 @@ public class LoadTestingTest {
 
         while (returnCount < 5_000_000) {
             Sys.sleep(100);
+            puts(returnCount, callCount);
 
         }
 
@@ -236,7 +250,6 @@ public class LoadTestingTest {
         final long endTime2 = System.currentTimeMillis();
 
 
-        Sys.sleep(5_000);
 
         ok = returnCount == callCount || die();
 
@@ -255,13 +268,16 @@ public class LoadTestingTest {
 
         httpClient = new HttpClientBuilder().setPort(port).build();
 
-        client = new ClientBuilder().setFlushInterval(200).setPort(port).build();
-        server = new EndpointServerBuilder().setFlushInterval(200).setTimeoutSeconds(20)
+        client = new ClientBuilder().setFlushInterval(200).setProtocolBatchSize(100).setPort(port).build();
+
+        final EndpointServerBuilder endpointServerBuilder = new EndpointServerBuilder();
+        endpointServerBuilder.getRequestQueueBuilder().setBatchSize(100);
+        server = endpointServerBuilder.setFlushInterval(200).setTimeoutSeconds(20)
                 .setPort(port).build();
 
         server.initServices(new MockService());
 
-        server.start();
+        server.startServerAndWait();
 
         Sys.sleep(200);
 

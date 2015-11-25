@@ -27,9 +27,12 @@ import io.advantageous.qbit.http.request.HttpRequest;
 import io.advantageous.qbit.http.request.HttpResponseReceiver;
 import io.advantageous.qbit.http.websocket.WebSocket;
 import io.advantageous.qbit.http.websocket.WebSocketSender;
+import io.advantageous.qbit.http.websocket.impl.WebSocketImpl;
 import io.advantageous.qbit.network.NetSocket;
+import io.advantageous.qbit.network.impl.NetSocketBase;
 import io.advantageous.qbit.util.MultiMap;
 import io.advantageous.qbit.vertx.MultiMapWrapper;
+import io.vertx.core.Handler;
 import io.vertx.core.Vertx;
 import io.vertx.core.buffer.Buffer;
 import io.vertx.core.http.*;
@@ -355,8 +358,6 @@ public class HttpVertxClient implements HttpClient {
     public HttpClient startClient() {
         connect();
         if (autoFlush) {
-
-
             flushTimerId = vertx.setPeriodic(this.flushInterval, event -> autoFlush());
         }
         return this;
@@ -384,13 +385,32 @@ public class HttpVertxClient implements HttpClient {
             public void openWebSocket(WebSocket webSocket) {
 
 
+
+                final Buffer[] bufferRef = new Buffer[1];
+
                 httpClient.websocket(uri, vertxWebSocket -> {
                     this.vertxWebSocket = vertxWebSocket;
 
+
                     /* Handle on Message. */
                     vertxWebSocket.handler(
-                            buffer -> webSocket.onTextMessage(buffer.toString("UTF-8"))
+                            buffer -> {
+                                bufferRef[0]=buffer;
+                            }
                     );
+
+                    this.vertxWebSocket.frameHandler(event -> {
+                        if (event.isFinal()) {
+                            if (event.isBinary()) {
+                                ((NetSocketBase) webSocket).setBinary();
+                                webSocket.onBinaryMessage(bufferRef[0].getBytes());
+                            } else {
+                                webSocket.onTextMessage(bufferRef[0].toString("UTF-8"));
+                            }
+                        }
+                    });
+
+
 
                     /* Handle onClose */
                     vertxWebSocket.closeHandler(event -> webSocket.onClose());

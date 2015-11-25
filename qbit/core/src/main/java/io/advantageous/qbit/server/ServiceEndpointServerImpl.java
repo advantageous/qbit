@@ -21,13 +21,13 @@ package io.advantageous.qbit.server;
 import io.advantageous.qbit.GlobalConstants;
 import io.advantageous.qbit.http.HttpTransport;
 import io.advantageous.qbit.http.request.HttpRequest;
+import io.advantageous.qbit.http.server.HttpServer;
 import io.advantageous.qbit.http.server.websocket.WebSocketMessage;
 import io.advantageous.qbit.json.JsonMapper;
 import io.advantageous.qbit.message.MethodCall;
 import io.advantageous.qbit.message.Request;
 import io.advantageous.qbit.message.Response;
 import io.advantageous.qbit.queue.ReceiveQueueListener;
-import io.advantageous.qbit.reactive.Callback;
 import io.advantageous.qbit.service.ServiceBundle;
 import io.advantageous.qbit.service.ServiceProxyUtils;
 import io.advantageous.qbit.service.ServiceQueue;
@@ -46,9 +46,7 @@ import org.slf4j.LoggerFactory;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
-import java.util.function.Consumer;
 
 
 /**
@@ -136,6 +134,23 @@ public class ServiceEndpointServerImpl implements ServiceEndpointServer {
 
     @Override
     public void start() {
+        doStart();
+        httpServer.start();
+
+    }
+
+    @Override
+    public ServiceEndpointServer startServerAndWait() {
+        doStart();
+        if (httpServer instanceof HttpServer) {
+            ((HttpServer) httpServer).startServerAndWait();
+        }else {
+            httpServer.start();
+        }
+        return this;
+    }
+
+    private void doStart() {
         stop.set(false);
 
         httpRequestServerHandler.start();
@@ -155,8 +170,6 @@ public class ServiceEndpointServerImpl implements ServiceEndpointServer {
 
         serviceBundle.startUpCallQueue();
         startResponseQueueListener();
-        httpServer.start();
-
     }
 
     private void handleServiceDiscoveryCheckIn() {

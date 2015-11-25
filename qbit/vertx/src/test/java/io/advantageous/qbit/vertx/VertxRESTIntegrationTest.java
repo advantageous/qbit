@@ -86,9 +86,8 @@ public class VertxRESTIntegrationTest {
                 final ServiceEndpointServer endpointServer = endpointServerBuilder().setUri("/")
                         .addService(new TestRestService()).setHttpServer(httpServer).build();
 
-                endpointServer.startServer();
+                endpointServer.startServerAndWait();
 
-                Sys.sleep(500);
 
 
 
@@ -97,7 +96,6 @@ public class VertxRESTIntegrationTest {
                  */
                 vertxHttpServer.requestHandler(router::accept).listen(port);
 
-                Sys.sleep(500);
             }catch (Exception ex) {
                 ex.printStackTrace();
                 throw new IllegalStateException(ex);

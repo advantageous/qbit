@@ -99,18 +99,12 @@ public class FullIntegrationTest extends TimedTesting {
             clientProxy.ping(callback, "hi");
 
         }
+
         Sys.sleep(100);
         ServiceProxyUtils.flushServiceProxy(clientProxy);
-        Sys.sleep(100);
-        ServiceProxyUtils.flushServiceProxy(clientProxy);
-        Sys.sleep(100);
 
 
-        client.flush();
-        Sys.sleep(100);
-
-
-        waitForTrigger(5, o -> returnCount.get() == callCount.get());
+        waitForTrigger(20, o -> returnCount.get() == callCount.get());
 
 
         puts("HERE                        ", callCount, returnCount);
@@ -163,18 +157,16 @@ public class FullIntegrationTest extends TimedTesting {
 
         int port = PortUtils.findOpenPortStartAt(7000);
 
-        httpClient = new HttpClientBuilder().setPort(port).build();
+        httpClient = new HttpClientBuilder().setPort(port).setPoolSize(1).build();
 
         puts("PORT", port);
 
         client = new ClientBuilder().setPort(port).build();
-        server = new EndpointServerBuilder().setPort(port).build();
+        server = new EndpointServerBuilder().setPort(port).setFlushInterval(10).build();
 
         server.initServices(new MockService());
 
-        server.start();
-
-        Sys.sleep(1000);
+        server.startServerAndWait();
 
         clientProxy = client.createProxy(ClientServiceInterface.class, "mockService");
         httpClient.startClient();
@@ -196,7 +188,6 @@ public class FullIntegrationTest extends TimedTesting {
         server = null;
         client = null;
         System.gc();
-        Sys.sleep(1000);
 
     }
 
