@@ -92,21 +92,6 @@ public interface Factory {
         throw new UnsupportedOperationException();
     }
 
-    /**
-     * Create a method call based on a body that we are parsing from  a POST body or WebSocket message for example.
-     *
-     * @param address       address of method (this can override what is in the body)
-     * @param returnAddress return address, which is a moniker for where we want to return the results
-     * @param args          arguments and possibly more (could be whole message encoded)
-     * @param params        params, usually request parameters
-     * @return new method call object returned.
-     */
-    default MethodCall<Object> createMethodCallByAddress(String address,
-                                                         String returnAddress,
-                                                         Object args,
-                                                         MultiMap<String, String> params) {
-        throw new UnsupportedOperationException();
-    }
 
     /**
      * Create a method call based on a body that we are parsing from  a POST body or WebSocket message for example.
