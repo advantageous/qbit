@@ -405,7 +405,6 @@ public class BaseServiceQueueImpl implements ServiceQueue {
                 serviceContext().joinEventManager();
             }
         }
-        serviceMethodHandler.queueInit(); //suspect. Should this get called in same thread.
         flushEventManagerCalls();
         serviceThreadLocal.set(null);
         requestQueue.startListener(new ReceiveQueueListener<MethodCall<Object>>() {
