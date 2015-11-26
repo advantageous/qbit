@@ -49,7 +49,5 @@ public interface ServiceMethodHandler extends ReceiveQueueListener<MethodCall<Ob
     Collection<String> addresses();
 
 
-    void queueInit();
-
     void handleEvent(Event<Object> event);
 }

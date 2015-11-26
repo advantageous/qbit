@@ -20,6 +20,7 @@ package io.advantageous.qbit.boon.service.impl;
 
 import io.advantageous.boon.core.reflection.ClassMeta;
 import io.advantageous.boon.core.reflection.MethodAccess;
+import io.advantageous.qbit.boon.service.impl.queuecallbacks.DynamicQueueCallbackHandler;
 import io.advantageous.qbit.queue.QueueCallBackHandler;
 import io.advantageous.qbit.boon.service.impl.queuecallbacks.AnnotationDrivenQueueCallbackHandler;
 
@@ -39,19 +40,7 @@ public class QueueCallbackHandlerFactory {
             if (hasQueueCallbackAnnotations(service)) {
                 return new AnnotationDrivenQueueCallbackHandler(service);
             } else {
-                //return new DynamicQueueCallbackHandler(service);
-                return new QueueCallBackHandler() {
-
-                    @Override
-                    public void queueLimit() {
-
-                    }
-
-                    @Override
-                    public void queueEmpty() {
-
-                    }
-                };
+                return new DynamicQueueCallbackHandler(service);
             }
         }
 

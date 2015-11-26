@@ -75,7 +75,7 @@ public class BoonServiceMethodCallHandler implements ServiceMethodHandler {
     /**
      * Holds on to Boon cache so we don't have to recreate reflected gak.
      */
-    Object context = Sys.contextToHold();
+    private final Object context = Sys.contextToHold();
 
     private final Map<String, MethodAccess> eventMap = new ConcurrentHashMap<>();
 
@@ -751,12 +751,6 @@ public class BoonServiceMethodCallHandler implements ServiceMethodHandler {
     }
 
 
-    @Override
-    public void queueInit() {
-
-        queueCallBackHandler.queueInit();
-
-    }
 
     @Override
     public void handleEvent(Event<Object> event) {
@@ -952,6 +946,9 @@ public class BoonServiceMethodCallHandler implements ServiceMethodHandler {
             responseSendQueue.send(ResponseImpl.error(methodCall, new TimeoutException("Method call " + methodCall.name() + " timed out ")));
         }
     }
+
+
+
 
 
 }
