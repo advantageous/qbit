@@ -6,6 +6,7 @@ import io.advantageous.boon.core.Str;
 import io.advantageous.boon.core.reflection.Annotated;
 import io.advantageous.boon.core.reflection.AnnotationData;
 import io.advantageous.boon.core.reflection.ClassMeta;
+import io.advantageous.qbit.annotation.AnnotationUtils;
 import io.advantageous.qbit.annotation.RequestMethod;
 import io.advantageous.qbit.config.PropertyResolver;
 import io.advantageous.qbit.http.HttpHeaders;
@@ -370,18 +371,11 @@ public class ContextMetaBuilder {
     }
 
     private String getServiceName(ClassMeta<?> classMeta) {
-        AnnotationData annotationData = classMeta.annotation("Name");
-        String name = "";
 
-        if (annotationData == null) {
-            annotationData = classMeta.annotation("Service");
-            if (annotationData == null) {
-                name = Str.camelCaseLower(classMeta.name());
-            }
-        }
+        String name = AnnotationUtils.readServiceName(classMeta);
 
-        if (annotationData != null) {
-            name = annotationData.getValues().get("value").toString();
+        if (Str.isEmpty(name)) {
+            name = Str.camelCaseLower(classMeta.name());
         }
 
         return name;
