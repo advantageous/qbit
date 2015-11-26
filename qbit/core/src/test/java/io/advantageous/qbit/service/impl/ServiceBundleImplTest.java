@@ -25,6 +25,7 @@ import io.advantageous.boon.core.Sys;
 import io.advantageous.qbit.Factory;
 import io.advantageous.qbit.QBit;
 import io.advantageous.qbit.message.MethodCall;
+import io.advantageous.qbit.message.MethodCallBuilder;
 import io.advantageous.qbit.message.Response;
 import io.advantageous.qbit.queue.ReceiveQueue;
 import io.advantageous.qbit.reactive.Callback;
@@ -182,7 +183,8 @@ public class ServiceBundleImplTest {
     @Test
     public void testResponses() throws Exception {
 
-        call = factory.createMethodCallByAddress("/foo/adder/add", "", Lists.list(1, 2), params);
+        call = MethodCallBuilder.methodCallBuilder().setAddress("/foo/adder").setName("add").setBody(Lists.list(1, 2)).build();
+
         serviceBundle.addServiceObject("/adder", adderService);
 
         serviceBundle.call(call);

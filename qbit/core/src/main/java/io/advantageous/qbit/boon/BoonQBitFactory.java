@@ -290,11 +290,6 @@ public class BoonQBitFactory implements Factory {
     }
 
     @Override
-    public MethodCall<Object> createMethodCallByAddress(String address, String returnAddress, Object args, MultiMap<String, String> params) {
-        return createMethodCallToBeParsedFromBody(address, returnAddress, "", "", args, params);
-    }
-
-    @Override
     public MethodCall<Object> createMethodCallByNames(String methodName, String objectName, String returnAddress, Object args, MultiMap<String, String> params) {
         return createMethodCallToBeParsedFromBody("", returnAddress, objectName, methodName, args, params);
     }
