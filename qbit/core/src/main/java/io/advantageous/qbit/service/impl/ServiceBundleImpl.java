@@ -130,27 +130,10 @@ public class ServiceBundleImpl implements ServiceBundle {
      * Allows transformation of arguments, for example from JSON to Java objects.
      */
     private final Transformer<Request, Object> argTransformer;
-    /*
 
-     */
-    private final TreeSet<String> addressesByDescending = new TreeSet<>(
-            (o1, o2) -> {
-                return o2.compareTo(o1);
-            }
-    );
-    /**
-     * This is used for routing. It keeps track of root addresses that we have already seen.
-     * This makes it easier to compare this root addresses to new addresses coming in.
-     */
-    private final TreeSet<String> seenAddressesDescending = new TreeSet<>(
-            (o1, o2) -> {
-                return o2.compareTo(o1);
-            }
-    );
     /*
      */
     private final QueueBuilder requestQueueBuilder;
-    private final QueueBuilder responseQueueBuilder;
     private final HealthServiceAsync healthService;
     private final StatsCollector statsCollector;
     private final Timer timer;
@@ -207,7 +190,6 @@ public class ServiceBundleImpl implements ServiceBundle {
         this.factory = factory;
         this.asyncCalls = asyncCalls;
         this.requestQueueBuilder = requestQueueBuilder;
-        this.responseQueueBuilder = responseQueueBuilder;
         this.methodQueue = requestQueueBuilder.setName("Call Queue " + address).build();
         this.responseQueue = responseQueueBuilder.setName("Response Queue " + address).build();
         this.webResponseQueue = webResponseQueueBuilder.setName("Web Response Queue " + address).build();
@@ -412,7 +394,6 @@ public class ServiceBundleImpl implements ServiceBundle {
 
         /** Add mappings to all addresses for this client to our serviceMapping. */
         for (String addr : addresses) {
-            addressesByDescending.add(addr);
             serviceMapping.put(addr, dispatch);
         }
     }
@@ -541,29 +522,6 @@ public class ServiceBundleImpl implements ServiceBundle {
         Consumer<MethodCall<Object>> methodConsumerByAddress;
         final String callAddress = methodCall.address();
         methodConsumerByAddress = serviceMapping.get(callAddress);
-
-        if (methodConsumerByAddress == null) {
-
-            String addr;
-
-            /* Check the ones we are using to reduce search time. */
-            addr = seenAddressesDescending.higher(callAddress);
-            if (addr != null && callAddress.startsWith(addr)) {
-                methodConsumerByAddress = serviceMapping.get(addr);
-                return methodConsumerByAddress;
-            }
-
-            /* if it was not in one of the ones we are using check the rest. */
-            addr = addressesByDescending.higher(callAddress);
-
-            if (addr != null && callAddress.startsWith(addr)) {
-                methodConsumerByAddress = serviceMapping.get(addr);
-
-                if (methodConsumerByAddress != null) {
-                    seenAddressesDescending.add(addr);
-                }
-            }
-        }
         return methodConsumerByAddress;
     }
 
