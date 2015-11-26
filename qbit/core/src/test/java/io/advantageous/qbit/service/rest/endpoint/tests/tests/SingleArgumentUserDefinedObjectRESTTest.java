@@ -8,6 +8,7 @@ import io.advantageous.qbit.server.EndpointServerBuilder;
 import io.advantageous.qbit.server.ServiceEndpointServer;
 import io.advantageous.qbit.service.rest.endpoint.tests.model.Employee;
 import io.advantageous.qbit.service.rest.endpoint.tests.services.EmployeeServiceSingleObjectTestService;
+import io.advantageous.qbit.service.rest.endpoint.tests.services.MyService;
 import io.advantageous.qbit.service.rest.endpoint.tests.sim.HttpServerSimulator;
 import io.advantageous.qbit.spi.FactorySPI;
 import org.junit.Assert;
@@ -46,10 +47,31 @@ public class SingleArgumentUserDefinedObjectRESTTest {
         serviceEndpointServer = EndpointServerBuilder.endpointServerBuilder()
                 .build()
                 .initServices(
-                    service
+                    service,
+                        new MyService()
                 ).startServer();
     }
 
+    @Test
+    public void testRootMap() {
+
+
+        serviceEndpointServer = EndpointServerBuilder.endpointServerBuilder().setUri("/")
+                .build()
+                .initServices(
+                        new MyService()
+                ).startServer();
+
+        final HttpTextResponse httpResponse = httpServerSimulator.sendRequestRaw(
+                httpRequestBuilder.setUri("/ping")
+                        .setMethodGet()
+                        .build()
+        );
+
+        assertEquals(200, httpResponse.code());
+        assertEquals("true", httpResponse.body());
+
+    }
 
     @Test
     public void testDefaultRequestParam() {

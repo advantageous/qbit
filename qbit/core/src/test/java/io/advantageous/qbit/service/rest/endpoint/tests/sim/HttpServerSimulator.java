@@ -33,6 +33,16 @@ public class HttpServerSimulator implements HttpServer {
     }
 
 
+    public final HttpTextResponse sendRequestRaw(final HttpRequest request) {
+
+        final HttpRequestBuilder httpRequestBuilder = HttpRequestBuilder.httpRequestBuilder().copyRequest(request);
+        httpRequestBuilder.setUri(request.getUri());
+        final AtomicReference<HttpTextResponse> response = getHttpResponseAtomicReference(httpRequestBuilder);
+
+        return response.get();
+
+    }
+
     public final HttpTextResponse sendRequest(final HttpRequest request) {
 
         final HttpRequestBuilder httpRequestBuilder = HttpRequestBuilder.httpRequestBuilder().copyRequest(request);

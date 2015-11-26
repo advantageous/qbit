@@ -6,6 +6,7 @@ import io.advantageous.boon.core.Maps;
 import io.advantageous.boon.core.Sets;
 import io.advantageous.qbit.annotation.RequestMapping;
 import io.advantageous.qbit.annotation.RequestMethod;
+import io.advantageous.qbit.annotation.Service;
 import io.advantageous.qbit.reactive.Callback;
 import io.advantageous.qbit.service.rest.endpoint.tests.model.Employee;
 
@@ -14,6 +15,7 @@ import java.util.Map;
 import java.util.Set;
 
 @RequestMapping("/es")
+@Service
 public class EmployeeServiceCollectionTestService {
 
     @RequestMapping(value = "/sendEmployees", method = RequestMethod.POST)
