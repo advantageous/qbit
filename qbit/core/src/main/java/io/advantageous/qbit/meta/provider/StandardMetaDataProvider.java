@@ -85,7 +85,9 @@ public class StandardMetaDataProvider implements MetaDataProvider {
 
         if (requestMeta.getCallType() == CallType.ADDRESS) {
             final String requestPath = requestMeta.getRequestURI();
-            final String path = Str.join('/', context.getRootURI(), servicePath, requestPath).replace("//", "/");
+
+
+            final String path = Str.join('/', context.getRootURI(), servicePath, requestPath).replaceAll("//*", "/");
 
             addRequestEndPointUsingPath(context, service, method, requestMeta, path.toLowerCase(),
                     requestMeta.getRequestURI(), servicePath);
@@ -96,7 +98,7 @@ public class StandardMetaDataProvider implements MetaDataProvider {
                 StringScanner.substringBefore(requestMeta.getRequestURI(), "{");
 
 
-            final String path = Str.join('/', context.getRootURI(), servicePath, requestPath).replace("//", "/");
+            final String path = Str.join('/', context.getRootURI(), servicePath, requestPath).replaceAll("//*", "/");
 
             addRequestEndPointUsingPath(context, service, method, requestMeta, path.toLowerCase(), requestMeta.getRequestURI(),
                     servicePath);
