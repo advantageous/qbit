@@ -18,29 +18,14 @@
 
 package io.advantageous.qbit.service.impl;
 
-import io.advantageous.boon.core.Lists;
-import io.advantageous.boon.core.Pair;
-import io.advantageous.boon.core.Str;
-import io.advantageous.boon.core.reflection.MethodAccess;
-import io.advantageous.qbit.Factory;
-import io.advantageous.qbit.QBit;
 import io.advantageous.qbit.annotation.QueueCallback;
 import io.advantageous.qbit.annotation.QueueCallbackType;
 import io.advantageous.qbit.annotation.RequestMapping;
-import io.advantageous.qbit.bindings.MethodBinding;
 import io.advantageous.qbit.boon.service.impl.BoonServiceMethodCallHandler;
-import io.advantageous.qbit.boon.service.impl.QueueCallbackHandlerFactory;
 import io.advantageous.qbit.message.Response;
-import io.advantageous.qbit.queue.QueueCallBackHandler;
 import io.advantageous.qbit.queue.SendQueue;
-import io.advantageous.qbit.util.MultiMap;
-import io.advantageous.qbit.util.MultiMapImpl;
 import org.junit.Test;
 
-import java.util.Collection;
-import java.util.Map;
-
-import static io.advantageous.boon.core.Exceptions.die;
 import static io.advantageous.boon.core.IO.puts;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;

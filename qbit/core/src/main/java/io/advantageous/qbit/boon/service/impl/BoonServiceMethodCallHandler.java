@@ -26,7 +26,6 @@ import io.advantageous.boon.core.reflection.MethodAccess;
 import io.advantageous.boon.primitive.Arry;
 import io.advantageous.qbit.annotation.AnnotationUtils;
 import io.advantageous.qbit.annotation.RequestMethod;
-import io.advantageous.qbit.bindings.MethodBinding;
 import io.advantageous.qbit.message.Event;
 import io.advantageous.qbit.message.MethodCall;
 import io.advantageous.qbit.message.Response;
@@ -63,7 +62,7 @@ public class BoonServiceMethodCallHandler implements ServiceMethodHandler {
     private String name = "";
     private final TreeSet<String> addresses = new TreeSet<>();
 
-    private final Map<String, Map<String, Pair<MethodBinding, MethodAccess>>> methodMap = new LinkedHashMap<>();
+    private final Map<String, MethodAccess> methodMap = new LinkedHashMap<>();
 
     private SendQueue<Response<Object>> responseSendQueue;
 
@@ -479,11 +478,10 @@ public class BoonServiceMethodCallHandler implements ServiceMethodHandler {
 
             String methodAddress = readAddressFromAnnotation(methodAccess);
 
-            String httpMethod = readHttpMethod(methodAccess);
 
             if (methodAddress != null && !methodAddress.isEmpty()) {
 
-                doRegisterMethodUnderURI(httpMethod, methodAccess, methodAddress);
+                doRegisterMethodUnderURI(methodAccess, methodAddress);
 
 
             }
@@ -491,53 +489,23 @@ public class BoonServiceMethodCallHandler implements ServiceMethodHandler {
         }
 
 
-        doRegisterMethodUnderURI("GET", methodAccess, methodAccess.name());
-        doRegisterMethodUnderURI("GET", methodAccess, methodAccess.name().toLowerCase());
-        doRegisterMethodUnderURI("GET", methodAccess, methodAccess.name().toUpperCase());
+        doRegisterMethodUnderURI(methodAccess, methodAccess.name());
+        doRegisterMethodUnderURI(methodAccess, methodAccess.name().toLowerCase());
+        doRegisterMethodUnderURI(methodAccess, methodAccess.name().toUpperCase());
 
 
     }
 
-    private void doRegisterMethodUnderURI(String httpMethod, MethodAccess methodAccess, String methodAddress) {
+    private void doRegisterMethodUnderURI(final MethodAccess methodAccess,  String methodAddress) {
 
         if (methodAddress.startsWith("/")) {
             methodAddress = Str.slc(methodAddress, 1);
         }
 
 
-        MethodBinding methodBinding = new MethodBinding(httpMethod, methodAccess.name(), Str.join('/', address, methodAddress));
 
 
-        final List<List<AnnotationData>> annotationDataForParams = methodAccess.annotationDataForParams();
-
-        int index = 0;
-        for (List<AnnotationData> annotationDataListForParam : annotationDataForParams) {
-            for (AnnotationData annotationData : annotationDataListForParam) {
-                if (annotationData.getName().equalsIgnoreCase("RequestParam")) {
-                    String name = (String) annotationData.getValues().get("value");
-
-                    boolean required = (Boolean) annotationData.getValues().get("required");
-
-                    String defaultValue = (String) annotationData.getValues().get("defaultValue");
-                    methodBinding.addRequestParamBinding(methodAccess.parameterTypes().length, index, name, required, defaultValue);
-                } else if (annotationData.getName().equalsIgnoreCase("Name")) {
-                    String name = (String) annotationData.getValues().get("value");
-                    methodBinding.addRequestParamBinding(methodAccess.parameterTypes().length, index, name, false, null);
-
-                }
-            }
-            index++;
-        }
-
-        Map<String, Pair<MethodBinding, MethodAccess>> mappings = this.methodMap.get(methodBinding.address());
-
-        if (mappings == null) {
-            mappings = new HashMap<>(4);
-
-            this.methodMap.put(methodBinding.address(), mappings);
-        }
-
-        mappings.put(methodBinding.method(), new Pair<>(methodBinding, methodAccess));
+        this.methodMap.put(Str.add(this.address, "/", methodAddress), methodAccess);
 
     }
 
@@ -604,10 +572,6 @@ public class BoonServiceMethodCallHandler implements ServiceMethodHandler {
         return address == null ? "" : address;
     }
 
-    private String readHttpMethod(Annotated annotated) {
-        String method = getHttpMethod("RequestMapping", annotated);
-        return method == null || method.isEmpty() ? "GET" : method;
-    }
 
     private String readNameFromAnnotation(Annotated annotated) {
         String name = getAddress("Named", annotated);
@@ -712,9 +676,6 @@ public class BoonServiceMethodCallHandler implements ServiceMethodHandler {
         queueCallBackHandler.queueIdle();
     }
 
-    public Map<String, Map<String, Pair<MethodBinding, MethodAccess>>> methodMap() {
-        return methodMap;
-    }
 
     static class BoonCallBackWrapper implements Callback<Object> {
         final SendQueue<Response<Object>> responseSendQueue;
