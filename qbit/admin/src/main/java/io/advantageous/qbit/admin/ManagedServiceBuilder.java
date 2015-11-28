@@ -679,6 +679,7 @@ public class ManagedServiceBuilder {
             endpointServerBuilder.setCheckTimingEveryXCalls(getCheckTimingEveryXCalls());
             endpointServerBuilder.setServiceDiscovery(getServiceDiscovery());
             endpointServerBuilder.setUri(getRootURI());
+            endpointServerBuilder.setEventManager(this.getEventManager());
 
 
 
@@ -797,6 +798,7 @@ public class ManagedServiceBuilder {
         endpointServerBuilder.setStatsFlushRateSeconds(getSampleStatFlushRate());
         endpointServerBuilder.setCheckTimingEveryXCalls(getCheckTimingEveryXCalls());
         endpointServerBuilder.setServiceDiscovery(getServiceDiscovery());
+        endpointServerBuilder.setEventManager(this.getEventManager());
 
         configureEndpointServerBuilderForInterceptors(endpointServerBuilder);
 
@@ -823,6 +825,7 @@ public class ManagedServiceBuilder {
         serviceBundleBuilder.setHealthService(getHealthService());
         serviceBundleBuilder.setCheckTimingEveryXCalls(this.getCheckTimingEveryXCalls());
         serviceBundleBuilder.setStatsFlushRateSeconds(this.getSampleStatFlushRate());
+        serviceBundleBuilder.setEventManager(this.getEventManager());
 
         configureServiceBundleBuilderForInterceptors(serviceBundleBuilder);
 
@@ -838,6 +841,7 @@ public class ManagedServiceBuilder {
 
         final ServiceBuilder serviceBuilder = ServiceBuilder.serviceBuilder();
         serviceBuilder.setSystemManager(this.getSystemManager());
+        serviceBuilder.setEventManager(this.getEventManager());
 
         serviceBuilder.setServiceObject(serviceObject);
 
