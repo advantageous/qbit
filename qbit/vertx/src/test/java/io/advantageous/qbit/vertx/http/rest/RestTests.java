@@ -67,6 +67,13 @@ public class RestTests {
         }
 
 
+        @RequestMapping(method = RequestMethod.POST)
+        public boolean addAll2(List<DomainClass> domains) {
+            ref.set(domains);
+            return true;
+        }
+
+
         @RequestMapping(method = RequestMethod.GET) @NoCacheHeaders
         public void ping(Callback<String> callback) {
 
@@ -159,6 +166,46 @@ public class RestTests {
                         "{\"i\": 2, \"s\": \"string2\"}]");
 
         assertEquals(400, response.status());
+
+
+
+
+
+    }
+
+    @Test
+    public void testBadJSONWithReturn() {
+
+
+
+
+        serviceEndpointServer.stop();
+
+        openPort = PortUtils.findOpenPort();
+        serviceEndpointServer = EndpointServerBuilder.endpointServerBuilder()
+                .setPort(openPort)
+                .setErrorHandler(new Consumer<Throwable>() {
+                    @Override
+                    public void accept(Throwable throwable) {
+                        final Optional<HttpRequest> httpRequest = new HttpContext().getHttpRequest();
+                        if (httpRequest.isPresent()) {
+                            httpRequest.get().getReceiver().respondOK("\"Bad JSON" + throwable.getMessage() + "\"");
+                            httpRequest.get().handled();
+                        }
+                    }
+                })
+                .build();
+        serviceEndpointServer.initServices(new TestService());
+        serviceEndpointServer.startServerAndWait();
+
+
+        HTTP.Response response = HTTP.jsonRestCallViaPOST(buildURL("addall2"),
+                "\"i\": 1, \"s\": \"string\"}, " +
+                        "{\"i\": 2, \"s\": \"string2\"}]");
+
+        puts(response);
+
+        assertEquals(200, response.status());
 
 
 
