@@ -51,6 +51,8 @@ import io.advantageous.qbit.util.Timer;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
+import java.util.function.Consumer;
+
 import static io.advantageous.qbit.http.server.HttpServerBuilder.httpServerBuilder;
 
 /**
@@ -107,6 +109,8 @@ public class EndpointServerBuilder {
     private BeforeMethodSent beforeMethodSent;
     private BeforeMethodCall beforeMethodCallOnServiceQueue;
     private AfterMethodCall afterMethodCallOnServiceQueue;
+
+    private Consumer<Throwable> errorHandler;
 
     public BeforeMethodSent getBeforeMethodSent() {
 
@@ -577,7 +581,7 @@ public class EndpointServerBuilder {
                 getEncoder(), getParser(), serviceBundle, getJsonMapper(), this.getTimeoutSeconds(),
                 this.getNumberOfOutstandingRequests(), this.getRequestQueueBuilder().getBatchSize(),
                 this.getFlushInterval(), this.getSystemManager(), getEndpointName(),
-                getServiceDiscovery(), getPort(), getTtlSeconds(), getHealthService());
+                getServiceDiscovery(), getPort(), getTtlSeconds(), getHealthService(), getErrorHandler());
 
 
         if (serviceEndpointServer != null && qBitSystemManager != null) {
@@ -722,6 +726,15 @@ public class EndpointServerBuilder {
 
     public EndpointServerBuilder setAfterMethodCallOnServiceQueue(AfterMethodCall afterMethodCallOnServiceQueue) {
         this.afterMethodCallOnServiceQueue = afterMethodCallOnServiceQueue;
+        return this;
+    }
+
+    public Consumer<Throwable> getErrorHandler() {
+        return errorHandler;
+    }
+
+    public EndpointServerBuilder setErrorHandler(Consumer<Throwable> errorHandler) {
+        this.errorHandler = errorHandler;
         return this;
     }
 }

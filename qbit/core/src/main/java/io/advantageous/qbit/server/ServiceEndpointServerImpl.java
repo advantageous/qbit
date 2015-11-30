@@ -47,6 +47,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.function.Consumer;
 
 
 /**
@@ -71,6 +72,7 @@ public class ServiceEndpointServerImpl implements ServiceEndpointServer {
     protected final ServiceBundle serviceBundle;
     protected final JsonMapper jsonMapper;
     protected final ProtocolParser parser;
+    protected final Consumer<Throwable> errorHandler;
 
     private final AtomicBoolean stop = new AtomicBoolean();
 
@@ -91,7 +93,8 @@ public class ServiceEndpointServerImpl implements ServiceEndpointServer {
                                      final ServiceDiscovery serviceDiscovery,
                                      final int port,
                                      final int ttlSeconds,
-                                     final HealthServiceAsync healthServiceAsync) {
+                                     final HealthServiceAsync healthServiceAsync,
+                                     final Consumer<Throwable> errorHandler) {
 
         this.systemManager = systemManager;
         this.encoder = encoder;
@@ -101,6 +104,8 @@ public class ServiceEndpointServerImpl implements ServiceEndpointServer {
         this.jsonMapper = jsonMapper;
         this.timeoutInSeconds = timeOutInSeconds;
         this.batchSize = batchSize;
+
+        this.errorHandler = errorHandler;
         
         this.healthServiceAsync = healthServiceAsync;
 
@@ -110,7 +115,7 @@ public class ServiceEndpointServerImpl implements ServiceEndpointServer {
 
         httpRequestServerHandler =
                 new HttpRequestServiceServerHandlerUsingMetaImpl(this.timeoutInSeconds,
-                        serviceBundle, jsonMapper, numberOfOutstandingRequests, flushInterval);
+                        serviceBundle, jsonMapper, numberOfOutstandingRequests, flushInterval, errorHandler);
 
         this.endpoint = createEndpoint(endpointName, port, ttlSeconds);
 

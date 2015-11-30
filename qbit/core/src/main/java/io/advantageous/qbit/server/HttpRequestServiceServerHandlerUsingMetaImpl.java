@@ -30,6 +30,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
+import java.util.function.Consumer;
 
 import static io.advantageous.boon.core.Sets.set;
 import static io.advantageous.boon.core.Str.startsWithItemInCollection;
@@ -56,20 +57,27 @@ public class HttpRequestServiceServerHandlerUsingMetaImpl implements HttpRequest
     private ContextMetaBuilder contextMetaBuilder = ContextMetaBuilder.contextMetaBuilder();
     private StandardRequestTransformer standardRequestTransformer;
     private final Map<RequestMethod, StandardMetaDataProvider> metaDataProviderMap = new ConcurrentHashMap<>();
+    private final Consumer<Throwable> errorHandler;
 
-    public HttpRequestServiceServerHandlerUsingMetaImpl(int timeoutInSeconds, ServiceBundle serviceBundle,
-                                                        JsonMapper jsonMapper,
+    public HttpRequestServiceServerHandlerUsingMetaImpl(final int timeoutInSeconds,
+                                                        final ServiceBundle serviceBundle,
+                                                        final JsonMapper jsonMapper,
                                                         final int numberOfOutstandingRequests,
-                                                        int flushInterval) {
+                                                        final int flushInterval,
+                                                        final Consumer<Throwable> errorHandler) {
         this.timeoutInSeconds = timeoutInSeconds;
         lastTimeoutCheckTime.set(Timer.timer().now() + (timeoutInSeconds * 1000));
         this.numberOfOutstandingRequests = numberOfOutstandingRequests;
         this.jsonMapper = jsonMapper;
+        this.errorHandler = errorHandler;
 
         this.methodCallSendQueue = serviceBundle.methodSendQueue();
         this.flushInterval = flushInterval;
 
         contextMetaBuilder = ContextMetaBuilder.contextMetaBuilder();
+
+
+
     }
 
 
@@ -88,7 +96,9 @@ public class HttpRequestServiceServerHandlerUsingMetaImpl implements HttpRequest
             }
             sendMethodToServiceBundle(methodCall);
         } else {
-            handleErrorConverting(request, errorList, methodCall);
+            if (!request.isHandled()) {
+                handleErrorConverting(request, errorList, methodCall);
+            }
             return;
         }
 
@@ -188,7 +198,6 @@ public class HttpRequestServiceServerHandlerUsingMetaImpl implements HttpRequest
 
     public void start() {
 
-
         metaDataProviderMap.put(RequestMethod.GET, new StandardMetaDataProvider(contextMetaBuilder.build(), RequestMethod.GET));
         metaDataProviderMap.put(RequestMethod.POST, new StandardMetaDataProvider(contextMetaBuilder.build(), RequestMethod.POST));
         metaDataProviderMap.put(RequestMethod.PUT, new StandardMetaDataProvider(contextMetaBuilder.build(), RequestMethod.PUT));
@@ -198,7 +207,8 @@ public class HttpRequestServiceServerHandlerUsingMetaImpl implements HttpRequest
         metaDataProviderMap.put(RequestMethod.TRACE, new StandardMetaDataProvider(contextMetaBuilder.build(), RequestMethod.TRACE));
         metaDataProviderMap.put(RequestMethod.CONNECT, new StandardMetaDataProvider(contextMetaBuilder.build(), RequestMethod.CONNECT));
 
-        standardRequestTransformer = new StandardRequestTransformer(metaDataProviderMap);
+        standardRequestTransformer = new StandardRequestTransformer(metaDataProviderMap, Optional.ofNullable(errorHandler));
+
     }
 
 

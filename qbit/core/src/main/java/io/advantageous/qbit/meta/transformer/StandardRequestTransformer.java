@@ -32,6 +32,8 @@ import io.advantageous.qbit.meta.RequestMetaData;
 import io.advantageous.qbit.meta.params.*;
 import io.advantageous.qbit.meta.provider.StandardMetaDataProvider;
 import io.advantageous.qbit.reactive.Callback;
+import io.advantageous.qbit.service.CaptureRequestInterceptor;
+import io.advantageous.qbit.service.RequestContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -41,6 +43,8 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+import java.util.function.Consumer;
 
 import static io.advantageous.boon.core.Str.sputs;
 
@@ -65,10 +69,13 @@ public class StandardRequestTransformer implements RequestTransformer {
             return factory.createJsonMapper();
         }
     };
+    private final Optional<Consumer<Throwable>> errorHandler;
 
 
-    public StandardRequestTransformer(final Map<RequestMethod, StandardMetaDataProvider> metaDataProviderMap) {
+    public StandardRequestTransformer(final Map<RequestMethod, StandardMetaDataProvider> metaDataProviderMap,
+                                      final Optional<Consumer<Throwable>> errorHandler) {
         this.metaDataProviderMap = metaDataProviderMap;
+        this.errorHandler = errorHandler;
     }
 
     private final String decodeURLEncoding(String value) {
@@ -237,8 +244,20 @@ public class StandardRequestTransformer implements RequestTransformer {
                                 value = jsonMapper.get().fromJson(value.toString(), parameterMeta.getClassType());
                             }
                         } catch (Exception exception) {
-                            errorsList.add("Unable to JSON parse body :: " + exception.getMessage());
-                            logger.warn("Unable to parse object", exception);
+
+                            if (errorHandler.isPresent()) {
+
+                                errorsList.add("Unable to JSON parse body :: " + exception.getMessage());
+                                final MethodCall<Object> methodCall = methodCallBuilder.build();
+                                final CaptureRequestInterceptor captureRequestInterceptor = new CaptureRequestInterceptor();
+                                captureRequestInterceptor.before(methodCall);
+                                errorHandler.get().accept(exception);
+                                captureRequestInterceptor.after(methodCall, null);
+
+                            } else {
+                                errorsList.add("Unable to JSON parse body :: " + exception.getMessage());
+                                logger.warn("Unable to parse object", exception);
+                            }
                         }
                     } else if (parameterMeta.isString()) {
                         if (value instanceof byte[]) {
