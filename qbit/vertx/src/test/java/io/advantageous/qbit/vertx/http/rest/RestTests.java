@@ -5,21 +5,27 @@ import io.advantageous.qbit.annotation.RequestMapping;
 import io.advantageous.qbit.annotation.RequestMethod;
 import io.advantageous.qbit.annotation.http.NoCacheHeaders;
 import io.advantageous.qbit.http.HTTP;
+import io.advantageous.qbit.http.HttpContext;
 import io.advantageous.qbit.http.HttpHeaders;
+import io.advantageous.qbit.http.request.HttpRequest;
 import io.advantageous.qbit.http.request.HttpResponseBuilder;
 import io.advantageous.qbit.http.request.HttpTextResponse;
 import io.advantageous.qbit.reactive.Callback;
 import io.advantageous.qbit.server.EndpointServerBuilder;
 import io.advantageous.qbit.server.ServiceEndpointServer;
 import io.advantageous.qbit.util.PortUtils;
+import io.netty.handler.codec.http.HttpContent;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Consumer;
 
+import static io.advantageous.boon.core.IO.puts;
 import static junit.framework.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
@@ -58,6 +64,13 @@ public class RestTests {
         @RequestMapping(method = RequestMethod.POST)
         public void addAll(List<DomainClass> domains) {
             ref.set(domains);
+        }
+
+
+        @RequestMapping(method = RequestMethod.POST)
+        public boolean addAll2(List<DomainClass> domains) {
+            ref.set(domains);
+            return true;
         }
 
 
@@ -128,7 +141,7 @@ public class RestTests {
 
         HTTP.Response response = HTTP.jsonRestCallViaPOST(buildURL("addall"),
                 "[{\"i\": 1, \"s\": \"string\"}, " +
-                "{\"i\": 2, \"s\": \"string2\"}]");
+                        "{\"i\": 2, \"s\": \"string2\"}]");
 
         assertEquals(202, response.status());
 
@@ -137,6 +150,98 @@ public class RestTests {
         }
 
         assertNotNull(ref.get());
+
+
+
+
+    }
+
+    @Test
+    public void testBadJSON() {
+
+
+
+        HTTP.Response response = HTTP.jsonRestCallViaPOST(buildURL("addall"),
+                "\"i\": 1, \"s\": \"string\"}, " +
+                        "{\"i\": 2, \"s\": \"string2\"}]");
+
+        assertEquals(400, response.status());
+
+
+
+
+
+    }
+
+    @Test
+    public void testBadJSONWithReturn() {
+
+
+
+
+        serviceEndpointServer.stop();
+
+        openPort = PortUtils.findOpenPort();
+        serviceEndpointServer = EndpointServerBuilder.endpointServerBuilder()
+                .setPort(openPort)
+                .setErrorHandler(new Consumer<Throwable>() {
+                    @Override
+                    public void accept(Throwable throwable) {
+                        final Optional<HttpRequest> httpRequest = new HttpContext().getHttpRequest();
+                        if (httpRequest.isPresent()) {
+                            httpRequest.get().getReceiver().respondOK("\"Bad JSON" + throwable.getMessage() + "\"");
+                            httpRequest.get().handled();
+                        }
+                    }
+                })
+                .build();
+        serviceEndpointServer.initServices(new TestService());
+        serviceEndpointServer.startServerAndWait();
+
+
+        HTTP.Response response = HTTP.jsonRestCallViaPOST(buildURL("addall2"),
+                "\"i\": 1, \"s\": \"string\"}, " +
+                        "{\"i\": 2, \"s\": \"string2\"}]");
+
+        puts(response);
+
+        assertEquals(200, response.status());
+
+
+
+
+
+    }
+
+
+    @Test
+    public void testBadJSONCustomHandler() {
+
+        serviceEndpointServer.stop();
+
+        openPort = PortUtils.findOpenPort();
+        serviceEndpointServer = EndpointServerBuilder.endpointServerBuilder()
+                .setPort(openPort)
+                .setErrorHandler(new Consumer<Throwable>() {
+                    @Override
+                    public void accept(Throwable throwable) {
+                        final Optional<HttpRequest> httpRequest = new HttpContext().getHttpRequest();
+                        if (httpRequest.isPresent()) {
+                            httpRequest.get().getReceiver().respondOK("\"Bad JSON" + throwable.getMessage() + "\"");
+                            httpRequest.get().handled();
+                        }
+                    }
+                })
+                .build();
+        serviceEndpointServer.initServices(new TestService());
+        serviceEndpointServer.startServerAndWait();
+
+
+        HTTP.Response response = HTTP.jsonRestCallViaPOST(buildURL("addall"),
+                "\"i\": 1, \"s\": \"string\"}, " +
+                        "{\"i\": 2, \"s\": \"string2\"}]");
+
+        assertEquals(200, response.status());
 
 
 

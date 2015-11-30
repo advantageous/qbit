@@ -55,6 +55,7 @@ import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.Consumer;
 
 /**
  * Main factory for QBit. This gets used internally to create things easily.
@@ -334,8 +335,8 @@ public interface Factory {
                                                       final ServiceDiscovery serviceDiscovery,
                                                       final int port,
                                                       final int ttlSeconds,
-                                                      final HealthServiceAsync healthServiceAsync
-    ) {
+                                                      final HealthServiceAsync healthServiceAsync,
+                                                      final Consumer<Throwable> errorHandler) {
         throw new UnsupportedOperationException();
     }
 

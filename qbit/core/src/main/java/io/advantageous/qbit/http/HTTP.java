@@ -850,5 +850,16 @@ public class HTTP {
         public static Response response(int status, Map<String, List<String>> headers, String statusMessage, String payload) {
             return new Response(status, headers, statusMessage, payload);
         }
+
+        @Override
+        public String toString() {
+            return "Response{" +
+                    "status=" + status +
+                    ", headers=" + headers +
+                    ", statusMessage=" + statusMessage +
+                    ", payload=" + payload +
+                    ", enumStatusClass=" + enumStatusClass +
+                    '}';
+        }
     }
 }

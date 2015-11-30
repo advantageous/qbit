@@ -65,6 +65,7 @@ import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Consumer;
 
 import static io.advantageous.qbit.service.ServiceBuilder.serviceBuilder;
 
@@ -238,10 +239,11 @@ public class BoonQBitFactory implements Factory {
                                                      final ServiceDiscovery serviceDiscovery,
                                                      final int port,
                                                      final int ttlSeconds,
-                                                     final HealthServiceAsync healthServiceAsync) {
+                                                     final HealthServiceAsync healthServiceAsync,
+                                                     final Consumer<Throwable> errorHandler) {
         return new ServiceEndpointServerImpl(httpServer, encoder, protocolParser, serviceBundle, jsonMapper,
                 timeOutInSeconds, numberOfOutstandingRequests, batchSize, flushInterval, systemManager,
-                endpointName, serviceDiscovery, port, ttlSeconds, healthServiceAsync);
+                endpointName, serviceDiscovery, port, ttlSeconds, healthServiceAsync, errorHandler);
     }
 
 

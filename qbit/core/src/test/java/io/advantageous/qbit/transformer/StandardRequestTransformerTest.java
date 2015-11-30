@@ -12,6 +12,7 @@ import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import static io.advantageous.boon.core.IO.puts;
 import static io.advantageous.boon.core.Maps.safeMap;
@@ -41,7 +42,7 @@ public class StandardRequestTransformerTest {
 
 
         standardRequestTransformer = new StandardRequestTransformer(
-                safeMap(RequestMethod.GET, provider, RequestMethod.POST, postProvider)
+                safeMap(RequestMethod.GET, provider, RequestMethod.POST, postProvider), Optional.empty()
         );
     }
 
