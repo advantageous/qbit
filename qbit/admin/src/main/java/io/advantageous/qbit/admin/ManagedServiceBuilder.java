@@ -751,6 +751,11 @@ public class ManagedServiceBuilder {
         }
     }
 
+    public void startApplication() {
+
+        this.getEndpointServerBuilder().build().startServerAndWait();
+    }
+
     /**
      * Hold lists of interceptors.
      */

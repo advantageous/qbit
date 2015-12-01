@@ -355,7 +355,6 @@ project('jms') {
     dependencies {
         compile project(":qbit:core")
         testCompile project(':qbit:test-support')
-
         compile 'org.apache.activemq:activemq-all:5.9.1'
         compile 'org.apache.commons:commons-dbcp2:2.1.1'
         compile 'org.postgresql:postgresql:9.4-1203-jdbc42'
