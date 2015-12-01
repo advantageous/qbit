@@ -61,6 +61,16 @@ public abstract class BaseService implements QueueCallBackHandler{
         statsCollector.recordCount(longKey, count);
     }
 
+    /** Prefixes the stats key with the stat key prefix, and then calls statsCollector.recordCount.
+     *
+     * @param statKey statKey
+     */
+    protected void incrementCount(final String statKey) {
+
+        final String longKey = getActualStatKey(statKey);
+        statsCollector.recordCount(longKey, 1);
+    }
+
 
     /** Prefixes the stats key with the stat key prefix, and then calls statsCollector.recordTiming.
      *
