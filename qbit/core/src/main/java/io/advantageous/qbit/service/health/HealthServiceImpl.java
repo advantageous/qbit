@@ -40,6 +40,8 @@ public class HealthServiceImpl extends BaseService implements HealthService, Sto
     private final Optional<Consumer<NodeHealthStat>> onWarn;
     private final Optional<Consumer<NodeHealthStat>> onCheckIn;
 
+    private final List<HealthCheckJob> healthCheckJobs;
+
 
 
     /**
@@ -57,6 +59,7 @@ public class HealthServiceImpl extends BaseService implements HealthService, Sto
                             final StatsCollector statsCollector,
                              final long recheckInterval,
                              final TimeUnit timeUnit,
+                             final List<HealthCheckJob> healthCheckJobs,
                              final Optional<Consumer<NodeHealthStat>> onFail,
                              final Optional<Consumer<NodeHealthStat>> onWarn,
                              final Optional<Consumer<NodeHealthStat>> onCheckIn) {
@@ -68,6 +71,11 @@ public class HealthServiceImpl extends BaseService implements HealthService, Sto
 
 
         reactor.addRepeatingTask(recheckInterval, timeUnit, () -> checkTTLs());
+
+        this.healthCheckJobs = Collections.unmodifiableList(healthCheckJobs);
+
+        healthCheckJobs.forEach(healthCheckJob -> reactor.addRepeatingTask(healthCheckJob.getDuration(),
+                ()-> runHealthCheck(healthCheckJob)));
 
         healthServiceCount++;
 
@@ -85,6 +93,11 @@ public class HealthServiceImpl extends BaseService implements HealthService, Sto
 
 
         logger.info("Health Service CREATED {}", this.hashCode());
+    }
+
+    private void runHealthCheck(final HealthCheckJob healthCheckJob) {
+        final NodeHealthStat currentHealth = healthCheckJob.getHealthCheck().check();
+        serviceHealthStatMap.put(healthCheckJob.getName(), currentHealth);
     }
 
     /**

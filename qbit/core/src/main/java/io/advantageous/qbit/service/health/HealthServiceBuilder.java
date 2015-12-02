@@ -7,8 +7,11 @@ import io.advantageous.qbit.reactive.ReactorBuilder;
 import io.advantageous.qbit.service.ServiceBuilder;
 import io.advantageous.qbit.service.ServiceQueue;
 import io.advantageous.qbit.service.stats.StatsCollector;
+import io.advantageous.qbit.time.Duration;
 import io.advantageous.qbit.util.Timer;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import java.util.Properties;
 import java.util.concurrent.TimeUnit;
@@ -32,6 +35,8 @@ public class HealthServiceBuilder {
     private  StatsCollector statsCollector;
     private  Reactor reactor;
     private  String statKeyPrefix = "health";
+    private List<HealthCheckJob> healthCheckJobs;
+
 
     public HealthServiceBuilder(final PropertyResolver propertyResolver) {
 
@@ -69,6 +74,33 @@ public class HealthServiceBuilder {
         this.statsCollector = statsCollector;
         return this;
     }
+
+
+
+    public List<HealthCheckJob> getHealthCheckJobs() {
+        if (healthCheckJobs == null) {
+            healthCheckJobs = new ArrayList<>();
+        }
+        return healthCheckJobs;
+    }
+
+    public HealthServiceBuilder setHealthCheckJobs(List<HealthCheckJob> healthCheckJobs) {
+        this.healthCheckJobs = healthCheckJobs;
+        return this;
+    }
+
+    public HealthServiceBuilder addJob(final HealthCheckJob healthCheckJob) {
+        this.getHealthCheckJobs().add(healthCheckJob);
+        return this;
+    }
+
+    public HealthServiceBuilder addJob(final String name, final Duration duration, final HealthCheck healthCheck) {
+        this.getHealthCheckJobs().add(new HealthCheckJob(healthCheck, duration, name));
+        return this;
+    }
+
+
+
 
     public Reactor getReactor() {
         if (reactor == null) {
@@ -151,9 +183,14 @@ public class HealthServiceBuilder {
 
     public HealthService getImplementation() {
         if (implementation == null) {
-            implementation = new HealthServiceImpl(getStatKeyPrefix(), getReactor(),
-                    getTimer(), getStatsCollector(),
-                    getRecheckInterval(), getTimeUnit(), getOnFail(),
+            implementation = new HealthServiceImpl(getStatKeyPrefix(),
+                    getReactor(),
+                    getTimer(),
+                    getStatsCollector(),
+                    getRecheckInterval(),
+                    getTimeUnit(),
+                    getHealthCheckJobs(),
+                    getOnFail(),
                     getOnWarn(), getOnCheckIn());
         }
         return implementation;
