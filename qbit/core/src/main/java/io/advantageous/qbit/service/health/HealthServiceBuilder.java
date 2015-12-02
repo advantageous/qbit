@@ -99,6 +99,11 @@ public class HealthServiceBuilder {
         return this;
     }
 
+    public HealthServiceBuilder addJob(final String name, final long duration, final TimeUnit timeUnit,
+                                       final HealthCheck healthCheck) {
+        this.getHealthCheckJobs().add(new HealthCheckJob(healthCheck, new Duration(duration, timeUnit), name));
+        return this;
+    }
 
 
 
