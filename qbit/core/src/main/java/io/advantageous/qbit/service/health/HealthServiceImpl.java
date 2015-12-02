@@ -97,7 +97,33 @@ public class HealthServiceImpl extends BaseService implements HealthService, Sto
 
     private void runHealthCheck(final HealthCheckJob healthCheckJob) {
         final NodeHealthStat currentHealth = healthCheckJob.getHealthCheck().check();
+
+        reportStatus(healthCheckJob.getName(), currentHealth);
         serviceHealthStatMap.put(healthCheckJob.getName(), currentHealth);
+    }
+
+    private void reportStatus(String name, NodeHealthStat currentHealth) {
+        switch(currentHealth.getStatus()) {
+            case PASS:
+                if (debug) logger.debug("HEALTH PASS :: {} status check and got status {} ", name, currentHealth);
+                onCheckIn.ifPresent(checkIn -> checkIn.accept(BeanUtils.copy(currentHealth)));
+                super.incrementCount("pass");
+                break;
+
+            case FAIL:
+                logger.error("HEALTH FAIL :: {} status check and got status {} ", name, currentHealth);
+                onFail.ifPresent(checkIn -> checkIn.accept(BeanUtils.copy(currentHealth)));
+                super.incrementCount("fail");
+                break;
+
+            case WARN:
+                logger.warn("HEALTH WARNING :: {} status check and got status {} ", name, currentHealth);
+                onWarn.ifPresent(checkIn -> checkIn.accept(BeanUtils.copy(currentHealth)));
+                super.incrementCount("warn");
+                break;
+            default:
+                onCheckIn.ifPresent(checkIn -> checkIn.accept(BeanUtils.copy(currentHealth)));
+        }
     }
 
     /**
@@ -113,9 +139,9 @@ public class HealthServiceImpl extends BaseService implements HealthService, Sto
         logger.info("HealthService::register() {} {} {}", name, ttl, timeUnit);
         final NodeHealthStat nodeHealthStat = new NodeHealthStat(name, timeUnit.toMillis(ttl));
         serviceHealthStatMap.put(name, nodeHealthStat);
-        onCheckIn.ifPresent(checkIn -> checkIn.accept(BeanUtils.copy(nodeHealthStat)));
         super.incrementCount("nodes");
         super.recordLevel("nodes", serviceHealthStatMap.size());
+
 
     }
 
@@ -132,7 +158,6 @@ public class HealthServiceImpl extends BaseService implements HealthService, Sto
         final NodeHealthStat nodeHealthStat = new NodeHealthStat(name);
         nodeHealthStat.setStatus(HealthStatus.PASS);
         serviceHealthStatMap.put(name, nodeHealthStat);
-        onCheckIn.ifPresent(checkIn -> checkIn.accept(BeanUtils.copy(nodeHealthStat)));
         super.incrementCount("nodes");
         super.recordLevel("nodes", serviceHealthStatMap.size());
 
@@ -176,17 +201,6 @@ public class HealthServiceImpl extends BaseService implements HealthService, Sto
 
         super.incrementCount("checkin");
 
-        if (status == HealthStatus.FAIL) {
-
-            super.incrementCount("fail");
-            logger.error("HealthService::checkIn() {} {}", name, status);
-        } else if  (status == HealthStatus.WARN) {
-
-            super.incrementCount("warn");
-            logger.warn("HealthService::checkIn() {} {}", name, status);
-        } else {
-            if (debug) logger.debug("HealthService::checkIn() {} {}", name, status);
-        }
 
         final NodeHealthStat nodeHealthStat = getServiceHealthStat(name);
 
@@ -194,13 +208,7 @@ public class HealthServiceImpl extends BaseService implements HealthService, Sto
         nodeHealthStat.setReason(null);
         nodeHealthStat.setLastCheckIn(super.time);
 
-        if (status == HealthStatus.FAIL) {
-            onFail.ifPresent(checkIn -> checkIn.accept(BeanUtils.copy(nodeHealthStat)));
-        } if (status == HealthStatus.WARN)  {
-            onWarn.ifPresent(checkIn -> checkIn.accept(BeanUtils.copy(nodeHealthStat)));
-        } else {
-            onFail.ifPresent(checkIn -> checkIn.accept(BeanUtils.copy(nodeHealthStat)));
-        }
+        reportStatus(name, nodeHealthStat);
     }
 
     /**
@@ -252,7 +260,7 @@ public class HealthServiceImpl extends BaseService implements HealthService, Sto
 
     @Override
     public void warnWithReason(final String name, final HealthFailReason reason) {
-        logger.error("HealthService::fail() {}", name);
+        logger.warn("HealthService::warn() {}", name);
 
         super.incrementCount("warn");
 
@@ -268,7 +276,7 @@ public class HealthServiceImpl extends BaseService implements HealthService, Sto
 
     @Override
     public void warnWithError(final String name, final Throwable error) {
-        logger.error("HealthService::fail() {}", name);
+        logger.warn("HealthService::warn() {}", name);
 
 
         super.incrementCount("warn");

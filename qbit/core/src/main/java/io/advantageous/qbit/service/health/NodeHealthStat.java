@@ -100,4 +100,16 @@ public class NodeHealthStat implements Cloneable{
         node.status = this.status;
         return node;
     }
+
+    @Override
+    public String toString() {
+        return "NodeHealthStat{" +
+                "name='" + name + '\'' +
+                ", ttlInMS=" + ttlInMS +
+                ", lastCheckIn=" + lastCheckIn +
+                ", reason=" + reason +
+                ", status=" + status +
+                ", error=" + error +
+                '}';
+    }
 }
