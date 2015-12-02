@@ -13,9 +13,13 @@ public interface HealthService {
     void register(String name, long time, TimeUnit timeUnit);
 
 
+    void registerNoTtl(String name);
+
+
     void checkInOk(String name);
 
     void checkIn(String name, HealthStatus status);
+
 
 
     boolean ok();
@@ -34,5 +38,17 @@ public interface HealthService {
 
 
     void unregister(String serviceName);
+
+
+    void failWithReason(final String name, final HealthFailReason reason);
+
+
+    void failWithError(final String name, final Throwable error);
+
+
+    void warnWithReason(final String name, final HealthFailReason reason);
+
+
+    void warnWithError(final String name, final Throwable error);
 
 }

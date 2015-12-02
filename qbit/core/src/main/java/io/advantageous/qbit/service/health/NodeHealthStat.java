@@ -1,18 +1,27 @@
 package io.advantageous.qbit.service.health;
 
+import java.util.Optional;
+
 /**
  * Internal class to hold health status.
  */
-public class NodeHealthStat {
+public class NodeHealthStat implements Cloneable{
     private final String name;
     private final long ttlInMS;
     private long lastCheckIn;
-    private HealthServiceImpl.HealthFailReason reason;
+    private HealthFailReason reason = HealthFailReason.NONE;
     private HealthStatus status = HealthStatus.UNKNOWN;
+    private Optional<Throwable> error = Optional.empty();
 
     public NodeHealthStat(final String name, final long ttlInMS) {
         this.name = name;
         this.ttlInMS = ttlInMS;
+    }
+
+
+    public NodeHealthStat(final String name) {
+        this.name = name;
+        this.ttlInMS = Long.MIN_VALUE;
     }
 
     public String getName() {
@@ -27,7 +36,7 @@ public class NodeHealthStat {
         return lastCheckIn;
     }
 
-    public HealthServiceImpl.HealthFailReason getReason() {
+    public HealthFailReason getReason() {
         return reason;
     }
 
@@ -39,11 +48,48 @@ public class NodeHealthStat {
         this.lastCheckIn = lastCheckIn;
     }
 
-    public void setReason(HealthServiceImpl.HealthFailReason reason) {
+    public void setReason(HealthFailReason reason) {
         this.reason = reason;
     }
 
     public void setStatus(HealthStatus status) {
+
         this.status = status;
+
+        if (status == HealthStatus.PASS) {
+            clearError();
+        }
+    }
+
+    public boolean isForever() {
+        return this.ttlInMS == Long.MIN_VALUE;
+    }
+
+    public boolean isOk() {
+        return this.status == HealthStatus.PASS;
+    }
+
+
+    public Optional<Throwable> getError() {
+        return error;
+    }
+
+    public void setError(Throwable error) {
+        this.error = Optional.of(error);
+    }
+
+
+    public void clearError() {
+        this.error = Optional.empty();
+        this.reason = HealthFailReason.NONE;
+    }
+
+    @Override
+    protected Object clone() throws CloneNotSupportedException {
+        NodeHealthStat node =  new NodeHealthStat(name, ttlInMS);
+        node.reason = this.reason;
+        node.error = this.error;
+        node.status = this.status;
+        return node;
     }
 }

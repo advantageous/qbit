@@ -2,12 +2,17 @@ package io.advantageous.qbit.service.health;
 
 
 import io.advantageous.qbit.config.PropertyResolver;
+import io.advantageous.qbit.reactive.Reactor;
+import io.advantageous.qbit.reactive.ReactorBuilder;
 import io.advantageous.qbit.service.ServiceBuilder;
 import io.advantageous.qbit.service.ServiceQueue;
+import io.advantageous.qbit.service.stats.StatsCollector;
 import io.advantageous.qbit.util.Timer;
 
+import java.util.Optional;
 import java.util.Properties;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Consumer;
 
 public class HealthServiceBuilder {
 
@@ -21,6 +26,12 @@ public class HealthServiceBuilder {
     private long recheckInterval=10;
     private TimeUnit timeUnit;
     private boolean autoFlush;
+    private Optional<Consumer<NodeHealthStat>> onFail = Optional.empty();
+    private Optional<Consumer<NodeHealthStat>> onWarn = Optional.empty();
+    private Optional<Consumer<NodeHealthStat>> onCheckIn = Optional.empty();
+    private  StatsCollector statsCollector;
+    private  Reactor reactor;
+    private  String statKeyPrefix = "health";
 
     public HealthServiceBuilder(final PropertyResolver propertyResolver) {
 
@@ -41,6 +52,43 @@ public class HealthServiceBuilder {
 
     public static HealthServiceBuilder healthServiceBuilder() {
         return new HealthServiceBuilder();
+    }
+
+    public StatsCollector getStatsCollector() {
+
+        if (this.statsCollector == null) {
+            statsCollector = new StatsCollector() {
+
+            };
+        }
+        return statsCollector;
+    }
+
+    public HealthServiceBuilder setStatsCollector(StatsCollector statsCollector) {
+
+        this.statsCollector = statsCollector;
+        return this;
+    }
+
+    public Reactor getReactor() {
+        if (reactor == null) {
+            reactor = ReactorBuilder.reactorBuilder().build();
+        }
+        return reactor;
+    }
+
+    public HealthServiceBuilder setReactor(Reactor reactor) {
+        this.reactor = reactor;
+        return this;
+    }
+
+    public String getStatKeyPrefix() {
+        return statKeyPrefix;
+    }
+
+    public HealthServiceBuilder setStatKeyPrefix(String statKeyPrefix) {
+        this.statKeyPrefix = statKeyPrefix;
+        return this;
     }
 
     public long getRecheckInterval() {
@@ -103,8 +151,10 @@ public class HealthServiceBuilder {
 
     public HealthService getImplementation() {
         if (implementation == null) {
-            implementation = new HealthServiceImpl(getTimer(),
-                    getRecheckInterval(), getTimeUnit());
+            implementation = new HealthServiceImpl(getStatKeyPrefix(), getReactor(),
+                    getTimer(), getStatsCollector(),
+                    getRecheckInterval(), getTimeUnit(), getOnFail(),
+                    getOnWarn(), getOnCheckIn());
         }
         return implementation;
     }
@@ -123,6 +173,34 @@ public class HealthServiceBuilder {
 
     public HealthServiceBuilder setServiceBuilder(ServiceBuilder serviceBuilder) {
         this.serviceBuilder = serviceBuilder;
+        return this;
+    }
+
+
+    public Optional<Consumer<NodeHealthStat>> getOnFail() {
+        return onFail;
+    }
+
+    public HealthServiceBuilder setOnFail(Consumer<NodeHealthStat> onFail) {
+        this.onFail = Optional.of(onFail);
+        return this;
+    }
+
+    public Optional<Consumer<NodeHealthStat>> getOnWarn() {
+        return onWarn;
+    }
+
+    public HealthServiceBuilder setOnWarn(Consumer<NodeHealthStat> onWarn) {
+        this.onWarn = Optional.of(onWarn);
+        return this;
+    }
+
+    public Optional<Consumer<NodeHealthStat>> getOnCheckIn() {
+        return onCheckIn;
+    }
+
+    public HealthServiceBuilder setOnCheckIn(Consumer<NodeHealthStat> onCheckIn) {
+        this.onCheckIn = Optional.of(onCheckIn);
         return this;
     }
 
