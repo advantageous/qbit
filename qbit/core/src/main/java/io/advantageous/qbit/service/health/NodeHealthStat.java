@@ -1,5 +1,7 @@
 package io.advantageous.qbit.service.health;
 
+import io.advantageous.qbit.annotation.JsonIgnore;
+
 import java.util.Optional;
 
 /**
@@ -11,7 +13,9 @@ public class NodeHealthStat implements Cloneable{
     private long lastCheckIn;
     private HealthFailReason reason = HealthFailReason.NONE;
     private HealthStatus status = HealthStatus.UNKNOWN;
-    private Optional<Throwable> error = Optional.empty();
+    
+    private @JsonIgnore
+    Optional<Throwable> error = Optional.empty();
 
     public NodeHealthStat(final String name, final long ttlInMS) {
         this.name = name;
@@ -70,6 +74,7 @@ public class NodeHealthStat implements Cloneable{
     }
 
 
+    @JsonIgnore
     public Optional<Throwable> getError() {
         return error;
     }
