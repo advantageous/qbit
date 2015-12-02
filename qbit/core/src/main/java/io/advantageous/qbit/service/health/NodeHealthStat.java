@@ -13,7 +13,7 @@ public class NodeHealthStat implements Cloneable{
     private long lastCheckIn;
     private HealthFailReason reason = HealthFailReason.NONE;
     private HealthStatus status = HealthStatus.UNKNOWN;
-    
+
     private @JsonIgnore
     Optional<Throwable> error = Optional.empty();
 
@@ -65,10 +65,13 @@ public class NodeHealthStat implements Cloneable{
         }
     }
 
+
+    @JsonIgnore
     public boolean isForever() {
         return this.ttlInMS == Long.MIN_VALUE;
     }
 
+    @JsonIgnore
     public boolean isOk() {
         return this.status == HealthStatus.PASS;
     }
