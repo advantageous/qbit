@@ -2,6 +2,7 @@ package io.advantageous.qbit.transformer;
 
 
 import io.advantageous.qbit.annotation.*;
+import io.advantageous.qbit.reactive.Callback;
 
 import static io.advantageous.boon.core.Str.sputs;
 
@@ -52,5 +53,8 @@ public class SampleService {
         return sputs(arg1, arg2, employee);
     }
 
-
+    @RequestMapping("/simpleBadConfig1/{0}/")
+    public void simpleBadConfig(Callback<String> callback, @PathVariable(defaultValue = "missing") final String arg1) {
+        callback.accept("simple3");
+    }
 }

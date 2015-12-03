@@ -22,7 +22,7 @@ public abstract class BaseService implements QueueCallBackHandler{
     protected long time;
     private final HashMap<String, String> statNameMap;
 
-    public BaseService(Reactor reactor, Timer timer, final StatsCollector statsCollector) {
+    public BaseService(final Reactor reactor, final Timer timer, final StatsCollector statsCollector) {
         this.statsCollector = statsCollector;
         this.reactor = reactor;
         this.timer = timer;
@@ -59,6 +59,16 @@ public abstract class BaseService implements QueueCallBackHandler{
     protected void recordCount(final String statKey, final long count) {
         final String longKey = getActualStatKey(statKey);
         statsCollector.recordCount(longKey, count);
+    }
+
+    /** Prefixes the stats key with the stat key prefix, and then calls statsCollector.recordCount.
+     *
+     * @param statKey statKey
+     */
+    protected void incrementCount(final String statKey) {
+
+        final String longKey = getActualStatKey(statKey);
+        statsCollector.recordCount(longKey, 1);
     }
 
 
@@ -98,13 +108,13 @@ public abstract class BaseService implements QueueCallBackHandler{
     }
 
 
-    private void doProcess() {
+    protected void doProcess() {
         time = timer.time();
         reactor.process();
         process();
     }
 
-    protected  void process() {
+    protected void process() {
 
     }
 
