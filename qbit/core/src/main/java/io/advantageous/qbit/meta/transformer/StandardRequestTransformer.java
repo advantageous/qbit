@@ -33,7 +33,6 @@ import io.advantageous.qbit.meta.params.*;
 import io.advantageous.qbit.meta.provider.StandardMetaDataProvider;
 import io.advantageous.qbit.reactive.Callback;
 import io.advantageous.qbit.service.CaptureRequestInterceptor;
-import io.advantageous.qbit.service.RequestContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -187,20 +186,22 @@ public class StandardRequestTransformer implements RequestTransformer {
 
                     final String[] pathSplit = Str.split(request.address(), '/');
 
+                    value = null;
                     if (positionalParam.getIndexIntoURI() >= pathSplit.length) {
                         if (positionalParam.isRequired()) {
                             errorsList.add(sputs("Unable to find required path param",
                                     positionalParam.getIndexIntoURI()));
                             break loop;
                         }
+                    } else {
+                        value = pathSplit[positionalParam.getIndexIntoURI()];
+                        if (positionalParam.isRequired() && Str.isEmpty(value)) {
+                            errorsList.add(sputs("Unable to find required path param",
+                                    positionalParam.getIndexIntoURI()));
+                            break loop;
+                        }
                     }
 
-                    value = pathSplit[positionalParam.getIndexIntoURI()];
-                    if (positionalParam.isRequired() && Str.isEmpty(value)) {
-                        errorsList.add(sputs("Unable to find required path param",
-                                positionalParam.getIndexIntoURI()));
-                        break loop;
-                    }
                     if (Str.isEmpty(value)) {
                         value = positionalParam.getDefaultValue();
                     }
