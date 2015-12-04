@@ -146,7 +146,7 @@ public class StandardMetaDataProvider implements MetaDataProvider {
                 return null;
             }
 
-            final String requestURI = StringScanner.substringAfter(path, rootURI);
+            final String requestURI = Str.isEmpty(rootURI) ? path : StringScanner.substringAfter(path, rootURI);
 
             int count = Str.split(requestURI, '/').length -1;
             NavigableMap<Integer, RequestMetaData> uriParamMap = uriParamNumMapEntry.getValue();
