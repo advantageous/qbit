@@ -12,7 +12,6 @@ import io.advantageous.qbit.http.request.HttpBinaryResponse;
 import io.advantageous.qbit.http.request.HttpResponseBuilder;
 import io.advantageous.qbit.http.request.HttpResponseDecorator;
 import io.advantageous.qbit.http.request.HttpTextResponse;
-import io.advantageous.qbit.reactive.Callback;
 import io.advantageous.qbit.util.MultiMap;
 
 @RequestMapping("/") @NoCacheHeaders
@@ -47,7 +46,7 @@ public class NoCacheService {
                         .setCode(code)
                         .setContentType(contentType)
                         .setBody(payload);
-                if (responseHeaders != null && responseHeaders.isEmpty() == false) {
+                if (responseHeaders != null && !responseHeaders.isEmpty()) {
                     responseBuilder.setHeaders(responseHeaders);
                 }
 
@@ -77,7 +76,7 @@ public class NoCacheService {
                         .setContentType(contentType)
                         .setBody(payload);
 
-                if (responseHeaders != null && responseHeaders.isEmpty() == false) {
+                if (responseHeaders != null && !responseHeaders.isEmpty()) {
                     responseBuilder.setHeaders(responseHeaders);
                 }
 
