@@ -20,6 +20,7 @@ import io.advantageous.qbit.queue.SendQueue;
 import io.advantageous.qbit.service.ServiceBundle;
 import io.advantageous.qbit.service.ServiceMethodNotFoundException;
 import io.advantageous.qbit.util.MultiMap;
+import io.advantageous.qbit.util.MultiMapImpl;
 import io.advantageous.qbit.util.Timer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -143,33 +144,23 @@ public class HttpRequestServiceServerHandlerUsingMetaImpl implements HttpRequest
                 final ServiceMethodMeta serviceMethodMeta = requestMetaData.getMethod();
                 final int responseCode = serviceMethodMeta.getResponseCode();
 
+
+                MultiMap<String, String> headers = response.headers();
+
                 if (requestMetaData.getRequest().hasResponseHeaders() ) {
-
-                    if (response.headers().size() > 0) {
-                        response.headers().putAll(requestMetaData.getRequest().getResponseHeaders());
-
-                        writeResponse(originatingRequest.getReceiver(),
-                                responseCode == -1 ? HttpStatus.OK : responseCode,
-                                serviceMethodMeta.getContentType(),
-                                jsonMapper.toJson(response.body()),
-                                response.headers());
+                    if (response.headers() == MultiMap.EMPTY) {
+                        headers = new MultiMapImpl<>();
                     } else {
-
-                        writeResponse(originatingRequest.getReceiver(),
-                                responseCode == -1 ? HttpStatus.OK : responseCode,
-                                serviceMethodMeta.getContentType(),
-                                jsonMapper.toJson(response.body()),
-                                requestMetaData.getRequest().getResponseHeaders());
+                        headers = response.headers();
                     }
-                } else {
+                    headers.putAllCopyLists(requestMetaData.getRequest().getResponseHeaders());
+                }
 
-
-                    writeResponse(originatingRequest.getReceiver(),
+                writeResponse(originatingRequest.getReceiver(),
                             responseCode == -1 ? HttpStatus.OK : responseCode,
                             serviceMethodMeta.getContentType(),
                             jsonMapper.toJson(response.body()),
-                            response.headers());
-                }
+                            headers);
 
             }
         }
