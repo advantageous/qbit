@@ -73,6 +73,11 @@ public interface MultiMap<K, V> extends Iterable<Map.Entry<K, Collection<V>>>, M
         }
 
         @Override
+        public void putAllCopyLists(MultiMap multiMap) {
+
+        }
+
+        @Override
         public void putAll(MultiMap params) {
         }
 
@@ -239,5 +244,6 @@ public interface MultiMap<K, V> extends Iterable<Map.Entry<K, Collection<V>>>, M
         throw new UnsupportedOperationException("Unsupported");
     }
 
+    void putAllCopyLists(MultiMap<K, V> multiMap);
 
 }

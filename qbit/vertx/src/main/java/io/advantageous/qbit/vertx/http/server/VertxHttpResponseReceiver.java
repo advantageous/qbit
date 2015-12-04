@@ -56,11 +56,11 @@ public class VertxHttpResponseReceiver implements HttpResponseReceiver<Object> {
                 this.requestParams) : null;
 
 
-        /** Response was decorated. */
+        /** Response was not decorated. */
         if (decoratedResponse == null) {
             doResponse(code, contentType, body, responseHeaders);
         } else {
-            /** Response was not decorated. */
+            /** Response was decorated. */
             doResponse(decoratedResponse.code(), decoratedResponse.contentType(), decoratedResponse.body(), decoratedResponse.headers());
         }
     }

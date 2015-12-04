@@ -139,4 +139,9 @@ public class HttpServletHeaderMultiMap implements MultiMap<String, String> {
         }
         return map.entrySet();
     }
+
+    @Override
+    public void putAllCopyLists(MultiMap<String, String> multiMap) {
+
+    }
 }
