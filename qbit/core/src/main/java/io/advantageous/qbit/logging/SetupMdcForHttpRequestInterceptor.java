@@ -33,6 +33,8 @@ public class SetupMdcForHttpRequestInterceptor implements BeforeMethodCall, Afte
     public static final String REQUEST_REMOTE_ADDRESS = "requestRemoteAddress";
     public static final String REQUEST_HTTP_METHOD = "requestHttpMethod";
     public static final String REQUEST_HEADER_PREFIX = "requestHeader.";
+    public static final String REQUEST_ID = "requestId";
+
     /**
      * Holds the headers that we want to extract from the request.
      */
@@ -96,6 +98,7 @@ public class SetupMdcForHttpRequestInterceptor implements BeforeMethodCall, Afte
         MDC.put(REQUEST_URI, httpRequest.getUri());
         MDC.put(REQUEST_REMOTE_ADDRESS, httpRequest.getRemoteAddress());
         MDC.put(REQUEST_HTTP_METHOD, httpRequest.getMethod());
+        MDC.put(REQUEST_ID, Long.toString(httpRequest.getMessageId()));
 
         extractHeaders(httpRequest);
 
