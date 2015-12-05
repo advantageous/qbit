@@ -14,4 +14,16 @@ public class HttpBinaryResponseHolder {
         this.httpBinaryResponse = httpBinaryResponse;
         return this;
     }
+
+    public HttpBinaryResponse get() {
+        return httpBinaryResponse;
+    }
+
+    public HttpBinaryResponseHolder set(HttpBinaryResponse httpBinaryResponse) {
+        this.httpBinaryResponse = httpBinaryResponse;
+        return this;
+    }
+
+
+
 }

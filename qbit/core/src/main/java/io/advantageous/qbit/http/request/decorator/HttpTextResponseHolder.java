@@ -15,4 +15,14 @@ public class HttpTextResponseHolder {
         this.httpTextResponse = httpTextResponse;
         return this;
     }
+
+
+    public HttpTextResponse get() {
+        return httpTextResponse;
+    }
+
+    public HttpTextResponseHolder set(HttpTextResponse httpTextResponse) {
+        this.httpTextResponse = httpTextResponse;
+        return this;
+    }
 }

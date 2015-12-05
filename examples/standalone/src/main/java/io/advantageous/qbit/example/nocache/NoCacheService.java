@@ -9,8 +9,10 @@ import io.advantageous.qbit.annotation.http.ResponseHeader;
 
 import io.advantageous.qbit.http.request.HttpBinaryResponse;
 import io.advantageous.qbit.http.request.HttpResponseBuilder;
+import io.advantageous.qbit.http.request.decorator.HttpBinaryResponseHolder;
 import io.advantageous.qbit.http.request.decorator.HttpResponseDecorator;
 import io.advantageous.qbit.http.request.HttpTextResponse;
+import io.advantageous.qbit.http.request.decorator.HttpTextResponseHolder;
 import io.advantageous.qbit.util.MultiMap;
 
 @RequestMapping("/") @NoCacheHeaders
@@ -34,7 +36,7 @@ public class NoCacheService {
 
         managedServiceBuilder.getHttpServerBuilder().addResponseDecorator(new HttpResponseDecorator() {
             @Override
-            public boolean decorateTextResponse(HttpTextResponse[] responseHolder, String requestPath,
+            public boolean decorateTextResponse(HttpTextResponseHolder responseHolder, String requestPath,
                                                 int code, String contentType, String payload,
                                                 MultiMap<String, String> responseHeaders,
                                                 MultiMap<String, String> requestHeaders,
@@ -55,15 +57,15 @@ public class NoCacheService {
                         .addHeader("Expires", "0")
                         .addHeader("X-MyHeader-Hostname", "foo");
 
-                responseHolder[0] = (HttpTextResponse)responseBuilder
-                        .build();
+                responseHolder.setHttpTextResponse((HttpTextResponse) responseBuilder
+                        .build());
 
 
                 return true;
             }
 
             @Override
-            public boolean decorateBinaryResponse(HttpBinaryResponse[] responseHolder, String requestPath,
+            public boolean decorateBinaryResponse(HttpBinaryResponseHolder responseHolder, String requestPath,
                                                   int code, String contentType, byte[] payload,
                                                   MultiMap<String, String> responseHeaders,
                                                   MultiMap<String, String> requestHeaders,
@@ -85,8 +87,8 @@ public class NoCacheService {
                         .addHeader("Expires", "0")
                         .addHeader("X-Calypso-Hostname", "foo");
 
-                responseHolder[0] = (HttpBinaryResponse)responseBuilder
-                        .build();
+                responseHolder.setHttpBinaryResponse((HttpBinaryResponse)responseBuilder
+                        .build());
 
 
                 return true;
