@@ -41,7 +41,7 @@ public class HttpClientBuilder {
     private int timeOutInMilliseconds = 3_000;
     private boolean autoFlush = true;
     private boolean keepAlive = true;
-    private boolean pipeline = true;
+    private boolean pipeline = false;
     private int flushInterval = 50;
     private boolean ssl = false;
     private boolean verifyHost = false;

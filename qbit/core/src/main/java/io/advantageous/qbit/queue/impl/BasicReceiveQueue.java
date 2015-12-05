@@ -65,10 +65,10 @@ class BasicReceiveQueue<T> implements ReceiveQueue<T> {
 
 
     private T getItemFromLocalQueue() {
-        if (lastQueue.length == 0) {
-            lastQueue=null;
-            return null;
-        }
+//        if (lastQueue.length == 0) {
+//            lastQueue=null;
+//            return null;
+//        }
         @SuppressWarnings("unchecked") T item = (T) lastQueue[lastQueueIndex];
         lastQueueIndex++;
         if (lastQueueIndex == lastQueue.length) {

@@ -143,7 +143,7 @@ public abstract class AbstractBasicSendQueue <T> implements SendQueue<T> {
             index = 0;
             return ableToSend;
         } else {
-            return false;
+            return true;
         }
     }
 }
