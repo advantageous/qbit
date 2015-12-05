@@ -3,8 +3,10 @@ package io.advantageous.qbit.service.rest.endpoint.tests.tests;
 import io.advantageous.boon.core.Lists;
 import io.advantageous.qbit.http.request.HttpBinaryResponse;
 import io.advantageous.qbit.http.request.HttpResponseBuilder;
-import io.advantageous.qbit.http.request.HttpResponseDecorator;
+import io.advantageous.qbit.http.request.decorator.HttpBinaryResponseHolder;
+import io.advantageous.qbit.http.request.decorator.HttpResponseDecorator;
 import io.advantageous.qbit.http.request.HttpTextResponse;
+import io.advantageous.qbit.http.request.decorator.HttpTextResponseHolder;
 import io.advantageous.qbit.http.server.HttpServerBuilder;
 import io.advantageous.qbit.server.EndpointServerBuilder;
 import io.advantageous.qbit.server.ServiceEndpointServer;
@@ -87,19 +89,19 @@ public class PredicateChainTest {
 
         httpServerBuilder.addResponseDecorator(new HttpResponseDecorator() {
             @Override
-            public boolean decorateTextResponse(HttpTextResponse[] responseHolder, String requestPath,
+            public boolean decorateTextResponse(HttpTextResponseHolder responseHolder, String requestPath,
                                                 int code, String contentType, String payload,
                                                 MultiMap<String, String> responseHeaders,
                                                 MultiMap<String, String> requestHeaders,
                                                 MultiMap<String, String> requestParams) {
 
-                responseHolder[0] = (HttpTextResponse) HttpResponseBuilder.httpResponseBuilder()
-                        .setCode(999).setContentType("foo/bar").addHeader("foo", "bar").setBody("DECORATED" + payload).build();
+                responseHolder.setHttpTextResponse((HttpTextResponse) HttpResponseBuilder.httpResponseBuilder()
+                        .setCode(999).setContentType("foo/bar").addHeader("foo", "bar").setBody("DECORATED" + payload).build());
                 return true;
             }
 
             @Override
-            public boolean decorateBinaryResponse(HttpBinaryResponse[] responseHolder, String requestPath, int code, String contentType, byte[] payload, MultiMap<String, String> responseHeaders, MultiMap<String, String> requestHeaders, MultiMap<String, String> requestParams) {
+            public boolean decorateBinaryResponse(HttpBinaryResponseHolder responseHolder, String requestPath, int code, String contentType, byte[] payload, MultiMap<String, String> responseHeaders, MultiMap<String, String> requestHeaders, MultiMap<String, String> requestParams) {
                 return false;
             }
         });

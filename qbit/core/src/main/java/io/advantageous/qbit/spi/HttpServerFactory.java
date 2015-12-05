@@ -19,7 +19,7 @@
 package io.advantageous.qbit.spi;
 
 import io.advantageous.qbit.http.request.HttpResponseCreator;
-import io.advantageous.qbit.http.request.HttpResponseDecorator;
+import io.advantageous.qbit.http.request.decorator.HttpResponseDecorator;
 import io.advantageous.qbit.http.config.HttpServerOptions;
 import io.advantageous.qbit.http.server.HttpServer;
 import io.advantageous.qbit.service.discovery.ServiceDiscovery;

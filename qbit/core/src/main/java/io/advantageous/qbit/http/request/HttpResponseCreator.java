@@ -1,5 +1,6 @@
 package io.advantageous.qbit.http.request;
 
+import io.advantageous.qbit.http.request.decorator.HttpResponseDecorator;
 import io.advantageous.qbit.util.MultiMap;
 
 import java.util.concurrent.CopyOnWriteArrayList;
