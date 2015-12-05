@@ -18,10 +18,13 @@
 
 package io.advantageous.qbit;
 
+import io.advantageous.boon.core.Sys;
+
 public class GlobalConstants {
 
 
 
-    public final static boolean DEBUG = Boolean.valueOf(System.getProperty("io.advantageous.qbit.DEBUG", "false"));
+    public final static boolean DEBUG = Sys.sysProp("QBIT_DEBUG", false);
+    public final static boolean DEV_MODE = Sys.sysProp("QBIT_DEV_MODE", true);
 
 }

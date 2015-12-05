@@ -52,7 +52,8 @@ public class HttpRequestServiceServerHandlerUsingMetaImpl implements HttpRequest
     private final JsonMapper jsonMapper;
     private final Map<String, Request<Object>> outstandingRequestMap = new ConcurrentHashMap<>(100_000);
     private final Logger logger = LoggerFactory.getLogger(HttpRequestServiceServerHandlerUsingMetaImpl.class);
-    private final boolean debug = GlobalConstants.DEBUG || logger.isDebugEnabled();
+
+    private final boolean devMode = GlobalConstants.DEV_MODE;
     private final Lock lock = new ReentrantLock();
     private long lastFlushTime;
     private ContextMetaBuilder contextMetaBuilder = ContextMetaBuilder.contextMetaBuilder();
@@ -383,14 +384,13 @@ public class HttpRequestServiceServerHandlerUsingMetaImpl implements HttpRequest
             list.add(st);
         }
 
-        return array( StackTraceElement.class, list );
+        return array(StackTraceElement.class, list);
 
     }
 
 
 
-    //TODO https://github.com/advantageous/qbit/issues/403 #403
-    public static String asJson(final Throwable ex) {
+    public  String asJson(final Throwable ex) {
         final CharBuf buffer = CharBuf.create(255);
 
         buffer.add('{');
@@ -402,22 +402,31 @@ public class HttpRequestServiceServerHandlerUsingMetaImpl implements HttpRequest
         buffer.addLine().indent(5).addJsonFieldName("exception")
                 .asJsonString(ex.getClass().getSimpleName()).addLine(',');
 
-        if (ex.getCause()!=null) {
-            buffer.addLine().indent(5).addJsonFieldName("causeMessage")
-                    .asJsonString(ex.getCause().getMessage()).addLine(',');
 
 
-            if (ex.getCause().getCause()!=null) {
-                buffer.addLine().indent(5).addJsonFieldName("cause2Message")
-                        .asJsonString(ex.getCause().getCause().getMessage()).addLine(',');
 
-                if (ex.getCause().getCause().getCause()!=null) {
-                    buffer.addLine().indent(5).addJsonFieldName("cause3Message")
-                            .asJsonString(ex.getCause().getCause().getCause().getMessage()).addLine(',');
 
-                    if (ex.getCause().getCause().getCause().getCause()!=null) {
-                        buffer.addLine().indent(5).addJsonFieldName("cause4Message")
-                                .asJsonString(ex.getCause().getCause().getCause().getCause().getMessage()).addLine(',');
+        if (devMode) {
+
+
+            if (ex.getCause()!=null) {
+                buffer.addLine().indent(5).addJsonFieldName("causeMessage")
+                        .asJsonString(ex.getCause().getMessage()).addLine(',');
+
+
+                if (ex.getCause().getCause()!=null) {
+                    buffer.addLine().indent(5).addJsonFieldName("cause2Message")
+                            .asJsonString(ex.getCause().getCause().getMessage()).addLine(',');
+
+                    if (ex.getCause().getCause().getCause()!=null) {
+                        buffer.addLine().indent(5).addJsonFieldName("cause3Message")
+                                .asJsonString(ex.getCause().getCause().getCause().getMessage()).addLine(',');
+
+                        if (ex.getCause().getCause().getCause().getCause()!=null) {
+                            buffer.addLine().indent(5).addJsonFieldName("cause4Message")
+                                    .asJsonString(ex.getCause().getCause().getCause().getCause().getMessage()).addLine(',');
+
+                        }
 
                     }
 
@@ -425,30 +434,27 @@ public class HttpRequestServiceServerHandlerUsingMetaImpl implements HttpRequest
 
             }
 
+
+            final StackTraceElement[] stackTrace = getFilteredStackTrace(ex.getStackTrace());
+
+            if (stackTrace != null && stackTrace.length > 0) {
+
+                buffer.addLine().indent(5).addJsonFieldName("stackTrace").addLine();
+
+                stackTraceToJson(buffer, stackTrace);
+
+                buffer.add(',');
+            }
+
+            buffer.addLine().indent(5).addJsonFieldName("fullStackTrace").addLine();
+
+            final StackTraceElement[] fullStackTrace = ex.getStackTrace();
+            stackTraceToJson(buffer, fullStackTrace);
         }
-
-
-
-
-
-        final StackTraceElement[] stackTrace = getFilteredStackTrace(ex.getStackTrace());
-
-        if ( stackTrace!=null && stackTrace.length > 0 ) {
-
-            buffer.addLine().indent(5).addJsonFieldName("stackTrace").addLine();
-
-            stackTraceToJson(buffer, stackTrace);
-
-            buffer.add(',');
-        }
-
-        buffer.addLine().indent(5).addJsonFieldName("fullStackTrace").addLine();
-
-        final StackTraceElement[] fullStackTrace = ex.getStackTrace();
-        stackTraceToJson(buffer, fullStackTrace);
 
         buffer.add('}');
         return buffer.toString();
+
 
     }
 
