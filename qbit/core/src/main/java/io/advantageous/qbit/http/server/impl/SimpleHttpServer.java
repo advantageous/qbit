@@ -22,7 +22,7 @@ import io.advantageous.qbit.GlobalConstants;
 import io.advantageous.qbit.concurrent.ExecutorContext;
 import io.advantageous.qbit.http.request.HttpResponseCreator;
 import io.advantageous.qbit.http.request.impl.HttpResponseCreatorDefault;
-import io.advantageous.qbit.http.request.HttpResponseDecorator;
+import io.advantageous.qbit.http.request.decorator.HttpResponseDecorator;
 import io.advantageous.qbit.http.request.HttpRequest;
 import io.advantageous.qbit.http.server.HttpServer;
 import io.advantageous.qbit.http.server.websocket.WebSocketMessage;

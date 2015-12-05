@@ -6,11 +6,10 @@ import io.advantageous.qbit.admin.ManagedServiceBuilder;
 import io.advantageous.qbit.annotation.RequestMapping;
 import io.advantageous.qbit.annotation.http.NoCacheHeaders;
 import io.advantageous.qbit.annotation.http.ResponseHeader;
-import static io.advantageous.qbit.http.request.HttpResponseBuilder.httpResponseBuilder;
 
 import io.advantageous.qbit.http.request.HttpBinaryResponse;
 import io.advantageous.qbit.http.request.HttpResponseBuilder;
-import io.advantageous.qbit.http.request.HttpResponseDecorator;
+import io.advantageous.qbit.http.request.decorator.HttpResponseDecorator;
 import io.advantageous.qbit.http.request.HttpTextResponse;
 import io.advantageous.qbit.util.MultiMap;
 

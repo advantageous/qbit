@@ -18,7 +18,6 @@
 
 package io.advantageous.qbit.vertx.http;
 
-import io.advantageous.boon.core.Sys;
 import io.advantageous.qbit.annotation.RequestMapping;
 import io.advantageous.qbit.annotation.RequestMethod;
 import io.advantageous.qbit.client.Client;
@@ -26,6 +25,9 @@ import io.advantageous.qbit.client.ClientBuilder;
 import io.advantageous.qbit.http.client.HttpClient;
 import io.advantageous.qbit.http.client.HttpClientBuilder;
 import io.advantageous.qbit.http.request.*;
+import io.advantageous.qbit.http.request.decorator.HttpBinaryResponseHolder;
+import io.advantageous.qbit.http.request.decorator.HttpResponseDecorator;
+import io.advantageous.qbit.http.request.decorator.HttpTextResponseHolder;
 import io.advantageous.qbit.reactive.Callback;
 import io.advantageous.qbit.server.EndpointServerBuilder;
 import io.advantageous.qbit.server.ServiceEndpointServer;
@@ -156,17 +158,17 @@ public class SupportingGetAndPostForSameServicesUnderSameURI extends TimedTestin
         endpointServerBuilder.setPort(port).getHttpServerBuilder();
         endpointServerBuilder.getHttpServerBuilder().addResponseDecorator(new HttpResponseDecorator() {
             @Override
-            public boolean decorateTextResponse(HttpTextResponse[] responseHolder, String requestPath, int code,
+            public boolean decorateTextResponse(HttpTextResponseHolder responseHolder, String requestPath, int code,
                                                 String contentType, String payload, MultiMap<String, String> responseHeaders,
                                                 MultiMap<String, String> requestHeaders, MultiMap<String, String> requestParams) {
 
-                responseHolder[0] = (HttpTextResponse) HttpResponseBuilder.httpResponseBuilder().setCode(code).setContentType(contentType)
-                        .addHeader("TEST_HEADER", "TEST").setBody(payload).build();
+                responseHolder.setHttpTextResponse((HttpTextResponse) HttpResponseBuilder.httpResponseBuilder().setCode(code).setContentType(contentType)
+                        .addHeader("TEST_HEADER", "TEST").setBody(payload).build());
                 return true;
             }
 
             @Override
-            public boolean decorateBinaryResponse(HttpBinaryResponse[] responseHolder, String requestPath, int code, String contentType, byte[] payload, MultiMap<String, String> responseHeaders, MultiMap<String, String> requestHeaders, MultiMap<String, String> requestParams) {
+            public boolean decorateBinaryResponse(HttpBinaryResponseHolder responseHolder, String requestPath, int code, String contentType, byte[] payload, MultiMap<String, String> responseHeaders, MultiMap<String, String> requestHeaders, MultiMap<String, String> requestParams) {
                 return false;
             }
         });

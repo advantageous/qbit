@@ -1,6 +1,9 @@
 package io.advantageous.qbit.http.request.impl;
 
 import io.advantageous.qbit.http.request.*;
+import io.advantageous.qbit.http.request.decorator.HttpBinaryResponseHolder;
+import io.advantageous.qbit.http.request.decorator.HttpResponseDecorator;
+import io.advantageous.qbit.http.request.decorator.HttpTextResponseHolder;
 import io.advantageous.qbit.util.MultiMap;
 
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -40,11 +43,11 @@ public class HttpResponseCreatorDefault implements HttpResponseCreator {
 
         HttpTextResponse httpTextResponse = null;
         if (decorators.size()>=0) {
-            HttpTextResponse[] holder = new HttpTextResponse[1];
+            HttpTextResponseHolder holder = new HttpTextResponseHolder();
             for (HttpResponseDecorator decorator : decorators) {
                 if (decorator.decorateTextResponse(holder, requestPath, code, contentType,
                         payload, responseHeaders, requestHeaders, requestParams )) {
-                    httpTextResponse = holder[0];
+                    httpTextResponse = holder.getHttpTextResponse();
                     break;
                 }
             }
@@ -61,13 +64,13 @@ public class HttpResponseCreatorDefault implements HttpResponseCreator {
 
         HttpBinaryResponse httpResponse = null;
         if (decorators.size()>=0) {
-            HttpBinaryResponse[] holder = new HttpBinaryResponse[1];
+            HttpBinaryResponseHolder holder = new HttpBinaryResponseHolder();
 
             for (HttpResponseDecorator decorator : decorators) {
                 if (decorator.decorateBinaryResponse(
                         holder, requestPath, code, contentType,
                         payload, responseHeaders, requestHeaders, requestParams )) {
-                    httpResponse = holder[0];
+                    httpResponse = holder.getHttpBinaryResponse();
                     break;
                 }
             }

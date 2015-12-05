@@ -25,7 +25,7 @@ import io.advantageous.boon.core.reflection.BeanUtils;
 import io.advantageous.qbit.GlobalConstants;
 import io.advantageous.qbit.http.HttpContentTypes;
 import io.advantageous.qbit.http.request.HttpResponseCreator;
-import io.advantageous.qbit.http.request.HttpResponseDecorator;
+import io.advantageous.qbit.http.request.decorator.HttpResponseDecorator;
 import io.advantageous.qbit.http.config.HttpServerOptions;
 import io.advantageous.qbit.http.request.HttpRequest;
 import io.advantageous.qbit.http.server.HttpServer;

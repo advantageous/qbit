@@ -22,7 +22,7 @@ import io.advantageous.qbit.Factory;
 import io.advantageous.qbit.QBit;
 import io.advantageous.qbit.http.request.HttpResponseCreator;
 import io.advantageous.qbit.http.request.impl.HttpResponseCreatorDefault;
-import io.advantageous.qbit.http.request.HttpResponseDecorator;
+import io.advantageous.qbit.http.request.decorator.HttpResponseDecorator;
 import io.advantageous.qbit.http.config.HttpServerConfig;
 import io.advantageous.qbit.http.request.HttpRequest;
 import io.advantageous.qbit.service.discovery.ServiceDiscovery;
