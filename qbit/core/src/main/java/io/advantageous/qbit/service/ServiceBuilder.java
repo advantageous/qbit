@@ -474,7 +474,8 @@ public class ServiceBuilder {
                 this.getAfterMethodCallAfterTransform(),
                 buildQueueCallBackHandler(),
                 getCallbackManager(),
-                getBeforeMethodSent()
+                getBeforeMethodSent(),
+                getEventManager()
                 );
 
         if (serviceQueueSizer!=null) {
@@ -485,9 +486,6 @@ public class ServiceBuilder {
             qBitSystemManager.registerService(serviceQueue);
         }
 
-        if (eventManager!=null) {
-            eventManager.joinService(serviceQueue);
-        }
 
         return serviceQueue;
     }

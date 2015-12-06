@@ -70,9 +70,12 @@ import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.util.Collection;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.Consumer;
+
 import static io.advantageous.qbit.QBit.factory;
 import static io.advantageous.qbit.service.ServiceContext.serviceContext;
 
@@ -93,6 +96,7 @@ public class BaseServiceQueueImpl implements ServiceQueue {
     protected final boolean handleCallbacks;
     private final Factory factory;
     private final BeforeMethodSent beforeMethodSent;
+    private final Optional<EventManager> eventManager;
     protected volatile long lastResponseFlushTime = Timer.timer().now();
     protected final ServiceMethodHandler serviceMethodHandler;
     protected final SendQueue<Response<Object>> responseSendQueue;
@@ -122,8 +126,12 @@ public class BaseServiceQueueImpl implements ServiceQueue {
                                 final AfterMethodCall afterMethodCallAfterTransform,
                                 final QueueCallBackHandler queueCallBackHandler,
                                 final CallbackManager callbackManager,
-                                final BeforeMethodSent beforeMethodSent) {
+                                final BeforeMethodSent beforeMethodSent,
+                                final EventManager eventManager) {
 
+        this.eventManager = Optional.ofNullable(eventManager);
+
+        this.eventManager.ifPresent(em -> em.joinService(BaseServiceQueueImpl.this));
         this.beforeMethodSent = beforeMethodSent;
         this.beforeMethodCall = beforeMethodCall;
         this.beforeMethodCallAfterTransform = beforeMethodCallAfterTransform;
@@ -586,6 +594,8 @@ public class BaseServiceQueueImpl implements ServiceQueue {
         }
 
         if (systemManager != null) this.systemManager.serviceShutDown();
+
+        eventManager.ifPresent(em -> em.leave(BaseServiceQueueImpl.this));
     }
 
     @Override
@@ -604,6 +614,11 @@ public class BaseServiceQueueImpl implements ServiceQueue {
     @Override
     public boolean failing() {
         return failing.get();
+    }
+
+    @Override
+    public boolean running() {
+        return started.get();
     }
 
     @Override

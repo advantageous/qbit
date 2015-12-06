@@ -44,6 +44,10 @@ public interface EventManager {
     void joinService(ServiceQueue serviceQueue);
 
 
+    default void leave(ServiceQueue serviceQueue) {
+
+    }
+
     default void joinServices(ServiceQueue... serviceQueues) {
 
         for (ServiceQueue serviceQueue : serviceQueues) {
@@ -93,24 +97,6 @@ public interface EventManager {
     <T> void unregister(String channelName, EventListener<T> listener);
 
 
-    /**
-     * This method can only be called outside of a service.
-     * Registers an output queue to a list of channel names.
-     *
-     * @param channelName array of channel names
-     * @param listener    queue that is going to listen
-     */
-    void subscribe(String channelName, SendQueue<Event<Object>> listener);
-
-
-    /**
-     * This method can only be called outside of a service.
-     * Registers an output queue to a consume for P2P style messaging.
-     *
-     * @param channelName channel name
-     * @param listener    queue that is going to consume
-     */
-    void consume(String channelName, SendQueue<Event<Object>> listener);
 
 
     /**

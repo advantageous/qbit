@@ -107,7 +107,7 @@ public class Main {
     public static void main(String... args) throws Exception {
 
         final int runs = 20;
-        final int tradeCount = 500_000;
+        final int tradeCount = 2_000_000;
         final int batchSize = 125;
 
         int currentBatchSize = batchSize;

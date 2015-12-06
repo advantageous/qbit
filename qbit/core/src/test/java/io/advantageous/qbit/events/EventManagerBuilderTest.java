@@ -329,15 +329,6 @@ public class EventManagerBuilderTest {
 
             }
 
-            @Override
-            public  void subscribe(String channelName, SendQueue<Event<Object>> event) {
-
-            }
-
-            @Override
-            public  void consume(String channelName, SendQueue<Event<Object>> event) {
-
-            }
 
             @Override
             public <T> void send(String channel, T event) {
