@@ -86,9 +86,13 @@ public class ServiceBuilder {
     private EventManager eventManager;
     private BeforeMethodSent beforeMethodSent;
 
+
     public static ServiceBuilder serviceBuilder() {
         return new ServiceBuilder();
     }
+
+
+
 
 
 
@@ -258,6 +262,11 @@ public class ServiceBuilder {
     }
 
     public ServiceMethodHandler getServiceMethodHandler() {
+
+        if (serviceMethodHandler == null) {
+            serviceMethodHandler =
+                    QBit.factory().createServiceMethodHandler(this.isInvokeDynamic());
+        }
         return serviceMethodHandler;
     }
 
@@ -454,7 +463,7 @@ public class ServiceBuilder {
             serviceQueueSizer = new ServiceQueueSizer();
             this.addQueueCallbackHandler(new ServiceStatsListener(statsConfig.serviceName,
                     statsConfig.statsCollector,
-                    getTimer(),statsConfig.flushTimeSeconds, TimeUnit.SECONDS,
+                    getTimer(), statsConfig.flushTimeSeconds, TimeUnit.SECONDS,
                     statsConfig.sampleEvery, serviceQueueSizer));
         }
 
@@ -463,7 +472,7 @@ public class ServiceBuilder {
                 this.getServiceObject(),
                 this.getRequestQueueBuilder(),
                 this.getResponseQueueBuilder(),
-                QBit.factory().createServiceMethodHandler(this.isInvokeDynamic()),
+                this.getServiceMethodHandler(),
                 this.getResponseQueue(),
                 this.isAsyncResponse(),
                 this.isHandleCallbacks(),

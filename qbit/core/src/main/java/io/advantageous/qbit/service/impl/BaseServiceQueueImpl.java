@@ -131,7 +131,6 @@ public class BaseServiceQueueImpl implements ServiceQueue {
 
         this.eventManager = Optional.ofNullable(eventManager);
 
-        this.eventManager.ifPresent(em -> em.joinService(BaseServiceQueueImpl.this));
         this.beforeMethodSent = beforeMethodSent;
         this.beforeMethodCall = beforeMethodCall;
         this.beforeMethodCallAfterTransform = beforeMethodCallAfterTransform;
@@ -187,6 +186,12 @@ public class BaseServiceQueueImpl implements ServiceQueue {
         this.systemManager = systemManager;
 
         this.factory = factory();
+
+        this.eventManager.ifPresent(em ->
+        {
+
+            em.joinService(BaseServiceQueueImpl.this);
+        });
 
 
     }
@@ -595,7 +600,7 @@ public class BaseServiceQueueImpl implements ServiceQueue {
 
         if (systemManager != null) this.systemManager.serviceShutDown();
 
-        eventManager.ifPresent(em -> em.leave(BaseServiceQueueImpl.this));
+        eventManager.ifPresent(em -> em.leaveEventBus(BaseServiceQueueImpl.this));
     }
 
     @Override

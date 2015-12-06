@@ -1,12 +1,17 @@
 package io.advantageous.qbit.example.perf;
 
 import io.advantageous.boon.core.Sys;
+import io.advantageous.qbit.message.MethodCall;
+import io.advantageous.qbit.message.Response;
+import io.advantageous.qbit.message.impl.ResponseImpl;
 import io.advantageous.qbit.queue.Queue;
 import io.advantageous.qbit.queue.QueueBuilder;
 import io.advantageous.qbit.queue.SendQueue;
 import io.advantageous.qbit.service.ServiceBuilder;
+import io.advantageous.qbit.service.ServiceMethodHandler;
 import io.advantageous.qbit.service.ServiceProxyUtils;
 import io.advantageous.qbit.service.ServiceQueue;
+import io.advantageous.qbit.service.impl.ServiceConstants;
 
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -47,7 +52,7 @@ public class Main {
     }
 
 
-    private static void runService(int runs, int tradeCount, int batchSize, int checkEvery) {
+    private static void runService(int runs, int tradeCount, int batchSize, int checkEvery, boolean dynamic) {
 
         final QueueBuilder queueBuilder = QueueBuilder.queueBuilder().setName("trades").setBatchSize(batchSize)
                 .setSize(1_000_000);
@@ -59,9 +64,20 @@ public class Main {
 
         final TradeServiceImpl tradeServiceImpl = new TradeServiceImpl();
 
-        final ServiceBuilder serviceBuilder = ServiceBuilder.serviceBuilder().setRequestQueueBuilder(queueBuilder);
+        final ServiceBuilder serviceBuilder = ServiceBuilder.serviceBuilder()
+                .setRequestQueueBuilder(queueBuilder).setInvokeDynamic(dynamic);
 
-        final ServiceQueue serviceQueue = serviceBuilder.setServiceObject(tradeServiceImpl).build().startServiceQueue();
+        final ServiceQueue serviceQueue = serviceBuilder.setServiceObject(tradeServiceImpl)
+                .setServiceMethodHandler(new ServiceMethodHandler() {
+                    @Override
+                    public Response<Object> receiveMethodCall(MethodCall<Object> methodCall) {
+                        final Trade trade = (Trade) methodCall.args()[0];
+                        tradeServiceImpl.trade(trade);
+                        return ServiceConstants.VOID;
+                    }
+
+                })
+                .build().startServiceQueue();
 
         final TradeService tradeService = serviceQueue.createProxy(TradeService.class);
 
@@ -106,21 +122,22 @@ public class Main {
 
     public static void main(String... args) throws Exception {
 
-        final int runs = 20;
-        final int tradeCount = 2_000_000;
-        final int batchSize = 125;
+        final int runs = 10;
+        final int tradeCount = 1_000_000;
+        final int batchSize = 80_000;
+        final boolean dynamic = false;
 
-        int currentBatchSize = batchSize;
+        //int currentBatchSize = batchSize;
 
 
 
-        for (int index=0; index< 5; index++) {
-            runService(runs, tradeCount, currentBatchSize, 0);
-            currentBatchSize*=2;
+        for (int index=0; index< 100; index++) {
+            runService(runs, tradeCount, batchSize, 0, dynamic);
+            //currentBatchSize*=2;
         }
 
 
-        Sys.sleep(Integer.MAX_VALUE);
+        System.out.println("DONE");
     }
 
 

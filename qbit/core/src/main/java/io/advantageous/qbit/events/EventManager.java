@@ -44,7 +44,7 @@ public interface EventManager {
     void joinService(ServiceQueue serviceQueue);
 
 
-    default void leave(ServiceQueue serviceQueue) {
+    default void leaveEventBus(ServiceQueue serviceQueue) {
 
     }
 

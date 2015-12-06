@@ -54,6 +54,7 @@ public class BoonServiceMethodCallHandler implements ServiceMethodHandler {
 
 
     private final boolean invokeDynamic;
+    private final MapAndInvoke mapAndInvoke;
     private ClassMeta<Class<?>> classMeta;
     private Object service;
     private QueueCallBackHandler queueCallBackHandler;
@@ -75,8 +76,84 @@ public class BoonServiceMethodCallHandler implements ServiceMethodHandler {
 
     public BoonServiceMethodCallHandler(final boolean invokeDynamic) {
         this.invokeDynamic = invokeDynamic;
+
+        if (invokeDynamic) {
+            this.mapAndInvoke = new MapAndInvokeDynamic();
+        } else {
+            this.mapAndInvoke = new MapAndInvokeImpl();
+        }
     }
 
+
+    private interface MapAndInvoke {
+        Response<Object> mapArgsAsyncHandlersAndInvoke(MethodCall<Object> methodCall, MethodAccess method);
+    }
+
+    private class MapAndInvokeDynamic implements MapAndInvoke {
+        public Response<Object> mapArgsAsyncHandlersAndInvoke(MethodCall<Object> methodCall, MethodAccess method) {
+
+            if (method.parameterTypes().length == 0) {
+
+                Object returnValue = method.invokeDynamicObject(service, null);
+                return response(method, methodCall, returnValue);
+
+            }
+
+
+            boolean hasHandlers = hasHandlers(methodCall, method);
+
+            Object returnValue;
+
+            if (hasHandlers) {
+                Object body = methodCall.body();
+                List<Object> argsList = prepareArgumentList(methodCall, method.parameterTypes());
+                if (body instanceof List || body instanceof Object[]) {
+                    extractHandlersFromArgumentList(method, body, argsList);
+                } else {
+                    if (argsList.size() == 1 && !(argsList.get(0) instanceof Callback)) {
+                        argsList.set(0, body);
+                    }
+                }
+                returnValue = method.invokeDynamicObject(service, argsList);
+
+            } else {
+                    if (methodCall.body() instanceof List) {
+                        final List argsList = (List) methodCall.body();
+                        returnValue = method.invokeDynamic(service, argsList.toArray(new Object[argsList.size()]));
+                    } else if (methodCall.body() instanceof Object[]) {
+                        final Object[] argsList = (Object[]) methodCall.body();
+                        returnValue = method.invokeDynamic(service, argsList);
+                    } else {
+                        returnValue = method.invokeDynamic(service, methodCall.body());
+                    }
+            }
+
+
+            return response(method, methodCall, returnValue);
+
+        }
+    }
+
+    private class MapAndInvokeImpl implements MapAndInvoke {
+        public Response<Object> mapArgsAsyncHandlersAndInvoke(MethodCall<Object> methodCall, MethodAccess method) {
+            boolean hasHandlers = hasHandlers(methodCall, method);
+
+            Object returnValue;
+
+
+            if (hasHandlers) {
+                Object body = methodCall.body();
+                List<Object> argsList = prepareArgumentList(methodCall, method.parameterTypes());
+                extractHandlersFromArgumentList(method, body, argsList);
+                returnValue = method.invoke(service, argsList.toArray(new Object[argsList.size()]));
+            } else {
+                final Object[] argsList = (Object[]) methodCall.body();
+                returnValue = method.invoke(service, argsList);
+            }
+            return response(method, methodCall, returnValue);
+
+        }
+    }
     @Override
     public Response<Object> receiveMethodCall(MethodCall<Object> methodCall) {
 
@@ -98,88 +175,27 @@ public class BoonServiceMethodCallHandler implements ServiceMethodHandler {
     }
 
     private Response<Object> mapArgsAsyncHandlersAndInvoke(MethodCall<Object> methodCall, MethodAccess method) {
+        return this.mapAndInvoke.mapArgsAsyncHandlersAndInvoke(methodCall, method);
+    }
 
 
-        if (method.parameterTypes().length == 0) {
+    final Map<String, Boolean> hasHandlerMap = new HashMap<>();
 
-            Object returnValue = method.invokeDynamicObject(service, null);
-            return response(method, methodCall, returnValue);
+    private boolean hasHandlers(MethodCall<Object> methodCall, MethodAccess method) {
 
-        }
+        Boolean has = hasHandlerMap.get(methodCall.name());
 
-        if (method.parameterTypes().length == 1) {
-
-
-            Object body = methodCall.body();
-
-            if (body == null || (body instanceof String && Str.isEmpty(body))) {
-                if (method.parameterTypes()[0] != Callback.class) {
-                    body = methodCall.params();
-                    Object returnValue = method.invokeDynamicObject(service, body);
-                    return response(method, methodCall, returnValue);
-                }
-            }
-
-        }
-
-        boolean hasHandlers = hasHandlers(methodCall);
-
-        hasHandlers = hasHandlers(method) || hasHandlers;
-
-        Object returnValue;
-
-
-        if (hasHandlers) {
-            Object body = methodCall.body();
-            List<Object> argsList = prepareArgumentList(methodCall, method.parameterTypes());
-
-
-            if (body instanceof List || body instanceof Object[]) {
-
-
-                extractHandlersFromArgumentList(method, body, argsList);
-
-            } else {
-                if (argsList.size() == 1 && !(argsList.get(0) instanceof Callback)) {
-                    argsList.set(0, body);
-                }
-            }
-
-
-            if (invokeDynamic) {
-                returnValue = method.invokeDynamicObject(service, argsList);
-            } else {
-                returnValue = method.invoke(service, argsList.toArray(new Object[argsList.size()]));
-            }
-
+        boolean hasHandlers;
+        if (has == null) {
+            hasHandlers = hasHandlers(methodCall);
+            hasHandlers = hasHandlers(method) || hasHandlers;
+            hasHandlerMap.put(methodCall.name(), hasHandlers);
         } else {
-
-            if (invokeDynamic) {
-
-                if (methodCall.body() instanceof List) {
-                    final List argsList = (List) methodCall.body();
-                    returnValue = method.invokeDynamic(service, argsList.toArray(new Object[argsList.size()]));
-                } else if (methodCall.body() instanceof Object[]) {
-                    final Object[] argsList = (Object[]) methodCall.body();
-                    returnValue = method.invokeDynamic(service, argsList);
-                } else {
-                    returnValue = method.invokeDynamic(service, methodCall.body());
-                }
-            } else {
-                if (methodCall.body() instanceof List) {
-                    final List argsList = (List) methodCall.body();
-                    returnValue = method.invoke(service, argsList.toArray(new Object[argsList.size()]));
-                } else if (methodCall.body() instanceof Object[]) {
-                    final Object[] argsList = (Object[]) methodCall.body();
-                    returnValue = method.invoke(service, argsList);
-                } else {
-                    returnValue = method.invoke(service, methodCall.body());
-                }
-            }
+            hasHandlers = has;
         }
 
+        return hasHandlers;
 
-        return response(method, methodCall, returnValue);
     }
 
 
@@ -289,8 +305,10 @@ public class BoonServiceMethodCallHandler implements ServiceMethodHandler {
         return ResponseImpl.response(methodCall.id(), methodCall.timestamp(), methodCall.name(), methodCall.returnAddress(), returnValue, methodCall);
     }
 
+
     private List<Object> prepareArgumentList(final MethodCall<Object> methodCall, Class<?>[] parameterTypes) {
         final List<Object> argsList = new ArrayList<>(parameterTypes.length);
+
         for (Class<?> parameterType : parameterTypes) {
             if (parameterType == Callback.class) {
                 argsList.add(createCallBackHandler(methodCall));

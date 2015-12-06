@@ -11,6 +11,7 @@ import io.advantageous.qbit.service.ServiceBuilder;
 import io.advantageous.qbit.service.ServiceProxyUtils;
 import io.advantageous.qbit.service.ServiceQueue;
 import io.advantageous.qbit.system.QBitSystemManager;
+import io.advantageous.qbit.time.Duration;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -71,6 +72,7 @@ public class SendingEventsUsingStronglyTypedChannelToServiceTest {
         /** Send record over record event channel. */
         public void addRecord(final Record record) {
             recordChannel.newRecord(record);
+            ServiceProxyUtils.flushServiceProxy(recordChannel);
         }
 
 
@@ -186,16 +188,18 @@ public class SendingEventsUsingStronglyTypedChannelToServiceTest {
 
 
         serviceBuilder = ServiceBuilder.serviceBuilder()
-                .setEventManager(eventManager)
                 .setSystemManager(systemManager);
 
         eventServiceQueue = serviceBuilder.setServiceObject(eventManager).buildAndStartAll();
 
 
+        serviceBuilder.setEventManager(eventManager);
+
+
         serviceB = new ServiceB();
         serviceBuilder.setServiceObject(serviceB).buildAndStartAll();
 
-        serviceA = new ServiceA(eventServiceQueue.createProxy(EventManager.class),
+        serviceA = new ServiceA(eventServiceQueue.createProxyWithAutoFlush(EventManager.class, Duration.SECOND),
                 QBit.factory().eventBusProxyCreator());
 
 

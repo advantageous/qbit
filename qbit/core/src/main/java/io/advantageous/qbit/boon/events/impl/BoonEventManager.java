@@ -211,12 +211,12 @@ public class BoonEventManager implements EventManager {
     @Override
     public void leave() {
         final ServiceQueue serviceQueue = serviceContext().currentService();
-        leave(serviceQueue);
+        leaveEventBus(serviceQueue);
     }
 
 
     @Override
-    public void leave(final ServiceQueue serviceQueue) {
+    public void leaveEventBus(final ServiceQueue serviceQueue) {
         if (serviceQueue == null) {
             throw new IllegalStateException(String.format("EventManager %s:: Must be called from inside of a Service", name));
         }
@@ -310,6 +310,10 @@ public class BoonEventManager implements EventManager {
                 name, serviceQueue, methodAccess.name(), listen.getValues());
 
         final String channel = listen.getValues().get("value").toString();
+
+        if (Str.isEmpty(channel)) {
+            return;
+        }
         final boolean consume = (boolean) listen.getValues().get("consume");
 
 
