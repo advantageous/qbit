@@ -474,7 +474,8 @@ public class ServiceBuilder {
                 this.getAfterMethodCallAfterTransform(),
                 buildQueueCallBackHandler(),
                 getCallbackManager(),
-                getBeforeMethodSent());
+                getBeforeMethodSent()
+                );
 
         if (serviceQueueSizer!=null) {
             serviceQueueSizer.setServiceQueue(serviceQueue);
