@@ -62,8 +62,9 @@ public class ShardedServiceWorkerBuilder {
     public ServiceBuilder getServiceBuilder() {
         if (serviceBuilder == null) {
             serviceBuilder = ServiceBuilder.serviceBuilder();
+            return serviceBuilder;
         }
-        return serviceBuilder;
+        return serviceBuilder.copy();
     }
 
     public ShardedServiceWorkerBuilder setServiceBuilder(ServiceBuilder serviceBuilder) {

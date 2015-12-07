@@ -55,8 +55,9 @@ public class StatsDReplicatorBuilder {
 
         if (serviceBuilder == null) {
             serviceBuilder = ServiceBuilder.serviceBuilder();
+            return serviceBuilder;
         }
-        return serviceBuilder;
+        return serviceBuilder.copy();
     }
 
     public void setServiceBuilder(ServiceBuilder serviceBuilder) {

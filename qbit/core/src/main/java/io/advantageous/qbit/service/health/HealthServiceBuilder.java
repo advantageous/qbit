@@ -209,8 +209,9 @@ public class HealthServiceBuilder {
     public ServiceBuilder getServiceBuilder() {
         if (serviceBuilder == null) {
             serviceBuilder = ServiceBuilder.serviceBuilder();
+            return serviceBuilder;
         }
-        return serviceBuilder;
+        return serviceBuilder.copy();
     }
 
     public HealthServiceBuilder setServiceBuilder(ServiceBuilder serviceBuilder) {

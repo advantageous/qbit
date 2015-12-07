@@ -145,8 +145,9 @@ public class LocalKeyValueStoreServiceBuilder<T> {
     public ServiceBuilder getServiceBuilder() {
         if (serviceBuilder == null) {
             serviceBuilder = new ServiceBuilder();
+            return serviceBuilder;
         }
-        return serviceBuilder;
+        return serviceBuilder.copy();
     }
 
     public LocalKeyValueStoreServiceBuilder setServiceBuilder(ServiceBuilder serviceBuilder) {

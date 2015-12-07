@@ -23,13 +23,11 @@ public class LowLevelLocalKeyValueStoreServiceBuilder {
     public ServiceBuilder getServiceBuilder() {
         if (serviceBuilder == null) {
             serviceBuilder = new ServiceBuilder();
-        } else {
-            ServiceBuilder newServiceBuilder = new ServiceBuilder();
-            return newServiceBuilder;
+            return serviceBuilder;
         }
 
 
-        return serviceBuilder;
+        return serviceBuilder.copy();
     }
 
     public LowLevelLocalKeyValueStoreServiceBuilder setServiceBuilder(ServiceBuilder serviceBuilder) {

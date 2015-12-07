@@ -44,6 +44,7 @@ public class RoundRobinServiceWorkerBuilder {
     public ServiceBuilder getServiceBuilder() {
         if (serviceBuilder == null) {
             serviceBuilder = ServiceBuilder.serviceBuilder();
+            return serviceBuilder;
         }
 
 
