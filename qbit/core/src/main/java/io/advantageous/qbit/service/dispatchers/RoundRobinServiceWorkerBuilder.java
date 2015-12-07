@@ -44,8 +44,11 @@ public class RoundRobinServiceWorkerBuilder {
     public ServiceBuilder getServiceBuilder() {
         if (serviceBuilder == null) {
             serviceBuilder = ServiceBuilder.serviceBuilder();
+            return serviceBuilder;
         }
-        return serviceBuilder;
+
+
+        return serviceBuilder.copy();
     }
 
     public RoundRobinServiceWorkerBuilder setServiceBuilder(ServiceBuilder serviceBuilder) {
@@ -94,9 +97,10 @@ public class RoundRobinServiceWorkerBuilder {
         if (getServiceObjectSupplier() == null) {
             throw new IllegalStateException("serviceObjectSupplier must be set");
         }
-        final ServiceBuilder serviceBuilder = getServiceBuilder();
 
         for (int index = 0; index < getWorkerCount(); index++) {
+
+            final ServiceBuilder serviceBuilder = getServiceBuilder();
             final ServiceQueue serviceQueue = serviceBuilder
                     .setServiceObject(getServiceObjectSupplier().get()).build();
             getServiceDispatcher().addServices(serviceQueue);

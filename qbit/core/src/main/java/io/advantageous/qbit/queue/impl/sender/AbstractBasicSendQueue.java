@@ -21,7 +21,7 @@ public abstract class AbstractBasicSendQueue <T> implements SendQueue<T> {
     protected int checkEveryStarted = 0;
     protected int index;
     protected final String name;
-    protected final Object[] queueLocal;
+    protected Object[] queueLocal;
     private final boolean checkStart = Sys.sysProp("QBIT_CHECK_START", false);
     private final int checkStartWarnEvery = Sys.sysProp("QBIT_CHECK_START_WARN_EVERY", 100);
     private final boolean checkQueueSize = Sys.sysProp("QBIT_CHECK_QUEUE_SIZE", false);
@@ -138,9 +138,16 @@ public abstract class AbstractBasicSendQueue <T> implements SendQueue<T> {
     protected final boolean sendLocalQueue() {
 
         if (index > 0) {
-            final Object[] copy = fastObjectArraySlice(queueLocal, 0, index);
-            boolean ableToSend = sendArray(copy);
+            boolean ableToSend;
+
+            if (index == queueLocal.length) {
+                ableToSend = sendArray(queueLocal);
+            } else {
+                final Object[] copy = fastObjectArraySlice(queueLocal, 0, index);
+                ableToSend = sendArray(copy);
+            }
             index = 0;
+            queueLocal = new Object[batchSize];
             return ableToSend;
         } else {
             return true;

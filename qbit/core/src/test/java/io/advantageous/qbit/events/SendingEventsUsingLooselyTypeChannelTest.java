@@ -173,25 +173,33 @@ public class SendingEventsUsingLooselyTypeChannelTest {
                 .build();
 
 
-        serviceBuilder = ServiceBuilder.serviceBuilder()
-                .setEventManager(eventManager)
-                .setSystemManager(systemManager);
 
-        eventServiceQueue = serviceBuilder.setServiceObject(eventManager).buildAndStartAll();
+        eventServiceQueue = ServiceBuilder.serviceBuilder().setServiceObject(eventManager).buildAndStartAll();
 
 
         serviceB = new ServiceB();
-        serviceBuilder.setServiceObject(serviceB).buildAndStartAll();
 
         serviceA = new ServiceA(eventServiceQueue.createProxy(EventManager.class));
 
+        serviceBuilder = ServiceBuilder.serviceBuilder()
+                .setServiceObject(serviceA)
+                .setJoinEventManager(false)
+                .setEventManager(eventManager).setSystemManager(systemManager);
 
-        final ServiceQueue serviceAQueue = serviceBuilder
-                .setServiceObject(serviceA).buildAndStartAll();
+        final ServiceQueue serviceAQueue = serviceBuilder.buildAndStartAll();
+
+
+
+
+        ServiceBuilder.serviceBuilder()
+                .setServiceObject(serviceB)
+                .setJoinEventManager(false)
+                .setEventManager(eventManager)
+                .setSystemManager(systemManager)
+                .buildAndStartAll();
 
 
         serviceAQueueProxy = serviceAQueue.createProxy(ServiceAInterface.class);
-
 
     }
 

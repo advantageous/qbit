@@ -25,6 +25,7 @@ import io.advantageous.qbit.queue.ReceiveQueueListener;
 import io.advantageous.qbit.queue.SendQueue;
 
 import java.util.Collection;
+import java.util.Collections;
 
 /**
  * This is a plugin just for the piece that does the invocation.
@@ -37,17 +38,29 @@ import java.util.Collection;
  */
 public interface ServiceMethodHandler extends ReceiveQueueListener<MethodCall<Object>> {
 
-    void init(Object service, String rootAddress, String serviceAddress, SendQueue<Response<Object>> responseSendQueue);
+    default void init(Object service, String rootAddress, String serviceAddress, SendQueue<Response<Object>> responseSendQueue){}
 
     Response<Object> receiveMethodCall(MethodCall<Object> methodCall);
 
-    String address();
+    default String address() { return "notset"; }
 
 
-    String name();
+    default String name() { return address(); }
 
-    Collection<String> addresses();
+    default Collection<String> addresses() { return Collections.singleton(address());}
 
 
-    void handleEvent(Event<Object> event);
+    default void handleEvent(Event<Object> event) {
+
+    }
+
+    @Override
+    default void receive(MethodCall<Object> item) {
+        throw new UnsupportedOperationException();
+    }
+
+
+    default boolean couldHaveCallback(final String name)  {
+        return false;
+    }
 }

@@ -54,6 +54,7 @@ public class BoonServiceMethodCallHandler implements ServiceMethodHandler {
 
 
     private final boolean invokeDynamic;
+    private final MapAndInvoke mapAndInvoke;
     private ClassMeta<Class<?>> classMeta;
     private Object service;
     private QueueCallBackHandler queueCallBackHandler;
@@ -75,17 +76,124 @@ public class BoonServiceMethodCallHandler implements ServiceMethodHandler {
 
     public BoonServiceMethodCallHandler(final boolean invokeDynamic) {
         this.invokeDynamic = invokeDynamic;
+
+        if (invokeDynamic) {
+            this.mapAndInvoke = new MapAndInvokeDynamic();
+        } else {
+            this.mapAndInvoke = new MapAndInvokeImpl();
+        }
     }
 
+
+    private interface MapAndInvoke {
+        Response<Object> mapArgsAsyncHandlersAndInvoke(MethodCall<Object> methodCall, MethodAccess method);
+    }
+
+    private class MapAndInvokeDynamic implements MapAndInvoke {
+        public Response<Object> mapArgsAsyncHandlersAndInvoke(MethodCall<Object> methodCall, MethodAccess method) {
+
+            if (method.parameterTypes().length == 0) {
+
+                Object returnValue = method.invokeDynamicObject(service, null);
+                return response(method, methodCall, returnValue);
+
+            }
+
+
+            boolean hasHandlers = hasHandlers(methodCall, method);
+
+            Object returnValue;
+
+            if (hasHandlers) {
+                Object body = methodCall.body();
+                List<Object> argsList = prepareArgumentList(methodCall, method.parameterTypes());
+                if (body instanceof List || body instanceof Object[]) {
+                    extractHandlersFromArgumentList(method, body, argsList);
+                } else {
+                    if (argsList.size() == 1 && !(argsList.get(0) instanceof Callback)) {
+                        argsList.set(0, body);
+                    }
+                }
+                returnValue = method.invokeDynamicObject(service, argsList);
+
+            } else {
+                    if (methodCall.body() instanceof List) {
+                        final List argsList = (List) methodCall.body();
+                        returnValue = method.invokeDynamic(service, argsList.toArray(new Object[argsList.size()]));
+                    } else if (methodCall.body() instanceof Object[]) {
+                        final Object[] argsList = (Object[]) methodCall.body();
+                        returnValue = method.invokeDynamic(service, argsList);
+                    } else {
+                        returnValue = method.invokeDynamic(service, methodCall.body());
+                    }
+            }
+
+
+            return response(method, methodCall, returnValue);
+
+        }
+    }
+
+    private class MapAndInvokeImpl implements MapAndInvoke {
+        public Response<Object> mapArgsAsyncHandlersAndInvoke(MethodCall<Object> methodCall, MethodAccess method) {
+            boolean hasHandlers = hasHandlers(methodCall, method);
+            Object returnValue;
+            if (hasHandlers) {
+                Object[] args = (Object[]) methodCall.body();
+                Object[] argsList = prepareArgumentList(methodCall, method.parameterTypes());
+                extractHandlersFromArgumentList(method, args, argsList);
+                returnValue = method.invoke(service, argsList);
+            } else {
+                final Object[] argsList = (Object[]) methodCall.body();
+                returnValue = method.invoke(service, argsList);
+            }
+            return response(method, methodCall, returnValue);
+
+        }
+
+
+        private Object[] prepareArgumentList(final MethodCall<Object> methodCall, Class<?>[] parameterTypes) {
+            final Object[] argsList = new Object[parameterTypes.length];
+
+            for (int index=0; index < parameterTypes.length; index++) {
+                final Class<?> parameterType = parameterTypes[index];
+                if (parameterType == Callback.class) {
+                    argsList[index]=createCallBackHandler(methodCall);
+                }
+
+            }
+            return argsList;
+        }
+
+
+        private void extractHandlersFromArgumentList(MethodAccess method, Object[] args, Object[] argsList) {
+
+                extractHandlersFromArgumentListArrayCase(method, args, argsList);
+
+        }
+        private void extractHandlersFromArgumentListArrayCase(MethodAccess method, Object[] array, Object[] argsList) {
+            if (array.length - 1 == method.parameterTypes().length) {
+                if (array[0] instanceof Callback) {
+                    array = Arry.slc(array, 1);
+                }
+            }
+            for (int index = 0, arrayIndex = 0; index < argsList.length; index++, arrayIndex++) {
+                final Object o = argsList[index];
+                if (o instanceof Callback) {
+                    continue;
+                }
+                if (arrayIndex >= array.length) {
+                    break;
+                }
+                argsList[index] = array[arrayIndex];
+            }
+        }
+    }
     @Override
     public Response<Object> receiveMethodCall(MethodCall<Object> methodCall) {
 
         try {
-            if (methodCall.name() != null && !methodCall.name().isEmpty()) {
                 return invokeByName(methodCall);
-            } else {
-                throw new IllegalStateException("method name must be set");
-            }
         } catch (Exception ex) {
 
 
@@ -98,88 +206,42 @@ public class BoonServiceMethodCallHandler implements ServiceMethodHandler {
     }
 
     private Response<Object> mapArgsAsyncHandlersAndInvoke(MethodCall<Object> methodCall, MethodAccess method) {
+        return this.mapAndInvoke.mapArgsAsyncHandlersAndInvoke(methodCall, method);
+    }
 
 
-        if (method.parameterTypes().length == 0) {
+    /**
+     * False is unknown, true is no callbacks.
+     * @param name name of method
+     * @return false signifies maybe, true means never.
+     */
+    public boolean couldHaveCallback(final String name) {
 
-            Object returnValue = method.invokeDynamicObject(service, null);
-            return response(method, methodCall, returnValue);
-
+        final Boolean has = hasHandlerMap.get(name);
+        if (has == null) {
+            return true;
         }
 
-        if (method.parameterTypes().length == 1) {
+        return has;
+    }
 
+    final Map<String, Boolean> hasHandlerMap = new HashMap<>();
 
-            Object body = methodCall.body();
+    private boolean hasHandlers(MethodCall<Object> methodCall, MethodAccess method) {
 
-            if (body == null || (body instanceof String && Str.isEmpty(body))) {
-                if (method.parameterTypes()[0] != Callback.class) {
-                    body = methodCall.params();
-                    Object returnValue = method.invokeDynamicObject(service, body);
-                    return response(method, methodCall, returnValue);
-                }
-            }
+        Boolean has = hasHandlerMap.get(methodCall.name());
 
-        }
-
-        boolean hasHandlers = hasHandlers(methodCall);
-
-        hasHandlers = hasHandlers(method) || hasHandlers;
-
-        Object returnValue;
-
-
-        if (hasHandlers) {
-            Object body = methodCall.body();
-            List<Object> argsList = prepareArgumentList(methodCall, method.parameterTypes());
-
-
-            if (body instanceof List || body instanceof Object[]) {
-
-
-                extractHandlersFromArgumentList(method, body, argsList);
-
-            } else {
-                if (argsList.size() == 1 && !(argsList.get(0) instanceof Callback)) {
-                    argsList.set(0, body);
-                }
-            }
-
-
-            if (invokeDynamic) {
-                returnValue = method.invokeDynamicObject(service, argsList);
-            } else {
-                returnValue = method.invoke(service, argsList.toArray(new Object[argsList.size()]));
-            }
-
+        boolean hasHandlers;
+        if (has == null) {
+            hasHandlers = hasHandlers(methodCall);
+            hasHandlers = hasHandlers(method) || hasHandlers;
+            hasHandlerMap.put(methodCall.name(), hasHandlers);
         } else {
-
-            if (invokeDynamic) {
-
-                if (methodCall.body() instanceof List) {
-                    final List argsList = (List) methodCall.body();
-                    returnValue = method.invokeDynamic(service, argsList.toArray(new Object[argsList.size()]));
-                } else if (methodCall.body() instanceof Object[]) {
-                    final Object[] argsList = (Object[]) methodCall.body();
-                    returnValue = method.invokeDynamic(service, argsList);
-                } else {
-                    returnValue = method.invokeDynamic(service, methodCall.body());
-                }
-            } else {
-                if (methodCall.body() instanceof List) {
-                    final List argsList = (List) methodCall.body();
-                    returnValue = method.invoke(service, argsList.toArray(new Object[argsList.size()]));
-                } else if (methodCall.body() instanceof Object[]) {
-                    final Object[] argsList = (Object[]) methodCall.body();
-                    returnValue = method.invoke(service, argsList);
-                } else {
-                    returnValue = method.invoke(service, methodCall.body());
-                }
-            }
+            hasHandlers = has;
         }
 
+        return hasHandlers;
 
-        return response(method, methodCall, returnValue);
     }
 
 
@@ -231,27 +293,19 @@ public class BoonServiceMethodCallHandler implements ServiceMethodHandler {
     }
 
     private void extractHandlersFromArgumentListArrayCase(MethodAccess method, Object[] array, List<Object> argsList) {
-
         if (array.length - 1 == method.parameterTypes().length) {
             if (array[0] instanceof Callback) {
                 array = Arry.slc(array, 1);
             }
         }
-
-
         for (int index = 0, arrayIndex = 0; index < argsList.size(); index++, arrayIndex++) {
-
             final Object o = argsList.get(index);
             if (o instanceof Callback) {
                 continue;
             }
-
-
             if (arrayIndex >= array.length) {
                 break;
             }
-
-
             argsList.set(index, array[arrayIndex]);
 
         }
@@ -289,8 +343,10 @@ public class BoonServiceMethodCallHandler implements ServiceMethodHandler {
         return ResponseImpl.response(methodCall.id(), methodCall.timestamp(), methodCall.name(), methodCall.returnAddress(), returnValue, methodCall);
     }
 
+
     private List<Object> prepareArgumentList(final MethodCall<Object> methodCall, Class<?>[] parameterTypes) {
         final List<Object> argsList = new ArrayList<>(parameterTypes.length);
+
         for (Class<?> parameterType : parameterTypes) {
             if (parameterType == Callback.class) {
                 argsList.add(createCallBackHandler(methodCall));
@@ -315,8 +371,6 @@ public class BoonServiceMethodCallHandler implements ServiceMethodHandler {
         } else {
 
             if (methodCall.name().equals("toString")) {
-                puts("Method Call toString was called", methodCall.objectName(), methodCall.name(), methodCall.address());
-
                 return ResponseImpl.response(
                         methodCall.id(),
                         methodCall.timestamp(),
@@ -331,7 +385,7 @@ public class BoonServiceMethodCallHandler implements ServiceMethodHandler {
                         methodCall.timestamp(),
                         methodCall.address(),
                         methodCall.returnAddress(),
-                        new Exception("Unable to find method"),
+                        new Exception("Unable to find method " + methodCall.name()),
                         methodCall, true);
             }
         }

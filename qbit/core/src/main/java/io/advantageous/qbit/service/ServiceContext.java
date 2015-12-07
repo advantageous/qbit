@@ -50,14 +50,6 @@ public class ServiceContext {
         return QBit.factory().systemEventManager();
     }
 
-    public void joinEventManager() {
-
-        final EventManager eventManager = eventManager();
-        ServiceQueue serviceQueue = currentService();
-        if (serviceQueue != null) {
-            eventManager.joinService(serviceQueue);
-        }
-    }
 
     public <T> void send(String channel, T message) {
         eventManager().send(channel, message);

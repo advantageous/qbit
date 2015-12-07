@@ -169,6 +169,10 @@ public class BasicQueue<T> implements Queue<T> {
         if (receiveQueueManager != null) {
             receiveQueueManager.stop();
         }
+
+        if (queue!=null) {
+            queue.clear();
+        }
     }
 
     @Override
