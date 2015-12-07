@@ -65,10 +65,6 @@ class BasicReceiveQueue<T> implements ReceiveQueue<T> {
 
 
     private T getItemFromLocalQueue() {
-//        if (lastQueue.length == 0) {
-//            lastQueue=null;
-//            return null;
-//        }
         @SuppressWarnings("unchecked") T item = (T) lastQueue[lastQueueIndex];
         lastQueueIndex++;
         if (lastQueueIndex == lastQueue.length) {
@@ -108,14 +104,11 @@ class BasicReceiveQueue<T> implements ReceiveQueue<T> {
     }
 
     private T extractItem(Object o) {
-        if (o instanceof Object[]) {
-            lastQueue = (Object[]) o;
-            //uts("batch size", lastQueue.length);
-            return getItemFromLocalQueue();
-        } else {
-            //noinspection unchecked
-            return (T) o;
+        if (o==null) {
+            return null;
         }
+        lastQueue = (Object[]) o;
+        return getItemFromLocalQueue();
     }
 
     @Override

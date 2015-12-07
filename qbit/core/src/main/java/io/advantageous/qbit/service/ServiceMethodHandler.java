@@ -58,4 +58,9 @@ public interface ServiceMethodHandler extends ReceiveQueueListener<MethodCall<Ob
     default void receive(MethodCall<Object> item) {
         throw new UnsupportedOperationException();
     }
+
+
+    default boolean couldHaveCallback(final String name)  {
+        return false;
+    }
 }

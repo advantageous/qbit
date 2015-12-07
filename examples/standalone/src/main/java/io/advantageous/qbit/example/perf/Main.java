@@ -2,13 +2,11 @@ package io.advantageous.qbit.example.perf;
 
 import io.advantageous.boon.core.Sys;
 import io.advantageous.qbit.message.MethodCall;
-import io.advantageous.qbit.message.Response;
-import io.advantageous.qbit.message.impl.ResponseImpl;
+import io.advantageous.qbit.message.MethodCallBuilder;
 import io.advantageous.qbit.queue.Queue;
 import io.advantageous.qbit.queue.QueueBuilder;
 import io.advantageous.qbit.queue.SendQueue;
 import io.advantageous.qbit.service.ServiceBuilder;
-import io.advantageous.qbit.service.ServiceMethodHandler;
 import io.advantageous.qbit.service.ServiceProxyUtils;
 import io.advantageous.qbit.service.ServiceQueue;
 import io.advantageous.qbit.service.impl.ServiceConstants;
@@ -52,9 +50,10 @@ public class Main {
     }
 
 
-    private static void runService(int runs, int tradeCount, int batchSize, int checkEvery, boolean dynamic) {
+    private static void runService(int runs, int tradeCount, int batchSize, int checkEvery, boolean dynamic, boolean noStub) {
 
         final QueueBuilder queueBuilder = QueueBuilder.queueBuilder().setName("trades").setBatchSize(batchSize)
+                .setPollWait(1_000)
                 .setSize(1_000_000);
 
         if (checkEvery>0) {
@@ -65,21 +64,27 @@ public class Main {
         final TradeServiceImpl tradeServiceImpl = new TradeServiceImpl();
 
         final ServiceBuilder serviceBuilder = ServiceBuilder.serviceBuilder()
-                .setRequestQueueBuilder(queueBuilder).setInvokeDynamic(dynamic);
+                .setRequestQueueBuilder(queueBuilder)
+                .setInvokeDynamic(dynamic).setServiceObject(tradeServiceImpl);
 
-        final ServiceQueue serviceQueue = serviceBuilder.setServiceObject(tradeServiceImpl)
-                .setServiceMethodHandler(new ServiceMethodHandler() {
-                    @Override
-                    public Response<Object> receiveMethodCall(MethodCall<Object> methodCall) {
-                        final Trade trade = (Trade) methodCall.args()[0];
-                        tradeServiceImpl.trade(trade);
-                        return ServiceConstants.VOID;
-                    }
+        if (noStub) {
+            serviceBuilder.setServiceMethodHandler(methodCall -> {
+                final Trade trade = (Trade) methodCall.args()[0];
+                tradeServiceImpl.trade(trade);
+                return ServiceConstants.VOID;
+            });
+        }
 
-                })
-                .build().startServiceQueue();
+        final ServiceQueue serviceQueue = serviceBuilder.build().startServiceQueue();
 
-        final TradeService tradeService = serviceQueue.createProxy(TradeService.class);
+
+         final SendQueue<MethodCall<Object>> requests = serviceQueue.requests();
+
+        final TradeService tradeService = noStub ? trade -> {
+            final MethodCall<Object> methodCall = MethodCallBuilder.methodCallBuilder().setName("trade")
+                    .setLocal(true).setBodyArgs(new Object[]{trade}).build();
+            requests.send(methodCall);
+        } : serviceQueue.createProxy(TradeService.class);
 
         final long startRun = System.currentTimeMillis();
 
@@ -91,6 +96,7 @@ public class Main {
             }
 
             ServiceProxyUtils.flushServiceProxy(tradeService);
+            requests.flushSends();
 
             for (int index = 0; index < 1000; index++) {
                 Sys.sleep(10);
@@ -122,9 +128,9 @@ public class Main {
 
     public static void main(String... args) throws Exception {
 
-        final int runs = 10;
+        final int runs = 18;
         final int tradeCount = 1_000_000;
-        final int batchSize = 80_000;
+        final int batchSize = 800;
         final boolean dynamic = false;
 
         //int currentBatchSize = batchSize;
@@ -132,11 +138,12 @@ public class Main {
 
 
         for (int index=0; index< 100; index++) {
-            runService(runs, tradeCount, batchSize, 0, dynamic);
+            runService(runs, tradeCount, batchSize, 0, dynamic, false);
             //currentBatchSize*=2;
         }
 
 
+        Sys.sleep(Integer.MAX_VALUE);
         System.out.println("DONE");
     }
 

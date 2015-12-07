@@ -84,21 +84,23 @@ public class CallbackManagerWithTimeout implements CallbackManager {
     public void registerCallbacks(MethodCall<Object> methodCall) {
         Object args = methodCall.body();
 
-        /** Look for callbackWithTimeout handler in the args */
-        if (args instanceof Iterable) {
-            final Iterable list = (Iterable) args;
-            for (Object arg : list) {
-                if (arg instanceof Callback) {
-                    //noinspection unchecked
-                    registerHandlerCallbackForClient(methodCall, (Callback) arg);
-                }
-            }
-        } else if (args instanceof Object[]) {
+
+        /** Look for callback handler in the args */
+        if (args instanceof Object[]) {
             final Object[] array = (Object[]) args;
             for (Object arg : array) {
                 if (arg instanceof Callback) {
                     //noinspection unchecked
                     registerHandlerCallbackForClient(methodCall, ((Callback) arg));
+                }
+            }
+        }
+        else if (args instanceof Iterable) {
+            final Iterable list = (Iterable) args;
+            for (Object arg : list) {
+                if (arg instanceof Callback) {
+                    //noinspection unchecked
+                    registerHandlerCallbackForClient(methodCall, (Callback) arg);
                 }
             }
         }

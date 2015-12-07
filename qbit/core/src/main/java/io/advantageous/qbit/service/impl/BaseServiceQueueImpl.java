@@ -359,7 +359,10 @@ public class BaseServiceQueueImpl implements ServiceQueue {
             logger.debug("ServiceImpl::doHandleMethodCall() METHOD CALL" + methodCall);
         }
         if (callbackManager != null) {
-            callbackManager.registerCallbacks(methodCall);
+
+            if (serviceMethodHandler.couldHaveCallback(methodCall.name())) {
+                callbackManager.registerCallbacks(methodCall);
+            }
         }
         //inputQueueListener.receive(methodCall);
         final boolean continueFlag[] = new boolean[1];
@@ -423,7 +426,7 @@ public class BaseServiceQueueImpl implements ServiceQueue {
 
         if (!(service instanceof EventManager)) {
             if (joinEventManager) {
-                serviceContext().joinEventManager();
+                serviceContext().eventManager().joinService(this);
             }
         }
         flushEventManagerCalls();
@@ -609,6 +612,13 @@ public class BaseServiceQueueImpl implements ServiceQueue {
         if (systemManager != null) {
             this.systemManager.serviceShutDown();
             this.systemManager.unregisterService(this);
+        }
+
+
+        if (!(service instanceof EventManager)) {
+            if (joinEventManager) {
+                serviceContext().eventManager().leaveEventBus(this);
+            }
         }
 
         eventManager.ifPresent(em -> em.leaveEventBus(BaseServiceQueueImpl.this));
