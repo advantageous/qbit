@@ -536,6 +536,20 @@ public class ServiceBuilder {
         return beforeMethodSent;
     }
 
+    public ServiceBuilder copy() {
+        ServiceBuilder serviceBuilder = new ServiceBuilder();
+        serviceBuilder.setAfterMethodCall(this.getAfterMethodCall());
+        serviceBuilder.setBeforeMethodCall(this.getBeforeMethodCall());
+        serviceBuilder.setAsyncResponse(this.isAsyncResponse());
+        serviceBuilder.setEventManager(this.getEventManager());
+        serviceBuilder.setHandleCallbacks(this.handleCallbacks);
+        serviceBuilder.setSystemManager(this.getSystemManager());
+        serviceBuilder.setBeforeMethodCallAfterTransform(this.getBeforeMethodCallAfterTransform());
+        serviceBuilder.setResponseQueueBuilder(this.getResponseQueueBuilder());
+        serviceBuilder.setRequestQueueBuilder(this.getRequestQueueBuilder());
+        return serviceBuilder;
+    }
+
     private static class StatsConfig  {
         final String serviceName;
         final StatsCollector statsCollector;
