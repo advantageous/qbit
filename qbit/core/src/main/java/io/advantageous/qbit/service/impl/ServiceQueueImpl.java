@@ -50,10 +50,12 @@ public class ServiceQueueImpl extends BaseServiceQueueImpl {
                             final QueueCallBackHandler handler,
                             final CallbackManager callbackManager,
                             final BeforeMethodSent beforeMethodSent,
-                            final EventManager eventManager) {
+                            final EventManager eventManager,
+                            final boolean joinEventManager) {
         super(rootAddress, serviceAddress, service, requestQueueBuilder, responseQueueBuilder,
                 serviceMethodHandler, responseQueue,
                 async, handleCallbacks, systemManager, beforeMethodCall, beforeMethodCallAfterTransform,
-                afterMethodCall, afterMethodCallAfterTransform, handler, callbackManager, beforeMethodSent,eventManager);
+                afterMethodCall, afterMethodCallAfterTransform, handler, callbackManager, beforeMethodSent,eventManager,
+                joinEventManager);
     }
 }

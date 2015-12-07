@@ -7,6 +7,7 @@ import io.advantageous.qbit.annotation.EventChannel;
 import io.advantageous.qbit.annotation.Listen;
 import io.advantageous.qbit.annotation.QueueCallback;
 import io.advantageous.qbit.annotation.QueueCallbackType;
+import io.advantageous.qbit.message.Event;
 import io.advantageous.qbit.service.ServiceBuilder;
 import io.advantageous.qbit.service.ServiceProxyUtils;
 import io.advantageous.qbit.service.ServiceQueue;
@@ -18,9 +19,13 @@ import org.junit.Test;
 
 import java.util.List;
 import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicReference;
 
 import static io.advantageous.boon.core.IO.puts;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 public class SendingEventsUsingStronglyTypedChannelToServiceTest {
 
@@ -177,6 +182,28 @@ public class SendingEventsUsingStronglyTypedChannelToServiceTest {
 
 
 
+    @Test
+    public void testSendSimple() throws Exception{
+        final EventManager eventManager = eventServiceQueue.createProxyWithAutoFlush(EventManager.class, Duration.TEN_MILLIS);
+        final CountDownLatch latch = new CountDownLatch(1);
+        final AtomicReference<Event<Object>> ref = new AtomicReference<>();
+
+        eventManager.register("c1", new EventListener<Object>() {
+            @Override
+            public void listen(Event<Object> event) {
+                latch.countDown();
+                ref.set(event);
+            }
+        });
+
+        eventManager.send("c1", "hello");
+        ServiceProxyUtils.flushServiceProxy(eventManager);
+        latch.await(1, TimeUnit.SECONDS);
+
+        assertNotNull(ref.get());
+    }
+
+
 
     @Before
     public void setup() {
@@ -190,15 +217,20 @@ public class SendingEventsUsingStronglyTypedChannelToServiceTest {
         serviceBuilder = ServiceBuilder.serviceBuilder()
                 .setSystemManager(systemManager);
 
-        eventServiceQueue = serviceBuilder.setServiceObject(eventManager).buildAndStartAll();
+        eventServiceQueue = serviceBuilder.setServiceObject(eventManager).build().startServiceQueue();
 
 
-        serviceBuilder.setEventManager(eventManager);
 
+        serviceBuilder = ServiceBuilder.serviceBuilder()
+                .setSystemManager(systemManager).setEventManager(eventManager);
 
         serviceB = new ServiceB();
         serviceBuilder.setServiceObject(serviceB).buildAndStartAll();
 
+
+
+        serviceBuilder = ServiceBuilder.serviceBuilder()
+                .setSystemManager(systemManager).setEventManager(eventManager);
         serviceA = new ServiceA(eventServiceQueue.createProxyWithAutoFlush(EventManager.class, Duration.SECOND),
                 QBit.factory().eventBusProxyCreator());
 

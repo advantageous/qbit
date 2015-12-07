@@ -97,6 +97,7 @@ public class BaseServiceQueueImpl implements ServiceQueue {
     private final Factory factory;
     private final BeforeMethodSent beforeMethodSent;
     private final Optional<EventManager> eventManager;
+    private final boolean joinEventManager;
     protected volatile long lastResponseFlushTime = Timer.timer().now();
     protected final ServiceMethodHandler serviceMethodHandler;
     protected final SendQueue<Response<Object>> responseSendQueue;
@@ -127,9 +128,12 @@ public class BaseServiceQueueImpl implements ServiceQueue {
                                 final QueueCallBackHandler queueCallBackHandler,
                                 final CallbackManager callbackManager,
                                 final BeforeMethodSent beforeMethodSent,
-                                final EventManager eventManager) {
+                                final EventManager eventManager,
+                                final boolean joinEventManager) {
 
         this.eventManager = Optional.ofNullable(eventManager);
+
+        this.joinEventManager = joinEventManager;
 
         this.beforeMethodSent = beforeMethodSent;
         this.beforeMethodCall = beforeMethodCall;
@@ -203,13 +207,13 @@ public class BaseServiceQueueImpl implements ServiceQueue {
     @Override
     public void start() {
 
-        start(serviceMethodHandler, true);
+        start(serviceMethodHandler, joinEventManager);
 
     }
 
     public ServiceQueue startServiceQueue() {
 
-        start(serviceMethodHandler, true);
+        start(serviceMethodHandler, joinEventManager);
         return this;
     }
 
@@ -349,8 +353,8 @@ public class BaseServiceQueueImpl implements ServiceQueue {
      * @param methodCall           methodCall
      * @param serviceMethodHandler handler
      */
-    private boolean doHandleMethodCall(MethodCall<Object> methodCall,
-                                    final ServiceMethodHandler serviceMethodHandler) {
+    private boolean doHandleMethodCall( MethodCall<Object> methodCall,
+                                        final ServiceMethodHandler serviceMethodHandler) {
         if (debug) {
             logger.debug("ServiceImpl::doHandleMethodCall() METHOD CALL" + methodCall);
         }
@@ -380,6 +384,14 @@ public class BaseServiceQueueImpl implements ServiceQueue {
                 return false;
             }
 
+
+            if (true) {
+                if (response.body() instanceof Throwable) {
+
+                    logger.error("Unable to handle call ", ((Throwable) response.body()));
+
+                }
+            }
             if (!responseSendQueue.send(response)) {
                 logger.error("Unable to send response {} for method {} for object {}",
                         response,
@@ -598,7 +610,10 @@ public class BaseServiceQueueImpl implements ServiceQueue {
             if (debug) logger.debug("Unable to stop response queues", ex);
         }
 
-        if (systemManager != null) this.systemManager.serviceShutDown();
+        if (systemManager != null) {
+            this.systemManager.serviceShutDown();
+            this.systemManager.unregisterService(this);
+        }
 
         eventManager.ifPresent(em -> em.leaveEventBus(BaseServiceQueueImpl.this));
     }

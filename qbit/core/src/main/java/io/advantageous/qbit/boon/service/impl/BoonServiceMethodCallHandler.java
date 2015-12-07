@@ -349,7 +349,7 @@ public class BoonServiceMethodCallHandler implements ServiceMethodHandler {
                         methodCall.timestamp(),
                         methodCall.address(),
                         methodCall.returnAddress(),
-                        new Exception("Unable to find method"),
+                        new Exception("Unable to find method " + methodCall.name()),
                         methodCall, true);
             }
         }

@@ -85,6 +85,7 @@ public class ServiceBuilder {
     private boolean createCallbackHandler = true;
     private EventManager eventManager;
     private BeforeMethodSent beforeMethodSent;
+    private boolean joinEventManager = true;
 
 
     public static ServiceBuilder serviceBuilder() {
@@ -484,7 +485,8 @@ public class ServiceBuilder {
                 buildQueueCallBackHandler(),
                 getCallbackManager(),
                 getBeforeMethodSent(),
-                getEventManager()
+                getEventManager(),
+                isJoinEventManager()
                 );
 
         if (serviceQueueSizer!=null) {
@@ -548,4 +550,13 @@ public class ServiceBuilder {
         }
     }
 
+
+    public boolean isJoinEventManager() {
+        return joinEventManager;
+    }
+
+    public ServiceBuilder setJoinEventManager(boolean joinEventManager) {
+        this.joinEventManager = joinEventManager;
+        return this;
+    }
 }
