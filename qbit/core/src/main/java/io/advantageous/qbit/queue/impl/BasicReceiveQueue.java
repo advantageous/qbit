@@ -104,11 +104,13 @@ class BasicReceiveQueue<T> implements ReceiveQueue<T> {
     }
 
     private T extractItem(Object o) {
-        if (o==null) {
-            return null;
+        if (o instanceof Object[]) {
+            lastQueue = (Object[]) o;
+            return getItemFromLocalQueue();
+        } else {
+            //noinspection unchecked
+            return (T) o;
         }
-        lastQueue = (Object[]) o;
-        return getItemFromLocalQueue();
     }
 
     @Override
