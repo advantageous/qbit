@@ -333,8 +333,6 @@ public class BoonServiceMethodCallHandler implements ServiceMethodHandler {
         } else {
 
             if (methodCall.name().equals("toString")) {
-                puts("Method Call toString was called", methodCall.objectName(), methodCall.name(), methodCall.address());
-
                 return ResponseImpl.response(
                         methodCall.id(),
                         methodCall.timestamp(),

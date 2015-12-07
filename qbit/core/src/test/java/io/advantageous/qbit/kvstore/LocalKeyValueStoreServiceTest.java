@@ -7,6 +7,7 @@ import io.advantageous.qbit.service.ServiceProxyUtils;
 import io.advantageous.qbit.time.Duration;
 import io.advantageous.qbit.util.TestTimer;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.util.Optional;
@@ -17,6 +18,7 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import static org.junit.Assert.*;
 
+@Ignore
 public class LocalKeyValueStoreServiceTest {
 
     KeyValueStoreService<Todo> kvStore;

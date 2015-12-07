@@ -369,9 +369,6 @@ public class BaseServiceQueueImpl implements ServiceQueue {
             return false;
         }
         Response<Object> response = serviceMethodHandler.receiveMethodCall(methodCall);
-//        if (debug) {
-//            logger.debug("ServiceImpl::receive() \nRESPONSE\n" + response + "\nFROM CALL\n" + methodCall + " name " + methodCall.name() + "\n\n");
-//        }
         if (response != ServiceConstants.VOID) {
 
             if (!afterMethodCall.after(methodCall, response)) {
@@ -384,8 +381,7 @@ public class BaseServiceQueueImpl implements ServiceQueue {
                 return false;
             }
 
-
-            if (true) {
+            if (debug) {
                 if (response.body() instanceof Throwable) {
 
                     logger.error("Unable to handle call ", ((Throwable) response.body()));
