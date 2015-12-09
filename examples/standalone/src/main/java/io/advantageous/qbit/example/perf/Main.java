@@ -11,6 +11,8 @@ import io.advantageous.qbit.service.ServiceProxyUtils;
 import io.advantageous.qbit.service.ServiceQueue;
 import io.advantageous.qbit.service.impl.ServiceConstants;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicLong;
 
 public class Main {
@@ -50,11 +52,12 @@ public class Main {
     }
 
 
-    private static void runService(int runs, int tradeCount, int batchSize, int checkEvery, boolean dynamic, boolean noStub) {
+    private static void runService(int runs, int tradeCount, int batchSize, int checkEvery, boolean dynamic, boolean noStub,
+                                   int numThreads) {
 
         final QueueBuilder queueBuilder = QueueBuilder.queueBuilder().setName("trades").setBatchSize(batchSize)
                 .setPollWait(1_000)
-                .setSize(1_000_000);
+                .setSize(20_000_000);
 
         if (checkEvery>0) {
             queueBuilder.setLinkTransferQueue();
@@ -78,43 +81,66 @@ public class Main {
         final ServiceQueue serviceQueue = serviceBuilder.build().startServiceQueue();
 
 
-         final SendQueue<MethodCall<Object>> requests = serviceQueue.requests();
 
-        final TradeService tradeService = noStub ? trade -> {
-            final MethodCall<Object> methodCall = MethodCallBuilder.methodCallBuilder().setName("trade")
-                    .setLocal(true).setBodyArgs(new Object[]{trade}).build();
-            requests.send(methodCall);
-        } : serviceQueue.createProxy(TradeService.class);
 
         final long startRun = System.currentTimeMillis();
 
         for (int r = 0; r < runs; r++) {
 
             final long startTime = System.currentTimeMillis();
-            for (int t =0; t < tradeCount; t++) {
-                tradeService.trade(new Trade("ibm", 100L));
+
+            final List<Thread> threadList = new ArrayList<>();
+
+            for (int th = 0; th < numThreads; th++) {
+                final Thread thread = new Thread(() -> {
+
+
+                    final SendQueue<MethodCall<Object>> requests = serviceQueue.requests();
+                    final TradeService tradeService = noStub ? trade -> {
+                        final MethodCall<Object> methodCall = MethodCallBuilder.methodCallBuilder().setName("trade")
+                                .setLocal(true).setBodyArgs(new Object[]{trade}).build();
+                        requests.send(methodCall);
+                    } : serviceQueue.createProxy(TradeService.class);
+
+                    for (int t = 0; t < tradeCount; t++) {
+                        tradeService.trade(new Trade("ibm", 100L));
+                    }
+                    ServiceProxyUtils.flushServiceProxy(tradeService);
+                    requests.flushSends();
+
+                });
+                thread.start();
+                threadList.add(thread);
+
             }
 
-            ServiceProxyUtils.flushServiceProxy(tradeService);
-            requests.flushSends();
 
             for (int index = 0; index < 1000; index++) {
-                Sys.sleep(10);
-                if (tradeServiceImpl.tradeCounter.get() >= tradeCount) {
+                Sys.sleep(1);
+                if (tradeServiceImpl.tradeCounter.get() >=
+                        (tradeCount * numThreads)) {
                     break;
                 }
             }
 
+            threadList.forEach(thread -> {
+                try {
+                    thread.join();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            });
+
             System.out.printf("%d traded %,d in %d batchSize = %,d\n",
                     r,
-                    tradeCount,
+                    tradeCount * numThreads,
                     System.currentTimeMillis() - startTime,
                     batchSize);
         }
 
 
         System.out.printf("DONE traded %,d in %d batchSize = %,d, checkEvery = %,d\n",
-                tradeCount * runs,
+                tradeCount * runs * numThreads,
                 System.currentTimeMillis() - startRun,
                 batchSize,
                 checkEvery);
@@ -128,9 +154,9 @@ public class Main {
 
     public static void main(String... args) throws Exception {
 
-        final int runs = 18;
-        final int tradeCount = 1_000_000;
-        final int batchSize = 800;
+        final int runs = 20;
+        final int tradeCount = 250_000;
+        final int batchSize = 1_000;
         final boolean dynamic = false;
 
         //int currentBatchSize = batchSize;
@@ -138,7 +164,7 @@ public class Main {
 
 
         for (int index=0; index< 100; index++) {
-            runService(runs, tradeCount, batchSize, 0, dynamic, false);
+            runService(runs, tradeCount, batchSize, 0, dynamic, true, 4);
             //currentBatchSize*=2;
         }
 
