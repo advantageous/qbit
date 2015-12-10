@@ -1,10 +1,14 @@
 package io.advantageous.qbit.boon.spi;
 
+import io.advantageous.boon.core.Lists;
 import io.advantageous.boon.core.reflection.BeanUtils;
+import io.advantageous.boon.json.JsonFactory;
+import io.advantageous.qbit.QBit;
 import org.junit.Test;
 
 import java.util.Map;
 
+import static io.advantageous.boon.core.IO.puts;
 import static org.junit.Assert.*;
 
 public class BoonJsonMapperTest {
@@ -50,4 +54,29 @@ public class BoonJsonMapperTest {
         assertEquals(String.class, jsonMap.get("name").getClass());
 
     }
+
+
+    @Test
+    public void badSerializer() throws Exception {
+
+        String json = QBit.factory().createJsonMapper().toJson(Lists.list(1, 2, null, 3));
+
+        puts(json);
+
+        assertNotNull(json);
+
+        assertEquals("[1,2,null,3]", json);
+
+        json = JsonFactory.toJson(Lists.list(1, 2, null, 3));
+
+        puts(json);
+
+
+
+        assertNotNull(json);
+
+        assertEquals("[1,2,null,3]", json);
+    }
+
+
 }
