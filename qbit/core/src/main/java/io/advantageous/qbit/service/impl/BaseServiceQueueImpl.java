@@ -48,6 +48,8 @@
 package io.advantageous.qbit.service.impl;
 
 import io.advantageous.boon.core.reflection.BeanUtils;
+import io.advantageous.boon.core.reflection.ClassMeta;
+import io.advantageous.boon.core.reflection.MethodAccess;
 import io.advantageous.qbit.Factory;
 import io.advantageous.qbit.GlobalConstants;
 import io.advantageous.qbit.client.BeforeMethodSent;
@@ -491,12 +493,11 @@ public class BaseServiceQueueImpl implements ServiceQueue {
                 handle();
                 serviceMethodHandler.idle();
                 queueCallBackHandler.queueIdle();
-                if (callbackManager!=null) {
+                if (callbackManager != null) {
                     callbackManager.process(0);
                 }
                 serviceThreadLocal.set(null);
             }
-
 
 
             /** Such a small method with so much responsibility. */
@@ -673,7 +674,7 @@ public class BaseServiceQueueImpl implements ServiceQueue {
 
     @Override
     public <T> T createProxyWithAutoFlush(Class<T> serviceInterface, Duration duration) {
-        return createProxyWithAutoFlush(serviceInterface, (int)duration.getDuration(), duration.getTimeUnit());
+        return createProxyWithAutoFlush(serviceInterface, (int) duration.getDuration(), duration.getTimeUnit());
     }
 
 
@@ -689,13 +690,30 @@ public class BaseServiceQueueImpl implements ServiceQueue {
     }
 
     public <T> T createProxy(Class<T> serviceInterface) {
-
         final SendQueue<MethodCall<Object>> methodCallSendQueue = requestQueue.sendQueue();
         return proxy(serviceInterface, methodCallSendQueue);
     }
 
+    private <T> void validateInterface(Class<T> serviceInterface) {
+        if (!serviceInterface.isInterface()) {
+            throw new IllegalStateException("Service Interface must be an interface " + serviceInterface.getName());
+        }
+        final ClassMeta<T> classMeta = ClassMeta.classMeta(serviceInterface);
+
+        final Method[] declaredMethods = classMeta.cls().getDeclaredMethods();
+
+        for (Method m : declaredMethods) {
+        if (!(m.getReturnType() == void.class)) {
+                throw new IllegalStateException("Async interface can only return void " + serviceInterface.getName());
+            }
+        }
+
+    }
+
     private <T> T proxy(final Class<T> serviceInterface,
                         final SendQueue<MethodCall<Object>> methodCallSendQueue) {
+
+        validateInterface(serviceInterface);
 
         final String uuid = serviceInterface.getName() + "::" + UUID.randomUUID().toString();
         if (!started.get()) {

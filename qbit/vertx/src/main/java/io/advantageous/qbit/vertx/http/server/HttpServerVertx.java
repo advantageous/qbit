@@ -322,25 +322,16 @@ public class HttpServerVertx implements HttpServer {
 
             request.setExpectMultipart(true);
 
-            request.endHandler(event -> {
+        }
 
-                final HttpRequest postRequest = vertxUtils.createRequest(request, null,
-                        simpleHttpServer.getDecorators(), simpleHttpServer.getHttpResponseCreator());
-
-                simpleHttpServer.handleRequest(postRequest);
-
-            });
-
-        } else {
-
-            request.bodyHandler((Buffer buffer) -> {
+        request.bodyHandler((Buffer buffer) -> {
                 final HttpRequest postRequest = vertxUtils.createRequest(request, buffer,
                         simpleHttpServer.getDecorators(), simpleHttpServer.getHttpResponseCreator());
 
                 simpleHttpServer.handleRequest(postRequest);
 
-            });
-        }
+        });
+
     }
 
 

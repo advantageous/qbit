@@ -8,6 +8,7 @@ import io.advantageous.qbit.http.HTTP;
 import io.advantageous.qbit.http.HttpContext;
 import io.advantageous.qbit.http.HttpHeaders;
 import io.advantageous.qbit.http.request.HttpRequest;
+import io.advantageous.qbit.http.request.HttpResponse;
 import io.advantageous.qbit.http.request.HttpResponseBuilder;
 import io.advantageous.qbit.http.request.HttpTextResponse;
 import io.advantageous.qbit.reactive.Callback;
@@ -99,6 +100,7 @@ public class RestTests {
                     .setCode(777)
                     .buildTextResponse());
         }
+
     }
 
 
