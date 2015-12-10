@@ -20,9 +20,8 @@ package io.advantageous.qbit.http.request;
 
 import io.advantageous.qbit.message.Request;
 import io.advantageous.qbit.util.MultiMap;
-
 import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
+import java.util.function.Supplier;
 
 
 /**
@@ -38,28 +37,40 @@ public class HttpRequest implements Request<Object> {
     private final String remoteAddress;
     private final MultiMap<String, String> params;
     private final MultiMap<String, String> headers;
-    private final byte[] body;
     private final String contentType;
     private final String method;
     private final HttpResponseReceiver receiver;
     private final long messageId;
     private final long timestamp;
+    private final Supplier<Object> bodySupplier;
+    private final Supplier<MultiMap<String, String>> formParamsSupplier;
+    private  MultiMap<String, String> formParams;
     private volatile boolean handled;
+    private  Object body;
 
-    public HttpRequest(long id, final String uri, final String method, final MultiMap<String, String> params,
+    public HttpRequest(final long id,
+                       final String uri,
+                       final String method,
+                       final MultiMap<String, String> params,
                        final MultiMap<String, String> headers,
-                       final byte[] body, final String remoteAddress, String contentType, final HttpResponseReceiver response, long timestamp) {
+                       final Supplier<Object> bodySupplier,
+                       final String remoteAddress,
+                       final String contentType,
+                       final HttpResponseReceiver response,
+                       final Supplier<MultiMap<String, String>> formParamsSupplier,
+                       final long timestamp) {
 
         this.uri = uri;
         this.messageId = id;
         this.params = params;
-        this.body = body;
+        this.bodySupplier = bodySupplier;
         this.method = method;
         this.contentType = contentType;
         this.receiver = response;
         this.remoteAddress = remoteAddress;
         this.headers = headers;
         this.timestamp = timestamp;
+        this.formParamsSupplier = formParamsSupplier;
     }
 
     @Override
@@ -80,6 +91,23 @@ public class HttpRequest implements Request<Object> {
     @Override
     public MultiMap<String, String> headers() {
         return headers;
+    }
+
+
+
+    public MultiMap<String, String> formParams() {
+        if (formParams == null) {
+
+            formParams = formParamsSupplier.get();
+
+        }
+
+        return formParams;
+
+    }
+
+    public MultiMap<String, String> getFormParams() {
+        return formParams();
     }
 
     @Override
@@ -114,6 +142,9 @@ public class HttpRequest implements Request<Object> {
 
     @Override
     public Object body() {
+        if (body == null) {
+            body = bodySupplier.get();
+        }
         return body;
     }
 
@@ -127,11 +158,27 @@ public class HttpRequest implements Request<Object> {
     }
 
     public byte[] getBody() {
-        return body;
+        final Object body = body();
+        if (body == null) {
+            return null;
+        }
+        if (body instanceof byte[]) {
+            return ((byte[]) body);
+        } else {
+            return body.toString().getBytes(StandardCharsets.UTF_8);
+        }
     }
 
     public String getBodyAsString() {
-        return new String(body, StandardCharsets.UTF_8);
+        final Object body = body();
+        if (body == null) {
+            return null;
+        }
+        if (body instanceof byte[]) {
+            return new String(((byte[]) body), StandardCharsets.UTF_8);
+        } else {
+            return body.toString();
+        }
     }
 
     public String getMethod() {
@@ -210,7 +257,7 @@ public class HttpRequest implements Request<Object> {
                 ", remoteAddress='" + remoteAddress + '\'' +
                 ", params=" + params +
                 ", headers=" + headers +
-                ", body=" + Arrays.toString(body) +
+                //", body=" + getBodyAsString() +
                 ", contentType='" + contentType + '\'' +
                 ", method='" + method + '\'' +
                 ", receiver=" + receiver +

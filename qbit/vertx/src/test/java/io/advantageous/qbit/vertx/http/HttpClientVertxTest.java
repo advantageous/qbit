@@ -18,7 +18,6 @@
 
 package io.advantageous.qbit.vertx.http;
 
-import io.advantageous.boon.core.Sys;
 import io.advantageous.qbit.http.client.HttpClient;
 import io.advantageous.qbit.http.client.HttpClientBuilder;
 import io.advantageous.qbit.http.request.HttpRequest;
@@ -186,7 +185,7 @@ public class HttpClientVertxTest extends TimedTesting {
             requestReceived.set(true);
             puts("SERVER", serverRequest.getUri(), serverRequest.getBodyAsString());
 
-            messageBody.set(serverRequest.getParams().get("foo"));
+            messageBody.set(serverRequest.formParams().get("foo"));
             serverRequest.getReceiver().response(200, "application/json", "\"ok\"");
 
         });
@@ -209,6 +208,52 @@ public class HttpClientVertxTest extends TimedTesting {
         stop();
     }
 
+
+    @Test
+    public void testFormSendUseBody() throws Exception {
+
+
+        connect();
+
+        final HttpRequest request = new HttpRequestBuilder()
+                .setUri("/services/mockservice/ping")
+                .addParam("foo", "bar")
+                .setFormPostAndCreateFormBody()
+                .setTextReceiver((code, mimeType, body) -> {
+
+
+                    responseCode.set(code);
+                    responseReceived.set(true);
+
+
+                })
+                .build();
+
+
+        server.setHttpRequestConsumer(serverRequest -> {
+            requestReceived.set(true);
+            messageBody.set(serverRequest.getBodyAsString() + " " + serverRequest.getFormParams().get("foo"));
+            serverRequest.getReceiver().response(200, "application/json", "\"ok\"");
+
+        });
+
+        run();
+
+        client.sendHttpRequest(request);
+
+        client.flush();
+
+        waitForTrigger(20, o -> this.responseReceived.get());
+
+
+        puts("RESPONSE", responseCode, messageBody, responseReceived);
+
+        assertEquals("foo=bar bar", messageBody.get());
+
+        assertEquals(200, responseCode.get());
+
+        stop();
+    }
 
     @Test
     public void testNewOpenWaitWebSocketNewServerStuff() {

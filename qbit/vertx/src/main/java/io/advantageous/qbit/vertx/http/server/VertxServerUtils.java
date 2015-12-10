@@ -60,61 +60,44 @@ public class VertxServerUtils {
         this.time = time;
     }
 
-    public HttpRequest createRequest(final HttpServerRequest request, final Buffer buffer,
+    public HttpRequest createRequest(final HttpServerRequest request,
+                                     final Buffer buffer,
                                      final CopyOnWriteArrayList<HttpResponseDecorator> decorators,
                                      final HttpResponseCreator httpResponseCreator) {
 
         final MultiMap<String, String> headers = request.headers().size() == 0 ? MultiMap.empty() :
                 new MultiMapWrapper(request.headers());
-
         final String contentType = request.headers().get("Content-Type");
-
-
-
-        final byte[] body = HttpContentTypes.isFormContentType(contentType) ||
-                buffer == null ?
-                new byte[0] : buffer.getBytes();
-
-        final MultiMap<String, String> params = buildParams(request, contentType);
-
         final HttpRequestBuilder httpRequestBuilder = HttpRequestBuilder.httpRequestBuilder();
-
+        buildParams(httpRequestBuilder, request, contentType);
+        final MultiMap<String, String> params = httpRequestBuilder.getParams();
         final String requestPath = request.path();
 
         httpRequestBuilder.setId(requestId.incrementAndGet())
                 .setUri(requestPath).setMethod(request.method().toString())
-                .setParams(params).setBodyBytes(body)
+                .setBodySupplier(() -> buffer == null ?
+                        null : buffer.getBytes())
                 .setRemoteAddress(request.remoteAddress().toString())
-                .setResponse(createResponse(requestPath, headers, params, request.response(), decorators, httpResponseCreator))
+                .setResponse(createResponse(requestPath, headers, params,
+                        request.response(), decorators, httpResponseCreator))
                 .setTimestamp(time == 0L ? Timer.timer().now() : time)
                 .setHeaders(headers);
-
 
         return httpRequestBuilder.build();
     }
 
-    private MultiMap<String, String> buildParams(final HttpServerRequest request,
-                                                 final String contentType) {
+    private void buildParams(final HttpRequestBuilder httpRequestBuilder,
+                             final HttpServerRequest request,
+                             final String contentType) {
+
+        if (request.params().size() == 0) {
+            httpRequestBuilder.setParams(MultiMap.empty());
+        } else {
+            httpRequestBuilder.setParams(new MultiMapWrapper(request.params()));
+        }
 
         if (HttpContentTypes.isFormContentType(contentType)) {
-
-            if (request.params().size()==0) {
-                return new MultiMapWrapper(request.formAttributes());
-            } else {
-                MultiMap<String, String> newParams = new MultiMapImpl<>();
-
-                request.formAttributes().forEach(entry ->
-                        newParams.add(entry.getKey(), entry.getValue()));
-
-                request.params().forEach(entry ->
-                        newParams.add(entry.getKey(), entry.getValue()));
-                return newParams;
-
-            }
-        } else {
-            return request.params().size() == 0 ? MultiMap.empty()
-                    : new MultiMapWrapper(request.params());
-
+            httpRequestBuilder.setFormParamsSupplier(() -> new MultiMapWrapper(request.formAttributes()));
         }
 
     }
