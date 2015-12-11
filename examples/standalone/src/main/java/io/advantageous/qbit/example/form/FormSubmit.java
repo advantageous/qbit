@@ -5,14 +5,22 @@ import io.advantageous.qbit.annotation.RequestMapping;
 import io.advantageous.qbit.annotation.RequestMethod;
 import io.advantageous.qbit.annotation.http.NoCacheHeaders;
 import io.advantageous.qbit.http.HttpContext;
+import io.advantageous.qbit.http.config.HttpServerConfig;
 import io.advantageous.qbit.http.request.HttpRequest;
 import io.advantageous.qbit.http.request.HttpResponse;
 import io.advantageous.qbit.http.request.HttpResponseBuilder;
 import io.advantageous.qbit.http.request.HttpTextResponse;
+import io.advantageous.qbit.http.server.HttpServer;
 import io.advantageous.qbit.reactive.Callback;
+import io.advantageous.qbit.vertx.http.VertxHttpServerBuilder;
+import io.vertx.core.AbstractVerticle;
+import io.vertx.core.Vertx;
+import io.vertx.ext.web.Route;
+import io.vertx.ext.web.Router;
 
 
 import java.util.Optional;
+import java.util.function.Predicate;
 
 
 /**
@@ -44,6 +52,7 @@ public class FormSubmit {
             sb.append(" Method :").append(httpRequest.get().getMethod()).append("\n");
             sb.append(" Form Body Length ").append(httpRequest.get().getBody().length).append("\n");
             sb.append(" Params ").append(httpRequest.get().getParams().toString()).append("\n");
+            sb.append(" Form Params ").append(httpRequest.get().getFormParams().toString()).append("\n");
 
             HttpTextResponse textResponse = HttpResponseBuilder.httpResponseBuilder()
 
@@ -54,12 +63,99 @@ public class FormSubmit {
         }
     }
 
-    public static void main(final String... args) {
+    public static void mainNoVertx(final String... args) {
         final ManagedServiceBuilder managedServiceBuilder = ManagedServiceBuilder.managedServiceBuilder();
+
+        managedServiceBuilder.getHttpServerBuilder().addShouldContinueHttpRequestPredicate(request -> {
+            System.out.println("BODY " + request.getBodyAsString());
+
+            System.out.println("FORM PARAMS " + request.getFormParams());
+            return true;
+        });
+
         managedServiceBuilder.enableRequestChain();
         managedServiceBuilder.addEndpointService(new FormSubmit())
                 .setRootURI("/v1").startApplication();
 
     }
+
+
+    public static class MyVerticle extends AbstractVerticle {
+
+
+        private ManagedServiceBuilder managedServiceBuilder;
+        public MyVerticle(ManagedServiceBuilder managedServiceBuilder) {
+            this.managedServiceBuilder = managedServiceBuilder;
+        }
+        @Override
+        public void start() throws Exception {
+
+            managedServiceBuilder.setRootURI("/v1");
+            managedServiceBuilder.enableRequestChain();
+
+            final Vertx vertx = getVertx();
+			/* Vertx HTTP Server. */
+            final io.vertx.core.http.HttpServer vertxHttpServer =
+                    vertx.createHttpServer();
+
+			/* Route one call to a vertx handler. */
+            final Router router = Router.router(vertx); //Vertx router
+
+			/* Route everything under /v1 to QBit http server. */
+            final Route qbitRoute = router.route().path("/v1/*");
+
+			/*
+			 * Use the VertxHttpServerBuilder which is a special builder for Vertx/Qbit integration.
+			 */
+            VertxHttpServerBuilder vertxHttpServerBuilder =  VertxHttpServerBuilder.vertxHttpServerBuilder();
+
+
+            final HttpServer httpServer=  vertxHttpServerBuilder
+                    .setRoute(qbitRoute)
+                    .setHttpServer(vertxHttpServer)
+                    .setVertx(vertx)
+                    .setConfig(new HttpServerConfig())
+                    .build();
+
+            vertxHttpServerBuilder.addShouldContinueHttpRequestPredicate(request -> {
+                System.out.println("BODY " + request.getBodyAsString());
+
+                System.out.println("FORM PARAMS " + request.getFormParams());
+                return true;
+            } );
+            managedServiceBuilder.addEndpointService(new FormSubmit());
+
+
+			/*
+			 * Create and start new service endpointServer.
+			 */
+            managedServiceBuilder.getEndpointServerBuilder()
+                    .setHttpServer(httpServer)
+                    .build()
+                    .startServer();
+
+			/*
+			 * Associate the router as a request handler for the vertxHttpServer.
+			 */
+            vertxHttpServer.requestHandler(router::accept).listen(
+                    managedServiceBuilder.getPort());
+
+        }
+    }
+
+
+    public static void main(String[] args) {
+
+        final ManagedServiceBuilder managedServiceBuilder = ManagedServiceBuilder.managedServiceBuilder();
+        final Vertx vertx = Vertx.vertx();
+        vertx.deployVerticle(new MyVerticle(managedServiceBuilder), result -> {
+            if (result.succeeded()) {
+                System.out.println("Deployment id is:  {} on port : {}  " + result.result() + " " + managedServiceBuilder.getPort());
+            } else {
+                System.out.println("Deployment failed!" + result.cause());
+            }
+        });
+    }
+
 }
 
