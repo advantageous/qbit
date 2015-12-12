@@ -7,6 +7,9 @@ import org.reactivestreams.Publisher;
 import org.reactivestreams.Subscriber;
 import org.reactivestreams.Subscription;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.LinkedTransferQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -14,13 +17,27 @@ public class QueueToStreamRoundRobin<T> implements Publisher<T> {
 
 
     private final Queue<T> queue;
+    private final ArrayBlockingQueue<SubscriptionImpl> newSubscriptionQueue = new ArrayBlockingQueue<>(1000);
+    private final AtomicBoolean started = new AtomicBoolean();
+
+
 
 
     class SubscriptionImpl implements Subscription {
 
         final LinkedTransferQueue<Long> requests = new LinkedTransferQueue<>();
 
+        final Subscriber<? super T> subscriber;
+
         final AtomicBoolean stop = new AtomicBoolean();
+
+
+        long requestCount;
+
+        SubscriptionImpl(Subscriber<? super T> subscriber) {
+            this.subscriber = subscriber;
+        }
+
         @Override
         public void request(long n) {
             requests.offer(n);
@@ -31,16 +48,16 @@ public class QueueToStreamRoundRobin<T> implements Publisher<T> {
             stop.set(true);
         }
 
-        public long count(long count) {
+        public long requestCount() {
 
             Long requested = requests.poll();
 
             while (requested!=null) {
-                count += requested;
+                requestCount += requested;
                 requested = requests.poll();
             }
 
-            return count;
+            return requestCount;
         }
 
     }
@@ -53,12 +70,39 @@ public class QueueToStreamRoundRobin<T> implements Publisher<T> {
     @Override
     public void subscribe(final Subscriber<? super T> subscriber) {
 
-        final SubscriptionImpl subscription = new SubscriptionImpl();
+
+
+
+        final SubscriptionImpl subscription = new SubscriptionImpl(subscriber);
+        try {
+            newSubscriptionQueue.put(subscription);
+        } catch (InterruptedException e) {
+            Thread.interrupted();
+        }
+
+        if (!started.get()) {
+            if (started.compareAndSet(false, true)) {
+                start(subscriber);
+            }
+        }
+
+    }
+
+    private void start(
+             final Subscriber<? super T> subscriber) {
 
         try {
             this.queue.startListener(new ReceiveQueueListener<T>() {
 
-                long sendThisMany = 0;
+
+                private final List<SubscriptionImpl> subscriptions = new ArrayList<>();
+
+                int index = 0;
+
+                SubscriptionImpl subscription;
+
+
+
 
                 //If a Subscription is cancelled its Subscriber MUST eventually stop being signaled.
                 boolean stop = false;
@@ -70,8 +114,21 @@ public class QueueToStreamRoundRobin<T> implements Publisher<T> {
                 }
 
                 private void initStreamState() {
-                    sendThisMany = subscription.count(sendThisMany);
+
+                    SubscriptionImpl poll = newSubscriptionQueue.poll();
+                    while (poll != null) {
+                        poll.subscriber.onSubscribe(poll);
+                        subscriptions.add(poll);
+                        poll = newSubscriptionQueue.poll();
+                    }
+
+                    if (index >= subscriptions.size()) {
+                        index = 0;
+                    }
+                    subscription = subscriptions.get(index);
+                    subscription.requestCount();
                     stop = subscription.stop.get();
+                    index++;
                 }
 
                 @Override
@@ -83,7 +140,7 @@ public class QueueToStreamRoundRobin<T> implements Publisher<T> {
                 @Override
                 public void shutdown() {
 
-                    subscriber.onComplete();
+                    subscriptions.forEach(subscription1 -> subscription1.subscriber.onComplete());
                 }
 
                 @Override
@@ -98,7 +155,6 @@ public class QueueToStreamRoundRobin<T> implements Publisher<T> {
 
                 @Override
                 public void init() {
-                    subscriber.onSubscribe(subscription);
                 }
 
                 @Override
@@ -118,41 +174,41 @@ public class QueueToStreamRoundRobin<T> implements Publisher<T> {
                         queue.stop();
                     }
 
-                    subscriber.onNext(item);
-                    sendThisMany--;
+                    subscription.subscriber.onNext(item);
+                    subscription.requestCount--;
 
                 }
 
                 /** This could be pluggable so you can do a spin wait. */
                 private void waitForCountsIfNeeded() {
-                    if (sendThisMany == 0) {
+                    if (subscription.requestCount == 0) {
                         for (int index = 0; index < 100_000; index++) {
                             initStreamState();
-                            if (sendThisMany > 0 || stop) break;
+                            if (subscription.requestCount > 0 || stop) break;
                             //spin no sleep
                         }
                         for (int index = 0; index < 10_000; index++) {
                             initStreamState();
-                            if (sendThisMany > 0 || stop) break;
+                            if (subscription.requestCount > 0 || stop) break;
                             Thread.yield();
                             //yield no sleep
                         }
                         for (int index = 0; index < 100; index++) {
                             initStreamState();
-                            if (sendThisMany > 0 || stop) break;
+                            if (subscription.requestCount > 0 || stop) break;
                             Sys.sleep(1);
                             //Sleep but just briefly
                         }
                         for (int index = 0; index < 100; index++) {
                             initStreamState();
-                            if (sendThisMany > 0 || stop) break;
+                            if (subscription.requestCount > 0 || stop) break;
                             Sys.sleep(5);
                             //Sleep but longer
                         }
                         /** Wait forever .*/
-                        while (sendThisMany == 0) {
+                        while (subscription.requestCount == 0) {
                             initStreamState();
-                            if (sendThisMany > 0 || stop) break;
+                            if (subscription.requestCount > 0 || stop) break;
                             Sys.sleep(15);
                             //Sleep long and do this until we get a count
                         }
