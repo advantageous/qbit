@@ -31,13 +31,16 @@ public class ServiceBundleMain {
 
         final ServiceBundleBuilder serviceBundleBuilder = ServiceBundleBuilder.serviceBundleBuilder();
         serviceBundleBuilder.getRequestQueueBuilder().setBatchSize(1000).setSize(100000);
+        serviceBundleBuilder.getResponseQueueBuilder().setBatchSize(1000).setSize(100000);
+
         final ServiceBundle serviceBundle = serviceBundleBuilder.build()
-                .addServiceObject("echo", new EchoServiceImpl())
-                .startServiceBundle();
+                .addServiceObject("echo", new EchoServiceImpl());
 
 
-        final int numThreads = 10;
-        final int numCalls = 10_000;
+        serviceBundle.start();
+
+        final int numThreads = 8;
+        final int numCalls = 100_000;
         final List<Thread> threadList = new ArrayList<>();
 
         for (int t = 0; t < numThreads; t++) {
@@ -53,10 +56,10 @@ public class ServiceBundleMain {
                     echoService.echo(response -> {
 
                         if (!compareTo.equals(response)) {
-                            puts(compareTo, response);
+                            puts("FAIL", compareTo, response);
                         }
 
-                        if (callCount%1000==0) puts(Thread.currentThread().getName(), callCount, response, compareTo);
+                        if (callCount%1000==0) puts("PASS", Thread.currentThread().getName(), callCount, response, compareTo);
 
                         latch.countDown();
                     }, compareTo);

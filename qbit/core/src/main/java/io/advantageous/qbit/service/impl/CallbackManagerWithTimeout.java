@@ -146,6 +146,10 @@ public class CallbackManagerWithTimeout implements CallbackManager {
                 logger.error("Could not find handler for key {}", handlerKey);
             }
             return;
+        } else {
+
+            if (debug)
+            logger.info("FOUND HANDLER {}", handlerKey);
         }
 
         if (response.wasErrors()) {
