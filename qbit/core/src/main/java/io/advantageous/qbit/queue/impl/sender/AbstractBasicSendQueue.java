@@ -22,6 +22,7 @@ public abstract class AbstractBasicSendQueue <T> implements SendQueue<T> {
     protected int index;
     protected final String name;
     protected Object[] queueLocal;
+    protected Object[] blankLocal;
     private final boolean checkStart = Sys.sysProp("QBIT_CHECK_START", false);
     private final int checkStartWarnEvery = Sys.sysProp("QBIT_CHECK_START_WARN_EVERY", 100);
     private final boolean checkQueueSize = Sys.sysProp("QBIT_CHECK_QUEUE_SIZE", false);
@@ -36,6 +37,7 @@ public abstract class AbstractBasicSendQueue <T> implements SendQueue<T> {
         this.batchSize = batchSize;
         this.name = name;
         this.queueLocal = new Object[batchSize];
+        this.blankLocal = new Object[batchSize];
         this.logger = logger;
                 
     }
@@ -140,14 +142,10 @@ public abstract class AbstractBasicSendQueue <T> implements SendQueue<T> {
         if (index > 0) {
             boolean ableToSend;
 
-            if (index == queueLocal.length) {
-                ableToSend = sendArray(queueLocal);
-            } else {
-                final Object[] copy = fastObjectArraySlice(queueLocal, 0, index);
-                ableToSend = sendArray(copy);
-            }
+            final Object[] copy = fastObjectArraySlice(queueLocal, 0, index);
+            ableToSend = sendArray(copy);
+            System.arraycopy(blankLocal, 0, queueLocal, 0, index);
             index = 0;
-            queueLocal = new Object[batchSize];
             return ableToSend;
         } else {
             return true;
