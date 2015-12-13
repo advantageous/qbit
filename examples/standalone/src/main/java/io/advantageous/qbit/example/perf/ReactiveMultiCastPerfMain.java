@@ -4,6 +4,7 @@ import io.advantageous.boon.core.Sys;
 import io.advantageous.qbit.queue.Queue;
 import io.advantageous.qbit.queue.QueueBuilder;
 import io.advantageous.qbit.queue.SendQueue;
+import io.advantageous.qbit.stream.QueueToStreamRoundRobin;
 import io.advantageous.qbit.stream.QueueToStreamUnicast;
 import org.reactivestreams.Subscriber;
 import org.reactivestreams.Subscription;
@@ -13,8 +14,7 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 
-
-public class ReactiveQueuePerfMain {
+public class ReactiveMultiCastPerfMain {
 
     public static class Trade {
         final String name;
@@ -43,12 +43,14 @@ public class ReactiveQueuePerfMain {
         final int batchSize = 10000;
         final int checkEvery = 0;
         final int numThreads = 2;
+
+        final int subscriberCount = 10;
         final boolean forceLinkTransferQueue = true;
 
 
         for (int index=0; index< 20; index++) {
 
-            run(runs, tradeCount, batchSize, checkEvery, numThreads, forceLinkTransferQueue);
+            run(runs, tradeCount, batchSize, checkEvery, numThreads, forceLinkTransferQueue, subscriberCount);
         }
 
         System.out.println("DONE");
@@ -56,7 +58,8 @@ public class ReactiveQueuePerfMain {
 
 
     private static void run(int runs, int tradeCount, final int batchSize, int checkEvery,
-                                               int numThreads, boolean forceLinkTransferQueue) throws InterruptedException {
+                            int numThreads, boolean forceLinkTransferQueue,
+                            int subscriberCount) throws InterruptedException {
 
         final QueueBuilder queueBuilder = QueueBuilder.queueBuilder().setName("trades").setBatchSize(batchSize)
                 .setSize(1_000_000);
@@ -73,20 +76,17 @@ public class ReactiveQueuePerfMain {
 
         final AtomicLong tradeCounterSent = new AtomicLong();
 
-        final AtomicBoolean empty = new AtomicBoolean();
         final int totalTradeCount = tradeCount  * numThreads;
-        final QueueToStreamUnicast<Trade> stream = new QueueToStreamUnicast<>(queue, () ->
-        {
-            //System.out.println("EMPTY");
-            empty.set(true);
-        });
+        final QueueToStreamRoundRobin<Trade> stream = new QueueToStreamRoundRobin<>(queue);
 
 
+        for (int s=0; s < subscriberCount; s++) {
             stream.subscribe(new Subscriber<Trade>() {
 
 
-                int count = batchSize/2;
+                int count = batchSize / subscriberCount;
                 Subscription subscription;
+
                 @Override
                 public void onSubscribe(Subscription s) {
                     subscription = s;
@@ -101,7 +101,7 @@ public class ReactiveQueuePerfMain {
 
                     count--;
                     if (count == 0) {
-                        count = batchSize/2;
+                        count = batchSize / subscriberCount;
                         subscription.request(count);
                     }
 
@@ -117,11 +117,7 @@ public class ReactiveQueuePerfMain {
 
                 }
             });
-
-
-
-
-
+        }
 
         final long startRun = System.currentTimeMillis();
 
