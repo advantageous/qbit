@@ -32,6 +32,7 @@ import io.advantageous.qbit.queue.SendQueue;
 import io.advantageous.qbit.reactive.Callback;
 import io.advantageous.qbit.service.ServiceBundle;
 import io.advantageous.qbit.service.ServiceBundleBuilder;
+import io.advantageous.qbit.service.ServiceProxyUtils;
 import org.junit.Test;
 
 import java.util.ArrayList;
@@ -40,6 +41,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import static io.advantageous.boon.core.Exceptions.die;
 import static io.advantageous.boon.core.IO.puts;
+import static org.junit.Assert.assertTrue;
 
 
 /**
@@ -298,23 +300,19 @@ public class ServiceProxyFactoryTest {
                 MyServiceInterfaceForClient.class,
                 "myService");
 
-        ok = false;
-        Callback<String> returnHandler = new Callback<String>() {
-            @Override
-            public void accept(String returnValue) {
+        AtomicBoolean called = new AtomicBoolean();
+        Callback<String> returnHandler = returnValue -> {
 
-                puts("We got", returnValue);
+            puts("We got", returnValue);
 
-                ok = "Hihi 5".equals(returnValue);
+            called.set("Hihi 5".equals(returnValue));
 
-            }
         };
         myServiceProxy.method3(returnHandler, "hi", 5);
-        bundle.flush();
+        ServiceProxyUtils.flushServiceProxy(myServiceProxy);
         Sys.sleep(1000);
 
-        ok = ok || die();
-
+        assertTrue(called.get());
 
     }
 
