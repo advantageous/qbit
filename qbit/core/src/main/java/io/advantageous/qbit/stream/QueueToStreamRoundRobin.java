@@ -19,8 +19,7 @@ public class QueueToStreamRoundRobin<T> implements Publisher<T> {
     private final Queue<T> queue;
     private final ArrayBlockingQueue<SubscriptionImpl> newSubscriptionQueue = new ArrayBlockingQueue<>(1000);
     private final AtomicBoolean started = new AtomicBoolean();
-
-
+    private final Runnable onSubscriptionEmpty;
 
 
     class SubscriptionImpl implements Subscription {
@@ -63,8 +62,16 @@ public class QueueToStreamRoundRobin<T> implements Publisher<T> {
     }
 
 
-    public QueueToStreamRoundRobin(Queue<T> queue) {
+    public QueueToStreamRoundRobin(final Queue<T> queue) {
         this.queue = queue;
+
+        this.onSubscriptionEmpty = () -> {};
+    }
+
+
+    public QueueToStreamRoundRobin(final Queue<T> queue, final Runnable runnable) {
+        this.queue = queue;
+        this.onSubscriptionEmpty = runnable;
     }
 
     @Override
@@ -126,8 +133,18 @@ public class QueueToStreamRoundRobin<T> implements Publisher<T> {
                         index = 0;
                     }
                     subscription = subscriptions.get(index);
-                    subscription.requestCount();
+                    final long requestCount = subscription.requestCount();
                     stop = subscription.stop.get();
+
+                    if (requestCount==0L) {
+                        long totalCount = 0L;
+                        for (SubscriptionImpl s : subscriptions) {
+                            totalCount += s.requestCount();
+                        }
+                        if (totalCount == 0L) {
+                            onSubscriptionEmpty.run();
+                        }
+                    }
                     index++;
                 }
 

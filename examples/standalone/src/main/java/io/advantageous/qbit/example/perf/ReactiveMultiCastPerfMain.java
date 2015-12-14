@@ -5,13 +5,11 @@ import io.advantageous.qbit.queue.Queue;
 import io.advantageous.qbit.queue.QueueBuilder;
 import io.advantageous.qbit.queue.SendQueue;
 import io.advantageous.qbit.stream.QueueToStreamRoundRobin;
-import io.advantageous.qbit.stream.QueueToStreamUnicast;
 import org.reactivestreams.Subscriber;
 import org.reactivestreams.Subscription;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 
 public class ReactiveMultiCastPerfMain {

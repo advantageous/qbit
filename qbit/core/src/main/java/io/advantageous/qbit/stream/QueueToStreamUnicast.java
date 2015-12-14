@@ -49,7 +49,7 @@ public class QueueToStreamUnicast<T> implements Publisher<T>{
     }
 
 
-    public QueueToStreamUnicast(Queue<T> queue) {
+    public QueueToStreamUnicast(final Queue<T> queue) {
         this.queue = queue;
         onSubscriptionEmpty = () -> {
 
@@ -57,7 +57,7 @@ public class QueueToStreamUnicast<T> implements Publisher<T>{
     }
 
 
-    public QueueToStreamUnicast(Queue<T> queue, Runnable runnable) {
+    public QueueToStreamUnicast(final Queue<T> queue, final Runnable runnable) {
         this.queue = queue;
         this.onSubscriptionEmpty = runnable;
     }
