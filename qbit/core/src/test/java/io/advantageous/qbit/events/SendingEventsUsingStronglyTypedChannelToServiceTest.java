@@ -184,16 +184,13 @@ public class SendingEventsUsingStronglyTypedChannelToServiceTest {
 
     @Test
     public void testSendSimple() throws Exception{
-        final EventManager eventManager = eventServiceQueue.createProxyWithAutoFlush(EventManager.class, Duration.TEN_MILLIS);
+        final EventManager eventManager = eventServiceQueue.createProxy(EventManager.class);
         final CountDownLatch latch = new CountDownLatch(1);
         final AtomicReference<Event<Object>> ref = new AtomicReference<>();
 
-        eventManager.register("c1", new EventListener<Object>() {
-            @Override
-            public void listen(Event<Object> event) {
-                latch.countDown();
-                ref.set(event);
-            }
+        eventManager.register("c1", event -> {
+            latch.countDown();
+            ref.set(event);
         });
 
         eventManager.send("c1", "hello");

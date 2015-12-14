@@ -16,6 +16,7 @@ public class QueueToStreamUnicast<T> implements Publisher<T>{
 
 
     private final Queue<T> queue;
+    private final Runnable onSubscriptionEmpty;
 
 
     class SubscriptionImpl implements Subscription {
@@ -48,8 +49,17 @@ public class QueueToStreamUnicast<T> implements Publisher<T>{
     }
 
 
-    public QueueToStreamUnicast(Queue<T> queue) {
+    public QueueToStreamUnicast(final Queue<T> queue) {
         this.queue = queue;
+        onSubscriptionEmpty = () -> {
+
+        };
+    }
+
+
+    public QueueToStreamUnicast(final Queue<T> queue, final Runnable runnable) {
+        this.queue = queue;
+        this.onSubscriptionEmpty = runnable;
     }
 
     @Override
@@ -128,6 +138,7 @@ public class QueueToStreamUnicast<T> implements Publisher<T>{
                 /** This could be pluggable so you can do a spin wait. */
                 private void waitForCountsIfNeeded() {
                     if (sendThisMany == 0) {
+                       onSubscriptionEmpty.run();
                         for (int index = 0; index < 100_000; index++) {
                             initStreamState();
                             if (sendThisMany > 0 || stop) break;
