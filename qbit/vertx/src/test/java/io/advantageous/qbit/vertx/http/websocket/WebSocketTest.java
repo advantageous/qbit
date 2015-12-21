@@ -67,13 +67,10 @@ public class WebSocketTest {
         final int port = PortUtils.findOpenPortStartAt(4000);
         final HttpServer httpServer = HttpServerBuilder.httpServerBuilder().setPort(port).build();
         final AtomicReference<Object> bodyRef = new AtomicReference<>();
-        final AtomicReference<String> messageRef = new AtomicReference<>();
 
-        final CountDownLatch countDownLatch = new CountDownLatch(2);
         httpServer.setWebSocketMessageConsumer(webSocketMessage -> {
             bodyRef.set(webSocketMessage.body());
             webSocketMessage.getSender().sendText("world");
-            countDownLatch.countDown();
         });
 
         httpServer.startServerAndWait();
@@ -94,7 +91,46 @@ public class WebSocketTest {
 
         String message = queue.receiveQueue().pollWait();
 
-        countDownLatch.await(5, TimeUnit.SECONDS);
+
+
+        assertEquals("world", message);
+        assertEquals("hello", bodyRef.get().toString());
+
+
+
+    }
+
+
+    @Test
+    public void testTextQueueWithBatchSize() throws Exception{
+
+        final int port = PortUtils.findOpenPortStartAt(4000);
+        final HttpServer httpServer = HttpServerBuilder.httpServerBuilder().setPort(port).build();
+        final AtomicReference<Object> bodyRef = new AtomicReference<>();
+
+        httpServer.setWebSocketMessageConsumer(webSocketMessage -> {
+            bodyRef.set(webSocketMessage.body());
+            webSocketMessage.getSender().sendText("world");
+        });
+
+        httpServer.startServerAndWait();
+
+
+        final HttpClient httpClient = HttpClientBuilder.httpClientBuilder().setPort(port).buildAndStart();
+        final WebSocket webSocket = httpClient.createWebSocket("/foo");
+
+
+        final WebSocketTextQueue queue = new WebSocketTextQueue(webSocket, 100, 100, TimeUnit.MILLISECONDS);
+
+
+
+        webSocket.openAndWait();
+
+        webSocket.sendText("hello");
+
+
+        String message = queue.receiveQueue().pollWait();
+
 
 
         assertEquals("world", message);

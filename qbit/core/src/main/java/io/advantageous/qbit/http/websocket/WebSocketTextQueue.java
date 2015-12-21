@@ -2,6 +2,8 @@ package io.advantageous.qbit.http.websocket;
 
 import io.advantageous.qbit.queue.*;
 
+import java.util.concurrent.TimeUnit;
+
 
 public class WebSocketTextQueue implements Queue<String> {
 
@@ -12,6 +14,13 @@ public class WebSocketTextQueue implements Queue<String> {
         this.webSocket = webSocket;
         this.stringQueue = QueueBuilder.queueBuilder().setBatchSize(1).setLimit(100).setPollWait(1000).build();
         final SendQueue<String> sendQueue = this.stringQueue.sendQueue();
+        this.webSocket.setTextMessageConsumer(sendQueue::send);
+    }
+
+    public WebSocketTextQueue(final WebSocket webSocket, final int batchSize, final int flushInterval, final TimeUnit timeUnit) {
+        this.webSocket = webSocket;
+        this.stringQueue = QueueBuilder.queueBuilder().setBatchSize(batchSize).setPollWait(1000).build();
+        final SendQueue<String> sendQueue = this.stringQueue.sendQueueWithAutoFlush(flushInterval, timeUnit);
         this.webSocket.setTextMessageConsumer(sendQueue::send);
     }
 
