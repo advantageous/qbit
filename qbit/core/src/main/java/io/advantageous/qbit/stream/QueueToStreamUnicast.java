@@ -21,9 +21,9 @@ public class QueueToStreamUnicast<T> implements Publisher<T>{
 
     class SubscriptionImpl implements Subscription {
 
-        final LinkedTransferQueue<Long> requests = new LinkedTransferQueue<>();
+        private final LinkedTransferQueue<Long> requests = new LinkedTransferQueue<>();
+        private final AtomicBoolean stop = new AtomicBoolean();
 
-        final AtomicBoolean stop = new AtomicBoolean();
         @Override
         public void request(long n) {
             requests.offer(n);

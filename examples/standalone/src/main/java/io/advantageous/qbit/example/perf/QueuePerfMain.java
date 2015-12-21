@@ -31,9 +31,9 @@ public class QueuePerfMain {
 
     public static void main(final String... args) throws Exception {
 
-        final int runs = 40;
-        final int tradeCount = 200_000;
-        final int batchSize = 800;
+        final int runs = 73;
+        final int tradeCount = 230_000;
+        final int batchSize = 1600;
         final int checkEvery = 0;
         final int numThreads = 6;
         final int pollWait = 1_000;
