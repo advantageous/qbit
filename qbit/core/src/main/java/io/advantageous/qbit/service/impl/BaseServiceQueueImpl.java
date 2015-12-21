@@ -362,7 +362,7 @@ public class BaseServiceQueueImpl implements ServiceQueue {
         }
         if (callbackManager != null) {
 
-            if (serviceMethodHandler.couldHaveCallback(methodCall.name())) {
+            if (methodCall.hasCallback() && serviceMethodHandler.couldHaveCallback(methodCall.name())) {
                 callbackManager.registerCallbacks(methodCall);
             }
         }

@@ -43,6 +43,8 @@ public class CallbackManagerWithTimeout implements CallbackManager {
     private final Timer timer;
     private long lastCheckTime;
     private long now;
+    private final Logger logger = LoggerFactory.getLogger(CallbackManagerWithTimeout.class);
+    private final boolean debug = logger.isDebugEnabled();
 
 
 
@@ -60,8 +62,6 @@ public class CallbackManagerWithTimeout implements CallbackManager {
         this.timer = timer;
     }
 
-    private final Logger logger = LoggerFactory.getLogger(CallbackManagerWithTimeout.class);
-    private final boolean debug = logger.isDebugEnabled();
     /**
      * Maps incoming calls with outgoing handlers (returns, async returns really).
      */
@@ -75,8 +75,18 @@ public class CallbackManagerWithTimeout implements CallbackManager {
      */
     private void registerHandlerCallbackForClient(final MethodCall<Object> methodCall,
                                                   final Callback<Object> handler) {
-        handlers.put(new HandlerKey(methodCall.returnAddress(), methodCall.address(),
-                methodCall.id(), methodCall.timestamp()), handler);
+
+        final HandlerKey handlerKey = new HandlerKey(methodCall.returnAddress(), methodCall.address(),
+                methodCall.id(), methodCall.timestamp());
+
+        if (debug) {
+            if (handlers.containsKey(handlerKey)) {
+                logger.debug("DUPLICATE HANDLERS {}", handlerKey);
+            }
+        }
+
+        handlers.put(handlerKey, handler);
+
     }
 
 
@@ -128,6 +138,7 @@ public class CallbackManagerWithTimeout implements CallbackManager {
                 response.id(),
                 response.timestamp());
 
+
         final Callback<Object> handler = handlers.remove(handlerKey);
 
         if (handler == null) {
@@ -135,6 +146,10 @@ public class CallbackManagerWithTimeout implements CallbackManager {
                 logger.error("Could not find handler for key {}", handlerKey);
             }
             return;
+        } else {
+
+            if (debug)
+            logger.info("FOUND HANDLER {}", handlerKey);
         }
 
         if (response.wasErrors()) {

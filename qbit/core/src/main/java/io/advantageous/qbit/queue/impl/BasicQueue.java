@@ -49,6 +49,7 @@ public class BasicQueue<T> implements Queue<T> {
     private final int batchSize;
     private final Logger logger = LoggerFactory.getLogger(BasicQueue.class);
     private final boolean debug = logger.isDebugEnabled();
+    private final int limit;
     private ReceiveQueueManager<T> receiveQueueManager;
     private final String name;
     private final int pollTimeWait;
@@ -65,17 +66,19 @@ public class BasicQueue<T> implements Queue<T> {
                       final boolean checkIfBusy,
                       final int size,
                       final int checkEvery,
-                      boolean tryTransfer,
-                      UnableToEnqueueHandler unableToEnqueueHandler) {
+                      final boolean tryTransfer,
+                      final UnableToEnqueueHandler unableToEnqueueHandler,
+                      final int limit) {
 
-        logger.info("Queue created {} {} batchSize {} size {} checkEvery {} tryTransfer {} waitTime {}",
-                name, queueClass, batchSize, size, checkEvery, tryTransfer, waitTime);
+        logger.debug("Queue created {} {} limit {} size {} checkEvery {} tryTransfer {} waitTime {} limit {}",
+                name, queueClass, batchSize, size, checkEvery, tryTransfer, waitTime, limit);
 
 
         this.name = name;
         this.pollTimeWait = waitTime;
         this.pollTimeTimeUnit = timeUnit;
         this.batchSize = batchSize;
+        this.limit = limit;
 
         if (size == -1) {
 
@@ -119,7 +122,7 @@ public class BasicQueue<T> implements Queue<T> {
         }
 
 
-        logger.info("Queue done creating {} batchSize {} checkEvery {} tryTransfer {}" +
+        logger.info("Queue done creating {} limit {} checkEvery {} tryTransfer {}" +
                         "pollTimeWait/polltime {}",
                 this.name, this.batchSize, checkEvery, tryTransfer,
                 this.pollTimeWait);
@@ -137,7 +140,7 @@ public class BasicQueue<T> implements Queue<T> {
     @Override
     public ReceiveQueue<T> receiveQueue() {
         if (debug) logger.debug("ReceiveQueue requested for {}", name);
-        return new BasicReceiveQueue<>(queue, pollTimeWait, pollTimeTimeUnit, batchSize);
+        return new BasicReceiveQueue<>(queue, pollTimeWait, pollTimeTimeUnit, limit);
     }
 
     /**
@@ -158,7 +161,7 @@ public class BasicQueue<T> implements Queue<T> {
         this.receiveQueueManager = new BasicReceiveQueueManager<>(name);
         stop.set(false);
         logger.info("Starting queue listener for  {} {}", name, listener);
-        this.receiveQueueManager.addQueueToManage(name, this.receiveQueue(), listener, batchSize);
+        this.receiveQueueManager.addQueueToManage(name, this.receiveQueue(), listener, limit);
         this.receiveQueueManager.start();
     }
 

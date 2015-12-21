@@ -5,6 +5,7 @@ import io.advantageous.qbit.queue.Queue;
 import io.advantageous.qbit.queue.SendQueue;
 import org.slf4j.Logger;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.concurrent.BlockingQueue;
 
@@ -140,14 +141,10 @@ public abstract class AbstractBasicSendQueue <T> implements SendQueue<T> {
         if (index > 0) {
             boolean ableToSend;
 
-            if (index == queueLocal.length) {
-                ableToSend = sendArray(queueLocal);
-            } else {
-                final Object[] copy = fastObjectArraySlice(queueLocal, 0, index);
-                ableToSend = sendArray(copy);
-            }
+            final Object[] copy = fastObjectArraySlice(queueLocal, 0, index);
+            ableToSend = sendArray(copy);
+            Arrays.fill(queueLocal, null);
             index = 0;
-            queueLocal = new Object[batchSize];
             return ableToSend;
         } else {
             return true;

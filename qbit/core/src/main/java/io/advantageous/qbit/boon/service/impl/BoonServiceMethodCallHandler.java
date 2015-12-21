@@ -340,7 +340,7 @@ public class BoonServiceMethodCallHandler implements ServiceMethodHandler {
         if (methodAccess.returnType() == void.class || methodAccess.returnType() == Void.class) {
             return ServiceConstants.VOID;
         }
-        return ResponseImpl.response(methodCall.id(), methodCall.timestamp(), methodCall.name(), methodCall.returnAddress(), returnValue, methodCall);
+        return ResponseImpl.response(methodCall.id(), methodCall.timestamp(), methodCall.address(), methodCall.returnAddress(), returnValue, methodCall);
     }
 
 

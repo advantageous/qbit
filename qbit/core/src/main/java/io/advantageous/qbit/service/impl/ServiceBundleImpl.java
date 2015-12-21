@@ -193,7 +193,7 @@ public class ServiceBundleImpl implements ServiceBundle {
         this.methodQueue = requestQueueBuilder.setName("Call Queue " + address).build();
         this.responseQueue = responseQueueBuilder.setName("Response Queue " + address).build();
         this.webResponseQueue = webResponseQueueBuilder.setName("Web Response Queue " + address).build();
-        this.methodSendQueue = methodQueue.sendQueue();
+        this.methodSendQueue = methodQueue.sendQueueWithAutoFlush(10, TimeUnit.SECONDS);
         this.eventManager = eventManager;
     }
 
@@ -212,7 +212,9 @@ public class ServiceBundleImpl implements ServiceBundle {
         }
 
         try {
-            callbackManager.registerCallbacks(methodCall);
+            if (methodCall.hasCallback()) {
+                callbackManager.registerCallbacks(methodCall);
+            }
             boolean[] continueFlag = new boolean[1];
             methodCall = handleBeforeMethodCall(methodCall, continueFlag);
 
@@ -566,6 +568,7 @@ public class ServiceBundleImpl implements ServiceBundle {
      */
     @Override
     public void flushSends() {
+
         this.methodSendQueue.flushSends();
     }
 

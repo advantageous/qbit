@@ -36,6 +36,8 @@ public class QueueBuilder implements Cloneable {
     public static final String QBIT_QUEUE_BUILDER = "qbit.queue.builder.";
 
     private int batchSize;
+
+    private int limit=-1;
     private int pollWait;
     private int size;
     private int checkEvery;
@@ -48,6 +50,22 @@ public class QueueBuilder implements Cloneable {
     private int enqueueTimeout;
 
     private UnableToEnqueueHandler unableToEnqueueHandler;
+
+    public int getLimit() {
+        if (limit == -1) {
+            if (batchSize != 1) {
+                limit = batchSize;
+            } else {
+                limit = 10;
+            }
+        }
+        return limit;
+    }
+
+    public QueueBuilder setLimit(final int limit) {
+        this.limit = limit;
+        return this;
+    }
 
     public UnableToEnqueueHandler getUnableToEnqueueHandler() {
 
@@ -250,7 +268,8 @@ public class QueueBuilder implements Cloneable {
                 this.getSize(),
                 this.getCheckEvery(),
                 this.isTryTransfer(),
-                this.getUnableToEnqueueHandler());
+                this.getUnableToEnqueueHandler(),
+                this.getLimit());
     }
 
 }

@@ -1,14 +1,13 @@
 [QBit Java Micorservices lib tutorials](https://github.com/MammatusTech/qbit-microservices-examples/wiki)
 
+#qbit - The Microservice Lib for Java - JSON, REST, WebSocket, Speed! 
+[![Build Status](https://travis-ci.org/advantageous/qbit.svg)](https://travis-ci.org/advantageous/qbit) [![Join the chat at https://gitter.im/advantageous/qbit](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/advantageous/qbit?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
-The Java microservice lib. QBit is a reactive programming lib for building microservices - JSON, HTTP, WebSocket, and REST. QBit uses reactive programming to build elastic REST, and WebSockets based cloud friendly, web services. SOA evolved for mobile and cloud.  ServiceDiscovery, Health, reactive StatService, events, Java idiomatic reactive programming for Microservices.
+## Quick overview of QBit
 
-Build Status:
-The build runs locally but runs out of memory (sometimes) on Travis.
+The Java microservice lib. QBit is a reactive programming lib for building microservices - JSON, HTTP, WebSocket, and REST. QBit uses reactive programming to build elastic REST, and WebSockets based cloud friendly, web services. SOA evolved for mobile and cloud. ServiceDiscovery, Health, reactive StatService, events, Java idiomatic reactive programming for Microservices.
 
-Do not edit. This is a copy of wiki home.
 
-#qbit - The Microservice Lib for Java - JSON, REST, WebSocket, Speed! [![Build Status](https://travis-ci.org/advantageous/qbit.svg)](https://travis-ci.org/advantageous/qbit) [![Join the chat at https://gitter.im/advantageous/qbit](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/advantageous/qbit?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 Got a question? Ask here: [QBit Google Group](https://groups.google.com/forum/#!forum/qbit-microservice).
 
@@ -22,24 +21,30 @@ QBit is FAST!
 
 ![QBit the microservice framework for java](https://docs.google.com/spreadsheets/d/1kd3gjyyz1MyTJvNLJ-BC0YIkzIU-8YYLLrxpjUl0TBQ/pubchart?oid=781959089&format=image)
 
-
 Core Features
 ============
 
 * Write REST based async microservices
-* Write Websocket based async microservices
+* Write ***WebSocket*** based async microservices (fast async RPC over WebSocket)
 * Actor Service Queues using micro-batching for high-speed message passing
 * Strongly async typed event bus which can be distributed
+* Async low overhead metrics gathering which can be queried and distributed (for doing fast lane analytics)
 * Complex async call coordination (with the Reactor) for reactive programming
-* Built-in support for health checks (and integration with tools like Consul)
-* Built-in support for monitoring (and integration with wire protocols like StatsD)
-* Built-in support for Service Discovery (with integration with health system, DNS SRV records and Consul)
+* Built-in support for ***health checks*** (and integration with tools like Consul)
+* Built-in support for ***monitoring*** (and integration with wire protocols like StatsD)
+* Built-in support for ***Service Discovery*** (with integration with health system, DNS SRV records and Consul)
 * Integration with persistent queues
+* [12 factor app port bindings](http://12factor.net/), health checks, KPI gathering, Logging MDC
+* API Gateway support for client generation and consumption via [Swagger](http://swagger.io/).
+* Our services can generate Swagger files (like idl for JSON/REST).
+* Remote client proxies for WebSocket (your interface is your IDL)
 
 
 Status
 =====
-Deployed at several large fortune 100 companies. QBit now works with Vertx (standalone or embedded). You can also use QBit no non-QBit projects, it is just a lib.
+Deployed at several large fortune 100 companies. 
+QBit now works with Vertx (standalone or embedded).
+You can also use QBit no non-QBit projects, it is just a lib.
 
 License
 =====
@@ -104,12 +109,8 @@ If you have an idea or technique you want to share, we listen.
 Inspiration
 ====
 
-A big inspiration for Boon/QBit was Akka, Go Channels, Active Objects, Apartment Model Threading, Actor,
-and the Mechnical Sympathy papers.
-
-"I have read the AKKA in Action Book. It was inspiring, but not the only inspiration for QBit.".
-"I have written apps where I promised a lot of performance and the techniques from QBit is how I got it."
- - Rick Hightower
+A big inspiration for Boon/QBit was Vertx, Akka, Go Channels, Active Objects, Apartment Model Threading, Actor,
+and the Mechanical Sympathy papers.
 
 QBit has ideas that are similar to many frameworks. We are all reading the same papers.
 QBit got inspiration from the LMAX disruptor papers and this blog post about
@@ -119,10 +120,10 @@ biggest middleware backends and whose name brands are known around the world. An
 
 QBit also took an lot of inspiration by the great work done
 by Tim Fox on Vertx. The first project using something that could actually be called QBit (albeit early QBit)
- was using Vertx on an web/mobile microserivce for an app that could potentially have 80 million users.
+ was using Vertx on an web/mobile microservice for an app that could potentially have 80 million users.
  It was this
 experience with Vertx and early QBit that led to QBit development and evolution. QBit is built on the
-shoulders of giants.
+shoulders of giants (Netty/Vertx).
 
 Does QBit compete with...
 ====
@@ -164,7 +165,7 @@ Code Examples
      //other methods for sendQueue, writeBatch, writeMany
 
 
-     //Recieving Threads
+     //Receiving Threads
      ReceiveQueue<Integer> receiveQueue = queue.receiveQueue();
      Integer item = receiveQueue.take();
      //other methods poll(), pollWait(), readBatch(), readBatch(count)
@@ -178,7 +179,7 @@ etc. QBit is just a library not a platform. QBit has libraries to put a service 
 You can use QBit queues directly or you can create a service. QBit services can be exposed by WebSocket,
 HTTP, HTTP pipeline, and other types of remoting. A service in QBit is a Java class whose methods are
  executed behind service queues. QBit implements apartment model threading and is similar to the
- Actor model or a better description would be Active Objects. QBit does not use a disruptor.
+ Actor model or a better description would be Active Objects. QBit does not use a disruptor (but could).
  It uses regular Java Queues. QBit can do north of 100 million ping pong calls per second which is
   an amazing speed (seen as high as 200M). QBit also supports calling services via REST, and WebSocket.
    QBit is microservices in the pure Web sense: JSON, HTTP, WebSocket, etc. QBit uses micro batching to
@@ -323,6 +324,75 @@ public class TodoService {
 
 ```
 
+
+#### Sending non-JSON
+
+You can POST/PUT non-JSON and you can capture the body as a `String` or as a `byte[]`. 
+If the content-type is set to anything but `application/json` and your body is defined a String or byte[].
+This works automatically. (The content-type has to be set.)
+
+```java
+    @RequestMapping(value = "/body/bytes", method = RequestMethod.POST)
+    public boolean bodyPostBytes( byte[] body) {
+        String string = new String(body, StandardCharsets.UTF_8);
+        return string.equals("foo");
+    }
+
+    @RequestMapping(value = "/body/string", method = RequestMethod.POST)
+    public boolean bodyPostString(String body) {
+        return body.equals("foo");
+    }
+```
+
+
+#### Sending different response codes for success
+
+By default QBit sends a `200` (OK) for a non-void call (a call that has a return or a Callback). If the REST operation has no return or no callback then QBit sends a `202` (Accepted). There may be times when you want to send a 201 (Created) or some other code that is not an Exception. You can do that by setting `code` on `@RequestMapping`. By default the code is -1 which means use the default behavior (200 for success, 202 for one-way message, and 500 for errors).
+
+
+#### Sending different response codes for success
+```java
+
+  @RequestMapping(value = "/helloj7", code = 221)
+    public void helloJSend7(Callback<JSendResponse<List<String>>> callback) {
+        callback.returnThis(JSendResponseBuilder.jSendResponseBuilder(Lists.list(
+                "hello " + System.currentTimeMillis())).build());
+    }
+
+```
+
+`Callbacks` can be used for internal services as well. It is often the case that you use a [CallbackBuilder](https://github.com/advantageous/qbit/wiki/%5BDocument%5D-CallbackBuilder-and-generics-for-Reactive-Java-Microservices) or a QBit [Reactor](https://github.com/MammatusTech/qbit-microservices-examples/wiki/Reactor-tutorial--%7C-reactively-handling-async-calls-with-QBit-Reactive-Microservices) to manage service calls. 
+
+#### Working with non JSON responses
+
+You do not have to return JSON form rest calls.
+You can return any binary or any text by using `HttpBinaryResponse` and `HttpTextResponse`.
+
+#### Returning non JSON from REST call
+```java
+      @RequestMapping(method = RequestMethod.GET)
+        public void ping2(Callback<HttpTextResponse> callback) {
+
+            callback.returnThis(HttpResponseBuilder.httpResponseBuilder()
+                    .setBody("hello mom").setContentType("mom")
+                    .setCode(777)
+                    .buildTextResponse());
+        }
+```
+
+
+#### Returning binary from REST call
+```java
+      @RequestMapping(method = RequestMethod.GET)
+        public void ping2(Callback<HttpBinaryResponse> callback) {
+
+            callback.returnThis(HttpResponseBuilder.httpResponseBuilder()
+                    .setBody("hello mom").setContentType("mom")
+                    .setCode(777)
+                    .buildBinaryResponse());
+        }
+```
+
 #### Side note Why Spring style annotations?
 Why did we pick Spring style annotations?
 1) Spring is not a standard and neither is QBit. 2) We found the Spring annotations to be less verbose.
@@ -332,6 +402,7 @@ Since QBit focuses on JSON, we do not need all of the complexity of JAX-RS or ev
 the Spring MVC annotations. Also we can literally use the actual Spring annotations. QBit and Boon
 use a non-type safe mechanism for annotations which means they are not tied to a particular lib.
 You can define your own. We hate vendor tie-in even if it is an open source vendor.
+(We also support @POST, @GET which is similar to JAX-RS).
 
 Now just start it up.
 
@@ -410,6 +481,28 @@ The above uses a WebSocket proxy interface to call the service async.
         void add(Callback<Integer> callback, int a, int b);
     }
 ```
+
+#### ServiceDiscovery aware websocket builders
+
+Create websocket service client that is ServiceDiscovery aware.
+
+
+```java
+        final Client client = clientBuilder.setServiceDiscovery(serviceDiscovery, "echo")
+                .setUri("/echo").setProtocolBatchSize(20).build().startClient();
+
+
+        final EchoAsync echoClient = client.createProxy(EchoAsync.class, "echo");
+```
+
+Currently the `clientBuilder` will load all service endpoints that are registered under the service name,
+and randomly pick one. 
+
+ServiceDiscovery includes Consul based, watching JSON files on disk, and DNS. It is easy to write your own service discovery as well and plug it into QBit.
+
+
+In the future we can RoundRobin calls or shard calls to websocket service and/or provide auto fail over if the connection is closed. We do this for the event bus that uses service discovery but it is not baked into WebSocket based client stubs yet.
+
 
 ## REST call with URI params
 
@@ -957,7 +1050,7 @@ In other words, `loadUser` can potentially block on IO.
 
 
 
-### TQueue Callbacks - he first rule of Queue Club - don't block
+### Queue Callbacks - The first rule of Queue Club - don't block
 
 
 Our client does not block, but our service does. Going back to our `RecommendationService`.
