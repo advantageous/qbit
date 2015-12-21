@@ -50,14 +50,14 @@ public class BasicReceiveQueueManager<T> implements ReceiveQueueManager<T> {
         final String name;
         final ReceiveQueue<T> inputQueue;
         final ReceiveQueueListener<T> listener;
-        final int batchSize;
+        final int limit;
 
         private QueueInfo(String name, ReceiveQueue<T> inputQueue,
-                          ReceiveQueueListener<T> listener, int batchSize) {
+                          ReceiveQueueListener<T> listener, int limit) {
             this.name = name;
             this.inputQueue = inputQueue;
             this.listener = listener;
-            this.batchSize = batchSize;
+            this.limit = limit;
         }
     }
 
@@ -88,7 +88,7 @@ public class BasicReceiveQueueManager<T> implements ReceiveQueueManager<T> {
         final String name = queueInfo.name;
         final ReceiveQueue<T> inputQueue = queueInfo.inputQueue;
         final ReceiveQueueListener<T> listener = queueInfo.listener;
-        final int batchSize = queueInfo.batchSize;
+        final int limit = queueInfo.limit;
 
 
         listener.init();
@@ -111,9 +111,9 @@ public class BasicReceiveQueueManager<T> implements ReceiveQueueManager<T> {
                 listener.receive(item);
 
                 /* If the batch size has hit the max then we need to call limit. */
-                if (count >= batchSize) {
+                if (count >= limit) {
                     if (debug) {
-                        logger.debug("BasicReceiveQueueManager {} limit reached batch size = {}", name, batchSize);
+                        logger.debug("BasicReceiveQueueManager {} limit reached batch size = {}", name, limit);
                     }
                     /* Notify that a limit has been met and reset the count to 0. */
                     listener.limit();

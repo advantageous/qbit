@@ -6,6 +6,7 @@ import io.advantageous.qbit.annotation.EventChannel;
 import io.advantageous.qbit.client.ClientProxy;
 import io.advantageous.qbit.events.EventBusProxyCreator;
 import io.advantageous.qbit.events.EventManager;
+import io.advantageous.qbit.events.EventManagerBuilder;
 import io.advantageous.qbit.test.TimedTesting;
 import org.junit.After;
 import org.junit.Before;
@@ -38,6 +39,8 @@ public class ServiceBundleAndEvents extends TimedTesting {
 
     AtomicReference<String> event = new AtomicReference<>();
 
+    ServiceQueue eventServiceQueue;
+
     @Before
     public void setup() {
 
@@ -46,9 +49,16 @@ public class ServiceBundleAndEvents extends TimedTesting {
         event = new AtomicReference<>();
 
 
-        eventManager = QBit.factory().systemEventManager();
+        eventManager = EventManagerBuilder.eventManagerBuilder().build("localtest");
+        eventServiceQueue = ServiceBuilder.serviceBuilder().setServiceObject(eventManager).buildAndStartAll();
+
+        eventManager = eventServiceQueue.createProxy(EventManager.class);
+
         testServiceImpl = new TestServiceImpl();
-        serviceQueue = ServiceBuilder.serviceBuilder()
+        ServiceBuilder serviceBuilder = ServiceBuilder.serviceBuilder().setEventManager(eventManager);
+        serviceBuilder.getRequestQueueBuilder().setBatchSize(100);
+
+        this.serviceQueue = serviceBuilder
                 .setServiceObject(testServiceImpl).buildAndStart();
 
         serviceBundle = serviceBundleBuilder().buildAndStart();
@@ -58,7 +68,7 @@ public class ServiceBundleAndEvents extends TimedTesting {
         sender = eventBusProxyCreator.createProxy(eventManager, EventChannel1.class);
 
 
-        serviceBundle.addServiceQueue(serviceName, serviceQueue);
+        serviceBundle.addServiceQueue(serviceName, this.serviceQueue);
         testService = serviceBundle.createLocalProxy(TestService.class, serviceName);
 
     }
@@ -69,7 +79,7 @@ public class ServiceBundleAndEvents extends TimedTesting {
         testService.method1("HELLO");
         testService.clientProxyFlush();
 
-        waitForTrigger(2, o -> (method.get() != null) &&
+        waitForTrigger(1, o -> (method.get() != null) &&
                 method.get().equals("method1 HELLO"));
 
         assertEquals("method1 HELLO\n", method.get());
@@ -78,7 +88,7 @@ public class ServiceBundleAndEvents extends TimedTesting {
         sender.clientProxyFlush();
 
 
-        waitForTrigger(4, o -> (event.get() != null) &&
+        waitForTrigger(1, o -> (event.get() != null) &&
                 event.get().equals("GOT EVENT EVENT 1\n"));
 
 
@@ -95,6 +105,7 @@ public class ServiceBundleAndEvents extends TimedTesting {
         Sys.sleep(100);
         serviceBundle.stop();
         serviceQueue.stop();
+        eventServiceQueue.stop();
     }
 
     public interface TestService extends ClientProxy {
