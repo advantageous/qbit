@@ -35,7 +35,7 @@ public class ServiceEndpointServerConfiguration {
             final ServiceEndpointServerProperties props) {
 
         logger.info("Binding service {} with {} ttl to {}", props.getPort(), props.getTtlSeconds(), props.getPort());
-tyl
+
         final EndpointServerBuilder builder = EndpointServerBuilder.endpointServerBuilder()
                 .setResponseQueue(queue)
                 .setEndpointName(props.getName())
