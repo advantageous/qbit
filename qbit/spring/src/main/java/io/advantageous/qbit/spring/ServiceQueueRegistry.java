@@ -17,7 +17,7 @@ public class ServiceQueueRegistry {
         this.beanMetadataMap = beanMetadataMap;
     }
 
-    public Set<Map.Entry<String, Map<String, Object>>> getItems() {
+    Set<Map.Entry<String, Map<String, Object>>> getItems() {
         return beanMetadataMap.entrySet();
     }
 

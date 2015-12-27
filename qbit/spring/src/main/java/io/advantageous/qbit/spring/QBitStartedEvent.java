@@ -8,7 +8,7 @@ import org.springframework.context.event.ApplicationContextEvent;
  *
  * @author geoffc@gmail.com (Geoff Chandler)
  */
-public class QBitStartedEvent extends ApplicationContextEvent {
+class QBitStartedEvent extends ApplicationContextEvent {
 
     /**
      * Create a new ContextStartedEvent.
@@ -16,7 +16,7 @@ public class QBitStartedEvent extends ApplicationContextEvent {
      * @param source the {@code ApplicationContext} that the event is raised for
      *               (must not be {@code null})
      */
-    public QBitStartedEvent(ApplicationContext source) {
+    QBitStartedEvent(ApplicationContext source) {
         super(source);
     }
 

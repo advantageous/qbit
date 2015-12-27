@@ -29,14 +29,13 @@ public class ServiceEndpointServerConfiguration {
 
     @Bean
     public ServiceEndpointServer serviceEndpointServer(
-            @Named("sharedResponseQueue")
-            final Queue<Response<Object>> queue,
-                                                       final Optional<ServiceDiscovery> serviceDiscovery,
-                                                       final Optional<HealthServiceAsync> healthServiceAsync,
-                                                       final ServiceEndpointServerProperties props) {
+            @Named("sharedResponseQueue") final Queue<Response<Object>> queue,
+            final Optional<ServiceDiscovery> serviceDiscovery,
+            final Optional<HealthServiceAsync> healthServiceAsync,
+            final ServiceEndpointServerProperties props) {
 
         logger.info("Binding service {} with {} ttl to {}", props.getPort(), props.getTtlSeconds(), props.getPort());
-
+tyl
         final EndpointServerBuilder builder = EndpointServerBuilder.endpointServerBuilder()
                 .setResponseQueue(queue)
                 .setEndpointName(props.getName())
