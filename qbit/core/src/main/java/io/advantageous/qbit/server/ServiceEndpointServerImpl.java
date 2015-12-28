@@ -266,7 +266,6 @@ public class ServiceEndpointServerImpl implements ServiceEndpointServer {
     private ReceiveQueueListener<Response<Object>> createResponseQueueListener() {
         return new ReceiveQueueListener<Response<Object>>() {
 
-            final List<Response<Object>> responseBatch = new ArrayList<>();
 
             @Override
             public void receive(final Response<Object> response) {
@@ -275,13 +274,7 @@ public class ServiceEndpointServerImpl implements ServiceEndpointServer {
                     logger.debug("createResponseQueueListener() Received a response: " + response);
                 }
 
-                responseBatch.add(response);
-
-                if (responseBatch.size() >= batchSize) {
-                    handleResponseFromServiceBundle(new ArrayList<>(responseBatch));
-                    responseBatch.clear();
-                }
-
+                handleResponseFromServiceBundle(response, response.request().originatingRequest());
             }
 
 
@@ -289,17 +282,12 @@ public class ServiceEndpointServerImpl implements ServiceEndpointServer {
             public void limit() {
 
 
-                handleResponseFromServiceBundle(new ArrayList<>(responseBatch));
-                responseBatch.clear();
-
                 httpRequestServerHandler.checkTimeoutsForRequests();
                 webSocketHandler.checkResponseBatchSend();
             }
 
             @Override
             public void empty() {
-                handleResponseFromServiceBundle(new ArrayList<>(responseBatch));
-                responseBatch.clear();
 
                 httpRequestServerHandler.checkTimeoutsForRequests();
                 webSocketHandler.checkResponseBatchSend();
@@ -309,8 +297,6 @@ public class ServiceEndpointServerImpl implements ServiceEndpointServer {
             @Override
             public void idle() {
 
-                handleResponseFromServiceBundle(new ArrayList<>(responseBatch));
-                responseBatch.clear();
 
 
                 httpRequestServerHandler.checkTimeoutsForRequests();
@@ -320,30 +306,6 @@ public class ServiceEndpointServerImpl implements ServiceEndpointServer {
     }
 
 
-    /**
-     * Handle a response from the server.
-     *
-     * @param responses responses
-     */
-    private void handleResponseFromServiceBundle(final List<Response<Object>> responses) {
-
-
-        for (Response<Object> response : responses) {
-
-            final Request<Object> request = response.request();
-
-            if (request instanceof MethodCall) {
-
-
-                final MethodCall<Object> methodCall = ((MethodCall<Object>) request);
-                final Request<Object> originatingRequest = methodCall.originatingRequest();
-
-                handleResponseFromServiceBundle(response, originatingRequest);
-
-            }
-        }
-
-    }
 
     private void handleResponseFromServiceBundle(final Response<Object> response, final Request<Object> originatingRequest) {
 
