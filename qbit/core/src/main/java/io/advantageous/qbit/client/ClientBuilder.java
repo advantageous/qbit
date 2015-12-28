@@ -41,7 +41,7 @@ public class ClientBuilder {
 
     public static final String QBIT_CLIENT_BUILDER = "qbit.client.builder.";
 
-    private int protocolBatchSize = 10;
+    private int protocolBatchSize = 80;
     private String uri;
     private HttpClientBuilder httpClientBuilder;
     private ServiceDiscovery serviceDiscovery;

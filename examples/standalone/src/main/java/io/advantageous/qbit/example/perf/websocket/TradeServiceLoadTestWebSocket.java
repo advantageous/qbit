@@ -18,13 +18,20 @@ public class TradeServiceLoadTestWebSocket {
 
     public static void main(final String... args) {
 
+        /** Hold the number of clients we will run. */
         final int numClients = 3;
+
+        /** Hold the number of calls each thread will make. */
         final int numCalls = 50_000_000;
+
+        /** Hold the client threads to run. */
         final List<Thread> threadList = new ArrayList<>(numClients);
 
+        /** Hold the counts to total. */
         final List<AtomicInteger> counts = new ArrayList<>();
 
 
+        /** Create the client threads. */
         for (int c =0; c < numClients; c++) {
             final AtomicInteger count = new AtomicInteger();
             counts.add(count);
@@ -33,7 +40,10 @@ public class TradeServiceLoadTestWebSocket {
             }));
         }
 
+        /** Start the threads. */
         threadList.forEach(Thread::start);
+
+        /** Grab the start time. */
         long startTime = System.currentTimeMillis();
 
         for (int index =0; index<1000; index++) {
@@ -45,14 +55,20 @@ public class TradeServiceLoadTestWebSocket {
                 totalCount += counts.get(c).get();
             }
 
-            puts(Str.num(totalCount),  Str.num(System.currentTimeMillis()-startTime),
-                    Str.num(totalCount/(System.currentTimeMillis()-startTime)*1000));
+            puts("total", Str.num(totalCount),
+                    "\telapsed time", Str.num(System.currentTimeMillis()-startTime),
+                    "\trate", Str.num(totalCount/(System.currentTimeMillis()-startTime)*1000));
         }
 
     }
 
+    /** Each client will run this
+     *
+     * @param numCalls number of times to make calls
+     * @param count holds the total count
+     */
     private static void runCalls(final int numCalls, final AtomicInteger count) {
-        final Client client = clientBuilder().setAutoFlush(false).setProtocolBatchSize(100).build();
+        final Client client = clientBuilder().setAutoFlush(false).build();
 
         final TradeServiceAsync tradeService = client.createProxy(TradeServiceAsync.class, "tradeservice");
 
@@ -65,8 +81,11 @@ public class TradeServiceLoadTestWebSocket {
                 }
             }, new Trade("IBM", 1));
 
-            while (call - 5_000 > count.get()) {
-                Sys.sleep(10);
+            /** Apply some back pressure. */
+            if (call % 10 == 0) {
+                while (call - 5_000 > count.get()) {
+                    Sys.sleep(10);
+                }
             }
         }
 
