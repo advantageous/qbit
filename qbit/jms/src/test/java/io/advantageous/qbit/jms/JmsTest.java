@@ -136,7 +136,7 @@ public class JmsTest {
 
     }
 
-    @Test
+    @Test @Ignore
     public void testSendConsume5() throws Exception {
         final List<Person> list = Lists.list(new Person("Geoff"), new Person("Rick"));
 

@@ -88,6 +88,8 @@ public class EndpointServerBuilder {
     private  int statsFlushRateSeconds = 5;
     private  int checkTimingEveryXCalls = 1000;
 
+    private int protocolBatchSize = 80;
+
 
     private CallbackManager callbackManager;
     private CallbackManagerBuilder callbackManagerBuilder;
@@ -111,6 +113,10 @@ public class EndpointServerBuilder {
     private AfterMethodCall afterMethodCallOnServiceQueue;
 
     private Consumer<Throwable> errorHandler;
+
+    private long flushResponseInterval = 25;
+    private int parserWorkerCount = 4;
+    private int encoderWorkerCount = 2;
 
     public BeforeMethodSent getBeforeMethodSent() {
 
@@ -260,6 +266,10 @@ public class EndpointServerBuilder {
         this.timeoutSeconds = propertyResolver.getIntegerProperty("timeoutSeconds", timeoutSeconds);
         this.statsFlushRateSeconds = propertyResolver.getIntegerProperty("statsFlushRateSeconds", statsFlushRateSeconds);
         this.checkTimingEveryXCalls = propertyResolver.getIntegerProperty("checkTimingEveryXCalls", checkTimingEveryXCalls);
+        this.encoderWorkerCount = propertyResolver.getIntegerProperty("encoderWorkerCount", encoderWorkerCount);
+        this.parserWorkerCount = propertyResolver.getIntegerProperty("parserWorkerCount", parserWorkerCount);
+        this.flushResponseInterval = propertyResolver.getLongProperty("flushResponseInterval", flushResponseInterval);
+
 
     }
 
@@ -577,11 +587,12 @@ public class EndpointServerBuilder {
 
 
 
-        final ServiceEndpointServer serviceEndpointServer = getFactory().createServiceServer(getHttpServer(),
+        final ServiceEndpointServer serviceEndpointServer = new ServiceEndpointServerImpl(getHttpServer(),
                 getEncoder(), getParser(), serviceBundle, getJsonMapper(), this.getTimeoutSeconds(),
-                this.getNumberOfOutstandingRequests(), this.getRequestQueueBuilder().getBatchSize(),
+                this.getNumberOfOutstandingRequests(), getProtocolBatchSize(),
                 this.getFlushInterval(), this.getSystemManager(), getEndpointName(),
-                getServiceDiscovery(), getPort(), getTtlSeconds(), getHealthService(), getErrorHandler());
+                getServiceDiscovery(), getPort(), getTtlSeconds(), getHealthService(), getErrorHandler(),
+                getFlushResponseInterval(), getParserWorkerCount(), getEncoderWorkerCount());
 
 
         if (serviceEndpointServer != null && qBitSystemManager != null) {
@@ -735,6 +746,42 @@ public class EndpointServerBuilder {
 
     public EndpointServerBuilder setErrorHandler(Consumer<Throwable> errorHandler) {
         this.errorHandler = errorHandler;
+        return this;
+    }
+
+    public long getFlushResponseInterval() {
+        return flushResponseInterval;
+    }
+
+    public EndpointServerBuilder setFlushResponseInterval(long flushResponseInterval) {
+        this.flushResponseInterval = flushResponseInterval;
+        return this;
+    }
+
+    public int getParserWorkerCount() {
+        return parserWorkerCount;
+    }
+
+    public EndpointServerBuilder setParserWorkerCount(int parserWorkerCount) {
+        this.parserWorkerCount = parserWorkerCount;
+        return this;
+    }
+
+    public int getEncoderWorkerCount() {
+        return encoderWorkerCount;
+    }
+
+    public EndpointServerBuilder setEncoderWorkerCount(int encoderWorkerCount) {
+        this.encoderWorkerCount = encoderWorkerCount;
+        return this;
+    }
+
+    public int getProtocolBatchSize() {
+        return protocolBatchSize;
+    }
+
+    public EndpointServerBuilder setProtocolBatchSize(int protocolBatchSize) {
+        this.protocolBatchSize = protocolBatchSize;
         return this;
     }
 }
