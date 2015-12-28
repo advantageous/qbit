@@ -24,7 +24,6 @@ import io.advantageous.qbit.http.request.HttpRequest;
 import io.advantageous.qbit.http.server.HttpServer;
 import io.advantageous.qbit.http.server.websocket.WebSocketMessage;
 import io.advantageous.qbit.json.JsonMapper;
-import io.advantageous.qbit.message.MethodCall;
 import io.advantageous.qbit.message.Request;
 import io.advantageous.qbit.message.Response;
 import io.advantageous.qbit.queue.ReceiveQueueListener;
@@ -43,8 +42,6 @@ import io.advantageous.qbit.util.Timer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Consumer;
@@ -57,8 +54,6 @@ import java.util.function.Consumer;
  * @author gcc@rd.io (Geoff Chandler)
  */
 public class ServiceEndpointServerImpl implements ServiceEndpointServer {
-
-    protected final int batchSize;
     private final Logger logger = LoggerFactory.getLogger(ServiceEndpointServerImpl.class);
     private final boolean debug = GlobalConstants.DEBUG || logger.isDebugEnabled();
     private final QBitSystemManager systemManager;
@@ -86,7 +81,7 @@ public class ServiceEndpointServerImpl implements ServiceEndpointServer {
                                      final JsonMapper jsonMapper,
                                      final int timeOutInSeconds,
                                      final int numberOfOutstandingRequests,
-                                     final int batchSize,
+                                     final int protocolBatchSize,
                                      final int flushInterval,
                                      final QBitSystemManager systemManager,
                                      final String endpointName,
@@ -94,7 +89,10 @@ public class ServiceEndpointServerImpl implements ServiceEndpointServer {
                                      final int port,
                                      final int ttlSeconds,
                                      final HealthServiceAsync healthServiceAsync,
-                                     final Consumer<Throwable> errorHandler) {
+                                     final Consumer<Throwable> errorHandler,
+                                     final long flushResponseInterval,
+                                     final int parserWorkerCount,
+                                     final int encoderWorkerCount) {
 
         this.systemManager = systemManager;
         this.encoder = encoder;
@@ -103,13 +101,13 @@ public class ServiceEndpointServerImpl implements ServiceEndpointServer {
         this.serviceBundle = serviceBundle;
         this.jsonMapper = jsonMapper;
         this.timeoutInSeconds = timeOutInSeconds;
-        this.batchSize = batchSize;
 
         this.errorHandler = errorHandler;
         
         this.healthServiceAsync = healthServiceAsync;
 
-        this.webSocketHandler = new WebSocketServiceServerHandler(batchSize, serviceBundle, 4, 4);
+        this.webSocketHandler = new WebSocketServiceServerHandler(protocolBatchSize, serviceBundle,
+                parserWorkerCount, encoderWorkerCount, flushResponseInterval);
 
         this.serviceDiscovery = serviceDiscovery;
 

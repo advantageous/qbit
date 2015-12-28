@@ -321,24 +321,6 @@ public interface Factory {
         return FactorySPI.getEventManagerFactory().createEventManager(name, eventConnector, statsCollector);
     }
 
-    default ServiceEndpointServer createServiceServer(final HttpTransport httpServer,
-                                                      final ProtocolEncoder encoder,
-                                                      final ProtocolParser protocolParser,
-                                                      final ServiceBundle serviceBundle,
-                                                      final JsonMapper jsonMapper,
-                                                      final int timeOutInSeconds,
-                                                      final int numberOfOutstandingRequests,
-                                                      final int batchSize,
-                                                      final int flushInterval,
-                                                      final QBitSystemManager systemManager,
-                                                      final String endpointName,
-                                                      final ServiceDiscovery serviceDiscovery,
-                                                      final int port,
-                                                      final int ttlSeconds,
-                                                      final HealthServiceAsync healthServiceAsync,
-                                                      final Consumer<Throwable> errorHandler) {
-        throw new UnsupportedOperationException();
-    }
 
 
     default Client createClient(String uri,

@@ -31,7 +31,6 @@ import io.advantageous.qbit.events.EventBusProxyCreator;
 import io.advantageous.qbit.events.EventManager;
 import io.advantageous.qbit.events.EventManagerBuilder;
 import io.advantageous.qbit.boon.events.impl.BoonEventBusProxyCreator;
-import io.advantageous.qbit.http.HttpTransport;
 import io.advantageous.qbit.http.client.HttpClient;
 import io.advantageous.qbit.json.JsonMapper;
 import io.advantageous.qbit.message.MethodCall;
@@ -40,10 +39,7 @@ import io.advantageous.qbit.message.Request;
 import io.advantageous.qbit.queue.QueueBuilder;
 import io.advantageous.qbit.sender.Sender;
 import io.advantageous.qbit.sender.SenderEndPoint;
-import io.advantageous.qbit.server.ServiceEndpointServer;
-import io.advantageous.qbit.server.ServiceEndpointServerImpl;
 import io.advantageous.qbit.service.*;
-import io.advantageous.qbit.service.discovery.ServiceDiscovery;
 import io.advantageous.qbit.service.health.HealthServiceAsync;
 import io.advantageous.qbit.boon.service.impl.BoonServiceMethodCallHandler;
 import io.advantageous.qbit.service.impl.CallbackManager;
@@ -65,7 +61,6 @@ import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
-import java.util.function.Consumer;
 
 import static io.advantageous.qbit.service.ServiceBuilder.serviceBuilder;
 
@@ -229,22 +224,6 @@ public class BoonQBitFactory implements Factory {
 
 
 
-    @Override
-    public ServiceEndpointServer createServiceServer(final HttpTransport httpServer, final ProtocolEncoder encoder,
-                                                     final ProtocolParser protocolParser, final ServiceBundle serviceBundle,
-                                                     final JsonMapper jsonMapper, final int timeOutInSeconds,
-                                                     final int numberOfOutstandingRequests, final int batchSize,
-                                                     final int flushInterval, final QBitSystemManager systemManager,
-                                                     final String endpointName,
-                                                     final ServiceDiscovery serviceDiscovery,
-                                                     final int port,
-                                                     final int ttlSeconds,
-                                                     final HealthServiceAsync healthServiceAsync,
-                                                     final Consumer<Throwable> errorHandler) {
-        return new ServiceEndpointServerImpl(httpServer, encoder, protocolParser, serviceBundle, jsonMapper,
-                timeOutInSeconds, numberOfOutstandingRequests, batchSize, flushInterval, systemManager,
-                endpointName, serviceDiscovery, port, ttlSeconds, healthServiceAsync, errorHandler);
-    }
 
 
     @Override

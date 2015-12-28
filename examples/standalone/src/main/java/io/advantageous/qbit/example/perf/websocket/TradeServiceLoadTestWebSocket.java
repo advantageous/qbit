@@ -18,8 +18,8 @@ public class TradeServiceLoadTestWebSocket {
 
     public static void main(final String... args) {
 
-        final int numClients = 10;
-        final int numCalls = 10_000_000;
+        final int numClients = 3;
+        final int numCalls = 50_000_000;
         final List<Thread> threadList = new ArrayList<>(numClients);
 
         final List<AtomicInteger> counts = new ArrayList<>();
@@ -52,7 +52,7 @@ public class TradeServiceLoadTestWebSocket {
     }
 
     private static void runCalls(final int numCalls, final AtomicInteger count) {
-        final Client client = clientBuilder().setAutoFlush(false).setProtocolBatchSize(50).build();
+        final Client client = clientBuilder().setAutoFlush(false).setProtocolBatchSize(100).build();
 
         final TradeServiceAsync tradeService = client.createProxy(TradeServiceAsync.class, "tradeservice");
 
@@ -65,8 +65,8 @@ public class TradeServiceLoadTestWebSocket {
                 }
             }, new Trade("IBM", 1));
 
-            if (call - 100_000 > count.get()) {
-                Sys.sleep(1);
+            while (call - 5_000 > count.get()) {
+                Sys.sleep(10);
             }
         }
 

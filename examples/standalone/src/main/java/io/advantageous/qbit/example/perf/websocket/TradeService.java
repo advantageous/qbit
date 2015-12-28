@@ -36,6 +36,8 @@ public class TradeService {
                 .addEndpointService(new TradeService())
                 .setRootURI("/");
 
+        managedServiceBuilder.getEndpointServerBuilder().setProtocolBatchSize(100);
+
         managedServiceBuilder.startApplication();
     }
 }
