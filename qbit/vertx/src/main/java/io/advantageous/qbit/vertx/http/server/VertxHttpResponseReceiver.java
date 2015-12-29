@@ -1,7 +1,7 @@
 package io.advantageous.qbit.vertx.http.server;
 
 import io.advantageous.qbit.http.request.HttpResponseCreator;
-import io.advantageous.qbit.http.request.HttpResponseDecorator;
+import io.advantageous.qbit.http.request.decorator.HttpResponseDecorator;
 import io.advantageous.qbit.http.HttpStatus;
 import io.advantageous.qbit.http.request.HttpResponse;
 import io.advantageous.qbit.http.request.HttpResponseReceiver;
@@ -56,11 +56,11 @@ public class VertxHttpResponseReceiver implements HttpResponseReceiver<Object> {
                 this.requestParams) : null;
 
 
-        /** Response was decorated. */
+        /** Response was not decorated. */
         if (decoratedResponse == null) {
             doResponse(code, contentType, body, responseHeaders);
         } else {
-            /** Response was not decorated. */
+            /** Response was decorated. */
             doResponse(decoratedResponse.code(), decoratedResponse.contentType(), decoratedResponse.body(), decoratedResponse.headers());
         }
     }

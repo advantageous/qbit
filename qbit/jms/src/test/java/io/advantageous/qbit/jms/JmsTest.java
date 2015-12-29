@@ -69,7 +69,13 @@ public class JmsTest {
         personSendQueue.send(new Person("Rick"));
         personSendQueue.flushSends();
 
-        final Person geoff = personReceiveQueue.pollWait();
+
+        Person geoff = personReceiveQueue.pollWait();
+
+        while (geoff==null) {
+            geoff = personReceiveQueue.pollWait();
+        }
+
         final Person rick = personReceiveQueue.pollWait();
 
         assertTrue(geoff.name.equals("Rick") || geoff.name.equals("Geoff"));
@@ -87,8 +93,12 @@ public class JmsTest {
         personSendQueue.sendAndFlush(new Person("Geoff"));
         personSendQueue.sendAndFlush(new Person("Rick"));
 
-        final Person geoff = personReceiveQueue.pollWait();
-        Sys.sleep(100);
+        Person geoff = personReceiveQueue.pollWait();
+
+        while (geoff==null) {
+            geoff = personReceiveQueue.pollWait();
+        }
+
         final Person rick = personReceiveQueue.poll();
 
 
@@ -126,7 +136,7 @@ public class JmsTest {
 
     }
 
-    @Test
+    @Test @Ignore
     public void testSendConsume5() throws Exception {
         final List<Person> list = Lists.list(new Person("Geoff"), new Person("Rick"));
 
@@ -136,9 +146,13 @@ public class JmsTest {
         personSendQueue.sendBatch(persons);
         personSendQueue.flushSends();
 
-        Sys.sleep(1000);
 
-        final Person geoff = personReceiveQueue.pollWait();
+
+        Person geoff = personReceiveQueue.pollWait();
+
+        while (geoff==null) {
+            geoff = personReceiveQueue.pollWait();
+        }
         final Person rick = personReceiveQueue.pollWait();
 
 
@@ -147,6 +161,45 @@ public class JmsTest {
 
     }
 
+
+    @Test(expected = JmsException.class)
+    public void testSendConsumeDown() throws Exception {
+        final List<Person> list = Lists.list(new Person("Geoff"), new Person("Rick"));
+
+        Iterable<Person> persons = list::iterator;
+
+
+        personSendQueue.sendBatch(persons);
+        personSendQueue.flushSends();
+
+
+        broker.stop();
+
+        Sys.sleep(1000);
+
+        personReceiveQueue.pollWait();
+
+    }
+
+
+    @Test(expected = JmsException.class)
+    public void testSendDown() throws Exception {
+        final List<Person> list = Lists.list(new Person("Geoff"), new Person("Rick"));
+
+        Iterable<Person> persons = list::iterator;
+
+
+        personSendQueue.sendBatch(persons);
+        personSendQueue.flushSends();
+
+
+        broker.stop();
+
+        Sys.sleep(1000);
+
+        personSendQueue.sendBatch(persons);
+
+    }
     @Test
     public void testSendConsume6() throws Exception {
 

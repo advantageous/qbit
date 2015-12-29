@@ -12,6 +12,7 @@ import io.advantageous.qbit.message.MethodCall;
 import io.advantageous.qbit.message.Request;
 import io.advantageous.qbit.message.Response;
 import io.advantageous.qbit.meta.RequestMetaData;
+import io.advantageous.qbit.meta.ServiceMethodMeta;
 import io.advantageous.qbit.meta.builder.ContextMetaBuilder;
 import io.advantageous.qbit.meta.provider.StandardMetaDataProvider;
 import io.advantageous.qbit.meta.transformer.StandardRequestTransformer;
@@ -19,6 +20,7 @@ import io.advantageous.qbit.queue.SendQueue;
 import io.advantageous.qbit.service.ServiceBundle;
 import io.advantageous.qbit.service.ServiceMethodNotFoundException;
 import io.advantageous.qbit.util.MultiMap;
+import io.advantageous.qbit.util.MultiMapImpl;
 import io.advantageous.qbit.util.Timer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,6 +31,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
+import java.util.function.Consumer;
 
 import static io.advantageous.boon.core.Sets.set;
 import static io.advantageous.boon.core.Str.startsWithItemInCollection;
@@ -49,26 +52,34 @@ public class HttpRequestServiceServerHandlerUsingMetaImpl implements HttpRequest
     private final JsonMapper jsonMapper;
     private final Map<String, Request<Object>> outstandingRequestMap = new ConcurrentHashMap<>(100_000);
     private final Logger logger = LoggerFactory.getLogger(HttpRequestServiceServerHandlerUsingMetaImpl.class);
-    private final boolean debug = GlobalConstants.DEBUG || logger.isDebugEnabled();
+
+    private final boolean devMode = GlobalConstants.DEV_MODE;
     private final Lock lock = new ReentrantLock();
     private long lastFlushTime;
     private ContextMetaBuilder contextMetaBuilder = ContextMetaBuilder.contextMetaBuilder();
     private StandardRequestTransformer standardRequestTransformer;
     private final Map<RequestMethod, StandardMetaDataProvider> metaDataProviderMap = new ConcurrentHashMap<>();
+    private final Consumer<Throwable> errorHandler;
 
-    public HttpRequestServiceServerHandlerUsingMetaImpl(int timeoutInSeconds, ServiceBundle serviceBundle,
-                                                        JsonMapper jsonMapper,
+    public HttpRequestServiceServerHandlerUsingMetaImpl(final int timeoutInSeconds,
+                                                        final ServiceBundle serviceBundle,
+                                                        final JsonMapper jsonMapper,
                                                         final int numberOfOutstandingRequests,
-                                                        int flushInterval) {
+                                                        final int flushInterval,
+                                                        final Consumer<Throwable> errorHandler) {
         this.timeoutInSeconds = timeoutInSeconds;
         lastTimeoutCheckTime.set(Timer.timer().now() + (timeoutInSeconds * 1000));
         this.numberOfOutstandingRequests = numberOfOutstandingRequests;
         this.jsonMapper = jsonMapper;
+        this.errorHandler = errorHandler;
 
         this.methodCallSendQueue = serviceBundle.methodSendQueue();
         this.flushInterval = flushInterval;
 
         contextMetaBuilder = ContextMetaBuilder.contextMetaBuilder();
+
+
+
     }
 
 
@@ -87,21 +98,26 @@ public class HttpRequestServiceServerHandlerUsingMetaImpl implements HttpRequest
             }
             sendMethodToServiceBundle(methodCall);
         } else {
-            handleErrorConverting(request, errorList, methodCall);
+            if (!request.isHandled()) {
+                handleErrorConverting(request, errorList, methodCall);
+            }
             return;
         }
 
         final RequestMetaData requestMetaData = metaDataProviderMap
                 .get(RequestMethod.valueOf(request.getMethod())).get(request.address());
 
-        if (requestMetaData.getMethod().getMethodAccess().returnType() == void.class
-                && !requestMetaData.getMethod().hasCallBack()) {
+        final ServiceMethodMeta serviceMethod = requestMetaData.getMethod();
+
+        if (serviceMethod.getMethodAccess().returnType() == void.class
+                && !serviceMethod.hasCallBack()) {
 
             request.handled();
 
-            final int responseCode = requestMetaData.getMethod().getResponseCode();
+            final int responseCode = serviceMethod.getResponseCode();
             writeResponse(request.getReceiver(), responseCode == -1 ? HttpStatus.ACCEPTED: responseCode,
-                    "application/json", "\"success\"", MultiMap.empty());
+                    serviceMethod.getContentType(), "\"success\"",
+                            requestMetaData.getRequest().getResponseHeaders() );
 
         }
 
@@ -126,12 +142,27 @@ public class HttpRequestServiceServerHandlerUsingMetaImpl implements HttpRequest
                 final RequestMetaData requestMetaData = metaDataProviderMap
                         .get(RequestMethod.valueOf(originatingRequest.getMethod())).get(originatingRequest.address());
 
-                final int responseCode = requestMetaData.getMethod().getResponseCode();
+                final ServiceMethodMeta serviceMethodMeta = requestMetaData.getMethod();
+                final int responseCode = serviceMethodMeta.getResponseCode();
+
+
+                MultiMap<String, String> headers = response.headers();
+
+                if (requestMetaData.getRequest().hasResponseHeaders() ) {
+                    if (response.headers() == MultiMap.EMPTY) {
+                        headers = new MultiMapImpl<>();
+                    } else {
+                        headers = response.headers();
+                    }
+                    headers.putAllCopyLists(requestMetaData.getRequest().getResponseHeaders());
+                }
+
                 writeResponse(originatingRequest.getReceiver(),
-                        responseCode == -1 ? HttpStatus.OK : responseCode,
-                        "application/json",
-                        jsonMapper.toJson(response.body()),
-                        response.headers());
+                            responseCode == -1 ? HttpStatus.OK : responseCode,
+                            serviceMethodMeta.getContentType(),
+                            jsonMapper.toJson(response.body()),
+                            headers);
+
             }
         }
 
@@ -159,7 +190,6 @@ public class HttpRequestServiceServerHandlerUsingMetaImpl implements HttpRequest
 
     public void start() {
 
-
         metaDataProviderMap.put(RequestMethod.GET, new StandardMetaDataProvider(contextMetaBuilder.build(), RequestMethod.GET));
         metaDataProviderMap.put(RequestMethod.POST, new StandardMetaDataProvider(contextMetaBuilder.build(), RequestMethod.POST));
         metaDataProviderMap.put(RequestMethod.PUT, new StandardMetaDataProvider(contextMetaBuilder.build(), RequestMethod.PUT));
@@ -169,7 +199,8 @@ public class HttpRequestServiceServerHandlerUsingMetaImpl implements HttpRequest
         metaDataProviderMap.put(RequestMethod.TRACE, new StandardMetaDataProvider(contextMetaBuilder.build(), RequestMethod.TRACE));
         metaDataProviderMap.put(RequestMethod.CONNECT, new StandardMetaDataProvider(contextMetaBuilder.build(), RequestMethod.CONNECT));
 
-        standardRequestTransformer = new StandardRequestTransformer(metaDataProviderMap);
+        standardRequestTransformer = new StandardRequestTransformer(metaDataProviderMap, Optional.ofNullable(errorHandler));
+
     }
 
 
@@ -353,14 +384,13 @@ public class HttpRequestServiceServerHandlerUsingMetaImpl implements HttpRequest
             list.add(st);
         }
 
-        return array( StackTraceElement.class, list );
+        return array(StackTraceElement.class, list);
 
     }
 
 
 
-    //TODO https://github.com/advantageous/qbit/issues/403 #403
-    public static String asJson(final Throwable ex) {
+    public  String asJson(final Throwable ex) {
         final CharBuf buffer = CharBuf.create(255);
 
         buffer.add('{');
@@ -372,22 +402,31 @@ public class HttpRequestServiceServerHandlerUsingMetaImpl implements HttpRequest
         buffer.addLine().indent(5).addJsonFieldName("exception")
                 .asJsonString(ex.getClass().getSimpleName()).addLine(',');
 
-        if (ex.getCause()!=null) {
-            buffer.addLine().indent(5).addJsonFieldName("causeMessage")
-                    .asJsonString(ex.getCause().getMessage()).addLine(',');
 
 
-            if (ex.getCause().getCause()!=null) {
-                buffer.addLine().indent(5).addJsonFieldName("cause2Message")
-                        .asJsonString(ex.getCause().getCause().getMessage()).addLine(',');
 
-                if (ex.getCause().getCause().getCause()!=null) {
-                    buffer.addLine().indent(5).addJsonFieldName("cause3Message")
-                            .asJsonString(ex.getCause().getCause().getCause().getMessage()).addLine(',');
 
-                    if (ex.getCause().getCause().getCause().getCause()!=null) {
-                        buffer.addLine().indent(5).addJsonFieldName("cause4Message")
-                                .asJsonString(ex.getCause().getCause().getCause().getCause().getMessage()).addLine(',');
+        if (devMode) {
+
+
+            if (ex.getCause()!=null) {
+                buffer.addLine().indent(5).addJsonFieldName("causeMessage")
+                        .asJsonString(ex.getCause().getMessage()).addLine(',');
+
+
+                if (ex.getCause().getCause()!=null) {
+                    buffer.addLine().indent(5).addJsonFieldName("cause2Message")
+                            .asJsonString(ex.getCause().getCause().getMessage()).addLine(',');
+
+                    if (ex.getCause().getCause().getCause()!=null) {
+                        buffer.addLine().indent(5).addJsonFieldName("cause3Message")
+                                .asJsonString(ex.getCause().getCause().getCause().getMessage()).addLine(',');
+
+                        if (ex.getCause().getCause().getCause().getCause()!=null) {
+                            buffer.addLine().indent(5).addJsonFieldName("cause4Message")
+                                    .asJsonString(ex.getCause().getCause().getCause().getCause().getMessage()).addLine(',');
+
+                        }
 
                     }
 
@@ -395,30 +434,27 @@ public class HttpRequestServiceServerHandlerUsingMetaImpl implements HttpRequest
 
             }
 
+
+            final StackTraceElement[] stackTrace = getFilteredStackTrace(ex.getStackTrace());
+
+            if (stackTrace != null && stackTrace.length > 0) {
+
+                buffer.addLine().indent(5).addJsonFieldName("stackTrace").addLine();
+
+                stackTraceToJson(buffer, stackTrace);
+
+                buffer.add(',');
+            }
+
+            buffer.addLine().indent(5).addJsonFieldName("fullStackTrace").addLine();
+
+            final StackTraceElement[] fullStackTrace = ex.getStackTrace();
+            stackTraceToJson(buffer, fullStackTrace);
         }
-
-
-
-
-
-        final StackTraceElement[] stackTrace = getFilteredStackTrace(ex.getStackTrace());
-
-        if ( stackTrace!=null && stackTrace.length > 0 ) {
-
-            buffer.addLine().indent(5).addJsonFieldName("stackTrace").addLine();
-
-            stackTraceToJson(buffer, stackTrace);
-
-            buffer.add(',');
-        }
-
-        buffer.addLine().indent(5).addJsonFieldName("fullStackTrace").addLine();
-
-        final StackTraceElement[] fullStackTrace = ex.getStackTrace();
-        stackTraceToJson(buffer, fullStackTrace);
 
         buffer.add('}');
         return buffer.toString();
+
 
     }
 

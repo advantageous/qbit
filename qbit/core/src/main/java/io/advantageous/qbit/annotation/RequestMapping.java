@@ -77,4 +77,11 @@ public @interface RequestMapping {
      * @return code
      */
     int code() default -1;
+
+    /**
+     * ContentType
+     * application/javascript
+     * @return contentType
+     */
+    String contentType() default "application/json";
 }

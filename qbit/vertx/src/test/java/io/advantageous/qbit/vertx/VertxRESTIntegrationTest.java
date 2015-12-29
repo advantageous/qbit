@@ -1,6 +1,7 @@
 package io.advantageous.qbit.vertx;
 
 import io.advantageous.boon.core.Sys;
+import io.advantageous.qbit.annotation.PathVariable;
 import io.advantageous.qbit.annotation.RequestMapping;
 import io.advantageous.qbit.annotation.RequestMethod;
 import io.advantageous.qbit.http.client.HttpClient;
@@ -38,6 +39,11 @@ public class VertxRESTIntegrationTest {
         @RequestMapping(value = "/world", method = RequestMethod.POST)
         public String hello(String body) {
             return body;
+        }
+        
+        @RequestMapping(value = "/sayHi/{0}", method = RequestMethod.GET)
+        public String sayHi(@PathVariable String to) {
+            return to;
         }
     }
 
@@ -86,9 +92,8 @@ public class VertxRESTIntegrationTest {
                 final ServiceEndpointServer endpointServer = endpointServerBuilder().setUri("/")
                         .addService(new TestRestService()).setHttpServer(httpServer).build();
 
-                endpointServer.startServer();
+                endpointServer.startServerAndWait();
 
-                Sys.sleep(500);
 
 
 
@@ -97,7 +102,6 @@ public class VertxRESTIntegrationTest {
                  */
                 vertxHttpServer.requestHandler(router::accept).listen(port);
 
-                Sys.sleep(500);
             }catch (Exception ex) {
                 ex.printStackTrace();
                 throw new IllegalStateException(ex);
@@ -145,6 +149,9 @@ public class VertxRESTIntegrationTest {
         assertEquals(200, response2.code());
         assertEquals("\"hi\"", response2.body());
 
+        final HttpTextResponse response3 = client.get("/hello/sayHi/me");
+        assertEquals(200, response3.code());
+        assertEquals("\"me\"", response3.body());
     }
 
 

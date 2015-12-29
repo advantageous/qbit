@@ -22,12 +22,13 @@ import io.advantageous.boon.core.Str;
 import io.advantageous.boon.core.StringScanner;
 import io.advantageous.qbit.http.HttpContentTypes;
 import io.advantageous.qbit.http.request.HttpResponseCreator;
-import io.advantageous.qbit.http.request.HttpResponseDecorator;
+import io.advantageous.qbit.http.request.decorator.HttpResponseDecorator;
 import io.advantageous.qbit.http.request.HttpRequest;
 import io.advantageous.qbit.http.request.HttpRequestBuilder;
 import io.advantageous.qbit.http.request.HttpResponseReceiver;
 import io.advantageous.qbit.http.websocket.WebSocket;
 import io.advantageous.qbit.http.websocket.WebSocketSender;
+import io.advantageous.qbit.network.impl.NetSocketBase;
 import io.advantageous.qbit.util.MultiMap;
 import io.advantageous.qbit.util.MultiMapImpl;
 import io.advantageous.qbit.util.Timer;
@@ -59,61 +60,44 @@ public class VertxServerUtils {
         this.time = time;
     }
 
-    public HttpRequest createRequest(final HttpServerRequest request, final Buffer buffer,
+    public HttpRequest createRequest(final HttpServerRequest request,
+                                     final Buffer buffer,
                                      final CopyOnWriteArrayList<HttpResponseDecorator> decorators,
                                      final HttpResponseCreator httpResponseCreator) {
 
         final MultiMap<String, String> headers = request.headers().size() == 0 ? MultiMap.empty() :
                 new MultiMapWrapper(request.headers());
-
         final String contentType = request.headers().get("Content-Type");
-
-
-
-        final byte[] body = HttpContentTypes.isFormContentType(contentType) ||
-                buffer == null ?
-                new byte[0] : buffer.getBytes();
-
-        final MultiMap<String, String> params = buildParams(request, contentType);
-
         final HttpRequestBuilder httpRequestBuilder = HttpRequestBuilder.httpRequestBuilder();
-
+        buildParams(httpRequestBuilder, request, contentType);
+        final MultiMap<String, String> params = httpRequestBuilder.getParams();
         final String requestPath = request.path();
 
         httpRequestBuilder.setId(requestId.incrementAndGet())
                 .setUri(requestPath).setMethod(request.method().toString())
-                .setParams(params).setBodyBytes(body)
+                .setBodySupplier(() -> buffer == null ?
+                        null : buffer.getBytes())
                 .setRemoteAddress(request.remoteAddress().toString())
-                .setResponse(createResponse(requestPath, headers, params, request.response(), decorators, httpResponseCreator))
+                .setResponse(createResponse(requestPath, headers, params,
+                        request.response(), decorators, httpResponseCreator))
                 .setTimestamp(time == 0L ? Timer.timer().now() : time)
                 .setHeaders(headers);
-
 
         return httpRequestBuilder.build();
     }
 
-    private MultiMap<String, String> buildParams(final HttpServerRequest request,
-                                                 final String contentType) {
+    private void buildParams(final HttpRequestBuilder httpRequestBuilder,
+                             final HttpServerRequest request,
+                             final String contentType) {
+
+        if (request.params().size() == 0) {
+            httpRequestBuilder.setParams(MultiMap.empty());
+        } else {
+            httpRequestBuilder.setParams(new MultiMapWrapper(request.params()));
+        }
 
         if (HttpContentTypes.isFormContentType(contentType)) {
-
-            if (request.params().size()==0) {
-                return new MultiMapWrapper(request.formAttributes());
-            } else {
-                MultiMap<String, String> newParams = new MultiMapImpl<>();
-
-                request.formAttributes().forEach(entry ->
-                        newParams.add(entry.getKey(), entry.getValue()));
-
-                request.params().forEach(entry ->
-                        newParams.add(entry.getKey(), entry.getValue()));
-                return newParams;
-
-            }
-        } else {
-            return request.params().size() == 0 ? MultiMap.empty()
-                    : new MultiMapWrapper(request.params());
-
+            httpRequestBuilder.setFormParamsSupplier(() -> new MultiMapWrapper(request.formAttributes()));
         }
 
     }
@@ -167,12 +151,27 @@ public class VertxServerUtils {
         /* Handle close. */
         vertxServerWebSocket.closeHandler(event -> webSocket.onClose());
 
+        final Buffer[] bufferRef = new Buffer[1];
+
 
         /* Handle message. */
         vertxServerWebSocket.handler(buffer -> {
-            final String message = buffer.toString("UTF-8");
-            webSocket.onTextMessage(message);
+            bufferRef[0] = buffer;
         });
+
+        /* Handle frame. */
+        vertxServerWebSocket.frameHandler(event -> {
+            if (event.isFinal()) {
+                if (event.isBinary()) {
+                    ((NetSocketBase) webSocket).setBinary();
+                    webSocket.onBinaryMessage(bufferRef[0].getBytes());
+                } else {
+                    final String message = bufferRef[0].toString("UTF-8");
+                    webSocket.onTextMessage(message);
+                }
+            }
+        });
+
 
         /* Handle error. */
         vertxServerWebSocket.exceptionHandler(event -> {

@@ -138,12 +138,12 @@ public class TodoServiceWithQBitServiceTest {
         SendQueue<MethodCall<Object>> requests = serviceQueue.requests();
 
         TodoItem todoItem = new TodoItem("call mom", "give mom a call", new Date());
-        MethodCall<Object> addMethodCall = QBit.factory().createMethodCallByAddress("/services/todo-service/add", "call1:localhost", todoItem, null);
+        MethodCall<Object> addMethodCall = QBit.factory().createMethodCallByNames("add", "todo-service", "call1:localhost", todoItem, null);
 
 
         requests.send(addMethodCall);
 
-        MethodCall<Object> listMethodCall = QBit.factory().createMethodCallByAddress("/services/todo-service/list", "call2:localhost", todoItem, null);
+        MethodCall<Object> listMethodCall = QBit.factory().createMethodCallByNames("list", "todo-service", "call1:localhost", todoItem, null);
 
         requests.sendAndFlush(listMethodCall);
 

@@ -21,6 +21,7 @@ package io.advantageous.qbit.util;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Consumer;
 
 /**
  * @param <K> key
@@ -203,6 +204,29 @@ public class MultiMapImpl<K, V> implements MultiMap<K, V> {
         }
         //noinspection unchecked
         return list;
+    }
+
+    public void putAllCopyLists(MultiMap<K, V> multiMap) {
+        final Map<? extends K, ? extends Collection<V>> map = multiMap.baseMap();
+
+        map.entrySet().forEach(new Consumer<Entry<? extends K, ? extends Collection<V>>>() {
+            @Override
+            public void accept(Entry<? extends K, ? extends Collection<V>> entry) {
+                final K key = entry.getKey();
+                Collection<V> value = entry.getValue();
+                addValueFromMap(key, value);
+            }
+        });
+
+    }
+
+    private void addValueFromMap(final K key, final  Collection<V> value) {
+        Collection<V> collection = this.map.get(key);
+        if (collection == null) {
+            collection = (Collection<V>) createCollectionFromClass(collectionClass, value.size());
+            this.map.put(key, collection);
+        }
+        collection.addAll(value);
     }
 
     @SuppressWarnings("NullableProblems")

@@ -21,6 +21,7 @@ package io.advantageous.qbit.vertx;
 import io.advantageous.qbit.util.MultiMap;
 
 import java.util.*;
+import java.util.function.Consumer;
 
 import static io.advantageous.boon.core.Exceptions.die;
 import static io.advantageous.boon.core.Str.sputs;
@@ -113,6 +114,13 @@ public class MultiMapWrapper implements MultiMap<String, String> {
         /* We could support this. */
         //noinspection unchecked
         return die(Iterable.class, "NOT SUPPORTED");
+    }
+
+    @Override
+    public void putAllCopyLists(MultiMap<String, String> multiMap) {
+        multiMap.forEach(entry -> {
+            vertxMap.add(entry.getKey(), entry.getValue());
+        });
     }
 
     @Override

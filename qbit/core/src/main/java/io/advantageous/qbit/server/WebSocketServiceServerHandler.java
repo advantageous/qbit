@@ -47,7 +47,9 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class WebSocketServiceServerHandler {
 
 
-    protected final int batchSize;
+    protected final int protocolBatchSize;
+    protected final long flushResponseInterval;
+
     protected final ThreadLocal<ProtocolEncoder> encoderRef = new ThreadLocal<ProtocolEncoder>() {
         @Override
         protected ProtocolEncoder initialValue() {
@@ -63,7 +65,6 @@ public class WebSocketServiceServerHandler {
     };
 
 
-    protected final long flushResponseInterval = 200;
     private final Logger logger = LoggerFactory.getLogger(WebSocketServiceServerHandler.class);
     private final boolean debug = GlobalConstants.DEBUG || logger.isDebugEnabled();
     private final SendQueue<MethodCall<Object>> methodCallSendQueue;
@@ -74,11 +75,13 @@ public class WebSocketServiceServerHandler {
 
 
     public WebSocketServiceServerHandler(
-            final int batchSize,
+            final int protocolBatchSize,
             final ServiceBundle serviceBundle,
             final int parseWorkersCount,
-            final int encodeWorkersCount) {
-        this.batchSize = batchSize;
+            final int encodeWorkersCount,
+            final long flushResponseInterval) {
+        this.protocolBatchSize = protocolBatchSize;
+        this.flushResponseInterval = flushResponseInterval;
 
         this.methodCallSendQueue = serviceBundle.methodSendQueue();
 
@@ -122,7 +125,7 @@ public class WebSocketServiceServerHandler {
         WebSocketDelegate webSocketDelegate = webSocketDelegateMap.get(webSocketMessage.getRemoteAddress());
 
         if (webSocketDelegate == null) {
-            webSocketDelegate = new WebSocketDelegate(batchSize, webSocketMessage);
+            webSocketDelegate = new WebSocketDelegate(protocolBatchSize, webSocketMessage);
             webSocketDelegateMap.put(webSocketMessage.getRemoteAddress(), webSocketDelegate);
         }
 

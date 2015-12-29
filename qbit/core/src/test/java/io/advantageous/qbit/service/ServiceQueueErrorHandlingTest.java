@@ -4,6 +4,7 @@ import io.advantageous.boon.core.Sys;
 import io.advantageous.qbit.annotation.QueueCallback;
 import io.advantageous.qbit.annotation.QueueCallbackType;
 import io.advantageous.qbit.reactive.Callback;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -66,6 +67,8 @@ public class ServiceQueueErrorHandlingTest {
 
 
         assertEquals(2, count.get());
+
+        serviceQueue.stop();
     }
 
     public static interface IMyService {
@@ -97,5 +100,6 @@ public class ServiceQueueErrorHandlingTest {
         }
 
     }
+
 
 }

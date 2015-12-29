@@ -137,6 +137,10 @@ public class EventBusCluster implements Startable, Stoppable {
     }
 
 
+    public EventManager createClientEventManager() {
+        return eventServiceQueue().createProxy(EventManager.class);
+    }
+
     @Override
     public void start() {
 

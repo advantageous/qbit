@@ -43,6 +43,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicReference;
 
 import static io.advantageous.boon.core.reflection.ClassMeta.classMeta;
 import static io.advantageous.qbit.annotation.AnnotationUtils.*;
@@ -209,18 +210,19 @@ public class BoonEventManager implements EventManager {
 
     @Override
     public void leave() {
-
         final ServiceQueue serviceQueue = serviceContext().currentService();
+        leaveEventBus(serviceQueue);
+    }
+
+
+    @Override
+    public void leaveEventBus(final ServiceQueue serviceQueue) {
         if (serviceQueue == null) {
             throw new IllegalStateException(String.format("EventManager %s:: Must be called from inside of a Service", name));
         }
-
-
         stopListening(serviceQueue.service());
-
         services.remove(serviceQueue);
     }
-
 
     @Override
     public void listen(final Object listener) {
@@ -308,6 +310,10 @@ public class BoonEventManager implements EventManager {
                 name, serviceQueue, methodAccess.name(), listen.getValues());
 
         final String channel = listen.getValues().get("value").toString();
+
+        if (Str.isEmpty(channel)) {
+            return;
+        }
         final boolean consume = (boolean) listen.getValues().get("consume");
 
 
@@ -328,11 +334,10 @@ public class BoonEventManager implements EventManager {
         logger.info("EventManager {}:: {} is listening on channel {} and is consuming? {}",
                 name, serviceQueue.name(), channel, consume);
 
-        final SendQueue<Event<Object>> events = serviceQueue.events();
         if (consume) {
-            this.consume(channel, events);
+            this.consume(channel, serviceQueue);
         } else {
-            this.subscribe(channel, events);
+            this.subscribe(channel, serviceQueue);
         }
     }
 
@@ -408,36 +413,58 @@ public class BoonEventManager implements EventManager {
     }
 
     @SuppressWarnings("Convert2Lambda")
-    @Override
-    public void subscribe(final String channelName, final SendQueue<Event<Object>> sendQueue) {
+    private void subscribe(final String channelName, final ServiceQueue serviceQueue) {
+
+        final SendQueue<Event<Object>> sendQueue = serviceQueue.events();
 
         logger.info("EventManager {}::subscribe() channel name {} sendQueue {}", name, channelName, sendQueue.name());
+
         queuesToFlush.add(sendQueue);
 
-        //noinspection Anonymous2MethodRef
-        eventBus.register(channelName, new EventSubscriber<Object>() {
+        final AtomicReference<EventSubscriber<Object>> ref = new AtomicReference<>();
+
+        final EventSubscriber<Object> eventConsumer = new EventSubscriber<Object>() {
             @Override
             public void listen(Event<Object> event) {
+
+                if (!serviceQueue.running()) {
+                    eventBus.unregister(channelName, ref.get());
+                    queuesToFlush.remove(sendQueue);
+                }
                 sendQueue.send(event);
             }
-        });
+        };
+
+        ref.set(eventConsumer);
+        eventBus.register(channelName, eventConsumer);
+
     }
 
     @SuppressWarnings("Convert2Lambda")
-    @Override
-    public void consume(final String channelName, final SendQueue<Event<Object>> sendQueue) {
+    private void consume(final String channelName, final ServiceQueue serviceQueue) {
+
+        final SendQueue<Event<Object>> sendQueue = serviceQueue.events();
 
         logger.info("EventManager {}::consume() channel name {} sendQueue {}", name, channelName, sendQueue.name());
 
         queuesToFlush.add(sendQueue);
 
-        //noinspection Anonymous2MethodRef
-        eventBus.register(channelName, new EventConsumer<Object>() {
+        final AtomicReference<EventConsumer<Object>> ref = new AtomicReference<>();
+
+        final EventConsumer<Object> eventConsumer = new EventConsumer<Object>() {
             @Override
             public void listen(Event<Object> event) {
+
+                if (!serviceQueue.running()) {
+                    eventBus.unregister(channelName, ref.get());
+                    queuesToFlush.remove(sendQueue);
+                }
                 sendQueue.send(event);
             }
-        });
+        };
+
+        ref.set(eventConsumer);
+        eventBus.register(channelName, eventConsumer);
 
     }
 

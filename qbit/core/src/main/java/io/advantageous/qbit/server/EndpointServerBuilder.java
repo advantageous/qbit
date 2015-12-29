@@ -20,6 +20,7 @@ package io.advantageous.qbit.server;
 
 import io.advantageous.qbit.Factory;
 import io.advantageous.qbit.QBit;
+import io.advantageous.qbit.client.BeforeMethodSent;
 import io.advantageous.qbit.config.PropertyResolver;
 import io.advantageous.qbit.events.EventManager;
 import io.advantageous.qbit.http.HttpTransport;
@@ -30,6 +31,7 @@ import io.advantageous.qbit.message.Request;
 import io.advantageous.qbit.message.Response;
 import io.advantageous.qbit.queue.Queue;
 import io.advantageous.qbit.queue.QueueBuilder;
+import io.advantageous.qbit.service.AfterMethodCall;
 import io.advantageous.qbit.service.BeforeMethodCall;
 import io.advantageous.qbit.service.CallbackManagerBuilder;
 import io.advantageous.qbit.service.ServiceBundle;
@@ -49,6 +51,8 @@ import io.advantageous.qbit.util.Timer;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
+import java.util.function.Consumer;
+
 import static io.advantageous.qbit.http.server.HttpServerBuilder.httpServerBuilder;
 
 /**
@@ -83,6 +87,10 @@ public class EndpointServerBuilder {
 
     private  int statsFlushRateSeconds = 5;
     private  int checkTimingEveryXCalls = 1000;
+    private int protocolBatchSize = 80;
+    private long flushResponseInterval = 25;
+    private int parserWorkerCount = 4;
+    private int encoderWorkerCount = 2;
 
 
     private CallbackManager callbackManager;
@@ -101,6 +109,26 @@ public class EndpointServerBuilder {
     private ProtocolEncoder encoder;
     private HttpServerBuilder httpServerBuilder;
     private EventManager eventManager;
+
+    private BeforeMethodSent beforeMethodSent;
+    private BeforeMethodCall beforeMethodCallOnServiceQueue;
+    private AfterMethodCall afterMethodCallOnServiceQueue;
+
+    private Consumer<Throwable> errorHandler;
+
+
+    public BeforeMethodSent getBeforeMethodSent() {
+
+        if (beforeMethodSent==null) {
+            beforeMethodSent = new BeforeMethodSent() {};
+        }
+        return beforeMethodSent;
+    }
+
+    public EndpointServerBuilder setBeforeMethodSent(BeforeMethodSent beforeMethodSent) {
+        this.beforeMethodSent = beforeMethodSent;
+        return this;
+    }
 
     public EndpointServerBuilder setParser(ProtocolParser parser) {
         this.parser = parser;
@@ -237,6 +265,11 @@ public class EndpointServerBuilder {
         this.timeoutSeconds = propertyResolver.getIntegerProperty("timeoutSeconds", timeoutSeconds);
         this.statsFlushRateSeconds = propertyResolver.getIntegerProperty("statsFlushRateSeconds", statsFlushRateSeconds);
         this.checkTimingEveryXCalls = propertyResolver.getIntegerProperty("checkTimingEveryXCalls", checkTimingEveryXCalls);
+        this.encoderWorkerCount = propertyResolver.getIntegerProperty("encoderWorkerCount", encoderWorkerCount);
+        this.parserWorkerCount = propertyResolver.getIntegerProperty("parserWorkerCount", parserWorkerCount);
+        this.flushResponseInterval = propertyResolver.getLongProperty("flushResponseInterval", flushResponseInterval);
+        this.protocolBatchSize = propertyResolver.getIntegerProperty("protocolBatchSize", protocolBatchSize);
+
 
     }
 
@@ -534,7 +567,7 @@ public class EndpointServerBuilder {
         final ServiceBundle serviceBundle;
 
 
-        serviceBundle = QBit.factory().createServiceBundle(uri,
+        serviceBundle = getFactory().createServiceBundle(uri,
                 getRequestQueueBuilder(),
                 getResponseQueueBuilder(),
                 getWebResponseQueueBuilder(),
@@ -548,15 +581,18 @@ public class EndpointServerBuilder {
                 getStatsFlushRateSeconds(),
                 getCheckTimingEveryXCalls(),
                 getCallbackManager(),
-                getEventManager());
+                getEventManager(),
+                getBeforeMethodSent(),
+                getBeforeMethodCallOnServiceQueue(), getAfterMethodCallOnServiceQueue());
 
 
 
-        final ServiceEndpointServer serviceEndpointServer = getFactory().createServiceServer(getHttpServer(),
+        final ServiceEndpointServer serviceEndpointServer = new ServiceEndpointServerImpl(getHttpServer(),
                 getEncoder(), getParser(), serviceBundle, getJsonMapper(), this.getTimeoutSeconds(),
-                this.getNumberOfOutstandingRequests(), this.getRequestQueueBuilder().getBatchSize(),
+                this.getNumberOfOutstandingRequests(), getProtocolBatchSize(),
                 this.getFlushInterval(), this.getSystemManager(), getEndpointName(),
-                getServiceDiscovery(), getPort(), getTtlSeconds(), getHealthService());
+                getServiceDiscovery(), getPort(), getTtlSeconds(), getHealthService(), getErrorHandler(),
+                getFlushResponseInterval(), getParserWorkerCount(), getEncoderWorkerCount());
 
 
         if (serviceEndpointServer != null && qBitSystemManager != null) {
@@ -683,6 +719,69 @@ public class EndpointServerBuilder {
 
     public EndpointServerBuilder setEventManager(EventManager eventManager) {
         this.eventManager = eventManager;
+        return this;
+    }
+
+    public BeforeMethodCall getBeforeMethodCallOnServiceQueue() {
+        return beforeMethodCallOnServiceQueue;
+    }
+
+    public EndpointServerBuilder setBeforeMethodCallOnServiceQueue(BeforeMethodCall beforeMethodCallOnServiceQueue) {
+        this.beforeMethodCallOnServiceQueue = beforeMethodCallOnServiceQueue;
+        return this;
+    }
+
+    public AfterMethodCall getAfterMethodCallOnServiceQueue() {
+        return afterMethodCallOnServiceQueue;
+    }
+
+    public EndpointServerBuilder setAfterMethodCallOnServiceQueue(AfterMethodCall afterMethodCallOnServiceQueue) {
+        this.afterMethodCallOnServiceQueue = afterMethodCallOnServiceQueue;
+        return this;
+    }
+
+    public Consumer<Throwable> getErrorHandler() {
+        return errorHandler;
+    }
+
+    public EndpointServerBuilder setErrorHandler(Consumer<Throwable> errorHandler) {
+        this.errorHandler = errorHandler;
+        return this;
+    }
+
+    public long getFlushResponseInterval() {
+        return flushResponseInterval;
+    }
+
+    public EndpointServerBuilder setFlushResponseInterval(long flushResponseInterval) {
+        this.flushResponseInterval = flushResponseInterval;
+        return this;
+    }
+
+    public int getParserWorkerCount() {
+        return parserWorkerCount;
+    }
+
+    public EndpointServerBuilder setParserWorkerCount(int parserWorkerCount) {
+        this.parserWorkerCount = parserWorkerCount;
+        return this;
+    }
+
+    public int getEncoderWorkerCount() {
+        return encoderWorkerCount;
+    }
+
+    public EndpointServerBuilder setEncoderWorkerCount(int encoderWorkerCount) {
+        this.encoderWorkerCount = encoderWorkerCount;
+        return this;
+    }
+
+    public int getProtocolBatchSize() {
+        return protocolBatchSize;
+    }
+
+    public EndpointServerBuilder setProtocolBatchSize(int protocolBatchSize) {
+        this.protocolBatchSize = protocolBatchSize;
         return this;
     }
 }

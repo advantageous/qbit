@@ -69,4 +69,10 @@ public interface ServiceEndpointServer extends Server {
         return this;
     }
 
+
+    default ServiceEndpointServer startServerAndWait() {
+        start();
+        return this;
+    }
+
 }

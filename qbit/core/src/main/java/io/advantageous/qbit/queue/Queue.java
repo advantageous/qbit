@@ -27,7 +27,7 @@ import java.util.concurrent.TimeUnit;
 
 /**
  * Represents a queue manager.
- * Queues are split up into receivers views and forwardEvent views to facilitate batching.
+ * Queues are split up into receivers views and sender views to facilitate batching.
  * created by Richard on 8/4/14.
  *
  * @author rhightower

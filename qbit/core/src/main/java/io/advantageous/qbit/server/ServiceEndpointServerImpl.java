@@ -21,13 +21,12 @@ package io.advantageous.qbit.server;
 import io.advantageous.qbit.GlobalConstants;
 import io.advantageous.qbit.http.HttpTransport;
 import io.advantageous.qbit.http.request.HttpRequest;
+import io.advantageous.qbit.http.server.HttpServer;
 import io.advantageous.qbit.http.server.websocket.WebSocketMessage;
 import io.advantageous.qbit.json.JsonMapper;
-import io.advantageous.qbit.message.MethodCall;
 import io.advantageous.qbit.message.Request;
 import io.advantageous.qbit.message.Response;
 import io.advantageous.qbit.queue.ReceiveQueueListener;
-import io.advantageous.qbit.reactive.Callback;
 import io.advantageous.qbit.service.ServiceBundle;
 import io.advantageous.qbit.service.ServiceProxyUtils;
 import io.advantageous.qbit.service.ServiceQueue;
@@ -43,10 +42,7 @@ import io.advantageous.qbit.util.Timer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Consumer;
 
@@ -58,8 +54,6 @@ import java.util.function.Consumer;
  * @author gcc@rd.io (Geoff Chandler)
  */
 public class ServiceEndpointServerImpl implements ServiceEndpointServer {
-
-    protected final int batchSize;
     private final Logger logger = LoggerFactory.getLogger(ServiceEndpointServerImpl.class);
     private final boolean debug = GlobalConstants.DEBUG || logger.isDebugEnabled();
     private final QBitSystemManager systemManager;
@@ -73,6 +67,7 @@ public class ServiceEndpointServerImpl implements ServiceEndpointServer {
     protected final ServiceBundle serviceBundle;
     protected final JsonMapper jsonMapper;
     protected final ProtocolParser parser;
+    protected final Consumer<Throwable> errorHandler;
 
     private final AtomicBoolean stop = new AtomicBoolean();
 
@@ -86,14 +81,18 @@ public class ServiceEndpointServerImpl implements ServiceEndpointServer {
                                      final JsonMapper jsonMapper,
                                      final int timeOutInSeconds,
                                      final int numberOfOutstandingRequests,
-                                     final int batchSize,
+                                     final int protocolBatchSize,
                                      final int flushInterval,
                                      final QBitSystemManager systemManager,
                                      final String endpointName,
                                      final ServiceDiscovery serviceDiscovery,
                                      final int port,
                                      final int ttlSeconds,
-                                     final HealthServiceAsync healthServiceAsync) {
+                                     final HealthServiceAsync healthServiceAsync,
+                                     final Consumer<Throwable> errorHandler,
+                                     final long flushResponseInterval,
+                                     final int parserWorkerCount,
+                                     final int encoderWorkerCount) {
 
         this.systemManager = systemManager;
         this.encoder = encoder;
@@ -102,17 +101,19 @@ public class ServiceEndpointServerImpl implements ServiceEndpointServer {
         this.serviceBundle = serviceBundle;
         this.jsonMapper = jsonMapper;
         this.timeoutInSeconds = timeOutInSeconds;
-        this.batchSize = batchSize;
+
+        this.errorHandler = errorHandler;
         
         this.healthServiceAsync = healthServiceAsync;
 
-        this.webSocketHandler = new WebSocketServiceServerHandler(batchSize, serviceBundle, 4, 4);
+        this.webSocketHandler = new WebSocketServiceServerHandler(protocolBatchSize, serviceBundle,
+                parserWorkerCount, encoderWorkerCount, flushResponseInterval);
 
         this.serviceDiscovery = serviceDiscovery;
 
         httpRequestServerHandler =
                 new HttpRequestServiceServerHandlerUsingMetaImpl(this.timeoutInSeconds,
-                        serviceBundle, jsonMapper, numberOfOutstandingRequests, flushInterval);
+                        serviceBundle, jsonMapper, numberOfOutstandingRequests, flushInterval, errorHandler);
 
         this.endpoint = createEndpoint(endpointName, port, ttlSeconds);
 
@@ -136,6 +137,23 @@ public class ServiceEndpointServerImpl implements ServiceEndpointServer {
 
     @Override
     public void start() {
+        doStart();
+        httpServer.start();
+
+    }
+
+    @Override
+    public ServiceEndpointServer startServerAndWait() {
+        doStart();
+        if (httpServer instanceof HttpServer) {
+            ((HttpServer) httpServer).startServerAndWait();
+        }else {
+            httpServer.start();
+        }
+        return this;
+    }
+
+    private void doStart() {
         stop.set(false);
 
         httpRequestServerHandler.start();
@@ -155,8 +173,6 @@ public class ServiceEndpointServerImpl implements ServiceEndpointServer {
 
         serviceBundle.startUpCallQueue();
         startResponseQueueListener();
-        httpServer.start();
-
     }
 
     private void handleServiceDiscoveryCheckIn() {
@@ -248,7 +264,6 @@ public class ServiceEndpointServerImpl implements ServiceEndpointServer {
     private ReceiveQueueListener<Response<Object>> createResponseQueueListener() {
         return new ReceiveQueueListener<Response<Object>>() {
 
-            final List<Response<Object>> responseBatch = new ArrayList<>();
 
             @Override
             public void receive(final Response<Object> response) {
@@ -257,13 +272,7 @@ public class ServiceEndpointServerImpl implements ServiceEndpointServer {
                     logger.debug("createResponseQueueListener() Received a response: " + response);
                 }
 
-                responseBatch.add(response);
-
-                if (responseBatch.size() >= batchSize) {
-                    handleResponseFromServiceBundle(new ArrayList<>(responseBatch));
-                    responseBatch.clear();
-                }
-
+                handleResponseFromServiceBundle(response, response.request().originatingRequest());
             }
 
 
@@ -271,17 +280,12 @@ public class ServiceEndpointServerImpl implements ServiceEndpointServer {
             public void limit() {
 
 
-                handleResponseFromServiceBundle(new ArrayList<>(responseBatch));
-                responseBatch.clear();
-
                 httpRequestServerHandler.checkTimeoutsForRequests();
                 webSocketHandler.checkResponseBatchSend();
             }
 
             @Override
             public void empty() {
-                handleResponseFromServiceBundle(new ArrayList<>(responseBatch));
-                responseBatch.clear();
 
                 httpRequestServerHandler.checkTimeoutsForRequests();
                 webSocketHandler.checkResponseBatchSend();
@@ -291,8 +295,6 @@ public class ServiceEndpointServerImpl implements ServiceEndpointServer {
             @Override
             public void idle() {
 
-                handleResponseFromServiceBundle(new ArrayList<>(responseBatch));
-                responseBatch.clear();
 
 
                 httpRequestServerHandler.checkTimeoutsForRequests();
@@ -302,30 +304,6 @@ public class ServiceEndpointServerImpl implements ServiceEndpointServer {
     }
 
 
-    /**
-     * Handle a response from the server.
-     *
-     * @param responses responses
-     */
-    private void handleResponseFromServiceBundle(final List<Response<Object>> responses) {
-
-
-        for (Response<Object> response : responses) {
-
-            final Request<Object> request = response.request();
-
-            if (request instanceof MethodCall) {
-
-
-                final MethodCall<Object> methodCall = ((MethodCall<Object>) request);
-                final Request<Object> originatingRequest = methodCall.originatingRequest();
-
-                handleResponseFromServiceBundle(response, originatingRequest);
-
-            }
-        }
-
-    }
 
     private void handleResponseFromServiceBundle(final Response<Object> response, final Request<Object> originatingRequest) {
 

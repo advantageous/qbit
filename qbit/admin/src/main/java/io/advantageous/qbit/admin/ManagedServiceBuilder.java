@@ -1,28 +1,37 @@
 package io.advantageous.qbit.admin;
 
+import io.advantageous.boon.core.Sets;
 import io.advantageous.boon.core.Str;
 import io.advantageous.boon.core.Sys;
 import io.advantageous.consul.discovery.ConsulServiceDiscoveryBuilder;
 import io.advantageous.qbit.Factory;
 import io.advantageous.qbit.QBit;
 import io.advantageous.qbit.annotation.AnnotationUtils;
+import io.advantageous.qbit.client.BeforeMethodSent;
+import io.advantageous.qbit.client.BeforeMethodSentChain;
 import io.advantageous.qbit.events.EventManager;
+import io.advantageous.qbit.http.interceptor.ForwardCallMethodInterceptor;
 import io.advantageous.qbit.http.server.HttpServerBuilder;
+import io.advantageous.qbit.logging.SetupMdcForHttpRequestInterceptor;
 import io.advantageous.qbit.meta.builder.ContextMetaBuilder;
 import io.advantageous.qbit.metrics.support.LocalStatsCollectorBuilder;
 import io.advantageous.qbit.metrics.support.StatServiceBuilder;
 import io.advantageous.qbit.metrics.support.StatsDReplicatorBuilder;
 import io.advantageous.qbit.server.EndpointServerBuilder;
-import io.advantageous.qbit.service.ServiceBuilder;
-import io.advantageous.qbit.service.ServiceBundleBuilder;
+import io.advantageous.qbit.service.*;
 import io.advantageous.qbit.service.discovery.ServiceDiscovery;
+import io.advantageous.qbit.service.discovery.dns.DnsUtil;
 import io.advantageous.qbit.service.health.HealthServiceAsync;
 import io.advantageous.qbit.service.health.HealthServiceBuilder;
 import io.advantageous.qbit.system.QBitSystemManager;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 import java.util.function.Supplier;
+
+import static io.advantageous.boon.core.IO.puts;
 
 /** This is a utility class for when you are running in a PaaS like Heroku or Docker.
  *  It also allows you to share stat, health and system manager setup.
@@ -128,7 +137,110 @@ public class ManagedServiceBuilder {
             + ".checkTimingEveryXCalls", 100);
 
 
-    public ManagedServiceBuilder(String serviceName) {
+    /** Turn on Logging Mapped Diagnostic Context. */
+    private boolean enableLoggingMappedDiagnosticContext = Sys.sysProp(ManagedServiceBuilder.class.getName()
+            + ".enableLoggingMappedDiagnosticContext", false);
+
+
+    /** Turn on Request chain construction so original request is sent to other downstream internal services. */
+    private boolean enableRequestChain = Sys.sysProp(ManagedServiceBuilder.class.getName()
+            + ".enableRequestChain", false);
+
+    /**
+     * Used to track headers for MDC.
+     */
+    private Set<String> requestHeadersToTrackForMappedDiagnosticContext;
+
+    /**
+     * Enable the logging diagnostic context
+     * @return this
+     */
+    public ManagedServiceBuilder enableLoggingMappedDiagnosticContext() {
+        this.enableRequestChain = true;
+        this.enableLoggingMappedDiagnosticContext = true;
+        return this;
+    }
+
+    /**
+     * Enable the logging diagnostic context
+     * @param requestHeaders request headers
+     */
+    public ManagedServiceBuilder enableLoggingMappedDiagnosticContext(final String... requestHeaders) {
+        return enableLoggingMappedDiagnosticContext(Sets.set(requestHeaders));
+    }
+
+
+    /**
+     * Enable the logging diagnostic context
+     * @return this
+     */
+    public ManagedServiceBuilder enableLoggingMappedDiagnosticContext(final Set<String> requestHeaders) {
+        this.enableRequestChain = true;
+        this.enableLoggingMappedDiagnosticContext = true;
+        this.requestHeadersToTrackForMappedDiagnosticContext = Collections.unmodifiableSet(requestHeaders);
+        return this;
+    }
+
+
+    /**
+     * Enable the request chain.  There is overhead for this, but this allows REST and WebSocket
+     * services to pass the originating request, methodCall, etc. to downstream services.
+     * Where it will be available via the RequestContext.
+     * A MethodCall, HttpRequest, WebSocketMessage are all Requests in QBit.
+     * @return this
+     */
+    public ManagedServiceBuilder enableRequestChain() {
+        this.enableRequestChain = true;
+        return this;
+    }
+
+    /**
+     * Enable or disable logging MDC.
+     * @param enableLoggingMappedDiagnosticContext enableLoggingMappedDiagnosticContext
+     * @return this
+     */
+    public ManagedServiceBuilder setEnableLoggingMappedDiagnosticContext(final boolean enableLoggingMappedDiagnosticContext) {
+        this.enableLoggingMappedDiagnosticContext = enableLoggingMappedDiagnosticContext;
+        return this;
+    }
+
+    /**
+     * Enable or disable request chain.  There is overhead for this, but this allows REST and WebSocket
+     * services to pass the originating request, methodCall, etc. to downstream services.
+     * Where it will be available via the RequestContext.
+     * A MethodCall, HttpRequest, WebSocketMessage are all Requests in QBit.
+     * @param enableRequestChain enableRequestChain
+     * @return this
+     */
+    public ManagedServiceBuilder setEnableRequestChain(final boolean enableRequestChain) {
+        this.enableRequestChain = enableRequestChain;
+        return this;
+    }
+
+    /**
+     *
+     * @return logging MDC enabled or not
+     */
+    public boolean isEnableLoggingMappedDiagnosticContext() {
+        return enableLoggingMappedDiagnosticContext;
+    }
+
+    /**
+     * Request call chain building enabled. This allows REST and WebSocket
+     * services to pass the originating request, methodCall, etc. to downstream services.
+     * Where it will be available via the RequestContext.
+     * A MethodCall, HttpRequest, WebSocketMessage are all Requests in QBit.
+     * @return is call chain tracking enabled.
+     */
+    public boolean isEnableRequestChain() {
+        return enableRequestChain;
+    }
+
+    /**
+     * Create ManagedServiceBuilder which looks for MicroserviceConfig file.
+     * @param serviceName service name
+     */
+    public ManagedServiceBuilder(final String serviceName) {
         if (serviceName != null) {
 
 
@@ -171,6 +283,10 @@ public class ManagedServiceBuilder {
         }
     }
 
+    /**
+     * Get the public host for service meta generation (Swagger)
+     * @return public host
+     */
     public String getPublicHost() {
 
         if (System.getenv("PUBLIC_HOST")!=null) {
@@ -179,11 +295,21 @@ public class ManagedServiceBuilder {
         return publicHost;
     }
 
+    /**
+     * Set the public host for service meta generation (Swagger)
+     * @param publicHost publicHost
+     * @return this
+     */
     public ManagedServiceBuilder setPublicHost(String publicHost) {
         this.publicHost = publicHost;
         return this;
     }
 
+
+    /**
+     * Get the public port for service meta generation (Swagger)
+     * @return public port
+     */
     public int getPublicPort() {
         if (publicPort==-1) {
 
@@ -201,11 +327,21 @@ public class ManagedServiceBuilder {
         return publicPort;
     }
 
+
+    /**
+     * Set the public port for service meta generation (Swagger)
+     * @param publicPort publicPort
+     * @return this
+     */
     public ManagedServiceBuilder setPublicPort(int publicPort) {
         this.publicPort = publicPort;
         return this;
     }
 
+    /**
+     * Get the actual port to bind to.
+     * @return actual http port to bind to.
+     */
     public int getPort() {
 
         if (port==8080) {
@@ -223,6 +359,11 @@ public class ManagedServiceBuilder {
         return port;
     }
 
+
+    /**
+     * Set the actual port to bind to.
+     * @return this
+     */
     public ManagedServiceBuilder setPort(int port) {
         this.port = port;
         return this;
@@ -237,13 +378,13 @@ public class ManagedServiceBuilder {
         return this;
     }
 
-    public void enableConsulServiceDiscovery(String dataCenter) {
+    public void enableConsulServiceDiscovery(final String dataCenter) {
         final ConsulServiceDiscoveryBuilder consulServiceDiscoveryBuilder = ConsulServiceDiscoveryBuilder.consulServiceDiscoveryBuilder();
         consulServiceDiscoveryBuilder.setDatacenter(dataCenter);
         serviceDiscoverySupplier = () -> consulServiceDiscoveryBuilder.build();
     }
 
-    public void enableConsulServiceDiscovery(String dataCenter, String host) {
+    public void enableConsulServiceDiscovery(final String dataCenter, final String host) {
         final ConsulServiceDiscoveryBuilder consulServiceDiscoveryBuilder = ConsulServiceDiscoveryBuilder.consulServiceDiscoveryBuilder();
         consulServiceDiscoveryBuilder.setDatacenter(dataCenter);
         consulServiceDiscoveryBuilder.setConsulHost(host);
@@ -251,7 +392,7 @@ public class ManagedServiceBuilder {
     }
 
 
-    public void enableConsulServiceDiscovery(String dataCenter, String host, int port) {
+    public void enableConsulServiceDiscovery(final String dataCenter, final String host, final int port) {
         final ConsulServiceDiscoveryBuilder consulServiceDiscoveryBuilder = ConsulServiceDiscoveryBuilder.consulServiceDiscoveryBuilder();
         consulServiceDiscoveryBuilder.setDatacenter(dataCenter);
         consulServiceDiscoveryBuilder.setConsulHost(host);
@@ -523,6 +664,7 @@ public class ManagedServiceBuilder {
         return this;
     }
 
+
     public EndpointServerBuilder getEndpointServerBuilder() {
         if (endpointServerBuilder==null) {
             endpointServerBuilder = EndpointServerBuilder.endpointServerBuilder();
@@ -537,7 +679,11 @@ public class ManagedServiceBuilder {
             endpointServerBuilder.setCheckTimingEveryXCalls(getCheckTimingEveryXCalls());
             endpointServerBuilder.setServiceDiscovery(getServiceDiscovery());
             endpointServerBuilder.setUri(getRootURI());
+            endpointServerBuilder.setEventManager(this.getEventManager());
 
+
+
+            configureEndpointServerBuilderForInterceptors(endpointServerBuilder);
 
 
             if (isEnableStats()) {
@@ -561,6 +707,92 @@ public class ManagedServiceBuilder {
         return endpointServerBuilder;
     }
 
+    private void configureEndpointServerBuilderForInterceptors(final EndpointServerBuilder endpointServerBuilder) {
+
+        final Interceptors interceptors = configureInterceptors();
+        if (interceptors.before.size() > 0) {
+            endpointServerBuilder.setBeforeMethodCallOnServiceQueue(new BeforeMethodCallChain(interceptors.before));
+        }
+        if (interceptors.after.size() > 0) {
+            endpointServerBuilder.setAfterMethodCallOnServiceQueue(new AfterMethodCallChain(interceptors.after));
+        }
+        if (interceptors.beforeSent.size() > 0) {
+            endpointServerBuilder.setBeforeMethodSent(new BeforeMethodSentChain(interceptors.beforeSent));
+        }
+    }
+
+
+    private void configureServiceBundleBuilderForInterceptors(final ServiceBundleBuilder serviceBundleBuilder) {
+
+        final Interceptors interceptors = configureInterceptors();
+        if (interceptors.before.size() > 0) {
+            serviceBundleBuilder.setBeforeMethodCallOnServiceQueue(new BeforeMethodCallChain(interceptors.before));
+        }
+        if (interceptors.after.size() > 0) {
+            serviceBundleBuilder.setAfterMethodCallOnServiceQueue(new AfterMethodCallChain(interceptors.after));
+        }
+        if (interceptors.beforeSent.size() > 0) {
+            serviceBundleBuilder.setBeforeMethodSent(new BeforeMethodSentChain(interceptors.beforeSent));
+        }
+    }
+
+
+    private void configureServiceBuilderForInterceptors(final ServiceBuilder serviceBuilder) {
+
+        final Interceptors interceptors = configureInterceptors();
+        if (interceptors.before.size() > 0) {
+            serviceBuilder.setBeforeMethodCall(new BeforeMethodCallChain(interceptors.before));
+        }
+        if (interceptors.after.size() > 0) {
+            serviceBuilder.setAfterMethodCall(new AfterMethodCallChain(interceptors.after));
+        }
+        if (interceptors.beforeSent.size() > 0) {
+            serviceBuilder.setBeforeMethodSent(new BeforeMethodSentChain(interceptors.beforeSent));
+        }
+    }
+
+    public void startApplication() {
+
+        this.getEndpointServerBuilder().build().startServerAndWait();
+    }
+
+    /**
+     * Hold lists of interceptors.
+     */
+    private static class Interceptors {
+        List<BeforeMethodCall> before = new ArrayList<>();
+        List<AfterMethodCall> after = new ArrayList<>();
+        List<BeforeMethodSent> beforeSent = new ArrayList<>();
+    }
+
+    /**
+     * Configure a list of common interceptors.
+     * @return
+     */
+    private Interceptors configureInterceptors() {
+        Interceptors interceptors = new Interceptors();
+        SetupMdcForHttpRequestInterceptor setupMdcForHttpRequestInterceptor;
+        if (enableLoggingMappedDiagnosticContext) {
+            enableRequestChain = true;
+            if (requestHeadersToTrackForMappedDiagnosticContext!=null &&
+                    requestHeadersToTrackForMappedDiagnosticContext.size()>0) {
+                setupMdcForHttpRequestInterceptor = new SetupMdcForHttpRequestInterceptor(requestHeadersToTrackForMappedDiagnosticContext);
+            }else {
+                setupMdcForHttpRequestInterceptor = new SetupMdcForHttpRequestInterceptor(Collections.emptySet());
+            }
+            interceptors.before.add(setupMdcForHttpRequestInterceptor);
+            interceptors.after.add(setupMdcForHttpRequestInterceptor);
+        }
+
+        if (enableRequestChain) {
+            final CaptureRequestInterceptor captureRequestInterceptor = new CaptureRequestInterceptor();
+            interceptors.before.add(captureRequestInterceptor);
+            interceptors.after.add(captureRequestInterceptor);
+            interceptors.beforeSent.add(new ForwardCallMethodInterceptor(new RequestContext()));
+        }
+        return interceptors;
+    }
+
 
     public EndpointServerBuilder createEndpointServerBuilder() {
 
@@ -571,6 +803,9 @@ public class ManagedServiceBuilder {
         endpointServerBuilder.setStatsFlushRateSeconds(getSampleStatFlushRate());
         endpointServerBuilder.setCheckTimingEveryXCalls(getCheckTimingEveryXCalls());
         endpointServerBuilder.setServiceDiscovery(getServiceDiscovery());
+        endpointServerBuilder.setEventManager(this.getEventManager());
+
+        configureEndpointServerBuilderForInterceptors(endpointServerBuilder);
 
 
 
@@ -595,7 +830,9 @@ public class ManagedServiceBuilder {
         serviceBundleBuilder.setHealthService(getHealthService());
         serviceBundleBuilder.setCheckTimingEveryXCalls(this.getCheckTimingEveryXCalls());
         serviceBundleBuilder.setStatsFlushRateSeconds(this.getSampleStatFlushRate());
+        serviceBundleBuilder.setEventManager(this.getEventManager());
 
+        configureServiceBundleBuilderForInterceptors(serviceBundleBuilder);
 
         if (isEnableStats()) {
             serviceBundleBuilder.setStatsCollector(getStatServiceBuilder().buildStatsCollector());
@@ -607,8 +844,9 @@ public class ManagedServiceBuilder {
 
     public ServiceBuilder createServiceBuilderForServiceObject(final Object serviceObject) {
 
-        ServiceBuilder serviceBuilder = ServiceBuilder.serviceBuilder();
+        final ServiceBuilder serviceBuilder = ServiceBuilder.serviceBuilder();
         serviceBuilder.setSystemManager(this.getSystemManager());
+        serviceBuilder.setEventManager(this.getEventManager());
 
         serviceBuilder.setServiceObject(serviceObject);
 
@@ -618,6 +856,7 @@ public class ManagedServiceBuilder {
             serviceBuilder.registerHealthChecks(getHealthService(), bindStatHealthName);
         }
 
+        configureServiceBuilderForInterceptors(serviceBuilder);
 
         if (isEnableStats()) {
 
@@ -683,4 +922,11 @@ public class ManagedServiceBuilder {
         this.checkTimingEveryXCalls = checkTimingEveryXCalls;
         return this;
     }
+
+    /** Sets up DNS based service discovery. */
+    public ManagedServiceBuilder useDnsServiceDiscovery() {
+        this.setServiceDiscovery(DnsUtil.createDnsServiceDiscovery());
+        return this;
+    }
+
 }

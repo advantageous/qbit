@@ -22,6 +22,7 @@ public class JmsTextReceiveQueue implements ReceiveQueue<String> {
 
     @Override
     public String pollWait() {
+
         return service.receiveTextMessage();
     }
 

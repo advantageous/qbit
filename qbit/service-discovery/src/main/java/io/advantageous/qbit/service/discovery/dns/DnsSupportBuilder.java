@@ -15,7 +15,7 @@ public class DnsSupportBuilder {
     private final Vertx vertx;
     private int port = -1;
     private String host = null;
-    private  Supplier<DnsClient> dnsClientProvider;
+    private  DnsClientSupplier dnsClientSupplier;
     private  Map<String, String> dnsServiceNameToServiceName;
     private  String postfixURL;
 
@@ -55,20 +55,21 @@ public class DnsSupportBuilder {
         return this;
     }
 
-    public Supplier<DnsClient> getDnsClientProvider() {
-        if (dnsClientProvider == null) {
+    public DnsClientSupplier getDnsClientSupplier() {
+        if (dnsClientSupplier == null) {
 
             if (port != -1) {
-                dnsClientProvider = new DnsClientSupplier(getVertx(), getHost(), getPort());
+                dnsClientSupplier = new DnsSingleClientSupplier(getVertx(), getHost(), getPort());
             } else {
-                dnsClientProvider = new DnsClientFromResolveConfSupplier(getVertx());
+                dnsClientSupplier = new DnsClientFromResolveConfSupplier(getVertx());
             }
         }
-        return dnsClientProvider;
+        return dnsClientSupplier;
     }
 
-    public DnsSupportBuilder setDnsClientProvider(Supplier<DnsClient> dnsClientProvider) {
-        this.dnsClientProvider = dnsClientProvider;
+
+    public DnsSupportBuilder setDnsClientSupplier(DnsClientSupplier dnsClientSupplier) {
+        this.dnsClientSupplier = dnsClientSupplier;
         return this;
     }
 
@@ -93,12 +94,18 @@ public class DnsSupportBuilder {
     }
 
     public DnsSupport build() {
-        return new DnsSupport(getDnsClientProvider(),
+        return new DnsSupport(getDnsClientSupplier(),
                 getDnsServiceNameToServiceName(),
                 getPostfixURL());
     }
 
+    @Deprecated
     public static DnsSupportBuilder dnsSupportFactory(final Vertx vertx) {
+        return new DnsSupportBuilder(vertx);
+    }
+
+
+    public static DnsSupportBuilder dnsSupportBuilder(final Vertx vertx) {
         return new DnsSupportBuilder(vertx);
     }
 }

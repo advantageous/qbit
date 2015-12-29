@@ -42,6 +42,8 @@ public interface ServiceQueue extends Stoppable, ServiceFlushable, Startable {
 
     boolean failing();
 
+    boolean running();
+
     void setFailing();
 
     void recover();

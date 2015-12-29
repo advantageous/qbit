@@ -63,7 +63,7 @@ public class ServiceBundleBeforeCallbackTest {
 
         serviceBundle.addService(new MockServer());
 
-        final MethodCall<Object> method = QBit.factory().createMethodCallByAddress("/services/mockserver/callme", "", Collections.emptyList(), params);
+        final MethodCall<Object> method = QBit.factory().createMethodCallByNames("callme", "mockserver", "", Collections.emptyList(), params);
 
         serviceBundle.call(method);
 
@@ -94,7 +94,8 @@ public class ServiceBundleBeforeCallbackTest {
 
         serviceBundle.startReturnHandlerProcessor();
 
-        final MethodCall<Object> method = QBit.factory().createMethodCallByAddress("/services/mockserver/callme", "", Collections.emptyList(), params);
+
+        final MethodCall<Object> method = QBit.factory().createMethodCallByNames("callme", "mockserver", "", Collections.emptyList(), params);
 
         serviceBundle.call(method);
 

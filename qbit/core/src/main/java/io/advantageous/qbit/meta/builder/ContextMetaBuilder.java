@@ -6,11 +6,16 @@ import io.advantageous.boon.core.Str;
 import io.advantageous.boon.core.reflection.Annotated;
 import io.advantageous.boon.core.reflection.AnnotationData;
 import io.advantageous.boon.core.reflection.ClassMeta;
+import io.advantageous.qbit.annotation.AnnotationUtils;
 import io.advantageous.qbit.annotation.RequestMethod;
 import io.advantageous.qbit.config.PropertyResolver;
+import io.advantageous.qbit.http.HttpHeaders;
 import io.advantageous.qbit.meta.ContextMeta;
 import io.advantageous.qbit.meta.ServiceMeta;
+import io.advantageous.qbit.util.MultiMap;
+import io.advantageous.qbit.util.MultiMapImpl;
 
+import java.lang.annotation.Annotation;
 import java.util.*;
 
 /**
@@ -170,7 +175,7 @@ public class ContextMetaBuilder {
 
     public static List<RequestMethod> getRequestMethodsByAnnotated(Annotated annotated) {
 
-        final AnnotationData requestMapping = annotated.annotation("RequestMapping");
+        final AnnotationData requestMapping = getAnnotationData(annotated);
 
         if (requestMapping == null) {
             return Collections.singletonList(RequestMethod.GET);
@@ -212,8 +217,27 @@ public class ContextMetaBuilder {
 
     }
 
+    private static AnnotationData getAnnotationData(Annotated annotated) {
+        AnnotationData requestMapping = annotated.annotation("RequestMapping");
+
+        if (requestMapping==null) {
+            requestMapping = annotated.annotation("GET");
+        }
+        if (requestMapping==null) {
+            requestMapping = annotated.annotation("POST");
+        }
+        if (requestMapping==null) {
+            requestMapping = annotated.annotation("PUT");
+        }
+        if (requestMapping==null) {
+            requestMapping = annotated.annotation("DELETE");
+        }
+
+        return requestMapping;
+    }
+
     static Object getRequestPath(Annotated classMeta, final String name) {
-        final AnnotationData requestMapping = classMeta.annotation("RequestMapping");
+        final AnnotationData requestMapping = getAnnotationData(classMeta);
 
         if (requestMapping != null) {
             Object value = requestMapping.getValues().get("value");
@@ -228,7 +252,7 @@ public class ContextMetaBuilder {
 
 
     static String getDescriptionFromRequestMapping(Annotated annotated) {
-        final AnnotationData requestMapping = annotated.annotation("RequestMapping");
+        final AnnotationData requestMapping = getAnnotationData(annotated);
 
         if (requestMapping != null) {
             Object value = requestMapping.getValues().get("description");
@@ -240,7 +264,7 @@ public class ContextMetaBuilder {
 
 
     static int getCodeFromRequestMapping(Annotated annotated) {
-        final AnnotationData requestMapping = annotated.annotation("RequestMapping");
+        final AnnotationData requestMapping = getAnnotationData(annotated);
 
         if (requestMapping != null) {
             Object value = requestMapping.getValues().get("code");
@@ -250,9 +274,20 @@ public class ContextMetaBuilder {
         }
     }
 
+    static String getContentTypeFromRequestMapping(Annotated annotated) {
+        final AnnotationData requestMapping = getAnnotationData(annotated);
+
+        if (requestMapping != null) {
+            Object value = requestMapping.getValues().get("contentType");
+            return Conversions.toString(value);
+        } else {
+            return "application/json";
+        }
+    }
+
 
     static String getReturnDescriptionFromRequestMapping(Annotated annotated) {
-        final AnnotationData requestMapping = annotated.annotation("RequestMapping");
+        final AnnotationData requestMapping = getAnnotationData(annotated);
 
         if (requestMapping != null) {
             Object value = requestMapping.getValues().get("returnDescription");
@@ -263,7 +298,7 @@ public class ContextMetaBuilder {
     }
 
     static String getSummaryFromRequestMapping(Annotated annotated) {
-        final AnnotationData requestMapping = annotated.annotation("RequestMapping");
+        final AnnotationData requestMapping = getAnnotationData(annotated);
 
         if (requestMapping != null) {
             Object value = requestMapping.getValues().get("summary");
@@ -312,7 +347,7 @@ public class ContextMetaBuilder {
         return this;
     }
 
-    public ContextMetaBuilder addService(Class<?> serviceClass) {
+    public ContextMetaBuilder addService(final Class<?> serviceClass) {
 
 
         final ClassMeta<?> classMeta = ClassMeta.classMeta(serviceClass);
@@ -324,7 +359,8 @@ public class ContextMetaBuilder {
 
 
         final ServiceMetaBuilder serviceMetaBuilder = ServiceMetaBuilder.serviceMetaBuilder()
-                .setRequestPaths(requestPaths).setName(name).setDescription(description);
+                .setRequestPaths(requestPaths).setName(name).setDescription(description)
+                .setResponseHeaders(getResponseHeaders(classMeta));
 
         serviceMetaBuilder.addMethods(this.getRootURI(), Lists.list(classMeta.methods()));
 
@@ -335,18 +371,11 @@ public class ContextMetaBuilder {
     }
 
     private String getServiceName(ClassMeta<?> classMeta) {
-        AnnotationData annotationData = classMeta.annotation("Name");
-        String name = "";
 
-        if (annotationData == null) {
-            annotationData = classMeta.annotation("Service");
-            if (annotationData == null) {
-                name = Str.camelCaseLower(classMeta.name());
-            }
-        }
+        String name = AnnotationUtils.readServiceName(classMeta);
 
-        if (annotationData != null) {
-            name = annotationData.getValues().get("value").toString();
+        if (Str.isEmpty(name)) {
+            name = Str.camelCaseLower(classMeta.name());
         }
 
         return name;
@@ -361,5 +390,58 @@ public class ContextMetaBuilder {
         return new ContextMeta(getTitle(), getRootURI(), getServices(),
                 getDescription(), getContactName(), getContactURL(), getContactEmail(),
                 getLicenseName(), getLicenseURL(), getVersion(), getHostAddress());
+    }
+
+
+
+    private MultiMap<String, String> getResponseHeaders(final Annotated annotated) {
+
+        MultiMap<String, String> responseHeadersMap = MultiMap.empty();
+
+        final AnnotationData responseHeaderAnnotation = annotated.annotation("ResponseHeader");
+
+
+        if (responseHeaderAnnotation != null) {
+            final String name = responseHeaderAnnotation.getValues().get("name").toString();
+            final String value = responseHeaderAnnotation.getValues().get("value").toString();
+            responseHeadersMap = new MultiMapImpl<>();
+            responseHeadersMap.add(name, value);
+        }
+
+
+
+        final AnnotationData responseHeadersAnnotation = annotated.annotation("ResponseHeaders");
+
+        if (responseHeadersAnnotation != null) {
+            if (responseHeadersMap.size()==0) {
+                responseHeadersMap = new MultiMapImpl<>();
+            }
+            final Object[] values = (Object[]) responseHeadersAnnotation.getValues().get("value");
+
+            for (Object object : values) {
+
+                if (object instanceof Annotation) {
+                    AnnotationData annotationData = new AnnotationData((Annotation) object);
+
+                    final String name = annotationData.getValues().get("name").toString();
+                    final String value = annotationData.getValues().get("value").toString();
+                    responseHeadersMap.add(name, value);
+                }
+            }
+
+        }
+
+
+        final AnnotationData noCache = annotated.annotation("NoCacheHeaders");
+        if (noCache != null) {
+            if (responseHeadersMap.size()==0) {
+                responseHeadersMap = new MultiMapImpl<>();
+            }
+            responseHeadersMap.add(HttpHeaders.CACHE_CONTROL, "max-age=0");
+            responseHeadersMap.add(HttpHeaders.CACHE_CONTROL, "no-cache, no-store");
+        }
+
+
+        return responseHeadersMap;
     }
 }

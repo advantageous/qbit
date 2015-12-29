@@ -20,17 +20,16 @@ package io.advantageous.qbit.http.request;
 
 import io.advantageous.boon.core.Str;
 import io.advantageous.boon.primitive.ByteBuf;
-import io.advantageous.qbit.client.ClientBuilder;
 import io.advantageous.qbit.http.HttpContentTypes;
 import io.advantageous.qbit.util.GzipUtils;
 import io.advantageous.qbit.util.MultiMap;
 import io.advantageous.qbit.util.MultiMapImpl;
 
 import java.nio.charset.StandardCharsets;
-import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 /**
  * This is a builder for creating HTTP request objects.
@@ -56,12 +55,23 @@ public class HttpRequestBuilder {
     private String remoteAddress;
     private MultiMap<String, String> params;
     private MultiMap<String, String> headers;
-    private byte[] body;
     private String method = "GET";
     private Consumer<Exception> errorHandler;
+    private Supplier<Object> body = () -> EMPTY_STRING;
+
+    private Supplier<MultiMap<String, String>> formParamsSupplier = MultiMap::empty;
 
     private HttpResponseReceiver receiver = (code, mimeType, body1) -> {
     };
+
+    public Supplier<MultiMap<String, String>> getFormParamsSupplier() {
+        return formParamsSupplier;
+    }
+
+    public HttpRequestBuilder setFormParamsSupplier(Supplier<MultiMap<String, String>> formParamsSupplier) {
+        this.formParamsSupplier = formParamsSupplier;
+        return this;
+    }
 
     public static HttpRequestBuilder httpRequestBuilder() {
         return new HttpRequestBuilder();
@@ -147,13 +157,9 @@ public class HttpRequestBuilder {
         return this;
     }
 
-    public String getBody() {
-
-        return new String(body, StandardCharsets.UTF_8);
-    }
 
     public HttpRequestBuilder setBody(String body) {
-        setBodyBytes(body.getBytes(StandardCharsets.UTF_8));
+        setBodySupplier(() -> body);
         return this;
     }
 
@@ -229,8 +235,9 @@ public class HttpRequestBuilder {
         }
         return new HttpRequest(this.getId(), newURI, this.getMethod(), this.getParams(),
                 this.getHeaders(),
-                this.getBodyBytes() != null ? this.getBodyBytes() : EMPTY_STRING,
-                this.getRemoteAddress(), this.getContentType(), httpResponse, this.getTimestamp());
+                this.getBodySupplier(),
+                this.getRemoteAddress(), this.getContentType(), httpResponse,
+                getFormParamsSupplier(), this.getTimestamp());
     }
 
 
@@ -255,8 +262,10 @@ public class HttpRequestBuilder {
         }
         final HttpRequest request = new HttpRequest(this.getId(), newURI, this.getMethod(), this.getParams(),
                 this.getHeaders(),
-                this.getBodyBytes() != null ? this.getBodyBytes() : new byte[]{},
-                this.getRemoteAddress(), this.getContentType(), httpResponse, this.getTimestamp());
+                this.getBodySupplier(),
+                this.getRemoteAddress(), this.getContentType(), httpResponse,
+                this.getFormParamsSupplier(),
+                this.getTimestamp());
 
         return request;
     }
@@ -432,12 +441,10 @@ public class HttpRequestBuilder {
         return this;
     }
 
-    public byte[] getBodyBytes() {
-        return body;
-    }
 
     public HttpRequestBuilder setBodyBytes(byte[] bodyBytes) {
-        this.body = bodyBytes;
+
+        this.body = () -> bodyBytes;
         return this;
     }
 
@@ -500,6 +507,9 @@ public class HttpRequestBuilder {
         this.setMethod(request.getMethod());
 
         if (request.getHeaders().size()>0) {
+            if (this.headers == null) {
+                this.setHeaders(new MultiMapImpl<>());
+            }
             final MultiMap<String, String> headers = this.getHeaders();
             request.getHeaders().forEach(entry -> {
                 entry.getValue().forEach(value -> headers.add(entry.getKey(), value));
@@ -507,6 +517,12 @@ public class HttpRequestBuilder {
         }
 
         if (request.getParams().size()>0) {
+
+
+            if (this.params==null) {
+                this.setParams(new MultiMapImpl<>());
+            }
+
             final MultiMap<String, String> params = this.getParams();
             request.getParams().forEach(entry -> {
                 entry.getValue().forEach(value -> params.add(entry.getKey(), value));
@@ -528,5 +544,14 @@ public class HttpRequestBuilder {
         private long inc() {
             return value++;
         }
+    }
+
+    public Supplier<Object> getBodySupplier() {
+        return body;
+    }
+
+    public HttpRequestBuilder setBodySupplier(final Supplier<Object> body) {
+        this.body = body;
+        return this;
     }
 }

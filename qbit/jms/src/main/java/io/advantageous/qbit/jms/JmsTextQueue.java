@@ -58,6 +58,7 @@ public class JmsTextQueue implements Queue<String> {
 
     @Override
     public boolean started() {
+
         return true;
     }
 

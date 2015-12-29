@@ -78,7 +78,7 @@ public class AnnotationDrivenQueueCallbackHandler implements QueueCallBackHandle
                     queueLimit = methodAccess;
                     break;
                 case INIT:
-                    queueLimit = methodAccess;
+                    queueInit = methodAccess;
                     break;
                 case START_BATCH:
                     queueStartBatch = methodAccess;

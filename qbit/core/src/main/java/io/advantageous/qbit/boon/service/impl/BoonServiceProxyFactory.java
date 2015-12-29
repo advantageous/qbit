@@ -22,6 +22,7 @@ import io.advantageous.boon.core.Str;
 import io.advantageous.boon.core.Sys;
 import io.advantageous.boon.primitive.CharBuf;
 import io.advantageous.qbit.Factory;
+import io.advantageous.qbit.client.BeforeMethodSent;
 import io.advantageous.qbit.client.ClientProxy;
 import io.advantageous.qbit.client.RemoteTCPClientProxy;
 import io.advantageous.qbit.client.ServiceProxyFactory;
@@ -68,7 +69,8 @@ public class BoonServiceProxyFactory implements ServiceProxyFactory {
                                               final int port,
                                               final AtomicBoolean connected,
                                               String returnAddressArg,
-                                              final EndPoint endPoint) {
+                                              final EndPoint endPoint,
+                                              final BeforeMethodSent beforeMethodSent) {
 
         final String objectAddress = endPoint != null ? Str.add(endPoint.address(), "/", serviceName) : "";
 
@@ -87,7 +89,7 @@ public class BoonServiceProxyFactory implements ServiceProxyFactory {
         };
 
 
-        InvocationHandler invocationHandler = new InvocationHandler() {
+        final InvocationHandler invocationHandler = new InvocationHandler() {
 
             long timestamp = Timer.timer().now();
             int times = 10;
@@ -145,16 +147,17 @@ public class BoonServiceProxyFactory implements ServiceProxyFactory {
 
                 final String address = addressBuf.toString();
 
-
-                final MethodCall<Object> call = MethodCallBuilder.methodCallBuilder()
+                final MethodCallBuilder methodCallBuilder = MethodCallBuilder.methodCallBuilder()
                         .setId(messageId)
                         .setAddress(address)
                         .setObjectName(serviceName)
                         .setReturnAddress(returnAddress)
                         .setName(method.getName())
                         .setTimestamp(timestamp)
-                        .setBody(args)
-                        .build();
+                        .setBody(args);
+
+                beforeMethodSent.beforeMethodSent(methodCallBuilder);
+                final MethodCall<Object> call = methodCallBuilder.build();
 
                 assert endPoint != null;
                 endPoint.call(call);
@@ -177,7 +180,7 @@ public class BoonServiceProxyFactory implements ServiceProxyFactory {
     }
 
     @Override
-    public <T> T createProxy(Class<T> serviceInterface, String serviceName, EndPoint endPoint) {
-        return createProxyWithReturnAddress(serviceInterface, serviceName, "local", 0, new AtomicBoolean(true), "", endPoint);
+    public <T> T createProxy(Class<T> serviceInterface, String serviceName, EndPoint endPoint, BeforeMethodSent beforeMethodSent) {
+        return createProxyWithReturnAddress(serviceInterface, serviceName, "local", 0, new AtomicBoolean(true), "", endPoint, beforeMethodSent);
     }
 }

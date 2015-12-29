@@ -6,9 +6,7 @@ import io.advantageous.qbit.http.request.HttpTextResponse;
 import io.advantageous.qbit.http.server.HttpServer;
 import io.advantageous.qbit.util.PortUtils;
 import io.advantageous.qbit.vertx.http.VertxHttpServerBuilder;
-import io.vertx.core.AbstractVerticle;
-import io.vertx.core.Vertx;
-import io.vertx.core.VertxOptions;
+import io.vertx.core.*;
 import io.vertx.core.http.HttpServerOptions;
 import org.junit.After;
 import org.junit.Before;
@@ -29,9 +27,12 @@ public class VertxIntegrationSimpleHttpTest {
     public static class TestVerticle extends AbstractVerticle {
 
         private final int port;
+        private final CountDownLatch latch;
 
-        public TestVerticle(int port) {
+        public TestVerticle(int port, CountDownLatch latch) {
+
             this.port = port;
+            this.latch = latch;
         }
 
         public void start() {
@@ -58,7 +59,11 @@ public class VertxIntegrationSimpleHttpTest {
 
                 httpServer.start();
 
-                vertxHttpServer.listen();
+                vertxHttpServer.listen(event -> {
+                    if (event.succeeded()) {
+                        latch.countDown();
+                    }
+                });
             }catch (Exception ex) {
                 ex.printStackTrace();
             }
@@ -73,9 +78,9 @@ public class VertxIntegrationSimpleHttpTest {
     public void setup() throws Exception{
 
 
-        final CountDownLatch latch = new CountDownLatch(1);
+        final CountDownLatch latch = new CountDownLatch(2);
         port = PortUtils.findOpenPortStartAt(9000);
-        testVerticle = new TestVerticle(port);
+        testVerticle = new TestVerticle(port, latch);
         vertx = Vertx.vertx(new VertxOptions().setWorkerPoolSize(5));
         vertx.deployVerticle(testVerticle, res -> {
             if (res.succeeded()) {

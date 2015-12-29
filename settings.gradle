@@ -23,6 +23,8 @@ include 'qbit:servlet', 'qbit:vertx', 'qbit:scala', "qbit:service-discovery"
 include 'qbit:consul-client', 'qbit:eventbus-replicator', 'qbit:admin'
 include 'qbit:guice'
 
+
+include 'examples:jms'
 include 'examples:standalone'
 include 'examples:basic', 'examples:basic:model', 'examples:basic:client', 'examples:basic:server'
 include 'examples:spring:spring-and-qbit-cpu-bench', 'examples:spring:spring-boot'

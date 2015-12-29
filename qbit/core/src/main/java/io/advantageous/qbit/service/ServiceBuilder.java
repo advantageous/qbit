@@ -21,6 +21,8 @@ package io.advantageous.qbit.service;
 import io.advantageous.boon.core.reflection.ClassMeta;
 import io.advantageous.boon.core.reflection.MethodAccess;
 import io.advantageous.qbit.QBit;
+import io.advantageous.qbit.client.BeforeMethodSent;
+import io.advantageous.qbit.client.BeforeMethodSentChain;
 import io.advantageous.qbit.events.EventManager;
 import io.advantageous.qbit.message.MethodCall;
 import io.advantageous.qbit.message.Request;
@@ -85,10 +87,16 @@ public class ServiceBuilder {
 
     private boolean createCallbackHandler = true;
     private EventManager eventManager;
+    private BeforeMethodSent beforeMethodSent;
+    private boolean joinEventManager = true;
+
 
     public static ServiceBuilder serviceBuilder() {
         return new ServiceBuilder();
     }
+
+
+
 
 
 
@@ -223,8 +231,11 @@ public class ServiceBuilder {
 
         for (MethodAccess methodAccess : methods) {
 
-            if (methodAccess.method().getDeclaringClass().isInterface()
-                    || methodAccess.method().getDeclaringClass().getName().contains("$$EnhancerByGuice$$")) {
+            if (methodAccess.isPrivate() ||
+             || methodAccess.method().getDeclaringClass().getName().contains("$$EnhancerByGuice$$")) {
+                continue;
+            }
+
                     continue;
             }
 
@@ -255,6 +266,11 @@ public class ServiceBuilder {
     }
 
     public ServiceMethodHandler getServiceMethodHandler() {
+
+        if (serviceMethodHandler == null) {
+            serviceMethodHandler =
+                    QBit.factory().createServiceMethodHandler(this.isInvokeDynamic());
+        }
         return serviceMethodHandler;
     }
 
@@ -265,6 +281,10 @@ public class ServiceBuilder {
     }
 
     public BeforeMethodCall getBeforeMethodCall() {
+
+        if (beforeMethodCall == null) {
+            beforeMethodCall = new NoOpBeforeMethodCall();
+        }
         return beforeMethodCall;
     }
 
@@ -285,6 +305,9 @@ public class ServiceBuilder {
     }
 
     public AfterMethodCall getAfterMethodCall() {
+        if (afterMethodCall==null) {
+            afterMethodCall = new NoOpAfterMethodCall();
+        }
         return afterMethodCall;
     }
 
@@ -444,7 +467,7 @@ public class ServiceBuilder {
             serviceQueueSizer = new ServiceQueueSizer();
             this.addQueueCallbackHandler(new ServiceStatsListener(statsConfig.serviceName,
                     statsConfig.statsCollector,
-                    getTimer(),statsConfig.flushTimeSeconds, TimeUnit.SECONDS,
+                    getTimer(), statsConfig.flushTimeSeconds, TimeUnit.SECONDS,
                     statsConfig.sampleEvery, serviceQueueSizer));
         }
 
@@ -453,7 +476,7 @@ public class ServiceBuilder {
                 this.getServiceObject(),
                 this.getRequestQueueBuilder(),
                 this.getResponseQueueBuilder(),
-                QBit.factory().createServiceMethodHandler(this.isInvokeDynamic()),
+                this.getServiceMethodHandler(),
                 this.getResponseQueue(),
                 this.isAsyncResponse(),
                 this.isHandleCallbacks(),
@@ -462,7 +485,12 @@ public class ServiceBuilder {
                 this.getBeforeMethodCallAfterTransform(),
                 this.getAfterMethodCall(),
                 this.getAfterMethodCallAfterTransform(),
-                buildQueueCallBackHandler(), getCallbackManager());
+                buildQueueCallBackHandler(),
+                getCallbackManager(),
+                getBeforeMethodSent(),
+                getEventManager(),
+                isJoinEventManager()
+                );
 
         if (serviceQueueSizer!=null) {
             serviceQueueSizer.setServiceQueue(serviceQueue);
@@ -472,9 +500,6 @@ public class ServiceBuilder {
             qBitSystemManager.registerService(serviceQueue);
         }
 
-        if (eventManager!=null) {
-            eventManager.joinService(serviceQueue);
-        }
 
         return serviceQueue;
     }
@@ -505,6 +530,28 @@ public class ServiceBuilder {
         return eventManager;
     }
 
+    public ServiceBuilder setBeforeMethodSent(final BeforeMethodSent beforeMethodSent) {
+        this.beforeMethodSent = beforeMethodSent;
+        return this;
+    }
+
+    public BeforeMethodSent getBeforeMethodSent() {
+        return beforeMethodSent;
+    }
+
+    public ServiceBuilder copy() {
+        ServiceBuilder serviceBuilder = new ServiceBuilder();
+        serviceBuilder.setAfterMethodCall(this.getAfterMethodCall());
+        serviceBuilder.setBeforeMethodCall(this.getBeforeMethodCall());
+        serviceBuilder.setAsyncResponse(this.isAsyncResponse());
+        serviceBuilder.setEventManager(this.getEventManager());
+        serviceBuilder.setHandleCallbacks(this.handleCallbacks);
+        serviceBuilder.setSystemManager(this.getSystemManager());
+        serviceBuilder.setBeforeMethodCallAfterTransform(this.getBeforeMethodCallAfterTransform());
+        serviceBuilder.setResponseQueueBuilder(this.getResponseQueueBuilder());
+        serviceBuilder.setRequestQueueBuilder(this.getRequestQueueBuilder());
+        return serviceBuilder;
+    }
 
     private static class StatsConfig  {
         final String serviceName;
@@ -520,4 +567,13 @@ public class ServiceBuilder {
         }
     }
 
+
+    public boolean isJoinEventManager() {
+        return joinEventManager;
+    }
+
+    public ServiceBuilder setJoinEventManager(boolean joinEventManager) {
+        this.joinEventManager = joinEventManager;
+        return this;
+    }
 }

@@ -12,11 +12,14 @@ import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import static io.advantageous.boon.core.IO.puts;
 import static io.advantageous.boon.core.Maps.safeMap;
 import static io.advantageous.boon.json.JsonFactory.toJson;
+import static junit.framework.Assert.assertFalse;
 import static junit.framework.Assert.assertNotNull;
+import static junit.framework.Assert.assertTrue;
 import static org.junit.Assert.assertEquals;
 
 public class StandardRequestTransformerTest {
@@ -41,7 +44,7 @@ public class StandardRequestTransformerTest {
 
 
         standardRequestTransformer = new StandardRequestTransformer(
-                safeMap(RequestMethod.GET, provider, RequestMethod.POST, postProvider)
+                safeMap(RequestMethod.GET, provider, RequestMethod.POST, postProvider), Optional.empty()
         );
     }
 
@@ -79,6 +82,37 @@ public class StandardRequestTransformerTest {
         @SuppressWarnings("unchecked") List<Object> args = (List<Object>) methodCall.body();
 
         assertEquals("1", args.get(0));
+    }
+
+    @Test
+    public void testTransformBadPathParamIndex() throws Exception {
+
+        /*
+
+                /services
+
+
+        @RequestMapping("/sample/service")
+        public class SampleService {
+
+
+            @RequestMapping("/simpleBadConfig1/{0}")
+            public void simpleBadConfig1(Callback<String> callback, @PathVariable(defaultValue = "missing" final String arg1) {
+                callback.accept("simple3");
+            }
+         */
+
+        HttpRequestBuilder requestBuilder = new HttpRequestBuilder();
+        requestBuilder.setUri("/services/sample/service/simpleBadConfig1/someValue");
+        final HttpRequest request = requestBuilder.build();
+
+        List<String> errorsList = new ArrayList<>();
+
+        final MethodCall<Object> methodCall = standardRequestTransformer.transform(request, errorsList);
+
+        @SuppressWarnings("unchecked") List<Object> args = (List<Object>) methodCall.body();
+
+        assertEquals("missing", args.get(0));
     }
 
     @Test

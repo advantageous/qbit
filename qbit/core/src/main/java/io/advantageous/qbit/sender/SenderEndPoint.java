@@ -34,7 +34,7 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.TimeUnit;
 
 /**
- * Combines a sender with a protocol encoder so we can forwardEvent messages to another remote end point.
+ * Combines a sender with a protocol encoder so we can forward messages to another remote end point.
  * created by Richard on 10/1/14.
  *
  * @author Rick Hightower
@@ -47,19 +47,14 @@ public class SenderEndPoint implements EndPoint {
     private final Sender<String> sender;
     private final BeforeMethodCall beforeMethodCall;
     private final BlockingQueue<MethodCall<Object>> methodCalls;
-    private final int requestBatchSize;
     private final Logger logger = LoggerFactory.getLogger(SenderEndPoint.class);
 
     public SenderEndPoint(ProtocolEncoder encoder, String address, Sender<String> sender, BeforeMethodCall beforeMethodCall,
                           int requestBatchSize) {
         this.encoder = encoder;
         this.address = address;
-
         this.beforeMethodCall = beforeMethodCall == null ? new NoOpBeforeMethodCall() : beforeMethodCall;
-
-        this.requestBatchSize = requestBatchSize;
         this.methodCalls = new ArrayBlockingQueue<>(requestBatchSize);
-
         this.sender = sender;
     }
 
@@ -74,8 +69,17 @@ public class SenderEndPoint implements EndPoint {
         beforeMethodCall.before(methodCall);
 
         if (!methodCalls.offer(methodCall)) {
-            flush(methodCall);
+            flush();
+        } else {
+            return;
         }
+
+
+        if (!methodCalls.offer(methodCall)) {
+            throw new IllegalStateException("Queue is full and can't be emptied");
+        }
+
+
 
     }
 
@@ -90,68 +94,32 @@ public class SenderEndPoint implements EndPoint {
     }
 
 
+
     @Override
     public void flush() {
 
-        flush(null);
-    }
-
-    private void flush(MethodCall<Object> lastMethodCall) {
+        if (methodCalls.size() > 0) {
 
 
-        Message<Object> method = null;
+            Message<Object> method;
 
-        try {
-            method = methodCalls.poll(10L, TimeUnit.MILLISECONDS);
-        } catch (InterruptedException e) {
-            Thread.interrupted();
-        }
-
-        if (method == null) {
-            return;
-        }
+            List<Message<Object>> methods;
 
 
-        List<Message<Object>> methods;
+            methods = new ArrayList<>(methodCalls.size());
 
-        String returnAddress = ((MethodCall<Object>) method).returnAddress();
 
-        methods = new ArrayList<>(requestBatchSize + 1);
+            do {
+                method = methodCalls.poll();
+                methods.add(method);
+            }while (method!=null);
 
-        int count = 0;
 
-        while (method != null) {
-            methods.add(method);
-
-            try {
-                method = methodCalls.poll(10L, TimeUnit.MILLISECONDS);
-            } catch (InterruptedException e) {
-                method = null;
-                Thread.interrupted();
+            if (methods.size() > 0) {
+                sender.send(((MethodCall<Object>) methods.get(0)).returnAddress(), encoder.encodeAsString(methods));
             }
 
-
-            if (count > requestBatchSize) {
-
-                sender.send(returnAddress, encoder.encodeAsString(methods));
-                methods.clear();
-                count = 0;
-            }
-
-            count++;
-
-
         }
-
-        if (lastMethodCall != null) {
-            methods.add(lastMethodCall);
-        }
-
-
-        if (methods.size() > 0) {
-            sender.send(returnAddress, encoder.encodeAsString(methods));
-        }
-
 
     }
 

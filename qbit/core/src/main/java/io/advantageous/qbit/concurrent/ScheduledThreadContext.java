@@ -88,7 +88,7 @@ public class ScheduledThreadContext implements ExecutorContext {
             try {
                 runnable.run();
             } catch (Exception ex) {
-                logger.error("Problem running: " + description, ex);
+                logger.error("Problem running: " + (description != null ? description : threadName), ex);
             }
         }, initialDelay, period, unit);
     }

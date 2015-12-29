@@ -1,6 +1,7 @@
 package io.advantageous.qbit.reactive;
 
-import io.advantageous.qbit.reactive.impl.AsyncFutureCallbackImpl;
+import io.advantageous.qbit.reactive.async.AsyncFutureBlockOnGetCallbackImpl;
+import io.advantageous.qbit.reactive.async.AsyncFutureCallbackImpl;
 import io.advantageous.qbit.service.ServiceProxyUtils;
 import io.advantageous.qbit.time.Duration;
 import io.advantageous.qbit.util.Timer;
@@ -200,6 +201,12 @@ public class Reactor {
         return callbackWithTimeout(callback, defaultTimeOut, TimeUnit.MILLISECONDS);
     }
 
+    public <T> AsyncFutureCallback<T> callbackWithLatch(final Callback<T> callback) {
+
+        return callbackWithTimeoutAndLatch(callback, defaultTimeOut, TimeUnit.MILLISECONDS);
+    }
+
+
 
     public <T> AsyncFutureCallback<T> callback(Class<T> cls, final Callback<T> callback) {
 
@@ -215,6 +222,16 @@ public class Reactor {
 
     }
 
+
+    public <T> AsyncFutureCallback<T> callbackWithTimeoutAndLatch(final Callback<T> callback,
+                                                          final long timeoutDuration,
+                                                          final TimeUnit timeUnit) {
+
+        return callbackWithTimeoutAndErrorHandlerAndLatch(callback, timeoutDuration, timeUnit, null);
+
+    }
+
+
     public <T> AsyncFutureCallback<T> callbackWithTimeoutAndErrorHandler(
             final Callback<T> callback,
             final long timeoutDuration,
@@ -222,6 +239,16 @@ public class Reactor {
             final Consumer<Throwable> onError) {
 
         return callbackWithTimeoutAndErrorHandlerAndOnTimeout(callback, timeoutDuration, timeUnit, null, onError);
+
+    }
+
+    public <T> AsyncFutureCallback<T> callbackWithTimeoutAndErrorHandlerAndLatch(
+            final Callback<T> callback,
+            final long timeoutDuration,
+            final TimeUnit timeUnit,
+            final Consumer<Throwable> onError) {
+
+        return callbackWithTimeoutAndErrorHandlerAndOnTimeoutWithLatch(callback, timeoutDuration, timeUnit, null, onError);
 
     }
 
@@ -257,12 +284,44 @@ public class Reactor {
 
     }
 
+
+    /**
+     * Create a callback
+     * @param callback callback
+     * @param timeoutDuration timeout duration
+     * @param timeUnit time unit of timeout
+     * @param onTimeout onTimeout handler
+     * @param onError on error handler
+     * @param <T> T
+     * @return callback
+     */
+    public <T> AsyncFutureCallback<T> callbackWithTimeoutAndErrorHandlerAndOnTimeoutWithLatch(
+            final Callback<T> callback,
+            final long timeoutDuration,
+            final TimeUnit timeUnit,
+            final Runnable onTimeout,
+            final Consumer<Throwable> onError) {
+
+        final AtomicReference<AsyncFutureCallback<T>> ref = new AtomicReference<>();
+
+        final AsyncFutureBlockOnGetCallbackImpl<T> asyncFutureCallback =
+                AsyncFutureBlockOnGetCallbackImpl.callback(callback, currentTime,
+                        timeUnit.toMillis(timeoutDuration),
+                        createOnFinished(ref)
+                        , onTimeout, onError);
+
+        ref.set(asyncFutureCallback);
+        addCallback(asyncFutureCallback);
+        return asyncFutureCallback;
+
+    }
+
     /**
      * Add a callback to manage
      * @param asyncFutureCallback callback
      * @param <T> T
      */
-    public <T> void addCallback(final AsyncFutureCallbackImpl<T> asyncFutureCallback) {
+    public <T> void addCallback(final AsyncFutureCallback<T> asyncFutureCallback) {
         futureQueue.add(asyncFutureCallback);
     }
 

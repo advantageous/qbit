@@ -4,6 +4,7 @@ import io.advantageous.boon.core.Sys;
 import io.advantageous.boon.json.JsonFactory;
 import io.advantageous.qbit.http.request.*;
 import io.advantageous.qbit.http.request.impl.HttpResponseCreatorDefault;
+import io.advantageous.qbit.http.request.decorator.HttpResponseDecorator;
 import io.advantageous.qbit.http.server.HttpServer;
 import io.advantageous.qbit.http.server.websocket.WebSocketMessage;
 import io.advantageous.qbit.util.MultiMap;
@@ -32,6 +33,16 @@ public class HttpServerSimulator implements HttpServer {
         decorators.add(decorator);
     }
 
+
+    public final HttpTextResponse sendRequestRaw(final HttpRequest request) {
+
+        final HttpRequestBuilder httpRequestBuilder = HttpRequestBuilder.httpRequestBuilder().copyRequest(request);
+        httpRequestBuilder.setUri(request.getUri());
+        final AtomicReference<HttpTextResponse> response = getHttpResponseAtomicReference(httpRequestBuilder);
+
+        return response.get();
+
+    }
 
     public final HttpTextResponse sendRequest(final HttpRequest request) {
 

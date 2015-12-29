@@ -4,6 +4,7 @@ package io.advantageous.qbit.service.rest.endpoint.tests.services;
 import io.advantageous.qbit.annotation.PathVariable;
 import io.advantageous.qbit.annotation.RequestMapping;
 import io.advantageous.qbit.annotation.RequestMethod;
+import io.advantageous.qbit.annotation.Service;
 import io.advantageous.qbit.service.rest.endpoint.tests.model.Department;
 import io.advantageous.qbit.service.rest.endpoint.tests.model.Employee;
 import io.advantageous.qbit.service.rest.endpoint.tests.model.PhoneNumber;
@@ -11,7 +12,9 @@ import io.advantageous.qbit.service.rest.endpoint.tests.model.PhoneNumber;
 import java.util.*;
 import java.util.function.Predicate;
 
+
 @RequestMapping("/hr")
+@Service
 public class HRService {
 
     final Map<Integer, Department> departmentMap = new HashMap<>();

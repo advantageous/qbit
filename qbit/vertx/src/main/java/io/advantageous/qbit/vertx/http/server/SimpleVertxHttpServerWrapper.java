@@ -4,7 +4,7 @@ import io.advantageous.qbit.GlobalConstants;
 import io.advantageous.qbit.http.HttpContentTypes;
 import io.advantageous.qbit.http.request.HttpRequest;
 import io.advantageous.qbit.http.request.HttpResponseCreator;
-import io.advantageous.qbit.http.request.HttpResponseDecorator;
+import io.advantageous.qbit.http.request.decorator.HttpResponseDecorator;
 import io.advantageous.qbit.http.server.HttpServer;
 import io.advantageous.qbit.http.server.impl.SimpleHttpServer;
 import io.advantageous.qbit.http.server.websocket.WebSocketMessage;
@@ -175,25 +175,17 @@ public class SimpleVertxHttpServerWrapper implements HttpServer {
 
                     request.setExpectMultipart(true);
 
-                    request.endHandler(event -> {
 
-                        final HttpRequest postRequest = vertxUtils.createRequest(request, null,
-                                simpleHttpServer.getDecorators(), simpleHttpServer.getHttpResponseCreator());
+                }
 
-                        simpleHttpServer.handleRequest(postRequest);
-
-                    });
-
-                } else {
-
-                    request.bodyHandler((Buffer buffer) -> {
+                request.bodyHandler((Buffer buffer) -> {
                         final HttpRequest postRequest = vertxUtils.createRequest(request, buffer,
                                 simpleHttpServer.getDecorators(), simpleHttpServer.getHttpResponseCreator());
 
                         simpleHttpServer.handleRequest(postRequest);
 
-                    });
-                }
+                });
+
                 break;
 
 

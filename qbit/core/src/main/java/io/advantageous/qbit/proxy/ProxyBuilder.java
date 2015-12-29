@@ -76,8 +76,10 @@ public class ProxyBuilder {
 
         if (serviceBuilder==null) {
             serviceBuilder = ServiceBuilder.serviceBuilder();
+            return serviceBuilder;
         }
-        return serviceBuilder;
+
+        return serviceBuilder.copy();
     }
 
     public Reactor getReactor() {

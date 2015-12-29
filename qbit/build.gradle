@@ -130,8 +130,9 @@ subprojects {
 project('core') {
 
     dependencies {
-        compile "io.advantageous.boon:boon-reflekt:$boonVersion"
-        compile "io.advantageous.boon:boon-json:$boonVersion"
+        compile "$boonGroup:boon-reflekt:$boonVersion"
+        compile "$boonGroup:boon-json:$boonVersion"
+        compile 'org.reactivestreams:reactive-streams:1.0.0.final'
         testCompile project(':qbit:test-support')
     }
 
@@ -284,6 +285,7 @@ project('admin') {
         testCompile project(':qbit:consul-client')
         testCompile project(':qbit:test-support')
         compile project(":qbit:vertx")
+        compile project(":qbit:service-discovery")
     }
 
     uploadArchives {
@@ -349,10 +351,11 @@ project('eventbus-replicator') {
 
 project('jms') {
 
+    javadoc.onlyIf {false}
+
     dependencies {
         compile project(":qbit:core")
         testCompile project(':qbit:test-support')
-
         compile 'org.apache.activemq:activemq-all:5.9.1'
         compile 'org.apache.commons:commons-dbcp2:2.1.1'
         compile 'org.postgresql:postgresql:9.4-1203-jdbc42'

@@ -56,8 +56,10 @@ public class LocalStatsCollectorBuilder {
     public ServiceBuilder getServiceBuilder() {
         if (serviceBuilder == null) {
             serviceBuilder = ServiceBuilder.serviceBuilder().setServiceObject(getLocalStatsCollector());
+            return serviceBuilder;
         }
-        return serviceBuilder;
+
+        return serviceBuilder.copy().setServiceObject(getLocalStatsCollector());
     }
 
     public LocalStatsCollectorBuilder setServiceBuilder(ServiceBuilder serviceBuilder) {

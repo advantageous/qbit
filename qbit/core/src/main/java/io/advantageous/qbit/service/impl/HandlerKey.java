@@ -40,21 +40,24 @@ class HandlerKey {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof HandlerKey)) return false;
+        if (o == null || getClass() != o.getClass()) return false;
 
         HandlerKey that = (HandlerKey) o;
 
         if (messageId != that.messageId) return false;
+        if (timestamp != that.timestamp) return false;
         if (returnAddress != null ? !returnAddress.equals(that.returnAddress) : that.returnAddress != null)
             return false;
+        return !(address != null ? !address.equals(that.address) : that.address != null);
 
-        return true;
     }
 
     @Override
     public int hashCode() {
         int result = returnAddress != null ? returnAddress.hashCode() : 0;
+        result = 31 * result + (address != null ? address.hashCode() : 0);
         result = 31 * result + (int) (messageId ^ (messageId >>> 32));
+        result = 31 * result + (int) (timestamp ^ (timestamp >>> 32));
         return result;
     }
 
