@@ -22,7 +22,6 @@ import io.advantageous.boon.core.reflection.ClassMeta;
 import io.advantageous.boon.core.reflection.MethodAccess;
 import io.advantageous.qbit.QBit;
 import io.advantageous.qbit.client.BeforeMethodSent;
-import io.advantageous.qbit.client.BeforeMethodSentChain;
 import io.advantageous.qbit.events.EventManager;
 import io.advantageous.qbit.message.MethodCall;
 import io.advantageous.qbit.message.Request;
@@ -231,11 +230,8 @@ public class ServiceBuilder {
 
         for (MethodAccess methodAccess : methods) {
 
-            if (methodAccess.isPrivate() ||
+            if (methodAccess.isPrivate()
              || methodAccess.method().getDeclaringClass().getName().contains("$$EnhancerByGuice$$")) {
-                continue;
-            }
-
                     continue;
             }
 
