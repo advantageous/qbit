@@ -25,7 +25,10 @@ import io.advantageous.qbit.events.EventManager;
 import io.advantageous.qbit.message.MethodCall;
 import io.advantageous.qbit.message.Request;
 import io.advantageous.qbit.message.Response;
-import io.advantageous.qbit.queue.*;
+import io.advantageous.qbit.queue.Queue;
+import io.advantageous.qbit.queue.QueueBuilder;
+import io.advantageous.qbit.queue.QueueCallBackHandler;
+import io.advantageous.qbit.queue.ReceiveQueueListener;
 import io.advantageous.qbit.queue.impl.QueueCallBackHandlerHub;
 import io.advantageous.qbit.service.health.HealthServiceAsync;
 import io.advantageous.qbit.service.health.ServiceHealthListener;
@@ -220,7 +223,8 @@ public class ServiceBuilder {
 
         for (MethodAccess methodAccess : methods) {
 
-            if (methodAccess.method().getDeclaringClass().isInterface()) {
+            if (methodAccess.method().getDeclaringClass().isInterface()
+                    || methodAccess.method().getDeclaringClass().getName().contains("$$EnhancerByGuice$$")) {
                     continue;
             }
 

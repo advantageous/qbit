@@ -98,8 +98,9 @@ public class ServiceMetaBuilder {
 
     public void addMethods(String path, Collection<MethodAccess> methods) {
         methods.stream().filter(methodAccess -> !methodAccess.isPrivate()
-                && !methodAccess.isStatic() && !methodAccess.method().isSynthetic())
-                .forEach(methodAccess -> addMethod(path, methodAccess));
+                && !methodAccess.isStatic() && !methodAccess.method().isSynthetic()
+                && !methodAccess.method().getDeclaringClass().getName().contains("$$EnhancerByGuice$$")
+        ).forEach(methodAccess -> addMethod(path, methodAccess));
     }
 
     public ServiceMetaBuilder addMethod(final String rootPath, final MethodAccess methodAccess) {
