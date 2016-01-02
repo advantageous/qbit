@@ -87,8 +87,10 @@ public class EndpointServerBuilder {
 
     private  int statsFlushRateSeconds = 5;
     private  int checkTimingEveryXCalls = 1000;
-
     private int protocolBatchSize = 80;
+    private long flushResponseInterval = 25;
+    private int parserWorkerCount = 4;
+    private int encoderWorkerCount = 2;
 
 
     private CallbackManager callbackManager;
@@ -114,9 +116,6 @@ public class EndpointServerBuilder {
 
     private Consumer<Throwable> errorHandler;
 
-    private long flushResponseInterval = 25;
-    private int parserWorkerCount = 4;
-    private int encoderWorkerCount = 2;
 
     public BeforeMethodSent getBeforeMethodSent() {
 
@@ -269,6 +268,7 @@ public class EndpointServerBuilder {
         this.encoderWorkerCount = propertyResolver.getIntegerProperty("encoderWorkerCount", encoderWorkerCount);
         this.parserWorkerCount = propertyResolver.getIntegerProperty("parserWorkerCount", parserWorkerCount);
         this.flushResponseInterval = propertyResolver.getLongProperty("flushResponseInterval", flushResponseInterval);
+        this.protocolBatchSize = propertyResolver.getIntegerProperty("protocolBatchSize", protocolBatchSize);
 
 
     }
