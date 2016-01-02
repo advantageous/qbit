@@ -111,6 +111,7 @@ public class ServiceMetaBuilder {
                 !methodAccess.isPrivate() && //No private methods
                 !methodAccess.isStatic() && //No static methods
                 !methodAccess.method().isSynthetic() && //No synthetic methods
+		!methodAccess.method().getDeclaringClass().getName().contains("$$EnhancerByGuice$$") &&
                 !methodAccess.name().contains("$")) //No methods with $ as this could be Scala generated
                                                     // method or byte code lib generated
                 .forEach(methodAccess -> addMethod(path, methodAccess));
