@@ -449,6 +449,15 @@ project('test-support') {
     }
 }
 
+project('guice'){
+    dependencies {
+        compile project(":qbit:core")
+        compile project(":qbit:vertx")
+        testCompile project(':qbit:test-support')
+        testCompile 'com.google.inject:guice:4.0'
+    }
+}
+
 class RunConsul extends DefaultTask {
 
     def execFile = new File(project.rootDir, '/tmp/consul/bin/consul')

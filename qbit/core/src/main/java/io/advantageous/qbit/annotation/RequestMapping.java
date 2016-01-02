@@ -19,16 +19,14 @@
 package io.advantageous.qbit.annotation;
 
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import java.lang.annotation.*;
 
 /**
  * Used to map Service method to URIs in an HTTP like protocol.
  * @author Rick Hightower
  */
 @Retention(RetentionPolicy.RUNTIME)
+@Inherited
 @Target(value = {ElementType.METHOD, ElementType.TYPE})
 public @interface RequestMapping {
 
