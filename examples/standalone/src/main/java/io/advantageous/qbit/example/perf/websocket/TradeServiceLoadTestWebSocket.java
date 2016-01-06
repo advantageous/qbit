@@ -68,16 +68,16 @@ public class TradeServiceLoadTestWebSocket {
      * @param count holds the total count
      */
     private static void runCalls(final int numCalls, final AtomicInteger count) {
-        final Client client = clientBuilder()
+        final Client client = clientBuilder().setUri("/")
                 //.setHost("192.168.0.1")
                 .setAutoFlush(false).build();
 
-        final TradeServiceAsync tradeService = client.createProxy(TradeServiceAsync.class, "tradeservice");
+        final TradeServiceAsync tradeService = client.createProxy(TradeServiceAsync.class, "ts");
 
         client.startClient();
 
         for (int call=0; call < numCalls; call++) {
-            tradeService.trade(response -> {
+            tradeService.trd(response -> {
                 if (response) {
                     count.incrementAndGet();
                 }
