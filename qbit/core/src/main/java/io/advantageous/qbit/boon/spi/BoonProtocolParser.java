@@ -51,103 +51,36 @@ public class BoonProtocolParser implements ProtocolParser {
     private final JsonParserAndMapper jsonParser = new JsonParserFactory().create();
 
 
-    private Message<Object> parseMessageFromString(String addressPrefix, String args) {
-
-        if (args.isEmpty()) {
-            return null;
-        }
-        final char[] chars = FastStringUtils.toCharArray(args);
-
-        return parseMessageFromChars(addressPrefix, chars, null);
-    }
 
 
     @Override
-    public boolean supports(Object args, MultiMap<String, String> params) {
+    public List<Message<Object>> parse(String address, String args) {
 
-        if (!(args instanceof String)) {
-            return false;
-        }
-
-        String stringArgs = (String) args;
-
-        return stringArgs.length() > 2 &&
-                stringArgs.charAt(0) == PROTOCOL_MARKER &&
-                (stringArgs.charAt(1) == PROTOCOL_MESSAGE_TYPE_METHOD ||
-                        stringArgs.charAt(1) == PROTOCOL_MESSAGE_TYPE_GROUP || stringArgs.charAt(1) == PROTOCOL_MESSAGE_TYPE_RESPONSE);
-    }
-
-
-    @Override
-    public MethodCall<Object> parseMethodCall(Object body) {
-
-        return parseMethodCallUsingAddressPrefix("", body);
-    }
-
-    @Override
-    public MethodCall<Object> parseMethodCallUsingAddressPrefix(String addressPrefix, Object body) {
-
-
-        if (body != null) {
-            if (body instanceof String) {
-                return (MethodCall<Object>) parseMessageFromString(addressPrefix, (String) body);
-            }
-        }
-
-        return null;
-
-
-    }
-
-    @Override
-    public List<Message<Object>> parse(String address, Object body) {
-
-        if (!(body instanceof String)) {
-
-            die("Body must be a string at this point");
-            return null;
-
-        }
-
-        String args = (String) body;
-
-        if (args.isEmpty()) {
-            return null;
-        }
 
         final char[] chars = FastStringUtils.toCharArray(args);
         if (chars.length > 2 && chars[PROTOCOL_MARKER_POSITION] == PROTOCOL_MARKER) {
 
             final char versionMarker = chars[VERSION_MARKER_POSITION];
 
-            if (versionMarker == PROTOCOL_MESSAGE_TYPE_METHOD) {
-                return Lists.list((Message<Object>) handleFastBodySubmissionVersion1Chars("", chars, null));
-            } else if (versionMarker == PROTOCOL_MESSAGE_TYPE_RESPONSE) {
-                return Lists.list((Message<Object>) parseResponseFromChars("", chars, null));
-            } else if (versionMarker == PROTOCOL_MESSAGE_TYPE_GROUP) {
+            if (versionMarker == PROTOCOL_MESSAGE_TYPE_GROUP) {
 
-                String returnAddress = null;
+
+
+                final char[][] cargs = CharScanner.splitFromStartWithLimit(chars, (char) PROTOCOL_SEPARATOR, 0, METHOD_NAME_POS + 2);
+                char[] returnAddressChars = cargs[RETURN_ADDRESS_POS];
+
+                final String returnAddress = FastStringUtils.noCopyStringFromChars(returnAddressChars);
+
 
                 final char[][] messageBuffers = CharScanner.splitFrom(chars, (char) PROTOCOL_MESSAGE_SEPARATOR, 2);
 
                 List<Message<Object>> messages = new ArrayList<>(messageBuffers.length);
 
-                int index = 0;
 
-                for (char[] methodCall : messageBuffers) {
-                    final Message<Object> m = parseMessageFromChars(address, methodCall, returnAddress);
-
-                    if (index == 0) {
-                        if (m instanceof MethodCall) {
-                            final MethodCall call = (MethodCall) m;
-                            returnAddress = call.returnAddress();
-                        } else if (m instanceof Response) {
-                            final Response response = (Response) m;
-                            returnAddress = response.returnAddress();
-                        }
-                    }
+                for (int index=1; index< messageBuffers.length; index++) {
+                    char[] messageBuffer = messageBuffers[index];
+                    final Message<Object> m = parseMessageFromChars(returnAddress, messageBuffer);
                     messages.add(m);
-                    index++;
                 }
 
                 return messages;
@@ -164,41 +97,20 @@ public class BoonProtocolParser implements ProtocolParser {
     }
 
     @Override
-    public List<MethodCall<Object>> parseMethods(Object body) {
+    public List<MethodCall<Object>> parseMethodCalls(String address, String body) {
         //noinspection unchecked
-        return (List<MethodCall<Object>>) (Object) parse("", body);
+        return (List<MethodCall<Object>>) (Object) parse(address, body);
     }
 
     @Override
-    public List<MethodCall<Object>> parseMethodCallListUsingAddressPrefix(String addressPrefix, Object body) {
+    public List<Response<Object>> parseResponses(String address, String body) {
         //noinspection unchecked
-        return (List<MethodCall<Object>>) (Object) parse("", body);
+        return (List<Response<Object>>) (Object) parse(address, body);
     }
 
-    @Override
-    public Response<Object> parseResponse(Object body) {
-
-        if (body instanceof String) {
-            final char[] args = FastStringUtils.toCharArray((String) body);
-            if (args.length > 2 && args[PROTOCOL_MARKER_POSITION] == PROTOCOL_MARKER) {
-
-                final char versionMarker = args[VERSION_MARKER_POSITION];
-
-                if (versionMarker == PROTOCOL_MESSAGE_TYPE_RESPONSE) {
 
 
-                    return parseResponseFromChars("", args, null);
-                } else {
-                    return null;
-                }
-            }
-
-
-        }
-        return null;
-    }
-
-    private Response<Object> parseResponseFromChars(String addressPrefix, char[] args, String parentReturnAddress) {
+    private Response<Object> parseResponseFromChars(char[] args, final String returnAddress) {
         final char[][] chars = CharScanner.splitFromStartWithLimit(args, (char) PROTOCOL_SEPARATOR, 0, RESPONSE_RETURN);
 
 
@@ -211,8 +123,6 @@ public class BoonProtocolParser implements ProtocolParser {
 
         String address = FastStringUtils.noCopyStringFromChars(chars[ADDRESS_POS]);
 
-
-        String returnAddress = FastStringUtils.noCopyStringFromChars(chars[RETURN_ADDRESS_POS]);
 
 
         String stime = FastStringUtils.noCopyStringFromChars(chars[TIMESTAMP_POS]);
@@ -244,72 +154,63 @@ public class BoonProtocolParser implements ProtocolParser {
     }
 
 
-    private Message<Object> parseMessageFromChars(String addressPrefix, char[] chars, String returnAddress) {
+    private Message<Object> parseMessageFromChars(final String returnAddress, char[] chars) {
+
+            final char messageType = chars[PROTOCOL_MESSAGE_TYPE_POSITION];
+
+            if (messageType == PROTOCOL_MESSAGE_TYPE_METHOD) {
 
 
-        if (chars.length > 2 && chars[PROTOCOL_MARKER_POSITION] == PROTOCOL_MARKER) {
-
-            final char versionMarker = chars[VERSION_MARKER_POSITION];
-
-            if (versionMarker == PROTOCOL_MESSAGE_TYPE_METHOD) {
-                return handleFastBodySubmissionVersion1Chars(addressPrefix, chars, returnAddress);
-            } else if (versionMarker == PROTOCOL_MESSAGE_TYPE_RESPONSE) {
-                return parseResponseFromChars(addressPrefix, chars, returnAddress);
+                return handleFastBodySubmissionVersion1Chars(returnAddress, chars);
+            } else if (messageType == PROTOCOL_MESSAGE_TYPE_RESPONSE) {
+                return parseResponseFromChars(chars, returnAddress);
             } else {
                 die("Unsupported method call", new String(chars));
                 return null;
             }
-        }
-        return null;
+
     }
 
 
-    private MethodCall<Object> handleFastBodySubmissionVersion1Chars(String addressPrefix, char[] args, String parentReturnAddress) {
+    private MethodCall<Object> handleFastBodySubmissionVersion1Chars(final String returnAddress, char[] chars) {
 
-        final char[][] chars = CharScanner.splitFromStartWithLimit(args, (char) PROTOCOL_SEPARATOR, 0, METHOD_NAME_POS + 2);
+
+        final char[][] args = CharScanner.splitFromStartWithLimit(chars, (char) PROTOCOL_SEPARATOR, 0, METHOD_NAME_POS + 2);
+
 
 
         long id = 0L;
-        if (!Chr.isEmpty(chars[MESSAGE_ID_POS])) {
-            id = CharScanner.parseLong(chars[MESSAGE_ID_POS]);
+        if (!Chr.isEmpty(args[MESSAGE_ID_POS])) {
+            id = CharScanner.parseLong(args[MESSAGE_ID_POS]);
         }
 
-        String address = FastStringUtils.noCopyStringFromChars(chars[ADDRESS_POS]);
+        String address = FastStringUtils.noCopyStringFromChars(args[ADDRESS_POS]);
 
 
-        String returnAddress;
-
-        returnAddress = FastStringUtils.noCopyStringFromChars(chars[RETURN_ADDRESS_POS]);
-
-        if (!Str.isEmpty(addressPrefix)) {
-            returnAddress = Str.add(addressPrefix, "" + ((char) PROTOCOL_ARG_SEPARATOR), returnAddress);
-        }
-
-
-        String headerBlock = FastStringUtils.noCopyStringFromChars(chars[HEADER_POS]);
+        String headerBlock = FastStringUtils.noCopyStringFromChars(args[HEADER_POS]);
 
         MultiMap<String, String> headers = parseHeaders(headerBlock);
 
 
-        String paramBlock = FastStringUtils.noCopyStringFromChars(chars[PARAMS_POS]);
+        String paramBlock = FastStringUtils.noCopyStringFromChars(args[PARAMS_POS]);
 
 
         MultiMap<String, String> params = parseHeaders(paramBlock);
 
-        String methodName = FastStringUtils.noCopyStringFromChars(chars[METHOD_NAME_POS]);
+        String methodName = FastStringUtils.noCopyStringFromChars(args[METHOD_NAME_POS]);
 
 
-        String objectName = FastStringUtils.noCopyStringFromChars(chars[OBJECT_NAME_POS]);
+        String objectName = FastStringUtils.noCopyStringFromChars(args[OBJECT_NAME_POS]);
 
 
         long timestamp = 0L;
 
-        if (!Chr.isEmpty(chars[TIMESTAMP_POS])) {
+        if (!Chr.isEmpty(args[TIMESTAMP_POS])) {
             //timestamp = Long.parseLong(stime);
-            timestamp = CharScanner.parseLong(chars[TIMESTAMP_POS]);
+            timestamp = CharScanner.parseLong(args[TIMESTAMP_POS]);
         }
 
-        char[] body = chars[ARGS_POS];
+        char[] body = args[ARGS_POS];
 
 
         final char[][] argumentList = CharScanner.split(body, (char) PROTOCOL_ARG_SEPARATOR);

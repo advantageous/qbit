@@ -241,21 +241,11 @@ public class BoonQBitFactory implements Factory {
 
 
     @Override
-    public MethodCall<Object> createMethodCallToBeParsedFromBody(String address, String returnAddress, String objectName, String methodName, Object body, MultiMap<String, String> params) {
-        MethodCall<Object> parsedMethodCall = null;
-        if (body != null) {
-            ProtocolParser parser = selectProtocolParser(body, params);
-
-            if (parser != null) {
-                parsedMethodCall = parser.parseMethodCall(body);
-            } else {
-                parsedMethodCall = defaultProtocol.parseMethodCall(body);
-            }
-        }
-
-        if (parsedMethodCall != null) {
-            return parsedMethodCall;
-        }
+    public MethodCall<Object> createMethodCallToBeParsedFromBody(String address,
+                                                                 String returnAddress,
+                                                                 String objectName,
+                                                                 String methodName,
+                                                                 Object body, MultiMap<String, String> params) {
 
         MethodCallBuilder methodCallBuilder = new MethodCallBuilder();
         methodCallBuilder.setName(methodName);
@@ -274,16 +264,6 @@ public class BoonQBitFactory implements Factory {
     public MethodCall<Object> createMethodCallByNames(String methodName, String objectName, String returnAddress, Object args, MultiMap<String, String> params) {
         return createMethodCallToBeParsedFromBody("", returnAddress, objectName, methodName, args, params);
     }
-
-    private ProtocolParser selectProtocolParser(Object args, MultiMap<String, String> params) {
-        for (ProtocolParser parser : protocolParserListRef.get()) {
-            if (parser.supports(args, params)) {
-                return parser;
-            }
-        }
-        return null;
-    }
-
 
 
     @Override

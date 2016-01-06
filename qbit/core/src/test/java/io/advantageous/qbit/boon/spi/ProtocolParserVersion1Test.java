@@ -30,6 +30,7 @@ import io.advantageous.qbit.util.MultiMap;
 import io.advantageous.qbit.util.MultiMapImpl;
 import junit.framework.Assert;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.util.ArrayList;
@@ -53,15 +54,6 @@ public class ProtocolParserVersion1Test {
         methodCall = new MethodCallBuilder().setId(99L).setAddress("addr_").setReturnAddress("return_").setObjectName("oname_").setName("mname_").setTimestamp(0L).setBody("args_").build();
     }
 
-    @Test
-    public void test() {
-        BoonProtocolParser parserVersion1 = new BoonProtocolParser();
-        final MethodCall<Object> methodCall = parserVersion1.parseMethodCall("");
-
-
-        ok = methodCall == null || die();
-
-    }
 
 
     @Test
@@ -71,105 +63,20 @@ public class ProtocolParserVersion1Test {
 
         ResponseImpl<Object> response = new ResponseImpl<>(1L, 2L, "addr", "Raddr", null, "body", null, false);
 
-        final String s = encoder.encodeAsString(response);
+        final String s = encoder.encodeResponses("Raddr", Lists.list(response));
 
 
         ProtocolParser parser = new BoonProtocolParser();
-        final Response<Object> objectResponse = parser.parseResponse(s);
+        final Response<Object> objectResponse = parser.parseResponses("", s).get(0);
 
         Assert.assertEquals(response.id(), objectResponse.id());
         Assert.assertEquals(response.timestamp(), objectResponse.timestamp());
         Assert.assertEquals(response.address(), objectResponse.address());
-        Assert.assertEquals(response.returnAddress(), objectResponse.returnAddress());
         Assert.assertEquals(response.body(), objectResponse.body().toString());
+        Assert.assertEquals(response.returnAddress(), objectResponse.returnAddress());
 
     }
 
-    @Test
-    public void testEncodeDecodeManyMethods() {
-
-        BoonProtocolEncoder encoder = new BoonProtocolEncoder();
-
-        ProtocolParser parser = new BoonProtocolParser();
-        @SuppressWarnings("unchecked") MultiMap<String, String> multiMap = new MultiMapImpl(ArrayList.class);
-        multiMap.add("fruit", "apple");
-        multiMap.add("fruit", "pair");
-        multiMap.add("fruit", "watermelon");
-
-        multiMap.put("veggies", "yuck");
-
-
-        MethodCall<Object> method = new MethodCallBuilder().setName("foo1").setBody("bar1").setAddress("somebody1").setParams(multiMap).setHeaders(multiMap).build();
-
-
-        //long id, String address, String returnAddress, String objectName, String methodName,
-        //long timestamp, Object args, MultiMap<String, String> params
-
-
-        MethodCall<Object> method2 = new MethodCallBuilder().setId(1L).setAddress("addr").setReturnAddress("__RETURNaddr__").setObjectName("__objectNAME__").setName("__MEHTOD_NAME__").setTimestamp(100L).setBody("ARGS").setParams(multiMap).build();
-
-
-        MethodCall<Object> method3 = new MethodCallBuilder().setName("foo3").setBody("bar3").setAddress("somebody3").setParams(multiMap).build();
-
-
-        MethodCall<Object> method4 = new MethodCallBuilder().setName("foo4").setBody("bar4").setAddress("somebody4").setParams(multiMap).build();
-
-        ResponseImpl<Object> response1 = new ResponseImpl<>(method4, new Exception());
-
-
-        ResponseImpl<Object> response2 = new ResponseImpl<>(method2, new Exception());
-
-        final List<Message<Object>> list = Lists.list(response2, method, method2, method3, response1);
-
-
-        final String s = encoder.encodeAsString(list);
-
-        puts(s);
-
-        final List<MethodCall<Object>> methodCalls = parser.parseMethods(s);
-        puts(methodCalls);
-        Assert.assertEquals(method3.address(), methodCalls.get(3).address());
-
-        Assert.assertEquals(method3.name(), methodCalls.get(3).name());
-
-
-        final MultiMap<String, String> params = methodCalls.get(2).params();
-
-        final List<String> fruit = (List<String>) params.getAll("fruit");
-
-        Assert.assertEquals(Lists.list("apple", "pair", "watermelon"), fruit);
-
-
-        Assert.assertEquals("yuck", params.get("veggies"));
-
-
-        final MultiMap<String, String> headers = methodCalls.get(1).headers();
-
-
-        final List<String> hfruit = (List<String>) headers.getAll("fruit");
-
-        Assert.assertEquals(Lists.list("apple", "pair", "watermelon"), hfruit);
-
-
-        Assert.assertEquals("yuck", headers.get("veggies"));
-
-
-        List<Message<Object>> messages = parser.parse("", s);
-
-        final Message<Object> message = messages.get(0);
-        ok = message instanceof Response;
-
-        Response respParsed = (Response) message;
-        Assert.assertEquals(method2.id(), respParsed.id());
-
-        Assert.assertEquals(method2.address(), respParsed.address());
-
-        Assert.assertEquals(method2.returnAddress(), respParsed.returnAddress());
-
-        Assert.assertEquals(method2.timestamp(), respParsed.timestamp());
-
-
-    }
 
     @Test
     public void testEncodeDecodeMap() {
@@ -185,13 +92,13 @@ public class ProtocolParserVersion1Test {
 
         BoonProtocolEncoder encoder = new BoonProtocolEncoder();
 
-        final String s = encoder.encodeAsString(method);
+        final String s = encoder.encodeMethodCalls("", Lists.list(method));
 
         puts(s);
 
         ProtocolParser parser = new BoonProtocolParser();
 
-        final MethodCall<Object> parse = parser.parseMethodCall(s);
+        final MethodCall<Object> parse = parser.parseMethodCalls("", s).get(0);
 
         final List<String> fruit = (List<String>) parse.params().getAll("fruit");
 
@@ -208,11 +115,11 @@ public class ProtocolParserVersion1Test {
     public void testEncodeDecode() {
 
         BoonProtocolEncoder encoder = new BoonProtocolEncoder();
-        final String s = encoder.encodeAsString(methodCall);
+        final String s = encoder.encodeMethodCalls("return_", Lists.list(methodCall));
         puts(s);
 
         BoonProtocolParser parserVersion1 = new BoonProtocolParser();
-        final MethodCall<Object> methodCallParsed = parserVersion1.parseMethodCall(s);
+        final MethodCall<Object> methodCallParsed = parserVersion1.parseMethodCalls("return_", s).get(0);
 
 
         puts(methodCall);
@@ -220,8 +127,8 @@ public class ProtocolParserVersion1Test {
         Str.equalsOrDie(methodCall.name(), methodCallParsed.name());
         Str.equalsOrDie(methodCall.address(), methodCallParsed.address());
         Str.equalsOrDie(methodCall.objectName(), methodCallParsed.objectName());
-        Str.equalsOrDie(methodCall.returnAddress(), methodCallParsed.returnAddress());
         puts(methodCallParsed.body(), methodCall.body());
+        Assert.assertEquals(methodCall.returnAddress(), methodCallParsed.returnAddress());
 
 //        Str.equalsOrDie(methodCall.returnAddress(), methodCallParsed.returnAddress());
 

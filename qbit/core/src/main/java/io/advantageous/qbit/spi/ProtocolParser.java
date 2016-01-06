@@ -34,18 +34,13 @@ import java.util.List;
  */
 public interface ProtocolParser {
 
-    boolean supports(Object object, MultiMap<String, String> params);
 
-    MethodCall<Object> parseMethodCall(Object body);
+    List<Message<Object>> parse(String address, String body);
 
-    MethodCall<Object> parseMethodCallUsingAddressPrefix(String addressPrefix, Object body);
+    List<MethodCall<Object>> parseMethodCalls(String addressPrefix, String body);
 
-    List<Message<Object>> parse(String address, Object body);
-
-    List<MethodCall<Object>> parseMethods(Object body);
+    List<Response<Object>> parseResponses(String addressPrefix, String body);
 
 
-    List<MethodCall<Object>> parseMethodCallListUsingAddressPrefix(String addressPrefix, Object body);
 
-    Response<Object> parseResponse(Object body);
 }

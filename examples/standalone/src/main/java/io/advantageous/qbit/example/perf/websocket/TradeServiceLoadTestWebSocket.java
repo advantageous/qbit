@@ -68,7 +68,9 @@ public class TradeServiceLoadTestWebSocket {
      * @param count holds the total count
      */
     private static void runCalls(final int numCalls, final AtomicInteger count) {
-        final Client client = clientBuilder().setAutoFlush(false).build();
+        final Client client = clientBuilder()
+                //.setHost("192.168.0.1")
+                .setAutoFlush(false).build();
 
         final TradeServiceAsync tradeService = client.createProxy(TradeServiceAsync.class, "tradeservice");
 

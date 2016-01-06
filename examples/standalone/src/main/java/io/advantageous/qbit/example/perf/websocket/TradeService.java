@@ -36,6 +36,7 @@ public class TradeService {
                 .addEndpointService(new TradeService())
                 .setRootURI("/");
 
+        //managedServiceBuilder.getEndpointServerBuilder().setHost("192.168.0.1");
 
         managedServiceBuilder.startApplication();
     }
