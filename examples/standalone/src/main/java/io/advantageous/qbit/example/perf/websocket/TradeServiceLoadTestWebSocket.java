@@ -72,12 +72,12 @@ public class TradeServiceLoadTestWebSocket {
                 //.setHost("192.168.0.1")
                 .setAutoFlush(false).build();
 
-        final TradeServiceAsync tradeService = client.createProxy(TradeServiceAsync.class, "ts");
+        final TradeServiceAsync tradeService = client.createProxy(TradeServiceAsync.class, "t");
 
         client.startClient();
 
         for (int call=0; call < numCalls; call++) {
-            tradeService.trd(response -> {
+            tradeService.t(response -> {
                 if (response) {
                     count.incrementAndGet();
                 }

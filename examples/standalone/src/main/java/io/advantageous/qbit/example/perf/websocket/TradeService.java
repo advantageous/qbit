@@ -12,13 +12,13 @@ import static io.advantageous.qbit.admin.ManagedServiceBuilder.managedServiceBui
  * curl  http://localhost:8080/count
  */
 @RequestMapping("/")
-@Service("ts")
+@Service("t")
 public class TradeService {
 
     private long count;
 
     @PUT("/trade")
-    public boolean trd(final Trade trade) {
+    public boolean t(final Trade trade) {
         trade.getNm().hashCode();
         trade.getAmt();
         count++;
