@@ -26,7 +26,6 @@ import io.advantageous.boon.core.reflection.ClassMeta;
 import io.advantageous.boon.core.reflection.MapObjectConversion;
 import io.advantageous.boon.core.reflection.MethodAccess;
 import io.advantageous.boon.primitive.Arry;
-import io.advantageous.qbit.GlobalConstants;
 import io.advantageous.qbit.QBit;
 import io.advantageous.qbit.client.BeforeMethodSent;
 import io.advantageous.qbit.client.Client;

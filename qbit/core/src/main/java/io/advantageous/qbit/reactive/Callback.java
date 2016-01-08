@@ -20,8 +20,6 @@ package io.advantageous.qbit.reactive;
 
 import org.slf4j.LoggerFactory;
 
-import java.util.function.Consumer;
-
 /**
  * Extends the JDK Consumer to provide a default error handler for RPC callbacks.
  * Note: This was boon Handler but we switched to JDK 8 Consumer style callbackWithTimeout.

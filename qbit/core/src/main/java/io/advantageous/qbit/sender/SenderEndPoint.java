@@ -18,7 +18,6 @@
 
 package io.advantageous.qbit.sender;
 
-import io.advantageous.qbit.message.Message;
 import io.advantageous.qbit.message.MethodCall;
 import io.advantageous.qbit.service.BeforeMethodCall;
 import io.advantageous.qbit.service.EndPoint;

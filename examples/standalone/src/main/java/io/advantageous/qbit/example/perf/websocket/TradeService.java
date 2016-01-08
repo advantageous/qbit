@@ -5,6 +5,7 @@ import io.advantageous.qbit.annotation.RequestMapping;
 import io.advantageous.qbit.annotation.Service;
 import io.advantageous.qbit.annotation.http.GET;
 import io.advantageous.qbit.annotation.http.PUT;
+
 import static io.advantageous.qbit.admin.ManagedServiceBuilder.managedServiceBuilder;
 
 /**

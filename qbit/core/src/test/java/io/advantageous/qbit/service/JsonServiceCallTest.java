@@ -28,7 +28,6 @@ import io.advantageous.qbit.queue.SendQueue;
 import org.junit.Test;
 
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 import static io.advantageous.boon.core.Exceptions.die;
 import static io.advantageous.boon.json.JsonFactory.fromJson;

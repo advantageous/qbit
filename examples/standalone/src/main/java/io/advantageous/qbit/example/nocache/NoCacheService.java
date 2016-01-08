@@ -1,19 +1,18 @@
 package io.advantageous.qbit.example.nocache;
 
-import static io.advantageous.qbit.admin.ManagedServiceBuilder.managedServiceBuilder;
-
 import io.advantageous.qbit.admin.ManagedServiceBuilder;
 import io.advantageous.qbit.annotation.RequestMapping;
 import io.advantageous.qbit.annotation.http.NoCacheHeaders;
 import io.advantageous.qbit.annotation.http.ResponseHeader;
-
 import io.advantageous.qbit.http.request.HttpBinaryResponse;
 import io.advantageous.qbit.http.request.HttpResponseBuilder;
+import io.advantageous.qbit.http.request.HttpTextResponse;
 import io.advantageous.qbit.http.request.decorator.HttpBinaryResponseHolder;
 import io.advantageous.qbit.http.request.decorator.HttpResponseDecorator;
-import io.advantageous.qbit.http.request.HttpTextResponse;
 import io.advantageous.qbit.http.request.decorator.HttpTextResponseHolder;
 import io.advantageous.qbit.util.MultiMap;
+
+import static io.advantageous.qbit.admin.ManagedServiceBuilder.managedServiceBuilder;
 
 @RequestMapping("/") @NoCacheHeaders
 public class NoCacheService {

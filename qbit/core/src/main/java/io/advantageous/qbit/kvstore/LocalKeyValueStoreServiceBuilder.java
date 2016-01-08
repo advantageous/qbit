@@ -3,7 +3,6 @@ package io.advantageous.qbit.kvstore;
 import io.advantageous.qbit.client.ClientProxy;
 import io.advantageous.qbit.kvstore.impl.StringDecoderEncoderKeyValueStore;
 import io.advantageous.qbit.kvstore.lowlevel.LowLevelKeyValueStoreService;
-import io.advantageous.qbit.kvstore.lowlevel.LowLevelLocalKeyValueStoreService;
 import io.advantageous.qbit.reactive.Callback;
 import io.advantageous.qbit.reactive.Reactor;
 import io.advantageous.qbit.reactive.ReactorBuilder;

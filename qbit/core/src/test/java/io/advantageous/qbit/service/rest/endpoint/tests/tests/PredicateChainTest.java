@@ -1,11 +1,10 @@
 package io.advantageous.qbit.service.rest.endpoint.tests.tests;
 
 import io.advantageous.boon.core.Lists;
-import io.advantageous.qbit.http.request.HttpBinaryResponse;
 import io.advantageous.qbit.http.request.HttpResponseBuilder;
+import io.advantageous.qbit.http.request.HttpTextResponse;
 import io.advantageous.qbit.http.request.decorator.HttpBinaryResponseHolder;
 import io.advantageous.qbit.http.request.decorator.HttpResponseDecorator;
-import io.advantageous.qbit.http.request.HttpTextResponse;
 import io.advantageous.qbit.http.request.decorator.HttpTextResponseHolder;
 import io.advantageous.qbit.http.server.HttpServerBuilder;
 import io.advantageous.qbit.server.EndpointServerBuilder;

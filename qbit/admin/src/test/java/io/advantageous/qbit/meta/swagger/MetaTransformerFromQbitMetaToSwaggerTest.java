@@ -2,7 +2,7 @@ package io.advantageous.qbit.meta.swagger;
 
 import io.advantageous.boon.json.JsonSerializer;
 import io.advantageous.boon.json.JsonSerializerFactory;
-import io.advantageous.qbit.meta.*;
+import io.advantageous.qbit.meta.ContextMeta;
 import io.advantageous.qbit.meta.builder.ContextMetaBuilder;
 import org.junit.After;
 import org.junit.Before;

@@ -12,7 +12,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static io.advantageous.boon.core.IO.puts;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 public class LocalStatsCollectorTest {
 

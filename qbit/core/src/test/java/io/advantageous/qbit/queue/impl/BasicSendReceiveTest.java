@@ -3,7 +3,10 @@ package io.advantageous.qbit.queue.impl;
 import io.advantageous.boon.core.Lists;
 import io.advantageous.boon.core.Sys;
 import io.advantageous.qbit.concurrent.PeriodicScheduler;
-import io.advantageous.qbit.queue.*;
+import io.advantageous.qbit.queue.Queue;
+import io.advantageous.qbit.queue.QueueBuilder;
+import io.advantageous.qbit.queue.ReceiveQueue;
+import io.advantageous.qbit.queue.SendQueue;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -12,7 +15,6 @@ import java.util.List;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicReference;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;

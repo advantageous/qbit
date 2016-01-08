@@ -15,7 +15,6 @@ import io.advantageous.qbit.time.Duration;
 import io.advantageous.qbit.util.Timer;
 
 import java.util.Optional;
-import java.util.function.Consumer;
 
 @RequestMapping("/jms")
 public class JmsSendService extends BaseService{

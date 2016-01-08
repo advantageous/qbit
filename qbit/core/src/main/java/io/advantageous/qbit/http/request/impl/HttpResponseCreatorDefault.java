@@ -1,6 +1,9 @@
 package io.advantageous.qbit.http.request.impl;
 
-import io.advantageous.qbit.http.request.*;
+import io.advantageous.qbit.http.request.HttpBinaryResponse;
+import io.advantageous.qbit.http.request.HttpResponse;
+import io.advantageous.qbit.http.request.HttpResponseCreator;
+import io.advantageous.qbit.http.request.HttpTextResponse;
 import io.advantageous.qbit.http.request.decorator.HttpBinaryResponseHolder;
 import io.advantageous.qbit.http.request.decorator.HttpResponseDecorator;
 import io.advantageous.qbit.http.request.decorator.HttpTextResponseHolder;

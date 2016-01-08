@@ -10,7 +10,6 @@ import io.advantageous.qbit.service.ServiceBuilder;
 import io.advantageous.qbit.service.ServiceProxyUtils;
 import io.advantageous.qbit.time.Duration;
 import org.junit.Before;
-
 import org.junit.Ignore;
 import org.junit.Test;
 
@@ -22,9 +21,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static junit.framework.Assert.assertNotNull;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 @Ignore
 public class RedisKeyValueStoreTest {

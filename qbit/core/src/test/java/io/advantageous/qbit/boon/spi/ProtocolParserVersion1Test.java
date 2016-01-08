@@ -20,7 +20,6 @@ package io.advantageous.qbit.boon.spi;
 
 import io.advantageous.boon.core.Lists;
 import io.advantageous.boon.core.Str;
-import io.advantageous.qbit.message.Message;
 import io.advantageous.qbit.message.MethodCall;
 import io.advantageous.qbit.message.MethodCallBuilder;
 import io.advantageous.qbit.message.Response;
@@ -30,13 +29,11 @@ import io.advantageous.qbit.util.MultiMap;
 import io.advantageous.qbit.util.MultiMapImpl;
 import junit.framework.Assert;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import static io.advantageous.boon.core.Exceptions.die;
 import static io.advantageous.boon.core.IO.puts;
 
 

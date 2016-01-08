@@ -1,16 +1,16 @@
 package io.advantageous.qbit.vertx;
 
-import io.advantageous.boon.core.Sys;
 import io.advantageous.qbit.http.client.HttpClient;
 import io.advantageous.qbit.http.client.HttpClientBuilder;
 import io.advantageous.qbit.http.request.HttpTextResponse;
 import io.advantageous.qbit.http.server.HttpServer;
 import io.advantageous.qbit.util.PortUtils;
 import io.advantageous.qbit.vertx.http.VertxHttpServerBuilder;
-import io.vertx.core.*;
+import io.vertx.core.AbstractVerticle;
+import io.vertx.core.Vertx;
+import io.vertx.core.VertxOptions;
 import io.vertx.core.http.HttpServerOptions;
 import io.vertx.core.http.HttpServerResponse;
-import io.vertx.ext.web.Route;
 import io.vertx.ext.web.Router;
 import org.junit.After;
 import org.junit.Before;

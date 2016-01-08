@@ -8,10 +8,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static io.advantageous.qbit.service.ServiceProxyUtils.flushServiceProxy;
-
 import static io.advantageous.boon.core.IO.puts;
 import static io.advantageous.qbit.client.ClientBuilder.clientBuilder;
+import static io.advantageous.qbit.service.ServiceProxyUtils.flushServiceProxy;
 
 public class TradeServiceLoadTestWebSocket {
 

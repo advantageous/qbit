@@ -5,7 +5,6 @@ import io.advantageous.qbit.events.spi.EventConnector;
 import io.advantageous.qbit.events.spi.EventManagerFactory;
 import io.advantageous.qbit.events.spi.EventTransferObject;
 import io.advantageous.qbit.message.Event;
-import io.advantageous.qbit.queue.SendQueue;
 import io.advantageous.qbit.service.ServiceQueue;
 import io.advantageous.qbit.service.stats.StatsCollector;
 import io.advantageous.qbit.spi.FactorySPI;
@@ -15,9 +14,7 @@ import org.junit.Test;
 
 import java.util.concurrent.atomic.AtomicReference;
 
-import static io.advantageous.qbit.events.EventManagerBuilder.DEFAULT_NO_EVENT_CONNECTOR;
-import static io.advantageous.qbit.events.EventManagerBuilder.DEFAULT_NO_STATS_COLLECTOR;
-import static io.advantageous.qbit.events.EventManagerBuilder.eventManagerBuilder;
+import static io.advantageous.qbit.events.EventManagerBuilder.*;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
 import static org.mockito.Mockito.mock;

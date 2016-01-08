@@ -10,7 +10,6 @@ import org.slf4j.LoggerFactory;
 import java.util.Optional;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
-import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 /**

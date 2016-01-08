@@ -7,7 +7,6 @@ import io.advantageous.qbit.reactive.CallbackBuilder;
 import io.advantageous.qbit.service.ServiceBundle;
 import io.advantageous.qbit.service.ServiceBundleBuilder;
 
-
 import static io.advantageous.boon.core.IO.puts;
 
 /**

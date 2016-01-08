@@ -4,7 +4,6 @@ import io.advantageous.qbit.Factory;
 import io.advantageous.qbit.QBit;
 import io.advantageous.qbit.events.impl.ConditionalEventConnector;
 import io.advantageous.qbit.events.spi.EventConnector;
-import io.advantageous.qbit.events.spi.EventTransferObject;
 import io.advantageous.qbit.message.Event;
 import io.advantageous.qbit.service.stats.StatsCollector;
 import org.slf4j.Logger;

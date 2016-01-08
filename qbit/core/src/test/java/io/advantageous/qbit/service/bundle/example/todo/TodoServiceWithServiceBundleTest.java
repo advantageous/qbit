@@ -20,13 +20,13 @@ package io.advantageous.qbit.service.bundle.example.todo;
 
 import io.advantageous.boon.core.Sys;
 import io.advantageous.qbit.QBit;
+import io.advantageous.qbit.boon.spi.RegisterBoonWithQBit;
 import io.advantageous.qbit.message.MethodCall;
 import io.advantageous.qbit.message.MethodCallBuilder;
 import io.advantageous.qbit.message.Response;
 import io.advantageous.qbit.queue.ReceiveQueue;
 import io.advantageous.qbit.service.ServiceBundle;
 import io.advantageous.qbit.service.ServiceBundleBuilder;
-import io.advantageous.qbit.boon.spi.RegisterBoonWithQBit;
 import org.junit.Test;
 
 import java.util.Date;

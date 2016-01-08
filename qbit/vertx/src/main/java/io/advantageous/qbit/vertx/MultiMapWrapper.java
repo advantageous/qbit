@@ -21,7 +21,6 @@ package io.advantageous.qbit.vertx;
 import io.advantageous.qbit.util.MultiMap;
 
 import java.util.*;
-import java.util.function.Consumer;
 
 import static io.advantageous.boon.core.Exceptions.die;
 import static io.advantageous.boon.core.Str.sputs;

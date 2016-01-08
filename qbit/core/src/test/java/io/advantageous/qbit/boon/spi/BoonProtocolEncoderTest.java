@@ -1,18 +1,14 @@
 package io.advantageous.qbit.boon.spi;
 
 import io.advantageous.boon.core.Lists;
-import io.advantageous.boon.core.Str;
 import io.advantageous.qbit.message.*;
-import io.advantageous.qbit.service.Protocol;
 import org.junit.Test;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 
-import static io.advantageous.boon.core.IO.puts;
-import static io.advantageous.qbit.service.Protocol.PROTOCOL_MESSAGE_TYPE_METHOD;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 public class BoonProtocolEncoderTest {
 

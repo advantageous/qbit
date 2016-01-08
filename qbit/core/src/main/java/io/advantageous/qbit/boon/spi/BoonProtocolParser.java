@@ -18,7 +18,6 @@
 
 package io.advantageous.qbit.boon.spi;
 
-import io.advantageous.boon.core.Lists;
 import io.advantageous.boon.core.Str;
 import io.advantageous.boon.core.reflection.FastStringUtils;
 import io.advantageous.boon.json.JsonParserAndMapper;

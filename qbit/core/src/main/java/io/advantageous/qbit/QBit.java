@@ -19,15 +19,7 @@
 package io.advantageous.qbit;
 
 import io.advantageous.boon.core.reflection.ClassMeta;
-import io.advantageous.qbit.http.client.HttpClient;
-import io.advantageous.qbit.http.config.HttpServerOptions;
-import io.advantageous.qbit.http.server.HttpServer;
-import io.advantageous.qbit.service.discovery.ServiceDiscovery;
-import io.advantageous.qbit.service.health.HealthServiceAsync;
 import io.advantageous.qbit.spi.FactorySPI;
-import io.advantageous.qbit.spi.HttpClientFactory;
-import io.advantageous.qbit.spi.HttpServerFactory;
-import io.advantageous.qbit.system.QBitSystemManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

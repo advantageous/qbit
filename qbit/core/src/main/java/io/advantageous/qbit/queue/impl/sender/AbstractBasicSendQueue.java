@@ -9,9 +9,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.concurrent.BlockingQueue;
 
-import static io.advantageous.qbit.queue.impl.sender.SenderHelperMethods.fastObjectArraySlice;
-import static io.advantageous.qbit.queue.impl.sender.SenderHelperMethods.objectArrayFromCollection;
-import static io.advantageous.qbit.queue.impl.sender.SenderHelperMethods.objectArrayFromIterable;
+import static io.advantageous.qbit.queue.impl.sender.SenderHelperMethods.*;
 
 public abstract class AbstractBasicSendQueue <T> implements SendQueue<T> {
 
