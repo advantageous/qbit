@@ -51,31 +51,22 @@ class BasicReceiveQueue<T> implements ReceiveQueue<T> {
 
     @Override
     public T pollWait() {
-
         if (lastQueue != null) {
-
-            return getItemFromLocalQueue();
+             return  getItemFromLocalQueue();
         }
-
         try {
-
             Object o = queue.poll(waitTime, timeUnit);
             return extractItem(o);
         } catch (InterruptedException e) {
+            Thread.interrupted();
             return null;
         }
     }
 
 
     private T getItemFromLocalQueue() {
-
-        if (lastQueue.length == 0) {
-            return null;
-        }
-
         @SuppressWarnings("unchecked") T item = (T) lastQueue[lastQueueIndex];
         lastQueueIndex++;
-
         if (lastQueueIndex == lastQueue.length) {
             lastQueueIndex = 0;
             lastQueue = null;
@@ -89,7 +80,6 @@ class BasicReceiveQueue<T> implements ReceiveQueue<T> {
     public T poll() {
 
         if (lastQueue != null) {
-
             return getItemFromLocalQueue();
         }
         Object o = queue.poll();
@@ -101,14 +91,12 @@ class BasicReceiveQueue<T> implements ReceiveQueue<T> {
     public T take() {
 
         if (lastQueue != null) {
-
             return getItemFromLocalQueue();
         }
 
         try {
             Object o = queue.take();
             return extractItem(o);
-
         } catch (InterruptedException e) {
             Thread.interrupted();
             return null;
@@ -116,11 +104,8 @@ class BasicReceiveQueue<T> implements ReceiveQueue<T> {
     }
 
     private T extractItem(Object o) {
-
         if (o instanceof Object[]) {
-
             lastQueue = (Object[]) o;
-            //uts("batch size", lastQueue.length);
             return getItemFromLocalQueue();
         } else {
             //noinspection unchecked

@@ -45,7 +45,7 @@ public class SimpleRestServer {
 
 
         final ServiceEndpointServer serviceEndpointServer = new EndpointServerBuilder()
-                .setFlushInterval(50).setRequestBatchSize(10).setPort(6060)
+                .setFlushInterval(50).setPort(6060)
                 .build().initServices(new MyService()).startServer();
 
 

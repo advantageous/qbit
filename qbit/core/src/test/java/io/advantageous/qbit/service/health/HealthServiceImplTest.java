@@ -4,8 +4,13 @@ import io.advantageous.qbit.util.TestTimer;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Consumer;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 /**
@@ -20,7 +25,8 @@ public class HealthServiceImplTest {
     public void setUp() throws Exception {
 
         timer = new TestTimer();
-        healthService = new HealthServiceImpl(timer, 1, TimeUnit.SECONDS);
+        healthService = (HealthServiceImpl) HealthServiceBuilder.healthServiceBuilder()
+                .setTimer(timer).getImplementation();
     }
 
     @Test
@@ -48,6 +54,77 @@ public class HealthServiceImplTest {
                 healthService.findHealthyNodes().stream().anyMatch(s -> s.equals("foo")));
 
     }
+
+    @Test
+    public void testFail() throws Exception {
+
+        healthService.register("foo", 1, TimeUnit.SECONDS);
+
+        healthService.failWithError("foo", new Exception("FOO"));
+
+        assertFalse("foo is not found among the healthy ",
+                healthService.findHealthyNodes().stream().anyMatch(s -> s.equals("foo")));
+
+
+        final List<NodeHealthStat> nodeHealthStats = healthService.loadNodes();
+
+        assertEquals(1, nodeHealthStats.size());
+
+
+        assertEquals("foo", nodeHealthStats.get(0).getName());
+        assertEquals(HealthStatus.FAIL, nodeHealthStats.get(0).getStatus());
+        assertEquals(HealthFailReason.ERROR, nodeHealthStats.get(0).getReason());
+        assertEquals("FOO", nodeHealthStats.get(0).getError().get().getMessage());
+
+    }
+
+    @Test
+    public void testWarn() throws Exception {
+
+        healthService.register("foo", 1, TimeUnit.SECONDS);
+
+        healthService.warnWithError("foo", new Exception("FOO"));
+
+        assertFalse("foo is not found among the healthy ",
+                healthService.findHealthyNodes().stream().anyMatch(s -> s.equals("foo")));
+
+
+        final List<NodeHealthStat> nodeHealthStats = healthService.loadNodes();
+
+        assertEquals(1, nodeHealthStats.size());
+
+
+        assertEquals("foo", nodeHealthStats.get(0).getName());
+        assertEquals(HealthStatus.WARN, nodeHealthStats.get(0).getStatus());
+        assertEquals(HealthFailReason.ERROR, nodeHealthStats.get(0).getReason());
+        assertEquals("FOO", nodeHealthStats.get(0).getError().get().getMessage());
+
+    }
+
+    @Test
+    public void testWarnNoError() throws Exception {
+
+        healthService.register("foo", 1, TimeUnit.SECONDS);
+
+        healthService.warnWithReason("foo", HealthFailReason.TIMEOUT);
+
+        assertFalse("foo is not found among the healthy ",
+                healthService.findHealthyNodes().stream().anyMatch(s -> s.equals("foo")));
+
+
+        final List<NodeHealthStat> nodeHealthStats = healthService.loadNodes();
+
+        assertEquals(1, nodeHealthStats.size());
+
+
+        assertEquals("foo", nodeHealthStats.get(0).getName());
+        assertEquals(HealthStatus.WARN, nodeHealthStats.get(0).getStatus());
+        assertEquals(HealthFailReason.TIMEOUT, nodeHealthStats.get(0).getReason());
+        assertEquals(false, nodeHealthStats.get(0).getError().isPresent());
+
+    }
+
+
 
     @Test
     public void testCheckInOkUsingCheckIn() throws Exception {
@@ -82,7 +159,6 @@ public class HealthServiceImplTest {
     }
 
 
-    @Test(expected = IllegalStateException.class)
     public void fail() {
 
         healthService.checkIn("no exist", HealthStatus.PASS);
@@ -128,8 +204,8 @@ public class HealthServiceImplTest {
         timer.setTime();
         timer.minutes(1);
 
-        healthService.process();
 
+        healthService.callProcess();
 
         assertTrue("foo is NOT found among the healthy ",
                 !healthService.findHealthyNodes().stream().anyMatch(s -> s.equals("foo")));
@@ -152,7 +228,7 @@ public class HealthServiceImplTest {
         timer.setTime();
         timer.minutes(1);
 
-        healthService.process();
+        healthService.callProcess();
 
 
         assertTrue("foo is NOT found among the healthy ",
@@ -168,7 +244,7 @@ public class HealthServiceImplTest {
 
         healthService.checkIn("foo", HealthStatus.PASS);
 
-        healthService.process();
+        healthService.callProcess();
 
 
         assertTrue("foo is found among the healthy ",

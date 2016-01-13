@@ -34,7 +34,7 @@ public class ContextMeta {
     /**
      * The title of the application.
      */
-    private String title="application title goes here";
+    private final String title;
 
     /**
      * A short description of the application.
@@ -51,7 +51,7 @@ public class ContextMeta {
     private final String version;
     private final String hostAddress;
 
-    public ContextMeta(final String rootURI, final List<ServiceMeta> services, String description, String contactName, String contactURL, String contactEmail, String licenseName, String licenseURL, String version, String hostAddress) {
+    public ContextMeta(final String title, final String rootURI, final List<ServiceMeta> services, String description, String contactName, String contactURL, String contactEmail, String licenseName, String licenseURL, String version, String hostAddress) {
         this.rootURI = rootURI;
         this.description = description;
         this.contactName = contactName;
@@ -62,10 +62,11 @@ public class ContextMeta {
         this.version = version;
         this.hostAddress = hostAddress;
         this.services = Collections.unmodifiableList(services);
+        this.title = title;
     }
 
     public static ContextMeta context(@SuppressWarnings("SameParameterValue") final String rootURI, final ServiceMeta... services) {
-        return new ContextMeta(rootURI, Lists.list(services), null, null, null, null, null, null, null, null);
+        return new ContextMeta("title", rootURI, Lists.list(services), null, null, null, null, null, null, null, null);
     }
 
     public String getRootURI() {

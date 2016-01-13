@@ -18,10 +18,11 @@
 
 package io.advantageous.qbit.service;
 
-import io.advantageous.qbit.GlobalConstants;
+import io.advantageous.qbit.Factory;
 import io.advantageous.qbit.QBit;
+import io.advantageous.qbit.client.BeforeMethodSent;
 import io.advantageous.qbit.config.PropertyResolver;
-import io.advantageous.qbit.message.MethodCall;
+import io.advantageous.qbit.events.EventManager;
 import io.advantageous.qbit.message.Request;
 import io.advantageous.qbit.message.Response;
 import io.advantageous.qbit.queue.Queue;
@@ -49,8 +50,6 @@ public class ServiceBundleBuilder {
     private QueueBuilder requestQueueBuilder;
     private QueueBuilder responseQueueBuilder;
     private QueueBuilder webResponseQueueBuilder;
-    private int pollTime = GlobalConstants.POLL_WAIT;
-    private int requestBatchSize = GlobalConstants.BATCH_SIZE;
     private boolean invokeDynamic = true;
     private String address = "/services";
     private boolean eachServiceInItsOwnThread = true;
@@ -60,12 +59,35 @@ public class ServiceBundleBuilder {
     private StatsCollector statsCollector = null;
     private  int statsFlushRateSeconds;
     private  int checkTimingEveryXCalls = -1;
+    private BeforeMethodSent beforeMethodSent;
 
 
     private CallbackManager callbackManager;
     private CallbackManagerBuilder callbackManagerBuilder;
+    private EventManager eventManager;
+    private BeforeMethodCall beforeMethodCallOnServiceQueue;
 
+    private Factory factory;
+    private AfterMethodCall afterMethodCallOnServiceQueue;
 
+    public Factory getFactory() {
+        if (factory==null) {
+            factory = QBit.factory();
+        }
+        return factory;
+    }
+
+    public BeforeMethodSent getBeforeMethodSent() {
+        if (beforeMethodSent == null) {
+            beforeMethodSent = new BeforeMethodSent(){};
+        }
+        return beforeMethodSent;
+    }
+
+    public ServiceBundleBuilder setBeforeMethodSent(BeforeMethodSent beforeMethodSent) {
+        this.beforeMethodSent = beforeMethodSent;
+        return this;
+    }
 
     public CallbackManagerBuilder getCallbackManagerBuilder() {
         if (callbackManagerBuilder == null) {
@@ -120,9 +142,6 @@ public class ServiceBundleBuilder {
 
     public ServiceBundleBuilder(PropertyResolver propertyResolver) {
         this.invokeDynamic = propertyResolver.getBooleanProperty("invokeDynamic", true);
-        this.pollTime = propertyResolver.getIntegerProperty("pollTime", pollTime);
-        this.requestBatchSize = propertyResolver
-                .getIntegerProperty("requestBatchSize", requestBatchSize);
         this.statsFlushRateSeconds = propertyResolver.getIntegerProperty("statsFlushRateSeconds", 5);
         this.checkTimingEveryXCalls = propertyResolver.getIntegerProperty("checkTimingEveryXCalls", 10000);
 
@@ -140,8 +159,7 @@ public class ServiceBundleBuilder {
     public QueueBuilder getWebResponseQueueBuilder() {
 
         if (webResponseQueueBuilder == null) {
-            webResponseQueueBuilder = new QueueBuilder().setBatchSize(this.getRequestBatchSize())
-                    .setPollWait(this.getPollTime());
+            webResponseQueueBuilder = new QueueBuilder();
         }
         return webResponseQueueBuilder;
     }
@@ -217,29 +235,10 @@ public class ServiceBundleBuilder {
         return this;
     }
 
-    public int getPollTime() {
-        return pollTime;
-    }
-
-    public ServiceBundleBuilder setPollTime(int pollTime) {
-        this.pollTime = pollTime;
-        return this;
-    }
-
-    public int getRequestBatchSize() {
-        return requestBatchSize;
-    }
-
-    public ServiceBundleBuilder setRequestBatchSize(int requestBatchSize) {
-        this.requestBatchSize = requestBatchSize;
-        return this;
-    }
-
     public QueueBuilder getRequestQueueBuilder() {
 
         if (requestQueueBuilder == null) {
-            requestQueueBuilder = new QueueBuilder().setBatchSize(this.getRequestBatchSize())
-                    .setPollWait(this.getPollTime());
+            requestQueueBuilder = QueueBuilder.queueBuilder();
         }
         return requestQueueBuilder;
     }
@@ -266,7 +265,7 @@ public class ServiceBundleBuilder {
 
             } else {
 
-                responseQueueBuilder = new QueueBuilder().setBatchSize(this.getRequestBatchSize()).setPollWait(this.getPollTime());
+                responseQueueBuilder = QueueBuilder.queueBuilder();
             }
 
         }
@@ -311,19 +310,27 @@ public class ServiceBundleBuilder {
     public ServiceBundle build() {
 
 
-        final ServiceBundle serviceBundle = QBit.factory().createServiceBundle(this.getAddress(),
+        final ServiceBundle serviceBundle = getFactory().createServiceBundle(this.getAddress(),
                 getRequestQueueBuilder(),
                 getResponseQueueBuilder(),
                 getWebResponseQueueBuilder(),
-                QBit.factory(),
-                eachServiceInItsOwnThread, this.getBeforeMethodCall(), this.getBeforeMethodCallAfterTransform(),
-                this.getArgTransformer(), invokeDynamic,
+                getFactory(),
+                eachServiceInItsOwnThread,
+                this.getBeforeMethodCall(),
+                this.getBeforeMethodCallAfterTransform(),
+                this.getArgTransformer(),
+                invokeDynamic,
                 this.getSystemManager(),
                 getHealthService(),
                 getStatsCollector(),
                 getTimer(),
                 getStatsFlushRateSeconds(),
-                getCheckTimingEveryXCalls(), getCallbackManager());
+                getCheckTimingEveryXCalls(),
+                getCallbackManager(),
+                getEventManager(),
+                getBeforeMethodSent(),
+                getBeforeMethodCallOnServiceQueue(),
+                getAfterMethodCallOnServiceQueue());
 
 
         if (serviceBundle != null && qBitSystemManager != null) {
@@ -373,6 +380,33 @@ public class ServiceBundleBuilder {
     public ServiceBundleBuilder setCheckTimingEveryXCalls(int checkTimingEveryXCalls) {
         this.checkTimingEveryXCalls = checkTimingEveryXCalls;
         return this;
+    }
+
+    public ServiceBundleBuilder setEventManager(EventManager eventManager) {
+        this.eventManager = eventManager;
+        return this;
+    }
+
+    public EventManager getEventManager() {
+        return eventManager;
+    }
+
+    public ServiceBundleBuilder setBeforeMethodCallOnServiceQueue(BeforeMethodCall beforeMethodCallOnServiceQueue) {
+        this.beforeMethodCallOnServiceQueue = beforeMethodCallOnServiceQueue;
+        return this;
+    }
+
+    public BeforeMethodCall getBeforeMethodCallOnServiceQueue() {
+        return beforeMethodCallOnServiceQueue;
+    }
+
+    public ServiceBundleBuilder setAfterMethodCallOnServiceQueue(AfterMethodCall afterMethodCallOnServiceQueue) {
+        this.afterMethodCallOnServiceQueue = afterMethodCallOnServiceQueue;
+        return this;
+    }
+
+    public AfterMethodCall getAfterMethodCallOnServiceQueue() {
+        return afterMethodCallOnServiceQueue;
     }
 }
 

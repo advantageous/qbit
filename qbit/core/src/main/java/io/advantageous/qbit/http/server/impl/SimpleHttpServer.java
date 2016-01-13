@@ -19,8 +19,10 @@
 package io.advantageous.qbit.http.server.impl;
 
 import io.advantageous.qbit.GlobalConstants;
-import io.advantageous.qbit.client.ServiceProxyFactory;
 import io.advantageous.qbit.concurrent.ExecutorContext;
+import io.advantageous.qbit.http.request.HttpResponseCreator;
+import io.advantageous.qbit.http.request.impl.HttpResponseCreatorDefault;
+import io.advantageous.qbit.http.request.decorator.HttpResponseDecorator;
 import io.advantageous.qbit.http.config.CorsSupport;
 import io.advantageous.qbit.http.request.HttpRequest;
 import io.advantageous.qbit.http.server.HttpServer;
@@ -28,6 +30,7 @@ import io.advantageous.qbit.http.server.websocket.WebSocketMessage;
 import io.advantageous.qbit.http.websocket.WebSocket;
 import io.advantageous.qbit.http.websocket.WebSocketSender;
 import io.advantageous.qbit.service.ServiceProxyUtils;
+import io.advantageous.qbit.service.discovery.EndpointDefinition;
 import io.advantageous.qbit.service.discovery.ServiceDiscovery;
 import io.advantageous.qbit.service.health.HealthServiceAsync;
 import io.advantageous.qbit.service.health.HealthStatus;
@@ -37,6 +40,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.nio.charset.StandardCharsets;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Consumer;
@@ -60,7 +65,13 @@ public class SimpleHttpServer implements HttpServer {
     private final HealthServiceAsync healthServiceAsync;
     private final String name;
     private final int port;
+    private final long checkInEveryMiliDuration;
+    private final CopyOnWriteArrayList<HttpResponseDecorator> decorators;
     private final CorsSupport corsSupport;
+
+
+    private final HttpResponseCreator httpResponseCreator;
+
 
     private Consumer<WebSocketMessage> webSocketMessageConsumer = webSocketMessage -> {
     };
@@ -77,16 +88,39 @@ public class SimpleHttpServer implements HttpServer {
 
     private ExecutorContext executorContext;
     private Predicate<WebSocket> shouldContinueWebSocket = webSocket -> true;
+    private final EndpointDefinition endpointDefinition;
+    protected Runnable onStart;
+    protected Consumer<Throwable> errorHandler;
 
+    public Runnable getOnStart() {
+        if (onStart==null) {
+            onStart= () -> {
+            };
+        }
+        return onStart;
+    }
+
+    public Consumer<Throwable> getErrorHandler() {
+        if (errorHandler == null) {
+            errorHandler = Throwable::printStackTrace;
+        }
+        return errorHandler;
+    }
 
     public SimpleHttpServer(
             final String endpointName,
             final QBitSystemManager systemManager,
-                            final int flushInterval,
-                            final int port,
-                            final ServiceDiscovery serviceDiscovery,
-                            final HealthServiceAsync healthServiceAsync,
-                            final CorsSupport corsSupport) {
+            final int flushInterval,
+            final int port,
+            final ServiceDiscovery serviceDiscovery,
+            final HealthServiceAsync healthServiceAsync,
+            final int serviceDiscoveryTtl,
+            final TimeUnit serviceDiscoveryTtlTimeUnit,
+            final CopyOnWriteArrayList<HttpResponseDecorator> decorators,
+            final HttpResponseCreator httpResponseCreator,
+            final CorsSupport corsSupport) {
+        this.decorators = decorators;
+        this.httpResponseCreator = httpResponseCreator;
 
 
         this.name = endpointName == null ? "HTTP_SERVER_" + port : endpointName;
@@ -96,6 +130,23 @@ public class SimpleHttpServer implements HttpServer {
         this.serviceDiscovery = serviceDiscovery;
         this.healthServiceAsync = healthServiceAsync;
         this.corsSupport = corsSupport;
+        this.endpointDefinition = createEndpointDefinition(serviceDiscoveryTtl,
+                serviceDiscoveryTtlTimeUnit);
+
+        this.checkInEveryMiliDuration =
+                serviceDiscoveryTtlTimeUnit.toMillis(serviceDiscoveryTtl) / 3;
+    }
+
+    EndpointDefinition createEndpointDefinition(int serviceDiscoveryTtl, TimeUnit serviceDiscoveryTtlTimeUnit) {
+        EndpointDefinition endpointDefinition;
+        if (serviceDiscovery!=null) {
+            endpointDefinition = serviceDiscovery.registerWithTTL(name, port,
+                    (int) serviceDiscoveryTtlTimeUnit.toSeconds(serviceDiscoveryTtl));
+            serviceDiscovery.checkInOk(endpointDefinition.getId());
+        } else {
+            endpointDefinition = null;
+        }
+        return endpointDefinition;
     }
 
 
@@ -107,7 +158,21 @@ public class SimpleHttpServer implements HttpServer {
         this.flushInterval = 1;
         this.serviceDiscovery = null;
         this.healthServiceAsync = null;
-        this.corsSupport = null;
+        this.endpointDefinition = null;
+        this.checkInEveryMiliDuration = 100_000;
+        this.decorators = new CopyOnWriteArrayList<>();
+        this.httpResponseCreator = new HttpResponseCreatorDefault();
+    }
+
+
+    @Override
+    public void setOnStart(final Runnable runnable) {
+        this.onStart = runnable;
+    }
+
+    @Override
+    public void setOnError(final Consumer<Throwable> exceptionConsumer) {
+        this.errorHandler = exceptionConsumer;
     }
 
     /**
@@ -181,9 +246,6 @@ public class SimpleHttpServer implements HttpServer {
 
         startPeriodicFlush();
 
-        if (serviceDiscovery!=null) {
-            serviceDiscovery.registerWithTTL(name, port, 60_000);
-        }
     }
 
     private void startPeriodicFlush() {
@@ -197,8 +259,8 @@ public class SimpleHttpServer implements HttpServer {
                 .setPeriod(flushInterval)
                 .setDescription("HttpServer Periodic Flush")
                 .setRunnable(() -> {
-                    requestIdleConsumer.accept(null);
-                    webSocketIdleConsumer.accept(null);
+                    handleRequestQueueIdle();
+                    handleWebSocketQueueIdle();
                 })
                 .build();
 
@@ -221,6 +283,7 @@ public class SimpleHttpServer implements HttpServer {
     }
 
     public void handleWebSocketQueueIdle() {
+
         webSocketIdleConsumer.accept(null);
     }
 
@@ -237,27 +300,25 @@ public class SimpleHttpServer implements HttpServer {
 
     final AtomicBoolean ok = new AtomicBoolean(true);
 
-    private void handleCheckIn() {
+    public void handleCheckIn() {
 
         if (healthServiceAsync == null) {
-            if (Timer.clockTime() - lastCheckIn.get() > 30_000) {
+            if (Timer.clockTime() - lastCheckIn.get() > checkInEveryMiliDuration) {
                 lastCheckIn.set(Timer.clockTime());
-                serviceDiscovery.checkInOk("HTTP_SERVER");
-
+                serviceDiscovery.checkInOk(endpointDefinition.getId());
             }
-
         } else {
 
-            if (Timer.clockTime() - lastCheckIn.get() > 10_000) {
+            if (Timer.clockTime() - lastCheckIn.get() > checkInEveryMiliDuration) {
                 lastCheckIn.set(Timer.clockTime());
 
                 healthServiceAsync.ok(ok::set);
                 ServiceProxyUtils.flushServiceProxy(healthServiceAsync);
 
                 if (ok.get()) {
-                    serviceDiscovery.checkInOk(name);
+                    serviceDiscovery.checkInOk(endpointDefinition.getId());
                 } else {
-                    serviceDiscovery.checkIn(name, HealthStatus.FAIL);
+                    serviceDiscovery.checkIn(endpointDefinition.getId(), HealthStatus.FAIL);
                 }
 
 
@@ -345,4 +406,14 @@ public class SimpleHttpServer implements HttpServer {
     public void setWebSocketOnOpenConsumer(Consumer<WebSocket> onOpenConsumer) {
         this.webSocketConsumer = onOpenConsumer;
     }
+
+    public CopyOnWriteArrayList<HttpResponseDecorator> getDecorators() {
+        return decorators;
+    }
+
+
+    public HttpResponseCreator getHttpResponseCreator() {
+        return httpResponseCreator;
+    }
+
 }

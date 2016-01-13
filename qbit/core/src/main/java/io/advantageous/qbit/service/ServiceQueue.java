@@ -25,6 +25,7 @@ import io.advantageous.qbit.message.Response;
 import io.advantageous.qbit.queue.Queue;
 import io.advantageous.qbit.queue.ReceiveQueue;
 import io.advantageous.qbit.queue.SendQueue;
+import io.advantageous.qbit.time.Duration;
 
 import java.util.Collection;
 import java.util.concurrent.TimeUnit;
@@ -40,6 +41,8 @@ public interface ServiceQueue extends Stoppable, ServiceFlushable, Startable {
 
 
     boolean failing();
+
+    boolean running();
 
     void setFailing();
 
@@ -97,6 +100,13 @@ public interface ServiceQueue extends Stoppable, ServiceFlushable, Startable {
     @SuppressWarnings("UnusedReturnValue")
     ServiceQueue startCallBackHandler();
 
+
+    default ServiceQueue startAll() {
+        startServiceQueue();
+        startCallBackHandler();
+        return this;
+    }
+
     /**
      * Return a list of addresses.
      *
@@ -110,6 +120,9 @@ public interface ServiceQueue extends Stoppable, ServiceFlushable, Startable {
 
 
     <T> T createProxyWithAutoFlush(Class<T> serviceInterface, int interval, TimeUnit timeUnit);
+
+
+    <T> T createProxyWithAutoFlush(Class<T> serviceInterface, Duration duration);
 
 
     <T> T createProxyWithAutoFlush(Class<T> serviceInterface, PeriodicScheduler periodicScheduler,

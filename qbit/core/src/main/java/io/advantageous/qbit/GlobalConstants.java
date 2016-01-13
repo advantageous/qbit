@@ -18,14 +18,13 @@
 
 package io.advantageous.qbit;
 
+import io.advantageous.boon.core.Sys;
+
 public class GlobalConstants {
 
-    public final static int BATCH_SIZE = Integer.valueOf(System.getProperty("io.advantageous.qbit.BATCH_SIZE", "1000"));
 
-    public final static int POLL_WAIT = Integer.valueOf(System.getProperty("io.advantageous.qbit.POLL_WAIT", "15"));
 
-    public final static boolean DEBUG = Boolean.valueOf(System.getProperty("io.advantageous.qbit.DEBUG", "false"));
-
-    public final static int NUM_BATCHES = Integer.valueOf(System.getProperty("io.advantageous.qbit.NUM_BATCHES", "100000"));
+    public final static boolean DEBUG = Sys.sysProp("QBIT_DEBUG", false);
+    public final static boolean DEV_MODE = Sys.sysProp("QBIT_DEV_MODE", true);
 
 }

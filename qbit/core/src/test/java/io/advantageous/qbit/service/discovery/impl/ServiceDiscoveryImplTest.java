@@ -242,7 +242,7 @@ public class ServiceDiscoveryImplTest {
         );
         healthyServices.set(fooServices);
         loadServices(serviceName);
-        Sys.sleep(10_000);
+        Sys.sleep(2_000);
         assertEquals(3, serviceAdded.get());
         assertEquals(0, serviceRemoved.get());
 
@@ -250,16 +250,16 @@ public class ServiceDiscoveryImplTest {
 
         /* Now remove one. */
         serviceAdded.set(0);
-        Sys.sleep(10_000);
+        Sys.sleep(2_000);
 
         fooServices = serviceDefinitions(
                 endpointDefinition1,
                 endpointDefinition3
         );
         healthyServices.set(fooServices);
-        Sys.sleep(10_000);
+        Sys.sleep(2_000);
         loadServices(serviceName);
-        Sys.sleep(10_000);
+        Sys.sleep(2_000);
 
         assertEquals(1, serviceRemoved.get());
         assertEquals(0, serviceAdded.get());
@@ -277,9 +277,9 @@ public class ServiceDiscoveryImplTest {
                 endpointDefinition4
         );
         healthyServices.set(fooServices);
-        Sys.sleep(10_000);
+        Sys.sleep(2_000);
         loadServices(serviceName);
-        Sys.sleep(10_000);
+        Sys.sleep(7_000);
 
         assertEquals(0, serviceRemoved.get());
         assertEquals(2, serviceAdded.get());

@@ -18,12 +18,13 @@
 
 package io.advantageous.qbit.concurrent;
 
+import io.advantageous.qbit.service.Startable;
+import io.advantageous.qbit.service.Stoppable;
+
 /**
+ * ExecutorContext can be started and stopped
  * created by rhightower on 2/13/15.
  */
-public interface ExecutorContext {
+public interface ExecutorContext extends Stoppable, Startable {
 
-    void start();
-
-    void stop();
 }

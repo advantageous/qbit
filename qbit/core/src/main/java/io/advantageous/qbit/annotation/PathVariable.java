@@ -33,5 +33,20 @@ import java.lang.annotation.Target;
 @Target(value = {ElementType.PARAMETER})
 public @interface PathVariable {
 
+    /** Name of Path Variable. */
     String value() default "";
+
+    /** Default value of the Path Variable.
+     * The default value is set to AnnotationConstants.NOT_SET which is used
+     * to indicate a default value.
+     * @return default value
+     */
+    String defaultValue() default AnnotationConstants.NOT_SET;
+
+    /**
+     * Used to document endpoint
+     * @return description
+     */
+    String description() default "no description";
+
 }

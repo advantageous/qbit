@@ -32,13 +32,18 @@ import io.advantageous.qbit.meta.RequestMetaData;
 import io.advantageous.qbit.meta.params.*;
 import io.advantageous.qbit.meta.provider.StandardMetaDataProvider;
 import io.advantageous.qbit.reactive.Callback;
+import io.advantageous.qbit.service.CaptureRequestInterceptor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+import java.util.function.Consumer;
 
 import static io.advantageous.boon.core.Str.sputs;
 
@@ -63,12 +68,22 @@ public class StandardRequestTransformer implements RequestTransformer {
             return factory.createJsonMapper();
         }
     };
+    private final Optional<Consumer<Throwable>> errorHandler;
 
 
-    public StandardRequestTransformer(final Map<RequestMethod, StandardMetaDataProvider> metaDataProviderMap) {
+    public StandardRequestTransformer(final Map<RequestMethod, StandardMetaDataProvider> metaDataProviderMap,
+                                      final Optional<Consumer<Throwable>> errorHandler) {
         this.metaDataProviderMap = metaDataProviderMap;
+        this.errorHandler = errorHandler;
     }
 
+    private final String decodeURLEncoding(String value) {
+        try {
+            return URLDecoder.decode(value, "UTF-8");
+        } catch (UnsupportedEncodingException e) {
+            return value;
+        }
+    }
 
     @Override
     public MethodCall<Object> transform(final HttpRequest request,
@@ -80,7 +95,7 @@ public class StandardRequestTransformer implements RequestTransformer {
         final RequestMetaData metaData = standardMetaDataProvider.get(request.address());
 
 
-        MethodCallBuilder methodCallBuilder = new MethodCallBuilder();
+        final MethodCallBuilder methodCallBuilder = new MethodCallBuilder();
         methodCallBuilder.setAddress(request.address());
         methodCallBuilder.setOriginatingRequest(request);
 
@@ -100,6 +115,7 @@ public class StandardRequestTransformer implements RequestTransformer {
 
         final List<Object> args = new ArrayList<>(parameters.size());
 
+        loop:
         for (ParameterMeta parameterMeta : parameters) {
 
             ParamType paramType = parameterMeta.getParam().getParamType();
@@ -117,19 +133,31 @@ public class StandardRequestTransformer implements RequestTransformer {
                 case REQUEST:
                     namedParam = ((NamedParam) parameterMeta.getParam());
                     value = request.params().get(namedParam.getName());
-                    if (namedParam.isRequired() && value == null) {
+
+                    if (namedParam.isRequired() &&  Str.isEmpty(value)) {
                         errorsList.add(sputs("Unable to find required request param", namedParam.getName()));
-                        return null;
+                        break loop;
 
                     }
+                    if (Str.isEmpty(value)) {
+                        value = namedParam.getDefaultValue();
+                    }
+
+                    value = value !=null ? decodeURLEncoding(value.toString()) : value;
+
                     break;
                 case HEADER:
                     namedParam = ((NamedParam) parameterMeta.getParam());
                     value = request.headers().get(namedParam.getName());
-                    if (namedParam.isRequired() && value == null) {
+                    if (namedParam.isRequired() && Str.isEmpty(value)) {
                         errorsList.add(sputs("Unable to find required header param", namedParam.getName()));
-                        return null;
+                        break loop;
                     }
+
+                    if (Str.isEmpty(value)) {
+                        value = namedParam.getDefaultValue();
+                    }
+                    value = value !=null ? decodeURLEncoding(value.toString()) : value;
                     break;
                 case PATH_BY_NAME:
                     URINamedParam uriNamedParam = ((URINamedParam) parameterMeta.getParam());
@@ -139,15 +167,18 @@ public class StandardRequestTransformer implements RequestTransformer {
                     if (uriNamedParam.getIndexIntoURI() >= split.length) {
                         if (uriNamedParam.isRequired()) {
                             errorsList.add(sputs("Unable to find required path param", uriNamedParam.getName()));
-                            return null;
+                            break loop;
                         }
                     }
-
                     value = split[uriNamedParam.getIndexIntoURI()];
-                    if (uriNamedParam.isRequired()) {
+                    if (uriNamedParam.isRequired() && Str.isEmpty(value)) {
                         errorsList.add(sputs("Unable to find required path param", uriNamedParam.getName()));
-                        return null;
+                        break loop;
                     }
+                    if (Str.isEmpty(value)) {
+                        value = uriNamedParam.getDefaultValue();
+                    }
+                    value = value !=null ? decodeURLEncoding(value.toString()) : value;
                     break;
 
                 case PATH_BY_POSITION:
@@ -155,45 +186,85 @@ public class StandardRequestTransformer implements RequestTransformer {
 
                     final String[] pathSplit = Str.split(request.address(), '/');
 
+                    value = null;
                     if (positionalParam.getIndexIntoURI() >= pathSplit.length) {
                         if (positionalParam.isRequired()) {
                             errorsList.add(sputs("Unable to find required path param",
                                     positionalParam.getIndexIntoURI()));
-                            return null;
+                            break loop;
+                        }
+                    } else {
+                        value = pathSplit[positionalParam.getIndexIntoURI()];
+                        if (positionalParam.isRequired() && Str.isEmpty(value)) {
+                            errorsList.add(sputs("Unable to find required path param",
+                                    positionalParam.getIndexIntoURI()));
+                            break loop;
                         }
                     }
 
-                    value = pathSplit[positionalParam.getIndexIntoURI()];
-                    if (positionalParam.isRequired()) {
-                        errorsList.add(sputs("Unable to find required path param",
-                                positionalParam.getIndexIntoURI()));
-                        return null;
+                    if (Str.isEmpty(value)) {
+                        value = positionalParam.getDefaultValue();
                     }
+                    value = value !=null ? decodeURLEncoding(value.toString()) : value;
                     break;
 
                 case BODY:
-                    BodyParam bodyParam = (BodyParam) parameterMeta.getParam();
+                    final BodyParam bodyParam = (BodyParam) parameterMeta.getParam();
                     value = request.body();
-                    if (value instanceof byte[]) {
-                        final byte[] bytes = (byte[]) value;
-                        value = new String(bytes, StandardCharsets.UTF_8);
-                    }
 
-                    if (bodyParam.isRequired() && Str.isEmpty(value)) {
+                    final String contentType = request.getContentType();
 
-                        errorsList.add("Unable to find body");
-                        return null;
+                    if ( isJsonContent(contentType) ) {
 
-                    }
 
-                    if (parameterMeta.isArray() || parameterMeta.isCollection()) {
-                        value = jsonMapper.get().fromJsonArray(value.toString(), parameterMeta.getComponentClass());
-                    } else if (parameterMeta.isMap()) {
+                        if (value instanceof byte[]) {
+                            final byte[] bytes = (byte[]) value;
+                            value = new String(bytes, StandardCharsets.UTF_8);
+                        }
 
-                        value = jsonMapper.get().fromJsonMap(value.toString(), parameterMeta.getComponentClassKey(),
-                                parameterMeta.getComponentClassValue());
-                    } else {
-                        value = jsonMapper.get().fromJson(value.toString(), parameterMeta.getClassType());
+                        if (bodyParam.isRequired() && Str.isEmpty(value)) {
+
+                            errorsList.add("Unable to find body");
+                            break loop;
+
+                        }
+
+
+                        if (Str.isEmpty(value)) {
+                            value = bodyParam.getDefaultValue();
+                        }
+
+                        try {
+                            if (parameterMeta.isArray() || parameterMeta.isCollection()) {
+                                value = jsonMapper.get().fromJsonArray(value.toString(), parameterMeta.getComponentClass());
+                            } else if (parameterMeta.isMap()) {
+
+                                value = jsonMapper.get().fromJsonMap(value.toString(), parameterMeta.getComponentClassKey(),
+                                        parameterMeta.getComponentClassValue());
+                            } else {
+                                value = jsonMapper.get().fromJson(value.toString(), parameterMeta.getClassType());
+                            }
+                        } catch (Exception exception) {
+
+                            if (errorHandler.isPresent()) {
+
+                                errorsList.add("Unable to JSON parse body :: " + exception.getMessage());
+                                final MethodCall<Object> methodCall = methodCallBuilder.build();
+                                final CaptureRequestInterceptor captureRequestInterceptor = new CaptureRequestInterceptor();
+                                captureRequestInterceptor.before(methodCall);
+                                errorHandler.get().accept(exception);
+                                captureRequestInterceptor.after(methodCall, null);
+
+                            } else {
+                                errorsList.add("Unable to JSON parse body :: " + exception.getMessage());
+                                logger.warn("Unable to parse object", exception);
+                            }
+                        }
+                    } else if (parameterMeta.isString()) {
+                        if (value instanceof byte[]) {
+                            final byte[] bytes = (byte[]) value;
+                            value = new String(bytes, StandardCharsets.UTF_8);
+                        }
                     }
                     break;
 
@@ -208,8 +279,12 @@ public class StandardRequestTransformer implements RequestTransformer {
                     if (bodyArrayParam.isRequired() && Str.isEmpty(value)) {
 
                         errorsList.add("Unable to find body");
-                        return null;
+                        break loop;
 
+                    }
+
+                    if (Str.isEmpty(value)) {
+                        value = bodyArrayParam.getDefaultValue();
                     }
 
                     value = jsonMapper.get().fromJson(value.toString());
@@ -237,5 +312,12 @@ public class StandardRequestTransformer implements RequestTransformer {
 
         return methodCallBuilder.build();
 
+    }
+
+    private boolean isJsonContent(final String contentType) {
+        return  Str.isEmpty(contentType) ||
+                contentType.equals("application/json") ||
+                contentType.equals("application/json;charset=utf-8") ||
+                contentType.startsWith("application/json");
     }
 }

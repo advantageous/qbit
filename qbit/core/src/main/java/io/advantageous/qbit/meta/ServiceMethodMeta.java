@@ -40,14 +40,17 @@ public class ServiceMethodMeta {
     private final TypeType returnTypeEnum;
     private final List<TypeType> paramTypes;
     private final boolean hasCallback;
-    private final boolean returnCollection;
-    private final boolean returnMap;
-    private final boolean returnArray;
+    private final GenericReturnType genericReturnType;
     private final Class<?> returnType;
     private final Class<?> returnTypeComponent;
     private final Class<?> returnTypeComponentKey;
     private final Class<?> returnTypeComponentValue;
     private final boolean hasReturn;
+    private final String description;
+    private final String summary;
+    private final String returnDescription;
+    private final int responseCode;
+    private final String contentType;
 
     public ServiceMethodMeta(boolean hasReturn,
                              MethodAccess methodAccess,
@@ -56,13 +59,16 @@ public class ServiceMethodMeta {
                              TypeType returnTypeEnum,
                              List<TypeType> paramTypes,
                              boolean hasCallback,
-                             boolean returnCollection,
-                             boolean returnMap,
-                             boolean returnArray,
+                             GenericReturnType genericReturnType,
                              Class<?> returnType,
                              Class<?> returnTypeComponent,
                              Class<?> returnTypeComponentKey,
-                             Class<?> returnTypeComponentValue) {
+                             Class<?> returnTypeComponentValue,
+                             String description,
+                             String summary,
+                             String returnDescription,
+                             int responseCode,
+                             String contentType) {
 
         this.hasReturn = hasReturn;
         this.methodAccess = methodAccess;
@@ -71,20 +77,23 @@ public class ServiceMethodMeta {
         this.returnTypeEnum = returnTypeEnum;
         this.paramTypes = paramTypes;
         this.hasCallback = hasCallback;
-        this.returnCollection = returnCollection;
-        this.returnMap = returnMap;
-        this.returnArray = returnArray;
+        this.genericReturnType = genericReturnType;
         this.returnType = returnType;
         this.returnTypeComponent = returnTypeComponent;
         this.returnTypeComponentKey = returnTypeComponentKey;
         this.returnTypeComponentValue = returnTypeComponentValue;
+        this.description = description;
+        this.summary = summary;
+        this.returnDescription = returnDescription;
+        this.responseCode = responseCode;
+        this.contentType = contentType;
     }
 
     public ServiceMethodMeta(String name, List<RequestMeta> requestEndpoints, TypeType returnTypeEnum,
                              List<TypeType> paramTypes) {
         this(true, null,name, requestEndpoints,
                 returnTypeEnum, paramTypes,
-                false, false, false, false, null, null, null, null);
+                false, GenericReturnType.NONE, null, null, null, null, null, null, null, -1, null);
 
     }
 
@@ -92,14 +101,13 @@ public class ServiceMethodMeta {
     public ServiceMethodMeta(MethodAccess methodAccess, List<RequestMeta> list) {
         this(true, methodAccess, methodAccess.name(), list,
                 TypeType.OBJECT, Collections.emptyList(),
-                false, false, false, false, null, null, null, null);
+                false, GenericReturnType.NONE, null, null, null, null, null, null, null, -1, null);
     }
 
     public ServiceMethodMeta(String name, List<RequestMeta> list) {
         this(true, null, name, list,
                 TypeType.OBJECT, Collections.emptyList(),
-                false, false, false, false, null, null, null, null);
-
+                false, GenericReturnType.NONE, null, null, null, null, null, null, null, -1, null);
     }
 
 
@@ -152,15 +160,15 @@ public class ServiceMethodMeta {
     }
 
     public boolean isReturnCollection() {
-        return returnCollection;
+        return genericReturnType == GenericReturnType.COLLECTION;
     }
 
     public boolean isReturnMap() {
-        return returnMap;
+        return genericReturnType == GenericReturnType.MAP;
     }
 
     public boolean isReturnArray() {
-        return returnArray;
+        return genericReturnType == GenericReturnType.ARRAY;
     }
 
     public Class<?> getReturnType() {
@@ -186,5 +194,29 @@ public class ServiceMethodMeta {
 
     public boolean hasReturn() {
         return hasReturn;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public String getSummary() {
+        return summary;
+    }
+
+    public String getReturnDescription() {
+        return returnDescription;
+    }
+
+    public GenericReturnType getGenericReturnType() {
+        return genericReturnType;
+    }
+
+    public int getResponseCode() {
+        return responseCode;
+    }
+
+    public String getContentType() {
+        return contentType;
     }
 }

@@ -18,15 +18,19 @@
 
 package io.advantageous.qbit.client;
 
-import io.advantageous.qbit.GlobalConstants;
+import io.advantageous.qbit.Factory;
 import io.advantageous.qbit.QBit;
 import io.advantageous.qbit.config.PropertyResolver;
-import io.advantageous.qbit.http.client.HttpClient;
 import io.advantageous.qbit.http.client.HttpClientBuilder;
+import io.advantageous.qbit.service.discovery.EndpointDefinition;
+import io.advantageous.qbit.service.discovery.ServiceDiscovery;
 
 import java.net.InetSocketAddress;
 import java.net.URI;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.Properties;
 
 /**
@@ -37,9 +41,38 @@ public class ClientBuilder {
 
     public static final String QBIT_CLIENT_BUILDER = "qbit.client.builder.";
 
-    private int protocolBatchSize = 10;
+    private int protocolBatchSize = 80;
     private String uri;
     private HttpClientBuilder httpClientBuilder;
+    private ServiceDiscovery serviceDiscovery;
+    private  Factory factory;
+    private String serviceName;
+
+    private BeforeMethodSent beforeMethodSent;
+
+    public Factory getFactory() {
+        if (factory == null) {
+            factory = QBit.factory();
+        }
+        return factory;
+    }
+
+    public BeforeMethodSent getBeforeMethodSent() {
+        if (beforeMethodSent==null) {
+            beforeMethodSent = new BeforeMethodSent() {};
+        }
+        return beforeMethodSent;
+    }
+
+    public ClientBuilder setBeforeMethodSent(BeforeMethodSent beforeMethodSent) {
+        this.beforeMethodSent = beforeMethodSent;
+        return this;
+    }
+
+    public ClientBuilder setFactory(Factory factory) {
+        this.factory = factory;
+        return this;
+    }
 
     public ClientBuilder(PropertyResolver propertyResolver) {
 
@@ -206,22 +239,6 @@ public class ClientBuilder {
         return this;
     }
 
-    public Client build() {
-
-        /**
-         * String host, int port, int pollTime, int requestBatchSize, int timeOutInMilliseconds, int poolSize, boolean autoFlush
-         */
-
-        final HttpClientBuilder httpClientBuilder = getHttpClientBuilder();
-
-
-
-        //noinspection UnnecessaryLocalVariable
-        @SuppressWarnings("UnnecessaryLocalVariable")
-        Client client = QBit.factory().createClient(uri, httpClientBuilder.build(), protocolBatchSize);
-        return client;
-
-    }
 
     public HttpClientBuilder getHttpClientBuilder() {
         if (httpClientBuilder == null) {
@@ -233,4 +250,60 @@ public class ClientBuilder {
     public void setHttpClientBuilder(HttpClientBuilder httpClientBuilder) {
         this.httpClientBuilder = httpClientBuilder;
     }
+
+    public ClientBuilder setServiceDiscovery(ServiceDiscovery serviceDiscovery, String serviceName) {
+        this.serviceDiscovery = serviceDiscovery;
+        this.setServiceName(serviceName);
+        return this;
+    }
+
+    public ServiceDiscovery getServiceDiscovery() {
+        return serviceDiscovery;
+    }
+
+
+    public ClientBuilder setServiceName(String serviceName) {
+        this.serviceName = serviceName;
+        return this;
+    }
+
+    public String getServiceName() {
+        return serviceName;
+    }
+
+    public Client build() {
+
+        /**
+         * String host, int port, int pollTime, int requestBatchSize, int timeOutInMilliseconds, int poolSize, boolean autoFlush
+         */
+
+        final HttpClientBuilder httpClientBuilder = getHttpClientBuilder();
+
+
+        final ServiceDiscovery serviceDiscovery = getServiceDiscovery();
+
+        if (serviceDiscovery!=null && getServiceName()!=null) {
+            List<EndpointDefinition> endpointDefinitions = serviceDiscovery.loadServices(getServiceName());
+            if (endpointDefinitions==null || endpointDefinitions.size()==0) {
+                endpointDefinitions = serviceDiscovery.loadServicesNow(getServiceName());
+            }
+
+            if (endpointDefinitions!=null && endpointDefinitions.size()>0) {
+
+                endpointDefinitions = new ArrayList<>(endpointDefinitions);
+                Collections.shuffle(endpointDefinitions);
+                final EndpointDefinition endpointDefinition = endpointDefinitions.get(0);
+
+                httpClientBuilder.setPort(endpointDefinition.getPort()).setHost(endpointDefinition.getHost());
+            }
+        }
+
+
+        //noinspection UnnecessaryLocalVariable
+        @SuppressWarnings("UnnecessaryLocalVariable")
+        Client client = getFactory().createClient(getUri(), httpClientBuilder.build(), getProtocolBatchSize(),getBeforeMethodSent());
+        return client;
+
+    }
+
 }

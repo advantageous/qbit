@@ -21,17 +21,18 @@ package io.advantageous.qbit.queue;
 import io.advantageous.qbit.QBit;
 import io.advantageous.qbit.concurrent.PeriodicScheduler;
 import io.advantageous.qbit.queue.impl.AutoFlushingSendQueue;
+import io.advantageous.qbit.service.Stoppable;
 
 import java.util.concurrent.TimeUnit;
 
 /**
  * Represents a queue manager.
- * Queues are split up into receivers views and forwardEvent views to facilitate batching.
+ * Queues are split up into receivers views and sender views to facilitate batching.
  * created by Richard on 8/4/14.
  *
  * @author rhightower
  */
-public interface Queue<T> {
+public interface Queue<T> extends Stoppable {
 
     /**
      * This returns a thread safe receive queue. Pulling an item off of the queue makes it unavailable to other thread.
@@ -41,7 +42,7 @@ public interface Queue<T> {
     ReceiveQueue<T> receiveQueue();
 
     /**
-     * This returns a NON-thread safe forwardEvent queue.
+     * This returns a NON-thread safe SendQueue queue.
      * It is not thread safe so that you can batch sends to minimize thread hand-off
      * and to maximize IO throughput. Each call to this method returns a forwardEvent queue
      * that can only be access from one thread.
@@ -76,10 +77,15 @@ public interface Queue<T> {
      */
     void startListener(ReceiveQueueListener<T> listener);
 
-    /**
-     * Stop the listener.
-     */
-    void stop();
-
     int size();
+
+    default boolean started() {
+        return true;
+    }
+
+
+
+    default String name()  {
+        return "NO OP";
+    }
 }

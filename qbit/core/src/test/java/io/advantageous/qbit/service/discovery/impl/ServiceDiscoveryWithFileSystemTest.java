@@ -136,11 +136,11 @@ public class ServiceDiscoveryWithFileSystemTest {
 
         write(fooServices);
 
-        Sys.sleep(10_000);
+        Sys.sleep(3_000);
 
         loadServices(serviceName);
 
-        Sys.sleep(10_000);
+        Sys.sleep(3_000);
 
         assertEquals(serviceName, servicePoolChangedServiceName.get());
         assertEquals(serviceName, servicePoolChangedServiceNameFromListener.get());
@@ -194,7 +194,7 @@ public class ServiceDiscoveryWithFileSystemTest {
 
         write(fooServices);
 
-        Sys.sleep(10_000);
+        Sys.sleep(2_000);
         loadServices(serviceName);
 
         assertEquals(1, serviceRemoved.get());
@@ -216,7 +216,7 @@ public class ServiceDiscoveryWithFileSystemTest {
 
         write(fooServices);
 
-        Sys.sleep(10_000);
+        Sys.sleep(2_000);
         loadServices(serviceName);
 
         assertEquals(0, serviceRemoved.get());

@@ -36,25 +36,10 @@ public class HttpServerConfig extends HttpServerOptions {
         this.port = port;
     }
 
-    public void setManageQueues(boolean manageQueues) {
-        this.manageQueues = manageQueues;
-    }
-
-    public void setMaxRequestBatches(int maxRequestBatches) {
-        this.maxRequestBatches = maxRequestBatches;
-    }
-
     public void setPipeline(boolean pipeline) {
         this.pipeline = pipeline;
     }
 
-    public void setPollTime(int pollTime) {
-        this.pollTime = pollTime;
-    }
-
-    public void setRequestBatchSize(int requestBatchSize) {
-        this.requestBatchSize = requestBatchSize;
-    }
 
     public void setFlushInterval(int flushInterval) {
         this.flushInterval = flushInterval;

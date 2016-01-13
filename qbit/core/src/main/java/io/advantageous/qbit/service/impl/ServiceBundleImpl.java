@@ -23,6 +23,10 @@ import io.advantageous.boon.core.reflection.BeanUtils;
 import io.advantageous.qbit.Factory;
 import io.advantageous.qbit.GlobalConstants;
 import io.advantageous.qbit.annotation.AnnotationUtils;
+import io.advantageous.qbit.client.BeforeMethodSent;
+import io.advantageous.qbit.events.EventManager;
+import io.advantageous.qbit.http.request.HttpRequest;
+import io.advantageous.qbit.http.server.websocket.WebSocketMessage;
 import io.advantageous.qbit.message.MethodCall;
 import io.advantageous.qbit.message.MethodCallBuilder;
 import io.advantageous.qbit.message.Request;
@@ -103,6 +107,15 @@ public class ServiceBundleImpl implements ServiceBundle {
      * Access to QBit factory.
      */
     private final Factory factory;
+
+
+    /**
+     * Allows interception of method calls before they get encoded by the client proxy.
+     * This allows us to transform or reject method calls.
+     */
+    private final BeforeMethodSent beforeMethodSent;
+
+
     /**
      * Allows interception of method calls before they get sent to a client.
      * This allows us to transform or reject method calls.
@@ -117,32 +130,18 @@ public class ServiceBundleImpl implements ServiceBundle {
      * Allows transformation of arguments, for example from JSON to Java objects.
      */
     private final Transformer<Request, Object> argTransformer;
-    /*
 
-     */
-    private final TreeSet<String> addressesByDescending = new TreeSet<>(
-            (o1, o2) -> {
-                return o2.compareTo(o1);
-            }
-    );
-    /**
-     * This is used for routing. It keeps track of root addresses that we have already seen.
-     * This makes it easier to compare this root addresses to new addresses coming in.
-     */
-    private final TreeSet<String> seenAddressesDescending = new TreeSet<>(
-            (o1, o2) -> {
-                return o2.compareTo(o1);
-            }
-    );
     /*
      */
     private final QueueBuilder requestQueueBuilder;
-    private final QueueBuilder responseQueueBuilder;
     private final HealthServiceAsync healthService;
     private final StatsCollector statsCollector;
     private final Timer timer;
     private final int sampleStatFlushRate;
     private final int checkTimingEveryXCalls;
+    private final EventManager eventManager;
+    private final BeforeMethodCall beforeMethodCallOnServiceQueue;
+    private final AfterMethodCall afterMethodCallOnServiceQueue;
 
     public ServiceBundleImpl(final String address,
                              final QueueBuilder requestQueueBuilder,
@@ -159,7 +158,14 @@ public class ServiceBundleImpl implements ServiceBundle {
                              final Timer timer,
                              final int sampleStatFlushRate,
                              final int checkTimingEveryXCalls,
-                             final CallbackManager callbackManager) {
+                             final CallbackManager callbackManager,
+                             final EventManager eventManager,
+                             final BeforeMethodSent beforeMethodSent,
+                             final BeforeMethodCall beforeMethodCallOnServiceQueue,
+                             final AfterMethodCall afterMethodCallOnServiceQueue) {
+
+        this.beforeMethodCallOnServiceQueue = beforeMethodCallOnServiceQueue;
+        this.afterMethodCallOnServiceQueue = afterMethodCallOnServiceQueue;
 
         this.healthService = healthService;
         this.statsCollector = statsCollector;
@@ -169,6 +175,7 @@ public class ServiceBundleImpl implements ServiceBundle {
         this.sampleStatFlushRate = sampleStatFlushRate;
         this.checkTimingEveryXCalls = checkTimingEveryXCalls;
         this.callbackManager  = callbackManager;
+        this.beforeMethodSent = beforeMethodSent;
 
         String rootAddress;
         if (address.endsWith("/")) {
@@ -183,11 +190,11 @@ public class ServiceBundleImpl implements ServiceBundle {
         this.factory = factory;
         this.asyncCalls = asyncCalls;
         this.requestQueueBuilder = requestQueueBuilder;
-        this.responseQueueBuilder = responseQueueBuilder;
         this.methodQueue = requestQueueBuilder.setName("Call Queue " + address).build();
         this.responseQueue = responseQueueBuilder.setName("Response Queue " + address).build();
         this.webResponseQueue = webResponseQueueBuilder.setName("Web Response Queue " + address).build();
-        this.methodSendQueue = methodQueue.sendQueue();
+        this.methodSendQueue = methodQueue.sendQueueWithAutoFlush(10, TimeUnit.SECONDS);
+        this.eventManager = eventManager;
     }
 
 
@@ -205,7 +212,9 @@ public class ServiceBundleImpl implements ServiceBundle {
         }
 
         try {
-            callbackManager.registerCallbacks(methodCall);
+            if (methodCall.hasCallback()) {
+                callbackManager.registerCallbacks(methodCall);
+            }
             boolean[] continueFlag = new boolean[1];
             methodCall = handleBeforeMethodCall(methodCall, continueFlag);
 
@@ -287,7 +296,11 @@ public class ServiceBundleImpl implements ServiceBundle {
                 .setSystemManager(systemManager)
                 .setRequestQueueBuilder(BeanUtils.copy(this.requestQueueBuilder))
                 .setRequestQueueBuilder(requestQueueBuilder)
-                .setHandleCallbacks(false).setCreateCallbackHandler(false);
+                .setHandleCallbacks(false)
+                .setCreateCallbackHandler(false)
+                .setEventManager(eventManager)
+                .setBeforeMethodCall(this.beforeMethodCallOnServiceQueue)
+                .setAfterMethodCall(this.afterMethodCallOnServiceQueue);
 
 
         final String bindStatHealthName = serviceAddress == null
@@ -383,7 +396,6 @@ public class ServiceBundleImpl implements ServiceBundle {
 
         /** Add mappings to all addresses for this client to our serviceMapping. */
         for (String addr : addresses) {
-            addressesByDescending.add(addr);
             serviceMapping.put(addr, dispatch);
         }
     }
@@ -445,7 +457,7 @@ public class ServiceBundleImpl implements ServiceBundle {
             logger.error("Service requested does not exist " + myService);
         }
 
-        return factory.createLocalProxy(serviceInterface, myService, this);
+        return factory.createLocalProxy(serviceInterface, myService, this, beforeMethodSent);
 
     }
 
@@ -463,7 +475,7 @@ public class ServiceBundleImpl implements ServiceBundle {
             return ((QueueDispatch) callConsumer).serviceQueue.createProxyWithAutoFlush(
                     serviceInterface, 100, TimeUnit.MILLISECONDS);
         } else {
-            return factory.createLocalProxy(serviceInterface, myService, this);
+            return factory.createLocalProxy(serviceInterface, myService, this, beforeMethodSent);
         }
     }
 
@@ -512,29 +524,6 @@ public class ServiceBundleImpl implements ServiceBundle {
         Consumer<MethodCall<Object>> methodConsumerByAddress;
         final String callAddress = methodCall.address();
         methodConsumerByAddress = serviceMapping.get(callAddress);
-
-        if (methodConsumerByAddress == null) {
-
-            String addr;
-
-            /* Check the ones we are using to reduce search time. */
-            addr = seenAddressesDescending.higher(callAddress);
-            if (addr != null && callAddress.startsWith(addr)) {
-                methodConsumerByAddress = serviceMapping.get(addr);
-                return methodConsumerByAddress;
-            }
-
-            /* if it was not in one of the ones we are using check the rest. */
-            addr = addressesByDescending.higher(callAddress);
-
-            if (addr != null && callAddress.startsWith(addr)) {
-                methodConsumerByAddress = serviceMapping.get(addr);
-
-                if (methodConsumerByAddress != null) {
-                    seenAddressesDescending.add(addr);
-                }
-            }
-        }
         return methodConsumerByAddress;
     }
 
@@ -579,6 +568,7 @@ public class ServiceBundleImpl implements ServiceBundle {
      */
     @Override
     public void flushSends() {
+
         this.methodSendQueue.flushSends();
     }
 
@@ -646,8 +636,10 @@ public class ServiceBundleImpl implements ServiceBundle {
 
                 if (originatingRequest == null) {
                     callbackManager.handleResponse(response);
-                } else {
+                } else if (originatingRequest instanceof HttpRequest || originatingRequest instanceof WebSocketMessage) {
                     webResponseSendQueue.send(response);
+                } else {
+                    callbackManager.handleResponse(response);
                 }
             }
 

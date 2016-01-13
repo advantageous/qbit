@@ -27,10 +27,13 @@ public class Param {
     private final Object defaultValue;
     private final ParamType paramType;
 
-    public Param(boolean required, Object defaultValue, ParamType paramType) {
+    private final String description;
+
+    public Param(boolean required, Object defaultValue, ParamType paramType, String description) {
         this.required = required;
         this.defaultValue = defaultValue;
         this.paramType = paramType;
+        this.description = description;
     }
 
     public static Param[] params(final Param... params) {
@@ -38,71 +41,71 @@ public class Param {
     }
 
     public static HeaderParam headParamRequired(final String name) {
-        return new HeaderParam(true, name, null);
+        return new HeaderParam(true, name, null, null);
     }
 
     public static HeaderParam headParam(final String name) {
-        return new HeaderParam(false, name, null);
+        return new HeaderParam(false, name, null, null);
     }
 
     public static HeaderParam headParam(final String name, Object defaultValue) {
-        return new HeaderParam(false, name, defaultValue);
+        return new HeaderParam(false, name, defaultValue, null);
     }
 
     public static RequestParam requestParamRequired(final String name) {
-        return new RequestParam(true, name, null);
+        return new RequestParam(true, name, null, null);
     }
 
     public static RequestParam requestParam(final String name) {
-        return new RequestParam(false, name, null);
+        return new RequestParam(false, name, null, null);
     }
 
     public static RequestParam requestParam(final String name, Object defaultValue) {
-        return new RequestParam(false, name, defaultValue);
+        return new RequestParam(false, name, defaultValue, null);
     }
 
     public static URINamedParam pathParamRequired(final String name, final int indexIntoURI) {
-        return new URINamedParam(true, name, null, indexIntoURI);
+        return new URINamedParam(true, name, null, indexIntoURI, null);
     }
 
     public static URINamedParam pathParam(final String name, final int indexIntoURI) {
-        return new URINamedParam(false, name, null, indexIntoURI);
+        return new URINamedParam(false, name, null, indexIntoURI, null);
     }
 
     public static URINamedParam pathParam(final String name, final int indexIntoURI, Object defaultValue) {
-        return new URINamedParam(false, name, defaultValue, indexIntoURI);
+        return new URINamedParam(false, name, defaultValue, indexIntoURI, null);
     }
 
     public static URIPositionalParam pathParamRequired(final int pos, final int indexIntoURI) {
-        return new URIPositionalParam(true, pos, null, indexIntoURI);
+        return new URIPositionalParam(true, pos, null, indexIntoURI, null);
     }
 
     public static URIPositionalParam pathParam(final int pos, final int indexIntoURI) {
-        return new URIPositionalParam(false, pos, null, indexIntoURI);
+        return new URIPositionalParam(false, pos, null, indexIntoURI, null);
     }
 
     public static URIPositionalParam pathParam(final int pos, final int indexIntoURI, Object defaultValue) {
-        return new URIPositionalParam(false, pos, defaultValue, indexIntoURI);
+        return new URIPositionalParam(false, pos, defaultValue, indexIntoURI, null);
     }
 
     public static BodyParam bodyParamRequired() {
-        return new BodyParam(true, null);
+        return new BodyParam(true, null, null);
     }
 
     public static BodyParam bodyParam() {
-        return new BodyParam(false, null);
+        return new BodyParam(false, null, null);
     }
 
     public static BodyArrayParam bodyParamRequired(final int pos) {
-        return new BodyArrayParam(true, pos, null);
+        return new BodyArrayParam(true, pos, null, null);
     }
 
     public static BodyArrayParam bodyParam(final int pos) {
-        return new BodyArrayParam(false, pos, null);
+        return new BodyArrayParam(false, pos, null, null);
     }
 
     public static BodyArrayParam bodyParam(final int pos, Object defaultValue) {
-        return new BodyArrayParam(false, pos, defaultValue);
+        return new BodyArrayParam(false, pos, defaultValue, null);
     }
 
     public boolean isRequired() {
@@ -117,4 +120,8 @@ public class Param {
         return defaultValue;
     }
 
+
+    public String getDescription() {
+        return description;
+    }
 }

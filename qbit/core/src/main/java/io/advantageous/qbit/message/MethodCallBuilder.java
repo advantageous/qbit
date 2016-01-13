@@ -19,9 +19,9 @@
 package io.advantageous.qbit.message;
 
 import io.advantageous.qbit.message.impl.MethodCallImpl;
+import io.advantageous.qbit.message.impl.MethodCallLocal;
 import io.advantageous.qbit.service.Protocol;
 import io.advantageous.qbit.util.MultiMap;
-import io.advantageous.qbit.util.Timer;
 
 import java.util.Collections;
 import java.util.List;
@@ -43,6 +43,17 @@ public class MethodCallBuilder {
     private String objectName;
     private String returnAddress;
     private Request<Object> originatingRequest;
+    private boolean local;
+    private Object[] bodyArgs;
+
+    public boolean isLocal() {
+        return local;
+    }
+
+    public MethodCallBuilder setLocal(boolean local) {
+        this.local = local;
+        return this;
+    }
 
     public static MethodCallBuilder methodCallBuilder() {
         return new MethodCallBuilder();
@@ -194,8 +205,12 @@ public class MethodCallBuilder {
     public MethodCall<Object> build() {
 
 
-        return new MethodCallImpl(getTimestamp(), getId(), getName(), getAddress(), getParams(), getHeaders(),
-                getBody(), getObjectName(), getReturnAddress(), getOriginatingRequest());
+        if (isLocal()) {
+            return new MethodCallLocal(getName(), getReturnAddress(), getTimestamp(), getId(), getBodyArgs(), getOriginatingRequest());
+        } else {
+            return new MethodCallImpl(getTimestamp(), getId(), getName(), getAddress(), getParams(), getHeaders(),
+                    getBody(), getObjectName(), getReturnAddress(), getOriginatingRequest());
+        }
 
     }
 
@@ -216,4 +231,12 @@ public class MethodCallBuilder {
         }
     }
 
+    public Object[] getBodyArgs() {
+        return bodyArgs;
+    }
+
+    public MethodCallBuilder setBodyArgs(Object[] bodyArgs) {
+        this.bodyArgs = bodyArgs;
+        return this;
+    }
 }

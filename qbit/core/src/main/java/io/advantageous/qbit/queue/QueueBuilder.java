@@ -18,9 +18,10 @@
 
 package io.advantageous.qbit.queue;
 
-import io.advantageous.qbit.GlobalConstants;
 import io.advantageous.qbit.config.PropertyResolver;
+import io.advantageous.qbit.queue.impl.AddTimeoutUnableToEnqueueHandler;
 import io.advantageous.qbit.queue.impl.BasicQueue;
+import io.advantageous.qbit.queue.impl.DefaultUnableToEnqueueHandler;
 
 import java.util.Properties;
 import java.util.concurrent.*;
@@ -34,24 +35,47 @@ public class QueueBuilder implements Cloneable {
 
     public static final String QBIT_QUEUE_BUILDER = "qbit.queue.builder.";
 
-    private int batchSize = GlobalConstants.BATCH_SIZE;
-    private int pollWait = GlobalConstants.POLL_WAIT;
-    private int size = GlobalConstants.NUM_BATCHES;
-    private int checkEvery = 100;
-    private boolean tryTransfer = false;
+    private int batchSize;
+
+    private int limit=-1;
+    private int pollWait;
+    private int size;
+    private int checkEvery;
+    private boolean tryTransfer;
     private String name;
-    private Class<? extends BlockingQueue> queueClass = ArrayBlockingQueue.class;
+    private Class<? extends BlockingQueue> queueClass;
     private boolean checkIfBusy = false;
     private TimeUnit pollTimeUnit = TimeUnit.MILLISECONDS;
-    private TimeUnit enqueueTimeoutTimeUnit = TimeUnit.SECONDS;
-    private int enqueueTimeout = 1000;
+    private TimeUnit enqueueTimeoutTimeUnit = null;
+    private int enqueueTimeout;
 
     private UnableToEnqueueHandler unableToEnqueueHandler;
+
+    public int getLimit() {
+        if (limit == -1) {
+            if (batchSize != 1) {
+                limit = batchSize;
+            } else {
+                limit = 10;
+            }
+        }
+        return limit;
+    }
+
+    public QueueBuilder setLimit(final int limit) {
+        this.limit = limit;
+        return this;
+    }
 
     public UnableToEnqueueHandler getUnableToEnqueueHandler() {
 
         if (unableToEnqueueHandler == null) {
-            unableToEnqueueHandler = new DefaultUnableToEnqueueHandler();
+
+            if (enqueueTimeoutTimeUnit == null) {
+                unableToEnqueueHandler = new DefaultUnableToEnqueueHandler();
+            } else {
+                unableToEnqueueHandler = new AddTimeoutUnableToEnqueueHandler(enqueueTimeout, enqueueTimeoutTimeUnit);
+            }
         }
 
         return unableToEnqueueHandler;
@@ -64,15 +88,15 @@ public class QueueBuilder implements Cloneable {
 
     public QueueBuilder(PropertyResolver propertyResolver) {
         this.pollWait = propertyResolver
-                .getIntegerProperty("pollWaitMS", GlobalConstants.POLL_WAIT);
+                .getIntegerProperty("pollWaitMS", 15);
         this.enqueueTimeout = propertyResolver
                 .getIntegerProperty("enqueueTimeoutSeconds", 1000);
         this.batchSize = propertyResolver
-                .getIntegerProperty("batchSize", GlobalConstants.BATCH_SIZE);
+                .getIntegerProperty("batchSize", 10);
         this.checkEvery = propertyResolver
-                .getIntegerProperty("checkEvery", 100);
+                .getIntegerProperty("checkEvery", 10);
         this.size = propertyResolver
-                .getIntegerProperty("size", GlobalConstants.NUM_BATCHES);
+                .getIntegerProperty("size", 100_000);
         this.checkIfBusy = propertyResolver
                 .getBooleanProperty("checkIfBusy", false);
         this.tryTransfer = propertyResolver
@@ -174,6 +198,7 @@ public class QueueBuilder implements Cloneable {
 
     public QueueBuilder setLinkTransferQueue() {
         size = -1;
+        batchSize = checkEvery * 10;
         queueClass = LinkedTransferQueue.class;
         return this;
     }
@@ -202,7 +227,12 @@ public class QueueBuilder implements Cloneable {
     }
 
     public QueueBuilder setBatchSize(int batchSize) {
+
+        if (batchSize==1) {
+            this.setLinkTransferQueue();
+        }
         this.batchSize = batchSize;
+
         return this;
     }
 
@@ -232,15 +262,14 @@ public class QueueBuilder implements Cloneable {
         return new BasicQueue<>(this.getName(),
                 this.getPollWait(),
                 this.getPollTimeUnit(),
-                this.getEnqueueTimeout(),
-                this.getEnqueueTimeoutTimeUnit(),
                 this.getBatchSize(),
                 this.getQueueClass(),
                 this.isCheckIfBusy(),
                 this.getSize(),
                 this.getCheckEvery(),
                 this.isTryTransfer(),
-                this.getUnableToEnqueueHandler());
+                this.getUnableToEnqueueHandler(),
+                this.getLimit());
     }
 
 }

@@ -47,7 +47,7 @@ public class MethodCallImpl implements MethodCall<Object> {
 
     @Override
     public boolean hasCallback() {
-        return true;
+        return hasCallback;
     }
 
     public MethodCallImpl(long timestamp, long id, String name, String address, MultiMap<String, String> params, MultiMap<String, String> headers, Object body, String objectName, String returnAddress, Request<Object> originatingRequest) {

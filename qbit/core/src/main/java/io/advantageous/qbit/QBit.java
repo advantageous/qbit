@@ -36,6 +36,12 @@ import org.slf4j.LoggerFactory;
  * Main interface to QBit.
  * created by Richard on 9/26/14.
  *
+ * ##### Usage
+ * ```java
+ *     Factory factory = QBit.factory();
+ * ```
+ *
+ * Added Markdown support to JavaDoc.
  * @author rhightower
  */
 public class QBit {
@@ -65,7 +71,7 @@ public class QBit {
 
     private void registerReflectionAndJsonParser() {
         try {
-            final Class<?> boonFactory = Class.forName("io.advantageous.qbit.spi.RegisterBoonWithQBit");
+            final Class<?> boonFactory = Class.forName("io.advantageous.qbit.boon.spi.RegisterBoonWithQBit");
             ClassMeta.classMeta(boonFactory).invokeStatic("registerBoonWithQBit");
         } catch (ClassNotFoundException e) {
             throw new IllegalStateException("Could not find reflection lib or JSON parser");
@@ -89,7 +95,7 @@ public class QBit {
 
             }
         } catch (Exception ex) {
-            FactorySPI.setHttpServerFactory((options, name, systemManager, serviceDiscovery, healthServiceAsync) -> {
+            FactorySPI.setHttpServerFactory((options, name, systemManager, serviceDiscovery, healthServiceAsync, a, b, c, d) -> {
 
                 throw new IllegalStateException("Unable to load Vertx network libs");
             });

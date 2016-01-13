@@ -27,8 +27,9 @@ public class URINamedParam extends NamedParam {
     private final int indexIntoURI;
 
     public URINamedParam(final boolean required, String name,
-                         final Object defaultValue, int indexIntoURI) {
-        super(required, name, defaultValue, ParamType.PATH_BY_NAME);
+                         final Object defaultValue, int indexIntoURI,
+                         final String description) {
+        super(required, name, defaultValue, ParamType.PATH_BY_NAME, description);
         this.indexIntoURI = indexIntoURI;
     }
 

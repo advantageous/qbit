@@ -77,15 +77,33 @@ public class QBitSystemManager {
     }
 
 
+    public void unregisterService(final ServiceQueue serviceQueue) {
+        if (debug) logger.debug("unregister: " + serviceQueue);
+        countTracked--;
+        serviceQueueList.remove(serviceQueue);
+    }
+
+
     public void registerServer(final Server server) {
         countTracked++;
         serverList.add(server);
+    }
+
+    public void unregisterServer(final Server server) {
+        countTracked--;
+        serverList.remove(server);
     }
 
 
     public void registerServiceBundle(final ServiceBundle bundle) {
         countTracked++;
         serviceBundleList.add(bundle);
+    }
+
+
+    public void unregisterServiceBundle(final ServiceBundle bundle) {
+        countTracked--;
+        serviceBundleList.remove(bundle);
     }
 
     public void shutDown() {

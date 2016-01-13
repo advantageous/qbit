@@ -20,6 +20,7 @@ subprojects {
 
     apply plugin: 'maven'
     apply plugin: 'signing'
+    //apply plugin: "jacoco"
 
     group = 'io.advantageous.qbit'
     version = projectVersion
@@ -59,6 +60,18 @@ subprojects {
         required false
         sign configurations.archives
     }
+
+    test {
+//        jacoco {
+//            append = false
+//            destinationFile = file("$buildDir/jacoco/jacocoTest.exec")
+//            classDumpFile = file("$buildDir/jacoco/classpathdumps")
+//        }
+    }
+
+//    jacoco {
+//        reportsDir = file("$buildDir/customJacocoReportDir")
+//    }
 
     uploadArchives {
         repositories {
@@ -117,8 +130,10 @@ subprojects {
 project('core') {
 
     dependencies {
-        compile "io.advantageous.boon:boon-reflekt:$boonVersion"
-        compile "io.advantageous.boon:boon-json:$boonVersion"
+        compile "$boonGroup:boon-reflekt:$boonVersion"
+        compile "$boonGroup:boon-json:$boonVersion"
+        compile 'org.reactivestreams:reactive-streams:1.0.0.final'
+        testCompile project(':qbit:test-support')
     }
 
     uploadArchives {
@@ -132,41 +147,9 @@ project('core') {
     }
 }
 
-project('boon') {
+project('servlet') {
 
     dependencies {
-        compile project(':qbit:core')
-        compile "io.advantageous.boon:boon-json:$boonVersion"
-        testCompile project(':qbit:test-support')
-    }
-
-    uploadArchives {
-        repositories {
-            mavenDeployer {
-                pom.project {
-                    description 'Boon plugin for qbit'
-                }
-            }
-        }
-    }
-}
-
-project('web') {
-    uploadArchives {
-        repositories {
-            mavenDeployer {
-                pom.project {
-                    description 'HTTP integrations for qbit'
-                }
-            }
-        }
-    }
-}
-
-project('web:servlet') {
-
-    dependencies {
-        compile project(':qbit:boon')
         compile project(':qbit:core')
 
         compile 'javax.servlet:javax.servlet-api:3.1.0'
@@ -191,17 +174,45 @@ project('web:servlet') {
     }
 }
 
-project('web:vertx') {
+
+project('scala') {
+
+
+    apply plugin: 'scala'
+
+    dependencies {
+        compile project(':qbit:core')
+        compile 'org.scala-lang:scala-library:2.11.5'
+        testCompile project(':qbit:test-support')
+        testCompile 'org.scalatest:scalatest_2.10:2.2.5'
+    }
+
+    uploadArchives {
+        repositories {
+            mavenDeployer {
+                pom.project {
+                    description 'Scala support for qbit'
+                }
+            }
+        }
+    }
+
+    tasks.withType(ScalaCompile) {
+        scalaCompileOptions.useAnt = false
+    }
+}
+
+project('vertx') {
+
 
     ext {
-        vertxVersion = '2.1.1'
+        vertxVersion = '3.1.0'
     }
 
     dependencies {
-        compile project(':qbit:boon')
         compile project(':qbit:core')
         compile group: 'io.vertx', name: 'vertx-core', version: vertxVersion
-        compile group: 'io.vertx', name: 'vertx-platform', version: vertxVersion
+        compile group: 'io.vertx', name: 'vertx-web', version: vertxVersion
 
         testCompile project(':qbit:test-support')
     }
@@ -217,27 +228,40 @@ project('web:vertx') {
     }
 }
 
-project('cluster') {
 
-    test.onlyIf { Boolean.getBoolean('integration.tests') }
+project('service-discovery') {
+
+
+    ext {
+        vertxVersion = '3.1.0'
+    }
+
+    dependencies {
+        compile project(':qbit:core')
+        compile group: 'io.vertx', name: 'vertx-core', version: vertxVersion
+        compile group: 'io.vertx', name: 'vertx-web', version: vertxVersion
+        testCompile project(':qbit:test-support')
+    }
+
     uploadArchives {
         repositories {
             mavenDeployer {
                 pom.project {
-                    description 'libraries for running qbit in a cluster'
+                    description 'Vertx support for qbit'
                 }
             }
         }
     }
 }
 
-project('cluster:consul-client') {
+
+project('consul-client') {
 
 
     test.onlyIf { Boolean.getBoolean('integration.tests') }
 
     dependencies {
-        compile project(":qbit:web:vertx")
+        compile project(":qbit:vertx")
     }
 
     uploadArchives {
@@ -251,17 +275,17 @@ project('cluster:consul-client') {
     }
 }
 
-project('cluster:admin') {
+project('admin') {
 
 
     test.onlyIf { Boolean.getBoolean('integration.tests') }
     dependencies {
-        compile project(':qbit:boon')
-        compile project(':qbit:cluster:consul-client')
+        compile project(':qbit:consul-client')
         compile project(':qbit:core')
-        testCompile project(':qbit:cluster:consul-client')
+        testCompile project(':qbit:consul-client')
         testCompile project(':qbit:test-support')
-        compile project(":qbit:web:vertx")
+        compile project(":qbit:vertx")
+        compile project(":qbit:service-discovery")
     }
 
     uploadArchives {
@@ -275,15 +299,42 @@ project('cluster:admin') {
     }
 }
 
-project('cluster:eventbus-replicator') {
+project('spring') {
+
+    test.onlyIf { Boolean.getBoolean('integration.tests') }
+    dependencies {
+        compile project(':qbit:vertx')
+        compile project(':qbit:admin')
+        compile project(':qbit:consul-client')
+        compile project(":qbit:eventbus-replicator")
+        compile 'javax.inject:javax.inject:1'
+        compile "org.springframework.boot:spring-boot-starter:$springBootVersion"
+        testCompile project(':qbit:test-support')
+        testCompile(
+                "org.springframework:spring-web:$springFrameworkVersion",
+                "org.springframework.boot:spring-boot-starter-test:$springBootVersion"
+        )
+    }
+
+    uploadArchives {
+        repositories {
+            mavenDeployer {
+                pom.project {
+                    description 'Spring support for QBit'
+                }
+            }
+        }
+    }
+}
+
+project('eventbus-replicator') {
 
     test.onlyIf { Boolean.getBoolean('integration.tests') }
 
     dependencies {
-        compile project(':qbit:boon')
         compile project(':qbit:core')
-        compile project(':qbit:cluster:consul-client')
-        compile project(":qbit:web:vertx")
+        compile project(':qbit:consul-client')
+        compile project(":qbit:vertx")
         testCompile project(':qbit:test-support')
     }
 
@@ -292,6 +343,88 @@ project('cluster:eventbus-replicator') {
             mavenDeployer {
                 pom.project {
                     description 'Eventbus replication for qbit'
+                }
+            }
+        }
+    }
+}
+
+project('jms') {
+
+    javadoc.onlyIf {false}
+
+    dependencies {
+        compile project(":qbit:core")
+        testCompile project(':qbit:test-support')
+        compile 'org.apache.activemq:activemq-all:5.9.1'
+        compile 'org.apache.commons:commons-dbcp2:2.1.1'
+        compile 'org.postgresql:postgresql:9.4-1203-jdbc42'
+        compile 'ch.qos.logback:logback-core:1.1.3'
+        compile 'ch.qos.logback:logback-classic:1.1.3'
+        compile 'org.slf4j:slf4j-api:1.7.12'
+    }
+
+    uploadArchives {
+        repositories {
+            mavenDeployer {
+                pom.project {
+                    description 'JMS Support'
+                }
+            }
+        }
+    }
+}
+
+
+project('kafka') {
+
+    dependencies {
+
+        compile project(":qbit:core")
+        testCompile project(':qbit:test-support')
+        compile 'org.apache.kafka:kafka_2.10:0.8.2.0'
+        compile 'ch.qos.logback:logback-core:1.1.3'
+        compile 'ch.qos.logback:logback-classic:1.1.3'
+        compile 'org.slf4j:slf4j-api:1.7.12'
+    }
+
+    uploadArchives {
+        repositories {
+            mavenDeployer {
+                pom.project {
+                    description 'Kafka Support'
+                }
+            }
+        }
+    }
+}
+
+
+project('redis') {
+
+    ext {
+        vertxVersion = '3.1.0'
+    }
+
+    dependencies {
+
+        compile project(":qbit:core")
+
+        compile project(":qbit:vertx")
+        testCompile project(':qbit:test-support')
+        compile 'ch.qos.logback:logback-core:1.1.3'
+        compile 'ch.qos.logback:logback-classic:1.1.3'
+        compile 'org.slf4j:slf4j-api:1.7.12'
+        testCompile project(':qbit:test-support')
+        compile group: 'io.vertx', name: 'vertx-redis-client', version: vertxVersion
+
+    }
+
+    uploadArchives {
+        repositories {
+            mavenDeployer {
+                pom.project {
+                    description 'Redis Support'
                 }
             }
         }
@@ -313,6 +446,15 @@ project('test-support') {
                 }
             }
         }
+    }
+}
+
+project('guice'){
+    dependencies {
+        compile project(":qbit:core")
+        compile project(":qbit:vertx")
+        testCompile project(':qbit:test-support')
+        testCompile 'com.google.inject:guice:4.0'
     }
 }
 

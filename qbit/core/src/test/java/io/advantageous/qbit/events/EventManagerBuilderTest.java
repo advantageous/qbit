@@ -9,6 +9,7 @@ import io.advantageous.qbit.queue.SendQueue;
 import io.advantageous.qbit.service.ServiceQueue;
 import io.advantageous.qbit.service.stats.StatsCollector;
 import io.advantageous.qbit.spi.FactorySPI;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -24,19 +25,12 @@ import static org.mockito.Mockito.when;
 
 public class EventManagerBuilderTest {
 
-
     EventManagerFactory eventManagerFactory;
-
     Factory factory;
-
     EventManager eventManager;
-
     EventConnector eventConnector;
-
     EventManager eventManagerWithConnector;
-
     String testChannel = "test.channel";
-
     EventTransferObject<Object> testEvent = new EventTransferObject<>("body", 1L, testChannel);
 
 
@@ -81,6 +75,13 @@ public class EventManagerBuilderTest {
 
     }
 
+
+
+    @After
+    public void teardown() {
+
+        FactorySPI.setFactory(null);
+    }
 
     @Test
     public void testWithConnector() {
@@ -328,15 +329,6 @@ public class EventManagerBuilderTest {
 
             }
 
-            @Override
-            public  void subscribe(String channelName, SendQueue<Event<Object>> event) {
-
-            }
-
-            @Override
-            public  void consume(String channelName, SendQueue<Event<Object>> event) {
-
-            }
 
             @Override
             public <T> void send(String channel, T event) {
@@ -345,6 +337,11 @@ public class EventManagerBuilderTest {
 
             @Override
             public <T> void sendArray(String channel, T... event) {
+
+            }
+
+            @Override
+            public <T> void sendArguments(String channel, T... event) {
 
             }
 

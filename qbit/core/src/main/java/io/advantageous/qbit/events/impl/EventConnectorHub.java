@@ -19,7 +19,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 /**
  * Provides a collection of event connectors and makes them look like a single event connector.
  * It will also work with the RemoteTCPClientProxy to close connectors that are removed.
- * When you remvoe a remote connector that implements RemoteTCPClientProxy,
+ * When you remove a remote connector that implements RemoteTCPClientProxy,
  * note it will be closed if removed from the EventConnectorHub.
  */
 public class EventConnectorHub implements EventConnector, Iterable<EventConnector> {

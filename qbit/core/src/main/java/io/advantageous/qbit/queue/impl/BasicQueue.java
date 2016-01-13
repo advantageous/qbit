@@ -20,9 +20,11 @@ package io.advantageous.qbit.queue.impl;
 
 import io.advantageous.boon.core.reflection.ClassMeta;
 import io.advantageous.boon.core.reflection.ConstructorAccess;
-import io.advantageous.qbit.GlobalConstants;
-import io.advantageous.qbit.concurrent.ExecutorContext;
 import io.advantageous.qbit.queue.*;
+import io.advantageous.qbit.queue.impl.sender.BasicBlockingQueueSender;
+import io.advantageous.qbit.queue.impl.sender.BasicSendQueueWithTransferQueue;
+import io.advantageous.qbit.queue.impl.sender.BasicSendQueueWithTryTransfer;
+import io.advantageous.qbit.queue.impl.sender.NoBatchSendQueue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,8 +33,7 @@ import java.util.concurrent.LinkedTransferQueue;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TransferQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
-
-import static io.advantageous.qbit.concurrent.ScheduledExecutorBuilder.scheduledExecutorBuilder;
+import java.util.function.Supplier;
 
 /**
  * This is the base for all the queues we use.
@@ -45,52 +46,39 @@ import static io.advantageous.qbit.concurrent.ScheduledExecutorBuilder.scheduled
 public class BasicQueue<T> implements Queue<T> {
 
     private final BlockingQueue<Object> queue;
-    private final boolean checkIfBusy;
     private final int batchSize;
     private final Logger logger = LoggerFactory.getLogger(BasicQueue.class);
-    private final ReceiveQueueManager<T> receiveQueueManager;
+    private final boolean debug = logger.isDebugEnabled();
+    private final int limit;
+    private ReceiveQueueManager<T> receiveQueueManager;
     private final String name;
     private final int pollTimeWait;
     private final TimeUnit pollTimeTimeUnit;
-    private final boolean tryTransfer;
-    private final boolean debug = GlobalConstants.DEBUG;
-    private final int checkEvery;
-    private final AtomicBoolean stop = new AtomicBoolean();
-    private final UnableToEnqueueHandler unableToEnqueueHandler;
-    private ExecutorContext executorContext;
-    private final int enqueueTimeout;
-    private final TimeUnit enqueueTimeoutTimeUnit;
+    private final AtomicBoolean stop = new AtomicBoolean(true);
+    private final Supplier<SendQueue<T>> sendQueueSupplier;
+
 
     public BasicQueue(final String name,
                       final int waitTime,
                       @SuppressWarnings("SameParameterValue") final TimeUnit timeUnit,
-                      final int enqueueTimeout,
-                      final TimeUnit enqueueTimeoutTimeUnit,
                       final int batchSize,
                       final Class<? extends BlockingQueue> queueClass,
                       final boolean checkIfBusy,
                       final int size,
                       final int checkEvery,
-                      boolean tryTransfer,
-                      UnableToEnqueueHandler unableToEnqueueHandler) {
+                      final boolean tryTransfer,
+                      final UnableToEnqueueHandler unableToEnqueueHandler,
+                      final int limit) {
 
-        logger.info("Queue created {} {} batchSize {} size {} checkEvery {} tryTransfer {} pollTimeWait, enqueueTimeout",
-                name, queueClass, batchSize, size, checkEvery, tryTransfer, waitTime, enqueueTimeout);
+        logger.debug("Queue created {} {} limit {} size {} checkEvery {} tryTransfer {} waitTime {} limit {}",
+                name, queueClass, batchSize, size, checkEvery, tryTransfer, waitTime, limit);
 
 
-        this.enqueueTimeout = enqueueTimeout;
-        this.tryTransfer = tryTransfer;
         this.name = name;
         this.pollTimeWait = waitTime;
         this.pollTimeTimeUnit = timeUnit;
         this.batchSize = batchSize;
-        this.enqueueTimeoutTimeUnit = enqueueTimeoutTimeUnit;
-        this.unableToEnqueueHandler = unableToEnqueueHandler;
-
-        boolean shouldCheckIfBusy;
-
-        this.receiveQueueManager = new BasicReceiveQueueManager<>();
-
+        this.limit = limit;
 
         if (size == -1) {
 
@@ -106,24 +94,38 @@ public class BasicQueue<T> implements Queue<T> {
                 this.queue = (BlockingQueue<Object>) constructor.create(size);
             } else {
                 final ConstructorAccess<? extends BlockingQueue> constructorAccess = classMeta.noArgConstructor();
-
                 //noinspection unchecked
                 this.queue = (BlockingQueue<Object>) constructorAccess.create();
             }
         }
 
 
-        shouldCheckIfBusy = queue instanceof TransferQueue;
+        if (this.batchSize==1) {
 
-        this.checkIfBusy = shouldCheckIfBusy && checkIfBusy;
+            if (queue instanceof LinkedTransferQueue) {
+                sendQueueSupplier = () -> new NoBatchSendQueue<>((LinkedTransferQueue<Object>) queue, this, name);
+            } else {
+                throw new IllegalStateException("If batch size 1 queue must be a linked transfer queue");
+            }
+        } else if (queue instanceof LinkedTransferQueue) {
 
-        this.checkEvery = checkEvery;
+            if (tryTransfer) {
+                sendQueueSupplier = () -> new BasicSendQueueWithTryTransfer<>(name, batchSize, (TransferQueue<Object>) queue,
+                        checkEvery, BasicQueue.this);
+            } else {
+                sendQueueSupplier = () -> new BasicSendQueueWithTransferQueue<>(name, batchSize, ((TransferQueue<Object>) queue),
+                        checkEvery, BasicQueue.this);
+            }
+        } else {
+            sendQueueSupplier = () -> new BasicBlockingQueueSender<>(name, batchSize, queue,
+                    checkIfBusy, unableToEnqueueHandler, BasicQueue.this);
+        }
 
 
-        logger.info("Queue done creating {} batchSize {} checkEvery {} tryTransfer {}" +
-                        "pollTimeWait/polltime {}, enqueueTimeout {}",
-                this.name, this.batchSize, this.checkEvery, this.tryTransfer,
-                this.pollTimeWait, this.enqueueTimeout);
+        logger.info("Queue done creating {} limit {} checkEvery {} tryTransfer {}" +
+                        "pollTimeWait/polltime {}",
+                this.name, this.batchSize, checkEvery, tryTransfer,
+                this.pollTimeWait);
 
 
     }
@@ -137,8 +139,8 @@ public class BasicQueue<T> implements Queue<T> {
      */
     @Override
     public ReceiveQueue<T> receiveQueue() {
-        logger.info("ReceiveQueue requested for {}", name);
-        return new BasicReceiveQueue<>(queue, pollTimeWait, pollTimeTimeUnit, batchSize);
+        if (debug) logger.debug("ReceiveQueue requested for {}", name);
+        return new BasicReceiveQueue<>(queue, pollTimeWait, pollTimeTimeUnit, limit);
     }
 
     /**
@@ -149,43 +151,31 @@ public class BasicQueue<T> implements Queue<T> {
      */
     @Override
     public SendQueue<T> sendQueue() {
-        logger.info("SendQueue requested for {}", name);
-        return new BasicSendQueue<>(name, batchSize, queue,
-                checkIfBusy, checkEvery, tryTransfer,
-                enqueueTimeoutTimeUnit, enqueueTimeout, unableToEnqueueHandler);
+        if (debug) logger.debug("SendQueue requested for {}", name);
+        return sendQueueSupplier.get();
     }
 
 
     @Override
     public void startListener(final ReceiveQueueListener<T> listener) {
-
-
+        this.receiveQueueManager = new BasicReceiveQueueManager<>(name);
         stop.set(false);
-        logger.info("Starting queue listener for  {} {}" , name, listener);
-
-        if (executorContext != null) {
-            throw new IllegalStateException("Queue.startListener::Unable to startClient up twice: " + name);
-        }
-
-        this.executorContext = scheduledExecutorBuilder()
-                .setThreadName("QueueListener " + name)
-                .setInitialDelay(50)
-                .setPeriod(50).setRunnable(() -> manageQueue(listener))
-                .build();
-
-        executorContext.start();
+        logger.info("Starting queue listener for  {} {}", name, listener);
+        this.receiveQueueManager.addQueueToManage(name, this.receiveQueue(), listener, limit);
+        this.receiveQueueManager.start();
     }
 
     @Override
     public void stop() {
-
         logger.info("Stopping queue  {}", name);
-
         stop.set(true);
-        if (executorContext != null) {
-            executorContext.stop();
+        if (receiveQueueManager != null) {
+            receiveQueueManager.stop();
         }
 
+        if (queue!=null) {
+            queue.clear();
+        }
     }
 
     @Override
@@ -193,8 +183,9 @@ public class BasicQueue<T> implements Queue<T> {
         return queue.size();
     }
 
-    private void manageQueue(ReceiveQueueListener<T> listener) {
-        this.receiveQueueManager.manageQueue(receiveQueue(), listener, batchSize, stop);
+    @Override
+    public boolean started() {
+        return !stop.get();
     }
 
     @Override
@@ -202,5 +193,10 @@ public class BasicQueue<T> implements Queue<T> {
         return "BasicQueue{" +
                 "name='" + name + '\'' +
                 '}';
+    }
+
+    @Override
+    public String name() {
+        return name;
     }
 }

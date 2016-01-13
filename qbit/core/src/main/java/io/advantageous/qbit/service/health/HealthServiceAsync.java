@@ -36,4 +36,20 @@ public interface HealthServiceAsync extends ClientProxy {
     }
 
     default void unregister(String serviceName){}
+
+    default void failWithReason(final String name, final HealthFailReason reason){}
+
+
+    default void failWithError(final String name, final Throwable error) {}
+
+
+    default void warnWithReason(final String name, final HealthFailReason reason) {}
+
+
+    default void warnWithError(final String name, final Throwable error) {}
+
+
+    default void registerNoTtl(String name) {}
+
+
 }

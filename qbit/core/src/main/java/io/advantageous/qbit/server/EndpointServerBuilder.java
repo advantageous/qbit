@@ -18,19 +18,20 @@
 
 package io.advantageous.qbit.server;
 
-import io.advantageous.boon.json.JsonFactory;
 import io.advantageous.qbit.Factory;
 import io.advantageous.qbit.QBit;
+import io.advantageous.qbit.client.BeforeMethodSent;
 import io.advantageous.qbit.config.PropertyResolver;
+import io.advantageous.qbit.events.EventManager;
 import io.advantageous.qbit.http.HttpTransport;
-import io.advantageous.qbit.http.request.HttpRequest;
 import io.advantageous.qbit.http.server.HttpServer;
+import io.advantageous.qbit.http.server.HttpServerBuilder;
 import io.advantageous.qbit.json.JsonMapper;
 import io.advantageous.qbit.message.Request;
 import io.advantageous.qbit.message.Response;
 import io.advantageous.qbit.queue.Queue;
 import io.advantageous.qbit.queue.QueueBuilder;
-import io.advantageous.qbit.reactive.Callback;
+import io.advantageous.qbit.service.AfterMethodCall;
 import io.advantageous.qbit.service.BeforeMethodCall;
 import io.advantageous.qbit.service.CallbackManagerBuilder;
 import io.advantageous.qbit.service.ServiceBundle;
@@ -49,9 +50,8 @@ import io.advantageous.qbit.util.Timer;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Properties;
-import java.util.function.Predicate;
+import java.util.function.Consumer;
 
 import static io.advantageous.qbit.http.server.HttpServerBuilder.httpServerBuilder;
 
@@ -61,19 +61,14 @@ import static io.advantageous.qbit.http.server.HttpServerBuilder.httpServerBuild
  * @author rhightower
  *         created by Richard on 11/14/14.
  */
-
 public class EndpointServerBuilder {
     public static final String QBIT_ENDPOINT_SERVER_BUILDER = "qbit.endpoint.server.builder.";
     private Queue<Response<Object>> responseQueue;
     private String host;
     private int port = 8080;
-    private boolean manageQueues = false;
-    private int pollTime = 25;
-    private int requestBatchSize = 50;
-    private int flushInterval = 200;
+    private int flushInterval = 50;
     private String uri = "/services";
     private int numberOfOutstandingRequests = 1_000_000;
-    private int maxRequestBatches = 10_000;
     private int timeoutSeconds = 30;
     private boolean invokeDynamic = true;
     private QueueBuilder httpRequestQueueBuilder;
@@ -92,6 +87,10 @@ public class EndpointServerBuilder {
 
     private  int statsFlushRateSeconds = 5;
     private  int checkTimingEveryXCalls = 1000;
+    private int protocolBatchSize = 80;
+    private long flushResponseInterval = 25;
+    private int parserWorkerCount = 4;
+    private int encoderWorkerCount = 2;
 
 
     private CallbackManager callbackManager;
@@ -108,6 +107,28 @@ public class EndpointServerBuilder {
 
     private JsonMapper jsonMapper;
     private ProtocolEncoder encoder;
+    private HttpServerBuilder httpServerBuilder;
+    private EventManager eventManager;
+
+    private BeforeMethodSent beforeMethodSent;
+    private BeforeMethodCall beforeMethodCallOnServiceQueue;
+    private AfterMethodCall afterMethodCallOnServiceQueue;
+
+    private Consumer<Throwable> errorHandler;
+
+
+    public BeforeMethodSent getBeforeMethodSent() {
+
+        if (beforeMethodSent==null) {
+            beforeMethodSent = new BeforeMethodSent() {};
+        }
+        return beforeMethodSent;
+    }
+
+    public EndpointServerBuilder setBeforeMethodSent(BeforeMethodSent beforeMethodSent) {
+        this.beforeMethodSent = beforeMethodSent;
+        return this;
+    }
 
     public EndpointServerBuilder setParser(ProtocolParser parser) {
         this.parser = parser;
@@ -234,24 +255,21 @@ public class EndpointServerBuilder {
 
     public EndpointServerBuilder(PropertyResolver propertyResolver) {
         this.eachServiceInItsOwnThread = propertyResolver.getBooleanProperty("eachServiceInItsOwnThread", eachServiceInItsOwnThread);
-        this.manageQueues = propertyResolver.getBooleanProperty("manageQueues", manageQueues);
         this.invokeDynamic = propertyResolver.getBooleanProperty("invokeDynamic", invokeDynamic);
         this.host = propertyResolver.getStringProperty("host", host);
         this.port = propertyResolver.getIntegerProperty("port", port);
-        this.pollTime = propertyResolver.getIntegerProperty("pollTime", pollTime);
-        this.requestBatchSize = propertyResolver
-                .getIntegerProperty("requestBatchSize", requestBatchSize);
-
         this.numberOfOutstandingRequests = propertyResolver
                 .getIntegerProperty("numberOfOutstandingRequests", numberOfOutstandingRequests);
-        this.maxRequestBatches = propertyResolver
-                .getIntegerProperty("maxRequestBatches", maxRequestBatches);
-
         this.flushInterval = propertyResolver.getIntegerProperty("flushInterval", flushInterval);
         this.uri = propertyResolver.getStringProperty("uri", uri);
         this.timeoutSeconds = propertyResolver.getIntegerProperty("timeoutSeconds", timeoutSeconds);
         this.statsFlushRateSeconds = propertyResolver.getIntegerProperty("statsFlushRateSeconds", statsFlushRateSeconds);
         this.checkTimingEveryXCalls = propertyResolver.getIntegerProperty("checkTimingEveryXCalls", checkTimingEveryXCalls);
+        this.encoderWorkerCount = propertyResolver.getIntegerProperty("encoderWorkerCount", encoderWorkerCount);
+        this.parserWorkerCount = propertyResolver.getIntegerProperty("parserWorkerCount", parserWorkerCount);
+        this.flushResponseInterval = propertyResolver.getLongProperty("flushResponseInterval", flushResponseInterval);
+        this.protocolBatchSize = propertyResolver.getIntegerProperty("protocolBatchSize", protocolBatchSize);
+
 
     }
 
@@ -322,8 +340,7 @@ public class EndpointServerBuilder {
     public QueueBuilder getRequestQueueBuilder() {
 
         if (requestQueueBuilder == null) {
-            requestQueueBuilder = new QueueBuilder().setBatchSize(this.getRequestBatchSize())
-                    .setPollWait(this.getPollTime());
+            requestQueueBuilder = QueueBuilder.queueBuilder();
         }
 
         return requestQueueBuilder;
@@ -337,8 +354,7 @@ public class EndpointServerBuilder {
 
     public QueueBuilder getWebResponseQueueBuilder() {
         if (webResponseQueueBuilder == null) {
-            webResponseQueueBuilder = QueueBuilder.queueBuilder()
-                    .setBatchSize(requestBatchSize).setPollWait(pollTime);
+            webResponseQueueBuilder = QueueBuilder.queueBuilder();
         }
         return webResponseQueueBuilder;
     }
@@ -359,6 +375,9 @@ public class EndpointServerBuilder {
     }
 
     public HttpTransport getHttpServer() {
+        if (httpServer == null) {
+             httpServer = getHttpServerBuilder().build();
+        }
         return httpServer;
     }
 
@@ -403,14 +422,6 @@ public class EndpointServerBuilder {
         return this;
     }
 
-    public int getMaxRequestBatches() {
-        return maxRequestBatches;
-    }
-
-    public EndpointServerBuilder setMaxRequestBatches(int maxRequestBatches) {
-        this.maxRequestBatches = maxRequestBatches;
-        return this;
-    }
 
     public boolean isEachServiceInItsOwnThread() {
         return eachServiceInItsOwnThread;
@@ -494,32 +505,7 @@ public class EndpointServerBuilder {
         return this;
     }
 
-    public boolean isManageQueues() {
-        return manageQueues;
-    }
 
-    public EndpointServerBuilder setManageQueues(boolean manageQueues) {
-        this.manageQueues = manageQueues;
-        return this;
-    }
-
-    public int getPollTime() {
-        return pollTime;
-    }
-
-    public EndpointServerBuilder setPollTime(int pollTime) {
-        this.pollTime = pollTime;
-        return this;
-    }
-
-    public int getRequestBatchSize() {
-        return requestBatchSize;
-    }
-
-    public EndpointServerBuilder setRequestBatchSize(int requestBatchSize) {
-        this.requestBatchSize = requestBatchSize;
-        return this;
-    }
 
     public int getFlushInterval() {
         return flushInterval;
@@ -535,8 +521,7 @@ public class EndpointServerBuilder {
         if (responseQueueBuilder == null) {
 
             if (responseQueue == null) {
-                responseQueueBuilder = new QueueBuilder().setBatchSize(this.getRequestBatchSize())
-                        .setPollWait(this.getPollTime());
+                responseQueueBuilder = QueueBuilder.queueBuilder();
             } else {
 
 
@@ -573,14 +558,7 @@ public class EndpointServerBuilder {
 
     public ServiceEndpointServer build() {
 
-        if (httpServer == null) {
-            httpServer = createHttpServer();
-        }
 
-
-        if (isEnableStatEndpoint() || isEnableHealthEndpoint()) {
-            setupHealthAndStats();
-        }
 
 
 
@@ -589,7 +567,7 @@ public class EndpointServerBuilder {
         final ServiceBundle serviceBundle;
 
 
-        serviceBundle = QBit.factory().createServiceBundle(uri,
+        serviceBundle = getFactory().createServiceBundle(uri,
                 getRequestQueueBuilder(),
                 getResponseQueueBuilder(),
                 getWebResponseQueueBuilder(),
@@ -602,15 +580,19 @@ public class EndpointServerBuilder {
                 getStatsCollector(), getTimer(),
                 getStatsFlushRateSeconds(),
                 getCheckTimingEveryXCalls(),
-                getCallbackManager());
+                getCallbackManager(),
+                getEventManager(),
+                getBeforeMethodSent(),
+                getBeforeMethodCallOnServiceQueue(), getAfterMethodCallOnServiceQueue());
 
 
 
-        final ServiceEndpointServer serviceEndpointServer = getFactory().createServiceServer(httpServer,
+        final ServiceEndpointServer serviceEndpointServer = new ServiceEndpointServerImpl(getHttpServer(),
                 getEncoder(), getParser(), serviceBundle, getJsonMapper(), this.getTimeoutSeconds(),
-                this.getNumberOfOutstandingRequests(), this.getRequestBatchSize(),
+                this.getNumberOfOutstandingRequests(), getProtocolBatchSize(),
                 this.getFlushInterval(), this.getSystemManager(), getEndpointName(),
-                getServiceDiscovery(), getPort(), getTtlSeconds(), getHealthService());
+                getServiceDiscovery(), getPort(), getTtlSeconds(), getHealthService(), getErrorHandler(),
+                getFlushResponseInterval(), getParserWorkerCount(), getEncoderWorkerCount());
 
 
         if (serviceEndpointServer != null && qBitSystemManager != null) {
@@ -622,77 +604,6 @@ public class EndpointServerBuilder {
 
         }
         return serviceEndpointServer;
-    }
-
-    private void setupHealthAndStats() {
-
-
-        final boolean healthEnabled = isEnableHealthEndpoint();
-        final boolean statsEnabled = isEnableStatEndpoint();
-
-
-        final HealthServiceAsync healthServiceAsync = healthEnabled ? getHealthService() : null;
-
-        final StatCollection statCollection = statsEnabled ? getStatsCollection() : null;
-
-        httpServer.setShouldContinueHttpRequest(httpRequest -> {
-
-            if (httpRequest.getUri().startsWith("/__")) {
-                handleHealthAndStats(healthEnabled, statsEnabled, healthServiceAsync, statCollection, httpRequest);
-                return false;
-            } else {
-                return true;
-            }
-        });
-    }
-
-    private void handleHealthAndStats(final boolean healthEnabled,
-                                      final boolean statsEnabled,
-                                      final HealthServiceAsync healthServiceAsync,
-                                      final StatCollection statCollection,
-                                      final HttpRequest httpRequest) {
-        if (healthEnabled && httpRequest.getUri().startsWith("/__health")) {
-            healthServiceAsync.ok(ok -> {
-                if (ok) {
-                    httpRequest.getReceiver().respondOK("\"ok\"");
-                } else {
-                    httpRequest.getReceiver().error("\"fail\"");
-                }
-            });
-        } else if (statsEnabled && httpRequest.getUri().startsWith("/__stats")) {
-
-            if (httpRequest.getUri().equals("/__stats/instance")) {
-                if (statCollection != null) {
-                    statCollection.collect(stats -> {
-                        String json = JsonFactory.toJson(stats);
-                        httpRequest.getReceiver().respondOK(json);
-                    });
-                } else {
-                    httpRequest.getReceiver().error("\"failed to load stats collector\"");
-                }
-            } else if (httpRequest.getUri().equals("/__stats/global")) {
-                /* We don't support global stats, yet. */
-                httpRequest.getReceiver().respondOK("{\"version\":1}");
-            } else {
-
-                httpRequest.getReceiver().notFound();
-            }
-        } else {
-
-            httpRequest.getReceiver().notFound();
-        }
-    }
-
-    private HttpServer createHttpServer() {
-
-        return httpServerBuilder().setPort(port)
-                .setHost(host)
-                .setManageQueues(this.isManageQueues())
-                .setFlushInterval(this.getFlushInterval())
-                .setPollTime(this.getPollTime())
-                .setRequestBatchSize(this.getRequestBatchSize())
-                .setMaxRequestBatches(this.getMaxRequestBatches())
-                .setSystemManager(getSystemManager()).build();
     }
 
 
@@ -740,5 +651,137 @@ public class EndpointServerBuilder {
             services = new ArrayList<>();
         }
         return services;
+    }
+
+    public EndpointServerBuilder addService(Object service) {
+        getServices().add(service);
+        return this;
+    }
+
+
+    public EndpointServerBuilder addServices(Object... services) {
+        for (Object service : services) {
+            getServices().add(service);
+        }
+        return this;
+    }
+
+
+    public HttpServerBuilder getHttpServerBuilder() {
+
+        if (httpServerBuilder == null) {
+
+            httpServerBuilder = httpServerBuilder().setPort(getPort())
+                    .setHost(getHost())
+                    .setFlushInterval(this.getFlushInterval())
+                    .setSystemManager(getSystemManager());
+
+
+                setupHealthAndStats(httpServerBuilder);
+
+        }
+
+        return httpServerBuilder;
+    }
+
+    public EndpointServerBuilder setHttpServerBuilder(HttpServerBuilder httpServerBuilder) {
+        this.httpServerBuilder = httpServerBuilder;
+        return this;
+    }
+
+
+
+
+    public EndpointServerBuilder setupHealthAndStats(final HttpServerBuilder httpServerBuilder) {
+
+        if (isEnableStatEndpoint() || isEnableHealthEndpoint()) {
+            final boolean healthEnabled = isEnableHealthEndpoint();
+            final boolean statsEnabled = isEnableStatEndpoint();
+
+
+            final HealthServiceAsync healthServiceAsync = healthEnabled ? getHealthService() : null;
+
+            final StatCollection statCollection = statsEnabled ? getStatsCollection() : null;
+
+            httpServerBuilder.addShouldContinueHttpRequestPredicate(
+                    new EndPointHealthPredicate(healthEnabled, statsEnabled,
+                            healthServiceAsync, statCollection));
+        }
+
+
+        return this;
+    }
+
+
+    public EventManager getEventManager() {
+        return eventManager;
+    }
+
+    public EndpointServerBuilder setEventManager(EventManager eventManager) {
+        this.eventManager = eventManager;
+        return this;
+    }
+
+    public BeforeMethodCall getBeforeMethodCallOnServiceQueue() {
+        return beforeMethodCallOnServiceQueue;
+    }
+
+    public EndpointServerBuilder setBeforeMethodCallOnServiceQueue(BeforeMethodCall beforeMethodCallOnServiceQueue) {
+        this.beforeMethodCallOnServiceQueue = beforeMethodCallOnServiceQueue;
+        return this;
+    }
+
+    public AfterMethodCall getAfterMethodCallOnServiceQueue() {
+        return afterMethodCallOnServiceQueue;
+    }
+
+    public EndpointServerBuilder setAfterMethodCallOnServiceQueue(AfterMethodCall afterMethodCallOnServiceQueue) {
+        this.afterMethodCallOnServiceQueue = afterMethodCallOnServiceQueue;
+        return this;
+    }
+
+    public Consumer<Throwable> getErrorHandler() {
+        return errorHandler;
+    }
+
+    public EndpointServerBuilder setErrorHandler(Consumer<Throwable> errorHandler) {
+        this.errorHandler = errorHandler;
+        return this;
+    }
+
+    public long getFlushResponseInterval() {
+        return flushResponseInterval;
+    }
+
+    public EndpointServerBuilder setFlushResponseInterval(long flushResponseInterval) {
+        this.flushResponseInterval = flushResponseInterval;
+        return this;
+    }
+
+    public int getParserWorkerCount() {
+        return parserWorkerCount;
+    }
+
+    public EndpointServerBuilder setParserWorkerCount(int parserWorkerCount) {
+        this.parserWorkerCount = parserWorkerCount;
+        return this;
+    }
+
+    public int getEncoderWorkerCount() {
+        return encoderWorkerCount;
+    }
+
+    public EndpointServerBuilder setEncoderWorkerCount(int encoderWorkerCount) {
+        this.encoderWorkerCount = encoderWorkerCount;
+        return this;
+    }
+
+    public int getProtocolBatchSize() {
+        return protocolBatchSize;
+    }
+
+    public EndpointServerBuilder setProtocolBatchSize(int protocolBatchSize) {
+        this.protocolBatchSize = protocolBatchSize;
+        return this;
     }
 }
