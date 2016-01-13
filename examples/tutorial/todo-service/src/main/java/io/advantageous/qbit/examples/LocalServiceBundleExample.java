@@ -2,7 +2,6 @@ package io.advantageous.qbit.examples;
 
 import io.advantageous.boon.core.Sys;
 import io.advantageous.qbit.reactive.Callback;
-import io.advantageous.qbit.service.*;
 
 import java.util.Date;
 import java.util.List;

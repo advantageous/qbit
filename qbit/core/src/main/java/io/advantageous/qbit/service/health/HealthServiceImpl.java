@@ -3,8 +3,6 @@ package io.advantageous.qbit.service.health;
 
 import io.advantageous.boon.core.Lists;
 import io.advantageous.boon.core.reflection.BeanUtils;
-import io.advantageous.qbit.annotation.QueueCallback;
-import io.advantageous.qbit.annotation.QueueCallbackType;
 import io.advantageous.qbit.reactive.Reactor;
 import io.advantageous.qbit.service.BaseService;
 import io.advantageous.qbit.service.Stoppable;

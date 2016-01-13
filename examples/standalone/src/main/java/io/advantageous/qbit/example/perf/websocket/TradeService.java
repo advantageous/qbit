@@ -2,8 +2,10 @@ package io.advantageous.qbit.example.perf.websocket;
 
 import io.advantageous.qbit.admin.ManagedServiceBuilder;
 import io.advantageous.qbit.annotation.RequestMapping;
+import io.advantageous.qbit.annotation.Service;
 import io.advantageous.qbit.annotation.http.GET;
 import io.advantageous.qbit.annotation.http.PUT;
+
 import static io.advantageous.qbit.admin.ManagedServiceBuilder.managedServiceBuilder;
 
 /**
@@ -11,14 +13,15 @@ import static io.advantageous.qbit.admin.ManagedServiceBuilder.managedServiceBui
  * curl  http://localhost:8080/count
  */
 @RequestMapping("/")
+@Service("t")
 public class TradeService {
 
     private long count;
 
     @PUT("/trade")
-    public boolean trade(final Trade trade) {
-        trade.getName().hashCode();
-        trade.getAmount();
+    public boolean t(final Trade trade) {
+        trade.getNm().hashCode();
+        trade.getAmt();
         count++;
         return true;
     }
@@ -36,6 +39,7 @@ public class TradeService {
                 .addEndpointService(new TradeService())
                 .setRootURI("/");
 
+        //managedServiceBuilder.getEndpointServerBuilder().setHost("192.168.0.1");
 
         managedServiceBuilder.startApplication();
     }

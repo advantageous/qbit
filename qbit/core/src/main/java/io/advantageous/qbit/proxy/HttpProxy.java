@@ -4,7 +4,6 @@ import io.advantageous.qbit.http.server.HttpServer;
 import io.advantageous.qbit.service.Startable;
 import io.advantageous.qbit.service.Stoppable;
 
-
 import static io.advantageous.qbit.service.ServiceProxyUtils.flushServiceProxy;
 
 

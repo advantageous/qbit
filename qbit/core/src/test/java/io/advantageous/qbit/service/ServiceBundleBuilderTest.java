@@ -3,9 +3,7 @@ package io.advantageous.qbit.service;
 import io.advantageous.boon.core.Sys;
 import io.advantageous.qbit.annotation.Named;
 import io.advantageous.qbit.service.stats.StatsCollector;
-import io.advantageous.qbit.util.ConcurrentHashSet;
 import io.advantageous.qbit.util.TestTimer;
-import io.advantageous.qbit.util.Timer;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -15,7 +13,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 
 import static io.advantageous.boon.core.IO.puts;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertTrue;
 
 public class ServiceBundleBuilderTest {
 
@@ -100,6 +98,8 @@ public class ServiceBundleBuilderTest {
             ServiceProxyUtils.flushServiceProxy(proxy);
         }
 
+
+        ServiceProxyUtils.flushServiceProxy(proxy);
 
         Sys.sleep(1_000);
 

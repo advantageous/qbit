@@ -1,11 +1,12 @@
 package io.advantageous.qbit.example.websocket.service;
 
 import io.advantageous.qbit.service.discovery.EndpointDefinition;
-import static io.advantageous.qbit.service.discovery.EndpointDefinition.*;
-
 import io.advantageous.qbit.service.discovery.ServiceDiscovery;
 
 import java.util.List;
+
+import static io.advantageous.qbit.service.discovery.EndpointDefinition.serviceDefinition;
+import static io.advantageous.qbit.service.discovery.EndpointDefinition.serviceDefinitions;
 
 public class ServiceDiscoveryMock implements ServiceDiscovery{
 

@@ -7,7 +7,6 @@ import org.slf4j.LoggerFactory;
 
 import java.net.URI;
 import java.util.List;
-import java.util.function.Supplier;
 
 /**
  * If you don't supply a DNS port and host, then you get this class.

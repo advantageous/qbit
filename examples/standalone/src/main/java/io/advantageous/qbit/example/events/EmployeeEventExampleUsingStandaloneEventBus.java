@@ -19,7 +19,6 @@
 package io.advantageous.qbit.example.events;
 
 import io.advantageous.boon.core.Sys;
-import io.advantageous.qbit.QBit;
 import io.advantageous.qbit.events.EventManager;
 import io.advantageous.qbit.events.EventManagerBuilder;
 import io.advantageous.qbit.service.ServiceQueue;

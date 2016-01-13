@@ -6,8 +6,6 @@ import io.advantageous.qbit.queue.QueueException;
 import io.advantageous.qbit.queue.SendQueue;
 import org.junit.Test;
 
-import static org.junit.Assert.*;
-
 public class BasicSendQueueTest {
 
     @Test(expected = QueueException.class)

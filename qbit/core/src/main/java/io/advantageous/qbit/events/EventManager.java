@@ -19,8 +19,6 @@
 package io.advantageous.qbit.events;
 
 import io.advantageous.qbit.events.spi.EventTransferObject;
-import io.advantageous.qbit.message.Event;
-import io.advantageous.qbit.queue.SendQueue;
 import io.advantageous.qbit.service.ServiceQueue;
 
 /**

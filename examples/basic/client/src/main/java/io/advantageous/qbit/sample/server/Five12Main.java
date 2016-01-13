@@ -3,9 +3,7 @@ package io.advantageous.qbit.sample.server;
 import io.advantageous.boon.core.Sys;
 import io.advantageous.qbit.client.Client;
 import io.advantageous.qbit.client.ClientBuilder;
-import io.advantageous.qbit.reactive.Callback;
 import io.advantageous.qbit.sample.server.client.TodoServiceClient;
-import io.advantageous.qbit.sample.server.model.TodoItem;
 
 import java.util.concurrent.atomic.AtomicInteger;
 

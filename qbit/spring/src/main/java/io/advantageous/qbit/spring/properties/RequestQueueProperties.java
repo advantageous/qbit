@@ -1,7 +1,6 @@
 package io.advantageous.qbit.spring.properties;
 
 import io.advantageous.boon.core.Sys;
-import io.advantageous.qbit.GlobalConstants;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
 /**

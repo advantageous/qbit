@@ -1,10 +1,10 @@
 package io.advantageous.qbit.vertx.http.server;
 
-import io.advantageous.qbit.http.request.HttpResponseCreator;
-import io.advantageous.qbit.http.request.decorator.HttpResponseDecorator;
 import io.advantageous.qbit.http.HttpStatus;
 import io.advantageous.qbit.http.request.HttpResponse;
+import io.advantageous.qbit.http.request.HttpResponseCreator;
 import io.advantageous.qbit.http.request.HttpResponseReceiver;
+import io.advantageous.qbit.http.request.decorator.HttpResponseDecorator;
 import io.advantageous.qbit.util.MultiMap;
 import io.vertx.core.buffer.Buffer;
 import io.vertx.core.http.HttpServerResponse;

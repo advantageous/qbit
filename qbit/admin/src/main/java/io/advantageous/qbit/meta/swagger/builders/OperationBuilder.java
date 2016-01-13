@@ -5,7 +5,10 @@ import io.advantageous.qbit.meta.swagger.Operation;
 import io.advantageous.qbit.meta.swagger.Parameter;
 import io.advantageous.qbit.meta.swagger.Response;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 
 public class OperationBuilder {
 

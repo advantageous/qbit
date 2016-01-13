@@ -21,7 +21,6 @@ package io.advantageous.qbit.metrics.support;
 
 import io.advantageous.qbit.metrics.StatReplicator;
 
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
 
