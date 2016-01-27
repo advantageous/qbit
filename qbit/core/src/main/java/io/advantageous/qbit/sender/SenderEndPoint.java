@@ -18,7 +18,6 @@
 
 package io.advantageous.qbit.sender;
 
-import io.advantageous.qbit.message.Message;
 import io.advantageous.qbit.message.MethodCall;
 import io.advantageous.qbit.service.BeforeMethodCall;
 import io.advantageous.qbit.service.EndPoint;
@@ -31,7 +30,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.TimeUnit;
 
 /**
  * Combines a sender with a protocol encoder so we can forward messages to another remote end point.
@@ -66,6 +64,10 @@ public class SenderEndPoint implements EndPoint {
     @Override
     public void call(MethodCall<Object> methodCall) {
 
+        if (methodCall == null) {
+            return;
+        }
+
         beforeMethodCall.before(methodCall);
 
         if (!methodCalls.offer(methodCall)) {
@@ -88,8 +90,7 @@ public class SenderEndPoint implements EndPoint {
 
         if (methodCalls.size() > 0) {
             String returnAddress = methodCalls.get(0).returnAddress();
-            @SuppressWarnings("unchecked") List<Message<Object>> methods = (List<Message<Object>>) (Object) methodCalls;
-            sender.send(returnAddress, encoder.encodeAsString(methods));
+            sender.send(returnAddress, encoder.encodeMethodCalls(methodCalls.get(0).returnAddress(), methodCalls));
         }
     }
 
@@ -98,28 +99,26 @@ public class SenderEndPoint implements EndPoint {
     @Override
     public void flush() {
 
-        if (methodCalls.size() > 0) {
 
 
-            Message<Object> method;
+            MethodCall<Object> method = methodCalls.poll();
 
-            List<Message<Object>> methods;
+            if (method!=null) {
 
-
-            methods = new ArrayList<>(methodCalls.size());
-
-
-            do {
-                method = methodCalls.poll();
-                methods.add(method);
-            }while (method!=null);
+                List<MethodCall<Object>> methods;
 
 
-            if (methods.size() > 0) {
-                sender.send(((MethodCall<Object>) methods.get(0)).returnAddress(), encoder.encodeAsString(methods));
+                methods = new ArrayList<>(methodCalls.size());
+
+
+                while (method != null) {
+                    methods.add(method);
+                    method = methodCalls.poll();
+                }
+
+                sender.send((methods.get(0)).returnAddress(), encoder.encodeMethodCalls(methods.get(0).returnAddress(), methods));
+
             }
-
-        }
 
     }
 

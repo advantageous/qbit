@@ -18,7 +18,6 @@
 
 package io.advantageous.qbit.spi;
 
-import io.advantageous.qbit.message.Message;
 import io.advantageous.qbit.message.MethodCall;
 import io.advantageous.qbit.message.Response;
 
@@ -31,10 +30,11 @@ import java.util.Collection;
  */
 public interface ProtocolEncoder {
 
-    String encodeAsString(Response<Object> response);
 
-    String encodeAsString(MethodCall<Object> methodCall);
 
-    String encodeAsString(Collection<Message<Object>> messages);
+    String encodeResponses(String returnAddress, Collection<Response<Object>> responses);
+
+
+    String encodeMethodCalls(String returnAddress, Collection<MethodCall<Object>> methodCalls);
 
 }

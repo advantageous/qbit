@@ -12,11 +12,10 @@ import io.advantageous.qbit.reactive.ReactorBuilder;
 import io.advantageous.qbit.service.*;
 import io.advantageous.qbit.service.stats.StatsCollector;
 import io.advantageous.qbit.util.Timer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 
-import org.slf4j.LoggerFactory;
-
-import org.slf4j.Logger;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;

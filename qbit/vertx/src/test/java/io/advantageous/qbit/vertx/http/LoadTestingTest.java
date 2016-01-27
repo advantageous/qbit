@@ -28,7 +28,6 @@ import io.advantageous.qbit.http.client.HttpClientBuilder;
 import io.advantageous.qbit.reactive.Callback;
 import io.advantageous.qbit.server.EndpointServerBuilder;
 import io.advantageous.qbit.server.ServiceEndpointServer;
-import io.advantageous.qbit.service.ServiceProxyUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Ignore;

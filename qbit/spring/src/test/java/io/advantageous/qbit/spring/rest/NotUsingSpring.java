@@ -6,7 +6,6 @@ import io.advantageous.qbit.http.client.HttpClientBuilder;
 import io.advantageous.qbit.http.request.HttpTextResponse;
 import io.advantageous.qbit.message.Response;
 import io.advantageous.qbit.queue.Queue;
-import io.advantageous.qbit.reactive.Callback;
 import io.advantageous.qbit.server.EndpointServerBuilder;
 import io.advantageous.qbit.server.ServiceEndpointServer;
 import io.advantageous.qbit.service.ServiceBuilder;

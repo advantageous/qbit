@@ -9,7 +9,6 @@ import org.junit.Test;
 
 import java.util.List;
 
-import static io.advantageous.boon.core.IO.puts;
 import static io.advantageous.consul.discovery.ConsulServiceDiscoveryBuilder.consulServiceDiscoveryBuilder;
 import static org.junit.Assert.assertEquals;
 

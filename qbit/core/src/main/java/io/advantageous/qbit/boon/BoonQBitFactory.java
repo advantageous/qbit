@@ -18,9 +18,11 @@
 
 package io.advantageous.qbit.boon;
 
-import io.advantageous.qbit.boon.spi.BoonJsonMapper;
 import io.advantageous.qbit.Factory;
+import io.advantageous.qbit.boon.events.impl.BoonEventBusProxyCreator;
+import io.advantageous.qbit.boon.service.impl.BoonServiceMethodCallHandler;
 import io.advantageous.qbit.boon.service.impl.BoonServiceProxyFactory;
+import io.advantageous.qbit.boon.spi.BoonJsonMapper;
 import io.advantageous.qbit.boon.spi.BoonProtocolEncoder;
 import io.advantageous.qbit.boon.spi.BoonProtocolParser;
 import io.advantageous.qbit.client.BeforeMethodSent;
@@ -30,7 +32,6 @@ import io.advantageous.qbit.concurrent.PeriodicScheduler;
 import io.advantageous.qbit.events.EventBusProxyCreator;
 import io.advantageous.qbit.events.EventManager;
 import io.advantageous.qbit.events.EventManagerBuilder;
-import io.advantageous.qbit.boon.events.impl.BoonEventBusProxyCreator;
 import io.advantageous.qbit.http.client.HttpClient;
 import io.advantageous.qbit.json.JsonMapper;
 import io.advantageous.qbit.message.MethodCall;
@@ -41,11 +42,12 @@ import io.advantageous.qbit.sender.Sender;
 import io.advantageous.qbit.sender.SenderEndPoint;
 import io.advantageous.qbit.service.*;
 import io.advantageous.qbit.service.health.HealthServiceAsync;
-import io.advantageous.qbit.boon.service.impl.BoonServiceMethodCallHandler;
 import io.advantageous.qbit.service.impl.CallbackManager;
 import io.advantageous.qbit.service.impl.ServiceBundleImpl;
 import io.advantageous.qbit.service.stats.StatsCollector;
-import io.advantageous.qbit.spi.*;
+import io.advantageous.qbit.spi.FactorySPI;
+import io.advantageous.qbit.spi.ProtocolEncoder;
+import io.advantageous.qbit.spi.ProtocolParser;
 import io.advantageous.qbit.system.QBitSystemManager;
 import io.advantageous.qbit.transforms.Transformer;
 import io.advantageous.qbit.util.MultiMap;
@@ -241,21 +243,11 @@ public class BoonQBitFactory implements Factory {
 
 
     @Override
-    public MethodCall<Object> createMethodCallToBeParsedFromBody(String address, String returnAddress, String objectName, String methodName, Object body, MultiMap<String, String> params) {
-        MethodCall<Object> parsedMethodCall = null;
-        if (body != null) {
-            ProtocolParser parser = selectProtocolParser(body, params);
-
-            if (parser != null) {
-                parsedMethodCall = parser.parseMethodCall(body);
-            } else {
-                parsedMethodCall = defaultProtocol.parseMethodCall(body);
-            }
-        }
-
-        if (parsedMethodCall != null) {
-            return parsedMethodCall;
-        }
+    public MethodCall<Object> createMethodCallToBeParsedFromBody(String address,
+                                                                 String returnAddress,
+                                                                 String objectName,
+                                                                 String methodName,
+                                                                 Object body, MultiMap<String, String> params) {
 
         MethodCallBuilder methodCallBuilder = new MethodCallBuilder();
         methodCallBuilder.setName(methodName);
@@ -274,16 +266,6 @@ public class BoonQBitFactory implements Factory {
     public MethodCall<Object> createMethodCallByNames(String methodName, String objectName, String returnAddress, Object args, MultiMap<String, String> params) {
         return createMethodCallToBeParsedFromBody("", returnAddress, objectName, methodName, args, params);
     }
-
-    private ProtocolParser selectProtocolParser(Object args, MultiMap<String, String> params) {
-        for (ProtocolParser parser : protocolParserListRef.get()) {
-            if (parser.supports(args, params)) {
-                return parser;
-            }
-        }
-        return null;
-    }
-
 
 
     @Override

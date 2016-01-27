@@ -18,9 +18,7 @@ import io.vertx.core.Vertx;
 import io.vertx.ext.web.Route;
 import io.vertx.ext.web.Router;
 
-
 import java.util.Optional;
-import java.util.function.Predicate;
 
 
 /**

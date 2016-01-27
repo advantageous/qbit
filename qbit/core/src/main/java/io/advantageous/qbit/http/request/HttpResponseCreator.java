@@ -9,6 +9,7 @@ public interface HttpResponseCreator {
 
     HttpResponse<?> createResponse(final CopyOnWriteArrayList<HttpResponseDecorator> decorators,
                                           final String requestPath,
+                                          final String requestMethod,
                                           final int code,
                                           final String contentType,
                                           final Object body,

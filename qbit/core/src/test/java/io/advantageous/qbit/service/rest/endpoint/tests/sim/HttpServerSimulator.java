@@ -3,8 +3,8 @@ package io.advantageous.qbit.service.rest.endpoint.tests.sim;
 import io.advantageous.boon.core.Sys;
 import io.advantageous.boon.json.JsonFactory;
 import io.advantageous.qbit.http.request.*;
-import io.advantageous.qbit.http.request.impl.HttpResponseCreatorDefault;
 import io.advantageous.qbit.http.request.decorator.HttpResponseDecorator;
+import io.advantageous.qbit.http.request.impl.HttpResponseCreatorDefault;
 import io.advantageous.qbit.http.server.HttpServer;
 import io.advantageous.qbit.http.server.websocket.WebSocketMessage;
 import io.advantageous.qbit.util.MultiMap;
@@ -169,7 +169,7 @@ public class HttpServerSimulator implements HttpServer {
 
 
         HttpTextResponse httpTextResponse = (HttpTextResponse) httpResponseCreator.createResponse(decorators,
-                httpRequestBuilder.getUri(), code, contentType,
+                httpRequestBuilder.getUri(), httpRequestBuilder.getMethod(), code, contentType,
                 body, headers, httpRequestBuilder.getHeaders(), httpRequestBuilder.getParams());
 
         if (httpTextResponse == null) {

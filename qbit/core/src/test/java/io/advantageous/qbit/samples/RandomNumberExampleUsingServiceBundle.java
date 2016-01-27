@@ -8,9 +8,9 @@ import io.advantageous.qbit.reactive.CallbackBuilder;
 import io.advantageous.qbit.service.ServiceBundle;
 import io.advantageous.qbit.service.ServiceBundleBuilder;
 
-import static io.advantageous.qbit.service.ServiceProxyUtils.*;
-
 import java.util.Random;
+
+import static io.advantageous.qbit.service.ServiceProxyUtils.flushServiceProxy;
 
 public class RandomNumberExampleUsingServiceBundle {
 

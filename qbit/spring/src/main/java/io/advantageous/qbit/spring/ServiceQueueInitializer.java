@@ -12,9 +12,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.ContextRefreshedEvent;
 
-import static org.springframework.boot.ansi.AnsiColor.GREEN;
-import static org.springframework.boot.ansi.AnsiStyle.BOLD;
-import static org.springframework.boot.ansi.AnsiStyle.NORMAL;
+import static org.springframework.boot.ansi.AnsiElement.*;
 
 /**
  * The ServiceQueueInitializer is an event listener that starts all the queues after everything has been setup.

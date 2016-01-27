@@ -18,6 +18,7 @@
 
 package io.advantageous.qbit.boon.client;
 
+import io.advantageous.boon.core.Lists;
 import io.advantageous.boon.core.Sys;
 import io.advantageous.boon.core.reflection.BeanUtils;
 import io.advantageous.qbit.QBit;
@@ -193,7 +194,7 @@ public class BoonClientIntegrationTest extends TimedTesting {
                     periodicFlushCallback.accept(null);
 
 
-                    final List<MethodCall<Object>> methodCalls = QBit.factory().createProtocolParser().parseMethods(body);
+                    final List<MethodCall<Object>> methodCalls = QBit.factory().createProtocolParser().parseMethodCalls("", body);
 
                     serviceBundle.call(methodCalls);
 
@@ -206,7 +207,7 @@ public class BoonClientIntegrationTest extends TimedTesting {
                         if (response.wasErrors()) {
                             puts("FAILED RESPONSE", response);
                         } else {
-                            String simulatedMessageFromServer = QBit.factory().createEncoder().encodeAsString(response);
+                            String simulatedMessageFromServer = QBit.factory().createEncoder().encodeResponses("", Lists.list(response));
                             webSocket.onTextMessage(simulatedMessageFromServer);
                         }
                     } else {

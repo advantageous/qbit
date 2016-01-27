@@ -1,11 +1,9 @@
 package io.advantageous.qbit.service.discovery.dns;
 
 import io.vertx.core.Vertx;
-import io.vertx.core.dns.DnsClient;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.function.Supplier;
 
 /**
  * DnsSupportBuilder knows how to build a DnsSupport class.

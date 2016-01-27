@@ -1,9 +1,9 @@
 package io.advantageous.qbit.vertx.http.server;
 
-import io.advantageous.qbit.http.request.HttpResponseCreator;
-import io.advantageous.qbit.http.request.HttpResponseDecorator;
 import io.advantageous.qbit.http.HttpStatus;
 import io.advantageous.qbit.http.request.HttpResponse;
+import io.advantageous.qbit.http.request.HttpResponseCreator;
+import io.advantageous.qbit.http.request.HttpResponseDecorator;
 import io.advantageous.qbit.http.request.HttpResponseReceiver;
 import io.advantageous.qbit.util.MultiMap;
 import org.vertx.java.core.buffer.Buffer;

@@ -21,7 +21,6 @@ package io.advantageous.qbit.boon.spi;
 import io.advantageous.boon.json.JsonSerializer;
 import io.advantageous.boon.json.JsonSerializerFactory;
 import io.advantageous.boon.primitive.CharBuf;
-import io.advantageous.qbit.message.Message;
 import io.advantageous.qbit.message.MethodCall;
 import io.advantageous.qbit.message.Response;
 import io.advantageous.qbit.service.Protocol;
@@ -56,65 +55,59 @@ public class BoonProtocolEncoder implements ProtocolEncoder {
         }
     };
 
-    @Override
-    public String encodeAsString(Response<Object> response) {
-        CharBuf buf = CharBuf.createCharBuf();
-        encodeAsString(buf, response, true);
-        return buf.toString();
-    }
 
-    @Override
-    public String encodeAsString(MethodCall<Object> methodCall) {
-        CharBuf buf = CharBuf.createCharBuf();
-        encodeAsString(buf, methodCall, true);
-        return buf.toString();
-    }
-
-    @Override
-    public String encodeAsString(Collection<Message<Object>> messages) {
+    public String encodeResponses(String returnAddress, Collection<Response<Object>> responses) {
         CharBuf buf = bufRef.get();
         buf.recycle();
 
         buf.addChar(PROTOCOL_MARKER);
         buf.addChar(PROTOCOL_MESSAGE_TYPE_GROUP);
+        buf.addChar(PROTOCOL_SEPARATOR);
+        buf.add(returnAddress);
+        buf.addChar(PROTOCOL_SEPARATOR);
+        buf.addChar(PROTOCOL_MESSAGE_SEPARATOR);
+
         int index = 0;
 
-        for (Message<Object> message : messages) {
-
+        for (Response<Object> response : responses) {
             boolean encodeAddress = index == 0;
+            encodeResponseAsString(buf, response, encodeAddress);
+            buf.addChar(PROTOCOL_MESSAGE_SEPARATOR);
+            index++;
+        }
+        return buf.toString();
 
-            if (message instanceof MethodCall) {
-                encodeAsString(buf, (MethodCall<Object>) message, encodeAddress);
-            } else if (message instanceof Response) {
-                encodeAsString(buf, (Response<Object>) message, encodeAddress);
-            }
+    }
+
+
+    public String encodeMethodCalls(String returnAddress, Collection<MethodCall<Object>> methodCalls) {
+        CharBuf buf = bufRef.get();
+        buf.recycle();
+
+        buf.addChar(PROTOCOL_MARKER);
+        buf.addChar(PROTOCOL_MESSAGE_TYPE_GROUP);
+        buf.addChar(PROTOCOL_SEPARATOR);
+        buf.add(returnAddress);
+        buf.addChar(PROTOCOL_SEPARATOR);
+        buf.addChar(PROTOCOL_MESSAGE_SEPARATOR);
+
+        for (MethodCall<Object> methodCall : methodCalls) {
+
+            encodeMethodCallAsString(buf, methodCall);
             buf.addChar(PROTOCOL_MESSAGE_SEPARATOR);
 
-            index++;
         }
 
         return buf.toString();
 
     }
 
-
-    private void encodeAsString(CharBuf buf, MethodCall<Object> methodCall, boolean encodeAddress) {
-        buf.addChar(PROTOCOL_MARKER);
+    private void encodeMethodCallAsString(CharBuf buf, MethodCall<Object> methodCall) {
         buf.addChar(PROTOCOL_MESSAGE_TYPE_METHOD);
         buf.addChar(PROTOCOL_SEPARATOR);
         buf.add(methodCall.id());
         buf.addChar(PROTOCOL_SEPARATOR);
         buf.add(methodCall.address());
-        buf.addChar(PROTOCOL_SEPARATOR);
-
-        buf.add(methodCall.returnAddress());
-
-//        if (encodeAddress) {
-//            buf.add(methodCall.returnAddress());
-//
-//        } else {
-//            buf.add("same");
-//        }
 
         buf.addChar(PROTOCOL_SEPARATOR);
         encodeHeadersAndParams(buf, methodCall.headers());
@@ -151,16 +144,12 @@ public class BoonProtocolEncoder implements ProtocolEncoder {
     }
 
 
-    private void encodeAsString(CharBuf buf, Response<Object> response, boolean encodeAddress) {
-        buf.addChar(PROTOCOL_MARKER);
+    private void encodeResponseAsString(CharBuf buf, Response<Object> response, boolean encodeAddress) {
         buf.addChar(PROTOCOL_MESSAGE_TYPE_RESPONSE);
         buf.addChar(PROTOCOL_SEPARATOR);
         buf.add(response.id());
         buf.addChar(PROTOCOL_SEPARATOR);
         buf.add(response.address());
-        buf.addChar(PROTOCOL_SEPARATOR);
-
-        buf.add(response.returnAddress());
         buf.addChar(PROTOCOL_SEPARATOR);
         buf.addChar(PROTOCOL_SEPARATOR); //reserved for header
         buf.addChar(PROTOCOL_SEPARATOR); //reserved for params

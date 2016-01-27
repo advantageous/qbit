@@ -42,6 +42,9 @@ public class Protocol {
     public static final int PROTOCOL_VALUE_HEADER_DELIM = 0x15;
     public static final int PROTOCOL_MARKER_POSITION = 0;
     public static final int VERSION_MARKER_POSITION = 1;
+
+    public static final int PROTOCOL_MESSAGE_TYPE_POSITION = 0;
+
     public static final int PROTOCOL_MESSAGE_TYPE_METHOD = 'm';
     public static final int PROTOCOL_MESSAGE_TYPE_GROUP = 'g';
     public static final int PROTOCOL_MESSAGE_TYPE_RESPONSE = 'r';
@@ -49,16 +52,16 @@ public class Protocol {
 
     public static final int MESSAGE_ID_POS = 1;
     public static final int ADDRESS_POS = 2;
-    public static final int RETURN_ADDRESS_POS = 3;
-    public static final int HEADER_POS = 4;
-    public static final int PARAMS_POS = 5;
-    public static final int OBJECT_NAME_POS = 6;
-    public static final int METHOD_NAME_POS = 7;
-    public static final int TIMESTAMP_POS = 8;
-    public static final int ARGS_POS = 9;
+    public static final int RETURN_ADDRESS_POS = 1;
+    public static final int HEADER_POS = 3;
+    public static final int PARAMS_POS = 4;
+    public static final int OBJECT_NAME_POS = 5;
+    public static final int METHOD_NAME_POS = 6;
+    public static final int TIMESTAMP_POS = 7;
+    public static final int ARGS_POS = 8;
 
-    public static final int WAS_ERRORS_POS = 9;
-    public static final int RESPONSE_RETURN = 10;
+    public static final int WAS_ERRORS_POS = 8;
+    public static final int RESPONSE_RETURN = 9;
 
 
 }
