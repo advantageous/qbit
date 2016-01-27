@@ -36,6 +36,7 @@ public class NoCacheService {
         managedServiceBuilder.getHttpServerBuilder().addResponseDecorator(new HttpResponseDecorator() {
             @Override
             public boolean decorateTextResponse(HttpTextResponseHolder responseHolder, String requestPath,
+                                                String method,
                                                 int code, String contentType, String payload,
                                                 MultiMap<String, String> responseHeaders,
                                                 MultiMap<String, String> requestHeaders,
@@ -65,6 +66,7 @@ public class NoCacheService {
 
             @Override
             public boolean decorateBinaryResponse(HttpBinaryResponseHolder responseHolder, String requestPath,
+                                                  String method,
                                                   int code, String contentType, byte[] payload,
                                                   MultiMap<String, String> responseHeaders,
                                                   MultiMap<String, String> requestHeaders,
