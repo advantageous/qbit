@@ -88,7 +88,8 @@ public class PredicateChainTest {
 
         httpServerBuilder.addResponseDecorator(new HttpResponseDecorator() {
             @Override
-            public boolean decorateTextResponse(HttpTextResponseHolder responseHolder, String requestPath,
+            public boolean decorateTextResponse(HttpTextResponseHolder responseHolder,
+                                                String requestPath, String requestMethod,
                                                 int code, String contentType, String payload,
                                                 MultiMap<String, String> responseHeaders,
                                                 MultiMap<String, String> requestHeaders,
@@ -100,7 +101,8 @@ public class PredicateChainTest {
             }
 
             @Override
-            public boolean decorateBinaryResponse(HttpBinaryResponseHolder responseHolder, String requestPath, int code, String contentType, byte[] payload, MultiMap<String, String> responseHeaders, MultiMap<String, String> requestHeaders, MultiMap<String, String> requestParams) {
+            public boolean decorateBinaryResponse(HttpBinaryResponseHolder responseHolder, String requestPath, String requestMethod,
+                                                  int code, String contentType, byte[] payload, MultiMap<String, String> responseHeaders, MultiMap<String, String> requestHeaders, MultiMap<String, String> requestParams) {
                 return false;
             }
         });

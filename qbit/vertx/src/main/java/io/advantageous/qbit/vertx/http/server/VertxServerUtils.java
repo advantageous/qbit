@@ -78,7 +78,7 @@ public class VertxServerUtils {
                 .setBodySupplier(() -> buffer == null ?
                         null : buffer.getBytes())
                 .setRemoteAddress(request.remoteAddress().toString())
-                .setResponse(createResponse(requestPath, headers, params,
+                .setResponse(createResponse(requestPath, request.method().toString(), headers, params,
                         request.response(), decorators, httpResponseCreator))
                 .setTimestamp(time == 0L ? Timer.timer().now() : time)
                 .setHeaders(headers);
@@ -104,11 +104,14 @@ public class VertxServerUtils {
 
     private HttpResponseReceiver createResponse(
             final String requestPath,
-            MultiMap<String, String> headers, MultiMap<String, String> params, final HttpServerResponse response,
+            final String requestMethod,
+            final MultiMap<String, String> headers,
+            final MultiMap<String, String> params,
+            final HttpServerResponse response,
             final CopyOnWriteArrayList<HttpResponseDecorator> decorators,
             final HttpResponseCreator httpResponseCreator) {
 
-        return new VertxHttpResponseReceiver(requestPath, headers, params, response, decorators, httpResponseCreator);
+        return new VertxHttpResponseReceiver(requestPath, requestMethod, headers, params, response, decorators, httpResponseCreator);
 
     }
 

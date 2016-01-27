@@ -7,7 +7,8 @@ public interface HttpResponseDecorator {
 
     /** Returns true if we should continue. */
     boolean decorateTextResponse(HttpTextResponseHolder responseHolder,
-                                 String requestPath, int code, String contentType, String payload,
+                                 String requestPath, String requestMethod,
+                                 int code, String contentType, String payload,
                                  final MultiMap<String, String> responseHeaders,
                                  final MultiMap<String, String> requestHeaders,
                                  final MultiMap<String, String> requestParams);
@@ -15,7 +16,8 @@ public interface HttpResponseDecorator {
 
     /** Returns true if we should continue. */
     boolean decorateBinaryResponse(HttpBinaryResponseHolder responseHolder,
-                                   String requestPath, int code, String contentType, byte[] payload,
+                                   String requestPath, String requestMethod,
+                                   int code, String contentType, byte[] payload,
                                    final MultiMap<String, String> responseHeaders,
                                    final MultiMap<String, String> requestHeaders,
                                    final MultiMap<String, String> requestParams);

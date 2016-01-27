@@ -169,7 +169,7 @@ public class HttpServerSimulator implements HttpServer {
 
 
         HttpTextResponse httpTextResponse = (HttpTextResponse) httpResponseCreator.createResponse(decorators,
-                httpRequestBuilder.getUri(), code, contentType,
+                httpRequestBuilder.getUri(), httpRequestBuilder.getMethod(), code, contentType,
                 body, headers, httpRequestBuilder.getHeaders(), httpRequestBuilder.getParams());
 
         if (httpTextResponse == null) {

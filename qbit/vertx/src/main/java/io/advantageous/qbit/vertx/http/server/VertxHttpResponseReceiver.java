@@ -22,8 +22,10 @@ public class VertxHttpResponseReceiver implements HttpResponseReceiver<Object> {
     private final String requestPath;
     private final MultiMap<String, String> requestHeaders;
     private final MultiMap<String, String> requestParams;
+    private final String requestMethod;
 
     public VertxHttpResponseReceiver(final String requestPath,
+                                     final String requestMethod,
                                      final MultiMap<String, String> headers,
                                      final MultiMap<String, String> params,
                                      final HttpServerResponse response,
@@ -35,6 +37,7 @@ public class VertxHttpResponseReceiver implements HttpResponseReceiver<Object> {
         this.requestPath = requestPath;
         this.requestHeaders = headers;
         this.requestParams = params;
+        this.requestMethod = requestMethod;
 
     }
 
@@ -51,7 +54,7 @@ public class VertxHttpResponseReceiver implements HttpResponseReceiver<Object> {
 
 
         final HttpResponse<?> decoratedResponse = decorators.size() > 0 ? httpResponseCreator.createResponse(
-                decorators, requestPath, code, contentType, body,
+                decorators, requestPath, requestMethod, code, contentType, body,
                 responseHeaders, this.requestHeaders,
                 this.requestParams) : null;
 
