@@ -38,7 +38,6 @@ public class HttpServerOptions implements Cloneable {
     protected boolean compressionSupport = false;
     protected boolean reuseAddress = true;
     protected int idleTimeout = 30_000;
-    protected CorsSupport corsSupport;
     protected boolean ssl = false;
     protected String trustStorePath;
     protected String trustStorePassword;
@@ -112,11 +111,6 @@ public class HttpServerOptions implements Cloneable {
     public int getIdleTimeout() {
         return idleTimeout;
     }
-
-    public CorsSupport getCorsSupport() {
-        return corsSupport;
-    }
-
     public boolean isSsl() {
         return ssl;
     }
@@ -146,7 +140,6 @@ public class HttpServerOptions implements Cloneable {
                 ", compressionSupport=" + compressionSupport +
                 ", reuseAddress=" + reuseAddress +
                 ", idleTimeout=" + idleTimeout +
-                ", corsSupport=" + corsSupport +
                 ", ssl=" + ssl +
                 ", trustStorePath='" + trustStorePath + '\'' +
                 ", trustStorePassword='" + trustStorePassword + '\'' +

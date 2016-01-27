@@ -70,7 +70,7 @@ public class SimpleVertxHttpServerWrapper implements HttpServer {
         this.simpleHttpServer = new SimpleHttpServer(endpointName, systemManager,
                 flushInterval, 0, serviceDiscovery,
                 healthServiceAsync, serviceDiscoveryTtl, serviceDiscoveryTtlTimeUnit,
-                decorators, httpResponseCreator);
+                decorators, httpResponseCreator); //TODO: Baseline simple open cors support or nothing?
         this.systemManager = systemManager;
         this.setWebSocketIdleConsume(aVoid -> {
         });

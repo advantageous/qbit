@@ -23,7 +23,6 @@ import io.advantageous.qbit.concurrent.ExecutorContext;
 import io.advantageous.qbit.http.request.HttpResponseCreator;
 import io.advantageous.qbit.http.request.impl.HttpResponseCreatorDefault;
 import io.advantageous.qbit.http.request.decorator.HttpResponseDecorator;
-import io.advantageous.qbit.http.config.CorsSupport;
 import io.advantageous.qbit.http.request.HttpRequest;
 import io.advantageous.qbit.http.server.HttpServer;
 import io.advantageous.qbit.http.server.websocket.WebSocketMessage;
@@ -67,8 +66,6 @@ public class SimpleHttpServer implements HttpServer {
     private final int port;
     private final long checkInEveryMiliDuration;
     private final CopyOnWriteArrayList<HttpResponseDecorator> decorators;
-    private final CorsSupport corsSupport;
-
 
     private final HttpResponseCreator httpResponseCreator;
 
@@ -117,8 +114,7 @@ public class SimpleHttpServer implements HttpServer {
             final int serviceDiscoveryTtl,
             final TimeUnit serviceDiscoveryTtlTimeUnit,
             final CopyOnWriteArrayList<HttpResponseDecorator> decorators,
-            final HttpResponseCreator httpResponseCreator,
-            final CorsSupport corsSupport) {
+            final HttpResponseCreator httpResponseCreator) {
         this.decorators = decorators;
         this.httpResponseCreator = httpResponseCreator;
 
@@ -129,7 +125,6 @@ public class SimpleHttpServer implements HttpServer {
         this.flushInterval = flushInterval;
         this.serviceDiscovery = serviceDiscovery;
         this.healthServiceAsync = healthServiceAsync;
-        this.corsSupport = corsSupport;
         this.endpointDefinition = createEndpointDefinition(serviceDiscoveryTtl,
                 serviceDiscoveryTtlTimeUnit);
 

@@ -1,6 +1,6 @@
 package io.advantageous.qbit.http.server;
 
-import io.advantageous.qbit.bindings.HttpMethod;
+import io.advantageous.qbit.annotation.RequestMethod;
 import io.advantageous.qbit.http.config.CorsSupport;
 
 import java.util.ArrayList;
@@ -21,7 +21,7 @@ public class CorsSupportBuilder {
         corsSupport.setCorsOn(true);
     }
 
-    public CorsSupportBuilder withAllowedMethods(HttpMethod... methods) {
+    public CorsSupportBuilder withAllowedMethods(RequestMethod... methods) {
         corsSupport.setAllowedMethods(Arrays.asList(methods));
         return this;
     }

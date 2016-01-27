@@ -1,6 +1,6 @@
 package io.advantageous.qbit.http.config;
 
-import io.advantageous.qbit.bindings.HttpMethod;
+import io.advantageous.qbit.annotation.RequestMethod;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -35,7 +35,7 @@ public class CorsSupport {
 
 
     protected boolean corsOn;
-    protected List<HttpMethod> allowedMethods = Arrays.asList(HttpMethod.values());
+    protected List<RequestMethod> allowedMethods = Arrays.asList(RequestMethod.values());
     protected List<String> allowedOrigins = Arrays.asList(new String[]{"*"});
     protected List<String> allowedHeaders = new ArrayList<>();
     protected List<String> exposedHeaders = new ArrayList<>();
@@ -49,11 +49,11 @@ public class CorsSupport {
         this.corsOn = corsOn;
     }
 
-    public List<HttpMethod> getAllowedMethods() {
+    public List<RequestMethod> getAllowedMethods() {
         return allowedMethods;
     }
 
-    public void setAllowedMethods(List<HttpMethod> allowedMethods) {
+    public void setAllowedMethods(List<RequestMethod> allowedMethods) {
         this.allowedMethods = allowedMethods;
     }
 

@@ -18,10 +18,6 @@
 
 package io.advantageous.qbit.http.config;
 
-import io.advantageous.qbit.bindings.HttpMethod;
-
-import java.util.List;
-
 /**
  * created by rhightower on 2/14/15.
  */
@@ -83,10 +79,6 @@ public class HttpServerConfig extends HttpServerOptions {
 
     public void setIdleTimeout(int idleTimeout) {
         this.idleTimeout = idleTimeout;
-    }
-
-    public void setCorsSupport(CorsSupport corsSupport) {
-        this.corsSupport = corsSupport;
     }
 
     public void setSsl(boolean ssl) {
