@@ -158,7 +158,7 @@ public class SupportingGetAndPostForSameServicesUnderSameURI extends TimedTestin
         endpointServerBuilder.setPort(port).getHttpServerBuilder();
         endpointServerBuilder.getHttpServerBuilder().addResponseDecorator(new HttpResponseDecorator() {
             @Override
-            public boolean decorateTextResponse(HttpTextResponseHolder responseHolder, String requestPath, int code,
+            public boolean decorateTextResponse(HttpTextResponseHolder responseHolder, String requestPath, String method, int code,
                                                 String contentType, String payload, MultiMap<String, String> responseHeaders,
                                                 MultiMap<String, String> requestHeaders, MultiMap<String, String> requestParams) {
 
@@ -168,7 +168,7 @@ public class SupportingGetAndPostForSameServicesUnderSameURI extends TimedTestin
             }
 
             @Override
-            public boolean decorateBinaryResponse(HttpBinaryResponseHolder responseHolder, String requestPath, int code, String contentType, byte[] payload, MultiMap<String, String> responseHeaders, MultiMap<String, String> requestHeaders, MultiMap<String, String> requestParams) {
+            public boolean decorateBinaryResponse(HttpBinaryResponseHolder responseHolder, String requestPath, String method, int code, String contentType, byte[] payload, MultiMap<String, String> responseHeaders, MultiMap<String, String> requestHeaders, MultiMap<String, String> requestParams) {
                 return false;
             }
         });

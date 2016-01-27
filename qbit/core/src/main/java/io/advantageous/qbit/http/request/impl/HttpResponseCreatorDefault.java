@@ -16,6 +16,7 @@ public class HttpResponseCreatorDefault implements HttpResponseCreator {
 
     public HttpResponse<?> createResponse(final CopyOnWriteArrayList<HttpResponseDecorator> decorators,
                                                final String requestPath,
+                                               final String requestMethod,
                                                final int code,
                                                final String contentType,
                                                final Object payload,
@@ -26,10 +27,10 @@ public class HttpResponseCreatorDefault implements HttpResponseCreator {
             return null;
         }
         if (payload instanceof byte[]) {
-            return createBinaryResponse(decorators, requestPath, code, contentType, (byte[]) payload,
+            return createBinaryResponse(decorators, requestPath, requestMethod, code, contentType, (byte[]) payload,
                     responseHeaders, requestHeaders, requestParams);
         } else {
-            return createTextResponse(decorators, requestPath, code, contentType, payload.toString(),
+            return createTextResponse(decorators, requestPath, requestMethod, code, contentType, payload.toString(),
                     responseHeaders, requestHeaders, requestParams);
 
         }
@@ -37,6 +38,7 @@ public class HttpResponseCreatorDefault implements HttpResponseCreator {
 
     private HttpTextResponse createTextResponse(final CopyOnWriteArrayList<HttpResponseDecorator> decorators,
                                                 final String requestPath,
+                                                final String requestMethod,
                                                 final int code,
                                                 final String contentType,
                                                 final String payload,
@@ -48,7 +50,7 @@ public class HttpResponseCreatorDefault implements HttpResponseCreator {
         if (decorators.size()>=0) {
             HttpTextResponseHolder holder = new HttpTextResponseHolder();
             for (HttpResponseDecorator decorator : decorators) {
-                if (decorator.decorateTextResponse(holder, requestPath, code, contentType,
+                if (decorator.decorateTextResponse(holder, requestPath, requestMethod, code, contentType,
                         payload, responseHeaders, requestHeaders, requestParams )) {
                     httpTextResponse = holder.getHttpTextResponse();
                     break;
@@ -59,8 +61,11 @@ public class HttpResponseCreatorDefault implements HttpResponseCreator {
     }
 
     private HttpBinaryResponse createBinaryResponse(final CopyOnWriteArrayList<HttpResponseDecorator> decorators,
-                                                    final String requestPath, int code, String contentType,
-                                                    byte[] payload,
+                                                    final String requestPath,
+                                                    final String requestMethod,
+                                                    final int code,
+                                                    final String contentType,
+                                                    final byte[] payload,
                                                     final MultiMap<String, String> responseHeaders,
                                                     final MultiMap<String, String> requestHeaders,
                                                     final MultiMap<String, String> requestParams) {
@@ -71,7 +76,7 @@ public class HttpResponseCreatorDefault implements HttpResponseCreator {
 
             for (HttpResponseDecorator decorator : decorators) {
                 if (decorator.decorateBinaryResponse(
-                        holder, requestPath, code, contentType,
+                        holder, requestPath, requestMethod, code, contentType,
                         payload, responseHeaders, requestHeaders, requestParams )) {
                     httpResponse = holder.getHttpBinaryResponse();
                     break;
