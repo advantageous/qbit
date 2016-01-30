@@ -15,7 +15,7 @@ public class HttpClientExample {
     public static void main(final String... args) {
 
 
-        final HttpServer httpServer = httpServerBuilder().addResponseDecorator().build();
+        final HttpServer httpServer = httpServerBuilder().build();
 
         httpServer.setHttpRequestConsumer(request -> {
             if (request.getParams().getFirst("myparam").equals("myvalue")) {

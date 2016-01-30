@@ -47,7 +47,21 @@ public class CorsSupportBuilder {
     }
 
     public CorsSupport build() {
-        return corsSupport;
+        return setSensibleDefaults();
+    }
+    public CorsResponseDecorator buildResponseDecorator() {
+        return new CorsResponseDecorator(setSensibleDefaults());
     }
 
+    private CorsSupport setSensibleDefaults() {
+        if (corsSupport.isCorsOn()) {
+            if (corsSupport.getAllowedOrigins().isEmpty()) {
+                corsSupport.getAllowedOrigins().add("*");
+            }
+            if (corsSupport.getAllowedMethods().isEmpty()) {
+                corsSupport.getAllowedMethods().addAll(Arrays.asList(RequestMethod.values()));
+            }
+        }
+        return corsSupport;
+    }
 }

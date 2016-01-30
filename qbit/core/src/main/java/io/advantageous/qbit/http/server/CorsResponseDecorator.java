@@ -2,12 +2,11 @@ package io.advantageous.qbit.http.server;
 
 import io.advantageous.qbit.annotation.RequestMethod;
 import io.advantageous.qbit.http.config.CorsSupport;
-import io.advantageous.qbit.http.request.HttpRequest;
-import io.advantageous.qbit.http.request.HttpResponse;
 import io.advantageous.qbit.http.request.decorator.HttpBinaryResponseHolder;
 import io.advantageous.qbit.http.request.decorator.HttpResponseDecorator;
 import io.advantageous.qbit.http.request.decorator.HttpTextResponseHolder;
 import io.advantageous.qbit.util.MultiMap;
+import io.advantageous.qbit.util.MultiMapImpl;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -17,8 +16,10 @@ import java.util.logging.Logger;
 
 /**
  * Created by cmathias on 8/13/15.
+ *
+ * Borrowed largely from Tomcat 7 CORS Servlet impl.
  */
-public class CorsService implements HttpResponseDecorator {
+public class CorsResponseDecorator implements HttpResponseDecorator {
 
     private static final Logger log = Logger.getLogger("CorsService");
 
@@ -27,9 +28,7 @@ public class CorsService implements HttpResponseDecorator {
      */
     private boolean anyOriginAllowed;
 
-
     private final CorsSupport corsSupport;
-
 
     /**
      * Indicates (in seconds) how long the results of a pre-flight request can
@@ -38,54 +37,64 @@ public class CorsService implements HttpResponseDecorator {
     private long preflightMaxAge = 1800;
 
 
-    public CorsService(CorsSupport corsSupport) {
+    public CorsResponseDecorator(CorsSupport corsSupport) {
         this.corsSupport = corsSupport;
         this.anyOriginAllowed = corsSupport.getAllowedOrigins().contains("*");
     }
 
     @Override
-    public boolean decorateTextResponse(HttpTextResponseHolder responseHolder, String requestPath, int code, String contentType, String payload, MultiMap<String, String> responseHeaders, MultiMap<String, String> requestHeaders, MultiMap<String, String> requestParams) {
-        return false;
+    public boolean decorateTextResponse(HttpTextResponseHolder responseHolder, String requestPath, String requestMethod, int code, String contentType, String payload, MultiMap<String, String> responseHeaders, MultiMap<String, String> requestHeaders, MultiMap<String, String> requestParams) {
+        boolean passedCorsCheck = checkCorsAndContinue(
+                new HttpRequestHolder(
+                        contentType,
+                        requestMethod,
+                        payload.getBytes(),
+                        requestPath,
+                        requestHeaders,
+                        requestParams),
+                new HttpResponseHolder(responseHeaders)
+        );
+
+        return passedCorsCheck;
     }
 
     @Override
-    public boolean decorateBinaryResponse(HttpBinaryResponseHolder responseHolder, String requestPath, int code, String contentType, byte[] payload, MultiMap<String, String> responseHeaders, MultiMap<String, String> requestHeaders, MultiMap<String, String> requestParams) {
-        return false;
+    public boolean decorateBinaryResponse(HttpBinaryResponseHolder responseHolder, String requestPath, String requestMethod, int code, String contentType, byte[] payload, MultiMap<String, String> responseHeaders, MultiMap<String, String> requestHeaders, MultiMap<String, String> requestParams) {
+        boolean passedCorsCheck = checkCorsAndContinue(
+                new HttpRequestHolder(
+                        contentType,
+                        requestMethod,
+                        payload,
+                        requestPath,
+                        requestHeaders,
+                        requestParams),
+                new HttpResponseHolder(responseHeaders)
+        );
+
+        return passedCorsCheck;
     }
 
-    class HttpRequest {
-        String contentType;
-        byte[] payload;
-        MultiMap<String, String> responseHeaders;
-        MultiMap<String, String> requestHeaders;
-        MultiMap<String, String> requestParams;
-    }
-
-    class HttpResponse {
-
-    }
-
-    public boolean checkCorsAndContinue(final MultiMap<String, String> responseHeaders, final MultiMap<String, String> requestHeaders) {
+    private boolean checkCorsAndContinue(HttpRequestHolder requestHolder, final HttpResponseHolder responseHolder) {
 
         // Determines the CORS request type.
-        CorsService.CORSRequestType requestType = checkRequestType(requestHeaders);
+        CorsResponseDecorator.CORSRequestType requestType = checkRequestType(requestHolder);
 
         switch (requestType) {
             case SIMPLE:
                 // Handles a Simple CORS request.
-                return this.handleSimpleCORS(request, response);
+                return this.handleSimpleCORS(requestHolder, responseHolder);
             case ACTUAL:
                 // Handles an Actual CORS request.
-                return this.handleSimpleCORS(request, response);
+                return this.handleSimpleCORS(requestHolder, responseHolder);
             case PRE_FLIGHT:
                 // Handles a Pre-flight CORS request.
-                return this.handlePreflightCORS(request, response);
+                return this.handlePreflightCORS(requestHolder, responseHolder);
             case NOT_CORS:
                 // Handles a Normal request that is not a cross-origin request.
                 return true;
             default:
                 // Handles a CORS request that violates specification.
-                return this.handleInvalidCORS(request, response);
+                return this.handleInvalidCORS(requestHolder, responseHolder);
         }
     }
 
@@ -93,16 +102,16 @@ public class CorsService implements HttpResponseDecorator {
      * Handles a CORS request of type {@link CORSRequestType}.SIMPLE.
      *
      */
-    protected boolean handleSimpleCORS(final HttpRequest request,
-                                    final HttpResponse response) {
+    protected boolean handleSimpleCORS(final HttpRequestHolder request,
+                                    final HttpResponseHolder response) {
 
-        CorsService.CORSRequestType requestType = checkRequestType(request);
-        if (!(requestType == CorsService.CORSRequestType.SIMPLE ||
-                requestType == CorsService.CORSRequestType.ACTUAL)) {
+        CorsResponseDecorator.CORSRequestType requestType = checkRequestType(request);
+        if (!(requestType == CorsResponseDecorator.CORSRequestType.SIMPLE ||
+                requestType == CorsResponseDecorator.CORSRequestType.ACTUAL)) {
             throw new IllegalArgumentException(CorsSupport.CORS_WRONG_TYPE_2);//TODO: String replacement
         }
 
-        final String origin = request.getHeaders().get(CorsService.REQUEST_HEADER_ORIGIN);
+        final String origin = request.getHeaders().get(CorsResponseDecorator.REQUEST_HEADER_ORIGIN);
         final RequestMethod method = RequestMethod.valueOf(request.getMethod());
 
         // Section 6.1.2
@@ -122,15 +131,15 @@ public class CorsService implements HttpResponseDecorator {
             // If resource doesn't support credentials and if any origin is
             // allowed
             // to make CORS request, return header with '*'.
-            response.headers().add(
-                    CorsService.RESPONSE_HEADER_ACCESS_CONTROL_ALLOW_ORIGIN,
+            response.getHeaders().add(
+                    CorsResponseDecorator.RESPONSE_HEADER_ACCESS_CONTROL_ALLOW_ORIGIN,
                     "*");
         } else {
             // If the resource supports credentials add a single
             // Access-Control-Allow-Origin header, with the value of the Origin
             // header as value.
-            response.headers().add(
-                    CorsService.RESPONSE_HEADER_ACCESS_CONTROL_ALLOW_ORIGIN,
+            response.getHeaders().add(
+                    CorsResponseDecorator.RESPONSE_HEADER_ACCESS_CONTROL_ALLOW_ORIGIN,
                     origin);
         }
 
@@ -139,19 +148,19 @@ public class CorsService implements HttpResponseDecorator {
         // Access-Control-Allow-Credentials header with the case-sensitive
         // string "true" as value.
         if (corsSupport.isAllowCredentials()) {
-            response.headers().add(
-                    CorsService.RESPONSE_HEADER_ACCESS_CONTROL_ALLOW_CREDENTIALS,
+            response.getHeaders().add(
+                    CorsResponseDecorator.RESPONSE_HEADER_ACCESS_CONTROL_ALLOW_CREDENTIALS,
                     "true");
         }
 
         // Section 6.1.4
         // If the list of exposed headers is not empty add one or more
-        // Access-Control-Expose-Headers headers, with as values the header
+        // Access-Control-Expose-headers headers, with as values the header
         // field names given in the list of exposed headers.
         if ((corsSupport.getExposedHeaders() != null) && (corsSupport.getExposedHeaders().size() > 0)) {
             String exposedHeadersString = join(corsSupport.getExposedHeaders(), ",");
-            response.headers().add(
-                    CorsService.RESPONSE_HEADER_ACCESS_CONTROL_EXPOSE_HEADERS,
+            response.getHeaders().add(
+                    CorsResponseDecorator.RESPONSE_HEADER_ACCESS_CONTROL_EXPOSE_HEADERS,
                     exposedHeadersString);
         }
 
@@ -162,8 +171,8 @@ public class CorsService implements HttpResponseDecorator {
     /**
      * Handles CORS pre-flight request.
      */
-    protected boolean handlePreflightCORS(final HttpRequest request,
-                                       final HttpResponse response) {
+    protected boolean handlePreflightCORS(final HttpRequestHolder request,
+                                       final HttpResponseHolder response) {
 
         CORSRequestType requestType = checkRequestType(request);
         if (requestType != CORSRequestType.PRE_FLIGHT) {
@@ -171,7 +180,7 @@ public class CorsService implements HttpResponseDecorator {
                     //TODO: String replace into above CORSRequestType.PRE_FLIGHT.name().toLowerCase(Locale.ENGLISH)));
         }
 
-        final String origin = request.getHeaders().get(CorsService.REQUEST_HEADER_ORIGIN);
+        final String origin = request.getHeaders().get(CorsResponseDecorator.REQUEST_HEADER_ORIGIN);
 
         // Section 6.2.2
         if (!isOriginAllowed(origin)) {
@@ -181,7 +190,7 @@ public class CorsService implements HttpResponseDecorator {
 
         // Section 6.2.3
         String accessControlRequestMethod = request.getHeaders().get(
-                CorsService.REQUEST_HEADER_ACCESS_CONTROL_REQUEST_METHOD);
+                CorsResponseDecorator.REQUEST_HEADER_ACCESS_CONTROL_REQUEST_METHOD);
         if (accessControlRequestMethod == null) {
             handleInvalidCORS(request, response);
             return false;
@@ -191,7 +200,7 @@ public class CorsService implements HttpResponseDecorator {
 
         // Section 6.2.4
         String accessControlRequestHeadersHeader = request.getHeaders().get(
-                CorsService.REQUEST_HEADER_ACCESS_CONTROL_REQUEST_HEADERS);
+                CorsResponseDecorator.REQUEST_HEADER_ACCESS_CONTROL_REQUEST_HEADERS);
         List<String> accessControlRequestHeaders = new LinkedList<>();
         if (accessControlRequestHeadersHeader != null &&
                 !accessControlRequestHeadersHeader.trim().isEmpty()) {
@@ -220,40 +229,40 @@ public class CorsService implements HttpResponseDecorator {
 
         // Section 6.2.7
         if (corsSupport.isAllowCredentials()) {
-            response.headers().add(
-                    CorsService.RESPONSE_HEADER_ACCESS_CONTROL_ALLOW_ORIGIN,
+            response.getHeaders().add(
+                    CorsResponseDecorator.RESPONSE_HEADER_ACCESS_CONTROL_ALLOW_ORIGIN,
                     origin);
-            response.headers().add(
-                    CorsService.RESPONSE_HEADER_ACCESS_CONTROL_ALLOW_CREDENTIALS,
+            response.getHeaders().add(
+                    CorsResponseDecorator.RESPONSE_HEADER_ACCESS_CONTROL_ALLOW_CREDENTIALS,
                     "true");
         } else {
             if (anyOriginAllowed) {
-                response.headers().add(
-                        CorsService.RESPONSE_HEADER_ACCESS_CONTROL_ALLOW_ORIGIN,
+                response.getHeaders().add(
+                        CorsResponseDecorator.RESPONSE_HEADER_ACCESS_CONTROL_ALLOW_ORIGIN,
                         "*");
             } else {
-                response.headers().add(
-                        CorsService.RESPONSE_HEADER_ACCESS_CONTROL_ALLOW_ORIGIN,
+                response.getHeaders().add(
+                        CorsResponseDecorator.RESPONSE_HEADER_ACCESS_CONTROL_ALLOW_ORIGIN,
                         origin);
             }
         }
 
         // Section 6.2.8
         if (preflightMaxAge > 0) {
-            response.headers().add(
-                    CorsService.RESPONSE_HEADER_ACCESS_CONTROL_MAX_AGE,
+            response.getHeaders().add(
+                    CorsResponseDecorator.RESPONSE_HEADER_ACCESS_CONTROL_MAX_AGE,
                     String.valueOf(preflightMaxAge));
         }
 
         // Section 6.2.9
-        response.headers().add(
-                CorsService.RESPONSE_HEADER_ACCESS_CONTROL_ALLOW_METHODS,
+        response.getHeaders().add(
+                CorsResponseDecorator.RESPONSE_HEADER_ACCESS_CONTROL_ALLOW_METHODS,
                 accessControlRequestMethod);
 
         // Section 6.2.10
         if ((corsSupport.getAllowedHeaders() != null) && (!corsSupport.getAllowedHeaders().isEmpty())) {
-            response.headers().add(
-                    CorsService.RESPONSE_HEADER_ACCESS_CONTROL_ALLOW_HEADERS,
+            response.getHeaders().add(
+                    CorsResponseDecorator.RESPONSE_HEADER_ACCESS_CONTROL_ALLOW_HEADERS,
                     join(corsSupport.getAllowedHeaders(), ","));
         }
 
@@ -264,17 +273,17 @@ public class CorsService implements HttpResponseDecorator {
     /**
      * Handles a CORS request that violates specification.
      */
-    private boolean handleInvalidCORS(final HttpRequest request,
-                                   final HttpResponse response) {
-        String origin = request.getHeaders().get(CorsService.REQUEST_HEADER_ORIGIN);
+    private boolean handleInvalidCORS(final HttpRequestHolder request,
+                                   final HttpResponseHolder response) {
+        String origin = request.getHeaders().get(CorsResponseDecorator.REQUEST_HEADER_ORIGIN);
         String method = request.getMethod();
         String accessControlRequestHeaders = request.getHeaders().get(
                 REQUEST_HEADER_ACCESS_CONTROL_REQUEST_HEADERS);
 
-        response.headers().put("Content-Type", "text/plain");
+        response.getHeaders().put("Content-Type", "text/plain");
 
-        //TODO: Rick: How do I make this get into the response impl (apparently in HttpClient?)
-//            response.code = HttpStatus.SC_FORBIDDEN;
+        //TODO: Rick note that the integration-point implementation still prevents me from decorating the http response code
+        //response.code = HttpStatus.SC_FORBIDDEN;
 
         if (log.getLevel() == Level.FINE) {
             // Debug so no need for i18n
@@ -284,7 +293,7 @@ public class CorsService implements HttpResponseDecorator {
             message.append(";Method=");
             message.append(method);
             if (accessControlRequestHeaders != null) {
-                message.append(";Access-Control-Request-Headers=");
+                message.append(";Access-Control-Request-headers=");
                 message.append(accessControlRequestHeaders);
             }
             log.fine(message.toString());
@@ -336,7 +345,7 @@ public class CorsService implements HttpResponseDecorator {
      *
      * @param request
      */
-    protected CORSRequestType checkRequestType(final HttpRequest request) {
+    protected CORSRequestType checkRequestType(final HttpRequestHolder request) {
         CORSRequestType requestType = CORSRequestType.INVALID_CORS;
         if (request == null) {
             throw new IllegalArgumentException(CorsSupport.CORS_NULL_REQUEST);
@@ -394,11 +403,11 @@ public class CorsService implements HttpResponseDecorator {
     }
 
 
-    private boolean isLocalOrigin(HttpRequest request, String origin) {
+    private boolean isLocalOrigin(HttpRequestHolder request, String origin) {
 
         // Build scheme://host:port from request
         StringBuilder target = new StringBuilder();
-        URI uri = URI.create(request.getUri());
+        URI uri = URI.create(request.getRequestUri());
 
         String scheme = uri.getScheme();
         if (scheme == null) {
@@ -478,7 +487,7 @@ public class CorsService implements HttpResponseDecorator {
     }
 
 
-    // -------------------------------------------------- CORS Response Headers
+    // -------------------------------------------------- CORS Response headers
     /**
      * The Access-Control-Allow-Origin header indicates whether a resource can
      * be shared based by returning the value of the Origin request header in
@@ -497,11 +506,11 @@ public class CorsService implements HttpResponseDecorator {
             "Access-Control-Allow-Credentials";
 
     /**
-     * The Access-Control-Expose-Headers header indicates which headers are safe
+     * The Access-Control-Expose-headers header indicates which headers are safe
      * to expose to the API of a CORS API specification
      */
     public static final String RESPONSE_HEADER_ACCESS_CONTROL_EXPOSE_HEADERS =
-            "Access-Control-Expose-Headers";
+            "Access-Control-Expose-headers";
 
     /**
      * The Access-Control-Max-Age header indicates how long the results of a
@@ -519,14 +528,14 @@ public class CorsService implements HttpResponseDecorator {
             "Access-Control-Allow-Methods";
 
     /**
-     * The Access-Control-Allow-Headers header indicates, as part of the
+     * The Access-Control-Allow-headers header indicates, as part of the
      * response to a preflight request, which header field names can be used
      * during the actual request.
      */
     public static final String RESPONSE_HEADER_ACCESS_CONTROL_ALLOW_HEADERS =
-            "Access-Control-Allow-Headers";
+            "Access-Control-Allow-headers";
 
-    // -------------------------------------------------- CORS Request Headers
+    // -------------------------------------------------- CORS Request headers
     /**
      * The Origin header indicates where the cross-origin request or preflight
      * request originates from.
@@ -541,11 +550,11 @@ public class CorsService implements HttpResponseDecorator {
             "Access-Control-Request-Method";
 
     /**
-     * The Access-Control-Request-Headers header indicates which headers will be
+     * The Access-Control-Request-headers header indicates which headers will be
      * used in the actual request as part of the preflight request.
      */
     public static final String REQUEST_HEADER_ACCESS_CONTROL_REQUEST_HEADERS =
-            "Access-Control-Request-Headers";
+            "Access-Control-Request-headers";
 
 
     // -------------------------------------------------------------- Constants
@@ -576,5 +585,68 @@ public class CorsService implements HttpResponseDecorator {
          * fails to be a valid one.
          */
         INVALID_CORS
+    }
+
+    class HttpRequestHolder {
+        private String contentType;
+        private String method;
+        private byte[] payload;
+        private String requestUri;
+        private MultiMap<String, String> headers;
+        private MultiMap<String, String> params;
+
+        public HttpRequestHolder(String contentType, String requestMethod, byte[] payload, String requestUri, MultiMap<String, String> Headers, MultiMap<String, String> params) {
+            this.contentType = contentType;
+            this.method = requestMethod;
+            this.payload = payload;
+            this.requestUri = requestUri;
+            this.headers = Headers;
+            this.params = params;
+        }
+
+        public String getContentType() {
+            return contentType;
+        }
+
+        public String getMethod() {
+            return method;
+        }
+
+        public byte[] getPayload() {
+            return payload;
+        }
+
+        public String getRequestUri() {
+            return requestUri;
+        }
+
+        public MultiMap<String, String> getHeaders() {
+            if (headers == null){
+                headers = new MultiMapImpl<>();
+            }
+            return headers;
+        }
+
+        public MultiMap<String, String> getParams() {
+            if (params == null){
+                params = new MultiMapImpl<>();
+            }
+            return params;
+        }
+    }
+
+    class HttpResponseHolder {
+        private MultiMap<String, String> headers;
+
+        public HttpResponseHolder(MultiMap<String, String> headers) {
+            this.headers = headers;
+        }
+
+        public MultiMap<String, String> getHeaders() {
+            if (headers == null){
+                headers = new MultiMapImpl<>();
+            }
+            return headers;
+        }
     }
 }
