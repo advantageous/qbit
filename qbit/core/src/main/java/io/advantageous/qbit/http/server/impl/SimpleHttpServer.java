@@ -67,7 +67,6 @@ public class SimpleHttpServer implements HttpServer {
     private final long checkInEveryMiliDuration;
     private final CopyOnWriteArrayList<HttpResponseDecorator> decorators;
 
-
     private final HttpResponseCreator httpResponseCreator;
 
 
