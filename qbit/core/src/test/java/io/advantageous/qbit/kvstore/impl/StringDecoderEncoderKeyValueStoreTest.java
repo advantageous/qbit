@@ -9,7 +9,8 @@ import org.junit.Before;
 import org.junit.Test;
 
 import static io.advantageous.qbit.time.Duration.TEN_SECONDS;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 
 public class StringDecoderEncoderKeyValueStoreTest {
 

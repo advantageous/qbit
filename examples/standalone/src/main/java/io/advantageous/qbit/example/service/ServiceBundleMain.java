@@ -2,7 +2,9 @@ package io.advantageous.qbit.example.service;
 
 import io.advantageous.qbit.QBit;
 import io.advantageous.qbit.reactive.Callback;
-import io.advantageous.qbit.service.*;
+import io.advantageous.qbit.service.ServiceBundle;
+import io.advantageous.qbit.service.ServiceBundleBuilder;
+import io.advantageous.qbit.service.ServiceProxyUtils;
 
 import java.util.ArrayList;
 import java.util.List;

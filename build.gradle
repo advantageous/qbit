@@ -21,8 +21,8 @@ ext {
     boonVersion = '0.5.7-RC1'
     //boonGroup = "io.advantageous.boon"
     boonGroup = "com.github.advantageous"
-    springFrameworkVersion = '4.2.1.RELEASE'
-    springBootVersion = '1.2.6.RELEASE'
+    springFrameworkVersion = '4.2.4.RELEASE'
+    springBootVersion = '1.3.1.RELEASE'
 }
 
 allprojects {
@@ -43,7 +43,6 @@ subprojects {
             url "https://oss.sonatype.org/content/repositories/releases/"
         }
     }
-
 
     configurations {
         markdownDoclet

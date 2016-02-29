@@ -18,7 +18,9 @@
 
 package io.advantageous.qbit.boon.service.impl;
 
-import io.advantageous.boon.core.*;
+import io.advantageous.boon.core.Lists;
+import io.advantageous.boon.core.Str;
+import io.advantageous.boon.core.Sys;
 import io.advantageous.boon.core.reflection.Annotated;
 import io.advantageous.boon.core.reflection.AnnotationData;
 import io.advantageous.boon.core.reflection.ClassMeta;
@@ -41,7 +43,6 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeoutException;
 
-import static io.advantageous.boon.core.IO.puts;
 import static io.advantageous.boon.core.Str.sputs;
 import static io.advantageous.qbit.annotation.AnnotationUtils.*;
 

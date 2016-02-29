@@ -61,7 +61,7 @@ public class MockHttpServer implements HttpServer {
 //        final MethodCall<Object> methodCall =
 //                QBit.factory().createMethodCallToBeEncodedAndSent(messageId++, uri, "client1",
 //                        null, null, System.currentTimeMillis(), args, null);
-//        final String message = QBit.factory().createEncoder().encodeAsString(methodCall);
+//        final String message = QBit.factory().createEncoder().encodeMethodCallAsString(methodCall);
 //        final WebSocketMessage webSocketMessage = new WebSocketMessageBuilder()
 //                .setMessage(message).setSender(socketSender).build();
 //        this.webSocketMessageConsumer.accept(webSocketMessage);

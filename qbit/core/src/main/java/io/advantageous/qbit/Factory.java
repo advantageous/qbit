@@ -24,11 +24,10 @@ import io.advantageous.qbit.concurrent.PeriodicScheduler;
 import io.advantageous.qbit.events.EventBusProxyCreator;
 import io.advantageous.qbit.events.EventManager;
 import io.advantageous.qbit.events.spi.EventConnector;
-import io.advantageous.qbit.http.request.HttpResponseCreator;
-import io.advantageous.qbit.http.request.decorator.HttpResponseDecorator;
-import io.advantageous.qbit.http.HttpTransport;
 import io.advantageous.qbit.http.client.HttpClient;
 import io.advantageous.qbit.http.config.HttpServerOptions;
+import io.advantageous.qbit.http.request.HttpResponseCreator;
+import io.advantageous.qbit.http.request.decorator.HttpResponseDecorator;
 import io.advantageous.qbit.http.server.HttpServer;
 import io.advantageous.qbit.json.JsonMapper;
 import io.advantageous.qbit.message.MethodCall;
@@ -37,7 +36,6 @@ import io.advantageous.qbit.message.Response;
 import io.advantageous.qbit.queue.Queue;
 import io.advantageous.qbit.queue.QueueBuilder;
 import io.advantageous.qbit.sender.Sender;
-import io.advantageous.qbit.server.ServiceEndpointServer;
 import io.advantageous.qbit.service.*;
 import io.advantageous.qbit.service.discovery.ServiceDiscovery;
 import io.advantageous.qbit.service.health.HealthServiceAsync;
@@ -55,7 +53,6 @@ import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.function.Consumer;
 
 /**
  * Main factory for QBit. This gets used internally to create things easily.

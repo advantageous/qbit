@@ -35,64 +35,73 @@ public class ResponseBuilder {
         return errors;
     }
 
-    public void setErrors(boolean errors) {
+    public ResponseBuilder setErrors(boolean errors) {
         this.errors = errors;
+        return this;
     }
 
     public Request<Object> getRequest() {
         return request;
     }
 
-    public void setRequest(Request<Object> request) {
+    public ResponseBuilder setRequest(Request<Object> request) {
+
         this.request = request;
+        return this;
     }
 
     public String getAddress() {
         return address;
     }
 
-    public void setAddress(String address) {
+    public ResponseBuilder setAddress(String address) {
         this.address = address;
+        return this;
     }
 
     public String getReturnAddress() {
         return returnAddress;
     }
 
-    public void setReturnAddress(String returnAddress) {
+    public ResponseBuilder setReturnAddress(String returnAddress) {
         this.returnAddress = returnAddress;
+        return this;
     }
 
     public Map<String, Object> getParams() {
         return params;
     }
 
-    public void setParams(Map<String, Object> params) {
+    public ResponseBuilder setParams(Map<String, Object> params) {
         this.params = params;
+        return this;
     }
 
     public Object getBody() {
         return body;
     }
 
-    public void setBody(Object body) {
+    public ResponseBuilder setBody(Object body) {
         this.body = body;
+        return this;
     }
 
     public long getId() {
         return id;
     }
 
-    public void setId(long id) {
+    public ResponseBuilder setId(long id) {
         this.id = id;
+        return this;
     }
 
     public long getTimestamp() {
         return timestamp;
     }
 
-    public void setTimestamp(long timestamp) {
+    public ResponseBuilder setTimestamp(long timestamp) {
         this.timestamp = timestamp;
+        return this;
     }
 
 

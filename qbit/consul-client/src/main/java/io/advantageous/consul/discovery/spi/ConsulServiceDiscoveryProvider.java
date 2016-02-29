@@ -14,14 +14,12 @@ import io.advantageous.qbit.service.discovery.impl.ServiceHealthCheckIn;
 import io.advantageous.qbit.service.discovery.spi.ServiceDiscoveryProvider;
 import io.advantageous.qbit.service.health.HealthStatus;
 import io.advantageous.qbit.util.ConcurrentHashSet;
-import io.advantageous.qbit.util.Timer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicLong;
 
 import static io.advantageous.boon.core.Str.sputs;
 

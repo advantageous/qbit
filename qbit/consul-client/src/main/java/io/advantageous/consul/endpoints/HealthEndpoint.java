@@ -29,6 +29,7 @@ import io.advantageous.qbit.http.request.HttpRequestBuilder;
 
 import java.net.URI;
 import java.util.List;
+
 import static io.advantageous.consul.domain.ConsulException.die;
 
 /**

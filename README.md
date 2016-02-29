@@ -44,7 +44,7 @@ Status
 =====
 Deployed at several large fortune 100 companies. 
 QBit now works with Vertx (standalone or embedded).
-You can also use QBit no non-QBit projects, it is just a lib.
+You can also use QBit on non-QBit projects, it is just a lib.
 
 License
 =====

@@ -24,7 +24,6 @@ import io.advantageous.qbit.message.MethodCall;
 import io.advantageous.qbit.message.Request;
 import io.advantageous.qbit.message.Response;
 
-import java.util.HashMap;
 import java.util.Map;
 
 /**

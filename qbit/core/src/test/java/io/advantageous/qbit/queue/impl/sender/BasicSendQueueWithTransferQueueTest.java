@@ -11,7 +11,7 @@ import org.junit.Test;
 
 import java.util.concurrent.ArrayBlockingQueue;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 /**
  * Created by rick on 10/12/15.

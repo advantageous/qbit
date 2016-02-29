@@ -5,7 +5,6 @@ import io.advantageous.qbit.util.TestTimer;
 import org.junit.Before;
 import org.junit.Test;
 
-
 import static io.advantageous.qbit.time.Duration.TEN_SECONDS;
 import static org.junit.Assert.*;
 

@@ -134,16 +134,17 @@ public class MethodCallBuilder {
     }
 
     public String getAddress() {
+
+        if (address == null) {
+            this.address = "";
+        }
+
         return address;
     }
 
     public MethodCallBuilder setAddress(String address) {
 
-        if (address == null) {
-            this.address = "";
-        } else {
-            this.address = address;
-        }
+        this.address = address;
         return this;
     }
 

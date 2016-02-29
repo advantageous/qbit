@@ -81,7 +81,6 @@ public class HttpServerConfig extends HttpServerOptions {
         this.idleTimeout = idleTimeout;
     }
 
-
     public void setSsl(boolean ssl) {
         this.ssl = ssl;
     }
