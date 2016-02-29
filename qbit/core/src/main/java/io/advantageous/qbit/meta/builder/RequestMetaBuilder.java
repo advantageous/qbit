@@ -162,6 +162,8 @@ public class RequestMetaBuilder {
                     continue;
                 }
 
+                boolean found = false;
+
                 for (AnnotationData annotationData : annotationDataList) {
 
 
@@ -170,8 +172,16 @@ public class RequestMetaBuilder {
                     if (requestParam != null) {
                         final ParameterMeta param = createParamMeta(methodAccess, index, typeTypes, requestParam);
                         params.add(param);
+                        found = true;
                         break;
                     }
+                }
+
+
+                if (!found) {
+                    Param requestParam = getParam(finalPath, null, index, paramType, parameterTypes[index]);
+                    final ParameterMeta param = createParamMeta(methodAccess, index, typeTypes, requestParam);
+                    params.add(param);
                 }
             }
         }
