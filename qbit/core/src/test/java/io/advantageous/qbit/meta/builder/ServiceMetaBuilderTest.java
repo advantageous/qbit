@@ -2,6 +2,7 @@ package io.advantageous.qbit.meta.builder;
 
 import io.advantageous.boon.core.Lists;
 import io.advantageous.boon.core.Maps;
+import io.advantageous.boon.core.Predicate;
 import io.advantageous.boon.core.reflection.ClassMeta;
 import io.advantageous.qbit.annotation.RequestMapping;
 import io.advantageous.qbit.annotation.RequestMethod;
@@ -23,7 +24,6 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -83,13 +83,18 @@ public class ServiceMetaBuilderTest {
 
         serviceMetaBuilder.addMethods("foo", Lists.list(classMeta.methods()));
 
-        ServiceMethodMeta serviceMethodMeta = serviceMetaBuilder.getMethods().stream()
-                .filter(m -> Objects.equals(m.getName(), "otherAnnotation"))
-                .findFirst()
-                .get();
+        ServiceMethodMeta serviceMethodMeta = Lists.filterBy(serviceMetaBuilder.getMethods(), new Predicate<ServiceMethodMeta>() {
+            @Override
+            public boolean test(ServiceMethodMeta serviceMethodMeta) {
+                return "otherAnnotation".equals(serviceMethodMeta.getName());
+            }
+        }).iterator().next();
 
-        assertTrue(serviceMethodMeta.getRequestEndpoints().stream().findFirst().get()
-                .getParameters().stream().findFirst().get()
+        assertTrue(serviceMethodMeta.getRequestEndpoints().iterator().hasNext());
+        assertTrue(serviceMethodMeta.getRequestEndpoints().iterator().next()
+                .getParameters().iterator().hasNext());
+        assertTrue(serviceMethodMeta.getRequestEndpoints().iterator().next()
+                .getParameters().iterator().next()
                 .getParam() instanceof BodyParam);
     }
 
