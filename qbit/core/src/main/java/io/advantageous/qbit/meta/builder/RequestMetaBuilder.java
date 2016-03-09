@@ -238,6 +238,9 @@ public class RequestMetaBuilder {
             case "headerParam":
                 param = new HeaderParam(required, paramName, defaultValue, description);
                 break;
+            case "dataParam":
+                param = new DataParam(required, paramName, defaultValue, description);
+                break;
             case "pathVariable":
 
                 if (!path.contains("{")) {

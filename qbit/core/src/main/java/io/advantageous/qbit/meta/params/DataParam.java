@@ -19,14 +19,13 @@ package io.advantageous.qbit.meta.params;
 
 
 /**
- * Types of parameters
+ * Holds meta data about a body where a header represents a single argument to a method.
  */
-public enum ParamType {
-    BODY,
-    REQUEST,
-    HEADER,
-    DATA,
-    PATH_BY_NAME,
-    PATH_BY_POSITION,
-    BODY_BY_POSITION,
+public class DataParam extends NamedParam {
+
+
+    public DataParam(final boolean required, final String name, Object defaultValue,
+                     final String description) {
+        super(required, name, defaultValue, ParamType.DATA, description);
+    }
 }

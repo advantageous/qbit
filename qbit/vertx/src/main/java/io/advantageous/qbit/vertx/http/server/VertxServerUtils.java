@@ -42,6 +42,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
+import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -62,6 +63,7 @@ public class VertxServerUtils {
 
     public HttpRequest createRequest(final HttpServerRequest request,
                                      final Buffer buffer,
+                                     final Map<String, Object> data,
                                      final CopyOnWriteArrayList<HttpResponseDecorator> decorators,
                                      final HttpResponseCreator httpResponseCreator) {
 
@@ -74,6 +76,7 @@ public class VertxServerUtils {
         final String requestPath = request.path();
 
         httpRequestBuilder.setId(requestId.incrementAndGet())
+                .setData(data)
                 .setUri(requestPath).setMethod(request.method().toString())
                 .setBodySupplier(() -> buffer == null ?
                         null : buffer.getBytes())
