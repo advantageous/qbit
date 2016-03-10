@@ -22,6 +22,8 @@ import io.vertx.ext.web.Router;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
@@ -137,9 +139,9 @@ public class SimpleVertxHttpServerWrapper implements HttpServer {
 
 
         if ( route!=null ) {
-            route.handler(event -> handleHttpRequest(event.request()));
+            route.handler(event -> handleHttpRequest(event.request(), event.data()));
         } else if (router!=null) {
-            router.route().handler(event -> handleHttpRequest(event.request()));
+            router.route().handler(event -> handleHttpRequest(event.request(), event.data()));
         } else {
             httpServer.requestHandler(this::handleHttpRequest);
         }
@@ -156,6 +158,10 @@ public class SimpleVertxHttpServerWrapper implements HttpServer {
 
 
     private void handleHttpRequest(final HttpServerRequest request) {
+        handleHttpRequest(request, new HashMap<>());
+    }
+
+    private void handleHttpRequest(final HttpServerRequest request, final Map<String, Object> data) {
 
 
         if (debug) {
@@ -179,7 +185,7 @@ public class SimpleVertxHttpServerWrapper implements HttpServer {
                 }
 
                 request.bodyHandler((Buffer buffer) -> {
-                        final HttpRequest postRequest = vertxUtils.createRequest(request, buffer,
+                        final HttpRequest postRequest = vertxUtils.createRequest(request, buffer, data,
                                 simpleHttpServer.getDecorators(), simpleHttpServer.getHttpResponseCreator());
 
                         simpleHttpServer.handleRequest(postRequest);
@@ -194,7 +200,7 @@ public class SimpleVertxHttpServerWrapper implements HttpServer {
             case "DELETE":
             case "GET":
                 final HttpRequest getRequest;
-                getRequest = vertxUtils.createRequest(request, null,
+                getRequest = vertxUtils.createRequest(request, null, data,
                         simpleHttpServer.getDecorators(), simpleHttpServer.getHttpResponseCreator());
                 simpleHttpServer.handleRequest(getRequest);
                 break;
