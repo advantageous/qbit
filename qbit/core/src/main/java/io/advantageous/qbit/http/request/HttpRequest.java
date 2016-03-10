@@ -23,6 +23,7 @@ import io.advantageous.qbit.util.MultiMap;
 
 import java.nio.charset.StandardCharsets;
 import java.util.function.Supplier;
+import java.util.Map;
 
 
 /**
@@ -34,6 +35,7 @@ import java.util.function.Supplier;
  */
 public class HttpRequest implements Request<Object> {
 
+    private final Map<String, Object> data;
     private final String uri;
     private final String remoteAddress;
     private final MultiMap<String, String> params;
@@ -52,6 +54,7 @@ public class HttpRequest implements Request<Object> {
     public HttpRequest(final long id,
                        final String uri,
                        final String method,
+                       final Map<String, Object> data,
                        final MultiMap<String, String> params,
                        final MultiMap<String, String> headers,
                        final Supplier<Object> bodySupplier,
@@ -61,6 +64,7 @@ public class HttpRequest implements Request<Object> {
                        final Supplier<MultiMap<String, String>> formParamsSupplier,
                        final long timestamp) {
 
+        this.data = data;
         this.uri = uri;
         this.messageId = id;
         this.params = params;
@@ -184,6 +188,10 @@ public class HttpRequest implements Request<Object> {
 
     public String getMethod() {
         return method;
+    }
+
+    public Map<String, Object> data() {
+        return data;
     }
 
     public String getUri() {

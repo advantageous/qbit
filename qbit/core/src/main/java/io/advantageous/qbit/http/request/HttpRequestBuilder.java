@@ -63,6 +63,7 @@ public class HttpRequestBuilder {
 
     private HttpResponseReceiver receiver = (code, mimeType, body1) -> {
     };
+    private Map<String, Object> data;
 
     public Supplier<MultiMap<String, String>> getFormParamsSupplier() {
         return formParamsSupplier;
@@ -233,7 +234,7 @@ public class HttpRequestBuilder {
         if (contentType != null) {
             this.addHeader("Content-Type", contentType);
         }
-        return new HttpRequest(this.getId(), newURI, this.getMethod(), this.getParams(),
+        return new HttpRequest(this.getId(), newURI, this.getMethod(), this.getData(), this.getParams(),
                 this.getHeaders(),
                 this.getBodySupplier(),
                 this.getRemoteAddress(), this.getContentType(), httpResponse,
@@ -260,7 +261,7 @@ public class HttpRequestBuilder {
         if (contentType != null) {
             this.addHeader("Content-Type", contentType);
         }
-        final HttpRequest request = new HttpRequest(this.getId(), newURI, this.getMethod(), this.getParams(),
+        final HttpRequest request = new HttpRequest(this.getId(), newURI, this.getMethod(), this.getData(), this.getParams(),
                 this.getHeaders(),
                 this.getBodySupplier(),
                 this.getRemoteAddress(), this.getContentType(), httpResponse,
@@ -437,7 +438,6 @@ public class HttpRequestBuilder {
         setBodyBytes(paramString.getBytes(StandardCharsets.UTF_8));
 
 
-
         return this;
     }
 
@@ -489,13 +489,12 @@ public class HttpRequestBuilder {
         }
 
 
-
         return this;
     }
 
     /**
-     *
      * Copies the request's body, headers, uri, request params, content type, etc into this builder
+     *
      * @param request request to copy
      * @return this
      */
@@ -506,7 +505,7 @@ public class HttpRequestBuilder {
 
         this.setMethod(request.getMethod());
 
-        if (request.getHeaders().size()>0) {
+        if (request.getHeaders().size() > 0) {
             if (this.headers == null) {
                 this.setHeaders(new MultiMapImpl<>());
             }
@@ -516,10 +515,10 @@ public class HttpRequestBuilder {
             });
         }
 
-        if (request.getParams().size()>0) {
+        if (request.getParams().size() > 0) {
 
 
-            if (this.params==null) {
+            if (this.params == null) {
                 this.setParams(new MultiMapImpl<>());
             }
 
@@ -536,6 +535,15 @@ public class HttpRequestBuilder {
 
 
         return this;
+    }
+
+    public HttpRequestBuilder setData(Map<String, Object> data) {
+        this.data = data;
+        return this;
+    }
+
+    public Map<String, Object> getData() {
+        return data;
     }
 
     private static class RequestIdGenerator {

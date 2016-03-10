@@ -44,6 +44,7 @@ import io.vertx.core.net.JksOptions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.HashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -309,7 +310,7 @@ public class HttpServerVertx implements HttpServer {
 
     private void handleRequestWithNoBody(HttpServerRequest request) {
         final HttpRequest getRequest;
-        getRequest = vertxUtils.createRequest(request, null,
+        getRequest = vertxUtils.createRequest(request, null, new HashMap<>(),
                 simpleHttpServer.getDecorators(), simpleHttpServer.getHttpResponseCreator());
         simpleHttpServer.handleRequest(getRequest);
     }
@@ -325,7 +326,7 @@ public class HttpServerVertx implements HttpServer {
         }
 
         request.bodyHandler((Buffer buffer) -> {
-                final HttpRequest postRequest = vertxUtils.createRequest(request, buffer,
+                final HttpRequest postRequest = vertxUtils.createRequest(request, buffer, new HashMap<>(),
                         simpleHttpServer.getDecorators(), simpleHttpServer.getHttpResponseCreator());
 
                 simpleHttpServer.handleRequest(postRequest);

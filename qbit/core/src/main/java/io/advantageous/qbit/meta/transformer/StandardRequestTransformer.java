@@ -159,6 +159,17 @@ public class StandardRequestTransformer implements RequestTransformer {
                     }
                     value = value !=null ? decodeURLEncoding(value.toString()) : value;
                     break;
+                case DATA:
+                    namedParam = ((NamedParam) parameterMeta.getParam());
+                    value = request.data().get(namedParam.getName());
+                    if (namedParam.isRequired() && Str.isEmpty(value)) {
+                        errorsList.add(sputs("Unable to find required data param", namedParam.getName()));
+                        break loop;
+                    }
+                    if (value == null) {
+                        value = namedParam.getDefaultValue();
+                    }
+                    break;
                 case PATH_BY_NAME:
                     URINamedParam uriNamedParam = ((URINamedParam) parameterMeta.getParam());
 
