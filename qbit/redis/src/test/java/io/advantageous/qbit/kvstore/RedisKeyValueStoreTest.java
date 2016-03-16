@@ -23,7 +23,6 @@ import java.util.concurrent.atomic.AtomicReference;
 import static junit.framework.Assert.assertNotNull;
 import static org.junit.Assert.*;
 
-@Ignore
 public class RedisKeyValueStoreTest {
 
     private RedisKeyValueStore keyValueStore;
@@ -42,7 +41,7 @@ public class RedisKeyValueStoreTest {
         builder.setVertxOptions(null);
 
         try {
-            builder.setRedisUri(new URI("redis://redisdb:foo@localhost:6379/0"));
+            builder.setRedisUri(new URI("redis://redisdb:foobared@localhost:6379/0"));
         } catch (URISyntaxException e) {
             e.printStackTrace();
         }
@@ -509,5 +508,12 @@ public class RedisKeyValueStoreTest {
         keyValueStore.delete("key2");
         keyValueStore.delete("key3");
         keyValueStore.delete("key4");
+    }
+
+
+
+    @Test
+    public void loadTest() throws Exception{
+
     }
 }
