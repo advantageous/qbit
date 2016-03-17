@@ -219,7 +219,7 @@ public class HttpClientVertxTest extends TimedTesting {
 
 
         server = new HttpServerBuilder().setPort(port-1)
-                .addShouldContinueHttpRequestPredicate(httpRequest -> {
+                .addRequestBodyContinuePredicate(httpRequest -> {
                     if (httpRequest.getContentLength() > 0) {
                         httpRequest.getReceiver().response(500, "applicaiton/json", "\"too big\"");
                         return false;
