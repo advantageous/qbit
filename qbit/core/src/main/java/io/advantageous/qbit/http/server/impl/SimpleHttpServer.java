@@ -25,6 +25,7 @@ import io.advantageous.qbit.http.request.HttpResponseCreator;
 import io.advantageous.qbit.http.request.decorator.HttpResponseDecorator;
 import io.advantageous.qbit.http.request.impl.HttpResponseCreatorDefault;
 import io.advantageous.qbit.http.server.HttpServer;
+import io.advantageous.qbit.http.server.RequestContinuePredicate;
 import io.advantageous.qbit.http.server.websocket.WebSocketMessage;
 import io.advantageous.qbit.http.websocket.WebSocket;
 import io.advantageous.qbit.http.websocket.WebSocketSender;
@@ -83,6 +84,9 @@ public class SimpleHttpServer implements HttpServer {
     };
     private Predicate<HttpRequest> shouldContinueHttpRequest = request -> true;
 
+
+    private Predicate<HttpRequest> shouldContinueReadingRequestBody = request -> true;
+
     private ExecutorContext executorContext;
     private Predicate<WebSocket> shouldContinueWebSocket = webSocket -> true;
     private final EndpointDefinition endpointDefinition;
@@ -114,10 +118,12 @@ public class SimpleHttpServer implements HttpServer {
             final int serviceDiscoveryTtl,
             final TimeUnit serviceDiscoveryTtlTimeUnit,
             final CopyOnWriteArrayList<HttpResponseDecorator> decorators,
-            final HttpResponseCreator httpResponseCreator) {
+            final HttpResponseCreator httpResponseCreator,
+            final RequestContinuePredicate requestBodyContinuePredicate) {
         this.decorators = decorators;
         this.httpResponseCreator = httpResponseCreator;
 
+        this.shouldContinueReadingRequestBody = requestBodyContinuePredicate;
 
         this.name = endpointName == null ? "HTTP_SERVER_" + port : endpointName;
         this.port = port;
@@ -411,4 +417,13 @@ public class SimpleHttpServer implements HttpServer {
         return httpResponseCreator;
     }
 
+
+    public Predicate<HttpRequest> getShouldContinueReadingRequestBody() {
+        return shouldContinueReadingRequestBody;
+    }
+
+    public SimpleHttpServer setShouldContinueReadingRequestBody(Predicate<HttpRequest> shouldContinueReadingRequestBody) {
+        this.shouldContinueReadingRequestBody = shouldContinueReadingRequestBody;
+        return this;
+    }
 }

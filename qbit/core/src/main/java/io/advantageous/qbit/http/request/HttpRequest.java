@@ -47,6 +47,7 @@ public class HttpRequest implements Request<Object> {
     private final long timestamp;
     private final Supplier<Object> bodySupplier;
     private final Supplier<MultiMap<String, String>> formParamsSupplier;
+    private final int contentLength;
     private  MultiMap<String, String> formParams;
     private volatile boolean handled;
     private  Object body;
@@ -62,7 +63,8 @@ public class HttpRequest implements Request<Object> {
                        final String contentType,
                        final HttpResponseReceiver response,
                        final Supplier<MultiMap<String, String>> formParamsSupplier,
-                       final long timestamp) {
+                       final long timestamp,
+                       final int contentLength) {
 
         this.data = data;
         this.uri = uri;
@@ -76,6 +78,7 @@ public class HttpRequest implements Request<Object> {
         this.headers = headers;
         this.timestamp = timestamp;
         this.formParamsSupplier = formParamsSupplier;
+        this.contentLength = contentLength;
     }
 
     @Override
@@ -258,6 +261,9 @@ public class HttpRequest implements Request<Object> {
         return "application/json".equals(contentType);
     }
 
+    public int getContentLength() {
+        return contentLength;
+    }
 
     @Override
     public String toString() {

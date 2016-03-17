@@ -45,6 +45,7 @@ import java.net.URLDecoder;
 import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.function.Supplier;
 
 import static io.advantageous.boon.core.Str.sputs;
 import static io.advantageous.qbit.http.websocket.WebSocketBuilder.webSocketBuilder;
@@ -62,7 +63,7 @@ public class VertxServerUtils {
     }
 
     public HttpRequest createRequest(final HttpServerRequest request,
-                                     final Buffer buffer,
+                                     final Supplier<Buffer> buffer,
                                      final Map<String, Object> data,
                                      final CopyOnWriteArrayList<HttpResponseDecorator> decorators,
                                      final HttpResponseCreator httpResponseCreator) {
@@ -70,16 +71,20 @@ public class VertxServerUtils {
         final MultiMap<String, String> headers = request.headers().size() == 0 ? MultiMap.empty() :
                 new MultiMapWrapper(request.headers());
         final String contentType = request.headers().get("Content-Type");
+
+        final String contentLengthHeaderValue = request.headers().get("Content-Length");
+        final int contentLength = contentLengthHeaderValue == null ? 0 : Integer.parseInt(contentLengthHeaderValue);
         final HttpRequestBuilder httpRequestBuilder = HttpRequestBuilder.httpRequestBuilder();
         buildParams(httpRequestBuilder, request, contentType);
         final MultiMap<String, String> params = httpRequestBuilder.getParams();
         final String requestPath = request.path();
 
         httpRequestBuilder.setId(requestId.incrementAndGet())
+                .setContentLength(contentLength)
                 .setData(data)
                 .setUri(requestPath).setMethod(request.method().toString())
                 .setBodySupplier(() -> buffer == null ?
-                        null : buffer.getBytes())
+                        null : buffer.get().getBytes())
                 .setRemoteAddress(request.remoteAddress().toString())
                 .setResponse(createResponse(requestPath, request.method().toString(), headers, params,
                         request.response(), decorators, httpResponseCreator))

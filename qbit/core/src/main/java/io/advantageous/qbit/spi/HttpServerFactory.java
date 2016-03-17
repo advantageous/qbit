@@ -22,6 +22,7 @@ import io.advantageous.qbit.http.config.HttpServerOptions;
 import io.advantageous.qbit.http.request.HttpResponseCreator;
 import io.advantageous.qbit.http.request.decorator.HttpResponseDecorator;
 import io.advantageous.qbit.http.server.HttpServer;
+import io.advantageous.qbit.http.server.RequestContinuePredicate;
 import io.advantageous.qbit.service.discovery.ServiceDiscovery;
 import io.advantageous.qbit.service.health.HealthServiceAsync;
 import io.advantageous.qbit.system.QBitSystemManager;
@@ -44,5 +45,5 @@ public interface HttpServerFactory {
             final int serviceDiscoveryTtl,
             final TimeUnit serviceDiscoveryTtlTimeUnit,
             final CopyOnWriteArrayList<HttpResponseDecorator> decorators,
-            final HttpResponseCreator httpResponseCreator);
+            final HttpResponseCreator httpResponseCreator, RequestContinuePredicate requestBodyContinuePredicate);
 }
