@@ -51,6 +51,9 @@ public class HttpServerBuilder {
     private int serviceDiscoveryTtl = 60;
     private TimeUnit serviceDiscoveryTtlTimeUnit = TimeUnit.SECONDS;
     private RequestContinuePredicate requestContinuePredicate = null;
+    private RequestContinuePredicate requestBodyContinuePredicate = null;
+
+
     private CopyOnWriteArrayList<HttpResponseDecorator> responseDecorators = new CopyOnWriteArrayList<>();
     private HttpResponseCreator httpResponseCreator = new HttpResponseCreatorDefault();
 
@@ -79,6 +82,12 @@ public class HttpServerBuilder {
     }
 
 
+    public RequestContinuePredicate getRequestBodyContinuePredicate() {
+        if (requestBodyContinuePredicate == null) {
+            requestBodyContinuePredicate = new RequestContinuePredicate();
+        }
+        return requestBodyContinuePredicate;
+    }
 
     public RequestContinuePredicate getRequestContinuePredicate() {
         if (requestContinuePredicate == null) {
@@ -89,6 +98,12 @@ public class HttpServerBuilder {
 
     public HttpServerBuilder setRequestContinuePredicate(final RequestContinuePredicate requestContinuePredicate) {
         this.requestContinuePredicate = requestContinuePredicate;
+        return this;
+    }
+
+
+    public HttpServerBuilder addRequestBodyContinuePredicate(final Predicate<HttpRequest> predicate) {
+        getRequestBodyContinuePredicate().add(predicate);
         return this;
     }
 
@@ -232,7 +247,8 @@ public class HttpServerBuilder {
                 this.getServiceDiscoveryTtl(),
                 this.getServiceDiscoveryTtlTimeUnit(),
                 this.getResponseDecorators(),
-                this.getHttpResponseCreator()
+                this.getHttpResponseCreator(),
+                this.getRequestBodyContinuePredicate()
         );
 
         if (requestContinuePredicate!=null) {

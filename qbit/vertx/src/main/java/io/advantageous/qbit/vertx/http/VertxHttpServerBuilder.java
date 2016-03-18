@@ -188,7 +188,7 @@ public class VertxHttpServerBuilder extends HttpServerBuilder {
             httpServer = new HttpServerVertx(startedVertx, this.getVertx(), getEndpointName(), getConfig(),
                     getSystemManager(), getServiceDiscovery(), getHealthServiceAsync(),
                     getServiceDiscoveryTtl(), getServiceDiscoveryTtlTimeUnit(), getResponseDecorators(),
-                    getHttpResponseCreator());
+                    getHttpResponseCreator(), getRequestBodyContinuePredicate());
         } else {
 
             /* They wanted routes. */
@@ -199,7 +199,8 @@ public class VertxHttpServerBuilder extends HttpServerBuilder {
                     super.getConfig().getFlushInterval(), this.getEndpointName(),
                     this.getVertx(), this.getSystemManager(),
                     this.getServiceDiscovery(), this.getHealthServiceAsync(), getServiceDiscoveryTtl(),
-                    getServiceDiscoveryTtlTimeUnit(), getResponseDecorators(), getHttpResponseCreator());
+                    getServiceDiscoveryTtlTimeUnit(), getResponseDecorators(), getHttpResponseCreator(),
+                    getRequestBodyContinuePredicate());
         }
 
         if (this.getRequestContinuePredicate()!=null) {

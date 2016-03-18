@@ -6,6 +6,7 @@ import io.advantageous.qbit.http.request.HttpRequest;
 import io.advantageous.qbit.http.request.HttpResponseCreator;
 import io.advantageous.qbit.http.request.decorator.HttpResponseDecorator;
 import io.advantageous.qbit.http.server.HttpServer;
+import io.advantageous.qbit.http.server.RequestContinuePredicate;
 import io.advantageous.qbit.http.server.impl.SimpleHttpServer;
 import io.advantageous.qbit.http.server.websocket.WebSocketMessage;
 import io.advantageous.qbit.http.websocket.WebSocket;
@@ -28,6 +29,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
+import java.util.function.Supplier;
 
 public class SimpleVertxHttpServerWrapper implements HttpServer {
 
@@ -64,7 +66,8 @@ public class SimpleVertxHttpServerWrapper implements HttpServer {
             final int serviceDiscoveryTtl,
             final TimeUnit serviceDiscoveryTtlTimeUnit,
             final CopyOnWriteArrayList<HttpResponseDecorator> decorators,
-            final HttpResponseCreator httpResponseCreator) {
+            final HttpResponseCreator httpResponseCreator,
+            final RequestContinuePredicate requestBodyContinuePredicate) {
 
         this.router = router;
         this.route = route;
@@ -72,7 +75,7 @@ public class SimpleVertxHttpServerWrapper implements HttpServer {
         this.simpleHttpServer = new SimpleHttpServer(endpointName, systemManager,
                 flushInterval, 0, serviceDiscovery,
                 healthServiceAsync, serviceDiscoveryTtl, serviceDiscoveryTtlTimeUnit,
-                decorators, httpResponseCreator); //TODO: Baseline simple open cors support or nothing?
+                decorators, httpResponseCreator, requestBodyContinuePredicate);
         this.systemManager = systemManager;
         this.setWebSocketIdleConsume(aVoid -> {
         });
@@ -175,22 +178,21 @@ public class SimpleVertxHttpServerWrapper implements HttpServer {
             case "POST":
 
                 final String contentType = request.headers().get("Content-Type");
-
-
                 if (HttpContentTypes.isFormContentType(contentType)) {
-
                     request.setExpectMultipart(true);
-
-
                 }
 
-                request.bodyHandler((Buffer buffer) -> {
-                        final HttpRequest postRequest = vertxUtils.createRequest(request, buffer, data,
-                                simpleHttpServer.getDecorators(), simpleHttpServer.getHttpResponseCreator());
-
-                        simpleHttpServer.handleRequest(postRequest);
-
-                });
+                final Buffer[] bufferHolder = new Buffer[1];
+                final HttpRequest bodyHttpRequest = vertxUtils.createRequest(request, () -> bufferHolder[0], new HashMap<>(),
+                        simpleHttpServer.getDecorators(), simpleHttpServer.getHttpResponseCreator());
+                if (simpleHttpServer.getShouldContinueReadingRequestBody().test(bodyHttpRequest)) {
+                    request.bodyHandler((buffer) -> {
+                        bufferHolder[0] = buffer;
+                        simpleHttpServer.handleRequest(bodyHttpRequest);
+                    });
+                } else {
+                    logger.info("Request body rejected {} {}", request.method(), request.absoluteURI());
+                }
 
                 break;
 
