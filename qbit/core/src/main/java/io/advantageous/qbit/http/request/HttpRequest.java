@@ -20,6 +20,7 @@ package io.advantageous.qbit.http.request;
 
 import io.advantageous.qbit.message.Request;
 import io.advantageous.qbit.util.MultiMap;
+
 import java.nio.charset.StandardCharsets;
 import java.util.function.Supplier;
 import java.util.Map;

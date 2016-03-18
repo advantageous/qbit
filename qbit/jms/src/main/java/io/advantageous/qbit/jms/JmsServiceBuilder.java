@@ -1,10 +1,6 @@
 package io.advantageous.qbit.jms;
 
-import javax.jms.Connection;
-import javax.jms.Destination;
-import javax.jms.ConnectionFactory;
-import javax.jms.JMSException;
-import javax.jms.Session;
+import javax.jms.*;
 import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
@@ -13,6 +9,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.function.Supplier;
+import java.lang.IllegalStateException;
 
 /**
  * This class is used to create a JMS client (called JmsService) that can send and receive messages via JMS.

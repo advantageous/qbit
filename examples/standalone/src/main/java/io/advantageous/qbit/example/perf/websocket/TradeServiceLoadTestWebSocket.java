@@ -8,10 +8,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static io.advantageous.qbit.service.ServiceProxyUtils.flushServiceProxy;
-
 import static io.advantageous.boon.core.IO.puts;
 import static io.advantageous.qbit.client.ClientBuilder.clientBuilder;
+import static io.advantageous.qbit.service.ServiceProxyUtils.flushServiceProxy;
 
 public class TradeServiceLoadTestWebSocket {
 
@@ -68,14 +67,16 @@ public class TradeServiceLoadTestWebSocket {
      * @param count holds the total count
      */
     private static void runCalls(final int numCalls, final AtomicInteger count) {
-        final Client client = clientBuilder().setAutoFlush(false).build();
+        final Client client = clientBuilder().setUri("/")
+                //.setHost("192.168.0.1")
+                .setAutoFlush(false).build();
 
-        final TradeServiceAsync tradeService = client.createProxy(TradeServiceAsync.class, "tradeservice");
+        final TradeServiceAsync tradeService = client.createProxy(TradeServiceAsync.class, "t");
 
         client.startClient();
 
         for (int call=0; call < numCalls; call++) {
-            tradeService.trade(response -> {
+            tradeService.t(response -> {
                 if (response) {
                     count.incrementAndGet();
                 }

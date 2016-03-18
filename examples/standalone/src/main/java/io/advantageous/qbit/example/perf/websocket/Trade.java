@@ -2,19 +2,19 @@ package io.advantageous.qbit.example.perf.websocket;
 
 public class Trade {
 
-    private final String name;
-    private final long amount;
+    private final String nm;
+    private final long amt;
 
     public Trade(String name, long amount) {
-        this.name = name;
-        this.amount = amount;
+        this.nm = name;
+        this.amt = amount;
     }
 
-    public String getName() {
-        return name;
+    public String getNm() {
+        return nm;
     }
 
-    public long getAmount() {
-        return amount;
+    public long getAmt() {
+        return amt;
     }
 }

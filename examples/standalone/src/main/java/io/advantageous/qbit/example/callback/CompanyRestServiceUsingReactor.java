@@ -1,7 +1,6 @@
 package io.advantageous.qbit.example.callback;
 
 import io.advantageous.qbit.admin.ManagedServiceBuilder;
-
 import io.advantageous.qbit.annotation.RequestMapping;
 import io.advantageous.qbit.annotation.RequestParam;
 import io.advantageous.qbit.reactive.Callback;

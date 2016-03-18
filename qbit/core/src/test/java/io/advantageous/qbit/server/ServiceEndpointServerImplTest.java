@@ -181,7 +181,7 @@ public class ServiceEndpointServerImplTest extends TimedTesting {
 
         final MethodCall<Object> methodCall = new MethodCallBuilder().setObjectName("other").setName("method").setBody(null).build();
 
-        final String message = QBit.factory().createEncoder().encodeAsString(Lists.list(methodCall));
+        final String message = QBit.factory().createEncoder().encodeMethodCalls("", Lists.list(methodCall));
 
         httpServer.sendWebSocketServerMessage(new WebSocketMessageBuilder().setRemoteAddress("/foo")
                 .setMessage(message).setSender(new MockWebSocketSender()).build());
@@ -341,7 +341,7 @@ public class ServiceEndpointServerImplTest extends TimedTesting {
 
         final MethodCall<Object> methodCall = new MethodCallBuilder().setObjectName("serviceMockObject").setName("callWithReturn").setBody(null).build();
 
-        final String message = QBit.factory().createEncoder().encodeAsString(Lists.list(methodCall));
+        final String message = QBit.factory().createEncoder().encodeMethodCalls("", Lists.list(methodCall));
 
         httpServer.sendWebSocketServerMessage(new WebSocketMessageBuilder().setRemoteAddress("/foo").setMessage(message).setSender(new MockWebSocketSender()).build());
 
@@ -394,7 +394,7 @@ public class ServiceEndpointServerImplTest extends TimedTesting {
         final MethodCall<Object> methodCall = new MethodCallBuilder()
                 .setObjectName("serviceMockObject").setName("exceptionCall").setBody(null).build();
 
-        final String message = QBit.factory().createEncoder().encodeAsString(Lists.list(methodCall));
+        final String message = QBit.factory().createEncoder().encodeMethodCalls("", Lists.list(methodCall));
 
         httpServer.sendWebSocketServerMessage(new WebSocketMessageBuilder().setRemoteAddress("/error").setMessage(message).setSender(new MockWebSocketSender()).build());
 
@@ -518,8 +518,18 @@ public class ServiceEndpointServerImplTest extends TimedTesting {
     class HttpServerMock implements HttpServer {
         Consumer<WebSocketMessage> webSocketMessageConsumer;
         Consumer<HttpRequest> requestConsumer;
-        private Consumer<Void> idleConsumerRequest;
-        private Consumer<Void> idleConsumerWebSocket;
+        private Consumer<Void> idleConsumerRequest = new Consumer<Void>() {
+            @Override
+            public void accept(Void aVoid) {
+
+            }
+        };
+        private Consumer<Void> idleConsumerWebSocket = new Consumer<Void>() {
+            @Override
+            public void accept(Void aVoid) {
+
+            }
+        };
 
         Thread thread = new Thread(new Runnable() {
             @Override

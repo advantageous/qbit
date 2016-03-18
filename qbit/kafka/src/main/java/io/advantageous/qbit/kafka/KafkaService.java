@@ -2,7 +2,6 @@ package io.advantageous.qbit.kafka;
 
 import kafka.javaapi.consumer.ConsumerConnector;
 import org.apache.kafka.clients.producer.Callback;
-
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerRecord;
 

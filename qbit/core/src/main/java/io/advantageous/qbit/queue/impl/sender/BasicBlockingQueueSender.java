@@ -38,6 +38,10 @@ public class BasicBlockingQueueSender<T> extends AbstractBasicSendQueue<T> {
 
 
     protected final  boolean sendArray(final Object[] array) {
+
+            if (array.length==0) {
+                throw new IllegalStateException("Array length is 0");
+            }
             if (!queue.offer(array)) {
                 logger.error("Unable to send to queue {} " +
                                 " Size of queue {} ",

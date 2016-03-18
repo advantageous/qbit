@@ -31,8 +31,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.function.Supplier;
 
-import static io.advantageous.boon.core.IO.puts;
-
 /** This is a utility class for when you are running in a PaaS like Heroku or Docker.
  *  It also allows you to share stat, health and system manager setup.
  *

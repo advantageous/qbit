@@ -18,11 +18,11 @@
 
 package io.advantageous.qbit.server;
 
+import io.advantageous.boon.core.Lists;
 import io.advantageous.qbit.GlobalConstants;
 import io.advantageous.qbit.QBit;
 import io.advantageous.qbit.http.server.websocket.WebSocketMessage;
 import io.advantageous.qbit.http.websocket.WebSocketSender;
-import io.advantageous.qbit.message.Message;
 import io.advantageous.qbit.message.MethodCall;
 import io.advantageous.qbit.message.Request;
 import io.advantageous.qbit.message.Response;
@@ -137,7 +137,9 @@ public class WebSocketServiceServerHandler {
                         createMethodCallListToBeParsedFromBody(webSocketMessage.getRemoteAddress(),
                                 webSocketMessage.getMessage(), webSocketMessage);
 
-                methodCallSendQueue.sendBatch(methodCallListToBeParsedFromBody);
+                if (methodCallListToBeParsedFromBody.size() > 0) {
+                    methodCallSendQueue.sendBatch(methodCallListToBeParsedFromBody);
+                }
             } catch (Exception ex) {
                 logger.error("", ex);
             }
@@ -156,14 +158,7 @@ public class WebSocketServiceServerHandler {
             //uts("handle WebSocket response", webSocketMessage.getRemoteAddress());
             final WebSocketDelegate webSocketDelegate = this.webSocketDelegateMap.get(webSocketMessage.getRemoteAddress());
 
-            if (webSocketDelegate == null) {
-
-
-                String responseAsText = encoderRef.get().encodeAsString(response);
-
-
-                webSocketMessage.getSender().sendText(responseAsText);
-            } else {
+            if (webSocketDelegate != null) {
                 webSocketDelegate.send(response);
             }
         } catch (Exception ex) {
@@ -182,7 +177,7 @@ public class WebSocketServiceServerHandler {
         if (body != null) {
 
 
-            methodCalls = parserRef.get().parseMethodCallListUsingAddressPrefix(addressPrefix, body);
+            methodCalls = parserRef.get().parseMethodCalls(addressPrefix, body.toString());
 
         } else {
             methodCalls = Collections.emptyList();
@@ -197,7 +192,7 @@ public class WebSocketServiceServerHandler {
                 final Response<Object> response = ResponseImpl.response(-1, Timer.timer().now(), "SYSTEM", "ERROR",
                         "CAN'T HANDLE CALL", originatingRequest, true);
                 final WebSocketSender sender = webSocketMessage.getSender();
-                sender.sendText(encoderRef.get().encodeAsString(response));
+                sender.sendText(encoderRef.get().encodeResponses("SYSTEM", Lists.list(response)));
 
             }
 
@@ -237,7 +232,7 @@ public class WebSocketServiceServerHandler {
                 long dur = now - ws.lastSend;
 
                 if (dur > flushResponseInterval) {
-                    ws.buildAndSendMessages(null, now);
+                    ws.buildAndSendResponse(null, now);
                 }
             }
         }
@@ -264,15 +259,18 @@ public class WebSocketServiceServerHandler {
         public void send(final Response<Object> message) {
 
             if (!outputMessages.offer(message)) {
-                buildAndSendMessages(message, Timer.timer().now());
+                buildAndSendResponse(message, Timer.timer().now());
             }
         }
 
-        private void buildAndSendMessages(final Response<Object> message, long now) {
+        private void buildAndSendResponse(final Response<Object> response, long now) {
 
-            if (outputMessages.size() == 0 && message == null) {
+            if (outputMessages.size() == 0 && response == null) {
                 return;
             }
+
+
+            String returnAddress = response!=null ? response.returnAddress() : null;
 
             List<Response<Object>> messages = new ArrayList<>(outputMessages.size() + 1);
 
@@ -280,20 +278,25 @@ public class WebSocketServiceServerHandler {
 
             while (currentMessage != null) {
 
+                returnAddress = currentMessage.returnAddress();
                 messages.add(currentMessage);
                 currentMessage = outputMessages.poll();
 
             }
 
-            if (message != null) {
-                messages.add(message);
+            if (response != null) {
+                messages.add(response);
             }
 
 
-            protocolEncoderThreadPool.execute(() -> {
-                @SuppressWarnings("unchecked") final String textMessage = encoderRef.get().encodeAsString((Collection<Message<Object>>) (Object) messages);
-                serverWebSocket.getSender().sendText(textMessage);
-            });
+
+            if (returnAddress!=null) {
+                final String returnAddr = returnAddress;
+                protocolEncoderThreadPool.execute(() -> {
+                    @SuppressWarnings("unchecked") final String textMessage = encoderRef.get().encodeResponses(returnAddr, messages);
+                    serverWebSocket.getSender().sendText(textMessage);
+                });
+            }
 
 
             lastSend = now;

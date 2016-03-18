@@ -21,11 +21,11 @@ package io.advantageous.qbit.vertx.http.server;
 import io.advantageous.boon.core.Str;
 import io.advantageous.boon.core.StringScanner;
 import io.advantageous.qbit.http.HttpContentTypes;
-import io.advantageous.qbit.http.request.HttpResponseCreator;
-import io.advantageous.qbit.http.request.decorator.HttpResponseDecorator;
 import io.advantageous.qbit.http.request.HttpRequest;
 import io.advantageous.qbit.http.request.HttpRequestBuilder;
+import io.advantageous.qbit.http.request.HttpResponseCreator;
 import io.advantageous.qbit.http.request.HttpResponseReceiver;
+import io.advantageous.qbit.http.request.decorator.HttpResponseDecorator;
 import io.advantageous.qbit.http.websocket.WebSocket;
 import io.advantageous.qbit.http.websocket.WebSocketSender;
 import io.advantageous.qbit.network.impl.NetSocketBase;
@@ -81,7 +81,7 @@ public class VertxServerUtils {
                 .setBodySupplier(() -> buffer == null ?
                         null : buffer.getBytes())
                 .setRemoteAddress(request.remoteAddress().toString())
-                .setResponse(createResponse(requestPath, headers, params,
+                .setResponse(createResponse(requestPath, request.method().toString(), headers, params,
                         request.response(), decorators, httpResponseCreator))
                 .setTimestamp(time == 0L ? Timer.timer().now() : time)
                 .setHeaders(headers);
@@ -107,11 +107,14 @@ public class VertxServerUtils {
 
     private HttpResponseReceiver createResponse(
             final String requestPath,
-            MultiMap<String, String> headers, MultiMap<String, String> params, final HttpServerResponse response,
+            final String requestMethod,
+            final MultiMap<String, String> headers,
+            final MultiMap<String, String> params,
+            final HttpServerResponse response,
             final CopyOnWriteArrayList<HttpResponseDecorator> decorators,
             final HttpResponseCreator httpResponseCreator) {
 
-        return new VertxHttpResponseReceiver(requestPath, headers, params, response, decorators, httpResponseCreator);
+        return new VertxHttpResponseReceiver(requestPath, requestMethod, headers, params, response, decorators, httpResponseCreator);
 
     }
 

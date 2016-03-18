@@ -10,7 +10,6 @@ import io.advantageous.qbit.annotation.http.POST;
 import io.advantageous.qbit.eventbus.EventBusCluster;
 import io.advantageous.qbit.eventbus.EventBusClusterBuilder;
 import io.advantageous.qbit.events.EventManager;
-import io.advantageous.qbit.events.EventManagerBuilder;
 import io.advantageous.qbit.reactive.Reactor;
 import io.advantageous.qbit.reactive.ReactorBuilder;
 import io.advantageous.qbit.service.BaseService;

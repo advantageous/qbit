@@ -17,9 +17,7 @@ import java.util.Optional;
 import static io.advantageous.boon.core.IO.puts;
 import static io.advantageous.boon.core.Maps.safeMap;
 import static io.advantageous.boon.json.JsonFactory.toJson;
-import static junit.framework.Assert.assertFalse;
 import static junit.framework.Assert.assertNotNull;
-import static junit.framework.Assert.assertTrue;
 import static org.junit.Assert.assertEquals;
 
 public class StandardRequestTransformerTest {

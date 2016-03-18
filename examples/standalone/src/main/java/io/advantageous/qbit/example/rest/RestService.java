@@ -23,6 +23,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 import static io.advantageous.boon.core.IO.puts;
+import static io.advantageous.qbit.http.server.CorsSupportBuilder.corsSupportBuilder;
 
 
 public class RestService {
@@ -52,9 +53,12 @@ public class RestService {
             return true;
         });
 
+        managedServiceBuilder.getHttpServerBuilder().addResponseDecorator(corsSupportBuilder().buildResponseDecorator());
+
+
         managedServiceBuilder.getHttpServerBuilder().addResponseDecorator(new HttpResponseDecorator() {
             @Override
-            public boolean decorateTextResponse(HttpTextResponseHolder responseHolder, String requestPath,
+            public boolean decorateTextResponse(HttpTextResponseHolder responseHolder, String requestPath, String method,
                                                 int code, String contentType, String payload,
                                                 MultiMap<String, String> responseHeaders,
                                                 MultiMap<String, String> requestHeaders,
@@ -70,7 +74,7 @@ public class RestService {
             }
 
             @Override
-            public boolean decorateBinaryResponse(HttpBinaryResponseHolder responseHolder, String requestPath,
+            public boolean decorateBinaryResponse(HttpBinaryResponseHolder responseHolder, String requestPath, String method,
                                                   int code, String contentType, byte[] payload,
                                                   MultiMap<String, String> responseHeaders,
                                                   MultiMap<String, String> requestHeaders,
@@ -108,6 +112,7 @@ public class RestService {
 
                         HttpRequest httpRequest = HttpRequestBuilder.httpRequestBuilder()
                                 .addHeader("USER", message)
+                                .addHeader("Origin", "http://somesite.com")
                                 .setJsonBodyForPost(message).setUri("/echo").setTextReceiver(new HttpTextReceiver() {
 
 
