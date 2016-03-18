@@ -193,6 +193,12 @@ public class EmployeeServiceSingleObjectTestService {
         throw new RuntimeException("OH NO");
     }
 
+    @RequestMapping(value = "/echoEmployee", method = RequestMethod.POST)
+    public Employee echoEmployee(Employee employee) {
+
+        return employee;
+
+    }
 
 
     @RequestMapping("/returnEmployee")
