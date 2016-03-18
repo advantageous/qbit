@@ -12,4 +12,10 @@ public class HelloWorldService {
             return "hello " + body;
     }
 
+
+    @RequestMapping(value = "/hi/", method = RequestMethod.GET)
+    public String hi() {
+        return "hi ";
+    }
+
 }

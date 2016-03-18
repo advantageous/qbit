@@ -36,7 +36,7 @@ public class ResourceStyleRestServiceTest {
         httpServerSimulator = new HttpServerSimulator();
 
         FactorySPI.setHttpServerFactory((options, endPointName, systemManager, serviceDiscovery,
-                                         healthServiceAsync, serviceDiscoveryTtl, serviceDiscoveryTtlTimeUnit, a, b)
+                                         healthServiceAsync, serviceDiscoveryTtl, serviceDiscoveryTtlTimeUnit, a, b, z)
                 -> httpServerSimulator);
 
 

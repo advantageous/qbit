@@ -24,6 +24,7 @@ import io.advantageous.qbit.http.request.HttpRequest;
 import io.advantageous.qbit.http.request.HttpRequestBuilder;
 import io.advantageous.qbit.http.server.HttpServer;
 import io.advantageous.qbit.http.server.HttpServerBuilder;
+import io.advantageous.qbit.http.server.impl.SimpleHttpServer;
 import io.advantageous.qbit.http.websocket.WebSocket;
 import io.advantageous.qbit.test.TimedTesting;
 import io.advantageous.qbit.util.PortUtils;
@@ -32,6 +33,7 @@ import org.junit.Test;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Predicate;
 
 import static io.advantageous.boon.core.Exceptions.die;
 import static io.advantageous.boon.core.IO.puts;
@@ -208,6 +210,63 @@ public class HttpClientVertxTest extends TimedTesting {
         stop();
     }
 
+
+    @Test
+    public void testFormSendTooLargeBody() throws Exception {
+
+
+        connect();
+
+
+        server = new HttpServerBuilder().setPort(port-1)
+                .addRequestBodyContinuePredicate(httpRequest -> {
+                    if (httpRequest.getContentLength() > 0) {
+                        httpRequest.getReceiver().response(500, "applicaiton/json", "\"too big\"");
+                        return false;
+                    }
+                    return true;
+                })
+                .build();
+
+        final HttpRequest request = new HttpRequestBuilder()
+                .setUri("/services/mockservice/ping")
+                .addParam("foo", "bar")
+                .setFormPostAndCreateFormBody()
+                .setTextReceiver((code, mimeType, body) -> {
+
+
+                    responseCode.set(code);
+                    responseReceived.set(true);
+                    messageBody.set(body);
+
+
+                })
+                .build();
+
+
+        server.setHttpRequestConsumer(serverRequest -> {
+            requestReceived.set(true);
+            serverRequest.getReceiver().response(200, "application/json", "\"ok\"");
+        });
+
+        run();
+
+        client.sendHttpRequest(request);
+
+        client.flush();
+
+        waitForTrigger(20, o -> this.responseReceived.get());
+
+
+        puts("RESPONSE", responseCode, messageBody, responseReceived);
+
+
+        assertEquals(500, responseCode.get());
+
+        assertEquals("\"too big\"", messageBody.get());
+
+        stop();
+    }
 
     @Test
     public void testFormSendUseBody() throws Exception {

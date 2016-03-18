@@ -433,7 +433,6 @@ project('redis') {
 
 project('test-support') {
 
-
     dependencies {
         compile project(':qbit:core')
     }
@@ -455,6 +454,15 @@ project('guice'){
         compile project(":qbit:vertx")
         testCompile project(':qbit:test-support')
         testCompile 'com.google.inject:guice:4.0'
+    }
+    uploadArchives {
+        repositories {
+            mavenDeployer {
+                pom.project {
+                    description 'Google Guice support for QBit'
+                }
+            }
+        }
     }
 }
 

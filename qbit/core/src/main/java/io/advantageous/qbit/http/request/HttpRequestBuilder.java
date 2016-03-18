@@ -64,6 +64,7 @@ public class HttpRequestBuilder {
     private HttpResponseReceiver receiver = (code, mimeType, body1) -> {
     };
     private Map<String, Object> data;
+    private int contentLength;
 
     public Supplier<MultiMap<String, String>> getFormParamsSupplier() {
         return formParamsSupplier;
@@ -238,7 +239,7 @@ public class HttpRequestBuilder {
                 this.getHeaders(),
                 this.getBodySupplier(),
                 this.getRemoteAddress(), this.getContentType(), httpResponse,
-                getFormParamsSupplier(), this.getTimestamp());
+                getFormParamsSupplier(), this.getTimestamp(), this.getContentLength());
     }
 
 
@@ -266,7 +267,7 @@ public class HttpRequestBuilder {
                 this.getBodySupplier(),
                 this.getRemoteAddress(), this.getContentType(), httpResponse,
                 this.getFormParamsSupplier(),
-                this.getTimestamp());
+                this.getTimestamp(), this.getContentLength());
 
         return request;
     }
@@ -544,6 +545,15 @@ public class HttpRequestBuilder {
 
     public Map<String, Object> getData() {
         return data;
+    }
+
+    public HttpRequestBuilder setContentLength(final int contentLength) {
+        this.contentLength = contentLength;
+        return this;
+    }
+
+    public int getContentLength() {
+        return contentLength;
     }
 
     private static class RequestIdGenerator {
