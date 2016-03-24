@@ -5,9 +5,6 @@ import io.advantageous.qbit.message.Request;
 import io.advantageous.qbit.reactive.Callback;
 import io.advantageous.qbit.util.MultiMap;
 
-/**
- * Created by rick on 11/21/15.
- */
 public class MethodCallLocal implements MethodCall<Object> {
 
     private final String name;
@@ -18,6 +15,8 @@ public class MethodCallLocal implements MethodCall<Object> {
     private final long messageId;
     private final boolean hasCallback;
 
+    private final Callback<Object> callback;
+
     private final Request<Object> originatingRequest;
 
 
@@ -27,17 +26,23 @@ public class MethodCallLocal implements MethodCall<Object> {
         return hasCallback;
     }
 
+    @Override
+    public Callback<Object> callback() {
+        return callback;
+    }
+
     public MethodCallLocal(final String name,
                            final String uuid,
                            final long timestamp,
                            final long messageId,
                            final Object[] args,
-                           final Request<Object> originatingRequest) {
+                           Callback<Object> callback, final Request<Object> originatingRequest) {
         this.name = name;
         this.timestamp = timestamp;
         this.arguments = args;
         this.uuid = uuid;
         this.messageId = messageId;
+        this.callback = callback;
         this.originatingRequest = originatingRequest;
         this.hasCallback = detectCallback();
     }

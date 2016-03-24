@@ -747,7 +747,7 @@ public class BaseServiceQueueImpl implements ServiceQueue {
                     timestamp++;
                 }
                 if (beforeMethodSent==null) {
-                    final MethodCallLocal call = new MethodCallLocal(method.getName(), uuid, timestamp, messageId, args, null);
+                    final MethodCallLocal call = new MethodCallLocal(method.getName(), uuid, timestamp, messageId, args, null, null);
                     methodCallSendQueue.send(call);
                 } else {
                     final String name = method.getName();

@@ -20,6 +20,7 @@ package io.advantageous.qbit.message;
 
 import io.advantageous.qbit.message.impl.MethodCallImpl;
 import io.advantageous.qbit.message.impl.MethodCallLocal;
+import io.advantageous.qbit.reactive.Callback;
 import io.advantageous.qbit.service.Protocol;
 import io.advantageous.qbit.util.MultiMap;
 
@@ -45,6 +46,7 @@ public class MethodCallBuilder {
     private Request<Object> originatingRequest;
     private boolean local;
     private Object[] bodyArgs;
+    private Callback<Object> callback;
 
     public boolean isLocal() {
         return local;
@@ -207,10 +209,10 @@ public class MethodCallBuilder {
 
 
         if (isLocal()) {
-            return new MethodCallLocal(getName(), getReturnAddress(), getTimestamp(), getId(), getBodyArgs(), getOriginatingRequest());
+            return new MethodCallLocal(getName(), getReturnAddress(), getTimestamp(), getId(), getBodyArgs(), getCallback(), getOriginatingRequest());
         } else {
             return new MethodCallImpl(getTimestamp(), getId(), getName(), getAddress(), getParams(), getHeaders(),
-                    getBody(), getObjectName(), getReturnAddress(), getOriginatingRequest());
+                    getBody(), getObjectName(), getReturnAddress(), getOriginatingRequest(), callback);
         }
 
     }
@@ -238,6 +240,15 @@ public class MethodCallBuilder {
 
     public MethodCallBuilder setBodyArgs(Object[] bodyArgs) {
         this.bodyArgs = bodyArgs;
+        return this;
+    }
+
+    public Callback<Object> getCallback() {
+        return callback;
+    }
+
+    public MethodCallBuilder setCallback(Callback<Object> callback) {
+        this.callback = callback;
         return this;
     }
 }
