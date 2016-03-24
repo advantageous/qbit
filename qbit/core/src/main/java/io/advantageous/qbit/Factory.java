@@ -29,6 +29,7 @@ import io.advantageous.qbit.http.config.HttpServerOptions;
 import io.advantageous.qbit.http.request.HttpResponseCreator;
 import io.advantageous.qbit.http.request.decorator.HttpResponseDecorator;
 import io.advantageous.qbit.http.server.HttpServer;
+import io.advantageous.qbit.http.server.RequestContinuePredicate;
 import io.advantageous.qbit.json.JsonMapper;
 import io.advantageous.qbit.message.MethodCall;
 import io.advantageous.qbit.message.Request;
@@ -358,12 +359,14 @@ public interface Factory {
                                         final int serviceDiscoveryTtl,
                                         final TimeUnit serviceDiscoveryTtlTimeUnit,
                                         final CopyOnWriteArrayList<HttpResponseDecorator> decorators,
-                                        final HttpResponseCreator httpResponseCreator) {
+                                        final HttpResponseCreator httpResponseCreator,
+                                        final RequestContinuePredicate requestBodyContinuePredicate) {
 
 
         return FactorySPI.getHttpServerFactory().create(options, endpointName,
                 systemManager, serviceDiscovery, healthServiceAsync,
-                serviceDiscoveryTtl, serviceDiscoveryTtlTimeUnit, decorators, httpResponseCreator);
+                serviceDiscoveryTtl, serviceDiscoveryTtlTimeUnit, decorators, httpResponseCreator,
+                requestBodyContinuePredicate);
     }
 
 

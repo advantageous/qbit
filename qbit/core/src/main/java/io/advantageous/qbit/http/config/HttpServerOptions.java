@@ -39,8 +39,8 @@ public class HttpServerOptions implements Cloneable {
     protected boolean reuseAddress = true;
     protected int idleTimeout = 30_000;
     protected boolean ssl = false;
-    protected  String trustStorePath;
-    protected  String trustStorePassword;
+    protected String trustStorePath;
+    protected String trustStorePassword;
 
     public HttpServerOptions() {
 
@@ -111,7 +111,6 @@ public class HttpServerOptions implements Cloneable {
     public int getIdleTimeout() {
         return idleTimeout;
     }
-
     public boolean isSsl() {
         return ssl;
     }
@@ -140,8 +139,10 @@ public class HttpServerOptions implements Cloneable {
                 ", maxWebSocketFrameSize=" + maxWebSocketFrameSize +
                 ", compressionSupport=" + compressionSupport +
                 ", reuseAddress=" + reuseAddress +
+                ", idleTimeout=" + idleTimeout +
+                ", ssl=" + ssl +
+                ", trustStorePath='" + trustStorePath + '\'' +
+                ", trustStorePassword='" + trustStorePassword + '\'' +
                 '}';
     }
-
-
 }

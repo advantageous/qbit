@@ -29,6 +29,7 @@ import io.advantageous.qbit.http.request.HttpRequest;
 import io.advantageous.qbit.http.request.HttpResponseCreator;
 import io.advantageous.qbit.http.request.decorator.HttpResponseDecorator;
 import io.advantageous.qbit.http.server.HttpServer;
+import io.advantageous.qbit.http.server.RequestContinuePredicate;
 import io.advantageous.qbit.http.server.impl.SimpleHttpServer;
 import io.advantageous.qbit.http.server.websocket.WebSocketMessage;
 import io.advantageous.qbit.http.websocket.WebSocket;
@@ -44,6 +45,7 @@ import io.vertx.core.net.JksOptions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.HashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -94,14 +96,15 @@ public class HttpServerVertx implements HttpServer {
                            final int serviceDiscoveryTtl,
                            final TimeUnit serviceDiscoveryTtlTimeUnit,
                            final CopyOnWriteArrayList<HttpResponseDecorator> decorators,
-                           final HttpResponseCreator httpResponseCreator) {
+                           final HttpResponseCreator httpResponseCreator,
+                           final RequestContinuePredicate requestBodyContinuePredicate) {
 
         this.startedVertx = startedVertx;
 
         this.simpleHttpServer = new SimpleHttpServer(endpointName, systemManager,
                 options.getFlushInterval(), options.getPort(), serviceDiscovery,
                 healthServiceAsync, serviceDiscoveryTtl, serviceDiscoveryTtlTimeUnit,
-                decorators, httpResponseCreator);
+                decorators, httpResponseCreator, requestBodyContinuePredicate);
         this.vertx = vertx;
         this.systemManager = systemManager;
         this.port = options.getPort();
@@ -309,7 +312,7 @@ public class HttpServerVertx implements HttpServer {
 
     private void handleRequestWithNoBody(HttpServerRequest request) {
         final HttpRequest getRequest;
-        getRequest = vertxUtils.createRequest(request, null,
+        getRequest = vertxUtils.createRequest(request, null, new HashMap<>(),
                 simpleHttpServer.getDecorators(), simpleHttpServer.getHttpResponseCreator());
         simpleHttpServer.handleRequest(getRequest);
     }
@@ -317,21 +320,21 @@ public class HttpServerVertx implements HttpServer {
     private void handleRequestWithBody(HttpServerRequest request) {
         final String contentType = request.headers().get("Content-Type");
 
-
         if (HttpContentTypes.isFormContentType(contentType)) {
-
             request.setExpectMultipart(true);
-
         }
 
-        request.bodyHandler((Buffer buffer) -> {
-                final HttpRequest postRequest = vertxUtils.createRequest(request, buffer,
-                        simpleHttpServer.getDecorators(), simpleHttpServer.getHttpResponseCreator());
-
-                simpleHttpServer.handleRequest(postRequest);
-
-        });
-
+        final Buffer[] bufferHolder = new Buffer[1];
+        final HttpRequest bodyHttpRequest = vertxUtils.createRequest(request, () -> bufferHolder[0], new HashMap<>(),
+                simpleHttpServer.getDecorators(), simpleHttpServer.getHttpResponseCreator());
+        if (simpleHttpServer.getShouldContinueReadingRequestBody().test(bodyHttpRequest)) {
+            request.bodyHandler((buffer) -> {
+                bufferHolder[0] = buffer;
+                simpleHttpServer.handleRequest(bodyHttpRequest);
+            });
+        } else {
+            logger.info("Request body rejected {} {}", request.method(), request.absoluteURI());
+        }
     }
 
 

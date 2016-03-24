@@ -26,6 +26,7 @@ import io.advantageous.qbit.http.request.HttpResponseCreator;
 import io.advantageous.qbit.http.request.decorator.HttpResponseDecorator;
 import io.advantageous.qbit.http.server.HttpServer;
 import io.advantageous.qbit.http.server.HttpServerBuilder;
+import io.advantageous.qbit.http.server.RequestContinuePredicate;
 import io.advantageous.qbit.http.server.impl.SimpleHttpServer;
 import io.advantageous.qbit.http.server.websocket.WebSocketMessage;
 import io.advantageous.qbit.service.discovery.ServiceDiscovery;
@@ -75,14 +76,14 @@ public class HttpServerBuilderTest {
                                                final int serviceDiscoveryTtl,
                                                final TimeUnit serviceDiscoveryTtlTimeUnit,
                                                final CopyOnWriteArrayList<HttpResponseDecorator> decorators,
-                                               final HttpResponseCreator httpResponseCreator) {
+                                               final HttpResponseCreator httpResponseCreator, RequestContinuePredicate requestBodyContinuePredicate) {
 
                 return FactorySPI.getHttpServerFactory().create(options, endpointName, systemManager, serviceDiscovery,
-                        healthServiceAsync, serviceDiscoveryTtl, serviceDiscoveryTtlTimeUnit, decorators, httpResponseCreator);
+                        healthServiceAsync, serviceDiscoveryTtl, serviceDiscoveryTtlTimeUnit, decorators, httpResponseCreator, requestBodyContinuePredicate);
             }
         });
 
-        FactorySPI.setHttpServerFactory((options, name, systemManager, serviceDiscovery, healthServiceAsync, a, b, c, d)
+        FactorySPI.setHttpServerFactory((options, name, systemManager, serviceDiscovery, healthServiceAsync, a, b, c, d, z)
                 -> new SimpleHttpServer());
         Sys.sleep(100);
 

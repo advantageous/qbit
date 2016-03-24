@@ -41,7 +41,7 @@ public class SingleArgumentUserDefinedObjectRESTTest {
         service = new EmployeeServiceSingleObjectTestService();
 
         FactorySPI.setHttpServerFactory((options, endPointName, systemManager, serviceDiscovery,
-                                         healthServiceAsync, serviceDiscoveryTtl, serviceDiscoveryTtlTimeUnit, a, b)
+                                         healthServiceAsync, serviceDiscoveryTtl, serviceDiscoveryTtlTimeUnit, a, b, c)
                 -> httpServerSimulator);
 
         serviceEndpointServer = EndpointServerBuilder.endpointServerBuilder()
@@ -510,6 +510,26 @@ public class SingleArgumentUserDefinedObjectRESTTest {
 
         assertEquals(202, httpResponse.code());
         assertEquals("\"success\"", httpResponse.body());
+    }
+
+
+    @Test
+    public void echoEmployeeStringToInt() {
+        final HttpTextResponse httpResponse = httpServerSimulator.postBodyPlain("/es/echoEmployee",
+                "{\"id\":\"1\",\"name\":\"Rick\"}");
+
+        assertEquals(200, httpResponse.code());
+        assertEquals("{\"id\":1,\"name\":\"Rick\"}", httpResponse.body());
+    }
+
+
+    @Test
+    public void echoEmployeeBadString() {
+        final HttpTextResponse httpResponse = httpServerSimulator.postBodyPlain("/es/echoEmployee",
+                "{\"id\":\"a\",\"name\":\"Rick\"}");
+
+        assertEquals(200, httpResponse.code());
+        assertEquals("{\"id\":49,\"name\":\"Rick\"}", httpResponse.body());
     }
 
     @Test

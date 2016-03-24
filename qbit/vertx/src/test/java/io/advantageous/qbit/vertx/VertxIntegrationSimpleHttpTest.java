@@ -2,6 +2,7 @@ package io.advantageous.qbit.vertx;
 
 import io.advantageous.qbit.http.client.HttpClient;
 import io.advantageous.qbit.http.client.HttpClientBuilder;
+import io.advantageous.qbit.http.request.HttpRequest;
 import io.advantageous.qbit.http.request.HttpTextResponse;
 import io.advantageous.qbit.http.server.HttpServer;
 import io.advantageous.qbit.util.PortUtils;
@@ -16,6 +17,7 @@ import org.junit.Test;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Predicate;
 
 import static org.junit.Assert.assertEquals;
 
@@ -48,7 +50,17 @@ public class VertxIntegrationSimpleHttpTest {
                 io.vertx.core.http.HttpServer vertxHttpServer =
                         this.getVertx().createHttpServer(options);
 
-                HttpServer httpServer = VertxHttpServerBuilder.vertxHttpServerBuilder()
+                VertxHttpServerBuilder vertxHttpServerBuilder = VertxHttpServerBuilder.vertxHttpServerBuilder();
+
+                vertxHttpServerBuilder.addRequestBodyContinuePredicate(httpRequest -> {
+                    if (httpRequest.getContentLength()>1_000) {
+                        httpRequest.getReceiver().respond(500, "\"TOO BIG\"");
+                        return false;
+                    }
+                    return true;
+                });
+
+                HttpServer httpServer = vertxHttpServerBuilder
                         .setVertx(getVertx()).setHttpServer(vertxHttpServer).build();
 
 
@@ -107,6 +119,23 @@ public class VertxIntegrationSimpleHttpTest {
         assertEquals("\"hi\"", response.body());
 
     }
+
+    @Test
+    public void testTooBig() {
+
+        final StringBuilder builder = new StringBuilder(1001);
+        for (int i = 0; i < 2000; i++) {
+            builder.append('a');
+        }
+        final HttpClient client = HttpClientBuilder.httpClientBuilder().setHost("localhost").setPort(port).buildAndStart();
+
+
+        final HttpTextResponse response = client.postJson("/hello/world", "\""+builder.toString()+"\"");
+        assertEquals(500, response.code());
+        assertEquals("\"TOO BIG\"", response.body());
+
+    }
+
 
 
     @After

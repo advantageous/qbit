@@ -37,7 +37,7 @@ public class PredicateChainTest {
 
         FactorySPI.setHttpServerFactory((options, endPointName, systemManager, serviceDiscovery,
                                          healthServiceAsync, serviceDiscoveryTtl, serviceDiscoveryTtlTimeUnit,
-                                         decorators, httpResponseCreator)
+                                         decorators, httpResponseCreator, z)
                 -> {
 
             httpServerSimulator.setResponseDecorators(decorators);

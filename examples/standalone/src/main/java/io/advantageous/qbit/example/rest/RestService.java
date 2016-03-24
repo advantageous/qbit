@@ -23,6 +23,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 import static io.advantageous.boon.core.IO.puts;
+import static io.advantageous.qbit.http.server.CorsSupportBuilder.corsSupportBuilder;
 
 
 public class RestService {
@@ -51,6 +52,9 @@ public class RestService {
             request.params().add("baz", "boo");
             return true;
         });
+
+        managedServiceBuilder.getHttpServerBuilder().addResponseDecorator(corsSupportBuilder().buildResponseDecorator());
+
 
         managedServiceBuilder.getHttpServerBuilder().addResponseDecorator(new HttpResponseDecorator() {
             @Override
@@ -108,6 +112,7 @@ public class RestService {
 
                         HttpRequest httpRequest = HttpRequestBuilder.httpRequestBuilder()
                                 .addHeader("USER", message)
+                                .addHeader("Origin", "http://somesite.com")
                                 .setJsonBodyForPost(message).setUri("/echo").setTextReceiver(new HttpTextReceiver() {
 
 

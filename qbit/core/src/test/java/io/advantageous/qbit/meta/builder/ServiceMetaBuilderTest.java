@@ -2,8 +2,10 @@ package io.advantageous.qbit.meta.builder;
 
 import io.advantageous.boon.core.Lists;
 import io.advantageous.boon.core.Maps;
+import io.advantageous.boon.core.Predicate;
 import io.advantageous.boon.core.reflection.ClassMeta;
 import io.advantageous.qbit.annotation.RequestMapping;
+import io.advantageous.qbit.annotation.RequestMethod;
 import io.advantageous.qbit.annotation.http.GET;
 import io.advantageous.qbit.annotation.http.NoCacheHeaders;
 import io.advantageous.qbit.annotation.http.ResponseHeader;
@@ -12,9 +14,14 @@ import io.advantageous.qbit.http.HttpHeaders;
 import io.advantageous.qbit.meta.RequestMeta;
 import io.advantageous.qbit.meta.ServiceMeta;
 import io.advantageous.qbit.meta.ServiceMethodMeta;
+import io.advantageous.qbit.meta.params.BodyParam;
 import io.advantageous.qbit.util.MultiMap;
 import org.junit.Test;
 
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 import java.util.List;
 import java.util.Map;
 
@@ -23,6 +30,11 @@ import static org.junit.Assert.assertTrue;
 
 public class ServiceMetaBuilderTest {
 
+    @Retention(RetentionPolicy.RUNTIME)
+    @Target(value = {ElementType.PARAMETER})
+    public @interface Other {
+        String name();
+    }
 
     public static class Foo {
 
@@ -56,9 +68,35 @@ public class ServiceMetaBuilderTest {
             return 0;
         }
 
+        @RequestMapping(value = "/otherAnnotation", method = RequestMethod.POST)
+        public void otherAnnotation(@Other(name = "bbb") String body) {
+
+        }
     }
 
 
+    @Test
+    public void shouldReturnBodyParamForParamWithoutQBitAnnotations() {
+        final ClassMeta<?> classMeta = ClassMeta.classMeta(Foo.class);
+
+        ServiceMetaBuilder serviceMetaBuilder = new ServiceMetaBuilder().setRequestPaths(Lists.list("foo"));
+
+        serviceMetaBuilder.addMethods("foo", Lists.list(classMeta.methods()));
+
+        ServiceMethodMeta serviceMethodMeta = Lists.filterBy(serviceMetaBuilder.getMethods(), new Predicate<ServiceMethodMeta>() {
+            @Override
+            public boolean test(ServiceMethodMeta serviceMethodMeta) {
+                return "otherAnnotation".equals(serviceMethodMeta.getName());
+            }
+        }).iterator().next();
+
+        assertTrue(serviceMethodMeta.getRequestEndpoints().iterator().hasNext());
+        assertTrue(serviceMethodMeta.getRequestEndpoints().iterator().next()
+                .getParameters().iterator().hasNext());
+        assertTrue(serviceMethodMeta.getRequestEndpoints().iterator().next()
+                .getParameters().iterator().next()
+                .getParam() instanceof BodyParam);
+    }
 
 
 
