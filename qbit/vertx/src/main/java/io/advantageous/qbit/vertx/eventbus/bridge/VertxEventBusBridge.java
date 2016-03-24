@@ -1,6 +1,7 @@
 package io.advantageous.qbit.vertx.eventbus.bridge;
 
 import io.advantageous.boon.core.Predicate;
+import io.advantageous.boon.core.value.ValueContainer;
 import io.advantageous.qbit.json.JsonMapper;
 import io.advantageous.qbit.message.Event;
 import io.advantageous.qbit.message.MethodCall;
@@ -58,10 +59,10 @@ public class VertxEventBusBridge {
         this.receiveResponseQueue = receiveResponseQueue;
         this.eventSendQueue = Optional.ofNullable(eventSendQueue);
 
-        final ArrayList<Object> flushList = new ArrayList<>(2);
+        final ArrayList<SendQueue> flushList = new ArrayList<>(2);
         this.eventSendQueue.ifPresent(flushList::add);
         flushList.add(methodCallSendQueue);
-        this.queuesFlush = Collections.unmodifiableList(queuesFlush);
+        this.queuesFlush = Collections.unmodifiableList(flushList);
         this.jsonMapper = jsonMapper;
         this.vertx = vertx;
         this.methodCallPredicate = methodCallPredicate;
@@ -92,6 +93,7 @@ public class VertxEventBusBridge {
         /* Register the service addresses */
         addressesToBridge.stream().forEach(address -> {
             /* register the consumer per service. */
+            logger.debug("Registering address {}", address);
             final MessageConsumer<String> consumer = vertxEventBus.consumer(address);
             consumer.handler(message -> handleIncomingMessage(address, message));
             consumer.exceptionHandler(error -> logger.error("Error handling address " + address,  error));
@@ -123,17 +125,21 @@ public class VertxEventBusBridge {
     private void handleIncomingMessage(final String address, final Message<String> message) {
         final Map<String,Object> map = jsonMapper.fromJson(message.body(), Map.class);
         final Object method = map.get("method");
-        final Object args = map.get("args");
+        final ValueContainer args = (ValueContainer) map.get("args");
+
+        final Object body = args.toValue();
+
+
         final MethodCall<Object> methodCall = MethodCallBuilder
                 .methodCallBuilder()
                 .setAddress(address)
-                .setBody(args)
+                .setBody(body)
                 .setTimestamp(this.timer.time())
                 .setName(method.toString())
                 .setId(messageId++)
                 .build();
         if (logger.isDebugEnabled()) {
-            logger.debug("Calling method ", methodCall.name(), message.body());
+            logger.debug("Calling method {} {}", methodCall.name(), message.body());
         }
         if (methodCallPredicate.test(methodCall)) {
             messageKeyMessageMap.put(new MessageKey(methodCall), message);
