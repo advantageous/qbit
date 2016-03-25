@@ -25,20 +25,15 @@ function connect(url) {
 }
 
 connect('http://localhost:8080/eventbus/').then((eventBus) => {
-
   console.log("HERE.....")
-
-  eventBus.send("testservice", '{"method":"test", "args":["hello"]}', (error, result)=>{
-
+  eventBus.send("testservice",
+            JSON.stringify({"method":"test", "args":["hello"]}), (error, result)=>{
     if (error) {
       console.log("error message ", error);
     } else {
       console.log("result message ", result);
     }
-
-
   });
-
 }).catch((error) => {
   console.log(error)
 });

@@ -1,12 +1,11 @@
 package io.advantageous.qbit.vertx;
 
+import io.advantageous.qbit.reactive.Callback;
 import io.advantageous.qbit.service.ServiceBuilder;
 import io.advantageous.qbit.service.ServiceQueue;
 import io.advantageous.qbit.vertx.eventbus.bridge.VertxEventBusBridgeBuilder;
 import io.vertx.core.AbstractVerticle;
-import io.vertx.core.Handler;
 import io.vertx.core.Vertx;
-import io.vertx.core.http.HttpServerRequest;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.handler.sockjs.BridgeOptions;
 import io.vertx.ext.web.handler.sockjs.PermittedOptions;
@@ -16,11 +15,9 @@ public class BridgeToTestNodeJS extends AbstractVerticle {
 
 
     public static class TestService {
-
-        public boolean test(final String newValue) {
-
+        public void test(Callback<Boolean> callback, final String newValue) {
             System.out.println("HERE::" + newValue);
-            return true;
+            callback.returnThis(true);
         }
     }
 
