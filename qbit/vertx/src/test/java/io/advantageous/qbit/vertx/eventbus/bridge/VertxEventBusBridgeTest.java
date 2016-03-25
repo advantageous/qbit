@@ -56,6 +56,8 @@ public class VertxEventBusBridgeTest {
 
         assertEquals("hello", testService.value.get());
 
+        assertEquals("{\"returned\":true}", ref.get().result().body());
+
         vertx.close();
     }
 
