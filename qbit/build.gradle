@@ -206,7 +206,7 @@ project('vertx') {
 
 
     ext {
-        vertxVersion = '3.1.0'
+        vertxVersion = '3.2.1'
     }
 
     dependencies {
@@ -215,6 +215,10 @@ project('vertx') {
         compile group: 'io.vertx', name: 'vertx-web', version: vertxVersion
 
         testCompile project(':qbit:test-support')
+
+
+        testCompile "io.vertx:vertx-tcp-eventbus-bridge:$vertxVersion"
+        testCompile "io.vertx:vertx-sockjs-service-proxy:$vertxVersion"
     }
 
     uploadArchives {
