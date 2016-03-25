@@ -33,7 +33,7 @@ public class VertxEventBusBridgeTest {
         final VertxEventBusBridgeBuilder vertxEventBusBridgeBuilder = VertxEventBusBridgeBuilder.vertxEventBusBridgeBuilder();
         vertxEventBusBridgeBuilder.addBridgeAddress(address);
         vertxEventBusBridgeBuilder.setServiceQueue(serviceQueue);
-        serviceQueue.start(); //startall not supported yet for bridge.
+        serviceQueue.startAll(); //startall not supported yet for bridge.
         vertxEventBusBridgeBuilder.build();
 
 
@@ -68,7 +68,7 @@ public class VertxEventBusBridgeTest {
             System.out.println("HERE::" + newValue);
             value.set(newValue);
 
-            return true;
+             return true;
         }
     }
 

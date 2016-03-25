@@ -13,7 +13,6 @@ public class MethodCallLocal implements MethodCall<Object> {
 
     private final String uuid;
     private final long messageId;
-    private final boolean hasCallback;
 
     private final Callback<Object> callback;
 
@@ -23,7 +22,7 @@ public class MethodCallLocal implements MethodCall<Object> {
 
     @Override
     public boolean hasCallback() {
-        return hasCallback;
+        return callback!=null;
     }
 
     @Override
@@ -42,23 +41,25 @@ public class MethodCallLocal implements MethodCall<Object> {
         this.arguments = args;
         this.uuid = uuid;
         this.messageId = messageId;
-        this.callback = callback;
+        this.callback = detectCallback(callback);
         this.originatingRequest = originatingRequest;
-        this.hasCallback = detectCallback();
     }
 
 
-    private boolean detectCallback() {
+    private Callback detectCallback(Callback<Object> callback) {
+        if (callback!=null) {
+            return callback;
+        }
         final Object[] args = arguments;
         if (args == null) {
-            return false;
+            return null;
         }
         for (int index = 0; index < args.length; index++) {
             if (args[index] instanceof Callback) {
-                return true;
+                return (Callback)args[index];
             }
         }
-        return false;
+        return null;
     }
 
     @Override

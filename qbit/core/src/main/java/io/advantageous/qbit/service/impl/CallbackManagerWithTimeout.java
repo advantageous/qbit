@@ -91,7 +91,7 @@ public class CallbackManagerWithTimeout implements CallbackManager {
 
 
     @Override
-    public void registerCallbacks(MethodCall<Object> methodCall) {
+    public void registerCallbacks(final MethodCall<Object> methodCall) {
         registerHandlerCallbackForClient(methodCall, methodCall.callback());
     }
 
