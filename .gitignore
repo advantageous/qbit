@@ -3,12 +3,10 @@
 *.iml
 *.ipr
 *.iws
-
 #Gradle files
 .gradle/
 gradle-app.setting
 settings.gradle~
-
 #Build targets and binaries
 target/
 build/
@@ -16,23 +14,13 @@ build/
 out/
 lib/
 *.class
-
 tmp/
-
 *.hprof
-
-
 build.out
-
-
-
 examples/tutorial/todo-service/gradle/wrapper/gradle-wrapper.jar
 examples/tutorial/todo-service/gradle/wrapper/gradle-wrapper.properties
 qbit/jms/activemq-data/
 activemq-data/
-
 metastore_db/*
-
 derby.log
-
 qbit/vertx/src/test/javascript/node_modules/

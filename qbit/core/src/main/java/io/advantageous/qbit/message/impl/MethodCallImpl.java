@@ -40,17 +40,23 @@ public class MethodCallImpl implements MethodCall<Object> {
     private final Object body;
     private final String objectName;
     private final String returnAddress;
-    private final boolean hasCallback;
     private Object transformedBody;
     private Request<Object> originatingRequest;
+
+    private final Callback<Object> callback;
 
 
     @Override
     public boolean hasCallback() {
-        return hasCallback;
+        return callback!=null;
     }
 
-    public MethodCallImpl(long timestamp, long id, String name, String address, MultiMap<String, String> params, MultiMap<String, String> headers, Object body, String objectName, String returnAddress, Request<Object> originatingRequest) {
+    @Override
+    public Callback<Object> callback() {
+        return callback;
+    }
+
+    public MethodCallImpl(long timestamp, long id, String name, String address, MultiMap<String, String> params, MultiMap<String, String> headers, Object body, String objectName, String returnAddress, Request<Object> originatingRequest, Callback<Object> callback) {
         this.timestamp = timestamp;
         this.id = id;
         this.name = name;
@@ -61,18 +67,21 @@ public class MethodCallImpl implements MethodCall<Object> {
         this.objectName = objectName;
         this.returnAddress = returnAddress;
         this.originatingRequest = originatingRequest;
-
-        this.hasCallback = detectCallback();
+        this.callback = findCallback(callback);
     }
 
-    private boolean detectCallback() {
+    private Callback<Object> findCallback(Callback<Object> callback) {
+        if (callback!=null) {
+            return callback;
+        }
+
         final Object[] args = this.args();
         for (int index = 0; index < args.length; index++) {
             if (args[index] instanceof Callback) {
-                return true;
+                return (Callback<Object>) args[index];
             }
         }
-        return false;
+        return null;
     }
 
     @Override

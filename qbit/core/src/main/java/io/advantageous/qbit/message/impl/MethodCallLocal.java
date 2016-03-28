@@ -5,9 +5,6 @@ import io.advantageous.qbit.message.Request;
 import io.advantageous.qbit.reactive.Callback;
 import io.advantageous.qbit.util.MultiMap;
 
-/**
- * Created by rick on 11/21/15.
- */
 public class MethodCallLocal implements MethodCall<Object> {
 
     private final String name;
@@ -16,7 +13,8 @@ public class MethodCallLocal implements MethodCall<Object> {
 
     private final String uuid;
     private final long messageId;
-    private final boolean hasCallback;
+
+    private final Callback<Object> callback;
 
     private final Request<Object> originatingRequest;
 
@@ -24,7 +22,12 @@ public class MethodCallLocal implements MethodCall<Object> {
 
     @Override
     public boolean hasCallback() {
-        return hasCallback;
+        return callback!=null;
+    }
+
+    @Override
+    public Callback<Object> callback() {
+        return callback;
     }
 
     public MethodCallLocal(final String name,
@@ -32,28 +35,31 @@ public class MethodCallLocal implements MethodCall<Object> {
                            final long timestamp,
                            final long messageId,
                            final Object[] args,
-                           final Request<Object> originatingRequest) {
+                           Callback<Object> callback, final Request<Object> originatingRequest) {
         this.name = name;
         this.timestamp = timestamp;
         this.arguments = args;
         this.uuid = uuid;
         this.messageId = messageId;
+        this.callback = detectCallback(callback);
         this.originatingRequest = originatingRequest;
-        this.hasCallback = detectCallback();
     }
 
 
-    private boolean detectCallback() {
+    private Callback detectCallback(Callback<Object> callback) {
+        if (callback!=null) {
+            return callback;
+        }
         final Object[] args = arguments;
         if (args == null) {
-            return false;
+            return null;
         }
         for (int index = 0; index < args.length; index++) {
             if (args[index] instanceof Callback) {
-                return true;
+                return (Callback)args[index];
             }
         }
-        return false;
+        return null;
     }
 
     @Override

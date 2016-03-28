@@ -207,15 +207,12 @@ public class VertxEventBusBridgeBuilder {
     public VertxEventBusBridge build() {
         final VertxEventBusBridge bridge = new VertxEventBusBridge(this.getAddressesToBridge(),
                 this.getMethodCallSendQueue(),
-                this.getReceiveResponseQueue(),
-                this.getEventSendQueue(),
                 this.getJsonMapper(),
                 this.getVertx(),
                 this.getVertxEventBus(),
                 this.getTimer(),
                 this.getMethodCallPredicate(),
                 this.getFlushIntervalMS(),
-                this.getPollResponsesIntervalMS(),
                 this.isAutoStart());
         return bridge;
     }

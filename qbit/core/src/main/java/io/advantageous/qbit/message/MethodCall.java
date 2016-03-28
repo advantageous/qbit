@@ -18,6 +18,8 @@
 
 package io.advantageous.qbit.message;
 
+import io.advantageous.qbit.reactive.Callback;
+
 import java.util.List;
 
 /**
@@ -33,6 +35,8 @@ public interface MethodCall<T> extends Request<T> {
     String objectName();
 
     boolean hasCallback();
+
+    Callback<Object> callback();
 
     default Object[] args() {
         Object body = this.body();
