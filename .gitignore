@@ -24,3 +24,4 @@ activemq-data/
 metastore_db/*
 derby.log
 qbit/vertx/src/test/javascript/node_modules/
+examples/standalone/src/main/javascript/node_modules/

@@ -60,7 +60,7 @@ public class BridgeToTestNodeJS extends AbstractVerticle {
 
 
         vertxEventBusBridgeBuilder.setServiceQueue(serviceQueue);
-        serviceQueue.start(); //startall not supported yet for bridge.
+        serviceQueue.startAll(); //startall not supported yet for bridge.
         vertxEventBusBridgeBuilder.build();
 
 
