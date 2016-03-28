@@ -26,27 +26,28 @@ function connect(url) {
 
 connect('http://localhost:8080/eventbus/').then((eventBus) => {
   console.log("HERE.....")
-  eventBus.send("/es/1.0",     JSON.stringify(
-    { "method":"addEmployee",
-      "args":
-        [{"id":"5","firstName":"Bob","lastName":"Jingles","birthYear":1962,"socialSecurityNumber":999999999}]
-    }), (error, result)=>{
+  eventBus.send("/es/1.0", JSON.stringify(
+    {
+      "method": "addEmployee",
+      "args": [{
+        "id": "5",
+        "firstName": "Bob",
+        "lastName": "Jingles",
+        "birthYear": 1962,
+        "socialSecurityNumber": 999999999
+      }]
+    }), (error, result)=> {
+
+    console.log("Vertx error result", error, result);
 
     /* Did vertx event bus return an error. */
     if (error) {
       console.log("error message from vertx or socketJS ", error);
-    } else {
-      const response = JSON.parse (result.body);
-      console.log("result message from Vertx", result);
-      console.log("response message from QBit", response);
-
-      /* Did QBit return an error. */
-      if (response.error) {
-        console.log("error cause message ", response['cause']);
-      } else {
+    } else if (result.failureCode){
+      console.log("error from app  ", result);
+    }else{
         /*If successful show response from QBit. */
-        console.log("Success ", response['returned'])
-      }
+        console.log("Success ", JSON.parse(result.body))
     }
   });
 }).catch((error) => {
