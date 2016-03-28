@@ -9,6 +9,7 @@ import io.advantageous.qbit.message.MethodCall;
 import io.advantageous.qbit.message.Response;
 import io.advantageous.qbit.queue.ReceiveQueue;
 import io.advantageous.qbit.queue.SendQueue;
+import io.advantageous.qbit.service.ServiceBundle;
 import io.advantageous.qbit.service.ServiceQueue;
 import io.vertx.core.Vertx;
 import io.vertx.core.eventbus.EventBus;
@@ -31,11 +32,8 @@ public class VertxEventBusBridgeBuilder {
     private final Logger logger = LoggerFactory.getLogger(VertxEventBusBridgeBuilder.class);
 
     private int flushIntervalMS = 10;
-    private int pollResponsesIntervalMS = 10;
     private boolean autoStart = true;
     private SendQueue<MethodCall<Object>> methodCallSendQueue;
-    private SendQueue<Event<Object>> eventSendQueue;
-    private ReceiveQueue<Response<Object>> receiveResponseQueue;
     private Factory factory;
     private JsonMapper jsonMapper;
     private Vertx vertx;
@@ -69,14 +67,6 @@ public class VertxEventBusBridgeBuilder {
         return this;
     }
 
-    public int getPollResponsesIntervalMS() {
-        return pollResponsesIntervalMS;
-    }
-
-    public VertxEventBusBridgeBuilder setPollResponsesIntervalMS(int pollResponsesIntervalMS) {
-        this.pollResponsesIntervalMS = pollResponsesIntervalMS;
-        return this;
-    }
 
     public boolean isAutoStart() {
         return autoStart;
@@ -88,36 +78,12 @@ public class VertxEventBusBridgeBuilder {
     }
 
     public SendQueue<MethodCall<Object>> getMethodCallSendQueue() {
-
         Objects.requireNonNull(methodCallSendQueue, "methodCallSendQueue must be set");
         return methodCallSendQueue;
     }
 
     public VertxEventBusBridgeBuilder setMethodCallSendQueue(SendQueue<MethodCall<Object>> methodCallSendQueue) {
         this.methodCallSendQueue = methodCallSendQueue;
-        return this;
-    }
-
-    public SendQueue<Event<Object>> getEventSendQueue() {
-
-        if (eventSendQueue == null) {
-            logger.debug("Event Queue was not sent");
-        }
-        return eventSendQueue;
-    }
-
-    public VertxEventBusBridgeBuilder setEventSendQueue(SendQueue<Event<Object>> eventSendQueue) {
-        this.eventSendQueue = eventSendQueue;
-        return this;
-    }
-
-    public ReceiveQueue<Response<Object>> getReceiveResponseQueue() {
-        Objects.requireNonNull(receiveResponseQueue, "receiveResponseQueue must be set");
-        return receiveResponseQueue;
-    }
-
-    public VertxEventBusBridgeBuilder setReceiveResponseQueue(ReceiveQueue<Response<Object>> receiveResponseQueue) {
-        this.receiveResponseQueue = receiveResponseQueue;
         return this;
     }
 
@@ -142,7 +108,7 @@ public class VertxEventBusBridgeBuilder {
         return jsonMapper;
     }
 
-    public VertxEventBusBridgeBuilder setJsonMapper(JsonMapper jsonMapper) {
+    public VertxEventBusBridgeBuilder setJsonMapper(final JsonMapper jsonMapper) {
         this.jsonMapper = jsonMapper;
         return this;
     }
@@ -164,7 +130,7 @@ public class VertxEventBusBridgeBuilder {
         return methodCallPredicate;
     }
 
-    public VertxEventBusBridgeBuilder setMethodCallPredicate(Predicate<MethodCall<Object>> methodCallPredicate) {
+    public VertxEventBusBridgeBuilder setMethodCallPredicate(final Predicate<MethodCall<Object>> methodCallPredicate) {
         this.methodCallPredicate = methodCallPredicate;
         return this;
     }
@@ -174,7 +140,7 @@ public class VertxEventBusBridgeBuilder {
         return addressesToBridge;
     }
 
-    public VertxEventBusBridgeBuilder setAddressesToBridge(Set<String> addressesToBridge) {
+    public VertxEventBusBridgeBuilder setAddressesToBridge(final Set<String> addressesToBridge) {
         if (this.addressesToBridge != null) {
             logger.warn("Addresses were already set, overwriting addresses");
         }
@@ -218,9 +184,12 @@ public class VertxEventBusBridgeBuilder {
     }
 
     public VertxEventBusBridgeBuilder setServiceQueue(ServiceQueue serviceQueue) {
-        this.setEventSendQueue(serviceQueue.events());
         this.setMethodCallSendQueue(serviceQueue.requests());
-        this.setReceiveResponseQueue(serviceQueue.responses());
+        return this;
+    }
+
+    public VertxEventBusBridgeBuilder setServiceBundle(ServiceBundle serviceBundle) {
+        this.setMethodCallSendQueue(serviceBundle.methodSendQueue());
         return this;
     }
 }
