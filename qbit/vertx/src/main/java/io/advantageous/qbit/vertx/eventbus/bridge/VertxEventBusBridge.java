@@ -1,6 +1,5 @@
 package io.advantageous.qbit.vertx.eventbus.bridge;
 
-import io.advantageous.boon.core.Maps;
 import io.advantageous.boon.core.Predicate;
 import io.advantageous.boon.core.value.ValueContainer;
 import io.advantageous.qbit.json.JsonMapper;
@@ -16,8 +15,9 @@ import io.vertx.core.eventbus.MessageConsumer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.*;
-import java.util.concurrent.TimeoutException;
+import java.util.Collections;
+import java.util.Map;
+import java.util.Set;
 
 public class VertxEventBusBridge {
     private final Set<String> addressesToBridge;
@@ -27,9 +27,9 @@ public class VertxEventBusBridge {
     private final Predicate<MethodCall<Object>> methodCallPredicate;
     private final int flushIntervalMS;
     private final Timer timer;
-    private long messageId = 0;
     private final Logger logger = LoggerFactory.getLogger(VertxEventBusBridge.class);
     private final EventBus vertxEventBus;
+    private long messageId = 0;
 
     public VertxEventBusBridge(final Set<String> addressesToBridge,
                                final SendQueue<MethodCall<Object>> methodCallSendQueue,
@@ -66,39 +66,33 @@ public class VertxEventBusBridge {
         /* Flush. */
         vertx.periodicStream(this.flushIntervalMS).handler(event -> flush());
 
-
         /* Register the service addresses */
         addressesToBridge.stream().forEach(address -> {
             /* register the consumer per service. */
             logger.debug("Registering address {}", address);
             final MessageConsumer<String> consumer = vertxEventBus.consumer(address);
             consumer.handler(message -> handleIncomingMessage(address, message));
-            consumer.exceptionHandler(error -> logger.error("Error handling address " + address,  error));
+            consumer.exceptionHandler(error -> logger.error("Error handling address " + address, error));
         });
     }
 
-
     private void handleIncomingMessage(final String address, final Message<String> message) {
-        final Map<String,Object> map = jsonMapper.fromJson(message.body(), Map.class);
+        final Map map = jsonMapper.fromJson(message.body(), Map.class);
         final Object method = map.get("method");
         final ValueContainer args = (ValueContainer) map.get("args");
 
-        final Object body = args.toValue();
-
+        final Object body = args != null ? args.toValue() : Collections.emptyList();
 
         final CallbackBuilder callbackBuilder = CallbackBuilder.callbackBuilder();
         callbackBuilder.setOnError(throwable -> {
             logger.error("Error from calling " + address, throwable);
             message.fail(500, throwable.getMessage());
         });
-        callbackBuilder.setCallback(returnedValue -> {
-            message.reply(jsonMapper.toJson(returnedValue));
-        });
+        callbackBuilder.setCallback(returnedValue -> message.reply(jsonMapper.toJson(returnedValue)));
         callbackBuilder.setOnTimeout(() -> {
             logger.error("Timed out call to " + address + " method " + method);
             message.fail(408, "Timed out call to " + address + " method " + method);
         });
-
 
         final MethodCall<Object> methodCall = MethodCallBuilder
                 .methodCallBuilder()
@@ -118,7 +112,5 @@ public class VertxEventBusBridge {
         }
 
     }
-
-
 
 }
