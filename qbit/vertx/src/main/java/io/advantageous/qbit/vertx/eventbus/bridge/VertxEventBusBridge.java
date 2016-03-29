@@ -88,16 +88,15 @@ public class VertxEventBusBridge {
 
         final CallbackBuilder callbackBuilder = CallbackBuilder.callbackBuilder();
         callbackBuilder.setOnError(throwable -> {
-            message.reply(jsonMapper.toJson(Maps.map("error", true, "cause", throwable)));
+            logger.error("Error from calling " + address, throwable);
+            message.fail(500, throwable.getMessage());
         });
         callbackBuilder.setCallback(returnedValue -> {
-            message.reply(jsonMapper.toJson(Maps.map("returned", returnedValue)));
+            message.reply(jsonMapper.toJson(returnedValue));
         });
         callbackBuilder.setOnTimeout(() -> {
-            message.reply(jsonMapper.toJson(Maps.map(
-                    "error", true,
-                    "timeout", true, "cause",
-                    new TimeoutException("Timed out call to " + address + " method " + method))));
+            logger.error("Timed out call to " + address + " method " + method);
+            message.fail(408, "Timed out call to " + address + " method " + method);
         });
 
 
