@@ -7,7 +7,6 @@ import io.advantageous.qbit.reactive.Callback;
 import io.advantageous.qbit.server.EndpointServerBuilder;
 import io.advantageous.qbit.server.ServiceEndpointServer;
 import io.advantageous.qbit.service.ServiceProxyUtils;
-import io.advantageous.qbit.util.PortUtils;
 import org.junit.Test;
 
 import java.util.concurrent.CountDownLatch;
@@ -15,7 +14,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static junit.framework.Assert.assertEquals;
-import static junit.framework.Assert.assertNotNull;
 
 public class WebSocketProxy {
 
@@ -77,10 +75,6 @@ public class WebSocketProxy {
             }, new Employee("rick"));
 
             latch.await(2, TimeUnit.SECONDS);
-
-            System.out.println(ref.get());
-
-            //assertEquals("rick", ref.get().id);
         }
 
 

@@ -188,18 +188,34 @@ public class BoonServiceMethodCallHandler implements ServiceMethodHandler {
                 array = Arry.slc(array, 1);
             }
         }
-        for (int index = 0, arrayIndex = 0; index < argsList.size(); index++, arrayIndex++) {
-            final Object o = argsList.get(index);
-            if (o instanceof Callback) {
-                arrayIndex--;
-                continue;
-            }
-            if (arrayIndex >= array.length) {
-                break;
-            }
-            argsList.set(index, array[arrayIndex]);
 
+        if (array.length < argsList.size()) {
+            for (int index = 0, arrayIndex = 0; index < argsList.size(); index++, arrayIndex++) {
+                final Object o = argsList.get(index);
+                if (o instanceof Callback) {
+                    arrayIndex--;
+                    continue;
+                }
+                if (arrayIndex >= array.length) {
+                    break;
+                }
+                argsList.set(index, array[arrayIndex]);
+
+            }
+        } else {
+            for (int index = 0, arrayIndex = 0; index < argsList.size(); index++, arrayIndex++) {
+                final Object o = argsList.get(index);
+                if (o instanceof Callback) {
+                    continue;
+                }
+                if (arrayIndex >= array.length) {
+                    break;
+                }
+                argsList.set(index, array[arrayIndex]);
+
+            }
         }
+
     }
 
     private void extractHandlersFromArgumentListBodyIsList(MethodAccess method, List<Object> argsList, List<Object> list) {

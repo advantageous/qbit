@@ -18,7 +18,6 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import static org.junit.Assert.*;
 
-@Ignore
 public class LocalKeyValueStoreServiceTest {
 
     KeyValueStoreService<Todo> kvStore;

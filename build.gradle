@@ -17,7 +17,7 @@
  */
 
 ext {
-    projectVersion = '0.9.3-M1'
+    projectVersion = '0.9.3-M2'
     boonVersion = '0.5.7-RC1'
     //boonGroup = "io.advantageous.boon"
     boonGroup = "com.github.advantageous"
