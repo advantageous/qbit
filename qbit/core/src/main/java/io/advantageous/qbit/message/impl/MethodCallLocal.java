@@ -19,17 +19,6 @@ public class MethodCallLocal implements MethodCall<Object> {
     private final Request<Object> originatingRequest;
 
 
-
-    @Override
-    public boolean hasCallback() {
-        return callback!=null;
-    }
-
-    @Override
-    public Callback<Object> callback() {
-        return callback;
-    }
-
     public MethodCallLocal(final String name,
                            final String uuid,
                            final long timestamp,
@@ -45,9 +34,18 @@ public class MethodCallLocal implements MethodCall<Object> {
         this.originatingRequest = originatingRequest;
     }
 
+    @Override
+    public boolean hasCallback() {
+        return callback != null;
+    }
+
+    @Override
+    public Callback<Object> callback() {
+        return callback;
+    }
 
     private Callback detectCallback(Callback<Object> callback) {
-        if (callback!=null) {
+        if (callback != null) {
             return callback;
         }
         final Object[] args = arguments;
@@ -56,7 +54,7 @@ public class MethodCallLocal implements MethodCall<Object> {
         }
         for (int index = 0; index < args.length; index++) {
             if (args[index] instanceof Callback) {
-                return (Callback)args[index];
+                return (Callback) args[index];
             }
         }
         return null;

@@ -19,15 +19,11 @@ import java.util.function.Predicate;
 
 public class HttpServerSimulator implements HttpServer {
 
+    private final HttpResponseCreator httpResponseCreator = new HttpResponseCreatorDefault();
     private Consumer<HttpRequest> httpRequestConsumer;
     private Consumer<Void> idleConsumer;
     private Predicate<HttpRequest> predicate;
-
-    private  CopyOnWriteArrayList<HttpResponseDecorator> decorators = new CopyOnWriteArrayList<>();
-
-
-    private final HttpResponseCreator httpResponseCreator = new HttpResponseCreatorDefault();
-
+    private CopyOnWriteArrayList<HttpResponseDecorator> decorators = new CopyOnWriteArrayList<>();
 
     public void addDecorator(HttpResponseDecorator decorator) {
         decorators.add(decorator);
@@ -107,7 +103,7 @@ public class HttpServerSimulator implements HttpServer {
 
     private void callService(final HttpRequest request) {
 
-        if (predicate!=null ) {
+        if (predicate != null) {
             if (predicate.test(request)) {
                 httpRequestConsumer.accept(request);
                 Sys.sleep(100);
@@ -127,29 +123,28 @@ public class HttpServerSimulator implements HttpServer {
         httpRequestBuilder.setTextReceiver(
 
 
-        new HttpTextReceiver() {
+                new HttpTextReceiver() {
 
 
-            public void response(int code, String contentType, String body, MultiMap<String, String> headers) {
-                response.set(HttpServerSimulator.this.createResponse(httpRequestBuilder, code, contentType, body, headers));
-                latch.countDown();
-            }
+                    public void response(int code, String contentType, String body, MultiMap<String, String> headers) {
+                        response.set(HttpServerSimulator.this.createResponse(httpRequestBuilder, code, contentType, body, headers));
+                        latch.countDown();
+                    }
 
-            @Override
-            public void response(int code, String contentType, String body) {
+                    @Override
+                    public void response(int code, String contentType, String body) {
 
-                response.set(HttpServerSimulator.this.createResponse(httpRequestBuilder, code, contentType, body, null));
-                latch.countDown();
-            }
+                        response.set(HttpServerSimulator.this.createResponse(httpRequestBuilder, code, contentType, body, null));
+                        latch.countDown();
+                    }
 
-        }
+                }
 
         );
 
         Sys.sleep(100);
 
         callService(httpRequestBuilder.build());
-
 
 
         try {

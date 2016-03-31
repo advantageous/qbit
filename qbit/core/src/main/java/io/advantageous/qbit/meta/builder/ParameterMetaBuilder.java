@@ -7,15 +7,19 @@ import io.advantageous.qbit.meta.params.Param;
 
 public class ParameterMetaBuilder {
 
-    private  Class<?> classType;
-    private  TypeType type;
-    private  Param param;
-    private GenericParamType genericParamType=GenericParamType.NONE;
-    private  Class<?> componentClass;
-    private  Class<?> componentClassKey;
-    private  Class<?> componentClassValue;
+    private Class<?> classType;
+    private TypeType type;
+    private Param param;
+    private GenericParamType genericParamType = GenericParamType.NONE;
+    private Class<?> componentClass;
+    private Class<?> componentClassKey;
+    private Class<?> componentClassValue;
 
     private String description;
+
+    public static ParameterMetaBuilder parameterMetaBuilder() {
+        return new ParameterMetaBuilder();
+    }
 
     public String getDescription() {
         return description;
@@ -25,7 +29,6 @@ public class ParameterMetaBuilder {
         this.description = description;
         return this;
     }
-
 
     public Class<?> getComponentClassValue() {
         return componentClassValue;
@@ -64,29 +67,29 @@ public class ParameterMetaBuilder {
     }
 
     public boolean isCollection() {
-        return genericParamType==GenericParamType.COLLECTION;
+        return genericParamType == GenericParamType.COLLECTION;
     }
 
     public ParameterMetaBuilder setCollection() {
-        genericParamType=GenericParamType.COLLECTION;
+        genericParamType = GenericParamType.COLLECTION;
         return this;
     }
 
     public boolean isMap() {
-        return genericParamType==GenericParamType.MAP;
+        return genericParamType == GenericParamType.MAP;
     }
 
     public ParameterMetaBuilder setMap() {
-        genericParamType=GenericParamType.MAP;
+        genericParamType = GenericParamType.MAP;
         return this;
     }
 
     public boolean isArray() {
-        return genericParamType==GenericParamType.ARRAY;
+        return genericParamType == GenericParamType.ARRAY;
     }
 
     public ParameterMetaBuilder setArray() {
-        genericParamType=GenericParamType.ARRAY;
+        genericParamType = GenericParamType.ARRAY;
         return this;
     }
 
@@ -110,13 +113,8 @@ public class ParameterMetaBuilder {
 
     public ParameterMeta build() {
         return new ParameterMeta(getClassType(), getType(), getParam(), getGenericParamType(),
-                getComponentClass(), getComponentClassKey(), getComponentClassValue() );
+                getComponentClass(), getComponentClassKey(), getComponentClassValue());
     }
-
-    public static ParameterMetaBuilder parameterMetaBuilder() {
-        return new ParameterMetaBuilder();
-    }
-
 
     public GenericParamType getGenericParamType() {
         return genericParamType;

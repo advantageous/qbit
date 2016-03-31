@@ -65,7 +65,7 @@ import io.advantageous.qbit.service.Stoppable;
 import java.util.function.Consumer;
 
 /**
- *  created by rhightower on 2/18/15.
+ * created by rhightower on 2/18/15.
  */
 public interface ServiceMethodDispatcher extends Consumer<MethodCall<Object>>, ServiceFlushable, Stoppable, Startable {
 }

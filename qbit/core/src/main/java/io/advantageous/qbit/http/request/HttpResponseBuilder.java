@@ -36,6 +36,7 @@ public class HttpResponseBuilder {
 
     /**
      * Builder creator
+     *
      * @return httpResponseBuilder
      */
     public static HttpResponseBuilder httpResponseBuilder() {
@@ -61,7 +62,9 @@ public class HttpResponseBuilder {
     }
 
 
-    /** Sets a JSON body. */
+    /**
+     * Sets a JSON body.
+     */
     public HttpResponseBuilder setJsonBody(final String json) {
         this.setContentType("application/json");
         this.setBody(json);
@@ -69,7 +72,9 @@ public class HttpResponseBuilder {
     }
 
 
-    /** Sets a JSON body with OK (200) http code. */
+    /**
+     * Sets a JSON body with OK (200) http code.
+     */
     public HttpResponseBuilder setJsonBodyCodeOk(final String json) {
         this.setCode(200);
         this.setContentType("application/json");
@@ -77,7 +82,9 @@ public class HttpResponseBuilder {
         return this;
     }
 
-    /** Sets a JSON body with (500) http code. */
+    /**
+     * Sets a JSON body with (500) http code.
+     */
     public HttpResponseBuilder setJsonBodyError(final String json) {
         this.setCode(500);
         this.setContentType("application/json");
@@ -101,9 +108,15 @@ public class HttpResponseBuilder {
         return headers;
     }
 
+    public HttpResponseBuilder setHeaders(final MultiMap<String, String> headers) {
+        this.headers = headers;
+        return this;
+    }
+
     /**
      * Add a header
-     * @param name name
+     *
+     * @param name  name
      * @param value value
      * @return HttpResponseBuilder
      */
@@ -112,17 +125,13 @@ public class HttpResponseBuilder {
         return this;
     }
 
-    public HttpResponseBuilder setHeaders(final MultiMap<String, String> headers) {
-        this.headers = headers;
-        return this;
-    }
-
     /**
      * Build a response object.
+     *
      * @return HttpResponse
      */
     public HttpResponse<?> build() {
-        if (getBody() instanceof  byte[]) {
+        if (getBody() instanceof byte[]) {
             return new HttpBinaryResponseImpl(getCode(), getContentType(), (byte[]) getBody(), headers);
         } else {
             return new HttpTextResponseImpl(getCode(), getContentType(), getBody().toString(), headers);
@@ -132,12 +141,13 @@ public class HttpResponseBuilder {
 
     /**
      * Build a text response object.
+     *
      * @return HttpResponse
      */
     public HttpTextResponse buildTextResponse() {
-        if (getBody() instanceof  byte[]) {
+        if (getBody() instanceof byte[]) {
             return new HttpTextResponseImpl(getCode(), getContentType(),
-                    new String((byte[])getBody(), StandardCharsets.UTF_8), headers);
+                    new String((byte[]) getBody(), StandardCharsets.UTF_8), headers);
         } else {
             return new HttpTextResponseImpl(getCode(), getContentType(), getBody().toString(), headers);
         }
@@ -146,10 +156,11 @@ public class HttpResponseBuilder {
 
     /**
      * Build a binary response object.
+     *
      * @return HttpResponse
      */
     public HttpBinaryResponse buildBinaryResponse() {
-        if (getBody() instanceof  byte[]) {
+        if (getBody() instanceof byte[]) {
             return new HttpBinaryResponseImpl(getCode(), getContentType(), (byte[]) getBody(), headers);
         } else {
             return new HttpBinaryResponseImpl(getCode(), getContentType(),

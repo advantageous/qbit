@@ -10,30 +10,30 @@ import java.util.Properties;
 public class CallbackManagerBuilder {
 
 
-    private  String name;
-    private  boolean handleTimeouts = false;
-    private  long timeOutMS = 30_000;
-    private  long checkInterval = 5_000;
-    private  Timer timer;
-
     public static String CONTEXT = "qbit.callbackmanager.";
+    private String name;
+    private boolean handleTimeouts = false;
+    private long timeOutMS = 30_000;
+    private long checkInterval = 5_000;
+    private Timer timer;
 
-
-    public static CallbackManagerBuilder callbackManagerBuilder() {
-        return new CallbackManagerBuilder();
-    }
 
     public CallbackManagerBuilder(final PropertyResolver propertyResolver) {
         handleTimeouts = propertyResolver.getBooleanProperty("handleTimeouts", handleTimeouts);
         timeOutMS = propertyResolver.getLongProperty("timeOutMS", timeOutMS);
         checkInterval = propertyResolver.getLongProperty("checkInterval", checkInterval);
     }
+
     public CallbackManagerBuilder() {
         this(PropertyResolver.createSystemPropertyResolver(CONTEXT));
     }
 
     public CallbackManagerBuilder(final Properties properties) {
         this(PropertyResolver.createPropertiesPropertyResolver(CONTEXT, properties));
+    }
+
+    public static CallbackManagerBuilder callbackManagerBuilder() {
+        return new CallbackManagerBuilder();
     }
 
     public String getName() {

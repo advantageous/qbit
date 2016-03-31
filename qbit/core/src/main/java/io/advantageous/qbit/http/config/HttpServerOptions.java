@@ -111,6 +111,7 @@ public class HttpServerOptions implements Cloneable {
     public int getIdleTimeout() {
         return idleTimeout;
     }
+
     public boolean isSsl() {
         return ssl;
     }

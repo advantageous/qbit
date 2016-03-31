@@ -58,9 +58,10 @@
 package io.advantageous.qbit.service;
 
 /**
- *  created by rhightower on 2/19/15.
+ * created by rhightower on 2/19/15.
  */
 public interface Startable {
 
-    default void start(){}
+    default void start() {
+    }
 }

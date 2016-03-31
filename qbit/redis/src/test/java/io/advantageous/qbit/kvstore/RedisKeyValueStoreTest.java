@@ -31,7 +31,6 @@ public class RedisKeyValueStoreTest {
     private RedisKeyValueStoreBuilder builder;
 
 
-
     @Before
     public void setup() {
         builder = RedisKeyValueStoreBuilder.redisKeyValueStoreBuilder();
@@ -51,7 +50,7 @@ public class RedisKeyValueStoreTest {
 
 
     @Test
-    public void testPutWithConfirmation() throws Exception{
+    public void testPutWithConfirmation() throws Exception {
 
         final String value = "success-" + System.currentTimeMillis();
 
@@ -81,7 +80,6 @@ public class RedisKeyValueStoreTest {
         putCallbackBuilder.withTimeoutHandler(() -> putTimeout.set(true));
 
 
-
         keyValueStore.putStringWithConfirmation(putCallbackBuilder.build(), "testPutWithConfirmation", value);
 
         putLatch.await(3, TimeUnit.SECONDS);
@@ -90,7 +88,6 @@ public class RedisKeyValueStoreTest {
         assertFalse(putTimeout.get());
         assertFalse(putFailed.get());
         assertTrue(putCallbackResult.get());
-
 
 
         //Now test get
@@ -128,7 +125,6 @@ public class RedisKeyValueStoreTest {
         getCallbackBuilder.withTimeoutHandler(() -> getTimeout.set(true));
 
 
-
         keyValueStore.getString(getCallbackBuilder.build(), "testPutWithConfirmation");
 
         getLatch.await(3, TimeUnit.SECONDS);
@@ -140,17 +136,8 @@ public class RedisKeyValueStoreTest {
 
     }
 
-
-    private class Todo {
-        final String name;
-
-        private Todo(String name) {
-            this.name = name;
-        }
-    }
-
     @Test
-    public void testPutWithConfirmationWrapped() throws Exception{
+    public void testPutWithConfirmationWrapped() throws Exception {
 
         final KeyValueStoreService<Todo> todoKVStoreInternal = JsonKeyValueStoreServiceBuilder
                 .jsonKeyValueStoreServiceBuilder()
@@ -191,7 +178,6 @@ public class RedisKeyValueStoreTest {
         putCallbackBuilder.withTimeoutHandler(() -> putTimeout.set(true));
 
 
-
         todoKVStore.putWithConfirmation(putCallbackBuilder.build(),
                 "testPutWithConfirmationWrapped", new Todo(value));
 
@@ -203,7 +189,6 @@ public class RedisKeyValueStoreTest {
         assertFalse(putTimeout.get());
         assertFalse(putFailed.get());
         assertTrue(putCallbackResult.get());
-
 
 
         //Now test get
@@ -241,7 +226,6 @@ public class RedisKeyValueStoreTest {
         getCallbackBuilder.withTimeoutHandler(() -> getTimeout.set(true));
 
 
-
         todoKVStore.get(getCallbackBuilder.build(), "testPutWithConfirmationWrapped");
         ServiceProxyUtils.flushServiceProxy(todoKVStore);
 
@@ -256,9 +240,8 @@ public class RedisKeyValueStoreTest {
 
     }
 
-
     @Test
-    public void testPutWithConfirmationFallback() throws Exception{
+    public void testPutWithConfirmationFallback() throws Exception {
 
         final LowLevelLocalKeyValueStoreServiceBuilder lowLevelLocalKeyValueStoreServiceBuilder =
                 LowLevelLocalKeyValueStoreServiceBuilder.localKeyValueStoreBuilder();
@@ -267,7 +250,7 @@ public class RedisKeyValueStoreTest {
         final LowLevelWriteBehindReadFallbackKeyValueStore writeBehindReadFallbackKeyValueStoreInternal =
                 new LowLevelWriteBehindReadFallbackKeyValueStore(lowLevelLocalKeyValueStoreServiceBuilder.build(),
                         keyValueStore,
-                    ReactorBuilder.reactorBuilder().build());
+                        ReactorBuilder.reactorBuilder().build());
 
         final LowLevelKeyValueStoreService lowLevelKeyValueStoreService = ServiceBuilder.serviceBuilder()
                 .setServiceObject(writeBehindReadFallbackKeyValueStoreInternal)
@@ -312,7 +295,6 @@ public class RedisKeyValueStoreTest {
         putCallbackBuilder.withTimeoutHandler(() -> putTimeout.set(true));
 
 
-
         todoKVStore.putWithConfirmation(putCallbackBuilder.build(), "testPutWithConfirmationWrapped", new Todo(value));
         ServiceProxyUtils.flushServiceProxy(todoKVStore);
 
@@ -322,7 +304,6 @@ public class RedisKeyValueStoreTest {
         assertFalse(putTimeout.get());
         assertFalse(putFailed.get());
         assertTrue(putCallbackResult.get());
-
 
 
         //Now test get
@@ -360,7 +341,6 @@ public class RedisKeyValueStoreTest {
         getCallbackBuilder.withTimeoutHandler(() -> getTimeout.set(true));
 
 
-
         todoKVStore.get(getCallbackBuilder.build(), "testPutWithConfirmationWrapped");
         ServiceProxyUtils.flushServiceProxy(todoKVStore);
 
@@ -376,7 +356,7 @@ public class RedisKeyValueStoreTest {
     }
 
     @Test
-    public void test() throws Exception{
+    public void test() throws Exception {
         final CountDownLatch countDownLatch = new CountDownLatch(1);
         final CountDownLatch countDownLatch2 = new CountDownLatch(1);
         final AtomicReference<String> ref = new AtomicReference<>();
@@ -422,10 +402,8 @@ public class RedisKeyValueStoreTest {
         assertFalse(hasKeyRef.get());
     }
 
-
-
     @Test
-    public void testCacheTimeOut() throws Exception{
+    public void testCacheTimeOut() throws Exception {
         final CountDownLatch countDownLatch = new CountDownLatch(1);
         final CountDownLatch countDownLatch2 = new CountDownLatch(1);
         final AtomicReference<String> ref = new AtomicReference<>();
@@ -460,9 +438,8 @@ public class RedisKeyValueStoreTest {
         assertEquals("NONE", ref.get());
     }
 
-
     @Test
-    public void testCacheTimeOutWithConfirmation() throws Exception{
+    public void testCacheTimeOutWithConfirmation() throws Exception {
         final CountDownLatch countDownLatch = new CountDownLatch(1);
         final AtomicReference<String> ref = new AtomicReference<>();
         final AtomicBoolean ok = new AtomicBoolean();
@@ -483,13 +460,13 @@ public class RedisKeyValueStoreTest {
         assertEquals("NONE", ref.get());
     }
 
-
     /**
      * Bytes are not really supported by the redis client yet.
+     *
      * @throws Exception
      */
     @Test
-    public void testBytes() throws Exception{
+    public void testBytes() throws Exception {
         keyValueStore.putBytes("key1", "value1".getBytes());
 
         keyValueStore.putBytesWithConfirmation(aBoolean -> {
@@ -511,10 +488,16 @@ public class RedisKeyValueStoreTest {
         keyValueStore.delete("key4");
     }
 
-
-
     @Test
-    public void loadTest() throws Exception{
+    public void loadTest() throws Exception {
 
+    }
+
+    private class Todo {
+        final String name;
+
+        private Todo(String name) {
+            this.name = name;
+        }
     }
 }

@@ -23,7 +23,7 @@ import io.advantageous.qbit.util.MultiMap;
 
 /**
  * This represents a message.
- *
+ * <p>
  * created by Richard on 7/21/14.
  *
  * @author Rick Hightower

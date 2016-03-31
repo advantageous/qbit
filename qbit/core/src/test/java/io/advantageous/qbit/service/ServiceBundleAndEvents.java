@@ -95,7 +95,6 @@ public class ServiceBundleAndEvents extends TimedTesting {
         assertEquals("GOT EVENT EVENT 1\n", event.get());
 
 
-
     }
 
     @After

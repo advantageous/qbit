@@ -4,22 +4,32 @@ import io.advantageous.qbit.message.impl.ResponseImpl;
 
 import java.util.Map;
 
-/** Builds a response. */
+/**
+ * Builds a response.
+ */
 public class ResponseBuilder {
 
 
-    /** The request that originated the response. */
+    /**
+     * The request that originated the response.
+     */
     private Request<Object> request;
 
-    /** Address. */
+    /**
+     * Address.
+     */
     private String address;
 
 
-    /** Return Address. */
+    /**
+     * Return Address.
+     */
     private String returnAddress;
 
 
-    /** Params. */
+    /**
+     * Params.
+     */
     private Map<String, Object> params;
     private Object body;
     private long id;
@@ -29,6 +39,10 @@ public class ResponseBuilder {
 
     public static ResponseBuilder responseBuilder() {
         return new ResponseBuilder();
+    }
+
+    public static Response<Object> fromMethodCall(MethodCall<Object> methodCall, Object returnValue) {
+        return new ResponseImpl<>(methodCall, returnValue);
     }
 
     public boolean isErrors() {
@@ -104,10 +118,6 @@ public class ResponseBuilder {
         return this;
     }
 
-
-    public static Response<Object> fromMethodCall(MethodCall<Object> methodCall, Object returnValue) {
-        return new ResponseImpl<>(methodCall, returnValue);
-    }
     public Response<Object> build() {
         return new ResponseImpl<>(getId(), getTimestamp(), getAddress(),
                 getReturnAddress(), getParams(), getBody(), getRequest(),

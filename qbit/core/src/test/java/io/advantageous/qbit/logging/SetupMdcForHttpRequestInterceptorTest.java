@@ -43,7 +43,7 @@ public class SetupMdcForHttpRequestInterceptorTest {
     }
 
     @Test
-    public void test() throws Exception{
+    public void test() throws Exception {
 
         mdcForHttpRequestInterceptor.before(methodCallBuilder
                 .setOriginatingRequest(httpRequest).setName("m1").build());
@@ -64,7 +64,7 @@ public class SetupMdcForHttpRequestInterceptorTest {
 
 
     @Test
-    public void testNoRequest() throws Exception{
+    public void testNoRequest() throws Exception {
 
         mdcForHttpRequestInterceptor.before(methodCallBuilder
                 .setName("m1").build());
@@ -77,7 +77,7 @@ public class SetupMdcForHttpRequestInterceptorTest {
     }
 
     @Test
-    public void testNoHeaders() throws Exception{
+    public void testNoHeaders() throws Exception {
 
         mdcForHttpRequestInterceptor = new SetupMdcForHttpRequestInterceptor(Collections.emptySet());
 
@@ -123,7 +123,7 @@ public class SetupMdcForHttpRequestInterceptorTest {
     }
 
     @Test
-    public void testNested() throws Exception{
+    public void testNested() throws Exception {
 
         final MethodCall<Object> m1 = methodCallBuilder
                 .setOriginatingRequest(httpRequest).setName("m1").build();
@@ -148,38 +148,8 @@ public class SetupMdcForHttpRequestInterceptorTest {
 
     }
 
-
-
-    interface MyService extends ClientProxy{
-        void getRequestURI(Callback<String> stringCallback);
-
-        void getMDC(Callback<Map<String, String>> mapCallback);
-    }
-
-
-    static class MyServiceImpl {
-
-        private HttpContext context = new HttpContext();
-        public String getRequestURI() {
-
-            System.out.println("CALLED ");
-            final Optional<HttpRequest> httpRequest = context.getHttpRequest();
-            if (httpRequest.isPresent()) {
-                return httpRequest.get().getUri();
-            } else {
-                return "REQUEST NOT FOUND";
-            }
-        }
-
-        public Map<String, String> getMDC() {
-
-            return MDC.getCopyOfContextMap();
-        }
-    }
-
-
     @Test
-    public void testIntegrationWithServiceBundle() throws Exception{
+    public void testIntegrationWithServiceBundle() throws Exception {
 
 
         mdcForHttpRequestInterceptor = new SetupMdcForHttpRequestInterceptor(Sets.set("foo"));
@@ -207,7 +177,6 @@ public class SetupMdcForHttpRequestInterceptorTest {
         assertEquals("/foo", callback.get());
 
 
-
         final AsyncFutureCallback<Map<String, String>> callbackMap = AsyncFutureBuilder.asyncFutureBuilder()
                 .buildMap(String.class, String.class);
 
@@ -225,6 +194,32 @@ public class SetupMdcForHttpRequestInterceptorTest {
     }
 
 
+    interface MyService extends ClientProxy {
+        void getRequestURI(Callback<String> stringCallback);
+
+        void getMDC(Callback<Map<String, String>> mapCallback);
+    }
+
+    static class MyServiceImpl {
+
+        private HttpContext context = new HttpContext();
+
+        public String getRequestURI() {
+
+            System.out.println("CALLED ");
+            final Optional<HttpRequest> httpRequest = context.getHttpRequest();
+            if (httpRequest.isPresent()) {
+                return httpRequest.get().getUri();
+            } else {
+                return "REQUEST NOT FOUND";
+            }
+        }
+
+        public Map<String, String> getMDC() {
+
+            return MDC.getCopyOfContextMap();
+        }
+    }
 
 
 }

@@ -34,6 +34,10 @@ public class Employee {
         return socialSecurityNumber;
     }
 
+    public String getId() {
+        return id;
+    }
+
     @Override
     public String toString() {
         return "Employee{" +

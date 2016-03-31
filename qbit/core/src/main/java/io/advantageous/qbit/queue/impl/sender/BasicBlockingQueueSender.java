@@ -32,24 +32,24 @@ public class BasicBlockingQueueSender<T> extends AbstractBasicSendQueue<T> {
     }
 
 
-    protected final  boolean flushIfOverBatch() {
+    protected final boolean flushIfOverBatch() {
         return index < batchSize || sendLocalQueue();
     }
 
 
-    protected final  boolean sendArray(final Object[] array) {
+    protected final boolean sendArray(final Object[] array) {
 
-            if (array.length==0) {
-                throw new IllegalStateException("Array length is 0");
-            }
-            if (!queue.offer(array)) {
-                logger.error("Unable to send to queue {} " +
-                                " Size of queue {} ",
-                        name,   queue.size());
-                return unableToEnqueueHandler.unableToEnqueue(queue, name, array);
-            } else {
-                return true;
-            }
+        if (array.length == 0) {
+            throw new IllegalStateException("Array length is 0");
+        }
+        if (!queue.offer(array)) {
+            logger.error("Unable to send to queue {} " +
+                            " Size of queue {} ",
+                    name, queue.size());
+            return unableToEnqueueHandler.unableToEnqueue(queue, name, array);
+        } else {
+            return true;
+        }
     }
 
 

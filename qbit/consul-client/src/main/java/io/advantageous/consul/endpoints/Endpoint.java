@@ -13,7 +13,7 @@ public class Endpoint {
     private final String host;
 
 
-    public Endpoint(final String scheme, final String host,  final String port, final String rootPath) {
+    public Endpoint(final String scheme, final String host, final String port, final String rootPath) {
 
         this.scheme = scheme;
         this.host = host;

@@ -43,8 +43,6 @@ public class RedisStoreTestWithFallback {
     private LowLevelWriteBehindReadFallbackKeyValueStore writeBehindReadFallbackKeyValueStore;
 
 
-
-
     @Before
     public void setup() {
         builder = RedisKeyValueStoreBuilder.redisKeyValueStoreBuilder();
@@ -87,22 +85,8 @@ public class RedisStoreTestWithFallback {
 
     }
 
-    private class Todo {
-        final String name;
-
-        private Todo(String name) {
-            this.name = name;
-        }
-
-        @Override
-        public String toString() {
-            return name;
-        }
-    }
-
-
     @Test
-    public void testReadFallback() throws Exception{
+    public void testReadFallback() throws Exception {
 
         final CountDownLatch putWithConfirmation = new CountDownLatch(1);
         final CountDownLatch getReturn = new CountDownLatch(1);
@@ -136,6 +120,19 @@ public class RedisStoreTestWithFallback {
 
         assertEquals("barValue", valueHolder[0]);
 
+    }
+
+    private class Todo {
+        final String name;
+
+        private Todo(String name) {
+            this.name = name;
+        }
+
+        @Override
+        public String toString() {
+            return name;
+        }
     }
 
 }

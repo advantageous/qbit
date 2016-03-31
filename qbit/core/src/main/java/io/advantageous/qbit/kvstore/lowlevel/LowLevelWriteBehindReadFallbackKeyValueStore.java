@@ -54,7 +54,6 @@ public class LowLevelWriteBehindReadFallbackKeyValueStore implements LowLevelKey
     }
 
 
-
     private CallbackBuilder getCallbackBuilderForPut(Callback<Boolean> confirmation, String key) {
         final AtomicInteger count = new AtomicInteger();
         final AtomicBoolean failed = new AtomicBoolean();
@@ -62,23 +61,23 @@ public class LowLevelWriteBehindReadFallbackKeyValueStore implements LowLevelKey
         final CallbackBuilder callbackBuilder = reactor.callbackBuilder();
 
         callbackBuilder
-            .withBooleanCallback(
-                    success -> {
-                        long currentCount = count.incrementAndGet();
+                .withBooleanCallback(
+                        success -> {
+                            long currentCount = count.incrementAndGet();
 
-                        logger.info("CURRENT COUNT {}", currentCount);
-                    })
-            .withErrorHandler(error -> {
-                logger.error(String.format("Failed to put key %s", key), error);
-                failed.set(true);
-                count.incrementAndGet();
-            })
-            .withTimeoutHandler(() -> {
-                logger.error(String.format("Timeout trying to put key %s", key));
-                failed.set(true);
-                confirmation.onTimeout();
-                count.incrementAndGet();
-            });
+                            logger.info("CURRENT COUNT {}", currentCount);
+                        })
+                .withErrorHandler(error -> {
+                    logger.error(String.format("Failed to put key %s", key), error);
+                    failed.set(true);
+                    count.incrementAndGet();
+                })
+                .withTimeoutHandler(() -> {
+                    logger.error(String.format("Timeout trying to put key %s", key));
+                    failed.set(true);
+                    confirmation.onTimeout();
+                    count.incrementAndGet();
+                });
 
         final CallbackCoordinator callbackCoordinator = () -> {
 
@@ -100,12 +99,12 @@ public class LowLevelWriteBehindReadFallbackKeyValueStore implements LowLevelKey
                     confirmation.accept(true);
                 }).setTimeOutHandler(() -> {
 
-                if (failed.get()) {
-                    return;
-                }
-                failed.set(true);
-                logger.error(String.format("Timeout trying to put key %s", key));
-                confirmation.onTimeout();
+            if (failed.get()) {
+                return;
+            }
+            failed.set(true);
+            logger.error(String.format("Timeout trying to put key %s", key));
+            confirmation.onTimeout();
 
         }).build();
         return callbackBuilder;
@@ -174,6 +173,7 @@ public class LowLevelWriteBehindReadFallbackKeyValueStore implements LowLevelKey
         remoteKeyValueStore.putStringWithConfirmation(callbackBuilder.build(), key, value);
 
     }
+
     @Override
     public void putBytesWithConfirmation(Callback<Boolean> confirmation, String key, byte[] value) {
         final CallbackBuilder callbackBuilder = getCallbackBuilderForPut(confirmation, key);

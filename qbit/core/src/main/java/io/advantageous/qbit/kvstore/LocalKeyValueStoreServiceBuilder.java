@@ -18,13 +18,6 @@ import java.util.Optional;
 public class LocalKeyValueStoreServiceBuilder<T> {
 
     private boolean debug;
-
-    public static <T> LocalKeyValueStoreServiceBuilder<T> localKeyValueStoreServiceBuilder(final Class<T> classType) {
-        LocalKeyValueStoreServiceBuilder<T> builder = new LocalKeyValueStoreServiceBuilder<>();
-        builder.setClassType(classType);
-        return builder;
-    }
-
     private Reactor reactor;
     private Timer timer;
     private Class<T> classType;
@@ -34,10 +27,14 @@ public class LocalKeyValueStoreServiceBuilder<T> {
     private Duration flushEvery = Duration.ONE_HOUR;
     private StatsCollector statsCollector;
     private String statKey = "qbit.kv.object.store.";
-    private Duration debugInterval=Duration.NEVER;
+    private Duration debugInterval = Duration.NEVER;
     private ServiceBuilder serviceBuilder;
 
-
+    public static <T> LocalKeyValueStoreServiceBuilder<T> localKeyValueStoreServiceBuilder(final Class<T> classType) {
+        LocalKeyValueStoreServiceBuilder<T> builder = new LocalKeyValueStoreServiceBuilder<>();
+        builder.setClassType(classType);
+        return builder;
+    }
 
     public LocalKeyValueStoreServiceBuilder<T> setWriteBehindAndReadFallbackAsLowLevel(final LowLevelKeyValueStoreService lowLevelKVStore) {
 
@@ -67,7 +64,7 @@ public class LocalKeyValueStoreServiceBuilder<T> {
 
         final KeyValueStoreService<T> keyValueStoreService =
                 keyValueStoreServiceInternal instanceof ClientProxy ? keyValueStoreServiceInternal
-                : getServiceBuilder().setServiceObject(keyValueStoreServiceInternal).buildAndStartAll()
+                        : getServiceBuilder().setServiceObject(keyValueStoreServiceInternal).buildAndStartAll()
                         .createProxy(KeyValueStoreService.class);
 
         setWriteBehindWriter(new WriteBehindWriter<T>() {
@@ -189,8 +186,9 @@ public class LocalKeyValueStoreServiceBuilder<T> {
 
     public FallbackReader<T> getFallbackReader() {
 
-        if (fallbackReader==null) {
-            fallbackReader = new FallbackReader<T>() {};
+        if (fallbackReader == null) {
+            fallbackReader = new FallbackReader<T>() {
+            };
         }
         return fallbackReader;
     }
@@ -201,8 +199,9 @@ public class LocalKeyValueStoreServiceBuilder<T> {
     }
 
     public WriteBehindWriter<T> getWriteBehindWriter() {
-        if (writeBehindWriter==null) {
-            writeBehindWriter = new WriteBehindWriter<T>() {};
+        if (writeBehindWriter == null) {
+            writeBehindWriter = new WriteBehindWriter<T>() {
+            };
         }
         return writeBehindWriter;
     }
@@ -232,8 +231,9 @@ public class LocalKeyValueStoreServiceBuilder<T> {
     }
 
     public StatsCollector getStatsCollector() {
-        if (statsCollector==null) {
-            statsCollector = new StatsCollector() {};
+        if (statsCollector == null) {
+            statsCollector = new StatsCollector() {
+            };
         }
         return statsCollector;
     }
@@ -261,7 +261,7 @@ public class LocalKeyValueStoreServiceBuilder<T> {
         return this;
     }
 
-    public LocalKeyValueStoreService<T> build(){
+    public LocalKeyValueStoreService<T> build() {
 
         return new LocalKeyValueStoreService<>(
                 getReactor(),
@@ -277,26 +277,25 @@ public class LocalKeyValueStoreServiceBuilder<T> {
     }
 
 
-    public ServiceQueue buildAsService(){
+    public ServiceQueue buildAsService() {
         final LocalKeyValueStoreService<T> kvStoreInternal = build();
         return getServiceBuilder().setServiceObject(kvStoreInternal).build();
     }
 
 
-    public ServiceQueue buildAsServiceAndStartAll(){
+    public ServiceQueue buildAsServiceAndStartAll() {
         final ServiceQueue serviceQueue = buildAsService();
         serviceQueue.startAll();
         return serviceQueue;
+    }
+
+    public boolean getDebug() {
+        return debug;
     }
 
     public LocalKeyValueStoreServiceBuilder setDebug(boolean debug) {
 
         this.debug = debug;
         return this;
-    }
-
-
-    public boolean getDebug() {
-        return debug;
     }
 }

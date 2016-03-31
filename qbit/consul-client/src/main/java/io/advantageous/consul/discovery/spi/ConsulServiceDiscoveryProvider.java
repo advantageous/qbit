@@ -40,8 +40,7 @@ public class ConsulServiceDiscoveryProvider implements ServiceDiscoveryProvider 
     private final boolean trace = logger.isTraceEnabled();
     private final AtomicInteger lastIndex = new AtomicInteger();
 
-    private final Map<String,EndpointDefinition> registrations = new ConcurrentHashMap<>();
-
+    private final Map<String, EndpointDefinition> registrations = new ConcurrentHashMap<>();
 
 
     public ConsulServiceDiscoveryProvider(final String consulHost,
@@ -97,13 +96,13 @@ public class ConsulServiceDiscoveryProvider implements ServiceDiscoveryProvider 
         EndpointDefinition endpointDefinition = registerQueue.poll();
         if (endpointDefinition != null) {
             final Consul consul = consul();
-                while (endpointDefinition != null) {
-                    registrations.put(endpointDefinition.getId(), endpointDefinition);
-                    consul.agent().registerService(endpointDefinition.getPort(),
-                                endpointDefinition.getTimeToLive(),
-                                endpointDefinition.getName(), endpointDefinition.getId(), tags);
-                    endpointDefinition = registerQueue.poll();
-                }
+            while (endpointDefinition != null) {
+                registrations.put(endpointDefinition.getId(), endpointDefinition);
+                consul.agent().registerService(endpointDefinition.getPort(),
+                        endpointDefinition.getTimeToLive(),
+                        endpointDefinition.getName(), endpointDefinition.getId(), tags);
+                endpointDefinition = registerQueue.poll();
+            }
 
         }
     }
@@ -124,7 +123,7 @@ public class ConsulServiceDiscoveryProvider implements ServiceDiscoveryProvider 
         if (uniqueCheckIns.size() > 0) {
             Consul consul = consul();
             for (ServiceHealthCheckIn checkIn : uniqueCheckIns) {
-                    checkInWithConsul(consul, checkIn);
+                checkInWithConsul(consul, checkIn);
             }
         }
     }
@@ -140,7 +139,7 @@ public class ConsulServiceDiscoveryProvider implements ServiceDiscoveryProvider 
             consul.agent().checkTtl(checkIn.getServiceId(), status, "" + checkIn.getHealthStatus());
         } catch (NotRegisteredException notRegisteredException) {
             final EndpointDefinition endpointDefinition = registrations.get(checkIn.getServiceId());
-            if (endpointDefinition!=null) {
+            if (endpointDefinition != null) {
                 consul.agent().registerService(endpointDefinition.getPort(),
                         endpointDefinition.getTimeToLive(),
                         endpointDefinition.getName(), endpointDefinition.getId(), tags);
@@ -160,7 +159,7 @@ public class ConsulServiceDiscoveryProvider implements ServiceDiscoveryProvider 
 
         final LinkedHashSet<ServiceHealthCheckIn> set = new LinkedHashSet<>(checkInsQueue.size());
 
-        while (poll!=null) {
+        while (poll != null) {
             set.add(poll);
             poll = checkInsQueue.poll();
         }
@@ -236,12 +235,12 @@ public class ConsulServiceDiscoveryProvider implements ServiceDiscoveryProvider 
 
         String tag = tags.length > 1 ? tags[0] : null;
         final ConsulResponse<List<ServiceHealth>> consulResponse = consul.health()
-                    .getHealthyServices(serviceName, datacenter, tag, buildRequestOptions());
+                .getHealthyServices(serviceName, datacenter, tag, buildRequestOptions());
 
 
         this.lastIndex.set(consulResponse.getIndex());
 
-            //noinspection UnnecessaryLocalVariable
+        //noinspection UnnecessaryLocalVariable
         final List<ServiceHealth> healthyServices = consulResponse.getResponse();
 
         return healthyServices;
@@ -267,8 +266,8 @@ public class ConsulServiceDiscoveryProvider implements ServiceDiscoveryProvider 
     }
 
 
-    private Consul consul()  {
-        final Consul consul =  Consul.consul(consulHost, consulPort);
+    private Consul consul() {
+        final Consul consul = Consul.consul(consulHost, consulPort);
         return consul;
     }
 

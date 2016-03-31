@@ -28,8 +28,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- *
  * Manages a channel. A channel is like a communication pipe
+ *
  * @param <T> type of channel
  * @author rick hightower
  */
@@ -59,7 +59,8 @@ public class ChannelManager<T> {
 
     }
 
-    /** Add an event listener to the channel
+    /**
+     * Add an event listener to the channel
      * There can only be one consumer and many listeners.
      *
      * @param eventListener eventListener
@@ -77,10 +78,10 @@ public class ChannelManager<T> {
 
 
     /**
-     *
      * Remove an event listener from the channel.
-     *
+     * <p>
      * There can only be one consumer and many listeners.
+     *
      * @param eventListener eventListener
      */
     public void remove(EventListener<T> eventListener) {

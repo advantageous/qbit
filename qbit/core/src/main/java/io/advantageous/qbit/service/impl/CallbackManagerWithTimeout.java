@@ -41,12 +41,14 @@ public class CallbackManagerWithTimeout implements CallbackManager {
     private final long timeOutMS;
     private final long checkInterval;
     private final Timer timer;
-    private long lastCheckTime;
-    private long now;
     private final Logger logger = LoggerFactory.getLogger(CallbackManagerWithTimeout.class);
     private final boolean debug = logger.isDebugEnabled();
-
-
+    /**
+     * Maps incoming calls with outgoing handlers (returns, async returns really).
+     */
+    private final Map<HandlerKey, Callback<Object>> handlers = new ConcurrentHashMap<>();
+    private long lastCheckTime;
+    private long now;
 
     public CallbackManagerWithTimeout(final Timer timer, final String name,
                                       boolean handleTimeouts,
@@ -61,11 +63,6 @@ public class CallbackManagerWithTimeout implements CallbackManager {
         this.now = lastCheckTime;
         this.timer = timer;
     }
-
-    /**
-     * Maps incoming calls with outgoing handlers (returns, async returns really).
-     */
-    private final Map<HandlerKey, Callback<Object>> handlers = new ConcurrentHashMap<>();
 
     /**
      * Register a callbackWithTimeout handler
@@ -128,12 +125,12 @@ public class CallbackManagerWithTimeout implements CallbackManager {
         } else {
 
             if (debug)
-            logger.info("FOUND HANDLER {}", handlerKey);
+                logger.info("FOUND HANDLER {}", handlerKey);
         }
 
         if (response.wasErrors()) {
 
-            if (debug)  {
+            if (debug) {
                 logger.debug("Service threw an exception address {} return address {} message id {} response error {}",
                         response.address(),
                         response.returnAddress(),
@@ -203,7 +200,7 @@ public class CallbackManagerWithTimeout implements CallbackManager {
             if (duration > timeOutMS) {
 
 
-                if (debug) logger.debug("{} Call has timed out duration {} {} {}",name,
+                if (debug) logger.debug("{} Call has timed out duration {} {} {}", name,
                         now - entry.getKey().timestamp,
                         entry.getKey().returnAddress,
                         entry.getKey().messageId,

@@ -31,116 +31,171 @@ import java.util.List;
 import java.util.Set;
 import java.util.function.Supplier;
 
-/** This is a utility class for when you are running in a PaaS like Heroku or Docker.
- *  It also allows you to share stat, health and system manager setup.
- *
+/**
+ * This is a utility class for when you are running in a PaaS like Heroku or Docker.
+ * It also allows you to share stat, health and system manager setup.
+ * <p>
  * If statsD is enabled then this will look for the statsd port and host from STATSD_PORT and STATSD_HOST environment
  * variables.
- *
- *
+ * <p>
+ * <p>
  * If you use the admin builder, the port for the admin will be from the environment variable
  * QBIT_ADMIN_PORT. It can be overridden from system properties as well see AdminBuilder for more details.
- *
- *
+ * <p>
+ * <p>
  * The main end point port will be read from the environment variable WEB_PORT and if not found then read from
  * PORT.
- *
+ * <p>
  * Defaults for ports and hosts can be overridden by their respective builders.
  **/
 public class ManagedServiceBuilder {
 
 
-    /** Holds the system manager used to register proper shutdown with JVM. */
+    /**
+     * Holds the system manager used to register proper shutdown with JVM.
+     */
     private QBitSystemManager systemManager;
 
-    /** Holds the stats service builder used to collect system stats. */
+    /**
+     * Holds the stats service builder used to collect system stats.
+     */
     private StatServiceBuilder statServiceBuilder;
 
-    /** EndpointServerBuilder used to hold the main EndpointServerBuilder. */
+    /**
+     * EndpointServerBuilder used to hold the main EndpointServerBuilder.
+     */
     private EndpointServerBuilder endpointServerBuilder;
 
-    /** Used to create LocalStatsCollection. */
+    /**
+     * Used to create LocalStatsCollection.
+     */
     private LocalStatsCollectorBuilder localStatsCollectorBuilder;
 
-    /** Used to create the main http server. */
+    /**
+     * Used to create the main http server.
+     */
     private HttpServerBuilder httpServerBuilder;
 
-    /** Enables local stats collection. */
-    private boolean enableLocalStats=true;
+    /**
+     * Enables local stats collection.
+     */
+    private boolean enableLocalStats = true;
 
-    /** Enables sending stats to stats D. */
-    private boolean enableStatsD=false;
+    /**
+     * Enables sending stats to stats D.
+     */
+    private boolean enableStatsD = false;
 
-    /** Enables local health stats collection. */
-    private boolean enableLocalHealth=true;
+    /**
+     * Enables local health stats collection.
+     */
+    private boolean enableLocalHealth = true;
 
-    /** Used to create local health collector. */
+    /**
+     * Used to create local health collector.
+     */
     private HealthServiceBuilder healthServiceBuilder;
 
-    /** Health service used to collect health info from service queues. */
+    /**
+     * Health service used to collect health info from service queues.
+     */
     private HealthServiceAsync healthService;
 
-    /** Enables the collection of stats. */
+    /**
+     * Enables the collection of stats.
+     */
     private boolean enableStats = true;
 
-    /** Event manager for services, service queues, and end point servers. */
+    /**
+     * Event manager for services, service queues, and end point servers.
+     */
     private EventManager eventManager;
 
-    /** Factory to create QBit parts. */
+    /**
+     * Factory to create QBit parts.
+     */
     private Factory factory;
 
-    /** Builder to hold context information about endpoints. */
+    /**
+     * Builder to hold context information about endpoints.
+     */
     private ContextMetaBuilder contextMetaBuilder;
 
-    /** Endpoint services that will be exposed through contextMetaBuilder. */
+    /**
+     * Endpoint services that will be exposed through contextMetaBuilder.
+     */
     private List<Object> endpointServices;
 
-    /** The builder for the admin. */
+    /**
+     * The builder for the admin.
+     */
     private AdminBuilder adminBuilder;
 
-    /** StatsD replicator builder. */
+    /**
+     * StatsD replicator builder.
+     */
     private StatsDReplicatorBuilder statsDReplicatorBuilder;
 
 
-    /** Service Discovery. */
+    /**
+     * Service Discovery.
+     */
     private ServiceDiscovery serviceDiscovery;
 
-    /** Service Discovery supplier. */
+    /**
+     * Service Discovery supplier.
+     */
     private Supplier<ServiceDiscovery> serviceDiscoverySupplier;
 
 
-    /** Default Root URI.  */
-    private  String rootURI = Sys.sysProp(ManagedServiceBuilder.class.getName()
+    /**
+     * Default Root URI.
+     */
+    private String rootURI = Sys.sysProp(ManagedServiceBuilder.class.getName()
             + ".rootURI", "/services");
 
-    /** Default public host used for swagger. */
-    private  String publicHost = Sys.sysProp(ManagedServiceBuilder.class.getName()
+    /**
+     * Default public host used for swagger.
+     */
+    private String publicHost = Sys.sysProp(ManagedServiceBuilder.class.getName()
             + ".publicHost", "localhost");
 
-    /** Actual port. */
+    /**
+     * Actual port.
+     */
     private int port = Sys.sysProp(ManagedServiceBuilder.class.getName()
             + ".port", 8080);
 
-    /** Public port used for swagger. */
+    /**
+     * Public port used for swagger.
+     */
     private int publicPort = Sys.sysProp(ManagedServiceBuilder.class.getName()
             + ".publicPort", -1);
 
 
-    /** How often stats should be flushed. */
+    /**
+     * How often stats should be flushed.
+     */
     private int sampleStatFlushRate = Sys.sysProp(ManagedServiceBuilder.class.getName()
             + ".sampleStatFlushRate", 5);
 
-    /** How often timings should be collected defaults to every 100 calls. */
+    /**
+     * How often timings should be collected defaults to every 100 calls.
+     */
     private int checkTimingEveryXCalls = Sys.sysProp(ManagedServiceBuilder.class.getName()
             + ".checkTimingEveryXCalls", 100);
 
 
-    /** Turn on Logging Mapped Diagnostic Context. */
+    /**
+     * Turn on Logging Mapped Diagnostic Context.
+     */
     private boolean enableLoggingMappedDiagnosticContext = Sys.sysProp(ManagedServiceBuilder.class.getName()
             + ".enableLoggingMappedDiagnosticContext", false);
 
 
-    /** Turn on Request chain construction so original request is sent to other downstream internal services. */
+    /**
+     * Turn on Request chain construction so original request is sent to other downstream internal services.
+     */
     private boolean enableRequestChain = Sys.sysProp(ManagedServiceBuilder.class.getName()
             + ".enableRequestChain", false);
 
@@ -150,92 +205,8 @@ public class ManagedServiceBuilder {
     private Set<String> requestHeadersToTrackForMappedDiagnosticContext;
 
     /**
-     * Enable the logging diagnostic context
-     * @return this
-     */
-    public ManagedServiceBuilder enableLoggingMappedDiagnosticContext() {
-        this.enableRequestChain = true;
-        this.enableLoggingMappedDiagnosticContext = true;
-        return this;
-    }
-
-    /**
-     * Enable the logging diagnostic context
-     * @param requestHeaders request headers
-     */
-    public ManagedServiceBuilder enableLoggingMappedDiagnosticContext(final String... requestHeaders) {
-        return enableLoggingMappedDiagnosticContext(Sets.set(requestHeaders));
-    }
-
-
-    /**
-     * Enable the logging diagnostic context
-     * @return this
-     */
-    public ManagedServiceBuilder enableLoggingMappedDiagnosticContext(final Set<String> requestHeaders) {
-        this.enableRequestChain = true;
-        this.enableLoggingMappedDiagnosticContext = true;
-        this.requestHeadersToTrackForMappedDiagnosticContext = Collections.unmodifiableSet(requestHeaders);
-        return this;
-    }
-
-
-    /**
-     * Enable the request chain.  There is overhead for this, but this allows REST and WebSocket
-     * services to pass the originating request, methodCall, etc. to downstream services.
-     * Where it will be available via the RequestContext.
-     * A MethodCall, HttpRequest, WebSocketMessage are all Requests in QBit.
-     * @return this
-     */
-    public ManagedServiceBuilder enableRequestChain() {
-        this.enableRequestChain = true;
-        return this;
-    }
-
-    /**
-     * Enable or disable logging MDC.
-     * @param enableLoggingMappedDiagnosticContext enableLoggingMappedDiagnosticContext
-     * @return this
-     */
-    public ManagedServiceBuilder setEnableLoggingMappedDiagnosticContext(final boolean enableLoggingMappedDiagnosticContext) {
-        this.enableLoggingMappedDiagnosticContext = enableLoggingMappedDiagnosticContext;
-        return this;
-    }
-
-    /**
-     * Enable or disable request chain.  There is overhead for this, but this allows REST and WebSocket
-     * services to pass the originating request, methodCall, etc. to downstream services.
-     * Where it will be available via the RequestContext.
-     * A MethodCall, HttpRequest, WebSocketMessage are all Requests in QBit.
-     * @param enableRequestChain enableRequestChain
-     * @return this
-     */
-    public ManagedServiceBuilder setEnableRequestChain(final boolean enableRequestChain) {
-        this.enableRequestChain = enableRequestChain;
-        return this;
-    }
-
-    /**
-     *
-     * @return logging MDC enabled or not
-     */
-    public boolean isEnableLoggingMappedDiagnosticContext() {
-        return enableLoggingMappedDiagnosticContext;
-    }
-
-    /**
-     * Request call chain building enabled. This allows REST and WebSocket
-     * services to pass the originating request, methodCall, etc. to downstream services.
-     * Where it will be available via the RequestContext.
-     * A MethodCall, HttpRequest, WebSocketMessage are all Requests in QBit.
-     * @return is call chain tracking enabled.
-     */
-    public boolean isEnableRequestChain() {
-        return enableRequestChain;
-    }
-
-    /**
      * Create ManagedServiceBuilder which looks for MicroserviceConfig file.
+     *
      * @param serviceName service name
      */
     public ManagedServiceBuilder(final String serviceName) {
@@ -281,13 +252,111 @@ public class ManagedServiceBuilder {
         }
     }
 
+    public static ManagedServiceBuilder managedServiceBuilder() {
+        return new ManagedServiceBuilder(null);
+    }
+
+    public static ManagedServiceBuilder managedServiceBuilder(final String serviceName) {
+        return new ManagedServiceBuilder(serviceName);
+    }
+
+    /**
+     * Enable the logging diagnostic context
+     *
+     * @return this
+     */
+    public ManagedServiceBuilder enableLoggingMappedDiagnosticContext() {
+        this.enableRequestChain = true;
+        this.enableLoggingMappedDiagnosticContext = true;
+        return this;
+    }
+
+    /**
+     * Enable the logging diagnostic context
+     *
+     * @param requestHeaders request headers
+     */
+    public ManagedServiceBuilder enableLoggingMappedDiagnosticContext(final String... requestHeaders) {
+        return enableLoggingMappedDiagnosticContext(Sets.set(requestHeaders));
+    }
+
+    /**
+     * Enable the logging diagnostic context
+     *
+     * @return this
+     */
+    public ManagedServiceBuilder enableLoggingMappedDiagnosticContext(final Set<String> requestHeaders) {
+        this.enableRequestChain = true;
+        this.enableLoggingMappedDiagnosticContext = true;
+        this.requestHeadersToTrackForMappedDiagnosticContext = Collections.unmodifiableSet(requestHeaders);
+        return this;
+    }
+
+    /**
+     * Enable the request chain.  There is overhead for this, but this allows REST and WebSocket
+     * services to pass the originating request, methodCall, etc. to downstream services.
+     * Where it will be available via the RequestContext.
+     * A MethodCall, HttpRequest, WebSocketMessage are all Requests in QBit.
+     *
+     * @return this
+     */
+    public ManagedServiceBuilder enableRequestChain() {
+        this.enableRequestChain = true;
+        return this;
+    }
+
+    /**
+     * @return logging MDC enabled or not
+     */
+    public boolean isEnableLoggingMappedDiagnosticContext() {
+        return enableLoggingMappedDiagnosticContext;
+    }
+
+    /**
+     * Enable or disable logging MDC.
+     *
+     * @param enableLoggingMappedDiagnosticContext enableLoggingMappedDiagnosticContext
+     * @return this
+     */
+    public ManagedServiceBuilder setEnableLoggingMappedDiagnosticContext(final boolean enableLoggingMappedDiagnosticContext) {
+        this.enableLoggingMappedDiagnosticContext = enableLoggingMappedDiagnosticContext;
+        return this;
+    }
+
+    /**
+     * Request call chain building enabled. This allows REST and WebSocket
+     * services to pass the originating request, methodCall, etc. to downstream services.
+     * Where it will be available via the RequestContext.
+     * A MethodCall, HttpRequest, WebSocketMessage are all Requests in QBit.
+     *
+     * @return is call chain tracking enabled.
+     */
+    public boolean isEnableRequestChain() {
+        return enableRequestChain;
+    }
+
+    /**
+     * Enable or disable request chain.  There is overhead for this, but this allows REST and WebSocket
+     * services to pass the originating request, methodCall, etc. to downstream services.
+     * Where it will be available via the RequestContext.
+     * A MethodCall, HttpRequest, WebSocketMessage are all Requests in QBit.
+     *
+     * @param enableRequestChain enableRequestChain
+     * @return this
+     */
+    public ManagedServiceBuilder setEnableRequestChain(final boolean enableRequestChain) {
+        this.enableRequestChain = enableRequestChain;
+        return this;
+    }
+
     /**
      * Get the public host for service meta generation (Swagger)
+     *
      * @return public host
      */
     public String getPublicHost() {
 
-        if (System.getenv("PUBLIC_HOST")!=null) {
+        if (System.getenv("PUBLIC_HOST") != null) {
             publicHost = System.getenv("PUBLIC_HOST");
         }
         return publicHost;
@@ -295,6 +364,7 @@ public class ManagedServiceBuilder {
 
     /**
      * Set the public host for service meta generation (Swagger)
+     *
      * @param publicHost publicHost
      * @return this
      */
@@ -303,13 +373,13 @@ public class ManagedServiceBuilder {
         return this;
     }
 
-
     /**
      * Get the public port for service meta generation (Swagger)
+     *
      * @return public port
      */
     public int getPublicPort() {
-        if (publicPort==-1) {
+        if (publicPort == -1) {
 
             String sport = System.getenv("PUBLIC_WEB_PORT");
 
@@ -318,16 +388,16 @@ public class ManagedServiceBuilder {
             }
         }
 
-        if (publicPort==-1) {
+        if (publicPort == -1) {
             publicPort = getPort();
         }
 
         return publicPort;
     }
 
-
     /**
      * Set the public port for service meta generation (Swagger)
+     *
      * @param publicPort publicPort
      * @return this
      */
@@ -338,11 +408,12 @@ public class ManagedServiceBuilder {
 
     /**
      * Get the actual port to bind to.
+     *
      * @return actual http port to bind to.
      */
     public int getPort() {
 
-        if (port==8080) {
+        if (port == 8080) {
 
             String sport = System.getenv("PORT_WEB");
             if (Str.isEmpty(sport)) {
@@ -357,9 +428,9 @@ public class ManagedServiceBuilder {
         return port;
     }
 
-
     /**
      * Set the actual port to bind to.
+     *
      * @return this
      */
     public ManagedServiceBuilder setPort(int port) {
@@ -389,7 +460,6 @@ public class ManagedServiceBuilder {
         serviceDiscoverySupplier = () -> consulServiceDiscoveryBuilder.build();
     }
 
-
     public void enableConsulServiceDiscovery(final String dataCenter, final String host, final int port) {
         final ConsulServiceDiscoveryBuilder consulServiceDiscoveryBuilder = ConsulServiceDiscoveryBuilder.consulServiceDiscoveryBuilder();
         consulServiceDiscoveryBuilder.setDatacenter(dataCenter);
@@ -409,7 +479,7 @@ public class ManagedServiceBuilder {
 
     public ServiceDiscovery getServiceDiscovery() {
         if (serviceDiscovery == null) {
-            if (serviceDiscoverySupplier!=null) {
+            if (serviceDiscoverySupplier != null) {
                 serviceDiscovery = serviceDiscoverySupplier.get();
             }
         }
@@ -427,14 +497,14 @@ public class ManagedServiceBuilder {
 
             final String statsDPort = System.getenv("STATSD_PORT");
 
-            if (statsDPort!=null && !statsDPort.isEmpty()) {
+            if (statsDPort != null && !statsDPort.isEmpty()) {
                 statsDReplicatorBuilder.setPort(Integer.parseInt(statsDPort));
             }
 
             final String statsDHost = System.getenv("STATSD_HOST");
 
 
-            if (statsDHost!=null && !statsDHost.isEmpty()) {
+            if (statsDHost != null && !statsDHost.isEmpty()) {
                 statsDReplicatorBuilder.setHost(statsDHost);
             }
 
@@ -461,7 +531,7 @@ public class ManagedServiceBuilder {
             adminBuilder = AdminBuilder.adminBuilder();
 
             final String qbitAdminPort = findAdminPort();
-            if (qbitAdminPort!=null && !qbitAdminPort.isEmpty()) {
+            if (qbitAdminPort != null && !qbitAdminPort.isEmpty()) {
                 adminBuilder.setPort(Integer.parseInt(qbitAdminPort));
             }
             adminBuilder.setContextBuilder(this.getContextMetaBuilder());
@@ -472,14 +542,13 @@ public class ManagedServiceBuilder {
         return adminBuilder;
     }
 
-    private String getAdminPort(String qbit_admin_port) {
-        return System.getenv(qbit_admin_port);
-    }
-
-
     public ManagedServiceBuilder setAdminBuilder(AdminBuilder adminBuilder) {
         this.adminBuilder = adminBuilder;
         return this;
+    }
+
+    private String getAdminPort(String qbit_admin_port) {
+        return System.getenv(qbit_admin_port);
     }
 
     public ContextMetaBuilder getContextMetaBuilder() {
@@ -509,7 +578,6 @@ public class ManagedServiceBuilder {
         this.endpointServices = endpointServices;
         return this;
     }
-
 
     public ManagedServiceBuilder addEndpointService(final Object endpointService) {
         getContextMetaBuilder().addService(endpointService.getClass());
@@ -541,11 +609,6 @@ public class ManagedServiceBuilder {
         return this;
     }
 
-    public ManagedServiceBuilder setHealthServiceBuilder(final HealthServiceBuilder healthServiceBuilder) {
-        this.healthServiceBuilder = healthServiceBuilder;
-        return this;
-    }
-
     public HealthServiceBuilder getHealthServiceBuilder() {
 
         if (healthServiceBuilder == null) {
@@ -554,13 +617,9 @@ public class ManagedServiceBuilder {
         return healthServiceBuilder;
     }
 
-    public static ManagedServiceBuilder managedServiceBuilder() {
-        return new ManagedServiceBuilder(null);
-    }
-
-
-    public static ManagedServiceBuilder managedServiceBuilder(final String serviceName) {
-        return new ManagedServiceBuilder(serviceName);
+    public ManagedServiceBuilder setHealthServiceBuilder(final HealthServiceBuilder healthServiceBuilder) {
+        this.healthServiceBuilder = healthServiceBuilder;
+        return this;
     }
 
     public HttpServerBuilder getHttpServerBuilder() {
@@ -592,7 +651,7 @@ public class ManagedServiceBuilder {
     }
 
     public LocalStatsCollectorBuilder getLocalStatsCollectorBuilder() {
-        if (localStatsCollectorBuilder==null) {
+        if (localStatsCollectorBuilder == null) {
             localStatsCollectorBuilder = LocalStatsCollectorBuilder.localStatsCollectorBuilder();
         }
         return localStatsCollectorBuilder;
@@ -635,10 +694,9 @@ public class ManagedServiceBuilder {
     }
 
 
-
     public StatServiceBuilder getStatServiceBuilder() {
         if (statServiceBuilder == null) {
-            statServiceBuilder =  StatServiceBuilder.statServiceBuilder();
+            statServiceBuilder = StatServiceBuilder.statServiceBuilder();
 
             if (enableLocalStats) {
                 statServiceBuilder.addReplicator(getLocalStatsCollectorBuilder().buildAndStart());
@@ -664,7 +722,7 @@ public class ManagedServiceBuilder {
 
 
     public EndpointServerBuilder getEndpointServerBuilder() {
-        if (endpointServerBuilder==null) {
+        if (endpointServerBuilder == null) {
             endpointServerBuilder = EndpointServerBuilder.endpointServerBuilder();
             endpointServerBuilder.setPort(this.getPort());
             endpointServerBuilder.setEnableHealthEndpoint(isEnableLocalHealth());
@@ -678,7 +736,6 @@ public class ManagedServiceBuilder {
             endpointServerBuilder.setServiceDiscovery(getServiceDiscovery());
             endpointServerBuilder.setUri(getRootURI());
             endpointServerBuilder.setEventManager(this.getEventManager());
-
 
 
             configureEndpointServerBuilderForInterceptors(endpointServerBuilder);
@@ -705,6 +762,11 @@ public class ManagedServiceBuilder {
         return endpointServerBuilder;
     }
 
+    public ManagedServiceBuilder setEndpointServerBuilder(EndpointServerBuilder endpointServerBuilder) {
+        this.endpointServerBuilder = endpointServerBuilder;
+        return this;
+    }
+
     private void configureEndpointServerBuilderForInterceptors(final EndpointServerBuilder endpointServerBuilder) {
 
         final Interceptors interceptors = configureInterceptors();
@@ -719,7 +781,6 @@ public class ManagedServiceBuilder {
         }
     }
 
-
     private void configureServiceBundleBuilderForInterceptors(final ServiceBundleBuilder serviceBundleBuilder) {
 
         final Interceptors interceptors = configureInterceptors();
@@ -733,7 +794,6 @@ public class ManagedServiceBuilder {
             serviceBundleBuilder.setBeforeMethodSent(new BeforeMethodSentChain(interceptors.beforeSent));
         }
     }
-
 
     private void configureServiceBuilderForInterceptors(final ServiceBuilder serviceBuilder) {
 
@@ -755,16 +815,8 @@ public class ManagedServiceBuilder {
     }
 
     /**
-     * Hold lists of interceptors.
-     */
-    private static class Interceptors {
-        List<BeforeMethodCall> before = new ArrayList<>();
-        List<AfterMethodCall> after = new ArrayList<>();
-        List<BeforeMethodSent> beforeSent = new ArrayList<>();
-    }
-
-    /**
      * Configure a list of common interceptors.
+     *
      * @return
      */
     private Interceptors configureInterceptors() {
@@ -772,10 +824,10 @@ public class ManagedServiceBuilder {
         SetupMdcForHttpRequestInterceptor setupMdcForHttpRequestInterceptor;
         if (enableLoggingMappedDiagnosticContext) {
             enableRequestChain = true;
-            if (requestHeadersToTrackForMappedDiagnosticContext!=null &&
-                    requestHeadersToTrackForMappedDiagnosticContext.size()>0) {
+            if (requestHeadersToTrackForMappedDiagnosticContext != null &&
+                    requestHeadersToTrackForMappedDiagnosticContext.size() > 0) {
                 setupMdcForHttpRequestInterceptor = new SetupMdcForHttpRequestInterceptor(requestHeadersToTrackForMappedDiagnosticContext);
-            }else {
+            } else {
                 setupMdcForHttpRequestInterceptor = new SetupMdcForHttpRequestInterceptor(Collections.emptySet());
             }
             interceptors.before.add(setupMdcForHttpRequestInterceptor);
@@ -806,15 +858,14 @@ public class ManagedServiceBuilder {
         configureEndpointServerBuilderForInterceptors(endpointServerBuilder);
 
 
-
         if (isEnableStats()) {
 
             endpointServerBuilder.setStatsCollector(getStatServiceBuilder().buildStatsCollectorWithAutoFlush());
         }
 
         if (isEnableLocalStats()) {
-                endpointServerBuilder.setEnableStatEndpoint(true);
-                endpointServerBuilder.setStatsCollection(getLocalStatsCollectorBuilder().build());
+            endpointServerBuilder.setEnableStatEndpoint(true);
+            endpointServerBuilder.setStatsCollection(getLocalStatsCollectorBuilder().build());
         }
 
         return endpointServerBuilder;
@@ -848,7 +899,7 @@ public class ManagedServiceBuilder {
 
         serviceBuilder.setServiceObject(serviceObject);
 
-        final String bindStatHealthName =  AnnotationUtils.readServiceName(serviceObject);
+        final String bindStatHealthName = AnnotationUtils.readServiceName(serviceObject);
 
         if (isEnableLocalHealth()) {
             serviceBuilder.registerHealthChecks(getHealthService(), bindStatHealthName);
@@ -866,13 +917,6 @@ public class ManagedServiceBuilder {
         return serviceBuilder;
 
     }
-
-    public ManagedServiceBuilder setEndpointServerBuilder(EndpointServerBuilder endpointServerBuilder) {
-        this.endpointServerBuilder = endpointServerBuilder;
-        return this;
-    }
-
-
 
     public HealthServiceAsync getHealthService() {
 
@@ -902,7 +946,6 @@ public class ManagedServiceBuilder {
         return this;
     }
 
-
     public int getSampleStatFlushRate() {
         return sampleStatFlushRate;
     }
@@ -921,10 +964,21 @@ public class ManagedServiceBuilder {
         return this;
     }
 
-    /** Sets up DNS based service discovery. */
+    /**
+     * Sets up DNS based service discovery.
+     */
     public ManagedServiceBuilder useDnsServiceDiscovery() {
         this.setServiceDiscovery(DnsUtil.createDnsServiceDiscovery());
         return this;
+    }
+
+    /**
+     * Hold lists of interceptors.
+     */
+    private static class Interceptors {
+        List<BeforeMethodCall> before = new ArrayList<>();
+        List<AfterMethodCall> after = new ArrayList<>();
+        List<BeforeMethodSent> beforeSent = new ArrayList<>();
     }
 
 }

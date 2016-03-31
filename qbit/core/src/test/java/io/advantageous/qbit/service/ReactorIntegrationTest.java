@@ -18,55 +18,6 @@ import static org.junit.Assert.assertFalse;
 public class ReactorIntegrationTest {
 
     private static final AtomicBoolean timeout = new AtomicBoolean();
-    public static class SomeServiceA {
-        public void message(Callback<String> callback) {
-            callback.accept("SomeServiceA");
-        }
-    }
-
-    public static class SomeServiceB {
-
-        private final Reactor reactor;
-        private final ISomeService someService;
-
-        public SomeServiceB(final ISomeService someService,
-                            final Reactor reactor) {
-            this.someService = someService;
-            this.reactor = reactor;
-
-            reactor.addServiceToFlush(someService);
-        }
-        public void message(final Callback<String> callback) {
-            Callback<String> callback2 = reactor.callbackBuilder().setCallback(String.class, o -> {
-                callback.accept("accept " + o);
-
-            }).setOnTimeout(() -> {
-
-                timeout.set(true);
-                throw new IllegalStateException("PROBLEM");
-            }).setOnError(throwable -> {
-                throwable.printStackTrace();
-            }).
-            build();
-
-            someService.message(callback2);
-        }
-
-        @QueueCallback({QueueCallbackType.LIMIT,
-                QueueCallbackType.EMPTY,
-                QueueCallbackType.IDLE})
-        public void process() {
-
-            //System.out.println("PROCESS");
-            reactor.process();
-        }
-    }
-
-    public static interface ISomeService {
-        void message(Callback<String> callback);
-    }
-
-
 
     @Test
     public void test() {
@@ -93,7 +44,7 @@ public class ReactorIntegrationTest {
         assertFalse(timeout.get());
 
         final AtomicInteger count = new AtomicInteger();
-        for (int index=0; index< 1000; index++) {
+        for (int index = 0; index < 1000; index++) {
             Sys.sleep(1);
             someServiceBProxy.message(s -> count.incrementAndGet());
         }
@@ -102,6 +53,55 @@ public class ReactorIntegrationTest {
         Sys.sleep(1_000);
 
         assertEquals(1000, count.get());
+    }
+
+    public static interface ISomeService {
+        void message(Callback<String> callback);
+    }
+
+    public static class SomeServiceA {
+        public void message(Callback<String> callback) {
+            callback.accept("SomeServiceA");
+        }
+    }
+
+    public static class SomeServiceB {
+
+        private final Reactor reactor;
+        private final ISomeService someService;
+
+        public SomeServiceB(final ISomeService someService,
+                            final Reactor reactor) {
+            this.someService = someService;
+            this.reactor = reactor;
+
+            reactor.addServiceToFlush(someService);
+        }
+
+        public void message(final Callback<String> callback) {
+            Callback<String> callback2 = reactor.callbackBuilder().setCallback(String.class, o -> {
+                callback.accept("accept " + o);
+
+            }).setOnTimeout(() -> {
+
+                timeout.set(true);
+                throw new IllegalStateException("PROBLEM");
+            }).setOnError(throwable -> {
+                throwable.printStackTrace();
+            }).
+                    build();
+
+            someService.message(callback2);
+        }
+
+        @QueueCallback({QueueCallbackType.LIMIT,
+                QueueCallbackType.EMPTY,
+                QueueCallbackType.IDLE})
+        public void process() {
+
+            //System.out.println("PROCESS");
+            reactor.process();
+        }
     }
 
 

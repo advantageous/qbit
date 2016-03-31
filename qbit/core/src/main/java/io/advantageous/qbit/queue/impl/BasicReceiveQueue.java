@@ -52,7 +52,7 @@ class BasicReceiveQueue<T> implements ReceiveQueue<T> {
     @Override
     public T pollWait() {
         if (lastQueue != null) {
-             return  getItemFromLocalQueue();
+            return getItemFromLocalQueue();
         }
         try {
             Object o = queue.poll(waitTime, timeUnit);

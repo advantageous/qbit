@@ -95,10 +95,6 @@ public class ServiceBuilder {
     }
 
 
-
-
-
-
     public boolean isCreateCallbackHandler() {
         return createCallbackHandler;
     }
@@ -111,7 +107,7 @@ public class ServiceBuilder {
     public CallbackManagerBuilder getCallbackManagerBuilder() {
         if (callbackManagerBuilder == null && isCreateCallbackHandler()) {
             callbackManagerBuilder = CallbackManagerBuilder.callbackManagerBuilder();
-            if (serviceObject!=null) {
+            if (serviceObject != null) {
                 callbackManagerBuilder.setName(serviceObject.getClass().getSimpleName());
             }
         }
@@ -136,7 +132,7 @@ public class ServiceBuilder {
     }
 
     public List<QueueCallBackHandler> getQueueCallBackHandlers() {
-        if (queueCallBackHandlers==null) {
+        if (queueCallBackHandlers == null) {
             queueCallBackHandlers = new ArrayList<>();
         }
         return queueCallBackHandlers;
@@ -153,7 +149,7 @@ public class ServiceBuilder {
     }
 
     private QueueCallBackHandler buildQueueCallBackHandler() {
-        if (queueCallBackHandlers == null || queueCallBackHandlers.size()==0) {
+        if (queueCallBackHandlers == null || queueCallBackHandlers.size() == 0) {
             return new QueueCallBackHandler() {
                 @Override
                 public void queueLimit() {
@@ -171,7 +167,6 @@ public class ServiceBuilder {
     }
 
 
-
     public QBitSystemManager getSystemManager() {
         return qBitSystemManager;
     }
@@ -182,7 +177,7 @@ public class ServiceBuilder {
     }
 
     public QueueBuilder getResponseQueueBuilder() {
-        if (responseQueueBuilder ==  null) {
+        if (responseQueueBuilder == null) {
             this.responseQueueBuilder = QueueBuilder.queueBuilder();
         }
         return responseQueueBuilder;
@@ -231,8 +226,8 @@ public class ServiceBuilder {
         for (MethodAccess methodAccess : methods) {
 
             if (methodAccess.isPrivate()
-             || methodAccess.method().getDeclaringClass().getName().contains("$$EnhancerByGuice$$")) {
-                    continue;
+                    || methodAccess.method().getDeclaringClass().getName().contains("$$EnhancerByGuice$$")) {
+                continue;
             }
 
 
@@ -301,7 +296,7 @@ public class ServiceBuilder {
     }
 
     public AfterMethodCall getAfterMethodCall() {
-        if (afterMethodCall==null) {
+        if (afterMethodCall == null) {
             afterMethodCall = new NoOpAfterMethodCall();
         }
         return afterMethodCall;
@@ -395,7 +390,6 @@ public class ServiceBuilder {
     }
 
 
-
     public Timer getTimer() {
         if (timer == null) {
             timer = Timer.timer();
@@ -433,7 +427,7 @@ public class ServiceBuilder {
 
         int ttl = seconds > 2 ? seconds : 10;
 
-        int checkInterval = (ttl / 2==0) ? 1 : ttl/2;
+        int checkInterval = (ttl / 2 == 0) ? 1 : ttl / 2;
 
 
         this.addQueueCallbackHandler(new ServiceHealthListener(serviceName, healthServiceAsync,
@@ -448,6 +442,7 @@ public class ServiceBuilder {
 
     /**
      * Builds a service.
+     *
      * @return new service queue
      */
     public ServiceQueue build() {
@@ -455,9 +450,9 @@ public class ServiceBuilder {
 
         if (debug) logger.debug("Building a service");
 
-        ServiceQueueSizer serviceQueueSizer =  null;
+        ServiceQueueSizer serviceQueueSizer = null;
 
-        if (statsConfig!=null) {
+        if (statsConfig != null) {
 
 
             serviceQueueSizer = new ServiceQueueSizer();
@@ -486,9 +481,9 @@ public class ServiceBuilder {
                 getBeforeMethodSent(),
                 getEventManager(),
                 isJoinEventManager()
-                );
+        );
 
-        if (serviceQueueSizer!=null) {
+        if (serviceQueueSizer != null) {
             serviceQueueSizer.setServiceQueue(serviceQueue);
         }
 
@@ -517,22 +512,22 @@ public class ServiceBuilder {
         return build().startAll();
     }
 
+    public EventManager getEventManager() {
+        return eventManager;
+    }
+
     public ServiceBuilder setEventManager(EventManager eventManager) {
         this.eventManager = eventManager;
         return this;
     }
 
-    public EventManager getEventManager() {
-        return eventManager;
+    public BeforeMethodSent getBeforeMethodSent() {
+        return beforeMethodSent;
     }
 
     public ServiceBuilder setBeforeMethodSent(final BeforeMethodSent beforeMethodSent) {
         this.beforeMethodSent = beforeMethodSent;
         return this;
-    }
-
-    public BeforeMethodSent getBeforeMethodSent() {
-        return beforeMethodSent;
     }
 
     public ServiceBuilder copy() {
@@ -549,7 +544,16 @@ public class ServiceBuilder {
         return serviceBuilder;
     }
 
-    private static class StatsConfig  {
+    public boolean isJoinEventManager() {
+        return joinEventManager;
+    }
+
+    public ServiceBuilder setJoinEventManager(boolean joinEventManager) {
+        this.joinEventManager = joinEventManager;
+        return this;
+    }
+
+    private static class StatsConfig {
         final String serviceName;
         final StatsCollector statsCollector;
         final int flushTimeSeconds;
@@ -561,15 +565,5 @@ public class ServiceBuilder {
             this.flushTimeSeconds = flushTimeSeconds;
             this.sampleEvery = sampleEvery;
         }
-    }
-
-
-    public boolean isJoinEventManager() {
-        return joinEventManager;
-    }
-
-    public ServiceBuilder setJoinEventManager(boolean joinEventManager) {
-        this.joinEventManager = joinEventManager;
-        return this;
     }
 }

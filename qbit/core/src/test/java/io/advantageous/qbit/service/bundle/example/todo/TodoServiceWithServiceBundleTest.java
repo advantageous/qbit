@@ -59,7 +59,7 @@ public class TodoServiceWithServiceBundleTest {
         Todo todoItem = new Todo("call mom", "give mom a call", new Date());
 
         MethodCall<Object> addMethod =
-        MethodCallBuilder.methodCallBuilder().setAddress("/services/todo-manager").setName("add").setReturnAddress("client1").setBody(todoItem).build();
+                MethodCallBuilder.methodCallBuilder().setAddress("/services/todo-manager").setName("add").setReturnAddress("client1").setBody(todoItem).build();
 
 
         serviceBundle.call(addMethod);

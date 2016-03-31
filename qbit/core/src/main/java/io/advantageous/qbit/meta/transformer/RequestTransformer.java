@@ -29,4 +29,10 @@ public interface RequestTransformer {
 
     MethodCall<Object> transform(HttpRequest request, List<String> errorsList);
 
+    MethodCall<Object> transformByPosition(final HttpRequest request,
+                                           final List<String> errorsList, boolean byPosition);
+
+
+    MethodCall<Object> transFormBridgeBody(Object body, List<String> errors, String address, String method);
+
 }

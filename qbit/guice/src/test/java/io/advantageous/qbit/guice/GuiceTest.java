@@ -30,8 +30,8 @@ public class GuiceTest extends TimedTesting {
                 .setHost("localhost")
                 .setPort(9090)
                 .addServices(userEndpoint)
-        .build()
-        .start();
+                .build()
+                .start();
 
         final HttpClient client = HttpClientBuilder.httpClientBuilder().setHost("localhost").setPort(9090).buildAndStart();
         final HttpTextResponse response = client.getWith2Params("/user/register", "email", "email", "password", "password");

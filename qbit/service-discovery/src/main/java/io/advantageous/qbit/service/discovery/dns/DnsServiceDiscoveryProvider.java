@@ -38,9 +38,10 @@ public class DnsServiceDiscoveryProvider implements ServiceDiscoveryProvider {
 
     /**
      * New DnsServiceDiscoveryProvider.
+     *
      * @param dnsSupport dnsSupport
-     * @param timeout timeout
-     * @param timeUnit timeUnit
+     * @param timeout    timeout
+     * @param timeUnit   timeUnit
      */
     public DnsServiceDiscoveryProvider(final DnsSupport dnsSupport,
                                        final int timeout,
@@ -52,6 +53,7 @@ public class DnsServiceDiscoveryProvider implements ServiceDiscoveryProvider {
 
     /**
      * Load the services.
+     *
      * @param serviceName serviceName
      * @return list of EndpointDefinition
      */
@@ -86,8 +88,7 @@ public class DnsServiceDiscoveryProvider implements ServiceDiscoveryProvider {
         }
 
 
-
-        if (exceptionAtomicReference.get()!=null) {
+        if (exceptionAtomicReference.get() != null) {
             logger.error("DnsServiceDiscoveryProvider.loadServices EXCEPTION", exceptionAtomicReference.get());
             throw new IllegalStateException("Unable to read from DNS", exceptionAtomicReference.get());
         } else {

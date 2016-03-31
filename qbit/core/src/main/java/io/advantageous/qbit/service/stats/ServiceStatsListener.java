@@ -35,30 +35,29 @@ import java.util.concurrent.TimeUnit;
  * The `ServiceStatsListener` is used to intercept queue calls for the `ServiceQueue`.
  * All services and end-points end up using the `ServiceQueue`.
  * This class is able to track stats for services.
- *
+ * <p>
  * #### Keys
  * ```java
- *
- *  startBatchCountKey = serviceName + ".startBatchCount";
- *  receiveCountKey = serviceName + ".receiveCount";
- *  receiveTimeKey = serviceName + ".callTimeSample";
- *  this.queueRequestSizeKey =  serviceName + ".queueRequestSize";
- *  this.queueResponseSizeKey =  serviceName + ".queueResponseSize";
+ * <p>
+ * startBatchCountKey = serviceName + ".startBatchCount";
+ * receiveCountKey = serviceName + ".receiveCount";
+ * receiveTimeKey = serviceName + ".callTimeSample";
+ * this.queueRequestSizeKey =  serviceName + ".queueRequestSize";
+ * this.queueResponseSizeKey =  serviceName + ".queueResponseSize";
  * ```
- *
+ * <p>
  * The `${serviceName}.startBatchCount` tracks how many times a batch has been sent.
  * This can tell you how well your batching is setup.
- *
+ * <p>
  * The `${serviceName}.receiveCount` is how many times the service has been called.
  * The `${serviceName}.callTimeSample` is how long do methods take for this service (if enabled, call times are sampled).
- *
+ * <p>
  * The `${serviceName}.queueRequestSize` keeps track of how large the request queue is.
  * This is an indication of calls not getting handled if greater than 0. If this continues to rise then the service could be down.
  * (Note there is a health check to see a queue is blocked, and the service will be marked unhealthy.)
- *
+ * <p>
  * The `${serviceName}.queueResponseSize` keeps track of how large the response queue is getting.
  * This is an indication that responses are not getting drained.
- *
  */
 public class ServiceStatsListener implements QueueCallBackHandler {
 
@@ -68,19 +67,15 @@ public class ServiceStatsListener implements QueueCallBackHandler {
     private final Timer timer;
     private final int sampleEvery;
     private final ServiceQueueSizer serviceQueueSizer;
-    private long now;
-    private long lastFlush;
-    private long lastSizeCheck;
     private final StatsCollector statsCollector;
-
-
     private final String startBatchCountKey;
-
     private final String queueRequestSizeKey;
     private final String queueResponseSizeKey;
     private final String receiveCountKey;
     private final String receiveTimeKey;
-
+    private long now;
+    private long lastFlush;
+    private long lastSizeCheck;
     private int startBatchCount;
     private int receiveCount;
 
@@ -92,10 +87,11 @@ public class ServiceStatsListener implements QueueCallBackHandler {
     private boolean timeIt;
 
 
-    /** Added these so we are only sending if they change and not all of the time. */
-    private int lastRequestSize=-1;
-    private int lastResponseSize=-1;
-
+    /**
+     * Added these so we are only sending if they change and not all of the time.
+     */
+    private int lastRequestSize = -1;
+    private int lastResponseSize = -1;
 
 
     public ServiceStatsListener(final String serviceName,
@@ -114,8 +110,8 @@ public class ServiceStatsListener implements QueueCallBackHandler {
         startBatchCountKey = serviceName + ".startBatchCount";
         receiveCountKey = serviceName + ".receiveCount";
         receiveTimeKey = serviceName + ".callTimeSample";
-        this.queueRequestSizeKey =  serviceName + ".queueRequestSize";
-        this.queueResponseSizeKey =  serviceName + ".queueResponseSize";
+        this.queueRequestSizeKey = serviceName + ".queueRequestSize";
+        this.queueResponseSizeKey = serviceName + ".queueResponseSize";
         this.sampleEvery = sampleEvery == 0 ? -1 : sampleEvery;
         this.serviceQueueSizer = serviceQueueSizer;
     }
@@ -135,7 +131,7 @@ public class ServiceStatsListener implements QueueCallBackHandler {
 
         sampleUntilCount++;
 
-        if (sampleUntilCount > sampleEvery ) {
+        if (sampleUntilCount > sampleEvery) {
             sampleUntilCount = 0;
             timeIt = true;
             beforeReceiveTime = System.nanoTime();
@@ -196,7 +192,6 @@ public class ServiceStatsListener implements QueueCallBackHandler {
 
         statsCollector.recordLevel(serviceName, 1);
     }
-
 
 
     private void sendStats() {

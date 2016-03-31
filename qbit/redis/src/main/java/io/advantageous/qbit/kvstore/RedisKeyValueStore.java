@@ -133,7 +133,7 @@ public class RedisKeyValueStore implements LowLevelKeyValueStoreService {
          * https://github.com/vert-x3/vertx-redis-client/issues/41
          * https://github.com/vert-x3/vertx-redis-client/issues/40
          **/
-        redisClient.setWithOptions(key, new String(value),  setOptions, event -> {
+        redisClient.setWithOptions(key, new String(value), setOptions, event -> {
             if (event.failed()) {
                 confirmation.onError(event.cause());
             } else {
@@ -152,7 +152,7 @@ public class RedisKeyValueStore implements LowLevelKeyValueStoreService {
          * https://github.com/vert-x3/vertx-redis-client/issues/41
          * https://github.com/vert-x3/vertx-redis-client/issues/40
          **/
-        redisClient.setWithOptions(key, new String(value),  setOptions, event -> {
+        redisClient.setWithOptions(key, new String(value), setOptions, event -> {
             if (event.failed()) {
 
                 logger.error(String.format("Error calling put bytes %s", key),
@@ -188,7 +188,7 @@ public class RedisKeyValueStore implements LowLevelKeyValueStoreService {
             if (event.failed()) {
                 hasKeyCallback.onError(event.cause());
             } else {
-                hasKeyCallback.returnThis(event.result()==1);
+                hasKeyCallback.returnThis(event.result() == 1);
             }
         });
     }
@@ -209,8 +209,8 @@ public class RedisKeyValueStore implements LowLevelKeyValueStoreService {
         redisClient.del(key, event -> {
             if (event.failed()) {
                 confirmation.onError(event.cause());
-            }else {
-                confirmation.returnThis(event.result()>0);
+            } else {
+                confirmation.returnThis(event.result() > 0);
             }
         });
     }

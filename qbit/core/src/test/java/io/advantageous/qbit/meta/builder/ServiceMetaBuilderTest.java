@@ -30,51 +30,6 @@ import static org.junit.Assert.assertTrue;
 
 public class ServiceMetaBuilderTest {
 
-    @Retention(RetentionPolicy.RUNTIME)
-    @Target(value = {ElementType.PARAMETER})
-    public @interface Other {
-        String name();
-    }
-
-    public static class Foo {
-
-
-        @RequestMapping("/foo")
-        public int foo() {
-            return 0;
-        }
-
-        @RequestMapping("/headers") @ResponseHeader(name="FOO", value="BAR")
-        public int methodWithHeaders() {
-            return 0;
-        }
-
-        @RequestMapping("/manyheaders")
-        @ResponseHeaders({@ResponseHeader(name="FOO", value="BAR"),
-                @ResponseHeader(name="BAR", value="BAZ")})
-        public int methodWithManyHeaders() {
-            return 0;
-        }
-
-
-        @RequestMapping("/nocache")
-        @NoCacheHeaders
-        public int noCache() {
-            return 0;
-        }
-
-        @GET(value = "/nocache", noCache = true)
-        public int getNoCache() {
-            return 0;
-        }
-
-        @RequestMapping(value = "/otherAnnotation", method = RequestMethod.POST)
-        public void otherAnnotation(@Other(name = "bbb") String body) {
-
-        }
-    }
-
-
     @Test
     public void shouldReturnBodyParamForParamWithoutQBitAnnotations() {
         final ClassMeta<?> classMeta = ClassMeta.classMeta(Foo.class);
@@ -98,8 +53,6 @@ public class ServiceMetaBuilderTest {
                 .getParam() instanceof BodyParam);
     }
 
-
-
     @Test
     public void test() {
 
@@ -122,7 +75,6 @@ public class ServiceMetaBuilderTest {
         assertEquals("/foo", requestMeta.getRequestURI());
 
     }
-
 
     @Test
     public void testRequestHeader() {
@@ -186,7 +138,6 @@ public class ServiceMetaBuilderTest {
 
     }
 
-
     @Test
     public void testNoCache() {
 
@@ -219,7 +170,6 @@ public class ServiceMetaBuilderTest {
         assertEquals("no-cache, no-store", controls.get(1));
 
     }
-
 
     @Test
     public void testNoCacheWithGet() {
@@ -254,27 +204,8 @@ public class ServiceMetaBuilderTest {
 
     }
 
-
-    @ResponseHeaders({@ResponseHeader(name="1.FOO", value="1.BAR"),
-            @ResponseHeader(name="1.BAR", value="1.BAZ")})
-    @ResponseHeader(name="2.FOO2", value = "2.BAR2")
-    @NoCacheHeaders
-    public static class Foo1 {
-
-
-        @RequestMapping("/headers") @ResponseHeader(name="FOO", value="BAR")
-        public int methodWithHeaders() {
-            return 0;
-        }
-
-
-    }
-
-
     @Test
     public void testRequestHeaderWithParentHeaders() {
-
-
 
 
         ContextMetaBuilder contextMetaBuilder = ContextMetaBuilder.contextMetaBuilder();
@@ -308,6 +239,68 @@ public class ServiceMetaBuilderTest {
         assertEquals("max-age=0", controls.get(0));
 
         assertEquals("no-cache, no-store", controls.get(1));
+
+
+    }
+
+
+    @Retention(RetentionPolicy.RUNTIME)
+    @Target(value = {ElementType.PARAMETER})
+    public @interface Other {
+        String name();
+    }
+
+    public static class Foo {
+
+
+        @RequestMapping("/foo")
+        public int foo() {
+            return 0;
+        }
+
+        @RequestMapping("/headers")
+        @ResponseHeader(name = "FOO", value = "BAR")
+        public int methodWithHeaders() {
+            return 0;
+        }
+
+        @RequestMapping("/manyheaders")
+        @ResponseHeaders({@ResponseHeader(name = "FOO", value = "BAR"),
+                @ResponseHeader(name = "BAR", value = "BAZ")})
+        public int methodWithManyHeaders() {
+            return 0;
+        }
+
+
+        @RequestMapping("/nocache")
+        @NoCacheHeaders
+        public int noCache() {
+            return 0;
+        }
+
+        @GET(value = "/nocache", noCache = true)
+        public int getNoCache() {
+            return 0;
+        }
+
+        @RequestMapping(value = "/otherAnnotation", method = RequestMethod.POST)
+        public void otherAnnotation(@Other(name = "bbb") String body) {
+
+        }
+    }
+
+    @ResponseHeaders({@ResponseHeader(name = "1.FOO", value = "1.BAR"),
+            @ResponseHeader(name = "1.BAR", value = "1.BAZ")})
+    @ResponseHeader(name = "2.FOO2", value = "2.BAR2")
+    @NoCacheHeaders
+    public static class Foo1 {
+
+
+        @RequestMapping("/headers")
+        @ResponseHeader(name = "FOO", value = "BAR")
+        public int methodWithHeaders() {
+            return 0;
+        }
 
 
     }

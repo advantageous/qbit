@@ -22,7 +22,6 @@ import static junit.framework.Assert.assertEquals;
 public class CollectionArrayUserDefinedObjectRESTTest {
 
 
-
     ServiceEndpointServer serviceEndpointServer;
     HttpServerSimulator httpServerSimulator;
 
@@ -35,12 +34,11 @@ public class CollectionArrayUserDefinedObjectRESTTest {
                 -> httpServerSimulator);
 
 
-                serviceEndpointServer = EndpointServerBuilder.endpointServerBuilder()
-                        .setEnableHealthEndpoint(true).setEnableStatEndpoint(true)
-                        .build()
-                        .initServices(new EmployeeServiceCollectionTestService()).startServer();
+        serviceEndpointServer = EndpointServerBuilder.endpointServerBuilder()
+                .setEnableHealthEndpoint(true).setEnableStatEndpoint(true)
+                .build()
+                .initServices(new EmployeeServiceCollectionTestService()).startServer();
     }
-
 
 
     @Test
@@ -67,8 +65,6 @@ public class CollectionArrayUserDefinedObjectRESTTest {
         assertEquals("true", httpResponse.body());
 
     }
-
-
 
 
     @Test
@@ -118,9 +114,6 @@ public class CollectionArrayUserDefinedObjectRESTTest {
     }
 
 
-
-
-
     @Test
     public void testReturnArrayByCallback() {
 
@@ -168,8 +161,6 @@ public class CollectionArrayUserDefinedObjectRESTTest {
         System.out.println(employees);
 
     }
-
-
 
 
     @Test
@@ -254,13 +245,6 @@ public class CollectionArrayUserDefinedObjectRESTTest {
         assertEquals("true", httpResponse.body());
 
     }
-
-
-
-
-
-
-
 
 
     @Test

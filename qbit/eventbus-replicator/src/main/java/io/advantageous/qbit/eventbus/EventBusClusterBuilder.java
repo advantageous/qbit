@@ -39,7 +39,7 @@ public class EventBusClusterBuilder {
         return new EventBusCluster(getEventManager(), getEventBusName(), getEventConnectorHub(), getPeriodicScheduler(),
                 getPeerCheckTimeInterval(), getPeerCheckTimeUnit(), getReplicationServerCheckInInterval(),
                 getReplicationServerCheckInTimeUnit(), getServiceDiscovery(), getReplicationPortLocal(),
-                getReplicationHostLocal() );
+                getReplicationHostLocal());
 
     }
 

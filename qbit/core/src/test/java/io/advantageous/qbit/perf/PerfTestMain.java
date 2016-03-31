@@ -65,7 +65,7 @@ public class PerfTestMain {
         });
 
 
-        FactorySPI.setHttpServerFactory((options, name, systemManager, serviceDiscovery, healthServiceAsync, a, b, c , d, z)
+        FactorySPI.setHttpServerFactory((options, name, systemManager, serviceDiscovery, healthServiceAsync, a, b, c, d, z)
                 -> new MockHttpServer());
         ServiceEndpointServer server = new EndpointServerBuilder().build();
         server.initServices(new AdderService());

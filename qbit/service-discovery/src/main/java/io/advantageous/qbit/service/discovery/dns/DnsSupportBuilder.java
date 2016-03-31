@@ -13,14 +13,22 @@ public class DnsSupportBuilder {
     private final Vertx vertx;
     private int port = -1;
     private String host = null;
-    private  DnsClientSupplier dnsClientSupplier;
-    private  Map<String, String> dnsServiceNameToServiceName;
-    private  String postfixURL;
+    private DnsClientSupplier dnsClientSupplier;
+    private Map<String, String> dnsServiceNameToServiceName;
+    private String postfixURL;
 
     public DnsSupportBuilder(Vertx vertx) {
         this.vertx = vertx;
     }
 
+    @Deprecated
+    public static DnsSupportBuilder dnsSupportFactory(final Vertx vertx) {
+        return new DnsSupportBuilder(vertx);
+    }
+
+    public static DnsSupportBuilder dnsSupportBuilder(final Vertx vertx) {
+        return new DnsSupportBuilder(vertx);
+    }
 
     public String getPostfixURL() {
         return postfixURL;
@@ -65,7 +73,6 @@ public class DnsSupportBuilder {
         return dnsClientSupplier;
     }
 
-
     public DnsSupportBuilder setDnsClientSupplier(DnsClientSupplier dnsClientSupplier) {
         this.dnsClientSupplier = dnsClientSupplier;
         return this;
@@ -78,6 +85,10 @@ public class DnsSupportBuilder {
         return dnsServiceNameToServiceName;
     }
 
+    public DnsSupportBuilder setDnsServiceNameToServiceName(Map<String, String> dnsServiceNameToServiceName) {
+        this.dnsServiceNameToServiceName = dnsServiceNameToServiceName;
+        return this;
+    }
 
     public DnsSupportBuilder addDnsServerToServiceNameMapping(
             final String dnsName, final String serviceName) {
@@ -85,25 +96,9 @@ public class DnsSupportBuilder {
         return this;
     }
 
-
-    public DnsSupportBuilder setDnsServiceNameToServiceName(Map<String, String> dnsServiceNameToServiceName) {
-        this.dnsServiceNameToServiceName = dnsServiceNameToServiceName;
-        return this;
-    }
-
     public DnsSupport build() {
         return new DnsSupport(getDnsClientSupplier(),
                 getDnsServiceNameToServiceName(),
                 getPostfixURL());
-    }
-
-    @Deprecated
-    public static DnsSupportBuilder dnsSupportFactory(final Vertx vertx) {
-        return new DnsSupportBuilder(vertx);
-    }
-
-
-    public static DnsSupportBuilder dnsSupportBuilder(final Vertx vertx) {
-        return new DnsSupportBuilder(vertx);
     }
 }

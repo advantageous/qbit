@@ -37,9 +37,9 @@ import java.util.concurrent.ConcurrentHashMap;
 public class EventBusImpl implements EventBus {
 
 
+    final Map<String, ChannelManager<Object>> channelMap = new ConcurrentHashMap<>(20);
     private final Logger logger = LoggerFactory.getLogger(EventBusImpl.class);
     private final EventConnector eventConnector;
-    final Map<String, ChannelManager<Object>> channelMap = new ConcurrentHashMap<>(20);
     private final StatsCollector stats;
     private final String name;
     long messageCounter = 0;
@@ -79,7 +79,7 @@ public class EventBusImpl implements EventBus {
         try {
             eventConnector.forwardEvent(eventMessage);
         } catch (Exception ex) {
-            logger.error("EventBus " + name + " :: Error sending event " + eventMessage, ex );
+            logger.error("EventBus " + name + " :: Error sending event " + eventMessage, ex);
         }
 
         channel(channel).send(eventMessage);

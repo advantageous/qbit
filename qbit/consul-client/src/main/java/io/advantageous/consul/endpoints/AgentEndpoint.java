@@ -50,7 +50,6 @@ import static io.advantageous.consul.domain.NotRegisteredException.notRegistered
 public class AgentEndpoint extends Endpoint {
 
 
-
     public AgentEndpoint(String scheme, String host, String port, String rootPath) {
         super(scheme, host, port, rootPath);
     }
@@ -348,9 +347,6 @@ public class AgentEndpoint extends Endpoint {
     public Map<String, Service> getServices() {
 
 
-
-
-
         final URI uri = createURI("/services");
 
 
@@ -418,8 +414,6 @@ public class AgentEndpoint extends Endpoint {
      * @param note    Any note to associate with the Check.
      */
     public void check(String checkId, Status status, String note) {
-
-
 
 
         final URI uri = createURI("/check/" + status.getUri() + "/" + checkId);

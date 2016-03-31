@@ -124,7 +124,6 @@ public class ServiceEndpointServerImplTest extends TimedTesting {
                 .setServiceObject(new MyOtherService()).buildAndStart();
 
 
-
         serviceServerImpl.addServiceQueue("/services/other/serviceCall", serviceQueue);
 
         serviceServerImpl.start();

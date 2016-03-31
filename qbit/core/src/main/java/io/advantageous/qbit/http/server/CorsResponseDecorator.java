@@ -16,20 +16,75 @@ import java.util.logging.Logger;
 
 /**
  * Created by cmathias on 8/13/15.
- *
+ * <p>
  * Borrowed largely from Tomcat 7 CORS Servlet impl.
  */
 public class CorsResponseDecorator implements HttpResponseDecorator {
 
+    /**
+     * The Access-Control-Allow-Origin header indicates whether a resource can
+     * be shared based by returning the value of the Origin request header in
+     * the response.
+     */
+    public static final String RESPONSE_HEADER_ACCESS_CONTROL_ALLOW_ORIGIN =
+            "Access-Control-Allow-Origin";
+    /**
+     * The Access-Control-Allow-Credentials header indicates whether the
+     * response to request can be exposed when the omit credentials flag is
+     * unset. When part of the response to a preflight request it indicates that
+     * the actual request can include user credentials.
+     */
+    public static final String RESPONSE_HEADER_ACCESS_CONTROL_ALLOW_CREDENTIALS =
+            "Access-Control-Allow-Credentials";
+    /**
+     * The Access-Control-Expose-headers header indicates which headers are safe
+     * to expose to the API of a CORS API specification
+     */
+    public static final String RESPONSE_HEADER_ACCESS_CONTROL_EXPOSE_HEADERS =
+            "Access-Control-Expose-headers";
+    /**
+     * The Access-Control-Max-Age header indicates how long the results of a
+     * preflight request can be cached in a preflight result cache.
+     */
+    public static final String RESPONSE_HEADER_ACCESS_CONTROL_MAX_AGE =
+            "Access-Control-Max-Age";
+    /**
+     * The Access-Control-Allow-Methods header indicates, as part of the
+     * response to a preflight request, which methods can be used during the
+     * actual request.
+     */
+    public static final String RESPONSE_HEADER_ACCESS_CONTROL_ALLOW_METHODS =
+            "Access-Control-Allow-Methods";
+    /**
+     * The Access-Control-Allow-headers header indicates, as part of the
+     * response to a preflight request, which header field names can be used
+     * during the actual request.
+     */
+    public static final String RESPONSE_HEADER_ACCESS_CONTROL_ALLOW_HEADERS =
+            "Access-Control-Allow-headers";
+    /**
+     * The Origin header indicates where the cross-origin request or preflight
+     * request originates from.
+     */
+    public static final String REQUEST_HEADER_ORIGIN = "Origin";
+    /**
+     * The Access-Control-Request-Method header indicates which method will be
+     * used in the actual request as part of the preflight request.
+     */
+    public static final String REQUEST_HEADER_ACCESS_CONTROL_REQUEST_METHOD =
+            "Access-Control-Request-Method";
+    /**
+     * The Access-Control-Request-headers header indicates which headers will be
+     * used in the actual request as part of the preflight request.
+     */
+    public static final String REQUEST_HEADER_ACCESS_CONTROL_REQUEST_HEADERS =
+            "Access-Control-Request-headers";
     private static final Logger log = Logger.getLogger("CorsService");
-
+    private final CorsSupport corsSupport;
     /**
      * Determines if any origin is allowed to make request.
      */
     private boolean anyOriginAllowed;
-
-    private final CorsSupport corsSupport;
-
     /**
      * Indicates (in seconds) how long the results of a pre-flight request can
      * be cached in a pre-flight result cache.
@@ -41,6 +96,78 @@ public class CorsResponseDecorator implements HttpResponseDecorator {
         this.corsSupport = corsSupport;
         this.anyOriginAllowed = corsSupport.getAllowedOrigins().contains("*");
     }
+
+    /**
+     * Joins elements of {@link Set} into a string, where each element is
+     * separated by the provided separator.
+     *
+     * @param elements      The {@link Set} containing elements to join together.
+     * @param joinSeparator The character to be used for separating elements.
+     * @return The joined {@link String}; <code>null</code> if elements
+     * {@link Set} is null.
+     */
+    protected static String join(final Collection<String> elements,
+                                 final String joinSeparator) {
+        String separator = ",";
+        if (elements == null) {
+            return null;
+        }
+        if (joinSeparator != null) {
+            separator = joinSeparator;
+        }
+        StringBuilder buffer = new StringBuilder();
+        boolean isFirst = true;
+        for (String element : elements) {
+            if (!isFirst) {
+                buffer.append(separator);
+            } else {
+                isFirst = false;
+            }
+
+            if (element != null) {
+                buffer.append(element);
+            }
+        }
+
+        return buffer.toString();
+    }
+
+    /**
+     * Checks if a given origin is valid or not. Criteria:
+     * <ul>
+     * <li>If an encoded character is present in origin, it's not valid.</li>
+     * <li>If origin is "null", it's valid.</li>
+     * <li>Origin should be a valid {@link URI}</li>
+     * </ul>
+     *
+     * @param origin
+     * @see <a href="http://tools.ietf.org/html/rfc952">RFC952</a>
+     */
+    protected static boolean isValidOrigin(String origin) {
+        // Checks for encoded characters. Helps prevent CRLF injection.
+        if (origin.contains("%")) {
+            return false;
+        }
+
+        // "null" is a valid origin
+        if ("null".equals(origin)) {
+            return true;
+        }
+
+        URI originURI;
+
+        try {
+            originURI = new URI(origin);
+        } catch (URISyntaxException e) {
+            return false;
+        }
+        // If scheme for URI is null, return false. Return true otherwise.
+        return originURI.getScheme() != null;
+
+    }
+
+
+    // -------------------------------------------------- CORS Response headers
 
     @Override
     public boolean decorateTextResponse(HttpTextResponseHolder responseHolder, String requestPath, String requestMethod, int code, String contentType, String payload, MultiMap<String, String> responseHeaders, MultiMap<String, String> requestHeaders, MultiMap<String, String> requestParams) {
@@ -100,10 +227,9 @@ public class CorsResponseDecorator implements HttpResponseDecorator {
 
     /**
      * Handles a CORS request of type {@link CORSRequestType}.SIMPLE.
-     *
      */
     protected boolean handleSimpleCORS(final HttpRequestHolder request,
-                                    final HttpResponseHolder response) {
+                                       final HttpResponseHolder response) {
 
         CorsResponseDecorator.CORSRequestType requestType = checkRequestType(request);
         if (!(requestType == CorsResponseDecorator.CORSRequestType.SIMPLE ||
@@ -167,17 +293,16 @@ public class CorsResponseDecorator implements HttpResponseDecorator {
         return true;
     }
 
-
     /**
      * Handles CORS pre-flight request.
      */
     protected boolean handlePreflightCORS(final HttpRequestHolder request,
-                                       final HttpResponseHolder response) {
+                                          final HttpResponseHolder response) {
 
         CORSRequestType requestType = checkRequestType(request);
         if (requestType != CORSRequestType.PRE_FLIGHT) {
             throw new IllegalArgumentException(CorsSupport.CORS_WRONG_TYPE_2);
-                    //TODO: String replace into above CORSRequestType.PRE_FLIGHT.name().toLowerCase(Locale.ENGLISH)));
+            //TODO: String replace into above CORSRequestType.PRE_FLIGHT.name().toLowerCase(Locale.ENGLISH)));
         }
 
         final String origin = request.getHeaders().get(CorsResponseDecorator.REQUEST_HEADER_ORIGIN);
@@ -274,7 +399,7 @@ public class CorsResponseDecorator implements HttpResponseDecorator {
      * Handles a CORS request that violates specification.
      */
     private boolean handleInvalidCORS(final HttpRequestHolder request,
-                                   final HttpResponseHolder response) {
+                                      final HttpResponseHolder response) {
         String origin = request.getHeaders().get(CorsResponseDecorator.REQUEST_HEADER_ORIGIN);
         String method = request.getMethod();
         String accessControlRequestHeaders = request.getHeaders().get(
@@ -302,43 +427,7 @@ public class CorsResponseDecorator implements HttpResponseDecorator {
         return false;
     }
 
-    /**
-     * Joins elements of {@link Set} into a string, where each element is
-     * separated by the provided separator.
-     *
-     * @param elements
-     *            The {@link Set} containing elements to join together.
-     * @param joinSeparator
-     *            The character to be used for separating elements.
-     * @return The joined {@link String}; <code>null</code> if elements
-     *         {@link Set} is null.
-     */
-    protected static String join(final Collection<String> elements,
-                                 final String joinSeparator) {
-        String separator = ",";
-        if (elements == null) {
-            return null;
-        }
-        if (joinSeparator != null) {
-            separator = joinSeparator;
-        }
-        StringBuilder buffer = new StringBuilder();
-        boolean isFirst = true;
-        for (String element : elements) {
-            if (!isFirst) {
-                buffer.append(separator);
-            } else {
-                isFirst = false;
-            }
-
-            if (element != null) {
-                buffer.append(element);
-            }
-        }
-
-        return buffer.toString();
-    }
-
+    // -------------------------------------------------- CORS Request headers
 
     /**
      * Determines the request type.
@@ -402,7 +491,6 @@ public class CorsResponseDecorator implements HttpResponseDecorator {
         return requestType;
     }
 
-
     private boolean isLocalOrigin(HttpRequestHolder request, String origin) {
 
         // Build scheme://host:port from request
@@ -437,10 +525,9 @@ public class CorsResponseDecorator implements HttpResponseDecorator {
     /**
      * Checks if the Origin is allowed to make a CORS request.
      *
-     * @param origin
-     *            The Origin.
+     * @param origin The Origin.
      * @return <code>true</code> if origin is allowed; <code>false</code>
-     *         otherwise.
+     * otherwise.
      */
     private boolean isOriginAllowed(final String origin) {
         if (anyOriginAllowed) {
@@ -452,112 +539,9 @@ public class CorsResponseDecorator implements HttpResponseDecorator {
         return corsSupport.getAllowedOrigins().contains(origin);
     }
 
-    /**
-     * Checks if a given origin is valid or not. Criteria:
-     * <ul>
-     * <li>If an encoded character is present in origin, it's not valid.</li>
-     * <li>If origin is "null", it's valid.</li>
-     * <li>Origin should be a valid {@link URI}</li>
-     * </ul>
-     *
-     * @param origin
-     * @see <a href="http://tools.ietf.org/html/rfc952">RFC952</a>
-     */
-    protected static boolean isValidOrigin(String origin) {
-        // Checks for encoded characters. Helps prevent CRLF injection.
-        if (origin.contains("%")) {
-            return false;
-        }
-
-        // "null" is a valid origin
-        if ("null".equals(origin)) {
-            return true;
-        }
-
-        URI originURI;
-
-        try {
-            originURI = new URI(origin);
-        } catch (URISyntaxException e) {
-            return false;
-        }
-        // If scheme for URI is null, return false. Return true otherwise.
-        return originURI.getScheme() != null;
-
-    }
-
-
-    // -------------------------------------------------- CORS Response headers
-    /**
-     * The Access-Control-Allow-Origin header indicates whether a resource can
-     * be shared based by returning the value of the Origin request header in
-     * the response.
-     */
-    public static final String RESPONSE_HEADER_ACCESS_CONTROL_ALLOW_ORIGIN =
-            "Access-Control-Allow-Origin";
-
-    /**
-     * The Access-Control-Allow-Credentials header indicates whether the
-     * response to request can be exposed when the omit credentials flag is
-     * unset. When part of the response to a preflight request it indicates that
-     * the actual request can include user credentials.
-     */
-    public static final String RESPONSE_HEADER_ACCESS_CONTROL_ALLOW_CREDENTIALS =
-            "Access-Control-Allow-Credentials";
-
-    /**
-     * The Access-Control-Expose-headers header indicates which headers are safe
-     * to expose to the API of a CORS API specification
-     */
-    public static final String RESPONSE_HEADER_ACCESS_CONTROL_EXPOSE_HEADERS =
-            "Access-Control-Expose-headers";
-
-    /**
-     * The Access-Control-Max-Age header indicates how long the results of a
-     * preflight request can be cached in a preflight result cache.
-     */
-    public static final String RESPONSE_HEADER_ACCESS_CONTROL_MAX_AGE =
-            "Access-Control-Max-Age";
-
-    /**
-     * The Access-Control-Allow-Methods header indicates, as part of the
-     * response to a preflight request, which methods can be used during the
-     * actual request.
-     */
-    public static final String RESPONSE_HEADER_ACCESS_CONTROL_ALLOW_METHODS =
-            "Access-Control-Allow-Methods";
-
-    /**
-     * The Access-Control-Allow-headers header indicates, as part of the
-     * response to a preflight request, which header field names can be used
-     * during the actual request.
-     */
-    public static final String RESPONSE_HEADER_ACCESS_CONTROL_ALLOW_HEADERS =
-            "Access-Control-Allow-headers";
-
-    // -------------------------------------------------- CORS Request headers
-    /**
-     * The Origin header indicates where the cross-origin request or preflight
-     * request originates from.
-     */
-    public static final String REQUEST_HEADER_ORIGIN = "Origin";
-
-    /**
-     * The Access-Control-Request-Method header indicates which method will be
-     * used in the actual request as part of the preflight request.
-     */
-    public static final String REQUEST_HEADER_ACCESS_CONTROL_REQUEST_METHOD =
-            "Access-Control-Request-Method";
-
-    /**
-     * The Access-Control-Request-headers header indicates which headers will be
-     * used in the actual request as part of the preflight request.
-     */
-    public static final String REQUEST_HEADER_ACCESS_CONTROL_REQUEST_HEADERS =
-            "Access-Control-Request-headers";
-
 
     // -------------------------------------------------------------- Constants
+
     /**
      * Enumerates varies types of CORS requests. Also, provides utility methods
      * to determine the request type.
@@ -621,14 +605,14 @@ public class CorsResponseDecorator implements HttpResponseDecorator {
         }
 
         public MultiMap<String, String> getHeaders() {
-            if (headers == null){
+            if (headers == null) {
                 headers = new MultiMapImpl<>();
             }
             return headers;
         }
 
         public MultiMap<String, String> getParams() {
-            if (params == null){
+            if (params == null) {
                 params = new MultiMapImpl<>();
             }
             return params;
@@ -643,7 +627,7 @@ public class CorsResponseDecorator implements HttpResponseDecorator {
         }
 
         public MultiMap<String, String> getHeaders() {
-            if (headers == null){
+            if (headers == null) {
                 headers = new MultiMapImpl<>();
             }
             return headers;

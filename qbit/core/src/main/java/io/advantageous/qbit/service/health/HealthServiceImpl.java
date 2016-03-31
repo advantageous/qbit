@@ -22,18 +22,17 @@ import java.util.function.Consumer;
  */
 public class HealthServiceImpl extends BaseService implements HealthService, Stoppable {
 
+    private static int healthServiceCount;
     /**
      * Internal map to check health.
      */
     private final Map<String, NodeHealthStat> serviceHealthStatMap
             = new ConcurrentHashMap<>();
-
     /**
      * logger.
      */
     private final Logger logger = LoggerFactory.getLogger(HealthServiceImpl.class);
     private final boolean debug = logger.isDebugEnabled();
-    private static int healthServiceCount;
     private final Optional<Consumer<NodeHealthStat>> onFail;
     private final Optional<Consumer<NodeHealthStat>> onWarn;
     private final Optional<Consumer<NodeHealthStat>> onCheckIn;
@@ -41,20 +40,20 @@ public class HealthServiceImpl extends BaseService implements HealthService, Sto
     private final List<HealthCheckJob> healthCheckJobs;
 
 
-
     /**
      * Constructor.
-     *  @param timer           timer
+     *
+     * @param timer           timer
      * @param recheckInterval recheck interval
      * @param timeUnit        time unit for interval
-     * @param onFail onFail
-     * @param onWarn onWarn
-     * @param onCheckIn onCheckIn
+     * @param onFail          onFail
+     * @param onWarn          onWarn
+     * @param onCheckIn       onCheckIn
      */
     public HealthServiceImpl(final String healthPrefix,
-                            final Reactor reactor,
-                            final Timer timer,
-                            final StatsCollector statsCollector,
+                             final Reactor reactor,
+                             final Timer timer,
+                             final StatsCollector statsCollector,
                              final long recheckInterval,
                              final TimeUnit timeUnit,
                              final List<HealthCheckJob> healthCheckJobs,
@@ -73,10 +72,9 @@ public class HealthServiceImpl extends BaseService implements HealthService, Sto
         this.healthCheckJobs = Collections.unmodifiableList(healthCheckJobs);
 
         healthCheckJobs.forEach(healthCheckJob -> reactor.addRepeatingTask(healthCheckJob.getDuration(),
-                ()-> runHealthCheck(healthCheckJob)));
+                () -> runHealthCheck(healthCheckJob)));
 
         healthServiceCount++;
-
 
 
         if (logger.isDebugEnabled()) {
@@ -101,7 +99,7 @@ public class HealthServiceImpl extends BaseService implements HealthService, Sto
     }
 
     private void reportStatus(String name, NodeHealthStat currentHealth) {
-        switch(currentHealth.getStatus()) {
+        switch (currentHealth.getStatus()) {
             case PASS:
                 if (debug) logger.debug("HEALTH PASS :: {} status check and got status {} ", name, currentHealth);
                 onCheckIn.ifPresent(checkIn -> checkIn.accept(BeanUtils.copy(currentHealth)));
@@ -147,7 +145,7 @@ public class HealthServiceImpl extends BaseService implements HealthService, Sto
     /**
      * Register method to register services / internal nodes.
      *
-     * @param name     name
+     * @param name name
      */
     @Override
     public void registerNoTtl(final String name) {
@@ -235,7 +233,7 @@ public class HealthServiceImpl extends BaseService implements HealthService, Sto
     /**
      * Fail the node for the service with a specific status.
      *
-     * @param name   name
+     * @param name  name
      * @param error error
      */
     @Override
@@ -390,7 +388,7 @@ public class HealthServiceImpl extends BaseService implements HealthService, Sto
     private void checkTTL(final NodeHealthStat nodeHealthStat) {
 
         if (debug) logger.debug("HealthService::checkTTL() {}", nodeHealthStat.getName());
-        if (! nodeHealthStat.isOk() ) {
+        if (!nodeHealthStat.isOk()) {
             return;
         }
 

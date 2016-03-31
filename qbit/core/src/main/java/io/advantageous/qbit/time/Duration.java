@@ -33,77 +33,20 @@ public class Duration {
     public static final Duration MILLISECONDS = new Duration(1, TimeUnit.MILLISECONDS);
     public static final Duration TEN_MILLIS = MILLISECONDS.units(10);
     public static final Duration TWENTY_FIVE_MILLIS = MILLISECONDS.multiply(25);
-    public static final Duration FIFTY_MILLIS =  MILLISECONDS.multiply(50);
+    public static final Duration FIFTY_MILLIS = MILLISECONDS.multiply(50);
     public static final Duration HUNDRED_MILLIS = MILLISECONDS.units(100);
 
-    /** Holds units of time. */
+    /**
+     * Holds units of time.
+     */
     private final long duration;
 
-    /** Holds the time unit for this duration. */
+    /**
+     * Holds the time unit for this duration.
+     */
     private final TimeUnit timeUnit;
 
-    /** Used to create second duration.
-     *
-     * @param units number of seconds
-     * @return Duration in seconds
-     */
-    public static Duration seconds(long units) {
-        return SECONDS.units(units);
-    }
-
-
-
-    /** Used to create minute duration.
-     *
-     * @param units number of seconds
-     * @return Duration in seconds
-     */
-    public static Duration minutes(long units) {
-        return MINUTES.units(units);
-    }
-
-
-    /** Used to create milliseconds duration.
-     *
-     * @param units number of milliseconds
-     * @return Duration in milliseconds
-     */
-    public static Duration milliseconds(long units) {
-        return MILLISECONDS.units(units);
-    }
-
-
-    /** Used to create nanoseconds duration.
-     *
-     * @param units number of nanoseconds
-     * @return Duration in nanoseconds
-     */
-    public static Duration nanoseconds(long units) {
-        return NANOSECONDS.units(units);
-    }
-
-
-    /** Used to create hours duration.
-     *
-     * @param units number of hours
-     * @return Duration in hours
-     */
-    public static Duration hours(long units) {
-        return HOURS.units(units);
-    }
-
-
-    /** Used to create days duration.
-     *
-     * @param units number of days
-     * @return Duration in days
-     */
-    public static Duration days(long units) {
-        return DAYS.units(units);
-    }
-
     /**
-     *
      * @param duration duration
      * @param timeUnit time unit (Seconds, Hours, Days, Millis, Nanos)
      */
@@ -113,7 +56,68 @@ public class Duration {
     }
 
     /**
+     * Used to create second duration.
+     *
+     * @param units number of seconds
+     * @return Duration in seconds
+     */
+    public static Duration seconds(long units) {
+        return SECONDS.units(units);
+    }
+
+    /**
+     * Used to create minute duration.
+     *
+     * @param units number of seconds
+     * @return Duration in seconds
+     */
+    public static Duration minutes(long units) {
+        return MINUTES.units(units);
+    }
+
+    /**
+     * Used to create milliseconds duration.
+     *
+     * @param units number of milliseconds
+     * @return Duration in milliseconds
+     */
+    public static Duration milliseconds(long units) {
+        return MILLISECONDS.units(units);
+    }
+
+    /**
+     * Used to create nanoseconds duration.
+     *
+     * @param units number of nanoseconds
+     * @return Duration in nanoseconds
+     */
+    public static Duration nanoseconds(long units) {
+        return NANOSECONDS.units(units);
+    }
+
+    /**
+     * Used to create hours duration.
+     *
+     * @param units number of hours
+     * @return Duration in hours
+     */
+    public static Duration hours(long units) {
+        return HOURS.units(units);
+    }
+
+    /**
+     * Used to create days duration.
+     *
+     * @param units number of days
+     * @return Duration in days
+     */
+    public static Duration days(long units) {
+        return DAYS.units(units);
+    }
+
+    /**
      * Get the duration.
+     *
      * @return duration.
      */
     public long getDuration() {
@@ -122,6 +126,7 @@ public class Duration {
 
     /**
      * Get the time unit for the duration.
+     *
      * @return time unit.
      */
     public TimeUnit getTimeUnit() {
@@ -135,6 +140,7 @@ public class Duration {
 
     /**
      * Multiply this duration to create a new Duration.
+     *
      * @param times times
      * @return Duration
      */
@@ -145,6 +151,7 @@ public class Duration {
 
     /**
      * Multiply this duration to create a new Duration.
+     *
      * @param units units
      * @return Duration
      */
@@ -155,6 +162,7 @@ public class Duration {
 
     /**
      * Equals.
+     *
      * @param o other object
      * @return true if equal
      */
@@ -172,6 +180,7 @@ public class Duration {
 
     /**
      * hashCode.
+     *
      * @return hash code
      */
     @Override
@@ -182,7 +191,6 @@ public class Duration {
     }
 
     /**
-     *
      * @return string representation of this object
      */
     @Override

@@ -17,51 +17,44 @@ import java.util.function.Supplier;
  * This can be started or the process method could be called periodically.
  * It can be used to channel events from Kafka, JMS, and/or Redis into the QBit world.
  */
-public class EventBusQueueAdapter<T> implements Startable, Stoppable{
+public class EventBusQueueAdapter<T> implements Startable, Stoppable {
 
+    /**
+     * Event Manager.
+     */
+    private final EventManager eventManager;
+    /**
+     * Channel to send messages to from the Queue.
+     */
+    private final String channel;
+    /**
+     * Lock.
+     */
+    private final Lock lock = new ReentrantLock();
+    /**
+     * Logger.
+     */
+    private final Logger logger = LoggerFactory.getLogger(EventBusQueueAdapter.class);
+    /**
+     * Debug is on or off.
+     */
+    private final boolean debug = logger.isDebugEnabled();
+    private final Supplier<Queue<T>> queueSupplier;
     /**
      * Queue.
      */
     private Optional<Queue<T>> queue = Optional.empty();
     private Optional<ReceiveQueue<T>> receiveQueue = Optional.empty();
 
-
     /**
-     * Event Manager.
-     */
-    private final EventManager eventManager;
-
-    /**
-     * Channel to send messages to from the Queue.
-     */
-    private final String channel;
-
-    /**
-     * Lock.
-     */
-    private final Lock lock = new ReentrantLock();
-
-    /**
-     * Logger.
-     */
-    private final Logger logger = LoggerFactory.getLogger(EventBusQueueAdapter.class);
-
-    /**
-     * Debug is on or off.
-     */
-    private final boolean debug = logger.isDebugEnabled();
-    private final Supplier<Queue<T>> queueSupplier;
-
-    /**
-     *
      * @param queueSupplier queueSupplier
-     * @param eventManager event manager
-     * @param channel channel
+     * @param eventManager  event manager
+     * @param channel       channel
      */
     public EventBusQueueAdapter(
             final Supplier<Queue<T>> queueSupplier,
             final EventManager eventManager,
-                                final String channel) {
+            final String channel) {
 
         this.queueSupplier = queueSupplier;
         initQueue();
@@ -131,6 +124,7 @@ public class EventBusQueueAdapter<T> implements Startable, Stoppable{
 
     /**
      * Send the queue item to the event.
+     *
      * @param item item
      */
     private void sendToEventManager(T item) {
@@ -144,11 +138,10 @@ public class EventBusQueueAdapter<T> implements Startable, Stoppable{
                 lock.lock();
                 eventManager.sendArguments(channel, item);
             }
-        }finally {
+        } finally {
             lock.unlock();
         }
     }
-
 
 
     /**

@@ -33,11 +33,10 @@ public class CallbackBuilder {
     /**
      *
      */
-    private  CallbackBuilder() {
+    private CallbackBuilder() {
     }
 
     /**
-     *
      * @param reactor reactor
      * @return CallbackBuilder
      */
@@ -47,8 +46,8 @@ public class CallbackBuilder {
 
 
     /**
-     *
      * Creating callback builder.
+     *
      * @param reactor reactor
      * @return CallbackBuilder
      */
@@ -57,7 +56,6 @@ public class CallbackBuilder {
     }
 
     /**
-     *
      * @return CallbackBuilder
      */
     public static CallbackBuilder callbackBuilder() {
@@ -66,7 +64,6 @@ public class CallbackBuilder {
 
 
     /**
-     *
      * @return CallbackBuilder
      */
     public static CallbackBuilder newCallbackBuilder() {
@@ -74,7 +71,6 @@ public class CallbackBuilder {
     }
 
     /**
-     *
      * @return Reactor
      */
     public Reactor getReactor() {
@@ -82,7 +78,6 @@ public class CallbackBuilder {
     }
 
     /**
-     *
      * @return callback
      */
     public <T> Callback<T> getCallback() {
@@ -105,8 +100,8 @@ public class CallbackBuilder {
      * Builder method to add a callback handler.
      *
      * @param returnType returnType
-     * @param callback callback
-     * @param <T> T
+     * @param callback   callback
+     * @param <T>        T
      * @return this
      */
     public <T> CallbackBuilder setCallback(final Class<T> returnType, final Callback<T> callback) {
@@ -117,8 +112,8 @@ public class CallbackBuilder {
      * Builder method to set the callback handler.
      *
      * @param returnType returnType
-     * @param callback callback
-     * @param <T> T
+     * @param callback   callback
+     * @param <T>        T
      * @return this
      */
     public <T> CallbackBuilder withCallback(final Class<T> returnType,
@@ -132,7 +127,7 @@ public class CallbackBuilder {
      * Builder method to delegate timeout and error handling to other callback.
      *
      * @param callback callback
-     * @param <T> T
+     * @param <T>      T
      * @return this
      */
     public <T> CallbackBuilder delegate(final Callback<T> callback) {
@@ -148,7 +143,7 @@ public class CallbackBuilder {
      * Builder method to wrap and delegate, timeout and error handling and callback itself.
      *
      * @param callback callback
-     * @param <T> T
+     * @param <T>      T
      * @return this
      */
     public <T> CallbackBuilder wrap(final Callback<T> callback) {
@@ -163,12 +158,11 @@ public class CallbackBuilder {
     }
 
 
-
     /**
      * Builder method to delegate timeout and error handling to other callback.
      *
      * @param callback callback
-     * @param <T> T
+     * @param <T>      T
      * @return this
      */
     public <T> CallbackBuilder delegateWithLogging(final Callback<T> callback, final Logger logger,
@@ -191,11 +185,11 @@ public class CallbackBuilder {
      * Builder method to wrap / delegate timeout and error handling as well as callback itself.
      *
      * @param callback callback
-     * @param <T> T
+     * @param <T>      T
      * @return this
      */
     public <T> CallbackBuilder wrapWithLogging(final Callback<T> callback, final Logger logger,
-                                                   final String operationName) {
+                                               final String operationName) {
 
         this.withErrorHandler(throwable -> {
             logger.error(operationName + " error ", throwable);
@@ -208,7 +202,6 @@ public class CallbackBuilder {
         });
 
 
-
         this.withCallback(callback);
         return this;
     }
@@ -218,7 +211,7 @@ public class CallbackBuilder {
      * Builder method to set the callback handler.
      *
      * @param callback callback
-     * @param <T> T
+     * @param <T>      T
      * @return callback
      */
     public <T> CallbackBuilder withCallback(final Callback<T> callback) {
@@ -228,13 +221,14 @@ public class CallbackBuilder {
 
     /**
      * Builder method to set callback handler that takes a list
-     * @param componentClass  componentClass
-     * @param callback callback
-     * @param <T> T
+     *
+     * @param componentClass componentClass
+     * @param callback       callback
+     * @param <T>            T
      * @return this
      */
     public <T> CallbackBuilder withListCallback(final Class<T> componentClass,
-                                                       final Callback<List<T>> callback) {
+                                                final Callback<List<T>> callback) {
         this.callback = callback;
         return this;
     }
@@ -242,13 +236,14 @@ public class CallbackBuilder {
 
     /**
      * Builder method to set callback handler that takes a set
-     * @param componentClass  componentClass
-     * @param callback callback
-     * @param <T> T
+     *
+     * @param componentClass componentClass
+     * @param callback       callback
+     * @param <T>            T
      * @return this
      */
     public <T> CallbackBuilder withSetCallback(final Class<T> componentClass,
-                                                     final Callback<Set<T>> callback) {
+                                               final Callback<Set<T>> callback) {
         this.callback = callback;
         return this;
     }
@@ -256,13 +251,14 @@ public class CallbackBuilder {
 
     /**
      * Builder method to set callback handler that takes a collection
-     * @param componentClass  componentClass
-     * @param callback callback
-     * @param <T> T
+     *
+     * @param componentClass componentClass
+     * @param callback       callback
+     * @param <T>            T
      * @return this
      */
     public <T> CallbackBuilder withCollectionCallback(final Class<T> componentClass,
-                                                            final Callback<Collection<T>> callback) {
+                                                      final Callback<Collection<T>> callback) {
         this.callback = callback;
         return this;
     }
@@ -270,16 +266,17 @@ public class CallbackBuilder {
 
     /**
      * Builder method to set callback handler that takes a map
-     * @param keyClass  keyClass
-     * @param valueClass  valueClass
-     * @param callback callback
-     * @param <K> key type
-     * @param <V> value type
+     *
+     * @param keyClass   keyClass
+     * @param valueClass valueClass
+     * @param callback   callback
+     * @param <K>        key type
+     * @param <V>        value type
      * @return this
      */
     public <K, V> CallbackBuilder withMapCallback(final Class<K> keyClass,
-                                                        final Class<V> valueClass,
-                                                        final Callback<Map<K, V>> callback) {
+                                                  final Class<V> valueClass,
+                                                  final Callback<Map<K, V>> callback) {
         this.callback = callback;
         return this;
     }
@@ -287,6 +284,7 @@ public class CallbackBuilder {
 
     /**
      * Builder method to set callback handler that takes a boolean
+     *
      * @param callback callback
      * @return this
      */
@@ -297,6 +295,7 @@ public class CallbackBuilder {
 
     /**
      * Builder method to set callback handler that takes a integer
+     *
      * @param callback callback
      * @return this
      */
@@ -308,6 +307,7 @@ public class CallbackBuilder {
 
     /**
      * Builder method to set callback handler that takes a long
+     *
      * @param callback callback
      * @return this
      */
@@ -319,6 +319,7 @@ public class CallbackBuilder {
 
     /**
      * Builder method to set callback handler that takes a string
+     *
      * @param callback callback
      * @return this
      */
@@ -328,9 +329,9 @@ public class CallbackBuilder {
     }
 
 
-
     /**
      * Builder method to set callback handler that takes an optional string
+     *
      * @param callback callback
      * @return this
      */
@@ -340,9 +341,9 @@ public class CallbackBuilder {
     }
 
 
-
     /**
      * Builder method to set callback handler that takes an optional string
+     *
      * @param callback callback
      * @return this
      */
@@ -352,9 +353,7 @@ public class CallbackBuilder {
     }
 
 
-
     /**
-     *
      * @return runnable
      */
     public Runnable getOnTimeout() {
@@ -362,7 +361,6 @@ public class CallbackBuilder {
     }
 
     /**
-     *
      * @param onTimeout onTimeout
      * @return this
      */
@@ -400,7 +398,6 @@ public class CallbackBuilder {
 
 
     /**
-     *
      * @param timeoutDuration timeoutDuration
      * @return this
      */
@@ -443,7 +440,6 @@ public class CallbackBuilder {
     }
 
     /**
-     *
      * @return this
      */
     public CallbackBuilder setOnError(Consumer<Throwable> onError) {

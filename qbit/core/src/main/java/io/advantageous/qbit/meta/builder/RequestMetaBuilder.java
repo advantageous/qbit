@@ -35,24 +35,6 @@ public class RequestMetaBuilder {
         return new RequestMetaBuilder();
     }
 
-    public MultiMap<String, String> getResponseHeaders() {
-        if (responseHeaders == null) {
-            responseHeaders = new MultiMapImpl<>();
-        }
-        return responseHeaders;
-    }
-
-    public RequestMetaBuilder setResponseHeaders(MultiMap<String, String> responseHeaders) {
-        this.responseHeaders = responseHeaders;
-        return this;
-    }
-
-
-    public RequestMetaBuilder addResponseHeaders(String name, String value) {
-        getResponseHeaders().add(name, value);
-        return this;
-    }
-
     public static int findURIPosition(String path, String findString) {
 
         final String[] pathParts = Str.split(path, '/');
@@ -67,6 +49,22 @@ public class RequestMetaBuilder {
         return position;
     }
 
+    public MultiMap<String, String> getResponseHeaders() {
+        if (responseHeaders == null) {
+            responseHeaders = new MultiMapImpl<>();
+        }
+        return responseHeaders;
+    }
+
+    public RequestMetaBuilder setResponseHeaders(MultiMap<String, String> responseHeaders) {
+        this.responseHeaders = responseHeaders;
+        return this;
+    }
+
+    public RequestMetaBuilder addResponseHeaders(String name, String value) {
+        getResponseHeaders().add(name, value);
+        return this;
+    }
 
     public String getDescription() {
         return description;
@@ -126,7 +124,7 @@ public class RequestMetaBuilder {
 
     public RequestMeta build() {
         return new RequestMeta(getCallType(), getRequestMethods(),
-                getRequestURI(), getParameters(), responseHeaders, responseHeaders!=null && responseHeaders.size() > 0);
+                getRequestURI(), getParameters(), responseHeaders, responseHeaders != null && responseHeaders.size() > 0);
     }
 
     public void addParameters(final String rootPath, final String servicePath,
@@ -210,8 +208,8 @@ public class RequestMetaBuilder {
             /* It is a collection or a map. */
             if (Collection.class.isAssignableFrom(containerClass)) {
                 builder.setCollection();
-                builder.setComponentClass((Class)parameterizedType.getActualTypeArguments()[0]);
-            } else if (Map.class.isAssignableFrom(containerClass)){
+                builder.setComponentClass((Class) parameterizedType.getActualTypeArguments()[0]);
+            } else if (Map.class.isAssignableFrom(containerClass)) {
                 builder.setMap();
                 builder.setComponentClassKey((Class) parameterizedType.getActualTypeArguments()[0]);
                 builder.setComponentClassValue((Class) parameterizedType.getActualTypeArguments()[1]);
@@ -220,8 +218,8 @@ public class RequestMetaBuilder {
             final Class classType = methodAccess.method().getParameterTypes()[index];
             builder.setClassType(classType);
             if (classType.isArray()) {
-                    builder.setComponentClass(classType.getComponentType());
-                    builder.setArray();
+                builder.setComponentClass(classType.getComponentType());
+                builder.setArray();
             }
 
         }
@@ -289,7 +287,7 @@ public class RequestMetaBuilder {
 
 
         /** Support not string objects if we want to create params with stronger typed annotations. */
-        if (! (value instanceof String)) {
+        if (!(value instanceof String)) {
             return value;
         }
 

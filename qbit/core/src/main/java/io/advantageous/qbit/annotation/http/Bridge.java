@@ -1,6 +1,7 @@
 package io.advantageous.qbit.annotation.http;
 
 import io.advantageous.qbit.annotation.RequestMethod;
+import io.advantageous.qbit.http.HttpStatus;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -9,12 +10,14 @@ import java.lang.annotation.Target;
 
 /**
  * Used to map Service method to URIs in an HTTP like protocol.
+ * NOTE: PUT is for edit or update and a POST is for create; therefore,
+ * we change the HTTP status to CREATED.
  *
  * @author Rick Hightower
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(value = {ElementType.METHOD, ElementType.TYPE})
-public @interface PUT {
+public @interface Bridge {
 
 
     /**
@@ -32,7 +35,7 @@ public @interface PUT {
      *
      * @return or RequestMethods that are supported by this end point
      */
-    RequestMethod[] method() default {RequestMethod.PUT};
+    RequestMethod[] method() default {RequestMethod.BRIDGE, RequestMethod.POST, RequestMethod.WEB_SOCKET};
 
     /**
      * Used to document endpoint
@@ -58,15 +61,11 @@ public @interface PUT {
 
 
     /**
-     * If successful and not set to -1, this will be the HTTP response code returned.
-     * If set to -1, then it it will be 200 (OK) if no exception is thrown and a return type or Callback is defined.
-     * Otherwise it will be a 202 (ACCEPTED) if there are no callbacks or a return.
-     * Note that if you want to get exceptions reported, you have to define a callback or return.
-     * This is only used for methods not classes.
+     * Since POST is for CREATE or ADD, we change the default HTTP status code to CREATED.
      *
      * @return code
      */
-    int code() default -1;
+    int code() default HttpStatus.OK;
 
     /**
      * ContentType

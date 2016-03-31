@@ -5,14 +5,14 @@ import io.advantageous.qbit.queue.ReceiveQueue;
 
 import static java.lang.System.out;
 
-public class ReceiverMain  {
+public class ReceiverMain {
 
     public static void main(final String... args) {
 
         /** Create a new JMS Builder which can emit JmsService objects. */
         final JmsServiceBuilder jmsBuilder = JmsServiceBuilder
-                                            .newJmsServiceBuilder()
-                                            .setDefaultDestination("foobarQueue");
+                .newJmsServiceBuilder()
+                .setDefaultDestination("foobarQueue");
 
         /** Create a QBit Queue that talks to JMS. */
         final Queue<String> textQueue = new JmsTextQueue(jmsBuilder);
@@ -22,14 +22,13 @@ public class ReceiverMain  {
         final ReceiveQueue<String> receiveQueue = textQueue.receiveQueue();
 
 
-
         /** Get a message from JMS. */
-        String message  = receiveQueue.pollWait();
+        String message = receiveQueue.pollWait();
         out.println(message);
 
 
         /** Keep getting messages. */
-        while (message!=null) {
+        while (message != null) {
             message = receiveQueue.poll();
             out.println(message);
         }

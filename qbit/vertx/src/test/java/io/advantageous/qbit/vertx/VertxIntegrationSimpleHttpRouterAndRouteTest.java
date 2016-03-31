@@ -27,6 +27,63 @@ public class VertxIntegrationSimpleHttpRouterAndRouteTest {
     private TestVerticle testVerticle;
     private int port;
 
+    @Before
+    public void setup() throws Exception {
+
+
+        final CountDownLatch latch = new CountDownLatch(2);
+        port = PortUtils.findOpenPortStartAt(9000);
+        testVerticle = new TestVerticle(port, latch);
+        vertx = Vertx.vertx(new VertxOptions().setWorkerPoolSize(5));
+        vertx.deployVerticle(testVerticle, res -> {
+            if (res.succeeded()) {
+                System.out.println("Deployment id is: " + res.result());
+            } else {
+                System.out.println("Deployment failed!");
+                res.cause().printStackTrace();
+            }
+            latch.countDown();
+        });
+
+
+        latch.await(5, TimeUnit.SECONDS);
+        Sys.sleep(1_000);
+    }
+
+    @Test
+    public void test() {
+
+        final HttpClient client = HttpClientBuilder.httpClientBuilder().setHost("localhost").setPort(port).buildAndStart();
+        final HttpTextResponse response = client.postJson("/svr/rout1/", "\"hi\"");
+        assertEquals(202, response.code());
+        assertEquals("route1", response.body());
+
+
+        final HttpTextResponse response2 = client.postJson("/hello/world", "\"hi\"");
+        assertEquals(200, response2.code());
+        assertEquals("\"hi\"", response2.body());
+
+    }
+
+    @After
+    public void tearDown() throws Exception {
+
+        final CountDownLatch latch = new CountDownLatch(1);
+        vertx.close(res -> {
+            if (res.succeeded()) {
+                System.out.println("Vertx is closed? " + res.result());
+            } else {
+                System.out.println("Vertx failed closing");
+            }
+            latch.countDown();
+        });
+
+
+        latch.await(5, TimeUnit.SECONDS);
+        vertx = null;
+        testVerticle = null;
+
+    }
 
     public static class TestVerticle extends AbstractVerticle {
 
@@ -92,74 +149,13 @@ public class VertxIntegrationSimpleHttpRouterAndRouteTest {
                 });
 
 
-
-
-            }catch (Exception ex) {
+            } catch (Exception ex) {
                 ex.printStackTrace();
             }
         }
 
         public void stop() {
         }
-
-    }
-
-    @Before
-    public void setup() throws Exception{
-
-
-        final CountDownLatch latch = new CountDownLatch(2);
-        port = PortUtils.findOpenPortStartAt(9000);
-        testVerticle = new TestVerticle(port, latch);
-        vertx = Vertx.vertx(new VertxOptions().setWorkerPoolSize(5));
-        vertx.deployVerticle(testVerticle, res -> {
-            if (res.succeeded()) {
-                System.out.println("Deployment id is: " + res.result());
-            } else {
-                System.out.println("Deployment failed!");
-                res.cause().printStackTrace();
-            }
-            latch.countDown();
-        });
-
-
-        latch.await(5, TimeUnit.SECONDS);
-        Sys.sleep(1_000);
-    }
-
-    @Test
-    public void test() {
-
-        final HttpClient client = HttpClientBuilder.httpClientBuilder().setHost("localhost").setPort(port).buildAndStart();
-        final HttpTextResponse response = client.postJson("/svr/rout1/", "\"hi\"");
-        assertEquals(202, response.code());
-        assertEquals("route1", response.body());
-
-
-        final HttpTextResponse response2 = client.postJson("/hello/world", "\"hi\"");
-        assertEquals(200, response2.code());
-        assertEquals("\"hi\"", response2.body());
-
-    }
-
-
-    @After
-    public void tearDown() throws Exception {
-
-        final CountDownLatch latch = new CountDownLatch(1);
-        vertx.close(res -> {
-            if (res.succeeded()) {
-                System.out.println("Vertx is closed? " + res.result());
-            } else {
-                System.out.println("Vertx failed closing");
-            }
-            latch.countDown();
-        });
-
-
-        latch.await(5, TimeUnit.SECONDS);
-        vertx = null;
-        testVerticle = null;
 
     }
 }

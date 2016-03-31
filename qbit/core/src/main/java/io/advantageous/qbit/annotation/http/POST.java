@@ -12,6 +12,7 @@ import java.lang.annotation.Target;
  * Used to map Service method to URIs in an HTTP like protocol.
  * NOTE: PUT is for edit or update and a POST is for create; therefore,
  * we change the HTTP status to CREATED.
+ *
  * @author Rick Hightower
  */
 @Retention(RetentionPolicy.RUNTIME)
@@ -38,6 +39,7 @@ public @interface POST {
 
     /**
      * Used to document endpoint
+     *
      * @return description
      */
     String description() default "no description";
@@ -45,12 +47,14 @@ public @interface POST {
 
     /**
      * Used to document endpoint
+     *
      * @return description
      */
     String returnDescription() default "no return description";
 
     /**
      * Used to document endpoint
+     *
      * @return summary
      */
     String summary() default "no summary";
@@ -58,6 +62,7 @@ public @interface POST {
 
     /**
      * Since POST is for CREATE or ADD, we change the default HTTP status code to CREATED.
+     *
      * @return code
      */
     int code() default HttpStatus.CREATED;
@@ -65,6 +70,7 @@ public @interface POST {
     /**
      * ContentType
      * application/javascript
+     *
      * @return contentType
      */
     String contentType() default "application/json";

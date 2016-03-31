@@ -23,16 +23,6 @@ public class LocalKeyValueStoreServiceTest {
     LowLevelKeyValueStoreService lowLevelKVStore;
     TestTimer timer;
 
-
-    public static class Todo {
-        final String name;
-        public Todo(String name) {
-            this.name = name;
-        }
-        @Override
-        public String toString() {return name;}
-    }
-
     @Before
     public void setup() {
 
@@ -69,7 +59,6 @@ public class LocalKeyValueStoreServiceTest {
 
     }
 
-
     @Test
     public void testAllDebug() throws InterruptedException {
         setupWithDebug();
@@ -103,8 +92,6 @@ public class LocalKeyValueStoreServiceTest {
 
     }
 
-
-
     public Optional<Todo> getTodoForKey(String key) throws InterruptedException {
         final CountDownLatch getLatch = new CountDownLatch(1);
         final AtomicReference<Optional<Todo>> reference = new AtomicReference<>();
@@ -124,7 +111,6 @@ public class LocalKeyValueStoreServiceTest {
         return reference.get();
     }
 
-
     public boolean hasKey(String key) throws InterruptedException {
         final CountDownLatch getLatch = new CountDownLatch(1);
         final AtomicBoolean reference = new AtomicBoolean();
@@ -142,7 +128,6 @@ public class LocalKeyValueStoreServiceTest {
 
         return reference.get();
     }
-
 
     public Optional<String> getTodoForKeyFromBacking(String key) throws InterruptedException {
         final CountDownLatch getLatch = new CountDownLatch(1);
@@ -196,7 +181,6 @@ public class LocalKeyValueStoreServiceTest {
         assertFalse(todoForKeyFromBacking2.isPresent());
 
 
-
         assertFalse(hasKey("testKey2"));
 
 
@@ -212,7 +196,6 @@ public class LocalKeyValueStoreServiceTest {
 
 
     }
-
 
     @Test
     public void testDelete() throws InterruptedException {
@@ -247,7 +230,6 @@ public class LocalKeyValueStoreServiceTest {
 
 
     }
-
 
     @Test
     public void testDeleteWithConfirmation() throws InterruptedException {
@@ -312,7 +294,6 @@ public class LocalKeyValueStoreServiceTest {
         latch.await(1, TimeUnit.SECONDS);
 
 
-
         final Optional<Todo> todoOptional = getTodoForKey("testKey");
 
         assertTrue(todoOptional.isPresent());
@@ -326,8 +307,6 @@ public class LocalKeyValueStoreServiceTest {
 
     }
 
-
-
     @Test
     public void testTimeoutWithPutConfirmation() throws InterruptedException {
 
@@ -339,7 +318,7 @@ public class LocalKeyValueStoreServiceTest {
         kvStore.putWithConfirmationAndTimeout(confirmed -> {
             putConfirmation.set(confirmed);
             latch.countDown();
-        },"testKey2", new Todo("testValue2"), Duration.FIVE_SECONDS);
+        }, "testKey2", new Todo("testValue2"), Duration.FIVE_SECONDS);
         ServiceProxyUtils.flushServiceProxy(kvStore);
 
         latch.await(1, TimeUnit.SECONDS);
@@ -368,6 +347,18 @@ public class LocalKeyValueStoreServiceTest {
 
     }
 
+    public static class Todo {
+        final String name;
+
+        public Todo(String name) {
+            this.name = name;
+        }
+
+        @Override
+        public String toString() {
+            return name;
+        }
+    }
 
 
 }

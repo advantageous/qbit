@@ -42,13 +42,15 @@ import java.util.Map;
 /**
  * Health system is used to provide information about the microserivce for health,
  * JVM parameters for debugging, system properties, info about the OS and Swagger
- * meta data for API gateway documents and client generation. 
+ * meta data for API gateway documents and client generation.
  */
 @RequestMapping("/__admin")
 public class Admin {
 
 
-    /** Health service. Admin provides a facade to the health service. */
+    /**
+     * Health service. Admin provides a facade to the health service.
+     */
     private final HealthServiceAsync healthService;
 
 
@@ -96,16 +98,17 @@ public class Admin {
     /**
      * List of blacklisted words that we do not allow when we query the env variables and system properties.
      */
-    private final  List<String> blackListForSystemProperties;
+    private final List<String> blackListForSystemProperties;
 
 
     /**
      * Construct the admin
-     * @param healthService health service
-     * @param adminContextMetaBuilder meta data support for the Admin itself.
-     * @param contextMetaBuilder meta data support
-     * @param adminJobs list of periodic admin jobs
-     * @param reactor reactor
+     *
+     * @param healthService                health service
+     * @param adminContextMetaBuilder      meta data support for the Admin itself.
+     * @param contextMetaBuilder           meta data support
+     * @param adminJobs                    list of periodic admin jobs
+     * @param reactor                      reactor
      * @param blackListForSystemProperties black list for env variables and system properties we don't want queried.
      */
     public Admin(final HealthServiceAsync healthService,
@@ -152,9 +155,9 @@ public class Admin {
     }
 
 
-
     /**
      * Run a gc if possible.
+     *
      * @return true if no exceptions
      */
     @RequestMapping(value = "/suggest-gc", summary = "run a gc if possible",
@@ -168,13 +171,14 @@ public class Admin {
 
     /**
      * Read annotation.
+     *
      * @return swagger meta data
      */
     @RequestMapping(value = "/meta/", summary = "swagger meta data about this service",
-                    description = "Swagger meta data. Swagger is used to generate " +
-                            "documents and clients.",
-                    returnDescription = "returns Swagger 2.0 JSON meta data."
-                    )
+            description = "Swagger meta data. Swagger is used to generate " +
+                    "documents and clients.",
+            returnDescription = "returns Swagger 2.0 JSON meta data."
+    )
     public ServiceEndpointInfo getServiceEndpointInfo() {
 
         return serviceEndpointInfo;
@@ -183,6 +187,7 @@ public class Admin {
 
     /**
      * Read annotation.
+     *
      * @return swagger meta data for admin
      */
     @RequestMapping(value = "/admin-meta/", summary = "swagger meta data about the admin services",
@@ -197,8 +202,8 @@ public class Admin {
 
 
     /**
-     *
      * Read annotation.
+     *
      * @param callback callback
      */
     @RequestMapping(value = "/ok",
@@ -212,13 +217,13 @@ public class Admin {
     }
 
 
-
     /**
      * Checks to see if the key is black listed
+     *
      * @param key key
      * @return true if blacklisted
      */
-    private final boolean isBlackListed(final String key){
+    private final boolean isBlackListed(final String key) {
         return blackListForSystemProperties.stream()
                 .anyMatch(blackListedWord -> key.toUpperCase()
                         .contains(blackListedWord.toUpperCase()));
@@ -254,7 +259,6 @@ public class Admin {
     }
 
 
-
     @RequestMapping(value = "/env/variable/",
             summary = "",
             description = "",
@@ -263,8 +267,8 @@ public class Admin {
 
         final Map<String, String> envMap = new LinkedHashMap<>(System.getenv().size());
         System.getenv().entrySet().stream()
-                .filter(entry->!isBlackListed(entry.getKey()))
-                .forEach(entry->envMap.put(entry.getKey(), entry.getValue()));
+                .filter(entry -> !isBlackListed(entry.getKey()))
+                .forEach(entry -> envMap.put(entry.getKey(), entry.getValue()));
 
         return envMap;
     }
@@ -274,7 +278,7 @@ public class Admin {
             description = "",
             returnDescription = "")
     public String getEnvironmentVariable(@RequestParam(value = "v", required = true)
-                                             final String variableName) {
+                                         final String variableName) {
 
         if (!isBlackListed(variableName)) {
             return System.getenv(variableName);
@@ -446,7 +450,6 @@ public class Admin {
     }
 
 
-
     @RequestMapping(value = "/runtime/spec-version",
             summary = "Spec version",
             description = "Spec version",
@@ -485,8 +488,8 @@ public class Admin {
     }
 
     /**
-     *
      * Read annotation.
+     *
      * @param callback callback
      */
     @RequestMapping(value = "/all-nodes/",
@@ -503,7 +506,7 @@ public class Admin {
 
 
     @QueueCallback({QueueCallbackType.IDLE, QueueCallbackType.EMPTY,
-    QueueCallbackType.LIMIT})
+            QueueCallbackType.LIMIT})
     public void process() {
         this.reactor.process();
     }

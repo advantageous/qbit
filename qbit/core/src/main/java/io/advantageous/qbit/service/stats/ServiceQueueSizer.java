@@ -11,7 +11,7 @@ public class ServiceQueueSizer {
     }
 
     public int requestSize() {
-       return serviceQueue.requestQueue().size();
+        return serviceQueue.requestQueue().size();
     }
 
     public int responseSize() {

@@ -66,6 +66,10 @@ public class HttpRequestBuilder {
     private Map<String, Object> data;
     private int contentLength;
 
+    public static HttpRequestBuilder httpRequestBuilder() {
+        return new HttpRequestBuilder();
+    }
+
     public Supplier<MultiMap<String, String>> getFormParamsSupplier() {
         return formParamsSupplier;
     }
@@ -73,10 +77,6 @@ public class HttpRequestBuilder {
     public HttpRequestBuilder setFormParamsSupplier(Supplier<MultiMap<String, String>> formParamsSupplier) {
         this.formParamsSupplier = formParamsSupplier;
         return this;
-    }
-
-    public static HttpRequestBuilder httpRequestBuilder() {
-        return new HttpRequestBuilder();
     }
 
     public Consumer<Exception> getErrorHandler() {
@@ -322,18 +322,16 @@ public class HttpRequestBuilder {
         return headers == null ? MultiMap.EMPTY : headers;
     }
 
-    public HttpRequestBuilder setHeaders(final MultiMap<String, String> headers) {
-        this.headers = headers;
-        return this;
-    }
-
-
     public HttpRequestBuilder setHeaders(final Map<String, String> headerMap) {
 
         headerMap.entrySet().forEach(entry -> addHeader(entry.getKey(), entry.getValue()));
         return this;
     }
 
+    public HttpRequestBuilder setHeaders(final MultiMap<String, String> headers) {
+        this.headers = headers;
+        return this;
+    }
 
     public HttpRequestBuilder setJsonContentType() {
 
@@ -538,17 +536,12 @@ public class HttpRequestBuilder {
         return this;
     }
 
-    public HttpRequestBuilder setData(Map<String, Object> data) {
-        this.data = data;
-        return this;
-    }
-
     public Map<String, Object> getData() {
         return data;
     }
 
-    public HttpRequestBuilder setContentLength(final int contentLength) {
-        this.contentLength = contentLength;
+    public HttpRequestBuilder setData(Map<String, Object> data) {
+        this.data = data;
         return this;
     }
 
@@ -556,12 +549,9 @@ public class HttpRequestBuilder {
         return contentLength;
     }
 
-    private static class RequestIdGenerator {
-        private long value;
-
-        private long inc() {
-            return value++;
-        }
+    public HttpRequestBuilder setContentLength(final int contentLength) {
+        this.contentLength = contentLength;
+        return this;
     }
 
     public Supplier<Object> getBodySupplier() {
@@ -571,5 +561,13 @@ public class HttpRequestBuilder {
     public HttpRequestBuilder setBodySupplier(final Supplier<Object> body) {
         this.body = body;
         return this;
+    }
+
+    private static class RequestIdGenerator {
+        private long value;
+
+        private long inc() {
+            return value++;
+        }
     }
 }

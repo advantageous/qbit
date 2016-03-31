@@ -41,7 +41,6 @@ public class MetaTransformerFromQbitMetaToSwagger {
         buildPaths(builder, services, pathBuilderMap);
 
 
-
         return builder.build();
     }
 
@@ -98,7 +97,7 @@ public class MetaTransformerFromQbitMetaToSwagger {
                 continue;
             }
 
-            if (methodAccess.annotation("HideMethod")!=null) {
+            if (methodAccess.annotation("HideMethod") != null) {
                 continue;
             }
 
@@ -178,7 +177,7 @@ public class MetaTransformerFromQbitMetaToSwagger {
 
             responseBuilder.setDescription(methodMeta.getReturnDescription());
 
-            if (methodMeta.getResponseCode()==-1) {
+            if (methodMeta.getResponseCode() == -1) {
                 operationBuilder.getResponses().put(200, responseBuilder.build());
             } else {
                 operationBuilder.getResponses().put(methodMeta.getResponseCode(), responseBuilder.build());
@@ -193,7 +192,7 @@ public class MetaTransformerFromQbitMetaToSwagger {
             responseBuilder.setSchema(schemaBuilder.build());
             responseBuilder.setDescription("returns success");
 
-            if (methodMeta.getResponseCode()==-1) {
+            if (methodMeta.getResponseCode() == -1) {
                 operationBuilder.getResponses().put(202, responseBuilder.build());
             } else {
                 operationBuilder.getResponses().put(methodMeta.getResponseCode(), responseBuilder.build());
@@ -247,7 +246,6 @@ public class MetaTransformerFromQbitMetaToSwagger {
             }
 
 
-
             final ParameterBuilder parameterBuilder = new ParameterBuilder();
 
 
@@ -298,7 +296,7 @@ public class MetaTransformerFromQbitMetaToSwagger {
             final Schema schema = definitionClassCollector.getSchema(parameterMeta.getClassType());
             parameterBuilder.setType(schema.getType());
 
-            if ( "array".equals(schema.getType()) ) {
+            if ("array".equals(schema.getType())) {
                 parameterBuilder.setItems(schema.getItems());
                 parameterBuilder.setCollectionFormat("csv");
             }
@@ -339,7 +337,7 @@ public class MetaTransformerFromQbitMetaToSwagger {
         try {
 
 
-            switch(serviceMethodMeta.getGenericReturnType()) {
+            switch (serviceMethodMeta.getGenericReturnType()) {
 
                 case MAP:
                     definitionClassCollector.addClass(serviceMethodMeta.getReturnTypeComponentKey());
@@ -380,7 +378,7 @@ public class MetaTransformerFromQbitMetaToSwagger {
                         }
 
                     }));
-        }catch (Exception ex) {
+        } catch (Exception ex) {
 
             logger.warn("Unable to process service method " + serviceMethodMeta.getName(), ex);
             logger.warn("Unable to process service method for service {} method name", serviceMeta.getName(),

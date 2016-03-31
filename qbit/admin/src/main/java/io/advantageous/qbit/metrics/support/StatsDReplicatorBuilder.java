@@ -121,7 +121,7 @@ public class StatsDReplicatorBuilder {
 
                         final Logger logger = LoggerFactory.getLogger(StatsDReplicator.class);
 
-                        logger.error("Unable to send method call to StatsDReplicator "  + queueName);
+                        logger.error("Unable to send method call to StatsDReplicator " + queueName);
                         queue.clear();
                         return false;
                     }
@@ -136,7 +136,7 @@ public class StatsDReplicatorBuilder {
                 final Logger logger = LoggerFactory.getLogger(StatsDReplicator.class);
 
 
-                logger.error("Unable to send response from method call from StatsDReplicator "  + queueName);
+                logger.error("Unable to send response from method call from StatsDReplicator " + queueName);
                 queue.clear();
                 return false;
             }

@@ -32,15 +32,19 @@ import java.lang.annotation.Target;
 @Target(value = {ElementType.PARAMETER})
 public @interface RequestParam {
 
-    /** Name of the request param. */
+    /**
+     * Name of the request param.
+     */
     String value();
 
     boolean required() default false;
 
 
-    /** Default value.
+    /**
+     * Default value.
      * The default value is set to AnnotationConstants.NOT_SET which is used
      * to indicate a default value was not set.
+     *
      * @return default value
      */
     String defaultValue() default AnnotationConstants.NOT_SET;
@@ -48,6 +52,7 @@ public @interface RequestParam {
 
     /**
      * Used to document endpoint
+     *
      * @return description
      */
     String description() default "no description";

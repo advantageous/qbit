@@ -4,29 +4,29 @@ import io.advantageous.qbit.meta.swagger.Parameter;
 import io.advantageous.qbit.meta.swagger.Schema;
 
 public class ParameterBuilder {
-    private  String name;
-    private  String in = "body";
-    private  String description;
-    private  boolean required;
-    private  Schema schema;
+    private String name;
+    private String in = "body";
+    private String description;
+    private boolean required;
+    private Schema schema;
 
 
-    private  String type;
-    private  boolean allowEmptyValue;
-    private  Schema items;
+    private String type;
+    private boolean allowEmptyValue;
+    private Schema items;
     /**
      * Determines the format of the array if type array is used. Possible values are:
-     csv - comma separated values foo,bar.
-     ssv - space separated values foo bar.
-     tsv - tab separated values foo\tbar.
-     pipes - pipe separated values foo|bar.
-     multi - corresponds to multiple parameter instances instead of multiple values for a single instance foo=bar&foo=baz. This is valid only for parameters in "query" or "formData".
-     Default value is csv.
+     * csv - comma separated values foo,bar.
+     * ssv - space separated values foo bar.
+     * tsv - tab separated values foo\tbar.
+     * pipes - pipe separated values foo|bar.
+     * multi - corresponds to multiple parameter instances instead of multiple values for a single instance foo=bar&foo=baz. This is valid only for parameters in "query" or "formData".
+     * Default value is csv.
      */
-    private  String collectionFormat;
+    private String collectionFormat;
 
 
-    private  String defaultValue;
+    private String defaultValue;
 
     /*
     maximum	number	See http://json-schema.org/latest/json-schema-validation.html#anchor17.
@@ -135,7 +135,7 @@ multipleOf	number	See http://json-schema.org/latest/json-schema-validation.html#
     }
 
     public Parameter build() {
-            return new Parameter(getName(), getIn(), getDescription(), isRequired(), getSchema(), getType(),
-                    isAllowEmptyValue(), getItems(), getCollectionFormat(), getDefaultValue());
+        return new Parameter(getName(), getIn(), getDescription(), isRequired(), getSchema(), getType(),
+                isAllowEmptyValue(), getItems(), getCollectionFormat(), getDefaultValue());
     }
 }

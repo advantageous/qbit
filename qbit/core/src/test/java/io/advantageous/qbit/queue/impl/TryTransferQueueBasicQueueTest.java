@@ -9,20 +9,19 @@ import java.util.concurrent.TimeUnit;
 public class TryTransferQueueBasicQueueTest extends BasicSendReceiveTest {
 
 
+    @Before
+    public void setup() {
 
-        @Before
-        public void setup() {
+        final QueueBuilder queueBuilder = QueueBuilder.queueBuilder();
 
-            final QueueBuilder queueBuilder = QueueBuilder.queueBuilder();
+        queue = queueBuilder.setLinkTransferQueue().setBatchSize(50)
+                .setCheckEvery(5).setCheckIfBusy(true).setTryTransfer(true)
+                .setName("Queue test").setPollTimeUnit(TimeUnit.MILLISECONDS)
+                .setPollWait(50).build();
 
-            queue = queueBuilder.setLinkTransferQueue().setBatchSize(50)
-                    .setCheckEvery(5).setCheckIfBusy(true).setTryTransfer(true)
-                    .setName("Queue test").setPollTimeUnit(TimeUnit.MILLISECONDS)
-                    .setPollWait(50).build();
-
-            receiveQueue = queue.receiveQueue();
-            sendQueue = queue.sendQueue();
-        }
+        receiveQueue = queue.receiveQueue();
+        sendQueue = queue.sendQueue();
+    }
 
 
 }

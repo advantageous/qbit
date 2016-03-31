@@ -57,6 +57,8 @@ import static io.advantageous.qbit.http.server.websocket.WebSocketMessageBuilder
  * @author rhightower on 2/12/15.
  */
 public class SimpleHttpServer implements HttpServer {
+    final AtomicLong lastCheckIn = new AtomicLong(Timer.clockTime());
+    final AtomicBoolean ok = new AtomicBoolean(true);
     private final Logger logger = LoggerFactory.getLogger(SimpleHttpServer.class);
     private final boolean debug = GlobalConstants.DEBUG || logger.isDebugEnabled();
     private final QBitSystemManager systemManager;
@@ -67,10 +69,10 @@ public class SimpleHttpServer implements HttpServer {
     private final int port;
     private final long checkInEveryMiliDuration;
     private final CopyOnWriteArrayList<HttpResponseDecorator> decorators;
-
     private final HttpResponseCreator httpResponseCreator;
-
-
+    private final EndpointDefinition endpointDefinition;
+    protected Runnable onStart;
+    protected Consumer<Throwable> errorHandler;
     private Consumer<WebSocketMessage> webSocketMessageConsumer = webSocketMessage -> {
     };
     private Consumer<WebSocketMessage> webSocketCloseMessageConsumer = webSocketMessage -> {
@@ -83,30 +85,9 @@ public class SimpleHttpServer implements HttpServer {
     private Consumer<Void> webSocketIdleConsumer = aVoid -> {
     };
     private Predicate<HttpRequest> shouldContinueHttpRequest = request -> true;
-
-
     private Predicate<HttpRequest> shouldContinueReadingRequestBody = request -> true;
-
     private ExecutorContext executorContext;
     private Predicate<WebSocket> shouldContinueWebSocket = webSocket -> true;
-    private final EndpointDefinition endpointDefinition;
-    protected Runnable onStart;
-    protected Consumer<Throwable> errorHandler;
-
-    public Runnable getOnStart() {
-        if (onStart==null) {
-            onStart= () -> {
-            };
-        }
-        return onStart;
-    }
-
-    public Consumer<Throwable> getErrorHandler() {
-        if (errorHandler == null) {
-            errorHandler = Throwable::printStackTrace;
-        }
-        return errorHandler;
-    }
 
     public SimpleHttpServer(
             final String endpointName,
@@ -138,19 +119,6 @@ public class SimpleHttpServer implements HttpServer {
                 serviceDiscoveryTtlTimeUnit.toMillis(serviceDiscoveryTtl) / 3;
     }
 
-    EndpointDefinition createEndpointDefinition(int serviceDiscoveryTtl, TimeUnit serviceDiscoveryTtlTimeUnit) {
-        EndpointDefinition endpointDefinition;
-        if (serviceDiscovery!=null) {
-            endpointDefinition = serviceDiscovery.registerWithTTL(name, port,
-                    (int) serviceDiscoveryTtlTimeUnit.toSeconds(serviceDiscoveryTtl));
-            serviceDiscovery.checkInOk(endpointDefinition.getId());
-        } else {
-            endpointDefinition = null;
-        }
-        return endpointDefinition;
-    }
-
-
     public SimpleHttpServer() {
 
         this.port = 8080;
@@ -165,10 +133,36 @@ public class SimpleHttpServer implements HttpServer {
         this.httpResponseCreator = new HttpResponseCreatorDefault();
     }
 
+    public Runnable getOnStart() {
+        if (onStart == null) {
+            onStart = () -> {
+            };
+        }
+        return onStart;
+    }
 
     @Override
     public void setOnStart(final Runnable runnable) {
         this.onStart = runnable;
+    }
+
+    public Consumer<Throwable> getErrorHandler() {
+        if (errorHandler == null) {
+            errorHandler = Throwable::printStackTrace;
+        }
+        return errorHandler;
+    }
+
+    EndpointDefinition createEndpointDefinition(int serviceDiscoveryTtl, TimeUnit serviceDiscoveryTtlTimeUnit) {
+        EndpointDefinition endpointDefinition;
+        if (serviceDiscovery != null) {
+            endpointDefinition = serviceDiscovery.registerWithTTL(name, port,
+                    (int) serviceDiscoveryTtlTimeUnit.toSeconds(serviceDiscoveryTtl));
+            serviceDiscovery.checkInOk(endpointDefinition.getId());
+        } else {
+            endpointDefinition = null;
+        }
+        return endpointDefinition;
     }
 
     @Override
@@ -191,11 +185,9 @@ public class SimpleHttpServer implements HttpServer {
         }
     }
 
-
     public void handleWebSocketMessage(final WebSocketMessage webSocketMessage) {
         webSocketMessageConsumer.accept(webSocketMessage);
     }
-
 
     public void handleWebSocketClosedMessage(WebSocketMessage webSocketMessage) {
         webSocketCloseMessageConsumer.accept(webSocketMessage);
@@ -206,11 +198,9 @@ public class SimpleHttpServer implements HttpServer {
         this.shouldContinueHttpRequest = predicate;
     }
 
-
     public void setShouldContinueWebSocket(Predicate<WebSocket> predicate) {
         this.shouldContinueWebSocket = predicate;
     }
-
 
     @Override
     public void setWebSocketMessageConsumer(final Consumer<WebSocketMessage> webSocketMessageConsumer) {
@@ -236,7 +226,6 @@ public class SimpleHttpServer implements HttpServer {
     public void setWebSocketIdleConsume(Consumer<Void> idleConsumer) {
         this.webSocketIdleConsumer = idleConsumer;
     }
-
 
     @Override
     public void start() {
@@ -288,18 +277,13 @@ public class SimpleHttpServer implements HttpServer {
         webSocketIdleConsumer.accept(null);
     }
 
-
     public void handleRequestQueueIdle() {
 
-        if (serviceDiscovery!=null) {
+        if (serviceDiscovery != null) {
             handleCheckIn();
         }
         requestIdleConsumer.accept(null);
     }
-
-    final AtomicLong lastCheckIn = new AtomicLong(Timer.clockTime());
-
-    final AtomicBoolean ok = new AtomicBoolean(true);
 
     public void handleCheckIn() {
 

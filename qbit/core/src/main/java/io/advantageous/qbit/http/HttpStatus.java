@@ -39,16 +39,26 @@ public class HttpStatus {
 
     public final static String message(int code) {
         switch (code) {
-            case OK: return OK_MSG;
-            case CREATED: return CREATED_MSG;
-            case NOT_FOUND: return NOT_FOUND_MSG;
-            case BAD_REQUEST: return BAD_REQUEST_MSG;
-            case UNAUTHORIZED: return UNAUTHORIZED_MSG;
-            case TIMED_OUT: return TIMED_OUT_MSG;
-            case TOO_MANY_REQUEST: return TOO_MANY_REQUEST_MSG;
-            case ERROR: return ERROR_MSG;
-            case ACCEPTED: return ACCEPTED_MSG;
-            default: return "CODE = " + code;
+            case OK:
+                return OK_MSG;
+            case CREATED:
+                return CREATED_MSG;
+            case NOT_FOUND:
+                return NOT_FOUND_MSG;
+            case BAD_REQUEST:
+                return BAD_REQUEST_MSG;
+            case UNAUTHORIZED:
+                return UNAUTHORIZED_MSG;
+            case TIMED_OUT:
+                return TIMED_OUT_MSG;
+            case TOO_MANY_REQUEST:
+                return TOO_MANY_REQUEST_MSG;
+            case ERROR:
+                return ERROR_MSG;
+            case ACCEPTED:
+                return ACCEPTED_MSG;
+            default:
+                return "CODE = " + code;
         }
     }
 }

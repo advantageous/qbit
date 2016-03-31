@@ -27,7 +27,6 @@ import static org.junit.Assert.assertNull;
 public class PredicateChainTest {
 
 
-
     ServiceEndpointServer serviceEndpointServer;
     HttpServerSimulator httpServerSimulator;
 
@@ -42,7 +41,8 @@ public class PredicateChainTest {
 
             httpServerSimulator.setResponseDecorators(decorators);
             return
-            httpServerSimulator;});
+                    httpServerSimulator;
+        });
 
 
         serviceEndpointServer = EndpointServerBuilder.endpointServerBuilder()
@@ -63,7 +63,7 @@ public class PredicateChainTest {
 
         httpServerBuilder.addShouldContinueHttpRequestPredicate(httpRequest -> false);
 
-        serviceEndpointServer  = endpointServerBuilder.addService(new EmployeeServiceCollectionTestService()).build();
+        serviceEndpointServer = endpointServerBuilder.addService(new EmployeeServiceCollectionTestService()).build();
 
         serviceEndpointServer.startServer();
 
@@ -107,7 +107,7 @@ public class PredicateChainTest {
             }
         });
 
-        serviceEndpointServer  = endpointServerBuilder.addService(new EmployeeServiceCollectionTestService()).build();
+        serviceEndpointServer = endpointServerBuilder.addService(new EmployeeServiceCollectionTestService()).build();
 
         serviceEndpointServer.startServer();
 
@@ -131,7 +131,6 @@ public class PredicateChainTest {
     }
 
 
-
     @Test
     public void testChainWithResponse() {
 
@@ -146,7 +145,7 @@ public class PredicateChainTest {
             return false;
         });
 
-        serviceEndpointServer  = endpointServerBuilder.addService(new EmployeeServiceCollectionTestService()).build();
+        serviceEndpointServer = endpointServerBuilder.addService(new EmployeeServiceCollectionTestService()).build();
 
         serviceEndpointServer.startServer();
 
@@ -172,7 +171,7 @@ public class PredicateChainTest {
 
         httpServerBuilder.addShouldContinueHttpRequestPredicate(httpRequest -> true);
 
-        serviceEndpointServer  = endpointServerBuilder.addService(new EmployeeServiceCollectionTestService()).build();
+        serviceEndpointServer = endpointServerBuilder.addService(new EmployeeServiceCollectionTestService()).build();
 
         serviceEndpointServer.startServer();
 
@@ -198,14 +197,14 @@ public class PredicateChainTest {
 
         HttpServerBuilder httpServerBuilder = endpointServerBuilder.getHttpServerBuilder();
 
-        for (int i=0; i < 10; i++) {
+        for (int i = 0; i < 10; i++) {
             httpServerBuilder.addShouldContinueHttpRequestPredicate(httpRequest -> {
                 count.incrementAndGet();
                 return true;
             });
         }
 
-        serviceEndpointServer  = endpointServerBuilder.addService(new EmployeeServiceCollectionTestService()).build();
+        serviceEndpointServer = endpointServerBuilder.addService(new EmployeeServiceCollectionTestService()).build();
 
         serviceEndpointServer.startServer();
 
@@ -233,7 +232,7 @@ public class PredicateChainTest {
 
         HttpServerBuilder httpServerBuilder = endpointServerBuilder.getHttpServerBuilder();
 
-        for (int i=0; i < 10; i++) {
+        for (int i = 0; i < 10; i++) {
             httpServerBuilder.addShouldContinueHttpRequestPredicate(httpRequest -> {
                 count.incrementAndGet();
                 return true;
@@ -247,14 +246,14 @@ public class PredicateChainTest {
         });
 
 
-        for (int i=0; i < 10; i++) {
+        for (int i = 0; i < 10; i++) {
             httpServerBuilder.addShouldContinueHttpRequestPredicate(httpRequest -> {
                 count.incrementAndGet();
                 return true;
             });
         }
 
-        serviceEndpointServer  = endpointServerBuilder.addService(new EmployeeServiceCollectionTestService()).build();
+        serviceEndpointServer = endpointServerBuilder.addService(new EmployeeServiceCollectionTestService()).build();
 
         serviceEndpointServer.startServer();
 

@@ -91,7 +91,7 @@ public class ServiceMethodMeta {
 
     public ServiceMethodMeta(String name, List<RequestMeta> requestEndpoints, TypeType returnTypeEnum,
                              List<TypeType> paramTypes) {
-        this(true, null,name, requestEndpoints,
+        this(true, null, name, requestEndpoints,
                 returnTypeEnum, paramTypes,
                 false, GenericReturnType.NONE, null, null, null, null, null, null, null, -1, null);
 
@@ -109,7 +109,6 @@ public class ServiceMethodMeta {
                 TypeType.OBJECT, Collections.emptyList(),
                 false, GenericReturnType.NONE, null, null, null, null, null, null, null, -1, null);
     }
-
 
 
     public static ServiceMethodMeta serviceMethod(final MethodAccess methodAccess,

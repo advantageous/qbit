@@ -51,14 +51,14 @@ public class EventBusCluster implements Startable, Stoppable {
 
     private final int replicationPortLocal;
     private final String replicationHostLocal;
+    private final ServiceDiscovery serviceDiscovery;
+    private final EndpointDefinition endpointDefinition;
     private ScheduledFuture healthyNodeMonitor;
     private ScheduledFuture consulCheckInMonitor;
     private ServiceEndpointServer serviceEndpointServerForReplicator;
     private ServiceQueue eventServiceQueue;
     private EventManager eventManagerImpl;
     private ServicePool servicePool;
-    private final ServiceDiscovery serviceDiscovery;
-    private final EndpointDefinition endpointDefinition;
 
     public EventBusCluster(final EventManager eventManager,
                            final String eventBusName,
@@ -79,7 +79,7 @@ public class EventBusCluster implements Startable, Stoppable {
         this.peerCheckTimeInterval = peerCheckTimeInterval;
         this.peerCheckTimeUnit = peerCheckTimeTimeUnit;
         this.eventManager = eventManager == null ? createEventManager() : wrapEventManager(eventManager);
-        this.replicationServerCheckInIntervalInSeconds = (int)replicationServerCheckInTimeUnit.toSeconds(replicationServerCheckInInterval);
+        this.replicationServerCheckInIntervalInSeconds = (int) replicationServerCheckInTimeUnit.toSeconds(replicationServerCheckInInterval);
         this.serviceDiscovery = serviceDiscovery;
 
         this.replicationPortLocal = replicationPortLocal;
@@ -169,7 +169,6 @@ public class EventBusCluster implements Startable, Stoppable {
     }
 
 
-
     private void startServerReplicator() {
 
 
@@ -216,7 +215,8 @@ public class EventBusCluster implements Startable, Stoppable {
 
                     if (replicationHostLocal.equals(endpointDefinition.getHost()) &&
                             replicationPortLocal == endpointDefinition.getPort()) {
-                        if (debug) logger.debug("EventBusCluster:: Add event for self " + eventBusName + " " + endpointDefinition);
+                        if (debug)
+                            logger.debug("EventBusCluster:: Add event for self " + eventBusName + " " + endpointDefinition);
                     } else {
                         change.set(true);
                         addEventConnector(endpointDefinition.getHost(), endpointDefinition.getPort());
@@ -231,7 +231,8 @@ public class EventBusCluster implements Startable, Stoppable {
 
                     if (replicationHostLocal.equals(endpointDefinition.getHost()) &&
                             replicationPortLocal == endpointDefinition.getPort()) {
-                        if (debug) logger.debug("EventBusCluster:: Remove event for self " + eventBusName + " " + endpointDefinition);
+                        if (debug)
+                            logger.debug("EventBusCluster:: Remove event for self " + eventBusName + " " + endpointDefinition);
                     } else {
                         change.set(true);
                         removeNodes.add(endpointDefinition);
@@ -255,7 +256,6 @@ public class EventBusCluster implements Startable, Stoppable {
 
 
     }
-
 
 
     private void addEventConnector(final String newHost, final int newPort) {
@@ -308,7 +308,6 @@ public class EventBusCluster implements Startable, Stoppable {
         }
 
         connectorsToRemove.forEach(eventConnectorHub::remove);
-
 
 
         return removeCount;

@@ -21,20 +21,6 @@ public class WriteBehindReadFallbackKeyValueStoreTest {
     private JsonKeyValueStoreServiceBuilder jsonKeyValueStoreServiceBuilder;
 
     private LowLevelWriteBehindReadFallbackKeyValueStore writeBehindReadFallbackKeyValueStore;
-
-    private class Todo {
-        final String name;
-
-        private Todo(String name) {
-            this.name = name;
-        }
-
-        @Override
-        public String toString() {
-            return name;
-        }
-    }
-
     private TestTimer testTimer;
 
     @Before
@@ -92,7 +78,6 @@ public class WriteBehindReadFallbackKeyValueStoreTest {
 
     }
 
-
     @Test
     public void testReadPrimary() {
         final String[] valueHolder = new String[1];
@@ -121,7 +106,6 @@ public class WriteBehindReadFallbackKeyValueStoreTest {
 
     }
 
-
     @Test
     public void testWriteBehind() {
         final String[] valueHolder1 = new String[1];
@@ -145,10 +129,9 @@ public class WriteBehindReadFallbackKeyValueStoreTest {
         assertArrayEquals(valueHolder1, valueHolder2);
 
 
-
     }
 
-        @Test
+    @Test
     public void testTodo() {
         final boolean[] hasKeyRef = new boolean[1];
         final String[] valueHolder = new String[1];
@@ -299,9 +282,7 @@ public class WriteBehindReadFallbackKeyValueStoreTest {
         jsonKeyValueStoreServiceBuilder.buildKeyListOfValueStore(Todo.class);
 
 
-
     }
-
 
     @Test
     public void testBytes() {
@@ -326,9 +307,6 @@ public class WriteBehindReadFallbackKeyValueStoreTest {
 
     }
 
-
-
-
     @Test
     public void testBytesDelete() {
 
@@ -350,7 +328,6 @@ public class WriteBehindReadFallbackKeyValueStoreTest {
 
     }
 
-
     @Test
     public void testBytes2() {
 
@@ -365,8 +342,6 @@ public class WriteBehindReadFallbackKeyValueStoreTest {
         writeBehindReadFallbackKeyValueStore.process();
         writeBehindReadFallbackKeyValueStore.process();
         assertEquals(true, hasKeyRef[0]);
-
-
 
 
         testTimer.seconds(5);
@@ -499,6 +474,19 @@ public class WriteBehindReadFallbackKeyValueStoreTest {
         writeBehindReadFallbackKeyValueStore.process();
 
 
+    }
+
+    private class Todo {
+        final String name;
+
+        private Todo(String name) {
+            this.name = name;
+        }
+
+        @Override
+        public String toString() {
+            return name;
+        }
     }
 
 }

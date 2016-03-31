@@ -23,7 +23,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 /**
  * Service Discovery. This is a generic service discovery class.
  * It has two providers. If the primary provider fails, it uses the secondary provider.
- *
+ * <p>
  * created by rhightower on 3/23/15.
  */
 public class ServiceDiscoveryImpl implements ServiceDiscovery {
@@ -333,10 +333,10 @@ public class ServiceDiscoveryImpl implements ServiceDiscovery {
                 Sys.sleep(pollForServicesIntervalMS);
             }
 
-            if (doneQueue.size()==0) {
+            if (doneQueue.size() == 0) {
                 long now = Timer.timer().now();
                 long duration = now - lastCheckIn;
-                if (duration > checkInIntervalInMS ) {
+                if (duration > checkInIntervalInMS) {
                     lastCheckIn = now;
                     doneQueue.addAll(serviceNames);
                 }
@@ -344,7 +344,9 @@ public class ServiceDiscoveryImpl implements ServiceDiscovery {
         }
     }
 
-    /** Iterate through the health service queue and load the services. */
+    /**
+     * Iterate through the health service queue and load the services.
+     */
     private void loadHealthyServices() {
 
         try {
@@ -367,7 +369,7 @@ public class ServiceDiscoveryImpl implements ServiceDiscovery {
                 }
                 serviceName = doneQueue.poll();
             }
-        }catch (Exception ex) {
+        } catch (Exception ex) {
             ex.printStackTrace();
         }
     }
@@ -375,6 +377,7 @@ public class ServiceDiscoveryImpl implements ServiceDiscovery {
 
     /**
      * Loads the service from the remote service registry (i.e., consul).
+     *
      * @param serviceNameToFetch service that we are loading a pool for.
      */
     private void doLoadHealthServices(final String serviceNameToFetch) {
@@ -397,6 +400,7 @@ public class ServiceDiscoveryImpl implements ServiceDiscovery {
 
     /**
      * If the primary load failed, we could have a backup provider registered.
+     *
      * @param serviceNameToFetch service pool to fetch
      * @param ex
      */
@@ -430,7 +434,8 @@ public class ServiceDiscoveryImpl implements ServiceDiscovery {
      * Populate the service map.
      * Look up the service pool.
      * Apply the healthy services so the pool can see if there were changes (additions, removal, etc.)
-     * @param serviceName service name
+     *
+     * @param serviceName     service name
      * @param healthyServices list of healthy services that we just loaded.
      */
     private void populateServiceMap(final String serviceName,

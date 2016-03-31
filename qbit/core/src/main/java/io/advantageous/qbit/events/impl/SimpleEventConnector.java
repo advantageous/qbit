@@ -8,11 +8,14 @@ import static io.advantageous.qbit.service.ServiceProxyUtils.flushServiceProxy;
 
 /**
  * A simple connector to bind two event buses.
+ *
  * @author Rick Hightower
  */
 public class SimpleEventConnector implements EventConnector {
 
-    /** The event bus that we are connecting. */
+    /**
+     * The event bus that we are connecting.
+     */
     private final EventManager eventManager;
 
     public SimpleEventConnector(EventManager eventManager) {

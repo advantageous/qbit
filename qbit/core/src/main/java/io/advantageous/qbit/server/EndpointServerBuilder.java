@@ -85,8 +85,8 @@ public class EndpointServerBuilder {
     private boolean enableHealthEndpoint;
     private boolean enableStatEndpoint;
 
-    private  int statsFlushRateSeconds = 5;
-    private  int checkTimingEveryXCalls = 1000;
+    private int statsFlushRateSeconds = 5;
+    private int checkTimingEveryXCalls = 1000;
     private int protocolBatchSize = 80;
     private long flushResponseInterval = 25;
     private int parserWorkerCount = 4;
@@ -115,12 +115,60 @@ public class EndpointServerBuilder {
     private AfterMethodCall afterMethodCallOnServiceQueue;
 
     private Consumer<Throwable> errorHandler;
+    private ProtocolParser parser;
+    /**
+     * Allows interception of method calls before they get sent to a client.
+     * This allows us to transform or reject method calls.
+     */
+    private BeforeMethodCall beforeMethodCall = ServiceConstants.NO_OP_BEFORE_METHOD_CALL;
+    /**
+     * Allows interception of method calls before they get transformed and sent to a client.
+     * This allows us to transform or reject method calls.
+     */
+    private BeforeMethodCall beforeMethodCallAfterTransform = ServiceConstants.NO_OP_BEFORE_METHOD_CALL;
+    /**
+     * Allows transformation of arguments, for example from JSON to Java objects.
+     */
+    private Transformer<Request, Object> argTransformer = ServiceConstants.NO_OP_ARG_TRANSFORM;
 
+    public EndpointServerBuilder(PropertyResolver propertyResolver) {
+        this.eachServiceInItsOwnThread = propertyResolver.getBooleanProperty("eachServiceInItsOwnThread", eachServiceInItsOwnThread);
+        this.invokeDynamic = propertyResolver.getBooleanProperty("invokeDynamic", invokeDynamic);
+        this.host = propertyResolver.getStringProperty("host", host);
+        this.port = propertyResolver.getIntegerProperty("port", port);
+        this.numberOfOutstandingRequests = propertyResolver
+                .getIntegerProperty("numberOfOutstandingRequests", numberOfOutstandingRequests);
+        this.flushInterval = propertyResolver.getIntegerProperty("flushInterval", flushInterval);
+        this.uri = propertyResolver.getStringProperty("uri", uri);
+        this.timeoutSeconds = propertyResolver.getIntegerProperty("timeoutSeconds", timeoutSeconds);
+        this.statsFlushRateSeconds = propertyResolver.getIntegerProperty("statsFlushRateSeconds", statsFlushRateSeconds);
+        this.checkTimingEveryXCalls = propertyResolver.getIntegerProperty("checkTimingEveryXCalls", checkTimingEveryXCalls);
+        this.encoderWorkerCount = propertyResolver.getIntegerProperty("encoderWorkerCount", encoderWorkerCount);
+        this.parserWorkerCount = propertyResolver.getIntegerProperty("parserWorkerCount", parserWorkerCount);
+        this.flushResponseInterval = propertyResolver.getLongProperty("flushResponseInterval", flushResponseInterval);
+        this.protocolBatchSize = propertyResolver.getIntegerProperty("protocolBatchSize", protocolBatchSize);
+
+
+    }
+
+    public EndpointServerBuilder() {
+        this(PropertyResolver.createSystemPropertyResolver(QBIT_ENDPOINT_SERVER_BUILDER));
+    }
+
+    public EndpointServerBuilder(final Properties properties) {
+        this(PropertyResolver.createPropertiesPropertyResolver(
+                QBIT_ENDPOINT_SERVER_BUILDER, properties));
+    }
+
+    public static EndpointServerBuilder endpointServerBuilder() {
+        return new EndpointServerBuilder();
+    }
 
     public BeforeMethodSent getBeforeMethodSent() {
 
-        if (beforeMethodSent==null) {
-            beforeMethodSent = new BeforeMethodSent() {};
+        if (beforeMethodSent == null) {
+            beforeMethodSent = new BeforeMethodSent() {
+            };
         }
         return beforeMethodSent;
     }
@@ -130,18 +178,16 @@ public class EndpointServerBuilder {
         return this;
     }
 
-    public EndpointServerBuilder setParser(ProtocolParser parser) {
-        this.parser = parser;
-        return this;
-    }
-
-    private ProtocolParser parser;
-
     public ProtocolParser getParser() {
-        if (parser==null) {
+        if (parser == null) {
             parser = getFactory().createProtocolParser();
         }
         return parser;
+    }
+
+    public EndpointServerBuilder setParser(ProtocolParser parser) {
+        this.parser = parser;
+        return this;
     }
 
     public Factory getFactory() {
@@ -237,58 +283,6 @@ public class EndpointServerBuilder {
         return this;
     }
 
-    /**
-     * Allows interception of method calls before they get sent to a client.
-     * This allows us to transform or reject method calls.
-     */
-    private BeforeMethodCall beforeMethodCall = ServiceConstants.NO_OP_BEFORE_METHOD_CALL;
-    /**
-     * Allows interception of method calls before they get transformed and sent to a client.
-     * This allows us to transform or reject method calls.
-     */
-    private BeforeMethodCall beforeMethodCallAfterTransform = ServiceConstants.NO_OP_BEFORE_METHOD_CALL;
-    /**
-     * Allows transformation of arguments, for example from JSON to Java objects.
-     */
-    private Transformer<Request, Object> argTransformer = ServiceConstants.NO_OP_ARG_TRANSFORM;
-
-
-    public EndpointServerBuilder(PropertyResolver propertyResolver) {
-        this.eachServiceInItsOwnThread = propertyResolver.getBooleanProperty("eachServiceInItsOwnThread", eachServiceInItsOwnThread);
-        this.invokeDynamic = propertyResolver.getBooleanProperty("invokeDynamic", invokeDynamic);
-        this.host = propertyResolver.getStringProperty("host", host);
-        this.port = propertyResolver.getIntegerProperty("port", port);
-        this.numberOfOutstandingRequests = propertyResolver
-                .getIntegerProperty("numberOfOutstandingRequests", numberOfOutstandingRequests);
-        this.flushInterval = propertyResolver.getIntegerProperty("flushInterval", flushInterval);
-        this.uri = propertyResolver.getStringProperty("uri", uri);
-        this.timeoutSeconds = propertyResolver.getIntegerProperty("timeoutSeconds", timeoutSeconds);
-        this.statsFlushRateSeconds = propertyResolver.getIntegerProperty("statsFlushRateSeconds", statsFlushRateSeconds);
-        this.checkTimingEveryXCalls = propertyResolver.getIntegerProperty("checkTimingEveryXCalls", checkTimingEveryXCalls);
-        this.encoderWorkerCount = propertyResolver.getIntegerProperty("encoderWorkerCount", encoderWorkerCount);
-        this.parserWorkerCount = propertyResolver.getIntegerProperty("parserWorkerCount", parserWorkerCount);
-        this.flushResponseInterval = propertyResolver.getLongProperty("flushResponseInterval", flushResponseInterval);
-        this.protocolBatchSize = propertyResolver.getIntegerProperty("protocolBatchSize", protocolBatchSize);
-
-
-    }
-
-
-
-    public EndpointServerBuilder() {
-        this(PropertyResolver.createSystemPropertyResolver(QBIT_ENDPOINT_SERVER_BUILDER));
-    }
-    public EndpointServerBuilder(final Properties properties) {
-        this(PropertyResolver.createPropertiesPropertyResolver(
-                QBIT_ENDPOINT_SERVER_BUILDER, properties));
-    }
-
-    public static EndpointServerBuilder endpointServerBuilder() {
-        return new EndpointServerBuilder();
-    }
-
-
-
     public CallbackManagerBuilder getCallbackManagerBuilder() {
         if (callbackManagerBuilder == null) {
             callbackManagerBuilder = CallbackManagerBuilder.callbackManagerBuilder();
@@ -376,7 +370,7 @@ public class EndpointServerBuilder {
 
     public HttpTransport getHttpServer() {
         if (httpServer == null) {
-             httpServer = getHttpServerBuilder().build();
+            httpServer = getHttpServerBuilder().build();
         }
         return httpServer;
     }
@@ -506,7 +500,6 @@ public class EndpointServerBuilder {
     }
 
 
-
     public int getFlushInterval() {
         return flushInterval;
     }
@@ -559,11 +552,6 @@ public class EndpointServerBuilder {
     public ServiceEndpointServer build() {
 
 
-
-
-
-
-
         final ServiceBundle serviceBundle;
 
 
@@ -586,7 +574,6 @@ public class EndpointServerBuilder {
                 getBeforeMethodCallOnServiceQueue(), getAfterMethodCallOnServiceQueue());
 
 
-
         final ServiceEndpointServer serviceEndpointServer = new ServiceEndpointServerImpl(getHttpServer(),
                 getEncoder(), getParser(), serviceBundle, getJsonMapper(), this.getTimeoutSeconds(),
                 this.getNumberOfOutstandingRequests(), getProtocolBatchSize(),
@@ -599,7 +586,7 @@ public class EndpointServerBuilder {
             qBitSystemManager.registerServer(serviceEndpointServer);
         }
 
-        if (services!=null) {
+        if (services != null) {
             serviceEndpointServer.initServices(services);
 
         }
@@ -642,15 +629,15 @@ public class EndpointServerBuilder {
         return this;
     }
 
-    public void setServices(List<Object> services) {
-        this.services = services;
-    }
-
     public List<Object> getServices() {
         if (services == null) {
             services = new ArrayList<>();
         }
         return services;
+    }
+
+    public void setServices(List<Object> services) {
+        this.services = services;
     }
 
     public EndpointServerBuilder addService(Object service) {
@@ -677,7 +664,7 @@ public class EndpointServerBuilder {
                     .setSystemManager(getSystemManager());
 
 
-                setupHealthAndStats(httpServerBuilder);
+            setupHealthAndStats(httpServerBuilder);
 
         }
 
@@ -688,8 +675,6 @@ public class EndpointServerBuilder {
         this.httpServerBuilder = httpServerBuilder;
         return this;
     }
-
-
 
 
     public EndpointServerBuilder setupHealthAndStats(final HttpServerBuilder httpServerBuilder) {

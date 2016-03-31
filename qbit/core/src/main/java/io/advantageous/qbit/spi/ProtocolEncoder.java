@@ -31,7 +31,6 @@ import java.util.Collection;
 public interface ProtocolEncoder {
 
 
-
     String encodeResponses(String returnAddress, Collection<Response<Object>> responses);
 
 

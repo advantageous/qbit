@@ -14,20 +14,7 @@ import static org.junit.Assert.assertTrue;
 public class AsyncFutureBuilderTest {
 
 
-    interface Foo {
-        void getValue(Callback<Boolean> callback);
-    }
-
-    static class FooService implements Foo {
-
-        @Override
-        public void getValue(Callback<Boolean> callback) {
-            callback.accept(true);
-        }
-    }
-
     private Foo foo;
-
     private ServiceQueue serviceQueue;
 
     @Before
@@ -42,7 +29,6 @@ public class AsyncFutureBuilderTest {
         serviceQueue.stop();
     }
 
-
     @Test
     public void test() {
         final AsyncFutureCallback<Boolean> callback = AsyncFutureBuilder
@@ -55,6 +41,18 @@ public class AsyncFutureBuilderTest {
         final Boolean result = callback.get();
 
         assertTrue(result);
+    }
+
+    interface Foo {
+        void getValue(Callback<Boolean> callback);
+    }
+
+    static class FooService implements Foo {
+
+        @Override
+        public void getValue(Callback<Boolean> callback) {
+            callback.accept(true);
+        }
     }
 
 

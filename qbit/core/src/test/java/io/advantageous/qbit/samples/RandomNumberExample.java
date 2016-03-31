@@ -15,8 +15,6 @@ import java.util.concurrent.TimeUnit;
 public class RandomNumberExample {
 
 
-
-
     public static void main(String... args) throws Exception {
 
         final ServiceQueue serviceQueue = ServiceBuilder.serviceBuilder().setServiceObject(randomNumberService()).buildAndStartAll();
@@ -48,7 +46,6 @@ public class RandomNumberExample {
     private static void handleError(Throwable e) {
         System.out.println("blew up" + e);
     }
-
 
 
     public static RandomNumberService randomNumberService() {

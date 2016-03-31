@@ -47,8 +47,6 @@ public interface HttpResponseReceiver<T> {
     }
 
 
-
-
     default Consumer<Exception> errorHandler() {
         return exception -> LoggerFactory.getLogger(HttpTextResponse.class)
                 .error(exception.getMessage(), exception);

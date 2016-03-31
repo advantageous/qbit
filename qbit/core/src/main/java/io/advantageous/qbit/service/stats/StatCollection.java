@@ -6,6 +6,6 @@ import java.util.Map;
 
 public interface StatCollection {
 
-        Map<String, Map<String, ?>> collect(Callback<Map<String, Map<String, ?>>> callback);
+    Map<String, Map<String, ?>> collect(Callback<Map<String, Map<String, ?>>> callback);
 
 }

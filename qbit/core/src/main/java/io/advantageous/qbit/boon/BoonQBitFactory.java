@@ -176,7 +176,6 @@ public class BoonQBitFactory implements Factory {
     }
 
 
-
     @Override
     public <T> T createLocalProxy(Class<T> serviceInterface, String serviceName, ServiceBundle serviceBundle, BeforeMethodSent beforeMethodSent) {
 
@@ -223,9 +222,6 @@ public class BoonQBitFactory implements Factory {
     public JsonMapper createJsonMapper() {
         return new BoonJsonMapper();
     }
-
-
-
 
 
     @Override

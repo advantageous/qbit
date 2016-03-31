@@ -220,7 +220,7 @@ public class MultiMapImpl<K, V> implements MultiMap<K, V> {
 
     }
 
-    private void addValueFromMap(final K key, final  Collection<V> value) {
+    private void addValueFromMap(final K key, final Collection<V> value) {
         Collection<V> collection = this.map.get(key);
         if (collection == null) {
             collection = (Collection<V>) createCollectionFromClass(collectionClass, value.size());

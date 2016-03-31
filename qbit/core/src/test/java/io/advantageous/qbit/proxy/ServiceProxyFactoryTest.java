@@ -125,7 +125,8 @@ public class ServiceProxyFactoryTest {
 
         @Override
         public <T> T createLocalProxy(Class<T> serviceInterface, String serviceName) {
-            return factory.createLocalProxy(serviceInterface, serviceName, this, new BeforeMethodSent() {});
+            return factory.createLocalProxy(serviceInterface, serviceName, this, new BeforeMethodSent() {
+            });
         }
     };
     boolean calledMethod1;

@@ -8,9 +8,12 @@ public class HttpProxyBuilder {
 
     private ProxyBuilder proxyBuilder;
 
+    public static HttpProxyBuilder httpProxyBuilder() {
+        return new HttpProxyBuilder();
+    }
 
     public HttpServerBuilder getHttpServerBuilder() {
-        if (httpServerBuilder==null) {
+        if (httpServerBuilder == null) {
             httpServerBuilder = HttpServerBuilder.httpServerBuilder();
         }
         return httpServerBuilder;
@@ -22,7 +25,7 @@ public class HttpProxyBuilder {
     }
 
     public ProxyBuilder getProxyBuilder() {
-        if (proxyBuilder == null ) {
+        if (proxyBuilder == null) {
             proxyBuilder = ProxyBuilder.proxyBuilder();
         }
         return proxyBuilder;
@@ -35,9 +38,5 @@ public class HttpProxyBuilder {
 
     public HttpProxy build() {
         return new HttpProxy(getHttpServerBuilder().build(), getProxyBuilder().buildProxy());
-    }
-
-    public static HttpProxyBuilder httpProxyBuilder() {
-        return new HttpProxyBuilder();
     }
 }

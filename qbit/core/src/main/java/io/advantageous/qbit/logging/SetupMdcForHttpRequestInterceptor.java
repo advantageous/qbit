@@ -20,12 +20,11 @@ import java.util.Set;
  * Looks at the originatingRequest to see if HTTP request is the originating request.
  * If an HTTP request is the originating request then we decorate the Log with
  * MDC fields.
- *
+ * <p>
  * [http://logback.qos.ch/manual/mdc.html](Mapped Diagnostic Context)
- *
+ * <p>
  * You can specify the headers that you want extracted and placed inside
  * the Mapped Diagnostic Context as well.
- *
  */
 public class SetupMdcForHttpRequestInterceptor implements BeforeMethodCall, AfterMethodCall {
 
@@ -42,6 +41,7 @@ public class SetupMdcForHttpRequestInterceptor implements BeforeMethodCall, Afte
 
     /**
      * Construct a SetupMdcForHttpRequestInterceptor
+     *
      * @param headersToAddToLoggingMappingDiagnosticsContext headers to add to the Logging Mapping Diagnostics Context.
      */
     public SetupMdcForHttpRequestInterceptor(Set<String> headersToAddToLoggingMappingDiagnosticsContext) {
@@ -52,6 +52,7 @@ public class SetupMdcForHttpRequestInterceptor implements BeforeMethodCall, Afte
     /**
      * Gets called before a method gets invoked on a service.
      * This adds request URI, remote address and request headers of the HttpRequest if found.
+     *
      * @param methodCall methodCall
      * @return true to continue, always true.
      */
@@ -69,7 +70,7 @@ public class SetupMdcForHttpRequestInterceptor implements BeforeMethodCall, Afte
 
         if (request.originatingRequest() instanceof HttpRequest) {
             return Optional.of(((HttpRequest) request.originatingRequest()));
-        } else if (request.originatingRequest()!=null) {
+        } else if (request.originatingRequest() != null) {
             return findHttpRequest(request.originatingRequest());
         } else {
             return Optional.empty();
@@ -80,7 +81,8 @@ public class SetupMdcForHttpRequestInterceptor implements BeforeMethodCall, Afte
     /**
      * Gets called after a method completes invocation on a service.
      * Used to clear the logging Mapped Diagnostic Context.
-     * @param call method call
+     *
+     * @param call     method call
      * @param response response from method
      * @return always true
      */
@@ -92,6 +94,7 @@ public class SetupMdcForHttpRequestInterceptor implements BeforeMethodCall, Afte
 
     /**
      * Extract request data and put it into the logging Mapped Diagnostic Context.
+     *
      * @param httpRequest httpRequest
      */
     private void extractRequestInfoAndPutItIntoMappedDiagnosticContext(final HttpRequest httpRequest) {
@@ -106,6 +109,7 @@ public class SetupMdcForHttpRequestInterceptor implements BeforeMethodCall, Afte
 
     /**
      * Extract headersToAddToLoggingMappingDiagnosticsContext data and put them into the logging mapping diagnostics context.
+     *
      * @param httpRequest httpRequest
      */
     private void extractHeaders(final HttpRequest httpRequest) {

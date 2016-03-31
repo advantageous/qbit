@@ -21,7 +21,7 @@ package io.advantageous.qbit.events;
 /**
  * A consumer of an event.
  * There are many subscribers but there can only be on consumer.
- *
+ * <p>
  * created by rhightower on 2/3/15.
  */
 public interface EventConsumer<T> extends EventListener<T> {

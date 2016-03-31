@@ -8,35 +8,33 @@ import java.util.concurrent.TimeUnit;
 
 public class ReactorBuilder {
 
+    public static final String CONTEXT = "qbit.reactor.";
     private Timer timer = Timer.timer();
     private long defaultTimeOut = 60_000;
     private TimeUnit timeUnit = TimeUnit.MILLISECONDS;
-    public static final String CONTEXT = "qbit.reactor.";
+
+    public ReactorBuilder(final PropertyResolver propertyResolver) {
+
+        defaultTimeOut = propertyResolver.getLongProperty("defaultTimeOut", defaultTimeOut);
+
+    }
+
+    public ReactorBuilder(final Properties properties) {
+
+        this(PropertyResolver.createPropertiesPropertyResolver(CONTEXT, properties));
+    }
+
+
+    public ReactorBuilder() {
+        this(PropertyResolver.createSystemPropertyResolver(CONTEXT));
+    }
 
     public static ReactorBuilder reactorBuilder() {
         return new ReactorBuilder();
 
     }
 
-    public ReactorBuilder (final PropertyResolver propertyResolver) {
-
-        defaultTimeOut = propertyResolver.getLongProperty("defaultTimeOut", defaultTimeOut);
-
-    }
-
-
-    public ReactorBuilder (final Properties properties) {
-
-        this(PropertyResolver.createPropertiesPropertyResolver(CONTEXT, properties));
-    }
-
-
-    public ReactorBuilder () {
-        this(PropertyResolver.createSystemPropertyResolver(CONTEXT));
-    }
-
-
-    public Reactor build () {
+    public Reactor build() {
         return new Reactor(getTimer(), getDefaultTimeOut(), getTimeUnit());
     }
 

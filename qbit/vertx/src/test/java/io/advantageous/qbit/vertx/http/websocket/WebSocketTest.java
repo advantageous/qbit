@@ -20,7 +20,7 @@ public class WebSocketTest {
 
 
     @Test
-    public void testText() throws Exception{
+    public void testText() throws Exception {
 
         final int port = PortUtils.findOpenPortStartAt(4000);
         final HttpServer httpServer = HttpServerBuilder.httpServerBuilder().setPort(port).build();
@@ -41,7 +41,6 @@ public class WebSocketTest {
         final WebSocket webSocket = httpClient.createWebSocket("/foo");
 
 
-
         webSocket.setTextMessageConsumer(message -> {
 
             messageRef.set(message);
@@ -59,11 +58,10 @@ public class WebSocketTest {
         assertEquals("hello", bodyRef.get().toString());
 
 
-
     }
 
     @Test
-    public void testTextQueue() throws Exception{
+    public void testTextQueue() throws Exception {
 
         final int port = PortUtils.findOpenPortStartAt(4000);
         final HttpServer httpServer = HttpServerBuilder.httpServerBuilder().setPort(port).build();
@@ -84,7 +82,6 @@ public class WebSocketTest {
         final WebSocketTextQueue queue = new WebSocketTextQueue(webSocket);
 
 
-
         webSocket.openAndWait();
 
         webSocket.sendText("hello");
@@ -93,17 +90,15 @@ public class WebSocketTest {
         String message = queue.receiveQueue().pollWait();
 
 
-
         assertEquals("world", message);
         assertEquals("hello", bodyRef.get().toString());
-
 
 
     }
 
 
     @Test
-    public void testTextQueueWithBatchSize() throws Exception{
+    public void testTextQueueWithBatchSize() throws Exception {
 
         final int port = PortUtils.findOpenPortStartAt(4000);
         final HttpServer httpServer = HttpServerBuilder.httpServerBuilder().setPort(port).build();
@@ -124,7 +119,6 @@ public class WebSocketTest {
         final WebSocketTextQueue queue = new WebSocketTextQueue(webSocket, 100, 100, TimeUnit.MILLISECONDS);
 
 
-
         webSocket.openAndWait();
 
         webSocket.sendText("hello");
@@ -133,16 +127,14 @@ public class WebSocketTest {
         String message = queue.receiveQueue().pollWait();
 
 
-
         assertEquals("world", message);
         assertEquals("hello", bodyRef.get().toString());
-
 
 
     }
 
     @Test
-    public void testBinary() throws Exception{
+    public void testBinary() throws Exception {
 
         final int port = PortUtils.findOpenPortStartAt(4001);
         final HttpServer httpServer = HttpServerBuilder.httpServerBuilder().setPort(port).build();
@@ -175,7 +167,6 @@ public class WebSocketTest {
 
         assertEquals("world", new String(messageRef.get(), StandardCharsets.UTF_8));
         assertEquals("hello", new String(((byte[]) bodyRef.get()), StandardCharsets.UTF_8));
-
 
 
     }

@@ -37,100 +37,6 @@ public class SendingEventsUsingStronglyTypedChannelToServiceTest {
     private ServiceA serviceA;
     private ServiceAInterface serviceAQueueProxy;
 
-
-
-    /* Object that will be sent over the event. */
-    public static class Record {
-
-        private final String value;
-
-        public Record(String value) {
-            this.value = value;
-        }
-
-        @Override
-        public String toString() {
-            return "Record{" +
-                    "value='" + value + '\'' +
-                    '}';
-        }
-    }
-
-
-    /** Interface for Service A. */
-    public interface ServiceAInterface {
-
-        void addRecord(final Record record);
-
-        void addRecords(final List<Record> records);
-    }
-
-    /** Service A will send events to services B via an event channel. */
-    public static class ServiceA implements ServiceAInterface{
-
-        private final RecordListener recordChannel;
-
-        public ServiceA(EventManager eventManager, EventBusProxyCreator eventBusProxyCreator) {
-            recordChannel = eventBusProxyCreator.createProxy(eventManager, RecordListener.class);
-        }
-
-        /** Send record over record event channel. */
-        public void addRecord(final Record record) {
-            recordChannel.newRecord(record);
-            ServiceProxyUtils.flushServiceProxy(recordChannel);
-        }
-
-
-        /** Send records over record event channel. */
-        public void addRecords(List<Record> records) {
-
-            recordChannel.newRecords(records);
-        }
-
-
-        /** flush events. */
-        @QueueCallback({QueueCallbackType.LIMIT, QueueCallbackType.EMPTY})
-        void process () {
-            ServiceProxyUtils.flushServiceProxy(recordChannel);
-        }
-    }
-
-
-    /** Event channel. */
-    @EventChannel
-    public  interface RecordListener {
-
-        @EventChannel
-        void newRecord(Record record);
-
-
-        @EventChannel
-        void newRecords(List<Record> records);
-    }
-
-
-    /**
-     * Service B listens to events over the event channel.
-     */
-    public static class ServiceB implements RecordListener {
-
-        final ArrayBlockingQueue<Record> blockingQueue = new ArrayBlockingQueue<>(10);
-
-        @Listen @Override
-        public void newRecord(final Record record) {
-            puts("GOT NEW RECORD", record);
-            blockingQueue.add(record);
-        }
-
-
-        @Listen @Override
-        public void newRecords(List<Record> records) {
-            puts("GOT NEW RECORDS", records);
-            records.forEach(blockingQueue::add);
-        }
-    }
-
-
     @Test
     public void test() {
 
@@ -139,9 +45,9 @@ public class SendingEventsUsingStronglyTypedChannelToServiceTest {
         ServiceProxyUtils.flushServiceProxy(serviceAQueueProxy);
 
         /* Check if we have the record by asking Service B. */
-        for (int index =0 ; index < 10; index++) {
+        for (int index = 0; index < 10; index++) {
             Sys.sleep(100);
-            if (serviceB.blockingQueue.size()>0) {
+            if (serviceB.blockingQueue.size() > 0) {
                 break;
             }
         }
@@ -152,7 +58,6 @@ public class SendingEventsUsingStronglyTypedChannelToServiceTest {
         assertEquals("Foo", record.value);
 
     }
-
 
     @Test
     public void testList() {
@@ -165,9 +70,9 @@ public class SendingEventsUsingStronglyTypedChannelToServiceTest {
 
 
         /* Check if we have the record by asking Service B. */
-        for (int index =0 ; index < 10; index++) {
+        for (int index = 0; index < 10; index++) {
             Sys.sleep(100);
-            if (serviceB.blockingQueue.size()==3) {
+            if (serviceB.blockingQueue.size() == 3) {
                 break;
             }
         }
@@ -180,10 +85,8 @@ public class SendingEventsUsingStronglyTypedChannelToServiceTest {
         assertEquals("Baz", record.value);
     }
 
-
-
     @Test
-    public void testSendSimple() throws Exception{
+    public void testSendSimple() throws Exception {
         final EventManager eventManager = eventServiceQueue.createProxy(EventManager.class);
         final CountDownLatch latch = new CountDownLatch(1);
         final AtomicReference<Event<Object>> ref = new AtomicReference<>();
@@ -200,8 +103,6 @@ public class SendingEventsUsingStronglyTypedChannelToServiceTest {
         assertNotNull(ref.get());
     }
 
-
-
     @Before
     public void setup() {
         systemManager = new QBitSystemManager();
@@ -217,13 +118,11 @@ public class SendingEventsUsingStronglyTypedChannelToServiceTest {
         eventServiceQueue = serviceBuilder.setServiceObject(eventManager).build().startServiceQueue();
 
 
-
         serviceBuilder = ServiceBuilder.serviceBuilder()
                 .setSystemManager(systemManager).setEventManager(eventManager);
 
         serviceB = new ServiceB();
         serviceBuilder.setServiceObject(serviceB).buildAndStartAll();
-
 
 
         serviceBuilder = ServiceBuilder.serviceBuilder()
@@ -244,6 +143,110 @@ public class SendingEventsUsingStronglyTypedChannelToServiceTest {
     @After
     public void cleanup() {
         systemManager.shutDown();
+    }
+
+
+    /**
+     * Interface for Service A.
+     */
+    public interface ServiceAInterface {
+
+        void addRecord(final Record record);
+
+        void addRecords(final List<Record> records);
+    }
+
+
+    /**
+     * Event channel.
+     */
+    @EventChannel
+    public interface RecordListener {
+
+        @EventChannel
+        void newRecord(Record record);
+
+
+        @EventChannel
+        void newRecords(List<Record> records);
+    }
+
+    /* Object that will be sent over the event. */
+    public static class Record {
+
+        private final String value;
+
+        public Record(String value) {
+            this.value = value;
+        }
+
+        @Override
+        public String toString() {
+            return "Record{" +
+                    "value='" + value + '\'' +
+                    '}';
+        }
+    }
+
+    /**
+     * Service A will send events to services B via an event channel.
+     */
+    public static class ServiceA implements ServiceAInterface {
+
+        private final RecordListener recordChannel;
+
+        public ServiceA(EventManager eventManager, EventBusProxyCreator eventBusProxyCreator) {
+            recordChannel = eventBusProxyCreator.createProxy(eventManager, RecordListener.class);
+        }
+
+        /**
+         * Send record over record event channel.
+         */
+        public void addRecord(final Record record) {
+            recordChannel.newRecord(record);
+            ServiceProxyUtils.flushServiceProxy(recordChannel);
+        }
+
+
+        /**
+         * Send records over record event channel.
+         */
+        public void addRecords(List<Record> records) {
+
+            recordChannel.newRecords(records);
+        }
+
+
+        /**
+         * flush events.
+         */
+        @QueueCallback({QueueCallbackType.LIMIT, QueueCallbackType.EMPTY})
+        void process() {
+            ServiceProxyUtils.flushServiceProxy(recordChannel);
+        }
+    }
+
+    /**
+     * Service B listens to events over the event channel.
+     */
+    public static class ServiceB implements RecordListener {
+
+        final ArrayBlockingQueue<Record> blockingQueue = new ArrayBlockingQueue<>(10);
+
+        @Listen
+        @Override
+        public void newRecord(final Record record) {
+            puts("GOT NEW RECORD", record);
+            blockingQueue.add(record);
+        }
+
+
+        @Listen
+        @Override
+        public void newRecords(List<Record> records) {
+            puts("GOT NEW RECORDS", records);
+            records.forEach(blockingQueue::add);
+        }
     }
 
 }

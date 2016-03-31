@@ -101,7 +101,7 @@ public class ApiInfoBuilder {
     }
 
     public License getLicense() {
-        if (license==null) {
+        if (license == null) {
             license = getLicenseBuilder().build();
         }
         return license;

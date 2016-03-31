@@ -11,14 +11,13 @@ public class BeforeMethodCallChain implements BeforeMethodCall {
 
     private final List<BeforeMethodCall> beforeMethodCallList;
 
-    public static BeforeMethodCallChain beforeMethodCallChain(BeforeMethodCall... beforeMethodCalls) {
-        return new BeforeMethodCallChain(Arrays.asList(beforeMethodCalls));
-    }
-
     public BeforeMethodCallChain(List<BeforeMethodCall> beforeMethodCallList) {
         this.beforeMethodCallList = Collections.unmodifiableList(beforeMethodCallList);
     }
 
+    public static BeforeMethodCallChain beforeMethodCallChain(BeforeMethodCall... beforeMethodCalls) {
+        return new BeforeMethodCallChain(Arrays.asList(beforeMethodCalls));
+    }
 
     @Override
     public boolean before(final MethodCall call) {

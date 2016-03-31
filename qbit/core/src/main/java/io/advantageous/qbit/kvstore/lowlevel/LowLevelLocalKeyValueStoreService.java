@@ -22,19 +22,16 @@ import static io.advantageous.qbit.time.Duration.TEN_SECONDS;
  */
 public class LowLevelLocalKeyValueStoreService implements LowLevelKeyValueStoreService {
 
+    public final String BASE_STAT_KEY = "qbit.kv.store.";
+    public final String CACHE_SIZE_AT_FLUSH = BASE_STAT_KEY + "flush.size";
+    public final String CACHE_SIZE = BASE_STAT_KEY + "cache.size";
     private final int localCacheSize;
     private final Timer timer;
     private final Reactor reactor;
     private final StatsCollector statsCollector;
-    public final String BASE_STAT_KEY = "qbit.kv.store.";
-    public final String CACHE_SIZE_AT_FLUSH = BASE_STAT_KEY + "flush.size";
-    public final String CACHE_SIZE = BASE_STAT_KEY + "cache.size";
-
-    private SimpleLRUCache<String, CacheEntry> localCache;
-
-    private long time;
-
     private final Logger logger = LoggerFactory.getLogger(LowLevelLocalKeyValueStoreService.class);
+    private SimpleLRUCache<String, CacheEntry> localCache;
+    private long time;
 
 
     public LowLevelLocalKeyValueStoreService(final Timer timer,
@@ -59,7 +56,7 @@ public class LowLevelLocalKeyValueStoreService implements LowLevelKeyValueStoreS
         }
 
         reactor.addRepeatingTask(FIVE_SECONDS,
-                ()-> statsCollector.recordLevel(CACHE_SIZE, localCache.size())
+                () -> statsCollector.recordLevel(CACHE_SIZE, localCache.size())
         );
 
         localCacheInit();
@@ -82,63 +79,8 @@ public class LowLevelLocalKeyValueStoreService implements LowLevelKeyValueStoreS
         time = timer.time();
     }
 
-    private abstract static class CacheEntry {
-        public CacheEntry(Optional<Duration> expiry, String key, long createTime) {
-            this.expiry = expiry;
-            this.key = key;
-            this.createTime = createTime;
-        }
-
-        private final Optional<Duration> expiry;
-        private final String key;
-        private final long createTime;
-
-        abstract Object getValue();
-
-        private boolean isExpired(long currentTime) {
-            if (!expiry.isPresent()) {
-                return false;
-            }
-            long duration = currentTime - createTime;
-            return duration > expiry.get().toMillis();
-        }
-
-    }
-
-    private class CacheBytesEntry extends CacheEntry{
-        private final byte[] value;
-
-        private CacheBytesEntry(String key, Optional<Duration> expiry, long createTime, byte[] value) {
-            super(expiry, key, createTime);
-            this.value = value;
-        }
-
-
-        Object getValue() {
-            return value;
-        }
-    }
-
-
-    private class CacheStringEntry extends CacheEntry{
-        private final String value;
-
-        private CacheStringEntry(String key, Optional<Duration> expiry, long createTime, String value) {
-            super(expiry, key, createTime);
-            this.value = value;
-        }
-
-
-
-        Object getValue() {
-            return value;
-        }
-
-    }
-
-
     private void localCacheInit() {
-        if (localCache!=null) {
+        if (localCache != null) {
             statsCollector.recordLevel(CACHE_SIZE_AT_FLUSH, this.localCache.size());
         }
         localCache = new SimpleLRUCache<>(this.localCacheSize);
@@ -150,12 +92,10 @@ public class LowLevelLocalKeyValueStoreService implements LowLevelKeyValueStoreS
         confirmation.accept(true);
     }
 
-
     @Override
     public void putString(final String key, final String value) {
         localCache.put(key, new CacheStringEntry(key, Optional.empty(), 0L, value));
     }
-
 
     @Override
     public void putBytes(String key, byte[] value) {
@@ -178,7 +118,6 @@ public class LowLevelLocalKeyValueStoreService implements LowLevelKeyValueStoreS
         confirmation.returnThis(true);
     }
 
-
     @Override
     public void putStringWithConfirmationAndTimeout(final Callback<Boolean> confirmation,
                                                     final String key,
@@ -194,7 +133,6 @@ public class LowLevelLocalKeyValueStoreService implements LowLevelKeyValueStoreS
         confirmation.returnThis(true);
     }
 
-
     @Override
     public void putStringWithTimeout(final String key,
                                      final String value,
@@ -208,7 +146,6 @@ public class LowLevelLocalKeyValueStoreService implements LowLevelKeyValueStoreS
                                     final Duration expiry) {
         localCache.put(key, new CacheBytesEntry(key, Optional.of(expiry), time, value));
     }
-
 
     @Override
     public void getString(final Callback<Optional<String>> callback,
@@ -279,6 +216,57 @@ public class LowLevelLocalKeyValueStoreService implements LowLevelKeyValueStoreS
     @Override
     public void delete(final String key) {
         localCache.remove(key);
+    }
+
+    private abstract static class CacheEntry {
+        private final Optional<Duration> expiry;
+        private final String key;
+        private final long createTime;
+        public CacheEntry(Optional<Duration> expiry, String key, long createTime) {
+            this.expiry = expiry;
+            this.key = key;
+            this.createTime = createTime;
+        }
+
+        abstract Object getValue();
+
+        private boolean isExpired(long currentTime) {
+            if (!expiry.isPresent()) {
+                return false;
+            }
+            long duration = currentTime - createTime;
+            return duration > expiry.get().toMillis();
+        }
+
+    }
+
+    private class CacheBytesEntry extends CacheEntry {
+        private final byte[] value;
+
+        private CacheBytesEntry(String key, Optional<Duration> expiry, long createTime, byte[] value) {
+            super(expiry, key, createTime);
+            this.value = value;
+        }
+
+
+        Object getValue() {
+            return value;
+        }
+    }
+
+    private class CacheStringEntry extends CacheEntry {
+        private final String value;
+
+        private CacheStringEntry(String key, Optional<Duration> expiry, long createTime, String value) {
+            super(expiry, key, createTime);
+            this.value = value;
+        }
+
+
+        Object getValue() {
+            return value;
+        }
+
     }
 
 }

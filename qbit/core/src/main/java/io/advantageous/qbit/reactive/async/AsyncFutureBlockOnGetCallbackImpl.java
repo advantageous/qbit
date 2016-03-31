@@ -9,8 +9,10 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 
-/** Used to make async calls into sync calls if needed using a latch. */
-public class AsyncFutureBlockOnGetCallbackImpl <T> implements AsyncFutureCallback<T> {
+/**
+ * Used to make async calls into sync calls if needed using a latch.
+ */
+public class AsyncFutureBlockOnGetCallbackImpl<T> implements AsyncFutureCallback<T> {
 
 
     private final Runnable onTimeout;
@@ -27,11 +29,11 @@ public class AsyncFutureBlockOnGetCallbackImpl <T> implements AsyncFutureCallbac
     private final CountDownLatch latch = new CountDownLatch(1);
 
     public AsyncFutureBlockOnGetCallbackImpl(final Callback<T> callback,
-                                   final long startTime,
-                                   final long maxExecutionDuration,
-                                   final Runnable onFinished,
-                                   final Runnable onTimeout,
-                                   final Consumer<Throwable> onError) {
+                                             final long startTime,
+                                             final long maxExecutionDuration,
+                                             final Runnable onFinished,
+                                             final Runnable onTimeout,
+                                             final Consumer<Throwable> onError) {
         this.callback = callback;
         this.startTime = startTime;
         this.maxExecutionTime = maxExecutionDuration;
@@ -44,11 +46,11 @@ public class AsyncFutureBlockOnGetCallbackImpl <T> implements AsyncFutureCallbac
     }
 
     public static <T> AsyncFutureBlockOnGetCallbackImpl<T> callback(final Callback<T> callback,
-                                                          final long startTime,
-                                                          final long maxExecutionTime,
-                                                          final Runnable onFinished,
-                                                          final Runnable onTimeout,
-                                                          final Consumer<Throwable> onError) {
+                                                                    final long startTime,
+                                                                    final long maxExecutionTime,
+                                                                    final Runnable onFinished,
+                                                                    final Runnable onTimeout,
+                                                                    final Consumer<Throwable> onError) {
         return new AsyncFutureBlockOnGetCallbackImpl<>(callback, startTime, maxExecutionTime, onFinished, onTimeout, onError);
     }
 
@@ -153,7 +155,7 @@ public class AsyncFutureBlockOnGetCallbackImpl <T> implements AsyncFutureCallbac
     @Override
     public T get() {
         try {
-            latch.await((long)(this.timeOutDuration() * 1.5), TimeUnit.MILLISECONDS);
+            latch.await((long) (this.timeOutDuration() * 1.5), TimeUnit.MILLISECONDS);
         } catch (InterruptedException e) {
             Thread.interrupted();
         }

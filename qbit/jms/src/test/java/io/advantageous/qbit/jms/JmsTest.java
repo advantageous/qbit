@@ -27,7 +27,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 /**
- *
  * Created  10/8/15.
  */
 public class JmsTest {
@@ -42,7 +41,7 @@ public class JmsTest {
     public void setUp() throws Exception {
 
         port = PortUtils.findOpenPortStartAt(4000);
-        broker= new BrokerService();
+        broker = new BrokerService();
         broker.addConnector("tcp://localhost:" + port);
         broker.start();
 
@@ -54,7 +53,6 @@ public class JmsTest {
         personQueue = new JsonQueue<>(Person.class, textQueue);
         personSendQueue = personQueue.sendQueue();
         personReceiveQueue = personQueue.receiveQueue();
-
 
 
         personSendQueue.shouldBatch();
@@ -75,7 +73,7 @@ public class JmsTest {
 
         Person geoff = personReceiveQueue.pollWait();
 
-        while (geoff==null) {
+        while (geoff == null) {
             geoff = personReceiveQueue.pollWait();
         }
 
@@ -98,7 +96,7 @@ public class JmsTest {
 
         Person geoff = personReceiveQueue.pollWait();
 
-        while (geoff==null) {
+        while (geoff == null) {
             geoff = personReceiveQueue.pollWait();
         }
 
@@ -139,7 +137,8 @@ public class JmsTest {
 
     }
 
-    @Test @Ignore
+    @Test
+    @Ignore
     public void testSendConsume5() throws Exception {
         final List<Person> list = Lists.list(new Person("Geoff"), new Person("Rick"));
 
@@ -150,10 +149,9 @@ public class JmsTest {
         personSendQueue.flushSends();
 
 
-
         Person geoff = personReceiveQueue.pollWait();
 
-        while (geoff==null) {
+        while (geoff == null) {
             geoff = personReceiveQueue.pollWait();
         }
         final Person rick = personReceiveQueue.pollWait();
@@ -203,6 +201,7 @@ public class JmsTest {
         personSendQueue.sendBatch(persons);
 
     }
+
     @Test
     public void testSendConsume6() throws Exception {
 
@@ -229,12 +228,11 @@ public class JmsTest {
         final List<Person> personsBatch = (List<Person>) personReceiveQueue.readBatch(5);
 
 
-
-
     }
 
 
-    @Test @Ignore
+    @Test
+    @Ignore
     public void testSendConsume8() throws Exception {
 
         final ArrayBlockingQueue<Person> personsABQ = new ArrayBlockingQueue<>(100);
@@ -313,8 +311,7 @@ public class JmsTest {
         jmsServiceBuilder.setTransacted(true);
         jmsServiceBuilder.isTransacted();
         jmsServiceBuilder.setJndiSettings(null);
-        jmsServiceBuilder.addJndiSetting("foo","bar");
-
+        jmsServiceBuilder.addJndiSetting("foo", "bar");
 
 
         jmsServiceBuilder = JmsServiceBuilder.newJmsServiceBuilder().setPort(port);

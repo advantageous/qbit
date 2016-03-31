@@ -15,9 +15,9 @@ public class ServiceEndpointInfoBuilder {
     private ApiInfoBuilder apiInfoBuilder;
 
     /**
-     *  Specifies the Swagger Specification version being used.
-     *  It can be used by the Swagger UI and other clients to interpret the API listing.
-     *  The value MUST be "2.0".
+     * Specifies the Swagger Specification version being used.
+     * It can be used by the Swagger UI and other clients to interpret the API listing.
+     * The value MUST be "2.0".
      */
     private String swagger = "2.0";
 
@@ -172,14 +172,13 @@ public class ServiceEndpointInfoBuilder {
         return paths;
     }
 
-
-    public ServiceEndpointInfoBuilder addPath(String uri, Path path) {
-        getPaths().put(uri, path);
+    public ServiceEndpointInfoBuilder setPaths(Map<String, Path> paths) {
+        this.paths = paths;
         return this;
     }
 
-    public ServiceEndpointInfoBuilder setPaths(Map<String, Path> paths) {
-        this.paths = paths;
+    public ServiceEndpointInfoBuilder addPath(String uri, Path path) {
+        getPaths().put(uri, path);
         return this;
     }
 

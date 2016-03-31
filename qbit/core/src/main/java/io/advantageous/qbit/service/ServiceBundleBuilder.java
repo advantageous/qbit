@@ -41,7 +41,7 @@ import java.util.Properties;
  * Allows for the programmatic construction of a service bundle.
  *
  * @author rhightower
- * created by Richard on 11/14/14.
+ *         created by Richard on 11/14/14.
  */
 public class ServiceBundleBuilder {
 
@@ -57,8 +57,8 @@ public class ServiceBundleBuilder {
     private Queue<Response<Object>> responseQueue;
     private HealthServiceAsync healthService = null;
     private StatsCollector statsCollector = null;
-    private  int statsFlushRateSeconds;
-    private  int checkTimingEveryXCalls = -1;
+    private int statsFlushRateSeconds;
+    private int checkTimingEveryXCalls = -1;
     private BeforeMethodSent beforeMethodSent;
 
 
@@ -69,9 +69,44 @@ public class ServiceBundleBuilder {
 
     private Factory factory;
     private AfterMethodCall afterMethodCallOnServiceQueue;
+    /**
+     * Allows interception of method calls before they get sent to a client.
+     * This allows us to transform or reject method calls.
+     */
+    private BeforeMethodCall beforeMethodCall = ServiceConstants.NO_OP_BEFORE_METHOD_CALL;
+    /**
+     * Allows interception of method calls before they get transformed and sent to a client.
+     * This allows us to transform or reject method calls.
+     */
+    private BeforeMethodCall beforeMethodCallAfterTransform = ServiceConstants.NO_OP_BEFORE_METHOD_CALL;
+    /**
+     * Allows transformation of arguments, for example from JSON to Java objects.
+     */
+    private Transformer<Request, Object> argTransformer = ServiceConstants.NO_OP_ARG_TRANSFORM;
+    private Timer timer;
+
+    public ServiceBundleBuilder(PropertyResolver propertyResolver) {
+        this.invokeDynamic = propertyResolver.getBooleanProperty("invokeDynamic", true);
+        this.statsFlushRateSeconds = propertyResolver.getIntegerProperty("statsFlushRateSeconds", 5);
+        this.checkTimingEveryXCalls = propertyResolver.getIntegerProperty("checkTimingEveryXCalls", 10000);
+
+    }
+
+    public ServiceBundleBuilder() {
+        this(PropertyResolver.createSystemPropertyResolver(QBIT_SERVER_BUNDLE_BUILDER));
+    }
+
+    public ServiceBundleBuilder(final Properties properties) {
+        this(PropertyResolver.createPropertiesPropertyResolver(
+                QBIT_SERVER_BUNDLE_BUILDER, properties));
+    }
+
+    public static ServiceBundleBuilder serviceBundleBuilder() {
+        return new ServiceBundleBuilder();
+    }
 
     public Factory getFactory() {
-        if (factory==null) {
+        if (factory == null) {
             factory = QBit.factory();
         }
         return factory;
@@ -79,7 +114,8 @@ public class ServiceBundleBuilder {
 
     public BeforeMethodSent getBeforeMethodSent() {
         if (beforeMethodSent == null) {
-            beforeMethodSent = new BeforeMethodSent(){};
+            beforeMethodSent = new BeforeMethodSent() {
+            };
         }
         return beforeMethodSent;
     }
@@ -92,7 +128,7 @@ public class ServiceBundleBuilder {
     public CallbackManagerBuilder getCallbackManagerBuilder() {
         if (callbackManagerBuilder == null) {
             callbackManagerBuilder = CallbackManagerBuilder.callbackManagerBuilder();
-            if (address!=null) {
+            if (address != null) {
                 callbackManagerBuilder.setName("ServiceBundle-" + address);
             }
         }
@@ -116,45 +152,6 @@ public class ServiceBundleBuilder {
         this.callbackManager = callbackManager;
         return this;
     }
-
-
-    /**
-     * Allows interception of method calls before they get sent to a client.
-     * This allows us to transform or reject method calls.
-     */
-    private BeforeMethodCall beforeMethodCall = ServiceConstants.NO_OP_BEFORE_METHOD_CALL;
-    /**
-     * Allows interception of method calls before they get transformed and sent to a client.
-     * This allows us to transform or reject method calls.
-     */
-    private BeforeMethodCall beforeMethodCallAfterTransform = ServiceConstants.NO_OP_BEFORE_METHOD_CALL;
-    /**
-     * Allows transformation of arguments, for example from JSON to Java objects.
-     */
-    private Transformer<Request, Object> argTransformer = ServiceConstants.NO_OP_ARG_TRANSFORM;
-    private Timer timer;
-
-    public static ServiceBundleBuilder serviceBundleBuilder() {
-        return new ServiceBundleBuilder();
-    }
-
-
-
-    public ServiceBundleBuilder(PropertyResolver propertyResolver) {
-        this.invokeDynamic = propertyResolver.getBooleanProperty("invokeDynamic", true);
-        this.statsFlushRateSeconds = propertyResolver.getIntegerProperty("statsFlushRateSeconds", 5);
-        this.checkTimingEveryXCalls = propertyResolver.getIntegerProperty("checkTimingEveryXCalls", 10000);
-
-    }
-
-    public ServiceBundleBuilder() {
-        this(PropertyResolver.createSystemPropertyResolver(QBIT_SERVER_BUNDLE_BUILDER));
-    }
-    public ServiceBundleBuilder(final Properties properties) {
-        this(PropertyResolver.createPropertiesPropertyResolver(
-                QBIT_SERVER_BUNDLE_BUILDER, properties));
-    }
-
 
     public QueueBuilder getWebResponseQueueBuilder() {
 
@@ -287,7 +284,6 @@ public class ServiceBundleBuilder {
     }
 
 
-
     public HealthServiceAsync getHealthService() {
         return healthService;
     }
@@ -352,16 +348,16 @@ public class ServiceBundleBuilder {
         return build;
     }
 
-    public ServiceBundleBuilder setTimer(Timer timer) {
-        this.timer = timer;
-        return this;
-    }
-
     public Timer getTimer() {
         if (timer == null) {
             timer = Timer.timer();
         }
         return timer;
+    }
+
+    public ServiceBundleBuilder setTimer(Timer timer) {
+        this.timer = timer;
+        return this;
     }
 
     public int getStatsFlushRateSeconds() {
@@ -382,17 +378,12 @@ public class ServiceBundleBuilder {
         return this;
     }
 
-    public ServiceBundleBuilder setEventManager(EventManager eventManager) {
-        this.eventManager = eventManager;
-        return this;
-    }
-
     public EventManager getEventManager() {
         return eventManager;
     }
 
-    public ServiceBundleBuilder setBeforeMethodCallOnServiceQueue(BeforeMethodCall beforeMethodCallOnServiceQueue) {
-        this.beforeMethodCallOnServiceQueue = beforeMethodCallOnServiceQueue;
+    public ServiceBundleBuilder setEventManager(EventManager eventManager) {
+        this.eventManager = eventManager;
         return this;
     }
 
@@ -400,13 +391,18 @@ public class ServiceBundleBuilder {
         return beforeMethodCallOnServiceQueue;
     }
 
-    public ServiceBundleBuilder setAfterMethodCallOnServiceQueue(AfterMethodCall afterMethodCallOnServiceQueue) {
-        this.afterMethodCallOnServiceQueue = afterMethodCallOnServiceQueue;
+    public ServiceBundleBuilder setBeforeMethodCallOnServiceQueue(BeforeMethodCall beforeMethodCallOnServiceQueue) {
+        this.beforeMethodCallOnServiceQueue = beforeMethodCallOnServiceQueue;
         return this;
     }
 
     public AfterMethodCall getAfterMethodCallOnServiceQueue() {
         return afterMethodCallOnServiceQueue;
+    }
+
+    public ServiceBundleBuilder setAfterMethodCallOnServiceQueue(AfterMethodCall afterMethodCallOnServiceQueue) {
+        this.afterMethodCallOnServiceQueue = afterMethodCallOnServiceQueue;
+        return this;
     }
 }
 

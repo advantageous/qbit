@@ -30,13 +30,11 @@ public class StatsDReplicator implements StatReplicator, QueueCallBackHandler {
     private final Logger logger = LoggerFactory.getLogger(StatsDReplicator.class);
     private final InetSocketAddress address;
     private final int bufferSize;
-    private  DatagramChannel channel;
     private final ConcurrentHashMap<String, Metric> countMap = new ConcurrentHashMap<>();
-
-
+    int resetDatagramEvery = 0;
+    private DatagramChannel channel;
     private long lastFlush;
     private long time;
-    private long lastOpenTime;
 
     /*
     Sets
@@ -46,6 +44,7 @@ StatsD supports counting unique occurences of events between flushes, using a Se
 uniques:765|s
 If the count at flush is 0 then you can opt to send no metric at all for this set, by setting config.deleteSets.
      */
+    private long lastOpenTime;
 
     public StatsDReplicator(String host, int port, boolean multiMetrics, int bufferSize, int flushRateIntervalMS) throws IOException {
         this(InetAddress.getByName(host), port, multiMetrics, bufferSize, flushRateIntervalMS);
@@ -72,10 +71,10 @@ If the count at flush is 0 then you can opt to send no metric at all for this se
 
         try {
 
-            if (channel!=null) {
+            if (channel != null) {
                 try {
                     channel.close();
-                }catch (Exception ex) {
+                } catch (Exception ex) {
                     logger.debug("unable to clean up channel connection", ex);
                 }
             }
@@ -84,7 +83,7 @@ If the count at flush is 0 then you can opt to send no metric at all for this se
             channel.configureBlocking(false);
             channel.setOption(StandardSocketOptions.SO_SNDBUF, bufferSize * 2);
 
-        }catch (Exception ex) {
+        } catch (Exception ex) {
             logger.error("Unable to open channel", ex);
         }
     }
@@ -93,7 +92,6 @@ If the count at flush is 0 then you can opt to send no metric at all for this se
         super.finalize();
         flushStatSend();
     }
-
 
     @SuppressWarnings("UnusedReturnValue")
     public boolean timing(String key, long value) {
@@ -105,11 +103,9 @@ If the count at flush is 0 then you can opt to send no metric at all for this se
         return send(sampleRate, String.format(Locale.ENGLISH, "%s:%d|ms", key, value));
     }
 
-
     public boolean increment(String key) {
         return incrementWithMagnitudeAndSampleRate(key, 1, 1.0);
     }
-
 
     public boolean incrementBy(String key, long increment) {
         return incrementWithMagnitudeAndSampleRate(key, increment, 1.0);
@@ -119,7 +115,6 @@ If the count at flush is 0 then you can opt to send no metric at all for this se
         String stat = String.format(Locale.ENGLISH, "%s:%s|c", key, magnitude);
         return send(sampleRate, stat);
     }
-
 
     @SuppressWarnings("UnusedReturnValue")
     public boolean gauge(String key, double magnitude) {
@@ -217,13 +212,11 @@ If the count at flush is 0 then you can opt to send no metric at all for this se
         }
     }
 
-    int resetDatagramEvery = 0;
-
     private int sendBufferOverChannel() throws IOException {
 
         if (resetDatagramEvery++ > 10) {
             openChannel();
-            resetDatagramEvery=0;
+            resetDatagramEvery = 0;
         }
 
         try {
@@ -235,13 +228,13 @@ If the count at flush is 0 then you can opt to send no metric at all for this se
 
 
             return sentByteCount;
-        }catch (IOException ex) {
+        } catch (IOException ex) {
 
             DatagramChannel oldChannel = channel;
             channel = null;
 
             /* Added recovery logic. */
-            if (oldChannel!=null) {
+            if (oldChannel != null) {
                 oldChannel.close();
             }
             openChannel();
@@ -256,9 +249,9 @@ If the count at flush is 0 then you can opt to send no metric at all for this se
         }
 
 
-       Metric localCount = countMap.get(name);
-       if (localCount == null) {
-           localCount = Metric.count(name);
+        Metric localCount = countMap.get(name);
+        if (localCount == null) {
+            localCount = Metric.count(name);
             countMap.put(name, localCount);
         }
         localCount.value += count;
@@ -363,10 +356,15 @@ If the count at flush is 0 then you can opt to send no metric at all for this se
 
     final static class Metric {
 
-        long value;
         final String name;
         final MetricType type;
+        long value;
 
+
+        public Metric(String name, MetricType type) {
+            this.name = name;
+            this.type = type;
+        }
 
         public static Metric count(String name) {
 
@@ -380,16 +378,10 @@ If the count at flush is 0 then you can opt to send no metric at all for this se
 
         }
 
-
         public static Metric timing(String name) {
 
             return new Metric(name, MetricType.TIMING);
 
-        }
-
-        public Metric(String name, MetricType type) {
-            this.name = name;
-            this.type = type;
         }
     }
 }

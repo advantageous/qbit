@@ -43,7 +43,7 @@ public interface SendQueue<T> extends Output, Startable, Stoppable {
     }
 
     @SuppressWarnings("unchecked")
-    default void sendMany(T... items){
+    default void sendMany(T... items) {
         for (T i : items) {
             send(i);
         }
@@ -73,10 +73,9 @@ public interface SendQueue<T> extends Output, Startable, Stoppable {
         return 0;
     }
 
-    default String name()  {
+    default String name() {
         return "NO OP";
     }
-
 
 
 }
