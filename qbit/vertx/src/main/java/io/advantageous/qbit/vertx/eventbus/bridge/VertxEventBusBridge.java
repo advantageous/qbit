@@ -18,7 +18,10 @@ import io.vertx.core.eventbus.MessageConsumer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Set;
 
 public class VertxEventBusBridge {
     private final Set<String> addressesToBridge;
@@ -88,15 +91,8 @@ public class VertxEventBusBridge {
         try {
 
             logger.debug(message.body());
-            final String json = message.body();
-
-            //final Map<String, Object> map = jsonParserAndMapper.parseMap(json);
-
             final String method = message.headers().get("method");
-
-            //final String method = map.get("method").toString();
             final String body = message.body();
-
 
             final List<String> errors = new ArrayList<>();
             final MethodCall<Object> transform = standardRequestTransformer.transFormBridgeBody(body,

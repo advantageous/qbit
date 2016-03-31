@@ -5,6 +5,7 @@ import io.advantageous.qbit.service.ServiceBuilder;
 import io.advantageous.qbit.service.ServiceQueue;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Vertx;
+import io.vertx.core.eventbus.DeliveryOptions;
 import io.vertx.core.eventbus.Message;
 import org.junit.Before;
 import org.junit.Test;
@@ -37,6 +38,10 @@ public class VertxEventBusBridgeTest {
     Vertx vertx;
     AtomicReference<AsyncResult<Message<Object>>> ref;
 
+    private static String cleanJSON(final String json) {
+        return json.replace("'", "\"");
+    }
+
     @Before
     public void setup() {
 
@@ -68,8 +73,9 @@ public class VertxEventBusBridgeTest {
     @Test
     public void test() throws Exception {
 
+        final DeliveryOptions deliveryOptions = new DeliveryOptions().addHeader("method", "test");
         /* calling using the event bus, and use latch to wait for the return. */
-        vertx.eventBus().send(address, "{'method':'test', 'args':['hello']}".replaceAll("'", "\""),
+        vertx.eventBus().send(address, cleanJSON("['hello']"), deliveryOptions,
                 reply -> {
                     ref.set(reply);
                     countDownLatch.countDown();
@@ -89,9 +95,9 @@ public class VertxEventBusBridgeTest {
     public void testTwoArg() throws Exception {
 
 
-        vertx.eventBus().send(address, ("{'method':'twoArg', 'args':[" +
-                        "{'id':'rick'}, true" +
-                        "]}").replaceAll("'", "\""),
+        final DeliveryOptions deliveryOptions = new DeliveryOptions().addHeader("method", "twoArg");
+
+        vertx.eventBus().send(address, cleanJSON("[{'id':'rick'}, true]"), deliveryOptions,
                 reply -> {
                     ref.set(reply);
                     countDownLatch.countDown();
@@ -108,10 +114,10 @@ public class VertxEventBusBridgeTest {
     @Test
     public void testSingleton() throws Exception {
 
+        final DeliveryOptions deliveryOptions = new DeliveryOptions().addHeader("method", "singleton");
+        final String json = "[{'id':'rick'}]";
 
-        vertx.eventBus().send(address, ("{'method':'singleton', 'args':[" +
-                        "{'id':'rick'}" +
-                        "]}").replaceAll("'", "\""),
+        vertx.eventBus().send(address, cleanJSON(json), deliveryOptions,
                 reply -> {
                     ref.set(reply);
                     countDownLatch.countDown();
@@ -130,11 +136,11 @@ public class VertxEventBusBridgeTest {
     public void testList() throws Exception {
 
 
-        String json = ("{'method':'list', 'args':[" +
-                "[{'id':'rick'}, {'id':'geoff'}]" +
-                "]}").replaceAll("'", "\"");
+        final DeliveryOptions deliveryOptions = new DeliveryOptions().addHeader("method", "list");
+        final String json = "[[{'id':'rick'}, {'id':'geoff'}]]";
 
-        vertx.eventBus().send(address, json,
+
+        vertx.eventBus().send(address, cleanJSON(json), deliveryOptions,
                 reply -> {
                     ref.set(reply);
                     countDownLatch.countDown();
@@ -153,13 +159,16 @@ public class VertxEventBusBridgeTest {
     public void testErrorFromService() throws Exception {
 
 
-        vertx.eventBus().send(address, ("{'method':'error', 'args':[" +
-                        "[{'id':'rick'}, {'id':'geoff'}]" +
-                        "]}").replaceAll("'", "\""),
+        final DeliveryOptions deliveryOptions = new DeliveryOptions().addHeader("method", "error");
+        final String json = "[[{'id':'rick'}, {'id':'geoff'}]]";
+
+
+        vertx.eventBus().send(address, cleanJSON(json), deliveryOptions,
                 reply -> {
                     ref.set(reply);
                     countDownLatch.countDown();
                 });
+
 
         countDownLatch.await();
 
