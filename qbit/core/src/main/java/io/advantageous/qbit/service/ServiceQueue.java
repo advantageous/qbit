@@ -39,7 +39,6 @@ import java.util.concurrent.TimeUnit;
 public interface ServiceQueue extends Stoppable, ServiceFlushable, Startable {
 
 
-
     boolean failing();
 
     boolean running();
@@ -47,7 +46,6 @@ public interface ServiceQueue extends Stoppable, ServiceFlushable, Startable {
     void setFailing();
 
     void recover();
-
 
 
     Object service();
@@ -141,5 +139,6 @@ public interface ServiceQueue extends Stoppable, ServiceFlushable, Startable {
     }
 
     Queue<MethodCall<Object>> requestQueue();
+
     Queue<Response<Object>> responseQueue();
 }

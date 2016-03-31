@@ -31,6 +31,7 @@ public interface JsonMapper {
 
     /**
      * Convert a JSON string into one Java Object.
+     *
      * @param json json
      * @return Java object
      */
@@ -38,9 +39,10 @@ public interface JsonMapper {
 
     /**
      * Convert from json string using Class as a suggestion for how to do the parse.
+     *
      * @param json json
-     * @param cls cls
-     * @param <T> Type
+     * @param cls  cls
+     * @param <T>  Type
      * @return Java object of Type T
      */
     <T> T fromJson(String json, Class<T> cls);
@@ -48,15 +50,17 @@ public interface JsonMapper {
 
     /**
      * Converts from a json string using componentClass as a guide to a List.
-     * @param json json
+     *
+     * @param json           json
      * @param componentClass componentClass
-     * @param <T> Type
+     * @param <T>            Type
      * @return List of Java objects of Type T.
      */
     <T> List<T> fromJsonArray(String json, Class<T> componentClass);
 
     /**
      * Converts from Object into JSON string.
+     *
      * @param object object to convert to JSON.
      * @return json string
      */
@@ -65,12 +69,12 @@ public interface JsonMapper {
     /**
      * Converts from a json string using componentClassKey and componentClassValue as a guide to a Map.
      *
-     * @param json json string
-     * @param componentClassKey componentClassKey type of Key
+     * @param json                json string
+     * @param componentClassKey   componentClassKey type of Key
      * @param componentClassValue componentClassValue type of value
-     * @param <K> K type of map key
-     * @param <V> V type of map value
+     * @param <K>                 K type of map key
+     * @param <V>                 V type of map value
      * @return Map
      */
-    <K,V> Map<K, V> fromJsonMap(String json, Class<K> componentClassKey, Class<V> componentClassValue);
+    <K, V> Map<K, V> fromJsonMap(String json, Class<K> componentClassKey, Class<V> componentClassValue);
 }

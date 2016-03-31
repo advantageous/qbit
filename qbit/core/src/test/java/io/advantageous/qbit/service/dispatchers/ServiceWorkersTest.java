@@ -34,7 +34,7 @@ public class ServiceWorkersTest {
         systemManager = new QBitSystemManager();
         myServiceList = new ArrayList<>(numServices);
 
-        for (int index =0; index < numServices; index++) {
+        for (int index = 0; index < numServices; index++) {
             myServiceList.add(new MyService());
         }
 
@@ -55,7 +55,7 @@ public class ServiceWorkersTest {
     @Test
     public void test() {
 
-        for (int index=0; index < 100; index++) {
+        for (int index = 0; index < 100; index++) {
             myService.method1();
         }
         ServiceProxyUtils.flushServiceProxy(myService);
@@ -103,7 +103,7 @@ public class ServiceWorkersTest {
                 })
                 .build(String.class);
 
-        for (int index=0; index < 100; index++) {
+        for (int index = 0; index < 100; index++) {
             myService.method2(callback);
         }
         ServiceProxyUtils.flushServiceProxy(myService);
@@ -143,6 +143,7 @@ public class ServiceWorkersTest {
     public static class MyService {
 
         final AtomicInteger count = new AtomicInteger();
+
         public void method1() {
 
             count.incrementAndGet();
@@ -153,7 +154,6 @@ public class ServiceWorkersTest {
             callback.accept("mom");
         }
     }
-
 
 
 }

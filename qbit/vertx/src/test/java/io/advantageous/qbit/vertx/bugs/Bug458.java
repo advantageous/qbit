@@ -24,30 +24,8 @@ import static io.advantageous.boon.core.IO.puts;
 public class Bug458 {
 
 
-    public class Employee {
-        final String name;
-
-        public Employee(String name) {
-            this.name = name;
-        }
-    }
-
-    @RequestMapping("/hr")
-    public class HRService {
-
-        @RequestMapping(value = "/emp", method = RequestMethod.POST)
-        public List<Employee> getAddEmployee(Employee employee) {
-            return Lists.list(new Employee("Rick"));
-        }
-    }
-
-    public interface IHRService {
-
-        void getAddEmployee(Callback<List<Employee>> callback, Employee employee);
-    }
-
-
-    @Test @Ignore
+    @Test
+    @Ignore
     public void testWeb() {
 
         final EndpointServerBuilder endpointServerBuilder = EndpointServerBuilder.endpointServerBuilder().setUri("/");
@@ -92,7 +70,9 @@ public class Bug458 {
         System.out.println("DONE");
 
     }
-    @Test @Ignore
+
+    @Test
+    @Ignore
     public void test() {
 
         final ServiceBundleBuilder serviceBundleBuilder = ServiceBundleBuilder.serviceBundleBuilder().setInvokeDynamic(false);
@@ -123,6 +103,28 @@ public class Bug458 {
             }
 
             System.out.println(count);
+        }
+    }
+
+    public interface IHRService {
+
+        void getAddEmployee(Callback<List<Employee>> callback, Employee employee);
+    }
+
+    public class Employee {
+        final String name;
+
+        public Employee(String name) {
+            this.name = name;
+        }
+    }
+
+    @RequestMapping("/hr")
+    public class HRService {
+
+        @RequestMapping(value = "/emp", method = RequestMethod.POST)
+        public List<Employee> getAddEmployee(Employee employee) {
+            return Lists.list(new Employee("Rick"));
         }
     }
 

@@ -51,11 +51,11 @@ public class StatServiceBuilder {
 
 
     public static final String QBIT_STAT_SERVICE_BUILDER = "qbit.statservice.builder.";
+    private final List<StatReplicator> replicators = new ArrayList<>();
     private EventManager eventManager;
     private Timer timer = Timer.timer();
     private StatRecorder recorder = new NoOpRecorder();
     private StatReplicator replicator = new NoOpReplicator();
-    private final List<StatReplicator> replicators = new ArrayList<>();
     private ServiceDiscovery serviceDiscovery;
     private StatReplicatorProvider statReplicatorProvider;
     private ClientBuilder clientBuilder;

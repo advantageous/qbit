@@ -48,7 +48,7 @@ public class RandomNumberExampleUsingServiceBundle {
     }
 
     private static void handleError(Throwable e) {
-        System.out.println("blew up" +  e);
+        System.out.println("blew up" + e);
     }
 
 

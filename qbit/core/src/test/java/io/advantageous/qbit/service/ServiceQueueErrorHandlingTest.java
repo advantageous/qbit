@@ -72,6 +72,7 @@ public class ServiceQueueErrorHandlingTest {
 
     public static interface IMyService {
         void forceError();
+
         void callCount(Callback<Integer> callback);
     }
 

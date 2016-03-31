@@ -30,7 +30,7 @@ import static io.advantageous.boon.json.JsonFactory.fromJson;
 import static io.advantageous.boon.json.JsonFactory.fromJsonArray;
 import static io.advantageous.consul.domain.ConsulException.die;
 
-public class StatusEndpoint extends Endpoint{
+public class StatusEndpoint extends Endpoint {
 
 
     public StatusEndpoint(String scheme, String host, String port, String rootPath) {
@@ -73,7 +73,6 @@ public class StatusEndpoint extends Endpoint{
      * @return List of host/ports for raft peers.
      */
     public List<String> getPeers() {
-
 
 
         final URI uri = createURI("/peers");

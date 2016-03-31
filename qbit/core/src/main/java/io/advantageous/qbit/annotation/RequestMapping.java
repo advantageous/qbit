@@ -23,6 +23,7 @@ import java.lang.annotation.*;
 
 /**
  * Used to map Service method to URIs in an HTTP like protocol.
+ *
  * @author Rick Hightower
  */
 @Retention(RetentionPolicy.RUNTIME)
@@ -50,6 +51,7 @@ public @interface RequestMapping {
 
     /**
      * Used to document endpoint
+     *
      * @return description
      */
     String description() default "no description";
@@ -57,12 +59,14 @@ public @interface RequestMapping {
 
     /**
      * Used to document endpoint
+     *
      * @return description
      */
     String returnDescription() default "no return description";
 
     /**
      * Used to document endpoint
+     *
      * @return summary
      */
     String summary() default "no summary";
@@ -74,6 +78,7 @@ public @interface RequestMapping {
      * Otherwise it will be a 202 (ACCEPTED) if there are no callbacks or a return.
      * Note that if you want to get exceptions reported, you have to define a callback or return.
      * This is only used for methods not classes.
+     *
      * @return code
      */
     int code() default -1;
@@ -81,6 +86,7 @@ public @interface RequestMapping {
     /**
      * ContentType
      * application/javascript
+     *
      * @return contentType
      */
     String contentType() default "application/json";

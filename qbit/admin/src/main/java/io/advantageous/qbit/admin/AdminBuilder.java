@@ -53,26 +53,58 @@ public class AdminBuilder {
 
     private String microServiceName = null;
 
-    /** Used to generate meta data for services. */
+    /**
+     * Used to generate meta data for services.
+     */
     private ContextMetaBuilder contextBuilder;
 
 
-    /** Used to generate meta data for admin. */
+    /**
+     * Used to generate meta data for admin.
+     */
     private ContextMetaBuilder adminContextBuilder;
 
-    /** Used to manage admin jobs. */
+    /**
+     * Used to manage admin jobs.
+     */
     private List<AdminJob> adminJobs;
 
-    /** Reactor to schedule admin jobs. */
+    /**
+     * Reactor to schedule admin jobs.
+     */
     private Reactor reactor;
 
 
-    /** Reactor to schedule admin jobs. */
+    /**
+     * Reactor to schedule admin jobs.
+     */
     private ReactorBuilder reactorBuilder;
     private String hostName;
     private String machineName;
     private boolean useMachineName = Sys.sysProp("QBIT_USE_MACHINE_NAME_FOR_STATS", true);
 
+
+    @SuppressWarnings("WeakerAccess")
+    public AdminBuilder(final PropertyResolver propertyResolver) {
+        port = propertyResolver.getIntegerProperty("port", port);
+        host = propertyResolver.getStringProperty("host", host);
+        htmlPageLocation = propertyResolver.getStringProperty("htmlPageLocation", htmlPageLocation);
+    }
+
+    @SuppressWarnings("WeakerAccess")
+    public AdminBuilder() {
+
+        this(PropertyResolver.createSystemPropertyResolver(CONTEXT));
+    }
+
+    public AdminBuilder(Properties properties) {
+
+        this(PropertyResolver.createPropertiesPropertyResolver(CONTEXT, properties));
+    }
+
+    public static AdminBuilder adminBuilder() {
+        return new AdminBuilder();
+    }
 
     public List<String> getBlackListForSystemProperties() {
 
@@ -80,7 +112,7 @@ public class AdminBuilder {
 
             final String blackListForSystemProps = System.getenv().get("BLACK_LIST_FOR_SYSTEM_PROPS");
 
-            if (blackListForSystemProps==null) {
+            if (blackListForSystemProps == null) {
 
                 blackListForSystemProperties = new ArrayList<>();
                 blackListForSystemProperties.add("PWD");
@@ -106,7 +138,6 @@ public class AdminBuilder {
         getBlackListForSystemProperties().add(pattern);
         return this;
     }
-
 
     public Reactor getReactor() {
         if (reactor == null) {
@@ -137,6 +168,11 @@ public class AdminBuilder {
             adminJobs = new ArrayList<>();
         }
         return adminJobs;
+    }
+
+    public AdminBuilder setAdminJobs(final List<AdminJob> adminJobs) {
+        this.adminJobs = adminJobs;
+        return this;
     }
 
     public AdminBuilder addAdminJob(final AdminJob adminJob) {
@@ -192,35 +228,6 @@ public class AdminBuilder {
         return addAdminJob(jvmStatsJob);
     }
 
-
-    public AdminBuilder setAdminJobs(final List<AdminJob> adminJobs) {
-        this.adminJobs = adminJobs;
-        return this;
-    }
-
-    @SuppressWarnings("WeakerAccess")
-    public AdminBuilder(final PropertyResolver propertyResolver) {
-        port = propertyResolver.getIntegerProperty("port", port);
-        host = propertyResolver.getStringProperty("host", host);
-        htmlPageLocation = propertyResolver.getStringProperty("htmlPageLocation", htmlPageLocation);
-    }
-
-
-    @SuppressWarnings("WeakerAccess")
-    public AdminBuilder() {
-
-        this(PropertyResolver.createSystemPropertyResolver(CONTEXT));
-    }
-
-    public AdminBuilder(Properties properties) {
-
-        this(PropertyResolver.createPropertiesPropertyResolver(CONTEXT, properties));
-    }
-
-    public static AdminBuilder adminBuilder() {
-        return new AdminBuilder();
-    }
-
     public String getHtmlPageLocation() {
         return htmlPageLocation;
     }
@@ -249,14 +256,9 @@ public class AdminBuilder {
         return webPageContentsSupplier;
     }
 
-    public AdminBuilder setWebPageContents(String webPageContents) {
-        this.webPageContents = webPageContents;
-        return this;
-    }
-
     public String getWebPageContents() {
 
-        if (webPageContents==null || webPageContents.isEmpty()) {
+        if (webPageContents == null || webPageContents.isEmpty()) {
 
             final String htmlPageLocationInitial = getHtmlPageLocation();
             final String pageLocation;
@@ -272,6 +274,12 @@ public class AdminBuilder {
         }
         return webPageContents;
     }
+
+    public AdminBuilder setWebPageContents(String webPageContents) {
+        this.webPageContents = webPageContents;
+        return this;
+    }
+
     public HttpServer getHttpServer() {
         if (httpServer == null) {
             httpServer = getHttpServerBuilder()
@@ -306,7 +314,7 @@ public class AdminBuilder {
     }
 
     public HttpServerBuilder getHttpServerBuilder() {
-        if (httpServerBuilder==null) {
+        if (httpServerBuilder == null) {
             httpServerBuilder = HttpServerBuilder.httpServerBuilder();
         }
         return httpServerBuilder;
@@ -424,17 +432,17 @@ public class AdminBuilder {
         return serviceEndpointServer;
     }
 
-    public AdminBuilder setContextBuilder(final ContextMetaBuilder contextBuilder) {
-        this.contextBuilder = contextBuilder;
-        return this;
-    }
-
     public ContextMetaBuilder getContextBuilder() {
 
         if (contextBuilder == null) {
             contextBuilder = ContextMetaBuilder.contextMetaBuilder();
         }
         return contextBuilder;
+    }
+
+    public AdminBuilder setContextBuilder(final ContextMetaBuilder contextBuilder) {
+        this.contextBuilder = contextBuilder;
+        return this;
     }
 
     public String getHostName() {
@@ -475,7 +483,7 @@ public class AdminBuilder {
             adminContextBuilder.setLicenseURL("https://github.com/advantageous/qbit/blob/master/License");
             adminContextBuilder.setContactURL("http://www.mammatustech.com/");
             adminContextBuilder.setRootURI(this.getEndpointServerBuilder().getUri());
-            if (this.getEndpointServerBuilder().getHost()!=null) {
+            if (this.getEndpointServerBuilder().getHost() != null) {
                 adminContextBuilder.setHostAddress(this.getEndpointServerBuilder().getHost() + ":" + this.getEndpointServerBuilder().getPort());
             } else {
                 adminContextBuilder.setHostAddress("localhost:" + this.getEndpointServerBuilder().getPort());

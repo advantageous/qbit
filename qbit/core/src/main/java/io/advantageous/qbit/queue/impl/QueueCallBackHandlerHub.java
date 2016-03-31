@@ -28,7 +28,7 @@ public class QueueCallBackHandlerHub implements QueueCallBackHandler {
 
     @Override
     public void queueLimit() {
-        for (int index=0; index < callBackHandlers.length; index++) {
+        for (int index = 0; index < callBackHandlers.length; index++) {
             callBackHandlers[index].queueLimit();
         }
     }
@@ -36,7 +36,7 @@ public class QueueCallBackHandlerHub implements QueueCallBackHandler {
     @Override
     public void queueEmpty() {
 
-        for (int index=0; index < callBackHandlers.length; index++) {
+        for (int index = 0; index < callBackHandlers.length; index++) {
             callBackHandlers[index].queueEmpty();
         }
     }
@@ -44,7 +44,7 @@ public class QueueCallBackHandlerHub implements QueueCallBackHandler {
     @Override
     public void queueInit() {
 
-        for (int index=0; index < callBackHandlers.length; index++) {
+        for (int index = 0; index < callBackHandlers.length; index++) {
             callBackHandlers[index].queueInit();
         }
 
@@ -53,7 +53,7 @@ public class QueueCallBackHandlerHub implements QueueCallBackHandler {
     @Override
     public void queueIdle() {
 
-        for (int index=0; index < callBackHandlers.length; index++) {
+        for (int index = 0; index < callBackHandlers.length; index++) {
             callBackHandlers[index].queueIdle();
         }
 
@@ -62,7 +62,7 @@ public class QueueCallBackHandlerHub implements QueueCallBackHandler {
     @Override
     public void queueShutdown() {
 
-        for (int index=0; index < callBackHandlers.length; index++) {
+        for (int index = 0; index < callBackHandlers.length; index++) {
             callBackHandlers[index].queueShutdown();
         }
 
@@ -72,7 +72,7 @@ public class QueueCallBackHandlerHub implements QueueCallBackHandler {
     @Override
     public void queueStartBatch() {
 
-        for (int index=0; index < callBackHandlers.length; index++) {
+        for (int index = 0; index < callBackHandlers.length; index++) {
             callBackHandlers[index].queueStartBatch();
         }
 
@@ -81,7 +81,7 @@ public class QueueCallBackHandlerHub implements QueueCallBackHandler {
     @Override
     public void beforeReceiveCalled() {
 
-        for (int index=0; index < callBackHandlers.length; index++) {
+        for (int index = 0; index < callBackHandlers.length; index++) {
             callBackHandlers[index].beforeReceiveCalled();
         }
 
@@ -91,7 +91,7 @@ public class QueueCallBackHandlerHub implements QueueCallBackHandler {
     @Override
     public void afterReceiveCalled() {
 
-        for (int index=0; index < callBackHandlers.length; index++) {
+        for (int index = 0; index < callBackHandlers.length; index++) {
             callBackHandlers[index].afterReceiveCalled();
         }
 

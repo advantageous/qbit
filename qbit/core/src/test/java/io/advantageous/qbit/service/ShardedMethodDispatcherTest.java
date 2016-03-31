@@ -91,11 +91,11 @@ public class ShardedMethodDispatcherTest extends TimedTesting {
         super.setupLatch();
 
         final ShardedServiceWorkerBuilder shardedServiceWorkerBuilder =
-                            ShardedServiceWorkerBuilder
-                                .shardedServiceWorkerBuilder()
-                                .setWorkerCount(10)
-                                .setFlushInterval(50)
-                                .setServiceObjectSupplier(() -> new ContentRulesEngine());
+                ShardedServiceWorkerBuilder
+                        .shardedServiceWorkerBuilder()
+                        .setWorkerCount(10)
+                        .setFlushInterval(50)
+                        .setServiceObjectSupplier(() -> new ContentRulesEngine());
 
         dispatcher = shardedServiceWorkerBuilder.build();
         dispatcher.start();
@@ -117,17 +117,17 @@ public class ShardedMethodDispatcherTest extends TimedTesting {
 
 
         final MultiWorkerClient worker = bundle.createLocalProxy(MultiWorkerClient.class, "/workers");
-        final AtomicReference<String> value =new AtomicReference<>();
+        final AtomicReference<String> value = new AtomicReference<>();
         final AtomicLong callbackCount = new AtomicLong();
 
         for (int index = 0; index < 200; index++) {
             worker.pickSuggestions2(new Callback<String>() {
-                @Override
-                public void accept(String s) {
-                    callbackCount.incrementAndGet();
-                    value.set(s);
-                }
-            },
+                                        @Override
+                                        public void accept(String s) {
+                                            callbackCount.incrementAndGet();
+                                            value.set(s);
+                                        }
+                                    },
                     "rickhigh" + index);
         }
 

@@ -35,15 +35,16 @@ import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * A queue sender that will periodically flush itself.
+ *
  * @author rhightower
- * on 2/24/15.
+ *         on 2/24/15.
  */
 public class AutoFlushingSendQueue<T> implements SendQueue<T> {
 
     private final SendQueue<T> sendQueue;
     private final ReentrantLock lock = new ReentrantLock();
 
-    private  PeriodicScheduler periodicScheduler;
+    private PeriodicScheduler periodicScheduler;
     private ScheduledFuture scheduledFuture;
 
     public AutoFlushingSendQueue(final SendQueue<T> sendQueue,

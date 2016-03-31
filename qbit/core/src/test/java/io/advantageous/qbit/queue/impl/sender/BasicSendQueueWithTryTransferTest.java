@@ -9,7 +9,7 @@ import java.util.concurrent.ArrayBlockingQueue;
 /**
  * Created by rick on 10/12/15.
  */
-public class BasicSendQueueWithTryTransferTest extends  BasicSendQueueWithTransferQueueTest{
+public class BasicSendQueueWithTryTransferTest extends BasicSendQueueWithTransferQueueTest {
 
     @Before
     public void setup() {
@@ -24,7 +24,6 @@ public class BasicSendQueueWithTryTransferTest extends  BasicSendQueueWithTransf
 
         sendQueue = queue.sendQueue();
         abq = new ArrayBlockingQueue<>(100_000);
-
 
 
     }

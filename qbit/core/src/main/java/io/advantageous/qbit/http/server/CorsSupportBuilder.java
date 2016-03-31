@@ -13,12 +13,12 @@ public class CorsSupportBuilder {
 
     CorsSupport corsSupport = new CorsSupport();
 
-    public static CorsSupportBuilder corsSupportBuilder() {
-        return new CorsSupportBuilder();
-    }
-
     private CorsSupportBuilder() {
         corsSupport.setCorsOn(true);
+    }
+
+    public static CorsSupportBuilder corsSupportBuilder() {
+        return new CorsSupportBuilder();
     }
 
     public CorsSupportBuilder withAllowedMethods(RequestMethod... methods) {
@@ -49,6 +49,7 @@ public class CorsSupportBuilder {
     public CorsSupport build() {
         return setSensibleDefaults();
     }
+
     public CorsResponseDecorator buildResponseDecorator() {
         return new CorsResponseDecorator(setSensibleDefaults());
     }

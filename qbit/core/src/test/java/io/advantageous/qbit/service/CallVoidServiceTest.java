@@ -7,19 +7,6 @@ import java.util.concurrent.TimeUnit;
 
 public class CallVoidServiceTest {
 
-    public interface ServiceI {
-        void callme();
-    }
-
-
-    public class ServiceImpl {
-        public void callme() {
-
-            throw new RuntimeException();
-        }
-    }
-
-
     @Test
     public void test() {
         final ServiceBuilder serviceBuilder = ServiceBuilder.serviceBuilder();
@@ -44,6 +31,18 @@ public class CallVoidServiceTest {
 
         for (int index = 0; index < 1_000; index++) {
             proxy.callme();
+        }
+    }
+
+
+    public interface ServiceI {
+        void callme();
+    }
+
+    public class ServiceImpl {
+        public void callme() {
+
+            throw new RuntimeException();
         }
     }
 }

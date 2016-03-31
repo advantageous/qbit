@@ -99,42 +99,22 @@ public class ProxyServiceImpl implements ProxyService {
      * Used to determine if we want to track timeouts to backend services.
      */
     private final boolean trackTimeOuts;
-
-
-    /**
-     * Used to forward requests to a backend service.
-     */
-    private HttpClient backendServiceHttpClient;
-
-    /**
-     * Keeps the current time.
-     */
-    private long time;
-
-
-    /**
-     * Keeps the current time.
-     */
-    private long lastHttpClientStart;
-
     /**
      * Keeps a list of outstanding requests if timeout tracking is turned on.
      */
     private final List<HttpRequestHolder> httpRequestHolderList;
-
     /**
-     * Holds request information.
+     * Used to forward requests to a backend service.
      */
-    private class HttpRequestHolder {
-        final HttpRequest request;
-        final long startTime;
-
-        private HttpRequestHolder(HttpRequest request, long startTime) {
-            this.request = request;
-            this.startTime = startTime;
-        }
-    }
-
+    private HttpClient backendServiceHttpClient;
+    /**
+     * Keeps the current time.
+     */
+    private long time;
+    /**
+     * Keeps the current time.
+     */
+    private long lastHttpClientStart;
 
     /**
      * Construct.
@@ -231,7 +211,7 @@ public class ProxyServiceImpl implements ProxyService {
                 errorCount.set(0);
                 if (backendServiceHttpClient == null || backendServiceHttpClient.isClosed()) {
 
-                    if (backendServiceHttpClient!=null) {
+                    if (backendServiceHttpClient != null) {
                         try {
                             backendServiceHttpClient.stop();
                         } catch (Exception ex) {
@@ -265,7 +245,7 @@ public class ProxyServiceImpl implements ProxyService {
                 }
             }
 
-        }catch (Exception ex) {
+        } catch (Exception ex) {
             errorHandler.accept(ex);
             logger.error("Unable to check connection");
         }
@@ -383,7 +363,6 @@ public class ProxyServiceImpl implements ProxyService {
 
     }
 
-
     /**
      * Handle a response from the backend service
      *
@@ -419,6 +398,19 @@ public class ProxyServiceImpl implements ProxyService {
     public void process() {
         reactor.process();
         time = timer.time();
+    }
+
+    /**
+     * Holds request information.
+     */
+    private class HttpRequestHolder {
+        final HttpRequest request;
+        final long startTime;
+
+        private HttpRequestHolder(HttpRequest request, long startTime) {
+            this.request = request;
+            this.startTime = startTime;
+        }
     }
 
 }

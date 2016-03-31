@@ -37,7 +37,7 @@ public class QueueBuilder implements Cloneable {
 
     private int batchSize;
 
-    private int limit=-1;
+    private int limit = -1;
     private int pollWait;
     private int size;
     private int checkEvery;
@@ -50,6 +50,40 @@ public class QueueBuilder implements Cloneable {
     private int enqueueTimeout;
 
     private UnableToEnqueueHandler unableToEnqueueHandler;
+
+    public QueueBuilder(PropertyResolver propertyResolver) {
+        this.pollWait = propertyResolver
+                .getIntegerProperty("pollWaitMS", 15);
+        this.enqueueTimeout = propertyResolver
+                .getIntegerProperty("enqueueTimeoutSeconds", 1000);
+        this.batchSize = propertyResolver
+                .getIntegerProperty("batchSize", 10);
+        this.checkEvery = propertyResolver
+                .getIntegerProperty("checkEvery", 10);
+        this.size = propertyResolver
+                .getIntegerProperty("size", 100_000);
+        this.checkIfBusy = propertyResolver
+                .getBooleanProperty("checkIfBusy", false);
+        this.tryTransfer = propertyResolver
+                .getBooleanProperty("tryTransfer", false);
+
+        this.queueClass = propertyResolver
+                .getGenericPropertyWithDefault("queueClass", ArrayBlockingQueue.class);
+
+    }
+
+    public QueueBuilder() {
+        this(PropertyResolver.createSystemPropertyResolver(QBIT_QUEUE_BUILDER));
+    }
+
+    public QueueBuilder(final Properties properties) {
+        this(PropertyResolver.createPropertiesPropertyResolver(
+                QBIT_QUEUE_BUILDER, properties));
+    }
+
+    public static QueueBuilder queueBuilder() {
+        return new QueueBuilder();
+    }
 
     public int getLimit() {
         if (limit == -1) {
@@ -86,27 +120,6 @@ public class QueueBuilder implements Cloneable {
         return this;
     }
 
-    public QueueBuilder(PropertyResolver propertyResolver) {
-        this.pollWait = propertyResolver
-                .getIntegerProperty("pollWaitMS", 15);
-        this.enqueueTimeout = propertyResolver
-                .getIntegerProperty("enqueueTimeoutSeconds", 1000);
-        this.batchSize = propertyResolver
-                .getIntegerProperty("batchSize", 10);
-        this.checkEvery = propertyResolver
-                .getIntegerProperty("checkEvery", 10);
-        this.size = propertyResolver
-                .getIntegerProperty("size", 100_000);
-        this.checkIfBusy = propertyResolver
-                .getBooleanProperty("checkIfBusy", false);
-        this.tryTransfer = propertyResolver
-                .getBooleanProperty("tryTransfer", false);
-
-        this.queueClass = propertyResolver
-                .getGenericPropertyWithDefault("queueClass", ArrayBlockingQueue.class);
-
-    }
-
     public TimeUnit getEnqueueTimeoutTimeUnit() {
         return enqueueTimeoutTimeUnit;
     }
@@ -132,21 +145,6 @@ public class QueueBuilder implements Cloneable {
     public QueueBuilder setEnqueueTimeout(int enqueueTimeout) {
         this.enqueueTimeout = enqueueTimeout;
         return this;
-    }
-
-    public QueueBuilder() {
-        this(PropertyResolver.createSystemPropertyResolver(QBIT_QUEUE_BUILDER));
-    }
-
-
-    public QueueBuilder(final Properties properties) {
-        this(PropertyResolver.createPropertiesPropertyResolver(
-                QBIT_QUEUE_BUILDER, properties));
-    }
-
-
-    public static QueueBuilder queueBuilder() {
-        return new QueueBuilder();
     }
 
     @Override
@@ -228,7 +226,7 @@ public class QueueBuilder implements Cloneable {
 
     public QueueBuilder setBatchSize(int batchSize) {
 
-        if (batchSize==1) {
+        if (batchSize == 1) {
             this.setLinkTransferQueue();
         }
         this.batchSize = batchSize;
@@ -241,10 +239,9 @@ public class QueueBuilder implements Cloneable {
     }
 
     public QueueBuilder setPollWait(int pollWait) {
-        this.pollWait =  pollWait;
+        this.pollWait = pollWait;
         return this;
     }
-
 
 
     public String getName() {

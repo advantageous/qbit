@@ -23,7 +23,6 @@ import io.advantageous.boon.core.Sys;
 public class GlobalConstants {
 
 
-
     public final static boolean DEBUG = Sys.sysProp("QBIT_DEBUG", false);
     public final static boolean DEV_MODE = Sys.sysProp("QBIT_DEV_MODE", true);
 

@@ -58,7 +58,7 @@
 package io.advantageous.qbit.service;
 
 /**
- *  created by rhightower on 2/18/15.
+ * created by rhightower on 2/18/15.
  */
 public interface Stoppable {
 

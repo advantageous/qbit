@@ -117,7 +117,6 @@ public class HttpServerVertx implements HttpServer {
     }
 
 
-
     @Override
     public void setShouldContinueHttpRequest(final Predicate<HttpRequest> shouldContinueHttpRequest) {
         this.simpleHttpServer.setShouldContinueHttpRequest(shouldContinueHttpRequest);
@@ -149,7 +148,6 @@ public class HttpServerVertx implements HttpServer {
     }
 
 
-
     @Override
     public void setWebSocketIdleConsume(final Consumer<Void> idleWebSocketConsumer) {
         this.simpleHttpServer.setWebSocketIdleConsume(
@@ -168,7 +166,6 @@ public class HttpServerVertx implements HttpServer {
         if (debug) {
             vertx.setPeriodic(10_000, event -> logger.info("Exception Count {} Close Count {}", exceptionCount, closeCount));
         }
-
 
 
         final io.vertx.core.http.HttpServerOptions vertxOptions = new io.vertx.core.http.HttpServerOptions();
@@ -206,7 +203,7 @@ public class HttpServerVertx implements HttpServer {
                 }
             });
         } else {
-            httpServer.listen(port, host, event->{
+            httpServer.listen(port, host, event -> {
                 if (event.failed()) {
                     logger.error("HTTP SERVER UNABLE to START on port " + port + " host " + host);
                     simpleHttpServer.getErrorHandler().accept(event.cause());
@@ -277,6 +274,7 @@ public class HttpServerVertx implements HttpServer {
 
     /**
      * Handle a vertx request by converting it into a QBit request.
+     *
      * @param request request
      */
     private void handleHttpRequest(final HttpServerRequest request) {
@@ -371,7 +369,6 @@ public class HttpServerVertx implements HttpServer {
     public void setWebSocketOnOpenConsumer(Consumer<WebSocket> onOpenConsumer) {
         this.simpleHttpServer.setWebSocketOnOpenConsumer(onOpenConsumer);
     }
-
 
 
 }

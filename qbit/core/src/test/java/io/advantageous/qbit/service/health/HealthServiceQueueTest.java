@@ -113,7 +113,6 @@ public class HealthServiceQueueTest {
         healthService.checkIn("foo", HealthStatus.PASS);
 
 
-
         healthService.findHealthyNodes(names -> {
                     result.set(names.stream().anyMatch(s -> s.equals("foo")));
                     countDownLatch.countDown();
@@ -144,7 +143,6 @@ public class HealthServiceQueueTest {
         healthService.checkIn("foo", HealthStatus.PASS);
 
 
-
         healthService.findHealthyNodes(names -> {
                     result.set(names.stream().anyMatch(s -> s.equals("foo")));
                     countDownLatch.countDown();
@@ -156,7 +154,6 @@ public class HealthServiceQueueTest {
 
 
         healthService.checkIn("foo", HealthStatus.FAIL);
-
 
 
         final CountDownLatch countDownLatch2 = new CountDownLatch(1);

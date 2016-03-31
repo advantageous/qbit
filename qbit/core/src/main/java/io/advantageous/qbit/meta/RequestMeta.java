@@ -61,8 +61,6 @@ public class RequestMeta {
     }
 
 
-
-
     public static RequestMeta requestByAddress(
             final RequestMethod requestMethod,
             final String requestURI,

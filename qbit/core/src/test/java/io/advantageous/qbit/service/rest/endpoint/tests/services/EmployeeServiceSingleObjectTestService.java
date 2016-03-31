@@ -21,7 +21,7 @@ import static io.advantageous.boon.core.IO.puts;
 public class EmployeeServiceSingleObjectTestService {
 
 
-    private final List<Employee> employeeList  = new ArrayList<>();
+    private final List<Employee> employeeList = new ArrayList<>();
 
 
     @RequestMapping(value = "/integer-request-param", method = RequestMethod.GET)
@@ -84,14 +84,13 @@ public class EmployeeServiceSingleObjectTestService {
 
     @RequestMapping(value = "/cache", method = RequestMethod.GET)
     @NoCacheHeaders
-    public boolean noCache( ) {
+    public boolean noCache() {
         return true;
     }
 
 
-
     @RequestMapping(value = "/body/bytes", method = RequestMethod.POST)
-    public boolean bodyPostBytes( byte[] body) {
+    public boolean bodyPostBytes(byte[] body) {
         String string = new String(body, StandardCharsets.UTF_8);
         return string.equals("foo");
     }
@@ -129,7 +128,7 @@ public class EmployeeServiceSingleObjectTestService {
         try {
 
             throw new IllegalStateException("Shoot!!");
-        }catch (Exception ex) {
+        } catch (Exception ex) {
             callback.onError(HttpStatusCodeException.httpError(666, ex.getMessage(), ex));
 
         }
@@ -140,6 +139,7 @@ public class EmployeeServiceSingleObjectTestService {
     public boolean ping() {
         return true;
     }
+
     /**
      * This is a fire and forget style.
      * There is no return and the client cannot get any exception that this might throw.
@@ -151,7 +151,6 @@ public class EmployeeServiceSingleObjectTestService {
         employeeList.add(employee);
         puts(employee);
     }
-
 
 
     /**
@@ -188,7 +187,7 @@ public class EmployeeServiceSingleObjectTestService {
 
     @RequestMapping(value = "/throw", method = RequestMethod.POST)
     public void addEmployeeThrowException(final Callback<Boolean> callback,
-                                    final Employee employee) {
+                                          final Employee employee) {
         puts(employee);
         throw new RuntimeException("OH NO");
     }
@@ -226,9 +225,6 @@ public class EmployeeServiceSingleObjectTestService {
         employeeCallback.returnThis(response);
 
     }
-
-
-
 
 
 }

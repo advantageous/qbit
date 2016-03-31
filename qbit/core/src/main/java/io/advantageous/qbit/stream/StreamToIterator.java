@@ -12,51 +12,37 @@ import java.util.concurrent.LinkedTransferQueue;
 /**
  * Turns a non-blocking reactive stream into a blocking iterator.
  * This is used to support an easier but less performance-oriented programming model.
+ *
  * @param <T> T
  */
-public class StreamToIterator<T> implements Iterator<T>{
+public class StreamToIterator<T> implements Iterator<T> {
 
 
-    /** Passes items from the non-blocking stream to the client thread where it can block. */
+    /**
+     * Passes items from the non-blocking stream to the client thread where it can block.
+     */
     private final BlockingQueue<Object> blockingQueue = new LinkedTransferQueue<>(); //Unbounded
-    /** Message to denote that the stream is finished. */
+    /**
+     * Message to denote that the stream is finished.
+     */
     private final Object COMPLETE = new Object();
-    /** Message to denote that the stream passed an exception, which we will wrap an re-throw. */
+    /**
+     * Message to denote that the stream passed an exception, which we will wrap an re-throw.
+     */
     private final Object ERROR = new Object();
-    /** Denotes that the stream sent the close message or sent an error. */
+    /**
+     * Denotes that the stream sent the close message or sent an error.
+     */
     private boolean complete;
-    /** Holds the next item in the queue. */
+    /**
+     * Holds the next item in the queue.
+     */
     private T next;
 
     /**
-     *
-     * @param publisher pulisher that we are adapting as a blocking Iterator
-     * @param <T> T
-     * @return Iterator that wraps the pulisher with a blocking interface.
-     */
-    public static <T> Iterator<T> toIterator(final Publisher<T> publisher) {
-        return new StreamToIterator<>(publisher, 2);
-    }
-
-
-    /**
-     *
-     * @param publisher pulisher that we are adapting as a blocking Iterator
-     * @param numRequestsPipeline how many messages we will accept up to
-     * @param <T> T
-     * @return Iterator that wraps the pulisher with a blocking interface.
-     */
-    public static <T> Iterator<T> toIteratorWithRequestsPipelineSize(final Publisher<T> publisher,
-                                                                     final int numRequestsPipeline) {
-        return new StreamToIterator<>(publisher, numRequestsPipeline);
-    }
-
-
-
-    /**
      * Creates Iterator that wraps the pulisher with a blocking interface.
-     * @param publisher pulisher that we are adapting as a blocking Iterator
      *
+     * @param publisher pulisher that we are adapting as a blocking Iterator
      */
     private StreamToIterator(final Publisher<T> publisher, final int requestSize) {
         publisher.subscribe(new Subscriber<T>() {
@@ -100,10 +86,30 @@ public class StreamToIterator<T> implements Iterator<T>{
     }
 
     /**
+     * @param publisher pulisher that we are adapting as a blocking Iterator
+     * @param <T>       T
+     * @return Iterator that wraps the pulisher with a blocking interface.
+     */
+    public static <T> Iterator<T> toIterator(final Publisher<T> publisher) {
+        return new StreamToIterator<>(publisher, 2);
+    }
+
+    /**
+     * @param publisher           pulisher that we are adapting as a blocking Iterator
+     * @param numRequestsPipeline how many messages we will accept up to
+     * @param <T>                 T
+     * @return Iterator that wraps the pulisher with a blocking interface.
+     */
+    public static <T> Iterator<T> toIteratorWithRequestsPipelineSize(final Publisher<T> publisher,
+                                                                     final int numRequestsPipeline) {
+        return new StreamToIterator<>(publisher, numRequestsPipeline);
+    }
+
+    /**
      * Returns {@code true} if the iteration has more elements.
      * (In other words, returns {@code true} if {@link #next} would
      * return an element rather than throwing an exception.)
-     *
+     * <p>
      * Checks to see if the stream is closed or has sent an error.
      *
      * @return {@code true} if the iteration has more elements
@@ -117,7 +123,7 @@ public class StreamToIterator<T> implements Iterator<T>{
         }
 
         /* If we called hasNext twice, do not poll the queue. */
-        if (next !=null) {
+        if (next != null) {
             return true;
         }
 
@@ -141,7 +147,7 @@ public class StreamToIterator<T> implements Iterator<T>{
             return false;
         } else {
             /* Store the next item. */
-            next = (T)item;
+            next = (T) item;
             return true;
         }
 
@@ -168,14 +174,14 @@ public class StreamToIterator<T> implements Iterator<T>{
             try {
                 final Object error = blockingQueue.take();
                 complete = true;
-                throw new StreamException("Exception from stream", (Throwable)error);
+                throw new StreamException("Exception from stream", (Throwable) error);
             } catch (InterruptedException e) {
                 Thread.interrupted();
                 throw new StreamException("Stream sent error but unable to get error from stream", e);
             }
         } else {
             /* Give them the next item but don't store the next item any longer. */
-            T theNext =  next;
+            T theNext = next;
             next = null;
             return theNext;
         }

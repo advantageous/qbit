@@ -12,12 +12,12 @@ public class ResponseBuilder {
         return description;
     }
 
-    public Schema getSchema() {
-        return schema;
-    }
-
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public Schema getSchema() {
+        return schema;
     }
 
     public void setSchema(Schema schema) {

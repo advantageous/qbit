@@ -115,7 +115,6 @@ public class HealthEndpoint extends Endpoint {
                 .getHttpRequestBuilder(datacenter, tag, requestOptions, "");
 
 
-
         final HTTP.Response httpResponse = HTTP.getResponse(uri.toString() + "?" + httpRequestBuilder.paramString());
 
         if (httpResponse == null || httpResponse.code() != 200) {
@@ -192,9 +191,7 @@ public class HealthEndpoint extends Endpoint {
                 .getHttpRequestBuilder(datacenter, tag, requestOptions, "");
 
 
-
         final HTTP.Response httpResponse = HTTP.getResponse(uri.toString() + "?" + httpRequestBuilder.paramString());
-
 
 
         if (httpResponse.code() != 200) {
@@ -265,7 +262,6 @@ public class HealthEndpoint extends Endpoint {
                                                               final RequestOptions requestOptions) {
 
 
-
         final URI uri = createURI("/state/" + status.getName());
 
 
@@ -273,9 +269,7 @@ public class HealthEndpoint extends Endpoint {
                 .getHttpRequestBuilder(datacenter, tag, requestOptions, "");
 
 
-
         final HTTP.Response httpResponse = HTTP.getResponse(uri.toString() + "?" + httpRequestBuilder.paramString());
-
 
 
         if (httpResponse.code() != 200) {
@@ -347,7 +341,6 @@ public class HealthEndpoint extends Endpoint {
                                                                   final String datacenter,
                                                                   final String tag,
                                                                   final RequestOptions requestOptions) {
-
 
 
         final URI uri = createURI("/service/" + serviceName);
@@ -435,7 +428,6 @@ public class HealthEndpoint extends Endpoint {
                                                            final String datacenter,
                                                            final String tag,
                                                            final RequestOptions requestOptions) {
-
 
 
         final URI uri = createURI("/service/" + service);

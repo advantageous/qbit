@@ -19,6 +19,9 @@ public class LowLevelLocalKeyValueStoreServiceBuilder {
     private boolean debug;
     private ServiceBuilder serviceBuilder;
 
+    public static LowLevelLocalKeyValueStoreServiceBuilder localKeyValueStoreBuilder() {
+        return new LowLevelLocalKeyValueStoreServiceBuilder();
+    }
 
     public ServiceBuilder getServiceBuilder() {
         if (serviceBuilder == null) {
@@ -107,13 +110,13 @@ public class LowLevelLocalKeyValueStoreServiceBuilder {
         return flushCacheDuration;
     }
 
-    public LowLevelLocalKeyValueStoreServiceBuilder useDefaultFlushCacheDuration() {
-        getFlushCacheDuration();
+    public LowLevelLocalKeyValueStoreServiceBuilder setFlushCacheDuration(Duration flushCacheDuration) {
+        this.flushCacheDuration = flushCacheDuration;
         return this;
     }
 
-    public LowLevelLocalKeyValueStoreServiceBuilder setFlushCacheDuration(Duration flushCacheDuration) {
-        this.flushCacheDuration = flushCacheDuration;
+    public LowLevelLocalKeyValueStoreServiceBuilder useDefaultFlushCacheDuration() {
+        getFlushCacheDuration();
         return this;
     }
 
@@ -132,25 +135,19 @@ public class LowLevelLocalKeyValueStoreServiceBuilder {
                 getReactor(),
                 getLocalCacheSize(),
                 getStatsCollector(),
-                (flushCacheDuration==null) ? Optional.<Duration>empty() :
+                (flushCacheDuration == null) ? Optional.<Duration>empty() :
                         Optional.of(getFlushCacheDuration()),
                 isDebug());
     }
 
-
-    public ServiceQueue buildAsService(){
+    public ServiceQueue buildAsService() {
         final LowLevelLocalKeyValueStoreService kvStoreInternal = build();
         return getServiceBuilder().setServiceObject(kvStoreInternal).build();
     }
 
-
-    public ServiceQueue buildAsServiceAndStartAll(){
+    public ServiceQueue buildAsServiceAndStartAll() {
         final ServiceQueue serviceQueue = buildAsService();
         serviceQueue.startAll();
         return serviceQueue;
-    }
-
-    public static LowLevelLocalKeyValueStoreServiceBuilder localKeyValueStoreBuilder() {
-        return new LowLevelLocalKeyValueStoreServiceBuilder();
     }
 }

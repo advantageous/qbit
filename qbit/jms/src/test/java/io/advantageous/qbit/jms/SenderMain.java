@@ -12,7 +12,7 @@ public class SenderMain {
         final SendQueue<String> sendQueue = textQueue.sendQueue();
 
         sendQueue.send("foo");
-        for (int i=0; i < 10; i++) {
+        for (int i = 0; i < 10; i++) {
             sendQueue.send("foo" + i);
         }
     }

@@ -16,11 +16,11 @@ import java.util.stream.Collectors;
 /**
  * DNS Support for service discovery.
  * This looks up DNS entries for a given domain name.
- *
+ * <p>
  * It has two main methods.
- *
+ * <p>
  * One method allow you to look up things by URL e.g., db.skydns.local. .
- *
+ * <p>
  * The other method allows you to look things up by QBit service name e.g., dbService.
  */
 public class DnsSupport {
@@ -42,10 +42,10 @@ public class DnsSupport {
 
     /**
      * Holds a postfixURL to hold what URL comes after the service name.
-     *
+     * <p>
      * Example: db.skydns.local.
      * In the above db is the service and skydns.local. is the postfix URL.
-     *
+     * <p>
      * The postfixURL equates to the name in the SRV DNS record.
      */
     private final String postfixURL;
@@ -57,17 +57,16 @@ public class DnsSupport {
     private final DnsClientSupplier dnsClientProvider;
 
     /**
-     *
-     * @param dnsClientProvider dnsClientProvider
+     * @param dnsClientProvider           dnsClientProvider
      * @param dnsServiceNameToServiceName dnsServiceNameToServiceName
-     * @param postFixURL postFixURL
+     * @param postFixURL                  postFixURL
      */
     public DnsSupport(final DnsClientSupplier dnsClientProvider,
                       final Map<String, String> dnsServiceNameToServiceName,
                       final String postFixURL) {
 
         this.dnsClientProvider = dnsClientProvider;
-        this.postfixURL = postFixURL==null ? "" : postFixURL;
+        this.postfixURL = postFixURL == null ? "" : postFixURL;
         this.dnsServiceNameToServiceName = dnsServiceNameToServiceName;
         this.serviceNameToDNSName = new HashMap<>(dnsServiceNameToServiceName.size());
 
@@ -86,6 +85,7 @@ public class DnsSupport {
 
     /**
      * Looks up a service name based on its dns service name. The service part of the SRV DNS Record.
+     *
      * @param dnsServiceName dnsServiceName
      * @return serviceName
      */
@@ -100,6 +100,7 @@ public class DnsSupport {
 
     /**
      * Looks up a dns service name (SRV DNS RECORD).
+     *
      * @param serviceName serviceName
      * @return DNS service name (server field + name of SRV DNS Record).
      */
@@ -116,7 +117,8 @@ public class DnsSupport {
     /**
      * Load the service nodes based on the internal service name.
      * DB, Ingester, RadarAggregator, etc.
-     * @param callback callback
+     *
+     * @param callback    callback
      * @param serviceName serviceName
      */
     public void loadServiceEndpointsByServiceName(final Callback<List<EndpointDefinition>> callback,
@@ -127,7 +129,8 @@ public class DnsSupport {
 
     /**
      * Load the services nodes by its "${SRV.service}${SRV.name}".
-     * @param callback callback
+     *
+     * @param callback   callback
      * @param serviceURL serviceURL
      */
     public void loadServiceEndpointsByDNSService(final Callback<List<EndpointDefinition>> callback,
@@ -174,6 +177,7 @@ public class DnsSupport {
 
     /**
      * Converts list of SrvRecord(s) to list of EndpointDefinition(s).
+     *
      * @param results of SrvRecord to convert to EndpointDefinition(s)
      * @return list of EndpointDefinition
      */
@@ -184,6 +188,7 @@ public class DnsSupport {
 
     /**
      * Convert a single srvRecord into an EndpointDefinition.
+     *
      * @param srvRecord srvRecord
      * @return EndpointDefinition from srvRecord
      */

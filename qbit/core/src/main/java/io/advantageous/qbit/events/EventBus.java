@@ -57,6 +57,7 @@ public interface EventBus extends ServiceFlushable {
 
     /**
      * Forward an event.
+     *
      * @param event event
      */
     void forwardEvent(EventTransferObject<Object> event);

@@ -29,7 +29,6 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
-import java.util.function.Supplier;
 
 public class SimpleVertxHttpServerWrapper implements HttpServer {
 
@@ -86,7 +85,6 @@ public class SimpleVertxHttpServerWrapper implements HttpServer {
     }
 
 
-
     @Override
     public void setShouldContinueHttpRequest(final Predicate<HttpRequest> shouldContinueHttpRequest) {
         this.simpleHttpServer.setShouldContinueHttpRequest(shouldContinueHttpRequest);
@@ -141,9 +139,9 @@ public class SimpleVertxHttpServerWrapper implements HttpServer {
         httpServer.websocketHandler(this::handleWebSocketMessage);
 
 
-        if ( route!=null ) {
+        if (route != null) {
             route.handler(event -> handleHttpRequest(event.request(), event.data()));
-        } else if (router!=null) {
+        } else if (router != null) {
             router.route().handler(event -> handleHttpRequest(event.request(), event.data()));
         } else {
             httpServer.requestHandler(this::handleHttpRequest);
@@ -248,7 +246,6 @@ public class SimpleVertxHttpServerWrapper implements HttpServer {
     public void setWebSocketOnOpenConsumer(Consumer<WebSocket> onOpenConsumer) {
         this.simpleHttpServer.setWebSocketOnOpenConsumer(onOpenConsumer);
     }
-
 
 
 }

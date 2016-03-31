@@ -38,29 +38,12 @@ import static io.advantageous.qbit.concurrent.ScheduledExecutorBuilder.scheduled
 public class BasicReceiveQueueManager<T> implements ReceiveQueueManager<T> {
 
 
-
     private final Logger logger = LoggerFactory.getLogger(BasicReceiveQueueManager.class);
     private final boolean debug = logger.isDebugEnabled();
     private final String name;
-    private ExecutorContext executorContext;
     private final AtomicBoolean stop = new AtomicBoolean();
-    private  QueueInfo<T> queueInfo;
-
-    private static final class QueueInfo<T> {
-        final String name;
-        final ReceiveQueue<T> inputQueue;
-        final ReceiveQueueListener<T> listener;
-        final int limit;
-
-        private QueueInfo(String name, ReceiveQueue<T> inputQueue,
-                          ReceiveQueueListener<T> listener, int limit) {
-            this.name = name;
-            this.inputQueue = inputQueue;
-            this.listener = listener;
-            this.limit = limit;
-        }
-    }
-
+    private ExecutorContext executorContext;
+    private QueueInfo<T> queueInfo;
 
     public BasicReceiveQueueManager(final String name) {
         this.name = name;
@@ -81,7 +64,7 @@ public class BasicReceiveQueueManager<T> implements ReceiveQueueManager<T> {
 
     private void manageQueue() {
 
-        if (queueInfo==null) {
+        if (queueInfo == null) {
             return;
         }
 
@@ -100,7 +83,7 @@ public class BasicReceiveQueueManager<T> implements ReceiveQueueManager<T> {
         /* Continues forever or until someone calls stop. */
         while (true) {
 
-            if (item!=null) {
+            if (item != null) {
                 listener.startBatch();
             }
 
@@ -163,12 +146,27 @@ public class BasicReceiveQueueManager<T> implements ReceiveQueueManager<T> {
     }
 
     @Override
-    public void addQueueToManage( final String name,
-                                  final ReceiveQueue<T> inputQueue,
-                                  final ReceiveQueueListener<T> listener,
-                                  final int batchSize) {
+    public void addQueueToManage(final String name,
+                                 final ReceiveQueue<T> inputQueue,
+                                 final ReceiveQueueListener<T> listener,
+                                 final int batchSize) {
 
         queueInfo = new QueueInfo<>(name, inputQueue, listener, batchSize);
 
+    }
+
+    private static final class QueueInfo<T> {
+        final String name;
+        final ReceiveQueue<T> inputQueue;
+        final ReceiveQueueListener<T> listener;
+        final int limit;
+
+        private QueueInfo(String name, ReceiveQueue<T> inputQueue,
+                          ReceiveQueueListener<T> listener, int limit) {
+            this.name = name;
+            this.inputQueue = inputQueue;
+            this.listener = listener;
+            this.limit = limit;
+        }
     }
 }

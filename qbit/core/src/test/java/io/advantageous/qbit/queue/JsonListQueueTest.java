@@ -76,14 +76,11 @@ public class JsonListQueueTest {
     }
 
 
-
-
     @After
     public void tearDown() throws Exception {
 
         personQueue.stop();
     }
-
 
 
     private static class Person {

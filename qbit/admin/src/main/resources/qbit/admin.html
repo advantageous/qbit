@@ -5,8 +5,8 @@
     <script>
         function httpGet(theUrl) {
             var xmlHttp = new XMLHttpRequest();
-            xmlHttp.open( "GET", theUrl, false );
-            xmlHttp.send( null );
+            xmlHttp.open("GET", theUrl, false);
+            xmlHttp.send(null);
             return xmlHttp.responseText;
         }
 
@@ -15,7 +15,7 @@
             var json = httpGet("/services/qbit-admin/load-nodes");
             var items = JSON.parse(json);
             var list = document.createElement("ul");
-            for (var index=0; index< items.length; index++) {
+            for (var index = 0; index < items.length; index++) {
                 var serviceNode = items[index];
                 var elem = document.createElement("li");
                 var span = document.createElement("span");
@@ -35,7 +35,6 @@
 </head>
 <body onload="pageLoad();">
 <h1>Admin</h1>
-
 
 
 <div id="list"></div>

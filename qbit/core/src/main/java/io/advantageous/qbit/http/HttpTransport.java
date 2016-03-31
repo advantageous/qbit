@@ -36,8 +36,9 @@ import java.util.function.Predicate;
 
 /**
  * Represents an HTTP transport.
+ *
  * @author rhightower
- * on 2/19/15.
+ *         on 2/19/15.
  */
 public interface HttpTransport extends Startable {
 
@@ -47,10 +48,12 @@ public interface HttpTransport extends Startable {
     }
 
 
-    default void setOnStart(Runnable runnable) {}
+    default void setOnStart(Runnable runnable) {
+    }
 
 
-    default void setOnError(Consumer<Throwable> exceptionConsumer) {}
+    default void setOnError(Consumer<Throwable> exceptionConsumer) {
+    }
 
     void setWebSocketMessageConsumer(Consumer<WebSocketMessage> webSocketMessageConsumer);
 

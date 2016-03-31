@@ -9,7 +9,7 @@ import java.util.Map;
 public class DefinitionBuilder {
 
 
-    private  Map<String, Schema> properties;
+    private Map<String, Schema> properties;
 
     private String description;
 
@@ -21,15 +21,14 @@ public class DefinitionBuilder {
         return properties;
     }
 
-    public void addProperty(String name, Schema schema) {
-
-        getProperties().put(name, schema);
-    }
-
     public void setProperties(Map<String, Schema> properties) {
         this.properties = properties;
     }
 
+    public void addProperty(String name, Schema schema) {
+
+        getProperties().put(name, schema);
+    }
 
     public Definition build() {
         return new Definition(getProperties(), description);

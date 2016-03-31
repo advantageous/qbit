@@ -47,7 +47,6 @@ public class ResourceStyleRestServiceTest {
     }
 
 
-
     @Test
     public void addDepartment() {
 

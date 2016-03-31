@@ -13,49 +13,48 @@ public class DurationTest {
     public void test() {
 
         Duration d = Duration.FIFTY_MILLIS;
-        assertTrue(d.getDuration()== 50 && d.getTimeUnit()== TimeUnit.MILLISECONDS);
+        assertTrue(d.getDuration() == 50 && d.getTimeUnit() == TimeUnit.MILLISECONDS);
 
         d = Duration.HUNDRED_MILLIS;
-        assertTrue(d.getDuration()== 100 && d.getTimeUnit()== TimeUnit.MILLISECONDS);
+        assertTrue(d.getDuration() == 100 && d.getTimeUnit() == TimeUnit.MILLISECONDS);
 
 
         d = Duration.MILLISECONDS;
-        assertTrue(d.getDuration()== 1 && d.getTimeUnit()== TimeUnit.MILLISECONDS);
+        assertTrue(d.getDuration() == 1 && d.getTimeUnit() == TimeUnit.MILLISECONDS);
 
 
         d = Duration.TEN_MILLIS;
-        assertTrue(d.getDuration()== 10 && d.getTimeUnit()== TimeUnit.MILLISECONDS);
+        assertTrue(d.getDuration() == 10 && d.getTimeUnit() == TimeUnit.MILLISECONDS);
 
 
         d = Duration.TWENTY_FIVE_MILLIS;
-        assertTrue(d.getDuration()== 25 && d.getTimeUnit()== TimeUnit.MILLISECONDS);
+        assertTrue(d.getDuration() == 25 && d.getTimeUnit() == TimeUnit.MILLISECONDS);
 
         d = Duration.ONE_SECOND;
-        assertTrue(d.getDuration()== 1 && d.getTimeUnit()== TimeUnit.SECONDS);
+        assertTrue(d.getDuration() == 1 && d.getTimeUnit() == TimeUnit.SECONDS);
 
 
         d = Duration.FIVE_SECONDS;
-        assertTrue(d.getDuration()== 5 && d.getTimeUnit()== TimeUnit.SECONDS);
+        assertTrue(d.getDuration() == 5 && d.getTimeUnit() == TimeUnit.SECONDS);
 
         d = Duration.TEN_SECONDS;
-        assertTrue(d.getDuration()== 10 && d.getTimeUnit()== TimeUnit.SECONDS);
-
+        assertTrue(d.getDuration() == 10 && d.getTimeUnit() == TimeUnit.SECONDS);
 
 
         d = Duration.ONE_HOUR;
-        assertTrue(d.getDuration()== 1 && d.getTimeUnit()== TimeUnit.HOURS);
+        assertTrue(d.getDuration() == 1 && d.getTimeUnit() == TimeUnit.HOURS);
 
 
         d = Duration.TWO_HOURS;
-        assertTrue(d.getDuration()== 2 && d.getTimeUnit()== TimeUnit.HOURS);
+        assertTrue(d.getDuration() == 2 && d.getTimeUnit() == TimeUnit.HOURS);
 
 
         d = Duration.FOUR_HOURS;
-        assertTrue(d.getDuration()== 4 && d.getTimeUnit()== TimeUnit.HOURS);
+        assertTrue(d.getDuration() == 4 && d.getTimeUnit() == TimeUnit.HOURS);
 
 
         d = Duration.ONE_DAY;
-        assertTrue(d.getDuration()== 1 && d.getTimeUnit()== TimeUnit.DAYS);
+        assertTrue(d.getDuration() == 1 && d.getTimeUnit() == TimeUnit.DAYS);
 
 
         d = Duration.ONE_WEEK;

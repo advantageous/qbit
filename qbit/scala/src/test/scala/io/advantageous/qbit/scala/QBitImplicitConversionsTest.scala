@@ -1,17 +1,15 @@
 package io.advantageous.qbit.scala
 
-import io.advantageous.qbit.http.request.{HttpBinaryResponse, HttpTextResponse, HttpRequestBuilder}
+import io.advantageous.qbit.http.request.{HttpBinaryResponse, HttpRequestBuilder, HttpTextResponse}
 import io.advantageous.qbit.reactive.CallbackBuilder
-import org.scalatest._
-
 import io.advantageous.qbit.scala.QBitImplicitConversions._
+import org.scalatest._
 
 class QBitImplicitConversionsTest extends FlatSpec with Matchers {
 
 
-
   "A Function" should "convert to a callback" in {
-    CallbackBuilder.newCallbackBuilder().withCallback(classOf[String], (foo: String)=> {})
+    CallbackBuilder.newCallbackBuilder().withCallback(classOf[String], (foo: String) => {})
   }
 
 
@@ -22,7 +20,7 @@ class QBitImplicitConversionsTest extends FlatSpec with Matchers {
 
 
   "A Function" should "convert to a consumer" in {
-    CallbackBuilder.newCallbackBuilder().withErrorHandler((error: Throwable)=> {})
+    CallbackBuilder.newCallbackBuilder().withErrorHandler((error: Throwable) => {})
   }
 
 

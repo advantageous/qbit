@@ -33,12 +33,12 @@ public class DnsSingleClientSupplier implements DnsClientSupplier {
 
     /**
      * DnsSingleClientSupplier constructor.
+     *
      * @param vertx vertx
-     * @param host host
-     * @param port port
+     * @param host  host
+     * @param port  port
      */
     public DnsSingleClientSupplier(final Vertx vertx, final String host, final int port) {
-
 
 
         this.vertx = vertx;
@@ -50,6 +50,7 @@ public class DnsSingleClientSupplier implements DnsClientSupplier {
 
     /**
      * Supply an instance of DnsClient.
+     *
      * @return DnsClient.
      */
     @Override

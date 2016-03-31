@@ -10,11 +10,20 @@ import java.util.Optional;
  */
 public class RequestContext {
 
-    /** Current request. */
+    /**
+     * Current request.
+     */
     private final static ThreadLocal<Request<Object>> requestThreadLocal = new ThreadLocal<>();
 
+    /**
+     * Clear the request.
+     */
+    static void clear() {
+        requestThreadLocal.set(null);
+    }
 
-    /** Grab the current  request.
+    /**
+     * Grab the current  request.
      *
      * @return Optional  request.
      */
@@ -24,7 +33,17 @@ public class RequestContext {
 
     }
 
-    /** Grab the current  request.
+    /**
+     * Used from this package to populate request for this thread.
+     *
+     * @param request request
+     */
+    static void setRequest(final Request<Object> request) {
+        requestThreadLocal.set(request);
+    }
+
+    /**
+     * Grab the current  request.
      *
      * @return Optional  request.
      */
@@ -35,22 +54,6 @@ public class RequestContext {
         }
         return Optional.empty();
 
-    }
-
-
-    /**
-     * Used from this package to populate request for this thread.
-     * @param request request
-     */
-    static void setRequest(final Request<Object> request) {
-        requestThreadLocal.set(request);
-    }
-
-    /**
-     * Clear the request.
-     */
-    static void clear() {
-        requestThreadLocal.set(null);
     }
 
 

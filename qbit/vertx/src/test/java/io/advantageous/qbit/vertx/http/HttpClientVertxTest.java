@@ -24,7 +24,6 @@ import io.advantageous.qbit.http.request.HttpRequest;
 import io.advantageous.qbit.http.request.HttpRequestBuilder;
 import io.advantageous.qbit.http.server.HttpServer;
 import io.advantageous.qbit.http.server.HttpServerBuilder;
-import io.advantageous.qbit.http.server.impl.SimpleHttpServer;
 import io.advantageous.qbit.http.websocket.WebSocket;
 import io.advantageous.qbit.test.TimedTesting;
 import io.advantageous.qbit.util.PortUtils;
@@ -33,7 +32,6 @@ import org.junit.Test;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
-import java.util.function.Predicate;
 
 import static io.advantageous.boon.core.Exceptions.die;
 import static io.advantageous.boon.core.IO.puts;
@@ -218,7 +216,7 @@ public class HttpClientVertxTest extends TimedTesting {
         connect();
 
 
-        server = new HttpServerBuilder().setPort(port-1)
+        server = new HttpServerBuilder().setPort(port - 1)
                 .addRequestBodyContinuePredicate(httpRequest -> {
                     if (httpRequest.getContentLength() > 0) {
                         httpRequest.getReceiver().response(500, "applicaiton/json", "\"too big\"");

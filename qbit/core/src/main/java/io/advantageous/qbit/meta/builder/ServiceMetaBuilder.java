@@ -37,6 +37,10 @@ public class ServiceMetaBuilder {
     private String description;
     private MultiMap<String, String> responseHeaders;
 
+    public static ServiceMetaBuilder serviceMetaBuilder() {
+        return new ServiceMetaBuilder();
+    }
+
     public String getDescription() {
         return description;
     }
@@ -44,10 +48,6 @@ public class ServiceMetaBuilder {
     public ServiceMetaBuilder setDescription(String description) {
         this.description = description;
         return this;
-    }
-
-    public static ServiceMetaBuilder serviceMetaBuilder() {
-        return new ServiceMetaBuilder();
     }
 
     public String getName() {
@@ -103,17 +103,16 @@ public class ServiceMetaBuilder {
     }
 
 
-
     public void addMethods(final String path, final Collection<MethodAccess> methods) {
 
         /* Only add methods that could be REST endpoints. */
         methods.stream().filter(methodAccess ->
                 !methodAccess.isPrivate() && //No private methods
-                !methodAccess.isStatic() && //No static methods
-                !methodAccess.method().isSynthetic() && //No synthetic methods
-		!methodAccess.method().getDeclaringClass().getName().contains("$$EnhancerByGuice$$") &&
-                !methodAccess.name().contains("$")) //No methods with $ as this could be Scala generated
-                                                    // method or byte code lib generated
+                        !methodAccess.isStatic() && //No static methods
+                        !methodAccess.method().isSynthetic() && //No synthetic methods
+                        !methodAccess.method().getDeclaringClass().getName().contains("$$EnhancerByGuice$$") &&
+                        !methodAccess.name().contains("$")) //No methods with $ as this could be Scala generated
+                // method or byte code lib generated
                 .forEach(methodAccess -> addMethod(path, methodAccess));
     }
 
@@ -172,7 +171,7 @@ public class ServiceMetaBuilder {
 
         MultiMap<String, String> responseHeadersMap = MultiMap.empty();
 
-        if (responseHeaders!=null && responseHeaders.size() > 0) {
+        if (responseHeaders != null && responseHeaders.size() > 0) {
             responseHeadersMap = new MultiMapImpl<>();
             responseHeadersMap.putAll(responseHeaders);
         }
@@ -191,11 +190,10 @@ public class ServiceMetaBuilder {
         }
 
 
-
         final AnnotationData responseHeadersAnnotation = annotated.annotation("ResponseHeaders");
 
         if (responseHeadersAnnotation != null) {
-            if (responseHeadersMap.size()==0) {
+            if (responseHeadersMap.size() == 0) {
                 responseHeadersMap = new MultiMapImpl<>();
             }
             final Object[] values = (Object[]) responseHeadersAnnotation.getValues().get("value");
@@ -216,7 +214,7 @@ public class ServiceMetaBuilder {
 
         final AnnotationData noCache = annotated.annotation("NoCacheHeaders");
         if (noCache != null) {
-            if (responseHeadersMap.size()==0) {
+            if (responseHeadersMap.size() == 0) {
                 responseHeadersMap = new MultiMapImpl<>();
             }
             responseHeadersMap.add(HttpHeaders.CACHE_CONTROL, "max-age=0");
@@ -226,10 +224,10 @@ public class ServiceMetaBuilder {
 
         final AnnotationData getAnnotation = annotated.annotation("GET");
 
-        if (getAnnotation!=null) {
+        if (getAnnotation != null) {
             final Object noCache1 = getAnnotation.getValues().get("noCache");
             if (Conversions.toBoolean(noCache1)) {
-                if (responseHeadersMap.size()==0) {
+                if (responseHeadersMap.size() == 0) {
                     responseHeadersMap = new MultiMapImpl<>();
                 }
                 responseHeadersMap.add(HttpHeaders.CACHE_CONTROL, "max-age=0");

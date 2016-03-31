@@ -45,6 +45,10 @@ public class ServiceMethodMetaBuilder {
     private int responseCode;
     private String contentType;
 
+    public static ServiceMethodMetaBuilder serviceMethodMetaBuilder() {
+        return new ServiceMethodMetaBuilder();
+    }
+
     public String getDescription() {
         return description;
     }
@@ -52,11 +56,6 @@ public class ServiceMethodMetaBuilder {
     public ServiceMethodMetaBuilder setDescription(String description) {
         this.description = description;
         return this;
-    }
-
-
-    public static ServiceMethodMetaBuilder serviceMethodMetaBuilder() {
-        return new ServiceMethodMetaBuilder();
     }
 
     public String getAddress() {
@@ -101,7 +100,7 @@ public class ServiceMethodMetaBuilder {
     public String getName() {
 
         if (name == null) {
-            if (methodAccess!=null) {
+            if (methodAccess != null) {
                 name = methodAccess.name();
             }
         }
@@ -218,8 +217,7 @@ public class ServiceMethodMetaBuilder {
                 genericReturnType = GenericReturnType.HTTP_TEXT_RESPONSE;
             } else if (returnType == HttpBinaryResponse.class) {
                 genericReturnType = GenericReturnType.HTTP_BINARY_RESPONSE;
-            }
-            else {
+            } else {
 
                 if (returnType.isArray()) {
                     genericReturnType = GenericReturnType.ARRAY;
@@ -229,7 +227,7 @@ public class ServiceMethodMetaBuilder {
             }
         }
 
-        if (returnType!= void.class && returnType !=Void.class) {
+        if (returnType != void.class && returnType != Void.class) {
 
             hasReturn = true;
         }
@@ -242,70 +240,69 @@ public class ServiceMethodMetaBuilder {
             Type callbackReturn = ((ParameterizedType) callback).getActualTypeArguments()[0];
             /* Now we know it is a map or list */
             if (callbackReturn instanceof ParameterizedType) {
-                final Class containerType = (Class)((ParameterizedType) callbackReturn).getRawType();
+                final Class containerType = (Class) ((ParameterizedType) callbackReturn).getRawType();
                 this.returnTypeEnum = TypeType.getType(containerType);
                 this.returnType = containerType;
                 if (Collection.class.isAssignableFrom(containerType)) {
                     this.genericReturnType = GenericReturnType.COLLECTION;
-                    this.returnTypeComponent =(Class) ((ParameterizedType) callbackReturn).getActualTypeArguments()[0];
+                    this.returnTypeComponent = (Class) ((ParameterizedType) callbackReturn).getActualTypeArguments()[0];
                 } else if (Map.class.isAssignableFrom(containerType)) {
                     this.genericReturnType = GenericReturnType.MAP;
-                    this.returnTypeComponentKey =(Class)((ParameterizedType) callbackReturn).getActualTypeArguments()[0];
-                    this.returnTypeComponentValue =(Class)((ParameterizedType) callbackReturn).getActualTypeArguments()[1];
+                    this.returnTypeComponentKey = (Class) ((ParameterizedType) callbackReturn).getActualTypeArguments()[0];
+                    this.returnTypeComponentValue = (Class) ((ParameterizedType) callbackReturn).getActualTypeArguments()[1];
                 } else if (Optional.class.isAssignableFrom(containerType)) {
                     this.genericReturnType = GenericReturnType.OPTIONAL;
-                    this.returnTypeComponent =(Class) ((ParameterizedType) callbackReturn).getActualTypeArguments()[0];
+                    this.returnTypeComponent = (Class) ((ParameterizedType) callbackReturn).getActualTypeArguments()[0];
                 } else if (JSendResponse.class.isAssignableFrom(containerType)) {
                     final Type returnTypeForComponent = ((ParameterizedType) callbackReturn).getActualTypeArguments()[0];
 
                     if (returnTypeForComponent instanceof Class) {
                         this.returnTypeComponent = (Class) returnTypeForComponent;
                         this.genericReturnType = GenericReturnType.JSEND;
-                    } else if (returnTypeForComponent instanceof ParameterizedType){
-                           final ParameterizedType jsendGenericReturnType = ((ParameterizedType) returnTypeForComponent);
+                    } else if (returnTypeForComponent instanceof ParameterizedType) {
+                        final ParameterizedType jsendGenericReturnType = ((ParameterizedType) returnTypeForComponent);
 
-                            if (jsendGenericReturnType.getRawType() instanceof Class) {
+                        if (jsendGenericReturnType.getRawType() instanceof Class) {
 
-                                final Class rawType = (Class) jsendGenericReturnType.getRawType();
-                                if (Collection.class.isAssignableFrom(rawType) || rawType.isArray()) {
+                            final Class rawType = (Class) jsendGenericReturnType.getRawType();
+                            if (Collection.class.isAssignableFrom(rawType) || rawType.isArray()) {
 
-                                    this.genericReturnType = GenericReturnType.JSEND_ARRAY;
-                                    Type componentType = jsendGenericReturnType.getActualTypeArguments()[0];
+                                this.genericReturnType = GenericReturnType.JSEND_ARRAY;
+                                Type componentType = jsendGenericReturnType.getActualTypeArguments()[0];
 
-                                    if (componentType instanceof Class) {
-                                        this.returnTypeComponent = ((Class) componentType);
-                                    }
+                                if (componentType instanceof Class) {
+                                    this.returnTypeComponent = ((Class) componentType);
+                                }
 
-                                } else if (Map.class.isAssignableFrom(rawType)) {
+                            } else if (Map.class.isAssignableFrom(rawType)) {
 
-                                    this.genericReturnType = GenericReturnType.JSEND_MAP;
+                                this.genericReturnType = GenericReturnType.JSEND_MAP;
 
-                                    Type componentKey = jsendGenericReturnType.getActualTypeArguments()[0];
+                                Type componentKey = jsendGenericReturnType.getActualTypeArguments()[0];
 
-                                    if (componentKey instanceof Class) {
-                                        this.returnTypeComponentKey = ((Class) componentKey);
-                                    }
+                                if (componentKey instanceof Class) {
+                                    this.returnTypeComponentKey = ((Class) componentKey);
+                                }
 
-                                    this.genericReturnType = GenericReturnType.JSEND_MAP;
-                                    Type componentValue = jsendGenericReturnType.getActualTypeArguments()[0];
+                                this.genericReturnType = GenericReturnType.JSEND_MAP;
+                                Type componentValue = jsendGenericReturnType.getActualTypeArguments()[0];
 
-                                    if (componentValue instanceof Class) {
-                                        this.returnTypeComponentValue = ((Class) componentValue);
-                                    }
+                                if (componentValue instanceof Class) {
+                                    this.returnTypeComponentValue = ((Class) componentValue);
                                 }
                             }
+                        }
 
                     }
                 }
-            }/* Now we know it is not a list or map */
-            else if (callbackReturn instanceof Class) {
+            }/* Now we know it is not a list or map */ else if (callbackReturn instanceof Class) {
                 this.returnType = ((Class) callbackReturn);
 
                 if (this.returnType == HttpTextResponse.class) {
                     this.genericReturnType = GenericReturnType.HTTP_TEXT_RESPONSE;
-                }  else if (this.returnType == HttpBinaryResponse.class) {
+                } else if (this.returnType == HttpBinaryResponse.class) {
                     this.genericReturnType = GenericReturnType.HTTP_BINARY_RESPONSE;
-                } else  if (returnType.isArray()) {
+                } else if (returnType.isArray()) {
                     this.genericReturnType = GenericReturnType.ARRAY;
                 }
                 this.returnTypeEnum = TypeType.getType(returnType);
@@ -325,15 +322,14 @@ public class ServiceMethodMetaBuilder {
         return hasCallback;
     }
 
-    public ServiceMethodMetaBuilder setHasCallBack(boolean hasCallBack) {
-        this.hasCallBack = hasCallBack;
-        return this;
-    }
-
     public boolean isHasCallBack() {
         return hasCallBack;
     }
 
+    public ServiceMethodMetaBuilder setHasCallBack(boolean hasCallBack) {
+        this.hasCallBack = hasCallBack;
+        return this;
+    }
 
     public boolean hasCallback() {
         return hasCallBack;
@@ -411,23 +407,22 @@ public class ServiceMethodMetaBuilder {
         return this;
     }
 
+    public String getSummary() {
+        return summary;
+    }
+
     public ServiceMethodMetaBuilder setSummary(String summary) {
         this.summary = summary;
         return this;
     }
 
-    public String getSummary() {
-        return summary;
+    public String getReturnDescription() {
+        return returnDescription;
     }
 
     public ServiceMethodMetaBuilder setReturnDescription(String returnDescription) {
         this.returnDescription = returnDescription;
         return this;
-    }
-
-
-    public String getReturnDescription() {
-        return returnDescription;
     }
 
     public GenericReturnType getGenericReturnType() {
@@ -439,13 +434,13 @@ public class ServiceMethodMetaBuilder {
         return this;
     }
 
+    public int getResponseCode() {
+        return responseCode;
+    }
+
     public ServiceMethodMetaBuilder setResponseCode(int responseCode) {
         this.responseCode = responseCode;
         return this;
-    }
-
-    public int getResponseCode() {
-        return responseCode;
     }
 
     public String getContentType() {

@@ -10,7 +10,7 @@ public class LocalStatsCollectorBuilder {
 
 
     private LocalStatsCollector localStatsCollector;
-    private int calculateEveryNSeconds =60;
+    private int calculateEveryNSeconds = 60;
     private ServiceBuilder serviceBuilder;
     private ServiceQueue serviceQueue;
     private Timer timer;
@@ -68,7 +68,7 @@ public class LocalStatsCollectorBuilder {
     }
 
     public ServiceQueue getServiceQueue() {
-        if (serviceQueue==null) {
+        if (serviceQueue == null) {
             serviceQueue = getServiceBuilder().build();
         }
         return serviceQueue;

@@ -30,7 +30,7 @@ public class ForwardCallMethodInterceptorTest {
 
         HttpRequestBuilder httpRequestBuilder = HttpRequestBuilder.httpRequestBuilder();
         httpRequestBuilder.setUri("/foo");
-        MethodCallBuilder methodCallBuilder =  MethodCallBuilder.methodCallBuilder();
+        MethodCallBuilder methodCallBuilder = MethodCallBuilder.methodCallBuilder();
         methodCallBuilder.setName("Method 1");
         methodCallBuilder.setOriginatingRequest(httpRequestBuilder.build());
         methodCallBuilder.setOriginatingRequest(methodCallBuilder.build());
@@ -70,7 +70,6 @@ public class ForwardCallMethodInterceptorTest {
     public void tearDown() {
         captureRequestInterceptor.after(null, null);
     }
-
 
 
 }

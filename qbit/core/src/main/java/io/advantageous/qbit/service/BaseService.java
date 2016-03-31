@@ -12,15 +12,15 @@ import java.util.HashMap;
  * There are certain things we seem to always use when we develop services.
  * The BaseService handles this.
  */
-public abstract class BaseService implements QueueCallBackHandler{
+public abstract class BaseService implements QueueCallBackHandler {
 
 
     protected final StatsCollector statsCollector;
     protected final Reactor reactor;
     protected final Timer timer;
     private final String statKeyPrefix;
-    protected long time;
     private final HashMap<String, String> statNameMap;
+    protected long time;
 
     public BaseService(final Reactor reactor, final Timer timer, final StatsCollector statsCollector) {
         this.statsCollector = statsCollector;
@@ -40,10 +40,11 @@ public abstract class BaseService implements QueueCallBackHandler{
     }
 
 
-    /** Prefixes the stats key with the stat key prefix, and then calls statsCollector.recordLevel.
+    /**
+     * Prefixes the stats key with the stat key prefix, and then calls statsCollector.recordLevel.
      *
      * @param statKey statKey
-     * @param level level
+     * @param level   level
      */
     protected void recordLevel(final String statKey, final long level) {
         final String longKey = getActualStatKey(statKey);
@@ -51,17 +52,19 @@ public abstract class BaseService implements QueueCallBackHandler{
     }
 
 
-    /** Prefixes the stats key with the stat key prefix, and then calls statsCollector.recordCount.
+    /**
+     * Prefixes the stats key with the stat key prefix, and then calls statsCollector.recordCount.
      *
      * @param statKey statKey
-     * @param count count
+     * @param count   count
      */
     protected void recordCount(final String statKey, final long count) {
         final String longKey = getActualStatKey(statKey);
         statsCollector.recordCount(longKey, count);
     }
 
-    /** Prefixes the stats key with the stat key prefix, and then calls statsCollector.recordCount.
+    /**
+     * Prefixes the stats key with the stat key prefix, and then calls statsCollector.recordCount.
      *
      * @param statKey statKey
      */
@@ -72,9 +75,10 @@ public abstract class BaseService implements QueueCallBackHandler{
     }
 
 
-    /** Prefixes the stats key with the stat key prefix, and then calls statsCollector.recordTiming.
+    /**
+     * Prefixes the stats key with the stat key prefix, and then calls statsCollector.recordTiming.
      *
-     * @param statKey statKey
+     * @param statKey  statKey
      * @param timeSpan timeSpan
      */
     protected void recordTiming(String statKey, long timeSpan) {

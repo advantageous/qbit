@@ -14,12 +14,12 @@ public class Parameter {
     private final Schema items;
     /**
      * Determines the format of the array if type array is used. Possible values are:
-     csv - comma separated values foo,bar.
-     ssv - space separated values foo bar.
-     tsv - tab separated values foo\tbar.
-     pipes - pipe separated values foo|bar.
-     multi - corresponds to multiple parameter instances instead of multiple values for a single instance foo=bar&foo=baz. This is valid only for parameters in "query" or "formData".
-     Default value is csv.
+     * csv - comma separated values foo,bar.
+     * ssv - space separated values foo bar.
+     * tsv - tab separated values foo\tbar.
+     * pipes - pipe separated values foo|bar.
+     * multi - corresponds to multiple parameter instances instead of multiple values for a single instance foo=bar&foo=baz. This is valid only for parameters in "query" or "formData".
+     * Default value is csv.
      */
     private final String collectionFormat;
 

@@ -8,5 +8,6 @@ import io.advantageous.qbit.message.MethodCallBuilder;
  */
 public interface BeforeMethodSent {
 
-    default void beforeMethodSent(final MethodCallBuilder methodBuilder) {}
+    default void beforeMethodSent(final MethodCallBuilder methodBuilder) {
+    }
 }

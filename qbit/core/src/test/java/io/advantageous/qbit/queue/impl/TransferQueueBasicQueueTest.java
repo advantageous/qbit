@@ -8,7 +8,6 @@ import java.util.concurrent.TimeUnit;
 public class TransferQueueBasicQueueTest extends BasicSendReceiveTest {
 
 
-
     @Before
     public void setup() {
 

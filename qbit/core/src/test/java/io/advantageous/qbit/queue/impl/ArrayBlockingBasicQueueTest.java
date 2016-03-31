@@ -10,7 +10,6 @@ import java.util.concurrent.TimeUnit;
 public class ArrayBlockingBasicQueueTest extends BasicSendReceiveTest {
 
 
-
     @Before
     public void setup() {
 
@@ -27,7 +26,6 @@ public class ArrayBlockingBasicQueueTest extends BasicSendReceiveTest {
     }
 
 
-
     @Test(expected = QueueException.class)
     public void testTimeout() {
 
@@ -42,8 +40,8 @@ public class ArrayBlockingBasicQueueTest extends BasicSendReceiveTest {
         sendQueue = queue.sendQueue();
 
 
-        for (int index =0; index < 2000; index++) {
-            sendQueue.send(""+index);
+        for (int index = 0; index < 2000; index++) {
+            sendQueue.send("" + index);
         }
     }
 

@@ -65,7 +65,7 @@ public class LocalStatsCollectorTest {
         collectorAsync.replicateLevel("foo.bar.level1", 3, -1);
         collectorAsync.replicateLevel("foo.bar.level1", 4, -1);
 
-        AtomicReference<Map<String, Map<String, ?>>> referenceMap=new AtomicReference<>();
+        AtomicReference<Map<String, Map<String, ?>>> referenceMap = new AtomicReference<>();
 
 
         final CountDownLatch latch = new CountDownLatch(1);
@@ -87,7 +87,6 @@ public class LocalStatsCollectorTest {
     }
 
 
-
     @Test
     public void testLevelCollectAll() throws Exception {
 
@@ -104,7 +103,6 @@ public class LocalStatsCollectorTest {
 
         puts(collectMap);
     }
-
 
 
     @Test
@@ -141,12 +139,11 @@ public class LocalStatsCollectorTest {
     }
 
 
-
     @Test
     public void testLevelTimingOver100Avg() throws Exception {
 
 
-        for (int i =0; i < 200; i++) {
+        for (int i = 0; i < 200; i++) {
 
             collector.replicateTiming("foo.bar.timing1", i, -1);
         }

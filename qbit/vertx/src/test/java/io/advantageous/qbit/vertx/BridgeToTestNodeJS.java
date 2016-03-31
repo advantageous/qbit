@@ -14,11 +14,13 @@ import io.vertx.ext.web.handler.sockjs.SockJSHandler;
 public class BridgeToTestNodeJS extends AbstractVerticle {
 
 
-    public static class TestService {
-        public void test(Callback<Boolean> callback, final String newValue) {
-            System.out.println("HERE::" + newValue);
-            callback.returnThis(true);
-        }
+    public static void main(String... args) throws Exception {
+
+
+        Vertx vertx = Vertx.vertx();
+
+        vertx.deployVerticle(new BridgeToTestNodeJS());
+
     }
 
     @Override
@@ -43,7 +45,7 @@ public class BridgeToTestNodeJS extends AbstractVerticle {
                 .vertxEventBusBridgeBuilder()
                 .setVertx(vertx);
 
-        vertxEventBusBridgeBuilder.addBridgeAddress(address);
+        vertxEventBusBridgeBuilder.addBridgeAddress(address, TestService.class);
 
         final Router router = Router.router(vertx);
 
@@ -69,12 +71,10 @@ public class BridgeToTestNodeJS extends AbstractVerticle {
         System.out.println("Bound to 8080");
     }
 
-    public static void main(String... args) throws Exception {
-
-
-        Vertx vertx = Vertx.vertx();
-
-        vertx.deployVerticle(new BridgeToTestNodeJS());
-
+    public static class TestService {
+        public void test(Callback<Boolean> callback, final String newValue) {
+            System.out.println("HERE::" + newValue);
+            callback.returnThis(true);
+        }
     }
 }

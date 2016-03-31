@@ -29,9 +29,9 @@ import java.util.function.Predicate;
 public class TimedTesting {
 
 
+    protected final AtomicBoolean stop = new AtomicBoolean();
     protected boolean ok;
     protected CountDownLatch latch = new CountDownLatch(1);
-    protected final AtomicBoolean stop = new AtomicBoolean();
 
     protected void setupLatch() {
         latch = new CountDownLatch(1);

@@ -15,12 +15,12 @@ import static io.advantageous.qbit.service.discovery.ServiceDiscovery.uniqueStri
  * Contains a healthStatus, unique id, name, host, port and a timeToLive in seconds.
  * This describes all parts of a service as far as something like a ServiceDiscovery system like
  * [Consul](https://consul.io/) is concerned.
- *
+ * <p>
  * The `timeToLive` field is for ttl checkins if the underlying system supports it.
- *
+ * <p>
  * The `HealthStatus` represents the current state of this system as returned from the remote
  * service discovery system.
- *
+ * <p>
  * created by rhightower on 3/23/15.
  */
 public class EndpointDefinition {
@@ -59,25 +59,13 @@ public class EndpointDefinition {
 
 
     /**
-     * Find host
-     * @return hostname
-     */
-    static String findHostName() {
-        try {
-            return InetAddress.getLocalHost().getHostName();
-        } catch (UnknownHostException e) {
-            throw new IllegalStateException("unable to find host name");
-        }
-    }
-
-
-    /**
      * Create a new one with default TTL of 20 seconds.
+     *
      * @param healthStatus healthStatus
-     * @param id id
-     * @param name name
-     * @param host post
-     * @param port port
+     * @param id           id
+     * @param name         name
+     * @param host         post
+     * @param port         port
      */
     public EndpointDefinition(
             final HealthStatus healthStatus,
@@ -90,11 +78,13 @@ public class EndpointDefinition {
         this.name = name;
         this.host = host;
         this.port = port;
-        this.timeToLive = Sys.sysProp(EndpointDefinition.class.getName()+".timeToLive", 20L);
+        this.timeToLive = Sys.sysProp(EndpointDefinition.class.getName() + ".timeToLive", 20L);
     }
+
 
     /**
      * Create a new one with default TTL of 20 seconds.
+     *
      * @param name name
      * @param host post
      * @param port port
@@ -108,17 +98,17 @@ public class EndpointDefinition {
         this.name = name;
         this.host = host;
         this.port = port;
-        this.timeToLive = Sys.sysProp(EndpointDefinition.class.getName()+".timeToLive", 20L);
+        this.timeToLive = Sys.sysProp(EndpointDefinition.class.getName() + ".timeToLive", 20L);
     }
-
 
     /**
      * Create a new one with default TTL of 20 seconds.
+     *
      * @param healthStatus healthStatus
-     * @param id id
-     * @param name name
-     * @param host post
-     * @param port port
+     * @param id           id
+     * @param name         name
+     * @param host         post
+     * @param port         port
      */
     public EndpointDefinition(
             final HealthStatus healthStatus,
@@ -136,7 +126,21 @@ public class EndpointDefinition {
     }
 
     /**
+     * Find host
+     *
+     * @return hostname
+     */
+    static String findHostName() {
+        try {
+            return InetAddress.getLocalHost().getHostName();
+        } catch (UnknownHostException e) {
+            throw new IllegalStateException("unable to find host name");
+        }
+    }
+
+    /**
      * Creates a list of service definitions.
+     *
      * @param endpointDefinitions vararg array of service definitions
      * @return list of service definitions
      */
@@ -146,6 +150,7 @@ public class EndpointDefinition {
 
     /**
      * Creates a EndpointDefinition for a service, i.e., a serviceDefinition.
+     *
      * @param name name
      * @return serviceDefinition
      */
@@ -157,6 +162,7 @@ public class EndpointDefinition {
 
     /**
      * Creates a EndpointDefinition for a service, i.e., a serviceDefinition.
+     *
      * @param name service name
      * @param port port
      * @return serviceDefinition
@@ -169,7 +175,8 @@ public class EndpointDefinition {
 
     /**
      * Creates a EndpointDefinition for a service, i.e., a serviceDefinition.
-     * @param id id
+     *
+     * @param id   id
      * @param name name
      * @param host host
      * @param port port
@@ -186,7 +193,8 @@ public class EndpointDefinition {
     }
 
     /**
-     *  Creates a EndpointDefinition for a service, i.e., a serviceDefinition.
+     * Creates a EndpointDefinition for a service, i.e., a serviceDefinition.
+     *
      * @param name name
      * @param host host
      * @param port port
@@ -204,6 +212,7 @@ public class EndpointDefinition {
 
     /**
      * Creates a EndpointDefinition for a service, i.e., a serviceDefinition.
+     *
      * @param name name
      * @param host host
      * @return serviceDefinition
@@ -218,10 +227,10 @@ public class EndpointDefinition {
     }
 
 
-
     /**
      * Creates a EndpointDefinition for a service, i.e., a serviceDefinition.
-     * @param id id
+     *
+     * @param id   id
      * @param name name
      * @param host host
      * @return EndpointDefinition

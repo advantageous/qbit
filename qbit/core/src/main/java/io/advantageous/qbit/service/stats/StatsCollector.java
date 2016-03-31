@@ -36,8 +36,10 @@ import io.advantageous.qbit.client.ClientProxy;
 public interface StatsCollector extends ClientProxy {
 
 
-    /** Increment a counter by 1.
+    /**
+     * Increment a counter by 1.
      * This is a short cut for recordCount(name, 1);
+     *
      * @param name name name of metric, KPI, metric.
      */
     default void increment(final String name) {
@@ -48,7 +50,7 @@ public interface StatsCollector extends ClientProxy {
      * Record a a count.
      * Used to record things like how many users used the site.
      *
-     * @param name name of the metric, KPI, stat
+     * @param name  name of the metric, KPI, stat
      * @param count count to record.
      */
     default void recordCount(String name, long count) {
@@ -58,7 +60,8 @@ public interface StatsCollector extends ClientProxy {
      * This is used to record things like the count of current threads or
      * free system memory or free disk, etc.
      * Record Level. Some systems call this a gauge.
-     * @param name name of the gauge or level
+     *
+     * @param name  name of the gauge or level
      * @param level level
      */
     default void recordLevel(String name, long level) {
@@ -67,7 +70,8 @@ public interface StatsCollector extends ClientProxy {
     /**
      * This is used to record timings.
      * This would be things like how long did it take this service to call this remote service.
-     * @param name name of the timing
+     *
+     * @param name     name of the timing
      * @param duration duration
      */
     default void recordTiming(String name, long duration) {

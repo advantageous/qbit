@@ -7,16 +7,17 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-public class AfterMethodCallChain implements AfterMethodCall{
+public class AfterMethodCallChain implements AfterMethodCall {
 
-    public static AfterMethodCallChain afterMethodCallChain(final AfterMethodCall... calls) {
-        return new AfterMethodCallChain(Arrays.asList(calls));
-
-    }
     private final List<AfterMethodCall> afterMethodCallList;
 
     public AfterMethodCallChain(List<AfterMethodCall> afterMethodCallList) {
         this.afterMethodCallList = Collections.unmodifiableList(afterMethodCallList);
+    }
+
+    public static AfterMethodCallChain afterMethodCallChain(final AfterMethodCall... calls) {
+        return new AfterMethodCallChain(Arrays.asList(calls));
+
     }
 
     @Override

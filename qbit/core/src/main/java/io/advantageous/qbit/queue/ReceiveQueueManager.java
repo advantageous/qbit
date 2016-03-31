@@ -30,7 +30,7 @@ import io.advantageous.qbit.service.Stoppable;
  *
  * @author rhightower
  */
-public interface ReceiveQueueManager<T> extends Startable, Stoppable{
+public interface ReceiveQueueManager<T> extends Startable, Stoppable {
 
 
     void addQueueToManage(String name,

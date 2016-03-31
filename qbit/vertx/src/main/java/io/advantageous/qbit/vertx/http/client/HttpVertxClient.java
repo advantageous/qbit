@@ -58,29 +58,20 @@ public class HttpVertxClient implements HttpClient {
     protected final boolean keepAlive;
     protected final boolean pipeline;
     protected final int flushInterval;
-    private final Logger logger = LoggerFactory.getLogger(HttpVertxClient.class);
-    private final boolean debug = logger.isDebugEnabled() || GlobalConstants.DEBUG;
-    private final boolean trace = logger.isTraceEnabled();
-
-
-    /**
-     * Holds on to Boon cache so we don't have to recreate reflected gak.
-     */
-    private Object context = Sys.contextToHold();
-
-
-
-
-    /**
-     * Are we closed.
-     */
-    private final AtomicBoolean closed = new AtomicBoolean();
     /**
      * I am leaving these protected and non-final so subclasses can use injection frameworks for them.
      */
     protected final int port;
     protected final String host;
     protected final int timeOutInMilliseconds;
+    protected final Vertx vertx;
+    private final Logger logger = LoggerFactory.getLogger(HttpVertxClient.class);
+    private final boolean debug = logger.isDebugEnabled() || GlobalConstants.DEBUG;
+    private final boolean trace = logger.isTraceEnabled();
+    /**
+     * Are we closed.
+     */
+    private final AtomicBoolean closed = new AtomicBoolean();
     private final boolean ssl;
     private final String trustStorePath;
     private final String trustStorePassword;
@@ -90,15 +81,18 @@ public class HttpVertxClient implements HttpClient {
     private final boolean tryUseCompression;
     private final boolean tcpNoDelay;
     private final int soLinger;
+    private final boolean autoFlush;
+    private final boolean startedVertx;
     protected int poolSize;
     protected io.vertx.core.http.HttpClient httpClient;
-    protected final Vertx vertx;
     volatile long responseCount = 0;
-    private final boolean autoFlush;
+    /**
+     * Holds on to Boon cache so we don't have to recreate reflected gak.
+     */
+    private Object context = Sys.contextToHold();
     private Consumer<Void> periodicFlushCallback = aVoid -> {
     };
     private long flushTimerId;
-    private final boolean startedVertx;
 
     public HttpVertxClient(final String host,
                            final int port,
@@ -144,24 +138,25 @@ public class HttpVertxClient implements HttpClient {
 
     /**
      * Constructor that allows you to pass a vertx object.
-     * @param vertx vertx
-     * @param host host
-     * @param port port
+     *
+     * @param vertx                 vertx
+     * @param host                  host
+     * @param port                  port
      * @param timeOutInMilliseconds timout milis
-     * @param poolSize poolsize
-     * @param autoFlush autoflush
-     * @param flushInterval flush interval
-     * @param keepAlive keepAlive
-     * @param pipeline pipeline enabled
-     * @param ssl ssl enabled
-     * @param verifyHost verify host enabled
-     * @param trustAll trust all
+     * @param poolSize              poolsize
+     * @param autoFlush             autoflush
+     * @param flushInterval         flush interval
+     * @param keepAlive             keepAlive
+     * @param pipeline              pipeline enabled
+     * @param ssl                   ssl enabled
+     * @param verifyHost            verify host enabled
+     * @param trustAll              trust all
      * @param maxWebSocketFrameSize maxWebSocketFrameSize
-     * @param tryUseCompression tryUseCompression
-     * @param trustStorePath trustStorePath
-     * @param trustStorePassword trustStorePassword
-     * @param tcpNoDelay tcpNoDelay
-     * @param soLinger soLinger
+     * @param tryUseCompression     tryUseCompression
+     * @param trustStorePath        trustStorePath
+     * @param trustStorePassword    trustStorePassword
+     * @param tcpNoDelay            tcpNoDelay
+     * @param soLinger              soLinger
      */
     public HttpVertxClient(final Vertx vertx,
                            final String host,
@@ -227,17 +222,17 @@ public class HttpVertxClient implements HttpClient {
 
         httpClientRequest.exceptionHandler(error -> {
 
-        if (error instanceof ConnectException) {
-            closed.set(true);
-            try {
-                stop();
-            } catch (Exception ex) {
-                logger.warn("Unable to stop client " +
-                        "after failed connection", ex);
+            if (error instanceof ConnectException) {
+                closed.set(true);
+                try {
+                    stop();
+                } catch (Exception ex) {
+                    logger.warn("Unable to stop client " +
+                            "after failed connection", ex);
+                }
+            } else {
+                logger.error("Unable to connect to " + host + " port " + port, error);
             }
-        } else {
-            logger.error("Unable to connect to " + host + " port " + port, error);
-        }
         });
 
         if (headers != null) {
@@ -262,7 +257,7 @@ public class HttpVertxClient implements HttpClient {
 
                 httpClientRequest.putHeader("Content-Type", request.getContentType());
             }
-            httpClientRequest.end( Buffer.buffer(request.getBody()));
+            httpClientRequest.end(Buffer.buffer(request.getBody()));
 
         } else {
             httpClientRequest.end();
@@ -383,7 +378,6 @@ public class HttpVertxClient implements HttpClient {
             public void openWebSocket(WebSocket webSocket) {
 
 
-
                 final Buffer[] bufferRef = new Buffer[1];
 
                 httpClient.websocket(uri, vertxWebSocket -> {
@@ -393,7 +387,7 @@ public class HttpVertxClient implements HttpClient {
                     /* Handle on Message. */
                     vertxWebSocket.handler(
                             buffer -> {
-                                bufferRef[0]=buffer;
+                                bufferRef[0] = buffer;
                             }
                     );
 
@@ -526,7 +520,6 @@ public class HttpVertxClient implements HttpClient {
                 .setVerifyHost(verifyHost)
                 .setMaxWebsocketFrameSize(maxWebSocketFrameSize)
                 .setUsePooledBuffers(true);
-
 
 
         httpClient = vertx.createHttpClient(httpClientOptions);

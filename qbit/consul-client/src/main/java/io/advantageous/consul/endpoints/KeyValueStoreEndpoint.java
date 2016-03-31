@@ -39,7 +39,7 @@ import static io.advantageous.consul.domain.ConsulException.die;
  * <p>
  * Note this class was heavily influenced and inspired by the Orbitz Consul client.
  */
-public class KeyValueStoreEndpoint extends Endpoint{
+public class KeyValueStoreEndpoint extends Endpoint {
 
     public KeyValueStoreEndpoint(String scheme, String host, String port, String rootPath) {
         super(scheme, host, port, rootPath);
@@ -48,7 +48,6 @@ public class KeyValueStoreEndpoint extends Endpoint{
     public KeyValueStoreEndpoint(URI rootURI, String rootPath) {
         super(rootURI, rootPath);
     }
-
 
 
     /**
@@ -82,7 +81,6 @@ public class KeyValueStoreEndpoint extends Endpoint{
 
         final HttpRequestBuilder httpRequestBuilder = RequestUtils
                 .getHttpRequestBuilder(null, null, requestOptions, "");
-
 
 
         final HTTP.Response httpResponse = HTTP.getResponse(uri.toString() + "?" + httpRequestBuilder.paramString());
@@ -217,8 +215,6 @@ public class KeyValueStoreEndpoint extends Endpoint{
 //        httpRequestBuilder.addParam("recurse", "true");
 
 
-
-
         if (cas != null) {
             httpRequestBuilder.addParam("cas", cas.toString());
         }
@@ -316,10 +312,6 @@ public class KeyValueStoreEndpoint extends Endpoint{
         final URI uri = createURI("/" + key);
         final HttpRequestBuilder httpRequestBuilder = RequestUtils
                 .getHttpRequestBuilder(null, null, RequestOptions.BLANK, "");
-
-
-
-
 
 
         final Set<Map.Entry<String, String>> entries = params.entrySet();

@@ -11,12 +11,12 @@ public class BeforeMethodSentChain implements BeforeMethodSent {
 
     private final List<BeforeMethodSent> beforeMethodCallSentList;
 
-    public static BeforeMethodSentChain beforeMethodSentChain(BeforeMethodSent... beforeMethodSentCalls) {
-        return new BeforeMethodSentChain(Arrays.asList(beforeMethodSentCalls));
-    }
-
     public BeforeMethodSentChain(List<BeforeMethodSent> beforeMethodCallSentList) {
         this.beforeMethodCallSentList = Collections.unmodifiableList(beforeMethodCallSentList);
+    }
+
+    public static BeforeMethodSentChain beforeMethodSentChain(BeforeMethodSent... beforeMethodSentCalls) {
+        return new BeforeMethodSentChain(Arrays.asList(beforeMethodSentCalls));
     }
 
     @Override

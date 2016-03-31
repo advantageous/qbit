@@ -16,6 +16,7 @@ import java.util.function.Function;
 
 /**
  * allows you to specify an encoder and decoder to convert objects to/fro Strings
+ *
  * @param <T>
  */
 public class StringDecoderEncoderKeyValueStore<T> implements KeyValueStoreService<T> {
@@ -120,7 +121,7 @@ public class StringDecoderEncoderKeyValueStore<T> implements KeyValueStoreServic
     public void deleteWithConfirmation(final Callback<Boolean> confirmation, String key) {
 
         kvStore.deleteWithConfirmation(
-                reactor.wrapCallback(String.format("delete key %s", key),confirmation, logger),
+                reactor.wrapCallback(String.format("delete key %s", key), confirmation, logger),
                 key);
     }
 

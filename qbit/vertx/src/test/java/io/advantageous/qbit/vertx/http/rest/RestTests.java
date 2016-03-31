@@ -31,77 +31,10 @@ import static org.junit.Assert.assertNotNull;
 public class RestTests {
 
 
-
     public static AtomicReference<List<DomainClass>> ref = new AtomicReference<>();
 
     private int openPort;
     private ServiceEndpointServer serviceEndpointServer;
-
-    public static class DomainClass {
-        int i;
-        String s;
-
-        public DomainClass(int i, String s) {
-            this.i = i;
-            this.s = s;
-        }
-
-        @Override
-        public String toString() {
-            return "DomainClass{" +
-                    "i=" + i +
-                    ", s='" + s + '\'' +
-                    '}';
-        }
-    }
-
-
-    @RequestMapping
-    public static class TestService {
-
-
-        @RequestMapping(method = RequestMethod.POST)
-        public void addAll(List<DomainClass> domains) {
-            ref.set(domains);
-        }
-
-
-        @RequestMapping(method = RequestMethod.POST)
-        public boolean addAll2(List<DomainClass> domains) {
-            ref.set(domains);
-            return true;
-        }
-
-
-        @RequestMapping(method = RequestMethod.GET) @NoCacheHeaders
-        public void ping(Callback<String> callback) {
-
-            callback.returnThis("love rocket");
-        }
-
-
-        @RequestMapping(method = RequestMethod.GET)
-        public void ping2(Callback<HttpTextResponse> callback) {
-
-            callback.returnThis(HttpResponseBuilder.httpResponseBuilder()
-                    .setBody("hello mom")
-                    .setCode(777)
-                    .buildTextResponse());
-        }
-
-
-        @RequestMapping(method = RequestMethod.PUT)
-        public void ping3(Callback<HttpTextResponse> callback, String foo) {
-
-            callback.returnThis(HttpResponseBuilder.httpResponseBuilder()
-                    .setBody("hello mom " + foo)
-                    .setCode(777)
-                    .buildTextResponse());
-        }
-
-    }
-
-
 
     @Test
     public void testPing() {
@@ -109,7 +42,7 @@ public class RestTests {
         assertEquals(200, response.status());
 
 
-        final List<String> controls =  response.headers().get(HttpHeaders.CACHE_CONTROL);
+        final List<String> controls = response.headers().get(HttpHeaders.CACHE_CONTROL);
 
         Assert.assertEquals("no-cache, no-store", controls.get(0));
 
@@ -117,7 +50,6 @@ public class RestTests {
 
         assertEquals("\"love rocket\"", response.body());
     }
-
 
     @Test
     public void testPing2() {
@@ -133,10 +65,8 @@ public class RestTests {
         assertEquals("hello mom foo", response.body());
     }
 
-
     @Test
     public void test() {
-
 
 
         HTTP.Response response = HTTP.jsonRestCallViaPOST(buildURL("addall"),
@@ -152,13 +82,10 @@ public class RestTests {
         assertNotNull(ref.get());
 
 
-
-
     }
 
     @Test
     public void testBadJSON() {
-
 
 
         HTTP.Response response = HTTP.jsonRestCallViaPOST(buildURL("addall"),
@@ -168,15 +95,10 @@ public class RestTests {
         assertEquals(400, response.status());
 
 
-
-
-
     }
 
     @Test
     public void testBadJSONWithReturn() {
-
-
 
 
         serviceEndpointServer.stop();
@@ -208,11 +130,7 @@ public class RestTests {
         assertEquals(200, response.status());
 
 
-
-
-
     }
-
 
     @Test
     public void testBadJSONCustomHandler() {
@@ -244,11 +162,7 @@ public class RestTests {
         assertEquals(200, response.status());
 
 
-
-
     }
-
-
 
     @Before
     public void before() {
@@ -264,10 +178,72 @@ public class RestTests {
         serviceEndpointServer.stop();
     }
 
-
-
     private String buildURL(String ping) {
         return "http://localhost:" + openPort +
                 "/services/testservice/" + ping;
+    }
+
+    public static class DomainClass {
+        int i;
+        String s;
+
+        public DomainClass(int i, String s) {
+            this.i = i;
+            this.s = s;
+        }
+
+        @Override
+        public String toString() {
+            return "DomainClass{" +
+                    "i=" + i +
+                    ", s='" + s + '\'' +
+                    '}';
+        }
+    }
+
+    @RequestMapping
+    public static class TestService {
+
+
+        @RequestMapping(method = RequestMethod.POST)
+        public void addAll(List<DomainClass> domains) {
+            ref.set(domains);
+        }
+
+
+        @RequestMapping(method = RequestMethod.POST)
+        public boolean addAll2(List<DomainClass> domains) {
+            ref.set(domains);
+            return true;
+        }
+
+
+        @RequestMapping(method = RequestMethod.GET)
+        @NoCacheHeaders
+        public void ping(Callback<String> callback) {
+
+            callback.returnThis("love rocket");
+        }
+
+
+        @RequestMapping(method = RequestMethod.GET)
+        public void ping2(Callback<HttpTextResponse> callback) {
+
+            callback.returnThis(HttpResponseBuilder.httpResponseBuilder()
+                    .setBody("hello mom")
+                    .setCode(777)
+                    .buildTextResponse());
+        }
+
+
+        @RequestMapping(method = RequestMethod.PUT)
+        public void ping3(Callback<HttpTextResponse> callback, String foo) {
+
+            callback.returnThis(HttpResponseBuilder.httpResponseBuilder()
+                    .setBody("hello mom " + foo)
+                    .setCode(777)
+                    .buildTextResponse());
+        }
+
     }
 }

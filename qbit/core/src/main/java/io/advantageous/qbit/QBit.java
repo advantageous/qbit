@@ -27,13 +27,14 @@ import org.slf4j.LoggerFactory;
 /**
  * Main interface to QBit.
  * created by Richard on 9/26/14.
- *
+ * <p>
  * ##### Usage
  * ```java
- *     Factory factory = QBit.factory();
+ * Factory factory = QBit.factory();
  * ```
- *
+ * <p>
  * Added Markdown support to JavaDoc.
+ *
  * @author rhightower
  */
 public class QBit {
@@ -96,7 +97,7 @@ public class QBit {
             FactorySPI.setHttpClientFactory((host, port, timeOutInMilliseconds, poolSize, autoFlush, flushRate, keepAlive, pipeLine, ssl, verifyHost, trustAll, maxWebSocketFrameSize, tryUseCompression, trustStorePath, trustStorePassword, tcpNoDelay, soLinger) -> {
                 throw new IllegalStateException("Unable to load Vertx network libs");
             });
-       }
+        }
     }
 
 }

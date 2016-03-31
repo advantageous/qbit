@@ -34,7 +34,7 @@ import java.util.function.Supplier;
  * A service bundle is a collection of services.
  * The service bundle does the routing of calls based on addresses
  * to a particular client.
- *
+ * <p>
  * It can handle local and remote clients.
  * created by Richard on 9/26/14.
  *

@@ -153,6 +153,7 @@ public class RoundRobinServiceDispatcherTest extends TimedTesting {
 
         void doSomeWork2(Callback<Integer> value);
     }
+
     public static class MultiWorker {
 
         static volatile int totalCount;

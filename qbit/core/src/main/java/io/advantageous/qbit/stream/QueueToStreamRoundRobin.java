@@ -22,50 +22,11 @@ public class QueueToStreamRoundRobin<T> implements Publisher<T> {
     private final Runnable onSubscriptionEmpty;
 
 
-    class SubscriptionImpl implements Subscription {
-
-        final LinkedTransferQueue<Long> requests = new LinkedTransferQueue<>();
-
-        final Subscriber<? super T> subscriber;
-
-        final AtomicBoolean stop = new AtomicBoolean();
-
-
-        long requestCount;
-
-        SubscriptionImpl(Subscriber<? super T> subscriber) {
-            this.subscriber = subscriber;
-        }
-
-        @Override
-        public void request(long n) {
-            requests.offer(n);
-        }
-
-        @Override
-        public void cancel() {
-            stop.set(true);
-        }
-
-        public long requestCount() {
-
-            Long requested = requests.poll();
-
-            while (requested!=null) {
-                requestCount += requested;
-                requested = requests.poll();
-            }
-
-            return requestCount;
-        }
-
-    }
-
-
     public QueueToStreamRoundRobin(final Queue<T> queue) {
         this.queue = queue;
 
-        this.onSubscriptionEmpty = () -> {};
+        this.onSubscriptionEmpty = () -> {
+        };
     }
 
 
@@ -76,8 +37,6 @@ public class QueueToStreamRoundRobin<T> implements Publisher<T> {
 
     @Override
     public void subscribe(final Subscriber<? super T> subscriber) {
-
-
 
 
         final SubscriptionImpl subscription = new SubscriptionImpl(subscriber);
@@ -96,7 +55,7 @@ public class QueueToStreamRoundRobin<T> implements Publisher<T> {
     }
 
     private void start(
-             final Subscriber<? super T> subscriber) {
+            final Subscriber<? super T> subscriber) {
 
         try {
             this.queue.startListener(new ReceiveQueueListener<T>() {
@@ -107,8 +66,6 @@ public class QueueToStreamRoundRobin<T> implements Publisher<T> {
                 int index = 0;
 
                 SubscriptionImpl subscription;
-
-
 
 
                 //If a Subscription is cancelled its Subscriber MUST eventually stop being signaled.
@@ -136,7 +93,7 @@ public class QueueToStreamRoundRobin<T> implements Publisher<T> {
                     final long requestCount = subscription.requestCount();
                     stop = subscription.stop.get();
 
-                    if (requestCount==0L) {
+                    if (requestCount == 0L) {
                         long totalCount = 0L;
                         for (SubscriptionImpl s : subscriptions) {
                             totalCount += s.requestCount();
@@ -232,8 +189,47 @@ public class QueueToStreamRoundRobin<T> implements Publisher<T> {
                     }
                 }
             });
-        }catch (Exception ex) {
+        } catch (Exception ex) {
             subscriber.onError(ex);
         }
+    }
+
+    class SubscriptionImpl implements Subscription {
+
+        final LinkedTransferQueue<Long> requests = new LinkedTransferQueue<>();
+
+        final Subscriber<? super T> subscriber;
+
+        final AtomicBoolean stop = new AtomicBoolean();
+
+
+        long requestCount;
+
+        SubscriptionImpl(Subscriber<? super T> subscriber) {
+            this.subscriber = subscriber;
+        }
+
+        @Override
+        public void request(long n) {
+            requests.offer(n);
+        }
+
+        @Override
+        public void cancel() {
+            stop.set(true);
+        }
+
+        public long requestCount() {
+
+            Long requested = requests.poll();
+
+            while (requested != null) {
+                requestCount += requested;
+                requested = requests.poll();
+            }
+
+            return requestCount;
+        }
+
     }
 }

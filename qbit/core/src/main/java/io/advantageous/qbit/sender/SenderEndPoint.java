@@ -82,7 +82,6 @@ public class SenderEndPoint implements EndPoint {
         }
 
 
-
     }
 
     @Override
@@ -95,30 +94,28 @@ public class SenderEndPoint implements EndPoint {
     }
 
 
-
     @Override
     public void flush() {
 
 
+        MethodCall<Object> method = methodCalls.poll();
 
-            MethodCall<Object> method = methodCalls.poll();
+        if (method != null) {
 
-            if (method!=null) {
-
-                List<MethodCall<Object>> methods;
-
-
-                methods = new ArrayList<>(methodCalls.size());
+            List<MethodCall<Object>> methods;
 
 
-                while (method != null) {
-                    methods.add(method);
-                    method = methodCalls.poll();
-                }
+            methods = new ArrayList<>(methodCalls.size());
 
-                sender.send((methods.get(0)).returnAddress(), encoder.encodeMethodCalls(methods.get(0).returnAddress(), methods));
 
+            while (method != null) {
+                methods.add(method);
+                method = methodCalls.poll();
             }
+
+            sender.send((methods.get(0)).returnAddress(), encoder.encodeMethodCalls(methods.get(0).returnAddress(), methods));
+
+        }
 
     }
 

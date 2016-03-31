@@ -38,6 +38,22 @@ public class VertxHttpResponseReceiver implements HttpResponseReceiver<Object> {
 
     }
 
+    private static Buffer createBuffer(Object body, HttpServerResponse response) {
+        Buffer buffer = null;
+
+        if (body instanceof byte[]) {
+            byte[] bBody = ((byte[]) body);
+            response.putHeader("Content-Length", String.valueOf(bBody.length));
+            buffer = new Buffer(bBody);
+        } else if (body instanceof String) {
+            String sBody = ((String) body);
+            byte[] bBody = sBody.getBytes(StandardCharsets.UTF_8);
+            response.putHeader("Content-Length", String.valueOf(bBody.length));
+            buffer = new Buffer(bBody);
+        }
+        return buffer;
+    }
+
     @Override
     public void response(int code, String contentType, Object body) {
 
@@ -49,18 +65,17 @@ public class VertxHttpResponseReceiver implements HttpResponseReceiver<Object> {
                          final MultiMap<String, String> responseHeaders) {
 
 
-
         final HttpResponse<?> response = decorators.size() > 0 ? httpResponseCreator.createResponse(
-                                decorators, requestPath, code, contentType, body,
-                                responseHeaders, this.requestHeaders,
-                                this.requestParams) : null;
+                decorators, requestPath, code, contentType, body,
+                responseHeaders, this.requestHeaders,
+                this.requestParams) : null;
 
 
         /** Response was decorated. */
         if (response == null) {
             doResponse(code, contentType, body, responseHeaders);
         } else {
-        /** Response was not decorated. */
+            /** Response was not decorated. */
             doResponse(response.code(), response.contentType(), response.body(), response.headers());
         }
     }
@@ -79,22 +94,6 @@ public class VertxHttpResponseReceiver implements HttpResponseReceiver<Object> {
 
         Buffer buffer = createBuffer(body, this.response);
         this.response.end(buffer);
-    }
-
-    private static Buffer createBuffer(Object body, HttpServerResponse response) {
-        Buffer buffer = null;
-
-        if (body instanceof byte[]) {
-            byte[] bBody = ((byte[]) body);
-            response.putHeader("Content-Length", String.valueOf(bBody.length));
-            buffer = new Buffer(bBody);
-        } else if (body instanceof String) {
-            String sBody = ((String) body);
-            byte[] bBody = sBody.getBytes(StandardCharsets.UTF_8);
-            response.putHeader("Content-Length", String.valueOf(bBody.length));
-            buffer = new Buffer(bBody);
-        }
-        return buffer;
     }
 
 

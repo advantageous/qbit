@@ -29,6 +29,7 @@ public class AsyncFutureCallbackImpl<T> implements AsyncFutureCallback<T> {
     private final AtomicBoolean cancelled = new AtomicBoolean();
     private final AtomicBoolean done = new AtomicBoolean();
     private final AtomicBoolean timedOut = new AtomicBoolean();
+
     public AsyncFutureCallbackImpl(final Callback<T> callback,
                                    final long startTime,
                                    final long maxExecutionDuration,

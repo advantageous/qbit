@@ -137,7 +137,6 @@ public class HttpClientBuilder {
     }
 
 
-
     public int getPoolSize() {
         return poolSize;
     }

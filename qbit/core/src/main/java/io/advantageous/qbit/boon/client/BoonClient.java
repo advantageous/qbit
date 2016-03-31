@@ -82,10 +82,6 @@ public class BoonClient implements Client {
     private final boolean debug = logger.isDebugEnabled();
     private final BeforeMethodSent beforeMethodSent;
     /**
-     * Holds on to Boon cache so we don't have to recreate reflected gak.
-     */
-    Object context = Sys.contextToHold();
-    /**
      * Map of handlers so we can do the whole async call back thing.
      */
     private final Map<HandlerKey, Callback<Object>> handlers = new ConcurrentHashMap<>();
@@ -93,9 +89,12 @@ public class BoonClient implements Client {
      * List of client proxies that we are managing for periodic flush.
      */
     private final List<ClientProxy> clientProxies = new CopyOnWriteArrayList<>();
-    private WebSocket webSocket;
-
     private final AtomicBoolean connected = new AtomicBoolean();
+    /**
+     * Holds on to Boon cache so we don't have to recreate reflected gak.
+     */
+    Object context = Sys.contextToHold();
+    private WebSocket webSocket;
 
     /**
      * @param httpClient       httpClient

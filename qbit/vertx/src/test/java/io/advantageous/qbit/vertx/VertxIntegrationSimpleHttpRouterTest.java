@@ -28,71 +28,8 @@ public class VertxIntegrationSimpleHttpRouterTest {
     private TestVerticle testVerticle;
     private int port;
 
-
-    public static class TestVerticle extends AbstractVerticle {
-
-        private final int port;
-        private final CountDownLatch latch;
-
-        public TestVerticle(int port, CountDownLatch latch) {
-            this.port = port;
-            this.latch = latch;
-        }
-
-        public void start() {
-
-            try {
-
-                HttpServerOptions options = new HttpServerOptions().setMaxWebsocketFrameSize(1000000);
-                options.setPort(port);
-
-                Router router = Router.router(vertx); //Vertx router
-                router.route("/svr/rout1/").handler(routingContext -> {
-                    HttpServerResponse response = routingContext.response();
-                    response.setStatusCode(202);
-                    response.end("route1");
-                });
-
-
-
-                io.vertx.core.http.HttpServer vertxHttpServer =
-                        this.getVertx().createHttpServer(options);
-
-                HttpServer httpServer = VertxHttpServerBuilder.vertxHttpServerBuilder()
-                        .setRouter(router)
-                        .setHttpServer(vertxHttpServer)
-                        .setVertx(getVertx())
-                        .build();
-
-
-                httpServer.setHttpRequestConsumer(httpRequest -> {
-
-                    System.out.println(httpRequest.address());
-
-                    httpRequest.getReceiver().response(200, httpRequest.getContentType(), httpRequest.body());
-                });
-
-                httpServer.start();
-
-                vertxHttpServer.requestHandler(router::accept).listen(event -> {
-
-                    if (event.succeeded()) {
-                        latch.countDown();
-                    }
-                });
-
-            }catch (Exception ex) {
-                ex.printStackTrace();
-            }
-        }
-
-        public void stop() {
-        }
-
-    }
-
     @Before
-    public void setup() throws Exception{
+    public void setup() throws Exception {
 
 
         final CountDownLatch latch = new CountDownLatch(2);
@@ -128,7 +65,6 @@ public class VertxIntegrationSimpleHttpRouterTest {
 
     }
 
-
     @After
     public void tearDown() throws Exception {
 
@@ -146,6 +82,67 @@ public class VertxIntegrationSimpleHttpRouterTest {
         latch.await(5, TimeUnit.SECONDS);
         vertx = null;
         testVerticle = null;
+
+    }
+
+    public static class TestVerticle extends AbstractVerticle {
+
+        private final int port;
+        private final CountDownLatch latch;
+
+        public TestVerticle(int port, CountDownLatch latch) {
+            this.port = port;
+            this.latch = latch;
+        }
+
+        public void start() {
+
+            try {
+
+                HttpServerOptions options = new HttpServerOptions().setMaxWebsocketFrameSize(1000000);
+                options.setPort(port);
+
+                Router router = Router.router(vertx); //Vertx router
+                router.route("/svr/rout1/").handler(routingContext -> {
+                    HttpServerResponse response = routingContext.response();
+                    response.setStatusCode(202);
+                    response.end("route1");
+                });
+
+
+                io.vertx.core.http.HttpServer vertxHttpServer =
+                        this.getVertx().createHttpServer(options);
+
+                HttpServer httpServer = VertxHttpServerBuilder.vertxHttpServerBuilder()
+                        .setRouter(router)
+                        .setHttpServer(vertxHttpServer)
+                        .setVertx(getVertx())
+                        .build();
+
+
+                httpServer.setHttpRequestConsumer(httpRequest -> {
+
+                    System.out.println(httpRequest.address());
+
+                    httpRequest.getReceiver().response(200, httpRequest.getContentType(), httpRequest.body());
+                });
+
+                httpServer.start();
+
+                vertxHttpServer.requestHandler(router::accept).listen(event -> {
+
+                    if (event.succeeded()) {
+                        latch.countDown();
+                    }
+                });
+
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+        }
+
+        public void stop() {
+        }
 
     }
 

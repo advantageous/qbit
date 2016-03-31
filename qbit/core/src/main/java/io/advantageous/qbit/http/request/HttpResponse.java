@@ -3,7 +3,7 @@ package io.advantageous.qbit.http.request;
 import io.advantageous.qbit.util.MultiMap;
 
 
-public interface HttpResponse <T> {
+public interface HttpResponse<T> {
 
 
     MultiMap<String, String> headers();

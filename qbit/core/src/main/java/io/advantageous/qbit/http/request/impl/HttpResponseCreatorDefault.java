@@ -15,15 +15,15 @@ public class HttpResponseCreatorDefault implements HttpResponseCreator {
 
 
     public HttpResponse<?> createResponse(final CopyOnWriteArrayList<HttpResponseDecorator> decorators,
-                                               final String requestPath,
-                                               final String requestMethod,
-                                               final int code,
-                                               final String contentType,
-                                               final Object payload,
-                                               final MultiMap<String, String> responseHeaders,
-                                               final MultiMap<String, String> requestHeaders,
-                                               final MultiMap<String, String> requestParams) {
-        if (decorators.size()==0) {
+                                          final String requestPath,
+                                          final String requestMethod,
+                                          final int code,
+                                          final String contentType,
+                                          final Object payload,
+                                          final MultiMap<String, String> responseHeaders,
+                                          final MultiMap<String, String> requestHeaders,
+                                          final MultiMap<String, String> requestParams) {
+        if (decorators.size() == 0) {
             return null;
         }
         if (payload instanceof byte[]) {
@@ -47,11 +47,11 @@ public class HttpResponseCreatorDefault implements HttpResponseCreator {
                                                 final MultiMap<String, String> requestParams) {
 
         HttpTextResponse httpTextResponse = null;
-        if (decorators.size()>=0) {
+        if (decorators.size() >= 0) {
             HttpTextResponseHolder holder = new HttpTextResponseHolder();
             for (HttpResponseDecorator decorator : decorators) {
                 if (decorator.decorateTextResponse(holder, requestPath, requestMethod, code, contentType,
-                        payload, responseHeaders, requestHeaders, requestParams )) {
+                        payload, responseHeaders, requestHeaders, requestParams)) {
                     httpTextResponse = holder.getHttpTextResponse();
                     break;
                 }
@@ -71,13 +71,13 @@ public class HttpResponseCreatorDefault implements HttpResponseCreator {
                                                     final MultiMap<String, String> requestParams) {
 
         HttpBinaryResponse httpResponse = null;
-        if (decorators.size()>=0) {
+        if (decorators.size() >= 0) {
             HttpBinaryResponseHolder holder = new HttpBinaryResponseHolder();
 
             for (HttpResponseDecorator decorator : decorators) {
                 if (decorator.decorateBinaryResponse(
                         holder, requestPath, requestMethod, code, contentType,
-                        payload, responseHeaders, requestHeaders, requestParams )) {
+                        payload, responseHeaders, requestHeaders, requestParams)) {
                     httpResponse = holder.getHttpBinaryResponse();
                     break;
                 }

@@ -1,10 +1,13 @@
 package io.advantageous.qbit.vertx.eventbus.bridge;
 
 import io.advantageous.boon.core.Predicate;
-import io.advantageous.boon.core.value.ValueContainer;
+import io.advantageous.boon.core.Sets;
+import io.advantageous.boon.json.JsonParserAndMapper;
+import io.advantageous.boon.json.JsonParserFactory;
 import io.advantageous.qbit.json.JsonMapper;
 import io.advantageous.qbit.message.MethodCall;
 import io.advantageous.qbit.message.MethodCallBuilder;
+import io.advantageous.qbit.meta.transformer.StandardRequestTransformer;
 import io.advantageous.qbit.queue.SendQueue;
 import io.advantageous.qbit.reactive.CallbackBuilder;
 import io.advantageous.qbit.util.Timer;
@@ -15,9 +18,7 @@ import io.vertx.core.eventbus.MessageConsumer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Collections;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 public class VertxEventBusBridge {
     private final Set<String> addressesToBridge;
@@ -29,7 +30,10 @@ public class VertxEventBusBridge {
     private final Timer timer;
     private final Logger logger = LoggerFactory.getLogger(VertxEventBusBridge.class);
     private final EventBus vertxEventBus;
+    private final StandardRequestTransformer standardRequestTransformer;
+    private final JsonParserAndMapper jsonParserAndMapper;
     private long messageId = 0;
+
 
     public VertxEventBusBridge(final Set<String> addressesToBridge,
                                final SendQueue<MethodCall<Object>> methodCallSendQueue,
@@ -39,9 +43,11 @@ public class VertxEventBusBridge {
                                final Timer timer,
                                final Predicate<MethodCall<Object>> methodCallPredicate,
                                final int flushIntervalMS,
-                               final boolean autoStart) {
+                               final boolean autoStart,
+                               final StandardRequestTransformer standardRequestTransformer) {
 
 
+        this.standardRequestTransformer = standardRequestTransformer;
         this.timer = timer;
         this.vertxEventBus = vertxEventBus;
         this.addressesToBridge = Collections.unmodifiableSet(addressesToBridge);
@@ -55,6 +61,7 @@ public class VertxEventBusBridge {
         if (autoStart) {
             start();
         }
+        jsonParserAndMapper = new JsonParserFactory().setIgnoreSet(Sets.set("metaClass")).createJsonCharArrayParser();
 
     }
 
@@ -77,40 +84,65 @@ public class VertxEventBusBridge {
     }
 
     private void handleIncomingMessage(final String address, final Message<String> message) {
-        final Map map = jsonMapper.fromJson(message.body(), Map.class);
-        final Object method = map.get("method");
-        final ValueContainer args = (ValueContainer) map.get("args");
 
-        final Object body = args != null ? args.toValue() : Collections.emptyList();
+        try {
 
-        final CallbackBuilder callbackBuilder = CallbackBuilder.callbackBuilder();
-        callbackBuilder.setOnError(throwable -> {
-            logger.error("Error from calling " + address, throwable);
-            message.fail(500, throwable.getMessage());
-        });
-        callbackBuilder.setCallback(returnedValue -> message.reply(jsonMapper.toJson(returnedValue)));
-        callbackBuilder.setOnTimeout(() -> {
-            logger.error("Timed out call to " + address + " method " + method);
-            message.fail(408, "Timed out call to " + address + " method " + method);
-        });
+            final String json = message.body();
 
-        final MethodCall<Object> methodCall = MethodCallBuilder
-                .methodCallBuilder()
-                .setAddress(address)
-                .setBody(body)
-                .setTimestamp(this.timer.time())
-                .setName(method.toString())
-                .setId(messageId++)
-                .setCallback(callbackBuilder.build())
-                .build();
-        if (logger.isDebugEnabled()) {
-            logger.debug("Calling method {} {}", methodCall.name(), message.body());
+            final Map<String, Object> map = jsonParserAndMapper.parseMap(json);
+
+            final String method = map.get("method").toString();
+            final Object body = map.get("args");
+
+
+            final List<String> errors = new ArrayList<>();
+            final MethodCall<Object> transform = standardRequestTransformer.transFormBridgeBody(jsonMapper.toJson(body),
+                    errors, address, method);
+
+            if (errors.size() > 0) {
+                logger.error("Error marshaling message body to method call to service errors {}", errors);
+                message.fail(500, errors.toString());
+                return;
+            }
+
+            final CallbackBuilder callbackBuilder = CallbackBuilder.callbackBuilder();
+            callbackBuilder.setOnError(throwable -> {
+                logger.error("Error from calling " + address, throwable);
+                message.fail(500, throwable.getMessage());
+            });
+            callbackBuilder.setCallback(returnedValue -> message.reply(encodeOutput(returnedValue)));
+            callbackBuilder.setOnTimeout(() -> {
+                logger.error("Timed out call to " + address + " method " + method);
+                message.fail(408, "Timed out call to " + address + " method " + method);
+            });
+
+            final MethodCall<Object> methodCall = MethodCallBuilder
+                    .methodCallBuilder()
+                    .setAddress(address)
+                    .setBody(transform.body())
+                    .setTimestamp(this.timer.time())
+                    .setName(method)
+                    .setId(messageId++)
+                    .setCallback(callbackBuilder.build())
+                    .build();
+            if (logger.isDebugEnabled()) {
+                logger.debug("Calling method {} {}", methodCall.name(), message.body());
+            }
+
+            if (methodCallPredicate.test(methodCall)) {
+                this.methodCallSendQueue.send(methodCall);
+            }
+
+        } catch (Exception ex) {
+            logger.error("Error marshaling message body to method call to service", ex);
+            message.fail(500, ex.getMessage());
         }
 
-        if (methodCallPredicate.test(methodCall)) {
-            this.methodCallSendQueue.send(methodCall);
-        }
+    }
 
+    private String encodeOutput(Object returnedValue) {
+
+        return jsonMapper.toJson(returnedValue);
     }
 
 }

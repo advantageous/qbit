@@ -9,7 +9,9 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
-/** Used to build AsyncFuture with or without latches. */
+/**
+ * Used to build AsyncFuture with or without latches.
+ */
 public class AsyncFutureBuilder {
 
     private Callback callback;
@@ -22,6 +24,11 @@ public class AsyncFutureBuilder {
     private Consumer<Throwable> onError;
     private boolean supportLatch = true;
 
+    public static AsyncFutureBuilder asyncFutureBuilder() {
+
+        return new AsyncFutureBuilder();
+    }
+
     public boolean isSupportLatch() {
         return supportLatch;
     }
@@ -32,7 +39,7 @@ public class AsyncFutureBuilder {
     }
 
     public Callback getCallback() {
-        if (callback==null) {
+        if (callback == null) {
             callback = o -> {
             };
         }
@@ -52,7 +59,6 @@ public class AsyncFutureBuilder {
         this.startTime = startTime;
         return this;
     }
-
 
     public Runnable getOnFinished() {
         if (onFinished == null) {
@@ -84,7 +90,7 @@ public class AsyncFutureBuilder {
 
     public Consumer<Throwable> getOnError() {
         if (onError == null) {
-            onError= error -> {
+            onError = error -> {
                 LoggerFactory.getLogger(AsyncFutureBuilder.class).error("OPERATION ERROR ", error);
             };
         }
@@ -132,7 +138,7 @@ public class AsyncFutureBuilder {
                     getOnError());
         } else {
 
-            return  AsyncFutureCallbackImpl.callback(
+            return AsyncFutureCallbackImpl.callback(
                     getCallback(),
                     getStartTime(),
                     getTimeUnit().toMillis(getTimeout()),
@@ -141,7 +147,6 @@ public class AsyncFutureBuilder {
                     getOnError());
         }
     }
-
 
     public <T> AsyncFutureCallback<T> build(Class<T> returnType) {
 
@@ -153,14 +158,8 @@ public class AsyncFutureBuilder {
         return build();
     }
 
-    public <K, V> AsyncFutureCallback<Map<K,V>> buildMap(Class<K> keyType, Class<V> valueType) {
+    public <K, V> AsyncFutureCallback<Map<K, V>> buildMap(Class<K> keyType, Class<V> valueType) {
 
         return build();
-    }
-
-
-    public static AsyncFutureBuilder asyncFutureBuilder() {
-
-        return new AsyncFutureBuilder();
     }
 }

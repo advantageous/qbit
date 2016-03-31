@@ -176,7 +176,6 @@ public interface Factory {
     }
 
 
-
     /**
      * Create a local client proxy
      *
@@ -320,7 +319,6 @@ public interface Factory {
     }
 
 
-
     default Client createClient(String uri,
                                 HttpClient httpClient,
                                 int requestBatchSize,
@@ -368,7 +366,6 @@ public interface Factory {
                 serviceDiscoveryTtl, serviceDiscoveryTtlTimeUnit, decorators, httpResponseCreator,
                 requestBodyContinuePredicate);
     }
-
 
 
 }

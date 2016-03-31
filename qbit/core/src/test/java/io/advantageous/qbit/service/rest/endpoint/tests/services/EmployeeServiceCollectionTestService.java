@@ -26,7 +26,7 @@ public class EmployeeServiceCollectionTestService {
     }
 
     @RequestMapping(value = "/sendEmployeesWithReturn", method = RequestMethod.POST)
-    public boolean sendEmployeesWithReturn(final List<Employee> employeeList){
+    public boolean sendEmployeesWithReturn(final List<Employee> employeeList) {
 
         System.out.println(employeeList);
 
@@ -36,7 +36,7 @@ public class EmployeeServiceCollectionTestService {
 
     @RequestMapping(value = "/sendEmployeesWithCallback", method = RequestMethod.POST)
     public void sendEmployeesWithCallback(final Callback<Boolean> callback,
-                                          final List<Employee> employeeList){
+                                          final List<Employee> employeeList) {
 
         System.out.println(employeeList);
 
@@ -44,18 +44,17 @@ public class EmployeeServiceCollectionTestService {
     }
 
 
-
     @RequestMapping(value = "/sendEmployeesSet", method = RequestMethod.POST)
     public void sendEmployessSet(final Set<Employee> employeeList) {
 
-        System.out.println("Set " +  employeeList);
+        System.out.println("Set " + employeeList);
 
     }
 
     @RequestMapping(value = "/sendEmployeesWithReturnSet", method = RequestMethod.POST)
-    public boolean sendEmployeesWithReturnSet(final Set<Employee> employeeList){
+    public boolean sendEmployeesWithReturnSet(final Set<Employee> employeeList) {
 
-        System.out.println("Set " +  employeeList);
+        System.out.println("Set " + employeeList);
 
         return true;
     }
@@ -63,26 +62,25 @@ public class EmployeeServiceCollectionTestService {
 
     @RequestMapping(value = "/sendEmployeesWithCallbackSet", method = RequestMethod.POST)
     public void sendEmployeesWithCallbackSet(final Callback<Boolean> callback,
-                                          final Set<Employee> employeeList){
+                                             final Set<Employee> employeeList) {
 
-        System.out.println("Set " +  employeeList);
+        System.out.println("Set " + employeeList);
 
         callback.returnThis(true);
     }
 
 
-
     @RequestMapping(value = "/sendEmployeesArray", method = RequestMethod.POST)
     public void sendEmployessArray(final Employee... employeeList) {
 
-        System.out.println("Array " +  Lists.list(employeeList));
+        System.out.println("Array " + Lists.list(employeeList));
 
     }
 
     @RequestMapping(value = "/sendEmployeesWithReturnArray", method = RequestMethod.POST)
-    public boolean sendEmployeesWithReturnArray(final Employee[] employeeList){
+    public boolean sendEmployeesWithReturnArray(final Employee[] employeeList) {
 
-        System.out.println("Array " +  Lists.list(employeeList));
+        System.out.println("Array " + Lists.list(employeeList));
 
         return true;
     }
@@ -90,9 +88,9 @@ public class EmployeeServiceCollectionTestService {
 
     @RequestMapping(value = "/sendEmployeesWithCallbackArray", method = RequestMethod.POST)
     public void sendEmployeesWithCallbackArray(final Callback<Boolean> callback,
-                                             final Employee[] employeeList){
+                                               final Employee[] employeeList) {
 
-        System.out.println("Array " +  Lists.list(employeeList));
+        System.out.println("Array " + Lists.list(employeeList));
 
         callback.returnThis(true);
     }
@@ -100,21 +98,18 @@ public class EmployeeServiceCollectionTestService {
 
     @RequestMapping(value = "/sendEmployeesWithCallbackMap", method = RequestMethod.POST)
     public void sendEmployeesWithCallbackMap(final Callback<Boolean> callback,
-                                               final Map<String, Employee> employeeMap){
+                                             final Map<String, Employee> employeeMap) {
 
-        System.out.println("Map " +  employeeMap);
+        System.out.println("Map " + employeeMap);
 
         callback.returnThis(true);
     }
-
 
 
     @RequestMapping("/returnList")
     public List<Employee> returnList() {
         return Lists.list(new Employee(1, "Rick"), new Employee(2, "Diana"));
     }
-
-
 
 
     @RequestMapping("/returnListByCallback")
@@ -136,10 +131,9 @@ public class EmployeeServiceCollectionTestService {
 
 
     @RequestMapping("/returnArrayByCallback")
-    public void returnArrayByCallback(Callback<Employee[] > callback) {
-        callback.returnThis( new Employee[]{new Employee(1, "Rick"), new Employee(2, "Diana")});
+    public void returnArrayByCallback(Callback<Employee[]> callback) {
+        callback.returnThis(new Employee[]{new Employee(1, "Rick"), new Employee(2, "Diana")});
     }
-
 
 
     @RequestMapping("/returnSetByCallback")
@@ -148,8 +142,7 @@ public class EmployeeServiceCollectionTestService {
     }
 
 
-
-    @RequestMapping( "/returnMap")
+    @RequestMapping("/returnMap")
     public Map<String, Employee> returnMap() {
         return Maps.map("1", new Employee(1, "Rick"), "2", new Employee(2, "Diana"));
 
@@ -159,7 +152,6 @@ public class EmployeeServiceCollectionTestService {
     public void returnMapByCallback(Callback<Map<String, Employee>> callback) {
         callback.returnThis(Maps.map("1", new Employee(1, "Rick"), "2", new Employee(2, "Diana")));
     }
-
 
 
 }

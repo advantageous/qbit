@@ -111,6 +111,10 @@ public class ResponseImpl<T> implements Response<T> {
         return response;
     }
 
+    public static Response<Object> error(MethodCall<Object> methodCall, Throwable error) {
+        return new ResponseImpl<>(methodCall, error);
+    }
+
     @Override
     public long id() {
         return id;
@@ -199,9 +203,5 @@ public class ResponseImpl<T> implements Response<T> {
                 ", transformedBody=" + transformedBody +
                 ", errors=" + errors +
                 '}';
-    }
-
-    public static Response<Object> error(MethodCall<Object> methodCall, Throwable error) {
-        return new ResponseImpl<>(methodCall, error);
     }
 }

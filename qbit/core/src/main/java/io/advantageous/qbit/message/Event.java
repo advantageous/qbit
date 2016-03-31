@@ -20,6 +20,7 @@ package io.advantageous.qbit.message;
 
 /**
  * This represents and event.
+ *
  * @author Rick Hightower
  */
 public interface Event<T> extends Message<T> {

@@ -59,7 +59,7 @@ package io.advantageous.qbit.service.dispatchers;
 
 /**
  * A shard rule used to pick a sharded method dispatcher from a pool.
- *  created by rhightower on 2/18/15.
+ * created by rhightower on 2/18/15.
  */
 public interface ShardRule {
 

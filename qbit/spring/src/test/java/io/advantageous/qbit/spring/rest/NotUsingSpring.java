@@ -78,7 +78,7 @@ public class NotUsingSpring {
 
         final HelloWorld helloworld = serviceEndpointServer.serviceBundle().createLocalProxy(HelloWorld.class, "helloworld");
 
-        for (int index =0; index < 5; index++) {
+        for (int index = 0; index < 5; index++) {
             helloworld.hello(s -> System.out.println(s));
         }
 

@@ -54,25 +54,23 @@ import java.util.function.Consumer;
  * @author gcc@rd.io (Geoff Chandler)
  */
 public class ServiceEndpointServerImpl implements ServiceEndpointServer {
-    private final Logger logger = LoggerFactory.getLogger(ServiceEndpointServerImpl.class);
-    private final boolean debug = GlobalConstants.DEBUG || logger.isDebugEnabled();
-    private final QBitSystemManager systemManager;
     protected final WebSocketServiceServerHandler webSocketHandler;
     protected final HttpRequestServiceServerHandler httpRequestServerHandler;
-    private final EndpointDefinition endpoint;
-    private final HealthServiceAsync healthServiceAsync;
-    protected int timeoutInSeconds = 30;
     protected final ProtocolEncoder encoder;
     protected final HttpTransport httpServer;
     protected final ServiceBundle serviceBundle;
     protected final JsonMapper jsonMapper;
     protected final ProtocolParser parser;
     protected final Consumer<Throwable> errorHandler;
-
+    private final Logger logger = LoggerFactory.getLogger(ServiceEndpointServerImpl.class);
+    private final boolean debug = GlobalConstants.DEBUG || logger.isDebugEnabled();
+    private final QBitSystemManager systemManager;
+    private final EndpointDefinition endpoint;
+    private final HealthServiceAsync healthServiceAsync;
     private final AtomicBoolean stop = new AtomicBoolean();
-
     /* Used for service discovery and registration. */
     private final ServiceDiscovery serviceDiscovery;
+    protected int timeoutInSeconds = 30;
 
 
     public ServiceEndpointServerImpl(final HttpTransport httpServer, final ProtocolEncoder encoder,
@@ -103,7 +101,7 @@ public class ServiceEndpointServerImpl implements ServiceEndpointServer {
         this.timeoutInSeconds = timeOutInSeconds;
 
         this.errorHandler = errorHandler;
-        
+
         this.healthServiceAsync = healthServiceAsync;
 
         this.webSocketHandler = new WebSocketServiceServerHandler(protocolBatchSize, serviceBundle,
@@ -122,7 +120,7 @@ public class ServiceEndpointServerImpl implements ServiceEndpointServer {
 
     private EndpointDefinition createEndpoint(String endpointName, int port, int ttlSeconds) {
 
-        if (serviceDiscovery!=null) {
+        if (serviceDiscovery != null) {
 
             if (ttlSeconds > 0) {
                 return serviceDiscovery.registerWithTTL(endpointName, port, ttlSeconds);
@@ -147,7 +145,7 @@ public class ServiceEndpointServerImpl implements ServiceEndpointServer {
         doStart();
         if (httpServer instanceof HttpServer) {
             ((HttpServer) httpServer).startServerAndWait();
-        }else {
+        } else {
             httpServer.start();
         }
         return this;
@@ -163,7 +161,7 @@ public class ServiceEndpointServerImpl implements ServiceEndpointServer {
         httpServer.setWebSocketCloseConsumer(webSocketHandler::handleWebSocketClose);
 
 
-        if (endpoint!=null && endpoint.getTimeToLive() > 0) {
+        if (endpoint != null && endpoint.getTimeToLive() > 0) {
             handleServiceDiscoveryCheckIn();
         } else {
             httpServer.setHttpRequestsIdleConsumer(httpRequestServerHandler::httpRequestQueueIdle);
@@ -206,7 +204,7 @@ public class ServiceEndpointServerImpl implements ServiceEndpointServer {
     private void handleDiscoveryCheckInWithHealth(final AtomicLong lastCheckIn,
                                                   final long checkInDuration) {
         final AtomicBoolean ok = new AtomicBoolean(true);
-        
+
         httpServer.setHttpRequestsIdleConsumer(aVoid -> {
             httpRequestServerHandler.httpRequestQueueIdle(null);
 
@@ -224,6 +222,7 @@ public class ServiceEndpointServerImpl implements ServiceEndpointServer {
             }
         });
     }
+
     public void stop() {
 
         try {
@@ -296,13 +295,11 @@ public class ServiceEndpointServerImpl implements ServiceEndpointServer {
             public void idle() {
 
 
-
                 httpRequestServerHandler.checkTimeoutsForRequests();
                 webSocketHandler.checkResponseBatchSend();
             }
         };
     }
-
 
 
     private void handleResponseFromServiceBundle(final Response<Object> response, final Request<Object> originatingRequest) {

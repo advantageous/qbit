@@ -13,6 +13,10 @@ public class DnsServiceDiscoveryProviderBuilder {
     private int timeout = Sys.sysProp(DnsServiceDiscoveryProviderBuilder.class.getName() + ".timeout", 30);
     private TimeUnit timeUnit = TimeUnit.SECONDS;
 
+    public static DnsServiceDiscoveryProviderBuilder dnsServiceDiscoveryProviderBuilder() {
+        return new DnsServiceDiscoveryProviderBuilder();
+    }
+
     public DnsSupport getDnsSupport() {
         return dnsSupport;
     }
@@ -42,10 +46,5 @@ public class DnsServiceDiscoveryProviderBuilder {
 
     public DnsServiceDiscoveryProvider build() {
         return new DnsServiceDiscoveryProvider(getDnsSupport(), getTimeout(), getTimeUnit());
-    }
-
-
-    public static DnsServiceDiscoveryProviderBuilder dnsServiceDiscoveryProviderBuilder() {
-        return new DnsServiceDiscoveryProviderBuilder();
     }
 }

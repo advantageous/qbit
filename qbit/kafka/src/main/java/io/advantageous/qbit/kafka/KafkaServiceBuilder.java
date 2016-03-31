@@ -34,7 +34,32 @@ public class KafkaServiceBuilder {
     private Logger logger = LoggerFactory.getLogger(KafkaServiceBuilder.class);
 
     private Properties properties;
+    private Supplier<KafkaProducer<String, String>> kafkaProducerSupplier;
+    private Supplier<ConsumerConnector> consumerConnectorSupplier;
+    private Supplier<Callback> callbackSupplier;
 
+    public static void main(String... args) {
+
+
+        KafkaService kafkaService = new KafkaServiceBuilder()
+                .addBootstrapServer("localhost", 9092)
+                .addZookeeperConnectServer("127.0.0.1", 2181).build();
+
+        kafkaService.sendMessage("mom");
+
+        SimpleConsumer simpleConsumer = new SimpleConsumer(KafkaProperties.kafkaServerURL,
+                KafkaProperties.kafkaServerPort,
+                KafkaProperties.connectionTimeOut,
+                KafkaProperties.kafkaProducerBufferSize,
+                KafkaProperties.clientId);
+
+//        FetchRequest req = new FetchRequestBuilder()
+//                .clientId(KafkaProperties.clientId)
+//                .addFetch(KafkaProperties.topic2, 0, 0L, 100)
+//                .build();
+
+        Sys.sleep(1000);
+    }
 
     public Properties createProperties() {
 
@@ -43,11 +68,11 @@ public class KafkaServiceBuilder {
 
         properties.setProperty("client.id", this.getClientId());
 
-        if (getConsumerId()!=null)
-        properties.setProperty("consumer.id", getConsumerId());
+        if (getConsumerId() != null)
+            properties.setProperty("consumer.id", getConsumerId());
 
 
-        if (getGroupId()!=null)
+        if (getGroupId() != null)
             properties.setProperty("group.id", getGroupId());
 
         properties.setProperty("value.serializer", this.getValueSerializer());
@@ -67,7 +92,6 @@ public class KafkaServiceBuilder {
                 properties.setProperty(entry.getKey().toString(), entry.getValue().toString());
             }
         });
-
 
 
         return properties;
@@ -116,19 +140,15 @@ public class KafkaServiceBuilder {
         return properties;
     }
 
-
-
-
     public KafkaServiceBuilder setProperties(final Properties properties) {
         this.properties = properties;
         return this;
     }
 
     public KafkaServiceBuilder addProperty(final String key, String value) {
-         getProperties().setProperty(key, value);
-         return this;
+        getProperties().setProperty(key, value);
+        return this;
     }
-
 
     public List<URI> getZookeeperConnectServers() {
         if (zookeeperConnectServers == null) {
@@ -154,18 +174,15 @@ public class KafkaServiceBuilder {
         return this;
     }
 
-
     public KafkaServiceBuilder addBootstrapServer(final URI bootStrapNode) {
         getBootstrapServers().add(bootStrapNode);
         return this;
     }
 
-
     public KafkaServiceBuilder addBootstrapServer(final String host, final int port) {
         getBootstrapServers().add(UriUtil.createURI("kafka", host, port));
         return this;
     }
-
 
     public KafkaServiceBuilder addBootstrapServer(final String node) {
         if (node.contains("://")) {
@@ -177,7 +194,6 @@ public class KafkaServiceBuilder {
         }
         return this;
     }
-
 
     public Logger getLogger() {
         return logger;
@@ -193,12 +209,10 @@ public class KafkaServiceBuilder {
         return this;
     }
 
-
     public KafkaServiceBuilder addZookeeperConnectServer(final String host, final int port) {
         getZookeeperConnectServers().add(UriUtil.createURI("zookeeper", host, port));
         return this;
     }
-
 
     public KafkaServiceBuilder addZookeeperConnectServer(final String node) {
         if (node.contains("://")) {
@@ -219,11 +233,6 @@ public class KafkaServiceBuilder {
         this.defaultTopic = defaultTopic;
         return this;
     }
-
-
-    private  Supplier<KafkaProducer<String, String>> kafkaProducerSupplier;
-    private  Supplier<ConsumerConnector> consumerConnectorSupplier;
-    private  Supplier<Callback> callbackSupplier;
 
     public Supplier<KafkaProducer<String, String>> getKafkaProducerSupplier() {
         if (kafkaProducerSupplier == null) {
@@ -252,18 +261,18 @@ public class KafkaServiceBuilder {
 
     public Supplier<Callback> getCallbackSupplier() {
 
-        if (callbackSupplier==null) {
+        if (callbackSupplier == null) {
 
             final Logger logger = getLogger();
             final boolean debug = logger.isDebugEnabled();
             callbackSupplier = () -> (metadata, exception) -> {
                 if (debug) {
-                    if (metadata!=null) {
+                    if (metadata != null) {
                         logger.debug(metadata.toString());
                     }
                 }
 
-                if (exception!=null) {
+                if (exception != null) {
                     logger.error("Unable to send message to kafka", exception);
                 }
             };
@@ -278,53 +287,14 @@ public class KafkaServiceBuilder {
 
     public KafkaService build() {
 
-        return new KafkaService(getDefaultTopic(),getKafkaProducerSupplier(), getConsumerConnectorSupplier(), getCallbackSupplier());
+        return new KafkaService(getDefaultTopic(), getKafkaProducerSupplier(), getConsumerConnectorSupplier(), getCallbackSupplier());
 
     }
 
-    private  ConsumerConfig createConsumerConfig() {
+    private ConsumerConfig createConsumerConfig() {
 
         return new ConsumerConfig(createProperties());
 
-    }
-
-    public static void main(String... args) {
-
-
-        KafkaService kafkaService = new KafkaServiceBuilder()
-                .addBootstrapServer("localhost", 9092)
-                .addZookeeperConnectServer("127.0.0.1", 2181).build();
-
-        kafkaService.sendMessage("mom");
-
-        SimpleConsumer simpleConsumer = new SimpleConsumer(KafkaProperties.kafkaServerURL,
-                KafkaProperties.kafkaServerPort,
-                KafkaProperties.connectionTimeOut,
-                KafkaProperties.kafkaProducerBufferSize,
-                KafkaProperties.clientId);
-
-//        FetchRequest req = new FetchRequestBuilder()
-//                .clientId(KafkaProperties.clientId)
-//                .addFetch(KafkaProperties.topic2, 0, 0L, 100)
-//                .build();
-
-        Sys.sleep(1000);
-    }
-
-
-    interface KafkaProperties
-    {
-        final static String zkConnect = "127.0.0.1:2181";
-        final static  String groupId = "group1";
-        final static String topic = "topic1";
-        final static String kafkaServerURL = "localhost";
-        final static int kafkaServerPort = 9092;
-        final static int kafkaProducerBufferSize = 64*1024;
-        final static int connectionTimeOut = 100000;
-        final static int reconnectInterval = 10000;
-        final static String topic2 = "topic2";
-        final static String topic3 = "topic3";
-        final static String clientId = "SimpleConsumerDemoClient";
     }
 
     public String getGroupId() {
@@ -334,5 +304,19 @@ public class KafkaServiceBuilder {
     public KafkaServiceBuilder setGroupId(String groupId) {
         this.groupId = groupId;
         return this;
+    }
+
+    interface KafkaProperties {
+        final static String zkConnect = "127.0.0.1:2181";
+        final static String groupId = "group1";
+        final static String topic = "topic1";
+        final static String kafkaServerURL = "localhost";
+        final static int kafkaServerPort = 9092;
+        final static int kafkaProducerBufferSize = 64 * 1024;
+        final static int connectionTimeOut = 100000;
+        final static int reconnectInterval = 10000;
+        final static String topic2 = "topic2";
+        final static String topic3 = "topic3";
+        final static String clientId = "SimpleConsumerDemoClient";
     }
 }

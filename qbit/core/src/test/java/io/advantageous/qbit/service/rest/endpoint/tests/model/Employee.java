@@ -8,7 +8,7 @@ public class Employee {
 
     private final long id;
     private final String name;
-    private  List<PhoneNumber> phoneNumbers;
+    private List<PhoneNumber> phoneNumbers;
 
 
     public Employee(long id, String name, List<PhoneNumber> phoneNumbers) {
@@ -16,7 +16,6 @@ public class Employee {
         this.name = name;
         this.phoneNumbers = phoneNumbers;
     }
-
 
 
     public Employee(long id, String name) {

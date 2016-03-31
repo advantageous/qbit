@@ -8,7 +8,9 @@ import org.junit.Test;
 import static io.advantageous.qbit.time.Duration.TEN_SECONDS;
 import static org.junit.Assert.*;
 
-/** Testing an async interface but it is not  yet async. */
+/**
+ * Testing an async interface but it is not  yet async.
+ */
 public class LowLevelKeyValueStoreServiceTest {
 
     private LowLevelLocalKeyValueStoreService localKeyValueStoreService;
@@ -19,7 +21,7 @@ public class LowLevelKeyValueStoreServiceTest {
     @Before
     public void before() {
         localKeyValueStoreServiceBuilder =
-        LowLevelLocalKeyValueStoreServiceBuilder.localKeyValueStoreBuilder();
+                LowLevelLocalKeyValueStoreServiceBuilder.localKeyValueStoreBuilder();
 
         testTimer = new TestTimer();
         testTimer.setTime();
@@ -60,7 +62,6 @@ public class LowLevelKeyValueStoreServiceTest {
         assertEquals(true, hasKeyRef[0]);
 
 
-
         testTimer.seconds(5);
         localKeyValueStoreService.process();
         localKeyValueStoreService.hasKey(hasKey -> hasKeyRef[0] = hasKey, "key");
@@ -98,7 +99,6 @@ public class LowLevelKeyValueStoreServiceTest {
         localKeyValueStoreService.putStringWithTimeout("key", "value", TEN_SECONDS);
         localKeyValueStoreService.hasKey(hasKey -> hasKeyRef[0] = hasKey, "key");
         assertEquals(true, hasKeyRef[0]);
-
 
 
         testTimer.seconds(5);
@@ -172,7 +172,6 @@ public class LowLevelKeyValueStoreServiceTest {
         assertArrayEquals("value".getBytes(), valueHolder[0]);
 
 
-
         localKeyValueStoreService.deleteWithConfirmation(aBoolean -> {
 
         }, "key");
@@ -215,8 +214,6 @@ public class LowLevelKeyValueStoreServiceTest {
             }
         }, "key");
         assertNull(valueHolder[0]);
-
-
 
 
         //

@@ -19,20 +19,21 @@ import java.util.function.Predicate;
  */
 public class EventManagerBuilder {
 
+    public static EventConnector DEFAULT_NO_EVENT_CONNECTOR = event -> {
+    };
+    public static StatsCollector DEFAULT_NO_STATS_COLLECTOR = new StatsCollector() {
+    };
+    private final Logger logger = LoggerFactory.getLogger(EventManagerBuilder.class);
     private EventConnector eventConnector;
     private List<Predicate<Event<Object>>> eventConnectorPredicates = new ArrayList<>();
     private String name;
     private StatsCollector statsCollector;
-    public static EventConnector DEFAULT_NO_EVENT_CONNECTOR = event -> {};
-    public static StatsCollector DEFAULT_NO_STATS_COLLECTOR = new StatsCollector() {};
-    private final Logger logger = LoggerFactory.getLogger(EventManagerBuilder.class);
     private Factory factory;
 
 
     public static EventManagerBuilder eventManagerBuilder() {
         return new EventManagerBuilder();
     }
-
 
 
     public Factory getFactory() {
@@ -77,16 +78,16 @@ public class EventManagerBuilder {
         return eventConnector;
     }
 
-    public List<Predicate<Event<Object>>> getEventConnectorPredicates() {
-        if (eventConnectorPredicates==null) {
-            eventConnectorPredicates = new ArrayList<>();
-        }
-        return eventConnectorPredicates;
-    }
-
     public EventManagerBuilder setEventConnector(EventConnector eventConnector) {
         this.eventConnector = eventConnector;
         return this;
+    }
+
+    public List<Predicate<Event<Object>>> getEventConnectorPredicates() {
+        if (eventConnectorPredicates == null) {
+            eventConnectorPredicates = new ArrayList<>();
+        }
+        return eventConnectorPredicates;
     }
 
     public EventManagerBuilder setEventConnectorPredicates(List<Predicate<Event<Object>>> eventConnectorPredicates) {
@@ -108,7 +109,7 @@ public class EventManagerBuilder {
     public EventManager build(final String name) {
 
 
-        if ( eventConnector == null) {
+        if (eventConnector == null) {
             return getFactory().createEventManager(name, getEventConnector(), getStatsCollector());
         } else {
 

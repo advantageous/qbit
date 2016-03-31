@@ -30,7 +30,7 @@ public class ContextMetaBuilder {
     /**
      * The title of the application.
      */
-    private String title="application title goes here";
+    private String title = "application title goes here";
 
     /**
      * A short description of the application.
@@ -38,30 +38,31 @@ public class ContextMetaBuilder {
      * GFM is https://help.github.com/articles/github-flavored-markdown/
      * GitHub Flavored Markdown.
      */
-    private String description="Description not set";
-    private String contactName="ContactName not set";
-    private String contactURL="Contact URL not set";
-    private String contactEmail="no.contact.email@set.me.please.com";
-    private String licenseName="licenseName not set";
-    private String licenseURL="http://www.license.url.com/not/set/";
-    private String version="0.1-NOT-SET";
-    private String hostAddress="localhost";
+    private String description = "Description not set";
+    private String contactName = "ContactName not set";
+    private String contactURL = "Contact URL not set";
+    private String contactEmail = "no.contact.email@set.me.please.com";
+    private String licenseName = "licenseName not set";
+    private String licenseURL = "http://www.license.url.com/not/set/";
+    private String version = "0.1-NOT-SET";
+    private String hostAddress = "localhost";
 
 
     public ContextMetaBuilder(final PropertyResolver propertyResolver) {
-        description =  propertyResolver.getStringProperty( "description", description );
-        contactName =  propertyResolver.getStringProperty("contactName", contactName );
-        contactEmail =  propertyResolver.getStringProperty("contactEmail", contactEmail );
-        licenseName =  propertyResolver.getStringProperty("licenseName", licenseName );
-        licenseURL =  propertyResolver.getStringProperty("licenseURL", licenseURL );
-        version =  propertyResolver.getStringProperty("licenseURL", version );
-        hostAddress =  propertyResolver.getStringProperty("hostAddress", hostAddress );
-        title =  propertyResolver.getStringProperty("title", title );
+        description = propertyResolver.getStringProperty("description", description);
+        contactName = propertyResolver.getStringProperty("contactName", contactName);
+        contactEmail = propertyResolver.getStringProperty("contactEmail", contactEmail);
+        licenseName = propertyResolver.getStringProperty("licenseName", licenseName);
+        licenseURL = propertyResolver.getStringProperty("licenseURL", licenseURL);
+        version = propertyResolver.getStringProperty("licenseURL", version);
+        hostAddress = propertyResolver.getStringProperty("hostAddress", hostAddress);
+        title = propertyResolver.getStringProperty("title", title);
     }
 
     public ContextMetaBuilder(final Properties properties) {
         this(PropertyResolver.createPropertiesPropertyResolver(CONTEXT, properties));
     }
+
     public ContextMetaBuilder() {
         this(PropertyResolver.createSystemPropertyResolver(CONTEXT));
     }
@@ -71,6 +72,173 @@ public class ContextMetaBuilder {
         return new ContextMetaBuilder();
     }
 
+    public static List<String> getRequestPathsByAnnotated(Annotated classMeta, String name) {
+        Object value = getRequestPath(classMeta, name);
+
+        if (value instanceof String) {
+            return Lists.list(asPath(value.toString()));
+        } else if (value instanceof String[]) {
+
+            final String[] varray = (String[]) value;
+            if (varray.length > 0) {
+                return Lists.list((String[]) value);
+            } else {
+                return Lists.list("/" + name);
+            }
+        } else {
+            throw new IllegalStateException();
+        }
+    }
+
+    public static List<RequestMethod> getRequestMethodsByAnnotated(Annotated annotated) {
+
+        final AnnotationData requestMapping = getAnnotationData(annotated);
+
+        if (requestMapping == null) {
+            return Collections.singletonList(RequestMethod.GET);
+        }
+
+        final Object method = requestMapping.getValues().get("method");
+
+        if (method == null) {
+
+            return Collections.singletonList(RequestMethod.GET);
+        }
+
+
+        if (method instanceof RequestMethod[]) {
+            //noinspection UnnecessaryLocalVariable
+            final List<RequestMethod> requestMethods = Arrays.asList(((RequestMethod[]) method));
+            return requestMethods;
+        }
+
+        if (method instanceof Object[]) {
+
+            final Object[] methods = (Object[]) method;
+            if (methods.length == 0) {
+
+                return Collections.singletonList(RequestMethod.GET);
+            }
+            final List<RequestMethod> requestMethods = new ArrayList<>(methods.length);
+
+            for (Object object : methods) {
+                requestMethods.add(RequestMethod.valueOf(object.toString()));
+            }
+
+            return requestMethods;
+
+        }
+
+        return Collections.singletonList(RequestMethod.valueOf(method.toString()));
+
+
+    }
+
+    private static AnnotationData getAnnotationData(Annotated annotated) {
+        AnnotationData requestMapping = annotated.annotation("RequestMapping");
+
+        if (requestMapping == null) {
+            requestMapping = annotated.annotation("GET");
+        }
+        if (requestMapping == null) {
+            requestMapping = annotated.annotation("POST");
+        }
+        if (requestMapping == null) {
+            requestMapping = annotated.annotation("PUT");
+        }
+        if (requestMapping == null) {
+            requestMapping = annotated.annotation("DELETE");
+        }
+        if (requestMapping == null) {
+            requestMapping = annotated.annotation("Bridge");
+        }
+
+        return requestMapping;
+    }
+
+    static Object getRequestPath(Annotated classMeta, final String name) {
+        final AnnotationData requestMapping = getAnnotationData(classMeta);
+
+        if (requestMapping != null) {
+            Object value = requestMapping.getValues().get("value");
+            if (value == null) {
+                value = "/" + name.toLowerCase();
+            }
+            return value;
+        } else {
+            return "/" + name.toLowerCase();
+        }
+    }
+
+    static String getDescriptionFromRequestMapping(Annotated annotated) {
+        final AnnotationData requestMapping = getAnnotationData(annotated);
+
+        if (requestMapping != null) {
+            Object value = requestMapping.getValues().get("description");
+            return value.toString();
+        } else {
+            return "no description";
+        }
+    }
+
+    static int getCodeFromRequestMapping(Annotated annotated) {
+        final AnnotationData requestMapping = getAnnotationData(annotated);
+
+        if (requestMapping != null) {
+            Object value = requestMapping.getValues().get("code");
+            return Conversions.toInt(value);
+        } else {
+            return -1;
+        }
+    }
+
+    static String getContentTypeFromRequestMapping(Annotated annotated) {
+        final AnnotationData requestMapping = getAnnotationData(annotated);
+
+        if (requestMapping != null) {
+            Object value = requestMapping.getValues().get("contentType");
+            return Conversions.toString(value);
+        } else {
+            return "application/json";
+        }
+    }
+
+    static String getReturnDescriptionFromRequestMapping(Annotated annotated) {
+        final AnnotationData requestMapping = getAnnotationData(annotated);
+
+        if (requestMapping != null) {
+            Object value = requestMapping.getValues().get("returnDescription");
+            return value.toString();
+        } else {
+            return "no description of return";
+        }
+    }
+
+    static String getSummaryFromRequestMapping(Annotated annotated) {
+        final AnnotationData requestMapping = getAnnotationData(annotated);
+
+        if (requestMapping != null) {
+            Object value = requestMapping.getValues().get("summary");
+            return value.toString();
+        } else {
+            return "no summary";
+        }
+    }
+
+    public static String asPath(String s) {
+        String path = s;
+        if (!s.startsWith("/")) {
+            path = "/" + s;
+        }
+
+        if (s.endsWith("/")) {
+            if (s.length() > 2) {
+                path = path.substring(0, path.length() - 1);
+            }
+        }
+
+        return path;
+    }
 
     public String getTitle() {
         return title;
@@ -153,177 +321,6 @@ public class ContextMetaBuilder {
         return this;
     }
 
-
-
-    public static List<String> getRequestPathsByAnnotated(Annotated classMeta, String name) {
-        Object value = getRequestPath(classMeta, name);
-
-        if (value instanceof String) {
-            return Lists.list(asPath(value.toString()));
-        } else if (value instanceof String[]) {
-
-            final String[] varray = (String[]) value;
-            if (varray.length > 0) {
-                return Lists.list((String[]) value);
-            } else {
-                return Lists.list("/" + name);
-            }
-        } else {
-            throw new IllegalStateException();
-        }
-    }
-
-    public static List<RequestMethod> getRequestMethodsByAnnotated(Annotated annotated) {
-
-        final AnnotationData requestMapping = getAnnotationData(annotated);
-
-        if (requestMapping == null) {
-            return Collections.singletonList(RequestMethod.GET);
-        }
-
-        final Object method = requestMapping.getValues().get("method");
-
-        if (method == null) {
-
-            return Collections.singletonList(RequestMethod.GET);
-        }
-
-
-        if (method instanceof RequestMethod[]) {
-            //noinspection UnnecessaryLocalVariable
-            final List<RequestMethod> requestMethods = Arrays.asList(((RequestMethod[]) method));
-            return requestMethods;
-        }
-
-        if (method instanceof Object[]) {
-
-            final Object[] methods = (Object[]) method;
-            if (methods.length == 0) {
-
-                return Collections.singletonList(RequestMethod.GET);
-            }
-            final List<RequestMethod> requestMethods = new ArrayList<>(methods.length);
-
-            for (Object object : methods) {
-                requestMethods.add(RequestMethod.valueOf(object.toString()));
-            }
-
-            return requestMethods;
-
-        }
-
-        return Collections.singletonList(RequestMethod.valueOf(method.toString()));
-
-
-    }
-
-    private static AnnotationData getAnnotationData(Annotated annotated) {
-        AnnotationData requestMapping = annotated.annotation("RequestMapping");
-
-        if (requestMapping==null) {
-            requestMapping = annotated.annotation("GET");
-        }
-        if (requestMapping==null) {
-            requestMapping = annotated.annotation("POST");
-        }
-        if (requestMapping==null) {
-            requestMapping = annotated.annotation("PUT");
-        }
-        if (requestMapping==null) {
-            requestMapping = annotated.annotation("DELETE");
-        }
-
-        return requestMapping;
-    }
-
-    static Object getRequestPath(Annotated classMeta, final String name) {
-        final AnnotationData requestMapping = getAnnotationData(classMeta);
-
-        if (requestMapping != null) {
-            Object value = requestMapping.getValues().get("value");
-            if (value == null) {
-                value = "/" + name.toLowerCase();
-            }
-            return value;
-        } else {
-            return "/" + name.toLowerCase();
-        }
-    }
-
-
-    static String getDescriptionFromRequestMapping(Annotated annotated) {
-        final AnnotationData requestMapping = getAnnotationData(annotated);
-
-        if (requestMapping != null) {
-            Object value = requestMapping.getValues().get("description");
-            return value.toString();
-        } else {
-            return "no description";
-        }
-    }
-
-
-    static int getCodeFromRequestMapping(Annotated annotated) {
-        final AnnotationData requestMapping = getAnnotationData(annotated);
-
-        if (requestMapping != null) {
-            Object value = requestMapping.getValues().get("code");
-            return Conversions.toInt(value);
-        } else {
-            return -1;
-        }
-    }
-
-    static String getContentTypeFromRequestMapping(Annotated annotated) {
-        final AnnotationData requestMapping = getAnnotationData(annotated);
-
-        if (requestMapping != null) {
-            Object value = requestMapping.getValues().get("contentType");
-            return Conversions.toString(value);
-        } else {
-            return "application/json";
-        }
-    }
-
-
-    static String getReturnDescriptionFromRequestMapping(Annotated annotated) {
-        final AnnotationData requestMapping = getAnnotationData(annotated);
-
-        if (requestMapping != null) {
-            Object value = requestMapping.getValues().get("returnDescription");
-            return value.toString();
-        } else {
-            return "no description of return";
-        }
-    }
-
-    static String getSummaryFromRequestMapping(Annotated annotated) {
-        final AnnotationData requestMapping = getAnnotationData(annotated);
-
-        if (requestMapping != null) {
-            Object value = requestMapping.getValues().get("summary");
-            return value.toString();
-        } else {
-            return "no summary";
-        }
-    }
-
-
-    public static String asPath(String s) {
-        String path = s;
-        if (!s.startsWith("/")) {
-            path = "/" + s;
-        }
-
-        if (s.endsWith("/")) {
-            if (s.length() > 2) {
-                path = path.substring(0, path.length() - 1);
-            }
-        }
-
-        return path;
-    }
-
     public String getRootURI() {
         return rootURI;
     }
@@ -393,7 +390,6 @@ public class ContextMetaBuilder {
     }
 
 
-
     private MultiMap<String, String> getResponseHeaders(final Annotated annotated) {
 
         MultiMap<String, String> responseHeadersMap = MultiMap.empty();
@@ -409,11 +405,10 @@ public class ContextMetaBuilder {
         }
 
 
-
         final AnnotationData responseHeadersAnnotation = annotated.annotation("ResponseHeaders");
 
         if (responseHeadersAnnotation != null) {
-            if (responseHeadersMap.size()==0) {
+            if (responseHeadersMap.size() == 0) {
                 responseHeadersMap = new MultiMapImpl<>();
             }
             final Object[] values = (Object[]) responseHeadersAnnotation.getValues().get("value");
@@ -434,7 +429,7 @@ public class ContextMetaBuilder {
 
         final AnnotationData noCache = annotated.annotation("NoCacheHeaders");
         if (noCache != null) {
-            if (responseHeadersMap.size()==0) {
+            if (responseHeadersMap.size() == 0) {
                 responseHeadersMap = new MultiMapImpl<>();
             }
             responseHeadersMap.add(HttpHeaders.CACHE_CONTROL, "max-age=0");

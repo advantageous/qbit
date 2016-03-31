@@ -65,17 +65,15 @@ public class BoonEventManager implements EventManager {
     private final boolean debug = GlobalConstants.DEBUG || logger.isDebugEnabled();
     private final String name;
     private final StatsCollector stats;
-    private int messageCountSinceLastFlush = 0;
-    private long flushCount = 0;
-    private long lastFlushTime = 0;
-    private long now;
     private final String eventCountStatsKey;
-
     /**
      * Holds on to Boon cache so we don't have to recreate reflected gak.
      */
     Object context = Sys.contextToHold();
-
+    private int messageCountSinceLastFlush = 0;
+    private long flushCount = 0;
+    private long lastFlushTime = 0;
+    private long now;
 
 
     public BoonEventManager(final String name, EventConnector eventConnector, StatsCollector statsCollector) {
@@ -317,7 +315,6 @@ public class BoonEventManager implements EventManager {
         final boolean consume = (boolean) listen.getValues().get("consume");
 
 
-
         if (serviceQueue == null) {
             extractListenerForRegularObject(listener, methodAccess, channel, consume);
         } else {
@@ -349,7 +346,7 @@ public class BoonEventManager implements EventManager {
                                                  final boolean consume) {
 
         logger.info("EventManager {}:: {} is listening with method {} on channel {} and is consuming? {}",
-            name, listener.getClass().getSimpleName(), methodAccess.name(), channel, consume);
+                name, listener.getClass().getSimpleName(), methodAccess.name(), channel, consume);
         if (consume) {
 
 

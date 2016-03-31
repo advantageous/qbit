@@ -68,18 +68,19 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Dispatches calls to a pool of workers in a sharded fashion or a round robin fashion.
+ *
  * @author rhightower
- * on 2/18/15.
+ *         on 2/18/15.
  */
 public class ServiceWorkers implements ServiceMethodDispatcher {
 
 
     protected final boolean startServices;
+    protected final List<SendQueue<MethodCall<Object>>> sendQueues = new ArrayList<>();
+    protected final AtomicInteger index = new AtomicInteger();
     private final int flushInterval;
     private final TimeUnit timeUnit;
     protected List<ServiceQueue> serviceQueues = new ArrayList<>();
-    protected final List<SendQueue<MethodCall<Object>>> sendQueues = new ArrayList<>();
-    protected final AtomicInteger index = new AtomicInteger();
 
 
     public ServiceWorkers(boolean startServices) {

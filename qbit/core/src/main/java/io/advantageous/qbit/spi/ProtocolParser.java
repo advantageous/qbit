@@ -41,5 +41,4 @@ public interface ProtocolParser {
     List<Response<Object>> parseResponses(String addressPrefix, String body);
 
 
-
 }

@@ -38,11 +38,11 @@ public class ClusteredStatReplicator implements StatReplicator, ServiceChangedEv
     private final Timer timer;
     private final int tallyInterval;
     private final int flushInterval;
+    private final ConcurrentHashMap<String, LocalCount> countMap = new ConcurrentHashMap<>();
     private long currentTime;
     private long lastReconnectTime;
     private long lastSendTime;
     private long lastReplicatorFlush = 0;
-    private final ConcurrentHashMap<String, LocalCount> countMap = new ConcurrentHashMap<>();
     private List<Pair<EndpointDefinition, StatReplicator>> statReplicators = new ArrayList<>();
 
 
@@ -283,7 +283,7 @@ public class ClusteredStatReplicator implements StatReplicator, ServiceChangedEv
                 }
 
             });
-        }catch (Exception ex) {
+        } catch (Exception ex) {
             logger.error("Error updating service pool");
         }
     }

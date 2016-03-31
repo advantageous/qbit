@@ -33,6 +33,7 @@ public interface Callback<T> {
 
     /**
      * Called when there is an error
+     *
      * @param error error
      */
     default void onError(final Throwable error) {

@@ -49,14 +49,14 @@ public abstract class BasicSendReceiveTest {
         assertEquals("hi", item);
 
         assertTrue(queue.hashCode() != 0);
-        assertTrue(queue.name()!=null);
-        assertTrue(queue.size()==0);
-        assertTrue(queue.toString()!=null);
+        assertTrue(queue.name() != null);
+        assertTrue(queue.size() == 0);
+        assertTrue(queue.toString() != null);
         assertTrue(sendQueue.shouldBatch());
-        assertTrue(sendQueue.size()==0);
-        assertTrue(sendQueue.name()!=null);
-        assertTrue(sendQueue.hashCode()!=0);
-        assertTrue(receiveQueue.hashCode()!=0);
+        assertTrue(sendQueue.size() == 0);
+        assertTrue(sendQueue.name() != null);
+        assertTrue(sendQueue.hashCode() != 0);
+        assertTrue(receiveQueue.hashCode() != 0);
 
     }
 
@@ -149,7 +149,7 @@ public abstract class BasicSendReceiveTest {
 
         final int amount = 10_000;
         int index = 0;
-        for (;index< amount; index++) {
+        for (; index < amount; index++) {
             sendQueue.send("" + index);
         }
 
@@ -158,14 +158,13 @@ public abstract class BasicSendReceiveTest {
         String item = receiveQueue.pollWait();
         assertEquals("0", item);
 
-        do  {
+        do {
             index--;
             item = receiveQueue.pollWait();
-        } while (item!=null);
+        } while (item != null);
 
         assertEquals(0, index);
     }
-
 
 
     @Test
@@ -186,8 +185,7 @@ public abstract class BasicSendReceiveTest {
         });
 
 
-
-        for (int index = 0; index< amount; index++) {
+        for (int index = 0; index < amount; index++) {
             sendQueue.send("" + index);
         }
 
@@ -198,7 +196,6 @@ public abstract class BasicSendReceiveTest {
 
         assertEquals(0, count.get());
     }
-
 
 
     @Test
@@ -293,11 +290,10 @@ public abstract class BasicSendReceiveTest {
 
         assertTrue(sendQueue.shouldBatch());
         assertTrue(sendQueue.size() > -1);
-        assertTrue(sendQueue.name() !=null);
+        assertTrue(sendQueue.name() != null);
 
 
-
-        for (int index = 0; index< amount; index++) {
+        for (int index = 0; index < amount; index++) {
             sendQueue.send("" + index);
         }
 
@@ -310,7 +306,6 @@ public abstract class BasicSendReceiveTest {
         sendQueue.stop();
 
     }
-
 
 
     @Test
@@ -332,8 +327,7 @@ public abstract class BasicSendReceiveTest {
         });
 
 
-
-        for (int index = 0; index< amount; index++) {
+        for (int index = 0; index < amount; index++) {
             sendQueue.send("" + index);
         }
 
@@ -344,7 +338,6 @@ public abstract class BasicSendReceiveTest {
 
         assertTrue(count.get() < 1_000);
     }
-
 
 
 //

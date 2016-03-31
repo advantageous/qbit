@@ -17,80 +17,6 @@ import java.io.File;
 public class MicroserviceConfig {
 
 
-    /** Title */
-    private final String title;
-
-    /** Description */
-    private final String description;
-
-
-    /** publicHost this is where the default API from swagger will make calls. */
-    private final String publicHost;
-
-    /** publicPort this is the port where the default API from swagger will make calls. */
-    private final int publicPort;
-
-
-    /** this is the port where the default API from swagger will make calls. */
-    private final int port;
-
-    /** Contact name. This is Stephane's home phone number. */
-    private final String contactName;
-
-    /** Contact email. This is Stephane's home email address. */
-    private final String contactEmail;
-
-    /** Contact email. This is Stephane's website. */
-    private final String contactURL;
-
-
-    /** Version of the API. */
-    private final String version;
-
-    /** Root URI, this should be /v1, /v2, etc. */
-    private final String rootURI;
-
-    /**
-     * License Name of the microservice.
-     */
-    private String licenseName;
-
-
-    /**
-     * License URL of the microservice.
-     */
-    private String licenseURL;
-
-    /**
-     * StatsD host where we put things.
-     */
-    private String statsDHost;
-
-    /**
-     * StatsD port. -1 means use default StatsD port.
-     */
-    private int statsDPort=-1;
-
-    private int sampleStatFlushRate=5;
-
-    private int checkTimingEveryXCalls=100;
-
-
-
-    /** Enables local stats collection. */
-    private boolean enableLocalStats=true;
-
-    /** Enables sending stats to stats D. */
-    private boolean enableStatsD=false;
-
-    /** Enables local health stats collection. */
-    private boolean enableLocalHealth=true;
-
-    /** Enables the collection of stats. */
-    private boolean enableStats = true;
-
-
-
     /**
      * Holds the key.
      */
@@ -102,55 +28,94 @@ public class MicroserviceConfig {
     @SuppressWarnings("WeakerAccess")
     public static final String resourceLocation =
             Sys.sysProp(CONTEXT + "file", "/opt/qbit/conf/service.json");
-
     public static final String resourceLocationEnv = System.getenv("QBIT_CONF_FILE");
+    /**
+     * Title
+     */
+    private final String title;
+    /**
+     * Description
+     */
+    private final String description;
+    /**
+     * publicHost this is where the default API from swagger will make calls.
+     */
+    private final String publicHost;
+    /**
+     * publicPort this is the port where the default API from swagger will make calls.
+     */
+    private final int publicPort;
+    /**
+     * this is the port where the default API from swagger will make calls.
+     */
+    private final int port;
+    /**
+     * Contact name. This is Stephane's home phone number.
+     */
+    private final String contactName;
+    /**
+     * Contact email. This is Stephane's home email address.
+     */
+    private final String contactEmail;
+    /**
+     * Contact email. This is Stephane's website.
+     */
+    private final String contactURL;
+    /**
+     * Version of the API.
+     */
+    private final String version;
+    /**
+     * Root URI, this should be /v1, /v2, etc.
+     */
+    private final String rootURI;
+    /**
+     * License Name of the microservice.
+     */
+    private String licenseName;
+    /**
+     * License URL of the microservice.
+     */
+    private String licenseURL;
+    /**
+     * StatsD host where we put things.
+     */
+    private String statsDHost;
+    /**
+     * StatsD port. -1 means use default StatsD port.
+     */
+    private int statsDPort = -1;
+    private int sampleStatFlushRate = 5;
+    private int checkTimingEveryXCalls = 100;
+    /**
+     * Enables local stats collection.
+     */
+    private boolean enableLocalStats = true;
+    /**
+     * Enables sending stats to stats D.
+     */
+    private boolean enableStatsD = false;
+    /**
+     * Enables local health stats collection.
+     */
+    private boolean enableLocalHealth = true;
+    /**
+     * Enables the collection of stats.
+     */
+    private boolean enableStats = true;
     private boolean statsD;
 
 
     /**
-     * Reads the readConfig file, which can be a classpath or file system resource.
-     *
-     * @param serviceName the name of the service to load
-     * @return service config
-     */
-    public static MicroserviceConfig readConfig(final String serviceName) {
-
-
-        final Logger logger = LoggerFactory.getLogger(MicroserviceConfig.class);
-        if (new File(resourceLocation).exists()) {
-            final String json = IO.read(resourceLocation);
-
-            return  JsonFactory.fromJson(json, MicroserviceConfig.class);
-
-        } else if (resourceLocationEnv!=null && new File(resourceLocationEnv).exists()) {
-
-            final String json = IO.read(resourceLocationEnv);
-            return  JsonFactory.fromJson(json, MicroserviceConfig.class);
-        }
-        else {
-            logger.info("Reading config from classpath as it is not found on file system");
-
-            final String qbitEnv = System.getenv("QBIT_ENV");
-
-            final String resourceLocationOnClasspath =
-                    qbitEnv!=null && !qbitEnv.isEmpty() ? serviceName + "_" + qbitEnv + ".json" :
-                            serviceName + ".json";
-            final String json = IO.read(Thread.currentThread().getContextClassLoader()
-                    .getResourceAsStream(resourceLocationOnClasspath));
-            return  JsonFactory.fromJson(json, MicroserviceConfig.class);
-        }
-    }
-
-    /**
-     * @param title title
-     * @param description description
-     * @param publicHost publicHost
-     * @param publicPort publicPort
-     * @param port port
-     * @param contactName contactName
+     * @param title        title
+     * @param description  description
+     * @param publicHost   publicHost
+     * @param publicPort   publicPort
+     * @param port         port
+     * @param contactName  contactName
      * @param contactEmail contactEmail
-     * @param version version
-     * @param rootURI rootURI
+     * @param version      version
+     * @param rootURI      rootURI
      */
     public MicroserviceConfig(String title, String description, String publicHost, int publicPort,
                               int port, String contactName,
@@ -165,6 +130,39 @@ public class MicroserviceConfig {
         this.version = version;
         this.rootURI = rootURI;
         this.contactURL = contactURL;
+    }
+
+    /**
+     * Reads the readConfig file, which can be a classpath or file system resource.
+     *
+     * @param serviceName the name of the service to load
+     * @return service config
+     */
+    public static MicroserviceConfig readConfig(final String serviceName) {
+
+
+        final Logger logger = LoggerFactory.getLogger(MicroserviceConfig.class);
+        if (new File(resourceLocation).exists()) {
+            final String json = IO.read(resourceLocation);
+
+            return JsonFactory.fromJson(json, MicroserviceConfig.class);
+
+        } else if (resourceLocationEnv != null && new File(resourceLocationEnv).exists()) {
+
+            final String json = IO.read(resourceLocationEnv);
+            return JsonFactory.fromJson(json, MicroserviceConfig.class);
+        } else {
+            logger.info("Reading config from classpath as it is not found on file system");
+
+            final String qbitEnv = System.getenv("QBIT_ENV");
+
+            final String resourceLocationOnClasspath =
+                    qbitEnv != null && !qbitEnv.isEmpty() ? serviceName + "_" + qbitEnv + ".json" :
+                            serviceName + ".json";
+            final String json = IO.read(Thread.currentThread().getContextClassLoader()
+                    .getResourceAsStream(resourceLocationOnClasspath));
+            return JsonFactory.fromJson(json, MicroserviceConfig.class);
+        }
     }
 
     public String getPublicHost() {
@@ -256,7 +254,7 @@ public class MicroserviceConfig {
     }
 
     public int getStatsDPort() {
-        return statsDPort<=0 ? 8125 : statsDPort;
+        return statsDPort <= 0 ? 8125 : statsDPort;
     }
 
     public void setStatsDPort(int statsDPort) {

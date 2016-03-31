@@ -10,9 +10,9 @@ import java.util.Map;
 public class ServiceEndpointInfo {
 
     /**
-     *  Specifies the Swagger Specification version being used.
-     *  It can be used by the Swagger UI and other clients to interpret the API listing.
-     *  The value MUST be "2.0".
+     * Specifies the Swagger Specification version being used.
+     * It can be used by the Swagger UI and other clients to interpret the API listing.
+     * The value MUST be "2.0".
      */
     private final String swagger = "2.0";
 
@@ -48,17 +48,15 @@ public class ServiceEndpointInfo {
      */
     private final List<String> consumes;
     private final Map<String, Definition> definitions;
-
+    /**
+     * Required. The available paths and operations for the API.
+     */
+    private final Map<String, Path> paths;
     /**
      * A list of MIME types the APIs can consume. This is global to all APIs but can be overridden
      * on specific API calls. Value MUST be as described under Mime Types.
      */
     private List<String> produces;
-
-    /**
-     * Required. The available paths and operations for the API.
-     */
-    private final Map<String, Path> paths;
 
     public ServiceEndpointInfo(ApiInfo info, String host, String basePath, Map<String, Path> paths,
                                List<String> schemes,

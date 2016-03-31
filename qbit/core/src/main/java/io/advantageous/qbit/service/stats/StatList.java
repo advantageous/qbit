@@ -9,7 +9,7 @@ import static io.advantageous.boon.primitive.Lng.varianceDouble;
 
 /**
  * Holds primitive values in a list like object for ints.
- *
+ * <p>
  * <p>
  * Has sum, mean, median, standardDeviation, reduceBy,
  * variance.
@@ -61,6 +61,48 @@ public class StatList extends AbstractList<Long> {
         //noinspection UnnecessaryLocalVariable
         @SuppressWarnings("UnnecessaryLocalVariable") double mean = ((double) bigSum(values, start, length)) / ((double) length);
         return mean;
+    }
+
+    /**
+     * Sum
+     * Provides overflow protection.
+     *
+     * @param values values in int
+     * @return sum
+     */
+    public static long bigSum(long[] values) {
+        return bigSum(values, 0, values.length);
+    }
+
+    /**
+     * Sum
+     * Provides overflow protection.
+     *
+     * @param values values in int
+     * @param length length
+     * @return sum
+     */
+    public static long bigSum(long[] values, int length) {
+        return bigSum(values, 0, length);
+    }
+
+    /**
+     * Big Sum
+     *
+     * @param values values in int
+     * @param length length
+     * @param start  start
+     * @return sum
+     */
+    public static long bigSum(long[] values, int start, int length) {
+        long sum = 0;
+        for (int index = start; index < length; index++) {
+            sum += values[index];
+        }
+
+        return sum;
+
+
     }
 
     public void clear() {
@@ -257,7 +299,6 @@ public class StatList extends AbstractList<Long> {
         return (float) Math.sqrt(variance);
     }
 
-
     /**
      * variance
      *
@@ -266,7 +307,6 @@ public class StatList extends AbstractList<Long> {
     public float variance() {
         return (float) varianceDouble(values, 0, end);
     }
-
 
     /**
      * max
@@ -277,7 +317,6 @@ public class StatList extends AbstractList<Long> {
         return Lng.max(values, end);
     }
 
-
     /**
      * min
      *
@@ -287,7 +326,6 @@ public class StatList extends AbstractList<Long> {
         return Lng.min(values, end);
     }
 
-
     /**
      * median
      *
@@ -296,7 +334,6 @@ public class StatList extends AbstractList<Long> {
     public long median() {
         return Lng.median(values, end);
     }
-
 
     /**
      * sort
@@ -325,48 +362,6 @@ public class StatList extends AbstractList<Long> {
         result = 31 * result + (values != null ? Lng.hashCode(0, end, values) : 0);
         result = 31 * result + end;
         return result;
-    }
-
-
-
-    /**
-     * Sum
-     * Provides overflow protection.
-     * @param values values in int
-     * @return sum
-     */
-    public static long bigSum( long[] values ) {
-        return bigSum(values, 0, values.length);
-    }
-
-
-    /**
-     * Sum
-     * Provides overflow protection.
-     * @param values values in int
-     * @param length length
-     * @return sum
-     */
-    public static long bigSum( long[] values,  int length ) {
-        return bigSum(values, 0, length);
-    }
-
-    /**
-     * Big Sum
-     * @param values values in int
-     * @param length length
-     * @param start start
-     * @return sum
-     */
-    public static long bigSum( long[] values, int start, int length ) {
-        long sum = 0;
-        for (int index = start; index < length; index++ ) {
-            sum+= values[index];
-        }
-
-        return sum;
-
-
     }
 
 }

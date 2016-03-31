@@ -18,8 +18,8 @@ public class DnsUtilTest {
         final List<URI> uris = DnsUtil.readDnsConf();
 
         assertTrue(uris.size() > 0);
-        for (URI uri: uris) {
-            puts (uri.getPort(), uri.getHost());
+        for (URI uri : uris) {
+            puts(uri.getPort(), uri.getHost());
             assertNotNull(uri);
         }
     }
@@ -29,13 +29,12 @@ public class DnsUtilTest {
     public void testResolvOverride() {
 
 
-
         Sys.putSysProp(DnsUtil.QBIT_DNS_RESOLV_CONF, "./qbit/service-discovery/src/test/test-files/resolv.conf");
         final List<URI> uris = DnsUtil.readDnsConf();
 
         assertTrue(uris.size() > 0);
-        for (URI uri: uris) {
-            puts (uri.getPort(), uri.getHost());
+        for (URI uri : uris) {
+            puts(uri.getPort(), uri.getHost());
             assertNotNull(uri);
         }
 

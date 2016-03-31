@@ -7,11 +7,9 @@ import java.util.List;
 public class SenderHelperMethods {
 
 
-
-
     public static Object[] fastObjectArraySlice(final Object[] array,
-                                         @SuppressWarnings("SameParameterValue") final int start,
-                                         final int end) {
+                                                @SuppressWarnings("SameParameterValue") final int start,
+                                                final int end) {
         final int newLength = end - start;
         final Object[] newArray = new Object[newLength];
         System.arraycopy(array, start, newArray, 0, newLength);
@@ -28,10 +26,12 @@ public class SenderHelperMethods {
 
 
     public static Object[] objectArrayFromCollection(final Collection collection) {
-            return collection.toArray(new Object[collection.size()]);
+        return collection.toArray(new Object[collection.size()]);
     }
 
-    /** This seems horrible. */
+    /**
+     * This seems horrible.
+     */
     private static <V> List<V> iter2List(final Iterable<V> iterable) {
         final List<V> list = new ArrayList<>();
         for (V o : iterable) {

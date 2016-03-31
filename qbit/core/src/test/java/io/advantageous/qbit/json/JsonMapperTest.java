@@ -47,7 +47,6 @@ public class JsonMapperTest {
         assertTrue(map2 instanceof Map);
 
 
-
         final Map<String, Object> map2Map = (Map<String, Object>) map2;
 
         final Object value = map2Map.get("key");
@@ -98,7 +97,7 @@ public class JsonMapperTest {
 
         assertTrue(list1 instanceof List);
 
-        List<Map<String,Map<String, Object>>> list1List = (List<Map<String, Map<String, Object>>>) list1;
+        List<Map<String, Map<String, Object>>> list1List = (List<Map<String, Map<String, Object>>>) list1;
 
         final Map<String, Map<String, Object>> map2 = list1List.get(0);
 

@@ -40,7 +40,7 @@ import static io.advantageous.boon.primitive.Arry.array;
 public class HttpRequestServiceServerHandlerUsingMetaImpl implements HttpRequestServiceServerHandler {
 
     private static final Set<String> ignorePackages = set("sun.", "com.sun.",
-            "javax.java", "java.",  "oracle.", "com.oracle.", "org.junit",
+            "javax.java", "java.", "oracle.", "com.oracle.", "org.junit",
             "com.intellij", "io.advantageous.boon");
 
 
@@ -55,11 +55,11 @@ public class HttpRequestServiceServerHandlerUsingMetaImpl implements HttpRequest
 
     private final boolean devMode = GlobalConstants.DEV_MODE;
     private final Lock lock = new ReentrantLock();
+    private final Map<RequestMethod, StandardMetaDataProvider> metaDataProviderMap = new ConcurrentHashMap<>();
+    private final Consumer<Throwable> errorHandler;
     private long lastFlushTime;
     private ContextMetaBuilder contextMetaBuilder = ContextMetaBuilder.contextMetaBuilder();
     private StandardRequestTransformer standardRequestTransformer;
-    private final Map<RequestMethod, StandardMetaDataProvider> metaDataProviderMap = new ConcurrentHashMap<>();
-    private final Consumer<Throwable> errorHandler;
 
     public HttpRequestServiceServerHandlerUsingMetaImpl(final int timeoutInSeconds,
                                                         final ServiceBundle serviceBundle,
@@ -79,12 +79,78 @@ public class HttpRequestServiceServerHandlerUsingMetaImpl implements HttpRequest
         contextMetaBuilder = ContextMetaBuilder.contextMetaBuilder();
 
 
+    }
+
+    public static StackTraceElement[] getFilteredStackTrace(StackTraceElement[] stackTrace) {
+
+
+        if (stackTrace == null || stackTrace.length == 0) {
+            return new StackTraceElement[0];
+        }
+        List<StackTraceElement> list = new ArrayList<>();
+        Set<String> seenThisBefore = new HashSet<>();
+
+        for (StackTraceElement st : stackTrace) {
+            if (startsWithItemInCollection(st.getClassName(), ignorePackages)) {
+
+                continue;
+            }
+
+            String key = Str.sputs(st.getClassName(), st.getFileName(), st.getMethodName(), st.getLineNumber());
+            if (seenThisBefore.contains(key)) {
+                continue;
+            } else {
+                seenThisBefore.add(key);
+            }
+
+            list.add(st);
+        }
+
+        return array(StackTraceElement.class, list);
 
     }
 
+    public static void stackTraceToJson(CharBuf buffer, StackTraceElement[] stackTrace) {
+
+        if (stackTrace.length == 0) {
+            buffer.addLine("[]");
+            return;
+        }
 
 
-    /** MOST IMPORTANT METHOD FOR DEBUGGING WHY SOMETHING IS NOT CALLED. */
+        buffer.multiply(' ', 16).addLine('[');
+
+        for (int index = 0; index < stackTrace.length; index++) {
+            StackTraceElement element = stackTrace[index];
+
+            if (element.getClassName().contains("Exceptions")) {
+                continue;
+            }
+            buffer.indent(17).add("[  ").asJsonString(element.getMethodName())
+                    .add(',');
+
+
+            buffer.indent(3).asJsonString(element.getClassName());
+
+
+            if (element.getLineNumber() > 0) {
+                buffer.add(",");
+                buffer.indent(3).asJsonString("" + element.getLineNumber())
+                        .addLine("   ],");
+            } else {
+                buffer.addLine(" ],");
+            }
+
+        }
+        buffer.removeLastChar(); //trailing \n
+        buffer.removeLastChar(); //trailing ,
+
+        buffer.addLine().multiply(' ', 15).add(']');
+    }
+
+    /**
+     * MOST IMPORTANT METHOD FOR DEBUGGING WHY SOMETHING IS NOT CALLED.
+     */
     @Override
     public void handleRestCall(final HttpRequest request) {
 
@@ -115,17 +181,18 @@ public class HttpRequestServiceServerHandlerUsingMetaImpl implements HttpRequest
             request.handled();
 
             final int responseCode = serviceMethod.getResponseCode();
-            writeResponse(request.getReceiver(), responseCode == -1 ? HttpStatus.ACCEPTED: responseCode,
+            writeResponse(request.getReceiver(), responseCode == -1 ? HttpStatus.ACCEPTED : responseCode,
                     serviceMethod.getContentType(), "\"success\"",
-                            requestMetaData.getRequest().getResponseHeaders() );
+                    requestMetaData.getRequest().getResponseHeaders());
 
         }
 
 
     }
 
-
-    /** 2nd MOST IMPORTANT METHOD FOR DEBUGGING WHY SOMETHING IS NOT CALLED. */
+    /**
+     * 2nd MOST IMPORTANT METHOD FOR DEBUGGING WHY SOMETHING IS NOT CALLED.
+     */
     @Override
     public void handleResponseFromServiceToHttpResponse(final Response<Object> response, final HttpRequest originatingRequest) {
 
@@ -148,7 +215,7 @@ public class HttpRequestServiceServerHandlerUsingMetaImpl implements HttpRequest
 
                 MultiMap<String, String> headers = response.headers();
 
-                if (requestMetaData.getRequest().hasResponseHeaders() ) {
+                if (requestMetaData.getRequest().hasResponseHeaders()) {
                     if (response.headers() == MultiMap.EMPTY) {
                         headers = new MultiMapImpl<>();
                     } else {
@@ -158,17 +225,16 @@ public class HttpRequestServiceServerHandlerUsingMetaImpl implements HttpRequest
                 }
 
                 writeResponse(originatingRequest.getReceiver(),
-                            responseCode == -1 ? HttpStatus.OK : responseCode,
-                            serviceMethodMeta.getContentType(),
-                            jsonMapper.toJson(response.body()),
-                            headers);
+                        responseCode == -1 ? HttpStatus.OK : responseCode,
+                        serviceMethodMeta.getContentType(),
+                        jsonMapper.toJson(response.body()),
+                        headers);
 
             }
         }
 
 
     }
-
 
     @Override
     public void httpRequestQueueIdle(Void v) {
@@ -202,7 +268,6 @@ public class HttpRequestServiceServerHandlerUsingMetaImpl implements HttpRequest
         standardRequestTransformer = new StandardRequestTransformer(metaDataProviderMap, Optional.ofNullable(errorHandler));
 
     }
-
 
     private void handleOverflow(HttpRequest request) {
         writeResponse(request.getReceiver(), HttpStatus.TOO_MANY_REQUEST, "application/json",
@@ -291,8 +356,6 @@ public class HttpRequestServiceServerHandlerUsingMetaImpl implements HttpRequest
         }
     }
 
-
-
     private void handleError(Response<Object> response, HttpRequest httpRequest) {
         final Object obj = response.body();
 
@@ -305,7 +368,7 @@ public class HttpRequestServiceServerHandlerUsingMetaImpl implements HttpRequest
             writeResponse(httpRequest.getReceiver(), httpStatusCodeException.code(), "application/json",
                     jsonMapper.toJson(httpStatusCodeException.getMessage()), response.headers());
 
-        } else if (obj instanceof Throwable){
+        } else if (obj instanceof Throwable) {
 
             writeResponse(httpRequest.getReceiver(), HttpStatus.ERROR, "application/json", asJson(((Throwable) obj)), response.headers());
 
@@ -314,7 +377,6 @@ public class HttpRequestServiceServerHandlerUsingMetaImpl implements HttpRequest
                     jsonMapper.toJson(response.body()), response.headers());
         }
     }
-
 
     private void writeHttpResponse(HttpResponseReceiver<Object> receiver, HttpResponse httpResponse) {
         if (httpResponse instanceof HttpTextResponse) {
@@ -328,8 +390,6 @@ public class HttpRequestServiceServerHandlerUsingMetaImpl implements HttpRequest
         }
     }
 
-
-
     private void writeResponse(HttpResponseReceiver response, int code, String mimeType, String responseString,
                                MultiMap<String, String> headers) {
 
@@ -341,7 +401,6 @@ public class HttpRequestServiceServerHandlerUsingMetaImpl implements HttpRequest
             response.response(code, mimeType, responseString.getBytes(StandardCharsets.UTF_8), headers);
         }
     }
-
 
     /**
      * Add a request to the timeout queue. Server checks for timeouts when it is idle or when
@@ -357,40 +416,7 @@ public class HttpRequestServiceServerHandlerUsingMetaImpl implements HttpRequest
         return outstandingRequestMap.size() < numberOfOutstandingRequests;
     }
 
-
-
-    public static StackTraceElement[] getFilteredStackTrace(StackTraceElement[] stackTrace) {
-
-
-        if (stackTrace == null || stackTrace.length == 0) {
-            return new StackTraceElement[0];
-        }
-        List<StackTraceElement> list = new ArrayList<>();
-        Set<String> seenThisBefore = new HashSet<>();
-
-        for (StackTraceElement st : stackTrace) {
-            if ( startsWithItemInCollection( st.getClassName(), ignorePackages ) ) {
-
-                continue;
-            }
-
-            String key =   Str.sputs(st.getClassName(), st.getFileName(), st.getMethodName(), st.getLineNumber());
-            if (seenThisBefore.contains(key)) {
-                continue;
-            } else {
-                seenThisBefore.add(key);
-            }
-
-            list.add(st);
-        }
-
-        return array(StackTraceElement.class, list);
-
-    }
-
-
-
-    public  String asJson(final Throwable ex) {
+    public String asJson(final Throwable ex) {
         final CharBuf buffer = CharBuf.create(255);
 
         buffer.add('{');
@@ -403,26 +429,23 @@ public class HttpRequestServiceServerHandlerUsingMetaImpl implements HttpRequest
                 .asJsonString(ex.getClass().getSimpleName()).addLine(',');
 
 
-
-
-
         if (devMode) {
 
 
-            if (ex.getCause()!=null) {
+            if (ex.getCause() != null) {
                 buffer.addLine().indent(5).addJsonFieldName("causeMessage")
                         .asJsonString(ex.getCause().getMessage()).addLine(',');
 
 
-                if (ex.getCause().getCause()!=null) {
+                if (ex.getCause().getCause() != null) {
                     buffer.addLine().indent(5).addJsonFieldName("cause2Message")
                             .asJsonString(ex.getCause().getCause().getMessage()).addLine(',');
 
-                    if (ex.getCause().getCause().getCause()!=null) {
+                    if (ex.getCause().getCause().getCause() != null) {
                         buffer.addLine().indent(5).addJsonFieldName("cause3Message")
                                 .asJsonString(ex.getCause().getCause().getCause().getMessage()).addLine(',');
 
-                        if (ex.getCause().getCause().getCause().getCause()!=null) {
+                        if (ex.getCause().getCause().getCause().getCause() != null) {
                             buffer.addLine().indent(5).addJsonFieldName("cause4Message")
                                     .asJsonString(ex.getCause().getCause().getCause().getCause().getMessage()).addLine(',');
 
@@ -456,46 +479,6 @@ public class HttpRequestServiceServerHandlerUsingMetaImpl implements HttpRequest
         return buffer.toString();
 
 
-    }
-
-
-
-    public static void stackTraceToJson(CharBuf buffer, StackTraceElement[] stackTrace) {
-
-        if (stackTrace.length==0) {
-            buffer.addLine("[]");
-            return;
-        }
-
-
-        buffer.multiply(' ', 16).addLine('[');
-
-        for ( int index = 0; index <  stackTrace.length; index++ ) {
-            StackTraceElement element = stackTrace[ index ];
-
-            if (element.getClassName().contains("Exceptions")) {
-                continue;
-            }
-            buffer.indent(17).add("[  ").asJsonString(element.getMethodName())
-                    .add(',');
-
-
-            buffer.indent(3).asJsonString(element.getClassName());
-
-
-            if (element.getLineNumber()>0) {
-                buffer.add(",");
-                buffer.indent(3).asJsonString(""+element.getLineNumber())
-                        .addLine("   ],");
-            } else {
-                buffer.addLine(" ],");
-            }
-
-        }
-        buffer.removeLastChar(); //trailing \n
-        buffer.removeLastChar(); //trailing ,
-
-        buffer.addLine().multiply(' ', 15).add(']');
     }
 
 }

@@ -5,7 +5,7 @@ import org.junit.Before;
 
 import java.util.concurrent.ArrayBlockingQueue;
 
-public class NoBatchQueueTest extends  BasicSendQueueWithTransferQueueTest{
+public class NoBatchQueueTest extends BasicSendQueueWithTransferQueueTest {
 
     @Before
     public void setup() {
@@ -17,7 +17,6 @@ public class NoBatchQueueTest extends  BasicSendQueueWithTransferQueueTest{
 
         sendQueue = queue.sendQueue();
         abq = new ArrayBlockingQueue<>(100_000);
-
 
 
     }

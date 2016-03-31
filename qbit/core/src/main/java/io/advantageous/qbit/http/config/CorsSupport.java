@@ -8,7 +8,7 @@ import java.util.List;
 
 /**
  * Created by cmathias on 8/13/15.
- *
+ * <p>
  * http://grepcode.com/file/repo1.maven.org/maven2/org.apache.tomcat/tomcat-catalina/7.0.42/org/apache/catalina/filters/CorsFilter.java
  * //http://www.html5rocks.com/static/images/cors_server_flowchart.png
  */
@@ -16,14 +16,14 @@ public class CorsSupport {
 
     //TODO: How is QBit handling locale type content?
     /**
-    corsFilter.invalidPreflightMaxAge=Unable to parse preflightMaxAge
-    corsFilter.nullRequest=HttpServletRequest object is null
-    corsFilter.nullRequestType=CORSRequestType object is null
-    corsFilter.onlyHttp=CORS doesn't support non-HTTP request or response
-    corsFilter.wrongType1=Expects a HttpServletRequest object of type [{0}]
-    corsFilter.wrongType2=Expects a HttpServletRequest object of type [{0}] or [{1}]
-    csrfPrevention.invalidRandomClass=Unable to create Random source using class [{0}]
-       **/
+     * corsFilter.invalidPreflightMaxAge=Unable to parse preflightMaxAge
+     * corsFilter.nullRequest=HttpServletRequest object is null
+     * corsFilter.nullRequestType=CORSRequestType object is null
+     * corsFilter.onlyHttp=CORS doesn't support non-HTTP request or response
+     * corsFilter.wrongType1=Expects a HttpServletRequest object of type [{0}]
+     * corsFilter.wrongType2=Expects a HttpServletRequest object of type [{0}] or [{1}]
+     * csrfPrevention.invalidRandomClass=Unable to create Random source using class [{0}]
+     **/
 
     public static final String CORS_INVALID_PREFLIGHT = "Unable to parse preflightMaxAge";
     public static final String CORS_NULL_REQUEST = "Request object is null";

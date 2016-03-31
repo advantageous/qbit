@@ -52,7 +52,6 @@ public class ProtocolParserVersion1Test {
     }
 
 
-
     @Test
     public void testEncodeParseResponse() {
 

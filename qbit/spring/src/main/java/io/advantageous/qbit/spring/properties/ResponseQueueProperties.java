@@ -11,7 +11,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 @ConfigurationProperties("qbit.queue.response")
 public class ResponseQueueProperties {
     private int batchSize = Sys.sysProp(ResponseQueueProperties.class.getName() + ".batchSize", 1_000);
-    private int batchCount =  Sys.sysProp(ResponseQueueProperties.class.getName() + ".batchCount", 100_000);
+    private int batchCount = Sys.sysProp(ResponseQueueProperties.class.getName() + ".batchCount", 100_000);
     private int pollWait = Sys.sysProp(ResponseQueueProperties.class.getName() + ".pollWait", 15);
 
     public int getBatchSize() {
