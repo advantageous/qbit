@@ -87,6 +87,7 @@ public class VertxEventBusBridge {
 
         try {
 
+            logger.debug(message.body());
             final String json = message.body();
 
             final Map<String, Object> map = jsonParserAndMapper.parseMap(json);

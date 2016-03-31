@@ -24,8 +24,7 @@ public class EmployeeService {
     }
 
     @Bridge("/employee/")
-    public void getEmployee(final Callback<Employee> callback,
-            @RequestParam("id") final String id) {
+    public void getEmployee(final Callback<Employee> callback, final String id) {
         callback.returnThis(new Employee(id, "Bob", "Jingles", 1962, 999999999));
     }
 
