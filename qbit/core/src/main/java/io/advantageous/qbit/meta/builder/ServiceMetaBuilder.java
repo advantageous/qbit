@@ -121,8 +121,15 @@ public class ServiceMetaBuilder {
         for (String servicePath : this.getRequestPaths()) {
 
 
+            final AnnotationData requestMapping = getAnnotationData(methodAccess);
+
             final List<String> requestPaths
                     = getRequestPathsByAnnotated(methodAccess, methodAccess.name().toLowerCase());
+
+
+            if (requestMapping.getName().equals("bridge")) {
+                requestPaths.add("/" + methodAccess.name().toLowerCase());
+            }
 
             final String description = getDescriptionFromRequestMapping(methodAccess);
 

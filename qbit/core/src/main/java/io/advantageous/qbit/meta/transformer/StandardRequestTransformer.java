@@ -360,7 +360,8 @@ public class StandardRequestTransformer implements RequestTransformer {
 
     @Override
     public MethodCall<Object> transFormBridgeBody(Object body, List<String> errors, String address, String method) {
-        final HttpRequest request = HttpRequestBuilder.httpRequestBuilder().setUri("/" + address + "/" + method).setBody(body.toString()).setMethod("BRIDGE").build();
+        final String uri = ("/" + address + "/" + method).replace("//", "/");
+        final HttpRequest request = HttpRequestBuilder.httpRequestBuilder().setUri(uri).setBody(body.toString()).setMethod("BRIDGE").build();
         return this.transformByPosition(request, errors, true);
     }
 

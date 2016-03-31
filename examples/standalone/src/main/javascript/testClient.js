@@ -54,6 +54,81 @@ connect('http://localhost:8080/eventbus/').then((eventBus) => {
   console.log(error)
 });
 
+
+
+connect('http://localhost:8080/eventbus/').then((eventBus) => {
+  console.log("HERE.....")
+  eventBus.send("/es/1.0", JSON.stringify(
+    {
+      "method": "list",
+      "args": [
+        [{
+        "id": "5",
+        "firstName": "Bob",
+        "lastName": "Jingles",
+        "birthYear": 1962,
+        "socialSecurityNumber": 999999999
+      },
+          {
+            "id": "rick",
+            "firstName": "Bob",
+            "lastName": "Jingles",
+            "birthYear": 1962,
+            "socialSecurityNumber": 999999999
+          }
+        ]]
+    }), (error, result)=> {
+
+    console.log("Vertx error result", error, result);
+
+    /* Did vertx event bus return an error. */
+    if (error) {
+      console.log("error message from vertx or socketJS ", error);
+    } else if (result.failureCode){
+      console.log("error from app  ", result);
+    }else{
+      /*If successful show response from QBit. */
+      console.log("Success ", JSON.parse(result.body))
+    }
+  });
+}).catch((error) => {
+  console.log(error)
+});
+
+
+connect('http://localhost:8080/eventbus/').then((eventBus) => {
+  console.log("HERE.....")
+  eventBus.send("/es/1.0", JSON.stringify(
+    {
+      "method": "twoArg",
+      "args": [
+
+          {
+            "id": "rick",
+            "firstName": "Bob",
+            "lastName": "Jingles",
+            "birthYear": 1962,
+            "socialSecurityNumber": 999999999
+          }, true
+        ]
+    }), (error, result)=> {
+
+    console.log("Vertx error result", error, result);
+
+    /* Did vertx event bus return an error. */
+    if (error) {
+      console.log("error message from vertx or socketJS ", error);
+    } else if (result.failureCode){
+      console.log("error from app  ", result);
+    }else{
+      /*If successful show response from QBit. */
+      console.log("Success ", JSON.parse(result.body))
+    }
+  });
+}).catch((error) => {
+  console.log(error)
+});
+
 setInterval(function () {
   console.log('Waiting...');
 }, 3000);

@@ -134,7 +134,7 @@ public class ContextMetaBuilder {
 
     }
 
-    private static AnnotationData getAnnotationData(Annotated annotated) {
+    public static AnnotationData getAnnotationData(Annotated annotated) {
         AnnotationData requestMapping = annotated.annotation("RequestMapping");
 
         if (requestMapping == null) {
