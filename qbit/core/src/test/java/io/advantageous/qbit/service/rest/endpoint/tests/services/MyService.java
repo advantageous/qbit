@@ -8,7 +8,7 @@ public class MyService {
 
 
     @RequestMapping("/ping")
-    public boolean ping(){
+    public boolean ping() {
         return true;
     }
 }

@@ -73,7 +73,6 @@ public class EventManagerBuilderTest {
     }
 
 
-
     @After
     public void teardown() {
 
@@ -173,7 +172,6 @@ public class EventManagerBuilderTest {
                     return createEventManagerConnectorShortCut(name, eventConnector);
                 }
             }
-
 
 
             public EventManager createEventManagerWithConnector(String name, EventConnector eventConnector) {

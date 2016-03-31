@@ -11,6 +11,7 @@ public class CountDownAsyncLatch {
 
     private final Runnable allDone;
     private final AtomicInteger count = new AtomicInteger();
+
     public CountDownAsyncLatch(final int count, final Runnable allDone) {
 
         this.count.set(count);

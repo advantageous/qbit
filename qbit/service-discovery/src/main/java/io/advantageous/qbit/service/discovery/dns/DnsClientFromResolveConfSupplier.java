@@ -14,10 +14,8 @@ import java.util.List;
  * If a host/port combo from /etc/resolv.conf fails, it uses the next one in the list.
  * If that one fails, it throws an exception.
  * Every try that fails will try the current DNS URI and the next one if the first fails.
- *
  */
-public class DnsClientFromResolveConfSupplier implements DnsClientSupplier  {
-
+public class DnsClientFromResolveConfSupplier implements DnsClientSupplier {
 
 
     private final Logger logger = LoggerFactory.getLogger(DnsClientFromResolveConfSupplier.class);
@@ -43,6 +41,7 @@ public class DnsClientFromResolveConfSupplier implements DnsClientSupplier  {
 
     /**
      * Create DnsClientFromResolveConfSupplier
+     *
      * @param vertx vertx
      */
     public DnsClientFromResolveConfSupplier(final Vertx vertx) {
@@ -56,6 +55,7 @@ public class DnsClientFromResolveConfSupplier implements DnsClientSupplier  {
 
     /**
      * Get a DNS client.
+     *
      * @return dns client.
      */
     @Override

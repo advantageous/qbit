@@ -48,15 +48,6 @@ public class MethodCallBuilder {
     private Object[] bodyArgs;
     private Callback<Object> callback;
 
-    public boolean isLocal() {
-        return local;
-    }
-
-    public MethodCallBuilder setLocal(boolean local) {
-        this.local = local;
-        return this;
-    }
-
     public static MethodCallBuilder methodCallBuilder() {
         return new MethodCallBuilder();
     }
@@ -107,6 +98,14 @@ public class MethodCallBuilder {
         return new MethodCallBuilder().setName(name).setBody(body).setAddress(address).build();
     }
 
+    public boolean isLocal() {
+        return local;
+    }
+
+    public MethodCallBuilder setLocal(boolean local) {
+        this.local = local;
+        return this;
+    }
 
     public long getTimestamp() {
         return timestamp;

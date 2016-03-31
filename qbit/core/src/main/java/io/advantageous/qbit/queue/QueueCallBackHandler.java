@@ -61,8 +61,6 @@ public interface QueueCallBackHandler {
     }
 
 
-
-
     /**
      * Callback for when the queue is idle.
      */

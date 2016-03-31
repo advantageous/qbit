@@ -9,15 +9,15 @@ import java.util.Optional;
 import java.util.function.Supplier;
 
 public class KafkaService {
-    
+
 
     private final Supplier<KafkaProducer<String, String>> kafkaProducerSupplier;
     private final Supplier<ConsumerConnector> consumerConnectorSupplier;
     private final Supplier<Callback> callbackSupplier;
     private final String defaultTopic;
 
-    private  Optional<KafkaProducer<String, String>> kafkaProducer = Optional.empty();
-    private  Optional<ConsumerConnector> consumerConnector = Optional.empty();
+    private Optional<KafkaProducer<String, String>> kafkaProducer = Optional.empty();
+    private Optional<ConsumerConnector> consumerConnector = Optional.empty();
 
 
     public KafkaService(final String defaultTopic,

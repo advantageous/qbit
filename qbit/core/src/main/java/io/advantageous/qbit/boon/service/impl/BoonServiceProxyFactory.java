@@ -48,14 +48,13 @@ import static io.advantageous.boon.core.Str.sputs;
  */
 public class BoonServiceProxyFactory implements ServiceProxyFactory {
 
-    private static AtomicLong  generatedMessageId = new AtomicLong();
+    private static AtomicLong generatedMessageId = new AtomicLong();
     private final Factory factory;
 
     /**
      * Holds on to Boon cache so we don't have to recreate reflected gak.
      */
     Object context = Sys.contextToHold();
-
 
 
     public BoonServiceProxyFactory(Factory factory) {

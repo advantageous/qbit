@@ -133,7 +133,7 @@ public class JsonQueueTest {
         personSendQueue.flushSends();
 
         Sys.sleep(100);
-        final List<Person> personsBatch = (List<Person>)personReceiveQueue.readBatch();
+        final List<Person> personsBatch = (List<Person>) personReceiveQueue.readBatch();
 
         final Person geoff = personsBatch.get(0);
         final Person rick = personsBatch.get(1);
@@ -155,7 +155,7 @@ public class JsonQueueTest {
         personSendQueue.flushSends();
 
         Sys.sleep(100);
-        final List<Person> personsBatch = (List<Person>)personReceiveQueue.readBatch(5);
+        final List<Person> personsBatch = (List<Person>) personReceiveQueue.readBatch(5);
 
         final Person geoff = personsBatch.get(0);
         final Person rick = personsBatch.get(1);
@@ -180,7 +180,7 @@ public class JsonQueueTest {
 
         personQueue.startListener(item -> personsABQ.add(item));
 
-        while (personsABQ.size()!=2) {
+        while (personsABQ.size() != 2) {
             Sys.sleep(1);
         }
 
@@ -193,13 +193,11 @@ public class JsonQueueTest {
     }
 
 
-
     @After
     public void tearDown() throws Exception {
 
         personQueue.stop();
     }
-
 
 
     private static class Person {

@@ -69,7 +69,8 @@ public class BoonClientIntegrationTest extends TimedTesting {
         setupLatch();
         sum = new AtomicInteger();
 
-        client = new BoonClientFactory().create("/services", new HttpClientMock(), 10, new BeforeMethodSent() {});
+        client = new BoonClientFactory().create("/services", new HttpClientMock(), 10, new BeforeMethodSent() {
+        });
 
         client.start();
         serviceBundle = new ServiceBundleBuilder().setAddress("/services").buildAndStart();

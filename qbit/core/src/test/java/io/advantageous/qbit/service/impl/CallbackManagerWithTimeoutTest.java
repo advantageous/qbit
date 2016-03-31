@@ -21,14 +21,12 @@ import static org.junit.Assert.assertTrue;
 
 public class CallbackManagerWithTimeoutTest {
 
+    private static CountDownLatch continueMethod;
     private CallbackManagerWithTimeout callbackManagerWithTimeout;
     private CallbackManager callbackManager;
     private TestTimer testTimer;
     private MethodCallBuilder methodCallBuilder;
     private CallbackBuilder callbackBuilder;
-
-    private static CountDownLatch continueMethod;
-
     private AtomicReference<Object> result;
 
 
@@ -73,10 +71,7 @@ public class CallbackManagerWithTimeoutTest {
         assertEquals(0, callbackManagerWithTimeout.outstandingCallbacksCount());
 
 
-
-
     }
-
 
 
     @Test
@@ -103,7 +98,6 @@ public class CallbackManagerWithTimeoutTest {
         testTimer.minutes(5);
         callbackManagerWithTimeout.process(0);
         assertEquals(0, callbackManagerWithTimeout.outstandingCallbacksCount());
-
 
 
     }
@@ -144,19 +138,6 @@ public class CallbackManagerWithTimeoutTest {
         assertEquals(0, callbackManagerWithTimeout.outstandingCallbacksCount());
 
 
-
-    }
-
-    public static class MyService {
-
-        public String method1() throws Exception{
-            continueMethod.await();
-            return "METHOD 1 RETURN";
-        }
-    }
-
-    public interface IMyService {
-        void method1(Callback<String> callback);
     }
 
     @Test
@@ -189,7 +170,6 @@ public class CallbackManagerWithTimeoutTest {
         assertEquals("METHOD 1 RETURN", result.get());
 
     }
-
 
     @Test
     public void testWithServiceBundle() throws Exception {
@@ -225,7 +205,6 @@ public class CallbackManagerWithTimeoutTest {
         assertEquals("METHOD 1 RETURN", result.get());
 
     }
-
 
     @Test
     public void testWithServiceBundleManyMethods() throws Exception {
@@ -263,5 +242,18 @@ public class CallbackManagerWithTimeoutTest {
 
         assertEquals("METHOD 1 RETURN", result.get());
 
+    }
+
+
+    public interface IMyService {
+        void method1(Callback<String> callback);
+    }
+
+    public static class MyService {
+
+        public String method1() throws Exception {
+            continueMethod.await();
+            return "METHOD 1 RETURN";
+        }
     }
 }

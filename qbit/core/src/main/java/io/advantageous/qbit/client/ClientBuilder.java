@@ -45,34 +45,10 @@ public class ClientBuilder {
     private String uri;
     private HttpClientBuilder httpClientBuilder;
     private ServiceDiscovery serviceDiscovery;
-    private  Factory factory;
+    private Factory factory;
     private String serviceName;
 
     private BeforeMethodSent beforeMethodSent;
-
-    public Factory getFactory() {
-        if (factory == null) {
-            factory = QBit.factory();
-        }
-        return factory;
-    }
-
-    public BeforeMethodSent getBeforeMethodSent() {
-        if (beforeMethodSent==null) {
-            beforeMethodSent = new BeforeMethodSent() {};
-        }
-        return beforeMethodSent;
-    }
-
-    public ClientBuilder setBeforeMethodSent(BeforeMethodSent beforeMethodSent) {
-        this.beforeMethodSent = beforeMethodSent;
-        return this;
-    }
-
-    public ClientBuilder setFactory(Factory factory) {
-        this.factory = factory;
-        return this;
-    }
 
     public ClientBuilder(PropertyResolver propertyResolver) {
 
@@ -91,11 +67,9 @@ public class ClientBuilder {
 
     }
 
-
     public ClientBuilder() {
         this(PropertyResolver.createSystemPropertyResolver(QBIT_CLIENT_BUILDER));
     }
-
 
     public ClientBuilder(final Properties properties) {
         this(PropertyResolver.createPropertiesPropertyResolver(
@@ -104,6 +78,31 @@ public class ClientBuilder {
 
     public static ClientBuilder clientBuilder() {
         return new ClientBuilder();
+    }
+
+    public Factory getFactory() {
+        if (factory == null) {
+            factory = QBit.factory();
+        }
+        return factory;
+    }
+
+    public ClientBuilder setFactory(Factory factory) {
+        this.factory = factory;
+        return this;
+    }
+
+    public BeforeMethodSent getBeforeMethodSent() {
+        if (beforeMethodSent == null) {
+            beforeMethodSent = new BeforeMethodSent() {
+            };
+        }
+        return beforeMethodSent;
+    }
+
+    public ClientBuilder setBeforeMethodSent(BeforeMethodSent beforeMethodSent) {
+        this.beforeMethodSent = beforeMethodSent;
+        return this;
     }
 
     public int getTimeOutInMilliseconds() {
@@ -165,7 +164,7 @@ public class ClientBuilder {
 
     public ClientBuilder setTimeoutSeconds(int timeoutSeconds) {
 
-        getHttpClientBuilder().setTimeOutInMilliseconds(timeoutSeconds*1000);
+        getHttpClientBuilder().setTimeOutInMilliseconds(timeoutSeconds * 1000);
         return this;
     }
 
@@ -219,7 +218,6 @@ public class ClientBuilder {
     }
 
 
-
     public int getFlushInterval() {
         return getHttpClientBuilder().getFlushInterval();
     }
@@ -242,7 +240,7 @@ public class ClientBuilder {
 
     public HttpClientBuilder getHttpClientBuilder() {
         if (httpClientBuilder == null) {
-            httpClientBuilder =  HttpClientBuilder.httpClientBuilder();
+            httpClientBuilder = HttpClientBuilder.httpClientBuilder();
         }
         return httpClientBuilder;
     }
@@ -261,14 +259,13 @@ public class ClientBuilder {
         return serviceDiscovery;
     }
 
+    public String getServiceName() {
+        return serviceName;
+    }
 
     public ClientBuilder setServiceName(String serviceName) {
         this.serviceName = serviceName;
         return this;
-    }
-
-    public String getServiceName() {
-        return serviceName;
     }
 
     public Client build() {
@@ -282,13 +279,13 @@ public class ClientBuilder {
 
         final ServiceDiscovery serviceDiscovery = getServiceDiscovery();
 
-        if (serviceDiscovery!=null && getServiceName()!=null) {
+        if (serviceDiscovery != null && getServiceName() != null) {
             List<EndpointDefinition> endpointDefinitions = serviceDiscovery.loadServices(getServiceName());
-            if (endpointDefinitions==null || endpointDefinitions.size()==0) {
+            if (endpointDefinitions == null || endpointDefinitions.size() == 0) {
                 endpointDefinitions = serviceDiscovery.loadServicesNow(getServiceName());
             }
 
-            if (endpointDefinitions!=null && endpointDefinitions.size()>0) {
+            if (endpointDefinitions != null && endpointDefinitions.size() > 0) {
 
                 endpointDefinitions = new ArrayList<>(endpointDefinitions);
                 Collections.shuffle(endpointDefinitions);
@@ -301,7 +298,7 @@ public class ClientBuilder {
 
         //noinspection UnnecessaryLocalVariable
         @SuppressWarnings("UnnecessaryLocalVariable")
-        Client client = getFactory().createClient(getUri(), httpClientBuilder.build(), getProtocolBatchSize(),getBeforeMethodSent());
+        Client client = getFactory().createClient(getUri(), httpClientBuilder.build(), getProtocolBatchSize(), getBeforeMethodSent());
         return client;
 
     }

@@ -62,7 +62,6 @@ public class JsonMapQueueTest {
     }
 
 
-
     private static class Person {
         final String name;
 

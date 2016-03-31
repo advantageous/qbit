@@ -41,7 +41,9 @@ public interface AsyncFutureCallback<T> extends Runnable, Callback<T>, Future<T>
         return !(startTime() == -1 || timeOutDuration() == -1) && (now - startTime()) > timeOutDuration();
     }
 
-    /** Timeout duration in milliseconds. */
+    /**
+     * Timeout duration in milliseconds.
+     */
     default long timeOutDuration() {
         return -1;
     }

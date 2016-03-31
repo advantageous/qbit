@@ -36,10 +36,9 @@ import java.util.*;
 import java.util.function.Consumer;
 
 /**
- *
  * JsonMapper is the primary interface to provide JSON serialization and deserialization for QBit.
  * The default implementation of the JsonMapper is BoonJsonMapper.
- *
+ * <p>
  * BoonJsonMapper is thread safe.
  * created by gcc on 10/15/14.
  *
@@ -96,6 +95,7 @@ public class BoonJsonMapper implements JsonMapper {
 
     /**
      * Convert a JSON string into one Java Object.
+     *
      * @param json json
      * @return Java object
      */
@@ -107,9 +107,10 @@ public class BoonJsonMapper implements JsonMapper {
 
     /**
      * Convert from json string using Class as a suggestion for how to do the parse.
+     *
      * @param json json
-     * @param cls cls
-     * @param <T> Type
+     * @param cls  cls
+     * @param <T>  Type
      * @return Java object of Type T
      */
     @Override
@@ -120,9 +121,10 @@ public class BoonJsonMapper implements JsonMapper {
 
     /**
      * Converts from a json string using componentClass as a guide to a List.
-     * @param json json
+     *
+     * @param json           json
      * @param componentClass componentClass
-     * @param <T> Type
+     * @param <T>            Type
      * @return List of Java objects of Type T.
      */
     @Override
@@ -133,6 +135,7 @@ public class BoonJsonMapper implements JsonMapper {
 
     /**
      * Converts from Object into JSON string.
+     *
      * @param object object to convert to JSON.
      * @return json string
      */
@@ -145,18 +148,18 @@ public class BoonJsonMapper implements JsonMapper {
     /**
      * Converts from a json string using componentClassKey and componentClassValue as a guide to a Map.
      *
-     * @param json json string
-     * @param componentClassKey componentClassKey type of Key
+     * @param json                json string
+     * @param componentClassKey   componentClassKey type of Key
      * @param componentClassValue componentClassValue type of value
-     * @param <K> K type of map key
-     * @param <V> V type of map value
+     * @param <K>                 K type of map key
+     * @param <V>                 V type of map value
      * @return Map
      */
     @Override
     public <K, V> Map<K, V> fromJsonMap(String json, Class<K> componentClassKey, Class<V> componentClassValue) {
-            Map map = (Map) parser.get().parse(json);
-            final Mapper mapper = this.mapper.get();
-            return extractMap(componentClassKey, componentClassValue, map, mapper);
+        Map map = (Map) parser.get().parse(json);
+        final Mapper mapper = this.mapper.get();
+        return extractMap(componentClassKey, componentClassValue, map, mapper);
     }
 
     private <K, V> Map<K, V> extractMap(Class<K> componentClassKey, Class<V> componentClassValue, Map<Object, Object> map, Mapper mapper) {
@@ -166,9 +169,9 @@ public class BoonJsonMapper implements JsonMapper {
         map.entrySet().forEach(entry -> {
 
             /** value. */
-            final Object value = entry.getValue() instanceof ValueContainer ? ((ValueContainer) entry.getValue()).toValue(): entry.getValue();
+            final Object value = entry.getValue() instanceof ValueContainer ? ((ValueContainer) entry.getValue()).toValue() : entry.getValue();
             /** key */
-            final Object key = entry.getKey() instanceof ValueContainer ? ((ValueContainer) entry.getKey()).toValue(): entry.getKey();
+            final Object key = entry.getKey() instanceof ValueContainer ? ((ValueContainer) entry.getKey()).toValue() : entry.getKey();
             /** Converted key. */
             final K convertedKey;
             /** Converted value. */
@@ -177,10 +180,10 @@ public class BoonJsonMapper implements JsonMapper {
             /** If the key is a map then convert it into the type with the mapper. */
             if (key instanceof Map) {
                 convertedKey = mapper.fromMap(((Map<String, Object>) key), componentClassKey);
-            }else {
+            } else {
 
                 /** If the key is not a map then convert it into the type with Conversions. */
-               convertedKey = Conversions.coerce(componentClassKey, key);
+                convertedKey = Conversions.coerce(componentClassKey, key);
             }
 
             if (value instanceof Map) {
@@ -188,7 +191,7 @@ public class BoonJsonMapper implements JsonMapper {
                 /** If the value is a map use the mapper to convert to an object unless the
                  * componentClassValue is Object then just convert to a map of basic types.
                  */
-                if (! (componentClassValue == Object.class) ) {
+                if (!(componentClassValue == Object.class)) {
                     convertedValue = mapper.fromMap(((Map<String, Object>) value), componentClassValue);
                 } else {
                     /**
@@ -213,7 +216,7 @@ public class BoonJsonMapper implements JsonMapper {
                 } else {
                     /** Unless componentClassValue is Object then we want to pull out the values. */
                     if (value instanceof Value) {
-                        convertedValue =  (V)((Value) value).toValue();
+                        convertedValue = (V) ((Value) value).toValue();
                     } else {
                         convertedValue = (V) value;
                     }
@@ -231,8 +234,8 @@ public class BoonJsonMapper implements JsonMapper {
 
         final List list = (List) value;
         final Object convertedValue;
-        if (list.size()==0) {
-            convertedValue =  list;
+        if (list.size() == 0) {
+            convertedValue = list;
         } else {
             final List convertedList = new ArrayList(list.size());
 
@@ -262,9 +265,9 @@ public class BoonJsonMapper implements JsonMapper {
                 } else {
                     /** Unless componentClassValue is Object then we want to pull out the values. */
                     if (itemValue instanceof Value) {
-                        newItemValue =  ((Value) itemValue).toValue();
+                        newItemValue = ((Value) itemValue).toValue();
                     } else {
-                        newItemValue =  itemValue;
+                        newItemValue = itemValue;
                     }
                 }
                 convertedList.add(newItemValue);
@@ -277,8 +280,9 @@ public class BoonJsonMapper implements JsonMapper {
     /**
      * Helper method.
      * Converts a value map into a regular map of Java basic types.
+     *
      * @param valueMap valueMap
-     * @param <V> V
+     * @param <V>      V
      * @return regular map
      */
     private <V> V convertToMap(ValueMap valueMap) {

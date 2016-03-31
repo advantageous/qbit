@@ -45,12 +45,12 @@ public class DnsUtil {
                         final String[] split = Str.split(uriToParse, ':');
                         try {
 
-                            if (split.length==1) {
+                            if (split.length == 1) {
                                 return new URI("dns", "", split[0], 53, "", "", "");
-                            } else if (split.length >= 2){
+                            } else if (split.length >= 2) {
                                 return new URI("dns", "", split[0], Integer.parseInt(split[1]), "", "", "");
                             } else {
-                               throw new IllegalStateException("Unable to parse URI from /etc/resolv.conf") ;
+                                throw new IllegalStateException("Unable to parse URI from /etc/resolv.conf");
                             }
                         } catch (URISyntaxException e) {
                             throw new IllegalStateException("failed to convert to URI");
@@ -64,7 +64,9 @@ public class DnsUtil {
 
     }
 
-    /** Create service discovery that can talk DNS. */
+    /**
+     * Create service discovery that can talk DNS.
+     */
     public static ServiceDiscovery createDnsServiceDiscovery() {
 
 
@@ -76,7 +78,7 @@ public class DnsUtil {
 
         final DnsServiceDiscoveryProviderBuilder dnsServiceDiscoveryProviderBuilder =
                 DnsServiceDiscoveryProviderBuilder.dnsServiceDiscoveryProviderBuilder()
-                .setDnsSupport(dnsSupportBuilder.build());
+                        .setDnsSupport(dnsSupportBuilder.build());
 
 
         return serviceDiscoveryBuilder

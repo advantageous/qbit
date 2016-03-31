@@ -15,26 +15,12 @@ import static org.junit.Assert.assertNotNull;
 public class BoonJsonMapperTest {
 
 
-    public class Genre {
-        private String name;
-    }
-
-    public class Category {
-        private String name;
-        private Genre genre;
-    }
-    public class Todo {
-        private String name;
-        private Category category;
-    }
-
-
     @Test
     public void test() throws Exception {
         Todo todo = new Todo();
-        todo.name ="todo";
+        todo.name = "todo";
         Category category = new Category();
-        category.name ="category";
+        category.name = "category";
         Genre genre = new Genre();
         genre.name = "genre";
         category.genre = genre;
@@ -56,7 +42,6 @@ public class BoonJsonMapperTest {
 
     }
 
-
     @Test
     public void badSerializer() throws Exception {
 
@@ -73,10 +58,23 @@ public class BoonJsonMapperTest {
         puts(json);
 
 
-
         assertNotNull(json);
 
         assertEquals("[1,2,null,3]", json);
+    }
+
+    public class Genre {
+        private String name;
+    }
+
+    public class Category {
+        private String name;
+        private Genre genre;
+    }
+
+    public class Todo {
+        private String name;
+        private Category category;
     }
 
 

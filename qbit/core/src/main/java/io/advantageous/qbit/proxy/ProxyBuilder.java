@@ -18,13 +18,19 @@ import java.util.function.Predicate;
  */
 public class ProxyBuilder {
 
-    /** Reactor used to manage the periodic jobs. */
+    /**
+     * Reactor used to manage the periodic jobs.
+     */
     private Reactor reactor;
 
-    /** Timer used to get the current time in a cost effective manner. */
+    /**
+     * Timer used to get the current time in a cost effective manner.
+     */
     private Timer timer;
 
-    /** HttpClientBuilder used to construct httpClients to talk to backend services. */
+    /**
+     * HttpClientBuilder used to construct httpClients to talk to backend services.
+     */
     private HttpClientBuilder httpClientBuilder;
 
     /**
@@ -46,7 +52,6 @@ public class ProxyBuilder {
 
     /**
      * How often we should check to see if the backend connection is healthy.
-     *
      */
     private Duration checkClientDuration = Duration.MINUTES.units(10);
 
@@ -72,9 +77,13 @@ public class ProxyBuilder {
      */
     private ServiceBuilder serviceBuilder;
 
+    public static ProxyBuilder proxyBuilder() {
+        return new ProxyBuilder();
+    }
+
     public ServiceBuilder getServiceBuilder() {
 
-        if (serviceBuilder==null) {
+        if (serviceBuilder == null) {
             serviceBuilder = ServiceBuilder.serviceBuilder();
             return serviceBuilder;
         }
@@ -107,7 +116,7 @@ public class ProxyBuilder {
     }
 
     public HttpClientBuilder getHttpClientBuilder() {
-        if (httpClientBuilder==null) {
+        if (httpClientBuilder == null) {
             httpClientBuilder = HttpClientBuilder.httpClientBuilder().setPipeline(false)
                     .setKeepAlive(false).setPoolSize(100);
         }
@@ -120,7 +129,7 @@ public class ProxyBuilder {
     }
 
     public Consumer<HttpRequestBuilder> getBeforeSend() {
-        if (beforeSend==null) {
+        if (beforeSend == null) {
             beforeSend = httpRequestBuilder -> {
 
             };
@@ -134,7 +143,7 @@ public class ProxyBuilder {
     }
 
     public Consumer<Exception> getErrorHandler() {
-        if (errorHandler==null) {
+        if (errorHandler == null) {
             errorHandler = e -> {
             };
         }
@@ -147,7 +156,7 @@ public class ProxyBuilder {
     }
 
     public Predicate<HttpRequest> getHttpClientRequestPredicate() {
-        if (httpClientRequestPredicate==null) {
+        if (httpClientRequestPredicate == null) {
             httpClientRequestPredicate = request -> true;
         }
         return httpClientRequestPredicate;
@@ -196,25 +205,23 @@ public class ProxyBuilder {
 
     /**
      * Build the impl.
+     *
      * @return returns an instance of the impl.
      */
     public ProxyService build() {
         return new ProxyServiceImpl(getReactor(), getTimer(), getHttpClientBuilder(), getBeforeSend(),
                 getErrorHandler(), getHttpClientRequestPredicate(), getCheckClientDuration(),
-                pingBuilder==null? Optional.<HttpRequestBuilder>empty() : Optional.of(pingBuilder),
+                pingBuilder == null ? Optional.<HttpRequestBuilder>empty() : Optional.of(pingBuilder),
                 isTrackTimeOuts(), getTimeOutInterval());
     }
 
     /**
      * Builds a proxy queue service to the impl.
+     *
      * @return proxy queue service interface to impl.
      */
     public ProxyService buildProxy() {
         return getServiceBuilder().setServiceObject(build()).buildAndStart().createProxyWithAutoFlush(ProxyService.class,
                 Duration.HUNDRED_MILLIS);
-    }
-
-    public static ProxyBuilder proxyBuilder() {
-        return new ProxyBuilder();
     }
 }

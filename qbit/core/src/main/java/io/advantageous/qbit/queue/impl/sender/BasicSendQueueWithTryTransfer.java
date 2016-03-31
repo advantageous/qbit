@@ -54,7 +54,6 @@ public class BasicSendQueueWithTryTransfer<T> extends AbstractBasicSendQueue<T> 
     }
 
 
-
     public final boolean shouldBatch() {
         return !queue.hasWaitingConsumer();
     }

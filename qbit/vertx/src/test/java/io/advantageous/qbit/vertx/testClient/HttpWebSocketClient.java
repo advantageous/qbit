@@ -39,7 +39,7 @@ public class HttpWebSocketClient {
         final WebSocket webSocket = httpClient.createWebSocket("/hello");
 
         webSocket.setTextMessageConsumer(message ->
-                        puts("\n\n\n", message, "\n\n")
+                puts("\n\n\n", message, "\n\n")
         );
 
         webSocket.openAndWait();

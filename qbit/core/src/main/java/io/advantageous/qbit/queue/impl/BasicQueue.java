@@ -50,12 +50,12 @@ public class BasicQueue<T> implements Queue<T> {
     private final Logger logger = LoggerFactory.getLogger(BasicQueue.class);
     private final boolean debug = logger.isDebugEnabled();
     private final int limit;
-    private ReceiveQueueManager<T> receiveQueueManager;
     private final String name;
     private final int pollTimeWait;
     private final TimeUnit pollTimeTimeUnit;
     private final AtomicBoolean stop = new AtomicBoolean(true);
     private final Supplier<SendQueue<T>> sendQueueSupplier;
+    private ReceiveQueueManager<T> receiveQueueManager;
 
 
     public BasicQueue(final String name,
@@ -100,7 +100,7 @@ public class BasicQueue<T> implements Queue<T> {
         }
 
 
-        if (this.batchSize==1) {
+        if (this.batchSize == 1) {
 
             if (queue instanceof LinkedTransferQueue) {
                 sendQueueSupplier = () -> new NoBatchSendQueue<>((LinkedTransferQueue<Object>) queue, this, name);
@@ -173,7 +173,7 @@ public class BasicQueue<T> implements Queue<T> {
             receiveQueueManager.stop();
         }
 
-        if (queue!=null) {
+        if (queue != null) {
             queue.clear();
         }
     }

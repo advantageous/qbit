@@ -22,8 +22,9 @@ import io.advantageous.qbit.message.Event;
 
 /**
  * EventListener listens to events.
+ *
  * @author rick
- * created by rhightower on 2/3/15.
+ *         created by rhightower on 2/3/15.
  */
 @SuppressWarnings("SameReturnValue")
 public interface EventListener<T> {

@@ -47,5 +47,7 @@ public interface Request<T> extends Message<T> {
 
     void handled();
 
-    default boolean hasCallback() {return false;}
+    default boolean hasCallback() {
+        return false;
+    }
 }

@@ -2,7 +2,6 @@ package io.advantageous.qbit.vertx;
 
 import io.advantageous.qbit.http.client.HttpClient;
 import io.advantageous.qbit.http.client.HttpClientBuilder;
-import io.advantageous.qbit.http.request.HttpRequest;
 import io.advantageous.qbit.http.request.HttpTextResponse;
 import io.advantageous.qbit.http.server.HttpServer;
 import io.advantageous.qbit.util.PortUtils;
@@ -17,7 +16,6 @@ import org.junit.Test;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
-import java.util.function.Predicate;
 
 import static org.junit.Assert.assertEquals;
 
@@ -27,69 +25,8 @@ public class VertxIntegrationSimpleHttpTest {
     private TestVerticle testVerticle;
     private int port;
 
-
-    public static class TestVerticle extends AbstractVerticle {
-
-        private final int port;
-        private final CountDownLatch latch;
-
-        public TestVerticle(int port, CountDownLatch latch) {
-
-            this.port = port;
-            this.latch = latch;
-        }
-
-        public void start() {
-
-            try {
-
-                HttpServerOptions options = new HttpServerOptions().setMaxWebsocketFrameSize(1000000);
-                options.setPort(port);
-
-
-                io.vertx.core.http.HttpServer vertxHttpServer =
-                        this.getVertx().createHttpServer(options);
-
-                VertxHttpServerBuilder vertxHttpServerBuilder = VertxHttpServerBuilder.vertxHttpServerBuilder();
-
-                vertxHttpServerBuilder.addRequestBodyContinuePredicate(httpRequest -> {
-                    if (httpRequest.getContentLength()>1_000) {
-                        httpRequest.getReceiver().respond(500, "\"TOO BIG\"");
-                        return false;
-                    }
-                    return true;
-                });
-
-                HttpServer httpServer = vertxHttpServerBuilder
-                        .setVertx(getVertx()).setHttpServer(vertxHttpServer).build();
-
-
-                httpServer.setHttpRequestConsumer(httpRequest -> {
-
-                    System.out.println(httpRequest.address());
-
-                    httpRequest.getReceiver().response(200, httpRequest.getContentType(), httpRequest.body());
-                });
-
-                httpServer.start();
-
-                vertxHttpServer.listen(event -> {
-                    if (event.succeeded()) {
-                        latch.countDown();
-                    }
-                });
-            }catch (Exception ex) {
-                ex.printStackTrace();
-            }
-        }
-
-        public void stop() {
-        }
-
-    }
-
     @Before
-    public void setup() throws Exception{
+    public void setup() throws Exception {
 
 
         final CountDownLatch latch = new CountDownLatch(2);
@@ -130,13 +67,11 @@ public class VertxIntegrationSimpleHttpTest {
         final HttpClient client = HttpClientBuilder.httpClientBuilder().setHost("localhost").setPort(port).buildAndStart();
 
 
-        final HttpTextResponse response = client.postJson("/hello/world", "\""+builder.toString()+"\"");
+        final HttpTextResponse response = client.postJson("/hello/world", "\"" + builder.toString() + "\"");
         assertEquals(500, response.code());
         assertEquals("\"TOO BIG\"", response.body());
 
     }
-
-
 
     @After
     public void tearDown() throws Exception {
@@ -155,6 +90,66 @@ public class VertxIntegrationSimpleHttpTest {
         latch.await(5, TimeUnit.SECONDS);
         vertx = null;
         testVerticle = null;
+
+    }
+
+    public static class TestVerticle extends AbstractVerticle {
+
+        private final int port;
+        private final CountDownLatch latch;
+
+        public TestVerticle(int port, CountDownLatch latch) {
+
+            this.port = port;
+            this.latch = latch;
+        }
+
+        public void start() {
+
+            try {
+
+                HttpServerOptions options = new HttpServerOptions().setMaxWebsocketFrameSize(1000000);
+                options.setPort(port);
+
+
+                io.vertx.core.http.HttpServer vertxHttpServer =
+                        this.getVertx().createHttpServer(options);
+
+                VertxHttpServerBuilder vertxHttpServerBuilder = VertxHttpServerBuilder.vertxHttpServerBuilder();
+
+                vertxHttpServerBuilder.addRequestBodyContinuePredicate(httpRequest -> {
+                    if (httpRequest.getContentLength() > 1_000) {
+                        httpRequest.getReceiver().respond(500, "\"TOO BIG\"");
+                        return false;
+                    }
+                    return true;
+                });
+
+                HttpServer httpServer = vertxHttpServerBuilder
+                        .setVertx(getVertx()).setHttpServer(vertxHttpServer).build();
+
+
+                httpServer.setHttpRequestConsumer(httpRequest -> {
+
+                    System.out.println(httpRequest.address());
+
+                    httpRequest.getReceiver().response(200, httpRequest.getContentType(), httpRequest.body());
+                });
+
+                httpServer.start();
+
+                vertxHttpServer.listen(event -> {
+                    if (event.succeeded()) {
+                        latch.countDown();
+                    }
+                });
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+        }
+
+        public void stop() {
+        }
 
     }
 }

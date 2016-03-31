@@ -95,8 +95,6 @@ public interface EventManager {
     <T> void unregister(String channelName, EventListener<T> listener);
 
 
-
-
     /**
      * @param channel channel
      * @param event   event
@@ -117,6 +115,7 @@ public interface EventManager {
 
     /**
      * Sends object as arguments to a channel method.
+     *
      * @param channel channel
      * @param event   event
      * @param <T>     T

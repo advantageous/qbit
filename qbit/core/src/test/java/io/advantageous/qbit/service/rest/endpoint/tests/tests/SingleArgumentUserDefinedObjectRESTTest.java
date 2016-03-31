@@ -47,7 +47,7 @@ public class SingleArgumentUserDefinedObjectRESTTest {
         serviceEndpointServer = EndpointServerBuilder.endpointServerBuilder()
                 .build()
                 .initServices(
-                    service,
+                        service,
                         new MyService()
                 ).startServer();
     }
@@ -86,7 +86,6 @@ public class SingleArgumentUserDefinedObjectRESTTest {
         assertEquals("\"foo\"", httpResponse.body());
 
 
-
         final HttpTextResponse httpResponse2 = httpServerSimulator.sendRequest(
                 httpRequestBuilder.setUri("/es/string-request-param")
                         .addParam("p", "something")
@@ -112,7 +111,6 @@ public class SingleArgumentUserDefinedObjectRESTTest {
 
         assertEquals(200, httpResponse.code());
         assertEquals("", httpResponse.body());
-
 
 
         final HttpTextResponse httpResponse2 = httpServerSimulator.sendRequest(
@@ -142,7 +140,6 @@ public class SingleArgumentUserDefinedObjectRESTTest {
         assertEquals("true", httpResponse.body());
 
 
-
         final HttpTextResponse httpResponse2 = httpServerSimulator.sendRequest(
                 httpRequestBuilder.setUri("/es/boolean-request-param")
                         .addParam("p", "false")
@@ -168,7 +165,6 @@ public class SingleArgumentUserDefinedObjectRESTTest {
 
         assertEquals(200, httpResponse.code());
         assertEquals("false", httpResponse.body());
-
 
 
         final HttpTextResponse httpResponse2 = httpServerSimulator.sendRequest(
@@ -198,7 +194,6 @@ public class SingleArgumentUserDefinedObjectRESTTest {
         assertEquals("99", httpResponse.body());
 
 
-
         final HttpTextResponse httpResponse2 = httpServerSimulator.sendRequest(
                 httpRequestBuilder.setUri("/es/int-request-param")
                         .addParam("p", "100")
@@ -226,7 +221,6 @@ public class SingleArgumentUserDefinedObjectRESTTest {
         assertEquals("0", httpResponse.body());
 
 
-
         final HttpTextResponse httpResponse2 = httpServerSimulator.sendRequest(
                 httpRequestBuilder.setUri("/es/int-request-param-no-default")
                         .addParam("p", "66")
@@ -241,8 +235,6 @@ public class SingleArgumentUserDefinedObjectRESTTest {
     }
 
 
-
-
     @Test
     public void testDefaultIntegerRequestParam() {
 
@@ -254,7 +246,6 @@ public class SingleArgumentUserDefinedObjectRESTTest {
 
         assertEquals(200, httpResponse.code());
         assertEquals("99", httpResponse.body());
-
 
 
         final HttpTextResponse httpResponse2 = httpServerSimulator.sendRequest(
@@ -284,7 +275,6 @@ public class SingleArgumentUserDefinedObjectRESTTest {
         assertEquals("", httpResponse.body());
 
 
-
         final HttpTextResponse httpResponse2 = httpServerSimulator.sendRequest(
                 httpRequestBuilder.setUri("/es/integer-request-param-no-default")
                         .addParam("p", "66")
@@ -309,7 +299,6 @@ public class SingleArgumentUserDefinedObjectRESTTest {
 
         assertEquals(200, httpResponse.code());
         assertEquals("\"zoo\"", httpResponse.body());
-
 
 
         final HttpTextResponse httpResponse2 = httpServerSimulator.sendRequest(
@@ -337,7 +326,6 @@ public class SingleArgumentUserDefinedObjectRESTTest {
 
         assertEquals(200, httpResponse.code());
         assertEquals("", httpResponse.body());
-
 
 
         final HttpTextResponse httpResponse2 = httpServerSimulator.sendRequest(
@@ -374,7 +362,6 @@ public class SingleArgumentUserDefinedObjectRESTTest {
         Assert.assertEquals("no-cache, no-store", controls.get(1));
 
         assertEquals("true", httpResponse.body());
-
 
 
     }
@@ -423,7 +410,6 @@ public class SingleArgumentUserDefinedObjectRESTTest {
     }
 
 
-
     @Test
     public void testRequiredParam() {
 
@@ -435,8 +421,6 @@ public class SingleArgumentUserDefinedObjectRESTTest {
         assertEquals(200, httpResponse.code());
         assertEquals("\"bar\"", httpResponse.body());
     }
-
-
 
 
     @Test
@@ -540,7 +524,6 @@ public class SingleArgumentUserDefinedObjectRESTTest {
         assertEquals(400, httpResponse.code());
         assertTrue(httpResponse.body().startsWith("[\"Unable to JSON parse"));
     }
-
 
 
     @Test

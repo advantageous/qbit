@@ -21,7 +21,6 @@ public interface HealthService {
     void checkIn(String name, HealthStatus status);
 
 
-
     boolean ok();
 
     List<String> findHealthyNodes();

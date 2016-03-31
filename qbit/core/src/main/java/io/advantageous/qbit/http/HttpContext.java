@@ -12,7 +12,8 @@ import java.util.Optional;
 public class HttpContext extends RequestContext {
 
 
-    /** Grab the current http request.
+    /**
+     * Grab the current http request.
      *
      * @return Optional http request.
      */
@@ -29,13 +30,12 @@ public class HttpContext extends RequestContext {
 
         if (request.originatingRequest() instanceof HttpRequest) {
             return Optional.of(((HttpRequest) request.originatingRequest()));
-        } else if (request.originatingRequest()!=null) {
+        } else if (request.originatingRequest() != null) {
             return findHttpRequest(request.originatingRequest());
         } else {
             return Optional.empty();
         }
     }
-
 
 
 }

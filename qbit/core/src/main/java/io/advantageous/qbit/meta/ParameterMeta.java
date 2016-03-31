@@ -110,15 +110,15 @@ public class ParameterMeta {
     }
 
     public boolean isCollection() {
-        return genericParamType==GenericParamType.COLLECTION;
+        return genericParamType == GenericParamType.COLLECTION;
     }
 
     public boolean isMap() {
-        return genericParamType==GenericParamType.MAP;
+        return genericParamType == GenericParamType.MAP;
     }
 
     public boolean isArray() {
-        return genericParamType==GenericParamType.ARRAY;
+        return genericParamType == GenericParamType.ARRAY;
     }
 
     public Class<?> getComponentClass() {

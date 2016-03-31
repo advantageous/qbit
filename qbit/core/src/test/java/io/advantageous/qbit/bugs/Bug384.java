@@ -10,6 +10,26 @@ import org.junit.Test;
 //https://github.com/advantageous/qbit/issues/384
 public class Bug384 {
 
+    @Test //(expected = IllegalStateException.class)
+    public void noOverloading() {
+
+        ServiceQueue serviceQueue = ServiceBuilder.serviceBuilder().setServiceObject(new MyService()).build();
+
+    }
+
+    @Test //(expected = IllegalStateException.class)
+    public void noOverloadingBundle() {
+
+        ServiceBundleBuilder.serviceBundleBuilder().build().addService(new MyService()).start();
+    }
+
+
+    public interface IMyService {
+        void add(Person person);
+
+        void add(Event person);
+    }
+
     public static class Event {
         final String id;
 
@@ -18,7 +38,6 @@ public class Bug384 {
         }
     }
 
-
     public static class Person {
         final String id;
 
@@ -26,7 +45,6 @@ public class Bug384 {
             this.id = id;
         }
     }
-
 
     public static class MyService {
 
@@ -40,30 +58,10 @@ public class Bug384 {
             System.out.println(person.id);
 
         }
+
         public void add(Event person) {
 
             System.out.println(person.id);
         }
-    }
-
-
-    public  interface IMyService {
-        void add(Person person);
-        void add(Event person);
-    }
-
-
-    @Test //(expected = IllegalStateException.class)
-    public void noOverloading() {
-
-        ServiceQueue serviceQueue = ServiceBuilder.serviceBuilder().setServiceObject(new MyService()).build();
-
-    }
-
-
-    @Test //(expected = IllegalStateException.class)
-    public void noOverloadingBundle() {
-
-        ServiceBundleBuilder.serviceBundleBuilder().build().addService(new MyService()).start();
     }
 }

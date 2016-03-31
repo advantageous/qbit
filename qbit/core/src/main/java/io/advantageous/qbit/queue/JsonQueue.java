@@ -13,9 +13,10 @@ import java.util.function.Function;
 
 /**
  * Wraps a QBit Queue<String> and converts items into JSON and from JSON.
+ *
  * @param <T> convert to this type.
  */
-public class JsonQueue <T> implements Queue<T>{
+public class JsonQueue<T> implements Queue<T> {
 
     /**
      * Queue we are wrapping with JSON encoding / decoding.
@@ -33,10 +34,45 @@ public class JsonQueue <T> implements Queue<T>{
     private final Function<T, String> toJsonFunction;
 
     /**
+     * @param queue            queue
+     * @param fromJsonFunction fromJsonFunction function decoder
+     * @param toJsonFunction   toJsonFunction function encoder
+     */
+    public JsonQueue(final Queue<String> queue,
+                     final Function<String, T> fromJsonFunction,
+                     final Function<T, String> toJsonFunction) {
+        this.queue = queue;
+        this.fromJsonFunction = fromJsonFunction;
+        this.toJsonFunction = toJsonFunction;
+    }
+
+    /**
+     * Create a simple JsonQueue that encodes one object via JSON.
      *
+     * @param classType  classType
+     * @param queue      queue
+     * @param jsonMapper jsonMapper
+     */
+    public JsonQueue(final Class<T> classType,
+                     final Queue<String> queue,
+                     final JsonMapper jsonMapper) {
+        this(queue, json -> jsonMapper.fromJson(json, classType), jsonMapper::toJson);
+    }
+
+    /**
+     * Create a simple JsonQueue that encodes one object via JSON.
+     *
+     * @param classType classType
+     * @param queue     queue
+     */
+    public JsonQueue(Class<T> classType, Queue<String> queue) {
+        this(classType, queue, QBit.factory().createJsonMapper());
+    }
+
+    /**
      * @param componentClass component class type
-     * @param queue queue
-     * @param <T> T
+     * @param queue          queue
+     * @param <T>            T
      * @return new JsonQueue that works with lists of componentClass instances
      */
     public static <T> JsonQueue<List<T>> createListQueueWithMapper(final Class<T> componentClass,
@@ -49,32 +85,31 @@ public class JsonQueue <T> implements Queue<T>{
     }
 
     /**
-     *
      * @param componentClass component class type
-     * @param queue queue
-     * @param <T> T
+     * @param queue          queue
+     * @param <T>            T
      * @return new JsonQueue that works with lists of componentClass instances
      */
     public static <T> JsonQueue<List<T>> createListQueue(final Class<T> componentClass,
                                                          final Queue<String> queue) {
 
         final JsonMapper jsonMapper = QBit.factory().createJsonMapper();
-        return createListQueueWithMapper(componentClass, queue,jsonMapper);
+        return createListQueueWithMapper(componentClass, queue, jsonMapper);
 
     }
 
     /**
      * Create a  JsonQueue that can send a Map of values
      *
-     * @param mapKeyClass mapKey class
+     * @param mapKeyClass   mapKey class
      * @param valueKeyClass valueKey class
-     * @param queue queue
-     * @param jsonMapper jsonMapper
-     * @param <K> K
-     * @param <V> V
+     * @param queue         queue
+     * @param jsonMapper    jsonMapper
+     * @param <K>           K
+     * @param <V>           V
      * @return new JsonQueue that works with maps.
      */
-    public static <K,V> JsonQueue<Map<K, V>> createMapQueueWithMapper(
+    public static <K, V> JsonQueue<Map<K, V>> createMapQueueWithMapper(
             final Class<K> mapKeyClass,
             final Class<V> valueKeyClass,
             final Queue<String> queue,
@@ -88,61 +123,22 @@ public class JsonQueue <T> implements Queue<T>{
     /**
      * Create a  JsonQueue that can send a Map of values
      *
-     * @param mapKeyClass mapKey class
+     * @param mapKeyClass   mapKey class
      * @param valueKeyClass valueKey class
-     * @param queue queue
-     * @param <K> K
-     * @param <V> V
+     * @param queue         queue
+     * @param <K>           K
+     * @param <V>           V
      * @return new JsonQueue that works with maps.
      */
-    public static <K,V> JsonQueue<Map<K, V>> createMapQueue(final Class<K> mapKeyClass,
-                                                            final Class<V> valueKeyClass,
-                                                            final Queue<String> queue) {
+    public static <K, V> JsonQueue<Map<K, V>> createMapQueue(final Class<K> mapKeyClass,
+                                                             final Class<V> valueKeyClass,
+                                                             final Queue<String> queue) {
         final JsonMapper jsonMapper = QBit.factory().createJsonMapper();
         return createMapQueueWithMapper(mapKeyClass, valueKeyClass, queue, jsonMapper);
     }
 
-
     /**
-     *
-     * @param queue queue
-     * @param fromJsonFunction fromJsonFunction function decoder
-     * @param toJsonFunction toJsonFunction function encoder
-     */
-    public JsonQueue(final Queue<String> queue,
-                     final Function<String, T> fromJsonFunction,
-                    final Function<T, String> toJsonFunction) {
-        this.queue = queue;
-        this.fromJsonFunction = fromJsonFunction;
-        this.toJsonFunction = toJsonFunction;
-    }
-
-
-    /**
-     * Create a simple JsonQueue that encodes one object via JSON.
-     * @param classType classType
-     * @param queue queue
-     * @param jsonMapper jsonMapper
-     */
-    public JsonQueue(final Class<T> classType,
-                     final Queue<String> queue,
-                     final JsonMapper jsonMapper) {
-        this(queue, json -> jsonMapper.fromJson(json, classType), jsonMapper::toJson);
-    }
-
-
-
-    /**
-     * Create a simple JsonQueue that encodes one object via JSON.
-     * @param classType classType
-     * @param queue queue
-     */
-    public JsonQueue(Class<T> classType, Queue<String> queue) {
-        this(classType, queue, QBit.factory().createJsonMapper());
-    }
-
-
-    /** Create a wrapper ReceiveQueue that does decoding on the fly.
+     * Create a wrapper ReceiveQueue that does decoding on the fly.
      *
      * @return wrapped ReceiveQueue
      */
@@ -157,13 +153,15 @@ public class JsonQueue <T> implements Queue<T>{
                 final String item = receiveQueue.pollWait();
                 return getParsedItem(item);
             }
+
             private T getParsedItem(String item) {
-                if (item !=null) {
+                if (item != null) {
                     return fromJsonFunction.apply(item);
                 } else {
                     return null;
                 }
             }
+
             @Override
             public T poll() {
                 final String item = receiveQueue.pollWait();
@@ -211,6 +209,7 @@ public class JsonQueue <T> implements Queue<T>{
     /**
      * Create a wrapper SendQueue that encoders the objects to JSON
      * before putting them into the queue.
+     *
      * @return returns wrapped SendQueue tht does JSON encoding.
      */
     @Override
@@ -221,7 +220,8 @@ public class JsonQueue <T> implements Queue<T>{
         return createJsonSendQueue(sendQueue);
     }
 
-    /** Helper method to create SendQueue wrappers that do JSON encoding.
+    /**
+     * Helper method to create SendQueue wrappers that do JSON encoding.
      *
      * @param sendQueue sendQueue
      * @return sendQueue decorated with JSON encoding.
@@ -298,6 +298,7 @@ public class JsonQueue <T> implements Queue<T>{
     /**
      * Create a wrapper SendQueue that encoders the objects to JSON
      * before putting them into the queue.
+     *
      * @param interval interval
      * @param timeUnit timeUnit
      * @return returns wrapped SendQueue tht does JSON encoding.
@@ -312,11 +313,10 @@ public class JsonQueue <T> implements Queue<T>{
     /**
      * Create a wrapper SendQueue that encoders the objects to JSON
      * before putting them into the queue.
-     * @return returns wrapped SendQueue tht does JSON encoding.
      *
      * @param periodicScheduler periodicScheduler
-     * @param interval interval
-     * @param timeUnit timeUnit
+     * @param interval          interval
+     * @param timeUnit          timeUnit
      * @return sendQueue
      */
     @Override
@@ -327,6 +327,7 @@ public class JsonQueue <T> implements Queue<T>{
 
     /**
      * Start a listener.
+     *
      * @param listener listener
      */
     @Override
@@ -336,6 +337,7 @@ public class JsonQueue <T> implements Queue<T>{
 
     /**
      * size
+     *
      * @return size
      */
     @Override
@@ -345,6 +347,7 @@ public class JsonQueue <T> implements Queue<T>{
 
     /**
      * started
+     *
      * @return started
      */
     @Override
@@ -354,6 +357,7 @@ public class JsonQueue <T> implements Queue<T>{
 
     /**
      * name of queue
+     *
      * @return name
      */
     @Override

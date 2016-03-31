@@ -32,14 +32,18 @@ import java.lang.annotation.Target;
 @Target(value = {ElementType.PARAMETER})
 public @interface HeaderParam {
 
-    /** Name of the header param. */
+    /**
+     * Name of the header param.
+     */
     String value();
 
     boolean required() default false;
 
-    /** Default value.
+    /**
+     * Default value.
      * The default value is set to AnnotationConstants.NOT_SET which is used
      * to indicate a default value was not set.
+     *
      * @return default value
      */
     String defaultValue() default AnnotationConstants.NOT_SET;
@@ -47,6 +51,7 @@ public @interface HeaderParam {
 
     /**
      * Used to document endpoint
+     *
      * @return description
      */
     String description() default "no description";

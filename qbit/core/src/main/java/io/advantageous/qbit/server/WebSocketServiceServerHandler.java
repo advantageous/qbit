@@ -270,7 +270,7 @@ public class WebSocketServiceServerHandler {
             }
 
 
-            String returnAddress = response!=null ? response.returnAddress() : null;
+            String returnAddress = response != null ? response.returnAddress() : null;
 
             List<Response<Object>> messages = new ArrayList<>(outputMessages.size() + 1);
 
@@ -289,8 +289,7 @@ public class WebSocketServiceServerHandler {
             }
 
 
-
-            if (returnAddress!=null) {
+            if (returnAddress != null) {
                 final String returnAddr = returnAddress;
                 protocolEncoderThreadPool.execute(() -> {
                     @SuppressWarnings("unchecked") final String textMessage = encoderRef.get().encodeResponses(returnAddr, messages);

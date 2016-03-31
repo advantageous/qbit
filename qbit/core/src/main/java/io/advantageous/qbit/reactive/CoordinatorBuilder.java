@@ -74,14 +74,13 @@ public class CoordinatorBuilder {
         return this;
     }
 
+    public Runnable getFinishedHandler() {
+        return finishedHandler;
+    }
 
     public CoordinatorBuilder setFinishedHandler(Runnable finishedHandler) {
         this.finishedHandler = finishedHandler;
         return this;
-    }
-
-    public Runnable getFinishedHandler() {
-        return finishedHandler;
     }
 
     public CallbackCoordinator build() {

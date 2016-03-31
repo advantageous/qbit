@@ -15,8 +15,13 @@ public class RedisKeyValueStoreBuilder {
     private RedisClient redisClient;
     private VertxOptions vertxOptions;
 
+    public static RedisKeyValueStoreBuilder redisKeyValueStoreBuilder() {
+        return new RedisKeyValueStoreBuilder();
+    }
+
     /**
      * RedisKeyValueStoreBuilder redis://redisdb:<password>@<host>:<port>/0
+     *
      * @return this
      */
     public RedisKeyValueStoreBuilder setRedisUri(final URI uri) {
@@ -27,7 +32,7 @@ public class RedisKeyValueStoreBuilder {
         final String userInfo = uri.getUserInfo();
         final String[] split = Str.split(userInfo);
 
-        if (split.length ==2) {
+        if (split.length == 2) {
             getRedisOptions().setAuth(split[1]);
         } else if (split.length == 1) {
             getRedisOptions().setAuth(split[0]);
@@ -37,7 +42,7 @@ public class RedisKeyValueStoreBuilder {
     }
 
     public VertxOptions getVertxOptions() {
-        if (vertxOptions==null) {
+        if (vertxOptions == null) {
             vertxOptions = new VertxOptions();
         }
         return vertxOptions;
@@ -62,9 +67,8 @@ public class RedisKeyValueStoreBuilder {
         return this;
     }
 
-
     public RedisOptions getRedisOptions() {
-        if (redisOptions==null) {
+        if (redisOptions == null) {
             redisOptions = new RedisOptions();
         }
         return redisOptions;
@@ -87,12 +91,7 @@ public class RedisKeyValueStoreBuilder {
         return this;
     }
 
-
     public RedisKeyValueStore build() {
         return new RedisKeyValueStore(getRedisClient());
-    }
-
-    public static RedisKeyValueStoreBuilder redisKeyValueStoreBuilder() {
-        return new RedisKeyValueStoreBuilder();
     }
 }

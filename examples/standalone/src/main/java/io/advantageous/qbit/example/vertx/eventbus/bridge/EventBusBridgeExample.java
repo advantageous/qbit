@@ -42,7 +42,7 @@ public class EventBusBridgeExample extends AbstractVerticle {
 
 
         managedServiceBuilder.setRootURI("/");
-        vertxEventBusBridgeBuilder.addBridgeAddress(address);
+        vertxEventBusBridgeBuilder.addBridgeAddress(address, EmployeeService.class);
         /* Route everything under address to QBit http server. */
         router.route().path(address + "/*");
         /* Configure bridge at this HTTP/WebSocket URI. */

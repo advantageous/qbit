@@ -63,7 +63,7 @@ public class HttpClientBuilderTest {
         });
 
         FactorySPI.setHttpClientFactory(
-                (host, port,  timeOutInMilliseconds,
+                (host, port, timeOutInMilliseconds,
                  poolSize, autoFlush, flushRate, keepAlive, pipeLine, ssl, verifyHost, trustAll, maxWebSocketFrameSize,
                  tryUseCompression, trustStorePath, trustStorePathPassword, tcpNoDelay, soLinger) -> null);
 

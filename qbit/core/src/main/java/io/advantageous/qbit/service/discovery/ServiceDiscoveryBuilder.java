@@ -81,7 +81,8 @@ public class ServiceDiscoveryBuilder {
     public ServiceDiscoveryProvider getBackupProvider() {
 
         if (backupProvider == null) {
-            backupProvider = new ServiceDiscoveryProvider() {};
+            backupProvider = new ServiceDiscoveryProvider() {
+            };
         }
         return backupProvider;
     }
@@ -100,7 +101,6 @@ public class ServiceDiscoveryBuilder {
         this.checkInIntervalInSeconds = checkInIntervalInSeconds;
         return this;
     }
-
 
 
     public ServiceDiscoveryImpl build() {

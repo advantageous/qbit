@@ -18,12 +18,15 @@
 package io.advantageous.qbit.meta.transformer;
 
 
+import io.advantageous.boon.core.Conversions;
 import io.advantageous.boon.core.Str;
 import io.advantageous.boon.core.reflection.MapObjectConversion;
+import io.advantageous.boon.core.value.ValueContainer;
 import io.advantageous.qbit.Factory;
 import io.advantageous.qbit.QBit;
 import io.advantageous.qbit.annotation.RequestMethod;
 import io.advantageous.qbit.http.request.HttpRequest;
+import io.advantageous.qbit.http.request.HttpRequestBuilder;
 import io.advantageous.qbit.json.JsonMapper;
 import io.advantageous.qbit.message.MethodCall;
 import io.advantageous.qbit.message.MethodCallBuilder;
@@ -85,9 +88,18 @@ public class StandardRequestTransformer implements RequestTransformer {
         }
     }
 
+
     @Override
     public MethodCall<Object> transform(final HttpRequest request,
                                         final List<String> errorsList) {
+
+        return transformByPosition(request, errorsList, false);
+    }
+
+
+    @Override
+    public MethodCall<Object> transformByPosition(final HttpRequest request,
+                                                  final List<String> errorsList, boolean byPosition) {
 
 
         final StandardMetaDataProvider standardMetaDataProvider = metaDataProviderMap
@@ -115,6 +127,7 @@ public class StandardRequestTransformer implements RequestTransformer {
 
         final List<Object> args = new ArrayList<>(parameters.size());
 
+        int index = 0;
         loop:
         for (ParameterMeta parameterMeta : parameters) {
 
@@ -134,7 +147,7 @@ public class StandardRequestTransformer implements RequestTransformer {
                     namedParam = ((NamedParam) parameterMeta.getParam());
                     value = request.params().get(namedParam.getName());
 
-                    if (namedParam.isRequired() &&  Str.isEmpty(value)) {
+                    if (namedParam.isRequired() && Str.isEmpty(value)) {
                         errorsList.add(sputs("Unable to find required request param", namedParam.getName()));
                         break loop;
 
@@ -143,7 +156,7 @@ public class StandardRequestTransformer implements RequestTransformer {
                         value = namedParam.getDefaultValue();
                     }
 
-                    value = value !=null ? decodeURLEncoding(value.toString()) : value;
+                    value = value != null ? decodeURLEncoding(value.toString()) : value;
 
                     break;
                 case HEADER:
@@ -157,7 +170,7 @@ public class StandardRequestTransformer implements RequestTransformer {
                     if (Str.isEmpty(value)) {
                         value = namedParam.getDefaultValue();
                     }
-                    value = value !=null ? decodeURLEncoding(value.toString()) : value;
+                    value = value != null ? decodeURLEncoding(value.toString()) : value;
                     break;
                 case DATA:
                     namedParam = ((NamedParam) parameterMeta.getParam());
@@ -189,7 +202,7 @@ public class StandardRequestTransformer implements RequestTransformer {
                     if (Str.isEmpty(value)) {
                         value = uriNamedParam.getDefaultValue();
                     }
-                    value = value !=null ? decodeURLEncoding(value.toString()) : value;
+                    value = value != null ? decodeURLEncoding(value.toString()) : value;
                     break;
 
                 case PATH_BY_POSITION:
@@ -216,7 +229,7 @@ public class StandardRequestTransformer implements RequestTransformer {
                     if (Str.isEmpty(value)) {
                         value = positionalParam.getDefaultValue();
                     }
-                    value = value !=null ? decodeURLEncoding(value.toString()) : value;
+                    value = value != null ? decodeURLEncoding(value.toString()) : value;
                     break;
 
                 case BODY:
@@ -225,7 +238,7 @@ public class StandardRequestTransformer implements RequestTransformer {
 
                     final String contentType = request.getContentType();
 
-                    if ( isJsonContent(contentType) ) {
+                    if (isJsonContent(contentType)) {
 
 
                         if (value instanceof byte[]) {
@@ -243,32 +256,51 @@ public class StandardRequestTransformer implements RequestTransformer {
 
                         if (Str.isEmpty(value)) {
                             value = bodyParam.getDefaultValue();
+
+
                         }
 
-                        try {
-                            if (parameterMeta.isArray() || parameterMeta.isCollection()) {
-                                value = jsonMapper.get().fromJsonArray(value.toString(), parameterMeta.getComponentClass());
-                            } else if (parameterMeta.isMap()) {
+                        if (byPosition) {
 
-                                value = jsonMapper.get().fromJsonMap(value.toString(), parameterMeta.getComponentClassKey(),
-                                        parameterMeta.getComponentClassValue());
-                            } else {
-                                value = jsonMapper.get().fromJson(value.toString(), parameterMeta.getClassType());
+                            value = jsonMapper.get().fromJson(value.toString());
+                            value = ValueContainer.toObject(value);
+
+                            if (value instanceof List) {
+                                value = ((List) value).get(index);
+                                value = ValueContainer.toObject(value);
                             }
-                        } catch (Exception exception) {
 
-                            if (errorHandler.isPresent()) {
+                            try {
+                                if (parameterMeta.isArray() || parameterMeta.isCollection()) {
 
-                                errorsList.add("Unable to JSON parse body :: " + exception.getMessage());
-                                final MethodCall<Object> methodCall = methodCallBuilder.build();
-                                final CaptureRequestInterceptor captureRequestInterceptor = new CaptureRequestInterceptor();
-                                captureRequestInterceptor.before(methodCall);
-                                errorHandler.get().accept(exception);
-                                captureRequestInterceptor.after(methodCall, null);
+                                    value = MapObjectConversion.convertListOfMapsToObjects(parameterMeta.getComponentClass(), (List<Map>) value);
+                                } else {
 
-                            } else {
-                                errorsList.add("Unable to JSON parse body :: " + exception.getMessage());
-                                logger.warn("Unable to parse object", exception);
+                                    if (value instanceof Map) {
+                                        value = MapObjectConversion.fromMap((Map) value, parameterMeta.getClassType());
+                                    } else {
+                                        value = Conversions.coerce(parameterMeta.getClassType(), value);
+                                    }
+                                }
+                            } catch (Exception exception) {
+
+                                handleMehtodTransformError(errorsList, methodCallBuilder, exception);
+                            }
+                        } else {
+
+                            try {
+                                if (parameterMeta.isArray() || parameterMeta.isCollection()) {
+                                    value = jsonMapper.get().fromJsonArray(value.toString(), parameterMeta.getComponentClass());
+                                } else if (parameterMeta.isMap()) {
+
+                                    value = jsonMapper.get().fromJsonMap(value.toString(), parameterMeta.getComponentClassKey(),
+                                            parameterMeta.getComponentClassValue());
+                                } else {
+                                    value = jsonMapper.get().fromJson(value.toString(), parameterMeta.getClassType());
+                                }
+                            } catch (Exception exception) {
+
+                                handleMehtodTransformError(errorsList, methodCallBuilder, exception);
                             }
                         }
                     } else if (parameterMeta.isString()) {
@@ -317,6 +349,7 @@ public class StandardRequestTransformer implements RequestTransformer {
             args.add(value);
 
 
+            index++;
         }
 
         methodCallBuilder.setBody(args);
@@ -325,8 +358,30 @@ public class StandardRequestTransformer implements RequestTransformer {
 
     }
 
+    @Override
+    public MethodCall<Object> transFormBridgeBody(Object body, List<String> errors, String address, String method) {
+        final HttpRequest request = HttpRequestBuilder.httpRequestBuilder().setUri("/" + address + "/" + method).setBody(body.toString()).setMethod("BRIDGE").build();
+        return this.transformByPosition(request, errors, true);
+    }
+
+    private void handleMehtodTransformError(List<String> errorsList, MethodCallBuilder methodCallBuilder, Exception exception) {
+        if (errorHandler.isPresent()) {
+
+            errorsList.add("Unable to JSON parse body :: " + exception.getMessage());
+            final MethodCall<Object> methodCall = methodCallBuilder.build();
+            final CaptureRequestInterceptor captureRequestInterceptor = new CaptureRequestInterceptor();
+            captureRequestInterceptor.before(methodCall);
+            errorHandler.get().accept(exception);
+            captureRequestInterceptor.after(methodCall, null);
+
+        } else {
+            errorsList.add("Unable to JSON parse body :: " + exception.getMessage());
+            logger.warn("Unable to parse object", exception);
+        }
+    }
+
     private boolean isJsonContent(final String contentType) {
-        return  Str.isEmpty(contentType) ||
+        return Str.isEmpty(contentType) ||
                 contentType.equals("application/json") ||
                 contentType.equals("application/json;charset=utf-8") ||
                 contentType.startsWith("application/json");

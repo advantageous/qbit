@@ -17,6 +17,7 @@ package io.advantageous.qbit.meta.swagger;
  *
  * QBit - The Microservice lib for Java : JSON, WebSocket, REST. Be The Web!
  */
+
 import io.advantageous.qbit.annotation.*;
 import io.advantageous.qbit.reactive.Callback;
 
@@ -25,9 +26,6 @@ import java.util.Collections;
 import java.util.List;
 
 import static io.advantageous.boon.core.Str.sputs;
-
-
-
 
 
 @RequestMapping("/sample/service")
@@ -62,7 +60,6 @@ public class SampleService {
     }
 
 
-
     @RequestMapping("/add/dept/")
     public Department addDepartment(final Department department) {
 
@@ -87,7 +84,6 @@ public class SampleService {
     public void list(final Callback<List<Department>> callback) {
         callback.accept(new ArrayList<>());
     }
-
 
 
     @RequestMapping("/add/dept/2")

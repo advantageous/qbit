@@ -36,7 +36,6 @@ public class BasicSendQueueWithTransferQueueTest {
         abq = new ArrayBlockingQueue<>(100_000);
 
 
-
     }
 
     @Test
@@ -69,10 +68,10 @@ public class BasicSendQueueWithTransferQueueTest {
     public void test2() {
 
 
-
         queue.startListener(new ReceiveQueueListener<String>() {
 
             int count;
+
             @Override
             public void receive(String item) {
                 count++;
@@ -107,10 +106,10 @@ public class BasicSendQueueWithTransferQueueTest {
     public void test3() {
 
 
-
         queue.startListener(new ReceiveQueueListener<String>() {
 
             int count;
+
             @Override
             public void receive(String item) {
                 count++;

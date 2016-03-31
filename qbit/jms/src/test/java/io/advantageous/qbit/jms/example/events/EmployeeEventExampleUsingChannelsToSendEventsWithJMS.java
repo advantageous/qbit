@@ -56,8 +56,6 @@ public class EmployeeEventExampleUsingChannelsToSendEventsWithJMS {
     public static final String NEW_HIRE_CHANNEL = "com.mycompnay.employee.new";
 
 
-
-
     public static void main(String... args) throws Exception {
 
 
@@ -69,8 +67,8 @@ public class EmployeeEventExampleUsingChannelsToSendEventsWithJMS {
         /* START JMS BROKER. ************************************************************/
         /* Start up JMS Broker. */
         port = PortUtils.findOpenPortStartAt(4000);
-        broker= new BrokerService();
-        broker.addConnector("tcp://localhost:"+port);
+        broker = new BrokerService();
+        broker.addConnector("tcp://localhost:" + port);
         broker.start();
 
         Sys.sleep(5_000);
@@ -161,10 +159,6 @@ public class EmployeeEventExampleUsingChannelsToSendEventsWithJMS {
                 50, TimeUnit.MILLISECONDS);
 
 
-
-
-
-
         final EventBusProxyCreator eventBusProxyCreator =
                 QBit.factory().eventBusProxyCreator();
 
@@ -193,7 +187,7 @@ public class EmployeeEventExampleUsingChannelsToSendEventsWithJMS {
             @Override
             public void run() {
                 final Employee employee = receiveQueueB.pollWait();
-                if (employee!=null) {
+                if (employee != null) {
                     employeeEventManagerB.sendNewEmployee(employee);
                 }
             }

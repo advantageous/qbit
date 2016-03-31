@@ -14,7 +14,6 @@ import java.util.concurrent.TimeUnit;
 public class LocalStatsCollector implements StatReplicator, QueueCallBackHandler {
 
 
-
     private final Reactor reactor;
     private final ConcurrentHashMap<String, Metric> statsMap = new ConcurrentHashMap<>();
 
@@ -23,47 +22,6 @@ public class LocalStatsCollector implements StatReplicator, QueueCallBackHandler
         reactor = ReactorBuilder.reactorBuilder().setTimer(timer).build();
         reactor.addRepeatingTask(seconds, TimeUnit.SECONDS, this::packStat);
     }
-
-
-
-    enum MetricType {
-        COUNT, LEVEL, TIMING
-    }
-
-    final static class Metric {
-
-        final StatList stats;
-        long value;
-        final String name;
-        final MetricType type;
-
-
-        public static Metric count(String name) {
-
-            return new Metric(name, MetricType.COUNT);
-
-        }
-
-        public static Metric level(String name) {
-
-            return new Metric(name, MetricType.LEVEL);
-
-        }
-
-
-        public static Metric timing(String name) {
-
-            return new Metric(name, MetricType.TIMING);
-
-        }
-
-        public Metric(String name, MetricType type) {
-            this.name = name;
-            this.type = type;
-            this.stats = new StatList(100);
-        }
-    }
-
 
     @Override
     public void replicateCount(String name, long count, long time) {
@@ -109,8 +67,6 @@ public class LocalStatsCollector implements StatReplicator, QueueCallBackHandler
 
 
     }
-
-
 
     @Override
     public void queueProcess() {
@@ -164,32 +120,31 @@ public class LocalStatsCollector implements StatReplicator, QueueCallBackHandler
 
         final Set<Map.Entry<String, Metric>> entries = statsMap.entrySet();
 
-        entries.stream().filter(entry -> entry.getValue().type==MetricType.TIMING && entry.getValue().value != 0)
+        entries.stream().filter(entry -> entry.getValue().type == MetricType.TIMING && entry.getValue().value != 0)
                 .forEach(entry -> collectTiming(entry.getValue(), metricsTimingMap));
 
 
-        entries.stream().filter(entry -> entry.getValue().type==MetricType.COUNT && entry.getValue().value != 0)
+        entries.stream().filter(entry -> entry.getValue().type == MetricType.COUNT && entry.getValue().value != 0)
                 .forEach(entry -> collectCount(entry.getValue(), metricsCountMap));
 
 
-        entries.stream().filter(entry -> entry.getValue().type==MetricType.LEVEL && entry.getValue().value != 0)
+        entries.stream().filter(entry -> entry.getValue().type == MetricType.LEVEL && entry.getValue().value != 0)
                 .forEach(entry -> collectLevel(entry.getValue(), metricsLevelMap));
 
         return metricMap;
 
     }
 
-    private void collectCount(final Metric metric, final  Map<String, Number> metricsCountMap) {
+    private void collectCount(final Metric metric, final Map<String, Number> metricsCountMap) {
         metricsCountMap.put(metric.name, metric.value);
         metric.value = 0;
         metric.stats.clear();
 
     }
 
+    private void collectTiming(final Metric metric, final Map<String, List<Number>> metricsTimingMap) {
 
-    private void collectTiming(final Metric metric, final  Map<String, List<Number>> metricsTimingMap) {
-
-        if (metric.stats.size()>0) {
+        if (metric.stats.size() > 0) {
             metricsTimingMap.put(metric.name, new ArrayList<>(metric.stats));
         } else {
 
@@ -200,11 +155,10 @@ public class LocalStatsCollector implements StatReplicator, QueueCallBackHandler
 
     }
 
-
-    private void collectLevel(final Metric metric, final  Map<String, Number> metricsLevelMap) {
+    private void collectLevel(final Metric metric, final Map<String, Number> metricsLevelMap) {
         metricsLevelMap.put(metric.name, metric.value);
 
-        if (metric.stats.size()>1) {
+        if (metric.stats.size() > 1) {
             metricsLevelMap.put(metric.name + ".mean", metric.stats.mean());
             metricsLevelMap.put(metric.name + ".std", metric.stats.standardDeviation());
             metricsLevelMap.put(metric.name + ".median", metric.stats.median());
@@ -213,6 +167,44 @@ public class LocalStatsCollector implements StatReplicator, QueueCallBackHandler
             metricsLevelMap.put(metric.name + ".count", metric.stats.size());
         }
 
+    }
+
+
+    enum MetricType {
+        COUNT, LEVEL, TIMING
+    }
+
+    final static class Metric {
+
+        final StatList stats;
+        final String name;
+        final MetricType type;
+        long value;
+
+
+        public Metric(String name, MetricType type) {
+            this.name = name;
+            this.type = type;
+            this.stats = new StatList(100);
+        }
+
+        public static Metric count(String name) {
+
+            return new Metric(name, MetricType.COUNT);
+
+        }
+
+        public static Metric level(String name) {
+
+            return new Metric(name, MetricType.LEVEL);
+
+        }
+
+        public static Metric timing(String name) {
+
+            return new Metric(name, MetricType.TIMING);
+
+        }
     }
 
 }

@@ -44,35 +44,50 @@ public class Reactor {
     private final BlockingQueue<CallbackCoordinator> removeCoordinatorQueue = new LinkedTransferQueue<>();
 
 
-    /** List of futures that we are managing. */
+    /**
+     * List of futures that we are managing.
+     */
     private final Set<AsyncFutureCallback<?>> futureList = new HashSet<>();
 
 
-    /** List of coordinators that we are managing. */
+    /**
+     * List of coordinators that we are managing.
+     */
     private final Set<CallbackCoordinator> coordinatorList = new HashSet<>();
 
 
-    /** Timer to keep track of current time. */
+    /**
+     * Timer to keep track of current time.
+     */
     private final Timer timer;
 
-    /** Time out to use if a timeout is not specified. */
+    /**
+     * Time out to use if a timeout is not specified.
+     */
     private final long defaultTimeOut;
 
-    /** Current time. */
+    /**
+     * Current time.
+     */
     private long currentTime;
 
-    /** Keeps list of repeating tasks. */
+    /**
+     * Keeps list of repeating tasks.
+     */
     private List<RepeatingTask> repeatingTasks = new ArrayList<>(1);
 
 
-    /** Keeps list of collaborating services to flush. */
+    /**
+     * Keeps list of collaborating services to flush.
+     */
     private List<Object> collaboratingServices = new ArrayList<>(1);
 
     /**
      * Reactor
-     * @param timer timer
+     *
+     * @param timer          timer
      * @param defaultTimeOut defaultTimeOut
-     * @param timeUnit time unit for default time out
+     * @param timeUnit       time unit for default time out
      */
     public Reactor(final Timer timer, long defaultTimeOut, TimeUnit timeUnit) {
         this.timer = timer;
@@ -81,8 +96,8 @@ public class Reactor {
     }
 
 
-
-    /** Add an object that is auto flushed.
+    /**
+     * Add an object that is auto flushed.
      *
      * @param serviceObject as service object that will be auto-flushed.
      */
@@ -90,42 +105,32 @@ public class Reactor {
         collaboratingServices.add(serviceObject);
     }
 
-    /** A repeating task. */
-    class RepeatingTask {
-        private long lastTimeInvoked;
-        private final Runnable task;
-        private final long repeatEveryMS;
-
-
-        public RepeatingTask(Runnable task, TimeUnit timeUnit, long repeatEvery) {
-            this.task = task;
-            this.repeatEveryMS = timeUnit.toMillis(repeatEvery);
-        }
-    }
-
-    /** Add a task that gets repeated.
+    /**
+     * Add a task that gets repeated.
      *
      * @param repeatEvery repeat Every time period
-     * @param timeUnit unit for repeatEvery
-     * @param task task to perform
+     * @param timeUnit    unit for repeatEvery
+     * @param task        task to perform
      */
     public void addRepeatingTask(final long repeatEvery, final TimeUnit timeUnit, final Runnable task) {
 
-        repeatingTasks.add(new RepeatingTask( task, timeUnit, repeatEvery ));
+        repeatingTasks.add(new RepeatingTask(task, timeUnit, repeatEvery));
     }
 
-    /** Add a task that gets repeated.
+    /**
+     * Add a task that gets repeated.
      *
      * @param repeatEvery repeat Every time period
-     * @param task task to perform
+     * @param task        task to perform
      */
     public void addRepeatingTask(final Duration repeatEvery, final Runnable task) {
 
-        repeatingTasks.add(new RepeatingTask( task, repeatEvery.getTimeUnit(), repeatEvery.getDuration() ));
+        repeatingTasks.add(new RepeatingTask(task, repeatEvery.getTimeUnit(), repeatEvery.getDuration()));
     }
 
-
-    /** Process items in reactor. */
+    /**
+     * Process items in reactor.
+     */
     public void process() {
 
         /** Manages lists of coordinators, and callbacks which can come back async. */
@@ -155,7 +160,6 @@ public class Reactor {
             }
         });
     }
-
 
     @SuppressWarnings({"UnusedReturnValue", "SameReturnValue"})
     private boolean drainQueues() {
@@ -206,13 +210,10 @@ public class Reactor {
         return callbackWithTimeoutAndLatch(callback, defaultTimeOut, TimeUnit.MILLISECONDS);
     }
 
-
-
     public <T> AsyncFutureCallback<T> callback(Class<T> cls, final Callback<T> callback) {
 
         return callbackWithTimeout(callback, defaultTimeOut, TimeUnit.MILLISECONDS);
     }
-
 
     public <T> AsyncFutureCallback<T> callbackWithTimeout(final Callback<T> callback,
                                                           final long timeoutDuration,
@@ -222,15 +223,13 @@ public class Reactor {
 
     }
 
-
     public <T> AsyncFutureCallback<T> callbackWithTimeoutAndLatch(final Callback<T> callback,
-                                                          final long timeoutDuration,
-                                                          final TimeUnit timeUnit) {
+                                                                  final long timeoutDuration,
+                                                                  final TimeUnit timeUnit) {
 
         return callbackWithTimeoutAndErrorHandlerAndLatch(callback, timeoutDuration, timeUnit, null);
 
     }
-
 
     public <T> AsyncFutureCallback<T> callbackWithTimeoutAndErrorHandler(
             final Callback<T> callback,
@@ -252,15 +251,15 @@ public class Reactor {
 
     }
 
-
     /**
      * Create a callback
-     * @param callback callback
+     *
+     * @param callback        callback
      * @param timeoutDuration timeout duration
-     * @param timeUnit time unit of timeout
-     * @param onTimeout onTimeout handler
-     * @param onError on error handler
-     * @param <T> T
+     * @param timeUnit        time unit of timeout
+     * @param onTimeout       onTimeout handler
+     * @param onError         on error handler
+     * @param <T>             T
      * @return callback
      */
     public <T> AsyncFutureCallback<T> callbackWithTimeoutAndErrorHandlerAndOnTimeout(
@@ -284,15 +283,15 @@ public class Reactor {
 
     }
 
-
     /**
      * Create a callback
-     * @param callback callback
+     *
+     * @param callback        callback
      * @param timeoutDuration timeout duration
-     * @param timeUnit time unit of timeout
-     * @param onTimeout onTimeout handler
-     * @param onError on error handler
-     * @param <T> T
+     * @param timeUnit        time unit of timeout
+     * @param onTimeout       onTimeout handler
+     * @param onError         on error handler
+     * @param <T>             T
      * @return callback
      */
     public <T> AsyncFutureCallback<T> callbackWithTimeoutAndErrorHandlerAndOnTimeoutWithLatch(
@@ -318,8 +317,9 @@ public class Reactor {
 
     /**
      * Add a callback to manage
+     *
      * @param asyncFutureCallback callback
-     * @param <T> T
+     * @param <T>                 T
      */
     public <T> void addCallback(final AsyncFutureCallback<T> asyncFutureCallback) {
         futureQueue.add(asyncFutureCallback);
@@ -329,14 +329,14 @@ public class Reactor {
         return () -> Reactor.this.removeFuture(ref.get());
     }
 
-
     /**
      * Create a callback
-     * @param cls cls
-     * @param callback callback
+     *
+     * @param cls             cls
+     * @param callback        callback
      * @param timeoutDuration timeout duration
-     * @param timeUnit timeUnit for timeout
-     * @param <T> T
+     * @param timeUnit        timeUnit for timeout
+     * @param <T>             T
      * @return callback
      */
     public <T> AsyncFutureCallback<T> callbackWithTimeout(Class<T> cls, final Callback<T> callback,
@@ -347,15 +347,15 @@ public class Reactor {
         return callbackWithTimeout(callback, timeoutDuration, timeUnit);
     }
 
-
     /**
      * Create a callback
-     * @param cls cls
-     * @param callback callback
+     *
+     * @param cls             cls
+     * @param callback        callback
      * @param timeoutDuration timeout duration
-     * @param timeUnit timeUnit for timeout
-     * @param onError onError handler
-     * @param <T> T
+     * @param timeUnit        timeUnit for timeout
+     * @param onError         onError handler
+     * @param <T>             T
      * @return callback
      */
     public <T> AsyncFutureCallback<T> callbackWithTimeoutAndErrorHandler(Class<T> cls,
@@ -370,6 +370,7 @@ public class Reactor {
 
     /**
      * Add the coordinator to our list of coordinators.
+     *
      * @param coordinator coordinator
      * @return coordinator
      */
@@ -379,9 +380,9 @@ public class Reactor {
         return coordinator;
     }
 
-
     /**
      * Remove a coordinator from the list of coordinators that we are managing.
+     *
      * @param coordinator coordinator
      * @return coordinator
      */
@@ -391,11 +392,11 @@ public class Reactor {
         return coordinator;
     }
 
-
     /**
      * Remove a callback from the list of callbacks that we are managing.
+     *
      * @param asyncFutureCallback asyncFutureCallback
-     * @param <T> T
+     * @param <T>                 T
      * @return the callback that we removed.
      */
     public <T> AsyncFutureCallback<T> removeFuture(AsyncFutureCallback<T> asyncFutureCallback) {
@@ -406,11 +407,12 @@ public class Reactor {
 
     /**
      * Utility method to create a coordinator.
-     * @param coordinator coordinator
-     * @param startTime startTime
+     *
+     * @param coordinator     coordinator
+     * @param startTime       startTime
      * @param timeoutDuration timeoutDuration
-     * @param timeUnit timeUnit
-     * @param timeOutHandler timeOutHandler
+     * @param timeUnit        timeUnit
+     * @param timeOutHandler  timeOutHandler
      * @param finishedHandler finishedHandler
      * @return callback coordinator
      */
@@ -477,7 +479,7 @@ public class Reactor {
                 if (checkComplete()) {
                     removeCoordinator(this);
                 }
-                if (finishedHandler!=null) {
+                if (finishedHandler != null) {
                     finishedHandler.run();
                 }
                 coordinator.finished();
@@ -518,7 +520,6 @@ public class Reactor {
         }
     }
 
-
     /**
      * Monitors Callback Coordinators.
      * Trigger timeouts if needed and remove coordinators from list that timed out.
@@ -542,14 +543,15 @@ public class Reactor {
 
     }
 
-    /** Used for quickly delegating one callback to another.
-     *
+    /**
+     * Used for quickly delegating one callback to another.
+     * <p>
      * This allows one liners so you don't have to create a builder for this common case.
      *
      * @param operationDescription Describe the operation for logging
-     * @param callback callback to delegate error and timeouts too.
-     * @param logger logger to log errors and timeouts.
-     * @param <T> Generic type
+     * @param callback             callback to delegate error and timeouts too.
+     * @param logger               logger to log errors and timeouts.
+     * @param <T>                  Generic type
      * @return wrapped callback that is tied to this reactor.
      */
     public <T> Callback<T> wrapCallback(final String operationDescription,
@@ -576,28 +578,28 @@ public class Reactor {
             logger.error("TIMEOUT calling {}", operationDescription);
             callback.onTimeout();
         })
-        .build();
+                .build();
 
         return reactiveCallback;
     }
 
-
-    /** Used for quickly delegating one callback to another when the return types are different.
+    /**
+     * Used for quickly delegating one callback to another when the return types are different.
      * This is usually the case if you want to do some transformation of the object and not just return it.
-     *
+     * <p>
      * This allows one liners so you don't have to create a builder for this common case.
      *
      * @param operationDescription Describe the operation for logging
-     * @param logger logger to log errors and timeouts.
-     * @param errorHandler Callback that does the error handling if the delegated call fails.
-     * @param callback callback to delegate error and timeouts too.
-     * @param <T> Generic type
+     * @param logger               logger to log errors and timeouts.
+     * @param errorHandler         Callback that does the error handling if the delegated call fails.
+     * @param callback             callback to delegate error and timeouts too.
+     * @param <T>                  Generic type
      * @return wrapped callback that is tied to this reactor.
      */
     public <T> Callback<T> wrapCallbackErrors(final String operationDescription,
                                               final Callback<T> callback,
                                               final Callback<?> errorHandler,
-                                        final Logger logger) {
+                                              final Logger logger) {
         return callbackBuilder().setCallback(new Callback<T>() {
             @Override
             public void accept(T t) {
@@ -615,28 +617,27 @@ public class Reactor {
             logger.error("TIMEOUT calling {}", operationDescription);
             errorHandler.onTimeout();
         })
-        .build();
+                .build();
     }
 
-
-
-    /** Used for quickly delegating one callback to another.
+    /**
+     * Used for quickly delegating one callback to another.
      * This allows one liners so you don't have to create a builder for this common case.
      *
      * @param operationDescription Describe the operation for logging
-     * @param callback callback to delegate error and timeouts too.
-     * @param logger logger to log errors and timeouts.
-     * @param <T> Generic type
-     * @param timeoutDuration time out duration
-     * @param timeUnit Time Unit
+     * @param callback             callback to delegate error and timeouts too.
+     * @param logger               logger to log errors and timeouts.
+     * @param <T>                  Generic type
+     * @param timeoutDuration      time out duration
+     * @param timeUnit             Time Unit
      * @return wrapped callback that is tied to this reactor.
      */
     public <T> Callback<T> wrapCallbackWithTimeout(
-                                        final String operationDescription,
-                                        final Callback<T> callback,
-                                        final Logger logger,
-                                        final TimeUnit timeUnit,
-                                        final long timeoutDuration) {
+            final String operationDescription,
+            final Callback<T> callback,
+            final Logger logger,
+            final TimeUnit timeUnit,
+            final long timeoutDuration) {
         return callbackBuilder().setCallback(new Callback<T>() {
             @Override
             public void accept(T t) {
@@ -653,19 +654,19 @@ public class Reactor {
             logger.error("TIMEOUT calling {}", operationDescription);
             callback.onTimeout();
         }).setTimeoutTimeUnit(timeUnit).setTimeoutDuration(timeoutDuration)
-        .build();
+                .build();
     }
 
-
-
-    /** Used for quickly delegating one callback to another when the return types are different.
+    /**
+     * Used for quickly delegating one callback to another when the return types are different.
      * This is usually the case if you want to do some transformation of the object and not just return it.
+     *
      * @param operationDescription Describe the operation for logging
-     * @param callback callback to delegate error and timeouts too.
-     * @param logger logger to log errors and timeouts.
-     * @param <T> Generic type
-     * @param timeoutDuration time out duration
-     * @param timeUnit Time Unit
+     * @param callback             callback to delegate error and timeouts too.
+     * @param logger               logger to log errors and timeouts.
+     * @param <T>                  Generic type
+     * @param timeoutDuration      time out duration
+     * @param timeUnit             Time Unit
      * @return wrapped callback that is tied to this reactor.
      */
     public <T> Callback<T> wrapCallbackErrorWithTimeout(
@@ -692,5 +693,20 @@ public class Reactor {
             errorHandler.onTimeout();
         }).withTimeoutTimeUnit(timeUnit).setTimeoutDuration(timeoutDuration)
                 .build();
+    }
+
+    /**
+     * A repeating task.
+     */
+    class RepeatingTask {
+        private final Runnable task;
+        private final long repeatEveryMS;
+        private long lastTimeInvoked;
+
+
+        public RepeatingTask(Runnable task, TimeUnit timeUnit, long repeatEvery) {
+            this.task = task;
+            this.repeatEveryMS = timeUnit.toMillis(repeatEvery);
+        }
     }
 }

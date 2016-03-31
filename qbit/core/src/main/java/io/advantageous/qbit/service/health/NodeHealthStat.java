@@ -7,14 +7,15 @@ import java.util.Optional;
 /**
  * Internal class to hold health status.
  */
-public class NodeHealthStat implements Cloneable{
+public class NodeHealthStat implements Cloneable {
     private final String name;
     private final long ttlInMS;
     private long lastCheckIn;
     private HealthFailReason reason = HealthFailReason.NONE;
     private HealthStatus status = HealthStatus.UNKNOWN;
 
-    private @JsonIgnore
+    private
+    @JsonIgnore
     Optional<Throwable> error = Optional.empty();
 
     public NodeHealthStat(final String name, final long ttlInMS) {
@@ -40,20 +41,20 @@ public class NodeHealthStat implements Cloneable{
         return lastCheckIn;
     }
 
-    public HealthFailReason getReason() {
-        return reason;
-    }
-
-    public HealthStatus getStatus() {
-        return status;
-    }
-
     public void setLastCheckIn(long lastCheckIn) {
         this.lastCheckIn = lastCheckIn;
     }
 
+    public HealthFailReason getReason() {
+        return reason;
+    }
+
     public void setReason(HealthFailReason reason) {
         this.reason = reason;
+    }
+
+    public HealthStatus getStatus() {
+        return status;
     }
 
     public void setStatus(HealthStatus status) {
@@ -94,7 +95,7 @@ public class NodeHealthStat implements Cloneable{
 
     @Override
     protected Object clone() throws CloneNotSupportedException {
-        NodeHealthStat node =  new NodeHealthStat(name, ttlInMS);
+        NodeHealthStat node = new NodeHealthStat(name, ttlInMS);
         node.reason = this.reason;
         node.error = this.error;
         node.status = this.status;

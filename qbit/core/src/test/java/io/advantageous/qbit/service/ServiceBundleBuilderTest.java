@@ -32,25 +32,6 @@ public class ServiceBundleBuilderTest {
 
     }
 
-    @Named("A")
-    static class MyService {
-
-        int counter;
-        public void foo() {
-
-            counter++;
-
-            if (counter % 1000 == 0) {
-                Sys.sleep(20);
-            }
-
-        }
-    }
-
-    interface IMyService {
-        void foo();
-    }
-
     @Test
     public void testSetStatsCollector() throws Exception {
 
@@ -94,8 +75,8 @@ public class ServiceBundleBuilderTest {
             proxy.foo();
             timer.seconds(6);
 
-            if (index % 100 ==0)
-            ServiceProxyUtils.flushServiceProxy(proxy);
+            if (index % 100 == 0)
+                ServiceProxyUtils.flushServiceProxy(proxy);
         }
 
 
@@ -113,12 +94,32 @@ public class ServiceBundleBuilderTest {
             proxy.foo();
             timer.seconds(6);
 
-            if (index % 100 ==0)
+            if (index % 100 == 0)
                 ServiceProxyUtils.flushServiceProxy(proxy);
         }
 
 
         Sys.sleep(1_000);
 
+    }
+
+    interface IMyService {
+        void foo();
+    }
+
+    @Named("A")
+    static class MyService {
+
+        int counter;
+
+        public void foo() {
+
+            counter++;
+
+            if (counter % 1000 == 0) {
+                Sys.sleep(20);
+            }
+
+        }
     }
 }

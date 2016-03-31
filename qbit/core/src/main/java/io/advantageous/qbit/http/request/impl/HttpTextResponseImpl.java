@@ -3,7 +3,7 @@ package io.advantageous.qbit.http.request.impl;
 import io.advantageous.qbit.http.request.HttpTextResponse;
 import io.advantageous.qbit.util.MultiMap;
 
-public class HttpTextResponseImpl implements HttpTextResponse{
+public class HttpTextResponseImpl implements HttpTextResponse {
 
     private final int code;
     private final String contentType;

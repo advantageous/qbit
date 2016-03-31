@@ -59,7 +59,7 @@ package io.advantageous.qbit.service;
 
 /**
  * A service that can be flushed.
- *  created by rhightower on 2/18/15.
+ * created by rhightower on 2/18/15.
  */
 public interface ServiceFlushable {
 

@@ -174,7 +174,7 @@ public class ServiceBundleImpl implements ServiceBundle {
         this.timer = timer;
         this.sampleStatFlushRate = sampleStatFlushRate;
         this.checkTimingEveryXCalls = checkTimingEveryXCalls;
-        this.callbackManager  = callbackManager;
+        this.callbackManager = callbackManager;
         this.beforeMethodSent = beforeMethodSent;
 
         String rootAddress;
@@ -278,7 +278,6 @@ public class ServiceBundleImpl implements ServiceBundle {
         }
 
 
-
         if (serviceObject instanceof ServiceQueue) {
             addServiceService(serviceAddress, (ServiceQueue) serviceObject);
             return this;
@@ -307,12 +306,12 @@ public class ServiceBundleImpl implements ServiceBundle {
                 ? AnnotationUtils.readServiceName(serviceObject)
                 : serviceAddress;
 
-        if (healthService!=null) {
+        if (healthService != null) {
             serviceBuilder.registerHealthChecks(healthService, bindStatHealthName);
         }
 
 
-        if (statsCollector!=null) {
+        if (statsCollector != null) {
             /*
               The default is to flush stats every five seconds, and sample
               every 10_000 queue calls.

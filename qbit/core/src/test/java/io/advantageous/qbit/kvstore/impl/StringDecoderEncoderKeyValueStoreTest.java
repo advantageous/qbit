@@ -20,15 +20,6 @@ public class StringDecoderEncoderKeyValueStoreTest {
 
     private KeyValueStoreService<Todo> keyValueStoreService;
     private JsonKeyValueStoreServiceBuilder jsonKeyValueStoreServiceBuilder;
-
-    private class Todo {
-        final String name;
-
-        private Todo(String name) {
-            this.name = name;
-        }
-    }
-
     private TestTimer testTimer;
 
     @Before
@@ -53,7 +44,6 @@ public class StringDecoderEncoderKeyValueStoreTest {
 
 
     }
-
 
     @Test
     public void testTodo() {
@@ -203,10 +193,15 @@ public class StringDecoderEncoderKeyValueStoreTest {
         jsonKeyValueStoreServiceBuilder.buildKeyListOfValueStore(Todo.class);
 
 
-
     }
 
+    private class Todo {
+        final String name;
 
+        private Todo(String name) {
+            this.name = name;
+        }
+    }
 
 
 }

@@ -121,7 +121,6 @@ public class HealthServiceImplTest {
     }
 
 
-
     @Test
     public void testCheckInOkUsingCheckIn() throws Exception {
 

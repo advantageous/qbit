@@ -182,7 +182,6 @@ public class LoadTestingTest {
             }
 
 
-
         }
 
 
@@ -247,7 +246,6 @@ public class LoadTestingTest {
 
 
         final long endTime2 = System.currentTimeMillis();
-
 
 
         ok = returnCount == callCount || die();

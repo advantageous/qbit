@@ -12,41 +12,11 @@ import java.util.concurrent.LinkedTransferQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 
-public class QueueToStreamUnicast<T> implements Publisher<T>{
+public class QueueToStreamUnicast<T> implements Publisher<T> {
 
 
     private final Queue<T> queue;
     private final Runnable onSubscriptionEmpty;
-
-
-    class SubscriptionImpl implements Subscription {
-
-        private final LinkedTransferQueue<Long> requests = new LinkedTransferQueue<>();
-        private final AtomicBoolean stop = new AtomicBoolean();
-
-        @Override
-        public void request(long n) {
-            requests.offer(n);
-        }
-
-        @Override
-        public void cancel() {
-            stop.set(true);
-        }
-
-        public long count(long count) {
-
-            Long requested = requests.poll();
-
-            while (requested!=null) {
-                count += requested;
-                requested = requests.poll();
-            }
-
-            return count;
-        }
-
-    }
 
 
     public QueueToStreamUnicast(final Queue<T> queue) {
@@ -138,7 +108,7 @@ public class QueueToStreamUnicast<T> implements Publisher<T>{
                 /** This could be pluggable so you can do a spin wait. */
                 private void waitForCountsIfNeeded() {
                     if (sendThisMany == 0) {
-                       onSubscriptionEmpty.run();
+                        onSubscriptionEmpty.run();
                         for (int index = 0; index < 100_000; index++) {
                             initStreamState();
                             if (sendThisMany > 0 || stop) break;
@@ -172,8 +142,37 @@ public class QueueToStreamUnicast<T> implements Publisher<T>{
                     }
                 }
             });
-        }catch (Exception ex) {
+        } catch (Exception ex) {
             subscriber.onError(ex);
         }
+    }
+
+    class SubscriptionImpl implements Subscription {
+
+        private final LinkedTransferQueue<Long> requests = new LinkedTransferQueue<>();
+        private final AtomicBoolean stop = new AtomicBoolean();
+
+        @Override
+        public void request(long n) {
+            requests.offer(n);
+        }
+
+        @Override
+        public void cancel() {
+            stop.set(true);
+        }
+
+        public long count(long count) {
+
+            Long requested = requests.poll();
+
+            while (requested != null) {
+                count += requested;
+                requested = requests.poll();
+            }
+
+            return count;
+        }
+
     }
 }

@@ -55,7 +55,8 @@ public class BoonClientTest {
 
     @Before
     public void setUp() throws Exception {
-        client = new BoonClientFactory().create("/uri", new HttpClientMock(), 10, new BeforeMethodSent() {});
+        client = new BoonClientFactory().create("/uri", new HttpClientMock(), 10, new BeforeMethodSent() {
+        });
         FactorySPI.setHttpClientFactory((host, port, timeOutInMilliseconds, poolSize, autoFlush, flushRate, keepAlive,
                                          pipeLine, ssl, verifyHost, trustAll, maxWebSocketFrameSize,
                                          tryUseCompression, trustStorePath, trustStorePassword, tcpNoDelay, soLinger) ->

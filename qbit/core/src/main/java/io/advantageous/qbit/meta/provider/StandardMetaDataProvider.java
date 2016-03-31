@@ -35,7 +35,7 @@ public class StandardMetaDataProvider implements MetaDataProvider {
 
 
     private final Map<String, RequestMetaData> metaDataMap = new ConcurrentHashMap<>(100);
-    private final NavigableMap<String, NavigableMap<Integer,RequestMetaData>> treeMap = new TreeMap<>();
+    private final NavigableMap<String, NavigableMap<Integer, RequestMetaData>> treeMap = new TreeMap<>();
     private final RequestMethod httpRequestMethod;
 
     private final Logger logger = LoggerFactory.getLogger(StandardMetaDataProvider.class);
@@ -94,7 +94,7 @@ public class StandardMetaDataProvider implements MetaDataProvider {
         } else if (requestMeta.getCallType() == CallType.ADDRESS_WITH_PATH_PARAMS) {
 
             final String requestPath =
-                StringScanner.substringBefore(requestMeta.getRequestURI(), "{");
+                    StringScanner.substringBefore(requestMeta.getRequestURI(), "{");
 
 
             final String path = Str.join('/', context.getRootURI(), servicePath, requestPath).replaceAll("//*", "/");
@@ -126,7 +126,7 @@ public class StandardMetaDataProvider implements MetaDataProvider {
             }
 
 
-            int count = Str.split(servicePath+requestURI, '/').length -1;
+            int count = Str.split(servicePath + requestURI, '/').length - 1;
 
             map.put(count, metaData);
 
@@ -147,12 +147,12 @@ public class StandardMetaDataProvider implements MetaDataProvider {
 
             final String requestURI = Str.isEmpty(rootURI) ? path : StringScanner.substringAfter(path, rootURI);
 
-            int count = Str.split(requestURI, '/').length -1;
+            int count = Str.split(requestURI, '/').length - 1;
             NavigableMap<Integer, RequestMetaData> uriParamMap = uriParamNumMapEntry.getValue();
 
             requestMetaData = uriParamMap.get(count);
 
-            if (requestMetaData!=null && path.startsWith(requestMetaData.getPath())) {
+            if (requestMetaData != null && path.startsWith(requestMetaData.getPath())) {
                 return requestMetaData;
             } else {
                 return null;

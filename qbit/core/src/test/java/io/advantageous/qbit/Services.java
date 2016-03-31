@@ -32,7 +32,7 @@ import io.advantageous.qbit.transforms.JsonResponseTransformer;
 public class Services {
 
     public static ServiceQueue jsonService(final String name, Object service
-                                           ) {
+    ) {
         JsonMapper mapper = new BoonJsonMapper();
 
 

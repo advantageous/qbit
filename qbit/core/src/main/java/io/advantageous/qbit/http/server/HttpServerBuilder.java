@@ -57,6 +57,10 @@ public class HttpServerBuilder {
     private CopyOnWriteArrayList<HttpResponseDecorator> responseDecorators = new CopyOnWriteArrayList<>();
     private HttpResponseCreator httpResponseCreator = new HttpResponseCreatorDefault();
 
+    public static HttpServerBuilder httpServerBuilder() {
+        return new HttpServerBuilder();
+    }
+
     public CopyOnWriteArrayList<HttpResponseDecorator> getResponseDecorators() {
         return responseDecorators;
     }
@@ -65,7 +69,6 @@ public class HttpServerBuilder {
         this.responseDecorators = decorators;
         return this;
     }
-
 
     public HttpServerBuilder addResponseDecorator(final HttpResponseDecorator decorator) {
         responseDecorators.add(decorator);
@@ -80,7 +83,6 @@ public class HttpServerBuilder {
         this.httpResponseCreator = httpResponseCreator;
         return null;
     }
-
 
     public RequestContinuePredicate getRequestBodyContinuePredicate() {
         if (requestBodyContinuePredicate == null) {
@@ -101,7 +103,6 @@ public class HttpServerBuilder {
         return this;
     }
 
-
     public HttpServerBuilder addRequestBodyContinuePredicate(final Predicate<HttpRequest> predicate) {
         getRequestBodyContinuePredicate().add(predicate);
         return this;
@@ -111,7 +112,6 @@ public class HttpServerBuilder {
         getRequestContinuePredicate().add(predicate);
         return this;
     }
-
 
     public ServiceDiscovery getServiceDiscovery() {
         return serviceDiscovery;
@@ -143,10 +143,6 @@ public class HttpServerBuilder {
         return this;
     }
 
-    public static HttpServerBuilder httpServerBuilder() {
-        return new HttpServerBuilder();
-    }
-
     public QBitSystemManager getSystemManager() {
         return qBitSystemManager;
     }
@@ -168,7 +164,6 @@ public class HttpServerBuilder {
         this.httpServerConfig = httpServerConfig;
         return this;
     }
-
 
 
     public int getWorkers() {
@@ -251,7 +246,7 @@ public class HttpServerBuilder {
                 this.getRequestBodyContinuePredicate()
         );
 
-        if (requestContinuePredicate!=null) {
+        if (requestContinuePredicate != null) {
             httpServer.setShouldContinueHttpRequest(requestContinuePredicate);
         }
 

@@ -20,48 +20,6 @@ import static org.junit.Assert.*;
 
 public class StreamToIteratorTest {
 
-    class MockPublisher implements Publisher<String> {
-
-        private Subscriber<? super String> subscriber;
-        private int requestedCount;
-
-        @Override
-        public void subscribe(Subscriber<? super String> subscriber) {
-            this.subscriber = subscriber;
-
-            this.subscriber.onSubscribe(new Subscription() {
-                @Override
-                public void request(long n) {
-                    requestedCount+=n;
-                }
-
-                @Override
-                public void cancel() {
-
-                }
-            });
-
-
-        }
-
-        public void send(String string) {
-
-            if (requestedCount > 0) {
-                subscriber.onNext(string);
-                requestedCount--;
-            }
-        }
-
-        public void close() {
-            subscriber.onComplete();
-        }
-
-        public void sendError(Throwable t) {
-            subscriber.onError(t);
-        }
-    }
-
-
     @Test
     public void testGoCode() {
         final MockPublisher mockPublisher = new MockPublisher();
@@ -87,7 +45,6 @@ public class StreamToIteratorTest {
 
     }
 
-
     @Test
     public void testImmediateClose() {
         final MockPublisher mockPublisher = new MockPublisher();
@@ -108,8 +65,6 @@ public class StreamToIteratorTest {
         assertFalse(iterator.hasNext());
 
     }
-
-
 
     @Test
     public void testTwoHasNextChecks() {
@@ -158,7 +113,6 @@ public class StreamToIteratorTest {
 
     }
 
-
     @Test(expected = NoSuchElementException.class)
     public void testForceNoElementException() {
 
@@ -171,7 +125,6 @@ public class StreamToIteratorTest {
         iterator.next();
 
     }
-
 
     @Test
     public void test100Elements() {
@@ -195,7 +148,6 @@ public class StreamToIteratorTest {
         assertEquals(100, i);
 
     }
-
 
     @Test
     public void test100ElementsPipeline10() {
@@ -253,7 +205,46 @@ public class StreamToIteratorTest {
         assertEquals(100, i);
 
 
+    }
+
+    class MockPublisher implements Publisher<String> {
+
+        private Subscriber<? super String> subscriber;
+        private int requestedCount;
+
+        @Override
+        public void subscribe(Subscriber<? super String> subscriber) {
+            this.subscriber = subscriber;
+
+            this.subscriber.onSubscribe(new Subscription() {
+                @Override
+                public void request(long n) {
+                    requestedCount += n;
+                }
+
+                @Override
+                public void cancel() {
+
+                }
+            });
 
 
+        }
+
+        public void send(String string) {
+
+            if (requestedCount > 0) {
+                subscriber.onNext(string);
+                requestedCount--;
+            }
+        }
+
+        public void close() {
+            subscriber.onComplete();
+        }
+
+        public void sendError(Throwable t) {
+            subscriber.onError(t);
+        }
     }
 }

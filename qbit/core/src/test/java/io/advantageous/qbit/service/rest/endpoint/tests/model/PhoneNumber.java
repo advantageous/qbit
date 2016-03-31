@@ -4,7 +4,7 @@ public class PhoneNumber {
 
     private final String phoneNumber;
 
-    public  PhoneNumber(final String phoneNumber) {
+    public PhoneNumber(final String phoneNumber) {
         this.phoneNumber = phoneNumber;
     }
 

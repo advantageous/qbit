@@ -94,22 +94,23 @@ public class BaseServiceQueueImpl implements ServiceQueue {
     protected final QueueBuilder requestQueueBuilder;
     protected final QueueBuilder responseQueueBuilder;
     protected final boolean handleCallbacks;
+    protected final ServiceMethodHandler serviceMethodHandler;
+    protected final SendQueue<Response<Object>> responseSendQueue;
     private final Factory factory;
     private final BeforeMethodSent beforeMethodSent;
     private final Optional<EventManager> eventManager;
     private final boolean joinEventManager;
-    protected volatile long lastResponseFlushTime = Timer.timer().now();
-    protected final ServiceMethodHandler serviceMethodHandler;
-    protected final SendQueue<Response<Object>> responseSendQueue;
     private final AtomicBoolean started = new AtomicBoolean(false);
     private final BeforeMethodCall beforeMethodCall;
     private final BeforeMethodCall beforeMethodCallAfterTransform;
     private final AfterMethodCall afterMethodCall;
     private final AfterMethodCall afterMethodCallAfterTransform;
-    private Transformer<Request, Object> requestObjectTransformer = ServiceConstants.NO_OP_ARG_TRANSFORM;
-    private Transformer<Response<Object>, Response> responseObjectTransformer = new NoOpResponseTransformer();
     private final CallbackManager callbackManager;
     private final QueueCallBackHandler queueCallBackHandler;
+    protected volatile long lastResponseFlushTime = Timer.timer().now();
+    private Transformer<Request, Object> requestObjectTransformer = ServiceConstants.NO_OP_ARG_TRANSFORM;
+    private Transformer<Response<Object>, Response> responseObjectTransformer = new NoOpResponseTransformer();
+    private AtomicBoolean failing = new AtomicBoolean();
 
     public BaseServiceQueueImpl(final String rootAddress,
                                 final String serviceAddress,
@@ -143,7 +144,7 @@ public class BaseServiceQueueImpl implements ServiceQueue {
 
         this.callbackManager = callbackManager;
 
-        if (queueCallBackHandler==null) {
+        if (queueCallBackHandler == null) {
             this.queueCallBackHandler = new QueueCallBackHandler() {
                 @Override
                 public void queueLimit() {
@@ -335,7 +336,6 @@ public class BaseServiceQueueImpl implements ServiceQueue {
         }
     }
 
-
     public BaseServiceQueueImpl requestObjectTransformer(Transformer<Request, Object> requestObjectTransformer) {
         this.requestObjectTransformer = requestObjectTransformer;
         return this;
@@ -346,15 +346,14 @@ public class BaseServiceQueueImpl implements ServiceQueue {
         return this;
     }
 
-
     /**
      * This method is where all of the action is.
      *
      * @param methodCall           methodCall
      * @param serviceMethodHandler handler
      */
-    private boolean doHandleMethodCall( MethodCall<Object> methodCall,
-                                        final ServiceMethodHandler serviceMethodHandler) {
+    private boolean doHandleMethodCall(MethodCall<Object> methodCall,
+                                       final ServiceMethodHandler serviceMethodHandler) {
         if (debug) {
             logger.debug("ServiceImpl::doHandleMethodCall() METHOD CALL" + methodCall);
         }
@@ -634,8 +633,6 @@ public class BaseServiceQueueImpl implements ServiceQueue {
         manageResponseQueue();
     }
 
-
-    private AtomicBoolean failing = new AtomicBoolean();
     @Override
     public boolean failing() {
         return failing.get();
@@ -701,7 +698,7 @@ public class BaseServiceQueueImpl implements ServiceQueue {
         final Method[] declaredMethods = classMeta.cls().getDeclaredMethods();
 
         for (Method m : declaredMethods) {
-        if (!(m.getReturnType() == void.class)) {
+            if (!(m.getReturnType() == void.class)) {
                 throw new IllegalStateException("Async interface can only return void " + serviceInterface.getName());
             }
         }
@@ -746,7 +743,7 @@ public class BaseServiceQueueImpl implements ServiceQueue {
                 } else {
                     timestamp++;
                 }
-                if (beforeMethodSent==null) {
+                if (beforeMethodSent == null) {
                     final MethodCallLocal call = new MethodCallLocal(method.getName(), uuid, timestamp, messageId, args, null, null);
                     methodCallSendQueue.send(call);
                 } else {

@@ -12,7 +12,6 @@ import static org.junit.Assert.*;
 public class ReactorTest {
 
 
-
     @Test
     public void testTimeOutCallback() throws Exception {
 
@@ -74,7 +73,7 @@ public class ReactorTest {
             callbackFlag.set(true);
             callbackCounter.incrementAndGet();
         })
-        .build();
+                .build();
 
         reactor.process();
 
@@ -135,7 +134,7 @@ public class ReactorTest {
             errorCounter.incrementAndGet();
             errorFlag.set(true);
         })
-        .build();
+                .build();
 
         reactor.process();
 
@@ -172,7 +171,7 @@ public class ReactorTest {
 
         try {
             assertNotNull(callback.get());
-        }catch (Exception ex) {
+        } catch (Exception ex) {
             assertTrue(ex.getMessage().endsWith("callback exception"));
 
         }

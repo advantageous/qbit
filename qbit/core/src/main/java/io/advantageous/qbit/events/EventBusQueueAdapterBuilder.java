@@ -25,7 +25,7 @@ public class EventBusQueueAdapterBuilder {
      */
     private String channel;
 
-    public static EventBusQueueAdapterBuilder eventBusQueueAdapterBuilder () {
+    public static EventBusQueueAdapterBuilder eventBusQueueAdapterBuilder() {
         return new EventBusQueueAdapterBuilder();
     }
 
@@ -75,6 +75,6 @@ public class EventBusQueueAdapterBuilder {
     }
 
     public <T> EventBusQueueAdapter<T> build() {
-        return new EventBusQueueAdapter<> ((Supplier<Queue<T>>) (Object) getQueueSupplier(), getEventManager(), getChannel());
+        return new EventBusQueueAdapter<>((Supplier<Queue<T>>) (Object) getQueueSupplier(), getEventManager(), getChannel());
     }
 }

@@ -41,6 +41,22 @@ public class VertxHttpResponseReceiver implements HttpResponseReceiver<Object> {
 
     }
 
+    private static Buffer createBuffer(Object body, HttpServerResponse response) {
+        Buffer buffer = null;
+
+        if (body instanceof byte[]) {
+            byte[] bBody = ((byte[]) body);
+            response.putHeader("Content-Length", String.valueOf(bBody.length));
+            buffer = Buffer.buffer(bBody);
+        } else if (body instanceof String) {
+            String sBody = ((String) body);
+            byte[] bBody = sBody.getBytes(StandardCharsets.UTF_8);
+            response.putHeader("Content-Length", String.valueOf(bBody.length));
+            buffer = Buffer.buffer(bBody);
+        }
+        return buffer;
+    }
+
     @Override
     public void response(int code, String contentType, Object body) {
 
@@ -50,7 +66,6 @@ public class VertxHttpResponseReceiver implements HttpResponseReceiver<Object> {
     @Override
     public void response(final int code, final String contentType, final Object body,
                          final MultiMap<String, String> responseHeaders) {
-
 
 
         final HttpResponse<?> decoratedResponse = decorators.size() > 0 ? httpResponseCreator.createResponse(
@@ -70,41 +85,25 @@ public class VertxHttpResponseReceiver implements HttpResponseReceiver<Object> {
 
     private void doResponse(final int code, final String contentType, final Object body,
                             final MultiMap<String, String> headers) {
-        if (headers!= null && !headers.isEmpty()) {
+        if (headers != null && !headers.isEmpty()) {
             for (Map.Entry<String, Collection<String>> entry : headers) {
                 this.response.putHeader(entry.getKey(), entry.getValue());
             }
         }
 
-        if (contentType!=null) {
+        if (contentType != null) {
             this.response.putHeader("Content-Type", contentType);
         }
         this.response.setStatusCode(code);
 
         final String message = HttpStatus.message(code);
-        if (message!=null) {
+        if (message != null) {
             this.response.setStatusMessage(message);
         }
 
 
         final Buffer buffer = createBuffer(body, this.response);
         this.response.end(buffer);
-    }
-
-    private static Buffer createBuffer(Object body, HttpServerResponse response) {
-        Buffer buffer = null;
-
-        if (body instanceof byte[]) {
-            byte[] bBody = ((byte[]) body);
-            response.putHeader("Content-Length", String.valueOf(bBody.length));
-            buffer = Buffer.buffer(bBody);
-        } else if (body instanceof String) {
-            String sBody = ((String) body);
-            byte[] bBody = sBody.getBytes(StandardCharsets.UTF_8);
-            response.putHeader("Content-Length", String.valueOf(bBody.length));
-            buffer = Buffer.buffer(bBody);
-        }
-        return buffer;
     }
 
 

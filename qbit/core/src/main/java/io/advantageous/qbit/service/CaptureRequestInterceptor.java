@@ -9,8 +9,10 @@ import io.advantageous.qbit.message.Response;
 public class CaptureRequestInterceptor implements BeforeMethodCall, AfterMethodCall {
 
 
-    /** Captures the current method call and if originating as an HttpRequest,
+    /**
+     * Captures the current method call and if originating as an HttpRequest,
      * then we pass the HttpRequest into the the RequestContext.
+     *
      * @param methodCall methodCall
      * @return always true which means continue.
      */
@@ -24,8 +26,9 @@ public class CaptureRequestInterceptor implements BeforeMethodCall, AfterMethodC
 
     /**
      * Clear the request out of the context
+     *
      * @param methodCall methodCall
-     * @param response response
+     * @param response   response
      * @return always true
      */
     @Override

@@ -23,7 +23,6 @@ import org.slf4j.LoggerFactory;
 import java.util.concurrent.TransferQueue;
 
 
-
 /**
  * This is not thread safe.
  * Create a new for every thread by calling BasicQueue.sendQueue().
@@ -54,12 +53,11 @@ public class BasicSendQueueWithTransferQueue<T> extends AbstractBasicSendQueue<T
     }
 
 
-
     public final boolean shouldBatch() {
         return !queue.hasWaitingConsumer();
     }
 
-    protected final  boolean flushIfOverBatch() {
+    protected final boolean flushIfOverBatch() {
 
         if (index >= batchSize) {
             return sendLocalQueue();

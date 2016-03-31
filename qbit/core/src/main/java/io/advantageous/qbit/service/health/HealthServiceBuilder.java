@@ -26,15 +26,15 @@ public class HealthServiceBuilder {
     private ServiceBuilder serviceBuilder;
     private ServiceQueue serviceQueue;
     private Timer timer;
-    private long recheckInterval=10;
+    private long recheckInterval = 10;
     private TimeUnit timeUnit;
     private boolean autoFlush;
     private Optional<Consumer<NodeHealthStat>> onFail = Optional.empty();
     private Optional<Consumer<NodeHealthStat>> onWarn = Optional.empty();
     private Optional<Consumer<NodeHealthStat>> onCheckIn = Optional.empty();
-    private  StatsCollector statsCollector;
-    private  Reactor reactor;
-    private  String statKeyPrefix = "health";
+    private StatsCollector statsCollector;
+    private Reactor reactor;
+    private String statKeyPrefix = "health";
     private List<HealthCheckJob> healthCheckJobs;
 
 
@@ -76,7 +76,6 @@ public class HealthServiceBuilder {
     }
 
 
-
     public List<HealthCheckJob> getHealthCheckJobs() {
         if (healthCheckJobs == null) {
             healthCheckJobs = new ArrayList<>();
@@ -104,7 +103,6 @@ public class HealthServiceBuilder {
         this.getHealthCheckJobs().add(new HealthCheckJob(healthCheck, new Duration(duration, timeUnit), name));
         return this;
     }
-
 
 
     public Reactor getReactor() {

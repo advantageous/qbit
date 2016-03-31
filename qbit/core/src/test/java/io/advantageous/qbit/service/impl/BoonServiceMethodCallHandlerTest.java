@@ -40,11 +40,215 @@ public class BoonServiceMethodCallHandlerTest {
     boolean methodCalled;
     boolean ok;
 
+    @Test
+    public void testInit() {
+
+        class MyService {
+
+            boolean called;
+
+            @QueueCallback(QueueCallbackType.INIT)
+            private void init() {
 
 
+                called = true;
+            }
+
+        }
 
 
+        MyService myService = new MyService();
 
+        final BoonServiceMethodCallHandler boonServiceMethodCallHandler = new BoonServiceMethodCallHandler(true);
+        boonServiceMethodCallHandler.init(myService, "", "", new SendQueue<Response<Object>>() {
+
+        });
+
+        boonServiceMethodCallHandler.limit();
+        boonServiceMethodCallHandler.empty();
+        boonServiceMethodCallHandler.startBatch();
+        boonServiceMethodCallHandler.shutdown();
+        boonServiceMethodCallHandler.idle();
+        assertFalse(myService.called);
+
+
+        boonServiceMethodCallHandler.init();
+        assertTrue(myService.called);
+    }
+
+    @Test
+    public void testLimit() {
+
+        class MyService {
+
+            boolean called;
+
+            @QueueCallback(QueueCallbackType.LIMIT)
+            private void limit() {
+
+
+                called = true;
+            }
+
+        }
+
+        MyService myService = new MyService();
+
+        final BoonServiceMethodCallHandler boonServiceMethodCallHandler = new BoonServiceMethodCallHandler(true);
+        boonServiceMethodCallHandler.init(myService, "", "", new SendQueue<Response<Object>>() {
+
+        });
+
+        boonServiceMethodCallHandler.init();
+        boonServiceMethodCallHandler.empty();
+        boonServiceMethodCallHandler.startBatch();
+        boonServiceMethodCallHandler.shutdown();
+        boonServiceMethodCallHandler.idle();
+        assertFalse(myService.called);
+
+
+        boonServiceMethodCallHandler.limit();
+        assertTrue(myService.called);
+    }
+
+    @Test
+    public void testIdle() {
+
+        class MyService {
+
+            boolean called;
+
+            @QueueCallback(QueueCallbackType.IDLE)
+            private void idle() {
+
+
+                called = true;
+            }
+
+        }
+
+        MyService myService = new MyService();
+
+        final BoonServiceMethodCallHandler boonServiceMethodCallHandler = new BoonServiceMethodCallHandler(true);
+        boonServiceMethodCallHandler.init(myService, "", "", new SendQueue<Response<Object>>() {
+
+        });
+
+        boonServiceMethodCallHandler.init();
+        boonServiceMethodCallHandler.limit();
+        boonServiceMethodCallHandler.empty();
+        boonServiceMethodCallHandler.startBatch();
+        boonServiceMethodCallHandler.shutdown();
+        assertFalse(myService.called);
+
+
+        boonServiceMethodCallHandler.idle();
+        assertTrue(myService.called);
+    }
+
+    @Test
+    public void testShutdown() {
+
+        class MyService {
+
+            boolean called;
+
+            @QueueCallback(QueueCallbackType.SHUTDOWN)
+            private void shutdown() {
+
+
+                called = true;
+            }
+
+        }
+
+        MyService myService = new MyService();
+
+        final BoonServiceMethodCallHandler boonServiceMethodCallHandler = new BoonServiceMethodCallHandler(true);
+        boonServiceMethodCallHandler.init(myService, "", "", new SendQueue<Response<Object>>() {
+
+        });
+
+        boonServiceMethodCallHandler.init();
+        boonServiceMethodCallHandler.limit();
+        boonServiceMethodCallHandler.empty();
+        boonServiceMethodCallHandler.idle();
+        boonServiceMethodCallHandler.startBatch();
+        assertFalse(myService.called);
+
+
+        boonServiceMethodCallHandler.shutdown();
+        assertTrue(myService.called);
+    }
+
+    @Test
+    public void testEmpty() {
+
+        class MyService {
+
+            boolean called;
+
+            @QueueCallback(QueueCallbackType.EMPTY)
+            private void method() {
+
+
+                called = true;
+            }
+
+        }
+
+        MyService myService = new MyService();
+
+        final BoonServiceMethodCallHandler boonServiceMethodCallHandler = new BoonServiceMethodCallHandler(true);
+        boonServiceMethodCallHandler.init(myService, "", "", new SendQueue<Response<Object>>() {
+
+        });
+
+        boonServiceMethodCallHandler.init();
+        boonServiceMethodCallHandler.limit();
+        boonServiceMethodCallHandler.shutdown();
+        boonServiceMethodCallHandler.idle();
+        boonServiceMethodCallHandler.startBatch();
+        assertFalse(myService.called);
+
+
+        boonServiceMethodCallHandler.empty();
+        assertTrue(myService.called);
+    }
+
+    @Test
+    public void testStartBatch() {
+
+        class MyService {
+
+            boolean called;
+
+            @QueueCallback(QueueCallbackType.START_BATCH)
+            private void method() {
+
+
+                called = true;
+            }
+
+        }
+        MyService myService = new MyService();
+
+        final BoonServiceMethodCallHandler boonServiceMethodCallHandler = new BoonServiceMethodCallHandler(true);
+        boonServiceMethodCallHandler.init(myService, "", "", new SendQueue<Response<Object>>() {
+
+        });
+
+        boonServiceMethodCallHandler.init();
+        boonServiceMethodCallHandler.limit();
+        boonServiceMethodCallHandler.empty();
+        boonServiceMethodCallHandler.shutdown();
+        boonServiceMethodCallHandler.idle();
+        assertFalse(myService.called);
+
+
+        boonServiceMethodCallHandler.startBatch();
+        assertTrue(myService.called);
+    }
 
     @RequestMapping("/boo/baz")
     class Foo {
@@ -83,221 +287,6 @@ public class BoonServiceMethodCallHandlerTest {
 
             methodCalled = true;
         }
-    }
-
-
-
-    @Test
-    public void testInit() {
-
-        class MyService {
-
-            boolean called;
-            @QueueCallback(QueueCallbackType.INIT)
-            private void init(){
-
-
-                called = true;
-            }
-
-        }
-
-
-        MyService myService = new MyService();
-
-        final BoonServiceMethodCallHandler boonServiceMethodCallHandler = new BoonServiceMethodCallHandler(true);
-        boonServiceMethodCallHandler.init(myService, "", "", new SendQueue<Response<Object>>() {
-
-        });
-
-        boonServiceMethodCallHandler.limit();
-        boonServiceMethodCallHandler.empty();
-        boonServiceMethodCallHandler.startBatch();
-        boonServiceMethodCallHandler.shutdown();
-        boonServiceMethodCallHandler.idle();
-        assertFalse(myService.called);
-
-
-        boonServiceMethodCallHandler.init();
-        assertTrue(myService.called);
-    }
-
-
-
-
-    @Test
-    public void testLimit() {
-
-        class MyService {
-
-            boolean called;
-            @QueueCallback(QueueCallbackType.LIMIT)
-            private void limit(){
-
-
-                called = true;
-            }
-
-        }
-
-        MyService myService = new MyService();
-
-        final BoonServiceMethodCallHandler boonServiceMethodCallHandler = new BoonServiceMethodCallHandler(true);
-        boonServiceMethodCallHandler.init(myService, "", "", new SendQueue<Response<Object>>() {
-
-        });
-
-        boonServiceMethodCallHandler.init();
-        boonServiceMethodCallHandler.empty();
-        boonServiceMethodCallHandler.startBatch();
-        boonServiceMethodCallHandler.shutdown();
-        boonServiceMethodCallHandler.idle();
-        assertFalse(myService.called);
-
-
-        boonServiceMethodCallHandler.limit();
-        assertTrue(myService.called);
-    }
-
-
-
-    @Test
-    public void testIdle() {
-
-        class MyService {
-
-            boolean called;
-            @QueueCallback(QueueCallbackType.IDLE)
-            private void idle(){
-
-
-                called = true;
-            }
-
-        }
-
-        MyService myService = new MyService();
-
-        final BoonServiceMethodCallHandler boonServiceMethodCallHandler = new BoonServiceMethodCallHandler(true);
-        boonServiceMethodCallHandler.init(myService, "", "", new SendQueue<Response<Object>>() {
-
-        });
-
-        boonServiceMethodCallHandler.init();
-        boonServiceMethodCallHandler.limit();
-        boonServiceMethodCallHandler.empty();
-        boonServiceMethodCallHandler.startBatch();
-        boonServiceMethodCallHandler.shutdown();
-        assertFalse(myService.called);
-
-
-        boonServiceMethodCallHandler.idle();
-        assertTrue(myService.called);
-    }
-
-    @Test
-    public void testShutdown() {
-
-        class MyService {
-
-            boolean called;
-            @QueueCallback(QueueCallbackType.SHUTDOWN)
-            private void shutdown(){
-
-
-                called = true;
-            }
-
-        }
-
-        MyService myService = new MyService();
-
-        final BoonServiceMethodCallHandler boonServiceMethodCallHandler = new BoonServiceMethodCallHandler(true);
-        boonServiceMethodCallHandler.init(myService, "", "", new SendQueue<Response<Object>>() {
-
-        });
-
-        boonServiceMethodCallHandler.init();
-        boonServiceMethodCallHandler.limit();
-        boonServiceMethodCallHandler.empty();
-        boonServiceMethodCallHandler.idle();
-        boonServiceMethodCallHandler.startBatch();
-        assertFalse(myService.called);
-
-
-
-        boonServiceMethodCallHandler.shutdown();
-        assertTrue(myService.called);
-    }
-
-    @Test
-    public void testEmpty() {
-
-        class MyService {
-
-            boolean called;
-            @QueueCallback(QueueCallbackType.EMPTY)
-            private void method(){
-
-
-                called = true;
-            }
-
-        }
-
-        MyService myService = new MyService();
-
-        final BoonServiceMethodCallHandler boonServiceMethodCallHandler = new BoonServiceMethodCallHandler(true);
-        boonServiceMethodCallHandler.init(myService, "", "", new SendQueue<Response<Object>>() {
-
-        });
-
-        boonServiceMethodCallHandler.init();
-        boonServiceMethodCallHandler.limit();
-        boonServiceMethodCallHandler.shutdown();
-        boonServiceMethodCallHandler.idle();
-        boonServiceMethodCallHandler.startBatch();
-        assertFalse(myService.called);
-
-
-
-        boonServiceMethodCallHandler.empty();
-        assertTrue(myService.called);
-    }
-
-
-    @Test
-    public void testStartBatch() {
-
-        class MyService {
-
-            boolean called;
-            @QueueCallback(QueueCallbackType.START_BATCH)
-            private void method(){
-
-
-                called = true;
-            }
-
-        }
-        MyService myService = new MyService();
-
-        final BoonServiceMethodCallHandler boonServiceMethodCallHandler = new BoonServiceMethodCallHandler(true);
-        boonServiceMethodCallHandler.init(myService, "", "", new SendQueue<Response<Object>>() {
-
-        });
-
-        boonServiceMethodCallHandler.init();
-        boonServiceMethodCallHandler.limit();
-        boonServiceMethodCallHandler.empty();
-        boonServiceMethodCallHandler.shutdown();
-        boonServiceMethodCallHandler.idle();
-        assertFalse(myService.called);
-
-
-
-        boonServiceMethodCallHandler.startBatch();
-        assertTrue(myService.called);
     }
 
 }

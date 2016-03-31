@@ -3,23 +3,24 @@ package io.advantageous.qbit.vertx.eventbus.bridge;
 import io.advantageous.boon.core.Predicate;
 import io.advantageous.qbit.Factory;
 import io.advantageous.qbit.QBit;
+import io.advantageous.qbit.annotation.RequestMethod;
 import io.advantageous.qbit.json.JsonMapper;
-import io.advantageous.qbit.message.Event;
 import io.advantageous.qbit.message.MethodCall;
-import io.advantageous.qbit.message.Response;
-import io.advantageous.qbit.queue.ReceiveQueue;
+import io.advantageous.qbit.meta.builder.ContextMetaBuilder;
+import io.advantageous.qbit.meta.provider.StandardMetaDataProvider;
+import io.advantageous.qbit.meta.transformer.StandardRequestTransformer;
 import io.advantageous.qbit.queue.SendQueue;
 import io.advantageous.qbit.service.ServiceBundle;
 import io.advantageous.qbit.service.ServiceQueue;
+import io.advantageous.qbit.util.Timer;
 import io.vertx.core.Vertx;
 import io.vertx.core.eventbus.EventBus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import io.advantageous.qbit.util.Timer;
 
-import java.util.HashSet;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Consumer;
 
 /**
  * Bridges the event bus bridge to QBit.
@@ -43,9 +44,13 @@ public class VertxEventBusBridgeBuilder {
     private Timer timer;
 
 
-    public static VertxEventBusBridgeBuilder vertxEventBusBridgeBuilder () {
+    private ContextMetaBuilder contextMetaBuilder = ContextMetaBuilder.contextMetaBuilder();
+
+
+    public static VertxEventBusBridgeBuilder vertxEventBusBridgeBuilder() {
         return new VertxEventBusBridgeBuilder();
     }
+
     public Timer getTimer() {
         if (timer == null) {
             timer = Timer.timer();
@@ -149,12 +154,13 @@ public class VertxEventBusBridgeBuilder {
     }
 
 
-    public VertxEventBusBridgeBuilder addBridgeAddress(String address) {
+    public VertxEventBusBridgeBuilder addBridgeAddress(String address, Class<?> classWithAnnotations) {
 
         if (addressesToBridge == null) {
             addressesToBridge = new HashSet<>();
         }
         addressesToBridge.add(address);
+        contextMetaBuilder.setRootURI("/").addService(classWithAnnotations);
         return this;
     }
 
@@ -171,6 +177,12 @@ public class VertxEventBusBridgeBuilder {
     }
 
     public VertxEventBusBridge build() {
+
+
+        final Map<RequestMethod, StandardMetaDataProvider> metaDataProviderMap = new ConcurrentHashMap<>();
+        metaDataProviderMap.put(RequestMethod.BRIDGE, new StandardMetaDataProvider(contextMetaBuilder.build(), RequestMethod.BRIDGE));
+        final StandardRequestTransformer standardRequestTransformer = new StandardRequestTransformer(metaDataProviderMap, Optional.of((Consumer<Throwable>) throwable -> logger.error("", throwable)));
+
         final VertxEventBusBridge bridge = new VertxEventBusBridge(this.getAddressesToBridge(),
                 this.getMethodCallSendQueue(),
                 this.getJsonMapper(),
@@ -179,7 +191,8 @@ public class VertxEventBusBridgeBuilder {
                 this.getTimer(),
                 this.getMethodCallPredicate(),
                 this.getFlushIntervalMS(),
-                this.isAutoStart());
+                this.isAutoStart(),
+                standardRequestTransformer);
         return bridge;
     }
 

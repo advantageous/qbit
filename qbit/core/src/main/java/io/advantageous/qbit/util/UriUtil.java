@@ -13,15 +13,15 @@ public class UriUtil {
         return createURIWithFull(scheme, null, host, port, null, null, null);
     }
 
-    public static  URI createURIWithPath(final String scheme, final String host, final int port, final  String path) {
+    public static URI createURIWithPath(final String scheme, final String host, final int port, final String path) {
         return createURIWithFull(scheme, null, host, port, path, null, null);
     }
 
-    public  static URI createURIWithFull(final String scheme,
-                         final String userInfo, final String host, final int port,
-                         final String path, final String query, final String fragment) {
+    public static URI createURIWithFull(final String scheme,
+                                        final String userInfo, final String host, final int port,
+                                        final String path, final String query, final String fragment) {
         try {
-            return new  URI(scheme, userInfo, host, port, path, query, fragment);
+            return new URI(scheme, userInfo, host, port, path, query, fragment);
         } catch (URISyntaxException e) {
             throw new IllegalStateException("Unable to create URI", e);
         }

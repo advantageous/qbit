@@ -32,6 +32,7 @@ public enum RequestMethod {
     CONNECT,
     HEAD,
     WEB_SOCKET,
+    BRIDGE,
     ALL_HTTP,
     ALL
 }

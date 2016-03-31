@@ -355,7 +355,7 @@ project('eventbus-replicator') {
 
 project('jms') {
 
-    javadoc.onlyIf {false}
+    javadoc.onlyIf { false }
 
     dependencies {
         compile project(":qbit:core")
@@ -452,7 +452,7 @@ project('test-support') {
     }
 }
 
-project('guice'){
+project('guice') {
     dependencies {
         compile project(":qbit:core")
         compile project(":qbit:vertx")

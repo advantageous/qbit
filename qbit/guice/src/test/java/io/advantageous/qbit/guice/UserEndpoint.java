@@ -8,8 +8,21 @@ import io.advantageous.qbit.annotation.RequestParam;
  */
 @RequestMapping("/user")
 public class UserEndpoint {
-    public static class SessionModel{
+    @RequestMapping("/register")
+    @Auth
+    public SessionModel register(
+            @RequestParam("email") String email,
+            @RequestParam("password") String password
+    ) {
+        return new SessionModel("SESSION_ID");
+    }
+
+    public static class SessionModel {
         private String session;
+
+        public SessionModel(String session) {
+            this.session = session;
+        }
 
         public String getSession() {
             return session;
@@ -19,18 +32,5 @@ public class UserEndpoint {
             this.session = session;
             return this;
         }
-
-        public SessionModel(String session) {
-            this.session = session;
-        }
-    }
-
-    @RequestMapping("/register")
-    @Auth
-    public SessionModel register(
-            @RequestParam("email") String email,
-            @RequestParam("password") String password
-    ) {
-        return new SessionModel("SESSION_ID");
     }
 }

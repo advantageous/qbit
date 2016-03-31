@@ -15,20 +15,18 @@ public class NoBatchSendQueue<T> implements SendQueue<T> {
 
     protected final LinkedTransferQueue<Object> queue;
     protected final Queue<T> owner;
-    private final Logger logger = LoggerFactory.getLogger(NoBatchSendQueue.class);
-    protected int checkEveryStarted = 0;
-    protected int index;
     protected final String name;
-
-
+    private final Logger logger = LoggerFactory.getLogger(NoBatchSendQueue.class);
     private final boolean checkStart = Sys.sysProp("QBIT_CHECK_START", false);
     private final int checkStartWarnEvery = Sys.sysProp("QBIT_CHECK_START_WARN_EVERY", 100);
     private final boolean checkQueueSize = Sys.sysProp("QBIT_CHECK_QUEUE_SIZE", false);
     private final int checkQueueSizeWarnIfOver = Sys.sysProp("QBIT_CHECK_QUEUE_SIZE_WARN_IF_OVER", 10);
+    protected int checkEveryStarted = 0;
+    protected int index;
 
     public NoBatchSendQueue(final LinkedTransferQueue<Object> queue,
                             final Queue<T> owner,
-                                  final String name) {
+                            final String name) {
         this.queue = queue;
         this.owner = owner;
         this.name = name;
@@ -51,7 +49,7 @@ public class NoBatchSendQueue<T> implements SendQueue<T> {
     private void checkStarted() {
 
 
-        if (checkQueueSize)  {
+        if (checkQueueSize) {
             if (queue.size() > checkQueueSizeWarnIfOver) {
                 logger.warn("{} :: name {} queue is filling up", this.getClass().getSimpleName(), name);
             }

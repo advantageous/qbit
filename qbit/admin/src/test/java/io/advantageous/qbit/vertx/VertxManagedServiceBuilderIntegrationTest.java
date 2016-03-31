@@ -32,6 +32,63 @@ public class VertxManagedServiceBuilderIntegrationTest {
     private TestVerticle testVerticle;
     private int port;
 
+    @Before
+    public void setup() throws Exception {
+
+
+        final CountDownLatch latch = new CountDownLatch(1);
+        port = PortUtils.findOpenPortStartAt(9000);
+        testVerticle = new TestVerticle(port);
+        vertx = Vertx.vertx(new VertxOptions().setWorkerPoolSize(5));
+        vertx.deployVerticle(testVerticle, res -> {
+            if (res.succeeded()) {
+                System.out.println("Deployment id is: " + res.result());
+            } else {
+                System.out.println("Deployment failed!");
+                res.cause().printStackTrace();
+            }
+            latch.countDown();
+        });
+
+
+        latch.await(5, TimeUnit.SECONDS);
+    }
+
+    @Test
+    public void test() {
+
+        final HttpClient client = HttpClientBuilder.httpClientBuilder().setHost("localhost").setPort(port).buildAndStart();
+        final HttpTextResponse response = client.postJson("/svr/rout1/", "\"hi\"");
+        assertEquals(202, response.code());
+        assertEquals("route1", response.body());
+
+
+        final HttpTextResponse response2 = client.postJson("/hello/world", "\"hi\"");
+        assertEquals(200, response2.code());
+        assertEquals("\"hi\"", response2.body());
+
+    }
+
+    @After
+    public void tearDown() throws Exception {
+
+        final CountDownLatch latch = new CountDownLatch(1);
+        vertx.close(res -> {
+            if (res.succeeded()) {
+                System.out.println("Vertx is closed? " + res.result());
+            } else {
+                System.out.println("Vertx failed closing");
+            }
+            latch.countDown();
+        });
+
+
+        latch.await(5, TimeUnit.SECONDS);
+        vertx = null;
+        testVerticle = null;
+
+    }
+
     @RequestMapping("/hello")
     public static class TestRestService {
 
@@ -45,7 +102,7 @@ public class VertxManagedServiceBuilderIntegrationTest {
 
         private final int port;
 
-        private  QBitSystemManager systemManager;
+        private QBitSystemManager systemManager;
 
         public TestVerticle(int port) {
             this.port = port;
@@ -96,7 +153,6 @@ public class VertxManagedServiceBuilderIntegrationTest {
                         .setHttpServer(httpServer).build();
 
 
-
                 endpointServer.startServer();
 
 
@@ -105,7 +161,7 @@ public class VertxManagedServiceBuilderIntegrationTest {
                  * Associate the router as a request handler for the vertxHttpServer.
                  */
                 vertxHttpServer.requestHandler(router::accept).listen(port);
-            }catch (Exception ex) {
+            } catch (Exception ex) {
                 ex.printStackTrace();
                 throw new IllegalStateException(ex);
             }
@@ -113,68 +169,10 @@ public class VertxManagedServiceBuilderIntegrationTest {
 
         public void stop() {
 
-            if (systemManager!=null) {
+            if (systemManager != null) {
                 systemManager.shutDown();
             }
         }
-
-    }
-
-    @Before
-    public void setup() throws Exception{
-
-
-        final CountDownLatch latch = new CountDownLatch(1);
-        port = PortUtils.findOpenPortStartAt(9000);
-        testVerticle = new TestVerticle(port);
-        vertx = Vertx.vertx(new VertxOptions().setWorkerPoolSize(5));
-        vertx.deployVerticle(testVerticle, res -> {
-            if (res.succeeded()) {
-                System.out.println("Deployment id is: " + res.result());
-            } else {
-                System.out.println("Deployment failed!");
-                res.cause().printStackTrace();
-            }
-            latch.countDown();
-        });
-
-
-        latch.await(5, TimeUnit.SECONDS);
-    }
-
-    @Test
-    public void test() {
-
-        final HttpClient client = HttpClientBuilder.httpClientBuilder().setHost("localhost").setPort(port).buildAndStart();
-        final HttpTextResponse response = client.postJson("/svr/rout1/", "\"hi\"");
-        assertEquals(202, response.code());
-        assertEquals("route1", response.body());
-
-
-        final HttpTextResponse response2 = client.postJson("/hello/world", "\"hi\"");
-        assertEquals(200, response2.code());
-        assertEquals("\"hi\"", response2.body());
-
-    }
-
-
-    @After
-    public void tearDown() throws Exception {
-
-        final CountDownLatch latch = new CountDownLatch(1);
-        vertx.close(res -> {
-            if (res.succeeded()) {
-                System.out.println("Vertx is closed? " + res.result());
-            } else {
-                System.out.println("Vertx failed closing");
-            }
-            latch.countDown();
-        });
-
-
-        latch.await(5, TimeUnit.SECONDS);
-        vertx = null;
-        testVerticle = null;
 
     }
 }

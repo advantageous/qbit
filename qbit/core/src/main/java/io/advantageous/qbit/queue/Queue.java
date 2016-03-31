@@ -84,8 +84,7 @@ public interface Queue<T> extends Stoppable {
     }
 
 
-
-    default String name()  {
+    default String name() {
         return "NO OP";
     }
 }

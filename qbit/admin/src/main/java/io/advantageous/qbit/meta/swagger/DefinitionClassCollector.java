@@ -22,44 +22,44 @@ public class DefinitionClassCollector {
 
     private final Logger logger = LoggerFactory.getLogger(DefinitionClassCollector.class);
 
-    private final  Map<Class, Schema> mappings =  Maps.map(
+    private final Map<Class, Schema> mappings = Maps.map(
             /* Adding common primitive and basic type mappings. */
-            String.class,           Schema.schema("string"),
-            StringBuffer.class,     Schema.schema("string"),
-            Date.class,             Schema.schemaWithFormat("string", "dateTime"),
-            Integer.class,          Schema.schemaWithFormat("integer", "int32"),
-            int.class,              Schema.schemaWithFormat("integer", "int32"),
-            Long.class,             Schema.schemaWithFormat("integer", "int64"),
-            long.class,             Schema.schemaWithFormat("integer", "int64"),
-            Float.class,            Schema.schemaWithFormat("number", "float"),
-            float.class,            Schema.schemaWithFormat("number", "float"),
-            Double.class,           Schema.schemaWithFormat("number", "double"),
-            double.class,           Schema.schemaWithFormat("number", "double"),
-            Boolean.class,          Schema.schemaWithFormat("boolean", ""),
-            boolean.class,          Schema.schemaWithFormat("boolean", ""),
-            byte.class,             Schema.schemaWithFormat("string", "byte"),
-            Byte.class,             Schema.schemaWithFormat("string", "byte")
+            String.class, Schema.schema("string"),
+            StringBuffer.class, Schema.schema("string"),
+            Date.class, Schema.schemaWithFormat("string", "dateTime"),
+            Integer.class, Schema.schemaWithFormat("integer", "int32"),
+            int.class, Schema.schemaWithFormat("integer", "int32"),
+            Long.class, Schema.schemaWithFormat("integer", "int64"),
+            long.class, Schema.schemaWithFormat("integer", "int64"),
+            Float.class, Schema.schemaWithFormat("number", "float"),
+            float.class, Schema.schemaWithFormat("number", "float"),
+            Double.class, Schema.schemaWithFormat("number", "double"),
+            double.class, Schema.schemaWithFormat("number", "double"),
+            Boolean.class, Schema.schemaWithFormat("boolean", ""),
+            boolean.class, Schema.schemaWithFormat("boolean", ""),
+            byte.class, Schema.schemaWithFormat("string", "byte"),
+            Byte.class, Schema.schemaWithFormat("string", "byte")
 
     );
 
 
     {
         /* Adding common primitive and basic type arrays. */
-        mappings.put(String[].class,        Schema.array(mappings.get(String.class)));
-        mappings.put(StringBuffer[].class,  Schema.array(mappings.get(StringBuffer.class)));
-        mappings.put(Date[].class,  Schema.array(mappings.get(Date.class)));
-        mappings.put(int[].class,  Schema.array(mappings.get(int.class)));
-        mappings.put(Integer[].class,  Schema.array(mappings.get(Integer.class)));
-        mappings.put(long[].class,  Schema.array(mappings.get(long.class)));
-        mappings.put(Long[].class,  Schema.array(mappings.get(Long.class)));
-        mappings.put(Double[].class,  Schema.array(mappings.get(Double.class)));
-        mappings.put(double[].class,  Schema.array(mappings.get(double.class)));
-        mappings.put(Float[].class,  Schema.array(mappings.get(Float.class)));
-        mappings.put(float[].class,  Schema.array(mappings.get(float.class)));
-        mappings.put(Boolean[].class,  Schema.array(mappings.get(Boolean.class)));
-        mappings.put(boolean[].class,  Schema.array(mappings.get(boolean.class)));
-        mappings.put(byte[].class,  Schema.array(mappings.get(byte.class)));
-        mappings.put(Byte[].class,  Schema.array(mappings.get(Byte.class)));
+        mappings.put(String[].class, Schema.array(mappings.get(String.class)));
+        mappings.put(StringBuffer[].class, Schema.array(mappings.get(StringBuffer.class)));
+        mappings.put(Date[].class, Schema.array(mappings.get(Date.class)));
+        mappings.put(int[].class, Schema.array(mappings.get(int.class)));
+        mappings.put(Integer[].class, Schema.array(mappings.get(Integer.class)));
+        mappings.put(long[].class, Schema.array(mappings.get(long.class)));
+        mappings.put(Long[].class, Schema.array(mappings.get(Long.class)));
+        mappings.put(Double[].class, Schema.array(mappings.get(Double.class)));
+        mappings.put(double[].class, Schema.array(mappings.get(double.class)));
+        mappings.put(Float[].class, Schema.array(mappings.get(Float.class)));
+        mappings.put(float[].class, Schema.array(mappings.get(float.class)));
+        mappings.put(Boolean[].class, Schema.array(mappings.get(Boolean.class)));
+        mappings.put(boolean[].class, Schema.array(mappings.get(boolean.class)));
+        mappings.put(byte[].class, Schema.array(mappings.get(byte.class)));
+        mappings.put(Byte[].class, Schema.array(mappings.get(Byte.class)));
 
     }
 
@@ -85,7 +85,6 @@ public class DefinitionClassCollector {
             } else if (type.isCollection()) {
 
 
-
                 if (componentClass != null) {
                     if (componentClass.getName().startsWith("java.lang")) {
                         final Schema schemaForComponent = mappings.get(componentClass);
@@ -101,13 +100,13 @@ public class DefinitionClassCollector {
 
             return Schema.definitionRef(cls.getSimpleName(), "");
         } else {
-              return Schema.schema("string");
+            return Schema.schema("string");
         }
 
     }
 
     public Schema getSchemaForJSend(final Class<?> cls, Class<?> componentClass) {
-            return Schema.definitionRef("jsend-" + componentClass.getSimpleName(), "");
+        return Schema.definitionRef("jsend-" + componentClass.getSimpleName(), "");
 
     }
 
@@ -122,7 +121,7 @@ public class DefinitionClassCollector {
         /*
         Don't add void.
          */
-        if (cls == void.class || cls == Void.class ) {
+        if (cls == void.class || cls == Void.class) {
             return;
         }
 
@@ -169,7 +168,7 @@ public class DefinitionClassCollector {
 
             definitionMap.put(classMeta.name(), definition);
 
-        }catch (Exception ex) {
+        } catch (Exception ex) {
             logger.warn("Unable to add class " + classMeta.longName(), ex);
         }
     }
@@ -192,7 +191,7 @@ public class DefinitionClassCollector {
             Schema schema = mappings.get(classMeta.cls());
 
 
-            if (schema!=null) {
+            if (schema != null) {
                 definitionBuilder.addProperty("data", schema);
             } else {
                 schema = convertFieldToDefinitionRef(classMeta);
@@ -206,7 +205,7 @@ public class DefinitionClassCollector {
 
             definitionMap.put("jsend-" + classMeta.name(), definition);
 
-        }catch (Exception ex) {
+        } catch (Exception ex) {
             logger.warn("Unable to add class " + classMeta.longName(), ex);
         }
     }
@@ -246,11 +245,9 @@ public class DefinitionClassCollector {
             return convertFieldToArraySchema(fieldAccess);
         } else if (isMap(fieldAccess)) {
             return convertFieldToMapSchema(fieldAccess);
-        }
-        else if (isOptional(fieldAccess)) {
+        } else if (isOptional(fieldAccess)) {
             return null; //TODO not done
-        }
-        else{
+        } else {
             return convertFieldToDefinitionRef(fieldAccess);
         }
 
@@ -264,7 +261,7 @@ public class DefinitionClassCollector {
         final String description = getDescription(fieldAccess);
 
 
-        if (actualTypeArguments[1] instanceof  Class) {
+        if (actualTypeArguments[1] instanceof Class) {
 
             Schema componentSchema = mappings.get(actualTypeArguments[1]);
             /* If it was not in the mapping, then it is complex. */
@@ -297,7 +294,6 @@ public class DefinitionClassCollector {
     }
 
 
-
     private boolean isMap(FieldAccess fieldAccess) {
 
         switch (fieldAccess.typeEnum()) {
@@ -311,9 +307,8 @@ public class DefinitionClassCollector {
 
     private boolean isOptional(FieldAccess fieldAccess) {
 
-        return  (fieldAccess.type() == Optional.class);
+        return (fieldAccess.type() == Optional.class);
     }
-
 
 
     private Schema convertFieldToDefinitionRef(final FieldAccess fieldAccess) {
@@ -408,17 +403,17 @@ public class DefinitionClassCollector {
                                         final Class<?> returnTypeComponentKey,
                                         final Class<?> returnTypeComponentValue) {
 
-                if (returnTypeComponentValue != null) {
-                    if (returnTypeComponentValue.getName().startsWith("java.lang")) {
-                        final Schema schemaForComponent = mappings.get(returnTypeComponentValue);
-                        return Schema.map(schemaForComponent, "");
-                    } else {
-                        return Schema.map(Schema.definitionRef(returnTypeComponentValue.getSimpleName(), ""), "");
-                    }
-                } else {
-                    logger.info("Component class was null defaulting to string");
-                    return Schema.map(Schema.definitionRef("string", ""), "");
-                }
+        if (returnTypeComponentValue != null) {
+            if (returnTypeComponentValue.getName().startsWith("java.lang")) {
+                final Schema schemaForComponent = mappings.get(returnTypeComponentValue);
+                return Schema.map(schemaForComponent, "");
+            } else {
+                return Schema.map(Schema.definitionRef(returnTypeComponentValue.getSimpleName(), ""), "");
+            }
+        } else {
+            logger.info("Component class was null defaulting to string");
+            return Schema.map(Schema.definitionRef("string", ""), "");
+        }
     }
 
     public Schema getSchemaForJSendArray(Class<?> returnType, Class<?> returnTypeComponent) {
@@ -452,7 +447,7 @@ public class DefinitionClassCollector {
             Schema schema = mappings.get(classMeta.cls());
 
 
-            if (schema!=null) {
+            if (schema != null) {
                 definitionBuilder.addProperty("data", schema);
             } else {
                 schema = convertFieldToArraySchema(classMeta);
@@ -467,7 +462,7 @@ public class DefinitionClassCollector {
 
             definitionMap.put("jsend-array-" + classMeta.name(), definition);
 
-        }catch (Exception ex) {
+        } catch (Exception ex) {
             logger.warn("Unable to add class " + classMeta.longName(), ex);
         }
     }

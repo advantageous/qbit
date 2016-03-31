@@ -20,7 +20,7 @@ public class OperationBuilder {
     private List<String> consumes;
     private List<String> produces;
     private Map<Integer, Response> responses;
-    private  List<Parameter> parameters;
+    private List<Parameter> parameters;
 
     public List<Parameter> getParameters() {
         if (parameters == null) {

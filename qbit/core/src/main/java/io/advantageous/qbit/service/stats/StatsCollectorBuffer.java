@@ -47,50 +47,6 @@ public class StatsCollectorBuffer implements StatsCollector {
         this.statsCollector = statsCollector;
     }
 
-    static class RecordTiming {
-        final StatList list = new StatList();
-        final String name;
-
-        RecordTiming(String name) {
-            this.name = name;
-        }
-
-        void set(long timing) {
-            list.addLong(timing);
-        }
-    }
-
-    static class RecordCount {
-        long count;
-        final String name;
-
-        RecordCount(String name) {
-            this.name = name;
-        }
-
-        void set(long count) {
-            this.count += count;
-        }
-    }
-
-
-    static class RecordLevel {
-        long level;
-        long lastLevelSent;
-
-        final String name;
-        RecordLevel(String name) {
-            this.name = name;
-        }
-        void set(long level) {
-            this.level = level;
-        }
-        void setLastLevelSent(long lastLevelSent) {
-            this.lastLevelSent = lastLevelSent;
-        }
-    }
-
-
     @Override
     public void increment(final String name) {
         recordCount(name, 1L);
@@ -159,5 +115,49 @@ public class StatsCollectorBuffer implements StatsCollector {
     @Override
     public void clientProxyFlush() {
         sendStats();
+    }
+
+    static class RecordTiming {
+        final StatList list = new StatList();
+        final String name;
+
+        RecordTiming(String name) {
+            this.name = name;
+        }
+
+        void set(long timing) {
+            list.addLong(timing);
+        }
+    }
+
+    static class RecordCount {
+        final String name;
+        long count;
+
+        RecordCount(String name) {
+            this.name = name;
+        }
+
+        void set(long count) {
+            this.count += count;
+        }
+    }
+
+    static class RecordLevel {
+        final String name;
+        long level;
+        long lastLevelSent;
+
+        RecordLevel(String name) {
+            this.name = name;
+        }
+
+        void set(long level) {
+            this.level = level;
+        }
+
+        void setLastLevelSent(long lastLevelSent) {
+            this.lastLevelSent = lastLevelSent;
+        }
     }
 }

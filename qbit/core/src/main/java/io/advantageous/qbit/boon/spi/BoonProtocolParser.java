@@ -50,8 +50,6 @@ public class BoonProtocolParser implements ProtocolParser {
     private final JsonParserAndMapper jsonParser = new JsonParserFactory().create();
 
 
-
-
     @Override
     public List<Message<Object>> parse(String address, String args) {
 
@@ -62,7 +60,6 @@ public class BoonProtocolParser implements ProtocolParser {
             final char versionMarker = chars[VERSION_MARKER_POSITION];
 
             if (versionMarker == PROTOCOL_MESSAGE_TYPE_GROUP) {
-
 
 
                 final char[][] cargs = CharScanner.splitFromStartWithLimit(chars, (char) PROTOCOL_SEPARATOR, 0, METHOD_NAME_POS + 2);
@@ -76,7 +73,7 @@ public class BoonProtocolParser implements ProtocolParser {
                 List<Message<Object>> messages = new ArrayList<>(messageBuffers.length);
 
 
-                for (int index=1; index< messageBuffers.length; index++) {
+                for (int index = 1; index < messageBuffers.length; index++) {
                     char[] messageBuffer = messageBuffers[index];
                     final Message<Object> m = parseMessageFromChars(returnAddress, messageBuffer);
                     messages.add(m);
@@ -108,7 +105,6 @@ public class BoonProtocolParser implements ProtocolParser {
     }
 
 
-
     private Response<Object> parseResponseFromChars(char[] args, final String returnAddress) {
         final char[][] chars = CharScanner.splitFromStartWithLimit(args, (char) PROTOCOL_SEPARATOR, 0, RESPONSE_RETURN);
 
@@ -121,7 +117,6 @@ public class BoonProtocolParser implements ProtocolParser {
         }
 
         String address = FastStringUtils.noCopyStringFromChars(chars[ADDRESS_POS]);
-
 
 
         String stime = FastStringUtils.noCopyStringFromChars(chars[TIMESTAMP_POS]);
@@ -155,18 +150,18 @@ public class BoonProtocolParser implements ProtocolParser {
 
     private Message<Object> parseMessageFromChars(final String returnAddress, char[] chars) {
 
-            final char messageType = chars[PROTOCOL_MESSAGE_TYPE_POSITION];
+        final char messageType = chars[PROTOCOL_MESSAGE_TYPE_POSITION];
 
-            if (messageType == PROTOCOL_MESSAGE_TYPE_METHOD) {
+        if (messageType == PROTOCOL_MESSAGE_TYPE_METHOD) {
 
 
-                return handleFastBodySubmissionVersion1Chars(returnAddress, chars);
-            } else if (messageType == PROTOCOL_MESSAGE_TYPE_RESPONSE) {
-                return parseResponseFromChars(chars, returnAddress);
-            } else {
-                die("Unsupported method call", new String(chars));
-                return null;
-            }
+            return handleFastBodySubmissionVersion1Chars(returnAddress, chars);
+        } else if (messageType == PROTOCOL_MESSAGE_TYPE_RESPONSE) {
+            return parseResponseFromChars(chars, returnAddress);
+        } else {
+            die("Unsupported method call", new String(chars));
+            return null;
+        }
 
     }
 
@@ -175,7 +170,6 @@ public class BoonProtocolParser implements ProtocolParser {
 
 
         final char[][] args = CharScanner.splitFromStartWithLimit(chars, (char) PROTOCOL_SEPARATOR, 0, METHOD_NAME_POS + 2);
-
 
 
         long id = 0L;

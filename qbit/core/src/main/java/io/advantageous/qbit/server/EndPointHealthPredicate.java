@@ -7,7 +7,7 @@ import io.advantageous.qbit.service.stats.StatCollection;
 
 import java.util.function.Predicate;
 
-public class EndPointHealthPredicate  implements Predicate<HttpRequest>  {
+public class EndPointHealthPredicate implements Predicate<HttpRequest> {
 
     private final boolean healthEnabled;
     private final boolean statsEnabled;
@@ -17,7 +17,7 @@ public class EndPointHealthPredicate  implements Predicate<HttpRequest>  {
 
     public EndPointHealthPredicate(boolean healthEnabled, boolean statsEnabled,
                                    HealthServiceAsync healthServiceAsync, StatCollection statCollection
-                                   ) {
+    ) {
         this.healthEnabled = healthEnabled;
         this.statsEnabled = statsEnabled;
         this.healthServiceAsync = healthServiceAsync;

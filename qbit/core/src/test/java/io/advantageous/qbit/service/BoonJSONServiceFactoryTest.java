@@ -54,7 +54,8 @@ public class BoonJSONServiceFactoryTest {
 
 
         final MockServiceInterface service = boonJSONServiceFactory.createProxy(MockServiceInterface.class, "testService",
-                new EndPointMock(), new BeforeMethodSent() {});
+                new EndPointMock(), new BeforeMethodSent() {
+                });
         service.method1();
 
 

@@ -11,20 +11,20 @@ import java.util.concurrent.BlockingQueue;
 
 import static io.advantageous.qbit.queue.impl.sender.SenderHelperMethods.*;
 
-public abstract class AbstractBasicSendQueue <T> implements SendQueue<T> {
+public abstract class AbstractBasicSendQueue<T> implements SendQueue<T> {
 
     protected final BlockingQueue<Object> queue;
     protected final Queue<T> owner;
     protected final int batchSize;
-    private final Logger logger;
-    protected int checkEveryStarted = 0;
-    protected int index;
     protected final String name;
-    protected Object[] queueLocal;
+    private final Logger logger;
     private final boolean checkStart = Sys.sysProp("QBIT_CHECK_START", false);
     private final int checkStartWarnEvery = Sys.sysProp("QBIT_CHECK_START_WARN_EVERY", 100);
     private final boolean checkQueueSize = Sys.sysProp("QBIT_CHECK_QUEUE_SIZE", false);
     private final int checkQueueSizeWarnIfOver = Sys.sysProp("QBIT_CHECK_QUEUE_SIZE_WARN_IF_OVER", 10);
+    protected int checkEveryStarted = 0;
+    protected int index;
+    protected Object[] queueLocal;
 
     public AbstractBasicSendQueue(final BlockingQueue<Object> queue, Queue<T> owner,
                                   final int batchSize,
@@ -36,10 +36,11 @@ public abstract class AbstractBasicSendQueue <T> implements SendQueue<T> {
         this.name = name;
         this.queueLocal = new Object[batchSize];
         this.logger = logger;
-                
+
     }
 
     protected abstract boolean flushIfOverBatch();
+
     protected abstract boolean sendArray(Object[] items);
 
     public boolean shouldBatch() {
@@ -60,7 +61,7 @@ public abstract class AbstractBasicSendQueue <T> implements SendQueue<T> {
     private void checkStarted() {
 
 
-        if (checkQueueSize)  {
+        if (checkQueueSize) {
             if (queue.size() > checkQueueSizeWarnIfOver) {
                 logger.warn("{} :: name {} queue is filling up", this.getClass().getSimpleName(), name);
             }

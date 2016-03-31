@@ -11,6 +11,14 @@ import java.util.concurrent.TimeUnit;
 
 public class JavaStatsCollectorJob extends AdminJobBase {
 
+    public JavaStatsCollectorJob(final int every,
+                                 final TimeUnit timeUnit,
+                                 final StatsCollector statsCollector,
+                                 final String prefix) {
+
+        super(every, timeUnit, new JavaStatsCollectorRunnable(prefix, statsCollector));
+    }
+
     private static class GCInfo {
         private final String gcName;
         private final String statName;
@@ -98,7 +106,7 @@ public class JavaStatsCollectorJob extends AdminJobBase {
         @Override
         public void run() {
             statsCollector.recordLevel(prefix + ".jvm.os.load.level",
-                    (long) operatingSystemMXBean.getSystemLoadAverage() );
+                    (long) operatingSystemMXBean.getSystemLoadAverage());
 
             statsCollector.recordLevel(prefix + ".jvm.up.time.seconds",
                     (runtimeMXBean.getUptime() / 1_000));
@@ -146,12 +154,12 @@ public class JavaStatsCollectorJob extends AdminJobBase {
 
             final long collectionTime = gcInfo.getCollectionTime();
 
-            if (collectionCount>0) {
+            if (collectionCount > 0) {
                 statsCollector.recordCount(prefix + gcInfo.getStatName() + "collection.count",
                         collectionCount);
             }
 
-            if (collectionTime>0) {
+            if (collectionTime > 0) {
                 statsCollector.recordTiming(prefix + gcInfo.getStatName() + "collection.time",
                         collectionTime);
             }
@@ -166,25 +174,17 @@ public class JavaStatsCollectorJob extends AdminJobBase {
 
         private void collectMemoryStats() {
             statsCollector.recordLevel(prefix + ".jvm.mem.heap.max",
-                     (memoryMXBean.getHeapMemoryUsage().getMax() ));
+                    (memoryMXBean.getHeapMemoryUsage().getMax()));
             statsCollector.recordLevel(prefix + ".jvm.mem.heap.used",
-                     (memoryMXBean.getHeapMemoryUsage().getUsed() ));
+                    (memoryMXBean.getHeapMemoryUsage().getUsed()));
             statsCollector.recordLevel(prefix + ".jvm.mem.non.heap.max",
-                     (memoryMXBean.getNonHeapMemoryUsage().getMax() ));
+                    (memoryMXBean.getNonHeapMemoryUsage().getMax()));
             statsCollector.recordLevel(prefix + ".jvm.mem.non.heap.used",
-                     (memoryMXBean.getNonHeapMemoryUsage().getUsed() ));
+                    (memoryMXBean.getNonHeapMemoryUsage().getUsed()));
             statsCollector.recordLevel(prefix + ".jvm.mem.heap.free",
-                    (Runtime.getRuntime().freeMemory() ));
+                    (Runtime.getRuntime().freeMemory()));
             statsCollector.recordLevel(prefix + ".jvm.mem.total", (int) (
-                    Runtime.getRuntime().totalMemory() ));
+                    Runtime.getRuntime().totalMemory()));
         }
-    }
-
-    public JavaStatsCollectorJob(final int every,
-                                 final TimeUnit timeUnit,
-                                 final StatsCollector statsCollector,
-                                 final String prefix) {
-
-        super(every, timeUnit, new JavaStatsCollectorRunnable(prefix, statsCollector));
     }
 }

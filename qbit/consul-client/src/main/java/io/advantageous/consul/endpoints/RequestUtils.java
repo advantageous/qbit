@@ -43,7 +43,7 @@ public class RequestUtils {
 
     //
 
-    public static <T> ConsulResponse<T> consulResponse(final Class<T> responseType, final  HTTP.Response response) {
+    public static <T> ConsulResponse<T> consulResponse(final Class<T> responseType, final HTTP.Response response) {
 
         T responseObject = null;
 

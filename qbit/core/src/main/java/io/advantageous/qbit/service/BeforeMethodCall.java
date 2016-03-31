@@ -31,7 +31,6 @@ import io.advantageous.qbit.message.MethodCall;
 public interface BeforeMethodCall {
 
     /**
-     *
      * @param call method call
      * @return true if the method call should continue.
      */

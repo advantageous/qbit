@@ -15,11 +15,6 @@ public class BoonProtocolEncoderTest {
     BoonProtocolEncoder boonProtocolEncoder = new BoonProtocolEncoder();
     BoonProtocolParser boonProtocolParser = new BoonProtocolParser();
 
-    public static class Trade {
-        private String name = "IBM";
-        private long id = 1L;
-    }
-
     @Test
     public void methodCall() throws Exception {
 
@@ -53,7 +48,6 @@ public class BoonProtocolEncoderTest {
 
     }
 
-
     @Test
     public void response() throws Exception {
 
@@ -81,6 +75,11 @@ public class BoonProtocolEncoderTest {
         assertEquals(response.body().toString().toLowerCase(), afterParse.body().toString().toLowerCase());
 
 
+    }
+
+    public static class Trade {
+        private String name = "IBM";
+        private long id = 1L;
     }
 
 }

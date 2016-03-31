@@ -20,16 +20,6 @@ import static org.junit.Assert.assertNotNull;
 public class QueueToStreamUnicastTest {
 
 
-
-    private class Trade {
-        final String name;
-        final long amount;
-
-        private Trade(String name, long amount) {
-            this.name = name;
-            this.amount = amount;
-        }
-    }
     @Test
     public void test() throws InterruptedException {
         final Queue<Trade> queue = QueueBuilder.queueBuilder().build();
@@ -56,7 +46,7 @@ public class QueueToStreamUnicastTest {
 
                 trades.add(trade);
 
-                if (trades.size()==10) {
+                if (trades.size() == 10) {
                     latch.countDown();
                 }
             }
@@ -96,6 +86,16 @@ public class QueueToStreamUnicastTest {
 
         assertEquals(true, stop.get());
 
+    }
+
+    private class Trade {
+        final String name;
+        final long amount;
+
+        private Trade(String name, long amount) {
+            this.name = name;
+            this.amount = amount;
+        }
     }
 
 }

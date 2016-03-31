@@ -27,5 +27,7 @@ package io.advantageous.qbit.http.request;
 public interface HttpTextResponse extends HttpResponse<String> {
 
 
-    default boolean isText() {return true;}
+    default boolean isText() {
+        return true;
+    }
 }

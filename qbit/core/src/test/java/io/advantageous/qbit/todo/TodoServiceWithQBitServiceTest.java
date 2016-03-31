@@ -52,8 +52,8 @@ public class TodoServiceWithQBitServiceTest {
                 .setServiceAddress("/todo-service")
                 .setServiceObject(new TodoService()).build().startServiceQueue();
 
-                //QBit.factory().createService("/services", "/todo-service",
-                //new TodoService(), null, null).startServiceQueue();
+        //QBit.factory().createService("/services", "/todo-service",
+        //new TodoService(), null, null).startServiceQueue();
 
 
         SendQueue<MethodCall<Object>> requests = serviceQueue.requests();
@@ -133,7 +133,7 @@ public class TodoServiceWithQBitServiceTest {
                 .setServiceObject(new TodoService()).build().startServiceQueue();
 
         //QBit.factory().createService("/services",
-               // "/todo-service", new TodoService(), null, null).startServiceQueue();
+        // "/todo-service", new TodoService(), null, null).startServiceQueue();
 
         SendQueue<MethodCall<Object>> requests = serviceQueue.requests();
 

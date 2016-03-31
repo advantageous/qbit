@@ -103,17 +103,13 @@ public class CatalogEndpoint extends Endpoint {
             final RequestOptions requestOptions) {
 
 
-
-
         final URI uri = createURI("/services");
-
 
 
         final HttpRequestBuilder httpRequestBuilder = RequestUtils.getHttpRequestBuilder(datacenter, tag, requestOptions, "/");
 
 
-
-        HTTP.Response httpResponse = HTTP.getResponse(uri.toString() + "?" +  httpRequestBuilder.paramString());
+        HTTP.Response httpResponse = HTTP.getResponse(uri.toString() + "?" + httpRequestBuilder.paramString());
 
         if (httpResponse.code() != 200) {
             die("Unable to retrieve the datacenters", uri, httpResponse.code(), httpResponse.body());
@@ -263,7 +259,7 @@ public class CatalogEndpoint extends Endpoint {
         final HttpRequestBuilder httpRequestBuilder = RequestUtils
                 .getHttpRequestBuilder(datacenter, tag, requestOptions, "");
 
-        final HTTP.Response httpResponse = HTTP.getResponse(uri + "?" +  httpRequestBuilder.paramString());
+        final HTTP.Response httpResponse = HTTP.getResponse(uri + "?" + httpRequestBuilder.paramString());
         if (httpResponse.code() != 200) {
             die("Unable to retrieve the node", uri, httpResponse.code(), httpResponse.body());
         }
@@ -279,11 +275,10 @@ public class CatalogEndpoint extends Endpoint {
                 .getHttpRequestBuilder(datacenter, tag, requestOptions, "");
 
 
-
         final URI uri = createURI("/nodes");
 
 
-        final HTTP.Response httpResponse = HTTP.getResponse(uri + "?" +  httpRequestBuilder.paramString());
+        final HTTP.Response httpResponse = HTTP.getResponse(uri + "?" + httpRequestBuilder.paramString());
 
         if (httpResponse.code() != 200) {
             die("Unable to retrieve the nodes", uri, httpResponse.code(), httpResponse.body());

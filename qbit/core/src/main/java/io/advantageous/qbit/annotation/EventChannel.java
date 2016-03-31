@@ -26,7 +26,7 @@ import java.lang.annotation.Target;
 /**
  * EventChannel marks an interface as an event channel.
  * An event channel is a two way pipe where on can publish and listen to events.
- *
+ * <p>
  * created by rhightower on 2/11/15.
  */
 @Target({ElementType.METHOD, ElementType.TYPE})

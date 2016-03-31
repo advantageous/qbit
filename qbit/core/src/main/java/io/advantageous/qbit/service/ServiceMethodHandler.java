@@ -38,16 +38,23 @@ import java.util.Collections;
  */
 public interface ServiceMethodHandler extends ReceiveQueueListener<MethodCall<Object>> {
 
-    default void init(Object service, String rootAddress, String serviceAddress, SendQueue<Response<Object>> responseSendQueue){}
+    default void init(Object service, String rootAddress, String serviceAddress, SendQueue<Response<Object>> responseSendQueue) {
+    }
 
     Response<Object> receiveMethodCall(MethodCall<Object> methodCall);
 
-    default String address() { return "notset"; }
+    default String address() {
+        return "notset";
+    }
 
 
-    default String name() { return address(); }
+    default String name() {
+        return address();
+    }
 
-    default Collection<String> addresses() { return Collections.singleton(address());}
+    default Collection<String> addresses() {
+        return Collections.singleton(address());
+    }
 
 
     default void handleEvent(Event<Object> event) {
@@ -60,7 +67,7 @@ public interface ServiceMethodHandler extends ReceiveQueueListener<MethodCall<Ob
     }
 
 
-    default boolean couldHaveCallback(final String name)  {
+    default boolean couldHaveCallback(final String name) {
         return false;
     }
 }

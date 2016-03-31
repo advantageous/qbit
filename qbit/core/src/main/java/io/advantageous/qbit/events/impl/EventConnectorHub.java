@@ -41,6 +41,7 @@ public class EventConnectorHub implements EventConnector, Iterable<EventConnecto
 
     /**
      * Add an event connector
+     *
      * @param eventConnector eventConnector
      */
     public void add(final EventConnector eventConnector) {
@@ -49,6 +50,7 @@ public class EventConnectorHub implements EventConnector, Iterable<EventConnecto
 
     /**
      * Add a bunch of event connectors.
+     *
      * @param eventConnectors eventConnectors
      */
     public void addAll(final EventConnector... eventConnectors) {
@@ -58,6 +60,7 @@ public class EventConnectorHub implements EventConnector, Iterable<EventConnecto
 
     /**
      * Remove an event connector
+     *
      * @param eventConnector eventConnector
      */
     public void remove(final EventConnector eventConnector) {
@@ -82,6 +85,7 @@ public class EventConnectorHub implements EventConnector, Iterable<EventConnecto
 
     /**
      * Forwards en event to another event system.
+     *
      * @param event event
      */
     @Override

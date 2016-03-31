@@ -25,6 +25,7 @@ import java.lang.annotation.Target;
 
 /**
  * Listen for an event.
+ *
  * @author richardhightower@gmail.com (Rick Hightower)
  * @see io.advantageous.qbit.annotation.OnEvent
  */

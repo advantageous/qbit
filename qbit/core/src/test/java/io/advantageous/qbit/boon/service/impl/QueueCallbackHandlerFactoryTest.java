@@ -11,15 +11,15 @@ import static org.junit.Assert.assertTrue;
 public class QueueCallbackHandlerFactoryTest {
 
 
-
     @Test
     public void testInit() {
 
         class MyService {
 
             boolean initCalled;
+
             @QueueCallback(QueueCallbackType.INIT)
-            private void init(){
+            private void init() {
 
 
                 initCalled = true;
@@ -40,8 +40,9 @@ public class QueueCallbackHandlerFactoryTest {
         class MyService {
 
             boolean initCalled;
+
             @QueueCallback()
-            private void queueInit(){
+            private void queueInit() {
 
 
                 initCalled = true;
@@ -57,15 +58,15 @@ public class QueueCallbackHandlerFactoryTest {
     }
 
 
-
     @Test
     public void testLimit() {
 
         class MyService {
 
             boolean limitCalled;
+
             @QueueCallback(QueueCallbackType.LIMIT)
-            private void limit(){
+            private void limit() {
 
 
                 limitCalled = true;
@@ -87,15 +88,15 @@ public class QueueCallbackHandlerFactoryTest {
     }
 
 
-
     @Test
     public void testIdle() {
 
         class MyService {
 
             boolean called;
+
             @QueueCallback(QueueCallbackType.IDLE)
-            private void idle(){
+            private void idle() {
 
 
                 called = true;
@@ -122,8 +123,9 @@ public class QueueCallbackHandlerFactoryTest {
         class MyService {
 
             boolean called;
+
             @QueueCallback(QueueCallbackType.SHUTDOWN)
-            private void shutdown(){
+            private void shutdown() {
 
 
                 called = true;
@@ -152,8 +154,9 @@ public class QueueCallbackHandlerFactoryTest {
         class MyService {
 
             boolean called;
+
             @QueueCallback(QueueCallbackType.EMPTY)
-            private void method(){
+            private void method() {
 
 
                 called = true;
@@ -183,8 +186,9 @@ public class QueueCallbackHandlerFactoryTest {
         class MyService {
 
             boolean called;
+
             @QueueCallback(QueueCallbackType.START_BATCH)
-            private void method(){
+            private void method() {
 
 
                 called = true;
@@ -201,7 +205,6 @@ public class QueueCallbackHandlerFactoryTest {
         queueCallbackHandler.queueShutdown();
         queueCallbackHandler.queueIdle();
         assertFalse(myService.called);
-
 
 
         queueCallbackHandler.queueStartBatch();

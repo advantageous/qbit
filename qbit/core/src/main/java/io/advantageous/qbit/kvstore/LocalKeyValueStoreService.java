@@ -19,27 +19,27 @@ public class LocalKeyValueStoreService<T> implements KeyValueStoreService<T> {
 
     private final StatsCollector statsCollector;
     private final String statKey;
-    private long time = 0;
-    private int cacheSize = 0;
-    private SimpleLRUCache<String, CacheEntry<T>> cache;
     private final FallbackReader<T> fallbackReader;
     private final WriteBehindWriter<T> writeBehindWriter;
     private final Reactor reactor;
     private final Logger logger = LoggerFactory.getLogger(LocalKeyValueStoreService.class);
     private final boolean debug;
     private final Timer timer;
+    private long time = 0;
+    private int cacheSize = 0;
+    private SimpleLRUCache<String, CacheEntry<T>> cache;
 
     public LocalKeyValueStoreService(
-                                    final Reactor reactor,
-                                    final Timer timer,
-                                    final FallbackReader<T> fallbackReader,
-                                    final WriteBehindWriter<T> writeBehindWriter,
-                                    final int cacheSize,
-                                    final Duration flushEvery,
-                                    final StatsCollector statsCollector,
-                                    final String statKey,
-                                    final Duration debugInterval,
-                                    final boolean debug) {
+            final Reactor reactor,
+            final Timer timer,
+            final FallbackReader<T> fallbackReader,
+            final WriteBehindWriter<T> writeBehindWriter,
+            final int cacheSize,
+            final Duration flushEvery,
+            final StatsCollector statsCollector,
+            final String statKey,
+            final Duration debugInterval,
+            final boolean debug) {
 
 
         this.fallbackReader = fallbackReader;
@@ -48,10 +48,10 @@ public class LocalKeyValueStoreService<T> implements KeyValueStoreService<T> {
         this.reactor = reactor;
         this.reactor.addRepeatingTask(flushEvery, this::initCache);
         this.statsCollector = statsCollector;
-        this.timer=timer;
+        this.timer = timer;
         this.statKey = statKey;
 
-        if (debugInterval != Duration.NEVER ) {
+        if (debugInterval != Duration.NEVER) {
             this.reactor.addRepeatingTask(flushEvery, this::debugCache);
         }
 
@@ -79,49 +79,6 @@ public class LocalKeyValueStoreService<T> implements KeyValueStoreService<T> {
                                                final T value,
                                                final Duration duration) {
         return new CacheEntry<>(key, value, time, Optional.of(duration));
-    }
-
-    private  class CacheEntry<V> {
-        
-
-        public CacheEntry(final String key,
-                          final V value,
-                          final long createTime,
-                          final Optional<Duration> expiry) {
-            statsCollector.increment(statKey + "cacheEntryAdded");
-            this.value = value;
-            this.expiry = expiry;
-            this.key = key;
-            this.createTime = createTime;
-        }
-
-        private final V value;
-        private final Optional<Duration> expiry;
-        private final String key;
-        private final long createTime;
-
-
-        private boolean isExpired(long currentTime) {
-            if (!expiry.isPresent()) {
-                return false;
-            }
-            long duration = currentTime - createTime;
-            return duration > expiry.get().toMillis();
-        }
-
-        public V getValue() {
-            return value;
-        }
-
-        @Override
-        public String toString() {
-            return "CacheEntry{" +
-                    "value=" + value +
-                    ", expiry=" + expiry +
-                    ", key='" + key + '\'' +
-                    ", createTime=" + createTime +
-                    '}';
-        }
     }
 
     @Override
@@ -198,11 +155,10 @@ public class LocalKeyValueStoreService<T> implements KeyValueStoreService<T> {
         }
     }
 
-
     private CacheEntry<T> doGetCacheEntry(final Callback<Optional<T>> callback,
                                           final String key) {
         CacheEntry<T> cacheEntry = cache.get(key);
-        if (cacheEntry!=null) {
+        if (cacheEntry != null) {
             if (cacheEntry.isExpired(time)) {
                 statsCollector.increment(statKey + "expire");
                 cache.remove(key); //do not return so we can look things up in the fallbackReader.
@@ -220,20 +176,19 @@ public class LocalKeyValueStoreService<T> implements KeyValueStoreService<T> {
         return cacheEntry;
     }
 
-
     @Override
     public void hasKey(final Callback<Boolean> hasKeyCallback, final String key) {
 
         final CacheEntry<T> cacheEntry = cache.getSilent(key);
-        if (cacheEntry!=null) {
+        if (cacheEntry != null) {
             if (cacheEntry.isExpired(time)) {
-                statsCollector.increment(statKey+"expire");
+                statsCollector.increment(statKey + "expire");
                 cache.remove(key); //do not return so we can look things up in the fallbackReader.
             } else {
                 final T value = cacheEntry.getValue();
-                if (value==null) {
+                if (value == null) {
                     hasKeyCallback.returnThis(false);
-                }else {
+                } else {
                     hasKeyCallback.returnThis(true);
                 }
                 return;
@@ -274,12 +229,10 @@ public class LocalKeyValueStoreService<T> implements KeyValueStoreService<T> {
         writeBehindWriter.deleteWithConfirmation(callbackBuilder.build(), key);
     }
 
-
     @Override
     public void wipeCache() {
         initCache();
     }
-
 
     @QueueCallback({QueueCallbackType.EMPTY, QueueCallbackType.LIMIT, QueueCallbackType.IDLE})
     public void process() {
@@ -287,5 +240,46 @@ public class LocalKeyValueStoreService<T> implements KeyValueStoreService<T> {
         time = timer.time();
         fallbackReader.flushRequests();
         writeBehindWriter.flushRequests();
+    }
+
+    private class CacheEntry<V> {
+
+
+        private final V value;
+        private final Optional<Duration> expiry;
+        private final String key;
+        private final long createTime;
+        public CacheEntry(final String key,
+                          final V value,
+                          final long createTime,
+                          final Optional<Duration> expiry) {
+            statsCollector.increment(statKey + "cacheEntryAdded");
+            this.value = value;
+            this.expiry = expiry;
+            this.key = key;
+            this.createTime = createTime;
+        }
+
+        private boolean isExpired(long currentTime) {
+            if (!expiry.isPresent()) {
+                return false;
+            }
+            long duration = currentTime - createTime;
+            return duration > expiry.get().toMillis();
+        }
+
+        public V getValue() {
+            return value;
+        }
+
+        @Override
+        public String toString() {
+            return "CacheEntry{" +
+                    "value=" + value +
+                    ", expiry=" + expiry +
+                    ", key='" + key + '\'' +
+                    ", createTime=" + createTime +
+                    '}';
+        }
     }
 }

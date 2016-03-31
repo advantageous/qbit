@@ -27,7 +27,7 @@ public class HRService {
 
     @RequestMapping(value = "/department/{departmentId}/", method = RequestMethod.POST)
     public boolean addDepartments(@PathVariable("departmentId") Integer departmentId,
-                               final Department department) {
+                                  final Department department) {
 
         departmentMap.put(departmentId, department);
         return true;
@@ -35,11 +35,11 @@ public class HRService {
 
     @RequestMapping(value = "/department/{departmentId}/employee/", method = RequestMethod.POST)
     public boolean addEmployee(@PathVariable("departmentId") Integer departmentId,
-                                  final Employee employee) {
+                               final Employee employee) {
 
         final Department department = departmentMap.get(departmentId);
 
-        if (department ==  null) {
+        if (department == null) {
             throw new IllegalArgumentException("Department " + departmentId + " does not exist");
         }
 
@@ -53,7 +53,7 @@ public class HRService {
 
         final Department department = departmentMap.get(departmentId);
 
-        if (department ==  null) {
+        if (department == null) {
             throw new IllegalArgumentException("Department " + departmentId + " does not exist");
         }
 
@@ -64,7 +64,7 @@ public class HRService {
             }
         }).findFirst();
 
-        if (employee.isPresent()){
+        if (employee.isPresent()) {
             return employee.get();
         } else {
             throw new IllegalArgumentException("Employee with id " + employeeId + " Not found ");
@@ -87,7 +87,6 @@ public class HRService {
         employee.addPhoneNumber(phoneNumber);
         return true;
     }
-
 
 
     @RequestMapping(value = "/department/{departmentId}/employee/{employeeId}/phoneNumber/")

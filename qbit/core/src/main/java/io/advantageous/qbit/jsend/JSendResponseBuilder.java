@@ -3,9 +3,21 @@ package io.advantageous.qbit.jsend;
 public class JSendResponseBuilder<T> {
 
 
-    private  Class<T> type;
-    private  T data;
-    private  JSendStatus status = JSendStatus.SUCCESS;
+    private Class<T> type;
+    private T data;
+    private JSendStatus status = JSendStatus.SUCCESS;
+
+    public static <T> JSendResponseBuilder<T> jSendResponseBuilder() {
+        return new JSendResponseBuilder<>();
+    }
+
+    public static <T> JSendResponseBuilder<T> jSendResponseBuilder(T value) {
+
+        JSendResponseBuilder<T> resposne = new JSendResponseBuilder<>();
+        resposne.setData(value);
+        resposne.setType((Class<T>) value.getClass());
+        return resposne;
+    }
 
     public Class<T> getType() {
         return type;
@@ -33,21 +45,6 @@ public class JSendResponseBuilder<T> {
         this.status = status;
         return this;
     }
-
-
-    public static <T> JSendResponseBuilder<T> jSendResponseBuilder() {
-        return new JSendResponseBuilder<>();
-    }
-
-
-    public static <T> JSendResponseBuilder<T> jSendResponseBuilder(T value) {
-
-        JSendResponseBuilder<T> resposne = new JSendResponseBuilder<>();
-        resposne.setData(value);
-        resposne.setType((Class<T>) value.getClass());
-        return resposne;
-    }
-
 
     public JSendResponse<T> build() {
         return new JSendResponse<>(this.getType(), this.getData(), this.getStatus());

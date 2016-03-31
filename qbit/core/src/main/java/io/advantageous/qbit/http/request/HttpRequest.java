@@ -22,8 +22,8 @@ import io.advantageous.qbit.message.Request;
 import io.advantageous.qbit.util.MultiMap;
 
 import java.nio.charset.StandardCharsets;
-import java.util.function.Supplier;
 import java.util.Map;
+import java.util.function.Supplier;
 
 
 /**
@@ -48,9 +48,9 @@ public class HttpRequest implements Request<Object> {
     private final Supplier<Object> bodySupplier;
     private final Supplier<MultiMap<String, String>> formParamsSupplier;
     private final int contentLength;
-    private  MultiMap<String, String> formParams;
+    private MultiMap<String, String> formParams;
     private volatile boolean handled;
-    private  Object body;
+    private Object body;
 
     public HttpRequest(final long id,
                        final String uri,
@@ -100,7 +100,6 @@ public class HttpRequest implements Request<Object> {
     public MultiMap<String, String> headers() {
         return headers;
     }
-
 
 
     public MultiMap<String, String> formParams() {
