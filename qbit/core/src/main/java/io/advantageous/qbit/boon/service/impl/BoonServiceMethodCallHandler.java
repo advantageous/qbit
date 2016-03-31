@@ -191,6 +191,7 @@ public class BoonServiceMethodCallHandler implements ServiceMethodHandler {
         for (int index = 0, arrayIndex = 0; index < argsList.size(); index++, arrayIndex++) {
             final Object o = argsList.get(index);
             if (o instanceof Callback) {
+                arrayIndex--;
                 continue;
             }
             if (arrayIndex >= array.length) {
