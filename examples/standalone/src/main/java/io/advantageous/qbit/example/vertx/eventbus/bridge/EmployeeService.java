@@ -4,7 +4,6 @@ import io.advantageous.qbit.annotation.RequestMapping;
 import io.advantageous.qbit.annotation.RequestParam;
 import io.advantageous.qbit.annotation.http.Bridge;
 import io.advantageous.qbit.annotation.http.GET;
-import io.advantageous.qbit.annotation.http.POST;
 import io.advantageous.qbit.reactive.Callback;
 
 import java.util.List;
@@ -23,8 +22,15 @@ public class EmployeeService {
         throw new IllegalStateException("Employee can't be added");
     }
 
-    @Bridge("/employee/")
+    @Bridge
     public void getEmployee(final Callback<Employee> callback, final String id) {
+        callback.returnThis(new Employee(id, "Bob", "Jingles", 1962, 999999999));
+    }
+
+
+    @GET("/employee/")
+    public void getEmployeeWithParam(final Callback<Employee> callback,
+                                     @RequestParam(value = "id", required = true) final String id) {
         callback.returnThis(new Employee(id, "Bob", "Jingles", 1962, 999999999));
     }
 
