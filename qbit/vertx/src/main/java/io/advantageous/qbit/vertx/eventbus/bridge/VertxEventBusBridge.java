@@ -2,6 +2,7 @@ package io.advantageous.qbit.vertx.eventbus.bridge;
 
 import io.advantageous.boon.core.Predicate;
 import io.advantageous.boon.core.Sets;
+import io.advantageous.boon.json.JsonException;
 import io.advantageous.boon.json.JsonParserAndMapper;
 import io.advantageous.boon.json.JsonParserFactory;
 import io.advantageous.qbit.json.JsonMapper;
@@ -132,7 +133,11 @@ public class VertxEventBusBridge {
                 this.methodCallSendQueue.send(methodCall);
             }
 
-        } catch (Exception ex) {
+        } catch (IndexOutOfBoundsException  | JsonException ix) {
+            logger.error("Error marshaling message body to method call to service", ix);
+            message.fail(500, "IllegalArgumentException");
+        }
+        catch (Exception ex) {
             logger.error("Error marshaling message body to method call to service", ex);
             message.fail(500, ex.getMessage());
         }

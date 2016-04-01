@@ -1,5 +1,6 @@
 package io.advantageous.qbit.vertx.eventbus.bridge;
 
+import io.advantageous.boon.core.Sys;
 import io.advantageous.qbit.annotation.http.Bridge;
 import io.advantageous.qbit.service.ServiceBuilder;
 import io.advantageous.qbit.service.ServiceQueue;
@@ -134,9 +135,115 @@ public class VertxEventBusBridgeTest {
 
 
     @Test
+    public void testSingletonNoArgs() throws Exception {
+
+        final DeliveryOptions deliveryOptions = new DeliveryOptions().addHeader("method", "singleton");
+        final String json = "[]";
+        vertx.eventBus().send(address, cleanJSON(json), deliveryOptions,
+                reply -> {
+                    ref.set(reply);
+                    countDownLatch.countDown();
+                });
+        countDownLatch.await();
+        assertTrue(ref.get().failed());
+
+        assertEquals("IllegalArgumentException", ref.get().cause().getMessage());
+
+
+        vertx.close();
+    }
+
+    @Test
+    public void testSingletonNoArgsBody() throws Exception {
+
+        final DeliveryOptions deliveryOptions = new DeliveryOptions().addHeader("method", "singleton");
+        final String json = "";
+
+        vertx.eventBus().send(address, cleanJSON(json), deliveryOptions,
+                reply -> {
+                    ref.set(reply);
+                    countDownLatch.countDown();
+                });
+
+        countDownLatch.await();
+
+
+        assertTrue(ref.get().failed());
+
+        assertEquals("[Unable to find body]", ref.get().cause().getMessage());
+        vertx.close();
+    }
+
+
+    @Test
+    public void testSingletonNoArgsCrapInBody() throws Exception {
+
+        final DeliveryOptions deliveryOptions = new DeliveryOptions().addHeader("method", "singleton");
+        final String json = "crap";
+
+        vertx.eventBus().send(address, cleanJSON(json), deliveryOptions,
+                reply -> {
+                    ref.set(reply);
+                    countDownLatch.countDown();
+                });
+
+        countDownLatch.await();
+
+
+        assertTrue(ref.get().failed());
+
+        assertEquals("IllegalArgumentException", ref.get().cause().getMessage());
+        vertx.close();
+    }
+
+    @Test
+    public void testSingletonWrongType() throws Exception {
+
+        final DeliveryOptions deliveryOptions = new DeliveryOptions().addHeader("method", "singleton");
+        final String json = "[true]";
+
+        vertx.eventBus().send(address, cleanJSON(json), deliveryOptions,
+                reply -> {
+                    ref.set(reply);
+                    countDownLatch.countDown();
+                });
+
+        countDownLatch.await();
+
+//TODO        assertTrue(ref.get().failed());
+//https://github.com/advantageous/qbit/issues/654
+//        assertEquals("IllegalArgumentException", ref.get().cause().getMessage());
+        vertx.close();
+    }
+
+
+    @Test
     public void oneWay() throws Exception {
 
         final DeliveryOptions deliveryOptions = new DeliveryOptions().addHeader("method", "oneway");
+        final String json = "[{'id':'rick'}]";
+
+        vertx.eventBus().send(address, cleanJSON(json), deliveryOptions);
+
+        for (int index =0; index < 1000; index++) {
+            Sys.sleep(10);
+            if (testService.employee.get()!=null) {
+                break;
+            }
+        }
+
+        assertNotNull(testService.employee.get());
+
+        assertEquals("rick", testService.employee.get().id);
+
+        vertx.close();
+    }
+
+
+    @Test
+    public void noArgWithArg() throws Exception {
+
+        final DeliveryOptions deliveryOptions = new DeliveryOptions().addHeader("method", "noArg");
         final String json = "[{'id':'rick'}]";
 
         vertx.eventBus().send(address, cleanJSON(json), deliveryOptions,
@@ -148,13 +255,30 @@ public class VertxEventBusBridgeTest {
         countDownLatch.await();
 
 
-        assertNotNull(testService.employee.get());
-
-        assertEquals("rick", testService.employee.get().id);
+        assertNotNull(testService.value.get());
+        assertEquals("noArg called", testService.value.get());
+        assertEquals("true", ref.get().result().body());
 
         vertx.close();
     }
 
+
+    @Test
+    public void noArgWithNoArg() throws Exception {
+
+        final DeliveryOptions deliveryOptions = new DeliveryOptions().addHeader("method", "noArg");
+        vertx.eventBus().send(address, "", deliveryOptions,
+                reply -> {
+                    ref.set(reply);
+                    countDownLatch.countDown();
+                });
+        countDownLatch.await();
+        assertNotNull(testService.value.get());
+        assertEquals("noArg called", testService.value.get());
+        assertEquals("true", ref.get().result().body());
+
+        vertx.close();
+    }
 
     @Test
     public void testList() throws Exception {
@@ -223,7 +347,8 @@ public class VertxEventBusBridgeTest {
     public static class Employee {
         final String id;
 
-        public Employee(String id) {
+
+        public Employee(String id, int foo) {
             this.id = id;
         }
     }
@@ -234,6 +359,12 @@ public class VertxEventBusBridgeTest {
 
         final AtomicReference<Employee> employee = new AtomicReference<>();
 
+
+        @Bridge
+        public boolean noArg() {
+            this.value.set("noArg called");
+            return true;
+        }
 
         @Bridge
         public void oneway(final Employee employee) {
