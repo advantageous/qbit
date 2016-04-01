@@ -26,17 +26,18 @@ function connect(url) {
 
 connect('http://localhost:8080/eventbus/').then((eventBus) => {
   console.log("HERE.....")
-  eventBus.send("/es/1.0", JSON.stringify(
-    {
-      "method": "addEmployee",
-      "args": [{
-        "id": "5",
-        "firstName": "Bob",
-        "lastName": "Jingles",
-        "birthYear": 1962,
-        "socialSecurityNumber": 999999999
-      }]
-    }), (error, result)=> {
+
+  var payload = JSON.stringify([{
+    "id": "5",
+    "firstName": "Bob",
+    "lastName": "Jingles",
+    "birthYear": 1962,
+    "socialSecurityNumber": 999999999
+  }]);
+
+  var headers = {"method": "addEmployee"};
+
+  eventBus.send("/es/1.0", payload, headers, (error, result)=> {
 
     console.log("Vertx error result", error, result);
 
@@ -58,26 +59,27 @@ connect('http://localhost:8080/eventbus/').then((eventBus) => {
 
 connect('http://localhost:8080/eventbus/').then((eventBus) => {
   console.log("HERE.....")
-  eventBus.send("/es/1.0", JSON.stringify(
-    {
-      "method": "list",
-      "args": [
-        [{
-        "id": "5",
+
+  var headers = {"method": "list"};
+
+  var payload = JSON.stringify([
+    [{
+      "id": "5",
+      "firstName": "Bob",
+      "lastName": "Jingles",
+      "birthYear": 1962,
+      "socialSecurityNumber": 999999999
+    },
+      {
+        "id": "rick",
         "firstName": "Bob",
         "lastName": "Jingles",
         "birthYear": 1962,
         "socialSecurityNumber": 999999999
-      },
-          {
-            "id": "rick",
-            "firstName": "Bob",
-            "lastName": "Jingles",
-            "birthYear": 1962,
-            "socialSecurityNumber": 999999999
-          }
-        ]]
-    }), (error, result)=> {
+      }
+    ]]);
+
+  eventBus.send("/es/1.0", payload, headers, (error, result)=> {
 
     console.log("Vertx error result", error, result);
 
@@ -96,22 +98,24 @@ connect('http://localhost:8080/eventbus/').then((eventBus) => {
 });
 
 
+
 connect('http://localhost:8080/eventbus/').then((eventBus) => {
   console.log("HERE.....")
-  eventBus.send("/es/1.0", JSON.stringify(
-    {
-      "method": "twoArg",
-      "args": [
 
-          {
-            "id": "rick",
-            "firstName": "Bob",
-            "lastName": "Jingles",
-            "birthYear": 1962,
-            "socialSecurityNumber": 999999999
-          }, true
-        ]
-    }), (error, result)=> {
+  var headers = {"method": "twoArg"};
+
+  var payload = JSON.stringify([
+      {
+        "id": "rick",
+        "firstName": "Bob",
+        "lastName": "Jingles",
+        "birthYear": 1962,
+        "socialSecurityNumber": 999999999
+      },
+      true
+    ]);
+
+  eventBus.send("/es/1.0", payload, headers, (error, result)=> {
 
     console.log("Vertx error result", error, result);
 
