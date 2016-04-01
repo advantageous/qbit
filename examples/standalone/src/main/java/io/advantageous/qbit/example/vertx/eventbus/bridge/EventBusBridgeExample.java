@@ -14,6 +14,7 @@ import io.vertx.ext.web.handler.sockjs.SockJSHandler;
 
 /**
  * Send JSON POST.
+ * 
  * <code>
  *     curl -X POST -H "Content-Type: application/json" \
  *     http://localhost:8080/es/1.0/employee/ \
