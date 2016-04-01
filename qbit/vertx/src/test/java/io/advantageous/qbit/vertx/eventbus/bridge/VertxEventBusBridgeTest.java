@@ -15,6 +15,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 
@@ -133,6 +134,29 @@ public class VertxEventBusBridgeTest {
 
 
     @Test
+    public void oneWay() throws Exception {
+
+        final DeliveryOptions deliveryOptions = new DeliveryOptions().addHeader("method", "oneway");
+        final String json = "[{'id':'rick'}]";
+
+        vertx.eventBus().send(address, cleanJSON(json), deliveryOptions,
+                reply -> {
+                    ref.set(reply);
+                    countDownLatch.countDown();
+                });
+
+        countDownLatch.await();
+
+
+        assertNotNull(testService.employee.get());
+
+        assertEquals("rick", testService.employee.get().id);
+
+        vertx.close();
+    }
+
+
+    @Test
     public void testList() throws Exception {
 
 
@@ -206,8 +230,15 @@ public class VertxEventBusBridgeTest {
 
 
     public static class TestService {
-        AtomicReference<String> value = new AtomicReference<>();
+        final AtomicReference<String> value = new AtomicReference<>();
 
+        final AtomicReference<Employee> employee = new AtomicReference<>();
+
+
+        @Bridge
+        public void oneway(final Employee employee) {
+            this.employee.set(employee);
+        }
 
         @Bridge
         public Employee singleton(final Employee employee) {
