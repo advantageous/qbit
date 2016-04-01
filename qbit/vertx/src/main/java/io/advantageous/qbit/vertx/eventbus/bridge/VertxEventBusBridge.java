@@ -133,19 +133,16 @@ public class VertxEventBusBridge {
                 this.methodCallSendQueue.send(methodCall);
             }
 
-        } catch (IndexOutOfBoundsException  | JsonException ix) {
+        } catch (IndexOutOfBoundsException | JsonException ix) {
             logger.error("Error marshaling message body to method call to service", ix);
             message.fail(500, "IllegalArgumentException");
-        }
-        catch (Exception ex) {
+        } catch (Exception ex) {
             logger.error("Error marshaling message body to method call to service", ex);
-            message.fail(500, ex.getMessage());
+            message.fail(500, ex.getClass().getSimpleName() + ": " + ex.getMessage());
         }
-
     }
 
     private String encodeOutput(Object returnedValue) {
-
         return jsonMapper.toJson(returnedValue);
     }
 
