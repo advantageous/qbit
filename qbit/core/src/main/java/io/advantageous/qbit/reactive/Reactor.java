@@ -17,6 +17,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 /**
  * You could use a reactor per service.
@@ -77,6 +78,9 @@ public class Reactor {
     private List<RepeatingTask> repeatingTasks = new ArrayList<>(1);
 
 
+    private List<FireOnceTask> fireOnceAfterTasks = new ArrayList<>(1);
+
+
     /**
      * Keeps list of collaborating services to flush.
      */
@@ -117,6 +121,30 @@ public class Reactor {
         repeatingTasks.add(new RepeatingTask(task, timeUnit, repeatEvery));
     }
 
+
+    /**
+     * Add a task that gets executed once.
+     *
+     * @param fireAfter run task after time period
+     * @param timeUnit  unit for fireAfter
+     * @param task      task to perform
+     */
+    public void addOneShotAfterTask(final long fireAfter, final TimeUnit timeUnit, final Runnable task) {
+
+        fireOnceAfterTasks.add(new FireOnceTask(task, timeUnit, fireAfter));
+    }
+
+
+    /**
+     * Add a task that gets executed once.
+     *
+     * @param task task to perform
+     */
+    public void addOneShotTask(final Runnable task) {
+
+        fireOnceAfterTasks.add(new FireOnceTask(task, TimeUnit.MILLISECONDS, 0));
+    }
+
     /**
      * Add a task that gets repeated.
      *
@@ -148,6 +176,7 @@ public class Reactor {
         collaboratingServices.forEach(ServiceProxyUtils::flushServiceProxy);
 
         processRepeatingTasks();
+        processFireOnceTasks();
     }
 
     public void processRepeatingTasks() {
@@ -159,6 +188,20 @@ public class Reactor {
                 repeatingTask.task.run();
             }
         });
+    }
+
+
+    public void processFireOnceTasks() {
+
+        /* Run repeating tasks if needed. */
+        final List<FireOnceTask> fireOnceTasks = fireOnceAfterTasks.stream()
+                .filter(fireOnceTask -> currentTime - fireOnceTask.created > fireOnceTask.fireAfterMS)
+                .collect(Collectors.toList());
+
+        fireOnceTasks.forEach(fireOnceTask -> fireOnceTask.task.run());
+
+        fireOnceAfterTasks.removeAll(fireOnceTasks);
+
     }
 
     @SuppressWarnings({"UnusedReturnValue", "SameReturnValue"})
@@ -707,6 +750,22 @@ public class Reactor {
         public RepeatingTask(Runnable task, TimeUnit timeUnit, long repeatEvery) {
             this.task = task;
             this.repeatEveryMS = timeUnit.toMillis(repeatEvery);
+        }
+    }
+
+
+    /**
+     * Fire once task.
+     */
+    class FireOnceTask {
+        private final Runnable task;
+        private final long fireAfterMS;
+        private final long created;
+
+        public FireOnceTask(Runnable task, TimeUnit timeUnit, long fireAfter) {
+            this.task = task;
+            this.created = currentTime;
+            this.fireAfterMS = timeUnit.toMillis(fireAfter);
         }
     }
 }

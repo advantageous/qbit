@@ -23,6 +23,7 @@ import io.advantageous.qbit.service.discovery.ServiceDiscovery;
 import io.advantageous.qbit.service.discovery.dns.DnsUtil;
 import io.advantageous.qbit.service.health.HealthServiceAsync;
 import io.advantageous.qbit.service.health.HealthServiceBuilder;
+import io.advantageous.qbit.service.stats.StatsCollector;
 import io.advantageous.qbit.system.QBitSystemManager;
 
 import java.util.ArrayList;
@@ -970,6 +971,14 @@ public class ManagedServiceBuilder {
     public ManagedServiceBuilder useDnsServiceDiscovery() {
         this.setServiceDiscovery(DnsUtil.createDnsServiceDiscovery());
         return this;
+    }
+
+    /**
+     * Create a new StatsCollector
+     * @return new stats collector for a single service.
+     */
+    public StatsCollector createStatsCollector() {
+        return this.getStatServiceBuilder().buildStatsCollector();
     }
 
     /**
