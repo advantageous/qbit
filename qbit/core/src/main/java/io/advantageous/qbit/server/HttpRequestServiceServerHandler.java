@@ -14,4 +14,6 @@ public interface HttpRequestServiceServerHandler extends Startable {
     void checkTimeoutsForRequests();
 
     void handleResponseFromServiceToHttpResponse(Response<Object> response, HttpRequest originatingRequest);
+
+    void addRestSupportFor(String alias, Class<?> aClass, String address1);
 }

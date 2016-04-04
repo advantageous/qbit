@@ -365,6 +365,15 @@ public class ServiceEndpointServerImpl implements ServiceEndpointServer {
         return this;
     }
 
+    public ServiceEndpointServer addServiceObject(String address, Object serviceObject) {
+
+        if (debug) logger.debug("registering service: " + serviceObject.getClass().getName());
+
+        serviceBundle.addServiceObject(address, serviceObject);
+        httpRequestServerHandler.addRestSupportFor(address, serviceObject.getClass(), serviceBundle.address());
+
+        return this;
+    }
     public ServiceBundle serviceBundle() {
         return this.serviceBundle;
     }
