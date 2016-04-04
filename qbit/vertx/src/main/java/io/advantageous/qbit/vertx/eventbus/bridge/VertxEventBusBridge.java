@@ -1,10 +1,7 @@
 package io.advantageous.qbit.vertx.eventbus.bridge;
 
 import io.advantageous.boon.core.Predicate;
-import io.advantageous.boon.core.Sets;
 import io.advantageous.boon.json.JsonException;
-import io.advantageous.boon.json.JsonParserAndMapper;
-import io.advantageous.boon.json.JsonParserFactory;
 import io.advantageous.qbit.json.JsonMapper;
 import io.advantageous.qbit.message.MethodCall;
 import io.advantageous.qbit.message.MethodCallBuilder;
@@ -35,7 +32,6 @@ public class VertxEventBusBridge {
     private final Logger logger = LoggerFactory.getLogger(VertxEventBusBridge.class);
     private final EventBus vertxEventBus;
     private final StandardRequestTransformer standardRequestTransformer;
-    private final JsonParserAndMapper jsonParserAndMapper;
     private long messageId = 0;
 
 
@@ -65,7 +61,6 @@ public class VertxEventBusBridge {
         if (autoStart) {
             start();
         }
-        jsonParserAndMapper = new JsonParserFactory().setIgnoreSet(Sets.set("metaClass")).createJsonCharArrayParser();
 
     }
 

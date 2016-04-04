@@ -135,7 +135,7 @@ public class CompanyRestServiceUsingReactor extends BaseService {
                 new CompanyRestServiceUsingReactor(
                         ReactorBuilder.reactorBuilder().setDefaultTimeOut(10).setTimeUnit(TimeUnit.SECONDS).build(),
                         Timer.timer(),
-                        managedServiceBuilder.getStatServiceBuilder().buildStatsCollector(),
+                        managedServiceBuilder.createStatsCollector(),
                         employeeServiceQueue.createProxy(EmployeeService.class)));
 
         /** Start the server. */

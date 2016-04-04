@@ -48,9 +48,7 @@ import io.advantageous.qbit.system.QBitSystemManager;
 import io.advantageous.qbit.transforms.Transformer;
 import io.advantageous.qbit.util.Timer;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Properties;
+import java.util.*;
 import java.util.function.Consumer;
 
 import static io.advantageous.qbit.http.server.HttpServerBuilder.httpServerBuilder;
@@ -98,6 +96,7 @@ public class EndpointServerBuilder {
     private HealthServiceBuilder healthServiceBuilder;
     private StatCollection statsCollection;
     private List<Object> services;
+    private Map<String, Object> servicesWithAlias;
 
     private String endpointName;
     private ServiceDiscovery serviceDiscovery;
@@ -162,6 +161,19 @@ public class EndpointServerBuilder {
 
     public static EndpointServerBuilder endpointServerBuilder() {
         return new EndpointServerBuilder();
+    }
+
+    public Map<String, Object> getServicesWithAlias() {
+
+        if (servicesWithAlias == null) {
+            servicesWithAlias = new TreeMap<>();
+        }
+        return servicesWithAlias;
+    }
+
+    public EndpointServerBuilder setServicesWithAlias(Map<String, Object> servicesWithAlias) {
+        this.servicesWithAlias = servicesWithAlias;
+        return this;
     }
 
     public BeforeMethodSent getBeforeMethodSent() {
@@ -588,7 +600,10 @@ public class EndpointServerBuilder {
 
         if (services != null) {
             serviceEndpointServer.initServices(services);
+        }
 
+        if (servicesWithAlias != null) {
+            servicesWithAlias.entrySet().forEach(entry -> serviceEndpointServer.addServiceObject(entry.getKey(), entry.getValue()));
         }
         return serviceEndpointServer;
     }
@@ -638,6 +653,11 @@ public class EndpointServerBuilder {
 
     public void setServices(List<Object> services) {
         this.services = services;
+    }
+
+    public EndpointServerBuilder addService(String alias, Object service) {
+        getServicesWithAlias().put(alias, service);
+        return this;
     }
 
     public EndpointServerBuilder addService(Object service) {

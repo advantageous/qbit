@@ -236,6 +236,7 @@ public class HttpRequestServiceServerHandlerUsingMetaImpl implements HttpRequest
 
     }
 
+
     @Override
     public void httpRequestQueueIdle(Void v) {
         long lastFlush = lastFlushTime;
@@ -306,6 +307,13 @@ public class HttpRequestServiceServerHandlerUsingMetaImpl implements HttpRequest
         contextMetaBuilder.setRootURI(baseURI).addService(cls);
 
     }
+
+    @Override
+    public void addRestSupportFor(String alias, Class<?> cls, String baseURI) {
+
+        contextMetaBuilder.setRootURI(baseURI).addService(alias, cls);
+    }
+
 
     @Override
     public void checkTimeoutsForRequests() {

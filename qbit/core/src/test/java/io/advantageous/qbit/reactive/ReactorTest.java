@@ -178,6 +178,51 @@ public class ReactorTest {
     }
 
     @Test
+    public void testOneShotTest() throws Exception {
+
+
+        TestTimer testTimer = new TestTimer();
+        Reactor reactor = ReactorBuilder.reactorBuilder().setTimer(testTimer).build();
+        final AtomicBoolean test = new AtomicBoolean();
+        final AtomicInteger count = new AtomicInteger();
+
+        testTimer.setTime();
+
+
+        /* Add a task that repeats every ten seconds. */
+        reactor.addOneShotAfterTask(10, TimeUnit.SECONDS, () -> {
+            test.set(true);
+            count.incrementAndGet();
+        });
+
+
+        /* Nothing should have run, we have not called process. */
+        assertFalse(test.get());
+        assertEquals(0, count.get());
+
+
+        testTimer.seconds(12);
+        reactor.process();
+
+
+        /* We should have one count and test should be true. */
+        assertTrue(test.get());
+        assertEquals(1, count.get());
+
+        /* Run again. No time change.*/
+        test.set(false);
+
+
+        testTimer.seconds(12);
+        reactor.process();
+
+        assertFalse(test.get());
+        assertEquals(1, count.get());
+
+    }
+
+
+    @Test
     public void testTimedTasks() throws Exception {
 
 

@@ -43,10 +43,30 @@ public class ResourceStyleRestServiceTest {
         serviceEndpointServer = EndpointServerBuilder.endpointServerBuilder()
                 .setEnableHealthEndpoint(true).setEnableStatEndpoint(true)
                 .build()
-                .initServices(hrService).startServer();
+                .initServices(hrService)
+                .addServiceObject("rh", hrService).startServer();
     }
 
 
+
+    @Test
+    public void addDepartmentUsingAlias() {
+
+        final HttpTextResponse httpResponse = httpServerSimulator.postBody("/rh/department/100/",
+                new Department(100, Lists.list(new Employee(1, "Rick"),
+                        new Employee(2, "Diana"))));
+
+        assertEquals(200, httpResponse.code());
+        assertEquals("true", httpResponse.body());
+
+
+        final List<Department> departments = hrService.getDepartments();
+
+        assertEquals(1, departments.size());
+
+
+        assertEquals(100, departments.get(0).getId());
+    }
     @Test
     public void addDepartment() {
 

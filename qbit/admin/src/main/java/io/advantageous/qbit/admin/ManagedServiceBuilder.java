@@ -23,12 +23,11 @@ import io.advantageous.qbit.service.discovery.ServiceDiscovery;
 import io.advantageous.qbit.service.discovery.dns.DnsUtil;
 import io.advantageous.qbit.service.health.HealthServiceAsync;
 import io.advantageous.qbit.service.health.HealthServiceBuilder;
+import io.advantageous.qbit.service.stats.StatsCollector;
 import io.advantageous.qbit.system.QBitSystemManager;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
+import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 /**
@@ -125,6 +124,12 @@ public class ManagedServiceBuilder {
      * Endpoint services that will be exposed through contextMetaBuilder.
      */
     private List<Object> endpointServices;
+
+
+    /**
+     * Endpoint services that will be exposed through contextMetaBuilder.
+     */
+    private Map<String, Object> endpointServiceMapWithAlias;
 
     /**
      * The builder for the admin.
@@ -566,6 +571,18 @@ public class ManagedServiceBuilder {
         return this;
     }
 
+    public Map<String, Object> getEndpointServiceMapWithAlias() {
+        if (endpointServiceMapWithAlias == null) {
+            endpointServiceMapWithAlias = new HashMap<>();
+        }
+        return endpointServiceMapWithAlias;
+    }
+
+    public ManagedServiceBuilder setEndpointServiceMapWithAlias(Map<String, Object> endpointServiceMapWithAlias) {
+        this.endpointServiceMapWithAlias = endpointServiceMapWithAlias;
+        return this;
+    }
+
     public List<Object> getEndpointServices() {
         if (endpointServices == null) {
             endpointServices = new ArrayList<>();
@@ -584,6 +601,14 @@ public class ManagedServiceBuilder {
         getEndpointServices().add(endpointService);
         return this;
     }
+
+
+    public ManagedServiceBuilder addEndpointService(final String alias, final Object endpointService) {
+        getContextMetaBuilder().addService(alias, endpointService.getClass());
+        getEndpointServiceMapWithAlias().put(alias, endpointService);
+        return this;
+    }
+
 
     public Factory getFactory() {
         if (factory == null) {
@@ -755,6 +780,10 @@ public class ManagedServiceBuilder {
 
             if (endpointServices != null) {
                 endpointServerBuilder.setServices(endpointServices);
+            }
+
+            if (endpointServiceMapWithAlias != null) {
+                endpointServerBuilder.setServicesWithAlias(endpointServiceMapWithAlias);
             }
 
         }
@@ -970,6 +999,14 @@ public class ManagedServiceBuilder {
     public ManagedServiceBuilder useDnsServiceDiscovery() {
         this.setServiceDiscovery(DnsUtil.createDnsServiceDiscovery());
         return this;
+    }
+
+    /**
+     * Create a new StatsCollector
+     * @return new stats collector for a single service.
+     */
+    public StatsCollector createStatsCollector() {
+        return this.getStatServiceBuilder().buildStatsCollector();
     }
 
     /**

@@ -344,13 +344,17 @@ public class ContextMetaBuilder {
         return this;
     }
 
-    public ContextMetaBuilder addService(final Class<?> serviceClass) {
 
+    public ContextMetaBuilder addService(String alias, Class<?> serviceClass) {
 
         final ClassMeta<?> classMeta = ClassMeta.classMeta(serviceClass);
         String name = getServiceName(classMeta);
 
         final List<String> requestPaths = getRequestPathsByAnnotated(classMeta, name);
+
+        if (alias!=null) {
+            requestPaths.add(asPath(alias));
+        }
 
         final String description = getDescriptionFromRequestMapping(classMeta);
 
@@ -365,6 +369,12 @@ public class ContextMetaBuilder {
         addService(serviceMetaBuilder.build());
 
         return this;
+
+    }
+
+    public ContextMetaBuilder addService(final Class<?> serviceClass) {
+
+        return addService(null, serviceClass);
     }
 
     private String getServiceName(ClassMeta<?> classMeta) {
@@ -439,4 +449,5 @@ public class ContextMetaBuilder {
 
         return responseHeadersMap;
     }
+
 }
