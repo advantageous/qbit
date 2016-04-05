@@ -352,6 +352,9 @@ public class ContextMetaBuilder {
 
         final List<String> requestPaths = getRequestPathsByAnnotated(classMeta, name);
 
+        if (alias!=null) {
+            requestPaths.add(asPath(alias));
+        }
 
         final String description = getDescriptionFromRequestMapping(classMeta);
 
