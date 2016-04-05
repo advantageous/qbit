@@ -1,15 +1,15 @@
 package io.advantageous.qbit.vertx.bugs;
 
-import io.advantageous.boon.core.Sys;
-import io.advantageous.qbit.http.client.HttpClient;
-import io.advantageous.qbit.http.client.HttpClientBuilder;
-import io.advantageous.qbit.http.request.HttpRequestBuilder;
-import org.junit.Test;
+        import io.advantageous.boon.core.Sys;
+        import io.advantageous.qbit.http.client.HttpClient;
+        import io.advantageous.qbit.http.client.HttpClientBuilder;
+        import io.advantageous.qbit.http.request.HttpRequestBuilder;
+        import org.junit.Test;
 
-import java.util.concurrent.atomic.AtomicInteger;
+        import java.util.concurrent.atomic.AtomicInteger;
 
-import static io.advantageous.boon.core.IO.puts;
-import static org.junit.Assert.assertEquals;
+        import static io.advantageous.boon.core.IO.puts;
+        import static org.junit.Assert.assertEquals;
 
 public class Bug660 {
 
