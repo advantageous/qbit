@@ -59,7 +59,7 @@ public class BoonClientTest {
         });
         FactorySPI.setHttpClientFactory((host, port, timeOutInMilliseconds, poolSize, autoFlush, flushRate, keepAlive,
                                          pipeLine, ssl, verifyHost, trustAll, maxWebSocketFrameSize,
-                                         tryUseCompression, trustStorePath, trustStorePassword, tcpNoDelay, soLinger) ->
+                                         tryUseCompression, trustStorePath, trustStorePassword, tcpNoDelay, soLinger, throwableConsumer) ->
                 new HttpClientMock());
 
 
