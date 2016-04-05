@@ -64,4 +64,8 @@ public interface Startable {
 
     default void start() {
     }
+
+
+    default void startWithNotify(Runnable runnable) {
+    }
 }

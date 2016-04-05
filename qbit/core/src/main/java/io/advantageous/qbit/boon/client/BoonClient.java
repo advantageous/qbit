@@ -36,6 +36,7 @@ import io.advantageous.qbit.message.Message;
 import io.advantageous.qbit.message.MethodCall;
 import io.advantageous.qbit.message.Response;
 import io.advantageous.qbit.message.impl.MethodCallImpl;
+import io.advantageous.qbit.network.NetSocket;
 import io.advantageous.qbit.reactive.Callback;
 import io.advantageous.qbit.sender.Sender;
 import io.advantageous.qbit.service.BeforeMethodCall;
@@ -51,6 +52,7 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.Consumer;
 
 import static io.advantageous.boon.core.Exceptions.die;
 import static io.advantageous.boon.core.Str.sputs;
@@ -194,43 +196,28 @@ public class BoonClient implements Client {
     private void send(final String serviceName, final String message) {
 
         if (webSocket == null) {
-
             String webSocketURI;
             if (serviceName.startsWith(uri)) {
                 webSocketURI = serviceName;
             } else {
                 webSocketURI = Str.add(uri, "/", serviceName);
             }
-
             this.webSocket = httpServerProxy.createWebSocket(webSocketURI);
             wireWebSocket(serviceName, message);
-            try {
-                this.webSocket.openAndWait();
-                this.connected.set(true);
-
-            } catch (Exception ex) {
-                this.connected.set(false);
-                if (debug)
-                    throw new IllegalStateException(ex);
-            }
-        } else {
-            try {
-                if (webSocket.isClosed() && connected()) {
-                    this.webSocket.openAndWait();
-                    this.connected.set(true);
-                }
-            } catch (Exception ex) {
-                this.connected.set(false);
-                if (debug)
-                    throw ex;
-            }
         }
 
-        if (!webSocket.isClosed()) {
-        /* By this point we should be open. */
-            webSocket.sendText(message);
-        } else {
-            connected.set(false);
+        try {
+            if (webSocket.isClosed() && connected()) {
+                this.webSocket.openAndNotify(netSocket -> {
+                    connected.set(true);
+                    webSocket.sendText(message);
+                });
+            } else {
+                webSocket.sendText(message);
+            }
+        } catch (Exception ex) {
+            this.connected.set(false);
+            if (debug) throw ex;
         }
     }
 
@@ -423,6 +410,11 @@ public class BoonClient implements Client {
     }
 
     public void start() {
+        startWithNotify(null);
+    }
+
+    public void startWithNotify(final Runnable runnable) {
+
 
         /** Adding the weak reference to get rid of the circular dependency
          * which seems to prevent this from getting collected.
@@ -430,15 +422,17 @@ public class BoonClient implements Client {
         final WeakReference<BoonClient> boonClientWeakReference =
                 new WeakReference<>(this);
         this.httpServerProxy.periodicFlushCallback(aVoid -> {
-
             final BoonClient boonClient = boonClientWeakReference.get();
             if (boonClient != null) {
                 boonClient.flush();
             }
-
         });
 
-        this.httpServerProxy.startClient();
+        if (runnable == null) {
+            this.httpServerProxy.startClient();
+        } else {
+            this.httpServerProxy.startWithNotify(runnable);
+        }
         connected.set(true);
 
     }

@@ -67,5 +67,7 @@ public interface NetSocket {
 
     void openAndWait();
 
+    void openAndNotify(final Consumer<NetSocket> openConsumer);
+
 
 }

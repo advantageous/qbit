@@ -132,12 +132,16 @@ public class ServiceEndpointServerImpl implements ServiceEndpointServer {
         return null;
     }
 
-
     @Override
     public void start() {
         doStart();
         httpServer.start();
+    }
 
+    @Override
+    public void startWithNotify(Runnable runnable) {
+        doStart();
+        httpServer.startWithNotify(runnable);
     }
 
     @Override
@@ -270,31 +274,24 @@ public class ServiceEndpointServerImpl implements ServiceEndpointServer {
                 if (debug) {
                     logger.debug("createResponseQueueListener() Received a response: " + response);
                 }
-
                 handleResponseFromServiceBundle(response, response.request().originatingRequest());
             }
 
 
             @Override
             public void limit() {
-
-
                 httpRequestServerHandler.checkTimeoutsForRequests();
                 webSocketHandler.checkResponseBatchSend();
             }
 
             @Override
             public void empty() {
-
                 httpRequestServerHandler.checkTimeoutsForRequests();
                 webSocketHandler.checkResponseBatchSend();
-
             }
 
             @Override
             public void idle() {
-
-
                 httpRequestServerHandler.checkTimeoutsForRequests();
                 webSocketHandler.checkResponseBatchSend();
             }
