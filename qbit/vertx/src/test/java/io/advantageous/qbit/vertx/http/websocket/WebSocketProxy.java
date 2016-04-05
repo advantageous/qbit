@@ -1,6 +1,5 @@
 package io.advantageous.qbit.vertx.http.websocket;
 
-import io.advantageous.boon.core.Sys;
 import io.advantageous.qbit.client.Client;
 import io.advantageous.qbit.client.ClientBuilder;
 import io.advantageous.qbit.reactive.Callback;
@@ -11,9 +10,11 @@ import org.junit.Test;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
 
-import static junit.framework.Assert.assertEquals;
+import static org.junit.Assert.assertEquals;
+
 
 public class WebSocketProxy {
 
@@ -50,19 +51,17 @@ public class WebSocketProxy {
 
         final ServiceEndpointServer serviceEndpointServer = EndpointServerBuilder.endpointServerBuilder()
                 .setPort(9999)
-                .addService(new EmployeeServiceImpl()).build().startServer();
-
-        Sys.sleep(1000);
+                .addService(new EmployeeServiceImpl()).build().startServerAndWait();
 
         final Client client = ClientBuilder.clientBuilder().setPort(9999).setHost("localhost").build().startClient();
 
-        Sys.sleep(1000);
         final EmployeeService employeeService = client.createProxy(EmployeeService.class, "employeeserviceimpl");
 
         ServiceProxyUtils.flushServiceProxy(employeeService);
 
-        Sys.sleep(1000);
 
+
+        AtomicLong counter = new AtomicLong();
 
         for (int index = 0; index < 20; index++) {
             final AtomicReference<Employee> ref = new AtomicReference<>();
@@ -72,11 +71,13 @@ public class WebSocketProxy {
 
                 System.out.println(ref.get());
                 latch.countDown();
+                counter.incrementAndGet();
             }, new Employee("rick"));
 
             latch.await(2, TimeUnit.SECONDS);
         }
 
+        assertEquals(20, counter.get());
 
 
         serviceEndpointServer.stop();

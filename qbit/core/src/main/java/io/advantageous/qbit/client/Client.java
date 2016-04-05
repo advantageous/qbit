@@ -50,6 +50,12 @@ public interface Client extends Stoppable, Startable {
         return this;
     }
 
+
+    default Client startClientWithNotify(final Runnable runnable) {
+        startWithNotify(runnable);
+        return this;
+    }
+
     boolean connected();
 
 }

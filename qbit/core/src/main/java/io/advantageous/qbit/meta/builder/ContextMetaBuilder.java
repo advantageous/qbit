@@ -348,7 +348,7 @@ public class ContextMetaBuilder {
     public ContextMetaBuilder addService(String alias, Class<?> serviceClass) {
 
         final ClassMeta<?> classMeta = ClassMeta.classMeta(serviceClass);
-        String name = getServiceName(classMeta);
+        String name = alias !=null ? alias : getServiceName(classMeta);
 
         final List<String> requestPaths = getRequestPathsByAnnotated(classMeta, name);
 

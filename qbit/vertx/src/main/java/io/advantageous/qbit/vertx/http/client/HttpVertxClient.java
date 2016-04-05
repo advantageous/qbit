@@ -349,12 +349,17 @@ public class HttpVertxClient implements HttpClient {
 
     @Override
     public HttpClient startClient() {
-        connect();
+        startWithNotify(null);
+        return this;
+    }
+
+    public void startWithNotify(final Runnable runnable) {
+        connect(runnable);
         if (autoFlush) {
             flushTimerId = vertx.setPeriodic(this.flushInterval, event -> autoFlush());
         }
-        return this;
     }
+
 
     @Override
     public WebSocket createWebSocket(final String uri) {
@@ -501,7 +506,7 @@ public class HttpVertxClient implements HttpClient {
     }
 
 
-    private void connect() {
+    private void connect(final Runnable runnable) {
 
         final HttpClientOptions httpClientOptions = new HttpClientOptions();
         final JksOptions jksOptions = new JksOptions();
@@ -525,12 +530,9 @@ public class HttpVertxClient implements HttpClient {
         httpClient = vertx.createHttpClient(httpClientOptions);
 
         if (debug) logger.debug("HTTP CLIENT: connect:: \nhost {} \nport {}\n", host, port);
-
-
-        Sys.sleep(100);
-
         closed.set(false);
-
+        Sys.sleep(100);
+        if (runnable != null) runnable.run();
     }
 
 

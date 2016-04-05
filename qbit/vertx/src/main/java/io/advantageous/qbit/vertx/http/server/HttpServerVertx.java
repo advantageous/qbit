@@ -158,8 +158,14 @@ public class HttpServerVertx implements HttpServer {
         );
     }
 
+
     @Override
     public void start() {
+        startWithNotify(null);
+    }
+
+    @Override
+    public void startWithNotify(Runnable runnable) {
 
         simpleHttpServer.start();
 
@@ -198,6 +204,7 @@ public class HttpServerVertx implements HttpServer {
                     simpleHttpServer.getErrorHandler().accept(event.cause());
                 } else {
 
+                    if (runnable!=null) { runnable.run(); }
                     logger.info("HTTP SERVER started on port " + port + " default host ");
                     simpleHttpServer.getOnStart().run();
                 }
@@ -209,6 +216,7 @@ public class HttpServerVertx implements HttpServer {
                     simpleHttpServer.getErrorHandler().accept(event.cause());
                 } else {
 
+                    runnable.run();
                     logger.info("HTTP SERVER started on port " + port + " host " + host);
                     simpleHttpServer.getOnStart().run();
                 }

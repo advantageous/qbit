@@ -69,6 +69,11 @@ public interface ServiceEndpointServer extends Server {
         return this;
     }
 
+    default ServiceEndpointServer startServerNotifyStart(Runnable runnable) {
+        startWithNotify(runnable);
+        return this;
+    }
+
 
     default ServiceEndpointServer startServerAndWait() {
         start();
