@@ -22,6 +22,7 @@ import io.advantageous.boon.core.Str;
 import io.advantageous.boon.core.Sys;
 import io.advantageous.boon.primitive.CharBuf;
 import io.advantageous.qbit.GlobalConstants;
+import io.advantageous.qbit.http.HttpStatus;
 import io.advantageous.qbit.http.client.HttpClient;
 import io.advantageous.qbit.http.request.HttpRequest;
 import io.advantageous.qbit.http.request.HttpResponseReceiver;
@@ -230,6 +231,8 @@ public class HttpVertxClient implements HttpClient {
                     logger.warn("Unable to stop client " +
                             "after failed connection", ex);
                 }
+                request.getReceiver().errorWithCode("\"Client connection was closed\"", HttpStatus.SERVICE_UNAVAILABLE);
+                logger.warn("Connection error", error);
             } else {
                 logger.error("Unable to connect to " + host + " port " + port, error);
             }
