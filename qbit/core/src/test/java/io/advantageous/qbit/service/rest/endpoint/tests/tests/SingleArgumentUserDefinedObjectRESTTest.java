@@ -508,7 +508,7 @@ public class SingleArgumentUserDefinedObjectRESTTest {
 
 
     @Test
-    public void echoEmployeeBadString() {
+    public void echoEmployeeNormal() {
         final HttpTextResponse httpResponse = httpServerSimulator.postBodyPlain("/es/echoEmployee",
                 "{\"id\":\"a\",\"name\":\"Rick\"}");
 
