@@ -3,6 +3,8 @@ package io.advantageous.qbit.vertx.http.client;
 import io.advantageous.qbit.http.client.HttpClient;
 import io.advantageous.qbit.spi.HttpClientFactory;
 
+import java.util.function.Consumer;
+
 public class HttpVertxClientFactory implements HttpClientFactory {
     @Override
     public HttpClient create(String host,
@@ -21,9 +23,10 @@ public class HttpVertxClientFactory implements HttpClientFactory {
                              String trustStorePath,
                              String trustStorePassword,
                              boolean tcpNoDelay,
-                             int soLinger) {
+                             int soLinger,
+                             Consumer<Throwable> errorHandler) {
         return new HttpVertxClient(host, port, timeOutInMilliseconds, poolSize, autoFlush,
                 flushRate, keepAlive, pipeLine, ssl, verifyHost, trustAll, maxWebSocketFrameSize,
-                tryUseCompression, trustStorePath, trustStorePassword, tcpNoDelay, soLinger);
+                tryUseCompression, trustStorePath, trustStorePassword, tcpNoDelay, soLinger, errorHandler);
     }
 }

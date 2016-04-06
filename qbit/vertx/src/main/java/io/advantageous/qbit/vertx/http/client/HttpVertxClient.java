@@ -22,6 +22,7 @@ import io.advantageous.boon.core.Str;
 import io.advantageous.boon.core.Sys;
 import io.advantageous.boon.primitive.CharBuf;
 import io.advantageous.qbit.GlobalConstants;
+import io.advantageous.qbit.http.HttpStatus;
 import io.advantageous.qbit.http.client.HttpClient;
 import io.advantageous.qbit.http.request.HttpRequest;
 import io.advantageous.qbit.http.request.HttpResponseReceiver;
@@ -83,6 +84,7 @@ public class HttpVertxClient implements HttpClient {
     private final int soLinger;
     private final boolean autoFlush;
     private final boolean startedVertx;
+    private final Consumer<Throwable> errorHandler;
     protected int poolSize;
     protected io.vertx.core.http.HttpClient httpClient;
     volatile long responseCount = 0;
@@ -110,7 +112,8 @@ public class HttpVertxClient implements HttpClient {
                            final String trustStorePath,
                            final String trustStorePassword,
                            final boolean tcpNoDelay,
-                           final int soLinger) {
+                           final int soLinger,
+                           final Consumer<Throwable> errorHandler) {
 
         this.flushInterval = flushInterval;
         this.port = port;
@@ -132,73 +135,76 @@ public class HttpVertxClient implements HttpClient {
         this.trustStorePassword = trustStorePassword;
         this.tcpNoDelay = tcpNoDelay;
         this.soLinger = soLinger;
+        this.errorHandler = errorHandler;
 
     }
 
-
-    /**
-     * Constructor that allows you to pass a vertx object.
-     *
-     * @param vertx                 vertx
-     * @param host                  host
-     * @param port                  port
-     * @param timeOutInMilliseconds timout milis
-     * @param poolSize              poolsize
-     * @param autoFlush             autoflush
-     * @param flushInterval         flush interval
-     * @param keepAlive             keepAlive
-     * @param pipeline              pipeline enabled
-     * @param ssl                   ssl enabled
-     * @param verifyHost            verify host enabled
-     * @param trustAll              trust all
-     * @param maxWebSocketFrameSize maxWebSocketFrameSize
-     * @param tryUseCompression     tryUseCompression
-     * @param trustStorePath        trustStorePath
-     * @param trustStorePassword    trustStorePassword
-     * @param tcpNoDelay            tcpNoDelay
-     * @param soLinger              soLinger
-     */
-    public HttpVertxClient(final Vertx vertx,
-                           final String host,
-                           final int port,
-                           final int timeOutInMilliseconds,
-                           final int poolSize,
-                           final boolean autoFlush,
-                           final int flushInterval,
-                           final boolean keepAlive,
-                           final boolean pipeline,
-                           final boolean ssl,
-                           final boolean verifyHost,
-                           final boolean trustAll,
-                           final int maxWebSocketFrameSize,
-                           final boolean tryUseCompression,
-                           final String trustStorePath,
-                           final String trustStorePassword,
-                           final boolean tcpNoDelay,
-                           final int soLinger) {
-
-        this.flushInterval = flushInterval;
-        this.port = port;
-        this.host = host;
-        this.timeOutInMilliseconds = timeOutInMilliseconds;
-        this.poolSize = poolSize;
-        this.vertx = vertx;
-        this.startedVertx = false;
-        this.poolSize = poolSize;
-        this.keepAlive = keepAlive;
-        this.pipeline = pipeline;
-        this.autoFlush = autoFlush;
-        this.ssl = ssl;
-        this.verifyHost = verifyHost;
-        this.trustAll = trustAll;
-        this.maxWebSocketFrameSize = maxWebSocketFrameSize;
-        this.tryUseCompression = tryUseCompression;
-        this.trustStorePath = trustStorePath;
-        this.trustStorePassword = trustStorePassword;
-        this.tcpNoDelay = tcpNoDelay;
-        this.soLinger = soLinger;
-
-    }
+//
+//    /**
+//     * Constructor that allows you to pass a vertx object.
+//     *
+//     * @param vertx                 vertx
+//     * @param host                  host
+//     * @param port                  port
+//     * @param timeOutInMilliseconds timout milis
+//     * @param poolSize              poolsize
+//     * @param autoFlush             autoflush
+//     * @param flushInterval         flush interval
+//     * @param keepAlive             keepAlive
+//     * @param pipeline              pipeline enabled
+//     * @param ssl                   ssl enabled
+//     * @param verifyHost            verify host enabled
+//     * @param trustAll              trust all
+//     * @param maxWebSocketFrameSize maxWebSocketFrameSize
+//     * @param tryUseCompression     tryUseCompression
+//     * @param trustStorePath        trustStorePath
+//     * @param trustStorePassword    trustStorePassword
+//     * @param tcpNoDelay            tcpNoDelay
+//     * @param soLinger              soLinger
+//     */
+//    public HttpVertxClient(final Vertx vertx,
+//                           final String host,
+//                           final int port,
+//                           final int timeOutInMilliseconds,
+//                           final int poolSize,
+//                           final boolean autoFlush,
+//                           final int flushInterval,
+//                           final boolean keepAlive,
+//                           final boolean pipeline,
+//                           final boolean ssl,
+//                           final boolean verifyHost,
+//                           final boolean trustAll,
+//                           final int maxWebSocketFrameSize,
+//                           final boolean tryUseCompression,
+//                           final String trustStorePath,
+//                           final String trustStorePassword,
+//                           final boolean tcpNoDelay,
+//                           final int soLinger,
+//                           final Consumer<Throwable> errorHandler) {
+//
+//        this.flushInterval = flushInterval;
+//        this.port = port;
+//        this.host = host;
+//        this.timeOutInMilliseconds = timeOutInMilliseconds;
+//        this.poolSize = poolSize;
+//        this.vertx = vertx;
+//        this.startedVertx = false;
+//        this.poolSize = poolSize;
+//        this.keepAlive = keepAlive;
+//        this.pipeline = pipeline;
+//        this.autoFlush = autoFlush;
+//        this.ssl = ssl;
+//        this.verifyHost = verifyHost;
+//        this.trustAll = trustAll;
+//        this.maxWebSocketFrameSize = maxWebSocketFrameSize;
+//        this.tryUseCompression = tryUseCompression;
+//        this.trustStorePath = trustStorePath;
+//        this.trustStorePassword = trustStorePassword;
+//        this.tcpNoDelay = tcpNoDelay;
+//        this.soLinger = soLinger;
+//        this.errorHandler = errorHandler;
+//
+//    }
 
 
     @Override
@@ -227,12 +233,18 @@ public class HttpVertxClient implements HttpClient {
                 try {
                     stop();
                 } catch (Exception ex) {
+
+                    errorHandler.accept(ex);
                     logger.warn("Unable to stop client " +
                             "after failed connection", ex);
                 }
+                request.getReceiver().errorWithCode("\"Client connection was closed\"", HttpStatus.SERVICE_UNAVAILABLE);
+                logger.warn("Connection error", error);
             } else {
                 logger.error("Unable to connect to " + host + " port " + port, error);
             }
+
+            errorHandler.accept(error);
         });
 
         if (headers != null) {
@@ -290,6 +302,7 @@ public class HttpVertxClient implements HttpClient {
                         charBuf.addString(key).add('=').addString(val).add('&');
                     }
                 } catch (UnsupportedEncodingException e) {
+                    errorHandler.accept(e);
                     throw new IllegalStateException(e);
                 }
             }
@@ -328,6 +341,7 @@ public class HttpVertxClient implements HttpClient {
             }
         } catch (Exception ex) {
 
+            errorHandler.accept(ex);
             logger.debug("problem shutting down vertx httpClient for QBIT Http Client", ex);
         }
 
@@ -336,6 +350,7 @@ public class HttpVertxClient implements HttpClient {
                 vertx.close();
 
             } catch (Exception ex) {
+                errorHandler.accept(ex);
                 logger.debug("problem shutting down vertx for QBIT Http Client", ex);
 
             }
@@ -554,6 +569,7 @@ public class HttpVertxClient implements HttpClient {
             try {
                 stop();
             } catch (Exception ex) {
+                errorHandler.accept(ex);
                 logger.warn("Problem closing client in finalize", ex);
             }
         }

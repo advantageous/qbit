@@ -54,6 +54,7 @@ import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.Consumer;
 
 /**
  * Main factory for QBit. This gets used internally to create things easily.
@@ -281,7 +282,8 @@ public interface Factory {
             String trustStorePath,
             String trustStorePassword,
             boolean tcpNoDelay,
-            int soLinger
+            int soLinger,
+            Consumer<Throwable> errorHandler
 
     ) {
         return FactorySPI.getHttpClientFactory().create(
@@ -301,7 +303,8 @@ public interface Factory {
                 trustStorePath,
                 trustStorePassword,
                 tcpNoDelay,
-                soLinger
+                soLinger,
+                errorHandler
 
         );
 

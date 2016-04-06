@@ -58,7 +58,12 @@ public class PerfTestMain {
 
 
             @Override
-            public HttpClient create(String host, int port, int timeOutInMilliseconds, int poolSize, boolean autoFlush, int flushRate, boolean keepAlive, boolean pipeLine, boolean ssl, boolean verifyHost, boolean trustAll, int maxWebSocketFrameSize, boolean tryUseCompression, String trustStorePath, String trustStorePassword, boolean tcpNoDelay, int soLinger) {
+            public HttpClient create(String host, int port,
+                                     int timeOutInMilliseconds, int poolSize, boolean autoFlush, int flushRate,
+                                     boolean keepAlive, boolean pipeLine, boolean ssl, boolean verifyHost,
+                                     boolean trustAll, int maxWebSocketFrameSize, boolean tryUseCompression,
+                                     String trustStorePath, String trustStorePassword,
+                                     boolean tcpNoDelay, int soLinger, Consumer<Throwable> throwableConsumer) {
                 return new MockHttpClient();
             }
 

@@ -22,6 +22,7 @@ import io.advantageous.qbit.QBit;
 import io.advantageous.qbit.config.PropertyResolver;
 
 import java.util.Properties;
+import java.util.function.Consumer;
 
 
 /**
@@ -52,6 +53,7 @@ public class HttpClientBuilder {
     private String trustStorePassword;
     private boolean tcpNoDelay = true;
     private int soLinger = 100;
+    private Consumer<Throwable> errorHandler = throwable -> {};
 
 
     public HttpClientBuilder(PropertyResolver propertyResolver) {
@@ -231,16 +233,27 @@ public class HttpClientBuilder {
         return tcpNoDelay;
     }
 
-    public void setTcpNoDelay(boolean tcpNoDelay) {
+    public HttpClientBuilder setTcpNoDelay(boolean tcpNoDelay) {
         this.tcpNoDelay = tcpNoDelay;
+        return this;
     }
 
     public int getSoLinger() {
         return soLinger;
     }
 
-    public void setSoLinger(int soLinger) {
+    public HttpClientBuilder setSoLinger(int soLinger) {
         this.soLinger = soLinger;
+        return this;
+    }
+
+    public Consumer<Throwable> getErrorHandler() {
+        return errorHandler;
+    }
+
+    public HttpClientBuilder setErrorHandler(Consumer<Throwable> errorHandler) {
+        this.errorHandler = errorHandler;
+        return this;
     }
 
     public HttpClient build() {
@@ -262,7 +275,8 @@ public class HttpClientBuilder {
                 this.getTrustStorePath(),
                 this.getTrustStorePassword(),
                 this.isTcpNoDelay(),
-                this.getSoLinger());
+                this.getSoLinger(),
+                this.getErrorHandler());
 
         return httpClient;
     }
