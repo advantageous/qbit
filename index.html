@@ -1,0 +1,1466 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+    <meta charset='utf-8'>
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <meta name="description" content="QBit - Microservices Lib : The Java microservice lib. QBit is a reactive programming lib for building microservices - JSON, HTTP, WebSocket, and REST. QBit uses reactive programming to build elastic REST, and WebSockets based cloud friendly, web services. SOA evolved for mobile and cloud.  ServiceDiscovery, Health, reactive StatService, events, Java idiomatic reactive programming for Microservices.">
+
+    <link rel="stylesheet" type="text/css" media="screen" href="stylesheets/stylesheet.css">
+
+    <title>QBit - Microservices Lib</title>
+  </head>
+
+  <body>
+
+    <!-- HEADER -->
+    <div id="header_wrap" class="outer">
+        <header class="inner">
+          <a id="forkme_banner" href="https://github.com/advantageous/qbit">View on GitHub</a>
+
+          <h1 id="project_title">QBit - Microservices Lib</h1>
+          <h2 id="project_tagline">The Java microservice lib. QBit is a reactive programming lib for building microservices - JSON, HTTP, WebSocket, and REST. QBit uses reactive programming to build elastic REST, and WebSockets based cloud friendly, web services. SOA evolved for mobile and cloud.  ServiceDiscovery, Health, reactive StatService, events, Java idiomatic reactive programming for Microservices.</h2>
+
+            <section id="downloads">
+              <a class="zip_download_link" href="https://github.com/advantageous/qbit/zipball/master">Download this project as a .zip file</a>
+              <a class="tar_download_link" href="https://github.com/advantageous/qbit/tarball/master">Download this project as a tar.gz file</a>
+            </section>
+        </header>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div id="main_content_wrap" class="outer">
+      <section id="main_content" class="inner">
+        <p><a href="https://github.com/MammatusTech/qbit-microservices-examples/wiki">QBit Java Micorservices lib tutorials</a></p>
+
+<h1>
+<a id="qbit---the-microservice-lib-for-java---json-rest-websocket-speed" class="anchor" href="#qbit---the-microservice-lib-for-java---json-rest-websocket-speed" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>qbit - The Microservice Lib for Java - JSON, REST, WebSocket, Speed!</h1>
+
+<p><a href="https://travis-ci.org/advantageous/qbit"><img src="https://travis-ci.org/advantageous/qbit.svg" alt="Build Status"></a> <a href="https://gitter.im/advantageous/qbit?utm_source=badge&amp;utm_medium=badge&amp;utm_campaign=pr-badge&amp;utm_content=badge"><img src="https://badges.gitter.im/Join%20Chat.svg" alt="Join the chat at https://gitter.im/advantageous/qbit"></a></p>
+
+<h2>
+<a id="quick-overview-of-qbit" class="anchor" href="#quick-overview-of-qbit" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Quick overview of QBit</h2>
+
+<p>The Java microservice lib. QBit is a reactive programming lib for building microservices - JSON, HTTP, WebSocket, and REST. QBit uses reactive programming to build elastic REST, and WebSockets based cloud friendly, web services. SOA evolved for mobile and cloud. ServiceDiscovery, Health, reactive StatService, events, Java idiomatic reactive programming for Microservices.</p>
+
+<blockquote>
+<p>"Precision beats power, and timing beats speed," -McGregor</p>
+</blockquote>
+
+<p>Got a question? Ask here: <a href="https://groups.google.com/forum/#!forum/qbit-microservice">QBit Google Group</a>.</p>
+
+<p>Everything is a queue. You have a choice. You can embrace it and control it. You can optimize for it.
+Or you can hide behind abstractions. QBit opens you up to peeking into what is going on, and allows you
+to pull some levers without selling your soul.</p>
+
+<p>QBit is a library not a framework. You can mix and match QBit with Spring, Guice, etc.</p>
+
+<p>QBit is FAST!</p>
+
+<p><img src="https://docs.google.com/spreadsheets/d/1kd3gjyyz1MyTJvNLJ-BC0YIkzIU-8YYLLrxpjUl0TBQ/pubchart?oid=781959089&amp;format=image" alt="QBit the microservice framework for java"></p>
+
+<h1>
+<a id="core-features" class="anchor" href="#core-features" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Core Features</h1>
+
+<ul>
+<li>Write REST based async microservices</li>
+<li>Write <strong><em>WebSocket</em></strong> based async microservices (fast async RPC over WebSocket)</li>
+<li>Actor Service Queues using micro-batching for high-speed message passing</li>
+<li>Strongly async typed event bus which can be distributed</li>
+<li>Async low overhead metrics gathering which can be queried and distributed (for doing fast lane analytics)</li>
+<li>Complex async call coordination (with the Reactor) for reactive programming</li>
+<li>Built-in support for <strong><em>health checks</em></strong> (and integration with tools like Consul)</li>
+<li>Built-in support for <strong><em>monitoring</em></strong> (and integration with wire protocols like StatsD)</li>
+<li>Built-in support for <strong><em>Service Discovery</em></strong> (with integration with health system, DNS SRV records and Consul)</li>
+<li>Integration with persistent queues</li>
+<li>
+<a href="http://12factor.net/">12 factor app port bindings</a>, health checks, KPI gathering, Logging MDC</li>
+<li>API Gateway support for client generation and consumption via <a href="http://swagger.io/">Swagger</a>.</li>
+<li>Our services can generate Swagger files (like idl for JSON/REST).</li>
+<li>Remote client proxies for WebSocket (your interface is your IDL)</li>
+</ul>
+
+<h1>
+<a id="status" class="anchor" href="#status" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Status</h1>
+
+<p>Deployed at several large fortune 100 companies. 
+QBit now works with Vertx (standalone or embedded).
+You can also use QBit no non-QBit projects, it is just a lib.</p>
+
+<h1>
+<a id="license" class="anchor" href="#license" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>License</h1>
+
+<p>Apache 2</p>
+
+<h2>
+<a id="java-microservice-lib" class="anchor" href="#java-microservice-lib" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Java Microservice Lib</h2>
+
+<p>QBit has inproc services, REST microservices and WebSocket microservices as well as an
+in-proc service event bus (which can be per module or per app). It supports workers and in-memory services.</p>
+
+<p>Before we describe more, here are two sample services:</p>
+
+<h4>
+<a id="todo-service" class="anchor" href="#todo-service" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Todo Service</h4>
+
+<div class="highlight highlight-source-java"><pre>
+@RequestMapping(<span class="pl-s"><span class="pl-pds">"</span>/todo-service<span class="pl-pds">"</span></span>)
+<span class="pl-k">public</span> <span class="pl-k">class</span> <span class="pl-en">TodoService</span> {
+
+    <span class="pl-k">@RequestMapping</span>(<span class="pl-s"><span class="pl-pds">"</span>/todo/count<span class="pl-pds">"</span></span>)
+    <span class="pl-k">public</span> <span class="pl-k">int</span> <span class="pl-en">size</span>() {<span class="pl-c1">...</span>
+
+    @RequestMapping(<span class="pl-s"><span class="pl-pds">"</span>/todo/<span class="pl-pds">"</span></span>)
+    <span class="pl-k">public</span> <span class="pl-k">List&lt;<span class="pl-smi">TodoItem</span>&gt;</span> list() {<span class="pl-c1">...</span></pre></div>
+
+<h4>
+<a id="adder-service-using-uri-params" class="anchor" href="#adder-service-using-uri-params" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Adder Service using URI params</h4>
+
+<div class="highlight highlight-source-java"><pre>
+    @RequestMapping(<span class="pl-s"><span class="pl-pds">"</span>/adder-service<span class="pl-pds">"</span></span>)
+    <span class="pl-k">public</span> <span class="pl-k">class</span> <span class="pl-en">AdderService</span> {
+
+        <span class="pl-k">@RequestMapping</span>(<span class="pl-s"><span class="pl-pds">"</span>/add/{0}/{1}<span class="pl-pds">"</span></span>)
+        <span class="pl-k">public</span> <span class="pl-k">int</span> <span class="pl-en">add</span>(<span class="pl-k">@PathVariable</span> <span class="pl-k">int</span> <span class="pl-v">a</span>, <span class="pl-k">@PathVariable</span> <span class="pl-k">int</span> <span class="pl-v">b</span>) {<span class="pl-c1">...</span>
+    }</pre></div>
+
+<h1>
+<a id="qbit-philosophy" class="anchor" href="#qbit-philosophy" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>QBit philosophy:</h1>
+
+<p>At the end of the day QBit is a simple library not a framework.
+Your app is not a QBit app but a Java app that uses the QBit lib.
+QBit allows you to work with Java UTIL concurrent, and does not endeavor to hide it from you.
+Just trying to take the sting out of it.</p>
+
+<h1>
+<a id="does-it-work" class="anchor" href="#does-it-work" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Does it work</h1>
+
+<p>We have used techniques in Boon and QBit with great success in high-end, high-performance, high-scalable apps.
+We helped clients handle 10x the load with 1/10th the servers of their competitors using techniques in QBit.
+QBit is us being sick of hand tuning queue access and threads.</p>
+
+<h1>
+<a id="boon-and-qbit-humility-policy" class="anchor" href="#boon-and-qbit-humility-policy" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Boon and QBit humility policy</h1>
+
+<p>Ideas for Boon and QBit often come from all over the web. We make mistakes. Point them out.
+As a developer of Boon and QBit, we are fellow travelers.
+If you have an idea or technique you want to share, we listen.</p>
+
+<h1>
+<a id="inspiration" class="anchor" href="#inspiration" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Inspiration</h1>
+
+<p>A big inspiration for Boon/QBit was Vertx, Akka, Go Channels, Active Objects, Apartment Model Threading, Actor,
+and the Mechanical Sympathy papers.</p>
+
+<p>QBit has ideas that are similar to many frameworks. We are all reading the same papers.
+QBit got inspiration from the LMAX disruptor papers and this blog post about
+<a href="http://php.sabscape.com/blog/?p=557">link transfer queue versus disruptor</a>. We had some theories about
+queues that blog post inspired us to try them out. Some of these theories are deployed at some of the
+biggest middleware backends and whose name brands are known around the world. And thus QBit was born.</p>
+
+<p>QBit also took an lot of inspiration by the great work done
+by Tim Fox on Vertx. The first project using something that could actually be called QBit (albeit early QBit)
+ was using Vertx on an web/mobile microservice for an app that could potentially have 80 million users.
+ It was this
+experience with Vertx and early QBit that led to QBit development and evolution. QBit is built on the
+shoulders of giants (Netty/Vertx).</p>
+
+<h1>
+<a id="does-qbit-compete-with" class="anchor" href="#does-qbit-compete-with" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Does QBit compete with...</h1>
+
+<p>Spring Disruptor: No. You could use QBit to write plugins for Spring Disruptor I suppose, but QBit does
+not compete with Spring Disruptor.
+Spring Boot/Spring MVC: No. We use the same annotations but QBit is geared for high-speed in-memory
+microservices. It is more like Akka than Spring Boot. QBit has a subset of the features of Spring MVC
+geared only for microservices, i.e., WebSocket RPC, REST, JSON marshaling, etc.
+Akka: No. Well Maybe. Akka has similar concepts but they take a different approach. QBit is more focused
+ on Java, and microservices (REST, JSON, WebSocket) than Akka.
+LMAX Disruptor: No. In fact, we can use disruptor as on of the queues that QBit uses underneath the covers.</p>
+
+<p>(Early benchmarks have been removed. They were here. QBit got a lot faster.
+ Benchmarking QBit is a moving target at the moment.
+ Links and reports will be created.)</p>
+
+<p>Code Examples</p>
+
+<h2>
+<a id="basic-queue-example-rest-style-services-is-further-down" class="anchor" href="#basic-queue-example-rest-style-services-is-further-down" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Basic Queue example (REST style services is further down)</h2>
+
+<h1></h1>
+
+<div class="highlight highlight-source-java"><pre>
+     <span class="pl-k">BasicQueue&lt;<span class="pl-smi">Integer</span>&gt;</span> queue <span class="pl-k">=</span>  <span class="pl-smi">BasicQueue</span><span class="pl-k">.</span>create(<span class="pl-smi">Integer</span><span class="pl-k">.</span>class, <span class="pl-c1">1000</span>);
+
+    <span class="pl-c">//Sending threads</span>
+
+     <span class="pl-k">SendQueue&lt;<span class="pl-smi">Integer</span>&gt;</span> sendQueue <span class="pl-k">=</span> queue<span class="pl-k">.</span>sendQueue();
+     <span class="pl-k">for</span> (<span class="pl-k">int</span> index <span class="pl-k">=</span> <span class="pl-c1">0</span>; index <span class="pl-k">&lt;</span> amount; index<span class="pl-k">++</span>) {
+           sendQueue<span class="pl-k">.</span>send(index);
+     }
+     sendQueue<span class="pl-k">.</span>flushSends();
+     <span class="pl-c1">...</span>
+     sendQueue<span class="pl-k">.</span>sendAndFlush(code);
+     <span class="pl-c">//other methods for sendQueue, writeBatch, writeMany</span>
+
+
+     <span class="pl-c">//Receiving Threads</span>
+     <span class="pl-k">ReceiveQueue&lt;<span class="pl-smi">Integer</span>&gt;</span> receiveQueue <span class="pl-k">=</span> queue<span class="pl-k">.</span>receiveQueue();
+     <span class="pl-smi">Integer</span> item <span class="pl-k">=</span> receiveQueue<span class="pl-k">.</span>take();
+     <span class="pl-c">//other methods poll(), pollWait(), readBatch(), readBatch(count)</span></pre></div>
+
+<h3>
+<a id="what-is-qbit-again" class="anchor" href="#what-is-qbit-again" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>What is QBit again?</h3>
+
+<p>QBit is a queuing library for microservices. It is similar to many other projects like Akka, Spring Reactor,
+etc. QBit is just a library not a platform. QBit has libraries to put a service behind a queue.
+You can use QBit queues directly or you can create a service. QBit services can be exposed by WebSocket,
+HTTP, HTTP pipeline, and other types of remoting. A service in QBit is a Java class whose methods are
+ executed behind service queues. QBit implements apartment model threading and is similar to the
+ Actor model or a better description would be Active Objects. QBit does not use a disruptor (but could).
+ It uses regular Java Queues. QBit can do north of 100 million ping pong calls per second which is
+  an amazing speed (seen as high as 200M). QBit also supports calling services via REST, and WebSocket.
+   QBit is microservices in the pure Web sense: JSON, HTTP, WebSocket, etc. QBit uses micro batching to
+    push messages through the pipe (queue, IO, etc.) faster to reduce thread hand-off.</p>
+
+<h3>
+<a id="qbit-lingo" class="anchor" href="#qbit-lingo" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>QBit lingo</h3>
+
+<p>QBit is a Java microservice lib supporting REST, JSON and WebSocket. It is written in Java but we could
+one day write a version in Rust or Go or C# (but that would require a large payday).</p>
+
+<p><strong>Service</strong>
+POJO (plain old Java object) behind a queue that can receive method calls via proxy calls or events
+(May have one thread managing events, method calls, and responses or two one for method calls and events
+ and the other for responses so response handlers do not block service. One is faster unless responses block). Services can use Spring MVC style REST annotations to expose themselves to the outside world via REST and WebSocket.</p>
+
+<p><strong>ServiceBundle</strong>
+Many POJOs behind one response queue and many receive queues. There may be one thread for all responses
+or not. They also can be one receive queue.</p>
+
+<p><strong>Queue</strong>
+A thread managing a queue. It supports batching. It has events for empty, reachedLimit, startedBatch,
+idle. You can listen to these events from services that sit behind a queue. You don't have to use Services.
+You can use Queue's direct. In QBit, you have sender queues and receivers queues. They are separated to
+support micro-batching.</p>
+
+<p><strong>ServiceEndpointServer</strong>
+ServiceBundle that is exposed to REST and WebSocket communication.</p>
+
+<p><strong>EventBus</strong>
+EventBus is a way to send a lot of messages to services that may be loosely coupled.</p>
+
+<p><strong>ClientProxy</strong>
+ClientProxy is a way to invoke service through async interface, service can be inproc (same process) or
+remoted over WebSocket.</p>
+
+<p><strong>Non-blocking</strong>
+QBit is a non-blocking lib. You use CallBacks via Java 8 Lambdas. You can also send event messages and get
+replies. Messaging is built into the system so you can easily coordinate complex tasks.
+QBit takes an object-oriented approach to service development so services look like normal Java services
+that you
+already write, but the services live behind a queue/thread. This is not a new concept. Microsoft did this
+with DCOM/COM and called it active objects. Akka does it with actors and called them strongly typed Actors.
+The important concepts is that you get the speed of reactive and actor style messaging but you develop
+in a natural OOP approach. QBit is not the first. QBit is not the only.</p>
+
+<p><strong>Speed</strong>
+QBit is VERY fast. There is a of course a lot of room for improvement. But already 200M+ TPS inproc ping pong, 10M-20M+ TPS event bus, 500K TPS RPC calls over WebSocket/JSON, etc.
+More work needs to be done to improve speed, but now it is fast enough where we are focusing more on
+usability.
+The JSON support uses Boon by default which is up to 4x faster than other JSON parsers for the
+REST/JSON, WebSocket/JSON use case.</p>
+
+<p><strong>Reactive Programming</strong>
+QBit provides a <strong>Reactor</strong> to manage async calls. This allows callbacks to be handled on the same thread that called them and it provides for timeout and error handling. Read <a href="https://github.com/MammatusTech/qbit-microservices-examples/wiki/Reactor-tutorial--%7C-reactively-handling-async-calls-with-QBit-Reactive-Microservices">Reactor tutorial for creating reactive micro service programming</a></p>
+
+<p><strong>Service Discovery</strong>
+Built in support for service discovery. This includes integration with Consul.</p>
+
+<p><strong>StatService</strong>
+Built in support for stats. The <strong>StatService</strong> can be integrated with <strong>StatsD</strong> (Graphite, Grafana, DataDog, etc.) to publish passive stats. Or you can query the stats engine and react to the stats (counts, timings and levels). The <strong>StatsService</strong> is a reactive stats system that can be clustered. The StatService is reactive in that your services can publish to it and query it and react based on the results. You can implement things like rate limiting and react to an increased rate of something. The ServiceDiscovery system integrates with the HealthSystem and Consul to roll up each of your internal services that make up you micro service and publish the composite availably of your micro service to a single HTTP endpoint or a dead mans switch in Consul (TTL). </p>
+
+<h3>
+<a id="curlable-rest-services-example" class="anchor" href="#curlable-rest-services-example" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>CURLable REST services example</h3>
+
+<p>Talk is cheap. Let's look at some code. You can get a detailed walk through in the Wiki.
+We have a lot of documentation already.</p>
+
+<p>We will create a service that is exposed through REST/JSON.</p>
+
+<p>To query the size of the todo list:</p>
+
+<div class="highlight highlight-source-shell"><pre>curl localhost:8080/services/todo-service/todo/count</pre></div>
+
+<p>To add a new TODO item.</p>
+
+<div class="highlight highlight-source-shell"><pre>curl -X POST -H <span class="pl-s"><span class="pl-pds">"</span>Content-Type: application/json<span class="pl-pds">"</span></span> -d \
+<span class="pl-s"><span class="pl-pds">'</span>{"name":"xyz","description":"xyz"}<span class="pl-pds">'</span></span> \
+http://localhost:8080/services/todo-service/todo</pre></div>
+
+<p>To get a list of TODO items</p>
+
+<div class="highlight highlight-source-shell"><pre>curl http://localhost:8080/services/todo-service/todo/</pre></div>
+
+<p>The TODO example will use and track Todo items.</p>
+
+<h4>
+<a id="todo-item-pojo-sans-getter" class="anchor" href="#todo-item-pojo-sans-getter" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Todo item POJO sans getter</h4>
+
+<div class="highlight highlight-source-java"><pre><span class="pl-k">package</span> <span class="pl-smi">io.advantageous.qbit.examples</span>;
+
+<span class="pl-k">import</span> <span class="pl-smi">java.util.Date</span>;
+
+
+<span class="pl-k">public</span> <span class="pl-k">class</span> <span class="pl-en">TodoItem</span> {
+
+
+    <span class="pl-k">private</span> <span class="pl-k">final</span> <span class="pl-smi">String</span> description;
+    <span class="pl-k">private</span> <span class="pl-k">final</span> <span class="pl-smi">String</span> name;
+    <span class="pl-k">private</span> <span class="pl-k">final</span> <span class="pl-smi">Date</span> due;
+</pre></div>
+
+<p>The TodoService uses Spring MVC style annotations.</p>
+
+<h4>
+<a id="todo-service-1" class="anchor" href="#todo-service-1" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Todo Service</h4>
+
+<div class="highlight highlight-source-java"><pre>
+@RequestMapping(<span class="pl-s"><span class="pl-pds">"</span>/todo-service<span class="pl-pds">"</span></span>)
+<span class="pl-k">public</span> <span class="pl-k">class</span> <span class="pl-en">TodoService</span> {
+
+
+    <span class="pl-k">private</span> <span class="pl-k">List&lt;<span class="pl-smi">TodoItem</span>&gt;</span> todoItemList <span class="pl-k">=</span> <span class="pl-k">new</span> <span class="pl-k">ArrayList&lt;&gt;</span>();
+
+
+    <span class="pl-k">@RequestMapping</span>(<span class="pl-s"><span class="pl-pds">"</span>/todo/count<span class="pl-pds">"</span></span>)
+    <span class="pl-k">public</span> <span class="pl-k">int</span> <span class="pl-en">size</span>() {
+
+        <span class="pl-k">return</span> todoItemList<span class="pl-k">.</span>size();
+    }
+
+    <span class="pl-k">@RequestMapping</span>(<span class="pl-s"><span class="pl-pds">"</span>/todo/<span class="pl-pds">"</span></span>)
+    <span class="pl-k">public</span> <span class="pl-k">List&lt;<span class="pl-smi">TodoItem</span>&gt;</span> <span class="pl-en">list</span>() {
+
+        <span class="pl-k">return</span> todoItemList;
+    }
+
+    <span class="pl-k">@RequestMapping</span>(<span class="pl-c1">value</span> <span class="pl-k">=</span> <span class="pl-s"><span class="pl-pds">"</span>/todo<span class="pl-pds">"</span></span>, <span class="pl-c1">method</span> <span class="pl-k">=</span> <span class="pl-smi">RequestMethod</span><span class="pl-c1"><span class="pl-k">.</span>POST</span>)
+    <span class="pl-k">public</span> <span class="pl-k">void</span> <span class="pl-en">add</span>(<span class="pl-smi">TodoItem</span> <span class="pl-v">item</span>) {
+
+        todoItemList<span class="pl-k">.</span>add(item);
+    }
+
+}
+</pre></div>
+
+<h4>
+<a id="sending-non-json" class="anchor" href="#sending-non-json" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Sending non-JSON</h4>
+
+<p>You can POST/PUT non-JSON and you can capture the body as a <code>String</code> or as a <code>byte[]</code>. 
+If the content-type is set to anything but <code>application/json</code> and your body is defined a String or byte[].
+This works automatically. (The content-type has to be set.)</p>
+
+<div class="highlight highlight-source-java"><pre>    @RequestMapping(value <span class="pl-k">=</span> <span class="pl-s"><span class="pl-pds">"</span>/body/bytes<span class="pl-pds">"</span></span>, method <span class="pl-k">=</span> <span class="pl-smi">RequestMethod</span><span class="pl-c1"><span class="pl-k">.</span>POST</span>)
+    <span class="pl-k">public</span> <span class="pl-k">boolean</span> bodyPostBytes( <span class="pl-k">byte</span>[] body) {
+        <span class="pl-smi">String</span> string <span class="pl-k">=</span> <span class="pl-k">new</span> <span class="pl-smi">String</span>(body, <span class="pl-smi">StandardCharsets</span><span class="pl-c1"><span class="pl-k">.</span>UTF_8</span>);
+        <span class="pl-k">return</span> string<span class="pl-k">.</span>equals(<span class="pl-s"><span class="pl-pds">"</span>foo<span class="pl-pds">"</span></span>);
+    }
+
+    @RequestMapping(value <span class="pl-k">=</span> <span class="pl-s"><span class="pl-pds">"</span>/body/string<span class="pl-pds">"</span></span>, method <span class="pl-k">=</span> <span class="pl-smi">RequestMethod</span><span class="pl-c1"><span class="pl-k">.</span>POST</span>)
+    <span class="pl-k">public</span> <span class="pl-k">boolean</span> bodyPostString(<span class="pl-smi">String</span> body) {
+        <span class="pl-k">return</span> body<span class="pl-k">.</span>equals(<span class="pl-s"><span class="pl-pds">"</span>foo<span class="pl-pds">"</span></span>);
+    }</pre></div>
+
+<h4>
+<a id="sending-different-response-codes-for-success" class="anchor" href="#sending-different-response-codes-for-success" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Sending different response codes for success</h4>
+
+<p>By default QBit sends a <code>200</code> (OK) for a non-void call (a call that has a return or a Callback). If the REST operation has no return or no callback then QBit sends a <code>202</code> (Accepted). There may be times when you want to send a 201 (Created) or some other code that is not an Exception. You can do that by setting <code>code</code> on <code>@RequestMapping</code>. By default the code is -1 which means use the default behavior (200 for success, 202 for one-way message, and 500 for errors).</p>
+
+<h4>
+<a id="sending-different-response-codes-for-success-1" class="anchor" href="#sending-different-response-codes-for-success-1" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Sending different response codes for success</h4>
+
+<div class="highlight highlight-source-java"><pre>
+  @RequestMapping(value <span class="pl-k">=</span> <span class="pl-s"><span class="pl-pds">"</span>/helloj7<span class="pl-pds">"</span></span>, code <span class="pl-k">=</span> <span class="pl-c1">221</span>)
+    <span class="pl-k">public</span> <span class="pl-k">void</span> helloJSend7(<span class="pl-k">Callback&lt;<span class="pl-k">JSendResponse&lt;<span class="pl-k">List&lt;<span class="pl-smi">String</span>&gt;</span>&gt;</span>&gt;</span> callback) {
+        callback<span class="pl-k">.</span>returnThis(<span class="pl-smi">JSendResponseBuilder</span><span class="pl-k">.</span>jSendResponseBuilder(<span class="pl-smi">Lists</span><span class="pl-k">.</span>list(
+                <span class="pl-s"><span class="pl-pds">"</span>hello <span class="pl-pds">"</span></span> <span class="pl-k">+</span> <span class="pl-smi">System</span><span class="pl-k">.</span>currentTimeMillis()))<span class="pl-k">.</span>build());
+    }
+</pre></div>
+
+<p><code>Callbacks</code> can be used for internal services as well. It is often the case that you use a <a href="https://github.com/advantageous/qbit/wiki/%5BDocument%5D-CallbackBuilder-and-generics-for-Reactive-Java-Microservices">CallbackBuilder</a> or a QBit <a href="https://github.com/MammatusTech/qbit-microservices-examples/wiki/Reactor-tutorial--%7C-reactively-handling-async-calls-with-QBit-Reactive-Microservices">Reactor</a> to manage service calls. </p>
+
+<h4>
+<a id="working-with-non-json-responses" class="anchor" href="#working-with-non-json-responses" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Working with non JSON responses</h4>
+
+<p>You do not have to return JSON form rest calls.
+You can return any binary or any text by using <code>HttpBinaryResponse</code> and <code>HttpTextResponse</code>.</p>
+
+<h4>
+<a id="returning-non-json-from-rest-call" class="anchor" href="#returning-non-json-from-rest-call" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Returning non JSON from REST call</h4>
+
+<div class="highlight highlight-source-java"><pre>      @RequestMapping(method <span class="pl-k">=</span> <span class="pl-smi">RequestMethod</span><span class="pl-c1"><span class="pl-k">.</span>GET</span>)
+        <span class="pl-k">public</span> <span class="pl-k">void</span> ping2(<span class="pl-k">Callback&lt;<span class="pl-smi">HttpTextResponse</span>&gt;</span> callback) {
+
+            callback<span class="pl-k">.</span>returnThis(<span class="pl-smi">HttpResponseBuilder</span><span class="pl-k">.</span>httpResponseBuilder()
+                    .setBody(<span class="pl-s"><span class="pl-pds">"</span>hello mom<span class="pl-pds">"</span></span>)<span class="pl-k">.</span>setContentType(<span class="pl-s"><span class="pl-pds">"</span>mom<span class="pl-pds">"</span></span>)
+                    .setCode(<span class="pl-c1">777</span>)
+                    .buildTextResponse());
+        }</pre></div>
+
+<h4>
+<a id="returning-binary-from-rest-call" class="anchor" href="#returning-binary-from-rest-call" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Returning binary from REST call</h4>
+
+<div class="highlight highlight-source-java"><pre>      @RequestMapping(method <span class="pl-k">=</span> <span class="pl-smi">RequestMethod</span><span class="pl-c1"><span class="pl-k">.</span>GET</span>)
+        <span class="pl-k">public</span> <span class="pl-k">void</span> ping2(<span class="pl-k">Callback&lt;<span class="pl-smi">HttpBinaryResponse</span>&gt;</span> callback) {
+
+            callback<span class="pl-k">.</span>returnThis(<span class="pl-smi">HttpResponseBuilder</span><span class="pl-k">.</span>httpResponseBuilder()
+                    .setBody(<span class="pl-s"><span class="pl-pds">"</span>hello mom<span class="pl-pds">"</span></span>)<span class="pl-k">.</span>setContentType(<span class="pl-s"><span class="pl-pds">"</span>mom<span class="pl-pds">"</span></span>)
+                    .setCode(<span class="pl-c1">777</span>)
+                    .buildBinaryResponse());
+        }</pre></div>
+
+<h4>
+<a id="side-note-why-spring-style-annotations" class="anchor" href="#side-note-why-spring-style-annotations" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Side note Why Spring style annotations?</h4>
+
+<p>Why did we pick Spring style annotations?
+1) Spring is not a standard and neither is QBit. 2) We found the Spring annotations to be less verbose.
+3) More people use Spring than Java EE. We wrote QBit for people to use.
+We could easily support JAX-RS style annotations, and we probably will.
+Since QBit focuses on JSON, we do not need all of the complexity of JAX-RS or even all the features of
+the Spring MVC annotations. Also we can literally use the actual Spring annotations. QBit and Boon
+use a non-type safe mechanism for annotations which means they are not tied to a particular lib.
+You can define your own. We hate vendor tie-in even if it is an open source vendor.
+(We also support <a href="https://github.com/POST" class="user-mention">@POST</a>, <a href="https://github.com/GET" class="user-mention">@GET</a> which is similar to JAX-RS).</p>
+
+<p>Now just start it up.</p>
+
+<div class="highlight highlight-source-java"><pre>
+    <span class="pl-k">public</span> <span class="pl-k">static</span> <span class="pl-k">void</span> main(<span class="pl-smi">String</span><span class="pl-k">.</span><span class="pl-c1">..</span> args) {
+
+        <span class="pl-smi">ServiceEndpointServer</span> server <span class="pl-k">=</span> <span class="pl-k">new</span> <span class="pl-smi">EndpointServerBuilder</span>()<span class="pl-k">.</span>build();
+        server<span class="pl-k">.</span>initServices(<span class="pl-k">new</span> <span class="pl-smi">TodoService</span>());
+        server<span class="pl-k">.</span>start();
+    }</pre></div>
+
+<p>That is it. There is also out of the box WebSocket support with client side proxy generation so
+you can call into services at the rate of millions of calls per second.</p>
+
+<h2>
+<a id="using-uri-params-for-qbit-microservice" class="anchor" href="#using-uri-params-for-qbit-microservice" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Using URI Params for QBit microservice</h2>
+
+<div class="highlight highlight-source-java"><pre>
+    @RequestMapping(<span class="pl-s"><span class="pl-pds">"</span>/adder-service<span class="pl-pds">"</span></span>)
+    <span class="pl-k">public</span> <span class="pl-k">class</span> <span class="pl-en">AdderService</span> {
+
+
+        <span class="pl-k">@RequestMapping</span>(<span class="pl-s"><span class="pl-pds">"</span>/add/{0}/{1}<span class="pl-pds">"</span></span>)
+        <span class="pl-k">public</span> <span class="pl-k">int</span> <span class="pl-en">add</span>(<span class="pl-k">@PathVariable</span> <span class="pl-k">int</span> <span class="pl-v">a</span>, <span class="pl-k">@PathVariable</span> <span class="pl-k">int</span> <span class="pl-v">b</span>) {
+
+            <span class="pl-k">return</span> a <span class="pl-k">+</span> b;
+        }
+    }
+</pre></div>
+
+<h2>
+<a id="websocket" class="anchor" href="#websocket" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>WebSocket</h2>
+
+<p>You can always invoke QBit services via a WebSocket proxy.
+The advantage of a WebSocket proxy is it allows you execute 1M RPC+ a second (1 million remote calls
+every second).</p>
+
+<h4>
+<a id="using-a-microservice-remotely-with-websocket" class="anchor" href="#using-a-microservice-remotely-with-websocket" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Using a microservice remotely with WebSocket</h4>
+
+<div class="highlight highlight-source-java"><pre>       <span class="pl-c">/* Start QBit client for WebSocket calls. */</span>
+        <span class="pl-k">final</span> <span class="pl-smi">Client</span> client <span class="pl-k">=</span> clientBuilder()
+                   .setPort(<span class="pl-c1">7000</span>)<span class="pl-k">.</span>setRequestBatchSize(<span class="pl-c1">1</span>)<span class="pl-k">.</span>build();
+
+
+       <span class="pl-c">/* Create a proxy to the service. */</span>
+        <span class="pl-k">final</span> <span class="pl-smi">AdderServiceClientInterface</span> adderService <span class="pl-k">=</span>
+                client<span class="pl-k">.</span>createProxy(<span class="pl-smi">AdderServiceClientInterface</span><span class="pl-k">.</span>class,
+                <span class="pl-s"><span class="pl-pds">"</span>adder-service<span class="pl-pds">"</span></span>);
+
+        client<span class="pl-k">.</span>start();
+
+
+
+       <span class="pl-c">/* Call the service */</span>
+        adderService<span class="pl-k">.</span>add(<span class="pl-smi">System</span><span class="pl-k">.</span>out<span class="pl-k">::</span>println, <span class="pl-c1">1</span>, <span class="pl-c1">2</span>);
+</pre></div>
+
+<p>The output is 3.</p>
+
+<pre lang="output"><code>3
+</code></pre>
+
+<p>The above uses a WebSocket proxy interface to call the service async.</p>
+
+<div class="highlight highlight-source-java"><pre>
+    <span class="pl-k">interface</span> <span class="pl-en">AdderServiceClientInterface</span> {
+
+        <span class="pl-k">void</span> <span class="pl-en">add</span>(<span class="pl-k">Callback&lt;<span class="pl-smi">Integer</span>&gt;</span> <span class="pl-v">callback</span>, <span class="pl-k">int</span> <span class="pl-v">a</span>, <span class="pl-k">int</span> <span class="pl-v">b</span>);
+    }</pre></div>
+
+<h4>
+<a id="servicediscovery-aware-websocket-builders" class="anchor" href="#servicediscovery-aware-websocket-builders" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>ServiceDiscovery aware websocket builders</h4>
+
+<p>Create websocket service client that is ServiceDiscovery aware.</p>
+
+<div class="highlight highlight-source-java"><pre>        <span class="pl-k">final</span> <span class="pl-smi">Client</span> client <span class="pl-k">=</span> clientBuilder<span class="pl-k">.</span>setServiceDiscovery(serviceDiscovery, <span class="pl-s"><span class="pl-pds">"</span>echo<span class="pl-pds">"</span></span>)
+                .setUri(<span class="pl-s"><span class="pl-pds">"</span>/echo<span class="pl-pds">"</span></span>)<span class="pl-k">.</span>setProtocolBatchSize(<span class="pl-c1">20</span>)<span class="pl-k">.</span>build()<span class="pl-k">.</span>startClient();
+
+
+        <span class="pl-k">final</span> <span class="pl-smi">EchoAsync</span> echoClient <span class="pl-k">=</span> client<span class="pl-k">.</span>createProxy(<span class="pl-smi">EchoAsync</span><span class="pl-k">.</span>class, <span class="pl-s"><span class="pl-pds">"</span>echo<span class="pl-pds">"</span></span>);</pre></div>
+
+<p>Currently the <code>clientBuilder</code> will load all service endpoints that are registered under the service name,
+and randomly pick one. </p>
+
+<p>ServiceDiscovery includes Consul based, watching JSON files on disk, and DNS. It is easy to write your own service discovery as well and plug it into QBit.</p>
+
+<p>In the future we can RoundRobin calls or shard calls to websocket service and/or provide auto fail over if the connection is closed. We do this for the event bus that uses service discovery but it is not baked into WebSocket based client stubs yet.</p>
+
+<h2>
+<a id="rest-call-with-uri-params" class="anchor" href="#rest-call-with-uri-params" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>REST call with URI params</h2>
+
+<p>The last client example uses WebSocket. You could also just use REST, and actually use the URI params
+that we setup.
+REST is nice but it is going to be slower than WebSocket support.</p>
+
+<p>QBit ships with a nice little HTTP client. We can use it.</p>
+
+<p>You can use it to send async calls and WebSocket messages with the HTTP client.</p>
+
+<p>Here we will use the http client to invoke our remote method:</p>
+
+<h4>
+<a id="using-a-microservice-remotely-with-rest-qbit-microservice-client" class="anchor" href="#using-a-microservice-remotely-with-rest-qbit-microservice-client" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Using a microservice remotely with REST QBit microservice client</h4>
+
+<div class="highlight highlight-source-java"><pre>
+
+        <span class="pl-smi">HttpClient</span> httpClient <span class="pl-k">=</span> httpClientBuilder()
+                .setHost(<span class="pl-s"><span class="pl-pds">"</span>localhost<span class="pl-pds">"</span></span>)
+                .setPort(<span class="pl-c1">7000</span>)<span class="pl-k">.</span>build();
+
+        httpClient<span class="pl-k">.</span>start();
+        <span class="pl-smi">String</span> results <span class="pl-k">=</span> httpClient
+                   .get(<span class="pl-s"><span class="pl-pds">"</span>/services/adder-service/add/2/2<span class="pl-pds">"</span></span>)<span class="pl-k">.</span>body();
+        <span class="pl-smi">System</span><span class="pl-k">.</span>out<span class="pl-k">.</span>println(results);
+</pre></div>
+
+<p>The output is 4.</p>
+
+<pre lang="output"><code>4
+</code></pre>
+
+<h2>
+<a id="accessing-the-uri-param-example-with-curl" class="anchor" href="#accessing-the-uri-param-example-with-curl" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Accessing The URI Param example with CURL</h2>
+
+<p>You can also access the service from curl.</p>
+
+<div class="highlight highlight-source-shell"><pre>$ curl http://localhost:7000/services/adder-service/add/2/2</pre></div>
+
+<p>See this full example here: <a href="https://github.com/advantageous/qbit/wiki/%5BDetailed-Tutorial%5D-------------QBit-microservice-example">QBit microservice getting started tutorial</a>.</p>
+
+<p><a href="https://github.com/advantageous/qbit/wiki/%5BRough-Cut%5D-Using-QBit-microservice-lib's-REST-support-with-URI-Params">QBit URI params and WebSocket proxy client</a></p>
+
+<h2>
+<a id="working-with-websocket-httpclient-etc" class="anchor" href="#working-with-websocket-httpclient-etc" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Working with WebSocket, HttpClient etc.</h2>
+
+<p>QBit has a library for working with and writing async microservices that is lightweight and fun to use.</p>
+
+<h4>
+<a id="websocket-server-and-client" class="anchor" href="#websocket-server-and-client" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>WebSocket server and client.</h4>
+
+<h4>
+<a id="create-an-http-server" class="anchor" href="#create-an-http-server" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Create an HTTP server</h4>
+
+<div class="highlight highlight-source-java"><pre>
+        <span class="pl-c">/* Create an HTTP server. */</span>
+        <span class="pl-smi">HttpServer</span> httpServer <span class="pl-k">=</span> httpServerBuilder()
+                .setPort(<span class="pl-c1">8080</span>)<span class="pl-k">.</span>build();
+</pre></div>
+
+<h4>
+<a id="setup-server-websocket-support" class="anchor" href="#setup-server-websocket-support" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Setup server WebSocket support</h4>
+
+<div class="highlight highlight-source-java"><pre>        <span class="pl-c">/* Setup WebSocket Server support. */</span>
+        httpServer<span class="pl-k">.</span>setWebSocketOnOpenConsumer(webSocket <span class="pl-k">-</span><span class="pl-k">&gt;</span> {
+            webSocket<span class="pl-k">.</span>setTextMessageConsumer(message <span class="pl-k">-</span><span class="pl-k">&gt;</span> {
+                webSocket<span class="pl-k">.</span>sendText(<span class="pl-s"><span class="pl-pds">"</span>ECHO <span class="pl-pds">"</span></span> <span class="pl-k">+</span> message);
+            });
+        });
+</pre></div>
+
+<h4>
+<a id="start-the-server" class="anchor" href="#start-the-server" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Start the server</h4>
+
+<div class="highlight highlight-source-java"><pre>
+        <span class="pl-c">/* Start the server. */</span>
+        httpServer<span class="pl-k">.</span>start();</pre></div>
+
+<h4>
+<a id="setup-the-websocket-client" class="anchor" href="#setup-the-websocket-client" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Setup the WebSocket client</h4>
+
+<div class="highlight highlight-source-java"><pre>
+        <span class="pl-c">/** CLIENT. */</span>
+
+        <span class="pl-c">/* Setup an httpClient. */</span>
+        <span class="pl-smi">HttpClient</span> httpClient <span class="pl-k">=</span> httpClientBuilder()
+                .setHost(<span class="pl-s"><span class="pl-pds">"</span>localhost<span class="pl-pds">"</span></span>)<span class="pl-k">.</span>setPort(<span class="pl-c1">8080</span>)<span class="pl-k">.</span>build();
+        httpClient<span class="pl-k">.</span>start();</pre></div>
+
+<h4>
+<a id="client-websocket" class="anchor" href="#client-websocket" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Client WebSocket</h4>
+
+<div class="highlight highlight-source-java"><pre>
+        <span class="pl-c">/* Setup the client websocket. */</span>
+        <span class="pl-smi">WebSocket</span> webSocket <span class="pl-k">=</span> httpClient
+                .createWebSocket(<span class="pl-s"><span class="pl-pds">"</span>/websocket/rocket<span class="pl-pds">"</span></span>);
+
+        <span class="pl-c">/* Setup the text consumer. */</span>
+        webSocket<span class="pl-k">.</span>setTextMessageConsumer(message <span class="pl-k">-</span><span class="pl-k">&gt;</span> {
+            <span class="pl-smi">System</span><span class="pl-k">.</span>out<span class="pl-k">.</span>println(message);
+        });
+        webSocket<span class="pl-k">.</span>openAndWait();
+
+        <span class="pl-c">/* Send some messages. */</span>
+        webSocket<span class="pl-k">.</span>sendText(<span class="pl-s"><span class="pl-pds">"</span>Hi mom<span class="pl-pds">"</span></span>);
+        webSocket<span class="pl-k">.</span>sendText(<span class="pl-s"><span class="pl-pds">"</span>Hello World!<span class="pl-pds">"</span></span>);
+</pre></div>
+
+<h4>
+<a id="output" class="anchor" href="#output" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Output</h4>
+
+<pre lang="output"><code>
+ECHO Hi mom
+ECHO Hello World!
+
+</code></pre>
+
+<p>Now stop the server and client. Pretty easy eh?</p>
+
+<h2>
+<a id="high-speed-http-client-and-server-done-microservice-style" class="anchor" href="#high-speed-http-client-and-server-done-microservice-style" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>High-speed HTTP client and server done microservice style</h2>
+
+<h5>
+<a id="starting-up-an-http-server" class="anchor" href="#starting-up-an-http-server" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Starting up an HTTP server</h5>
+
+<div class="highlight highlight-source-java"><pre>
+        <span class="pl-c">/* Create an HTTP server. */</span>
+        <span class="pl-smi">HttpServer</span> httpServer <span class="pl-k">=</span> httpServerBuilder()
+                .setPort(<span class="pl-c1">8080</span>)<span class="pl-k">.</span>build();
+
+        <span class="pl-c">/* Setting up a request Consumer with Java 8 Lambda expression. */</span>
+        httpServer<span class="pl-k">.</span>setHttpRequestConsumer(httpRequest <span class="pl-k">-</span><span class="pl-k">&gt;</span> {
+
+            <span class="pl-k">Map&lt;<span class="pl-smi">String</span>, <span class="pl-smi">Object</span>&gt;</span> results <span class="pl-k">=</span> <span class="pl-k">new</span> <span class="pl-k">HashMap&lt;&gt;</span>();
+            results<span class="pl-k">.</span>put(<span class="pl-s"><span class="pl-pds">"</span>method<span class="pl-pds">"</span></span>, httpRequest<span class="pl-k">.</span>getMethod());
+            results<span class="pl-k">.</span>put(<span class="pl-s"><span class="pl-pds">"</span>uri<span class="pl-pds">"</span></span>, httpRequest<span class="pl-k">.</span>getUri());
+            results<span class="pl-k">.</span>put(<span class="pl-s"><span class="pl-pds">"</span>body<span class="pl-pds">"</span></span>, httpRequest<span class="pl-k">.</span>getBodyAsString());
+            results<span class="pl-k">.</span>put(<span class="pl-s"><span class="pl-pds">"</span>headers<span class="pl-pds">"</span></span>, httpRequest<span class="pl-k">.</span>getHeaders());
+            results<span class="pl-k">.</span>put(<span class="pl-s"><span class="pl-pds">"</span>params<span class="pl-pds">"</span></span>, httpRequest<span class="pl-k">.</span>getParams());
+            httpRequest<span class="pl-k">.</span>getReceiver()
+                .response(<span class="pl-c1">200</span>, <span class="pl-s"><span class="pl-pds">"</span>application/json<span class="pl-pds">"</span></span>, <span class="pl-smi">Boon</span><span class="pl-k">.</span>toJson(results));
+        });
+
+
+        <span class="pl-c">/* Start the server. */</span>
+        httpServer<span class="pl-k">.</span>start();
+
+</pre></div>
+
+<p>The focus is on ease of use and using Java 8 Lambdas for callbacks so the code is tight and small.</p>
+
+<p><a href="https://github.com/advantageous/qbit/wiki/%5BDoc%5D-Using-QBit-microservice-lib's-WebSocket-support">Find out more about QBit's microservice style WebSocket support here</a></p>
+
+<h2>
+<a id="using-http-client-lib" class="anchor" href="#using-http-client-lib" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Using HTTP Client lib</h2>
+
+<p>Now, let's try out our HTTP client.</p>
+
+<h5>
+<a id="starting-up-an-http-client" class="anchor" href="#starting-up-an-http-client" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Starting up an HTTP client</h5>
+
+<div class="highlight highlight-source-java"><pre>
+        <span class="pl-c">/* Setup an httpClient. */</span>
+        <span class="pl-smi">HttpClient</span> httpClient <span class="pl-k">=</span> httpClientBuilder()
+                  .setHost(<span class="pl-s"><span class="pl-pds">"</span>localhost<span class="pl-pds">"</span></span>)<span class="pl-k">.</span>setPort(<span class="pl-c1">8080</span>)<span class="pl-k">.</span>build();
+        httpClient<span class="pl-k">.</span>start();</pre></div>
+
+<p>You just pass the URL, the port and then call start.</p>
+
+<h2>
+<a id="synchronous-http-calls" class="anchor" href="#synchronous-http-calls" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Synchronous HTTP calls</h2>
+
+<p>Now you can start sending HTTP requests.</p>
+
+<h5>
+<a id="no-param-http-get" class="anchor" href="#no-param-http-get" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>No Param HTTP GET</h5>
+
+<div class="highlight highlight-source-java"><pre>        <span class="pl-c">/* Send no param get. */</span>
+        <span class="pl-smi">HttpResponse</span> httpResponse <span class="pl-k">=</span> httpClient<span class="pl-k">.</span>get( <span class="pl-s"><span class="pl-pds">"</span>/hello/mom<span class="pl-pds">"</span></span> );
+        puts( httpResponse );</pre></div>
+
+<p>An HTTP response just contains the results from the server.</p>
+
+<h5>
+<a id="no-param-http-response" class="anchor" href="#no-param-http-response" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>No Param HTTP Response</h5>
+
+<div class="highlight highlight-source-java"><pre><span class="pl-k">public</span> <span class="pl-k">interface</span> <span class="pl-en">HttpResponse</span> {
+
+    <span class="pl-k">MultiMap&lt;<span class="pl-smi">String</span>, <span class="pl-smi">String</span>&gt;</span> <span class="pl-en">headers</span>();
+
+    <span class="pl-k">int</span> <span class="pl-en">code</span>();
+
+    <span class="pl-smi">String</span> <span class="pl-en">contentType</span>();
+
+    <span class="pl-smi">String</span> <span class="pl-en">body</span>();
+
+}
+</pre></div>
+
+<p>There are helper methods for sync HTTP GET calls.</p>
+
+<h5>
+<a id="helper-methods-for-get" class="anchor" href="#helper-methods-for-get" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Helper methods for GET</h5>
+
+<div class="highlight highlight-source-java"><pre>
+
+        <span class="pl-c">/* Send one param get. */</span>
+        httpResponse <span class="pl-k">=</span> httpClient<span class="pl-k">.</span>getWith1Param(<span class="pl-s"><span class="pl-pds">"</span>/hello/singleParam<span class="pl-pds">"</span></span>,
+                                        <span class="pl-s"><span class="pl-pds">"</span>hi<span class="pl-pds">"</span></span>, <span class="pl-s"><span class="pl-pds">"</span>mom<span class="pl-pds">"</span></span>);
+        puts(<span class="pl-s"><span class="pl-pds">"</span>single param<span class="pl-pds">"</span></span>, httpResponse );
+
+
+        <span class="pl-c">/* Send two param get. */</span>
+        httpResponse <span class="pl-k">=</span> httpClient<span class="pl-k">.</span>getWith2Params(<span class="pl-s"><span class="pl-pds">"</span>/hello/twoParams<span class="pl-pds">"</span></span>,
+                <span class="pl-s"><span class="pl-pds">"</span>hi<span class="pl-pds">"</span></span>, <span class="pl-s"><span class="pl-pds">"</span>mom<span class="pl-pds">"</span></span>, <span class="pl-s"><span class="pl-pds">"</span>hello<span class="pl-pds">"</span></span>, <span class="pl-s"><span class="pl-pds">"</span>dad<span class="pl-pds">"</span></span>);
+        puts(<span class="pl-s"><span class="pl-pds">"</span>two params<span class="pl-pds">"</span></span>, httpResponse );
+
+<span class="pl-c1">...</span>
+
+        <span class="pl-c">/* Send five param get. */</span>
+        httpResponse <span class="pl-k">=</span> httpClient<span class="pl-k">.</span>getWith5Params(<span class="pl-s"><span class="pl-pds">"</span>/hello/5params<span class="pl-pds">"</span></span>,
+                <span class="pl-s"><span class="pl-pds">"</span>hi<span class="pl-pds">"</span></span>, <span class="pl-s"><span class="pl-pds">"</span>mom<span class="pl-pds">"</span></span>,
+                <span class="pl-s"><span class="pl-pds">"</span>hello<span class="pl-pds">"</span></span>, <span class="pl-s"><span class="pl-pds">"</span>dad<span class="pl-pds">"</span></span>,
+                <span class="pl-s"><span class="pl-pds">"</span>greetings<span class="pl-pds">"</span></span>, <span class="pl-s"><span class="pl-pds">"</span>kids<span class="pl-pds">"</span></span>,
+                <span class="pl-s"><span class="pl-pds">"</span>yo<span class="pl-pds">"</span></span>, <span class="pl-s"><span class="pl-pds">"</span>pets<span class="pl-pds">"</span></span>,
+                <span class="pl-s"><span class="pl-pds">"</span>hola<span class="pl-pds">"</span></span>, <span class="pl-s"><span class="pl-pds">"</span>neighbors<span class="pl-pds">"</span></span>);
+        puts(<span class="pl-s"><span class="pl-pds">"</span>5 params<span class="pl-pds">"</span></span>, httpResponse );
+
+</pre></div>
+
+<p>The puts method is a helper method it does System.out.println more or less by the way.</p>
+
+<p>The first five params are covered. Beyond five, you have to use the HttpBuilder.</p>
+
+<div class="highlight highlight-source-java"><pre>
+
+        <span class="pl-c">/* Send six params with get. */</span>
+
+        <span class="pl-k">final</span> <span class="pl-smi">HttpRequest</span> httpRequest <span class="pl-k">=</span> httpRequestBuilder()
+                .addParam(<span class="pl-s"><span class="pl-pds">"</span>hi<span class="pl-pds">"</span></span>, <span class="pl-s"><span class="pl-pds">"</span>mom<span class="pl-pds">"</span></span>)
+                .addParam(<span class="pl-s"><span class="pl-pds">"</span>hello<span class="pl-pds">"</span></span>, <span class="pl-s"><span class="pl-pds">"</span>dad<span class="pl-pds">"</span></span>)
+                .addParam(<span class="pl-s"><span class="pl-pds">"</span>greetings<span class="pl-pds">"</span></span>, <span class="pl-s"><span class="pl-pds">"</span>kids<span class="pl-pds">"</span></span>)
+                .addParam(<span class="pl-s"><span class="pl-pds">"</span>yo<span class="pl-pds">"</span></span>, <span class="pl-s"><span class="pl-pds">"</span>pets<span class="pl-pds">"</span></span>)
+                .addParam(<span class="pl-s"><span class="pl-pds">"</span>hola<span class="pl-pds">"</span></span>, <span class="pl-s"><span class="pl-pds">"</span>pets<span class="pl-pds">"</span></span>)
+                .addParam(<span class="pl-s"><span class="pl-pds">"</span>salutations<span class="pl-pds">"</span></span>, <span class="pl-s"><span class="pl-pds">"</span>all<span class="pl-pds">"</span></span>)<span class="pl-k">.</span>build();
+
+        httpResponse <span class="pl-k">=</span> httpClient<span class="pl-k">.</span>sendRequestAndWait(httpRequest);
+        puts(<span class="pl-s"><span class="pl-pds">"</span>6 params<span class="pl-pds">"</span></span>, httpResponse );</pre></div>
+
+<h2>
+<a id="http-async-http-client" class="anchor" href="#http-async-http-client" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Http Async HTTP Client</h2>
+
+<p>There are async calls for GET as well.</p>
+
+<h4>
+<a id="async-calls-for-http-get-using-java-8-lambda" class="anchor" href="#async-calls-for-http-get-using-java-8-lambda" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Async calls for HTTP GET using Java 8 lambda</h4>
+
+<div class="highlight highlight-source-java"><pre>
+        <span class="pl-c">/* Using Async support with lambda. */</span>
+        httpClient<span class="pl-k">.</span>getAsync(<span class="pl-s"><span class="pl-pds">"</span>/hi/async<span class="pl-pds">"</span></span>, (code, contentType, body) <span class="pl-k">-</span><span class="pl-k">&gt;</span> {
+            puts(<span class="pl-s"><span class="pl-pds">"</span>Async text with lambda<span class="pl-pds">"</span></span>, body);
+        });
+
+        <span class="pl-smi">Sys</span><span class="pl-k">.</span>sleep(<span class="pl-c1">100</span>);
+
+
+        <span class="pl-c">/* Using Async support with lambda. */</span>
+        httpClient<span class="pl-k">.</span>getAsyncWith1Param(<span class="pl-s"><span class="pl-pds">"</span>/hi/async<span class="pl-pds">"</span></span>, <span class="pl-s"><span class="pl-pds">"</span>hi<span class="pl-pds">"</span></span>, <span class="pl-s"><span class="pl-pds">"</span>mom<span class="pl-pds">"</span></span>, (code, contentType, body) <span class="pl-k">-</span><span class="pl-k">&gt;</span> {
+            puts(<span class="pl-s"><span class="pl-pds">"</span>Async text with lambda 1 param<span class="pl-cce">\n</span><span class="pl-pds">"</span></span>, body);
+        });
+
+        <span class="pl-smi">Sys</span><span class="pl-k">.</span>sleep(<span class="pl-c1">100</span>);
+
+
+
+        <span class="pl-c">/* Using Async support with lambda. */</span>
+        httpClient<span class="pl-k">.</span>getAsyncWith2Params(<span class="pl-s"><span class="pl-pds">"</span>/hi/async<span class="pl-pds">"</span></span>,
+                <span class="pl-s"><span class="pl-pds">"</span>p1<span class="pl-pds">"</span></span>, <span class="pl-s"><span class="pl-pds">"</span>v1<span class="pl-pds">"</span></span>,
+                <span class="pl-s"><span class="pl-pds">"</span>p2<span class="pl-pds">"</span></span>, <span class="pl-s"><span class="pl-pds">"</span>v2<span class="pl-pds">"</span></span>,
+                (code, contentType, body) <span class="pl-k">-</span><span class="pl-k">&gt;</span> {
+                    puts(<span class="pl-s"><span class="pl-pds">"</span>Async text with lambda 2 params<span class="pl-cce">\n</span><span class="pl-pds">"</span></span>, body);
+                });
+
+        <span class="pl-smi">Sys</span><span class="pl-k">.</span>sleep(<span class="pl-c1">100</span>);
+
+
+<span class="pl-c1">...</span>
+        <span class="pl-c">/* Using Async support with lambda. */</span>
+        httpClient<span class="pl-k">.</span>getAsyncWith5Params(<span class="pl-s"><span class="pl-pds">"</span>/hi/async<span class="pl-pds">"</span></span>,
+                <span class="pl-s"><span class="pl-pds">"</span>p1<span class="pl-pds">"</span></span>, <span class="pl-s"><span class="pl-pds">"</span>v1<span class="pl-pds">"</span></span>,
+                <span class="pl-s"><span class="pl-pds">"</span>p2<span class="pl-pds">"</span></span>, <span class="pl-s"><span class="pl-pds">"</span>v2<span class="pl-pds">"</span></span>,
+                <span class="pl-s"><span class="pl-pds">"</span>p3<span class="pl-pds">"</span></span>, <span class="pl-s"><span class="pl-pds">"</span>v3<span class="pl-pds">"</span></span>,
+                <span class="pl-s"><span class="pl-pds">"</span>p4<span class="pl-pds">"</span></span>, <span class="pl-s"><span class="pl-pds">"</span>v4<span class="pl-pds">"</span></span>,
+                <span class="pl-s"><span class="pl-pds">"</span>p5<span class="pl-pds">"</span></span>, <span class="pl-s"><span class="pl-pds">"</span>v5<span class="pl-pds">"</span></span>,
+                (code, contentType, body) <span class="pl-k">-</span><span class="pl-k">&gt;</span> {
+                    puts(<span class="pl-s"><span class="pl-pds">"</span>Async text with lambda 5 params<span class="pl-cce">\n</span><span class="pl-pds">"</span></span>, body);
+                });
+
+        <span class="pl-smi">Sys</span><span class="pl-k">.</span>sleep(<span class="pl-c1">100</span>);
+</pre></div>
+
+<p><a href="https://github.com/advantageous/qbit/wiki/%5BDoc%5D-Using-QBit-microservice-lib's-HttpClient-GET,-POST,-et-al,-JSON,-Java-8-Lambda">Find more about the easy to use, fast microservice HTTP client here</a>.</p>
+
+<h2>
+<a id="inproc-qbit-services" class="anchor" href="#inproc-qbit-services" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>InProc QBit services</h2>
+
+<p>QBit allows for services behind queues to be run in-proc as well.</p>
+
+<div class="highlight highlight-source-java"><pre>
+        <span class="pl-c">/* POJO service. */</span>
+        <span class="pl-k">final</span> <span class="pl-smi">TodoManager</span> todoManagerImpl <span class="pl-k">=</span> <span class="pl-k">new</span> <span class="pl-smi">TodoManager</span>();
+
+        <span class="pl-c">/*</span>
+<span class="pl-c">        Create the service which manages async calls to todoManagerImpl.</span>
+<span class="pl-c">         */</span>
+        <span class="pl-k">final</span> <span class="pl-smi">Service</span> service <span class="pl-k">=</span> serviceBuilder()
+                .setServiceObject(todoManagerImpl)
+                .build()<span class="pl-k">.</span>startServiceQueue();
+
+
+        <span class="pl-c">/* Create Asynchronous proxy over Synchronous service. */</span>
+        <span class="pl-k">final</span> <span class="pl-smi">TodoManagerClientInterface</span> todoManager <span class="pl-k">=</span>
+              service<span class="pl-k">.</span>createProxy(<span class="pl-smi">TodoManagerClientInterface</span><span class="pl-k">.</span>class);
+
+        service<span class="pl-k">.</span>startCallBackHandler();
+
+
+        <span class="pl-smi">System</span><span class="pl-k">.</span>out<span class="pl-k">.</span>println(<span class="pl-s"><span class="pl-pds">"</span>This is an async call<span class="pl-pds">"</span></span>);
+        <span class="pl-c">/* Asynchronous method call. */</span>
+        todoManager<span class="pl-k">.</span>add(<span class="pl-k">new</span> <span class="pl-smi">Todo</span>(<span class="pl-s"><span class="pl-pds">"</span>Call Mom<span class="pl-pds">"</span></span>, <span class="pl-s"><span class="pl-pds">"</span>Give Mom a call<span class="pl-pds">"</span></span>));
+
+
+        <span class="pl-smi">AtomicInteger</span> countTracker <span class="pl-k">=</span> <span class="pl-k">new</span> <span class="pl-smi">AtomicInteger</span>();
+        <span class="pl-c">//Hold count from async call to service... for testing and showing it is an async callback</span>
+
+        <span class="pl-smi">System</span><span class="pl-k">.</span>out<span class="pl-k">.</span>println(<span class="pl-s"><span class="pl-pds">"</span>This is an async call to count<span class="pl-pds">"</span></span>);
+
+        todoManager<span class="pl-k">.</span>count(count <span class="pl-k">-</span><span class="pl-k">&gt;</span> {
+            <span class="pl-smi">System</span><span class="pl-k">.</span>out<span class="pl-k">.</span>println(<span class="pl-s"><span class="pl-pds">"</span>This lambda expression is the callback <span class="pl-pds">"</span></span> <span class="pl-k">+</span> count);
+
+            countTracker<span class="pl-k">.</span>set(count);
+        });
+
+
+        todoManager<span class="pl-k">.</span>clientProxyFlush(); <span class="pl-c">//Flush all methods. It batches calls.</span>
+
+        <span class="pl-smi">Sys</span><span class="pl-k">.</span>sleep(<span class="pl-c1">100</span>);
+
+        <span class="pl-smi">System</span><span class="pl-k">.</span>out<span class="pl-k">.</span>printf(<span class="pl-s"><span class="pl-pds">"</span>This is the count back from the server %d<span class="pl-cce">\n</span><span class="pl-pds">"</span></span>, countTracker<span class="pl-k">.</span>get());
+</pre></div>
+
+<p><a href="https://github.com/advantageous/qbit/wiki/%5BDetailed-Tutorial%5D-Working-with-inproc-MicroServices-within-QBit.">Detailed tutorial on in-proc services is being written.</a></p>
+
+<h2>
+<a id="qbit-event-bus" class="anchor" href="#qbit-event-bus" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>QBit Event Bus</h2>
+
+<p><a href="https://github.com/advantageous/qbit/wiki/%5BRough-Cut%5D-Working-with-event-bus-for-QBit-the-microservice-engine">QBit Event Bus more detailed example</a></p>
+
+<p>QBit also has a service event bus. This example is a an employee benefits services example.</p>
+
+<p>We have two channels.</p>
+
+<pre><code>public static final String NEW_HIRE_CHANNEL = "com.mycompnay.employee.new";
+
+public static final String PAYROLL_ADJUSTMENT_CHANNEL = "com.mycompnay.employee.payroll";
+</code></pre>
+
+<p>An employee object looks like this:</p>
+
+<div class="highlight highlight-source-java"><pre>
+<span class="pl-k">public</span> <span class="pl-k">static</span> <span class="pl-k">class</span> <span class="pl-en">Employee</span> {
+       <span class="pl-k">final</span> <span class="pl-smi">String</span> firstName;
+       <span class="pl-k">final</span> <span class="pl-k">int</span> employeeId;</pre></div>
+
+<p>This example has three services: EmployeeHiringService, BenefitsService, and PayrollService.</p>
+
+<p>These services are inproc services. QBit supports WebSocket, HTTP and REST remote services as well, but for now, let's focus on inproc services. If you understand inproc then you will understand remote.</p>
+
+<p>The EmployeeHiringService actually fires off the events to other two services.</p>
+
+<div class="highlight highlight-source-java"><pre><span class="pl-k">public</span> <span class="pl-k">class</span> <span class="pl-en">EmployeeHiringService</span> {
+
+
+    <span class="pl-k">public</span> <span class="pl-k">void</span> <span class="pl-en">hireEmployee</span>(<span class="pl-k">final</span> <span class="pl-smi">Employee</span> <span class="pl-v">employee</span>) {
+
+           <span class="pl-k">int</span> salary <span class="pl-k">=</span> <span class="pl-c1">100</span>;
+           <span class="pl-smi">System</span><span class="pl-k">.</span>out<span class="pl-k">.</span>printf(<span class="pl-s"><span class="pl-pds">"</span>Hired employee %s<span class="pl-cce">\n</span><span class="pl-pds">"</span></span>, employee);
+
+           <span class="pl-c">//Does stuff to hire employee</span>
+
+           <span class="pl-c">//Sends events</span>
+           <span class="pl-k">final</span> <span class="pl-smi">EventManager</span> eventManager <span class="pl-k">=</span>
+                               serviceContext()<span class="pl-k">.</span>eventManager();
+           eventManager<span class="pl-k">.</span>send(<span class="pl-c1">NEW_HIRE_CHANNEL</span>, employee);
+
+           eventManager<span class="pl-k">.</span>sendArray(<span class="pl-c1">PAYROLL_ADJUSTMENT_CHANNEL</span>,
+                                     employee, salary);
+
+
+    }
+
+   }</pre></div>
+
+<p>Notice that we call sendArray so we can send the employee and their salary.
+The listener for PAYROLL_ADJUSTMENT_CHANNEL will have to handle both an employee and an int
+that represents the new employees salary.
+You can also use event bus proxies so you do not have to call into the event bus at all.</p>
+
+<p>The BenefitsService listens for new employees being hired so it can enroll them into the benefits system.</p>
+
+<div class="highlight highlight-source-java"><pre><span class="pl-k">public</span> <span class="pl-k">static</span> <span class="pl-k">class</span> <span class="pl-en">BenefitsService</span> {
+
+       <span class="pl-k">@OnEvent</span>(<span class="pl-c1">NEW_HIRE_CHANNEL</span>)
+       <span class="pl-k">public</span> <span class="pl-k">void</span> <span class="pl-en">enroll</span>(<span class="pl-k">final</span> <span class="pl-smi">Employee</span> <span class="pl-v">employee</span>) {
+
+           <span class="pl-smi">System</span><span class="pl-k">.</span>out<span class="pl-k">.</span>printf(<span class="pl-s"><span class="pl-pds">"</span>Employee enrolled into benefits system employee %s %d<span class="pl-cce">\n</span><span class="pl-pds">"</span></span>,
+                   employee<span class="pl-k">.</span>getFirstName(), employee<span class="pl-k">.</span>getEmployeeId());
+
+       }
+</pre></div>
+
+<p>Daddy needs to get paid.</p>
+
+<div class="highlight highlight-source-java"><pre>    <span class="pl-k">public</span> <span class="pl-k">static</span> <span class="pl-k">class</span> <span class="pl-en">PayrollService</span> {
+
+        <span class="pl-k">@OnEvent</span>(<span class="pl-c1">PAYROLL_ADJUSTMENT_CHANNEL</span>)
+        <span class="pl-k">public</span> <span class="pl-k">void</span> <span class="pl-en">addEmployeeToPayroll</span>(<span class="pl-k">final</span> <span class="pl-smi">Employee</span> <span class="pl-v">employee</span>, <span class="pl-k">int</span> <span class="pl-v">salary</span>) {
+
+            <span class="pl-smi">System</span><span class="pl-k">.</span>out<span class="pl-k">.</span>printf(<span class="pl-s"><span class="pl-pds">"</span>Employee added to payroll  %s %d %d<span class="pl-cce">\n</span><span class="pl-pds">"</span></span>,
+                    employee<span class="pl-k">.</span>getFirstName(), employee<span class="pl-k">.</span>getEmployeeId(), salary);
+
+        }
+
+    }
+</pre></div>
+
+<p>The employee is the employee object from the EmployeeHiringService.</p>
+
+<p>so you can get your benefits, and paid!</p>
+
+<p>Find more details here:</p>
+
+<p><a href="https://github.com/advantageous/qbit/wiki/%5BRough-Cut%5D-Working-with-event-bus-for-QBit-the-microservice-engine">QBit Event Bus more detailed example</a></p>
+
+<h2>
+<a id="private-event-bus-and-event-bus-proxies" class="anchor" href="#private-event-bus-and-event-bus-proxies" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Private event bus and event bus proxies</h2>
+
+<p>You can define your own interface to the event bus and you can use your own event buses with QBit.
+ Each module in your service can have its own internal event bus.</p>
+
+<p>To learn more read:
+ <a href="https://github.com/advantageous/qbit/wiki/%5BRough-Cut%5D-Working-with-private-event-bus-for-inproc-microservices">QBit Microservice working with a private event bus</a>
+ and <a href="https://github.com/advantageous/qbit/wiki/%5BRough-Cut%5D-Working-with-strongly-typed-event-bus-proxies-for-QBit-Java-Microservice-lib">QBit Java Microservice lib using your own interface to the event bus</a>.</p>
+
+<h2>
+<a id="queue-callbacks" class="anchor" href="#queue-callbacks" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Queue Callbacks</h2>
+
+<p>To really grasp QBit, one must grasp the concepts of a CallBack.</p>
+
+<p>A CallBack is a way to get an async response in QBit.</p>
+
+<p>You call a service method and it calls you back.</p>
+
+<p>Client proxies can have callbacks:</p>
+
+<h4>
+<a id="queue-callbacks---recommendationservice-client-interface" class="anchor" href="#queue-callbacks---recommendationservice-client-interface" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Queue Callbacks - RecommendationService client interface</h4>
+
+<div class="highlight highlight-source-java"><pre>
+<span class="pl-k">public</span> <span class="pl-k">interface</span> <span class="pl-en">RecommendationServiceClient</span> {
+
+
+    <span class="pl-k">void</span> <span class="pl-en">recommend</span>(<span class="pl-k">final</span> <span class="pl-k">Callback&lt;<span class="pl-k">List&lt;<span class="pl-smi">Recommendation</span>&gt;</span>&gt;</span> <span class="pl-v">recommendationsCallback</span>,
+                          <span class="pl-k">final</span> <span class="pl-smi">String</span> <span class="pl-v">userName</span>);
+}
+</pre></div>
+
+<p>Callbacks are Java 8 Consumers with some optional extra error handling.</p>
+
+<h4>
+<a id="queue-callbacks---callback" class="anchor" href="#queue-callbacks---callback" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Queue Callbacks - Callback</h4>
+
+<div class="highlight highlight-source-java"><pre>
+
+<span class="pl-k">public</span> <span class="pl-k">interface</span> <span class="pl-en">Callback</span> &lt;T&gt; <span class="pl-k">extends</span> <span class="pl-e">java.util.function.Consumer&lt;<span class="pl-smi">T</span>&gt;</span> {
+    default <span class="pl-k">void</span> <span class="pl-en">onError</span>(<span class="pl-smi">java.lang<span class="pl-k">.</span>Throwable</span> <span class="pl-v">error</span>) { <span class="pl-c">/* compiled code */</span> }
+}
+</pre></div>
+
+<p>Services that can block should use callbacks.
+Thus if loadUser blocked in the following example, it should really use a callback instead of returning a value.</p>
+
+<p>public class RecommendationService {</p>
+
+<h4>
+<a id="queue-callbacks---simple-minded-implementation-of-recommendationservice" class="anchor" href="#queue-callbacks---simple-minded-implementation-of-recommendationservice" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Queue Callbacks - Simple minded implementation of RecommendationService</h4>
+
+<div class="highlight highlight-source-java"><pre>
+    <span class="pl-k">private</span> <span class="pl-k">final</span> <span class="pl-k">SimpleLRUCache&lt;<span class="pl-smi">String</span>, <span class="pl-smi">User</span>&gt;</span> users <span class="pl-k">=</span>
+            <span class="pl-k">new</span> <span class="pl-k">SimpleLRUCache&lt;&gt;</span>(<span class="pl-c1">10_000</span>);
+
+    <span class="pl-k">public</span> <span class="pl-k">List&lt;<span class="pl-smi">Recommendation</span>&gt;</span> recommend(<span class="pl-k">final</span> <span class="pl-smi">String</span> userName) {
+        <span class="pl-smi">User</span> user <span class="pl-k">=</span> users<span class="pl-k">.</span>get(userName);
+        <span class="pl-k">if</span> (user <span class="pl-k">==</span> <span class="pl-c1">null</span>) {
+            user <span class="pl-k">=</span> loadUser(userName);
+        }
+        <span class="pl-k">return</span> runRulesEngineAgainstUser(user);
+    }
+</pre></div>
+
+<p>Let's pretend <code>loadUser</code> has to look in a local cache, and if the user is not found, look in an off-heap cache
+and if not found it must ask for the user from the UserService which must check its caches and perhaps fallback
+to loading the user data from a database or from other services.
+In other words, <code>loadUser</code> can potentially block on IO.</p>
+
+<h3>
+<a id="queue-callbacks---the-first-rule-of-queue-club---dont-block" class="anchor" href="#queue-callbacks---the-first-rule-of-queue-club---dont-block" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Queue Callbacks - The first rule of Queue Club - don't block</h3>
+
+<p>Our client does not block, but our service does. Going back to our <code>RecommendationService</code>.
+If we get a lot of cache hits for user loads, perhaps the
+block will not be that long, but it will be there and every time we have to fault in a user, the whole system
+is gummed up. What we want to be able to do is if we can't handle the recommendation request,
+we go ahead and make an async call to the <code>UserDataService</code>. When that async callback comes back, then we
+handle that request. In the mean time, we handle recommendation lists requests as quickly as we can.
+We never block.</p>
+
+<p>So let's revisit the service. The first thing we are going to do is make the service method take
+a callback. Before we do that, let's set down some rules.</p>
+
+<h4>
+<a id="the-first-rule-of-queue-club-dont-block" class="anchor" href="#the-first-rule-of-queue-club-dont-block" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>The first rule of queue club don't block.</h4>
+
+<h4>
+<a id="the-second-rule-of-queue-club-if-you-are-not-ready-use-a-callback-and-continue-handling-stuff-you-are-ready-for" class="anchor" href="#the-second-rule-of-queue-club-if-you-are-not-ready-use-a-callback-and-continue-handling-stuff-you-are-ready-for" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>The second rule of queue club if you are not ready, use a callback and continue handling stuff you are ready for</h4>
+
+<h4>
+<a id="queue-callbacks---adding-a-callback-to-the-recommendationservice-inproc-microservice" class="anchor" href="#queue-callbacks---adding-a-callback-to-the-recommendationservice-inproc-microservice" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Queue Callbacks - Adding a CallBack to the RecommendationService inproc microservice</h4>
+
+<div class="highlight highlight-source-java"><pre><span class="pl-k">public</span> <span class="pl-k">class</span> <span class="pl-en">RecommendationService</span> {
+
+
+    <span class="pl-k">public</span> <span class="pl-k">void</span> <span class="pl-en">recommend</span>(<span class="pl-k">final</span> <span class="pl-k">Callback&lt;<span class="pl-k">List&lt;<span class="pl-smi">Recommendation</span>&gt;</span>&gt;</span> <span class="pl-v">recommendationsCallback</span>,
+                          <span class="pl-k">final</span> <span class="pl-smi">String</span> <span class="pl-v">userName</span>) {
+</pre></div>
+
+<p>Now we are taking a callback and we can decide when we want to handle this recommendation generation request.
+We can do it right away if there user data we need is in-memory or we can delay it.</p>
+
+<h4>
+<a id="if-the-user-is-found-call-the-callback-right-away-for-recommendationservice-inproc-microservice" class="anchor" href="#if-the-user-is-found-call-the-callback-right-away-for-recommendationservice-inproc-microservice" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>If the user is found, call the callback right away for RecommendationService inproc microservice</h4>
+
+<div class="highlight highlight-source-java"><pre>
+    <span class="pl-k">public</span> <span class="pl-k">void</span> recommend(<span class="pl-k">final</span> <span class="pl-k">Callback&lt;<span class="pl-k">List&lt;<span class="pl-smi">Recommendation</span>&gt;</span>&gt;</span> recommendationsCallback,
+                          <span class="pl-k">final</span> <span class="pl-smi">String</span> userName) {
+
+        <span class="pl-c">/** Look for user in user cache. */</span>
+        <span class="pl-smi">User</span> user <span class="pl-k">=</span> users<span class="pl-k">.</span>get(userName);
+
+        <span class="pl-c">/** If the user not found, load the user from the user service. */</span>
+        <span class="pl-k">if</span> (user <span class="pl-k">==</span> <span class="pl-c1">null</span>) {
+             <span class="pl-c1">...</span>
+        } <span class="pl-k">else</span> {
+             <span class="pl-c">/* Call the callback now because we can handle the callback now. */</span>
+            recommendationsCallback<span class="pl-k">.</span>accept(runRulesEngineAgainstUser(user));
+        }
+
+    }
+</pre></div>
+
+<p>Notice, if the user is found in the cache, we run our recommendation rules in-memory and call the callback right away
+<code>recommendationsCallback.accept(runRulesEngineAgainstUser(user))</code>.</p>
+
+<p>The interesting part is what do we do if don't have the user loaded.</p>
+
+<h4>
+<a id="if-the-user-was-not-found-load-him-from-the-user-microservice-but-still-dont-block" class="anchor" href="#if-the-user-was-not-found-load-him-from-the-user-microservice-but-still-dont-block" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>If the user was not found, load him from the user microservice, but still don't block</h4>
+
+<div class="highlight highlight-source-java"><pre>
+
+    <span class="pl-k">public</span> <span class="pl-k">void</span> recommend(<span class="pl-k">final</span> <span class="pl-k">Callback&lt;<span class="pl-k">List&lt;<span class="pl-smi">Recommendation</span>&gt;</span>&gt;</span> recommendationsCallback,
+                          <span class="pl-k">final</span> <span class="pl-smi">String</span> userName) {
+
+
+        <span class="pl-c">/** Look for user in users cache. */</span>
+        <span class="pl-smi">User</span> user <span class="pl-k">=</span> users<span class="pl-k">.</span>get(userName);
+
+        <span class="pl-c">/** If the user not found, load the user from the user service. */</span>
+        <span class="pl-k">if</span> (user <span class="pl-k">==</span> <span class="pl-c1">null</span>) {
+
+            <span class="pl-c">/* Load user using Callback. */</span>
+            userDataService<span class="pl-k">.</span>loadUser(<span class="pl-k">new</span> <span class="pl-k">Callback&lt;<span class="pl-smi">User</span>&gt;</span>() {
+                <span class="pl-k">@Override</span>
+                <span class="pl-k">public</span> <span class="pl-k">void</span> <span class="pl-en">accept</span>(<span class="pl-k">final</span> <span class="pl-smi">User</span> <span class="pl-v">loadedUser</span>) {
+                        handleLoadFromUserDataService(loadedUser,
+                                recommendationsCallback);
+                }
+            }, userName);
+
+        }
+        <span class="pl-c1">...</span>
+</pre></div>
+
+<p>Here we use a CallBack to load the user, and when the user is loaded, we call <code>handleLoadFromUserDataService</code>
+which adds some management about handling the callback so we can still handle this call, just not now.</p>
+
+<h4>
+<a id="lambda-version-of-last-example" class="anchor" href="#lambda-version-of-last-example" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Lambda version of last example</h4>
+
+<div class="highlight highlight-source-java"><pre>
+
+    <span class="pl-k">public</span> <span class="pl-k">void</span> recommend(<span class="pl-k">final</span> <span class="pl-k">Callback&lt;<span class="pl-k">List&lt;<span class="pl-smi">Recommendation</span>&gt;</span>&gt;</span> recommendationsCallback,
+                          <span class="pl-k">final</span> <span class="pl-smi">String</span> userName) {
+
+
+        <span class="pl-c">/** Look for user in users cache. */</span>
+        <span class="pl-smi">User</span> user <span class="pl-k">=</span> users<span class="pl-k">.</span>get(userName);
+
+        <span class="pl-c">/** If the user not found, load the user from the user service. */</span>
+        <span class="pl-k">if</span> (user <span class="pl-k">==</span> <span class="pl-c1">null</span>) {
+
+            <span class="pl-c">/* Load user using lambda expression. */</span>
+         userDataService<span class="pl-k">.</span>loadUser(
+                    loadedUser <span class="pl-k">-</span><span class="pl-k">&gt;</span> {
+                        handleLoadFromUserDataService(loadedUser,
+                        recommendationsCallback);
+                    }, userName);
+
+        }
+        <span class="pl-c1">...</span>
+</pre></div>
+
+<p>Using lambdas like this makes the code more readable and terse, but remember don't deeply nest
+lambda expressions or you will create a code maintenance nightmare. Use them judiciously.</p>
+
+<h3>
+<a id="queue-callbacks---doing-something-later" class="anchor" href="#queue-callbacks---doing-something-later" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Queue Callbacks - Doing something later</h3>
+
+<p>What we want is to handle the request for recommendations after the user service system loads
+the user from its store.</p>
+
+<h4>
+<a id="handling-userservicedata-callback-methods-once-we-get-them" class="anchor" href="#handling-userservicedata-callback-methods-once-we-get-them" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Handling UserServiceData callback methods once we get them.</h4>
+
+<div class="highlight highlight-source-java"><pre>
+<span class="pl-k">public</span> <span class="pl-k">class</span> <span class="pl-en">RecommendationService</span> {
+
+
+    <span class="pl-k">private</span> <span class="pl-k">final</span> <span class="pl-k">SimpleLRUCache&lt;<span class="pl-smi">String</span>, <span class="pl-smi">User</span>&gt;</span> users <span class="pl-k">=</span>
+            <span class="pl-k">new</span> <span class="pl-k">SimpleLRUCache&lt;&gt;</span>(<span class="pl-c1">10_000</span>);
+
+    <span class="pl-k">private</span> <span class="pl-smi">UserDataServiceClient</span> userDataService;
+
+
+    <span class="pl-k">private</span> <span class="pl-k">BlockingQueue&lt;<span class="pl-smi">Runnable</span>&gt;</span> callbacks <span class="pl-k">=</span>
+               <span class="pl-k">new</span> <span class="pl-k">ArrayBlockingQueue&lt;<span class="pl-smi">Runnable</span>&gt;</span>(<span class="pl-c1">10_000</span>);
+
+
+    <span class="pl-c1">...</span>
+
+    <span class="pl-k">public</span> <span class="pl-k">void</span> <span class="pl-en">recommend</span>(<span class="pl-k">final</span> <span class="pl-k">Callback&lt;<span class="pl-k">List&lt;<span class="pl-smi">Recommendation</span>&gt;</span>&gt;</span> <span class="pl-v">recommendationsCallback</span>,
+                          <span class="pl-k">final</span> <span class="pl-smi">String</span> <span class="pl-v">userName</span>) {
+
+        <span class="pl-c1">...</span>
+
+    }
+
+    <span class="pl-c">/** Handle defered recommendations based on user loads. */</span>
+    <span class="pl-k">private</span> <span class="pl-k">void</span> <span class="pl-en">handleLoadFromUserDataService</span>(<span class="pl-k">final</span> <span class="pl-smi">User</span> <span class="pl-v">loadedUser</span>,
+                                               <span class="pl-k">final</span> <span class="pl-k">Callback&lt;<span class="pl-k">List&lt;<span class="pl-smi">Recommendation</span>&gt;</span>&gt;</span> <span class="pl-v">recommendationsCallback</span>) {
+
+        <span class="pl-c">/** Add a runnable to the callbacks queue. */</span>
+        callbacks<span class="pl-k">.</span>add(<span class="pl-k">new</span> <span class="pl-smi">Runnable</span>() {
+            <span class="pl-k">@Override</span>
+            <span class="pl-k">public</span> <span class="pl-k">void</span> <span class="pl-en">run</span>() {
+              <span class="pl-k">List&lt;<span class="pl-smi">Recommendation</span>&gt;</span> recommendations <span class="pl-k">=</span> runRulesEngineAgainstUser(loadedUser);
+              recommendationsCallback<span class="pl-k">.</span>accept(recommendations);
+            }
+        });
+    }
+
+
+</pre></div>
+
+<h4>
+<a id="handleloadfromuserdataservice-rewritten-using-lambda" class="anchor" href="#handleloadfromuserdataservice-rewritten-using-lambda" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>handleLoadFromUserDataService rewritten using Lambda</h4>
+
+<div class="highlight highlight-source-java"><pre>
+
+<span class="pl-k">public</span> <span class="pl-k">class</span> <span class="pl-en">RecommendationService</span> {
+
+<span class="pl-c1">...</span>
+
+    <span class="pl-c">/** Handle defered recommendations based on user loads. */</span>
+    <span class="pl-k">private</span> <span class="pl-k">void</span> <span class="pl-en">handleLoadFromUserDataService</span>(<span class="pl-k">final</span> <span class="pl-smi">User</span> <span class="pl-v">loadedUser</span>,
+                                               <span class="pl-k">final</span> <span class="pl-k">Callback&lt;<span class="pl-k">List&lt;<span class="pl-smi">Recommendation</span>&gt;</span>&gt;</span> <span class="pl-v">recommendationsCallback</span>) {
+
+        <span class="pl-c">/** Add a runnable to the callbacks list. */</span>
+        callbacks<span class="pl-k">.</span>add(() <span class="pl-k">-</span><span class="pl-k">&gt;</span> {
+            <span class="pl-k">List&lt;<span class="pl-smi">Recommendation</span>&gt;</span> recommendations <span class="pl-k">=</span> runRulesEngineAgainstUser(loadedUser);
+            recommendationsCallback<span class="pl-k">.</span>accept(recommendations);
+        });
+
+    }
+</pre></div>
+
+<p>The important part there is that every time we get a callback call from <code>UserDataService</code>, we then
+perform our CPU intensive recommendation rules and callback our caller. Well not exactly, what we
+do is enqueue an runnable onto our callbacks queue, and later we will iterate through those but when?</p>
+
+<h3>
+<a id="queue-callbacks-handling-callbacks-when-our-receive-queue-is-empty-a-new-batch-started-or-we-hit-a-batch-limit" class="anchor" href="#queue-callbacks-handling-callbacks-when-our-receive-queue-is-empty-a-new-batch-started-or-we-hit-a-batch-limit" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Queue Callbacks Handling callbacks when our receive queue is empty, a new batch started or we hit a batch limit</h3>
+
+<p>The <code>RecommendationService</code> can be notified when its queue is empty, it has started a new batch and when
+it has reached a batch limit. These are all good times to handle callbacks from the <code>UserDataService</code>.</p>
+
+<h4>
+<a id="draining-our-callback-queue" class="anchor" href="#draining-our-callback-queue" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Draining our callback queue</h4>
+
+<div class="highlight highlight-source-java"><pre>
+    @QueueCallback({
+            <span class="pl-smi">QueueCallbackType</span><span class="pl-c1"><span class="pl-k">.</span>EMPTY</span>,
+            <span class="pl-smi">QueueCallbackType</span><span class="pl-c1"><span class="pl-k">.</span>START_BATCH</span>,
+            <span class="pl-smi">QueueCallbackType</span><span class="pl-c1"><span class="pl-k">.</span>LIMIT</span>})
+    <span class="pl-k">private</span> <span class="pl-k">void</span> handleCallbacks() {
+
+        flushServiceProxy(userDataService);
+        <span class="pl-smi">Runnable</span> runnable <span class="pl-k">=</span> callbacks<span class="pl-k">.</span>poll();
+
+        <span class="pl-k">while</span> (runnable <span class="pl-k">!=</span> <span class="pl-c1">null</span>) {
+            runnable<span class="pl-k">.</span>run();
+            runnable <span class="pl-k">=</span> callbacks<span class="pl-k">.</span>poll();
+        }
+    }
+</pre></div>
+
+<p>It is important to remember when handling callbacks from another microservice that you want to handle
+callbacks from the other service before you handle more incomming requests from you clients.
+Essentially you have clients that have been waiting (async waiting but still), and these clients
+might represent an open TCP/IP connection like an HTTP call so it is best to close them out
+before handling more requests and like we said they were already waiting around with an open connection
+for users to load form the user service.</p>
+
+<p>To learn more about CallBacks, plesae read <a href="%5BRough%20Cut%5D%20QBit%20Microservice%20Lib%20Working%20With%20CallBacks">QBit Java MicroService Lib CallBack fundamentals</a>.</p>
+
+<h2>
+<a id="workers---pools-and-shards" class="anchor" href="#workers---pools-and-shards" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Workers - pools and shards</h2>
+
+<div class="highlight highlight-source-java"><pre><span class="pl-k">public</span> <span class="pl-k">class</span> <span class="pl-en">ServiceWorkers</span> {
+
+    <span class="pl-k">public</span> <span class="pl-k">static</span> <span class="pl-smi">RoundRobinServiceDispatcher</span> <span class="pl-en">workers</span>() {<span class="pl-c1">...</span>
+
+    <span class="pl-k">public</span> <span class="pl-k">static</span> <span class="pl-smi">ShardedMethodDispatcher</span> shardedWorkers(<span class="pl-k">final</span> <span class="pl-smi">ShardRule</span> shardRule) {<span class="pl-c1">...</span></pre></div>
+
+<p>You can compose sharded workers (for in-memory, thread safe, CPU intensive services), or workers for IO
+or talking to foreign services or foreign buses.</p>
+
+<p>Here is an example that uses a worker pool with three service workers in it:</p>
+
+<p>Let's say you have a service that does something:</p>
+
+<div class="highlight highlight-source-java"><pre>
+    <span class="pl-c">//Your POJO</span>
+    <span class="pl-k">public</span>  <span class="pl-k">class</span> <span class="pl-en">MultiWorker</span> {
+
+        <span class="pl-k">void</span> <span class="pl-en">doSomeWork</span>(...) {
+           <span class="pl-c1">...</span>
+        }
+
+    }
+</pre></div>
+
+<p>Now this does some sort of IO and you want to have a bank of these running not just one so you can do
+IO in parallel. After some performance testing, you found out that three is the magic number.</p>
+
+<p>You want to use your API for accessing this service:</p>
+
+<div class="highlight highlight-source-java"><pre>    <span class="pl-k">public</span>  <span class="pl-k">interface</span> <span class="pl-en">MultiWorkerClient</span> {
+        <span class="pl-k">void</span> <span class="pl-en">doSomeWork</span>(...);
+    }
+</pre></div>
+
+<p>Now let's create a bank of these and use it.</p>
+
+<p>First create the QBit services which add the thread/queue/microbatch.</p>
+
+<div class="highlight highlight-source-java"><pre>
+        <span class="pl-c">/* Create a service builder. */</span>
+        <span class="pl-k">final</span> <span class="pl-smi">ServiceBuilder</span> serviceBuilder <span class="pl-k">=</span> serviceBuilder();
+
+        <span class="pl-c">/* Create some qbit services. */</span>
+        <span class="pl-k">final</span> <span class="pl-smi">Service</span> service1 <span class="pl-k">=</span> serviceBuilder<span class="pl-k">.</span>setServiceObject(<span class="pl-k">new</span> <span class="pl-smi">MultiWorker</span>())<span class="pl-k">.</span>build();
+        <span class="pl-k">final</span> <span class="pl-smi">Service</span> service2 <span class="pl-k">=</span> serviceBuilder<span class="pl-k">.</span>setServiceObject(<span class="pl-k">new</span> <span class="pl-smi">MultiWorker</span>())<span class="pl-k">.</span>build();
+        <span class="pl-k">final</span> <span class="pl-smi">Service</span> service3 <span class="pl-k">=</span> serviceBuilder<span class="pl-k">.</span>setServiceObject(<span class="pl-k">new</span> <span class="pl-smi">MultiWorker</span>())<span class="pl-k">.</span>build();</pre></div>
+
+<p>Now add them to a ServiceWorkers object.</p>
+
+<div class="highlight highlight-source-java"><pre>
+        <span class="pl-smi">ServiceWorkers</span> dispatcher;
+        dispatcher <span class="pl-k">=</span> workers(); <span class="pl-c">//Create a round robin service dispatcher</span>
+        dispatcher<span class="pl-k">.</span>addServices(service1, service2, service3);
+        dispatcher<span class="pl-k">.</span>start(); <span class="pl-c">// start up the workers</span>
+</pre></div>
+
+<p>You can add services, POJOs and method consumers, method dispatchers to a service bundle.
+The service bundle is an integration point into QBit.</p>
+
+<p>Let's add our new Service workers. ServiceWorkers is a ServiceMethodDispatcher.</p>
+
+<div class="highlight highlight-source-java"><pre>        <span class="pl-c">/* Add the dispatcher to a service bundle. */</span>
+        bundle <span class="pl-k">=</span> serviceBundleBuilder()<span class="pl-k">.</span>setAddress(<span class="pl-s"><span class="pl-pds">"</span>/root<span class="pl-pds">"</span></span>)<span class="pl-k">.</span>build();
+        bundle<span class="pl-k">.</span>addServiceConsumer(<span class="pl-s"><span class="pl-pds">"</span>/workers<span class="pl-pds">"</span></span>, dispatcher);
+        bundle<span class="pl-k">.</span>start();</pre></div>
+
+<p>We are probably going to add a helper method to the service bundle so most of this can happen in
+a single call.</p>
+
+<p>Now you can start using your workers.</p>
+
+<div class="highlight highlight-source-java"><pre>
+        <span class="pl-c">/* Start using the workers. */</span>
+        <span class="pl-k">final</span> <span class="pl-smi">MultiWorkerClient</span> worker <span class="pl-k">=</span> bundle<span class="pl-k">.</span>createLocalProxy(<span class="pl-smi">MultiWorkerClient</span><span class="pl-k">.</span>class, <span class="pl-s"><span class="pl-pds">"</span>/workers<span class="pl-pds">"</span></span>);
+</pre></div>
+
+<p>Now you could use Spring or Guice to configure the builders and the service bundle.
+But you can just do it like the above which is good for testing and understanding QBit internals.</p>
+
+<p>QBit also supports the concept of sharded services which is good for sharding resources like CPU
+(run a rules engine on each CPU core for a user recommendation engine).</p>
+
+<p>QBit does not know how to shard your services, you have to give it a hint.
+You do this through a shard rule.</p>
+
+<div class="highlight highlight-source-java"><pre><span class="pl-k">public</span> <span class="pl-k">interface</span> <span class="pl-en">ShardRule</span> {
+    <span class="pl-k">int</span> <span class="pl-en">shard</span>(<span class="pl-smi">String</span> <span class="pl-v">methodName</span>, <span class="pl-k">Object</span>[] <span class="pl-v">args</span>, <span class="pl-k">int</span> <span class="pl-v">numWorkers</span>);
+}</pre></div>
+
+<p>We worked on an app where the first argument to the services was the username, and then we used that to
+shard calls to a CPU intensive in-memory rules engine. This technique works. :)</p>
+
+<p>The ServiceWorkers class has a method for creating a sharded worker pool.</p>
+
+<div class="highlight highlight-source-java"><pre>
+    <span class="pl-k">public</span> <span class="pl-k">static</span> <span class="pl-smi">ShardedMethodDispatcher</span> shardedWorkers(<span class="pl-k">final</span> <span class="pl-smi">ShardRule</span> shardRule) {
+        <span class="pl-c1">...</span>
+    }
+</pre></div>
+
+<p>To use you just pass a shard key when you create the service workers.</p>
+
+<div class="highlight highlight-source-java"><pre>
+
+        dispatcher <span class="pl-k">=</span> shardedWorkers((methodName, methodArgs, numWorkers) <span class="pl-k">-</span><span class="pl-k">&gt;</span> {
+            <span class="pl-smi">String</span> userName <span class="pl-k">=</span> methodArgs[<span class="pl-c1">0</span>]<span class="pl-k">.</span>toString();
+            <span class="pl-k">int</span> shardKey <span class="pl-k">=</span>  userName<span class="pl-k">.</span>hashCode() <span class="pl-k">%</span> numWorkers;
+            <span class="pl-k">return</span> shardKey;
+        });
+</pre></div>
+
+<p>Then add your services to the ServiceWorkers composition.</p>
+
+<div class="highlight highlight-source-java"><pre>        <span class="pl-k">int</span> workerCount <span class="pl-k">=</span> <span class="pl-smi">Runtime</span><span class="pl-k">.</span>getRuntime()<span class="pl-k">.</span>availableProcessors();
+
+        <span class="pl-k">for</span> (<span class="pl-k">int</span> index <span class="pl-k">=</span> <span class="pl-c1">0</span>; index <span class="pl-k">&lt;</span> workerCount; index<span class="pl-k">++</span>) {
+            <span class="pl-k">final</span> <span class="pl-smi">Service</span> service <span class="pl-k">=</span> serviceBuilder
+                    .setServiceObject(<span class="pl-k">new</span> <span class="pl-smi">ContentRulesEngine</span>())<span class="pl-k">.</span>build();
+            dispatcher<span class="pl-k">.</span>addServices(service);
+
+        }</pre></div>
+
+<p>Then add it to the service bundle as before.</p>
+
+<div class="highlight highlight-source-java"><pre>
+        dispatcher<span class="pl-k">.</span>start();
+
+        bundle <span class="pl-k">=</span> serviceBundleBuilder()<span class="pl-k">.</span>setAddress(<span class="pl-s"><span class="pl-pds">"</span>/root<span class="pl-pds">"</span></span>)<span class="pl-k">.</span>build();
+
+        bundle<span class="pl-k">.</span>addServiceConsumer(<span class="pl-s"><span class="pl-pds">"</span>/workers<span class="pl-pds">"</span></span>, dispatcher);
+        bundle<span class="pl-k">.</span>start();</pre></div>
+
+<p>Then just use it:</p>
+
+<div class="highlight highlight-source-java"><pre>        <span class="pl-k">final</span> <span class="pl-smi">MultiWorkerClient</span> worker <span class="pl-k">=</span> bundle<span class="pl-k">.</span>createLocalProxy(<span class="pl-smi">MultiWorkerClient</span><span class="pl-k">.</span>class, <span class="pl-s"><span class="pl-pds">"</span>/workers<span class="pl-pds">"</span></span>);
+
+        <span class="pl-k">for</span> (<span class="pl-k">int</span> index <span class="pl-k">=</span> <span class="pl-c1">0</span>; index <span class="pl-k">&lt;</span> <span class="pl-c1">100</span>; index<span class="pl-k">++</span>) {
+            <span class="pl-smi">String</span> userName <span class="pl-k">=</span> <span class="pl-s"><span class="pl-pds">"</span>rickhigh<span class="pl-pds">"</span></span> <span class="pl-k">+</span> index;
+            worker<span class="pl-k">.</span>pickSuggestions(userName);
+        }
+</pre></div>
+
+<h3>
+<a id="built-in-shard-rules" class="anchor" href="#built-in-shard-rules" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Built in shard rules</h3>
+
+<div class="highlight highlight-source-java"><pre>
+
+<span class="pl-k">public</span> <span class="pl-k">class</span> <span class="pl-en">ServiceWorkers</span> {
+<span class="pl-c1">...</span>
+    <span class="pl-k">public</span> <span class="pl-k">static</span> <span class="pl-smi">ShardedMethodDispatcher</span> <span class="pl-en">shardOnFirstArgumentWorkers</span>() {
+       <span class="pl-c1">...</span>
+    }
+
+<span class="pl-c1">...</span>
+
+    <span class="pl-k">public</span> <span class="pl-k">static</span> <span class="pl-smi">ShardedMethodDispatcher</span> <span class="pl-en">shardOnFifthArgumentWorkers</span>() {
+         <span class="pl-c1">...</span>
+    }
+
+
+    <span class="pl-k">public</span> <span class="pl-k">static</span> <span class="pl-smi">ShardedMethodDispatcher</span> <span class="pl-en">shardOnBeanPath</span>(<span class="pl-k">final</span> <span class="pl-smi">String</span> <span class="pl-v">beanPath</span>) {
+        <span class="pl-c1">...</span>
+    }
+</pre></div>
+
+<p>The shardOnBeanPath allows you to create a complex bean path navigation call and use its property to shard on.</p>
+
+<div class="highlight highlight-source-java"><pre>
+     <span class="pl-c">/* shard on 2nd arg which is an employee</span>
+<span class="pl-c">       Use the employees department's id property. */</span>
+     dispatcher <span class="pl-k">=</span> shardOnBeanPath(<span class="pl-s"><span class="pl-pds">"</span>[1].department.id<span class="pl-pds">"</span></span>);
+
+     <span class="pl-c">/* Same as above. */</span>
+     dispatcher <span class="pl-k">=</span> shardOnBeanPath(<span class="pl-s"><span class="pl-pds">"</span>1/department/id<span class="pl-pds">"</span></span>);
+</pre></div>
+
+<p><a href="https://github.com/advantageous/qbit/wiki/%5BRough-Cut%5D-QBit-Microservices-using-Service-Workers-and-sharded-service-workers">Read more about Service sharding and service workers here</a></p>
+
+<p>You can find a lot more in the wiki. Also follow the commits.
+We have been busy beavers.
+<a href="https://github.com/advantageous/qbit/wiki">QBit the microservice lib for Java - JSON, REST, WebSocket</a>.</p>
+      </section>
+    </div>
+
+    <!-- FOOTER  -->
+    <div id="footer_wrap" class="outer">
+      <footer class="inner">
+        <p class="copyright">QBit - Microservices Lib maintained by <a href="https://github.com/advantageous">advantageous</a></p>
+        <p>Published with <a href="https://pages.github.com">GitHub Pages</a></p>
+      </footer>
+    </div>
+
+    
+
+  </body>
+</html>
