@@ -165,7 +165,7 @@ public class HttpServerVertx implements HttpServer {
     }
 
     @Override
-    public void startWithNotify(Runnable runnable) {
+    public void startWithNotify(final Runnable runnable) {
 
         simpleHttpServer.start();
 
@@ -216,7 +216,7 @@ public class HttpServerVertx implements HttpServer {
                     simpleHttpServer.getErrorHandler().accept(event.cause());
                 } else {
 
-                    runnable.run();
+                    if (runnable!=null) runnable.run();
                     logger.info("HTTP SERVER started on port " + port + " host " + host);
                     simpleHttpServer.getOnStart().run();
                 }

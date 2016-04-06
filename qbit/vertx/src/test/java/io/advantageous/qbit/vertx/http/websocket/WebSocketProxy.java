@@ -6,6 +6,7 @@ import io.advantageous.qbit.reactive.Callback;
 import io.advantageous.qbit.server.EndpointServerBuilder;
 import io.advantageous.qbit.server.ServiceEndpointServer;
 import io.advantageous.qbit.service.ServiceProxyUtils;
+import io.advantageous.qbit.util.PortUtils;
 import org.junit.Test;
 
 import java.util.concurrent.CountDownLatch;
@@ -49,11 +50,12 @@ public class WebSocketProxy {
     public void test() throws Exception {
 
 
+        final int port = PortUtils.findOpenPortStartAt(8080);
         final ServiceEndpointServer serviceEndpointServer = EndpointServerBuilder.endpointServerBuilder()
-                .setPort(9999)
+                .setPort(port).setHost("localhost")
                 .addService(new EmployeeServiceImpl()).build().startServerAndWait();
 
-        final Client client = ClientBuilder.clientBuilder().setPort(9999).setHost("localhost").build().startClient();
+        final Client client = ClientBuilder.clientBuilder().setPort(port).setHost("localhost").build().startClient();
 
         final EmployeeService employeeService = client.createProxy(EmployeeService.class, "employeeserviceimpl");
 
