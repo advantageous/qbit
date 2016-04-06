@@ -508,12 +508,12 @@ public class SingleArgumentUserDefinedObjectRESTTest {
 
 
     @Test
-    public void echoEmployeeNormal() {
+    public void echoBadJson() {
         final HttpTextResponse httpResponse = httpServerSimulator.postBodyPlain("/es/echoEmployee",
                 "{\"id\":\"a\",\"name\":\"Rick\"}");
 
-        assertEquals(200, httpResponse.code());
-        assertEquals("{\"id\":49,\"name\":\"Rick\"}", httpResponse.body());
+        assertEquals(400, httpResponse.code());
+        assertTrue( httpResponse.body().contains("Unable to JSON parse body"));
     }
 
     @Test
