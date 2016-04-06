@@ -7,8 +7,6 @@
 
 The Java microservice lib. QBit is a reactive programming lib for building microservices - JSON, HTTP, WebSocket, and REST. QBit uses reactive programming to build elastic REST, and WebSockets based cloud friendly, web services. SOA evolved for mobile and cloud. ServiceDiscovery, Health, reactive StatService, events, Java idiomatic reactive programming for Microservices.
 
-
-
 Got a question? Ask here: [QBit Google Group](https://groups.google.com/forum/#!forum/qbit-microservice).
 
 Everything is a queue. You have a choice. You can embrace it and control it. You can optimize for it.
