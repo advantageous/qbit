@@ -20,6 +20,8 @@ package io.advantageous.qbit.spi;
 
 import io.advantageous.qbit.http.client.HttpClient;
 
+import java.util.function.Consumer;
+
 /**
  * created by rhightower on 11/13/14.
  */
@@ -35,5 +37,6 @@ public interface HttpClientFactory {
                       String trustStorePath,
                       String trustStorePassword,
                       boolean tcpNoDelay,
-                      int soLinger);
+                      int soLinger,
+                      Consumer<Throwable> errorHandler);
 }

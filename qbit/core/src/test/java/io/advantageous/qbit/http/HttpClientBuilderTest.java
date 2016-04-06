@@ -27,6 +27,8 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.util.function.Consumer;
+
 import static io.advantageous.boon.core.Exceptions.die;
 
 
@@ -55,17 +57,19 @@ public class HttpClientBuilderTest {
                                                String trustStorePath,
                                                String trustStorePassword,
                                                boolean tcpNoDelay,
-                                               int soLinger) {
+                                               int soLinger,
+                                               Consumer<Throwable> throwableConsumer) {
                 return FactorySPI.getHttpClientFactory().create(host, port,
                         timeOutInMilliseconds, poolSize, autoFlush, flushRate, keepAlive, pipeline,
-                        ssl, verifyHost, trustAll, maxWebSocketFrameSize, tryUseCompression, trustStorePath, trustStorePassword, tcpNoDelay, soLinger);
+                        ssl, verifyHost, trustAll, maxWebSocketFrameSize, tryUseCompression, trustStorePath,
+                        trustStorePassword, tcpNoDelay, soLinger, throwableConsumer);
             }
         });
 
         FactorySPI.setHttpClientFactory(
                 (host, port, timeOutInMilliseconds,
                  poolSize, autoFlush, flushRate, keepAlive, pipeLine, ssl, verifyHost, trustAll, maxWebSocketFrameSize,
-                 tryUseCompression, trustStorePath, trustStorePathPassword, tcpNoDelay, soLinger) -> null);
+                 tryUseCompression, trustStorePath, trustStorePathPassword, tcpNoDelay, soLinger, errorHandler) -> null);
 
         Sys.sleep(100);
 

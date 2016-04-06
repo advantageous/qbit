@@ -56,6 +56,6 @@ public class VertxHttpClientBuilder extends HttpClientBuilder {
                 super.isPipeline(), super.isSsl(), super.isVerifyHost(), super.isTrustAll(),
                 super.getMaxWebSocketFrameSize(), super.isTryUseCompression(), super.getTrustStorePath(),
                 super.getTrustStorePassword(),
-                super.isTcpNoDelay(), super.getSoLinger());
+                super.isTcpNoDelay(), super.getSoLinger(), super.getErrorHandler());
     }
 }

@@ -37,6 +37,10 @@ public class HttpStatus {
     public final static int TOO_MANY_REQUEST = 429;
     public final static String TOO_MANY_REQUEST_MSG = "TOO MANY REQUEST";
 
+
+    public final static int SERVICE_UNAVAILABLE = 503;
+    public final static String SERVICE_UNAVAILABLE_MSG = "Service Unavailable";
+
     public final static String message(int code) {
         switch (code) {
             case OK:
@@ -57,6 +61,8 @@ public class HttpStatus {
                 return ERROR_MSG;
             case ACCEPTED:
                 return ACCEPTED_MSG;
+            case SERVICE_UNAVAILABLE:
+                return SERVICE_UNAVAILABLE_MSG;
             default:
                 return "CODE = " + code;
         }
