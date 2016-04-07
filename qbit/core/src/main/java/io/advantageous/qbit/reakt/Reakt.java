@@ -26,6 +26,7 @@ public class Reakt {
 
     /**
      * Converts a Reakt promise into a QBit callback.
+     * Reactor is used to manage timeouts and ensure callback happens on same thread as caller.
      *
      * @param reactor QBit reactor
      * @param promise reakt promise
@@ -49,6 +50,8 @@ public class Reakt {
 
     /**
      * Converts a Reakt callback into a QBit callback.
+     *
+     * Reactor is used to manage timeouts and ensure callback happens on same thread as caller.
      *
      * @param reactor  QBit reactor
      * @param callback reakt callback
