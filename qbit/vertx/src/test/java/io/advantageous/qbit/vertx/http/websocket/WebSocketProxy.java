@@ -64,21 +64,21 @@ public class WebSocketProxy {
 
 
         AtomicLong counter = new AtomicLong();
+        final CountDownLatch latch = new CountDownLatch(20);
 
         for (int index = 0; index < 20; index++) {
             final AtomicReference<Employee> ref = new AtomicReference<>();
-            final CountDownLatch latch = new CountDownLatch(1);
             employeeService.addEmployee(employee -> {
                 ref.set(employee);
-
                 System.out.println(ref.get());
-                latch.countDown();
                 counter.incrementAndGet();
+                latch.countDown();
             }, new Employee("rick"));
 
-            latch.await(2, TimeUnit.SECONDS);
         }
 
+
+        latch.await(2, TimeUnit.SECONDS);
         assertEquals(20, counter.get());
 
 
