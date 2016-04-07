@@ -44,9 +44,29 @@ public class Reakt {
      * @param <T>      type of result
      * @return QBit callback
      */
-    public static <T> Callback<T> convertCallback(final io.advantageous.reakt.Callback<T> callback) {
+    public static <T> Callback<T> convertReaktCallback(final io.advantageous.reakt.Callback<T> callback) {
         return convertReaktCallbackToQBitCallback(callback, CallbackBuilder.callbackBuilder());
     }
+
+
+    /**
+     * Converts a Reakt callback into a QBit callback.
+     *
+     * @param callback reakt callback
+     * @param <T>      type of result
+     * @return QBit callback
+     */
+    public static <T> io.advantageous.reakt.Callback<T> convertQBitCallback(final Callback<T> callback) {
+        return result -> {
+
+            if (result.failure()) {
+                callback.onError(result.cause());
+            } else {
+                callback.accept(result.get());
+            }
+        };
+    }
+
 
     /**
      * Converts a Reakt callback into a QBit callback.
@@ -58,8 +78,8 @@ public class Reakt {
      * @param <T>      type of result
      * @return QBit callback
      */
-    public static <T> Callback<T> convertCallback(final Reactor reactor,
-                                                  final io.advantageous.reakt.Callback<T> callback) {
+    public static <T> Callback<T> convertReaktCallback(final Reactor reactor,
+                                                       final io.advantageous.reakt.Callback<T> callback) {
         return convertReaktCallbackToQBitCallback(callback, reactor.callbackBuilder());
     }
 

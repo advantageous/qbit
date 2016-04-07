@@ -9,7 +9,8 @@ import org.junit.Test;
 
 import java.util.concurrent.atomic.AtomicReference;
 
-import static io.advantageous.qbit.reakt.Reakt.convertCallback;
+import static io.advantageous.qbit.reakt.Reakt.convertQBitCallback;
+import static io.advantageous.qbit.reakt.Reakt.convertReaktCallback;
 import static io.advantageous.qbit.reakt.Reakt.convertPromise;
 import static io.advantageous.reakt.promise.Promise.promise;
 import static junit.framework.Assert.assertEquals;
@@ -29,8 +30,8 @@ public class ReaktTest {
         promise.then(ref::set);
 
         /* Convert promise to callback and then call the callback. */
-        final Callback<Employee> employeeCallback = convertPromise(promise);
-        employeeCallback.returnThis(new Employee("Rick"));
+        final io.advantageous.reakt.Callback<Employee> employeeCallback = convertQBitCallback(convertPromise(promise));
+        employeeCallback.reply(new Employee("Rick"));
 
         /* test. */
         assertNotNull(ref.get()); //callback called
@@ -79,8 +80,9 @@ public class ReaktTest {
                 .catchError(error::set);
 
         /** Convert promise to callback and then call the callback with error. */
-        final Callback<Employee> employeeCallback = convertPromise(promise);
-        employeeCallback.onError(new IllegalStateException());
+        final io.advantageous.reakt.Callback<Employee> employeeCallback = convertQBitCallback(convertPromise(promise));
+
+        employeeCallback.fail(new IllegalStateException());
 
         assertNull(ref.get()); //callback not called
         assertNotNull(error.get()); //error handler called
@@ -105,7 +107,7 @@ public class ReaktTest {
         final io.advantageous.reakt.Callback<Employee> callback = ref::set;
 
         /* Convert promise to callback and then call the callback. */
-        final Callback<Employee> employeeCallback = convertCallback(callback);
+        final Callback<Employee> employeeCallback = convertReaktCallback(callback);
         employeeCallback.returnThis(new Employee("Rick"));
 
         final Result<Employee> result = ref.get();
@@ -127,7 +129,7 @@ public class ReaktTest {
 
         final Reactor reactor = ReactorBuilder.reactorBuilder().build();
         /* Convert promise to callback and then call the callback. */
-        final Callback<Employee> employeeCallback = convertCallback(reactor, callback);
+        final Callback<Employee> employeeCallback = Reakt.convertReaktCallback(reactor, callback);
         employeeCallback.returnThis(new Employee("Rick"));
 
         reactor.process();
@@ -151,7 +153,7 @@ public class ReaktTest {
         final io.advantageous.reakt.Callback<Employee> callback = ref::set;
 
         /* Convert promise to callback and then call the callback. */
-        final Callback<Employee> employeeCallback = convertCallback(callback);
+        final Callback<Employee> employeeCallback = convertReaktCallback(callback);
         employeeCallback.returnError("NOT FOUND");
 
         final Result<Employee> result = ref.get();
@@ -181,7 +183,7 @@ public class ReaktTest {
         final io.advantageous.reakt.Callback<Employee> callback = ref::set;
 
         /* Convert promise to callback and then call the callback. */
-        final Callback<Employee> employeeCallback = convertCallback(callback);
+        final Callback<Employee> employeeCallback = convertReaktCallback(callback);
         employeeCallback.onTimeout();
 
         final Result<Employee> result = ref.get();
