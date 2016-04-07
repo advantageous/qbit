@@ -42,6 +42,10 @@ public interface Callback<T> {
                 .error(error.getMessage(), error);
     }
 
+    default void returnError(final String error) {
+        onError(new IllegalStateException(error));
+    }
+
 
     /**
      * Called if there is a timeout.
