@@ -32,6 +32,7 @@ public interface Callback<T> {
 
 
     /**
+     * Client View (client of the service)
      * Called when there is an error
      *
      * @param error error
@@ -42,12 +43,45 @@ public interface Callback<T> {
                 .error(error.getMessage(), error);
     }
 
+    /**
+     *
+     * Service View (service)
+     * Return an error message
+     * @param error error
+     */
     default void returnError(final String error) {
         onError(new IllegalStateException(error));
     }
 
 
     /**
+     *
+     * Service View (service)
+     * Return an error message.
+     * Added to make migration to Reakt easier.
+     * @param error error
+     */
+    default void fail(final String error) {
+        onError(new IllegalStateException(error));
+    }
+
+
+    /**
+     *
+     * Service View (service)
+     * Return an error message.
+     * Added to make migration to Reakt easier.
+     * @param error error
+     */
+    default void fail(final Exception error) {
+        onError(error);
+    }
+
+
+
+
+    /**
+     *
      * Called if there is a timeout.
      */
     default void onTimeout() {
@@ -55,6 +89,7 @@ public interface Callback<T> {
     }
 
     /**
+     * Client View (client of the service)
      * Performs this operation on the given argument.
      *
      * @param t the input argument
@@ -62,7 +97,24 @@ public interface Callback<T> {
     void accept(T t);
 
 
+    /**
+     *
+     *
+     * Service View (service)
+     * @param thisReturn the value to return.
+     */
     default void returnThis(T thisReturn) {
+        accept(thisReturn);
+    }
+
+
+    /**
+     *
+     * Service View (service)
+     * Added to make migration to Reakt easier.
+     * @param thisReturn the value to return.
+     */
+    default void reply(T thisReturn) {
         accept(thisReturn);
     }
 

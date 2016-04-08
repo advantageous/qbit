@@ -10,7 +10,6 @@ import org.junit.Test;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static io.advantageous.qbit.reakt.Reakt.convertQBitCallback;
-import static io.advantageous.qbit.reakt.Reakt.convertReaktCallback;
 import static io.advantageous.qbit.reakt.Reakt.convertPromise;
 import static io.advantageous.reakt.promise.Promise.promise;
 import static junit.framework.Assert.assertEquals;
@@ -107,7 +106,7 @@ public class ReaktTest {
         final io.advantageous.reakt.Callback<Employee> callback = ref::set;
 
         /* Convert promise to callback and then call the callback. */
-        final Callback<Employee> employeeCallback = convertReaktCallback(callback);
+        final Callback<Employee> employeeCallback = Reakt.convertCallback(callback);
         employeeCallback.returnThis(new Employee("Rick"));
 
         final Result<Employee> result = ref.get();
@@ -129,7 +128,7 @@ public class ReaktTest {
 
         final Reactor reactor = ReactorBuilder.reactorBuilder().build();
         /* Convert promise to callback and then call the callback. */
-        final Callback<Employee> employeeCallback = Reakt.convertReaktCallback(reactor, callback);
+        final Callback<Employee> employeeCallback = Reakt.convertCallback(reactor, callback);
         employeeCallback.returnThis(new Employee("Rick"));
 
         reactor.process();
@@ -153,7 +152,7 @@ public class ReaktTest {
         final io.advantageous.reakt.Callback<Employee> callback = ref::set;
 
         /* Convert promise to callback and then call the callback. */
-        final Callback<Employee> employeeCallback = convertReaktCallback(callback);
+        final Callback<Employee> employeeCallback = Reakt.convertCallback(callback);
         employeeCallback.returnError("NOT FOUND");
 
         final Result<Employee> result = ref.get();
@@ -183,7 +182,7 @@ public class ReaktTest {
         final io.advantageous.reakt.Callback<Employee> callback = ref::set;
 
         /* Convert promise to callback and then call the callback. */
-        final Callback<Employee> employeeCallback = convertReaktCallback(callback);
+        final Callback<Employee> employeeCallback = Reakt.convertCallback(callback);
         employeeCallback.onTimeout();
 
         final Result<Employee> result = ref.get();
