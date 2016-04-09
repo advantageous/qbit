@@ -82,7 +82,6 @@ public class FullIntegrationTest extends TimedTesting {
 
     }
 
-    @Test
     public void testWebSocketSend10() throws Exception {
 
 
@@ -106,6 +105,7 @@ public class FullIntegrationTest extends TimedTesting {
 
         waitForTrigger(20, o -> returnCount.get() == callCount.get());
 
+        Sys.sleep(100);
 
         puts("HERE                        ", callCount, returnCount);
 
