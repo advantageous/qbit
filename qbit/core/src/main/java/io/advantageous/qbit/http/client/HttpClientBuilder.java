@@ -53,7 +53,8 @@ public class HttpClientBuilder {
     private String trustStorePassword;
     private boolean tcpNoDelay = true;
     private int soLinger = 100;
-    private Consumer<Throwable> errorHandler = throwable -> {};
+    private Consumer<Throwable> errorHandler = throwable -> {
+    };
 
 
     public HttpClientBuilder(PropertyResolver propertyResolver) {

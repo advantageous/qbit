@@ -11,86 +11,86 @@ import io.vertx.ext.web.Router;
 
 /**
  * Allows one to build an HTTP server.
- *
+ * <p>
  * It also allows one to pass a shared Vertx object if running inside of the Vertx world.
  * It also allows one to pass a shared HttpServer if you want to use more than just QBit routing.
  * If you are using routing or you want to limit this HttpServer to one route then you can
  * pass routes.
- *
+ * <p>
  * This class allows you to mix and match Vertx routes and QBit REST routing.
- *
+ * <p>
  * ##Usage
- *
+ * <p>
  * #### Using this server with a single route
  * ```java
- *     vertxHttpServerBuilder = VertxHttpServerBuilder.vertxHttpServerBuilder()
- *                     .setVertx(vertx).setHttpServer(httpServer).setRoute(route);
- *
- *     HttpServer httpServer = vertxHttpServerBuilder.build();
- *
+ * vertxHttpServerBuilder = VertxHttpServerBuilder.vertxHttpServerBuilder()
+ * .setVertx(vertx).setHttpServer(httpServer).setRoute(route);
+ * <p>
+ * HttpServer httpServer = vertxHttpServerBuilder.build();
+ * <p>
  * ```
- *
+ * <p>
  * #### Using this server but using Vertx Routes by passing a router.
  * ```java
- *
- *
- *     Router router = Router.router(vertx); //Vertx router
- *     Route route1 = router.route("/some/path/").handler(routingContext -> {
- *     HttpServerResponse response = routingContext.response();
- *          // enable chunked responses because we will be adding data as
- *          // we execute over other handlers. This is only required once and
- *          // only if several handlers do output.
- *          response.setChunked(true);
- *          response.write("route1\n");
- *
- *          // Call the next matching route after a 5 second delay
- *         routingContext.vertx().setTimer(5000, tid -> routingContext.next());
- *     });
- *
- *     //Now install our QBit Server to handle REST calls.
- *     vertxHttpServerBuilder = VertxHttpServerBuilder.vertxHttpServerBuilder()
- *                     .setVertx(vertx).setHttpServer(httpServer).setRouter(router);
- *
- *     HttpServer httpServer = vertxHttpServerBuilder.build();
- *     httpServer.start();
- *
+ * <p>
+ * <p>
+ * Router router = Router.router(vertx); //Vertx router
+ * Route route1 = router.route("/some/path/").handler(routingContext -> {
+ * HttpServerResponse response = routingContext.response();
+ * // enable chunked responses because we will be adding data as
+ * // we execute over other handlers. This is only required once and
+ * // only if several handlers do output.
+ * response.setChunked(true);
+ * response.write("route1\n");
+ * <p>
+ * // Call the next matching route after a 5 second delay
+ * routingContext.vertx().setTimer(5000, tid -> routingContext.next());
+ * });
+ * <p>
+ * //Now install our QBit Server to handle REST calls.
+ * vertxHttpServerBuilder = VertxHttpServerBuilder.vertxHttpServerBuilder()
+ * .setVertx(vertx).setHttpServer(httpServer).setRouter(router);
+ * <p>
+ * HttpServer httpServer = vertxHttpServerBuilder.build();
+ * httpServer.start();
+ * <p>
  * ```
- *
- *  Note that you can pass `HttpServerBuilder` or a `HttpServer` to `EndpointServerBuilder`
- *  to use that builder instead or `HttpServer` instead of the default.
- *
- *  #### EndpointServerBuilder integration
- *  ```java
- *
- *      //Like before
- *      vertxHttpServerBuilder = VertxHttpServerBuilder.vertxHttpServerBuilder()
- *                   .setVertx(vertx).setHttpServer(httpServer).setRouter(router);
- *      //Now just inject it into the vertxHttpServerBuilder before you call build
- *      HttpServer httpServer = vertxHttpServerBuilder.build();
- *      endpointServerBuilder.setHttpServer(httpServer);
- *  ```
- *
- *  If you are using QBit REST with Vertx, that is one integration point.
- *
- *  Also note that you can pass `HttpServerBuilder` or a `HttpServer` to `ManagedServiceBuilder`
- *  to use that builder instead or `HttpServer` instead of the default.
- *
- *  #### ManagedServiceBuilder integration
- *  ```java
- *     //Like before
- *     vertxHttpServerBuilder = VertxHttpServerBuilder.vertxHttpServerBuilder()
- *            .setVertx(vertx).setHttpServer(httpServer).setRouter(router);
- *
- *     //Now just inject it into the vertxHttpServerBuilder before you call build
- *     HttpServer httpServer = vertxHttpServerBuilder.build();
- *     managedServiceBuilder.setHttpServer(httpServer);
- *  ```
- *
- *  If you wanted to use QBit REST and QBit Swagger support with Vertx then you
- *  would want to use `ManagedServiceBuilder` with this class.
- *
- *  Read Vertx guide on routing for more details
- *  [Vertx Http Ext Manual](http://vertx.io/docs/vertx-web/java/#_routing_by_exact_path)
+ * <p>
+ * Note that you can pass `HttpServerBuilder` or a `HttpServer` to `EndpointServerBuilder`
+ * to use that builder instead or `HttpServer` instead of the default.
+ * <p>
+ * #### EndpointServerBuilder integration
+ * ```java
+ * <p>
+ * //Like before
+ * vertxHttpServerBuilder = VertxHttpServerBuilder.vertxHttpServerBuilder()
+ * .setVertx(vertx).setHttpServer(httpServer).setRouter(router);
+ * //Now just inject it into the vertxHttpServerBuilder before you call build
+ * HttpServer httpServer = vertxHttpServerBuilder.build();
+ * endpointServerBuilder.setHttpServer(httpServer);
+ * ```
+ * <p>
+ * If you are using QBit REST with Vertx, that is one integration point.
+ * <p>
+ * Also note that you can pass `HttpServerBuilder` or a `HttpServer` to `ManagedServiceBuilder`
+ * to use that builder instead or `HttpServer` instead of the default.
+ * <p>
+ * #### ManagedServiceBuilder integration
+ * ```java
+ * //Like before
+ * vertxHttpServerBuilder = VertxHttpServerBuilder.vertxHttpServerBuilder()
+ * .setVertx(vertx).setHttpServer(httpServer).setRouter(router);
+ * <p>
+ * //Now just inject it into the vertxHttpServerBuilder before you call build
+ * HttpServer httpServer = vertxHttpServerBuilder.build();
+ * managedServiceBuilder.setHttpServer(httpServer);
+ * ```
+ * <p>
+ * If you wanted to use QBit REST and QBit Swagger support with Vertx then you
+ * would want to use `ManagedServiceBuilder` with this class.
+ * <p>
+ * Read Vertx guide on routing for more details
+ * [Vertx Http Ext Manual](http://vertx.io/docs/vertx-web/java/#_routing_by_exact_path)
  *
  * @author rhightower
  */
@@ -170,18 +170,17 @@ public class VertxHttpServerBuilder extends HttpServerBuilder {
     public HttpServer build() {
 
 
-
         HttpServer httpServer;
 
 
         /* If the vertxHttpServer then we can just create one and register direct with it. */
-        if (vertxHttpServer==null) {
+        if (vertxHttpServer == null) {
 
-            if (this.getRoute()!=null) {
+            if (this.getRoute() != null) {
                 throw new IllegalArgumentException("You can't pass a route if you don't pass an httpServer");
             }
 
-            if (this.getRouter()!=null) {
+            if (this.getRouter() != null) {
                 throw new IllegalArgumentException("You can't pass a router if you don't pass an httpServer");
             }
 
@@ -203,7 +202,7 @@ public class VertxHttpServerBuilder extends HttpServerBuilder {
                     getRequestBodyContinuePredicate());
         }
 
-        if (this.getRequestContinuePredicate()!=null) {
+        if (this.getRequestContinuePredicate() != null) {
             httpServer.setShouldContinueHttpRequest(this.getRequestContinuePredicate());
         }
 

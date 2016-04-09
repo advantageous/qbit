@@ -25,9 +25,9 @@ public class Bug660 {
         final HttpClient httpClient = HttpClientBuilder.httpClientBuilder()
                 .setHost("localhost")
                 .setPort(9999).setErrorHandler((err) ->
-                        {
-                                error.compareAndSet(null, err);
-                        })
+                {
+                    error.compareAndSet(null, err);
+                })
                 .buildAndStart();
 
 
@@ -41,7 +41,7 @@ public class Bug660 {
                 .build());
 
         for (int index = 0; index < 100; index++) {
-            if (codeRef.get() != 0 && error.get()!=null) {
+            if (codeRef.get() != 0 && error.get() != null) {
                 break;
             }
             Sys.sleep(1);

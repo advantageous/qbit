@@ -322,14 +322,14 @@ public class HttpRequestBuilder {
         return headers == null ? MultiMap.EMPTY : headers;
     }
 
-    public HttpRequestBuilder setHeaders(final Map<String, String> headerMap) {
-
-        headerMap.entrySet().forEach(entry -> addHeader(entry.getKey(), entry.getValue()));
+    public HttpRequestBuilder setHeaders(final MultiMap<String, String> headers) {
+        this.headers = headers;
         return this;
     }
 
-    public HttpRequestBuilder setHeaders(final MultiMap<String, String> headers) {
-        this.headers = headers;
+    public HttpRequestBuilder setHeaders(final Map<String, String> headerMap) {
+
+        headerMap.entrySet().forEach(entry -> addHeader(entry.getKey(), entry.getValue()));
         return this;
     }
 

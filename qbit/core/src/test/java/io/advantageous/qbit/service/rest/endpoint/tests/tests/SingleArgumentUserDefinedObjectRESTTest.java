@@ -513,7 +513,7 @@ public class SingleArgumentUserDefinedObjectRESTTest {
                 "{\"id\":\"a\",\"name\":\"Rick\"}");
 
         assertEquals(400, httpResponse.code());
-        assertTrue( httpResponse.body().contains("Unable to JSON parse body"));
+        assertTrue(httpResponse.body().contains("Unable to JSON parse body"));
     }
 
     @Test

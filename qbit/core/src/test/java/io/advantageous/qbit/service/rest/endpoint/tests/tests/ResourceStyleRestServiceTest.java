@@ -48,7 +48,6 @@ public class ResourceStyleRestServiceTest {
     }
 
 
-
     @Test
     public void addDepartmentUsingAlias() {
 
@@ -67,6 +66,7 @@ public class ResourceStyleRestServiceTest {
 
         assertEquals(100, departments.get(0).getId());
     }
+
     @Test
     public void addDepartment() {
 

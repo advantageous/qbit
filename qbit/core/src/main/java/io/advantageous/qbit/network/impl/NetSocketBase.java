@@ -181,7 +181,6 @@ public class NetSocketBase implements NetSocket {
     }
 
 
-
     @Override
     public void openAndNotify(Consumer<NetSocket> openConsumer) {
 

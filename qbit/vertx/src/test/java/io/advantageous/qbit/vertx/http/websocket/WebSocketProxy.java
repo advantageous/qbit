@@ -19,33 +19,6 @@ import static org.junit.Assert.assertEquals;
 
 public class WebSocketProxy {
 
-    public static class Employee {
-        final String id;
-        public Employee(String id) {
-            this.id = id;
-        }
-
-        @Override
-        public String toString() {
-            return "Employee{" +
-                    "id='" + id + '\'' +
-                    '}';
-        }
-    }
-
-    interface EmployeeService {
-        void addEmployee(Callback<Employee>callback, Employee e);
-    }
-
-    public static class EmployeeServiceImpl implements EmployeeService {
-
-        @Override
-        public void addEmployee(Callback<Employee> callback, Employee e) {
-            callback.returnThis(e);
-        }
-    }
-
-
     @Test
     public void test() throws Exception {
 
@@ -60,7 +33,6 @@ public class WebSocketProxy {
         final EmployeeService employeeService = client.createProxy(EmployeeService.class, "employeeserviceimpl");
 
         ServiceProxyUtils.flushServiceProxy(employeeService);
-
 
 
         AtomicLong counter = new AtomicLong();
@@ -83,6 +55,33 @@ public class WebSocketProxy {
 
 
         serviceEndpointServer.stop();
+    }
+
+    interface EmployeeService {
+        void addEmployee(Callback<Employee> callback, Employee e);
+    }
+
+    public static class Employee {
+        final String id;
+
+        public Employee(String id) {
+            this.id = id;
+        }
+
+        @Override
+        public String toString() {
+            return "Employee{" +
+                    "id='" + id + '\'' +
+                    '}';
+        }
+    }
+
+    public static class EmployeeServiceImpl implements EmployeeService {
+
+        @Override
+        public void addEmployee(Callback<Employee> callback, Employee e) {
+            callback.returnThis(e);
+        }
     }
 
 }

@@ -249,6 +249,7 @@ public class LocalKeyValueStoreService<T> implements KeyValueStoreService<T> {
         private final Optional<Duration> expiry;
         private final String key;
         private final long createTime;
+
         public CacheEntry(final String key,
                           final V value,
                           final long createTime,

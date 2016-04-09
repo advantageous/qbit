@@ -154,9 +154,9 @@ public interface ServiceDiscovery extends Startable, Stoppable {
     }
 
     /**
-     *
      * Loads services async.
-     * @param callback callback
+     *
+     * @param callback    callback
      * @param serviceName name of service
      */
     default void loadServicesAsync(Callback<List<EndpointDefinition>> callback, final String serviceName) {

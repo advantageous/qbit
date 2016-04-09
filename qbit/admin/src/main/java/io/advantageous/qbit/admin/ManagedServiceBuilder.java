@@ -27,7 +27,6 @@ import io.advantageous.qbit.service.stats.StatsCollector;
 import io.advantageous.qbit.system.QBitSystemManager;
 
 import java.util.*;
-import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 /**
@@ -1003,6 +1002,7 @@ public class ManagedServiceBuilder {
 
     /**
      * Create a new StatsCollector
+     *
      * @return new stats collector for a single service.
      */
     public StatsCollector createStatsCollector() {

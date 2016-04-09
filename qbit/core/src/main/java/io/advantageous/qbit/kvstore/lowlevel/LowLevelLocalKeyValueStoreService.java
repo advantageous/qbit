@@ -222,6 +222,7 @@ public class LowLevelLocalKeyValueStoreService implements LowLevelKeyValueStoreS
         private final Optional<Duration> expiry;
         private final String key;
         private final long createTime;
+
         public CacheEntry(Optional<Duration> expiry, String key, long createTime) {
             this.expiry = expiry;
             this.key = key;

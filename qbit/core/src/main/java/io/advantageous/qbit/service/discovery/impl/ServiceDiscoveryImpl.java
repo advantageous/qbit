@@ -5,7 +5,6 @@ import io.advantageous.qbit.GlobalConstants;
 import io.advantageous.qbit.QBit;
 import io.advantageous.qbit.concurrent.PeriodicScheduler;
 import io.advantageous.qbit.reactive.Callback;
-import io.advantageous.qbit.service.BaseService;
 import io.advantageous.qbit.service.discovery.*;
 import io.advantageous.qbit.service.discovery.spi.ServiceDiscoveryProvider;
 import io.advantageous.qbit.service.health.HealthStatus;
@@ -20,7 +19,6 @@ import java.util.Set;
 import java.util.TreeSet;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.function.Consumer;
 
 
 /**
@@ -51,9 +49,9 @@ public class ServiceDiscoveryImpl implements ServiceDiscovery {
     private final ConcurrentHashSet<String> serviceNamesBeingLoaded = new ConcurrentHashSet<>();
     private final AtomicBoolean stop = new AtomicBoolean();
     private final Set<String> serviceNames = new TreeSet<>();
-    private long lastCheckIn;
     private final ConcurrentHashMap<String, BlockingQueue<Callback<List<EndpointDefinition>>>>
             callbackMap = new ConcurrentHashMap<>();
+    private long lastCheckIn;
 
 
     public ServiceDiscoveryImpl(
@@ -252,8 +250,8 @@ public class ServiceDiscoveryImpl implements ServiceDiscovery {
 
         BlockingQueue<Callback<List<EndpointDefinition>>> callbacks
                 = callbackMap.get(serviceName);
-        
-        if (callbacks==null) {
+
+        if (callbacks == null) {
             callbacks = new ArrayBlockingQueue<>(200);
             try {
                 callbacks.put(callback);
@@ -478,9 +476,9 @@ public class ServiceDiscoveryImpl implements ServiceDiscovery {
 
         final BlockingQueue<Callback<List<EndpointDefinition>>> callbacks = callbackMap.get(serviceName);
 
-        if (callbacks!=null) {
+        if (callbacks != null) {
             Callback<List<EndpointDefinition>> callback = callbacks.poll();
-            while (callback!=null) {
+            while (callback != null) {
                 callback.reply(healthyServices);
                 callback = callbacks.poll();
             }

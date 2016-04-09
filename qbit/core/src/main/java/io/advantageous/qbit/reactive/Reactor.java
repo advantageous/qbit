@@ -22,7 +22,7 @@ import java.util.stream.Collectors;
 /**
  * You could use a reactor per service.
  * Reactor ensures that callbacks execute on thread of caller not callee for thread safety.
- *
+ * <p>
  * Right now we don't use QBit queues, but we could. We need a way to flush the queues async.
  * Reactor. We could get a lot perf from refactoring this to use QBit queues instead of BlockingQueue.
  * created by rhightower on 3/22/15.

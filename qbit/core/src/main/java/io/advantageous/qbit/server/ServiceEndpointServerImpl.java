@@ -371,6 +371,7 @@ public class ServiceEndpointServerImpl implements ServiceEndpointServer {
 
         return this;
     }
+
     public ServiceBundle serviceBundle() {
         return this.serviceBundle;
     }

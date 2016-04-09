@@ -15,9 +15,7 @@ import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicReference;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 
 public class VertxEventBusBridgeTest {
@@ -225,9 +223,9 @@ public class VertxEventBusBridgeTest {
 
         vertx.eventBus().send(address, cleanJSON(json), deliveryOptions);
 
-        for (int index =0; index < 1000; index++) {
+        for (int index = 0; index < 1000; index++) {
             Sys.sleep(10);
-            if (testService.employee.get()!=null) {
+            if (testService.employee.get() != null) {
                 break;
             }
         }

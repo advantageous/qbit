@@ -44,9 +44,9 @@ public interface Callback<T> {
     }
 
     /**
-     *
      * Service View (service)
      * Return an error message
+     *
      * @param error error
      */
     default void returnError(final String error) {
@@ -55,10 +55,10 @@ public interface Callback<T> {
 
 
     /**
-     *
      * Service View (service)
      * Return an error message.
      * Added to make migration to Reakt easier.
+     *
      * @param error error
      */
     default void fail(final String error) {
@@ -67,10 +67,10 @@ public interface Callback<T> {
 
 
     /**
-     *
      * Service View (service)
      * Return an error message.
      * Added to make migration to Reakt easier.
+     *
      * @param error error
      */
     default void fail(final Throwable error) {
@@ -78,10 +78,10 @@ public interface Callback<T> {
     }
 
     /**
-     *
      * Service View (service)
      * Return an error message.
      * Added to make migration to Reakt easier.
+     *
      * @param error error
      */
     default void fail(final String errorMessage, final Throwable error) {
@@ -89,9 +89,7 @@ public interface Callback<T> {
     }
 
 
-
     /**
-     *
      * Called if there is a timeout.
      */
     default void onTimeout() {
@@ -108,9 +106,8 @@ public interface Callback<T> {
 
 
     /**
-     *
-     *
      * Service View (service)
+     *
      * @param thisReturn the value to return.
      */
     default void returnThis(T thisReturn) {
@@ -119,9 +116,9 @@ public interface Callback<T> {
 
 
     /**
-     *
      * Service View (service)
      * Added to make migration to Reakt easier.
+     *
      * @param thisReturn the value to return.
      */
     default void reply(T thisReturn) {

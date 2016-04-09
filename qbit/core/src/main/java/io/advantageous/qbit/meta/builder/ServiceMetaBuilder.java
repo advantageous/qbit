@@ -127,7 +127,7 @@ public class ServiceMetaBuilder {
                     = getRequestPathsByAnnotated(methodAccess, methodAccess.name().toLowerCase());
 
 
-            if (requestMapping!=null && requestMapping.getName().equals("bridge")) {
+            if (requestMapping != null && requestMapping.getName().equals("bridge")) {
                 requestPaths.add("/" + methodAccess.name().toLowerCase());
             }
 

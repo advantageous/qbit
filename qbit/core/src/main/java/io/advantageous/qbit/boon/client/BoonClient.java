@@ -36,7 +36,6 @@ import io.advantageous.qbit.message.Message;
 import io.advantageous.qbit.message.MethodCall;
 import io.advantageous.qbit.message.Response;
 import io.advantageous.qbit.message.impl.MethodCallImpl;
-import io.advantageous.qbit.network.NetSocket;
 import io.advantageous.qbit.reactive.Callback;
 import io.advantageous.qbit.sender.Sender;
 import io.advantageous.qbit.service.BeforeMethodCall;
@@ -52,7 +51,6 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.function.Consumer;
 
 import static io.advantageous.boon.core.Exceptions.die;
 import static io.advantageous.boon.core.Str.sputs;

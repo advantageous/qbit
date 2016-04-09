@@ -160,7 +160,7 @@ public class VertxEventBusBridgeBuilder {
             addressesToBridge = new HashSet<>();
         }
         addressesToBridge.add(address);
-        if (address==null) {
+        if (address == null) {
             contextMetaBuilder.setRootURI("/").addService(classWithAnnotations);
         } else {
             contextMetaBuilder.setRootURI("/").addService(address, classWithAnnotations);

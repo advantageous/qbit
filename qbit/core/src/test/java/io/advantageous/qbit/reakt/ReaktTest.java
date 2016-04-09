@@ -9,8 +9,8 @@ import org.junit.Test;
 
 import java.util.concurrent.atomic.AtomicReference;
 
-import static io.advantageous.qbit.reakt.Reakt.convertQBitCallback;
 import static io.advantageous.qbit.reakt.Reakt.convertPromise;
+import static io.advantageous.qbit.reakt.Reakt.convertQBitCallback;
 import static io.advantageous.reakt.promise.Promises.promise;
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertFalse;
