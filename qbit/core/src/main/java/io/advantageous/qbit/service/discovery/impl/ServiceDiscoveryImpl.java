@@ -4,6 +4,8 @@ import io.advantageous.boon.core.Sys;
 import io.advantageous.qbit.GlobalConstants;
 import io.advantageous.qbit.QBit;
 import io.advantageous.qbit.concurrent.PeriodicScheduler;
+import io.advantageous.qbit.reactive.Callback;
+import io.advantageous.qbit.service.BaseService;
 import io.advantageous.qbit.service.discovery.*;
 import io.advantageous.qbit.service.discovery.spi.ServiceDiscoveryProvider;
 import io.advantageous.qbit.service.health.HealthStatus;
@@ -18,6 +20,7 @@ import java.util.Set;
 import java.util.TreeSet;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.Consumer;
 
 
 /**
@@ -49,6 +52,8 @@ public class ServiceDiscoveryImpl implements ServiceDiscovery {
     private final AtomicBoolean stop = new AtomicBoolean();
     private final Set<String> serviceNames = new TreeSet<>();
     private long lastCheckIn;
+    private final ConcurrentHashMap<String, BlockingQueue<Callback<List<EndpointDefinition>>>>
+            callbackMap = new ConcurrentHashMap<>();
 
 
     public ServiceDiscoveryImpl(
@@ -236,6 +241,28 @@ public class ServiceDiscoveryImpl implements ServiceDiscovery {
             servicePoolMap.put(serviceName, servicePool);
         }
         return servicePool;
+    }
+
+    public void loadServicesAsync(Callback<List<EndpointDefinition>> callback, final String serviceName) {
+
+        final List<EndpointDefinition> endpointDefinitions = loadServices(serviceName);
+        if (endpointDefinitions.size() > 0) {
+            callback.accept(endpointDefinitions);
+        }
+
+        BlockingQueue<Callback<List<EndpointDefinition>>> callbacks
+                = callbackMap.get(serviceName);
+        
+        if (callbacks==null) {
+            callbacks = new ArrayBlockingQueue<>(200);
+            try {
+                callbacks.put(callback);
+            } catch (InterruptedException e) {
+                throw new IllegalStateException(e);
+            }
+            callbackMap.put(serviceName, callbacks);
+        }
+
     }
 
     @Override
@@ -447,6 +474,16 @@ public class ServiceDiscoveryImpl implements ServiceDiscovery {
         if (servicePool.setHealthyNodes(healthyServices)) {
             serviceChangedEventChannel.servicePoolChanged(serviceName);
             serviceChangedEventChannel.flushEvents();
+        }
+
+        final BlockingQueue<Callback<List<EndpointDefinition>>> callbacks = callbackMap.get(serviceName);
+
+        if (callbacks!=null) {
+            Callback<List<EndpointDefinition>> callback = callbacks.poll();
+            while (callback!=null) {
+                callback.reply(healthyServices);
+                callback = callbacks.poll();
+            }
         }
     }
 

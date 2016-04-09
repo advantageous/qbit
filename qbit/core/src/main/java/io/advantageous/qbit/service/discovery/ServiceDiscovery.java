@@ -1,5 +1,6 @@
 package io.advantageous.qbit.service.discovery;
 
+import io.advantageous.qbit.reactive.Callback;
 import io.advantageous.qbit.service.Startable;
 import io.advantageous.qbit.service.Stoppable;
 import io.advantageous.qbit.service.health.HealthStatus;
@@ -150,6 +151,16 @@ public interface ServiceDiscovery extends Startable, Stoppable {
     default List<EndpointDefinition> loadServices(final String serviceName) {
 
         return Collections.emptyList();
+    }
+
+    /**
+     *
+     * Loads services async.
+     * @param callback callback
+     * @param serviceName name of service
+     */
+    default void loadServicesAsync(Callback<List<EndpointDefinition>> callback, final String serviceName) {
+
     }
 
 
