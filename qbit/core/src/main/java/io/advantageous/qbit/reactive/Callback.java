@@ -73,10 +73,20 @@ public interface Callback<T> {
      * Added to make migration to Reakt easier.
      * @param error error
      */
-    default void fail(final Exception error) {
+    default void fail(final Throwable error) {
         onError(error);
     }
 
+    /**
+     *
+     * Service View (service)
+     * Return an error message.
+     * Added to make migration to Reakt easier.
+     * @param error error
+     */
+    default void fail(final String errorMessage, final Throwable error) {
+        onError(new IllegalStateException(errorMessage, error));
+    }
 
 
 
