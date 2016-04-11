@@ -140,7 +140,7 @@ public class CallbackManagerWithTimeoutTest {
 
     }
 
-    
+
     public void testWithServiceQueue() throws Exception {
 
         final ServiceBuilder serviceBuilder = ServiceBuilder.serviceBuilder();
