@@ -37,8 +37,8 @@ public class ReaktTest {
         assertTrue(promise.complete()); //done
         assertTrue(promise.success()); //no error
         assertFalse(promise.failure()); // no error
-        assertTrue(promise.getRef().isPresent()); //result is present
-        assertEquals("Rick", promise.getRef().get().name); //result is Rick
+        assertTrue(promise.expect().isPresent()); //result is present
+        assertEquals("Rick", promise.expect().get().name); //result is Rick
     }
 
     @Test
@@ -63,8 +63,8 @@ public class ReaktTest {
         assertTrue(promise.complete()); //done
         assertTrue(promise.success()); //no error
         assertFalse(promise.failure()); // no error
-        assertTrue(promise.getRef().isPresent()); //result is present
-        assertEquals("Rick", promise.getRef().get().name); //result is Rick
+        assertTrue(promise.expect().isPresent()); //result is present
+        assertEquals("Rick", promise.expect().get().name); //result is Rick
     }
 
     @Test
@@ -90,7 +90,7 @@ public class ReaktTest {
         assertTrue(promise.failure()); //error
 
         try {
-            assertTrue(promise.getRef().isPresent()); //result access causes exception
+            assertTrue(promise.expect().isPresent()); //result access causes exception
             fail();
         } catch (Exception ex) {
 
@@ -116,8 +116,8 @@ public class ReaktTest {
         assertTrue(result.complete()); //done
         assertTrue(result.success()); //no error
         assertFalse(result.failure()); // no error
-        assertTrue(result.getRef().isPresent()); //result is present
-        assertEquals("Rick", result.getRef().get().name); //result is Rick
+        assertTrue(result.expect().isPresent()); //result is present
+        assertEquals("Rick", result.expect().get().name); //result is Rick
     }
 
     @Test
@@ -140,8 +140,8 @@ public class ReaktTest {
         assertTrue(result.complete()); //done
         assertTrue(result.success()); //no error
         assertFalse(result.failure()); // no error
-        assertTrue(result.getRef().isPresent()); //result is present
-        assertEquals("Rick", result.getRef().get().name); //result is Rick
+        assertTrue(result.expect().isPresent()); //result is present
+        assertEquals("Rick", result.expect().get().name); //result is Rick
     }
 
     @Test
@@ -164,7 +164,7 @@ public class ReaktTest {
         assertTrue(result.failure()); //error
 
         try {
-            assertTrue(result.getRef().isPresent()); //result access causes exception
+            assertTrue(result.expect().isPresent()); //result access causes exception
             fail();
         } catch (Exception ex) {
 
@@ -194,7 +194,7 @@ public class ReaktTest {
         assertTrue(result.failure()); //error
 
         try {
-            assertTrue(result.getRef().isPresent()); //result access causes exception
+            assertTrue(result.expect().isPresent()); //result access causes exception
             fail();
         } catch (Exception ex) {
 
