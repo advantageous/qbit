@@ -133,7 +133,7 @@ project('core') {
         compile "$boonGroup:boon-reflekt:$boonVersion"
         compile "$boonGroup:boon-json:$boonVersion"
         compile 'org.reactivestreams:reactive-streams:1.0.0'
-        compile 'io.advantageous:reakt:1.0.0.RELEASE'
+        compile 'io.advantageous:reakt:2.0.0.RELEASE'
         testCompile project(':qbit:test-support')
     }
 
