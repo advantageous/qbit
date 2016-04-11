@@ -81,7 +81,7 @@ public class ReaktTest {
         /** Convert promise to callback and then call the callback with error. */
         final io.advantageous.reakt.Callback<Employee> employeeCallback = convertQBitCallback(convertPromise(promise));
 
-        employeeCallback.fail(new IllegalStateException());
+        employeeCallback.reject(new IllegalStateException());
 
         assertNull(ref.get()); //callback not called
         assertNotNull(error.get()); //error handler called

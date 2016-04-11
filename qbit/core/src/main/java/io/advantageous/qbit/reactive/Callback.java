@@ -61,7 +61,7 @@ public interface Callback<T> {
      *
      * @param error error
      */
-    default void fail(final String error) {
+    default void reject(final String error) {
         onError(new IllegalStateException(error));
     }
 
@@ -73,7 +73,7 @@ public interface Callback<T> {
      *
      * @param error error
      */
-    default void fail(final Throwable error) {
+    default void reject(final Throwable error) {
         onError(error);
     }
 
@@ -84,7 +84,7 @@ public interface Callback<T> {
      *
      * @param error error
      */
-    default void fail(final String errorMessage, final Throwable error) {
+    default void reject(final String errorMessage, final Throwable error) {
         onError(new IllegalStateException(errorMessage, error));
     }
 
@@ -125,5 +125,15 @@ public interface Callback<T> {
         accept(thisReturn);
     }
 
+
+    /**
+     * Service View (service)
+     * Added to make migration to Reakt easier.
+     *
+     * @param thisReturn the value to return.
+     */
+    default void resolve(T thisReturn) {
+        accept(thisReturn);
+    }
 }
 
