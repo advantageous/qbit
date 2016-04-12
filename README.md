@@ -25,19 +25,19 @@ QBit is FAST!
 <dependency>
     <groupId>io.advantageous.qbit</groupId>
     <artifactId>qbit-admin</artifactId>
-    <version>0.9.4.RELEASE</version>
+    <version>0.9.10.RELEASE</version>
 </dependency>
 <dependency>
     <groupId>io.advantageous.qbit</groupId>
     <artifactId>qbit-vertx</artifactId>
-    <version>0.9.4.RELEASE</version>
+    <version>0.9.10.RELEASE</version>
 </dependency>
 ```
 
 #### Using from gradle
 ```java
-compile 'io.advantageous.qbit:qbit-admin:0.9.4.RELEASE'
-compile 'io.advantageous.qbit:qbit-vertx:0.9.4.RELEASE'
+compile 'io.advantageous.qbit:qbit-admin:0.9.10.RELEASE'
+compile 'io.advantageous.qbit:qbit-vertx:0.9.10.RELEASE'
 ```
 
 Core Features
