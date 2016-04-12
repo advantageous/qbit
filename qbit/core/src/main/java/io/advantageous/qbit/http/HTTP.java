@@ -488,7 +488,9 @@ public class HTTP {
         manageHeaders(headers, connection);
 
 
-        IO.write(connection.getOutputStream(), body, IO.DEFAULT_CHARSET);
+        if (!(body==null || body.isEmpty())) {
+            IO.write(connection.getOutputStream(), body, IO.DEFAULT_CHARSET);
+        }
         return connection;
     }
 

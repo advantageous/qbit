@@ -1,7 +1,17 @@
 package io.advantageous.consul.domain;
 
-/**
- * Created by rick on 4/12/16.
- */
+import io.advantageous.boon.json.annotations.JsonProperty;
+
 public class SessionId {
+
+    @JsonProperty("ID")
+    private final String id;
+
+    public SessionId(String id) {
+        this.id = id;
+    }
+
+    public String getId() {
+        return id;
+    }
 }

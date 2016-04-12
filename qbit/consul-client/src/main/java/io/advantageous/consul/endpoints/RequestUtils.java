@@ -180,17 +180,19 @@ public class RequestUtils {
             httpRequestBuilder.addParam("tag", tag);
         }
 
-        if (requestOptions.isBlocking()) {
-            httpRequestBuilder.addParam("wait", requestOptions.getWait());
-            httpRequestBuilder.addParam("index", String.valueOf(requestOptions.getIndex()));
-        }
+        if (requestOptions!=null) {
+            if (requestOptions.isBlocking()) {
+                httpRequestBuilder.addParam("wait", requestOptions.getWait());
+                httpRequestBuilder.addParam("index", String.valueOf(requestOptions.getIndex()));
+            }
 
-        if (requestOptions.getConsistency() == Consistency.CONSISTENT) {
-            httpRequestBuilder.addParam("consistent", "true");
+            if (requestOptions.getConsistency() == Consistency.CONSISTENT) {
+                httpRequestBuilder.addParam("consistent", "true");
 
-        }
-        if (requestOptions.getConsistency() == Consistency.STALE) {
-            httpRequestBuilder.addParam("stale", "true");
+            }
+            if (requestOptions.getConsistency() == Consistency.STALE) {
+                httpRequestBuilder.addParam("stale", "true");
+            }
         }
         return httpRequestBuilder;
     }

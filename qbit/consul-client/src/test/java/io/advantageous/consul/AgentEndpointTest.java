@@ -28,6 +28,8 @@ import java.net.UnknownHostException;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 import static org.junit.Assert.*;
 
@@ -130,6 +132,7 @@ public class AgentEndpointTest {
                 assertEquals(serviceId, health.getService().getId());
 
                 assertNotNull(checks);
+                checks = checks.stream().filter(healthCheck -> healthCheck.getStatus().equals(state)).collect(Collectors.toList());
                 assertEquals(state, checks.get(0).getStatus());
             }
         }
