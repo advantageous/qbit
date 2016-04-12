@@ -210,6 +210,7 @@ public class SessionEndpoint extends Endpoint {
             die("Unable to renew the session", uri, httpResponse);
         }
 
+        System.out.println(httpResponse.body());
         return fromJsonArray(httpResponse.body(), Session.class).get(0);
     }
 

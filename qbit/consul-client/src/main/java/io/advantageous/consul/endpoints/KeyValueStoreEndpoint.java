@@ -29,10 +29,12 @@ import io.advantageous.qbit.http.request.HttpTextResponse;
 
 import java.net.URI;
 import java.util.*;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 import static io.advantageous.boon.json.JsonFactory.fromJsonArray;
 import static io.advantageous.consul.domain.ConsulException.die;
+import static io.advantageous.consul.endpoints.RequestUtils.decodeBase64;
 
 /**
  * HTTP Client for /v1/kv/ endpoints.
@@ -104,6 +106,8 @@ public class KeyValueStoreEndpoint extends Endpoint {
 
     private Optional<KeyValue> getKeyValueOptional(HTTP.Response httpResponse) {
         final List<KeyValue> keyValues = fromJsonArray(httpResponse.body(), KeyValue.class);
+
+        keyValues.forEach(keyValue -> keyValue.setValue(decodeBase64(keyValue.getValue())));
 
         return keyValues != null && keyValues.size() > 0 ? Optional.of(keyValues.get(0)) : Optional.<KeyValue>empty();
     }
@@ -201,7 +205,7 @@ public class KeyValueStoreEndpoint extends Endpoint {
      * @param putOptions PUT options (e.g. wait, acquire).
      * @return <code>true</code> if the value was successfully indexed.
      */
-    private boolean putValue(final String key, final String value, final long flags, final KeyValuePutOptions putOptions) {
+    public boolean putValue(final String key, final String value, final long flags, final KeyValuePutOptions putOptions) {
         Integer cas = putOptions.getCas();
         String release = putOptions.getRelease();
         String acquire = putOptions.getAcquire();
