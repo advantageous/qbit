@@ -13,11 +13,10 @@ import java.util.Optional;
 import static io.advantageous.boon.json.JsonFactory.*;
 import static io.advantageous.consul.domain.ConsulException.die;
 
+/**
+ * Consul Session endpoint.
+ */
 public class SessionEndpoint extends Endpoint {
-
-    public SessionEndpoint(String scheme, String host, String port, String rootPath) {
-        super(scheme, host, port, rootPath);
-    }
 
     public SessionEndpoint(URI rootURI, String rootPath) {
         super(rootURI, rootPath);
@@ -210,7 +209,6 @@ public class SessionEndpoint extends Endpoint {
             die("Unable to renew the session", uri, httpResponse);
         }
 
-        System.out.println(httpResponse.body());
         return fromJsonArray(httpResponse.body(), Session.class).get(0);
     }
 
