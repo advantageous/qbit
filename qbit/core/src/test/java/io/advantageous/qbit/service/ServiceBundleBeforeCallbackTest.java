@@ -102,7 +102,7 @@ public class ServiceBundleBeforeCallbackTest {
         serviceBundle.flush();
 
 
-        Sys.sleep(100);
+        Sys.sleep(200);
 
         ok = called || die();
 
