@@ -40,7 +40,7 @@ public class Consul {
     private final KeyValueStoreEndpoint keyValueStore;
     private final CatalogEndpoint catalog;
     private final StatusEndpoint status;
-    private boolean started = false;
+    private final SessionEndpoint session;
 
     /**
      * Private constructor.
@@ -59,6 +59,7 @@ public class Consul {
         this.keyValueStore = new KeyValueStoreEndpoint(uri, rootPath + "/kv");
         this.catalog = new CatalogEndpoint(uri, rootPath + "/catalog");
         this.status = new StatusEndpoint(uri, rootPath + "/status");
+        this.session = new SessionEndpoint(uri, rootPath + "/session");
 
 
     }
@@ -97,6 +98,14 @@ public class Consul {
      */
     public CatalogEndpoint catalog() {
         return catalog;
+    }
+
+    /**
+     * Session endpoint.
+     * @return The Session HTTP endpoint
+     */
+    public SessionEndpoint session() {
+        return session;
     }
 
     /**
