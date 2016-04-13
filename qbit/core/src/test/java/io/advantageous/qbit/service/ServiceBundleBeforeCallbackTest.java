@@ -95,7 +95,8 @@ public class ServiceBundleBeforeCallbackTest {
         serviceBundle.startReturnHandlerProcessor();
 
 
-        final MethodCall<Object> method = QBit.factory().createMethodCallByNames("callme", "mockserver", "", Collections.emptyList(), params);
+        final MethodCall<Object> method = QBit.factory().createMethodCallByNames("callme", "mockserver", "",
+                Collections.emptyList(), params);
 
         serviceBundle.call(method);
 
