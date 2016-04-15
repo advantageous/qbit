@@ -77,12 +77,13 @@ public class ServiceBundleBuilderTest {
 
             if (index % 100 == 0)
                 ServiceProxyUtils.flushServiceProxy(proxy);
+            Sys.sleep(1);
         }
 
 
         ServiceProxyUtils.flushServiceProxy(proxy);
 
-        Sys.sleep(1_000);
+        Sys.sleep(1_100);
 
 
         assertTrue(stats.containsKey("A.queueRequestSize"));
