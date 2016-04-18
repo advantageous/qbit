@@ -23,6 +23,8 @@ import io.advantageous.qbit.service.discovery.ServiceDiscovery;
 import io.advantageous.qbit.service.discovery.dns.DnsUtil;
 import io.advantageous.qbit.service.health.HealthServiceAsync;
 import io.advantageous.qbit.service.health.HealthServiceBuilder;
+import io.advantageous.qbit.service.health.ServiceHealthManager;
+import io.advantageous.qbit.service.impl.ServiceHealthManagerDefault;
 import io.advantageous.qbit.service.stats.StatsCollector;
 import io.advantageous.qbit.system.QBitSystemManager;
 
@@ -384,6 +386,41 @@ public class ManagedServiceBuilder {
         return this;
     }
 
+
+    /**
+     * Creates a ServiceHealthManager.
+     *
+     * @return ServiceHealthManager
+     */
+    public ServiceHealthManager createServiceHealthManager() {
+        return new ServiceHealthManagerDefault(null, null);
+    }
+
+
+    /**
+     * Creates a ServiceHealthManager.
+     *
+     * @param failCallback called if the service reports a failure.
+     * @return ServiceHealthManager
+     */
+    public ServiceHealthManager createServiceHealthManager(final Runnable failCallback) {
+        return new ServiceHealthManagerDefault(failCallback, null);
+    }
+
+
+    /**
+     * Creates a ServiceHealthManager.
+     *
+     * @param failCallback    called if the service reports a failure.
+     * @param recoverCallback recoverCallback called if the service recovers from a failure.
+     * @return ServiceHealthManager
+     */
+    public ServiceHealthManager createServiceHealthManager(final Runnable failCallback,
+                                                           final Runnable recoverCallback) {
+        return new ServiceHealthManagerDefault(failCallback, recoverCallback);
+    }
+
+
     /**
      * Get the public port for service meta generation (Swagger)
      *
@@ -419,9 +456,9 @@ public class ManagedServiceBuilder {
 
     /**
      * Get the actual port to bind to.
-     *
+     * <p>
      * Defaults to 8080.
-     *
+     * <p>
      * Looks for PORT under PORT_WEB, PORT0, PORT.
      *
      * @return actual http port to bind to.
@@ -534,7 +571,8 @@ public class ManagedServiceBuilder {
         return this;
     }
 
-    /** Finds the admin port.
+    /**
+     * Finds the admin port.
      * Searches  under environment variables, QBIT_ADMIN_PORT, ADMIN_PORT, PORT1
      */
     public String findAdminPort() {

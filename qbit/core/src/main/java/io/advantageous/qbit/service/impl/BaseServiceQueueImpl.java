@@ -83,7 +83,7 @@ import static io.advantageous.qbit.service.ServiceContext.serviceContext;
  * @author rhightower on 2/18/15.
  */
 public class BaseServiceQueueImpl implements ServiceQueue {
-    private static final ThreadLocal<ServiceQueue> serviceThreadLocal = new ThreadLocal<>();
+    protected static final ThreadLocal<ServiceQueue> serviceThreadLocal = new ThreadLocal<>();
     protected final QBitSystemManager systemManager;
     protected final Logger logger = LoggerFactory.getLogger(ServiceQueueImpl.class);
     protected final boolean debug = GlobalConstants.DEBUG && logger.isDebugEnabled();

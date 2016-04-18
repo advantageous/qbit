@@ -29,7 +29,7 @@ import io.advantageous.qbit.service.impl.BaseServiceQueueImpl;
 public class ServiceContext {
 
 
-    static final ServiceContext serviceContext = new ServiceContext();
+    protected static final ServiceContext serviceContext = new ServiceContext();
 
     public static ServiceContext serviceContext() {
         return serviceContext;
