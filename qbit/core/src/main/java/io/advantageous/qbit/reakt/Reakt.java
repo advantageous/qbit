@@ -5,13 +5,29 @@ import io.advantageous.qbit.reactive.CallbackBuilder;
 import io.advantageous.qbit.reactive.Reactor;
 import io.advantageous.reakt.Result;
 import io.advantageous.reakt.promise.Promise;
+import io.advantageous.reakt.promise.Promises;
 
 import java.util.concurrent.TimeoutException;
+import java.util.function.Consumer;
 
 /**
  * Converts Reakt promises and callbacks into QBit callbacks.
  */
 public class Reakt {
+
+
+
+    /**
+     * Creates a QBit callback based on promise created.
+     * @param promiseConsumer promise consumer
+     * @param <T> T
+     * @return QBit callback
+     */
+    public <T> Callback<T> callback(final Consumer<Promise<T>> promiseConsumer) {
+        Promise<T> promise = Promises.promise();
+        promiseConsumer.accept(promise);
+        return Reakt.convertPromise(promise);
+    }
 
     /**
      * Converts a Reakt promise into a QBit callback.

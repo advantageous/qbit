@@ -27,6 +27,7 @@ import io.advantageous.qbit.service.health.ServiceHealthManager;
 import io.advantageous.qbit.service.impl.ServiceHealthManagerDefault;
 import io.advantageous.qbit.service.stats.StatsCollector;
 import io.advantageous.qbit.system.QBitSystemManager;
+import io.advantageous.reakt.reactor.Reactor;
 
 import java.util.*;
 import java.util.function.Supplier;
