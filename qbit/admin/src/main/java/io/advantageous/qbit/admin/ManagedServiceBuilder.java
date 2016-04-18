@@ -360,9 +360,16 @@ public class ManagedServiceBuilder {
      */
     public String getPublicHost() {
 
+        /** This works in a Heroku like environment. */
         if (System.getenv("PUBLIC_HOST") != null) {
             publicHost = System.getenv("PUBLIC_HOST");
         }
+
+        /** This works in a mesosphere like environment. */
+        if (System.getenv("HOST") != null) {
+            publicHost = System.getenv("HOST");
+        }
+
         return publicHost;
     }
 
@@ -413,18 +420,23 @@ public class ManagedServiceBuilder {
     /**
      * Get the actual port to bind to.
      *
+     * Defaults to 8080.
+     *
+     * Looks for PORT under PORT_WEB, PORT0, PORT.
+     *
      * @return actual http port to bind to.
      */
     public int getPort() {
 
         if (port == 8080) {
-
             String sport = System.getenv("PORT_WEB");
+            /** Looks up port for Mesoshpere and the like. */
+            if (Str.isEmpty(sport)) {
+                sport = System.getenv("PORT0");
+            }
             if (Str.isEmpty(sport)) {
                 sport = System.getenv("PORT");
             }
-
-
             if (!Str.isEmpty(sport)) {
                 port = Integer.parseInt(sport);
             }
@@ -522,10 +534,20 @@ public class ManagedServiceBuilder {
         return this;
     }
 
+    /** Finds the admin port.
+     * Searches  under environment variables, QBIT_ADMIN_PORT, ADMIN_PORT, PORT1
+     */
     public String findAdminPort() {
+
         String qbitAdminPort = getAdminPort("QBIT_ADMIN_PORT");
+
         if (Str.isEmpty(qbitAdminPort)) {
-            qbitAdminPort = getAdminPort("PORT_ADMIN");
+            qbitAdminPort = getAdminPort("ADMIN_PORT");
+        }
+
+        /* Uses PORT1 for admin port for Mesosphere like environments. */
+        if (Str.isEmpty(qbitAdminPort)) {
+            qbitAdminPort = getAdminPort("PORT1");
         }
         return qbitAdminPort;
     }
