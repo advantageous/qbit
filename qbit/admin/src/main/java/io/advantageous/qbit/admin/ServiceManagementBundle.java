@@ -72,7 +72,7 @@ public class ServiceManagementBundle implements ServiceHealthManager {
      * @param statKey statKey
      * @param level   level
      */
-    protected void recordLevel(final String statKey, final long level) {
+    public void recordLevel(final String statKey, final long level) {
         final String longKey = getActualStatKey(statKey);
         stats.recordLevel(longKey, level);
     }
@@ -84,7 +84,7 @@ public class ServiceManagementBundle implements ServiceHealthManager {
      * @param statKey statKey
      * @param count   count
      */
-    protected void recordCount(final String statKey, final long count) {
+    public void recordCount(final String statKey, final long count) {
         final String longKey = getActualStatKey(statKey);
         stats.recordCount(longKey, count);
     }
@@ -94,10 +94,10 @@ public class ServiceManagementBundle implements ServiceHealthManager {
      *
      * @param statKey statKey
      */
-    protected void incrementCount(final String statKey) {
+    public void increment(final String statKey) {
 
         final String longKey = getActualStatKey(statKey);
-        stats.recordCount(longKey, 1);
+        stats.increment(longKey);
     }
 
 
@@ -107,7 +107,7 @@ public class ServiceManagementBundle implements ServiceHealthManager {
      * @param statKey  statKey
      * @param timeSpan timeSpan
      */
-    protected void recordTiming(String statKey, long timeSpan) {
+    public void recordTiming(String statKey, long timeSpan) {
         final String longKey = getActualStatKey(statKey);
         stats.recordTiming(longKey, timeSpan);
     }
