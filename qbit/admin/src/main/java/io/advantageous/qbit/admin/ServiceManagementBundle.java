@@ -51,6 +51,7 @@ public class ServiceManagementBundle implements ServiceHealthManager {
         time = timer.time();
         reactor.process();
         processHandler.ifPresent(Runnable::run);
+        stats.clientProxyFlush();
 
     }
 

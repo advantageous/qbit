@@ -140,4 +140,8 @@ public class ServiceManagementBundleBuilder {
         return new ServiceManagementBundle(getReactor(), getStatsCollector(), getServiceHealthManager(),
                 getServiceName(), getTimer(), getStatKeyPrefix(), getProcessHandler());
     }
+
+    public static ServiceManagementBundleBuilder serviceManagementBundleBuilder() {
+        return new ServiceManagementBundleBuilder();
+    }
 }
