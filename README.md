@@ -21,23 +21,26 @@ QBit is FAST!
 ![QBit the microservice framework for java](https://docs.google.com/spreadsheets/d/1kd3gjyyz1MyTJvNLJ-BC0YIkzIU-8YYLLrxpjUl0TBQ/pubchart?oid=781959089&format=image)
 
 #### Using from maven
+
+QBit is published to the [maven public repo](http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22io.advantageous.qbit%22%20). 
+
 ```xml
 <dependency>
     <groupId>io.advantageous.qbit</groupId>
     <artifactId>qbit-admin</artifactId>
-    <version>1.0.0.RELEASE</version>
+    <version>1.3.0.RELEASE</version>
 </dependency>
 <dependency>
     <groupId>io.advantageous.qbit</groupId>
     <artifactId>qbit-vertx</artifactId>
-    <version>1.0.0.RELEASE</version>
+    <version>1.3.0.RELEASE</version>
 </dependency>
 ```
 
 #### Using from gradle
 ```java
-compile 'io.advantageous.qbit:qbit-admin:1.0.0.RELEASE'
-compile 'io.advantageous.qbit:qbit-vertx:1.0.0.RELEASE'
+compile 'io.advantageous.qbit:qbit-admin:1.3.0.RELEASE'
+compile 'io.advantageous.qbit:qbit-vertx:1.3.0.RELEASE'
 ```
 
 Core Features
