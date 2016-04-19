@@ -17,7 +17,7 @@ import java.util.function.Consumer;
  * Common things that you need for QBit/Reakt services.
  * Gets rid of most of the boilerplate code.
  */
-public class ServiceManagementBundle implements ServiceHealthManager {
+public class ServiceManagementBundle implements ServiceHealthManager, StatsCollector {
 
     private final Reactor reactor;
     private final StatsCollector stats;
@@ -73,6 +73,7 @@ public class ServiceManagementBundle implements ServiceHealthManager {
      * @param statKey statKey
      * @param level   level
      */
+    @Override
     public void recordLevel(final String statKey, final long level) {
         final String longKey = getActualStatKey(statKey);
         stats.recordLevel(longKey, level);
@@ -85,6 +86,7 @@ public class ServiceManagementBundle implements ServiceHealthManager {
      * @param statKey statKey
      * @param count   count
      */
+    @Override
     public void recordCount(final String statKey, final long count) {
         final String longKey = getActualStatKey(statKey);
         stats.recordCount(longKey, count);
@@ -95,6 +97,7 @@ public class ServiceManagementBundle implements ServiceHealthManager {
      *
      * @param statKey statKey
      */
+    @Override
     public void increment(final String statKey) {
 
         final String longKey = getActualStatKey(statKey);
@@ -108,6 +111,7 @@ public class ServiceManagementBundle implements ServiceHealthManager {
      * @param statKey  statKey
      * @param timeSpan timeSpan
      */
+    @Override
     public void recordTiming(String statKey, long timeSpan) {
         final String longKey = getActualStatKey(statKey);
         stats.recordTiming(longKey, timeSpan);
@@ -158,11 +162,18 @@ public class ServiceManagementBundle implements ServiceHealthManager {
 
     @Override
     public void setFailing() {
+        increment("fail");
         healthManager.setFailing();
     }
 
     @Override
     public void recover() {
+        increment("recovered");
         healthManager.recover();
+    }
+
+    @Override
+    public void clientProxyFlush() {
+        this.stats.clientProxyFlush();
     }
 }
