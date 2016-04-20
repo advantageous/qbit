@@ -132,12 +132,12 @@ public class LowLevelWriteBehindReadFallbackKeyValueStore implements LowLevelKey
 
         callbackBuilderForLocal.withCallback(Optional.class, optional -> {
             if (optional.isPresent()) {
-                callback.returnThis(optional);
+                callback.resolve(optional);
             } else {
 
                 final CallbackBuilder callbackBuilderForRemote = reactor.callbackBuilder().delegateWithLogging(callback,
                         logger, String.format("Get %s from remote", key));
-                callbackBuilderForRemote.withCallback(Optional.class, callback::returnThis);
+                callbackBuilderForRemote.withCallback(Optional.class, callback::resolve);
                 remoteKeyValueStore.getString(callbackBuilderForRemote.build(), key);
             }
         });
@@ -205,12 +205,12 @@ public class LowLevelWriteBehindReadFallbackKeyValueStore implements LowLevelKey
 
         callbackBuilderForLocal.withCallback(Optional.class, optional -> {
             if (optional.isPresent()) {
-                callback.returnThis(optional);
+                callback.resolve(optional);
             } else {
 
                 final CallbackBuilder callbackBuilderForRemote = reactor.callbackBuilder().delegateWithLogging(callback,
                         logger, String.format("Get %s from remote", key));
-                callbackBuilderForRemote.withCallback(Optional.class, callback::returnThis);
+                callbackBuilderForRemote.withCallback(Optional.class, callback::resolve);
                 remoteKeyValueStore.getBytes(callbackBuilderForRemote.build(), key);
             }
         });
@@ -227,12 +227,12 @@ public class LowLevelWriteBehindReadFallbackKeyValueStore implements LowLevelKey
 
         callbackBuilderForLocal.withCallback(Boolean.class, present -> {
             if (present) {
-                hasKeyCallback.returnThis(true);
+                hasKeyCallback.resolve(true);
             } else {
 
                 final CallbackBuilder callbackBuilderForRemote = reactor.callbackBuilder().delegateWithLogging(hasKeyCallback,
                         logger, String.format("Get %s from remote", key));
-                callbackBuilderForRemote.withCallback(Boolean.class, hasKeyCallback::returnThis);
+                callbackBuilderForRemote.withCallback(Boolean.class, hasKeyCallback::resolve);
                 remoteKeyValueStore.hasKey(callbackBuilderForRemote.build(), key);
             }
         });

@@ -40,7 +40,7 @@ public class EmployeeServiceCollectionTestService {
 
         System.out.println(employeeList);
 
-        callback.returnThis(true);
+        callback.resolve(true);
     }
 
 
@@ -66,7 +66,7 @@ public class EmployeeServiceCollectionTestService {
 
         System.out.println("Set " + employeeList);
 
-        callback.returnThis(true);
+        callback.resolve(true);
     }
 
 
@@ -92,7 +92,7 @@ public class EmployeeServiceCollectionTestService {
 
         System.out.println("Array " + Lists.list(employeeList));
 
-        callback.returnThis(true);
+        callback.resolve(true);
     }
 
 
@@ -102,7 +102,7 @@ public class EmployeeServiceCollectionTestService {
 
         System.out.println("Map " + employeeMap);
 
-        callback.returnThis(true);
+        callback.resolve(true);
     }
 
 
@@ -114,7 +114,7 @@ public class EmployeeServiceCollectionTestService {
 
     @RequestMapping("/returnListByCallback")
     public void returnListByCallback(Callback<List<Employee>> callback) {
-        callback.returnThis(Lists.list(new Employee(1, "Rick"), new Employee(2, "Diana")));
+        callback.resolve(Lists.list(new Employee(1, "Rick"), new Employee(2, "Diana")));
     }
 
 
@@ -132,13 +132,13 @@ public class EmployeeServiceCollectionTestService {
 
     @RequestMapping("/returnArrayByCallback")
     public void returnArrayByCallback(Callback<Employee[]> callback) {
-        callback.returnThis(new Employee[]{new Employee(1, "Rick"), new Employee(2, "Diana")});
+        callback.resolve(new Employee[]{new Employee(1, "Rick"), new Employee(2, "Diana")});
     }
 
 
     @RequestMapping("/returnSetByCallback")
     public void returnSetByCallback(Callback<Set<Employee>> callback) {
-        callback.returnThis(Sets.set(new Employee(1, "Rick"), new Employee(2, "Diana")));
+        callback.resolve(Sets.set(new Employee(1, "Rick"), new Employee(2, "Diana")));
     }
 
 
@@ -150,7 +150,7 @@ public class EmployeeServiceCollectionTestService {
 
     @RequestMapping("/returnMapByCallback")
     public void returnMapByCallback(Callback<Map<String, Employee>> callback) {
-        callback.returnThis(Maps.map("1", new Employee(1, "Rick"), "2", new Employee(2, "Diana")));
+        callback.resolve(Maps.map("1", new Employee(1, "Rick"), "2", new Employee(2, "Diana")));
     }
 
 

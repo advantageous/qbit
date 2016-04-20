@@ -30,7 +30,7 @@ import org.slf4j.LoggerFactory;
  * Was called Handler and created by Rick Hightower quite a bit before 10/14/14
  */
 
-public interface Callback<T> extends io.advantageous.reakt.Callback<T>{
+public interface Callback<T> extends io.advantageous.reakt.Callback<T> {
 
 
     /**
@@ -62,5 +62,50 @@ public interface Callback<T> extends io.advantageous.reakt.Callback<T>{
             accept(result.get());
         }
     }
+
+
+    /**
+     * Called if there is a timeout.
+     * <p>
+     * This will be taken out in Reakt 3.0 (and QBit 2.0).
+     * Use reject instead.
+     */
+    default void onTimeout() {
+    }
+
+
+    /**
+     * Service View (service)
+     * Return an error message
+     * alias for reject.
+     * <p>
+     * This will be taken out in Reakt 3.0 (and QBit 2.0).
+     * Use reject instead.
+     *
+     * @param error error
+     */
+    @Deprecated
+    @SuppressWarnings("deprecated")
+    default void returnError(final String error) {
+        reject(error);
+    }
+
+
+    /**
+     * Service View (service)
+     * alias for reply
+     * <p>
+     * This will be taken out in Reakt 3.0 (and QBit 2.0).
+     * Use resolve or reply instead.
+     *
+     * @param thisReturn the value to return.
+     */
+    @Deprecated
+    @SuppressWarnings("deprecated")
+    default void returnThis(T thisReturn) {
+        resolve(thisReturn);
+    }
+
+
 }
 

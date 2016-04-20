@@ -16,19 +16,6 @@ import java.util.function.Consumer;
 public class Reakt {
 
 
-
-    /**
-     * Creates a QBit callback based on promise created.
-     * @param promiseConsumer promise consumer
-     * @param <T> T
-     * @return QBit callback
-     */
-    public <T> Callback<T> callback(final Consumer<Promise<T>> promiseConsumer) {
-        Promise<T> promise = Promises.promise();
-        promiseConsumer.accept(promise);
-        return Reakt.convertPromise(promise);
-    }
-
     /**
      * Converts a Reakt promise into a QBit callback.
      *
@@ -64,7 +51,6 @@ public class Reakt {
         return convertReaktCallbackToQBitCallback(callback, CallbackBuilder.callbackBuilder());
     }
 
-
     /**
      * Converts a Reakt callback into a QBit callback.
      *
@@ -82,7 +68,6 @@ public class Reakt {
             }
         };
     }
-
 
     /**
      * Converts a Reakt callback into a QBit callback.
@@ -112,6 +97,19 @@ public class Reakt {
                 .withErrorHandler(throwable -> callback.onResult(Result.error(throwable)))
                 .withTimeoutHandler(() -> callback.onResult(Result.error(new TimeoutException()))).build();
 
+    }
+
+    /**
+     * Creates a QBit callback based on promise created.
+     *
+     * @param promiseConsumer promise consumer
+     * @param <T>             T
+     * @return QBit callback
+     */
+    public <T> Callback<T> callback(final Consumer<Promise<T>> promiseConsumer) {
+        Promise<T> promise = Promises.promise();
+        promiseConsumer.accept(promise);
+        return Reakt.convertPromise(promise);
     }
 
 }

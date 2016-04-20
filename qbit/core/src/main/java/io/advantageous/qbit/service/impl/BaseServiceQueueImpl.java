@@ -57,7 +57,6 @@ import io.advantageous.qbit.client.ClientProxy;
 import io.advantageous.qbit.concurrent.PeriodicScheduler;
 import io.advantageous.qbit.events.EventManager;
 import io.advantageous.qbit.message.*;
-import io.advantageous.qbit.message.impl.MethodCallLocal;
 import io.advantageous.qbit.queue.*;
 import io.advantageous.qbit.service.*;
 import io.advantageous.qbit.system.QBitSystemManager;
@@ -73,7 +72,6 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.util.Collection;
 import java.util.Optional;
-import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 

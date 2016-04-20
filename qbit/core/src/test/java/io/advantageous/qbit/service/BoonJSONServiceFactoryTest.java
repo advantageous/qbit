@@ -18,7 +18,6 @@
 
 package io.advantageous.qbit.service;
 
-import io.advantageous.qbit.QBit;
 import io.advantageous.qbit.boon.service.impl.BoonServiceProxyFactory;
 import io.advantageous.qbit.client.BeforeMethodSent;
 import io.advantageous.qbit.client.ServiceProxyFactory;

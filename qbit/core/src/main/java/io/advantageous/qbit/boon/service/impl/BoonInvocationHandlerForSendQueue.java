@@ -17,25 +17,22 @@ import java.util.UUID;
 
 import static io.advantageous.boon.core.Str.sputs;
 
-public class BoonInvocationHandlerForSendQueue implements InvocationHandler{
+public class BoonInvocationHandlerForSendQueue implements InvocationHandler {
 
     private final String serviceName;
     private final String returnAddress;
+    private final BeforeMethodSent beforeMethodSent;
+    private final SendQueue<MethodCall<Object>> sendQueue;
     private long generatedMessageId;
     private long timestamp;
     private int times;
     private Map<String, Boolean> methodMetaMap = new HashMap<>();
     private Map<String, Boolean> promiseMap = new HashMap<>();
 
-
-    private final BeforeMethodSent beforeMethodSent;
-
-    private final SendQueue<MethodCall<Object>> sendQueue;
-
     public BoonInvocationHandlerForSendQueue(SendQueue<MethodCall<Object>> sendQueue,
-                                      Class<?> serviceInterface,
-                                      String serviceName,
-                                      BeforeMethodSent beforeMethodSent) {
+                                             Class<?> serviceInterface,
+                                             String serviceName,
+                                             BeforeMethodSent beforeMethodSent) {
         this.serviceName = serviceName;
         this.returnAddress = serviceInterface.getName() + "::" + UUID.randomUUID().toString();
         this.sendQueue = sendQueue;

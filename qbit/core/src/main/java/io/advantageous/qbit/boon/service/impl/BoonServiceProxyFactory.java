@@ -26,6 +26,7 @@ import io.advantageous.qbit.client.ClientProxy;
 import io.advantageous.qbit.client.RemoteTCPClientProxy;
 import io.advantageous.qbit.client.ServiceProxyFactory;
 import io.advantageous.qbit.service.EndPoint;
+
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Proxy;
 import java.util.UUID;
@@ -44,6 +45,7 @@ public class BoonServiceProxyFactory implements ServiceProxyFactory {
      * Holds on to Boon cache so we don't have to recreate reflected gak.
      */
     Object context = Sys.contextToHold();
+
     public BoonServiceProxyFactory() {
     }
 
@@ -112,7 +114,6 @@ public class BoonServiceProxyFactory implements ServiceProxyFactory {
     public <T> T createProxy(Class<T> serviceInterface, String serviceName, EndPoint endPoint, BeforeMethodSent beforeMethodSent) {
         return createProxyWithReturnAddress(serviceInterface, serviceName, "local", 0, new AtomicBoolean(true), "", endPoint, beforeMethodSent);
     }
-
 
 
 }

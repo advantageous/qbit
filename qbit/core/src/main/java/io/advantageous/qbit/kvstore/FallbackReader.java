@@ -7,11 +7,11 @@ import java.util.Optional;
 public interface FallbackReader<T> {
 
     default void get(Callback<Optional<T>> callback, String key) {
-        callback.returnThis(Optional.<T>empty());
+        callback.resolve(Optional.<T>empty());
     }
 
     default void hasKey(Callback<Boolean> callback, String key) {
-        callback.returnThis(false);
+        callback.resolve(false);
     }
 
     default void flushRequests() {

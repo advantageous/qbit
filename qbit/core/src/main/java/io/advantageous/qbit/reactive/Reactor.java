@@ -610,7 +610,7 @@ public class Reactor {
                 if (logger.isDebugEnabled()) {
                     logger.debug("{} returned {}", operationDescription, t);
                 }
-                callback.returnThis(t);
+                callback.resolve(t);
             }
 
         /* Provide some boiler plate error handling. */
@@ -651,7 +651,7 @@ public class Reactor {
                 if (logger.isDebugEnabled()) {
                     logger.debug("{} returned {}", operationDescription, t);
                 }
-                callback.returnThis(t);
+                callback.resolve(t);
             }
 
         /* Provide some boiler plate error handling. */
@@ -689,7 +689,7 @@ public class Reactor {
                 if (logger.isDebugEnabled()) {
                     logger.debug("{} returned {}", operationDescription, t);
                 }
-                callback.returnThis(t);
+                callback.resolve(t);
             }
         }).setOnError(error -> {
             logger.error(String.format("ERROR calling %s", operationDescription), error);
@@ -727,7 +727,7 @@ public class Reactor {
                 if (logger.isDebugEnabled()) {
                     logger.debug("{} returned {}", operationDescription, t);
                 }
-                callback.returnThis(t);
+                callback.resolve(t);
             }
         }).setOnError(error -> {
             logger.error(String.format("ERROR calling %s", operationDescription), error);

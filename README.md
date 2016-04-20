@@ -396,7 +396,7 @@ You can return any binary or any text by using `HttpBinaryResponse` and `HttpTex
       @RequestMapping(method = RequestMethod.GET)
         public void ping2(Callback<HttpTextResponse> callback) {
 
-            callback.returnThis(HttpResponseBuilder.httpResponseBuilder()
+            callback.resolve(HttpResponseBuilder.httpResponseBuilder()
                     .setBody("hello mom").setContentType("mom")
                     .setCode(777)
                     .buildTextResponse());
@@ -409,7 +409,7 @@ You can return any binary or any text by using `HttpBinaryResponse` and `HttpTex
       @RequestMapping(method = RequestMethod.GET)
         public void ping2(Callback<HttpBinaryResponse> callback) {
 
-            callback.returnThis(HttpResponseBuilder.httpResponseBuilder()
+            callback.resolve(HttpResponseBuilder.httpResponseBuilder()
                     .setBody("hello mom").setContentType("mom")
                     .setCode(777)
                     .buildBinaryResponse());

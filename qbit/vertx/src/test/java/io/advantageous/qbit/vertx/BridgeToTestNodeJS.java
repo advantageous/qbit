@@ -74,7 +74,7 @@ public class BridgeToTestNodeJS extends AbstractVerticle {
     public static class TestService {
         public void test(Callback<Boolean> callback, final String newValue) {
             System.out.println("HERE::" + newValue);
-            callback.returnThis(true);
+            callback.resolve(true);
         }
     }
 }
