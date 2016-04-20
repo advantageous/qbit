@@ -1,7 +1,7 @@
 [QBit Java Micorservices lib tutorials](https://github.com/MammatusTech/qbit-microservices-examples/wiki)|
 [QBit Website](http://advantageous.github.io/qbit/) | [QBit uses Reakt](http://advantageous.github.io/reakt/) | [QBit works with Vert.x](http://vertx.io/) | [Reakt Vertx](http://advantageous.github.io/reakt-vertx/)
 
-#qbit - The Microservice Lib for Java - JSON, REST, WebSocket, Speed! 
+# QBit - The Microservice Lib for Java - JSON, REST, WebSocket, Speed! 
 [![Build Status](https://travis-ci.org/advantageous/qbit.svg)](https://travis-ci.org/advantageous/qbit) [![Join the chat at https://gitter.im/advantageous/qbit](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/advantageous/qbit?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 ## Quick overview of QBit
@@ -20,6 +20,7 @@ QBit is FAST!
 
 ![QBit the microservice framework for java](https://docs.google.com/spreadsheets/d/1kd3gjyyz1MyTJvNLJ-BC0YIkzIU-8YYLLrxpjUl0TBQ/pubchart?oid=781959089&format=image)
 
+## Getting started
 #### Using from maven
 
 QBit is published to the [maven public repo](http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22io.advantageous.qbit%22%20). 

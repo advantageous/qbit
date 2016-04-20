@@ -297,8 +297,7 @@ public class HealthServiceImpl extends BaseService implements HealthService, Sto
                 .stream()
                 .allMatch(serviceHealthStat -> serviceHealthStat.getStatus() == HealthStatus.PASS);
 
-
-        logger.error("HealthService::ok() was ok? {}", ok);
+        if (debug) logger.debug("HealthService::ok() was ok? {}", ok);
         return ok;
     }
 
