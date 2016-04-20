@@ -19,7 +19,6 @@
 package io.advantageous.qbit.message;
 
 import io.advantageous.qbit.message.impl.MethodCallImpl;
-import io.advantageous.qbit.message.impl.MethodCallLocal;
 import io.advantageous.qbit.reactive.Callback;
 import io.advantageous.qbit.service.Protocol;
 import io.advantageous.qbit.util.MultiMap;
@@ -207,12 +206,9 @@ public class MethodCallBuilder {
     public MethodCall<Object> build() {
 
 
-        if (isLocal()) {
-            return new MethodCallLocal(getName(), getReturnAddress(), getTimestamp(), getId(), getBodyArgs(), getCallback(), getOriginatingRequest());
-        } else {
-            return new MethodCallImpl(getTimestamp(), getId(), getName(), getAddress(), getParams(), getHeaders(),
+        return new MethodCallImpl(getTimestamp(), getId(), getName(), getAddress(), getParams(), getHeaders(),
                     getBody(), getObjectName(), getReturnAddress(), getOriginatingRequest(), callback);
-        }
+
 
     }
 
