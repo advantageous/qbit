@@ -20,6 +20,8 @@ package io.advantageous.qbit.reactive;
 
 import org.slf4j.LoggerFactory;
 
+import java.util.concurrent.TimeoutException;
+
 /**
  * Extends the JDK Consumer to provide a default error handler for RPC callbacks.
  * Note: This was boon Handler but we switched to JDK 8 Consumer style callbackWithTimeout.
@@ -28,7 +30,7 @@ import org.slf4j.LoggerFactory;
  * Was called Handler and created by Rick Hightower quite a bit before 10/14/14
  */
 
-public interface Callback<T> {
+public interface Callback<T> extends io.advantageous.reakt.Callback<T>{
 
 
     /**
@@ -41,6 +43,8 @@ public interface Callback<T> {
 
         LoggerFactory.getLogger(Callback.class)
                 .error(error.getMessage(), error);
+
+        reject(error);
     }
 
     /**
@@ -50,42 +54,7 @@ public interface Callback<T> {
      * @param error error
      */
     default void returnError(final String error) {
-        onError(new IllegalStateException(error));
-    }
-
-
-    /**
-     * Service View (service)
-     * Return an error message.
-     * Added to make migration to Reakt easier.
-     *
-     * @param error error
-     */
-    default void reject(final String error) {
-        onError(new IllegalStateException(error));
-    }
-
-
-    /**
-     * Service View (service)
-     * Return an error message.
-     * Added to make migration to Reakt easier.
-     *
-     * @param error error
-     */
-    default void reject(final Throwable error) {
-        onError(error);
-    }
-
-    /**
-     * Service View (service)
-     * Return an error message.
-     * Added to make migration to Reakt easier.
-     *
-     * @param error error
-     */
-    default void reject(final String errorMessage, final Throwable error) {
-        onError(new IllegalStateException(errorMessage, error));
+        reject(error);
     }
 
 
@@ -93,16 +62,8 @@ public interface Callback<T> {
      * Called if there is a timeout.
      */
     default void onTimeout() {
-
+        reject(new TimeoutException());
     }
-
-    /**
-     * Client View (client of the service)
-     * Performs this operation on the given argument.
-     *
-     * @param t the input argument
-     */
-    void accept(T t);
 
 
     /**
