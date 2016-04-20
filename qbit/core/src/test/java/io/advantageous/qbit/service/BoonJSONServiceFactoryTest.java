@@ -42,7 +42,7 @@ public class BoonJSONServiceFactoryTest {
 
     @Before
     public void setup() {
-        boonJSONServiceFactory = new BoonServiceProxyFactory(QBit.factory());
+        boonJSONServiceFactory = new BoonServiceProxyFactory();
         objectUnderTest = boonJSONServiceFactory;
         methodCalls = new ArrayList<>();
         flushCounter = 0;

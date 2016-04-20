@@ -18,9 +18,9 @@
 
 package io.advantageous.qbit.reactive;
 
+import io.advantageous.reakt.Result;
 import org.slf4j.LoggerFactory;
 
-import java.util.concurrent.TimeoutException;
 
 /**
  * Extends the JDK Consumer to provide a default error handler for RPC callbacks.
@@ -44,57 +44,23 @@ public interface Callback<T> extends io.advantageous.reakt.Callback<T>{
         LoggerFactory.getLogger(Callback.class)
                 .error(error.getMessage(), error);
 
-        reject(error);
     }
 
     /**
-     * Service View (service)
-     * Return an error message
+     * Performs this operation on the given argument.
      *
-     * @param error error
+     * @param t the input argument
      */
-    default void returnError(final String error) {
-        reject(error);
-    }
+    void accept(T t);
 
 
-    /**
-     * Called if there is a timeout.
-     */
-    default void onTimeout() {
-        reject(new TimeoutException());
-    }
-
-
-    /**
-     * Service View (service)
-     *
-     * @param thisReturn the value to return.
-     */
-    default void returnThis(T thisReturn) {
-        accept(thisReturn);
-    }
-
-
-    /**
-     * Service View (service)
-     * Added to make migration to Reakt easier.
-     *
-     * @param thisReturn the value to return.
-     */
-    default void reply(T thisReturn) {
-        accept(thisReturn);
-    }
-
-
-    /**
-     * Service View (service)
-     * Added to make migration to Reakt easier.
-     *
-     * @param thisReturn the value to return.
-     */
-    default void resolve(T thisReturn) {
-        accept(thisReturn);
+    @Override
+    default void onResult(Result<T> result) {
+        if (result.failure()) {
+            onError(result.cause());
+        } else {
+            accept(result.get());
+        }
     }
 }
 
