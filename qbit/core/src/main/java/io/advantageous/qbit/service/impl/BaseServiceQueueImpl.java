@@ -64,6 +64,7 @@ import io.advantageous.qbit.time.Duration;
 import io.advantageous.qbit.transforms.NoOpResponseTransformer;
 import io.advantageous.qbit.transforms.Transformer;
 import io.advantageous.qbit.util.Timer;
+import io.advantageous.reakt.promise.Promise;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -198,6 +199,63 @@ public class BaseServiceQueueImpl implements ServiceQueue {
         });
 
 
+    }
+
+
+    /**
+     * This method is where all of the action is.
+     *
+     * @param methodCall           methodCall
+     * @param serviceMethodHandler handler
+     */
+    private boolean doHandleMethodCall(MethodCall<Object> methodCall,
+                                       final ServiceMethodHandler serviceMethodHandler) {
+        if (debug) {
+            logger.debug("ServiceImpl::doHandleMethodCall() METHOD CALL" + methodCall);
+        }
+        if (callbackManager != null) {
+
+            if (methodCall.hasCallback() && serviceMethodHandler.couldHaveCallback(methodCall.name())) {
+                callbackManager.registerCallbacks(methodCall);
+            }
+        }
+        //inputQueueListener.receive(methodCall);
+        final boolean continueFlag[] = new boolean[1];
+        methodCall = beforeMethodProcessing(methodCall, continueFlag);
+        if (continueFlag[0]) {
+            if (debug) logger.debug("ServiceImpl::doHandleMethodCall() before handling stopped processing");
+            return false;
+        }
+        Response<Object> response = serviceMethodHandler.receiveMethodCall(methodCall);
+        if (response != ServiceConstants.VOID) {
+
+            if (!afterMethodCall.after(methodCall, response)) {
+                return false;
+            }
+            //noinspection unchecked
+            response = responseObjectTransformer.transform(response);
+
+            if (!afterMethodCallAfterTransform.after(methodCall, response)) {
+                return false;
+            }
+
+            if (debug) {
+                if (response.body() instanceof Throwable) {
+
+                    logger.error("Unable to handle call ", ((Throwable) response.body()));
+
+                }
+            }
+            if (!responseSendQueue.send(response)) {
+                logger.error("Unable to send response {} for method {} for object {}",
+                        response,
+                        methodCall.name(),
+                        methodCall.objectName());
+            }
+
+        }
+
+        return false;
     }
 
     public static ServiceQueue currentService() {
@@ -345,61 +403,6 @@ public class BaseServiceQueueImpl implements ServiceQueue {
         return this;
     }
 
-    /**
-     * This method is where all of the action is.
-     *
-     * @param methodCall           methodCall
-     * @param serviceMethodHandler handler
-     */
-    private boolean doHandleMethodCall(MethodCall<Object> methodCall,
-                                       final ServiceMethodHandler serviceMethodHandler) {
-        if (debug) {
-            logger.debug("ServiceImpl::doHandleMethodCall() METHOD CALL" + methodCall);
-        }
-        if (callbackManager != null) {
-
-            if (methodCall.hasCallback() && serviceMethodHandler.couldHaveCallback(methodCall.name())) {
-                callbackManager.registerCallbacks(methodCall);
-            }
-        }
-        //inputQueueListener.receive(methodCall);
-        final boolean continueFlag[] = new boolean[1];
-        methodCall = beforeMethodProcessing(methodCall, continueFlag);
-        if (continueFlag[0]) {
-            if (debug) logger.debug("ServiceImpl::doHandleMethodCall() before handling stopped processing");
-            return false;
-        }
-        Response<Object> response = serviceMethodHandler.receiveMethodCall(methodCall);
-        if (response != ServiceConstants.VOID) {
-
-            if (!afterMethodCall.after(methodCall, response)) {
-                return false;
-            }
-            //noinspection unchecked
-            response = responseObjectTransformer.transform(response);
-
-            if (!afterMethodCallAfterTransform.after(methodCall, response)) {
-                return false;
-            }
-
-            if (debug) {
-                if (response.body() instanceof Throwable) {
-
-                    logger.error("Unable to handle call ", ((Throwable) response.body()));
-
-                }
-            }
-            if (!responseSendQueue.send(response)) {
-                logger.error("Unable to send response {} for method {} for object {}",
-                        response,
-                        methodCall.name(),
-                        methodCall.objectName());
-            }
-
-        }
-
-        return false;
-    }
 
     private void start(final ServiceMethodHandler serviceMethodHandler,
                        final boolean joinEventManager) {
@@ -697,8 +700,8 @@ public class BaseServiceQueueImpl implements ServiceQueue {
         final Method[] declaredMethods = classMeta.cls().getDeclaredMethods();
 
         for (Method m : declaredMethods) {
-            if (!(m.getReturnType() == void.class)) {
-                throw new IllegalStateException("Async interface can only return void " + serviceInterface.getName());
+            if (!(m.getReturnType() == void.class || m.getReturnType() == Promise.class)) {
+                throw new IllegalStateException("Async interface can only return void or a Promise " + serviceInterface.getName());
             }
         }
 

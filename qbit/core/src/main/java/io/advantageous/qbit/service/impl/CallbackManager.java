@@ -4,9 +4,6 @@ import io.advantageous.qbit.message.MethodCall;
 import io.advantageous.qbit.message.Response;
 import io.advantageous.qbit.queue.Queue;
 
-/**
- * Created by rhightower on 6/14/15.
- */
 public interface CallbackManager {
     void registerCallbacks(MethodCall<Object> methodCall);
 

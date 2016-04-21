@@ -13,6 +13,7 @@ public class InvokePromiseWithSendQueue extends BasePromise<Object> implements I
     private final MethodCallBuilder methodCallBuilder;
     private final SendQueue<MethodCall<Object>> sendQueue;
     private final BeforeMethodSent beforeMethodSent;
+    private boolean invoked;
 
     public InvokePromiseWithSendQueue(SendQueue<MethodCall<Object>> sendQueue, MethodCallBuilder methodCallBuilder,
                                       BeforeMethodSent beforeMethodSent) {
@@ -23,8 +24,12 @@ public class InvokePromiseWithSendQueue extends BasePromise<Object> implements I
 
     @Override
     public void invoke() {
+        if (invoked) {
+            throw new IllegalStateException("Can't call promise invoke twice.");
+        }
+        invoked = true;
         methodCallBuilder.setCallback(Reakt.convertPromise(this));
-        beforeMethodSent.beforeMethodSent(methodCallBuilder);
+        if (beforeMethodSent != null) beforeMethodSent.beforeMethodSent(methodCallBuilder);
         sendQueue.send(methodCallBuilder.build());
     }
 

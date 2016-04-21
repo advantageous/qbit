@@ -79,6 +79,7 @@ public class BoonInvocationHandlerForSendQueue implements InvocationHandler {
         if (isPromise(method)) {
 
             final MethodCallBuilder methodCallBuilder = createMethodBuilder(method, args);
+
             return new InvokePromiseWithSendQueue(sendQueue, methodCallBuilder, beforeMethodSent);
         } else {
             return doInvoke(method, args);
