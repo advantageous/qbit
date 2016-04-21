@@ -130,6 +130,7 @@ subprojects {
 project('core') {
 
     dependencies {
+        compile "io.advantageous.metrik:metrik:0.1.0"
         compile "$boonGroup:boon-reflekt:$boonVersion"
         compile "$boonGroup:boon-json:$boonVersion"
         compile 'org.reactivestreams:reactive-streams:1.0.0'
