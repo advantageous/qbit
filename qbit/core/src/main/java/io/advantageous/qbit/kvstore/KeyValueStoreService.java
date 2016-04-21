@@ -73,7 +73,7 @@ public interface KeyValueStoreService<T> {
      */
     default void get(final Callback<Optional<T>> callback,
                      final String key) {
-        callback.returnThis(Optional.<T>empty());
+        callback.resolve(Optional.<T>empty());
     }
 
 
@@ -85,7 +85,7 @@ public interface KeyValueStoreService<T> {
      */
     default void hasKey(final Callback<Boolean> hasKeyCallback,
                         final java.lang.String key) {
-        hasKeyCallback.returnThis(false);
+        hasKeyCallback.resolve(false);
     }
 
 
@@ -105,7 +105,7 @@ public interface KeyValueStoreService<T> {
      */
     default void deleteWithConfirmation(final Callback<Boolean> confirmation,
                                         final java.lang.String key) {
-        confirmation.returnThis(true);
+        confirmation.resolve(true);
     }
 
 

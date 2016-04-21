@@ -80,8 +80,8 @@ public class BoonQBitFactory implements Factory {
     private final AtomicReference<ServiceQueue> systemEventManager = new AtomicReference<>();
     private final ThreadLocal<EventManager> eventManagerThreadLocal = new ThreadLocal<>();
     private final ProtocolParser defaultProtocol = new BoonProtocolParser();
-    private final ServiceProxyFactory serviceProxyFactory = new BoonServiceProxyFactory(this);
-    private final ServiceProxyFactory remoteServiceProxyFactory = new BoonServiceProxyFactory(this);
+    private final ServiceProxyFactory serviceProxyFactory = new BoonServiceProxyFactory();
+    private final ServiceProxyFactory remoteServiceProxyFactory = new BoonServiceProxyFactory();
     private final ThreadLocal<List<ProtocolParser>> protocolParserListRef = new ThreadLocal<List<ProtocolParser>>() {
 
         @Override

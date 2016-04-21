@@ -140,7 +140,7 @@ public class DnsSupport {
                 {
                     if (event.succeeded()) {
                         if (debug) logger.debug("loadServiceEndpointsByDNSService SUCCESS serviceURL={} ", serviceURL);
-                        callback.returnThis(convertEndpoints(event.result()));
+                        callback.resolve(convertEndpoints(event.result()));
                     } else {
 
                         Throwable error = event.cause();
@@ -164,7 +164,7 @@ public class DnsSupport {
 
                 if (debug)
                     logger.debug("loadServiceEndpointsByDNSService FAIL OVER SUCCESS serviceURL={} ", serviceURL);
-                callback.returnThis(convertEndpoints(event.result()));
+                callback.resolve(convertEndpoints(event.result()));
             } else {
 
                 logger.info("loadServiceEndpointsByDNSService FAIL OVER FAILURE  " + serviceURL, event.cause());

@@ -65,7 +65,7 @@ public class BoonServiceMethodCallHandler implements ServiceMethodHandler {
     private final Object context = Sys.contextToHold();
     private final Map<String, MethodAccess> eventMap = new ConcurrentHashMap<>();
     private ClassMeta<Class<?>> classMeta;
-    private Object service;
+    protected Object service;
     private QueueCallBackHandler queueCallBackHandler;
     private String address = "";
     private String name = "";
@@ -76,9 +76,9 @@ public class BoonServiceMethodCallHandler implements ServiceMethodHandler {
         this.invokeDynamic = invokeDynamic;
 
         if (invokeDynamic) {
-            this.mapAndInvoke = new MapAndInvokeDynamic();
+            this.mapAndInvoke = new MapAndInvokeDynamic(this);
         } else {
-            this.mapAndInvoke = new MapAndInvokeImpl();
+            this.mapAndInvoke = new MapAndInvokeImpl(this);
         }
     }
 
@@ -98,8 +98,8 @@ public class BoonServiceMethodCallHandler implements ServiceMethodHandler {
         }
     }
 
-    private Response<Object> mapArgsAsyncHandlersAndInvoke(MethodCall<Object> methodCall, MethodAccess method) {
-        return this.mapAndInvoke.mapArgsAsyncHandlersAndInvoke(methodCall, method);
+    private Response<Object> mapArgsAsyncHandlersAndInvoke(MethodCall<Object> methodCall, MethodAccess serviceMethod) {
+        return this.mapAndInvoke.mapArgsAsyncHandlersAndInvoke(methodCall, serviceMethod);
     }
 
     /**
@@ -118,14 +118,14 @@ public class BoonServiceMethodCallHandler implements ServiceMethodHandler {
         return has;
     }
 
-    private boolean hasHandlers(MethodCall<Object> methodCall, MethodAccess method) {
+    protected boolean hasHandlers(MethodCall<Object> methodCall, MethodAccess serviceMethod) {
 
         Boolean has = hasHandlerMap.get(methodCall.name());
 
         boolean hasHandlers;
         if (has == null) {
             hasHandlers = hasHandlers(methodCall);
-            hasHandlers = hasHandlers(method) || hasHandlers;
+            hasHandlers = hasHandlers(serviceMethod) || hasHandlers;
             hasHandlerMap.put(methodCall.name(), hasHandlers);
         } else {
             hasHandlers = has;
@@ -135,9 +135,9 @@ public class BoonServiceMethodCallHandler implements ServiceMethodHandler {
 
     }
 
-    private boolean hasHandlers(MethodAccess method) {
+    private boolean hasHandlers(MethodAccess serviceMethod) {
 
-        for (Class<?> paramType : method.parameterTypes()) {
+        for (Class<?> paramType : serviceMethod.parameterTypes()) {
             if (paramType == Callback.class) {
                 return true;
             }
@@ -146,6 +146,10 @@ public class BoonServiceMethodCallHandler implements ServiceMethodHandler {
     }
 
     private boolean hasHandlers(MethodCall<Object> methodCall) {
+
+        if (methodCall.hasCallback()) {
+            return true;
+        }
         if (methodCall.body() instanceof List) {
 
             final List body = (List) methodCall.body();
@@ -170,79 +174,135 @@ public class BoonServiceMethodCallHandler implements ServiceMethodHandler {
         }
     }
 
-    private void extractHandlersFromArgumentList(MethodAccess method, Object body, List<Object> argsList) {
+    protected void extractHandlersFromArgumentList(Callback<Object> callback, MethodAccess method, Object body, List<Object> argsList) {
         if (body instanceof List) {
 
             @SuppressWarnings("unchecked") List<Object> list = (List<Object>) body;
 
-            extractHandlersFromArgumentListBodyIsList(method, argsList, list);
+            extractHandlersFromArgumentListBodyIsList(callback, method, argsList, list);
 
         } else if (body instanceof Object[]) {
-            extractHandlersFromArgumentListArrayCase(method, (Object[]) body, argsList);
+            extractHandlersFromArgumentListArrayCase(callback, method, (Object[]) body, argsList);
         }
     }
 
-    private void extractHandlersFromArgumentListArrayCase(MethodAccess method, Object[] array, List<Object> argsList) {
-        if (array.length - 1 == method.parameterTypes().length) {
-            if (array[0] instanceof Callback) {
-                array = Arry.slc(array, 1);
-            }
-        }
+    private void extractHandlersFromArgumentListArrayCase(final Callback<Object> callback,
+                                                          final MethodAccess serviceMethod,
+                                                          final Object[] inputParams,
+                                                          final List<Object> preparedArgumentList) {
+        final Class<?>[] parameterTypes = serviceMethod.method().getParameterTypes();
 
-        if (array.length < argsList.size()) {
-            for (int index = 0, arrayIndex = 0; index < argsList.size(); index++, arrayIndex++) {
-                final Object o = argsList.get(index);
-                if (o instanceof Callback) {
+
+        /** If the argument need by the service method is greater than the arguments than we have in the
+         * inputParams than we need to find the callback.
+         */
+        if (inputParams.length < preparedArgumentList.size()) {
+            for (int index = 0, arrayIndex = 0; index < preparedArgumentList.size(); index++, arrayIndex++) {
+                final Object o = preparedArgumentList.get(index);
+                if (parameterTypes[index] == Callback.class) {
+                    if (o == null) {
+                        preparedArgumentList.set(index, callback);
+                    }
                     arrayIndex--;
                     continue;
                 }
-                if (arrayIndex >= array.length) {
+                if (arrayIndex >= inputParams.length) {
                     break;
                 }
-                argsList.set(index, array[arrayIndex]);
+                preparedArgumentList.set(index, inputParams[arrayIndex]);
 
             }
         } else {
+
+
+            if (inputParams.length > preparedArgumentList.size()) {
+                for (int index = 0, arrayIndex = 0; index < preparedArgumentList.size(); index++, arrayIndex++) {
+
+                    final Object in = inputParams[arrayIndex];
+                    if (in instanceof Callback) {
+                        arrayIndex++;
+                    }
+                    if (arrayIndex >= inputParams.length) {
+                        break;
+                    }
+                    preparedArgumentList.set(index, inputParams[arrayIndex]);
+
+                }
+
+            } else {
+
+                for (int index = 0, arrayIndex = 0; index < preparedArgumentList.size(); index++, arrayIndex++) {
+                    final Object paramPrepare = preparedArgumentList.get(index);
+                    if (paramPrepare instanceof Callback) {
+                        continue;
+                    }
+                    if (arrayIndex >= inputParams.length) {
+                        break;
+                    }
+                    preparedArgumentList.set(index, inputParams[arrayIndex]);
+
+                }
+            }
+        }
+
+    }
+
+    private void extractHandlersFromArgumentListBodyIsList(final Callback<Object> callback,
+                                                           final MethodAccess serviceMethod,
+                                                           final List<Object> argsList,
+                                                            List<Object> list) {
+
+
+        final Class<?>[] parameterTypes = serviceMethod.method().getParameterTypes();
+
+        /** Check to see if the array size is one less that the argument size
+         * If it is then we think this is a method that has a Callback
+         * as the first argument.
+         */
+        if (serviceMethod.method().getReturnType() == void.class && (list.size() - 1 == serviceMethod.parameterTypes().length)) {
+            if (parameterTypes[0] == Callback.class) {
+                list = Lists.slc(list, 1); //remove the callback from the args bc the callback is called
+                // when the method returns.
+            }
+        }
+
+        if (list.size() < argsList.size()) {
             for (int index = 0, arrayIndex = 0; index < argsList.size(); index++, arrayIndex++) {
+                final Object o = argsList.get(index);
+                if (parameterTypes[index] == Callback.class) {
+                    if (o == null) {
+                        argsList.set(index, callback);
+                    }
+                    arrayIndex--;
+                    continue;
+                }
+                if (arrayIndex >= list.size()) {
+                    break;
+                }
+                argsList.set(index, list.get(arrayIndex));
+
+            }
+        } else {
+
+            final Iterator<Object> iterator = list.iterator();
+
+            for (int index = 0; index < argsList.size(); index++) {
+
                 final Object o = argsList.get(index);
                 if (o instanceof Callback) {
                     continue;
                 }
-                if (arrayIndex >= array.length) {
+
+                if (!iterator.hasNext()) {
                     break;
                 }
-                argsList.set(index, array[arrayIndex]);
 
+                argsList.set(index, iterator.next());
             }
-        }
-
-    }
-
-    private void extractHandlersFromArgumentListBodyIsList(MethodAccess method, List<Object> argsList, List<Object> list) {
-        if (list.size() - 1 == method.parameterTypes().length) {
-            if (list.get(0) instanceof Callback) {
-                list = Lists.slc(list, 1);
-            }
-        }
-
-        final Iterator<Object> iterator = list.iterator();
-
-        for (int index = 0; index < argsList.size(); index++) {
-
-            final Object o = argsList.get(index);
-            if (o instanceof Callback) {
-                continue;
-            }
-
-            if (!iterator.hasNext()) {
-                break;
-            }
-
-            argsList.set(index, iterator.next());
         }
     }
 
-    private Response<Object> response(MethodAccess methodAccess, MethodCall<Object> methodCall, Object returnValue) {
+    protected Response<Object> response(MethodAccess methodAccess, MethodCall<Object> methodCall, Object returnValue) {
 
         if (methodAccess.returnType() == void.class || methodAccess.returnType() == Void.class) {
             return ServiceConstants.VOID;
@@ -250,9 +310,8 @@ public class BoonServiceMethodCallHandler implements ServiceMethodHandler {
         return ResponseImpl.response(methodCall.id(), methodCall.timestamp(), methodCall.address(), methodCall.returnAddress(), returnValue, methodCall);
     }
 
-    private List<Object> prepareArgumentList(final MethodCall<Object> methodCall, Class<?>[] parameterTypes) {
+    protected List<Object> prepareArgumentList(final MethodCall<Object> methodCall, Class<?>[] parameterTypes) {
         final List<Object> argsList = new ArrayList<>(parameterTypes.length);
-
         for (Class<?> parameterType : parameterTypes) {
             if (parameterType == Callback.class) {
                 argsList.add(createCallBackHandler(methodCall));
@@ -261,9 +320,10 @@ public class BoonServiceMethodCallHandler implements ServiceMethodHandler {
             argsList.add(null);
         }
         return argsList;
+
     }
 
-    private Callback<Object> createCallBackHandler(final MethodCall<Object> methodCall) {
+    protected Callback<Object> createCallBackHandler(final MethodCall<Object> methodCall) {
 
         return new BoonCallBackWrapper(responseSendQueue, methodCall);
 
@@ -630,10 +690,6 @@ public class BoonServiceMethodCallHandler implements ServiceMethodHandler {
         queueCallBackHandler.queueIdle();
     }
 
-    private interface MapAndInvoke {
-        Response<Object> mapArgsAsyncHandlersAndInvoke(MethodCall<Object> methodCall, MethodAccess method);
-    }
-
     static class BoonCallBackWrapper implements Callback<Object> {
         final SendQueue<Response<Object>> responseSendQueue;
         final MethodCall<Object> methodCall;
@@ -658,108 +714,6 @@ public class BoonServiceMethodCallHandler implements ServiceMethodHandler {
         @Override
         public void onTimeout() {
             responseSendQueue.send(ResponseImpl.error(methodCall, new TimeoutException("Method call " + methodCall.name() + " timed out ")));
-        }
-    }
-
-    private class MapAndInvokeDynamic implements MapAndInvoke {
-        public Response<Object> mapArgsAsyncHandlersAndInvoke(MethodCall<Object> methodCall, MethodAccess method) {
-
-            if (method.parameterTypes().length == 0) {
-
-                Object returnValue = method.invokeDynamicObject(service, null);
-                return response(method, methodCall, returnValue);
-
-            }
-
-
-            boolean hasHandlers = hasHandlers(methodCall, method);
-
-            Object returnValue;
-
-            if (hasHandlers) {
-                Object body = methodCall.body();
-                List<Object> argsList = prepareArgumentList(methodCall, method.parameterTypes());
-                if (body instanceof List || body instanceof Object[]) {
-                    extractHandlersFromArgumentList(method, body, argsList);
-                } else {
-                    if (argsList.size() == 1 && !(argsList.get(0) instanceof Callback)) {
-                        argsList.set(0, body);
-                    }
-                }
-                returnValue = method.invokeDynamicObject(service, argsList);
-
-            } else {
-                if (methodCall.body() instanceof List) {
-                    final List argsList = (List) methodCall.body();
-                    returnValue = method.invokeDynamic(service, argsList.toArray(new Object[argsList.size()]));
-                } else if (methodCall.body() instanceof Object[]) {
-                    final Object[] argsList = (Object[]) methodCall.body();
-                    returnValue = method.invokeDynamic(service, argsList);
-                } else {
-                    returnValue = method.invokeDynamic(service, methodCall.body());
-                }
-            }
-
-
-            return response(method, methodCall, returnValue);
-
-        }
-    }
-
-    private class MapAndInvokeImpl implements MapAndInvoke {
-        public Response<Object> mapArgsAsyncHandlersAndInvoke(MethodCall<Object> methodCall, MethodAccess method) {
-            boolean hasHandlers = hasHandlers(methodCall, method);
-            Object returnValue;
-            if (hasHandlers) {
-                Object[] args = (Object[]) methodCall.body();
-                Object[] argsList = prepareArgumentList(methodCall, method.parameterTypes());
-                extractHandlersFromArgumentList(method, args, argsList);
-                returnValue = method.invoke(service, argsList);
-            } else {
-                final Object[] argsList = (Object[]) methodCall.body();
-                returnValue = method.invoke(service, argsList);
-            }
-            return response(method, methodCall, returnValue);
-
-        }
-
-
-        private Object[] prepareArgumentList(final MethodCall<Object> methodCall, Class<?>[] parameterTypes) {
-            final Object[] argsList = new Object[parameterTypes.length];
-
-            for (int index = 0; index < parameterTypes.length; index++) {
-                final Class<?> parameterType = parameterTypes[index];
-                if (parameterType == Callback.class) {
-                    argsList[index] = createCallBackHandler(methodCall);
-                }
-
-            }
-            return argsList;
-        }
-
-
-        private void extractHandlersFromArgumentList(MethodAccess method, Object[] args, Object[] argsList) {
-
-            extractHandlersFromArgumentListArrayCase(method, args, argsList);
-
-        }
-
-        private void extractHandlersFromArgumentListArrayCase(MethodAccess method, Object[] array, Object[] argsList) {
-            if (array.length - 1 == method.parameterTypes().length) {
-                if (array[0] instanceof Callback) {
-                    array = Arry.slc(array, 1);
-                }
-            }
-            for (int index = 0, arrayIndex = 0; index < argsList.length; index++, arrayIndex++) {
-                final Object o = argsList[index];
-                if (o instanceof Callback) {
-                    continue;
-                }
-                if (arrayIndex >= array.length) {
-                    break;
-                }
-                argsList[index] = array[arrayIndex];
-            }
         }
     }
 

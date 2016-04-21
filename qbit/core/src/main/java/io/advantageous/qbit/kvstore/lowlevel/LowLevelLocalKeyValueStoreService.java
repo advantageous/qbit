@@ -107,7 +107,7 @@ public class LowLevelLocalKeyValueStoreService implements LowLevelKeyValueStoreS
                                           final String key,
                                           final String value) {
         localCache.put(key, new CacheStringEntry(key, Optional.empty(), 0L, value));
-        confirmation.returnThis(true);
+        confirmation.resolve(true);
     }
 
     @Override
@@ -115,7 +115,7 @@ public class LowLevelLocalKeyValueStoreService implements LowLevelKeyValueStoreS
                                          final String key,
                                          final byte[] value) {
         localCache.put(key, new CacheBytesEntry(key, Optional.empty(), 0L, value));
-        confirmation.returnThis(true);
+        confirmation.resolve(true);
     }
 
     @Override
@@ -124,13 +124,13 @@ public class LowLevelLocalKeyValueStoreService implements LowLevelKeyValueStoreS
                                                     final String value,
                                                     final Duration expiry) {
         localCache.put(key, new CacheStringEntry(key, Optional.of(expiry), time, value));
-        confirmation.returnThis(true);
+        confirmation.resolve(true);
     }
 
     @Override
     public void putBytesWithConfirmationAndTimeout(Callback<Boolean> confirmation, String key, byte[] value, Duration expiry) {
         localCache.put(key, new CacheBytesEntry(key, Optional.of(expiry), time, value));
-        confirmation.returnThis(true);
+        confirmation.resolve(true);
     }
 
     @Override
@@ -153,18 +153,18 @@ public class LowLevelLocalKeyValueStoreService implements LowLevelKeyValueStoreS
 
         final CacheEntry cacheEntry = localCache.get(key);
         if (cacheEntry == null) {
-            callback.returnThis(Optional.<String>empty());
+            callback.resolve(Optional.<String>empty());
             return;
         }
         if (cacheEntry.isExpired(time)) {
             localCache.remove(key);
-            callback.returnThis(Optional.<String>empty());
+            callback.resolve(Optional.<String>empty());
         } else {
             final String value = ((CacheStringEntry) cacheEntry).value;
             if (value == null) {
-                callback.returnThis(Optional.<String>empty());
+                callback.resolve(Optional.<String>empty());
             } else {
-                callback.returnThis(Optional.of(value));
+                callback.resolve(Optional.of(value));
             }
         }
     }
@@ -175,18 +175,18 @@ public class LowLevelLocalKeyValueStoreService implements LowLevelKeyValueStoreS
 
         final CacheEntry cacheEntry = localCache.get(key);
         if (cacheEntry == null) {
-            callback.returnThis(Optional.<byte[]>empty());
+            callback.resolve(Optional.<byte[]>empty());
             return;
         }
         if (cacheEntry.isExpired(time)) {
             localCache.remove(key);
-            callback.returnThis(Optional.<byte[]>empty());
+            callback.resolve(Optional.<byte[]>empty());
         } else {
             final byte[] value = ((CacheBytesEntry) cacheEntry).value;
             if (value == null) {
-                callback.returnThis(Optional.<byte[]>empty());
+                callback.resolve(Optional.<byte[]>empty());
             } else {
-                callback.returnThis(Optional.of(value));
+                callback.resolve(Optional.of(value));
             }
         }
     }
@@ -197,17 +197,17 @@ public class LowLevelLocalKeyValueStoreService implements LowLevelKeyValueStoreS
 
         final CacheEntry cacheEntry = localCache.getSilent(key);
         if (cacheEntry == null) {
-            hasKeyCallback.returnThis(false);
+            hasKeyCallback.resolve(false);
         } else {
             if (cacheEntry.isExpired(time)) {
                 localCache.remove(key);
-                hasKeyCallback.returnThis(false);
+                hasKeyCallback.resolve(false);
             } else {
                 final Object value = cacheEntry.getValue();
                 if (value == null) {
-                    hasKeyCallback.returnThis(false);
+                    hasKeyCallback.resolve(false);
                 } else {
-                    hasKeyCallback.returnThis(true);
+                    hasKeyCallback.resolve(true);
                 }
             }
         }

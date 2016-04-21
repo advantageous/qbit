@@ -166,10 +166,10 @@ public class LocalKeyValueStoreService<T> implements KeyValueStoreService<T> {
             } else {
                 final T value = cacheEntry.getValue();
                 if (value == null) {
-                    callback.returnThis(Optional.<T>empty());
+                    callback.resolve(Optional.<T>empty());
                 } else {
                     statsCollector.increment(statKey + "cacheHit");
-                    callback.returnThis(Optional.of(value));
+                    callback.resolve(Optional.of(value));
                 }
             }
         }
@@ -187,9 +187,9 @@ public class LocalKeyValueStoreService<T> implements KeyValueStoreService<T> {
             } else {
                 final T value = cacheEntry.getValue();
                 if (value == null) {
-                    hasKeyCallback.returnThis(false);
+                    hasKeyCallback.resolve(false);
                 } else {
-                    hasKeyCallback.returnThis(true);
+                    hasKeyCallback.resolve(true);
                 }
                 return;
             }

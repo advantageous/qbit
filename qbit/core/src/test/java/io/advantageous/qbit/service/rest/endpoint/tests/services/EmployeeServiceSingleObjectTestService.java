@@ -210,7 +210,7 @@ public class EmployeeServiceSingleObjectTestService {
     @RequestMapping("/returnEmployeeCallback")
     public void returnEmployeeWithCallback(Callback<Employee> employeeCallback) {
 
-        employeeCallback.returnThis(new Employee(1, "Rick"));
+        employeeCallback.resolve(new Employee(1, "Rick"));
 
     }
 
@@ -222,7 +222,7 @@ public class EmployeeServiceSingleObjectTestService {
                 .setBody("" + new Employee(1, "Rick"))
                 .setContentType("crap/crap").setCode(777).build();
 
-        employeeCallback.returnThis(response);
+        employeeCallback.resolve(response);
 
     }
 

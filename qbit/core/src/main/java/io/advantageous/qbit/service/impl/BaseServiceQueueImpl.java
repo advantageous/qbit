@@ -51,12 +51,12 @@ import io.advantageous.boon.core.reflection.BeanUtils;
 import io.advantageous.boon.core.reflection.ClassMeta;
 import io.advantageous.qbit.Factory;
 import io.advantageous.qbit.GlobalConstants;
+import io.advantageous.qbit.boon.service.impl.BoonInvocationHandlerForSendQueue;
 import io.advantageous.qbit.client.BeforeMethodSent;
 import io.advantageous.qbit.client.ClientProxy;
 import io.advantageous.qbit.concurrent.PeriodicScheduler;
 import io.advantageous.qbit.events.EventManager;
 import io.advantageous.qbit.message.*;
-import io.advantageous.qbit.message.impl.MethodCallLocal;
 import io.advantageous.qbit.queue.*;
 import io.advantageous.qbit.service.*;
 import io.advantageous.qbit.system.QBitSystemManager;
@@ -64,6 +64,7 @@ import io.advantageous.qbit.time.Duration;
 import io.advantageous.qbit.transforms.NoOpResponseTransformer;
 import io.advantageous.qbit.transforms.Transformer;
 import io.advantageous.qbit.util.Timer;
+import io.advantageous.reakt.promise.Promise;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -72,7 +73,6 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.util.Collection;
 import java.util.Optional;
-import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -199,6 +199,63 @@ public class BaseServiceQueueImpl implements ServiceQueue {
         });
 
 
+    }
+
+
+    /**
+     * This method is where all of the action is.
+     *
+     * @param methodCall           methodCall
+     * @param serviceMethodHandler handler
+     */
+    private boolean doHandleMethodCall(MethodCall<Object> methodCall,
+                                       final ServiceMethodHandler serviceMethodHandler) {
+        if (debug) {
+            logger.debug("ServiceImpl::doHandleMethodCall() METHOD CALL" + methodCall);
+        }
+        if (callbackManager != null) {
+
+            if (methodCall.hasCallback() && serviceMethodHandler.couldHaveCallback(methodCall.name())) {
+                callbackManager.registerCallbacks(methodCall);
+            }
+        }
+        //inputQueueListener.receive(methodCall);
+        final boolean continueFlag[] = new boolean[1];
+        methodCall = beforeMethodProcessing(methodCall, continueFlag);
+        if (continueFlag[0]) {
+            if (debug) logger.debug("ServiceImpl::doHandleMethodCall() before handling stopped processing");
+            return false;
+        }
+        Response<Object> response = serviceMethodHandler.receiveMethodCall(methodCall);
+        if (response != ServiceConstants.VOID) {
+
+            if (!afterMethodCall.after(methodCall, response)) {
+                return false;
+            }
+            //noinspection unchecked
+            response = responseObjectTransformer.transform(response);
+
+            if (!afterMethodCallAfterTransform.after(methodCall, response)) {
+                return false;
+            }
+
+            if (debug) {
+                if (response.body() instanceof Throwable) {
+
+                    logger.error("Unable to handle call ", ((Throwable) response.body()));
+
+                }
+            }
+            if (!responseSendQueue.send(response)) {
+                logger.error("Unable to send response {} for method {} for object {}",
+                        response,
+                        methodCall.name(),
+                        methodCall.objectName());
+            }
+
+        }
+
+        return false;
     }
 
     public static ServiceQueue currentService() {
@@ -346,61 +403,6 @@ public class BaseServiceQueueImpl implements ServiceQueue {
         return this;
     }
 
-    /**
-     * This method is where all of the action is.
-     *
-     * @param methodCall           methodCall
-     * @param serviceMethodHandler handler
-     */
-    private boolean doHandleMethodCall(MethodCall<Object> methodCall,
-                                       final ServiceMethodHandler serviceMethodHandler) {
-        if (debug) {
-            logger.debug("ServiceImpl::doHandleMethodCall() METHOD CALL" + methodCall);
-        }
-        if (callbackManager != null) {
-
-            if (methodCall.hasCallback() && serviceMethodHandler.couldHaveCallback(methodCall.name())) {
-                callbackManager.registerCallbacks(methodCall);
-            }
-        }
-        //inputQueueListener.receive(methodCall);
-        final boolean continueFlag[] = new boolean[1];
-        methodCall = beforeMethodProcessing(methodCall, continueFlag);
-        if (continueFlag[0]) {
-            if (debug) logger.debug("ServiceImpl::doHandleMethodCall() before handling stopped processing");
-            return false;
-        }
-        Response<Object> response = serviceMethodHandler.receiveMethodCall(methodCall);
-        if (response != ServiceConstants.VOID) {
-
-            if (!afterMethodCall.after(methodCall, response)) {
-                return false;
-            }
-            //noinspection unchecked
-            response = responseObjectTransformer.transform(response);
-
-            if (!afterMethodCallAfterTransform.after(methodCall, response)) {
-                return false;
-            }
-
-            if (debug) {
-                if (response.body() instanceof Throwable) {
-
-                    logger.error("Unable to handle call ", ((Throwable) response.body()));
-
-                }
-            }
-            if (!responseSendQueue.send(response)) {
-                logger.error("Unable to send response {} for method {} for object {}",
-                        response,
-                        methodCall.name(),
-                        methodCall.objectName());
-            }
-
-        }
-
-        return false;
-    }
 
     private void start(final ServiceMethodHandler serviceMethodHandler,
                        final boolean joinEventManager) {
@@ -698,8 +700,8 @@ public class BaseServiceQueueImpl implements ServiceQueue {
         final Method[] declaredMethods = classMeta.cls().getDeclaredMethods();
 
         for (Method m : declaredMethods) {
-            if (!(m.getReturnType() == void.class)) {
-                throw new IllegalStateException("Async interface can only return void " + serviceInterface.getName());
+            if (!(m.getReturnType() == void.class || m.getReturnType() == Promise.class)) {
+                throw new IllegalStateException("Async interface can only return void or a Promise " + serviceInterface.getName());
             }
         }
 
@@ -710,56 +712,62 @@ public class BaseServiceQueueImpl implements ServiceQueue {
 
         validateInterface(serviceInterface);
 
-        final String uuid = serviceInterface.getName() + "::" + UUID.randomUUID().toString();
+//        final String uuid = serviceInterface.getName() + "::" + UUID.randomUUID().toString();
         if (!started.get()) {
             logger.info("ServiceQueue::create(...), A proxy is being asked for a service that is not started ", name());
         }
-        InvocationHandler invocationHandler = new InvocationHandler() {
+        final InvocationHandler invocationHandler = new BoonInvocationHandlerForSendQueue(methodCallSendQueue,
+                serviceInterface, serviceInterface.getSimpleName(), beforeMethodSent);
 
-            private long messageId = 0;
-            private long timestamp = Timer.timer().now();
-            private int times = 10;
-
-            @Override
-            public Object invoke(final Object proxy, final Method method, final Object[] args) throws Throwable {
-
-                if (method.getName().equals("toString")) {
-                    return "PROXY OBJECT " + address();
-                }
-                if (method.getName().equals("clientProxyFlush")) {
-                    methodCallSendQueue.flushSends();
-                    return null;
-                }
-
-                if (method.getName().equals("stop")) {
-                    methodCallSendQueue.stop();
-                    return null;
-                }
-                messageId++;
-                times--;
-                if (times == 0) {
-                    timestamp = Timer.timer().now();
-                    times = 10;
-                } else {
-                    timestamp++;
-                }
-                if (beforeMethodSent == null) {
-                    final MethodCallLocal call = new MethodCallLocal(method.getName(), uuid, timestamp, messageId, args, null, null);
-                    methodCallSendQueue.send(call);
-                } else {
-                    final String name = method.getName();
-                    MethodCallBuilder methodCallBuilder = MethodCallBuilder.methodCallBuilder()
-                            .setLocal(true).setAddress(name)
-                            .setName(name).setReturnAddress(uuid)
-                            .setTimestamp(timestamp).setId(messageId)
-                            .setBodyArgs(args);
-                    beforeMethodSent.beforeMethodSent(methodCallBuilder);
-                    final MethodCall<Object> call = methodCallBuilder.build();
-                    methodCallSendQueue.send(call);
-                }
-                return null;
-            }
-        };
+//
+//                = new InvocationHandler() {
+//
+//            private long messageId = 0;
+//            private long timestamp = Timer.timer().now();
+//            private int times = 10;
+//
+//            @Override
+//            public Object invoke(final Object proxy, final Method method, final Object[] args) throws Throwable {
+//
+//                if (method.getName().equals("toString")) {
+//                    return "PROXY OBJECT " + address();
+//                }
+//                if (method.getName().equals("clientProxyFlush")) {
+//                    methodCallSendQueue.flushSends();
+//                    return null;
+//                }
+//
+//                if (method.getName().equals("stop")) {
+//                    methodCallSendQueue.stop();
+//                    return null;
+//                }
+//                messageId++;
+//                times--;
+//                if (times == 0) {
+//                    timestamp = Timer.timer().now();
+//                    times = 10;
+//                } else {
+//                    timestamp++;
+//                }
+////                if (beforeMethodSent == null) {
+////                    /** TODO LEFT OFF HERE. */
+////                    final MethodCallLocal call = new MethodCallLocal(method.getName(), uuid,
+////                            timestamp, messageId, args, null, null);
+////                    methodCallSendQueue.send(call);
+////                } else {
+//                    final String name = method.getName();
+//                    MethodCallBuilder methodCallBuilder = MethodCallBuilder.methodCallBuilder()
+//                            .setLocal(true).setAddress(name)
+//                            .setName(name).setReturnAddress(uuid)
+//                            .setTimestamp(timestamp).setId(messageId)
+//                            .setBodyArgs(args);
+//                    if (beforeMethodSent!=null) beforeMethodSent.beforeMethodSent(methodCallBuilder);
+//                    final MethodCall<Object> call = methodCallBuilder.build();
+//                    methodCallSendQueue.send(call);
+////                }
+//                return null;
+//            }
+//        };
         final Object o = Proxy.newProxyInstance(serviceInterface.getClassLoader(),
                 new Class[]{serviceInterface, ClientProxy.class}, invocationHandler
         );

@@ -18,7 +18,9 @@
 
 package io.advantageous.qbit.reactive;
 
+import io.advantageous.reakt.Result;
 import org.slf4j.LoggerFactory;
+
 
 /**
  * Extends the JDK Consumer to provide a default error handler for RPC callbacks.
@@ -28,7 +30,7 @@ import org.slf4j.LoggerFactory;
  * Was called Handler and created by Rick Hightower quite a bit before 10/14/14
  */
 
-public interface Callback<T> {
+public interface Callback<T> extends io.advantageous.reakt.Callback<T> {
 
 
     /**
@@ -41,63 +43,10 @@ public interface Callback<T> {
 
         LoggerFactory.getLogger(Callback.class)
                 .error(error.getMessage(), error);
-    }
-
-    /**
-     * Service View (service)
-     * Return an error message
-     *
-     * @param error error
-     */
-    default void returnError(final String error) {
-        onError(new IllegalStateException(error));
-    }
-
-
-    /**
-     * Service View (service)
-     * Return an error message.
-     * Added to make migration to Reakt easier.
-     *
-     * @param error error
-     */
-    default void reject(final String error) {
-        onError(new IllegalStateException(error));
-    }
-
-
-    /**
-     * Service View (service)
-     * Return an error message.
-     * Added to make migration to Reakt easier.
-     *
-     * @param error error
-     */
-    default void reject(final Throwable error) {
-        onError(error);
-    }
-
-    /**
-     * Service View (service)
-     * Return an error message.
-     * Added to make migration to Reakt easier.
-     *
-     * @param error error
-     */
-    default void reject(final String errorMessage, final Throwable error) {
-        onError(new IllegalStateException(errorMessage, error));
-    }
-
-
-    /**
-     * Called if there is a timeout.
-     */
-    default void onTimeout() {
 
     }
 
     /**
-     * Client View (client of the service)
      * Performs this operation on the given argument.
      *
      * @param t the input argument
@@ -105,35 +54,58 @@ public interface Callback<T> {
     void accept(T t);
 
 
+    @Override
+    default void onResult(Result<T> result) {
+        if (result.failure()) {
+            onError(result.cause());
+        } else {
+            accept(result.get());
+        }
+    }
+
+
+    /**
+     * Called if there is a timeout.
+     * <p>
+     * This will be taken out in Reakt 3.0 (and QBit 2.0).
+     * Use reject instead.
+     */
+    default void onTimeout() {
+    }
+
+
     /**
      * Service View (service)
+     * Return an error message
+     * alias for reject.
+     * <p>
+     * This will be taken out in Reakt 3.0 (and QBit 2.0).
+     * Use reject instead.
+     *
+     * @param error error
+     */
+    @Deprecated
+    @SuppressWarnings("deprecated")
+    default void returnError(final String error) {
+        reject(error);
+    }
+
+
+    /**
+     * Service View (service)
+     * alias for reply
+     * <p>
+     * This will be taken out in Reakt 3.0 (and QBit 2.0).
+     * Use resolve or reply instead.
      *
      * @param thisReturn the value to return.
      */
+    @Deprecated
+    @SuppressWarnings("deprecated")
     default void returnThis(T thisReturn) {
-        accept(thisReturn);
+        resolve(thisReturn);
     }
 
 
-    /**
-     * Service View (service)
-     * Added to make migration to Reakt easier.
-     *
-     * @param thisReturn the value to return.
-     */
-    default void reply(T thisReturn) {
-        accept(thisReturn);
-    }
-
-
-    /**
-     * Service View (service)
-     * Added to make migration to Reakt easier.
-     *
-     * @param thisReturn the value to return.
-     */
-    default void resolve(T thisReturn) {
-        accept(thisReturn);
-    }
 }
 

@@ -54,7 +54,7 @@ public class ReaktTest {
 
         /* Convert promise to callback and then call the callback. */
         final Callback<Employee> employeeCallback = convertPromise(reactor, promise);
-        employeeCallback.returnThis(new Employee("Rick"));
+        employeeCallback.resolve(new Employee("Rick"));
 
         reactor.process();
 
@@ -107,7 +107,7 @@ public class ReaktTest {
 
         /* Convert promise to callback and then call the callback. */
         final Callback<Employee> employeeCallback = Reakt.convertCallback(callback);
-        employeeCallback.returnThis(new Employee("Rick"));
+        employeeCallback.resolve(new Employee("Rick"));
 
         final Result<Employee> result = ref.get();
 
@@ -129,7 +129,7 @@ public class ReaktTest {
         final Reactor reactor = ReactorBuilder.reactorBuilder().build();
         /* Convert promise to callback and then call the callback. */
         final Callback<Employee> employeeCallback = Reakt.convertCallback(reactor, callback);
-        employeeCallback.returnThis(new Employee("Rick"));
+        employeeCallback.resolve(new Employee("Rick"));
 
         reactor.process();
 

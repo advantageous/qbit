@@ -222,14 +222,14 @@ public class RestTests {
         @NoCacheHeaders
         public void ping(Callback<String> callback) {
 
-            callback.returnThis("love rocket");
+            callback.resolve("love rocket");
         }
 
 
         @RequestMapping(method = RequestMethod.GET)
         public void ping2(Callback<HttpTextResponse> callback) {
 
-            callback.returnThis(HttpResponseBuilder.httpResponseBuilder()
+            callback.resolve(HttpResponseBuilder.httpResponseBuilder()
                     .setBody("hello mom")
                     .setCode(777)
                     .buildTextResponse());
@@ -239,7 +239,7 @@ public class RestTests {
         @RequestMapping(method = RequestMethod.PUT)
         public void ping3(Callback<HttpTextResponse> callback, String foo) {
 
-            callback.returnThis(HttpResponseBuilder.httpResponseBuilder()
+            callback.resolve(HttpResponseBuilder.httpResponseBuilder()
                     .setBody("hello mom " + foo)
                     .setCode(777)
                     .buildTextResponse());

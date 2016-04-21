@@ -80,7 +80,7 @@ public class WebSocketProxy {
 
         @Override
         public void addEmployee(Callback<Employee> callback, Employee e) {
-            callback.returnThis(e);
+            callback.resolve(e);
         }
     }
 
