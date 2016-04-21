@@ -216,7 +216,7 @@ public class ServiceProxyFactoryTest {
 
     }
 
-    //@Test TODO fails sometimes during build but not always
+    @Test //TODO fails sometimes during build but not always
     public void callingActualServiceWithReturn() {
 
 
@@ -283,6 +283,7 @@ public class ServiceProxyFactoryTest {
 
             @Override
             public String method3(String hi, int amount) {
+
                 return "Hi" + hi + " " + amount;
             }
         }

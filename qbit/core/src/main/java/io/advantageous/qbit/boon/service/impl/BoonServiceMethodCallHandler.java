@@ -213,16 +213,35 @@ public class BoonServiceMethodCallHandler implements ServiceMethodHandler {
 
             }
         } else {
-            for (int index = 0, arrayIndex = 0; index < preparedArgumentList.size(); index++, arrayIndex++) {
-                final Object o = preparedArgumentList.get(index);
-                if (o instanceof Callback) {
-                    continue;
-                }
-                if (arrayIndex >= inputParams.length) {
-                    break;
-                }
-                preparedArgumentList.set(index, inputParams[arrayIndex]);
 
+
+            if (inputParams.length > preparedArgumentList.size()) {
+                for (int index = 0, arrayIndex = 0; index < preparedArgumentList.size(); index++, arrayIndex++) {
+
+                    final Object in = inputParams[arrayIndex];
+                    if (in instanceof Callback) {
+                        arrayIndex++;
+                    }
+                    if (arrayIndex >= inputParams.length) {
+                        break;
+                    }
+                    preparedArgumentList.set(index, inputParams[arrayIndex]);
+
+                }
+
+            } else {
+
+                for (int index = 0, arrayIndex = 0; index < preparedArgumentList.size(); index++, arrayIndex++) {
+                    final Object paramPrepare = preparedArgumentList.get(index);
+                    if (paramPrepare instanceof Callback) {
+                        continue;
+                    }
+                    if (arrayIndex >= inputParams.length) {
+                        break;
+                    }
+                    preparedArgumentList.set(index, inputParams[arrayIndex]);
+
+                }
             }
         }
 
@@ -231,7 +250,7 @@ public class BoonServiceMethodCallHandler implements ServiceMethodHandler {
     private void extractHandlersFromArgumentListBodyIsList(final Callback<Object> callback,
                                                            final MethodAccess serviceMethod,
                                                            final List<Object> argsList,
-                                                           final List<Object> list) {
+                                                            List<Object> list) {
 
 
         final Class<?>[] parameterTypes = serviceMethod.method().getParameterTypes();
