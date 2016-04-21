@@ -2,9 +2,10 @@ package io.advantageous.qbit.reakt;
 
 
 import io.advantageous.qbit.service.ServiceBuilder;
+import io.advantageous.qbit.service.ServiceBundle;
+import io.advantageous.qbit.service.ServiceBundleBuilder;
 import io.advantageous.qbit.service.ServiceQueue;
 import io.advantageous.qbit.time.Duration;
-import io.advantageous.reakt.Callback;
 import io.advantageous.reakt.promise.Promise;
 import org.junit.After;
 import org.junit.Before;
@@ -20,12 +21,18 @@ public class ReaktInterfaceTest {
 
     final URI successResult = URI.create("http://localhost:8080/employeeService/");
     ServiceDiscovery serviceDiscovery;
+    ServiceDiscovery serviceDiscoveryStrongTyped;
+
+    ServiceDiscovery serviceDiscoveryServiceBundle;
+    ServiceBundle serviceBundle;
+
     ServiceDiscoveryImpl impl;
     URI empURI;
     CountDownLatch latch;
     AtomicReference<URI> returnValue;
     AtomicReference<Throwable> errorRef;
     ServiceQueue serviceQueue;
+    private ServiceQueue serviceQueue2;
 
     @Before
     public void before() {
@@ -35,11 +42,18 @@ public class ReaktInterfaceTest {
         impl = new ServiceDiscoveryImpl();
         empURI = URI.create("marathon://default/employeeService?env=staging");
         serviceQueue = ServiceBuilder.serviceBuilder().setServiceObject(impl).buildAndStartAll();
+        serviceBundle = ServiceBundleBuilder.serviceBundleBuilder().build();
+        serviceBundle.addServiceObject("myservice", impl);
+        serviceDiscoveryServiceBundle = serviceBundle.createLocalProxy(ServiceDiscovery.class, "myservice");
+        serviceBundle.start();
         serviceDiscovery = serviceQueue.createProxyWithAutoFlush(ServiceDiscovery.class, Duration.TEN_MILLIS);
+        serviceQueue2 = ServiceBuilder.serviceBuilder().setInvokeDynamic(false).setServiceObject(impl).buildAndStartAll();
+        serviceDiscoveryStrongTyped = serviceQueue2.createProxyWithAutoFlush(ServiceDiscovery.class, Duration.TEN_MILLIS);
     }
 
     @After
     public void after() {
+        serviceQueue2.stop();
         serviceQueue.stop();
     }
 
@@ -53,6 +67,13 @@ public class ReaktInterfaceTest {
 
     @Test
     public void testServiceWithReturnPromiseSuccess() {
+        testSuccess(serviceDiscovery);
+        testSuccess(serviceDiscoveryStrongTyped);
+        testSuccess(serviceDiscoveryServiceBundle);
+
+    }
+
+    private void testSuccess(ServiceDiscovery serviceDiscovery) {
         serviceDiscovery.lookupService(empURI).then(this::handleSuccess)
                 .catchError(this::handleError).invoke();
         await();
@@ -64,8 +85,12 @@ public class ReaktInterfaceTest {
 
     @Test
     public void testServiceWithReturnPromiseFail() {
+        testFail(serviceDiscovery);
+        testFail(serviceDiscoveryStrongTyped);
+        testFail(serviceDiscoveryServiceBundle);
+    }
 
-
+    private void testFail(ServiceDiscovery serviceDiscovery) {
         serviceDiscovery.lookupService(null).then(this::handleSuccess)
                 .catchError(this::handleError).invoke();
 
