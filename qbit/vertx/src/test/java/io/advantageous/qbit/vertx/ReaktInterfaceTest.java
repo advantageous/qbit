@@ -1,11 +1,17 @@
-package io.advantageous.qbit.reakt;
+package io.advantageous.qbit.vertx;
 
 
+import io.advantageous.boon.core.Sys;
+import io.advantageous.qbit.client.Client;
+import io.advantageous.qbit.client.ClientBuilder;
+import io.advantageous.qbit.server.EndpointServerBuilder;
+import io.advantageous.qbit.server.ServiceEndpointServer;
 import io.advantageous.qbit.service.ServiceBuilder;
 import io.advantageous.qbit.service.ServiceBundle;
 import io.advantageous.qbit.service.ServiceBundleBuilder;
 import io.advantageous.qbit.service.ServiceQueue;
 import io.advantageous.qbit.time.Duration;
+import io.advantageous.qbit.util.PortUtils;
 import io.advantageous.reakt.promise.Promise;
 import org.junit.After;
 import org.junit.Before;
@@ -25,6 +31,7 @@ public class ReaktInterfaceTest {
     ServiceDiscovery serviceDiscovery;
     ServiceDiscovery serviceDiscoveryStrongTyped;
     ServiceDiscovery serviceDiscoveryServiceBundle;
+    ServiceDiscovery serviceDiscoveryWebSocket;
 
 
     ServiceDiscoveryImpl impl;
@@ -32,12 +39,18 @@ public class ReaktInterfaceTest {
     CountDownLatch latch;
     AtomicReference<URI> returnValue;
     AtomicReference<Throwable> errorRef;
+
+    int port;
+    Client client;
+    ServiceEndpointServer server;
     ServiceBundle serviceBundle;
     ServiceQueue serviceQueue;
     ServiceQueue serviceQueue2;
 
     @Before
     public void before() {
+
+        port = PortUtils.findOpenPortStartAt(9000);
 
 
         latch = new CountDownLatch(1);
@@ -46,6 +59,14 @@ public class ReaktInterfaceTest {
         impl = new ServiceDiscoveryImpl();
         empURI = URI.create("marathon://default/employeeService?env=staging");
 
+
+        server = EndpointServerBuilder.endpointServerBuilder()
+                .addService("/myservice", impl)
+                .setPort(port).build().startServer();
+
+        Sys.sleep(200);
+
+        client = ClientBuilder.clientBuilder().setPort(port).build().startClient();
 
         serviceQueue = ServiceBuilder.serviceBuilder().setServiceObject(impl).buildAndStartAll();
         serviceBundle = ServiceBundleBuilder.serviceBundleBuilder().build();
@@ -61,6 +82,7 @@ public class ReaktInterfaceTest {
         serviceDiscoveryStrongTyped = serviceQueue2.createProxyWithAutoFlush(ServiceDiscovery.class,
                 Duration.TEN_MILLIS);
 
+        serviceDiscoveryWebSocket = client.createProxy(ServiceDiscovery.class, "/myservice");
     }
 
     @After
@@ -68,7 +90,8 @@ public class ReaktInterfaceTest {
         serviceQueue2.stop();
         serviceQueue.stop();
         serviceBundle.stop();
-
+        server.stop();
+        client.stop();
     }
 
     public void await() {
@@ -84,6 +107,7 @@ public class ReaktInterfaceTest {
         testSuccess(serviceDiscovery);
         testSuccess(serviceDiscoveryStrongTyped);
         testSuccess(serviceDiscoveryServiceBundle);
+        testSuccess(serviceDiscoveryWebSocket);
 
     }
 
@@ -91,9 +115,9 @@ public class ReaktInterfaceTest {
         serviceDiscovery.lookupService(empURI).then(this::handleSuccess)
                 .catchError(this::handleError).invoke();
         await();
-        assertNotNull("We have a return from local", returnValue.get());
-        assertNull("There were no errors from local ", errorRef.get());
-        assertEquals("The result is the expected result from local", successResult, returnValue.get());
+        assertNotNull("We have a return", returnValue.get());
+        assertNull("There were no errors", errorRef.get());
+        assertEquals("The result is the expected result", successResult, returnValue.get());
     }
 
 
@@ -102,6 +126,7 @@ public class ReaktInterfaceTest {
         testFail(serviceDiscovery);
         testFail(serviceDiscoveryStrongTyped);
         testFail(serviceDiscoveryServiceBundle);
+        testFail(serviceDiscoveryWebSocket);
     }
 
     private void testFail(ServiceDiscovery serviceDiscovery) {
