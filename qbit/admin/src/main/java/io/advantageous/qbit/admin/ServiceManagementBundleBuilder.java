@@ -6,6 +6,7 @@ import io.advantageous.qbit.service.stats.StatsCollector;
 import io.advantageous.qbit.util.Timer;
 import io.advantageous.reakt.reactor.Reactor;
 
+import java.time.Duration;
 import java.util.Objects;
 
 public class ServiceManagementBundleBuilder {
@@ -20,6 +21,16 @@ public class ServiceManagementBundleBuilder {
     private ManagedServiceBuilder managedServiceBuilder;
     private Runnable failCallback;
     private Runnable recoverCallback;
+    private Duration timeoutDuration = Duration.ofSeconds(30);
+
+    private Duration getTimeoutDuration() {
+        return timeoutDuration;
+    }
+
+    public ServiceManagementBundleBuilder setTimeoutDuration(final Duration timeoutDuration) {
+        this.timeoutDuration = timeoutDuration;
+        return this;
+    }
 
     private Runnable getFailCallback() {
         return failCallback;
@@ -92,7 +103,8 @@ public class ServiceManagementBundleBuilder {
 
     private Reactor getReactor() {
         if (reactor == null) {
-            reactor = Reactor.reactor();
+            final Timer timer = Timer.timer();
+            reactor = Reactor.reactor(timeoutDuration, timer::now);
         }
         return reactor;
     }
