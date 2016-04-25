@@ -26,6 +26,7 @@ import io.advantageous.qbit.http.server.websocket.WebSocketMessage;
 import io.advantageous.qbit.json.JsonMapper;
 import io.advantageous.qbit.message.Request;
 import io.advantageous.qbit.message.Response;
+import io.advantageous.qbit.queue.QueueCallBackHandler;
 import io.advantageous.qbit.queue.ReceiveQueueListener;
 import io.advantageous.qbit.service.ServiceBundle;
 import io.advantageous.qbit.service.ServiceProxyUtils;
@@ -42,6 +43,7 @@ import io.advantageous.qbit.util.Timer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Arrays;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Consumer;
@@ -329,23 +331,18 @@ public class ServiceEndpointServerImpl implements ServiceEndpointServer {
 
 
     @Override
-    public ServiceEndpointServer initServices(Iterable<Object> services) {
-
+    public ServiceEndpointServer initServices(final Iterable<Object> services) {
 
         for (Object service : services) {
             if (debug) logger.debug("registering service: " + service.getClass().getName());
             serviceBundle.addService(service);
             httpRequestServerHandler.addRestSupportFor(service.getClass(), serviceBundle.address());
         }
-
         return this;
-
     }
 
 
     public ServiceEndpointServer addServiceQueue(final String address, final ServiceQueue serviceQueue) {
-
-
         serviceBundle().addServiceQueue(address, serviceQueue);
         httpRequestServerHandler.addRestSupportFor(serviceQueue.service().getClass(), serviceBundle().address());
         return this;
@@ -354,23 +351,41 @@ public class ServiceEndpointServerImpl implements ServiceEndpointServer {
 
     @Override
     public ServiceEndpointServer initServices(Object... services) {
-        for (Object service : services) {
-            if (debug) logger.debug("registering service: " + service.getClass().getName());
-            serviceBundle.addService(service);
-            httpRequestServerHandler.addRestSupportFor(service.getClass(), serviceBundle.address());
-        }
+        initServices(Arrays.asList(services));
         return this;
     }
 
-    public ServiceEndpointServer addServiceObject(String address, Object serviceObject) {
+    @Override
+    public ServiceEndpointServer addServiceObject(final String address, final Object serviceObject) {
+        this.addServiceObjectWithQueueCallBackHandlers(address, serviceObject, (QueueCallBackHandler[]) null);
+        return this;
+    }
 
+    @Override
+    public ServiceEndpointServer addServiceObjectWithQueueCallBackHandlers(final String address, final Object serviceObject,
+                                                  final QueueCallBackHandler... queueCallBackHandlers) {
         if (debug) logger.debug("registering service: " + serviceObject.getClass().getName());
-
-        serviceBundle.addServiceObject(address, serviceObject);
+        serviceBundle.addServiceObjectWithQueueCallBackHandlers(address, serviceObject, queueCallBackHandlers);
         httpRequestServerHandler.addRestSupportFor(address, serviceObject.getClass(), serviceBundle.address());
-
         return this;
     }
+
+    @Override
+    public ServiceEndpointServer addService(final Object serviceObject) {
+        serviceBundle.addService(serviceObject);
+        httpRequestServerHandler.addRestSupportFor(serviceObject.getClass(), serviceBundle.address());
+        return this;
+    }
+
+    @Override
+    public ServiceEndpointServer addServiceWithQueueCallBackHandlers(final Object serviceObject,
+                                            final QueueCallBackHandler... queueCallBackHandlers) {
+        serviceBundle.addServiceWithQueueCallBackHandlers(serviceObject, queueCallBackHandlers);
+        httpRequestServerHandler.addRestSupportFor(serviceObject.getClass(), serviceBundle.address());
+        return this;
+    }
+
+
 
     public ServiceBundle serviceBundle() {
         return this.serviceBundle;

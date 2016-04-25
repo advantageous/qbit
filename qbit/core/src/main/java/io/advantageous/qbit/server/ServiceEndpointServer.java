@@ -19,6 +19,7 @@
 package io.advantageous.qbit.server;
 
 import io.advantageous.qbit.message.MethodCall;
+import io.advantageous.qbit.queue.QueueCallBackHandler;
 import io.advantageous.qbit.service.ServiceBundle;
 import io.advantageous.qbit.service.ServiceQueue;
 
@@ -31,6 +32,7 @@ import java.util.function.Consumer;
  * @author gcc@rd.io (Geoff Chandler)
  */
 public interface ServiceEndpointServer extends Server {
+
 
     default ServiceEndpointServer initServices(Object... services) {
         throw new IllegalStateException("Not implemented");
@@ -54,11 +56,47 @@ public interface ServiceEndpointServer extends Server {
         return this;
     }
 
+    /**
+     * Add a service object with an address alias
+     * @param address address
+     * @param serviceObject service object
+     * @return this, fluent.
+     */
     @SuppressWarnings("UnusedReturnValue")
     default ServiceEndpointServer addServiceObject(String address, Object serviceObject) {
         serviceBundle().addServiceObject(address, serviceObject);
         return this;
     }
+
+
+    /** Add a service object with one or more QueueCallBackHandler handlers. */
+    default ServiceEndpointServer addServiceObjectWithQueueCallBackHandlers(String address,
+                                                                            Object serviceObject,
+                                                                            QueueCallBackHandler... queueCallBackHandlers) {
+        throw new IllegalStateException("Not implemented");
+    }
+
+    /**
+     *
+     * Add a service with no address but that has a one or more queue callback handlers.
+     * @param serviceObject serviceObject
+     * @param queueCallBackHandlers queueCallBackHandlers
+     * @return ServiceEndpointServer
+     */
+    default ServiceEndpointServer addServiceWithQueueCallBackHandlers(final Object serviceObject,
+                                                                      final QueueCallBackHandler... queueCallBackHandlers) {
+        throw new IllegalStateException("Not implemented");
+    }
+
+    /**
+     * Add a service.
+     * @param serviceObject
+     * @return fluent, this
+     */
+    default ServiceEndpointServer addService(Object serviceObject) {
+        throw new IllegalStateException("Not implemented");
+    }
+
 
     default ServiceEndpointServer flush() {
         throw new IllegalStateException("Not implemented");
