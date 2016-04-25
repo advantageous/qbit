@@ -17,7 +17,7 @@
  */
 
 ext {
-    projectVersion = '1.5.0.RELEASE'
+    projectVersion = '1.6.0.RC1-SNAPSHOT'
     boonVersion = '0.5.7'
     boonGroup = "io.advantageous.boon"
     springFrameworkVersion = '4.2.5.RELEASE'
@@ -41,18 +41,6 @@ subprojects {
         maven {
             url "https://oss.sonatype.org/content/repositories/releases/"
         }
-    }
-
-    configurations {
-        markdownDoclet
-    }
-    dependencies {
-        markdownDoclet 'ch.raffael.pegdown-doclet:pegdown-doclet:1.1.1'
-    }
-    project.javadoc.options {
-        docletpath = configurations.markdownDoclet.files.asType(List)
-        doclet = "ch.raffael.doclets.pegdown.PegdownDoclet"
-        addStringOption("parse-timeout", "10")
     }
 
 }

@@ -712,6 +712,7 @@ public class Reactor {
      * @param <T>                  Generic type
      * @param timeoutDuration      time out duration
      * @param timeUnit             Time Unit
+     * @param errorHandler         error handler
      * @return wrapped callback that is tied to this reactor.
      */
     public <T> Callback<T> wrapCallbackErrorWithTimeout(

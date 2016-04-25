@@ -61,23 +61,79 @@ import static io.advantageous.qbit.http.server.HttpServerBuilder.httpServerBuild
  */
 public class EndpointServerBuilder {
     public static final String QBIT_ENDPOINT_SERVER_BUILDER = "qbit.endpoint.server.builder.";
+
+    /** Default URI of main web port.  */
+    public static final int DEFAULT_PORT = 8080;
+
+    /** Default URI of REST and web socket services.  */
+    public static final String DEFAULT_URI = "/services";
+
+    /** Default flush interval for service flush. Larger handles more load. Smaller is more responsive when not under
+     * heavy load. */
+    public static final int DEFAULT_FLUSH_INTERVAL_MS = 50;
+
+    /** Default flush interval for service flush. */
+    public static final int DEFAULT_OUTSTANDING_REQUESTS = 1_000_000;
+    public static final int DEFAULT_TIMEOUT_SECONDS = 30;
+
+    /** Response queue.  */
     private Queue<Response<Object>> responseQueue;
+
+
+    /** Name of host we will listen on. */
     private String host;
-    private int port = 8080;
-    private int flushInterval = 50;
-    private String uri = "/services";
-    private int numberOfOutstandingRequests = 1_000_000;
-    private int timeoutSeconds = 30;
+
+    /** Name of port we will listen on. */
+    private int port = DEFAULT_PORT;
+
+    /** Flush interval for services. */
+    private int flushInterval = DEFAULT_FLUSH_INTERVAL_MS;
+
+    /** URI we will bind REST and WebSocket services to.  */
+    private String uri = DEFAULT_URI;
+
+    /**
+     * Number of outstanding requests with out responses before we start denying requests.
+     */
+    private int numberOfOutstandingRequests = DEFAULT_OUTSTANDING_REQUESTS;
+
+    /**
+     * Default timeout for a down stream service or a main service.
+     */
+    private int timeoutSeconds = DEFAULT_TIMEOUT_SECONDS;
+
+    /** Should we be flexible with invocation. */
     private boolean invokeDynamic = true;
+
+    /** Main REST/HTTP Request Queue setup. */
     private QueueBuilder httpRequestQueueBuilder;
+
+    /** Main WebSocket Request Queue setup. */
     private QueueBuilder webSocketMessageQueueBuilder;
+
+    /** Service (downstream and main) request Queue setup. */
     private QueueBuilder requestQueueBuilder;
+
+
+    /** Service (downstream and main) request Queue setup. */
     private QueueBuilder responseQueueBuilder;
+
+    /** WebSocket and REST response (downstream and main) Queue setup. */
     private QueueBuilder webResponseQueueBuilder;
+
+    /** Run each service in its own thread, or share threads in a service bundle. */
     private boolean eachServiceInItsOwnThread = true;
+
+    /** Main HttpTransport. */
     private HttpTransport httpServer;
+
+    /** Main QBit System responsible for shutting down cleanly. */
     private QBitSystemManager qBitSystemManager;
+
+    /** Health service interface. */
     private HealthServiceAsync healthService = null;
+
+
     private StatsCollector statsCollector = null;
     private Timer timer;
     private boolean enableHealthEndpoint;

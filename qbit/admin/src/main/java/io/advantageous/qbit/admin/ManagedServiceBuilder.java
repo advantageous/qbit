@@ -17,7 +17,9 @@ import io.advantageous.qbit.meta.builder.ContextMetaBuilder;
 import io.advantageous.qbit.metrics.support.LocalStatsCollectorBuilder;
 import io.advantageous.qbit.metrics.support.StatServiceBuilder;
 import io.advantageous.qbit.metrics.support.StatsDReplicatorBuilder;
+import io.advantageous.qbit.queue.QueueCallBackHandler;
 import io.advantageous.qbit.server.EndpointServerBuilder;
+import io.advantageous.qbit.server.ServiceEndpointServer;
 import io.advantageous.qbit.service.*;
 import io.advantageous.qbit.service.discovery.ServiceDiscovery;
 import io.advantageous.qbit.service.discovery.dns.DnsUtil;
@@ -27,28 +29,30 @@ import io.advantageous.qbit.service.health.ServiceHealthManager;
 import io.advantageous.qbit.service.impl.ServiceHealthManagerDefault;
 import io.advantageous.qbit.service.stats.StatsCollector;
 import io.advantageous.qbit.system.QBitSystemManager;
-import io.advantageous.reakt.reactor.Reactor;
 
 import java.util.*;
 import java.util.function.Supplier;
+
+import static io.advantageous.consul.discovery.ConsulServiceDiscoveryBuilder.consulServiceDiscoveryBuilder;
 
 /**
  * This is a utility class for when you are running in a PaaS like Heroku or Docker.
  * It also allows you to share stat, health and system manager setup.
  * <p>
- * If statsD is enabled then this will look for the statsd port and host from STATSD_PORT and STATSD_HOST environment
+ * The main end point port will be read from the environment variable {@code WEB_PORT}
+ * and if not found then read from {@code PORT0}, and then lastly from {@code PORT}.
+ * <p>
+ * If statsD is enabled then this will look for the statsd port and host from {@code STATSD_PORT} and
+ * {@code STATSD_HOST} environment
  * variables.
  * <p>
- * <p>
  * If you use the admin builder, the port for the admin will be from the environment variable
- * QBIT_ADMIN_PORT. It can be overridden from system properties as well see AdminBuilder for more details.
- * <p>
- * <p>
- * The main end point port will be read from the environment variable WEB_PORT and if not found then read from
- * PORT.
+ * {@code QBIT_ADMIN_PORT}, then {@code ADMIN_PORT}, and then {@code PORT1}.
+ * It can be overridden from system properties as well see AdminBuilder for more details.
  * <p>
  * Defaults for ports and hosts can be overridden by their respective builders.
  **/
+@SuppressWarnings("unused")
 public class ManagedServiceBuilder {
 
 
@@ -127,11 +131,16 @@ public class ManagedServiceBuilder {
      */
     private List<Object> endpointServices;
 
-
     /**
      * Endpoint services that will be exposed through contextMetaBuilder.
      */
     private Map<String, Object> endpointServiceMapWithAlias;
+
+
+    /**
+     * Endpoint services that will be exposed through contextMetaBuilder.
+     */
+    private List<ManagedServiceDefinition> managedServiceDefinitionList;
 
     /**
      * The builder for the admin.
@@ -171,7 +180,7 @@ public class ManagedServiceBuilder {
      * Actual port.
      */
     private int port = Sys.sysProp(ManagedServiceBuilder.class.getName()
-            + ".port", 8080);
+            + ".port", EndpointServerBuilder.DEFAULT_PORT);
 
     /**
      * Public port used for swagger.
@@ -267,6 +276,14 @@ public class ManagedServiceBuilder {
         return new ManagedServiceBuilder(serviceName);
     }
 
+
+    private List<ManagedServiceDefinition> getManagedServiceDefinitionList() {
+        if (managedServiceDefinitionList == null) {
+            managedServiceDefinitionList = new ArrayList<>();
+        }
+        return managedServiceDefinitionList;
+    }
+
     /**
      * Enable the logging diagnostic context
      *
@@ -282,6 +299,7 @@ public class ManagedServiceBuilder {
      * Enable the logging diagnostic context
      *
      * @param requestHeaders request headers
+     * @return this, fluent
      */
     public ManagedServiceBuilder enableLoggingMappedDiagnosticContext(final String... requestHeaders) {
         return enableLoggingMappedDiagnosticContext(Sets.set(requestHeaders));
@@ -290,6 +308,7 @@ public class ManagedServiceBuilder {
     /**
      * Enable the logging diagnostic context
      *
+     * @param requestHeaders request headers to track in the MDC.
      * @return this
      */
     public ManagedServiceBuilder enableLoggingMappedDiagnosticContext(final Set<String> requestHeaders) {
@@ -325,7 +344,8 @@ public class ManagedServiceBuilder {
      * @param enableLoggingMappedDiagnosticContext enableLoggingMappedDiagnosticContext
      * @return this
      */
-    public ManagedServiceBuilder setEnableLoggingMappedDiagnosticContext(final boolean enableLoggingMappedDiagnosticContext) {
+    public ManagedServiceBuilder setEnableLoggingMappedDiagnosticContext(
+            final boolean enableLoggingMappedDiagnosticContext) {
         this.enableLoggingMappedDiagnosticContext = enableLoggingMappedDiagnosticContext;
         return this;
     }
@@ -458,7 +478,7 @@ public class ManagedServiceBuilder {
     /**
      * Get the actual port to bind to.
      * <p>
-     * Defaults to 8080.
+     * Defaults to EndpointServerBuilder.DEFAULT_PORT.
      * <p>
      * Looks for PORT under PORT_WEB, PORT0, PORT.
      *
@@ -466,7 +486,7 @@ public class ManagedServiceBuilder {
      */
     public int getPort() {
 
-        if (port == 8080) {
+        if (port == EndpointServerBuilder.DEFAULT_PORT) {
             String sport = System.getenv("PORT_WEB");
             /** Looks up port for Mesoshpere and the like. */
             if (Str.isEmpty(sport)) {
@@ -484,7 +504,7 @@ public class ManagedServiceBuilder {
 
     /**
      * Set the actual port to bind to.
-     *
+     * @param  port port
      * @return this
      */
     public ManagedServiceBuilder setPort(int port) {
@@ -501,63 +521,116 @@ public class ManagedServiceBuilder {
         return this;
     }
 
-    public void enableConsulServiceDiscovery(final String dataCenter) {
-        final ConsulServiceDiscoveryBuilder consulServiceDiscoveryBuilder = ConsulServiceDiscoveryBuilder.consulServiceDiscoveryBuilder();
+    /**
+     * Enable consul discovery
+     *
+     * @param dataCenter name of datacenter we are connecting to.
+     * @return fluent, this
+     */
+    public ManagedServiceBuilder enableConsulServiceDiscovery(final String dataCenter) {
+        final ConsulServiceDiscoveryBuilder consulServiceDiscoveryBuilder = consulServiceDiscoveryBuilder();
         consulServiceDiscoveryBuilder.setDatacenter(dataCenter);
-        serviceDiscoverySupplier = () -> consulServiceDiscoveryBuilder.build();
+        serviceDiscoverySupplier = consulServiceDiscoveryBuilder::build;
+        return this;
     }
 
-    public void enableConsulServiceDiscovery(final String dataCenter, final String host) {
-        final ConsulServiceDiscoveryBuilder consulServiceDiscoveryBuilder = ConsulServiceDiscoveryBuilder.consulServiceDiscoveryBuilder();
+    /**
+     * Enable consul discovery.
+     *
+     * @param dataCenter name of datacenter we are connecting to.
+     * @param host       name of host we are connecting to
+     * @return fluent, this
+     */
+    public ManagedServiceBuilder enableConsulServiceDiscovery(final String dataCenter, final String host) {
+        final ConsulServiceDiscoveryBuilder consulServiceDiscoveryBuilder = consulServiceDiscoveryBuilder();
         consulServiceDiscoveryBuilder.setDatacenter(dataCenter);
         consulServiceDiscoveryBuilder.setConsulHost(host);
-        serviceDiscoverySupplier = () -> consulServiceDiscoveryBuilder.build();
+        serviceDiscoverySupplier = consulServiceDiscoveryBuilder::build;
+        return this;
     }
 
-    public void enableConsulServiceDiscovery(final String dataCenter, final String host, final int port) {
-        final ConsulServiceDiscoveryBuilder consulServiceDiscoveryBuilder = ConsulServiceDiscoveryBuilder.consulServiceDiscoveryBuilder();
+    /**
+     * Enable consul discovery.
+     *
+     * @param dataCenter name of datacenter we are connecting to.
+     * @param host       name of host we are connecting to
+     * @param port       consul port
+     * @return fluent, this
+     **/
+    public ManagedServiceBuilder enableConsulServiceDiscovery(final String dataCenter,
+                                                              final String host,
+                                                              final int port) {
+        final ConsulServiceDiscoveryBuilder consulServiceDiscoveryBuilder = consulServiceDiscoveryBuilder();
         consulServiceDiscoveryBuilder.setDatacenter(dataCenter);
         consulServiceDiscoveryBuilder.setConsulHost(host);
         consulServiceDiscoveryBuilder.setConsulPort(port);
-        serviceDiscoverySupplier = () -> consulServiceDiscoveryBuilder.build();
+        serviceDiscoverySupplier = consulServiceDiscoveryBuilder::build;
+        return this;
     }
 
+    /**
+     * Used to get access to the serviceDiscoverySupplier which could be null.
+     *
+     * @return Supplier
+     */
     public Supplier<ServiceDiscovery> getServiceDiscoverySupplier() {
         return serviceDiscoverySupplier;
     }
 
+    /**
+     * Used to inject a service discovery supplier.
+     *
+     * @param serviceDiscoverySupplier serviceDiscoverySupplier
+     * @return fluent, this
+     */
     public ManagedServiceBuilder setServiceDiscoverySupplier(Supplier<ServiceDiscovery> serviceDiscoverySupplier) {
         this.serviceDiscoverySupplier = serviceDiscoverySupplier;
         return this;
     }
 
+    /**
+     * Used to get the service discovery.
+     *
+     * @return ServiceDiscovery
+     */
     public ServiceDiscovery getServiceDiscovery() {
         if (serviceDiscovery == null) {
             if (serviceDiscoverySupplier != null) {
-                serviceDiscovery = serviceDiscoverySupplier.get();
+                return serviceDiscoverySupplier.get();
             }
         }
         return serviceDiscovery;
     }
 
+
+    /**
+     * Used to inject service discovery.
+     *
+     * @param serviceDiscovery service discovery
+     * @return fluent, this
+     */
     public ManagedServiceBuilder setServiceDiscovery(ServiceDiscovery serviceDiscovery) {
         this.serviceDiscovery = serviceDiscovery;
         return this;
     }
 
+    /**
+     * Used to get the StatsD replicator builder.
+     * You can use this to configure StatsD.
+     * You can also use environment variables {@code STATSD_PORT} and {@code STATSD_HOST}.
+     *
+     * @return stats replicator builder.
+     */
     public StatsDReplicatorBuilder getStatsDReplicatorBuilder() {
         if (statsDReplicatorBuilder == null) {
             statsDReplicatorBuilder = StatsDReplicatorBuilder.statsDReplicatorBuilder();
 
             final String statsDPort = System.getenv("STATSD_PORT");
-
             if (statsDPort != null && !statsDPort.isEmpty()) {
                 statsDReplicatorBuilder.setPort(Integer.parseInt(statsDPort));
             }
 
             final String statsDHost = System.getenv("STATSD_HOST");
-
-
             if (statsDHost != null && !statsDHost.isEmpty()) {
                 statsDReplicatorBuilder.setHost(statsDHost);
             }
@@ -574,19 +647,22 @@ public class ManagedServiceBuilder {
 
     /**
      * Finds the admin port.
-     * Searches  under environment variables, QBIT_ADMIN_PORT, ADMIN_PORT, PORT1
+     * Searches  under environment variables,
+     * {@code QBIT_ADMIN_PORT}, {@code ADMIN_PORT}, {@code PORT1}.
+     *
+     * @return admin port
      */
     public String findAdminPort() {
 
-        String qbitAdminPort = getAdminPort("QBIT_ADMIN_PORT");
+        String qbitAdminPort = System.getenv("QBIT_ADMIN_PORT");
 
         if (Str.isEmpty(qbitAdminPort)) {
-            qbitAdminPort = getAdminPort("ADMIN_PORT");
+            qbitAdminPort = System.getenv("ADMIN_PORT");
         }
 
-        /* Uses PORT1 for admin port for Mesosphere like environments. */
+        /* Uses PORT1 for admin port for Mesosphere / Heroku like environments. */
         if (Str.isEmpty(qbitAdminPort)) {
-            qbitAdminPort = getAdminPort("PORT1");
+            qbitAdminPort = System.getenv("PORT1");
         }
         return qbitAdminPort;
     }
@@ -612,9 +688,6 @@ public class ManagedServiceBuilder {
         return this;
     }
 
-    private String getAdminPort(String qbit_admin_port) {
-        return System.getenv(qbit_admin_port);
-    }
 
     public ContextMetaBuilder getContextMetaBuilder() {
         if (contextMetaBuilder == null) {
@@ -659,6 +732,25 @@ public class ManagedServiceBuilder {
     public ManagedServiceBuilder addEndpointService(final Object endpointService) {
         getContextMetaBuilder().addService(endpointService.getClass());
         getEndpointServices().add(endpointService);
+        return this;
+    }
+
+    public ManagedServiceBuilder addEndpointServiceWithQueueHandlerCallbacks(final Object endpointService,
+                                                                             final QueueCallBackHandler...
+                                                                                     queueCallBackHandlers) {
+        getContextMetaBuilder().addService(endpointService.getClass());
+        getManagedServiceDefinitionList().add(new ManagedServiceDefinition(null, endpointService,
+                queueCallBackHandlers));
+        return this;
+    }
+
+    public ManagedServiceBuilder addEndpointServiceWithAliasAndQueueHandlerCallbacks(final String alias,
+                                                                                     final Object endpointService,
+                                                                                     final QueueCallBackHandler...
+                                                                                             queueCallBackHandlers) {
+        getContextMetaBuilder().addService(endpointService.getClass());
+        getManagedServiceDefinitionList().add(new ManagedServiceDefinition(alias, endpointService,
+                queueCallBackHandlers));
         return this;
     }
 
@@ -898,15 +990,43 @@ public class ManagedServiceBuilder {
         }
     }
 
-    public void startApplication() {
+    /**
+     * Get the ServiceEndpointServer constructed with all of the service endpionts that
+     * you registered
+     *
+     * @return new ServiceEndpointServer.
+     */
+    public ServiceEndpointServer getServiceEndpointServer() {
 
-        this.getEndpointServerBuilder().build().startServerAndWait();
+        final ServiceEndpointServer serviceEndpointServer = getEndpointServerBuilder().build();
+
+        if (managedServiceDefinitionList != null) {
+            managedServiceDefinitionList.forEach(serviceDef -> {
+                if (serviceDef.getAlias() == null) {
+                    serviceEndpointServer.addServiceWithQueueCallBackHandlers(serviceDef.getServiceObject(),
+                            serviceDef.getQueueCallBackHandlers());
+                } else {
+                    serviceEndpointServer.addServiceObjectWithQueueCallBackHandlers(serviceDef.getAlias(),
+                            serviceDef.getServiceObject(), serviceDef.getQueueCallBackHandlers());
+                }
+            });
+        }
+        return serviceEndpointServer;
+
     }
+
+    /**
+     * Starts up the application.
+     */
+    public void startApplication() {
+        getServiceEndpointServer().startServerAndWait();
+    }
+
 
     /**
      * Configure a list of common interceptors.
      *
-     * @return
+     * @return interceptors.
      */
     private Interceptors configureInterceptors() {
         Interceptors interceptors = new Interceptors();
@@ -915,7 +1035,8 @@ public class ManagedServiceBuilder {
             enableRequestChain = true;
             if (requestHeadersToTrackForMappedDiagnosticContext != null &&
                     requestHeadersToTrackForMappedDiagnosticContext.size() > 0) {
-                setupMdcForHttpRequestInterceptor = new SetupMdcForHttpRequestInterceptor(requestHeadersToTrackForMappedDiagnosticContext);
+                setupMdcForHttpRequestInterceptor =
+                        new SetupMdcForHttpRequestInterceptor(requestHeadersToTrackForMappedDiagnosticContext);
             } else {
                 setupMdcForHttpRequestInterceptor = new SetupMdcForHttpRequestInterceptor(Collections.emptySet());
             }
@@ -1000,7 +1121,8 @@ public class ManagedServiceBuilder {
 
 
             serviceBuilder.registerStatsCollections(bindStatHealthName,
-                    getStatServiceBuilder().buildStatsCollector(), getSampleStatFlushRate(), getCheckTimingEveryXCalls());
+                    getStatServiceBuilder().buildStatsCollector(), getSampleStatFlushRate(),
+                    getCheckTimingEveryXCalls());
         }
 
         return serviceBuilder;
@@ -1055,6 +1177,7 @@ public class ManagedServiceBuilder {
 
     /**
      * Sets up DNS based service discovery.
+     * @return fluent, this
      */
     public ManagedServiceBuilder useDnsServiceDiscovery() {
         this.setServiceDiscovery(DnsUtil.createDnsServiceDiscovery());

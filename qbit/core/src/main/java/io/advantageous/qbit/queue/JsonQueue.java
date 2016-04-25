@@ -12,7 +12,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 
 /**
- * Wraps a QBit Queue<String> and converts items into JSON and from JSON.
+ * Wraps a QBit Queue and converts items into JSON and from JSON.
  *
  * @param <T> convert to this type.
  */
@@ -72,6 +72,7 @@ public class JsonQueue<T> implements Queue<T> {
     /**
      * @param componentClass component class type
      * @param queue          queue
+     * @param jsonMapper     json mapper
      * @param <T>            T
      * @return new JsonQueue that works with lists of componentClass instances
      */

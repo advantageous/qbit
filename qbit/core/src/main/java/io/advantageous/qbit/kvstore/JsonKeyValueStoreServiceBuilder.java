@@ -15,26 +15,21 @@ import java.util.List;
  * You don't typically use the `StringDecoderEncoderKeyValueStore` directly but you could.
  * Instead you use it in conjunction with the ***JsonKeyValueStoreServiceBuilder*** which constructs
  * `StringDecoderEncoderKeyValueStore` that do JSON encoding and decoding.
- * <p>
- * #### Example using JsonKeyValueStoreServiceBuilder
- * <p>
- * ```java
- * <p>
- * <p>
+ * <h1>Example using JsonKeyValueStoreServiceBuilder</h1>
+ * <pre>
+ *         <code>
  * private JsonKeyValueStoreServiceBuilder jsonKeyValueStoreServiceBuilder;
  * private LowLevelLocalKeyValueStoreService localKeyValueStoreService = ...;
- * private KeyValueStoreService<Todo> keyValueStoreService;
- * <p>
- * jsonKeyValueStoreServiceBuilder.setLowLevelKeyValueStoreService(localKeyValueStoreService);
- * <p>
- * keyValueStoreService = jsonKeyValueStoreServiceBuilder.buildKeyValueStore(Todo.class);
- * keyValueStoreService.put("key", new Todo("value"));
- * <p>
- * <p>
- * ```
+ * private KeyValueStoreService&gt;Todo&lt; keyValueStoreService;
+ *   jsonKeyValueStoreServiceBuilder.setLowLevelKeyValueStoreService(localKeyValueStoreService);
+ *   keyValueStoreService = jsonKeyValueStoreServiceBuilder.buildKeyValueStore(Todo.class);
+ *   keyValueStoreService.put("key", new Todo("value"));
+ *
+ *    </code>
+ *    </pre>
  * <p>
  * Essentially `JsonKeyValueStoreServiceBuilder` can turn a `LowLevelLocalKeyValueStoreService`
- * into a `KeyValueStoreService<Todo>` (object store).
+ * into a KeyValueStoreService&gt;Todo&lt; (object store).
  */
 public class JsonKeyValueStoreServiceBuilder {
 

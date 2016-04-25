@@ -17,7 +17,7 @@ import java.util.logging.Logger;
 /**
  * Created by cmathias on 8/13/15.
  * <p>
- * Borrowed largely from Tomcat 7 CORS Servlet impl.
+ * Ideas borrowed largely from Tomcat 7 CORS Servlet impl.
  */
 public class CorsResponseDecorator implements HttpResponseDecorator {
 
@@ -89,7 +89,7 @@ public class CorsResponseDecorator implements HttpResponseDecorator {
      * Indicates (in seconds) how long the results of a pre-flight request can
      * be cached in a pre-flight result cache.
      */
-    private long preflightMaxAge = 1800;
+    private long preFlightMaxAge = 1800;
 
 
     public CorsResponseDecorator(CorsSupport corsSupport) {
@@ -140,7 +140,8 @@ public class CorsResponseDecorator implements HttpResponseDecorator {
      * <li>Origin should be a valid {@link URI}</li>
      * </ul>
      *
-     * @param origin
+     * @param origin origin
+     * @return if this is a valid origin
      * @see <a href="http://tools.ietf.org/html/rfc952">RFC952</a>
      */
     protected static boolean isValidOrigin(String origin) {
@@ -227,6 +228,10 @@ public class CorsResponseDecorator implements HttpResponseDecorator {
 
     /**
      * Handles a CORS request of type {@link CORSRequestType}.SIMPLE.
+     *
+     * @param request  request
+     * @param response response
+     * @return is there a CORS simple handler for this request or response.
      */
     protected boolean handleSimpleCORS(final HttpRequestHolder request,
                                        final HttpResponseHolder response) {
@@ -295,6 +300,10 @@ public class CorsResponseDecorator implements HttpResponseDecorator {
 
     /**
      * Handles CORS pre-flight request.
+     *
+     * @param request  request
+     * @param response response
+     * @return return true if pre flight handler.
      */
     protected boolean handlePreflightCORS(final HttpRequestHolder request,
                                           final HttpResponseHolder response) {
@@ -373,10 +382,10 @@ public class CorsResponseDecorator implements HttpResponseDecorator {
         }
 
         // Section 6.2.8
-        if (preflightMaxAge > 0) {
+        if (preFlightMaxAge > 0) {
             response.getHeaders().add(
                     CorsResponseDecorator.RESPONSE_HEADER_ACCESS_CONTROL_MAX_AGE,
-                    String.valueOf(preflightMaxAge));
+                    String.valueOf(preFlightMaxAge));
         }
 
         // Section 6.2.9
@@ -432,7 +441,8 @@ public class CorsResponseDecorator implements HttpResponseDecorator {
     /**
      * Determines the request type.
      *
-     * @param request
+     * @param request request
+     * @return CORs request type.
      */
     protected CORSRequestType checkRequestType(final HttpRequestHolder request) {
         CORSRequestType requestType = CORSRequestType.INVALID_CORS;

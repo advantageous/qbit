@@ -100,6 +100,7 @@ public class BoonClient implements Client {
      * @param httpClient       httpClient
      * @param uri              uri
      * @param requestBatchSize request batch size
+     * @param beforeMethodSent before method sent interceptor
      */
     public BoonClient(final String uri,
                       final HttpClient httpClient,

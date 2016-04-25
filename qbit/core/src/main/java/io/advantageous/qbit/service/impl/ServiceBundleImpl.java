@@ -33,9 +33,7 @@ import io.advantageous.qbit.message.Request;
 import io.advantageous.qbit.message.Response;
 import io.advantageous.qbit.message.impl.ResponseImpl;
 import io.advantageous.qbit.queue.Queue;
-import io.advantageous.qbit.queue.QueueBuilder;
-import io.advantageous.qbit.queue.ReceiveQueueListener;
-import io.advantageous.qbit.queue.SendQueue;
+import io.advantageous.qbit.queue.*;
 import io.advantageous.qbit.service.*;
 import io.advantageous.qbit.service.health.HealthServiceAsync;
 import io.advantageous.qbit.service.stats.StatsCollector;
@@ -50,6 +48,8 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
+
+import static java.util.Arrays.stream;
 
 
 /**
@@ -260,6 +260,20 @@ public class ServiceBundleImpl implements ServiceBundle {
     }
 
     /**
+     * Add a client to this bundle.
+     *
+     * @param serviceObject the client we want to add.
+     */
+    @Override
+    public ServiceBundle addServiceWithQueueCallBackHandlers(final Object serviceObject, final QueueCallBackHandler... queueCallBackHandlers) {
+        if (debug) {
+            logger.debug("ServiceBundleImpl::addServiceObject(object)- service added with handlers");
+        }
+        addServiceObjectWithQueueCallBackHandlers(null, serviceObject, queueCallBackHandlers);
+        return this;
+    }
+
+    /**
      * Add a client to this bundle, under a certain address.
      *
      * @param serviceAddress the address of the client
@@ -267,8 +281,24 @@ public class ServiceBundleImpl implements ServiceBundle {
      */
     @Override
     public ServiceBundle addServiceObject(final String serviceAddress, final Object serviceObject) {
+        this.addServiceObjectWithQueueCallBackHandlers(serviceAddress, serviceObject, (QueueCallBackHandler[]) null);
+        return this;
+    }
 
-        logger.info(ServiceBundleImpl.class.getName() + " serviceAddress " + serviceAddress + " service object " + serviceObject);
+    /**
+     * Add a client to this bundle, under a certain address.
+     *
+     * @param serviceAddress        the address of the client
+     * @param serviceObject         the client we want to add.
+     * @param queueCallBackHandlers queue callback handler
+     */
+    @Override
+    public ServiceBundle addServiceObjectWithQueueCallBackHandlers(final String serviceAddress,
+                                                                   final Object serviceObject,
+                                                                   final QueueCallBackHandler... queueCallBackHandlers) {
+
+        logger.info("Adding service {} @ {} with object {}", ServiceBundleImpl.class.getName(),
+                serviceAddress, serviceObject);
 
         if (serviceObject instanceof Consumer) {
 
@@ -300,6 +330,10 @@ public class ServiceBundleImpl implements ServiceBundle {
                 .setEventManager(eventManager)
                 .setBeforeMethodCall(this.beforeMethodCallOnServiceQueue)
                 .setAfterMethodCall(this.afterMethodCallOnServiceQueue);
+
+        if (queueCallBackHandlers != null) {
+            stream(queueCallBackHandlers).forEach(serviceBuilder::addQueueCallbackHandler);
+        }
 
 
         final String bindStatHealthName = serviceAddress == null

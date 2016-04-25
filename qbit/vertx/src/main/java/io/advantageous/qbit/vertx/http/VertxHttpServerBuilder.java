@@ -35,7 +35,7 @@ import io.vertx.ext.web.Router;
  *
  *
  *     Router router = Router.router(vertx); //Vertx router
- *     Route route1 = router.route("/some/path/").handler(routingContext -> {
+ *     Route route1 = router.route("/some/path/").handler(routingContext -&gt; {
  *     HttpServerResponse response = routingContext.response();
  *          // enable chunked responses because we will be adding data as
  *          // we execute over other handlers. This is only required once and
@@ -44,7 +44,7 @@ import io.vertx.ext.web.Router;
  *          response.write("route1\n");
  *
  *          // Call the next matching route after a 5 second delay
- *         routingContext.vertx().setTimer(5000, tid -> routingContext.next());
+ *         routingContext.vertx().setTimer(5000, tid -&gt; routingContext.next());
  *     });
  *
  *     //Now install our QBit Server to handle REST calls.
