@@ -729,6 +729,33 @@ public class ManagedServiceBuilder {
         return this;
     }
 
+
+    public ManagedServiceBuilder addEndpointServiceWithServiceManagmentBundle(
+            final Object endpointService, final ServiceManagementBundle serviceManagementBundle) {
+
+        addEndpointServiceWithAliasAndQueueHandlerCallbacks(null, new QueueCallBackHandler() {
+            @Override
+            public void queueProcess() {
+                serviceManagementBundle.process();
+            }
+        });
+        return this;
+    }
+
+
+    public ManagedServiceBuilder addEndpointServiceWithAliasAndServiceManagmentBundle(
+            final String alias,
+            final Object endpointService, final ServiceManagementBundle serviceManagementBundle) {
+
+        addEndpointServiceWithAliasAndQueueHandlerCallbacks(alias, new QueueCallBackHandler() {
+            @Override
+            public void queueProcess() {
+                serviceManagementBundle.process();
+            }
+        });
+        return this;
+    }
+
     public ManagedServiceBuilder addEndpointService(final Object endpointService) {
         getContextMetaBuilder().addService(endpointService.getClass());
         getEndpointServices().add(endpointService);
