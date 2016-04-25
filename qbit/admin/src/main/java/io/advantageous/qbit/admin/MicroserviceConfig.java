@@ -116,6 +116,7 @@ public class MicroserviceConfig {
      * @param contactEmail contactEmail
      * @param version      version
      * @param rootURI      rootURI
+     * @param contactURL   contact URL
      */
     public MicroserviceConfig(String title, String description, String publicHost, int publicPort,
                               int port, String contactName,

@@ -69,7 +69,13 @@ public interface ServiceEndpointServer extends Server {
     }
 
 
-    /** Add a service object with one or more QueueCallBackHandler handlers. */
+    /** Add a service object with one or more QueueCallBackHandler handlers.
+     *
+     * @param address alias
+     * @param serviceObject service object
+     * @param queueCallBackHandlers queue callback handlers
+     * @return service endpoint server
+     */
     default ServiceEndpointServer addServiceObjectWithQueueCallBackHandlers(String address,
                                                                             Object serviceObject,
                                                                             QueueCallBackHandler... queueCallBackHandlers) {
@@ -90,7 +96,7 @@ public interface ServiceEndpointServer extends Server {
 
     /**
      * Add a service.
-     * @param serviceObject
+     * @param serviceObject serviceObject
      * @return fluent, this
      */
     default ServiceEndpointServer addService(Object serviceObject) {

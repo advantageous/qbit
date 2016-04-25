@@ -183,6 +183,7 @@ public interface Factory {
      * @param serviceInterface client interface to client
      * @param serviceName      name of the client that we are proxying method calls to.
      * @param serviceBundle    name of client bundle
+     * @param beforeMethodSent before method sent interceptor
      * @param <T>              type of proxy
      * @return new proxy object
      */
@@ -205,6 +206,7 @@ public interface Factory {
      * @param beforeMethodCall before method call
      * @param <T>              type of client
      * @param requestBatchSize request batch size
+     * @param beforeMethodSent before method sent interceptor
      * @return remote proxy
      */
     default <T> T createRemoteProxyWithReturnAddress(Class<T> serviceInterface, String uri, String serviceName,

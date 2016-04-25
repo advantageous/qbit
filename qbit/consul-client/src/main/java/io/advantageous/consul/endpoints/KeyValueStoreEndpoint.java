@@ -29,7 +29,6 @@ import io.advantageous.qbit.http.request.HttpTextResponse;
 
 import java.net.URI;
 import java.util.*;
-import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 import static io.advantageous.boon.json.JsonFactory.fromJsonArray;
@@ -203,6 +202,7 @@ public class KeyValueStoreEndpoint extends Endpoint {
      * @param key        The key to use as index.
      * @param value      The value to index.
      * @param putOptions PUT options (e.g. wait, acquire).
+     * @param flags      flags
      * @return <code>true</code> if the value was successfully indexed.
      */
     public boolean putValue(final String key, final String value, final long flags, final KeyValuePutOptions putOptions) {

@@ -157,6 +157,7 @@ public class EmployeeServiceSingleObjectTestService {
      * There has a return and the client can get notified of exceptions that this might throw.
      *
      * @param employee employee
+     * @return ack
      */
     @RequestMapping(value = "/employee-ack", method = RequestMethod.POST)
     public boolean addEmployeeAck(final Employee employee) {

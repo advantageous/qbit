@@ -39,16 +39,15 @@ import static io.advantageous.consul.discovery.ConsulServiceDiscoveryBuilder.con
  * This is a utility class for when you are running in a PaaS like Heroku or Docker.
  * It also allows you to share stat, health and system manager setup.
  * <p>
- * <p>
  * The main end point port will be read from the environment variable {@code WEB_PORT}
  * and if not found then read from {@code PORT0}, and then lastly from {@code PORT}.
  * <p>
- * If statsD is enabled then this will look for the statsd port and host from {&code STATSD_PORT} and
- * {&code STATSD_HOST} environment
+ * If statsD is enabled then this will look for the statsd port and host from {@code STATSD_PORT} and
+ * {@code STATSD_HOST} environment
  * variables.
  * <p>
  * If you use the admin builder, the port for the admin will be from the environment variable
- * {@code QBIT_ADMIN_PORT}, then {&code ADMIN_PORT}, and then {@code PORT1}.
+ * {@code QBIT_ADMIN_PORT}, then {@code ADMIN_PORT}, and then {@code PORT1}.
  * It can be overridden from system properties as well see AdminBuilder for more details.
  * <p>
  * Defaults for ports and hosts can be overridden by their respective builders.
@@ -300,6 +299,7 @@ public class ManagedServiceBuilder {
      * Enable the logging diagnostic context
      *
      * @param requestHeaders request headers
+     * @return this, fluent
      */
     public ManagedServiceBuilder enableLoggingMappedDiagnosticContext(final String... requestHeaders) {
         return enableLoggingMappedDiagnosticContext(Sets.set(requestHeaders));
@@ -308,6 +308,7 @@ public class ManagedServiceBuilder {
     /**
      * Enable the logging diagnostic context
      *
+     * @param requestHeaders request headers to track in the MDC.
      * @return this
      */
     public ManagedServiceBuilder enableLoggingMappedDiagnosticContext(final Set<String> requestHeaders) {
@@ -503,7 +504,7 @@ public class ManagedServiceBuilder {
 
     /**
      * Set the actual port to bind to.
-     *
+     * @param  port port
      * @return this
      */
     public ManagedServiceBuilder setPort(int port) {
@@ -553,6 +554,7 @@ public class ManagedServiceBuilder {
      *
      * @param dataCenter name of datacenter we are connecting to.
      * @param host       name of host we are connecting to
+     * @param port       consul port
      * @return fluent, this
      **/
     public ManagedServiceBuilder enableConsulServiceDiscovery(final String dataCenter,
@@ -568,6 +570,8 @@ public class ManagedServiceBuilder {
 
     /**
      * Used to get access to the serviceDiscoverySupplier which could be null.
+     *
+     * @return Supplier
      */
     public Supplier<ServiceDiscovery> getServiceDiscoverySupplier() {
         return serviceDiscoverySupplier;
@@ -602,6 +606,7 @@ public class ManagedServiceBuilder {
     /**
      * Used to inject service discovery.
      *
+     * @param serviceDiscovery service discovery
      * @return fluent, this
      */
     public ManagedServiceBuilder setServiceDiscovery(ServiceDiscovery serviceDiscovery) {
@@ -1172,6 +1177,7 @@ public class ManagedServiceBuilder {
 
     /**
      * Sets up DNS based service discovery.
+     * @return fluent, this
      */
     public ManagedServiceBuilder useDnsServiceDiscovery() {
         this.setServiceDiscovery(DnsUtil.createDnsServiceDiscovery());

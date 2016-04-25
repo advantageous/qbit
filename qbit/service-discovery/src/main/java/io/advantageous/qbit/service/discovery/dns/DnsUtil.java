@@ -66,6 +66,7 @@ public class DnsUtil {
 
     /**
      * Create service discovery that can talk DNS.
+     * @return ServiceDiscovery
      */
     public static ServiceDiscovery createDnsServiceDiscovery() {
 

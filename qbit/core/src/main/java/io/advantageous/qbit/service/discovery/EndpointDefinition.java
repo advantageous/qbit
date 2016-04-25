@@ -109,6 +109,7 @@ public class EndpointDefinition {
      * @param name         name
      * @param host         post
      * @param port         port
+     * @param timeToLive   time to live
      */
     public EndpointDefinition(
             final HealthStatus healthStatus,

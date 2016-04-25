@@ -101,6 +101,7 @@ public interface KeyValueStoreService<T> {
     /**
      * Delete the key with confirmation.
      *
+     * @param confirmation  callback confirmation.
      * @param key key
      */
     default void deleteWithConfirmation(final Callback<Boolean> confirmation,

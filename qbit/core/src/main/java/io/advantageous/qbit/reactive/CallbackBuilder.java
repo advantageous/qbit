@@ -78,6 +78,7 @@ public class CallbackBuilder {
     }
 
     /**
+     * @param <T> T type of callback.
      * @return callback
      */
     public <T> Callback<T> getCallback() {
@@ -161,9 +162,11 @@ public class CallbackBuilder {
     /**
      * Builder method to delegate timeout and error handling to other callback.
      *
-     * @param callback callback
-     * @param <T>      T
-     * @return this
+     * @param callback      callback
+     * @param logger        logger
+     * @param operationName method name or thing you are doing.
+     * @param <T>           T
+     * @return this, fluent
      */
     public <T> CallbackBuilder delegateWithLogging(final Callback<T> callback, final Logger logger,
                                                    final String operationName) {
@@ -184,9 +187,11 @@ public class CallbackBuilder {
     /**
      * Builder method to wrap / delegate timeout and error handling as well as callback itself.
      *
-     * @param callback callback
-     * @param <T>      T
-     * @return this
+     * @param callback      callback
+     * @param logger        logger
+     * @param operationName method name or thing you are doing.
+     * @param <T>           T
+     * @return this, fluent
      */
     public <T> CallbackBuilder wrapWithLogging(final Callback<T> callback, final Logger logger,
                                                final String operationName) {
@@ -344,7 +349,9 @@ public class CallbackBuilder {
     /**
      * Builder method to set callback handler that takes an optional string
      *
+     * @param cls      class
      * @param callback callback
+     * @param <T>      type of callback
      * @return this
      */
     public <T> CallbackBuilder withOptionalCallback(final Class<T> cls, final Callback<Optional<T>> callback) {
@@ -440,6 +447,9 @@ public class CallbackBuilder {
     }
 
     /**
+     * Sets onError handler.
+     *
+     * @param onError on error handler.
      * @return this
      */
     public CallbackBuilder setOnError(Consumer<Throwable> onError) {

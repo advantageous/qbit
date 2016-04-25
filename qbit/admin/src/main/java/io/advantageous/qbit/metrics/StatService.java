@@ -119,8 +119,9 @@ public interface StatService extends StatsCollector {
     /**
      * Gets count of the last recorded N full seconds.
      *
-     * @param callback callback
-     * @param name     name of metric
+     * @param callback    callback
+     * @param name        name of metric
+     * @param secondCount second count
      */
     default void lastNSecondsCount(Callback<Long> callback, String name, int secondCount) {
     }
@@ -130,8 +131,9 @@ public interface StatService extends StatsCollector {
      * Gets count of the last recorded N full seconds.
      * This is more exact if the count overlaps two minutes.
      *
-     * @param callback callback
-     * @param name     name of metric
+     * @param callback    callback
+     * @param name        name of metric
+     * @param secondCount second count
      */
     default void lastNSecondsCountExact(Callback<Long> callback, String name, int secondCount) {
     }

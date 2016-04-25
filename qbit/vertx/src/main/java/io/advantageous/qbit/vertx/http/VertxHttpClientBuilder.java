@@ -22,7 +22,6 @@ import io.vertx.core.Vertx;
  * <p>
  * HttpClient httpClient = vertxHttpClientBuilder.setPort(9090).setHost("localhost").build();
  * <p>
- * <p>
  * ```
  *
  * @author rhightower

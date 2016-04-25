@@ -64,6 +64,9 @@ public class HttpResponseBuilder {
 
     /**
      * Sets a JSON body.
+     *
+     * @param json json
+     * @return this, fluent
      */
     public HttpResponseBuilder setJsonBody(final String json) {
         this.setContentType("application/json");
@@ -74,6 +77,8 @@ public class HttpResponseBuilder {
 
     /**
      * Sets a JSON body with OK (200) http code.
+     * @param json json
+     * @return this, fluent
      */
     public HttpResponseBuilder setJsonBodyCodeOk(final String json) {
         this.setCode(200);
@@ -84,6 +89,8 @@ public class HttpResponseBuilder {
 
     /**
      * Sets a JSON body with (500) http code.
+     * @param json json
+     * @return this, fluent
      */
     public HttpResponseBuilder setJsonBodyError(final String json) {
         this.setCode(500);

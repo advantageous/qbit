@@ -43,9 +43,13 @@ public class HealthServiceImpl extends BaseService implements HealthService, Sto
     /**
      * Constructor.
      *
+     * @param healthPrefix    health prefix
+     * @param reactor         reactor
      * @param timer           timer
+     * @param statsCollector  stats collector.
      * @param recheckInterval recheck interval
      * @param timeUnit        time unit for interval
+     * @param healthCheckJobs jobs that perform health checks
      * @param onFail          onFail
      * @param onWarn          onWarn
      * @param onCheckIn       onCheckIn

@@ -27,7 +27,7 @@ public class SessionEndpoint extends Endpoint {
      * The create endpoint is used to initialize a new session.
      * Sessions must be associated with a node and may be associated with any number of checks.
      * The create endpoint expects a JSON request body to be PUT. The request body must look like:
-     * <p>
+     *
      * <pre>
      * <code>
      * {
@@ -40,7 +40,7 @@ public class SessionEndpoint extends Endpoint {
      * }
      * </code>
      * </pre>
-     * </p>
+     *
      * None of the fields are mandatory, and in fact no body needs to be PUT if the defaults are to be used.
      * By default, the agent's local datacenter is used; another datacenter can be specified using
      * the "?dc=" query parameter. However, it is not recommended to use cross-datacenter sessions.
@@ -88,8 +88,8 @@ public class SessionEndpoint extends Endpoint {
      * <p>
      * The session being destroyed must be provided on the path.
      * The return code is 200 on success.
-     * /v1/session/destroy/<session>: Destroys a given session
-     *
+     * /v1/session/destroy/session: Destroys a given session
+     * @param session  session to destroy.
      * @param sessionId sessionId
      * @return true if success
      */
@@ -99,6 +99,9 @@ public class SessionEndpoint extends Endpoint {
     }
 
     /**
+     * Destroy the session.
+     * @param sessionId id of session
+     * @param session session
      * @param datacenter datacenter
      * @return true if success
      */
@@ -182,6 +185,8 @@ public class SessionEndpoint extends Endpoint {
      * <p>
      * /v1/session/renew: Renews a TTL-based session
      *
+     * @param sessionId session id
+     *
      * @return session
      */
     public Session renew(final String sessionId) {
@@ -192,6 +197,7 @@ public class SessionEndpoint extends Endpoint {
     /**
      * /v1/session/renew: Renews a TTL-based session
      *
+     * @param sessionId  session id
      * @param datacenter datacenter
      * @return session
      */
@@ -237,7 +243,7 @@ public class SessionEndpoint extends Endpoint {
      * If the session is not found, null is returned instead of a JSON list.
      * This endpoint supports blocking queries and all consistency modes.
      * <p>
-     * /v1/session/info/<session>: Queries a given session
+     * /v1/session/info/session: Queries a given session
      *
      * @param sessionId      id of a session
      * @param requestOptions request options
@@ -257,7 +263,7 @@ public class SessionEndpoint extends Endpoint {
 
 
     /**
-     * /v1/session/info/<session>:
+     * /v1/session/info/session:
      * Queries a given session
      *
      * @param sessionId      id of a session
@@ -294,7 +300,7 @@ public class SessionEndpoint extends Endpoint {
      * By default, the datacenter of the agent is queried; however,
      * the dc can be provided using the "?dc=" query parameter.
      * The node being queried must be provided on the path.
-     * /v1/session/node/<node>:
+     * /v1/session/node/node:
      * Lists sessions belonging to a node
      *
      * @param node           node
@@ -311,9 +317,10 @@ public class SessionEndpoint extends Endpoint {
     }
 
     /**
-     * /v1/session/node/<node>:
+     * /v1/session/node/node:
      * Lists sessions belonging to a node
      *
+     * @param node node
      * @param requestOptions request options for consistency and long poll
      * @param datacenter     data center param
      * @return list of sessions for this node

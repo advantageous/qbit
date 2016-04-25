@@ -20,8 +20,6 @@ subprojects {
 
     apply plugin: 'maven'
     apply plugin: 'signing'
-    //apply plugin: "jacoco"
-
     group = 'io.advantageous.qbit'
     version = projectVersion
     archivesBaseName = "qbit-$project.name"
