@@ -16,7 +16,22 @@ to pull some levers without selling your soul.
 
 QBit is a library not a framework. You can mix and match QBit with Spring, Guice, etc.
 
-QBit is FAST!
+
+## New and Improved! 
+QBit now supports [Reakt](http://advantageous.github.io/reakt/) invokable promises for local and remote client proxies. 
+This gives a nice fluent API for async programming. 
+
+#### Invokeable promise
+```java
+        employeeService.lookupEmployee("123")
+               .then((employee)-> {...}).catchError(...).invoke();
+```
+
+QBit callbacks are now also Reakt Callbacks without breaking the QBit contract for Callbacks. 
+
+See [Reakt Invokable Promises for more details](https://github.com/advantageous/reakt/wiki/Invokable-Promise).
+
+## QBit is FAST!
 
 ![QBit the microservice framework for java](https://docs.google.com/spreadsheets/d/1kd3gjyyz1MyTJvNLJ-BC0YIkzIU-8YYLLrxpjUl0TBQ/pubchart?oid=781959089&format=image)
 
@@ -29,19 +44,19 @@ QBit is published to the [maven public repo](http://search.maven.org/#search%7Cg
 <dependency>
     <groupId>io.advantageous.qbit</groupId>
     <artifactId>qbit-admin</artifactId>
-    <version>1.3.0.RELEASE</version>
+    <version>1.5.0.RELEASE</version>
 </dependency>
 <dependency>
     <groupId>io.advantageous.qbit</groupId>
     <artifactId>qbit-vertx</artifactId>
-    <version>1.3.0.RELEASE</version>
+    <version>1.5.0.RELEASE</version>
 </dependency>
 ```
 
 #### Using from gradle
 ```java
-compile 'io.advantageous.qbit:qbit-admin:1.3.0.RELEASE'
-compile 'io.advantageous.qbit:qbit-vertx:1.3.0.RELEASE'
+compile 'io.advantageous.qbit:qbit-admin:1.5.0.RELEASE'
+compile 'io.advantageous.qbit:qbit-vertx:1.5.0.RELEASE'
 ```
 
 Core Features
