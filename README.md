@@ -44,19 +44,19 @@ QBit is published to the [maven public repo](http://search.maven.org/#search%7Cg
 <dependency>
     <groupId>io.advantageous.qbit</groupId>
     <artifactId>qbit-admin</artifactId>
-    <version>1.5.0.RELEASE</version>
+    <version>1.6.0.RELEASE</version>
 </dependency>
 <dependency>
     <groupId>io.advantageous.qbit</groupId>
     <artifactId>qbit-vertx</artifactId>
-    <version>1.5.0.RELEASE</version>
+    <version>1.6.0.RELEASE</version>
 </dependency>
 ```
 
 #### Using from gradle
 ```java
-compile 'io.advantageous.qbit:qbit-admin:1.5.0.RELEASE'
-compile 'io.advantageous.qbit:qbit-vertx:1.5.0.RELEASE'
+compile 'io.advantageous.qbit:qbit-admin:1.6.0.RELEASE'
+compile 'io.advantageous.qbit:qbit-vertx:1.6.0.RELEASE'
 ```
 
 Core Features
