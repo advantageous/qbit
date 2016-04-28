@@ -30,6 +30,7 @@ import io.advantageous.qbit.service.impl.ServiceHealthManagerDefault;
 import io.advantageous.qbit.service.stats.StatsCollector;
 import io.advantageous.qbit.system.QBitSystemManager;
 
+import java.net.URI;
 import java.util.*;
 import java.util.function.Supplier;
 
@@ -513,10 +514,21 @@ public class ManagedServiceBuilder {
         return this;
     }
 
+    /**
+     * Get the root URI
+     *
+     * @return root URI.
+     */
     public String getRootURI() {
         return rootURI;
     }
 
+    /**
+     * Set rootURI root uri
+     *
+     * @param rootURI rootURI
+     * @return this, fluent
+     */
     public ManagedServiceBuilder setRootURI(String rootURI) {
         this.rootURI = rootURI;
         return this;
@@ -640,6 +652,12 @@ public class ManagedServiceBuilder {
         return statsDReplicatorBuilder;
     }
 
+    /**
+     * Sets the statsD replicator.
+     *
+     * @param statsDReplicatorBuilder statsDReplicatorBuilder
+     * @return fluent, this
+     */
     public ManagedServiceBuilder setStatsDReplicatorBuilder(
             final StatsDReplicatorBuilder statsDReplicatorBuilder) {
         this.statsDReplicatorBuilder = statsDReplicatorBuilder;
@@ -668,6 +686,11 @@ public class ManagedServiceBuilder {
         return qbitAdminPort;
     }
 
+    /**
+     * Get the Admin builder.
+     *
+     * @return admin builder.
+     */
     public AdminBuilder getAdminBuilder() {
         if (adminBuilder == null) {
             adminBuilder = AdminBuilder.adminBuilder();
@@ -684,12 +707,21 @@ public class ManagedServiceBuilder {
         return adminBuilder;
     }
 
+    /**
+     * @param adminBuilder adminBuilder
+     * @return this, fluent
+     */
     public ManagedServiceBuilder setAdminBuilder(AdminBuilder adminBuilder) {
         this.adminBuilder = adminBuilder;
         return this;
     }
 
 
+    /**
+     * Get context meta builder.
+     *
+     * @return context meta builder
+     */
     public ContextMetaBuilder getContextMetaBuilder() {
         if (contextMetaBuilder == null) {
             contextMetaBuilder = ContextMetaBuilder.contextMetaBuilder();
@@ -700,11 +732,22 @@ public class ManagedServiceBuilder {
         return contextMetaBuilder;
     }
 
+    /**
+     * Get the context meta builder. Used for things like swagger generation.
+     *
+     * @param contextMetaBuilder contextMetaBuilder
+     * @return this, fluent
+     */
     public ManagedServiceBuilder setContextMetaBuilder(final ContextMetaBuilder contextMetaBuilder) {
         this.contextMetaBuilder = contextMetaBuilder;
         return this;
     }
 
+    /**
+     * Services with alias.
+     *
+     * @return map of services and their alias.
+     */
     public Map<String, Object> getEndpointServiceMapWithAlias() {
         if (endpointServiceMapWithAlias == null) {
             endpointServiceMapWithAlias = new HashMap<>();
@@ -712,11 +755,22 @@ public class ManagedServiceBuilder {
         return endpointServiceMapWithAlias;
     }
 
+    /**
+     * Set in a map of alias
+     *
+     * @param endpointServiceMapWithAlias endpointServiceMapWithAlias
+     * @return this, fluent
+     */
     public ManagedServiceBuilder setEndpointServiceMapWithAlias(Map<String, Object> endpointServiceMapWithAlias) {
         this.endpointServiceMapWithAlias = endpointServiceMapWithAlias;
         return this;
     }
 
+    /**
+     * get the list of endpoint services
+     *
+     * @return services without alias
+     */
     public List<Object> getEndpointServices() {
         if (endpointServices == null) {
             endpointServices = new ArrayList<>();
@@ -725,12 +779,25 @@ public class ManagedServiceBuilder {
         return endpointServices;
     }
 
+    /**
+     * Set in the list of services
+     *
+     * @param endpointServices endpoint services w/o alias
+     * @return this, fluent
+     */
     public ManagedServiceBuilder setEndpointServices(final List<Object> endpointServices) {
         this.endpointServices = endpointServices;
         return this;
     }
 
 
+    /**
+     * Add an endpoint with a managment bundle
+     *
+     * @param endpointService         endpoint service
+     * @param serviceManagementBundle management bundle
+     * @return this, fluent
+     */
     public ManagedServiceBuilder addEndpointServiceWithServiceManagmentBundle(
             final Object endpointService, final ServiceManagementBundle serviceManagementBundle) {
 
@@ -744,6 +811,14 @@ public class ManagedServiceBuilder {
     }
 
 
+    /**
+     * Add an endpoint with a managment bundle and an alias
+     *
+     * @param alias                   alias
+     * @param endpointService         endpoint service
+     * @param serviceManagementBundle management bundle
+     * @return this, fluent
+     */
     public ManagedServiceBuilder addEndpointServiceWithAliasAndServiceManagmentBundle(
             final String alias,
             final Object endpointService, final ServiceManagementBundle serviceManagementBundle) {
@@ -757,12 +832,25 @@ public class ManagedServiceBuilder {
         return this;
     }
 
+    /**
+     * Add an endpoint service
+     *
+     * @param endpointService endpoint service
+     * @return this, fluent
+     */
     public ManagedServiceBuilder addEndpointService(final Object endpointService) {
         getContextMetaBuilder().addService(endpointService.getClass());
         getEndpointServices().add(endpointService);
         return this;
     }
 
+    /**
+     * Add an end point service with queue callback handlers
+     *
+     * @param endpointService       endpoint Service
+     * @param queueCallBackHandlers queue callback handlers
+     * @return this, fluent
+     */
     public ManagedServiceBuilder addEndpointServiceWithQueueHandlerCallbacks(final Object endpointService,
                                                                              final QueueCallBackHandler...
                                                                                      queueCallBackHandlers) {
@@ -772,6 +860,14 @@ public class ManagedServiceBuilder {
         return this;
     }
 
+    /**
+     * Add an end point service with queue callback handlers
+     *
+     * @param alias                 alias
+     * @param endpointService       endpoint Service
+     * @param queueCallBackHandlers queue callback handlers
+     * @return this, fluent
+     */
     public ManagedServiceBuilder addEndpointServiceWithAliasAndQueueHandlerCallbacks(final String alias,
                                                                                      final Object endpointService,
                                                                                      final QueueCallBackHandler...
@@ -783,6 +879,13 @@ public class ManagedServiceBuilder {
     }
 
 
+    /**
+     * Add endpoint service with alias
+     *
+     * @param alias           alias
+     * @param endpointService endpoint service
+     * @return this, fluent
+     */
     public ManagedServiceBuilder addEndpointService(final String alias, final Object endpointService) {
         getContextMetaBuilder().addService(alias, endpointService.getClass());
         getEndpointServiceMapWithAlias().put(alias, endpointService);
@@ -790,6 +893,11 @@ public class ManagedServiceBuilder {
     }
 
 
+    /**
+     * Get the base QBit Factory
+     *
+     * @return qbit factory
+     */
     public Factory getFactory() {
         if (factory == null) {
             factory = QBit.factory();
@@ -797,11 +905,22 @@ public class ManagedServiceBuilder {
         return factory;
     }
 
+    /**
+     * Set the QBit Factory
+     *
+     * @param factory factory
+     * @return this, fluent
+     */
     public ManagedServiceBuilder setFactory(final Factory factory) {
         this.factory = factory;
         return this;
     }
 
+    /**
+     * Get event manager
+     *
+     * @return event manager
+     */
     public EventManager getEventManager() {
         if (eventManager == null) {
             eventManager = getFactory().systemEventManager();
@@ -809,11 +928,20 @@ public class ManagedServiceBuilder {
         return eventManager;
     }
 
+    /**
+     * Set event manager
+     *
+     * @param eventManager eventManager
+     * @return this, fluent
+     */
     public ManagedServiceBuilder setEventManager(EventManager eventManager) {
         this.eventManager = eventManager;
         return this;
     }
 
+    /**
+     * @return HealthServiceBuilder
+     */
     public HealthServiceBuilder getHealthServiceBuilder() {
 
         if (healthServiceBuilder == null) {
@@ -822,11 +950,18 @@ public class ManagedServiceBuilder {
         return healthServiceBuilder;
     }
 
+    /**
+     * @param healthServiceBuilder healthServiceBuilder
+     * @return this, fluent
+     */
     public ManagedServiceBuilder setHealthServiceBuilder(final HealthServiceBuilder healthServiceBuilder) {
         this.healthServiceBuilder = healthServiceBuilder;
         return this;
     }
 
+    /**
+     * @return http server builder
+     */
     public HttpServerBuilder getHttpServerBuilder() {
         if (httpServerBuilder == null) {
             httpServerBuilder = HttpServerBuilder.httpServerBuilder();
@@ -841,17 +976,54 @@ public class ManagedServiceBuilder {
         return httpServerBuilder;
     }
 
+    /**
+     * @param httpServerBuilder httpServerBuilder
+     * @return this, fluent
+     */
     public ManagedServiceBuilder setHttpServerBuilder(HttpServerBuilder httpServerBuilder) {
         this.httpServerBuilder = httpServerBuilder;
         return this;
     }
 
+    /**
+     * @return is statsD enabled.
+     */
     public boolean isEnableStatsD() {
         return enableStatsD;
     }
 
+    /**
+     * @param enableStatsD enable statsD
+     * @return this, fluent
+     */
     public ManagedServiceBuilder setEnableStatsD(boolean enableStatsD) {
         this.enableStatsD = enableStatsD;
+        return this;
+    }
+
+
+    /**
+     * Enable statsD using the URI specified.
+     *
+     * @param uri uri for stats D
+     * @return this, fluent
+     */
+    public ManagedServiceBuilder enableStatsD(final URI uri) {
+        this.enableStatsD = true;
+        this.getStatsDReplicatorBuilder().setHost(uri.getHost()).setPort(uri.getPort());
+        return this;
+    }
+
+    /**
+     * Enable statsD using the URI specified.
+     *
+     * @param host host for statsD
+     * @param port port for statsD
+     * @return this, fluent
+     */
+    public ManagedServiceBuilder enableStatsD(final String host, final int port) {
+        this.enableStatsD = true;
+        this.getStatsDReplicatorBuilder().setHost(host).setPort(port);
         return this;
     }
 

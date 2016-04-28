@@ -10,6 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.net.URI;
 import java.util.Properties;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.TimeUnit;
@@ -79,6 +80,13 @@ public class StatsDReplicatorBuilder {
 
     public StatsDReplicatorBuilder setPort(int port) {
         this.port = port;
+        return this;
+    }
+
+
+    public StatsDReplicatorBuilder setUri(URI uri) {
+        this.port = uri.getPort();
+        this.host = uri.getHost();
         return this;
     }
 
