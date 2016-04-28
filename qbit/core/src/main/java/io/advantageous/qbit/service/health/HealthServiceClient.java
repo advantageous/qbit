@@ -1,18 +1,17 @@
 package io.advantageous.qbit.service.health;
 
-
 import io.advantageous.qbit.client.ClientProxy;
-import io.advantageous.qbit.reactive.Callback;
+import io.advantageous.reakt.promise.Promise;
+import io.advantageous.reakt.promise.Promises;
 
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 /**
- * Async interface to QBit health system.
+ * Reakt style client for QBit health system.
  */
-public interface HealthServiceAsync extends ClientProxy {
-
+public interface HealthServiceClient extends ClientProxy {
 
     /**
      * Register a service with the health system
@@ -46,52 +45,71 @@ public interface HealthServiceAsync extends ClientProxy {
     /**
      * Checks to see if all services registered with the health system are ok.
      *
-     * @param ok callback
+     * @return ok
      */
-    default void ok(Callback<Boolean> ok) {
+    default Promise<Boolean> ok() {
+        final Promise<Boolean> promise = Promises.promise();
+        promise.resolve(true);
+        return promise;
     }
 
     /**
      * Returns list of healthy nodes.
      *
-     * @param callback callback
+     * @return promise
      */
-    default void findHealthyNodes(Callback<List<String>> callback) {
+    default Promise<List<String>> findHealthyNodes() {
+        final Promise<List<String>> promise = Promises.promise();
+        promise.resolve(Collections.emptyList());
+        return promise;
     }
 
     /**
      * Find all nodes
      *
-     * @param callback callback
+     * @return promise
      */
-    default void findAllNodes(Callback<List<String>> callback) {
+    default Promise<List<String>> findAllNodes() {
+        final Promise<List<String>> promise = Promises.promise();
+        promise.resolve(Collections.emptyList());
+        return promise;
     }
 
     /**
      * Find all nodes with a certain status.
      *
-     * @param callback    callback
      * @param queryStatus status you are looking for.
+     * @return promise
      */
-    default void findAllNodesWithStatus(Callback<List<String>> callback, HealthStatus queryStatus) {
+    default Promise<List<String>> findAllNodesWithStatus(HealthStatus queryStatus) {
+        final Promise<List<String>> promise = Promises.promise();
+        promise.resolve(Collections.emptyList());
+        return promise;
+
     }
 
     /**
      * Find all healthy nodes
      *
-     * @param callback callback.
+     * @return promise
      */
-    default void findNotHealthyNodes(Callback<List<String>> callback) {
+    default Promise<List<String>> findNotHealthyNodes() {
+        final Promise<List<String>> promise = Promises.promise();
+        promise.resolve(Collections.emptyList());
+        return promise;
+
     }
 
 
     /**
      * Load all nodes no matter the status.
      *
-     * @param callback callback
+     * @return promise
      */
-    default void loadNodes(Callback<List<NodeHealthStat>> callback) {
-        callback.accept(Collections.emptyList());
+    default Promise<List<NodeHealthStat>> loadNodes() {
+        final Promise<List<NodeHealthStat>> promise = Promises.promise();
+        promise.resolve(Collections.emptyList());
+        return promise;
     }
 
     /**
@@ -148,6 +166,5 @@ public interface HealthServiceAsync extends ClientProxy {
      */
     default void registerNoTtl(String name) {
     }
-
 
 }

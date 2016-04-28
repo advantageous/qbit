@@ -34,6 +34,7 @@ public @interface HeaderParam {
 
     /**
      * Name of the header param.
+     *
      * @return value
      */
     String value();

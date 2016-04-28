@@ -201,6 +201,9 @@ public class BaseServiceQueueImpl implements ServiceQueue {
 
     }
 
+    public static ServiceQueue currentService() {
+        return serviceThreadLocal.get();
+    }
 
     /**
      * This method is where all of the action is.
@@ -256,10 +259,6 @@ public class BaseServiceQueueImpl implements ServiceQueue {
         }
 
         return false;
-    }
-
-    public static ServiceQueue currentService() {
-        return serviceThreadLocal.get();
     }
 
     @Override

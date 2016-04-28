@@ -1,8 +1,11 @@
 package io.advantageous.qbit.admin;
 
 
+import io.advantageous.qbit.client.ClientProxy;
 import io.advantageous.qbit.reactive.Callback;
 import io.advantageous.qbit.reakt.Reakt;
+import io.advantageous.qbit.service.health.HealthFailReason;
+import io.advantageous.qbit.service.health.HealthServiceClient;
 import io.advantageous.qbit.service.health.ServiceHealthManager;
 import io.advantageous.qbit.service.stats.StatsCollector;
 import io.advantageous.qbit.util.Timer;
@@ -16,12 +19,14 @@ import java.util.function.Consumer;
 /**
  * Common things that you need for QBit/Reakt services.
  * Gets rid of most of the boilerplate code.
+ * Provides a facade over the QBit monitoring, KPI, stats, and health system.
  */
 public class ServiceManagementBundle implements ServiceHealthManager, StatsCollector {
 
     private final Reactor reactor;
     private final StatsCollector stats;
     private final ServiceHealthManager healthManager;
+    private final Expected<HealthServiceClient> healthServiceClient;
     private final String serviceName;
     private final Timer timer;
     private final String statKeyPrefix;
@@ -35,13 +40,15 @@ public class ServiceManagementBundle implements ServiceHealthManager, StatsColle
                                    final String serviceName,
                                    final Timer timer,
                                    final String statKeyPrefix,
-                                   final Runnable processHandler) {
+                                   final Runnable processHandler,
+                                   final HealthServiceClient healthServiceClient) {
         this.reactor = reactor;
         this.stats = stats;
         this.healthManager = serviceHealthManager;
         this.serviceName = serviceName;
         this.timer = timer;
         this.statKeyPrefix = statKeyPrefix;
+        this.healthServiceClient = Expected.ofNullable(healthServiceClient);
         this.statNameMap = new HashMap<>();
         this.processHandler = Expected.ofNullable(processHandler);
     }
@@ -52,13 +59,14 @@ public class ServiceManagementBundle implements ServiceHealthManager, StatsColle
         reactor.process();
         processHandler.ifPresent(Runnable::run);
         stats.clientProxyFlush();
-
+        healthServiceClient.ifPresent(ClientProxy::clientProxyFlush);
     }
 
     /**
      * Creates a QBit callback based on promise created.
+     *
      * @param promiseConsumer promise consumer
-     * @param <T> T
+     * @param <T>             T
      * @return QBit callback
      */
     public <T> Callback<T> callback(final Consumer<Promise<T>> promiseConsumer) {
@@ -164,6 +172,25 @@ public class ServiceManagementBundle implements ServiceHealthManager, StatsColle
     public void setFailing() {
         increment("fail");
         healthManager.setFailing();
+        healthServiceClient.ifPresent(healthServiceClient1 -> healthServiceClient1.failWithReason(serviceName, HealthFailReason.ERROR));
+    }
+
+    @Override
+    public void setFailingWithReason(HealthFailReason reason) {
+        increment("fail." + reason.name().toLowerCase());
+        healthManager.setFailing();
+        healthServiceClient.ifPresent(healthServiceClient1 -> healthServiceClient1.failWithReason(serviceName, reason));
+    }
+
+    @Override
+    public void setFailingWithError(Throwable cause) {
+        increment("fail." + cause.getClass().getSimpleName().toLowerCase());
+        healthManager.setFailing();
+        healthServiceClient.ifPresent(healthServiceClient1 -> healthServiceClient1.failWithError(serviceName, cause));
+    }
+
+    public Expected<HealthServiceClient> healthServiceClient() {
+        return healthServiceClient;
     }
 
     @Override

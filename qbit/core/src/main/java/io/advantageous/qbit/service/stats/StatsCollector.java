@@ -37,5 +37,4 @@ import io.advantageous.qbit.client.ClientProxy;
 public interface StatsCollector extends MetricsCollector, ClientProxy {
 
 
-
 }

@@ -504,7 +504,8 @@ public class ManagedServiceBuilder {
 
     /**
      * Set the actual port to bind to.
-     * @param  port port
+     *
+     * @param port port
      * @return this
      */
     public ManagedServiceBuilder setPort(int port) {
@@ -1204,6 +1205,7 @@ public class ManagedServiceBuilder {
 
     /**
      * Sets up DNS based service discovery.
+     *
      * @return fluent, this
      */
     public ManagedServiceBuilder useDnsServiceDiscovery() {

@@ -146,7 +146,7 @@ public interface LowLevelKeyValueStoreService {
      * Delete the key with confirmation.
      *
      * @param confirmation confirmation callback
-     * @param key key
+     * @param key          key
      */
     void deleteWithConfirmation(final Callback<Boolean> confirmation,
                                 final String key);

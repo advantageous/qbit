@@ -21,6 +21,8 @@ package io.advantageous.qbit.queue;
 /**
  * Allows one to register callback methods for a queue.
  * created by rhightower on 2/10/15.
+ *
+ * @author Rick Hightower
  */
 public interface QueueCallBackHandler {
 

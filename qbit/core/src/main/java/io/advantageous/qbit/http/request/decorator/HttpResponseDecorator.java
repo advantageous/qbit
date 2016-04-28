@@ -6,16 +6,15 @@ public interface HttpResponseDecorator {
 
 
     /**
-     *
-     * @param responseHolder responseHolder
-     * @param requestPath request path
-     * @param requestMethod request method GET, PUT, POST
-     * @param code response code
-     * @param contentType content type, e.g., application/json
-     * @param payload the actual payload
+     * @param responseHolder  responseHolder
+     * @param requestPath     request path
+     * @param requestMethod   request method GET, PUT, POST
+     * @param code            response code
+     * @param contentType     content type, e.g., application/json
+     * @param payload         the actual payload
      * @param responseHeaders response headers
-     * @param requestHeaders request headers
-     * @param requestParams request params
+     * @param requestHeaders  request headers
+     * @param requestParams   request params
      * @return true if this handler handles the request.
      */
     default boolean decorateTextResponse(HttpTextResponseHolder responseHolder,
@@ -29,16 +28,15 @@ public interface HttpResponseDecorator {
 
 
     /**
-     *
-     * @param responseHolder responseHolder
-     * @param requestPath request path
-     * @param requestMethod request method GET, PUT, POST
-     * @param code response code
-     * @param contentType content type, e.g., application/json
-     * @param payload the actual payload
+     * @param responseHolder  responseHolder
+     * @param requestPath     request path
+     * @param requestMethod   request method GET, PUT, POST
+     * @param code            response code
+     * @param contentType     content type, e.g., application/json
+     * @param payload         the actual payload
      * @param responseHeaders response headers
-     * @param requestHeaders request headers
-     * @param requestParams request params
+     * @param requestHeaders  request headers
+     * @param requestParams   request params
      * @return true if this handler handles the request.
      */
     default boolean decorateBinaryResponse(HttpBinaryResponseHolder responseHolder,

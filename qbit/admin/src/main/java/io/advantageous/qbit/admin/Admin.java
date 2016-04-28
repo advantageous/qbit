@@ -22,6 +22,7 @@ import io.advantageous.qbit.annotation.QueueCallback;
 import io.advantageous.qbit.annotation.QueueCallbackType;
 import io.advantageous.qbit.annotation.RequestMapping;
 import io.advantageous.qbit.annotation.RequestParam;
+import io.advantageous.qbit.http.request.HttpTextResponse;
 import io.advantageous.qbit.meta.ContextMeta;
 import io.advantageous.qbit.meta.builder.ContextMetaBuilder;
 import io.advantageous.qbit.meta.swagger.MetaTransformerFromQbitMetaToSwagger;
@@ -37,6 +38,9 @@ import java.lang.management.*;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+
+import static io.advantageous.qbit.http.request.HttpResponseBuilder.httpResponseBuilder;
+import static io.advantageous.qbit.reactive.CallbackBuilder.callbackBuilder;
 
 
 /**
@@ -204,15 +208,22 @@ public class Admin {
     /**
      * Read annotation.
      *
-     * @param callback callback
+     * @param responseCallback responseCallback
      */
     @RequestMapping(value = "/ok",
             summary = "simple health check",
             description = "Health check. This returns true if all nodes (service actors) are healthy",
             returnDescription = "true if all nodes are healthy, false if all nodes are not healthy")
-    public void ok(final Callback<Boolean> callback) {
+    public void ok(final Callback<HttpTextResponse> responseCallback) {
 
-        healthService.ok(callback::accept);
+
+        healthService.ok(callbackBuilder().withBooleanCallback(ok -> {
+            if (ok) {
+                responseCallback.resolve(httpResponseBuilder().setBody("true").buildTextResponse());
+            } else {
+                responseCallback.resolve(httpResponseBuilder().setBody("false").setCode(503).buildTextResponse());
+            }
+        }).build());
         healthService.clientProxyFlush();
     }
 

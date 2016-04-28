@@ -43,6 +43,7 @@ public interface AsyncFutureCallback<T> extends Runnable, Callback<T>, Future<T>
 
     /**
      * Timeout duration in milliseconds.
+     *
      * @return time out duration.
      */
     default long timeOutDuration() {

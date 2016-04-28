@@ -1,5 +1,6 @@
 package io.advantageous.qbit.admin;
 
+import io.advantageous.qbit.service.health.HealthServiceClient;
 import io.advantageous.qbit.service.health.ServiceHealthManager;
 import io.advantageous.qbit.service.impl.ServiceHealthManagerDefault;
 import io.advantageous.qbit.service.stats.StatsCollector;
@@ -22,6 +23,11 @@ public class ServiceManagementBundleBuilder {
     private Runnable failCallback;
     private Runnable recoverCallback;
     private Duration timeoutDuration = Duration.ofSeconds(30);
+    private HealthServiceClient healthServiceClient;
+
+    public static ServiceManagementBundleBuilder serviceManagementBundleBuilder() {
+        return new ServiceManagementBundleBuilder();
+    }
 
     private Duration getTimeoutDuration() {
         return timeoutDuration;
@@ -38,6 +44,15 @@ public class ServiceManagementBundleBuilder {
 
     public ServiceManagementBundleBuilder setFailCallback(Runnable failCallback) {
         this.failCallback = failCallback;
+        return this;
+    }
+
+    public HealthServiceClient getHealthServiceClient() {
+        return healthServiceClient;
+    }
+
+    public ServiceManagementBundleBuilder setHealthServiceClient(HealthServiceClient healthServiceClient) {
+        this.healthServiceClient = healthServiceClient;
         return this;
     }
 
@@ -62,43 +77,13 @@ public class ServiceManagementBundleBuilder {
         return this;
     }
 
-    public ServiceManagementBundleBuilder setReactor(Reactor reactor) {
-        this.reactor = reactor;
-        return this;
-    }
-
-    public ServiceManagementBundleBuilder setStatsCollector(StatsCollector statsCollector) {
-        this.statsCollector = statsCollector;
-        return this;
-    }
-
-    public ServiceManagementBundleBuilder setServiceHealthManager(ServiceHealthManager serviceHealthManager) {
-        this.serviceHealthManager = serviceHealthManager;
-        return this;
-    }
-
-    public ServiceManagementBundleBuilder setServiceName(String serviceName) {
-        this.serviceName = serviceName;
-        return this;
-    }
-
-    public ServiceManagementBundleBuilder setTimer(Timer timer) {
-        this.timer = timer;
-        return this;
-    }
-
-    public ServiceManagementBundleBuilder setStatKeyPrefix(String statKeyPrefix) {
-        this.statKeyPrefix = statKeyPrefix;
-        return this;
+    public Runnable getProcessHandler() {
+        return processHandler;
     }
 
     public ServiceManagementBundleBuilder setProcessHandler(Runnable processHandler) {
         this.processHandler = processHandler;
         return this;
-    }
-
-    public Runnable getProcessHandler() {
-        return processHandler;
     }
 
     private Reactor getReactor() {
@@ -109,6 +94,11 @@ public class ServiceManagementBundleBuilder {
         return reactor;
     }
 
+    public ServiceManagementBundleBuilder setReactor(Reactor reactor) {
+        this.reactor = reactor;
+        return this;
+    }
+
     private StatsCollector getStatsCollector() {
         if (managedServiceBuilder == null) Objects.requireNonNull(statsCollector, "Stats must be set");
 
@@ -116,6 +106,11 @@ public class ServiceManagementBundleBuilder {
             statsCollector = getManagedServiceBuilder().createStatsCollector();
         }
         return statsCollector;
+    }
+
+    public ServiceManagementBundleBuilder setStatsCollector(StatsCollector statsCollector) {
+        this.statsCollector = statsCollector;
+        return this;
     }
 
     private ServiceHealthManager getServiceHealthManager() {
@@ -128,10 +123,20 @@ public class ServiceManagementBundleBuilder {
         return serviceHealthManager;
     }
 
+    public ServiceManagementBundleBuilder setServiceHealthManager(ServiceHealthManager serviceHealthManager) {
+        this.serviceHealthManager = serviceHealthManager;
+        return this;
+    }
+
     private String getServiceName() {
 
         Objects.requireNonNull(serviceName, "serviceName must be set");
         return serviceName;
+    }
+
+    public ServiceManagementBundleBuilder setServiceName(String serviceName) {
+        this.serviceName = serviceName;
+        return this;
     }
 
     private Timer getTimer() {
@@ -141,6 +146,11 @@ public class ServiceManagementBundleBuilder {
         return timer;
     }
 
+    public ServiceManagementBundleBuilder setTimer(Timer timer) {
+        this.timer = timer;
+        return this;
+    }
+
     private String getStatKeyPrefix() {
         if (statKeyPrefix == null) {
             statKeyPrefix = getServiceName() + ".";
@@ -148,12 +158,13 @@ public class ServiceManagementBundleBuilder {
         return statKeyPrefix;
     }
 
-    public ServiceManagementBundle build() {
-        return new ServiceManagementBundle(getReactor(), getStatsCollector(), getServiceHealthManager(),
-                getServiceName(), getTimer(), getStatKeyPrefix(), getProcessHandler());
+    public ServiceManagementBundleBuilder setStatKeyPrefix(String statKeyPrefix) {
+        this.statKeyPrefix = statKeyPrefix;
+        return this;
     }
 
-    public static ServiceManagementBundleBuilder serviceManagementBundleBuilder() {
-        return new ServiceManagementBundleBuilder();
+    public ServiceManagementBundle build() {
+        return new ServiceManagementBundle(getReactor(), getStatsCollector(), getServiceHealthManager(),
+                getServiceName(), getTimer(), getStatKeyPrefix(), getProcessHandler(), healthServiceClient);
     }
 }

@@ -363,7 +363,7 @@ public class ServiceEndpointServerImpl implements ServiceEndpointServer {
 
     @Override
     public ServiceEndpointServer addServiceObjectWithQueueCallBackHandlers(final String address, final Object serviceObject,
-                                                  final QueueCallBackHandler... queueCallBackHandlers) {
+                                                                           final QueueCallBackHandler... queueCallBackHandlers) {
         if (debug) logger.debug("registering service: " + serviceObject.getClass().getName());
         serviceBundle.addServiceObjectWithQueueCallBackHandlers(address, serviceObject, queueCallBackHandlers);
         httpRequestServerHandler.addRestSupportFor(address, serviceObject.getClass(), serviceBundle.address());
@@ -379,12 +379,11 @@ public class ServiceEndpointServerImpl implements ServiceEndpointServer {
 
     @Override
     public ServiceEndpointServer addServiceWithQueueCallBackHandlers(final Object serviceObject,
-                                            final QueueCallBackHandler... queueCallBackHandlers) {
+                                                                     final QueueCallBackHandler... queueCallBackHandlers) {
         serviceBundle.addServiceWithQueueCallBackHandlers(serviceObject, queueCallBackHandlers);
         httpRequestServerHandler.addRestSupportFor(serviceObject.getClass(), serviceBundle.address());
         return this;
     }
-
 
 
     public ServiceBundle serviceBundle() {

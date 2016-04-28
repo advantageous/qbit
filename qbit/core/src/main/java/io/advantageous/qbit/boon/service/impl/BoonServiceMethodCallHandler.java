@@ -25,7 +25,6 @@ import io.advantageous.boon.core.reflection.Annotated;
 import io.advantageous.boon.core.reflection.AnnotationData;
 import io.advantageous.boon.core.reflection.ClassMeta;
 import io.advantageous.boon.core.reflection.MethodAccess;
-import io.advantageous.boon.primitive.Arry;
 import io.advantageous.qbit.annotation.AnnotationUtils;
 import io.advantageous.qbit.annotation.RequestMethod;
 import io.advantageous.qbit.message.Event;
@@ -64,8 +63,8 @@ public class BoonServiceMethodCallHandler implements ServiceMethodHandler {
      */
     private final Object context = Sys.contextToHold();
     private final Map<String, MethodAccess> eventMap = new ConcurrentHashMap<>();
-    private ClassMeta<Class<?>> classMeta;
     protected Object service;
+    private ClassMeta<Class<?>> classMeta;
     private QueueCallBackHandler queueCallBackHandler;
     private String address = "";
     private String name = "";
@@ -250,7 +249,7 @@ public class BoonServiceMethodCallHandler implements ServiceMethodHandler {
     private void extractHandlersFromArgumentListBodyIsList(final Callback<Object> callback,
                                                            final MethodAccess serviceMethod,
                                                            final List<Object> argsList,
-                                                            List<Object> list) {
+                                                           List<Object> list) {
 
 
         final Class<?>[] parameterTypes = serviceMethod.method().getParameterTypes();

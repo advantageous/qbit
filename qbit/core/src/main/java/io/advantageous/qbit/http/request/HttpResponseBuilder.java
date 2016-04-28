@@ -77,6 +77,7 @@ public class HttpResponseBuilder {
 
     /**
      * Sets a JSON body with OK (200) http code.
+     *
      * @param json json
      * @return this, fluent
      */
@@ -89,6 +90,7 @@ public class HttpResponseBuilder {
 
     /**
      * Sets a JSON body with (500) http code.
+     *
      * @param json json
      * @return this, fluent
      */

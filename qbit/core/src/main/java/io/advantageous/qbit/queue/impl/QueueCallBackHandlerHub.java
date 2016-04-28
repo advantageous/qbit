@@ -10,6 +10,8 @@ import java.util.List;
  * QueueCallBackHandlerHub contains a collections of Callbacks handlers that are treated as one.
  * This is useful for registering auto-health checks and such.
  * Created by rick on 6/6/15.
+ *
+ * @author Rick Hightower
  */
 public class QueueCallBackHandlerHub implements QueueCallBackHandler {
 

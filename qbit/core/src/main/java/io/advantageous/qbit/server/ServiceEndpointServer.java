@@ -58,7 +58,8 @@ public interface ServiceEndpointServer extends Server {
 
     /**
      * Add a service object with an address alias
-     * @param address address
+     *
+     * @param address       address
      * @param serviceObject service object
      * @return this, fluent.
      */
@@ -69,10 +70,11 @@ public interface ServiceEndpointServer extends Server {
     }
 
 
-    /** Add a service object with one or more QueueCallBackHandler handlers.
+    /**
+     * Add a service object with one or more QueueCallBackHandler handlers.
      *
-     * @param address alias
-     * @param serviceObject service object
+     * @param address               alias
+     * @param serviceObject         service object
      * @param queueCallBackHandlers queue callback handlers
      * @return service endpoint server
      */
@@ -83,9 +85,9 @@ public interface ServiceEndpointServer extends Server {
     }
 
     /**
-     *
      * Add a service with no address but that has a one or more queue callback handlers.
-     * @param serviceObject serviceObject
+     *
+     * @param serviceObject         serviceObject
      * @param queueCallBackHandlers queueCallBackHandlers
      * @return ServiceEndpointServer
      */
@@ -96,6 +98,7 @@ public interface ServiceEndpointServer extends Server {
 
     /**
      * Add a service.
+     *
      * @param serviceObject serviceObject
      * @return fluent, this
      */

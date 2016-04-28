@@ -406,7 +406,7 @@ public class ServiceBuilder {
             final HealthServiceAsync healthServiceAsync,
             final String serviceName) {
         this.addQueueCallbackHandler(new ServiceHealthListener(serviceName, healthServiceAsync,
-                getTimer(), 5, 10, TimeUnit.SECONDS));
+                getTimer(), 5, 10, TimeUnit.SECONDS, new ServiceHealthManagerDefault(null, null)));
         return this;
     }
 
@@ -431,7 +431,7 @@ public class ServiceBuilder {
 
 
         this.addQueueCallbackHandler(new ServiceHealthListener(serviceName, healthServiceAsync,
-                getTimer(), checkInterval, ttl, TimeUnit.SECONDS));
+                getTimer(), checkInterval, ttl, TimeUnit.SECONDS, new ServiceHealthManagerDefault(null, null)));
         return this;
     }
 

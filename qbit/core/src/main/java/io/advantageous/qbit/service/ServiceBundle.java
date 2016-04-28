@@ -52,6 +52,7 @@ public interface ServiceBundle extends EndPoint, Startable {
 
     /**
      * Add a service to the bundle
+     *
      * @param serviceObject service object
      * @return this, fluent
      */
@@ -59,19 +60,21 @@ public interface ServiceBundle extends EndPoint, Startable {
 
     /**
      * Add a service to the bundle with an address and one or more queue callback handlers.
-     * @param address address
-     * @param serviceObject serviceObject
+     *
+     * @param address               address
+     * @param serviceObject         serviceObject
      * @param queueCallBackHandlers queueCallBackHandlers
      * @return this, fluent
      */
     default ServiceBundle addServiceObjectWithQueueCallBackHandlers(String address, Object serviceObject,
-                                                                   QueueCallBackHandler... queueCallBackHandlers) {
+                                                                    QueueCallBackHandler... queueCallBackHandlers) {
         throw new IllegalStateException("Not implemented");
     }
 
     /**
      * Add a service with no alias address, and one or more queue callback handlers.
-     * @param serviceObject service object
+     *
+     * @param serviceObject         service object
      * @param queueCallBackHandlers one or more callback handlers
      * @return this, fluent
      */
@@ -82,7 +85,8 @@ public interface ServiceBundle extends EndPoint, Startable {
 
     /**
      * Add a service queue directly to the bundle under an address.
-     * @param address address
+     *
+     * @param address      address
      * @param serviceQueue service queue
      * @return this, fluent
      */
@@ -94,6 +98,7 @@ public interface ServiceBundle extends EndPoint, Startable {
 
     /**
      * Add a method call consumer directly to the bundle.
+     *
      * @param address address of method call consumer
      * @param service method call consumer acting as a service.
      * @return this, fluent
@@ -105,8 +110,9 @@ public interface ServiceBundle extends EndPoint, Startable {
 
     /**
      * Add many services using round robin (a service pool), under this address, using this supplier
-     * @param address address to register the round robin service pool
-     * @param numServices number of services that will be in the pool
+     *
+     * @param address                 address to register the round robin service pool
+     * @param numServices             number of services that will be in the pool
      * @param serviceInstanceSupplier the supplier that will create the instances for the pool
      * @return this, fluent.
      */
@@ -127,6 +133,7 @@ public interface ServiceBundle extends EndPoint, Startable {
 
     /**
      * Main response queue for this bundle.
+     *
      * @return main response queue.
      */
     Queue<Response<Object>> responses();
@@ -135,6 +142,7 @@ public interface ServiceBundle extends EndPoint, Startable {
      * Main method send queue for this bundle.
      * The value returned is not thread safe.
      * You will want one value per thread. (ThreadLocal)
+     *
      * @return main send queue for this bundle.
      */
     SendQueue<MethodCall<Object>> methodSendQueue();
@@ -144,23 +152,28 @@ public interface ServiceBundle extends EndPoint, Startable {
      */
     void flushSends();
 
-    /** Stop this bundle and all services registered. */
+    /**
+     * Stop this bundle and all services registered.
+     */
     void stop();
 
     /**
      * Get a list of addresses managed by this bundle.
+     *
      * @return list of object addresses.
      */
     List<String> endPoints();
 
     /**
      * Starts the return processor
+     *
      * @param listener starts the return processor and registers a ReceiveQueueListener.
      */
     void startReturnHandlerProcessor(ReceiveQueueListener<Response<Object>> listener);
 
     /**
      * Starts a WebResponse Return Handler used for service bundles that work in conjunction with service end points.
+     *
      * @param listener listener
      */
     default void startWebResponseReturnHandler(ReceiveQueueListener<Response<Object>> listener) {
@@ -193,6 +206,7 @@ public interface ServiceBundle extends EndPoint, Startable {
 
     /**
      * Calls start
+     *
      * @return this, fluent.
      */
     default ServiceBundle startServiceBundle() {
@@ -202,18 +216,20 @@ public interface ServiceBundle extends EndPoint, Startable {
 
     /**
      * Create a local proxy (local vs. remote websocket)
+     *
      * @param serviceInterface interface of proxy (can support Reakt Callbacks, QBit Callbacks, and return Reakt Promise)
-     * @param serviceName name of service (must match a register object address of the service you are trying to call).
-     * @param <T> T
+     * @param serviceName      name of service (must match a register object address of the service you are trying to call).
+     * @param <T>              T
      * @return new local proxy
      */
     <T> T createLocalProxy(Class<T> serviceInterface, String serviceName);
 
     /**
      * Used to create a proxy that only sends and has no returns
+     *
      * @param serviceInterface serviceInterface
-     * @param myService myService
-     * @param <T> T
+     * @param myService        myService
+     * @param <T>              T
      * @return new local proxy that is one way (no async returns)
      */
     default <T> T createOneWayLocalProxy(Class<T> serviceInterface, String myService) {

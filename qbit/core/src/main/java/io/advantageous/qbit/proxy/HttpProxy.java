@@ -24,9 +24,9 @@ public class HttpProxy implements Startable, Stoppable {
     private final ProxyService proxyService;
 
     /**
-     *
      * Constructor for a new HttpProxy.
-     * @param server server
+     *
+     * @param server       server
      * @param proxyService proxy service
      */
     public HttpProxy(final HttpServer server, ProxyService proxyService) {
