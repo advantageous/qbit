@@ -16,6 +16,7 @@ import io.advantageous.qbit.util.MultiMapImpl;
 
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.lang.reflect.WildcardType;
 import java.util.*;
 
 /**
@@ -208,7 +209,19 @@ public class RequestMetaBuilder {
             /* It is a collection or a map. */
             if (Collection.class.isAssignableFrom(containerClass)) {
                 builder.setCollection();
-                builder.setComponentClass((Class) parameterizedType.getActualTypeArguments()[0]);
+
+                final Type type1 = parameterizedType.getActualTypeArguments()[0];
+                if ( type1 instanceof Class) {
+                    builder.setComponentClass((Class) type1);
+                } else if (type1 instanceof WildcardType){
+                    /** This was needed to work with Kotlin but not Java or Scala. */
+                    final Type[] upperBounds = ((WildcardType) type1).getUpperBounds();
+                    if (upperBounds.length == 1) {
+                        if (upperBounds[0] instanceof Class) {
+                            builder.setComponentClass((Class<?>) upperBounds[0]);
+                        }
+                    }
+                }
             } else if (Map.class.isAssignableFrom(containerClass)) {
                 builder.setMap();
                 builder.setComponentClassKey((Class) parameterizedType.getActualTypeArguments()[0]);
