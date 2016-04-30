@@ -16,7 +16,7 @@ public class HttpResponseBuilder {
     /**
      * Response code.
      */
-    private int code;
+    private int code = 200;
 
     /**
      * Content Type, e.g., "application/json"

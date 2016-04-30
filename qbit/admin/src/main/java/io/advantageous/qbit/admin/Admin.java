@@ -219,7 +219,7 @@ public class Admin {
 
         healthService.ok(callbackBuilder().withBooleanCallback(ok -> {
             if (ok) {
-                responseCallback.resolve(httpResponseBuilder().setBody("true").buildTextResponse());
+                responseCallback.resolve(httpResponseBuilder().setBody("true").setCode(200).buildTextResponse());
             } else {
                 responseCallback.resolve(httpResponseBuilder().setBody("false").setCode(503).buildTextResponse());
             }
