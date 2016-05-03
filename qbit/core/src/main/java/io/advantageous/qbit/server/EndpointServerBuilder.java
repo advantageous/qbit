@@ -440,7 +440,7 @@ public class EndpointServerBuilder {
     public QueueBuilder getRequestQueueBuilder() {
 
         if (requestQueueBuilder == null) {
-            requestQueueBuilder = QueueBuilder.queueBuilder();
+            requestQueueBuilder = QueueBuilder.queueBuilder().setArrayBlockingQueue().setBatchSize(100);
         }
 
         return requestQueueBuilder;
@@ -454,7 +454,7 @@ public class EndpointServerBuilder {
 
     public QueueBuilder getWebResponseQueueBuilder() {
         if (webResponseQueueBuilder == null) {
-            webResponseQueueBuilder = QueueBuilder.queueBuilder();
+            webResponseQueueBuilder = QueueBuilder.queueBuilder().setArrayBlockingQueue().setBatchSize(100);
         }
         return webResponseQueueBuilder;
     }
@@ -620,7 +620,7 @@ public class EndpointServerBuilder {
         if (responseQueueBuilder == null) {
 
             if (responseQueue == null) {
-                responseQueueBuilder = QueueBuilder.queueBuilder();
+                responseQueueBuilder = QueueBuilder.queueBuilder().setArrayBlockingQueue().setBatchSize(100);
             } else {
 
 
@@ -677,7 +677,8 @@ public class EndpointServerBuilder {
                 getCallbackManager(),
                 getEventManager(),
                 getBeforeMethodSent(),
-                getBeforeMethodCallOnServiceQueue(), getAfterMethodCallOnServiceQueue());
+                getBeforeMethodCallOnServiceQueue(),
+                getAfterMethodCallOnServiceQueue());
 
 
         final ServiceEndpointServer serviceEndpointServer = new ServiceEndpointServerImpl(getHttpServer(),

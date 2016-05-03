@@ -711,62 +711,11 @@ public class BaseServiceQueueImpl implements ServiceQueue {
 
         validateInterface(serviceInterface);
 
-//        final String uuid = serviceInterface.getName() + "::" + UUID.randomUUID().toString();
         if (!started.get()) {
             logger.info("ServiceQueue::create(...), A proxy is being asked for a service that is not started ", name());
         }
         final InvocationHandler invocationHandler = new BoonInvocationHandlerForSendQueue(methodCallSendQueue,
                 serviceInterface, serviceInterface.getSimpleName(), beforeMethodSent);
-
-//
-//                = new InvocationHandler() {
-//
-//            private long messageId = 0;
-//            private long timestamp = Timer.timer().now();
-//            private int times = 10;
-//
-//            @Override
-//            public Object invoke(final Object proxy, final Method method, final Object[] args) throws Throwable {
-//
-//                if (method.getName().equals("toString")) {
-//                    return "PROXY OBJECT " + address();
-//                }
-//                if (method.getName().equals("clientProxyFlush")) {
-//                    methodCallSendQueue.flushSends();
-//                    return null;
-//                }
-//
-//                if (method.getName().equals("stop")) {
-//                    methodCallSendQueue.stop();
-//                    return null;
-//                }
-//                messageId++;
-//                times--;
-//                if (times == 0) {
-//                    timestamp = Timer.timer().now();
-//                    times = 10;
-//                } else {
-//                    timestamp++;
-//                }
-////                if (beforeMethodSent == null) {
-////                    /** TODO LEFT OFF HERE. */
-////                    final MethodCallLocal call = new MethodCallLocal(method.getName(), uuid,
-////                            timestamp, messageId, args, null, null);
-////                    methodCallSendQueue.send(call);
-////                } else {
-//                    final String name = method.getName();
-//                    MethodCallBuilder methodCallBuilder = MethodCallBuilder.methodCallBuilder()
-//                            .setLocal(true).setAddress(name)
-//                            .setName(name).setReturnAddress(uuid)
-//                            .setTimestamp(timestamp).setId(messageId)
-//                            .setBodyArgs(args);
-//                    if (beforeMethodSent!=null) beforeMethodSent.beforeMethodSent(methodCallBuilder);
-//                    final MethodCall<Object> call = methodCallBuilder.build();
-//                    methodCallSendQueue.send(call);
-////                }
-//                return null;
-//            }
-//        };
         final Object o = Proxy.newProxyInstance(serviceInterface.getClassLoader(),
                 new Class[]{serviceInterface, ClientProxy.class}, invocationHandler
         );

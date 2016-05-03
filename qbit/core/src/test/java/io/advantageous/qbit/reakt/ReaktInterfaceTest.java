@@ -47,8 +47,14 @@ public class ReaktInterfaceTest {
         empURI = URI.create("marathon://default/employeeService?env=staging");
 
 
-        serviceQueue = ServiceBuilder.serviceBuilder().setServiceObject(impl).buildAndStartAll();
-        serviceBundle = ServiceBundleBuilder.serviceBundleBuilder().build();
+        ServiceBuilder serviceBuilder = ServiceBuilder.serviceBuilder();
+        serviceBuilder.getRequestQueueBuilder().setArrayBlockingQueue().setBatchSize(10);
+
+        serviceQueue = serviceBuilder.setServiceObject(impl).buildAndStartAll();
+
+        ServiceBundleBuilder serviceBundleBuilder = ServiceBundleBuilder.serviceBundleBuilder();
+        serviceBundleBuilder.getRequestQueueBuilder().setArrayBlockingQueue().setBatchSize(10);
+        serviceBundle = serviceBundleBuilder.build();
         serviceBundle.addServiceObject("myservice", impl);
         serviceQueue2 = ServiceBuilder.serviceBuilder().setInvokeDynamic(false).setServiceObject(impl)
                 .buildAndStartAll();

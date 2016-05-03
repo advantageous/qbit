@@ -7,13 +7,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Collection;
-import java.util.concurrent.LinkedTransferQueue;
+import java.util.concurrent.BlockingQueue;
 
 
 public class NoBatchSendQueue<T> implements SendQueue<T> {
 
 
-    protected final LinkedTransferQueue<Object> queue;
+    protected final BlockingQueue<Object> queue;
     protected final Queue<T> owner;
     protected final String name;
     private final Logger logger = LoggerFactory.getLogger(NoBatchSendQueue.class);
@@ -24,7 +24,7 @@ public class NoBatchSendQueue<T> implements SendQueue<T> {
     protected int checkEveryStarted = 0;
     protected int index;
 
-    public NoBatchSendQueue(final LinkedTransferQueue<Object> queue,
+    public NoBatchSendQueue(final BlockingQueue<Object> queue,
                             final Queue<T> owner,
                             final String name) {
         this.queue = queue;

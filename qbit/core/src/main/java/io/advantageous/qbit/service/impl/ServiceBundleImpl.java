@@ -54,6 +54,9 @@ import static java.util.Arrays.stream;
 
 /**
  * Manages a collection of services.
+ *
+ * NOTE NOTE NOTE NOTE.
+ * NOTE if you want to debug why a method is not getting called but a break point on {@code doCall}.
  */
 public class ServiceBundleImpl implements ServiceBundle {
 

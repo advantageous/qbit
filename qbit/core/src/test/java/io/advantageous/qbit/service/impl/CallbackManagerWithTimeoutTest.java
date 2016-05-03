@@ -210,6 +210,7 @@ public class CallbackManagerWithTimeoutTest {
     public void testWithServiceBundleManyMethods() throws Exception {
 
         final ServiceBundleBuilder serviceBundleBuilder = ServiceBundleBuilder.serviceBundleBuilder();
+        serviceBundleBuilder.getRequestQueueBuilder().setBatchSize(1000).setSize(1000);
         serviceBundleBuilder.setCallbackManager(callbackManager);
 
         final ServiceBundle serviceBundle = serviceBundleBuilder.build();

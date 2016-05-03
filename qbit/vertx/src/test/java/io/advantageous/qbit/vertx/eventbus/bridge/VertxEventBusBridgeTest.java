@@ -2,8 +2,8 @@ package io.advantageous.qbit.vertx.eventbus.bridge;
 
 import io.advantageous.boon.core.Sys;
 import io.advantageous.qbit.annotation.http.Bridge;
-import io.advantageous.qbit.service.ServiceBuilder;
-import io.advantageous.qbit.service.ServiceQueue;
+import io.advantageous.qbit.service.ServiceBundle;
+import io.advantageous.qbit.service.ServiceBundleBuilder;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Vertx;
 import io.vertx.core.eventbus.DeliveryOptions;
@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicReference;
 
+import static io.advantageous.qbit.service.ServiceBundleBuilder.serviceBundleBuilder;
 import static org.junit.Assert.*;
 
 
@@ -25,9 +26,12 @@ public class VertxEventBusBridgeTest {
     final String address = "testservice";
     /* test service */
     TestService testService = new TestService();
-    /* service builder */
-    ServiceBuilder serviceBuilder;
-    ServiceQueue serviceQueue;
+    /* service bundle builder */
+    ServiceBundleBuilder serviceBundleBuilder;
+    /*
+    Service Bundle
+     */
+    ServiceBundle serviceBundle;
     /* vertx event bus bridge to qbit. */
     VertxEventBusBridgeBuilder vertxEventBusBridgeBuilder = VertxEventBusBridgeBuilder.vertxEventBusBridgeBuilder();
 
@@ -45,19 +49,22 @@ public class VertxEventBusBridgeTest {
     @Before
     public void setup() {
 
-    /* test service */
+        /* test service */
         testService = new TestService();
 
-    /* service builder */
-        serviceBuilder = ServiceBuilder.serviceBuilder();
-        serviceBuilder.setServiceObject(testService);
-        ServiceQueue serviceQueue = serviceBuilder.build();
+        /* service bundle builder */
+        serviceBundleBuilder = serviceBundleBuilder();
+
+        /* service bundle */
+        serviceBundle = serviceBundleBuilder.build();
+
+        serviceBundle.addServiceObject("service", testService);
 
     /* vertx event bus bridge to qbit. */
         vertxEventBusBridgeBuilder = VertxEventBusBridgeBuilder.vertxEventBusBridgeBuilder();
         vertxEventBusBridgeBuilder.addBridgeAddress(address, TestService.class);
-        vertxEventBusBridgeBuilder.setServiceQueue(serviceQueue);
-        serviceQueue.startAll(); //startall not supported yet for bridge.
+        vertxEventBusBridgeBuilder.setServiceBundle(serviceBundle);
+        serviceBundle.start(); //startall not supported yet for bridge.
         vertxEventBusBridgeBuilder.build();
 
 

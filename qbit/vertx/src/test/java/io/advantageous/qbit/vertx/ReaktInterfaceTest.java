@@ -6,11 +6,6 @@ import io.advantageous.qbit.client.Client;
 import io.advantageous.qbit.client.ClientBuilder;
 import io.advantageous.qbit.server.EndpointServerBuilder;
 import io.advantageous.qbit.server.ServiceEndpointServer;
-import io.advantageous.qbit.service.ServiceBuilder;
-import io.advantageous.qbit.service.ServiceBundle;
-import io.advantageous.qbit.service.ServiceBundleBuilder;
-import io.advantageous.qbit.service.ServiceQueue;
-import io.advantageous.qbit.time.Duration;
 import io.advantageous.qbit.util.PortUtils;
 import io.advantageous.reakt.promise.Promise;
 import org.junit.After;
@@ -26,26 +21,16 @@ import static org.junit.Assert.*;
 
 public class ReaktInterfaceTest {
 
-    final URI successResult = URI.create("http://localhost:8080/employeeService/");
-
-    ServiceDiscovery serviceDiscovery;
-    ServiceDiscovery serviceDiscoveryStrongTyped;
-    ServiceDiscovery serviceDiscoveryServiceBundle;
-    ServiceDiscovery serviceDiscoveryWebSocket;
-
-
-    ServiceDiscoveryImpl impl;
-    URI empURI;
-    CountDownLatch latch;
-    AtomicReference<URI> returnValue;
-    AtomicReference<Throwable> errorRef;
-
-    int port;
-    Client client;
-    ServiceEndpointServer server;
-    ServiceBundle serviceBundle;
-    ServiceQueue serviceQueue;
-    ServiceQueue serviceQueue2;
+    private final URI successResult = URI.create("http://localhost:8080/employeeService/");
+    private ServiceDiscovery serviceDiscoveryWebSocket;
+    private ServiceDiscoveryImpl impl;
+    private URI empURI;
+    private CountDownLatch latch;
+    private AtomicReference<URI> returnValue;
+    private AtomicReference<Throwable> errorRef;
+    private int port;
+    private Client client;
+    private ServiceEndpointServer server;
 
     @Before
     public void before() {
@@ -64,32 +49,20 @@ public class ReaktInterfaceTest {
                 .addService("/myservice", impl)
                 .setPort(port).build().startServer();
 
-        Sys.sleep(200);
+        Sys.sleep(2000);
 
-        client = ClientBuilder.clientBuilder().setPort(port).build().startClient();
-
-        serviceQueue = ServiceBuilder.serviceBuilder().setServiceObject(impl).buildAndStartAll();
-        serviceBundle = ServiceBundleBuilder.serviceBundleBuilder().build();
-        serviceBundle.addServiceObject("myservice", impl);
-        serviceQueue2 = ServiceBuilder.serviceBuilder().setInvokeDynamic(false).setServiceObject(impl)
-                .buildAndStartAll();
+        client = ClientBuilder.clientBuilder().setPort(port).build();
 
 
-        serviceDiscoveryServiceBundle = serviceBundle.createLocalProxy(ServiceDiscovery.class, "myservice");
-        serviceBundle.start();
 
-        serviceDiscovery = serviceQueue.createProxyWithAutoFlush(ServiceDiscovery.class, Duration.TEN_MILLIS);
-        serviceDiscoveryStrongTyped = serviceQueue2.createProxyWithAutoFlush(ServiceDiscovery.class,
-                Duration.TEN_MILLIS);
 
         serviceDiscoveryWebSocket = client.createProxy(ServiceDiscovery.class, "/myservice");
+
+        client.start();
     }
 
     @After
     public void after() {
-        serviceQueue2.stop();
-        serviceQueue.stop();
-        serviceBundle.stop();
         server.stop();
         client.stop();
     }
@@ -104,9 +77,6 @@ public class ReaktInterfaceTest {
 
     @Test
     public void testServiceWithReturnPromiseSuccess() {
-        testSuccess(serviceDiscovery);
-        testSuccess(serviceDiscoveryStrongTyped);
-        testSuccess(serviceDiscoveryServiceBundle);
         testSuccess(serviceDiscoveryWebSocket);
 
     }
@@ -123,9 +93,6 @@ public class ReaktInterfaceTest {
 
     @Test
     public void testServiceWithReturnPromiseFail() {
-        testFail(serviceDiscovery);
-        testFail(serviceDiscoveryStrongTyped);
-        testFail(serviceDiscoveryServiceBundle);
         testFail(serviceDiscoveryWebSocket);
     }
 
@@ -138,22 +105,6 @@ public class ReaktInterfaceTest {
         assertNotNull("There were  errors", errorRef.get());
     }
 
-
-    @Test(expected = IllegalStateException.class)
-    public void testServiceWithReturnPromiseSuccessInvokeTwice() {
-        final Promise<URI> promise = serviceDiscovery.lookupService(empURI).then(this::handleSuccess)
-                .catchError(this::handleError);
-        promise.invoke();
-        promise.invoke();
-    }
-
-    @Test
-    public void testIsInvokable() {
-        final Promise<URI> promise = serviceDiscovery.lookupService(empURI).then(this::handleSuccess)
-                .catchError(this::handleError);
-
-        assertTrue("Is this an invokable promise", promise.isInvokable());
-    }
 
 
     private void handleError(Throwable error) {
@@ -172,6 +123,7 @@ public class ReaktInterfaceTest {
     }
 
     public class ServiceDiscoveryImpl {
+        @SuppressWarnings("unused")
         public void lookupService(final io.advantageous.qbit.reactive.Callback<URI> callback, final URI uri) {
             if (uri == null) {
                 callback.reject("uri can't be null");

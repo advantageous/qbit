@@ -102,11 +102,8 @@ public class BasicQueue<T> implements Queue<T> {
 
         if (this.batchSize == 1) {
 
-            if (queue instanceof LinkedTransferQueue) {
-                sendQueueSupplier = () -> new NoBatchSendQueue<>((LinkedTransferQueue<Object>) queue, this, name);
-            } else {
-                throw new IllegalStateException("If batch size 1 queue must be a linked transfer queue");
-            }
+            sendQueueSupplier = () -> new NoBatchSendQueue<>(queue, this, name);
+
         } else if (queue instanceof LinkedTransferQueue) {
 
             if (tryTransfer) {

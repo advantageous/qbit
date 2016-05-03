@@ -105,6 +105,15 @@ public interface ServiceQueue extends Stoppable, ServiceFlushable, Startable {
         return this;
     }
 
+    default ServiceQueue startServiceQueue() {
+        return this;
+    }
+
+
+    default ServiceQueue start(boolean joinEventManager) {
+        return this;
+    }
+
     /**
      * Return a list of addresses.
      *
@@ -129,14 +138,6 @@ public interface ServiceQueue extends Stoppable, ServiceFlushable, Startable {
     void flush();
 
 
-    default ServiceQueue startServiceQueue() {
-        return this;
-    }
-
-
-    default ServiceQueue start(boolean joinEventManager) {
-        return this;
-    }
 
     Queue<MethodCall<Object>> requestQueue();
 

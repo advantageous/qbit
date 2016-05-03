@@ -15,7 +15,7 @@ public class BasicSendQueueTest {
                 .setEnqueueTimeout(1)
                 .setName("unable to send")
                 .setSize(10)
-                .setBatchSize(10)
+                .setBatchSize(10).setArrayBlockingQueue()
                 .build();
 
         final SendQueue<Object> sendQueue = queue.sendQueue();

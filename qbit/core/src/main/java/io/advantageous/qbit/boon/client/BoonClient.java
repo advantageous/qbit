@@ -39,6 +39,7 @@ import io.advantageous.qbit.message.impl.MethodCallImpl;
 import io.advantageous.qbit.reactive.Callback;
 import io.advantageous.qbit.sender.Sender;
 import io.advantageous.qbit.service.BeforeMethodCall;
+import io.advantageous.reakt.promise.Promise;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -259,33 +260,8 @@ public class BoonClient implements Client {
 
         /** Use this before call to register an async handler with the handlers map. */
         BeforeMethodCall beforeMethodCall = call -> {
-
-            final Object body = call.body();
-            if (body instanceof Object[]) {
-
-                Object[] list = (Object[]) body;
-
-                if (list.length > 0) {
-                    final Object o = list[0];
-                    if (o instanceof Callback) {
-                        //noinspection unchecked
-                        handlers.put(new HandlerKey(call.returnAddress(), call.id()), createHandler(serviceInterface, call, (Callback) o));
-
-                        if (list.length - 1 == 0) {
-                            list = new Object[0];
-                        } else {
-                            list = Arry.slc(list, 1); //Skip first arg it was a handler.
-                        }
-
-                    }
-                    if (call instanceof MethodCallImpl) {
-                        MethodCallImpl impl = (MethodCallImpl) call;
-                        impl.setBody(list);
-                    }
-
-                }
-            }
-
+            registerCallback(serviceInterface, call);
+            prepareBody(call);
             return true;
         };
 
@@ -316,6 +292,40 @@ public class BoonClient implements Client {
         return proxy;
     }
 
+    private void prepareBody(MethodCall call) {
+        final Object body = call.body();
+        if (body instanceof Object[]) {
+
+            Object[] list = (Object[]) body;
+
+            if (list.length > 0) {
+                final Object o = list[0];
+                if (o instanceof Callback) {
+                    //noinspection unchecked
+                    if (list.length - 1 == 0) {
+                        list = new Object[0];
+                    } else {
+                        list = Arry.slc(list, 1); //Skip first arg it was a handler.
+                    }
+                }
+                if (call instanceof MethodCallImpl) {
+                    MethodCallImpl impl = (MethodCallImpl) call;
+                    impl.setBody(list);
+                }
+
+            }
+        }
+    }
+
+    private <T> void registerCallback(Class<T> serviceInterface, MethodCall call) {
+        final Callback callback = call.callback();
+
+        if (callback != null) {
+            handlers.put(new HandlerKey(call.returnAddress(), call.id()),
+                    createHandler(serviceInterface, call, callback));
+        }
+    }
+
     /**
      * Create an async handler. Uses some generics reflection to see what the actual type is
      *
@@ -332,25 +342,46 @@ public class BoonClient implements Client {
         final MethodAccess method = clsMeta.method(call.name());
 
         Class<?> returnType = null;
-
         Class<?> compType = null;
-        if (method.parameterTypes().length > 0) {
-            Type[] genericParameterTypes = method.getGenericParameterTypes();
-            ParameterizedType parameterizedType = genericParameterTypes.length > 0 ? (ParameterizedType) genericParameterTypes[0] : null;
 
-            Type type = ((parameterizedType != null ? parameterizedType.getActualTypeArguments().length : 0) > 0 ? (parameterizedType != null ? parameterizedType.getActualTypeArguments() : new Type[0])[0] : null);
+        if (method.returnType() == Promise.class) {
 
-            if (type instanceof ParameterizedType) {
-                returnType = (Class) ((ParameterizedType) type).getRawType();
-                final Type type1 = ((ParameterizedType) type).getActualTypeArguments()[0];
+            Type t0 = method.method().getGenericReturnType();
+            if (t0 instanceof ParameterizedType) {
+                ParameterizedType parameterizedType = ((ParameterizedType) t0);
+                Type type = ((parameterizedType != null ? parameterizedType.getActualTypeArguments().length : 0) > 0 ? (parameterizedType != null ? parameterizedType.getActualTypeArguments() : new Type[0])[0] : null);
 
-                if (type1 instanceof Class) {
-                    compType = (Class) type1;
+                if (type instanceof ParameterizedType) {
+                    returnType = (Class) ((ParameterizedType) type).getRawType();
+                    final Type type1 = ((ParameterizedType) type).getActualTypeArguments()[0];
+
+                    if (type1 instanceof Class) {
+                        compType = (Class) type1;
+                    }
+                } else if (type instanceof Class) {
+                    returnType = (Class<?>) type;
                 }
-            } else if (type instanceof Class) {
-                returnType = (Class<?>) type;
-            }
 
+            }
+        } else {
+            if (method.parameterTypes().length > 0) {
+                Type[] genericParameterTypes = method.getGenericParameterTypes();
+                ParameterizedType parameterizedType = genericParameterTypes.length > 0 ? (ParameterizedType) genericParameterTypes[0] : null;
+
+                Type type = ((parameterizedType != null ? parameterizedType.getActualTypeArguments().length : 0) > 0 ? (parameterizedType != null ? parameterizedType.getActualTypeArguments() : new Type[0])[0] : null);
+
+                if (type instanceof ParameterizedType) {
+                    returnType = (Class) ((ParameterizedType) type).getRawType();
+                    final Type type1 = ((ParameterizedType) type).getActualTypeArguments()[0];
+
+                    if (type1 instanceof Class) {
+                        compType = (Class) type1;
+                    }
+                } else if (type instanceof Class) {
+                    returnType = (Class<?>) type;
+                }
+
+            }
         }
         final Class<?> actualReturnType = returnType;
 
