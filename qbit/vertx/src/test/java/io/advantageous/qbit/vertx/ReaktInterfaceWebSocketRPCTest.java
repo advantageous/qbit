@@ -17,9 +17,12 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 
+import static io.advantageous.qbit.service.ServiceProxyUtils.flushServiceProxy;
+import static io.advantageous.reakt.promise.Promises.blockingPromiseBoolean;
+import static io.advantageous.reakt.promise.Promises.blockingPromiseInt;
 import static org.junit.Assert.*;
 
-public class ReaktInterfaceTest {
+public class ReaktInterfaceWebSocketRPCTest {
 
     private final URI successResult = URI.create("http://localhost:8080/employeeService/");
     private ServiceDiscovery serviceDiscoveryWebSocket;
@@ -49,7 +52,7 @@ public class ReaktInterfaceTest {
                 .addService("/myservice", impl)
                 .setPort(port).build().startServer();
 
-        Sys.sleep(2000);
+        Sys.sleep(25);
 
         client = ClientBuilder.clientBuilder().setPort(port).build();
 
@@ -117,11 +120,38 @@ public class ReaktInterfaceTest {
         latch.countDown();
     }
 
+    @Test
+    public void testOk() {
+        final Promise<Boolean> promise = blockingPromiseBoolean();
+        serviceDiscoveryWebSocket.ok().invokeWithPromise(promise);
+        flushServiceProxy(serviceDiscoveryWebSocket);
+        assertTrue(promise.success());
+        assertTrue(promise.get());
+    }
+
+
+    @Test
+    public void test5() {
+
+        final Promise<Integer> promise = blockingPromiseInt();
+        serviceDiscoveryWebSocket.five().invokeWithPromise(promise);
+
+        flushServiceProxy(serviceDiscoveryWebSocket);
+
+        assertTrue(promise.success());
+        assertEquals(new Integer(5), promise.get());
+
+
+    }
+
 
     interface ServiceDiscovery {
         Promise<URI> lookupService(URI uri);
 
         Promise<Boolean> ok();
+
+        Promise<Integer> five();
+
     }
 
     public class ServiceDiscoveryImpl {
@@ -138,5 +168,12 @@ public class ReaktInterfaceTest {
             callback.resolve(true);
 
         }
+
+
+        public void five(final io.advantageous.qbit.reactive.Callback<Integer> callback) {
+            callback.resolve(5);
+
+        }
     }
+
 }
