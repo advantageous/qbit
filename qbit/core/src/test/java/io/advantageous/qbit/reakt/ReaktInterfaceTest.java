@@ -1,12 +1,10 @@
 package io.advantageous.qbit.reakt;
 
 
-import io.advantageous.qbit.service.ServiceBuilder;
-import io.advantageous.qbit.service.ServiceBundle;
-import io.advantageous.qbit.service.ServiceBundleBuilder;
-import io.advantageous.qbit.service.ServiceQueue;
+import io.advantageous.qbit.service.*;
 import io.advantageous.qbit.time.Duration;
 import io.advantageous.reakt.promise.Promise;
+import io.advantageous.reakt.promise.Promises;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -93,6 +91,23 @@ public class ReaktInterfaceTest {
 
     }
 
+    @Test
+    public void testOk() {
+        testOk(serviceDiscovery);
+        testOk(serviceDiscoveryStrongTyped);
+        testOk(serviceDiscoveryServiceBundle);
+
+    }
+
+
+    @Test
+    public void test5() {
+        test5(serviceDiscovery);
+        test5(serviceDiscoveryStrongTyped);
+        test5(serviceDiscoveryServiceBundle);
+
+    }
+
     private void testSuccess(ServiceDiscovery serviceDiscovery) {
         serviceDiscovery.lookupService(empURI).then(this::handleSuccess)
                 .catchError(this::handleError).invoke();
@@ -102,6 +117,32 @@ public class ReaktInterfaceTest {
         assertEquals("The result is the expected result from local", successResult, returnValue.get());
     }
 
+    private void testOk(ServiceDiscovery serviceDiscovery) {
+
+        final Promise<Boolean> promise = Promises.blockingPromiseBoolean();
+        serviceDiscovery.ok().invokeWithPromise(promise);
+
+        ServiceProxyUtils.flushServiceProxy(serviceDiscovery);
+
+        assertTrue(promise.success());
+        assertTrue(promise.get());
+
+
+    }
+
+
+    private void test5(ServiceDiscovery serviceDiscovery) {
+
+        final Promise<Integer> promise = Promises.blockingPromiseInt();
+        serviceDiscovery.five().invokeWithPromise(promise);
+
+        ServiceProxyUtils.flushServiceProxy(serviceDiscovery);
+
+        assertTrue(promise.success());
+        assertEquals(new Integer(5), promise.get());
+
+
+    }
 
     @Test
     public void testServiceWithReturnPromiseFail() {
@@ -150,15 +191,32 @@ public class ReaktInterfaceTest {
 
     interface ServiceDiscovery {
         Promise<URI> lookupService(URI uri);
+
+        Promise<Boolean> ok();
+
+        Promise<Integer> five();
+
     }
 
     public class ServiceDiscoveryImpl {
+        @SuppressWarnings("unused")
         public void lookupService(final io.advantageous.qbit.reactive.Callback<URI> callback, final URI uri) {
             if (uri == null) {
                 callback.reject("uri can't be null");
             } else {
                 callback.resolve(successResult);
             }
+        }
+
+        public void ok(final io.advantageous.qbit.reactive.Callback<Boolean> callback) {
+            callback.resolve(true);
+
+        }
+
+
+        public void five(final io.advantageous.qbit.reactive.Callback<Integer> callback) {
+            callback.resolve(5);
+
         }
     }
 }

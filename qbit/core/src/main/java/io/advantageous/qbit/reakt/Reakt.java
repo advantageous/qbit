@@ -85,15 +85,14 @@ public class Reakt {
     }
 
     private static <T> Callback<T> convertPromiseToCallback(final Promise<T> promise, CallbackBuilder callbackBuilder) {
-        return callbackBuilder
-                .withCallback(o -> promise.onResult(Result.result((T) o)))
-                .withErrorHandler(throwable -> promise.onResult(Result.error(throwable)))
-                .withTimeoutHandler(() -> promise.onResult(Result.error(new TimeoutException()))).build();
+        return convertReaktCallbackToQBitCallback(promise, callbackBuilder);
     }
 
     private static <T> Callback<T> convertReaktCallbackToQBitCallback(final io.advantageous.reakt.Callback<T> callback, CallbackBuilder callbackBuilder) {
         return callbackBuilder
-                .withCallback(o -> callback.onResult(Result.result((T) o)))
+                .withCallback(o -> {
+                    callback.onResult(Result.result((T) o));
+                })
                 .withErrorHandler(throwable -> callback.onResult(Result.error(throwable)))
                 .withTimeoutHandler(() -> callback.onResult(Result.error(new TimeoutException()))).build();
 

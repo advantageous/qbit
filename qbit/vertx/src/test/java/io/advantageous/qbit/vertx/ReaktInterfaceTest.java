@@ -120,6 +120,8 @@ public class ReaktInterfaceTest {
 
     interface ServiceDiscovery {
         Promise<URI> lookupService(URI uri);
+
+        Promise<Boolean> ok();
     }
 
     public class ServiceDiscoveryImpl {
@@ -130,6 +132,11 @@ public class ReaktInterfaceTest {
             } else {
                 callback.resolve(successResult);
             }
+        }
+
+        public void ok(final io.advantageous.qbit.reactive.Callback<Boolean> callback) {
+            callback.resolve(true);
+
         }
     }
 }

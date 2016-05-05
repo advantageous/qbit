@@ -54,7 +54,7 @@ class MapAndInvokeImpl implements MapAndInvoke {
     }
 
     private void extractHandlersFromArgumentListArrayCase(MethodAccess method, Object[] array, Object[] argsList) {
-        if (array.length - 1 == method.parameterTypes().length) {
+        if (array != null && array.length - 1 == method.parameterTypes().length) {
             if (array[0] instanceof Callback) {
                 array = Arry.slc(array, 1);
             }

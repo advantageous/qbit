@@ -712,7 +712,7 @@ public class BaseServiceQueueImpl implements ServiceQueue {
         validateInterface(serviceInterface);
 
         if (!started.get()) {
-            logger.info("ServiceQueue::create(...), A proxy is being asked for a service that is not started ", name());
+            logger.debug("ServiceQueue::create(...), A proxy is being asked for a service that is not started ", name());
         }
         final InvocationHandler invocationHandler = new BoonInvocationHandlerForSendQueue(methodCallSendQueue,
                 serviceInterface, serviceInterface.getSimpleName(), beforeMethodSent);
