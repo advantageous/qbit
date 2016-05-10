@@ -12,6 +12,8 @@ public class InvokePromiseWithEndPoint extends BasePromise<Object> implements In
     private final MethodCallBuilder methodCallBuilder;
     private final EndPoint endPoint;
     private final BeforeMethodSent beforeMethodSent;
+    private boolean invoked;
+
 
     InvokePromiseWithEndPoint(EndPoint endPoint, MethodCallBuilder methodCallBuilder, BeforeMethodSent beforeMethodSent) {
         this.endPoint = endPoint;
@@ -21,6 +23,10 @@ public class InvokePromiseWithEndPoint extends BasePromise<Object> implements In
 
     @Override
     public void invoke() {
+        if (invoked) {
+            throw new IllegalStateException("Can't call promise invoke twice.");
+        }
+        invoked = true;
         methodCallBuilder.setCallback(Reakt.convertPromise(this));
         beforeMethodSent.beforeMethodSent(methodCallBuilder);
         endPoint.call(methodCallBuilder.build());

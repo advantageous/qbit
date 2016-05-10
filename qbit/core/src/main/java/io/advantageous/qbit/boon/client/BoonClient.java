@@ -18,10 +18,7 @@
 
 package io.advantageous.qbit.boon.client;
 
-import io.advantageous.boon.core.Conversions;
-import io.advantageous.boon.core.Str;
-import io.advantageous.boon.core.StringScanner;
-import io.advantageous.boon.core.Sys;
+import io.advantageous.boon.core.*;
 import io.advantageous.boon.core.reflection.ClassMeta;
 import io.advantageous.boon.core.reflection.MapObjectConversion;
 import io.advantageous.boon.core.reflection.MethodAccess;
@@ -416,7 +413,17 @@ public class BoonClient implements Client {
                         }
                     } else {
 
-                        event = Conversions.coerce(actualReturnType, event);
+                        switch (actualReturnType.getName()) {
+                            case "java.lang.Boolean":
+                                if (event instanceof Value) {
+                                    event = ((Value) event).booleanValue();
+                                } else {
+                                    event = Conversions.coerce(actualReturnType, event);
+                                }
+                                break;
+                            default:
+                                event = Conversions.coerce(actualReturnType, event);
+                        }
                     }
                     //noinspection unchecked
                     handler.accept(event);

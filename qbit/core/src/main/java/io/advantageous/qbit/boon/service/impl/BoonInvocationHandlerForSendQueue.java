@@ -36,7 +36,8 @@ public class BoonInvocationHandlerForSendQueue implements InvocationHandler {
         this.serviceName = serviceName;
         this.returnAddress = serviceInterface.getName() + "::" + UUID.randomUUID().toString();
         this.sendQueue = sendQueue;
-        this.beforeMethodSent = beforeMethodSent;
+        this.beforeMethodSent = beforeMethodSent != null ? beforeMethodSent : new BeforeMethodSent() {
+        };
 
         for (Method method : serviceInterface.getMethods()) {
             promiseMap.put(method.getName(), method.getReturnType() == Promise.class);
@@ -91,6 +92,7 @@ public class BoonInvocationHandlerForSendQueue implements InvocationHandler {
             convertToReaktCallbacks(args);
         }
         final MethodCallBuilder methodCallBuilder = createMethodBuilder(method, args);
+        beforeMethodSent.beforeMethodSent(methodCallBuilder);
         final MethodCall<Object> call = methodCallBuilder.build();
         sendQueue.send(call);
         return null;
