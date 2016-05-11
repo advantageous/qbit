@@ -17,7 +17,7 @@
  */
 
 ext {
-    projectVersion = '1.8.2'
+    projectVersion = '1.8.3'
     boonVersion = '0.5.7'
     boonGroup = "io.advantageous.boon"
     springFrameworkVersion = '4.2.5.RELEASE'

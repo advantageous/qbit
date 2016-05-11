@@ -46,11 +46,13 @@ class BoonInvocationHandlerForEndPoint implements InvocationHandler {
         this.port = port;
         this.connected = connected;
         this.endPoint = endPoint;
-        this.beforeMethodSent = beforeMethodSent;
+        this.beforeMethodSent = beforeMethodSent != null ? beforeMethodSent : new BeforeMethodSent() {
+        };
         this.objectAddress = objectAddress;
         this.returnAddress = returnAddress;
         this.addressCreatorBufRef = addressCreatorBufRef;
         this.generatedMessageId = generatedMessageId;
+
 
         for (Method method : serviceInterface.getMethods()) {
             promiseMap.put(method.getName(), method.getReturnType() == Promise.class);

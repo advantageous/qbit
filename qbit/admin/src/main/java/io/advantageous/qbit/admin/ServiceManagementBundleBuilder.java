@@ -88,8 +88,8 @@ public class ServiceManagementBundleBuilder {
 
     private Reactor getReactor() {
         if (reactor == null) {
-            final Timer timer = Timer.timer();
-            reactor = Reactor.reactor(timeoutDuration, timer::now);
+            final Timer timer = Timer.timer(); //getTimer(); //Todo this should work
+            return Reactor.reactor(timeoutDuration, timer::now);
         }
         return reactor;
     }
@@ -103,7 +103,7 @@ public class ServiceManagementBundleBuilder {
         if (managedServiceBuilder == null) Objects.requireNonNull(statsCollector, "Stats must be set");
 
         if (statsCollector == null) {
-            statsCollector = getManagedServiceBuilder().createStatsCollector();
+            return getManagedServiceBuilder().createStatsCollector();
         }
         return statsCollector;
     }
