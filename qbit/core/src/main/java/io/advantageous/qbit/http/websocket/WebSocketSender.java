@@ -20,6 +20,8 @@ package io.advantageous.qbit.http.websocket;
 
 import io.advantageous.qbit.network.NetworkSender;
 
+import java.util.function.Consumer;
+
 /**
  * created by rhightower on 10/22/14.
  *
@@ -30,5 +32,10 @@ public interface WebSocketSender extends NetworkSender {
 
     default void openWebSocket(WebSocket webSocket) {
         open(webSocket);
+    }
+
+
+    default void openWebSocket(WebSocket webSocket, Consumer<Exception> exceptionConsumer) {
+        open(webSocket, exceptionConsumer);
     }
 }

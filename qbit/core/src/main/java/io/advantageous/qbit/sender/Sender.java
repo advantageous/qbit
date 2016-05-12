@@ -21,6 +21,8 @@ package io.advantageous.qbit.sender;
 
 import io.advantageous.qbit.service.Stoppable;
 
+import java.util.function.Consumer;
+
 /**
  * created by Richard on 10/1/14.
  * This could be a TCP/IP connection, a websocket, an HTTP long poll, etc.
@@ -31,6 +33,7 @@ import io.advantageous.qbit.service.Stoppable;
  */
 public interface Sender<T> extends Stoppable {
 
-    void send(String returnAddress, T buffer);
+    void send(String returnAddress, T buffer, Consumer<Exception> exceptionConsumer);
+
     //add a close here
 }

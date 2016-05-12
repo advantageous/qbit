@@ -395,7 +395,7 @@ public class HttpVertxClient implements HttpClient {
             }
 
             @Override
-            public void openWebSocket(WebSocket webSocket) {
+            public void openWebSocket(WebSocket webSocket, Consumer<Exception> exceptionConsumer) {
 
 
                 final Buffer[] bufferRef = new Buffer[1];
@@ -428,30 +428,42 @@ public class HttpVertxClient implements HttpClient {
                     vertxWebSocket.closeHandler(event -> webSocket.onClose());
 
                     /* Handle on Exception. */
-                    vertxWebSocket.exceptionHandler(event -> {
-
-                        if (event instanceof ConnectException) {
-
-                            logger.error("Unable to connect to " + host + " port " + port, event);
+                    vertxWebSocket.exceptionHandler(error -> {
+                        if (error instanceof ConnectException) {
+                            logger.error("Unable to connect to " + host + " port " + port, error);
                             closed.set(true);
                         }
-
-                        if (event instanceof Exception) {
-                            webSocket.onError((Exception) event);
+                        if (error instanceof Exception) {
+                            exceptionConsumer.accept((Exception) error);
+                            webSocket.onError((Exception) error);
                         } else {
-                            webSocket.onError(new Exception(event));
+
+                            exceptionConsumer.accept(new Exception(error));
+                            webSocket.onError(new Exception(error));
                         }
                     });
 
                     /* Handle onOpen. */
                     webSocket.onOpen();
 
+                }, error -> {
+                    if (error instanceof ConnectException) {
+                        logger.error("Unable to connect to " + host + " port " + port, error);
+                        closed.set(true);
+                    }
+                    if (error instanceof Exception) {
+                        exceptionConsumer.accept((Exception) error);
+                        webSocket.onError((Exception) error);
+                    } else {
+                        exceptionConsumer.accept(new Exception(error));
+                        webSocket.onError(new Exception(error));
+                    }
                 });
             }
 
             @Override
-            public void open(NetSocket netSocket) {
-                openWebSocket((WebSocket) netSocket);
+            public void open(NetSocket netSocket, Consumer<Exception> ex) {
+                openWebSocket((WebSocket) netSocket, ex);
             }
 
             @Override
@@ -543,6 +555,7 @@ public class HttpVertxClient implements HttpClient {
 
 
         httpClient = vertx.createHttpClient(httpClientOptions);
+
 
         if (debug) logger.debug("HTTP CLIENT: connect:: \nhost {} \nport {}\n", host, port);
         closed.set(false);

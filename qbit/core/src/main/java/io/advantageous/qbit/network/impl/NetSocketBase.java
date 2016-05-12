@@ -105,20 +105,22 @@ public class NetSocketBase implements NetSocket {
     }
 
     @Override
-    public void sendText(String text) {
+    public void sendText(final String text, final Consumer<Exception> exceptionConsumer) {
         try {
             networkSender.sendText(text);
         } catch (Exception ex) {
             onError(ex);
+            exceptionConsumer.accept(ex);
         }
     }
 
     @Override
-    public void sendBinary(byte[] bytes) {
+    public void sendBinary(final byte[] bytes, final Consumer<Exception> exceptionConsumer) {
         try {
             networkSender.sendBytes(bytes);
         } catch (Exception ex) {
             onError(ex);
+            exceptionConsumer.accept(ex);
         }
     }
 
@@ -172,26 +174,28 @@ public class NetSocketBase implements NetSocket {
     }
 
     @Override
-    public void open() {
+    public void open(Consumer<Exception> exceptionConsumer) {
         try {
-            networkSender.open(this);
+            networkSender.open(this, exceptionConsumer);
         } catch (Exception ex) {
+            exceptionConsumer.accept(ex);
             onError(ex);
         }
     }
 
 
     @Override
-    public void openAndNotify(Consumer<NetSocket> openConsumer) {
+    public void openAndNotify(Consumer<NetSocket> openConsumer, Consumer<Exception> exceptionConsumer) {
 
         this.setOpenConsumer(aVoid -> openConsumer.accept(this));
-        open();
+        open(exceptionConsumer);
     }
 
     @Override
     public void openAndWait() {
 
-        open();
+        open(e -> {
+        });
         /* Try to open for three seconds. */
         int count = 5;
         while (!open.get()) {

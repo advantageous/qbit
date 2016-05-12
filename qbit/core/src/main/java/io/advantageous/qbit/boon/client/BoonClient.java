@@ -43,12 +43,14 @@ import org.slf4j.LoggerFactory;
 import java.lang.ref.WeakReference;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.net.ConnectException;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.Consumer;
 
 import static io.advantageous.boon.core.Exceptions.die;
 import static io.advantageous.boon.core.Str.sputs;
@@ -184,13 +186,16 @@ public class BoonClient implements Client {
         httpServerProxy.flush();
     }
 
+
     /**
      * Sends a message over websocket.
      *
      * @param message     message to sendText over WebSocket
      * @param serviceName message to sendText over WebSocket
      */
-    private void send(final String serviceName, final String message) {
+    private void send(final String serviceName, final String message, final Consumer<Exception> exceptionConsumer) {
+
+
 
         if (webSocket == null) {
             String webSocketURI;
@@ -207,8 +212,8 @@ public class BoonClient implements Client {
             if (webSocket.isClosed() && connected()) {
                 this.webSocket.openAndNotify(netSocket -> {
                     connected.set(true);
-                    webSocket.sendText(message);
-                });
+                    webSocket.sendText(message, exceptionConsumer);
+                }, exceptionConsumer);
             } else {
                 webSocket.sendText(message);
             }
@@ -220,9 +225,15 @@ public class BoonClient implements Client {
 
     private void wireWebSocket(final String serviceName, final String message) {
 
-        this.webSocket.setErrorConsumer(error ->
-                logger.error(sputs(this.getClass().getName(),
-                        "::Exception calling WebSocket from client proxy", "\nService Name", serviceName, "\nMessage", message), error));
+        this.webSocket.setErrorConsumer(error -> {
+
+            if (error instanceof ConnectException) {
+                connected.set(false);
+            }
+            logger.error(sputs(this.getClass().getName(),
+                    "::Exception calling WebSocket from client proxy",
+                    "\nService Name", serviceName, "\nMessage", message), error);
+        });
 
         //noinspection Convert2MethodRef
         this.webSocket.setTextMessageConsumer(messageFromServer -> handleWebSocketReplyMessage(messageFromServer));
@@ -266,8 +277,8 @@ public class BoonClient implements Client {
         final Sender<String> sender = new Sender<String>() {
 
             @Override
-            public void send(String returnAddress, String buffer) {
-                BoonClient.this.send(serviceName, buffer);
+            public void send(String returnAddress, String buffer, Consumer<Exception> exceptionConsumer) {
+                BoonClient.this.send(serviceName, buffer, exceptionConsumer);
             }
 
             @Override

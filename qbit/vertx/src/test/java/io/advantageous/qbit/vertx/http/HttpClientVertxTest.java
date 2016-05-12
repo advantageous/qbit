@@ -104,7 +104,9 @@ public class HttpClientVertxTest extends TimedTesting {
                 }
         );
 
-        webSocket.open();
+        webSocket.open(e -> {
+
+        });
 
 
         client.flush();

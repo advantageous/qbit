@@ -7,17 +7,52 @@ import io.advantageous.qbit.server.EndpointServerBuilder;
 import io.advantageous.qbit.server.ServiceEndpointServer;
 import io.advantageous.qbit.service.ServiceProxyUtils;
 import io.advantageous.qbit.util.PortUtils;
+import io.advantageous.reakt.promise.Promise;
+import io.advantageous.reakt.promise.Promises;
 import org.junit.Test;
 
+import java.net.ConnectException;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 
 public class WebSocketProxy {
+
+    @Test
+    public void testDisconnect() {
+        final int port = PortUtils.findOpenPortStartAt(8080);
+
+        final ServiceEndpointServer serviceEndpointServer = EndpointServerBuilder.endpointServerBuilder()
+                .setPort(port).setHost("localhost")
+                .addService(new EmployeeServiceImpl()).build().startServerAndWait();
+
+        final Client client = ClientBuilder.clientBuilder().setPort(port).setHost("localhost").build().startClient();
+
+        final EmployeeServiceClient employeeService = client.createProxy(EmployeeServiceClient.class, "employeeserviceimpl");
+
+        Promise<Employee> promise = Promises.blockingPromise();
+
+        employeeService.addEmployee(new Employee("rick")).invokeWithPromise(promise);
+
+        ServiceProxyUtils.flushServiceProxy(employeeService);
+        assertTrue(promise.success());
+
+        serviceEndpointServer.stop();
+
+        promise = Promises.blockingPromise();
+
+        employeeService.addEmployee(new Employee("rick")).invokeWithPromise(promise);
+
+        assertTrue(promise.failure());
+
+        assertTrue(promise.cause() instanceof ConnectException);
+
+    }
 
     @Test
     public void test() throws Exception {
@@ -59,6 +94,11 @@ public class WebSocketProxy {
 
     interface EmployeeService {
         void addEmployee(Callback<Employee> callback, Employee e);
+    }
+
+
+    interface EmployeeServiceClient {
+        Promise<Employee> addEmployee(Employee e);
     }
 
     public static class Employee {

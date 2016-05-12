@@ -18,12 +18,18 @@
 
 package io.advantageous.qbit.network;
 
+import java.util.function.Consumer;
+
 /**
  * WebSocket like thing that receives messages.
  * Could be mapped to non-websocket implementations.
  * created by rhightower on 2/14/15.
  */
 public interface NetworkSender {
+
+
+    Consumer<Exception> noOpErrorHandler = e -> {
+    };
 
     void sendText(String message);
 
@@ -35,5 +41,11 @@ public interface NetworkSender {
     }
 
     default void open(NetSocket netSocket) {
+        open(netSocket, noOpErrorHandler);
+    }
+
+
+    default void open(NetSocket netSocket, Consumer<Exception> exceptionConsumer) {
+
     }
 }

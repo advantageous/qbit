@@ -89,34 +89,30 @@ public class SenderEndPoint implements EndPoint {
 
         if (methodCalls.size() > 0) {
             String returnAddress = methodCalls.get(0).returnAddress();
-            sender.send(returnAddress, encoder.encodeMethodCalls(methodCalls.get(0).returnAddress(), methodCalls));
+            sender.send(returnAddress, encoder.encodeMethodCalls(methodCalls.get(0).returnAddress(), methodCalls), e -> {
+
+                methodCalls.forEach(mc -> {
+                    if (mc.callback() != null) {
+                        mc.callback().onError(e);
+                    }
+                });
+            });
         }
     }
 
 
     @Override
     public void flush() {
-
-
         MethodCall<Object> method = methodCalls.poll();
-
         if (method != null) {
-
             List<MethodCall<Object>> methods;
-
-
             methods = new ArrayList<>(methodCalls.size());
-
-
             while (method != null) {
                 methods.add(method);
                 method = methodCalls.poll();
             }
-
-            sender.send((methods.get(0)).returnAddress(), encoder.encodeMethodCalls(methods.get(0).returnAddress(), methods));
-
+            call(methods);
         }
-
     }
 
     public void stop() {

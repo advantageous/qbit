@@ -26,6 +26,8 @@ import java.util.function.Consumer;
  * created by rhightower on 2/14/15.
  */
 public interface NetSocket {
+    Consumer<Exception> noOpErrorHandler = e -> {
+    };
 
     String remoteAddress();
 
@@ -41,9 +43,18 @@ public interface NetSocket {
 
     void onError(Exception exception);
 
-    void sendText(String string);
+    void sendText(String string, Consumer<Exception> errorHandler);
 
-    void sendBinary(byte[] bytes);
+
+    default void sendText(String string) {
+        sendText(string, noOpErrorHandler);
+    }
+
+    void sendBinary(byte[] bytes, Consumer<Exception> errorHandler);
+
+    default void sendBinary(byte[] bytes) {
+        sendBinary(bytes, noOpErrorHandler);
+    }
 
     boolean isClosed();
 
@@ -63,11 +74,20 @@ public interface NetSocket {
 
     void close();
 
-    void open();
+    void open(Consumer<Exception> exceptionConsumer);
+
+    default void open() {
+        open(noOpErrorHandler);
+    }
 
     void openAndWait();
 
-    void openAndNotify(final Consumer<NetSocket> openConsumer);
+    void openAndNotify(final Consumer<NetSocket> openConsumer, Consumer<Exception> exceptionConsumer);
+
+
+    default void openAndNotify(final Consumer<NetSocket> openConsumer) {
+        openAndNotify(openConsumer, noOpErrorHandler);
+    }
 
 
 }
