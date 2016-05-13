@@ -5,6 +5,7 @@ import io.advantageous.qbit.message.MethodCallBuilder;
 import io.advantageous.qbit.reakt.Reakt;
 import io.advantageous.qbit.service.EndPoint;
 import io.advantageous.reakt.Invokable;
+import io.advantageous.reakt.promise.Promise;
 import io.advantageous.reakt.promise.impl.BasePromise;
 
 public class InvokePromiseWithEndPoint extends BasePromise<Object> implements Invokable {
@@ -22,7 +23,7 @@ public class InvokePromiseWithEndPoint extends BasePromise<Object> implements In
     }
 
     @Override
-    public void invoke() {
+    public Promise<Object> invoke() {
         if (invoked) {
             throw new IllegalStateException("Can't call promise invoke twice.");
         }
@@ -30,6 +31,7 @@ public class InvokePromiseWithEndPoint extends BasePromise<Object> implements In
         methodCallBuilder.setCallback(Reakt.convertPromise(this));
         beforeMethodSent.beforeMethodSent(methodCallBuilder);
         endPoint.call(methodCallBuilder.build());
+        return this;
     }
 
     @Override

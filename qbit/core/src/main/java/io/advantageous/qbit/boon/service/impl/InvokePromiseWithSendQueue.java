@@ -6,6 +6,7 @@ import io.advantageous.qbit.message.MethodCallBuilder;
 import io.advantageous.qbit.queue.SendQueue;
 import io.advantageous.qbit.reakt.Reakt;
 import io.advantageous.reakt.Invokable;
+import io.advantageous.reakt.promise.Promise;
 import io.advantageous.reakt.promise.impl.BasePromise;
 
 public class InvokePromiseWithSendQueue extends BasePromise<Object> implements Invokable {
@@ -23,7 +24,7 @@ public class InvokePromiseWithSendQueue extends BasePromise<Object> implements I
     }
 
     @Override
-    public void invoke() {
+    public Promise<Object> invoke() {
         if (invoked) {
             throw new IllegalStateException("Can't call promise invoke twice.");
         }
@@ -31,6 +32,7 @@ public class InvokePromiseWithSendQueue extends BasePromise<Object> implements I
         methodCallBuilder.setCallback(Reakt.convertPromise(this));
         if (beforeMethodSent != null) beforeMethodSent.beforeMethodSent(methodCallBuilder);
         sendQueue.send(methodCallBuilder.build());
+        return this;
     }
 
     @Override
