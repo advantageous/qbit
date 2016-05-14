@@ -12,6 +12,8 @@ import io.advantageous.reakt.promise.Promises;
 import org.junit.Test;
 
 import java.net.ConnectException;
+import java.util.Arrays;
+import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
@@ -51,6 +53,41 @@ public class WebSocketProxy {
         assertTrue(promise.failure());
 
         assertTrue(promise.cause() instanceof ConnectException);
+
+        client.stop();
+
+    }
+
+
+    @Test
+    public void testSendGenericList() {
+
+        final int port = PortUtils.findOpenPortStartAt(8080);
+
+        final ServiceEndpointServer serviceEndpointServer = EndpointServerBuilder.endpointServerBuilder()
+                .setPort(port).setHost("localhost")
+                .addService(new EmployeeServiceImpl()).build().startServerAndWait();
+
+        final Client client = ClientBuilder.clientBuilder().setPort(port).setHost("localhost").build().startClient();
+
+        final EmployeeServiceClient employeeService = client.createProxy(EmployeeServiceClient.class, "employeeserviceimpl");
+
+        Promise<Boolean> promise = Promises.blockingPromise();
+
+        employeeService.addEmployees(Arrays.asList(new Employee("rick"))).invokeWithPromise(promise);
+
+        ServiceProxyUtils.flushServiceProxy(employeeService);
+
+        boolean success = promise.success();
+
+        if (!success) {
+            promise.cause().printStackTrace();
+        }
+        assertTrue(success);
+
+
+        serviceEndpointServer.stop();
+        client.stop();
 
     }
 
@@ -94,11 +131,16 @@ public class WebSocketProxy {
 
     interface EmployeeService {
         void addEmployee(Callback<Employee> callback, Employee e);
+
+        void addEmployees(Callback<Boolean> callback, List<Employee> list);
     }
 
 
     interface EmployeeServiceClient {
         Promise<Employee> addEmployee(Employee e);
+
+        Promise<Boolean> addEmployees(List<Employee> list);
+
     }
 
     public static class Employee {
@@ -121,6 +163,19 @@ public class WebSocketProxy {
         @Override
         public void addEmployee(Callback<Employee> callback, Employee e) {
             callback.resolve(e);
+        }
+
+        @Override
+        public void addEmployees(Callback<Boolean> callback, List<Employee> list) {
+
+            try {
+                if (list.size() > 0) {
+                    final Employee employee = list.get(0);
+                }
+            } catch (Exception ex) {
+                callback.reject(ex);
+            }
+            callback.resolve(true);
         }
     }
 

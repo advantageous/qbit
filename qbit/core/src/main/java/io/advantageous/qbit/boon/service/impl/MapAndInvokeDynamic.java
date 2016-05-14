@@ -35,7 +35,6 @@ class MapAndInvokeDynamic implements MapAndInvoke {
             Object body = methodCall.body();
             List<Object> argsList = boonServiceMethodCallHandler.prepareArgumentList(methodCall, serviceMethod.parameterTypes());
             if (body instanceof List || body instanceof Object[]) {
-
                 boonServiceMethodCallHandler.extractHandlersFromArgumentList(methodCall.callback(), serviceMethod, body, argsList);
             } else {
                 if (argsList.size() == 1 && !(argsList.get(0) instanceof Callback)) {
