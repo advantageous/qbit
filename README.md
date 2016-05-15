@@ -17,6 +17,7 @@ to pull some levers without selling your soul.
 QBit is a library not a framework. You can mix and match QBit with Spring, Guice, etc.
 
 
+
 ## New and Improved! 
 QBit now supports [Reakt](http://advantageous.github.io/reakt/) invokable promises for local and remote client proxies. 
 This gives a nice fluent API for async programming. 
