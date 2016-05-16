@@ -20,6 +20,7 @@ import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 
@@ -91,6 +92,56 @@ public class WebSocketProxy {
 
     }
 
+
+    @Test
+    public void testSendBoolean() {
+
+        final int port = PortUtils.findOpenPortStartAt(8080);
+
+        final ServiceEndpointServer serviceEndpointServer = EndpointServerBuilder.endpointServerBuilder()
+                .setPort(port).setHost("localhost")
+                .addService(new EmployeeServiceImpl()).build().startServerAndWait();
+
+        final Client client = ClientBuilder.clientBuilder().setPort(port).setHost("localhost").build().startClient();
+
+        final EmployeeServiceClient employeeService = client.createProxy(EmployeeServiceClient.class, "employeeserviceimpl");
+
+        Promise<Boolean> promise = Promises.blockingPromise();
+
+        employeeService.sendBoolean(true).invokeWithPromise(promise);
+
+        ServiceProxyUtils.flushServiceProxy(employeeService);
+
+        boolean success = promise.success();
+
+        if (!success) {
+            promise.cause().printStackTrace();
+        }
+        assertTrue(success);
+        assertTrue(promise.get());
+
+
+
+        Promise<Boolean> promise2 = Promises.blockingPromise();
+
+        employeeService.sendBoolean(false).invokeWithPromise(promise2);
+
+        ServiceProxyUtils.flushServiceProxy(employeeService);
+
+        boolean success2 = promise2.success();
+
+        if (!success2) {
+            promise2.cause().printStackTrace();
+        }
+        assertTrue(success2);
+        assertFalse(promise2.get());
+
+
+        serviceEndpointServer.stop();
+        client.stop();
+
+    }
+
     @Test
     public void test() throws Exception {
 
@@ -141,6 +192,10 @@ public class WebSocketProxy {
 
         Promise<Boolean> addEmployees(List<Employee> list);
 
+
+
+        Promise<Boolean> sendBoolean(boolean sent);
+
     }
 
     public static class Employee {
@@ -163,6 +218,11 @@ public class WebSocketProxy {
         @Override
         public void addEmployee(Callback<Employee> callback, Employee e) {
             callback.resolve(e);
+        }
+
+
+        public void sendBoolean(Callback<Boolean> callback, boolean sent) {
+            callback.resolve(sent);
         }
 
         @Override
