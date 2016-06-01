@@ -823,7 +823,7 @@ public class ManagedServiceBuilder {
             final String alias,
             final Object endpointService, final ServiceManagementBundle serviceManagementBundle) {
 
-        addEndpointServiceWithAliasAndQueueHandlerCallbacks(alias, new QueueCallBackHandler() {
+        addEndpointServiceWithAliasAndQueueHandlerCallbacks(alias, endpointService, new QueueCallBackHandler() {
             @Override
             public void queueProcess() {
                 serviceManagementBundle.process();
