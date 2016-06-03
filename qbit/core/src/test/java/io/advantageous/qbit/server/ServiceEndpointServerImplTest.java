@@ -48,10 +48,11 @@ import io.advantageous.qbit.test.TimedTesting;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.util.List;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.function.Consumer;
+import java.util.*;
+import java.util.concurrent.atomic.*;
+import java.util.function.*;
 
+import static com.sun.xml.internal.ws.dump.LoggingDumpTube.Position.Before;
 import static io.advantageous.boon.core.Exceptions.die;
 import static io.advantageous.boon.core.IO.puts;
 import static io.advantageous.qbit.service.ServiceBuilder.serviceBuilder;
@@ -76,14 +77,12 @@ public class ServiceEndpointServerImplTest extends TimedTesting {
         final ProtocolParser protocolParser = factory.createProtocolParser();
         final ProtocolEncoder encoder = factory.createEncoder();
 
-
         final ServiceBundle serviceBundle = new ServiceBundleBuilder().setAddress("/services").build();
         final JsonMapper mapper = factory.createJsonMapper();
 
-
         httpServer = new HttpServerMock();
-        serviceServerImpl = new ServiceEndpointServerImpl(httpServer, encoder, protocolParser, serviceBundle, mapper, 1, 100, 30, 10, null, "", null, 8080, 0, null, null, 50, 2, 2);
-
+        serviceServerImpl = new ServiceEndpointServerImpl(httpServer, encoder, protocolParser, serviceBundle, mapper, 1, 100, 30, 10, null, "",
+                "", null, 8080, 0, null, null, 50, 2, 2);
 
         callMeCounter = 0;
         responseCounter = 0;
@@ -91,7 +90,6 @@ public class ServiceEndpointServerImplTest extends TimedTesting {
         serviceServerImpl.start();
 
         Sys.sleep(500);
-
 
     }
 
@@ -102,38 +100,31 @@ public class ServiceEndpointServerImplTest extends TimedTesting {
         final ProtocolParser protocolParser = factory.createProtocolParser();
         final ProtocolEncoder encoder = factory.createEncoder();
 
-
         final Queue<Response<Object>> responseQueue = QueueBuilder.queueBuilder().setName("RESPONSE QUEUE TEST").build();
 
         final ServiceBundle serviceBundle = new ServiceBundleBuilder()
                 .setResponseQueue(responseQueue).setAddress("/services").build();
         final JsonMapper mapper = factory.createJsonMapper();
 
-
         httpServer = new HttpServerMock();
         serviceServerImpl = new ServiceEndpointServerImpl(httpServer, encoder, protocolParser, serviceBundle,
-                mapper, 1, 100, 30, 10, null, null, null, 8080, 0, null, null, 50, 2, 2);
-
+                mapper, 1, 100, 30, 10, null, null, null, null, 8080, 0, null, null, 50, 2, 2);
 
         callMeCounter = 0;
         responseCounter = 0;
-
 
         ServiceQueue serviceQueue = serviceBuilder()
                 .setResponseQueue(responseQueue)
                 .setServiceObject(new MyOtherService()).buildAndStart();
 
-
         serviceServerImpl.addServiceQueue("/services/other/serviceCall", serviceQueue);
 
         serviceServerImpl.start();
-
 
         final HttpRequest request = new HttpRequestBuilder().setUri("/services/other/servicecall")
                 .setTextReceiver(new MockReceiver()).setBody("\"call\"").build();
 
         httpServer.sendRequest(request);
-
 
         Sys.sleep(100);
 
@@ -151,32 +142,26 @@ public class ServiceEndpointServerImplTest extends TimedTesting {
         final ProtocolParser protocolParser = factory.createProtocolParser();
         final ProtocolEncoder encoder = factory.createEncoder();
 
-
         final Queue<Response<Object>> responseQueue = QueueBuilder.queueBuilder().setName("RESPONSE QUEUE").build();
 
         final ServiceBundle serviceBundle = new ServiceBundleBuilder()
                 .setResponseQueue(responseQueue).setAddress("/services").build();
         final JsonMapper mapper = factory.createJsonMapper();
 
-
         httpServer = new HttpServerMock();
         serviceServerImpl = new ServiceEndpointServerImpl(httpServer, encoder, protocolParser, serviceBundle,
-                mapper, 1, 100, 30, 10, null, null, null, 8080, 0, null, null, 50, 2, 2);
-
+                mapper, 1, 100, 30, 10, null, null, null, null, 8080, 0, null, null, 50, 2, 2);
 
         callMeCounter = 0;
         responseCounter = 0;
-
 
         ServiceQueue serviceQueue = serviceBuilder()
                 .setResponseQueue(responseQueue)
                 .setServiceObject(new MyOtherService()).buildAndStart();
 
-
         serviceServerImpl.addServiceQueue("other", serviceQueue);
 
         serviceServerImpl.start();
-
 
         final MethodCall<Object> methodCall = new MethodCallBuilder().setObjectName("other").setName("method").setBody(null).build();
 
@@ -185,9 +170,7 @@ public class ServiceEndpointServerImplTest extends TimedTesting {
         httpServer.sendWebSocketServerMessage(new WebSocketMessageBuilder().setRemoteAddress("/foo")
                 .setMessage(message).setSender(new MockWebSocketSender()).build());
 
-
         Sys.sleep(100);
-
 
         waitForTrigger(20, o -> responseCounter == 1);
 
@@ -205,7 +188,6 @@ public class ServiceEndpointServerImplTest extends TimedTesting {
 
         httpServer.sendRequest(request);
 
-
         Sys.sleep(10);
         serviceServerImpl.flush();
         Sys.sleep(10);
@@ -214,7 +196,6 @@ public class ServiceEndpointServerImplTest extends TimedTesting {
 
         ok |= responseCounter == 1 || die();
         ok |= callMeCounter == 1 || die();
-
 
     }
 
@@ -228,14 +209,11 @@ public class ServiceEndpointServerImplTest extends TimedTesting {
 
         httpServer.sendRequest(request);
 
-
         waitForTrigger(20, o -> timeOutCounter.get() >= 1);
-
 
         ok |= responseCounter == 0 || die();
         ok |= callMeCounter == 0 || die();
         ok |= timeOutCounter.get() >= 1 || die(); //TODO fix
-
 
     }
 
@@ -254,17 +232,14 @@ public class ServiceEndpointServerImplTest extends TimedTesting {
 
         Sys.sleep(10);
 
-
         waitForTrigger(20, o -> responseCounter == 1 && callMeCounter == 1);
 
         Sys.sleep(10);
-
 
         ok |= responseCounter == 1 || die();
         ok |= callMeCounter == 1 || die();
 
         ok |= lastResponse.equals("\"baconPOST\"") || die();
-
 
     }
 
@@ -275,12 +250,12 @@ public class ServiceEndpointServerImplTest extends TimedTesting {
         responseCounter = 0;
         callMeCounter = 0;
 
-        final HttpRequest request = new HttpRequestBuilder().setUri("/services/mock/callPost").setTextReceiver(new MockReceiver()).setBody("[]").build();
+        final HttpRequest request = new HttpRequestBuilder().setUri("/services/mock/callPost").setTextReceiver(new MockReceiver()).setBody("[]")
+                .build();
 
         httpServer.sendRequest(request);
 
         waitForTrigger(20, o -> failureCounter == 1);
-
 
         ok |= failureCounter == 1 || die();
         ok |= callMeCounter == 0 || die();
@@ -302,31 +277,25 @@ public class ServiceEndpointServerImplTest extends TimedTesting {
 
         Sys.sleep(10);
 
-
         waitForTrigger(20, o -> responseCounter == 1 && callMeCounter == 1);
-
 
         ok |= responseCounter == 1 || die();
         ok |= callMeCounter == 1 || die();
         ok |= lastResponse.equals("\"bacon\"") || die();
-
 
     }
 
     @Test
     public void testWeSocketCallThatIsCrap() throws Exception {
 
-
         httpServer.sendWebSocketServerMessage(new WebSocketMessageBuilder().setMessage("CRAP")
 
                 .setRemoteAddress("/crap/at/crap").setSender(new MockWebSocketSender()).build());
-
 
         Sys.sleep(10);
         serviceServerImpl.flush();
 
         Sys.sleep(10);
-
 
         waitForTrigger(20, o -> responseCounter == 1 && failureCounter == 1);
 
@@ -338,20 +307,19 @@ public class ServiceEndpointServerImplTest extends TimedTesting {
     @Test
     public void testWebSocketCall() throws Exception {
 
-        final MethodCall<Object> methodCall = new MethodCallBuilder().setObjectName("serviceMockObject").setName("callWithReturn").setBody(null).build();
+        final MethodCall<Object> methodCall = new MethodCallBuilder().setObjectName("serviceMockObject").setName("callWithReturn").setBody(null)
+                .build();
 
         final String message = QBit.factory().createEncoder().encodeMethodCalls("", Lists.list(methodCall));
 
-        httpServer.sendWebSocketServerMessage(new WebSocketMessageBuilder().setRemoteAddress("/foo").setMessage(message).setSender(new MockWebSocketSender()).build());
-
+        httpServer.sendWebSocketServerMessage(new WebSocketMessageBuilder().setRemoteAddress("/foo").setMessage(message).setSender(new
+                MockWebSocketSender()).build());
 
         Sys.sleep(10);
-
 
         serviceServerImpl.flush();
 
         Sys.sleep(10);
-
 
         waitForTrigger(20, o -> responseCounter == 1);
 
@@ -365,17 +333,16 @@ public class ServiceEndpointServerImplTest extends TimedTesting {
     @Test
     public void testExceptionCall() throws Exception {
 
-        final HttpRequest request = new HttpRequestBuilder().setUri("/services/mock/exceptionCall").setTextReceiver(new MockReceiver()).setBody("").build();
+        final HttpRequest request = new HttpRequestBuilder().setUri("/services/mock/exceptionCall").setTextReceiver(new MockReceiver()).setBody("")
+                .build();
 
         httpServer.sendRequest(request);
 
         Sys.sleep(10);
 
-
         serviceServerImpl.flush();
 
         Sys.sleep(10);
-
 
         waitForTrigger(20, o -> callMeCounter == 1 && failureCounter == 1);
 
@@ -383,7 +350,6 @@ public class ServiceEndpointServerImplTest extends TimedTesting {
         ok |= callMeCounter == 1 || die();
 
         puts(lastResponse);
-
 
     }
 
@@ -395,16 +361,14 @@ public class ServiceEndpointServerImplTest extends TimedTesting {
 
         final String message = QBit.factory().createEncoder().encodeMethodCalls("", Lists.list(methodCall));
 
-        httpServer.sendWebSocketServerMessage(new WebSocketMessageBuilder().setRemoteAddress("/error").setMessage(message).setSender(new MockWebSocketSender()).build());
-
+        httpServer.sendWebSocketServerMessage(new WebSocketMessageBuilder().setRemoteAddress("/error").setMessage(message).setSender(new
+                MockWebSocketSender()).build());
 
         Sys.sleep(5);
-
 
         serviceServerImpl.flush();
 
         Sys.sleep(5);
-
 
         waitForTrigger(20, o -> callMeCounter == 1 && failureCounter == 1);
         ok |= failureCounter == 1 || die();
@@ -437,13 +401,11 @@ public class ServiceEndpointServerImplTest extends TimedTesting {
         @RequestMapping("/timeOut")
         public String timeOut() {
 
-
             puts("TIMEOUT");
             Sys.sleep(30000);
 
             return "ok";
         }
-
 
         @RequestMapping("/callWithReturn")
         public String callWithReturn() {
@@ -456,7 +418,6 @@ public class ServiceEndpointServerImplTest extends TimedTesting {
             callMeCounter++;
             return "baconPOST";
         }
-
 
         @RequestMapping("/exceptionCall")
         public String exceptionCall() {
@@ -496,7 +457,6 @@ public class ServiceEndpointServerImplTest extends TimedTesting {
 
             if (messages.size() == 1) {
 
-
                 responseCounter++;
                 final Response<Object> response = (Response<Object>) messages.get(0);
                 if (response.wasErrors()) {
@@ -510,7 +470,6 @@ public class ServiceEndpointServerImplTest extends TimedTesting {
         public void sendBytes(byte[] message) {
             //Binary not supported yet
         }
-
 
     }
 
@@ -539,7 +498,6 @@ public class ServiceEndpointServerImplTest extends TimedTesting {
                 while (true) {
                     Sys.sleep(10);
 
-
                     idleConsumerRequest.accept(null);
                     idleConsumerWebSocket.accept(null);
                 }
@@ -557,13 +515,11 @@ public class ServiceEndpointServerImplTest extends TimedTesting {
 
         }
 
-
         public void sendRequest(HttpRequest request) {
 
             requestConsumer.accept(request);
             idleConsumerRequest.accept(null);
         }
-
 
         @Override
         public void setWebSocketMessageConsumer(Consumer<WebSocketMessage> webSocketMessageConsumer) {
