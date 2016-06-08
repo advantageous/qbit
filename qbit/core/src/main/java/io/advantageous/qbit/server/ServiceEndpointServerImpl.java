@@ -48,7 +48,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Consumer;
 
-
 /**
  * Implementation of a service endpoint server.  This is the server that exposes a set of qbit services to the network.
  *
@@ -74,7 +73,6 @@ public class ServiceEndpointServerImpl implements ServiceEndpointServer {
     private final ServiceDiscovery serviceDiscovery;
     protected int timeoutInSeconds = 30;
 
-
     public ServiceEndpointServerImpl(final HttpTransport httpServer, final ProtocolEncoder encoder,
                                      final ProtocolParser parser,
                                      final ServiceBundle serviceBundle,
@@ -85,6 +83,7 @@ public class ServiceEndpointServerImpl implements ServiceEndpointServer {
                                      final int flushInterval,
                                      final QBitSystemManager systemManager,
                                      final String endpointName,
+                                     final String endpointId,
                                      final ServiceDiscovery serviceDiscovery,
                                      final int port,
                                      final int ttlSeconds,
@@ -115,22 +114,21 @@ public class ServiceEndpointServerImpl implements ServiceEndpointServer {
                 new HttpRequestServiceServerHandlerUsingMetaImpl(this.timeoutInSeconds,
                         serviceBundle, jsonMapper, numberOfOutstandingRequests, flushInterval, errorHandler);
 
-        this.endpoint = createEndpoint(endpointName, port, ttlSeconds);
-
+        this.endpoint = createEndpoint(endpointName, endpointId, port, ttlSeconds);
 
     }
 
-    private EndpointDefinition createEndpoint(String endpointName, int port, int ttlSeconds) {
-
+    private EndpointDefinition createEndpoint(String endpointName, String endpointId, int port, int ttlSeconds) {
         if (serviceDiscovery != null) {
-
             if (ttlSeconds > 0) {
+                if (endpointId != null) {
+                    return serviceDiscovery.registerWithIdAndTimeToLive(endpointName, endpointId, port, ttlSeconds);
+                }
                 return serviceDiscovery.registerWithTTL(endpointName, port, ttlSeconds);
             } else {
                 return serviceDiscovery.register(endpointName, port);
             }
         }
-
         return null;
     }
 
@@ -165,7 +163,6 @@ public class ServiceEndpointServerImpl implements ServiceEndpointServer {
         httpServer.setHttpRequestConsumer(httpRequestServerHandler::handleRestCall);
         httpServer.setWebSocketMessageConsumer(webSocketHandler::handleWebSocketCall);
         httpServer.setWebSocketCloseConsumer(webSocketHandler::handleWebSocketClose);
-
 
         if (endpoint != null && endpoint.getTimeToLive() > 0) {
             handleServiceDiscoveryCheckIn();
@@ -206,7 +203,6 @@ public class ServiceEndpointServerImpl implements ServiceEndpointServer {
         });
     }
 
-
     private void handleDiscoveryCheckInWithHealth(final AtomicLong lastCheckIn,
                                                   final long checkInDuration) {
         final AtomicBoolean ok = new AtomicBoolean(true);
@@ -246,11 +242,9 @@ public class ServiceEndpointServerImpl implements ServiceEndpointServer {
             if (debug) logger.debug("Unable to cleanly shutdown httpServer", ex);
         }
 
-
         if (systemManager != null) systemManager.serviceShutDown();
 
     }
-
 
     /**
      * Sets up the response queue listener so we can sendText responses
@@ -269,7 +263,6 @@ public class ServiceEndpointServerImpl implements ServiceEndpointServer {
     private ReceiveQueueListener<Response<Object>> createResponseQueueListener() {
         return new ReceiveQueueListener<Response<Object>>() {
 
-
             @Override
             public void receive(final Response<Object> response) {
 
@@ -278,7 +271,6 @@ public class ServiceEndpointServerImpl implements ServiceEndpointServer {
                 }
                 handleResponseFromServiceBundle(response, response.request().originatingRequest());
             }
-
 
             @Override
             public void limit() {
@@ -300,9 +292,7 @@ public class ServiceEndpointServerImpl implements ServiceEndpointServer {
         };
     }
 
-
     private void handleResponseFromServiceBundle(final Response<Object> response, final Request<Object> originatingRequest) {
-
 
         if (originatingRequest instanceof HttpRequest) {
 
@@ -310,7 +300,6 @@ public class ServiceEndpointServerImpl implements ServiceEndpointServer {
                 return; // the operation timed out
             }
             originatingRequest.handled(); //Let others know that it is handled.
-
 
             httpRequestServerHandler.handleResponseFromServiceToHttpResponse(response, (HttpRequest) originatingRequest);
         } else if (originatingRequest instanceof WebSocketMessage) {
@@ -329,7 +318,6 @@ public class ServiceEndpointServerImpl implements ServiceEndpointServer {
         return this;
     }
 
-
     @Override
     public ServiceEndpointServer initServices(final Iterable<Object> services) {
 
@@ -341,13 +329,11 @@ public class ServiceEndpointServerImpl implements ServiceEndpointServer {
         return this;
     }
 
-
     public ServiceEndpointServer addServiceQueue(final String address, final ServiceQueue serviceQueue) {
         serviceBundle().addServiceQueue(address, serviceQueue);
         httpRequestServerHandler.addRestSupportFor(serviceQueue.service().getClass(), serviceBundle().address());
         return this;
     }
-
 
     @Override
     public ServiceEndpointServer initServices(Object... services) {
@@ -384,7 +370,6 @@ public class ServiceEndpointServerImpl implements ServiceEndpointServer {
         httpRequestServerHandler.addRestSupportFor(serviceObject.getClass(), serviceBundle.address());
         return this;
     }
-
 
     public ServiceBundle serviceBundle() {
         return this.serviceBundle;
