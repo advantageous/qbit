@@ -288,6 +288,8 @@ public abstract class BasicSendReceiveTest {
         sendQueue.sendBatch(() -> Lists.list("mom", "dad").iterator());
         count.addAndGet(2);
 
+        Thread.sleep(1000);
+
         assertTrue(sendQueue.shouldBatch());
         assertTrue(sendQueue.size() > -1);
         assertTrue(sendQueue.name() != null);
