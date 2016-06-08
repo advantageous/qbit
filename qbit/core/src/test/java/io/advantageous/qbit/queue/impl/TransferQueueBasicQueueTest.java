@@ -2,6 +2,8 @@ package io.advantageous.qbit.queue.impl;
 
 import io.advantageous.qbit.queue.QueueBuilder;
 import org.junit.Before;
+import org.junit.Ignore;
+import org.junit.Test;
 
 import java.util.concurrent.TimeUnit;
 
@@ -20,5 +22,12 @@ public class TransferQueueBasicQueueTest extends BasicSendReceiveTest {
 
         receiveQueue = queue.receiveQueue();
         sendQueue = queue.sendQueue();
+    }
+
+
+    @Ignore
+    @Test
+    public void startQueueAndListenerWithAutoFlush() throws InterruptedException {
+
     }
 }

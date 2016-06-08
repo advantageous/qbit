@@ -278,6 +278,8 @@ public class StandardRequestTransformer implements RequestTransformer {
                             final byte[] bytes = (byte[]) value;
                             value = new String(bytes, StandardCharsets.UTF_8);
                         }
+                    } else if (parameterMeta.getClassType() == HttpRequest.class) {
+                        value = request;
                     }
                     break;
                 case BODY_BY_POSITION:
