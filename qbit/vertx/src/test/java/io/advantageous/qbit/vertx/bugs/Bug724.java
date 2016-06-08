@@ -14,6 +14,8 @@ import io.advantageous.qbit.server.ServiceEndpointServer;
 import io.advantageous.qbit.util.PortUtils;
 import org.junit.Test;
 
+import static junit.framework.Assert.assertEquals;
+
 public class Bug724 {
 
     @Test
@@ -34,8 +36,9 @@ public class Bug724 {
 
         final HttpTextResponse httpTextResponse = httpClient.sendRequestAndWait(httpRequest);
 
-        //assertEquals("was=Rick Loves Java", httpTextResponse.body());
+        assertEquals("\"was=Rick Loves Java\"", httpTextResponse.body());
     }
+
 
     @RequestMapping("/")
     public static class MyService {

@@ -145,8 +145,7 @@ public class StandardRequestTransformer implements RequestTransformer {
             switch (paramType) {
                 case REQUEST:
                     namedParam = ((NamedParam) parameterMeta.getParam());
-                    value = request.params().get(namedParam.getName());
-
+                    value = request.getParam(namedParam.getName());
                     if (namedParam.isRequired() && Str.isEmpty(value)) {
                         errorsList.add(sputs("Unable to find required request param", namedParam.getName()));
                         break loop;
@@ -155,9 +154,7 @@ public class StandardRequestTransformer implements RequestTransformer {
                     if (Str.isEmpty(value)) {
                         value = namedParam.getDefaultValue();
                     }
-
                     value = value != null ? decodeURLEncoding(value.toString()) : value;
-
                     break;
                 case HEADER:
                     namedParam = ((NamedParam) parameterMeta.getParam());
@@ -166,7 +163,6 @@ public class StandardRequestTransformer implements RequestTransformer {
                         errorsList.add(sputs("Unable to find required header param", namedParam.getName()));
                         break loop;
                     }
-
                     if (Str.isEmpty(value)) {
                         value = namedParam.getDefaultValue();
                     }
@@ -185,9 +181,7 @@ public class StandardRequestTransformer implements RequestTransformer {
                     break;
                 case PATH_BY_NAME:
                     URINamedParam uriNamedParam = ((URINamedParam) parameterMeta.getParam());
-
                     final String[] split = Str.split(request.address(), '/');
-
                     if (uriNamedParam.getIndexIntoURI() >= split.length) {
                         if (uriNamedParam.isRequired()) {
                             errorsList.add(sputs("Unable to find required path param", uriNamedParam.getName()));
@@ -204,12 +198,9 @@ public class StandardRequestTransformer implements RequestTransformer {
                     }
                     value = value != null ? decodeURLEncoding(value.toString()) : value;
                     break;
-
                 case PATH_BY_POSITION:
                     URIPositionalParam positionalParam = ((URIPositionalParam) parameterMeta.getParam());
-
                     final String[] pathSplit = Str.split(request.address(), '/');
-
                     value = null;
                     if (positionalParam.getIndexIntoURI() >= pathSplit.length) {
                         if (positionalParam.isRequired()) {
@@ -225,7 +216,6 @@ public class StandardRequestTransformer implements RequestTransformer {
                             break loop;
                         }
                     }
-
                     if (Str.isEmpty(value)) {
                         value = positionalParam.getDefaultValue();
                     }
@@ -235,47 +225,30 @@ public class StandardRequestTransformer implements RequestTransformer {
                 case BODY:
                     final BodyParam bodyParam = (BodyParam) parameterMeta.getParam();
                     value = request.body();
-
                     final String contentType = request.getContentType();
-
                     if (isJsonContent(contentType)) {
-
-
                         if (value instanceof byte[]) {
                             final byte[] bytes = (byte[]) value;
                             value = new String(bytes, StandardCharsets.UTF_8);
                         }
-
                         if (bodyParam.isRequired() && Str.isEmpty(value)) {
-
                             errorsList.add("Unable to find body");
                             break loop;
-
                         }
-
-
                         if (Str.isEmpty(value)) {
                             value = bodyParam.getDefaultValue();
-
-
                         }
-
                         if (byPosition) {
-
                             value = jsonMapper.get().fromJson(value.toString());
                             value = ValueContainer.toObject(value);
-
                             if (value instanceof List) {
                                 value = ((List) value).get(index);
                                 value = ValueContainer.toObject(value);
                             }
-
                             try {
                                 if (parameterMeta.isArray() || parameterMeta.isCollection()) {
-
                                     value = MapObjectConversion.convertListOfMapsToObjects(parameterMeta.getComponentClass(), (List<Map>) value);
                                 } else {
-
                                     if (value instanceof Map) {
                                         value = MapObjectConversion.fromMap((Map) value, parameterMeta.getClassType());
                                     } else {
@@ -283,11 +256,9 @@ public class StandardRequestTransformer implements RequestTransformer {
                                     }
                                 }
                             } catch (Exception exception) {
-
                                 handleMehtodTransformError(errorsList, methodCallBuilder, exception);
                             }
                         } else {
-
                             try {
                                 if (parameterMeta.isArray() || parameterMeta.isCollection()) {
                                     value = jsonMapper.get().fromJsonArray(value.toString(), parameterMeta.getComponentClass());
@@ -299,7 +270,6 @@ public class StandardRequestTransformer implements RequestTransformer {
                                     value = jsonMapper.get().fromJson(value.toString(), parameterMeta.getClassType());
                                 }
                             } catch (Exception exception) {
-
                                 handleMehtodTransformError(errorsList, methodCallBuilder, exception);
                             }
                         }
@@ -310,7 +280,6 @@ public class StandardRequestTransformer implements RequestTransformer {
                         }
                     }
                     break;
-
                 case BODY_BY_POSITION:
                     BodyArrayParam bodyArrayParam = (BodyArrayParam) parameterMeta.getParam();
                     value = request.body();

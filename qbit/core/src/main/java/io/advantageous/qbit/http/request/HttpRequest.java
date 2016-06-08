@@ -104,13 +104,9 @@ public class HttpRequest implements Request<Object> {
 
     public MultiMap<String, String> formParams() {
         if (formParams == null) {
-
             formParams = formParamsSupplier.get();
-
         }
-
         return formParams;
-
     }
 
     public MultiMap<String, String> getFormParams() {
@@ -279,5 +275,14 @@ public class HttpRequest implements Request<Object> {
                 ", timestamp=" + timestamp +
                 ", handled=" + handled +
                 '}';
+    }
+
+    public String getParam(String name) {
+        String value = null;
+        value = this.params().get(name);
+        if (value == null) {
+            value = this.formParams().get(name);
+        }
+        return value;
     }
 }
