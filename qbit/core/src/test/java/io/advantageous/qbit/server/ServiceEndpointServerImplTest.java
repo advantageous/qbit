@@ -48,11 +48,10 @@ import io.advantageous.qbit.test.TimedTesting;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.util.*;
-import java.util.concurrent.atomic.*;
-import java.util.function.*;
+import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Consumer;
 
-import static com.sun.xml.internal.ws.dump.LoggingDumpTube.Position.Before;
 import static io.advantageous.boon.core.Exceptions.die;
 import static io.advantageous.boon.core.IO.puts;
 import static io.advantageous.qbit.service.ServiceBuilder.serviceBuilder;

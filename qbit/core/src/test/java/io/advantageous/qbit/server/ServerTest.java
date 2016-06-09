@@ -32,13 +32,13 @@ import io.advantageous.qbit.spi.ProtocolParser;
 import io.advantageous.qbit.test.TimedTesting;
 import org.junit.Test;
 
-import java.util.*;
-import java.util.concurrent.atomic.*;
+import java.util.Date;
+import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import static io.advantageous.boon.core.Exceptions.die;
 import static io.advantageous.boon.core.IO.puts;
 import static io.advantageous.boon.json.JsonFactory.fromJsonArray;
-import static io.advantageous.consul.domain.ConsulException.die;
 
 public class ServerTest extends TimedTesting {
 
