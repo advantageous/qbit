@@ -43,10 +43,9 @@ import io.advantageous.qbit.util.Timer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Arrays;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicLong;
-import java.util.function.Consumer;
+import java.util.*;
+import java.util.concurrent.atomic.*;
+import java.util.function.*;
 
 /**
  * Implementation of a service endpoint server.  This is the server that exposes a set of qbit services to the network.
@@ -85,6 +84,7 @@ public class ServiceEndpointServerImpl implements ServiceEndpointServer {
                                      final String endpointName,
                                      final String endpointId,
                                      final ServiceDiscovery serviceDiscovery,
+                                     final String host,
                                      final int port,
                                      final int ttlSeconds,
                                      final HealthServiceAsync healthServiceAsync,
@@ -114,19 +114,19 @@ public class ServiceEndpointServerImpl implements ServiceEndpointServer {
                 new HttpRequestServiceServerHandlerUsingMetaImpl(this.timeoutInSeconds,
                         serviceBundle, jsonMapper, numberOfOutstandingRequests, flushInterval, errorHandler);
 
-        this.endpoint = createEndpoint(endpointName, endpointId, port, ttlSeconds);
+        this.endpoint = createEndpoint(endpointName, endpointId, host, port, ttlSeconds);
 
     }
 
-    private EndpointDefinition createEndpoint(String endpointName, String endpointId, int port, int ttlSeconds) {
+    private EndpointDefinition createEndpoint(String endpointName, String endpointId, String host, int port, int ttlSeconds) {
         if (serviceDiscovery != null) {
             if (ttlSeconds > 0) {
                 if (endpointId != null) {
-                    return serviceDiscovery.registerWithIdAndTimeToLive(endpointName, endpointId, port, ttlSeconds);
+                    return serviceDiscovery.registerWithIdAndTimeToLive(endpointName, endpointId, host, port, ttlSeconds);
                 }
-                return serviceDiscovery.registerWithTTL(endpointName, port, ttlSeconds);
+                return serviceDiscovery.registerWithTTL(endpointName, host, port, ttlSeconds);
             } else {
-                return serviceDiscovery.register(endpointName, port);
+                return serviceDiscovery.register(endpointName, host, port);
             }
         }
         return null;

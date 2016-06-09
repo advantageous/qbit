@@ -49,7 +49,7 @@ import io.advantageous.qbit.transforms.Transformer;
 import io.advantageous.qbit.util.Timer;
 
 import java.util.*;
-import java.util.function.Consumer;
+import java.util.function.*;
 
 import static io.advantageous.qbit.http.server.HttpServerBuilder.httpServerBuilder;
 
@@ -66,6 +66,11 @@ public class EndpointServerBuilder {
      * Default URI of main web port.
      */
     public static final int DEFAULT_PORT = 8080;
+
+    /**
+     * Default URI of main web host.
+     */
+    public static final String DEFAULT_HOST = "localhost";
 
     /**
      * Default URI of REST and web socket services.
@@ -92,7 +97,7 @@ public class EndpointServerBuilder {
     /**
      * Name of host we will listen on.
      */
-    private String host;
+    private String host = DEFAULT_HOST;
 
     /**
      * Name of port we will listen on.
@@ -680,7 +685,7 @@ public class EndpointServerBuilder {
                 getEncoder(), getParser(), serviceBundle, getJsonMapper(), this.getTimeoutSeconds(),
                 this.getNumberOfOutstandingRequests(), getProtocolBatchSize(),
                 this.getFlushInterval(), this.getSystemManager(), getEndpointName(), getEndpointId(),
-                getServiceDiscovery(), getPort(), getTtlSeconds(), getHealthService(), getErrorHandler(),
+                getServiceDiscovery(), getHost(), getPort(), getTtlSeconds(), getHealthService(), getErrorHandler(),
                 getFlushResponseInterval(), getParserWorkerCount(), getEncoderWorkerCount());
 
         if (serviceEndpointServer != null && qBitSystemManager != null) {

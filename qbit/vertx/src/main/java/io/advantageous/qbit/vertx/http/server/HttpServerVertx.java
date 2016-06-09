@@ -102,7 +102,7 @@ public class HttpServerVertx implements HttpServer {
         this.startedVertx = startedVertx;
 
         this.simpleHttpServer = new SimpleHttpServer(endpointName, systemManager,
-                options.getFlushInterval(), options.getPort(), serviceDiscovery,
+                options.getFlushInterval(), options.getHost(), options.getPort(), serviceDiscovery,
                 healthServiceAsync, serviceDiscoveryTtl, serviceDiscoveryTtlTimeUnit,
                 decorators, httpResponseCreator, requestBodyContinuePredicate);
         this.vertx = vertx;
