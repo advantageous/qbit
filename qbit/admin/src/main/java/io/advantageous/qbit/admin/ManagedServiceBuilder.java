@@ -1217,9 +1217,10 @@ public class ManagedServiceBuilder {
 
     /**
      * Starts up the application.
+     * @return service endpoint server
      */
-    public void startApplication() {
-        getServiceEndpointServer().startServerAndWait();
+    public ServiceEndpointServer startApplication() {
+        return getServiceEndpointServer().startServerAndWait();
     }
 
 

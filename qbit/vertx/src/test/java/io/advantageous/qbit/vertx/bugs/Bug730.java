@@ -16,7 +16,10 @@ import org.junit.Test;
 
 import static junit.framework.Assert.assertEquals;
 
-public class Bug724 {
+/**
+ * Created by rick on 6/8/16.
+ */
+public class Bug730 {
 
     @Test
     public void test() {
@@ -37,17 +40,20 @@ public class Bug724 {
         final HttpTextResponse httpTextResponse = httpClient.sendRequestAndWait(httpRequest);
 
         assertEquals("\"was=Rick Loves Java\"", httpTextResponse.body());
+
+        serviceEndpointServer.stop();
     }
 
 
     @RequestMapping("/")
     public static class MyService {
         @RequestMapping(value = "/reverse", method = RequestMethod.POST, code = 200)
-        public void doPostReverse(final Callback<String> callback, final @RequestParam("reverseParam") String reverseParam) {
+        public void doPostReverse(final Callback<String> callback,
+                                  final @RequestParam("reverseParam") String reverseParam,
+                                  final HttpRequest request) {
             String retval = reverseParam != null ? new StringBuilder(reverseParam).reverse().toString() : "reverseParam was NULL";
             System.out.println("In: " + reverseParam + ", Out: " + retval);
-            callback.resolve("was=" + reverseParam);
+            callback.resolve("was=" + request.getParam("reverseParam"));
         }
     }
-
 }
