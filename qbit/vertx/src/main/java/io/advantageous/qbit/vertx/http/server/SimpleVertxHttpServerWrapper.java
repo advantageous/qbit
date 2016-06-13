@@ -23,12 +23,9 @@ import io.vertx.ext.web.Router;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.concurrent.TimeUnit;
-import java.util.function.Consumer;
-import java.util.function.Predicate;
+import java.util.*;
+import java.util.concurrent.*;
+import java.util.function.*;
 
 public class SimpleVertxHttpServerWrapper implements HttpServer {
 
@@ -51,7 +48,6 @@ public class SimpleVertxHttpServerWrapper implements HttpServer {
      */
     private volatile int closeCount;
 
-
     public SimpleVertxHttpServerWrapper(
             final io.vertx.core.http.HttpServer httpServer,
             final Router router,
@@ -72,7 +68,7 @@ public class SimpleVertxHttpServerWrapper implements HttpServer {
         this.route = route;
         this.vertx = vertx;
         this.simpleHttpServer = new SimpleHttpServer(endpointName, systemManager,
-                flushInterval, 0, serviceDiscovery,
+                flushInterval, "localhost", 0, serviceDiscovery,
                 healthServiceAsync, serviceDiscoveryTtl, serviceDiscoveryTtlTimeUnit,
                 decorators, httpResponseCreator, requestBodyContinuePredicate);
         this.systemManager = systemManager;
@@ -83,7 +79,6 @@ public class SimpleVertxHttpServerWrapper implements HttpServer {
 
         this.httpServer = httpServer;
     }
-
 
     @Override
     public void setShouldContinueHttpRequest(final Predicate<HttpRequest> shouldContinueHttpRequest) {
@@ -115,7 +110,6 @@ public class SimpleVertxHttpServerWrapper implements HttpServer {
         );
     }
 
-
     @Override
     public void setWebSocketIdleConsume(final Consumer<Void> idleWebSocketConsumer) {
         this.simpleHttpServer.setWebSocketIdleConsume(
@@ -135,9 +129,7 @@ public class SimpleVertxHttpServerWrapper implements HttpServer {
             vertx.setPeriodic(10_000, event -> logger.info("Exception Count {} Close Count {}", exceptionCount, closeCount));
         }
 
-
         httpServer.websocketHandler(this::handleWebSocketMessage);
-
 
         if (route != null) {
             route.handler(event -> handleHttpRequest(event.request(), event.data()));
@@ -147,9 +139,7 @@ public class SimpleVertxHttpServerWrapper implements HttpServer {
             httpServer.requestHandler(this::handleHttpRequest);
         }
 
-
     }
-
 
     @Override
     public void stop() {
@@ -157,13 +147,11 @@ public class SimpleVertxHttpServerWrapper implements HttpServer {
         if (systemManager != null) systemManager.serviceShutDown();
     }
 
-
     private void handleHttpRequest(final HttpServerRequest request) {
         handleHttpRequest(request, new HashMap<>());
     }
 
     private void handleHttpRequest(final HttpServerRequest request, final Map<String, Object> data) {
-
 
         if (debug) {
             setupMetrics(request);
@@ -194,7 +182,6 @@ public class SimpleVertxHttpServerWrapper implements HttpServer {
 
                 break;
 
-
             case "HEAD":
             case "OPTIONS":
             case "DELETE":
@@ -212,7 +199,6 @@ public class SimpleVertxHttpServerWrapper implements HttpServer {
 
     }
 
-
     private void setupMetrics(final HttpServerRequest request) {
 
         request.exceptionHandler(event -> {
@@ -227,11 +213,9 @@ public class SimpleVertxHttpServerWrapper implements HttpServer {
 
         request.endHandler(event -> {
 
-
             if (debug) {
                 closeCount++;
             }
-
 
             logger.info("REQUEST OVER");
         });
@@ -241,11 +225,9 @@ public class SimpleVertxHttpServerWrapper implements HttpServer {
         simpleHttpServer.handleOpenWebSocket(vertxUtils.createWebSocket(webSocket));
     }
 
-
     @Override
     public void setWebSocketOnOpenConsumer(Consumer<WebSocket> onOpenConsumer) {
         this.simpleHttpServer.setWebSocketOnOpenConsumer(onOpenConsumer);
     }
-
 
 }

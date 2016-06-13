@@ -311,7 +311,7 @@ public class StatServiceBuilder {
 
 
             serviceDiscovery.registerWithIdAndTimeToLive(this.getServiceName(), localServiceId,
-                    endpointServerBuilder.getPort(), timeToLiveCheckInterval);
+                    endpointServerBuilder.getHost(), endpointServerBuilder.getPort(), timeToLiveCheckInterval);
 
 
         }

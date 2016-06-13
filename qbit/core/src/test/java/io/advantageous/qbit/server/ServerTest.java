@@ -42,10 +42,8 @@ import static io.advantageous.boon.json.JsonFactory.fromJsonArray;
 
 public class ServerTest extends TimedTesting {
 
-
     @Test
     public void testServer() {
-
 
         super.setupLatch();
 
@@ -57,12 +55,10 @@ public class ServerTest extends TimedTesting {
 
         JsonMapper mapper = new BoonJsonMapper();
 
-
         ServiceEndpointServerImpl server = new ServiceEndpointServerImpl(httpServer, encoder,
-                parser, serviceBundle, mapper, 30, 100, 30, 10, null, null, null, 8080, 0, null, null, 50, 2, 2);
+                parser, serviceBundle, mapper, 30, 100, 30, 10, null, null, null, null, "localhost", 8080, 0, null, null, 50, 2, 2);
 
         server.initServices(Sets.set(new TodoService()));
-
 
         final AtomicBoolean resultsWorked = new AtomicBoolean();
 
@@ -70,16 +66,13 @@ public class ServerTest extends TimedTesting {
 
         httpServer.postRequestObject("/services/todo-manager/todo", new Todo("Call Dad", "Call Dad", new Date()), (code, mimeType, body) -> {
 
-
             puts("CALL CALLED", body, "\n\n");
             if (body != null && code == 202 && body.equals("\"success\"")) {
                 resultsWorked.set(true);
             }
         });
 
-
         waitForTrigger(20, o -> resultsWorked.get());
-
 
         if (!resultsWorked.get()) {
             die("Add operation did not work");
@@ -90,7 +83,6 @@ public class ServerTest extends TimedTesting {
         httpServer.sendHttpGet("/services/todo-manager/todo/list/", null, (code, mimeType, body) -> {
 
             puts("ADD CALL RESPONSE code ", code, " mimeType ", mimeType, " body ", body);
-
 
             List<Todo> todos = fromJsonArray(body, Todo.class);
             if (todos.size() > 0) {
@@ -106,7 +98,6 @@ public class ServerTest extends TimedTesting {
         server.flush();
         Sys.sleep(100);
 
-
         waitForTrigger(20, o -> resultsWorked.get());
 
         if (!resultsWorked.get()) {
@@ -115,22 +106,19 @@ public class ServerTest extends TimedTesting {
 
     }
 
-
     @Test
     public void testServerTimeout() {
 
         ProtocolEncoder encoder = QBit.factory().createEncoder();
         MockHttpServer httpServer = new MockHttpServer();
 
-
         final ServiceBundle serviceBundle = new ServiceBundleBuilder().setAddress("/services").build();
         JsonMapper mapper = new BoonJsonMapper();
-
 
         ServiceEndpointServerImpl server = new ServiceEndpointServerImpl(httpServer, encoder,
                 QBit.factory().createProtocolParser(), serviceBundle, mapper, 1, 100, 30,
                 10, null,
-                null, null, 8080, 0, null, null, 50, 2, 2);
+                null, null, null, "localhost", 8080, 0, null, null, 50, 2, 2);
 
         server.initServices(Sets.set(new TodoService()));
 
@@ -142,13 +130,11 @@ public class ServerTest extends TimedTesting {
 
             httpServer.sendHttpGet("/services/todo-manager/timeout", null, (code, mimeType, body) -> {
 
-
                 if (code == 408 && body != null && body.equals("\"timed out\"")) {
                     resultsWorked.set(true);
                 }
             });
         }
-
 
         server.serviceBundle().flushSends();
         Sys.sleep(100);
@@ -156,9 +142,7 @@ public class ServerTest extends TimedTesting {
         server.flush();
         Sys.sleep(100);
 
-
         waitForTrigger(8, o -> resultsWorked.get());
-
 
         if (!resultsWorked.get()) {
             die(" we did not get timeout");
@@ -167,7 +151,6 @@ public class ServerTest extends TimedTesting {
         resultsWorked.set(false);
 
     }
-
 
     @Test
     public void testNoMethodCallFound() {
@@ -179,10 +162,9 @@ public class ServerTest extends TimedTesting {
 
         JsonMapper mapper = new BoonJsonMapper();
 
-
         ServiceEndpointServerImpl server = new ServiceEndpointServerImpl(
                 httpServer, encoder, QBit.factory().createProtocolParser(), serviceBundle, mapper, 1, 100, 30, 10,
-                null, null, null, 8080, 0, null, null, 50, 2, 2);
+                null, null, null, null, "localhost", 8080, 0, null, null, 50, 2, 2);
 
         server.initServices(new TodoService());
 
@@ -190,17 +172,14 @@ public class ServerTest extends TimedTesting {
 
         final AtomicBoolean resultsWorked = new AtomicBoolean();
 
-
         resultsWorked.set(false);
 
         httpServer.sendHttpGet("/services/todo-manager/testNoMethodCallFound", null, (code, mimeType, body) -> {
-
 
             if (code == 404) {
                 resultsWorked.set(true);
             }
         });
-
 
         server.serviceBundle().flushSends();
         Sys.sleep(100);
@@ -208,9 +187,7 @@ public class ServerTest extends TimedTesting {
         server.flush();
         Sys.sleep(100);
 
-
         waitForTrigger(20, o -> resultsWorked.get());
-
 
         if (!resultsWorked.get()) {
             die(" we did not get timeout");

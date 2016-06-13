@@ -49,7 +49,7 @@ import io.advantageous.qbit.transforms.Transformer;
 import io.advantageous.qbit.util.Timer;
 
 import java.util.*;
-import java.util.function.Consumer;
+import java.util.function.*;
 
 import static io.advantageous.qbit.http.server.HttpServerBuilder.httpServerBuilder;
 
@@ -66,6 +66,11 @@ public class EndpointServerBuilder {
      * Default URI of main web port.
      */
     public static final int DEFAULT_PORT = 8080;
+
+    /**
+     * Default URI of main web host.
+     */
+    public static final String DEFAULT_HOST = "localhost";
 
     /**
      * Default URI of REST and web socket services.
@@ -89,11 +94,10 @@ public class EndpointServerBuilder {
      */
     private Queue<Response<Object>> responseQueue;
 
-
     /**
      * Name of host we will listen on.
      */
-    private String host;
+    private String host = DEFAULT_HOST;
 
     /**
      * Name of port we will listen on.
@@ -140,7 +144,6 @@ public class EndpointServerBuilder {
      */
     private QueueBuilder requestQueueBuilder;
 
-
     /**
      * Service (downstream and main) request Queue setup.
      */
@@ -171,7 +174,6 @@ public class EndpointServerBuilder {
      */
     private HealthServiceAsync healthService = null;
 
-
     private StatsCollector statsCollector = null;
     private Timer timer;
     private boolean enableHealthEndpoint;
@@ -184,7 +186,6 @@ public class EndpointServerBuilder {
     private int parserWorkerCount = 4;
     private int encoderWorkerCount = 2;
 
-
     private CallbackManager callbackManager;
     private CallbackManagerBuilder callbackManagerBuilder;
     private HealthServiceBuilder healthServiceBuilder;
@@ -193,6 +194,7 @@ public class EndpointServerBuilder {
     private Map<String, Object> servicesWithAlias;
 
     private String endpointName;
+    private String endpointId;
     private ServiceDiscovery serviceDiscovery;
     private int ttlSeconds;
 
@@ -240,7 +242,6 @@ public class EndpointServerBuilder {
         this.parserWorkerCount = propertyResolver.getIntegerProperty("parserWorkerCount", parserWorkerCount);
         this.flushResponseInterval = propertyResolver.getLongProperty("flushResponseInterval", flushResponseInterval);
         this.protocolBatchSize = propertyResolver.getIntegerProperty("protocolBatchSize", protocolBatchSize);
-
 
     }
 
@@ -338,6 +339,15 @@ public class EndpointServerBuilder {
 
     public EndpointServerBuilder setEndpointName(String endpointName) {
         this.endpointName = endpointName;
+        return this;
+    }
+
+    public String getEndpointId() {
+        return endpointId;
+    }
+
+    public EndpointServerBuilder setEndpointId(String endpointId) {
+        this.endpointId = endpointId;
         return this;
     }
 
@@ -451,7 +461,6 @@ public class EndpointServerBuilder {
         return this;
     }
 
-
     public QueueBuilder getWebResponseQueueBuilder() {
         if (webResponseQueueBuilder == null) {
             webResponseQueueBuilder = QueueBuilder.queueBuilder().setArrayBlockingQueue().setBatchSize(100);
@@ -463,7 +472,6 @@ public class EndpointServerBuilder {
         this.webResponseQueueBuilder = webResponseQueueBuilder;
         return this;
     }
-
 
     public QBitSystemManager getSystemManager() {
         return qBitSystemManager;
@@ -521,7 +529,6 @@ public class EndpointServerBuilder {
         this.invokeDynamic = invokeDynamic;
         return this;
     }
-
 
     public boolean isEachServiceInItsOwnThread() {
         return eachServiceInItsOwnThread;
@@ -605,7 +612,6 @@ public class EndpointServerBuilder {
         return this;
     }
 
-
     public int getFlushInterval() {
         return flushInterval;
     }
@@ -623,7 +629,6 @@ public class EndpointServerBuilder {
                 responseQueueBuilder = QueueBuilder.queueBuilder().setArrayBlockingQueue().setBatchSize(100);
             } else {
 
-
                 responseQueueBuilder = new QueueBuilder() {
 
                     @Override
@@ -633,7 +638,6 @@ public class EndpointServerBuilder {
                     }
                 };
             }
-
 
         }
 
@@ -654,12 +658,9 @@ public class EndpointServerBuilder {
         return this;
     }
 
-
     public ServiceEndpointServer build() {
 
-
         final ServiceBundle serviceBundle;
-
 
         serviceBundle = getFactory().createServiceBundle(uri,
                 getRequestQueueBuilder(),
@@ -680,14 +681,12 @@ public class EndpointServerBuilder {
                 getBeforeMethodCallOnServiceQueue(),
                 getAfterMethodCallOnServiceQueue());
 
-
         final ServiceEndpointServer serviceEndpointServer = new ServiceEndpointServerImpl(getHttpServer(),
                 getEncoder(), getParser(), serviceBundle, getJsonMapper(), this.getTimeoutSeconds(),
                 this.getNumberOfOutstandingRequests(), getProtocolBatchSize(),
-                this.getFlushInterval(), this.getSystemManager(), getEndpointName(),
-                getServiceDiscovery(), getPort(), getTtlSeconds(), getHealthService(), getErrorHandler(),
+                this.getFlushInterval(), this.getSystemManager(), getEndpointName(), getEndpointId(),
+                getServiceDiscovery(), getHost(), getPort(), getTtlSeconds(), getHealthService(), getErrorHandler(),
                 getFlushResponseInterval(), getParserWorkerCount(), getEncoderWorkerCount());
-
 
         if (serviceEndpointServer != null && qBitSystemManager != null) {
             qBitSystemManager.registerServer(serviceEndpointServer);
@@ -702,7 +701,6 @@ public class EndpointServerBuilder {
         }
         return serviceEndpointServer;
     }
-
 
     public int getStatsFlushRateSeconds() {
         return statsFlushRateSeconds;
@@ -760,14 +758,12 @@ public class EndpointServerBuilder {
         return this;
     }
 
-
     public EndpointServerBuilder addServices(Object... services) {
         for (Object service : services) {
             getServices().add(service);
         }
         return this;
     }
-
 
     public HttpServerBuilder getHttpServerBuilder() {
 
@@ -777,7 +773,6 @@ public class EndpointServerBuilder {
                     .setHost(getHost())
                     .setFlushInterval(this.getFlushInterval())
                     .setSystemManager(getSystemManager());
-
 
             setupHealthAndStats(httpServerBuilder);
 
@@ -791,13 +786,11 @@ public class EndpointServerBuilder {
         return this;
     }
 
-
     public EndpointServerBuilder setupHealthAndStats(final HttpServerBuilder httpServerBuilder) {
 
         if (isEnableStatEndpoint() || isEnableHealthEndpoint()) {
             final boolean healthEnabled = isEnableHealthEndpoint();
             final boolean statsEnabled = isEnableStatEndpoint();
-
 
             final HealthServiceAsync healthServiceAsync = healthEnabled ? getHealthService() : null;
 
@@ -808,10 +801,8 @@ public class EndpointServerBuilder {
                             healthServiceAsync, statCollection));
         }
 
-
         return this;
     }
-
 
     public EventManager getEventManager() {
         return eventManager;
