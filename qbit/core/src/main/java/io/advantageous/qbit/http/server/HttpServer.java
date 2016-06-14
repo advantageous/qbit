@@ -38,8 +38,7 @@ public interface HttpServer extends Server, HttpTransport {
 
 
     default HttpServer startServerAndWait() {
-        start();
-        return this;
+        throw new UnsupportedOperationException("startServerAndWait is not supported by " + this.getClass().getName());
     }
 
 

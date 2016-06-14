@@ -153,7 +153,7 @@ public class VertxRESTIntegrationTest {
                 final ServiceEndpointServer endpointServer = endpointServerBuilder().setUri("/")
                         .addService(new TestRestService()).setHttpServer(httpServer).build();
 
-                endpointServer.startServerAndWait();
+                endpointServer.startServer();
 
 
 

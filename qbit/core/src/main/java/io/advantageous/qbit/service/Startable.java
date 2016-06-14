@@ -65,7 +65,7 @@ public interface Startable {
     default void start() {
     }
 
-
     default void startWithNotify(Runnable runnable) {
+        throw new UnsupportedOperationException("start With Notice if not supported by " + this.getClass().getName());
     }
 }
