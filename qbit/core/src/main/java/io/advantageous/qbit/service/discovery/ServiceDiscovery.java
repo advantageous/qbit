@@ -7,17 +7,13 @@ import io.advantageous.qbit.service.health.HealthStatus;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 /**
  * Service Discovery
  * created by rhightower on 3/23/15.
  */
 public interface ServiceDiscovery extends Startable, Stoppable {
-
 
     /**
      * Generates a unique string, used for generating unique service ids
@@ -37,16 +33,18 @@ public interface ServiceDiscovery extends Startable, Stoppable {
      * Register the service with the service discovery service if applicable.
      *
      * @param serviceName serviceName
+     * @param host        host
      * @param port        port
      * @return EndpointDefinition
      */
     default EndpointDefinition register(
             final String serviceName,
+            final String host,
             final int port) {
 
         return new EndpointDefinition(HealthStatus.PASS,
                 serviceName + "." + uniqueString(port),
-                serviceName, null, port);
+                serviceName, host, port);
     }
 
     /**
@@ -55,12 +53,14 @@ public interface ServiceDiscovery extends Startable, Stoppable {
      * TTL is time to live.
      *
      * @param serviceName       service name
+     * @param host              host
      * @param port              port
      * @param timeToLiveSeconds ttl
      * @return EndpointDefinition
      */
     default EndpointDefinition registerWithTTL(
             final String serviceName,
+            final String host,
             final int port,
             final int timeToLiveSeconds) {
 
@@ -75,17 +75,18 @@ public interface ServiceDiscovery extends Startable, Stoppable {
      *
      * @param serviceName       service name
      * @param serviceId         service id
+     * @param host              host
      * @param port              port
      * @param timeToLiveSeconds ttl
      * @return EndpointDefinition
      */
     @SuppressWarnings("UnusedReturnValue")
     default EndpointDefinition registerWithIdAndTimeToLive(
-            final String serviceName, final String serviceId, final int port, final int timeToLiveSeconds) {
+            final String serviceName, final String serviceId, String host, final int port, final int timeToLiveSeconds) {
 
         return new EndpointDefinition(HealthStatus.PASS,
                 serviceId,
-                serviceName, null, port, timeToLiveSeconds);
+                serviceName, host, port, timeToLiveSeconds);
     }
 
     /**
@@ -93,16 +94,16 @@ public interface ServiceDiscovery extends Startable, Stoppable {
      *
      * @param serviceName service name
      * @param serviceId   service id
+     * @param host        host
      * @param port        port
      * @return EndpointDefinition
      */
-    default EndpointDefinition registerWithId(final String serviceName, final String serviceId, final int port) {
+    default EndpointDefinition registerWithId(final String serviceName, final String serviceId, String host, final int port) {
 
         return new EndpointDefinition(HealthStatus.PASS,
                 serviceId,
-                serviceName, null, port);
+                serviceName, host, port);
     }
-
 
     /**
      * Watch for changes in this service name and send change events if the service changes.
@@ -123,7 +124,6 @@ public interface ServiceDiscovery extends Startable, Stoppable {
     default void checkIn(String serviceId, HealthStatus healthStatus) {
 
     }
-
 
     /**
      * This is like `checkIn` but does an HealthStatus.SUCCESS if applicable.
@@ -163,7 +163,6 @@ public interface ServiceDiscovery extends Startable, Stoppable {
 
     }
 
-
     /**
      * See `loadServices` this is like `loadServices` except it forces a remote call.
      * This is a blocking call to loadServices.
@@ -187,7 +186,6 @@ public interface ServiceDiscovery extends Startable, Stoppable {
      */
     default void stop() {
     }
-
 
     /**
      * This just loads the end points that were registered locally.

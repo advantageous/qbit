@@ -149,11 +149,11 @@ public class ServiceDiscoveryImpl implements ServiceDiscovery {
     }
 
     @Override
-    public EndpointDefinition register(final String serviceName, final int port) {
+    public EndpointDefinition register(final String serviceName, String host, final int port) {
 
         if (trace) {
             logger.trace(
-                    "ServiceDiscoveryImpl::register()" + serviceName + " " + port
+                    "ServiceDiscoveryImpl::register()" + serviceName + " " + host + ":" + port
             );
         }
 
@@ -162,18 +162,18 @@ public class ServiceDiscoveryImpl implements ServiceDiscovery {
 
         EndpointDefinition endpointDefinition = new EndpointDefinition(HealthStatus.PASS,
                 serviceName + "-" + ServiceDiscovery.uniqueString(port),
-                serviceName, null, port);
+                serviceName, host, port);
 
         return doRegister(endpointDefinition);
 
     }
 
     @Override
-    public EndpointDefinition registerWithId(final String serviceName, final String serviceId, final int port) {
+    public EndpointDefinition registerWithId(final String serviceName, final String serviceId, String host, final int port) {
 
         if (trace) {
             logger.trace(
-                    "ServiceDiscoveryImpl::registerWithId()" + serviceName + " " + port
+                    "ServiceDiscoveryImpl::registerWithId()" + serviceName + " " + host + ":" + port
             );
         }
 
@@ -182,7 +182,7 @@ public class ServiceDiscoveryImpl implements ServiceDiscovery {
 
         EndpointDefinition endpointDefinition = new EndpointDefinition(HealthStatus.PASS,
                 serviceId,
-                serviceName, null, port);
+                serviceName, host, port);
 
         return doRegister(endpointDefinition);
 

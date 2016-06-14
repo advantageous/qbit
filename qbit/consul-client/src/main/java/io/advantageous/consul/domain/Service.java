@@ -19,7 +19,7 @@ package io.advantageous.consul.domain;
 
 import io.advantageous.boon.json.annotations.JsonProperty;
 
-import java.util.List;
+import java.util.*;
 
 /**
  * Holds service information.
@@ -34,6 +34,9 @@ public class Service {
 
     @JsonProperty("Tags")
     private List<String> tags;
+
+    @JsonProperty("Address")
+    private int host;
 
     @JsonProperty("Port")
     private int port;
@@ -70,6 +73,14 @@ public class Service {
         this.port = port;
     }
 
+    public int getHost() {
+        return host;
+    }
+
+    public void setHost(int host) {
+        this.host = host;
+    }
+
     @SuppressWarnings("SimplifiableIfStatement")
     @Override
     public boolean equals(Object o) {
@@ -79,6 +90,7 @@ public class Service {
         Service service1 = (Service) o;
 
         if (port != service1.port) return false;
+        if (host != service1.host) return false;
         if (id != null ? !id.equals(service1.id) : service1.id != null) return false;
         if (service != null ? !service.equals(service1.service) : service1.service != null) return false;
         return !(tags != null ? !tags.equals(service1.tags) : service1.tags != null);
@@ -91,6 +103,7 @@ public class Service {
         result = 31 * result + (service != null ? service.hashCode() : 0);
         result = 31 * result + (tags != null ? tags.hashCode() : 0);
         result = 31 * result + port;
+        result = 31 * result + host;
         return result;
     }
 
@@ -101,6 +114,7 @@ public class Service {
                 ", service='" + service + '\'' +
                 ", tags=" + tags +
                 ", port=" + port +
+                ", host=" + host +
                 '}';
     }
 }

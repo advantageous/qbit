@@ -67,6 +67,7 @@ public class SimpleHttpServer implements HttpServer {
     private final HealthServiceAsync healthServiceAsync;
     private final String name;
     private final int port;
+    private final String host;
     private final long checkInEveryMiliDuration;
     private final CopyOnWriteArrayList<HttpResponseDecorator> decorators;
     private final HttpResponseCreator httpResponseCreator;
@@ -93,6 +94,7 @@ public class SimpleHttpServer implements HttpServer {
             final String endpointName,
             final QBitSystemManager systemManager,
             final int flushInterval,
+            final String host,
             final int port,
             final ServiceDiscovery serviceDiscovery,
             final HealthServiceAsync healthServiceAsync,
@@ -108,6 +110,7 @@ public class SimpleHttpServer implements HttpServer {
 
         this.name = endpointName == null ? "HTTP_SERVER_" + port : endpointName;
         this.port = port;
+        this.host = host;
         this.systemManager = systemManager;
         this.flushInterval = flushInterval;
         this.serviceDiscovery = serviceDiscovery;
@@ -122,6 +125,7 @@ public class SimpleHttpServer implements HttpServer {
     public SimpleHttpServer() {
 
         this.port = 8080;
+        this.host = "localhost";
         this.name = "HTTP_SERVER";
         this.systemManager = null;
         this.flushInterval = 1;
@@ -156,7 +160,7 @@ public class SimpleHttpServer implements HttpServer {
     EndpointDefinition createEndpointDefinition(int serviceDiscoveryTtl, TimeUnit serviceDiscoveryTtlTimeUnit) {
         EndpointDefinition endpointDefinition;
         if (serviceDiscovery != null) {
-            endpointDefinition = serviceDiscovery.registerWithTTL(name, port,
+            endpointDefinition = serviceDiscovery.registerWithTTL(name, host, port,
                     (int) serviceDiscoveryTtlTimeUnit.toSeconds(serviceDiscoveryTtl));
             serviceDiscovery.checkInOk(endpointDefinition.getId());
         } else {
@@ -306,7 +310,6 @@ public class SimpleHttpServer implements HttpServer {
                     serviceDiscovery.checkIn(endpointDefinition.getId(), HealthStatus.FAIL);
                 }
 
-
                 ServiceProxyUtils.flushServiceProxy(serviceDiscovery);
 
             }
@@ -319,9 +322,7 @@ public class SimpleHttpServer implements HttpServer {
         }
     }
 
-
     private void defaultWebSocketHandler(final WebSocket webSocket) {
-
 
         webSocket.setTextMessageConsumer(webSocketMessageIn -> {
 
@@ -339,7 +340,6 @@ public class SimpleHttpServer implements HttpServer {
             handleWebSocketMessage(webSocketMessage);
 
         });
-
 
         webSocket.setBinaryMessageConsumer(webSocketMessageIn -> {
 
@@ -365,7 +365,6 @@ public class SimpleHttpServer implements HttpServer {
 
         });
 
-
         webSocket.setCloseConsumer(aVoid -> {
 
             long time = Timer.timer().now();
@@ -376,16 +375,13 @@ public class SimpleHttpServer implements HttpServer {
                     .setRemoteAddress(webSocket.remoteAddress())
                     .setTimestamp(time).build();
 
-
             handleWebSocketClosedMessage(webSocketMessage);
 
         });
 
-
         webSocket.setErrorConsumer(e -> logger.error("Error with WebSocket handling", e));
 
     }
-
 
     @Override
     public void setWebSocketOnOpenConsumer(Consumer<WebSocket> onOpenConsumer) {
@@ -396,11 +392,9 @@ public class SimpleHttpServer implements HttpServer {
         return decorators;
     }
 
-
     public HttpResponseCreator getHttpResponseCreator() {
         return httpResponseCreator;
     }
-
 
     public Predicate<HttpRequest> getShouldContinueReadingRequestBody() {
         return shouldContinueReadingRequestBody;
