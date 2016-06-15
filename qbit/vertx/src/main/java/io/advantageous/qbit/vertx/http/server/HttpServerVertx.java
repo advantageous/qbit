@@ -248,7 +248,7 @@ public class HttpServerVertx implements HttpServer {
         this.start();
 
         try {
-            latch.await(5, TimeUnit.SECONDS);
+            latch.await(20, TimeUnit.SECONDS);
         } catch (InterruptedException e) {
             Thread.interrupted();
         } finally {
