@@ -19,10 +19,13 @@
     </section>
 
     <section class="main-content">
-      <h1>
+      <p><a href="https://github.com/MammatusTech/qbit-microservices-examples/wiki">QBit Java Micorservices lib tutorials</a>|
+<a href="http://advantageous.github.io/qbit/">QBit Website</a> | <a href="http://advantageous.github.io/reakt/">QBit uses Reakt</a> | <a href="http://vertx.io/">QBit works with Vert.x</a> | <a href="http://advantageous.github.io/reakt-vertx/">Reakt Vertx</a></p>
+
+<h1>
 <a id="qbit---the-microservice-lib-for-java---json-rest-websocket-speed" class="anchor" href="#qbit---the-microservice-lib-for-java---json-rest-websocket-speed" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>QBit - The Microservice Lib for Java - JSON, REST, WebSocket, Speed!</h1>
 
-<p><a href="https://github.com/MammatusTech/qbit-microservices-examples/wiki">tutorials</a> ..  | ..  <a href="http://advantageous.github.io/reakt/">uses reakt</a> ..  | ..  <a href="http://vertx.io/">works with vert.x</a> ..  | ..  <a href="http://advantageous.github.io/reakt-vertx/">reakt vertx</a> .. | .. <a href="https://github.com/advantageous/qbit/wiki">docs</a></p>
+<p><a href="https://travis-ci.org/advantageous/qbit"><img src="https://travis-ci.org/advantageous/qbit.svg" alt="Build Status"></a> <a href="https://gitter.im/advantageous/qbit?utm_source=badge&amp;utm_medium=badge&amp;utm_campaign=pr-badge&amp;utm_content=badge"><img src="https://badges.gitter.im/Join%20Chat.svg" alt="Join the chat at https://gitter.im/advantageous/qbit"></a></p>
 
 <h2>
 <a id="quick-overview-of-qbit" class="anchor" href="#quick-overview-of-qbit" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Quick overview of QBit</h2>
@@ -69,19 +72,19 @@ This gives a nice fluent API for async programming. </p>
 <div class="highlight highlight-text-xml"><pre>&lt;<span class="pl-ent">dependency</span>&gt;
     &lt;<span class="pl-ent">groupId</span>&gt;io.advantageous.qbit&lt;/<span class="pl-ent">groupId</span>&gt;
     &lt;<span class="pl-ent">artifactId</span>&gt;qbit-admin&lt;/<span class="pl-ent">artifactId</span>&gt;
-    &lt;<span class="pl-ent">version</span>&gt;1.6.0.RELEASE&lt;/<span class="pl-ent">version</span>&gt;
+    &lt;<span class="pl-ent">version</span>&gt;1.10.0.RELEASE&lt;/<span class="pl-ent">version</span>&gt;
 &lt;/<span class="pl-ent">dependency</span>&gt;
 &lt;<span class="pl-ent">dependency</span>&gt;
     &lt;<span class="pl-ent">groupId</span>&gt;io.advantageous.qbit&lt;/<span class="pl-ent">groupId</span>&gt;
     &lt;<span class="pl-ent">artifactId</span>&gt;qbit-vertx&lt;/<span class="pl-ent">artifactId</span>&gt;
-    &lt;<span class="pl-ent">version</span>&gt;1.6.0.RELEASE&lt;/<span class="pl-ent">version</span>&gt;
+    &lt;<span class="pl-ent">version</span>&gt;1.10.0.RELEASE&lt;/<span class="pl-ent">version</span>&gt;
 &lt;/<span class="pl-ent">dependency</span>&gt;</pre></div>
 
 <h4>
 <a id="using-from-gradle" class="anchor" href="#using-from-gradle" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Using from gradle</h4>
 
-<div class="highlight highlight-source-java"><pre>compile <span class="pl-s"><span class="pl-pds">'</span>io.advantageous.qbit:qbit-admin:1.6.0.RELEASE<span class="pl-pds">'</span></span>
-compile <span class="pl-s"><span class="pl-pds">'</span>io.advantageous.qbit:qbit-vertx:1.6.0.RELEASE<span class="pl-pds">'</span></span></pre></div>
+<div class="highlight highlight-source-java"><pre>compile <span class="pl-s"><span class="pl-pds">'</span>io.advantageous.qbit:qbit-admin:1.10.0.RELEASE<span class="pl-pds">'</span></span>
+compile <span class="pl-s"><span class="pl-pds">'</span>io.advantageous.qbit:qbit-vertx:1.10.0.RELEASE<span class="pl-pds">'</span></span></pre></div>
 
 <h1>
 <a id="core-features" class="anchor" href="#core-features" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Core Features</h1>
@@ -425,7 +428,7 @@ You can return any binary or any text by using <code>HttpBinaryResponse</code> a
 <div class="highlight highlight-source-java"><pre>      @RequestMapping(method <span class="pl-k">=</span> <span class="pl-smi">RequestMethod</span><span class="pl-c1"><span class="pl-k">.</span>GET</span>)
         <span class="pl-k">public</span> <span class="pl-k">void</span> ping2(<span class="pl-k">Callback&lt;<span class="pl-smi">HttpTextResponse</span>&gt;</span> callback) {
 
-            callback<span class="pl-k">.</span>returnThis(<span class="pl-smi">HttpResponseBuilder</span><span class="pl-k">.</span>httpResponseBuilder()
+            callback<span class="pl-k">.</span>resolve(<span class="pl-smi">HttpResponseBuilder</span><span class="pl-k">.</span>httpResponseBuilder()
                     .setBody(<span class="pl-s"><span class="pl-pds">"</span>hello mom<span class="pl-pds">"</span></span>)<span class="pl-k">.</span>setContentType(<span class="pl-s"><span class="pl-pds">"</span>mom<span class="pl-pds">"</span></span>)
                     .setCode(<span class="pl-c1">777</span>)
                     .buildTextResponse());
@@ -437,7 +440,7 @@ You can return any binary or any text by using <code>HttpBinaryResponse</code> a
 <div class="highlight highlight-source-java"><pre>      @RequestMapping(method <span class="pl-k">=</span> <span class="pl-smi">RequestMethod</span><span class="pl-c1"><span class="pl-k">.</span>GET</span>)
         <span class="pl-k">public</span> <span class="pl-k">void</span> ping2(<span class="pl-k">Callback&lt;<span class="pl-smi">HttpBinaryResponse</span>&gt;</span> callback) {
 
-            callback<span class="pl-k">.</span>returnThis(<span class="pl-smi">HttpResponseBuilder</span><span class="pl-k">.</span>httpResponseBuilder()
+            callback<span class="pl-k">.</span>resolve(<span class="pl-smi">HttpResponseBuilder</span><span class="pl-k">.</span>httpResponseBuilder()
                     .setBody(<span class="pl-s"><span class="pl-pds">"</span>hello mom<span class="pl-pds">"</span></span>)<span class="pl-k">.</span>setContentType(<span class="pl-s"><span class="pl-pds">"</span>mom<span class="pl-pds">"</span></span>)
                     .setCode(<span class="pl-c1">777</span>)
                     .buildBinaryResponse());
