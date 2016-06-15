@@ -19,16 +19,14 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 
 public class WebSocketProxy {
 
     @Test
     public void testDisconnect() {
-        final int port = PortUtils.findOpenPortStartAt(8080);
+        final int port = PortUtils.findOpenPortStartAt(7777);
 
         final ServiceEndpointServer serviceEndpointServer = EndpointServerBuilder.endpointServerBuilder()
                 .setPort(port).setHost("localhost")
@@ -63,7 +61,7 @@ public class WebSocketProxy {
     @Test
     public void testSendGenericList() {
 
-        final int port = PortUtils.findOpenPortStartAt(8080);
+        final int port = PortUtils.findOpenPortStartAt(7777);
 
         final ServiceEndpointServer serviceEndpointServer = EndpointServerBuilder.endpointServerBuilder()
                 .setPort(port).setHost("localhost")
@@ -96,7 +94,7 @@ public class WebSocketProxy {
     @Test
     public void testSendBoolean() {
 
-        final int port = PortUtils.findOpenPortStartAt(8080);
+        final int port = PortUtils.findOpenPortStartAt(7777);
 
         final ServiceEndpointServer serviceEndpointServer = EndpointServerBuilder.endpointServerBuilder()
                 .setPort(port).setHost("localhost")
@@ -146,7 +144,7 @@ public class WebSocketProxy {
     public void test() throws Exception {
 
 
-        final int port = PortUtils.findOpenPortStartAt(8080);
+        final int port = PortUtils.findOpenPortStartAt(7777);
         final ServiceEndpointServer serviceEndpointServer = EndpointServerBuilder.endpointServerBuilder()
                 .setPort(port).setHost("localhost")
                 .addService(new EmployeeServiceImpl()).build().startServerAndWait();
