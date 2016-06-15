@@ -36,6 +36,7 @@ import io.advantageous.qbit.queue.SendQueue;
 import io.advantageous.qbit.reactive.Callback;
 import io.advantageous.qbit.service.ServiceMethodHandler;
 import io.advantageous.qbit.service.impl.ServiceConstants;
+import io.advantageous.reakt.promise.Promise;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.*;
@@ -64,11 +65,11 @@ public class BoonServiceMethodCallHandler implements ServiceMethodHandler {
     private final Object context = Sys.contextToHold();
     private final Map<String, MethodAccess> eventMap = new ConcurrentHashMap<>();
     protected Object service;
+    SendQueue<Response<Object>> responseSendQueue;
     private ClassMeta<Class<?>> classMeta;
     private QueueCallBackHandler queueCallBackHandler;
     private String address = "";
     private String name = "";
-    private SendQueue<Response<Object>> responseSendQueue;
 
 
     public BoonServiceMethodCallHandler(final boolean invokeDynamic) {
@@ -135,6 +136,10 @@ public class BoonServiceMethodCallHandler implements ServiceMethodHandler {
     }
 
     private boolean hasHandlers(MethodAccess serviceMethod) {
+
+        if (serviceMethod.returnType() == Promise.class) {
+            return true;
+        }
 
         for (Class<?> paramType : serviceMethod.parameterTypes()) {
             if (paramType == Callback.class) {

@@ -8,6 +8,7 @@ import io.advantageous.qbit.server.EndpointServerBuilder;
 import io.advantageous.qbit.server.ServiceEndpointServer;
 import io.advantageous.qbit.util.PortUtils;
 import io.advantageous.reakt.promise.Promise;
+import io.advantageous.reakt.promise.Promises;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -16,6 +17,7 @@ import java.net.URI;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Consumer;
 
 import static io.advantageous.qbit.service.ServiceProxyUtils.flushServiceProxy;
 import static io.advantageous.reakt.promise.Promises.blockingPromiseBoolean;
@@ -93,6 +95,19 @@ public class ReaktInterfaceWebSocketRPCTest {
         assertEquals("The result is the expected result", successResult, returnValue.get());
     }
 
+    @Test
+    public void testServiceWithReturnPromiseSuccessFromImpl() {
+
+        serviceDiscoveryWebSocket.lookupServiceByPromise(empURI).then(this::handleSuccess)
+                .catchError(this::handleError).invoke();
+        await();
+        assertNotNull("We have a return", returnValue.get());
+        assertNull("There were no errors", errorRef.get());
+        assertEquals("The result is the expected result", successResult, returnValue.get());
+
+    }
+
+
 
     @Test
     public void testServiceWithReturnPromiseFail() {
@@ -148,6 +163,9 @@ public class ReaktInterfaceWebSocketRPCTest {
     interface ServiceDiscovery {
         Promise<URI> lookupService(URI uri);
 
+
+        Promise<URI> lookupServiceByPromise(URI uri);
+
         Promise<Boolean> ok();
 
         Promise<Integer> five();
@@ -162,6 +180,20 @@ public class ReaktInterfaceWebSocketRPCTest {
             } else {
                 callback.resolve(successResult);
             }
+        }
+
+
+        public Promise<URI> lookupServiceByPromise(final URI uri) {
+            return Promises.invokablePromise(new Consumer<Promise<URI>>() {
+                @Override
+                public void accept(Promise<URI> uriPromise) {
+                    if (uri == null) {
+                        uriPromise.reject("uri can't be null");
+                    } else {
+                        uriPromise.resolve(successResult);
+                    }
+                }
+            });
         }
 
         public void ok(final io.advantageous.qbit.reactive.Callback<Boolean> callback) {

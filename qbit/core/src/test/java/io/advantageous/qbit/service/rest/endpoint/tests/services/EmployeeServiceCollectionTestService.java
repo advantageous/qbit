@@ -9,6 +9,8 @@ import io.advantageous.qbit.annotation.RequestMethod;
 import io.advantageous.qbit.annotation.Service;
 import io.advantageous.qbit.reactive.Callback;
 import io.advantageous.qbit.service.rest.endpoint.tests.model.Employee;
+import io.advantageous.reakt.promise.Promise;
+import io.advantageous.reakt.promise.Promises;
 
 import java.util.List;
 import java.util.Map;
@@ -153,5 +155,9 @@ public class EmployeeServiceCollectionTestService {
         callback.resolve(Maps.map("1", new Employee(1, "Rick"), "2", new Employee(2, "Diana")));
     }
 
+    @RequestMapping("/returnMapByPromise")
+    public Promise<Map<String, Employee>> returnMapByPromise() {
+        return Promises.invokablePromise(promise -> promise.resolve(Maps.map("1", new Employee(1, "Rick"), "2", new Employee(2, "Diana"))));
+    }
 
 }

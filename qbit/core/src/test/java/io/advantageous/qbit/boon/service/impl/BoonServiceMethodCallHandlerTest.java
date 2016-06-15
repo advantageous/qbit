@@ -16,17 +16,19 @@
  * QBit - The Microservice lib for Java : JSON, WebSocket, REST. Be The Web!
  */
 
-package io.advantageous.qbit.service.impl;
+package io.advantageous.qbit.boon.service.impl;
 
 import io.advantageous.qbit.annotation.QueueCallback;
 import io.advantageous.qbit.annotation.QueueCallbackType;
-import io.advantageous.qbit.annotation.RequestMapping;
-import io.advantageous.qbit.boon.service.impl.BoonServiceMethodCallHandler;
+import io.advantageous.qbit.message.MethodCall;
+import io.advantageous.qbit.message.MethodCallBuilder;
 import io.advantageous.qbit.message.Response;
 import io.advantageous.qbit.queue.SendQueue;
+import io.advantageous.qbit.reactive.Callback;
+import io.advantageous.reakt.promise.Promise;
+import io.advantageous.reakt.promise.Promises;
 import org.junit.Test;
 
-import static io.advantageous.boon.core.IO.puts;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
@@ -37,8 +39,6 @@ import static org.junit.Assert.assertTrue;
 public class BoonServiceMethodCallHandlerTest {
 
 
-    boolean methodCalled;
-    boolean ok;
 
     @Test
     public void testInit() {
@@ -250,43 +250,147 @@ public class BoonServiceMethodCallHandlerTest {
         assertTrue(myService.called);
     }
 
-    @RequestMapping("/boo/baz")
-    class Foo {
 
-        @RequestMapping("/baaah/pluck")
-        public void foo() {
+    @Test
+    public void testCallMethod() {
 
-            methodCalled = true;
-            puts("foo");
+        class MyServiceForInvoke {
+
+            boolean called;
+
+            public void method() {
+                called = true;
+            }
+
         }
+        MyServiceForInvoke myService = new MyServiceForInvoke();
+
+        final BoonServiceMethodCallHandler boonServiceMethodCallHandler = new BoonServiceMethodCallHandler(true);
+        boonServiceMethodCallHandler.init(myService, "", "", new SendQueue<Response<Object>>() {
+        });
+
+        final Response<Object> response = boonServiceMethodCallHandler.receiveMethodCall(MethodCallBuilder.methodCallBuilder().setName("method").build());
 
 
-        @RequestMapping("/geoff/chandles/twoargs/{0}/{1}/")
-        public void geoff(String a, int b) {
-
-            methodCalled = true;
-            puts("geoff a", a, "b", b);
-        }
-
-        @RequestMapping("/geoff/chandles/")
-        public void someMethod(String a, int b) {
-
-            methodCalled = true;
-            puts("geoff");
-        }
+        assertFalse(response.wasErrors());
+        assertTrue(myService.called);
 
 
-        public void someMethod2(String a, int b) {
-
-            methodCalled = true;
-            puts("geoff", a, b);
-        }
-
-
-        public void someMethod3() {
-
-            methodCalled = true;
-        }
+        boonServiceMethodCallHandler.startBatch();
+        assertTrue(myService.called);
     }
 
+
+    @Test
+    public void testCallMethodWithCallback() {
+
+        class MyServiceForInvoke {
+
+            boolean called;
+
+            public void method(Callback<Boolean> callback) {
+                called = true;
+                callback.resolve(true);
+            }
+
+        }
+        MyServiceForInvoke myService = new MyServiceForInvoke();
+
+        final BoonServiceMethodCallHandler boonServiceMethodCallHandler = new BoonServiceMethodCallHandler(true);
+        Promise<Boolean> promise = Promises.blockingPromiseBoolean();
+        initHandlerWithPromise(myService, boonServiceMethodCallHandler, promise);
+
+        final MethodCall<Object> method = MethodCallBuilder.methodCallBuilder().setName("method").build();
+        final Response<Object> response = boonServiceMethodCallHandler.receiveMethodCall(method);
+
+
+        assertFalse(response.wasErrors());
+        assertTrue(myService.called);
+        assertTrue(promise.success());
+
+    }
+
+
+    @Test
+    public void testCallMethodWithPromise() {
+
+        class MyServiceForInvokablePromise {
+
+            boolean called;
+
+            public Promise<Boolean> method() {
+                return Promises.invokablePromise(promise -> {
+                    called = true;
+                    promise.resolve(true);
+                });
+            }
+
+        }
+        MyServiceForInvokablePromise myService = new MyServiceForInvokablePromise();
+
+        final BoonServiceMethodCallHandler boonServiceMethodCallHandler = new BoonServiceMethodCallHandler(true);
+        Promise<Boolean> promise = Promises.blockingPromiseBoolean();
+
+        initHandlerWithPromise(myService, boonServiceMethodCallHandler, promise);
+
+
+        final MethodCall<Object> method = MethodCallBuilder.methodCallBuilder().setName("method").build();
+        final Response<Object> response = boonServiceMethodCallHandler.receiveMethodCall(method);
+
+
+        assertFalse(response.wasErrors());
+        assertTrue(myService.called);
+        assertTrue(promise.success());
+
+
+    }
+
+
+    @Test
+    public void testCallMethodWithPromiseNonDynamic() {
+
+        class MyServiceForInvokablePromiseNonDynamic {
+
+            boolean called;
+
+            public Promise<Boolean> method() {
+                return Promises.invokablePromise(promise -> {
+                    called = true;
+                    promise.resolve(true);
+                });
+            }
+
+        }
+        MyServiceForInvokablePromiseNonDynamic myService = new MyServiceForInvokablePromiseNonDynamic();
+
+        final BoonServiceMethodCallHandler boonServiceMethodCallHandler = new BoonServiceMethodCallHandler(false);
+        Promise<Boolean> promise = Promises.blockingPromiseBoolean();
+
+        initHandlerWithPromise(myService, boonServiceMethodCallHandler, promise);
+
+
+        final MethodCall<Object> method = MethodCallBuilder.methodCallBuilder().setName("method").setBody(new Object[]{}).build();
+        final Response<Object> response = boonServiceMethodCallHandler.receiveMethodCall(method);
+
+
+        assertFalse(response.wasErrors());
+        assertTrue(myService.called);
+        assertTrue(promise.success());
+
+
+    }
+
+    private void initHandlerWithPromise(Object myService, BoonServiceMethodCallHandler boonServiceMethodCallHandler, final Promise<Boolean> promise) {
+        boonServiceMethodCallHandler.init(myService, "", "", new SendQueue<Response<Object>>() {
+            @Override
+            public boolean send(Response<Object> item) {
+                if (item.wasErrors()) {
+                    promise.reject((Throwable) item.body());
+                } else {
+                    promise.resolve(((Boolean) item.body()));
+                }
+                return true;
+            }
+        });
+    }
 }

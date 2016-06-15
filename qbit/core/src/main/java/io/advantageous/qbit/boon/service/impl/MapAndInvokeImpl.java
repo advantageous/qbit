@@ -4,7 +4,10 @@ import io.advantageous.boon.core.reflection.MethodAccess;
 import io.advantageous.boon.primitive.Arry;
 import io.advantageous.qbit.message.MethodCall;
 import io.advantageous.qbit.message.Response;
+import io.advantageous.qbit.message.impl.ResponseImpl;
 import io.advantageous.qbit.reactive.Callback;
+import io.advantageous.qbit.service.impl.ServiceConstants;
+import io.advantageous.reakt.promise.Promise;
 
 /**
  * Created by rick on 4/20/16.
@@ -24,6 +27,19 @@ class MapAndInvokeImpl implements MapAndInvoke {
             Object[] argsList = prepareArgumentList(methodCall, serviceMethod.parameterTypes());
             extractHandlersFromArgumentList(serviceMethod, args, argsList);
             returnValue = serviceMethod.invoke(boonServiceMethodCallHandler.service, argsList);
+            if (returnValue instanceof Promise) {
+                final Promise<Object> promise = ((Promise<Object>) returnValue);
+                promise
+                        .then(value -> {
+
+                            boonServiceMethodCallHandler.responseSendQueue.send(ResponseImpl.response(methodCall, value));
+                        })
+                        .catchError(error -> {
+                            boonServiceMethodCallHandler.responseSendQueue.send(ResponseImpl.error(methodCall, error));
+                        }).invoke();
+
+                return ServiceConstants.VOID;
+            }
         } else {
             final Object[] argsList = (Object[]) methodCall.body();
             returnValue = serviceMethod.invoke(boonServiceMethodCallHandler.service, argsList);
