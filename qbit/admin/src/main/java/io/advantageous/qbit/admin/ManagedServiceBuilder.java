@@ -801,7 +801,7 @@ public class ManagedServiceBuilder {
     public ManagedServiceBuilder addEndpointServiceWithServiceManagmentBundle(
             final Object endpointService, final ServiceManagementBundle serviceManagementBundle) {
 
-        addEndpointServiceWithAliasAndQueueHandlerCallbacks(null, new QueueCallBackHandler() {
+        addEndpointServiceWithAliasAndQueueHandlerCallbacks(null, endpointService, new QueueCallBackHandler() {
             @Override
             public void queueProcess() {
                 serviceManagementBundle.process();
