@@ -49,7 +49,6 @@ import java.util.HashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
@@ -227,37 +226,20 @@ public class HttpServerVertx implements HttpServer {
 
     }
 
+
     @Override
     public HttpServer startServerAndWait() {
 
-        final Runnable onStart = simpleHttpServer.getOnStart();
         final CountDownLatch latch = new CountDownLatch(1);
-        final AtomicBoolean started = new AtomicBoolean();
 
-        final Runnable ourOnStart = new Runnable() {
-            @Override
-            public void run() {
-
-                started.set(true);
-                latch.countDown();
-                onStart.run();
-            }
-        };
-
-        simpleHttpServer.setOnStart(ourOnStart);
-        this.start();
+        this.startWithNotify(() -> latch.countDown());
 
         try {
-            latch.await(20, TimeUnit.SECONDS);
+            latch.await(5, TimeUnit.SECONDS);
         } catch (InterruptedException e) {
             Thread.interrupted();
-        } finally {
-            simpleHttpServer.setOnStart(onStart);
         }
 
-        if (!started.get()) {
-            throw new IllegalStateException("Unable to start server");
-        }
         return this;
     }
 
