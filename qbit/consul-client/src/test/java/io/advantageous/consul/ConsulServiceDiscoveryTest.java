@@ -5,15 +5,13 @@ import io.advantageous.qbit.service.discovery.EndpointDefinition;
 import io.advantageous.qbit.service.discovery.impl.ServiceDiscoveryImpl;
 import io.advantageous.qbit.service.health.HealthStatus;
 import org.junit.Before;
-import org.junit.Test;
 
-import java.util.List;
+import java.util.*;
 
 import static io.advantageous.consul.discovery.ConsulServiceDiscoveryBuilder.consulServiceDiscoveryBuilder;
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.*;
 
 public class ConsulServiceDiscoveryTest {
-
 
     ServiceDiscoveryImpl discovery1;
     ServiceDiscoveryImpl discovery2;
@@ -31,14 +29,12 @@ public class ConsulServiceDiscoveryTest {
         discovery3.start();
     }
 
-
     //@Test Not sure what this test does. Seems odd.
     public void test() {
         String serviceName = "FOO-BAR-";
-        final String id1 = discovery1.registerWithTTL(serviceName, 7000, 30).getId();
-        final String id2 = discovery2.registerWithTTL(serviceName, 8000, 30).getId();
-        final String id3 = discovery3.registerWithTTL(serviceName, 9000, 30).getId();
-
+        final String id1 = discovery1.registerWithTTL(serviceName, "localhost", 7000, 30).getId();
+        final String id2 = discovery2.registerWithTTL(serviceName, "localhost", 8000, 30).getId();
+        final String id3 = discovery3.registerWithTTL(serviceName, "localhost", 9000, 30).getId();
 
         for (int index = 0; index < 10; index++) {
 
@@ -48,11 +44,9 @@ public class ConsulServiceDiscoveryTest {
             discovery3.checkIn(id3, HealthStatus.PASS);
         }
 
-
         Sys.sleep(100);
         List<EndpointDefinition> endpointDefinitions = discovery1.loadServices(serviceName);
         assertEquals(3, endpointDefinitions.size());
-
 
         for (int index = 0; index < 10; index++) {
             Sys.sleep(100);
@@ -62,7 +56,6 @@ public class ConsulServiceDiscoveryTest {
         }
 
         Sys.sleep(1000);
-
 
         endpointDefinitions = discovery1.loadServices(serviceName);
         assertEquals(2, endpointDefinitions.size());
