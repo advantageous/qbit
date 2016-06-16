@@ -66,7 +66,7 @@ public interface ServiceDiscovery extends Startable, Stoppable {
 
         return new EndpointDefinition(HealthStatus.PASS,
                 serviceName + "." + uniqueString(port),
-                serviceName, null, port, timeToLiveSeconds);
+                serviceName, host, port, timeToLiveSeconds);
     }
 
     /**
