@@ -6,7 +6,7 @@ import io.advantageous.qbit.service.health.HealthStatus;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-import java.util.List;
+import java.util.*;
 
 import static io.advantageous.qbit.service.discovery.ServiceDiscovery.uniqueString;
 
@@ -24,7 +24,6 @@ import static io.advantageous.qbit.service.discovery.ServiceDiscovery.uniqueStri
  * created by rhightower on 3/23/15.
  */
 public class EndpointDefinition {
-
 
     /**
      * Current health status.
@@ -52,11 +51,62 @@ public class EndpointDefinition {
     private final int port;
 
     /**
+     * Tags of the service.
+     */
+    private final List<String> tags;
+
+    /**
      * Time to live: how long until this service has to check in with the remote service discovery
      * system if applicable. Whether this is used or needed depends on the underlying service discovery system.
      */
     private final long timeToLive;
 
+    /**
+     * Create a new one with default TTL of 20 seconds with tags.
+     *
+     * @param healthStatus healthStatus
+     * @param id           id
+     * @param name         name
+     * @param host         post
+     * @param port         port
+     * @param tags         tags
+     */
+    public EndpointDefinition(
+            final HealthStatus healthStatus,
+            final String id,
+            final String name,
+            final String host,
+            final int port,
+            final long timeToLive,
+            final List<String> tags) {
+        this.healthStatus = healthStatus;
+        this.id = id;
+        this.name = name;
+        this.host = host;
+        this.port = port;
+        this.timeToLive = timeToLive;
+        this.tags = tags;
+    }
+
+    /**
+     * Create a new one with default TTL of 20 seconds.
+     *
+     * @param healthStatus healthStatus
+     * @param id           id
+     * @param name         name
+     * @param host         post
+     * @param port         port
+     * @param tags         tags
+     */
+    public EndpointDefinition(
+            final HealthStatus healthStatus,
+            final String id,
+            final String name,
+            final String host,
+            final int port,
+            final List<String> tags) {
+        this(healthStatus, id, name, host, port, Sys.sysProp(EndpointDefinition.class.getName() + ".timeToLive", 20L), tags);
+    }
 
     /**
      * Create a new one with default TTL of 20 seconds.
@@ -73,14 +123,8 @@ public class EndpointDefinition {
             final String name,
             final String host,
             final int port) {
-        this.healthStatus = healthStatus;
-        this.id = id;
-        this.name = name;
-        this.host = host;
-        this.port = port;
-        this.timeToLive = Sys.sysProp(EndpointDefinition.class.getName() + ".timeToLive", 20L);
+        this(healthStatus, id, name, host, port, Sys.sysProp(EndpointDefinition.class.getName() + ".timeToLive", 20L), null);
     }
-
 
     /**
      * Create a new one with default TTL of 20 seconds.
@@ -93,12 +137,7 @@ public class EndpointDefinition {
             final String name,
             final String host,
             final int port) {
-        this.healthStatus = HealthStatus.PASS;
-        this.id = name + "-" + port + "-" + host.replace('.', '-');
-        this.name = name;
-        this.host = host;
-        this.port = port;
-        this.timeToLive = Sys.sysProp(EndpointDefinition.class.getName() + ".timeToLive", 20L);
+        this(HealthStatus.PASS, name + "-" + port + "-" + host.replace('.', '-'), name, host, port);
     }
 
     /**
@@ -118,12 +157,7 @@ public class EndpointDefinition {
             final String host,
             final int port,
             final long timeToLive) {
-        this.healthStatus = healthStatus;
-        this.id = id;
-        this.name = name;
-        this.host = host;
-        this.port = port;
-        this.timeToLive = timeToLive;
+        this(healthStatus, id, name, host, port, timeToLive, null);
     }
 
     /**
@@ -210,7 +244,6 @@ public class EndpointDefinition {
                 name + "-" + uniqueString(port), name, host, port);
     }
 
-
     /**
      * Creates a EndpointDefinition for a service, i.e., a serviceDefinition.
      *
@@ -226,7 +259,6 @@ public class EndpointDefinition {
         return new EndpointDefinition(HealthStatus.PASS,
                 name + "-" + uniqueString(0), name, host, 0);
     }
-
 
     /**
      * Creates a EndpointDefinition for a service, i.e., a serviceDefinition.
@@ -265,6 +297,10 @@ public class EndpointDefinition {
         return port;
     }
 
+    public List<String> getTags() {
+        return tags;
+    }
+
     @SuppressWarnings("SimplifiableIfStatement")
     @Override
     public boolean equals(Object o) {
@@ -299,11 +335,12 @@ public class EndpointDefinition {
                 ", name='" + name + '\'' +
                 ", host='" + host + '\'' +
                 ", port=" + port +
+                ", tags=" + port +
                 '}';
     }
 
     public long getTimeToLive() {
-
         return timeToLive;
     }
+
 }
