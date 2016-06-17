@@ -95,7 +95,7 @@ public class ConsulServiceDiscoveryProvider implements ServiceDiscoveryProvider 
                 String[] tags = endPointTags != null ? endPointTags.toArray(new String[endPointTags.size()]) : this.tags;
 
                 registrations.put(endpointDefinition.getId(), endpointDefinition);
-                consul.agent().registerService(endpointDefinition.getPort(),
+                consul.agent().registerService(endpointDefinition.getHost(), endpointDefinition.getPort(),
                         endpointDefinition.getTimeToLive(),
                         endpointDefinition.getName(), endpointDefinition.getId(), tags);
                 endpointDefinition = registerQueue.poll();
@@ -139,7 +139,7 @@ public class ConsulServiceDiscoveryProvider implements ServiceDiscoveryProvider 
             if (endpointDefinition != null) {
                 List<String> endPointTags = endpointDefinition.getTags();
                 String[] tags = endPointTags != null ? endPointTags.toArray(new String[endPointTags.size()]) : this.tags;
-                consul.agent().registerService(endpointDefinition.getPort(),
+                consul.agent().registerService(endpointDefinition.getHost(), endpointDefinition.getPort(),
                         endpointDefinition.getTimeToLive(),
                         endpointDefinition.getName(), endpointDefinition.getId(), tags);
             }
