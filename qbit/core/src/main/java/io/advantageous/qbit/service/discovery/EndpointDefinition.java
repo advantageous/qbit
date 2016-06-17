@@ -230,6 +230,27 @@ public class EndpointDefinition {
     /**
      * Creates a EndpointDefinition for a service, i.e., a serviceDefinition.
      *
+     * @param id   id
+     * @param name name
+     * @param host host
+     * @param port port
+     * @param tags tags
+     * @return EndpointDefinition
+     */
+    public static EndpointDefinition serviceDefinition(
+            final String id,
+            final String name,
+            final String host,
+            final int port,
+            List<String> tags) {
+
+        return new EndpointDefinition(HealthStatus.PASS,
+                id, name, host, port, tags);
+    }
+
+    /**
+     * Creates a EndpointDefinition for a service, i.e., a serviceDefinition.
+     *
      * @param name name
      * @param host host
      * @param port port
@@ -335,7 +356,7 @@ public class EndpointDefinition {
                 ", name='" + name + '\'' +
                 ", host='" + host + '\'' +
                 ", port=" + port +
-                ", tags=" + port +
+                ", tags=" + tags +
                 '}';
     }
 
