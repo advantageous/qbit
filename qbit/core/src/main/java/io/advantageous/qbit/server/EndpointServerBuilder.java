@@ -195,6 +195,7 @@ public class EndpointServerBuilder {
 
     private String endpointName;
     private String endpointId;
+    private List<String> endpointTags;
     private ServiceDiscovery serviceDiscovery;
     private int ttlSeconds;
 
@@ -684,7 +685,7 @@ public class EndpointServerBuilder {
         final ServiceEndpointServer serviceEndpointServer = new ServiceEndpointServerImpl(getHttpServer(),
                 getEncoder(), getParser(), serviceBundle, getJsonMapper(), this.getTimeoutSeconds(),
                 this.getNumberOfOutstandingRequests(), getProtocolBatchSize(),
-                this.getFlushInterval(), this.getSystemManager(), getEndpointName(), getEndpointId(),
+                this.getFlushInterval(), this.getSystemManager(), getEndpointName(), getEndpointId(), getEndpointTags(),
                 getServiceDiscovery(), getHost(), getPort(), getTtlSeconds(), getHealthService(), getErrorHandler(),
                 getFlushResponseInterval(), getParserWorkerCount(), getEncoderWorkerCount());
 
@@ -873,6 +874,15 @@ public class EndpointServerBuilder {
 
     public EndpointServerBuilder setProtocolBatchSize(int protocolBatchSize) {
         this.protocolBatchSize = protocolBatchSize;
+        return this;
+    }
+
+    public List<String> getEndpointTags() {
+        return endpointTags;
+    }
+
+    public EndpointServerBuilder setEndpointTags(List<String> endpointTags) {
+        this.endpointTags = endpointTags;
         return this;
     }
 }

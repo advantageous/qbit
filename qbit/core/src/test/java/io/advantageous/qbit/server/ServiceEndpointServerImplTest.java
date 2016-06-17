@@ -48,9 +48,9 @@ import io.advantageous.qbit.test.TimedTesting;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.util.List;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.function.Consumer;
+import java.util.*;
+import java.util.concurrent.atomic.*;
+import java.util.function.*;
 
 import static io.advantageous.boon.core.Exceptions.die;
 import static io.advantageous.boon.core.IO.puts;
@@ -81,7 +81,7 @@ public class ServiceEndpointServerImplTest extends TimedTesting {
 
         httpServer = new HttpServerMock();
         serviceServerImpl = new ServiceEndpointServerImpl(httpServer, encoder, protocolParser, serviceBundle, mapper, 1, 100, 30, 10, null, "",
-                "", null, "localhost", 8080, 0, null, null, 50, 2, 2);
+                "", null, null, "localhost", 8080, 0, null, null, 50, 2, 2);
 
         callMeCounter = 0;
         responseCounter = 0;
@@ -107,7 +107,7 @@ public class ServiceEndpointServerImplTest extends TimedTesting {
 
         httpServer = new HttpServerMock();
         serviceServerImpl = new ServiceEndpointServerImpl(httpServer, encoder, protocolParser, serviceBundle,
-                mapper, 1, 100, 30, 10, null, null, null, null, "localhost", 8080, 0, null, null, 50, 2, 2);
+                mapper, 1, 100, 30, 10, null, null, null, null, null, "localhost", 8080, 0, null, null, 50, 2, 2);
 
         callMeCounter = 0;
         responseCounter = 0;
@@ -149,7 +149,7 @@ public class ServiceEndpointServerImplTest extends TimedTesting {
 
         httpServer = new HttpServerMock();
         serviceServerImpl = new ServiceEndpointServerImpl(httpServer, encoder, protocolParser, serviceBundle,
-                mapper, 1, 100, 30, 10, null, null, null, null, "localhost", 8080, 0, null, null, 50, 2, 2);
+                mapper, 1, 100, 30, 10, null, null, null, null, null, "localhost", 8080, 0, null, null, 50, 2, 2);
 
         callMeCounter = 0;
         responseCounter = 0;
