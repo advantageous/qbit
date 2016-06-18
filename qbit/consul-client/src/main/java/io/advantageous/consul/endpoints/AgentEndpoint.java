@@ -24,6 +24,7 @@ import io.advantageous.boon.json.JsonParserAndMapper;
 import io.advantageous.boon.json.JsonParserFactory;
 import io.advantageous.consul.domain.*;
 import io.advantageous.qbit.http.HTTP;
+import io.advantageous.qbit.json.JsonMapper;
 
 import java.net.URI;
 import java.util.Collections;
@@ -32,7 +33,6 @@ import java.util.List;
 import java.util.Map;
 
 import static io.advantageous.boon.core.reflection.MapObjectConversion.fromMap;
-import static io.advantageous.boon.json.JsonFactory.*;
 import static io.advantageous.consul.domain.ConsulException.die;
 import static io.advantageous.consul.domain.NotRegisteredException.notRegistered;
 
@@ -50,12 +50,12 @@ import static io.advantageous.consul.domain.NotRegisteredException.notRegistered
 public class AgentEndpoint extends Endpoint {
 
 
-    public AgentEndpoint(String scheme, String host, String port, String rootPath) {
-        super(scheme, host, port, rootPath);
+    public AgentEndpoint(String scheme, String host, String port, String rootPath, JsonMapper mapper) {
+        super(scheme, host, port, rootPath, mapper);
     }
 
-    public AgentEndpoint(URI rootURI, String rootPath) {
-        super(rootURI, rootPath);
+    public AgentEndpoint(URI rootURI, String rootPath, JsonMapper mapper) {
+        super(rootURI, rootPath, mapper);
     }
 
     /**

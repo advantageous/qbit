@@ -26,13 +26,13 @@ import io.advantageous.consul.domain.Node;
 import io.advantageous.consul.domain.option.RequestOptions;
 import io.advantageous.qbit.http.HTTP;
 import io.advantageous.qbit.http.request.HttpRequestBuilder;
+import io.advantageous.qbit.json.JsonMapper;
 
 import java.net.URI;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-import static io.advantageous.boon.json.JsonFactory.fromJsonArray;
 import static io.advantageous.consul.domain.ConsulException.die;
 
 
@@ -43,12 +43,12 @@ import static io.advantageous.consul.domain.ConsulException.die;
  */
 public class CatalogEndpoint extends Endpoint {
 
-    public CatalogEndpoint(String scheme, String host, String port, String rootPath) {
-        super(scheme, host, port, rootPath);
+    public CatalogEndpoint(String scheme, String host, String port, String rootPath, final JsonMapper mapper) {
+        super(scheme, host, port, rootPath, mapper);
     }
 
-    public CatalogEndpoint(URI rootURI, String rootPath) {
-        super(rootURI, rootPath);
+    public CatalogEndpoint(URI rootURI, String rootPath, final JsonMapper mapper) {
+        super(rootURI, rootPath, mapper);
     }
 
     /**

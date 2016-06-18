@@ -22,23 +22,22 @@ package io.advantageous.consul.endpoints;
 import io.advantageous.consul.domain.option.RequestOptions;
 import io.advantageous.qbit.http.HTTP;
 import io.advantageous.qbit.http.request.HttpRequestBuilder;
+import io.advantageous.qbit.json.JsonMapper;
 
 import java.net.URI;
 import java.util.List;
 
-import static io.advantageous.boon.json.JsonFactory.fromJson;
-import static io.advantageous.boon.json.JsonFactory.fromJsonArray;
 import static io.advantageous.consul.domain.ConsulException.die;
 
 public class StatusEndpoint extends Endpoint {
 
 
-    public StatusEndpoint(String scheme, String host, String port, String rootPath) {
-        super(scheme, host, port, rootPath);
+    public StatusEndpoint(String scheme, String host, String port, String rootPath, final JsonMapper mapper) {
+        super(scheme, host, port, rootPath, mapper);
     }
 
-    public StatusEndpoint(URI rootURI, String rootPath) {
-        super(rootURI, rootPath);
+    public StatusEndpoint(URI rootURI, String rootPath, final JsonMapper mapper) {
+        super(rootURI, rootPath, mapper);
     }
 
     /**
