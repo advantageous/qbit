@@ -5,7 +5,11 @@ import io.advantageous.qbit.GlobalConstants;
 import io.advantageous.qbit.QBit;
 import io.advantageous.qbit.concurrent.PeriodicScheduler;
 import io.advantageous.qbit.reactive.Callback;
-import io.advantageous.qbit.service.discovery.*;
+import io.advantageous.qbit.service.discovery.EndpointDefinition;
+import io.advantageous.qbit.service.discovery.ServiceChangedEventChannel;
+import io.advantageous.qbit.service.discovery.ServiceDiscovery;
+import io.advantageous.qbit.service.discovery.ServicePool;
+import io.advantageous.qbit.service.discovery.ServicePoolListener;
 import io.advantageous.qbit.service.discovery.spi.ServiceDiscoveryProvider;
 import io.advantageous.qbit.service.health.HealthStatus;
 import io.advantageous.qbit.util.ConcurrentHashSet;
@@ -13,13 +17,9 @@ import io.advantageous.qbit.util.Timer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
-import java.util.TreeSet;
+import java.util.*;
 import java.util.concurrent.*;
-import java.util.concurrent.atomic.AtomicBoolean;
-
+import java.util.concurrent.atomic.*;
 
 /**
  * Service Discovery. This is a generic service discovery class.
@@ -53,7 +53,6 @@ public class ServiceDiscoveryImpl implements ServiceDiscovery {
             callbackMap = new ConcurrentHashMap<>();
     private long lastCheckIn;
 
-
     public ServiceDiscoveryImpl(
             final PeriodicScheduler periodicScheduler,
             final ServiceChangedEventChannel serviceChangedEventChannel,
@@ -63,7 +62,6 @@ public class ServiceDiscoveryImpl implements ServiceDiscovery {
             final ExecutorService executorService,
             final int pollForServicesIntervalSeconds,
             final int checkInIntervalInSeconds) {
-
 
         this.backupProvider = backupProvider;
         this.checkInIntervalInMS = checkInIntervalInSeconds * 1000;
@@ -85,13 +83,11 @@ public class ServiceDiscoveryImpl implements ServiceDiscovery {
                 Executors.newCachedThreadPool(runnable -> new Thread(runnable, "ServiceDiscovery")) :
                 executorService;//Mostly sleeping threads doing long polls
 
-
         if (trace) {
             logger.trace(
                     "ServiceDiscoveryImpl created" + provider
             );
         }
-
 
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             if (!stop.get()) stop();
@@ -99,11 +95,12 @@ public class ServiceDiscoveryImpl implements ServiceDiscovery {
 
     }
 
+    @Override
     public EndpointDefinition registerWithTTL(
             final String serviceName,
+            final String host,
             final int port,
             final int timeToLiveSeconds) {
-
 
         if (trace) {
             logger.trace(
@@ -113,17 +110,16 @@ public class ServiceDiscoveryImpl implements ServiceDiscovery {
 
         watch(serviceName);
 
-
         EndpointDefinition endpointDefinition = new EndpointDefinition(HealthStatus.PASS,
                 serviceName + "-" + ServiceDiscovery.uniqueString(port),
-                serviceName, null, port, timeToLiveSeconds);
+                serviceName, host, port, timeToLiveSeconds);
 
         return doRegister(endpointDefinition);
     }
 
+    @Override
     public EndpointDefinition registerWithIdAndTimeToLive(
-            final String serviceName, final String serviceId, final int port, final int timeToLiveSeconds) {
-
+            final String serviceName, final String serviceId, String host, final int port, final int timeToLiveSeconds) {
 
         if (trace) {
             logger.trace(
@@ -134,8 +130,7 @@ public class ServiceDiscoveryImpl implements ServiceDiscovery {
         watch(serviceName);
         EndpointDefinition endpointDefinition = new EndpointDefinition(HealthStatus.PASS,
                 serviceId,
-                serviceName, null, port, timeToLiveSeconds);
-
+                serviceName, host, port, timeToLiveSeconds);
 
         return doRegister(endpointDefinition);
     }
@@ -159,7 +154,6 @@ public class ServiceDiscoveryImpl implements ServiceDiscovery {
 
         watch(serviceName);
 
-
         EndpointDefinition endpointDefinition = new EndpointDefinition(HealthStatus.PASS,
                 serviceName + "-" + ServiceDiscovery.uniqueString(port),
                 serviceName, host, port);
@@ -178,7 +172,6 @@ public class ServiceDiscoveryImpl implements ServiceDiscovery {
         }
 
         watch(serviceName);
-
 
         EndpointDefinition endpointDefinition = new EndpointDefinition(HealthStatus.PASS,
                 serviceId,
@@ -205,7 +198,6 @@ public class ServiceDiscoveryImpl implements ServiceDiscovery {
     @Override
     public void checkIn(final String serviceId, final HealthStatus healthStatus) {
 
-
         if (trace) {
             logger.trace(
                     "ServiceDiscoveryImpl::checkIn()" + serviceId, healthStatus
@@ -214,12 +206,10 @@ public class ServiceDiscoveryImpl implements ServiceDiscovery {
 
         checkInsQueue.offer(new ServiceHealthCheckIn(serviceId, healthStatus));
 
-
     }
 
     @Override
     public void checkInOk(final String serviceId) {
-
 
         if (trace) {
             logger.trace(
@@ -228,7 +218,6 @@ public class ServiceDiscoveryImpl implements ServiceDiscovery {
         }
 
         checkInsQueue.offer(new ServiceHealthCheckIn(serviceId, HealthStatus.PASS));
-
 
     }
 
@@ -266,7 +255,6 @@ public class ServiceDiscoveryImpl implements ServiceDiscovery {
     @Override
     public List<EndpointDefinition> loadServices(final String serviceName) {
 
-
         if (trace) {
             logger.trace(
                     "ServiceDiscoveryImpl::loadServices()" + serviceName
@@ -283,9 +271,7 @@ public class ServiceDiscoveryImpl implements ServiceDiscovery {
         return servicePool.services();
     }
 
-
     public List<EndpointDefinition> loadServicesNow(final String serviceName) {
-
 
         if (debug) {
             logger.debug("ServiceDiscoveryImpl::loadServicesNow {}", serviceName);
@@ -310,7 +296,6 @@ public class ServiceDiscoveryImpl implements ServiceDiscovery {
             watch(serviceName);
         }
         return servicePool.services();
-
 
     }
 
@@ -348,7 +333,6 @@ public class ServiceDiscoveryImpl implements ServiceDiscovery {
                     loadHealthyServices();
                 });
             }
-
 
             if (checkInsQueue.size() > 0) {
                 provider.checkIn(checkInsQueue);
@@ -399,7 +383,6 @@ public class ServiceDiscoveryImpl implements ServiceDiscovery {
         }
     }
 
-
     /**
      * Loads the service from the remote service registry (i.e., consul).
      *
@@ -442,14 +425,12 @@ public class ServiceDiscoveryImpl implements ServiceDiscovery {
             populateServiceMap(serviceNameToFetch, healthyServices);
             serviceNamesBeingLoaded.remove(serviceNameToFetch);
 
-
         } else {
 
             logger.error("ServiceDiscoveryImpl::loadHealthyServices " +
                     "Error while loading healthy" +
                     " services for " + serviceNameToFetch, ex);
         }
-
 
         Sys.sleep(10_000); //primary is down so slow it down so we don't flow the system with updates of service pools.
 
@@ -484,7 +465,6 @@ public class ServiceDiscoveryImpl implements ServiceDiscovery {
             }
         }
     }
-
 
     @Override
     public void stop() {

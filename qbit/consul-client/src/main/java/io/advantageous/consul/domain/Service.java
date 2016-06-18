@@ -36,7 +36,7 @@ public class Service {
     private List<String> tags;
 
     @JsonProperty("Address")
-    private int host;
+    private String host;
 
     @JsonProperty("Port")
     private int port;
@@ -73,11 +73,11 @@ public class Service {
         this.port = port;
     }
 
-    public int getHost() {
+    public String getHost() {
         return host;
     }
 
-    public void setHost(int host) {
+    public void setHost(String host) {
         this.host = host;
     }
 
@@ -90,7 +90,7 @@ public class Service {
         Service service1 = (Service) o;
 
         if (port != service1.port) return false;
-        if (host != service1.host) return false;
+        if (host != null ? !host.equals(service1.host) : service1.host != null) return false;
         if (id != null ? !id.equals(service1.id) : service1.id != null) return false;
         if (service != null ? !service.equals(service1.service) : service1.service != null) return false;
         return !(tags != null ? !tags.equals(service1.tags) : service1.tags != null);
@@ -103,7 +103,7 @@ public class Service {
         result = 31 * result + (service != null ? service.hashCode() : 0);
         result = 31 * result + (tags != null ? tags.hashCode() : 0);
         result = 31 * result + port;
-        result = 31 * result + host;
+        result = 31 * result + (host != null ? host.hashCode() : 0);
         return result;
     }
 
