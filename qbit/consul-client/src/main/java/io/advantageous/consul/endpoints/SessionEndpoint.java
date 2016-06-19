@@ -5,12 +5,12 @@ import io.advantageous.consul.domain.SessionId;
 import io.advantageous.consul.domain.option.RequestOptions;
 import io.advantageous.qbit.http.HTTP;
 import io.advantageous.qbit.http.request.HttpRequestBuilder;
+import io.advantageous.qbit.json.JsonMapper;
 
 import java.net.URI;
 import java.util.List;
 import java.util.Optional;
 
-import static io.advantageous.boon.json.JsonFactory.*;
 import static io.advantageous.consul.domain.ConsulException.die;
 
 /**
@@ -18,8 +18,8 @@ import static io.advantageous.consul.domain.ConsulException.die;
  */
 public class SessionEndpoint extends Endpoint {
 
-    public SessionEndpoint(URI rootURI, String rootPath) {
-        super(rootURI, rootPath);
+    public SessionEndpoint(URI rootURI, String rootPath, final JsonMapper mapper) {
+        super(rootURI, rootPath, mapper);
     }
 
 

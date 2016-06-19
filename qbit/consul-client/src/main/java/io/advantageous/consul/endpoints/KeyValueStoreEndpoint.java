@@ -26,12 +26,12 @@ import io.advantageous.consul.domain.option.RequestOptions;
 import io.advantageous.qbit.http.HTTP;
 import io.advantageous.qbit.http.request.HttpRequestBuilder;
 import io.advantageous.qbit.http.request.HttpTextResponse;
+import io.advantageous.qbit.json.JsonMapper;
 
 import java.net.URI;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static io.advantageous.boon.json.JsonFactory.fromJsonArray;
 import static io.advantageous.consul.domain.ConsulException.die;
 import static io.advantageous.consul.endpoints.RequestUtils.decodeBase64;
 
@@ -42,12 +42,12 @@ import static io.advantageous.consul.endpoints.RequestUtils.decodeBase64;
  */
 public class KeyValueStoreEndpoint extends Endpoint {
 
-    public KeyValueStoreEndpoint(String scheme, String host, String port, String rootPath) {
-        super(scheme, host, port, rootPath);
+    public KeyValueStoreEndpoint(String scheme, String host, String port, String rootPath, JsonMapper mapper) {
+        super(scheme, host, port, rootPath, mapper);
     }
 
-    public KeyValueStoreEndpoint(URI rootURI, String rootPath) {
-        super(rootURI, rootPath);
+    public KeyValueStoreEndpoint(URI rootURI, String rootPath, JsonMapper mapper) {
+        super(rootURI, rootPath, mapper);
     }
 
 

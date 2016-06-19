@@ -21,6 +21,8 @@ package io.advantageous.consul;
 
 import io.advantageous.consul.domain.ConsulException;
 import io.advantageous.consul.endpoints.*;
+import io.advantageous.qbit.QBit;
+import io.advantageous.qbit.json.JsonMapper;
 
 import java.net.MalformedURLException;
 import java.net.URI;
@@ -54,12 +56,13 @@ public class Consul {
 
         final String rootPath = uri.getPath();
 
-        this.agent = new AgentEndpoint(uri, rootPath + "/agent");
-        this.health = new HealthEndpoint(uri, rootPath + "/health");
-        this.keyValueStore = new KeyValueStoreEndpoint(uri, rootPath + "/kv");
-        this.catalog = new CatalogEndpoint(uri, rootPath + "/catalog");
-        this.status = new StatusEndpoint(uri, rootPath + "/status");
-        this.session = new SessionEndpoint(uri, rootPath + "/session");
+        final JsonMapper mapper = QBit.factory().createJsonMapper();
+        this.agent = new AgentEndpoint(uri, rootPath + "/agent", mapper);
+        this.health = new HealthEndpoint(uri, rootPath + "/health", mapper);
+        this.keyValueStore = new KeyValueStoreEndpoint(uri, rootPath + "/kv", mapper);
+        this.catalog = new CatalogEndpoint(uri, rootPath + "/catalog", mapper);
+        this.status = new StatusEndpoint(uri, rootPath + "/status", mapper);
+        this.session = new SessionEndpoint(uri, rootPath + "/session", mapper);
 
 
     }

@@ -26,6 +26,7 @@ import io.advantageous.consul.domain.Status;
 import io.advantageous.consul.domain.option.RequestOptions;
 import io.advantageous.qbit.http.HTTP;
 import io.advantageous.qbit.http.request.HttpRequestBuilder;
+import io.advantageous.qbit.json.JsonMapper;
 
 import java.net.URI;
 import java.util.List;
@@ -39,12 +40,12 @@ import static io.advantageous.consul.domain.ConsulException.die;
  */
 public class HealthEndpoint extends Endpoint {
 
-    public HealthEndpoint(String scheme, String host, String port, String rootPath) {
-        super(scheme, host, port, rootPath);
+    public HealthEndpoint(String scheme, String host, String port, String rootPath, JsonMapper mapper) {
+        super(scheme, host, port, rootPath, mapper);
     }
 
-    public HealthEndpoint(URI rootURI, String rootPath) {
-        super(rootURI, rootPath);
+    public HealthEndpoint(URI rootURI, String rootPath, JsonMapper mapper) {
+        super(rootURI, rootPath, mapper);
     }
 
     /**
