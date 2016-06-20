@@ -17,10 +17,9 @@
  */
 package io.advantageous.consul.domain;
 
-
 import io.advantageous.boon.json.annotations.JsonProperty;
 
-import java.util.Arrays;
+import java.util.*;
 
 public class Registration {
 
@@ -29,6 +28,9 @@ public class Registration {
 
     @JsonProperty("Id")
     private String id;
+
+    @JsonProperty("Address")
+    private String host;
 
     @JsonProperty("Port")
     private int port;
@@ -55,6 +57,14 @@ public class Registration {
         this.id = id;
     }
 
+    public String getHost() {
+        return host;
+    }
+
+    public void setHost(String host) {
+        this.host = host;
+    }
+
     public int getPort() {
         return port;
     }
@@ -79,7 +89,6 @@ public class Registration {
         this.tags = tags;
     }
 
-
     @SuppressWarnings("SimplifiableIfStatement")
     @Override
     public boolean equals(Object o) {
@@ -89,6 +98,7 @@ public class Registration {
         Registration that = (Registration) o;
 
         if (port != that.port) return false;
+        if (host != null ? !host.equals(that.host) : that.host != null) return false;
         if (check != null ? !check.equals(that.check) : that.check != null) return false;
         if (id != null ? !id.equals(that.id) : that.id != null) return false;
         return !(name != null ? !name.equals(that.name) : that.name != null) && Arrays.equals(tags, that.tags);
@@ -100,6 +110,7 @@ public class Registration {
         int result = name != null ? name.hashCode() : 0;
         result = 31 * result + (id != null ? id.hashCode() : 0);
         result = 31 * result + port;
+        result = 31 * result + (host != null ? host.hashCode() : 0);
         result = 31 * result + (check != null ? check.hashCode() : 0);
         result = 31 * result + (tags != null ? Arrays.hashCode(tags) : 0);
         return result;
@@ -110,11 +121,11 @@ public class Registration {
         return "Registration{" +
                 "name='" + name + '\'' +
                 ", id='" + id + '\'' +
+                ", host=" + host +
                 ", port=" + port +
                 ", check=" + check +
                 ", tags=" + Arrays.toString(tags) +
                 '}';
     }
-
 
 }

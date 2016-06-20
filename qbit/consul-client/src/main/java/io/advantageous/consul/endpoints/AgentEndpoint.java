@@ -22,15 +22,20 @@ package io.advantageous.consul.endpoints;
 import io.advantageous.boon.core.Str;
 import io.advantageous.boon.json.JsonParserAndMapper;
 import io.advantageous.boon.json.JsonParserFactory;
-import io.advantageous.consul.domain.*;
+import io.advantageous.consul.domain.AgentInfo;
+import io.advantageous.consul.domain.Check;
+import io.advantageous.consul.domain.HealthCheck;
+import io.advantageous.consul.domain.Member;
+import io.advantageous.consul.domain.NotRegisteredException;
+import io.advantageous.consul.domain.Registration;
+import io.advantageous.consul.domain.RegistrationCheck;
+import io.advantageous.consul.domain.Service;
+import io.advantageous.consul.domain.Status;
 import io.advantageous.qbit.http.HTTP;
 import io.advantageous.qbit.json.JsonMapper;
 
 import java.net.URI;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static io.advantageous.boon.core.reflection.MapObjectConversion.fromMap;
 import static io.advantageous.consul.domain.ConsulException.die;
@@ -48,7 +53,6 @@ import static io.advantageous.consul.domain.NotRegisteredException.notRegistered
  */
 @SuppressWarnings("WeakerAccess")
 public class AgentEndpoint extends Endpoint {
-
 
     public AgentEndpoint(String scheme, String host, String port, String rootPath, JsonMapper mapper) {
         super(scheme, host, port, rootPath, mapper);
@@ -82,7 +86,6 @@ public class AgentEndpoint extends Endpoint {
         }
     }
 
-
     /**
      * Registers the client as a service with Consul.  Registration enables
      * the use of checks.
@@ -96,9 +99,26 @@ public class AgentEndpoint extends Endpoint {
     public void registerService(final int port, final long ttl,
                                 final String serviceName, final String serviceId,
                                 final String... tags) {
+        registerService(null, port, ttl, serviceName, serviceId, tags);
+    }
+
+    /**
+     * Registers the client as a service with Consul.  Registration enables
+     * the use of checks.
+     *
+     * @param host        The public facing host of the service to register with Consul.
+     * @param port        The public facing port of the service to register with Consul.
+     * @param ttl         Time to live for the Consul dead man's switch.
+     * @param serviceName Service name to register.
+     * @param serviceId   Service id to register.
+     * @param tags        Tags to register with.
+     */
+    public void registerService(final String host, final int port, final long ttl,
+                                final String serviceName, final String serviceId,
+                                final String... tags) {
         RegistrationCheck check = new RegistrationCheck();
         check.setTtl("" + ttl + "s");
-        registerServiceWithRegistrationCheck(port, check, serviceName, serviceId, tags);
+        registerServiceWithRegistrationCheck(host, port, check, serviceName, serviceId, tags);
     }
 
     /**
@@ -119,10 +139,33 @@ public class AgentEndpoint extends Endpoint {
                                           final String serviceName,
                                           final String serviceId,
                                           final String... tags) {
+        registerServiceWithScript(null, port, script, interval, serviceName, serviceId, tags);
+    }
+
+    /**
+     * Registers the client as a service with Consul.
+     * Registration enables
+     * the use of check with a script.
+     *
+     * @param host        The public facing host of the service to register with Consul.
+     * @param port        The public facing port of the service to register with Consul.
+     * @param script      Health script for Consul to use.
+     * @param interval    Health script run interval in seconds.
+     * @param serviceName Service name to register.
+     * @param serviceId   Service id to register.
+     * @param tags        Tags to register with.
+     */
+    public void registerServiceWithScript(final String host,
+                                          final int port,
+                                          final String script,
+                                          final long interval,
+                                          final String serviceName,
+                                          final String serviceId,
+                                          final String... tags) {
         RegistrationCheck check = new RegistrationCheck();
         check.setScript(script);
         check.setInterval("" + interval + "s");
-        registerServiceWithRegistrationCheck(port, check, serviceName, serviceId, tags);
+        registerServiceWithRegistrationCheck(host, port, check, serviceName, serviceId, tags);
     }
 
     /**
@@ -135,8 +178,9 @@ public class AgentEndpoint extends Endpoint {
      * @param id    Service id to register.
      * @param tags  Tags to register with.
      */
-    public void registerServiceWithRegistrationCheck(int port, RegistrationCheck check, String name, String id, String... tags) {
+    public void registerServiceWithRegistrationCheck(String host, int port, RegistrationCheck check, String name, String id, String... tags) {
         Registration registration = new Registration();
+        registration.setHost(host);
         registration.setPort(port);
         registration.setCheck(check);
         registration.setName(name);
@@ -151,7 +195,6 @@ public class AgentEndpoint extends Endpoint {
      * @param registration The registration payload.
      */
     public void register(final Registration registration) {
-
 
         final URI uri = createURI("/service/register");
         HTTP.Response response = HTTP.jsonRestCallViaPUT(uri.toString(), toJson(registration));
@@ -247,9 +290,7 @@ public class AgentEndpoint extends Endpoint {
      */
     public void registerCheck(Check check) {
 
-
         final URI uri = createURI("/check/register");
-
 
         HTTP.Response response = HTTP.jsonRestCallViaPUT(uri.toString(), toJson(check));
 
@@ -269,7 +310,6 @@ public class AgentEndpoint extends Endpoint {
 
         final URI uri = createURI("/check/deregister/" + checkId);
 
-
         HTTP.Response response = HTTP.getResponse(uri.toString());
 
         if (response.status() != 200) {
@@ -277,7 +317,6 @@ public class AgentEndpoint extends Endpoint {
                     uri, checkId, response.status(), response.statusMessageAsString(),
                     response.payloadAsString());
         }
-
 
     }
 
@@ -293,7 +332,6 @@ public class AgentEndpoint extends Endpoint {
 
         final URI uri = createURI("/self");
 
-
         HTTP.Response response = HTTP.getResponse(uri.toString());
 
         if (response.status() != 200) {
@@ -301,7 +339,6 @@ public class AgentEndpoint extends Endpoint {
                     uri, response.status(), response.statusMessageAsString(),
                     response.payloadAsString());
         }
-
 
         return fromJson(response.payloadAsString(), AgentInfo.class);
 
@@ -317,7 +354,6 @@ public class AgentEndpoint extends Endpoint {
     public Map<String, HealthCheck> getChecks() {
 
         final URI uri = createURI("/checks");
-
 
         final HTTP.Response response = HTTP.getResponse(uri.toString());
 
@@ -346,12 +382,9 @@ public class AgentEndpoint extends Endpoint {
      */
     public Map<String, Service> getServices() {
 
-
         final URI uri = createURI("/services");
 
-
         final HTTP.Response response = HTTP.getResponse(uri.toString());
-
 
         final JsonParserAndMapper jsonParserAndMapper = new JsonParserFactory().create();
         if (response.status() == 200) {
@@ -397,7 +430,6 @@ public class AgentEndpoint extends Endpoint {
      */
     public void forceLeave(String node) {
 
-
         final URI uri = createURI("/force-leave/" + node);
         final HTTP.Response httpResponse = HTTP.getResponse(uri.toString());
 
@@ -415,9 +447,7 @@ public class AgentEndpoint extends Endpoint {
      */
     public void check(String checkId, Status status, String note) {
 
-
         final URI uri = createURI("/check/" + status.getUri() + "/" + checkId);
-
 
         final HTTP.Response httpResponse = Str.isEmpty(note) ? HTTP.getResponse(uri.toString()) :
                 HTTP.getResponse(uri.toString() + "?note=" + note);

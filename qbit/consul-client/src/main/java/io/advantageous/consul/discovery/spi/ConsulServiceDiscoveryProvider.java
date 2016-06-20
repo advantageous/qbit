@@ -18,11 +18,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.*;
+import java.util.concurrent.atomic.*;
 
 import static io.advantageous.boon.core.Str.sputs;
-
 
 /**
  * Consul Service Discovery Provider
@@ -41,7 +40,6 @@ public class ConsulServiceDiscoveryProvider implements ServiceDiscoveryProvider 
     private final AtomicInteger lastIndex = new AtomicInteger();
 
     private final Map<String, EndpointDefinition> registrations = new ConcurrentHashMap<>();
-
 
     public ConsulServiceDiscoveryProvider(final String consulHost,
                                           final int consulPort,
@@ -67,10 +65,8 @@ public class ConsulServiceDiscoveryProvider implements ServiceDiscoveryProvider 
         }
     }
 
-
     @Override
     public void unregisterServices(final ConcurrentHashSet<EndpointDefinition> endpointDefinitions) {
-
 
         for (EndpointDefinition definition : endpointDefinitions) {
             Consul consul = consul();
@@ -79,12 +75,10 @@ public class ConsulServiceDiscoveryProvider implements ServiceDiscoveryProvider 
 
         }
 
-
     }
 
     @Override
     public void registerServices(final Queue<EndpointDefinition> registerQueue) {
-
 
         if (trace) {
             logger.trace(sputs(
@@ -97,8 +91,11 @@ public class ConsulServiceDiscoveryProvider implements ServiceDiscoveryProvider 
         if (endpointDefinition != null) {
             final Consul consul = consul();
             while (endpointDefinition != null) {
+                List<String> endPointTags = endpointDefinition.getTags();
+                String[] tags = endPointTags != null ? endPointTags.toArray(new String[endPointTags.size()]) : this.tags;
+
                 registrations.put(endpointDefinition.getId(), endpointDefinition);
-                consul.agent().registerService(endpointDefinition.getPort(),
+                consul.agent().registerService(endpointDefinition.getHost(), endpointDefinition.getPort(),
                         endpointDefinition.getTimeToLive(),
                         endpointDefinition.getName(), endpointDefinition.getId(), tags);
                 endpointDefinition = registerQueue.poll();
@@ -140,7 +137,9 @@ public class ConsulServiceDiscoveryProvider implements ServiceDiscoveryProvider 
         } catch (NotRegisteredException notRegisteredException) {
             final EndpointDefinition endpointDefinition = registrations.get(checkIn.getServiceId());
             if (endpointDefinition != null) {
-                consul.agent().registerService(endpointDefinition.getPort(),
+                List<String> endPointTags = endpointDefinition.getTags();
+                String[] tags = endPointTags != null ? endPointTags.toArray(new String[endPointTags.size()]) : this.tags;
+                consul.agent().registerService(endpointDefinition.getHost(), endpointDefinition.getPort(),
                         endpointDefinition.getTimeToLive(),
                         endpointDefinition.getName(), endpointDefinition.getId(), tags);
             }
@@ -149,7 +148,6 @@ public class ConsulServiceDiscoveryProvider implements ServiceDiscoveryProvider 
     }
 
     private Set<ServiceHealthCheckIn> createUniqueSetOfCheckins(final Queue<ServiceHealthCheckIn> checkInsQueue) {
-
 
         ServiceHealthCheckIn poll = checkInsQueue.poll();
 
@@ -167,7 +165,6 @@ public class ConsulServiceDiscoveryProvider implements ServiceDiscoveryProvider 
         return set;
     }
 
-
     @Override
     public List<EndpointDefinition> loadServices(final String serviceName) {
 
@@ -178,20 +175,16 @@ public class ConsulServiceDiscoveryProvider implements ServiceDiscoveryProvider 
             ));
         }
 
-
         if (debug) logger.debug(sputs("Fetching healthy nodes for", serviceName));
 
         final List<ServiceHealth> healthyServices = getHealthyServices(serviceName);
 
-
         if (debug) logger.debug(sputs("Fetched healthy nodes for", serviceName,
                 "node count fetched", healthyServices.size()));
-
 
         return convertToServiceDefinitions(healthyServices);
 
     }
-
 
     private List<EndpointDefinition> convertToServiceDefinitions(
             final List<ServiceHealth> healthyServices) {
@@ -208,13 +201,13 @@ public class ConsulServiceDiscoveryProvider implements ServiceDiscoveryProvider 
     }
 
     private EndpointDefinition convertToServiceDefinition(final ServiceHealth serviceHealth) {
-
         final String host = serviceHealth.getNode().getAddress();
         final int port = serviceHealth.getService().getPort();
         final String id = serviceHealth.getService().getId();
         final String name = serviceHealth.getService().getService();
+        final List<String> tags = serviceHealth.getService().getTags();
         final EndpointDefinition endpointDefinition =
-                new EndpointDefinition(HealthStatus.PASS, id, name, host, port);
+                new EndpointDefinition(HealthStatus.PASS, id, name, host, port, tags);
 
         if (debug) logger.debug(sputs("convertToServiceDefinition \nserviceHealth",
                 serviceHealth, "\nserviceDefinition", endpointDefinition));
@@ -222,13 +215,11 @@ public class ConsulServiceDiscoveryProvider implements ServiceDiscoveryProvider 
         return endpointDefinition;
     }
 
-
     private RequestOptions buildRequestOptions() {
         return new RequestOptionsBuilder()
                 .consistency(Consistency.CONSISTENT)
                 .blockSeconds(longPollTimeSeconds, lastIndex.get()).build();
     }
-
 
     private List<ServiceHealth> getHealthyServices(final String serviceName) {
         Consul consul = consul();
@@ -237,7 +228,6 @@ public class ConsulServiceDiscoveryProvider implements ServiceDiscoveryProvider 
         final ConsulResponse<List<ServiceHealth>> consulResponse = consul.health()
                 .getHealthyServices(serviceName, datacenter, tag, buildRequestOptions());
 
-
         this.lastIndex.set(consulResponse.getIndex());
 
         //noinspection UnnecessaryLocalVariable
@@ -245,9 +235,7 @@ public class ConsulServiceDiscoveryProvider implements ServiceDiscoveryProvider 
 
         return healthyServices;
 
-
     }
-
 
     private Status convertStatus(final HealthStatus healthStatus) {
         switch (healthStatus) {
@@ -265,10 +253,8 @@ public class ConsulServiceDiscoveryProvider implements ServiceDiscoveryProvider 
 
     }
 
-
     private Consul consul() {
-        final Consul consul = Consul.consul(consulHost, consulPort);
-        return consul;
+        return Consul.consul(consulHost, consulPort);
     }
 
 }

@@ -25,11 +25,8 @@ import io.advantageous.consul.domain.ServiceHealth;
 import org.junit.Test;
 
 import java.net.UnknownHostException;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
-import java.util.function.Predicate;
-import java.util.stream.Collectors;
+import java.util.*;
+import java.util.stream.*;
 
 import static org.junit.Assert.*;
 
@@ -38,14 +35,13 @@ import static org.junit.Assert.*;
  */
 public class AgentEndpointTest {
 
-
     @Test
     public void deregister() throws Exception {
         Consul client = Consul.consul();
         String serviceName = UUID.randomUUID().toString();
         String serviceId = UUID.randomUUID().toString();
 
-        client.agent().registerService(8080, 10000L, serviceName, serviceId);
+        client.agent().registerService("localhost", 8080, 10000L, serviceName, serviceId);
         client.agent().deregister(serviceId);
         Thread.sleep(1000L);
         boolean found = false;
@@ -63,7 +59,7 @@ public class AgentEndpointTest {
     public void checks() {
         Consul client = Consul.consul();
         String id = UUID.randomUUID().toString();
-        client.agent().registerService(8080, 20L, UUID.randomUUID().toString(), id);
+        client.agent().registerService("localhost", 8080, 20L, UUID.randomUUID().toString(), id);
 
         boolean found = false;
 
@@ -80,7 +76,7 @@ public class AgentEndpointTest {
     public void services() {
         Consul client = Consul.consul();
         String id = UUID.randomUUID().toString();
-        client.agent().registerService(8080, 20L, UUID.randomUUID().toString(), id);
+        client.agent().registerService("localhost", 8080, 20L, UUID.randomUUID().toString(), id);
 
         boolean found = false;
 
@@ -99,7 +95,7 @@ public class AgentEndpointTest {
         String serviceName = UUID.randomUUID().toString();
         String serviceId = UUID.randomUUID().toString();
         String note = UUID.randomUUID().toString();
-        client.agent().registerService(80, 20L, serviceName, serviceId);
+        client.agent().registerService("localhost", 80, 20L, serviceName, serviceId);
         client.agent().warn(serviceId, note);
         Sys.sleep(100);
         verifyState("warning", client, serviceId, serviceName);
@@ -112,7 +108,7 @@ public class AgentEndpointTest {
         String serviceId = UUID.randomUUID().toString();
         String note = UUID.randomUUID().toString();
 
-        client.agent().registerService(80, 20L, serviceName, serviceId);
+        client.agent().registerService("localhost", 80, 20L, serviceName, serviceId);
         client.agent().fail(serviceId, note);
 
         verifyState("critical", client, serviceId, serviceName);
@@ -140,7 +136,6 @@ public class AgentEndpointTest {
         assertTrue(found);
     }
 
-
     @Test
     public void retrieveAgentInformation() throws UnknownHostException {
         Consul client = Consul.consul();
@@ -158,7 +153,7 @@ public class AgentEndpointTest {
         String serviceName = UUID.randomUUID().toString();
         String serviceId = UUID.randomUUID().toString();
 
-        client.agent().registerService(80, 20000L, serviceName, serviceId);
+        client.agent().registerService("localhost", 80, 20000L, serviceName, serviceId);
 
         boolean found = false;
 
@@ -167,7 +162,6 @@ public class AgentEndpointTest {
                 found = true;
             }
         }
-
 
         assertTrue(found);
     }
