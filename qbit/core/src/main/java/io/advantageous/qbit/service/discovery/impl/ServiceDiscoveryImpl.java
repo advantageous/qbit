@@ -249,7 +249,6 @@ public class ServiceDiscoveryImpl implements ServiceDiscovery {
     }
 
     public void loadServicesAsync(Callback<List<EndpointDefinition>> callback, final String serviceName) {
-
         final List<EndpointDefinition> endpointDefinitions = loadServices(serviceName);
         if (endpointDefinitions.size() > 0) {
             callback.accept(endpointDefinitions);
@@ -266,8 +265,16 @@ public class ServiceDiscoveryImpl implements ServiceDiscovery {
                 throw new IllegalStateException(e);
             }
             callbackMap.put(serviceName, callbacks);
+        } else {
+            try {
+                if (callbacks.size() == 0) {
+                    callbacks.put(callback);
+                    serviceNamesBeingLoaded.remove(serviceName);
+                }
+            } catch (InterruptedException e) {
+                throw new IllegalStateException(e);
+            }
         }
-
     }
 
     @Override
