@@ -252,6 +252,7 @@ public class ServiceDiscoveryImpl implements ServiceDiscovery {
         final List<EndpointDefinition> endpointDefinitions = loadServices(serviceName);
         if (endpointDefinitions.size() > 0) {
             callback.accept(endpointDefinitions);
+            return;
         }
 
         BlockingQueue<Callback<List<EndpointDefinition>>> callbacks
