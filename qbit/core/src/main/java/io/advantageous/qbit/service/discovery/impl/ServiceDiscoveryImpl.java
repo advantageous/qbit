@@ -135,6 +135,24 @@ public class ServiceDiscoveryImpl implements ServiceDiscovery {
         return doRegister(endpointDefinition);
     }
 
+    @Override
+    public EndpointDefinition registerWithIdAndTTLAndTags(
+            final String serviceName, final String serviceId, String host, final int port, final int timeToLiveSeconds, List<String> tags) {
+
+        if (trace) {
+            logger.trace(
+                    "ServiceDiscoveryImpl::registerWithIdAndTimeToLive() " + serviceName + " " + port
+            );
+        }
+
+        watch(serviceName);
+        EndpointDefinition endpointDefinition = new EndpointDefinition(HealthStatus.PASS,
+                serviceId,
+                serviceName, host, port, timeToLiveSeconds, tags);
+
+        return doRegister(endpointDefinition);
+    }
+
     private EndpointDefinition doRegister(EndpointDefinition endpointDefinition) {
 
         endpointDefinitions.add(endpointDefinition);

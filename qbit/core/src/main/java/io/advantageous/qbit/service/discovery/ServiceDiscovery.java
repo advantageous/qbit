@@ -106,6 +106,24 @@ public interface ServiceDiscovery extends Startable, Stoppable {
     }
 
     /**
+     * Register an end point given an id, and a TTL with tags.
+     * This gets used if you want to be specific about what you call the service.
+     *
+     * @param serviceName       service name
+     * @param serviceId         service id
+     * @param host              host
+     * @param port              port
+     * @param timeToLiveSeconds ttl
+     * @param endpointTags      endpointTags
+     * @return EndpointDefinition
+     */
+    @SuppressWarnings("UnusedReturnValue")
+    default EndpointDefinition registerWithIdAndTTLAndTags(String serviceName, String serviceId, String host, int port, int timeToLiveSeconds,
+                                                           List<String> endpointTags) {
+        return new EndpointDefinition(HealthStatus.PASS, serviceId, serviceName, host, port, timeToLiveSeconds, endpointTags);
+    }
+
+    /**
      * Watch for changes in this service name and send change events if the service changes.
      *
      * @param serviceName serviceName
@@ -196,4 +214,5 @@ public interface ServiceDiscovery extends Startable, Stoppable {
     default Set<EndpointDefinition> localDefinitions() {
         return Collections.emptySet();
     }
+
 }

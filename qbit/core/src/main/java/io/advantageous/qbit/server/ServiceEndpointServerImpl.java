@@ -83,6 +83,7 @@ public class ServiceEndpointServerImpl implements ServiceEndpointServer {
                                      final QBitSystemManager systemManager,
                                      final String endpointName,
                                      final String endpointId,
+                                     final List<String> endpointTags,
                                      final ServiceDiscovery serviceDiscovery,
                                      final String host,
                                      final int port,
@@ -114,14 +115,18 @@ public class ServiceEndpointServerImpl implements ServiceEndpointServer {
                 new HttpRequestServiceServerHandlerUsingMetaImpl(this.timeoutInSeconds,
                         serviceBundle, jsonMapper, numberOfOutstandingRequests, flushInterval, errorHandler);
 
-        this.endpoint = createEndpoint(endpointName, endpointId, host, port, ttlSeconds);
+        this.endpoint = createEndpoint(endpointName, endpointId, endpointTags, host, port, ttlSeconds);
 
     }
 
-    private EndpointDefinition createEndpoint(String endpointName, String endpointId, String host, int port, int ttlSeconds) {
+    private EndpointDefinition createEndpoint(String endpointName, String endpointId, List<String> endpointTags, String host, int port, int
+            ttlSeconds) {
         if (serviceDiscovery != null) {
             if (ttlSeconds > 0) {
                 if (endpointId != null) {
+                    if (endpointTags != null) {
+                        return serviceDiscovery.registerWithIdAndTTLAndTags(endpointName, endpointId, host, port, ttlSeconds, endpointTags);
+                    }
                     return serviceDiscovery.registerWithIdAndTimeToLive(endpointName, endpointId, host, port, ttlSeconds);
                 }
                 return serviceDiscovery.registerWithTTL(endpointName, host, port, ttlSeconds);
