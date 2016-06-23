@@ -581,6 +581,15 @@ public class ManagedServiceBuilder {
         return this;
     }
 
+    public ManagedServiceBuilder enableConsulServiceDiscovery(final String dataCenter,
+                                                              final URI uri) {
+        final ConsulServiceDiscoveryBuilder consulServiceDiscoveryBuilder = consulServiceDiscoveryBuilder();
+        consulServiceDiscoveryBuilder.setDatacenter(dataCenter);
+        consulServiceDiscoveryBuilder.setConnectionUri(uri);
+        serviceDiscoverySupplier = consulServiceDiscoveryBuilder::build;
+        return this;
+    }
+
     /**
      * Used to get access to the serviceDiscoverySupplier which could be null.
      *

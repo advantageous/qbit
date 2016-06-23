@@ -14,6 +14,7 @@ import io.advantageous.qbit.service.discovery.spi.ServiceDiscoveryFileSystemProv
 import io.advantageous.qbit.service.discovery.spi.ServiceDiscoveryProvider;
 
 import java.io.File;
+import java.net.URI;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.atomic.AtomicReference;
@@ -171,5 +172,11 @@ public class ConsulServiceDiscoveryBuilder {
 
         }
 
+    }
+
+    public ConsulServiceDiscoveryBuilder setConnectionUri(URI connectionUri) {
+        this.consulHost = connectionUri.getHost();
+        this.consulPort = connectionUri.getPort();
+        return this;
     }
 }
