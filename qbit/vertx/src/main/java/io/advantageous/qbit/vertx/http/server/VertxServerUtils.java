@@ -180,7 +180,7 @@ public class VertxServerUtils {
 
             if (event.isFinal()) {
                 //If the count is 1 then all of the data is in bufferRef, else all of the data but the last bit is in bufferRef.
-                final Buffer finalBuffer = count[0] > 1 ? bufferRef[0].slice().appendBuffer(event.binaryData()) :
+                final Buffer finalBuffer = count[0] > 1 ? createNewBuffer(bufferRef[0], event.binaryData()) :
                         bufferRef[0];
                 if (event.isBinary()) {
                     ((NetSocketBase) webSocket).setBinary();
@@ -205,6 +205,13 @@ public class VertxServerUtils {
         });
 
         return webSocket;
+    }
+
+    private Buffer createNewBuffer(Buffer buffer1, Buffer buffer2) {
+        Buffer buffer = Buffer.buffer();
+        buffer.appendBuffer(buffer1);
+        buffer.appendBuffer(buffer2);
+        return buffer;
     }
 
     private MultiMap<String, String> paramMap(ServerWebSocket vertxServerWebSocket) {
