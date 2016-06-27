@@ -166,13 +166,6 @@ public class VertxServerUtils {
 
         final int[] count = new int[1];
 
-
-        /* Handle message. */
-//        vertxServerWebSocket.handler(buffer -> {
-//            bufferRef[0] = buffer;
-//        });
-
-
         /* Handle frame. */
         vertxServerWebSocket.frameHandler(event -> {
 
@@ -181,7 +174,7 @@ public class VertxServerUtils {
             if (event.isFinal()) {
                 //If the count is 1 then all of the data is in bufferRef, else all of the data but the last bit is in bufferRef.
                 final Buffer finalBuffer = count[0] > 1 ? createNewBuffer(bufferRef[0], event.binaryData()) :
-                        bufferRef[0];
+                        event.binaryData();
                 if (event.isBinary()) {
                     ((NetSocketBase) webSocket).setBinary();
                     webSocket.onBinaryMessage(finalBuffer.getBytes());

@@ -60,6 +60,56 @@ public class WebSocketTest {
 
     }
 
+
+    //    @Test
+//    public void testContinuationAndFinal() throws Exception {
+//
+//        final int port = PortUtils.findOpenPortStartAt(4000);
+//        final HttpServer httpServer = HttpServerBuilder.httpServerBuilder().setPort(port).build();
+//        final AtomicReference<Object> bodyRef = new AtomicReference<>();
+//        final AtomicReference<String> messageRef = new AtomicReference<>();
+//
+//        final CountDownLatch countDownLatch = new CountDownLatch(2);
+//        httpServer.setWebSocketMessageConsumer(webSocketMessage -> {
+//            bodyRef.set(webSocketMessage.body());
+//            webSocketMessage.getSender().sendText("world");
+//            countDownLatch.countDown();
+//        });
+//
+//        httpServer.startServerAndWait();
+//
+//
+//        final Vertx vertx = Vertx.vertx();
+//        final io.vertx.core.http.HttpClient vertxHttpClientClient = vertx.createHttpClient();
+//        vertxHttpClientClient.websocket(port, "localhost", "/foo", new Handler<io.vertx.core.http.WebSocket>() {
+//            @Override
+//            public void handle(io.vertx.core.http.WebSocket event) {
+//                event.handler(new Handler<Buffer>() {
+//                    @Override
+//                    public void handle(Buffer event) {
+//                        messageRef.set(event.toString("UTF-8"));
+//                        countDownLatch.countDown();
+//                    }
+//                });
+//
+//
+//                event.writeFrame(WebSocketFrame.continuationFrame(Buffer.buffer("hello"), false));
+//
+//                event.writeFrame(WebSocketFrame.textFrame("How are you\n", true));
+//                //event.writeFinalTextFrame("Hello World");
+//            }
+//        });
+//
+//        countDownLatch.await();
+//
+//
+//        System.out.println(messageRef.get());
+//
+//        System.out.println(bodyRef.get());
+//
+//
+//
+//    }
     @Test
     public void testTextQueue() throws Exception {
 
