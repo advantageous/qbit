@@ -164,6 +164,8 @@ public class VertxServerUtils {
 
         final Buffer[] bufferRef = new Buffer[1];
 
+        final int[] count = new int[1];
+
 
         /* Handle message. */
         vertxServerWebSocket.handler(buffer -> {
@@ -173,20 +175,24 @@ public class VertxServerUtils {
 
         /* Handle frame. */
         vertxServerWebSocket.frameHandler(event -> {
+
+            count[0]++;
+
             if (event.isFinal()) {
+                //If the count is 1 then all of the data is in bufferRef, else all of the data but the last bit is in bufferRef.
+                final Buffer finalBuffer = count[0] > 1 ? bufferRef[0].slice().appendBuffer(event.binaryData()) :
+                        bufferRef[0];
                 if (event.isBinary()) {
                     ((NetSocketBase) webSocket).setBinary();
+                    webSocket.onBinaryMessage(finalBuffer.getBytes());
+                } else {
+                    webSocket.onTextMessage(finalBuffer.toString("UTF-8"));
                 }
+
+                count[0] = 0;
             }
         });
 
-        vertxServerWebSocket.endHandler(event -> {
-            if (webSocket.isBinary()) {
-                webSocket.onBinaryMessage(bufferRef[0].getBytes());
-            } else {
-                webSocket.onTextMessage(bufferRef[0].toString("UTF-8"));
-            }
-        });
 
 
         /* Handle error. */
