@@ -204,8 +204,7 @@ public class VertxServerUtils {
     }
 
     private Buffer createNewBuffer(Buffer buffer1, Buffer buffer2) {
-        Buffer buffer = Buffer.buffer();
-        if (buffer1 != null) buffer.appendBuffer(buffer1);
+        final Buffer buffer = buffer1 == null ? Buffer.buffer() : buffer1;
         buffer.appendBuffer(buffer2);
         return buffer;
     }
