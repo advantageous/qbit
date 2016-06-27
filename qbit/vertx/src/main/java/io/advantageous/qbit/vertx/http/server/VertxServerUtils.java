@@ -170,16 +170,21 @@ public class VertxServerUtils {
             bufferRef[0] = buffer;
         });
 
+
         /* Handle frame. */
         vertxServerWebSocket.frameHandler(event -> {
             if (event.isFinal()) {
                 if (event.isBinary()) {
                     ((NetSocketBase) webSocket).setBinary();
-                    webSocket.onBinaryMessage(bufferRef[0].getBytes());
-                } else {
-                    final String message = bufferRef[0].toString("UTF-8");
-                    webSocket.onTextMessage(message);
                 }
+            }
+        });
+
+        vertxServerWebSocket.endHandler(event -> {
+            if (webSocket.isBinary()) {
+                webSocket.onBinaryMessage(bufferRef[0].getBytes());
+            } else {
+                webSocket.onTextMessage(bufferRef[0].toString("UTF-8"));
             }
         });
 
