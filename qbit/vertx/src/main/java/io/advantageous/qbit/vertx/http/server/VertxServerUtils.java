@@ -168,9 +168,9 @@ public class VertxServerUtils {
 
 
         /* Handle message. */
-        vertxServerWebSocket.handler(buffer -> {
-            bufferRef[0] = buffer;
-        });
+//        vertxServerWebSocket.handler(buffer -> {
+//            bufferRef[0] = buffer;
+//        });
 
 
         /* Handle frame. */
@@ -190,6 +190,9 @@ public class VertxServerUtils {
                 }
 
                 count[0] = 0;
+                bufferRef[0] = null;
+            } else {
+                bufferRef[0] = createNewBuffer(bufferRef[0], event.binaryData());
             }
         });
 
@@ -209,7 +212,7 @@ public class VertxServerUtils {
 
     private Buffer createNewBuffer(Buffer buffer1, Buffer buffer2) {
         Buffer buffer = Buffer.buffer();
-        buffer.appendBuffer(buffer1);
+        if (buffer1 != null) buffer.appendBuffer(buffer1);
         buffer.appendBuffer(buffer2);
         return buffer;
     }
