@@ -148,6 +148,18 @@ public class ServiceBuilder {
         return this;
     }
 
+    public ServiceBuilder addQueueProcessListener(final Runnable runnable) {
+        getQueueCallBackHandlers().add(
+                new QueueCallBackHandler() {
+                    @Override
+                    public void queueProcess() {
+                        runnable.run();
+                    }
+                }
+        );
+        return this;
+    }
+
     private QueueCallBackHandler buildQueueCallBackHandler() {
         if (queueCallBackHandlers == null || queueCallBackHandlers.size() == 0) {
             return new QueueCallBackHandler() {
