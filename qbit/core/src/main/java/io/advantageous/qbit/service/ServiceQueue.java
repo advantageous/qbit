@@ -132,6 +132,11 @@ public interface ServiceQueue extends Stoppable, ServiceFlushable, Startable {
     <T> T createProxyWithAutoFlush(Class<T> serviceInterface, Duration duration);
 
 
+    default <T> T createProxyWithAutoFlush(Class<T> serviceInterface, java.time.Duration duration) {
+        return createProxyWithAutoFlush(serviceInterface, Duration.milliseconds(duration.toMillis()));
+    }
+
+
     <T> T createProxyWithAutoFlush(Class<T> serviceInterface, PeriodicScheduler periodicScheduler,
                                    int interval, TimeUnit timeUnit);
 
