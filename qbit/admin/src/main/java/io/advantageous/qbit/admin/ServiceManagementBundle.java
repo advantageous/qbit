@@ -4,6 +4,7 @@ package io.advantageous.qbit.admin;
 import io.advantageous.qbit.client.ClientProxy;
 import io.advantageous.qbit.reactive.Callback;
 import io.advantageous.qbit.reakt.Reakt;
+import io.advantageous.qbit.service.ServiceProxyUtils;
 import io.advantageous.qbit.service.health.HealthFailReason;
 import io.advantageous.qbit.service.health.HealthServiceClient;
 import io.advantageous.qbit.service.health.ServiceHealthManager;
@@ -12,8 +13,12 @@ import io.advantageous.qbit.util.Timer;
 import io.advantageous.reakt.Expected;
 import io.advantageous.reakt.promise.Promise;
 import io.advantageous.reakt.reactor.Reactor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.function.Consumer;
 
 /**
@@ -31,7 +36,9 @@ public class ServiceManagementBundle implements ServiceHealthManager, StatsColle
     private final Timer timer;
     private final String statKeyPrefix;
     private final HashMap<String, String> statNameMap;
+    private final List<Object> servicesToFlush;
     private final Expected<Runnable> processHandler;
+    private final Logger logger = LoggerFactory.getLogger(ServiceManagementBundle.class);
     protected long time;
 
     public ServiceManagementBundle(final Reactor reactor,
@@ -51,8 +58,12 @@ public class ServiceManagementBundle implements ServiceHealthManager, StatsColle
         this.healthServiceClient = Expected.ofNullable(healthServiceClient);
         this.statNameMap = new HashMap<>();
         this.processHandler = Expected.ofNullable(processHandler);
+        this.servicesToFlush = new ArrayList<>();
     }
 
+    public void addServiceToFlush(Object service) {
+        servicesToFlush.add(service);
+    }
 
     public void process() {
         time = timer.time();
@@ -60,6 +71,14 @@ public class ServiceManagementBundle implements ServiceHealthManager, StatsColle
         processHandler.ifPresent(Runnable::run);
         stats.clientProxyFlush();
         healthServiceClient.ifPresent(ClientProxy::clientProxyFlush);
+
+        servicesToFlush.forEach((service) -> {
+            try {
+                ServiceProxyUtils.flushServiceProxy(service);
+            } catch (Exception ex) {
+                logger.error("Unable to flush service on behalf of service " + serviceName, ex);
+            }
+        });
     }
 
     /**
