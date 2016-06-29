@@ -204,10 +204,17 @@ public class VertxServerUtils {
     }
 
     private Buffer createNewBuffer(Buffer buffer1, Buffer buffer2) {
-        final Buffer buffer = buffer1 == null ? Buffer.buffer() : buffer1;
+        Buffer buffer = Buffer.buffer();
+        if (buffer1 != null) buffer.appendBuffer(buffer1);
         buffer.appendBuffer(buffer2);
         return buffer;
     }
+    ///This is still breaking multi-frame messages. I don't quite undrestand what Buffer.buffer() is
+//    private Buffer createNewBuffer(Buffer buffer1, Buffer buffer2) {
+//        final Buffer buffer = buffer1 == null ? Buffer.buffer() : buffer1;
+//        buffer.appendBuffer(buffer2);
+//        return buffer;
+//    }
 
     private MultiMap<String, String> paramMap(ServerWebSocket vertxServerWebSocket) {
         String query = vertxServerWebSocket.query();
