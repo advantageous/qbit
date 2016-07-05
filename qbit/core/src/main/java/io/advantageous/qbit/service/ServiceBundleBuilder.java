@@ -348,6 +348,13 @@ public class ServiceBundleBuilder {
         return build;
     }
 
+    public ServiceBundle buildAndStartAll() {
+        final ServiceBundle build = build();
+        build.start();
+        return build;
+    }
+
+
     public Timer getTimer() {
         if (timer == null) {
             timer = Timer.timer();

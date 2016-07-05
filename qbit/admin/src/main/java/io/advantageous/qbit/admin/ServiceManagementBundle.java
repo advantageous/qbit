@@ -65,6 +65,13 @@ public class ServiceManagementBundle implements ServiceHealthManager, StatsColle
         servicesToFlush.add(service);
     }
 
+
+    public void addServicesToFlush(Object... services) {
+        for (Object service : services) {
+            servicesToFlush.add(service);
+        }
+    }
+
     public void process() {
         time = timer.time();
         reactor.process();
