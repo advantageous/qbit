@@ -33,7 +33,9 @@ public interface Message<T> {
 
     T body(); //Body could be a Map for parameters for forms or JSON or bytes[] or String
 
-    boolean isSingleton();
+    default boolean isSingleton() {
+	    return true;
+	}
 
 
     default MultiMap<String, String> params() {

@@ -26,7 +26,6 @@ import io.advantageous.qbit.Factory;
 import io.advantageous.qbit.QBit;
 import io.advantageous.qbit.annotation.RequestMethod;
 import io.advantageous.qbit.http.request.HttpRequest;
-import io.advantageous.qbit.http.request.HttpRequestBuilder;
 import io.advantageous.qbit.json.JsonMapper;
 import io.advantageous.qbit.message.MethodCall;
 import io.advantageous.qbit.message.MethodCallBuilder;
@@ -86,14 +85,6 @@ public class StandardRequestTransformer implements RequestTransformer {
         } catch (UnsupportedEncodingException e) {
             return value;
         }
-    }
-
-
-    @Override
-    public MethodCall<Object> transform(final HttpRequest request,
-                                        final List<String> errorsList) {
-
-        return transformByPosition(request, errorsList, false);
     }
 
 
@@ -327,13 +318,6 @@ public class StandardRequestTransformer implements RequestTransformer {
 
         return methodCallBuilder.build();
 
-    }
-
-    @Override
-    public MethodCall<Object> transFormBridgeBody(Object body, List<String> errors, String address, String method) {
-        final String uri = ("/" + address + "/" + method).replace("//", "/");
-        final HttpRequest request = HttpRequestBuilder.httpRequestBuilder().setUri(uri).setBody(body == null ? null : body.toString()).setMethod("BRIDGE").build();
-        return this.transformByPosition(request, errors, true);
     }
 
     private void handleMehtodTransformError(List<String> errorsList, MethodCallBuilder methodCallBuilder, Exception exception) {

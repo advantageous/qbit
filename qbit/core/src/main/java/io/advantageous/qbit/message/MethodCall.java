@@ -33,7 +33,9 @@ public interface MethodCall<T> extends Request<T> {
 
     long timestamp();
 
-    String objectName();
+    default String objectName() {
+	    return "";
+	}
 
     boolean hasCallback();
 

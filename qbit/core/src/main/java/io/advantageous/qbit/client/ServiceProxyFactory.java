@@ -38,8 +38,10 @@ public interface ServiceProxyFactory {
                                        EndPoint serviceBundle,
                                        BeforeMethodSent beforeMethodSent);
 
-    <T> T createProxy(Class<T> serviceInterface,
+    default <T> T createProxy(Class<T> serviceInterface,
                       String serviceName,
-                      EndPoint serviceBundle,
-                      BeforeMethodSent beforeMethodSent);
+                      EndPoint endPoint,
+                      BeforeMethodSent beforeMethodSent) {
+	    return createProxyWithReturnAddress(serviceInterface, serviceName, "local", 0, new AtomicBoolean(true), "", endPoint, beforeMethodSent);
+	}
 }

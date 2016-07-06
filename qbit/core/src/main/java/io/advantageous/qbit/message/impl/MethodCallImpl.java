@@ -94,16 +94,6 @@ public class MethodCallImpl implements MethodCall<Object> {
     }
 
     @Override
-    public boolean isHandled() {
-        return false;
-    }
-
-    @Override
-    public void handled() {
-
-    }
-
-    @Override
     public String objectName() {
         return objectName;
     }
@@ -152,11 +142,6 @@ public class MethodCallImpl implements MethodCall<Object> {
 
     public void originatingRequest(Request<Object> originatingRequest) {
         this.originatingRequest = originatingRequest;
-    }
-
-    @Override
-    public boolean isSingleton() {
-        return true;
     }
 
     public boolean hasParams() {

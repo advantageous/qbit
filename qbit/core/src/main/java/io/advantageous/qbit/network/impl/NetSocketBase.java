@@ -185,13 +185,6 @@ public class NetSocketBase implements NetSocket {
 
 
     @Override
-    public void openAndNotify(Consumer<NetSocket> openConsumer, Consumer<Exception> exceptionConsumer) {
-
-        this.setOpenConsumer(aVoid -> openConsumer.accept(this));
-        open(exceptionConsumer);
-    }
-
-    @Override
     public void openAndWait() {
 
         open(e -> {

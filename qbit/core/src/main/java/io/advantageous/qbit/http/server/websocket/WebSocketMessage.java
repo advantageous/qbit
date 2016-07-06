@@ -91,16 +91,6 @@ public class WebSocketMessage implements Request<Object>, Cloneable {
     }
 
     @Override
-    public boolean hasParams() {
-        return false;
-    }
-
-    @Override
-    public boolean hasHeaders() {
-        return false;
-    }
-
-    @Override
     public long timestamp() {
         return timestamp;
     }
@@ -123,11 +113,6 @@ public class WebSocketMessage implements Request<Object>, Cloneable {
     @Override
     public Object body() {
         return message;
-    }
-
-    @Override
-    public boolean isSingleton() {
-        return true;
     }
 
     public String getUri() {
