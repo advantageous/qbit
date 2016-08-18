@@ -547,6 +547,17 @@ public class ManagedServiceBuilder {
         return this;
     }
 
+
+    /**
+     * Enable DNS discovery
+     *
+     * @return fluent, this
+     */
+    public ManagedServiceBuilder enableDNSDiscovery() {
+        serviceDiscoverySupplier = DnsUtil::createDnsServiceDiscovery;
+        return this;
+    }
+
     /**
      * Enable consul discovery.
      *
