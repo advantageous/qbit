@@ -23,6 +23,7 @@ import io.advantageous.qbit.server.ServiceEndpointServer;
 import io.advantageous.qbit.service.*;
 import io.advantageous.qbit.service.discovery.ServiceDiscovery;
 import io.advantageous.qbit.service.discovery.dns.DnsUtil;
+import io.advantageous.qbit.service.discovery.lokate.LokateServiceDiscoveryProvider;
 import io.advantageous.qbit.service.health.HealthServiceAsync;
 import io.advantageous.qbit.service.health.HealthServiceBuilder;
 import io.advantageous.qbit.service.health.ServiceHealthManager;
@@ -570,6 +571,28 @@ public class ManagedServiceBuilder {
         consulServiceDiscoveryBuilder.setDatacenter(dataCenter);
         consulServiceDiscoveryBuilder.setConsulHost(host);
         serviceDiscoverySupplier = consulServiceDiscoveryBuilder::build;
+        return this;
+    }
+
+    /**
+     * Enable lokate discovery.
+     *
+     * @param configURIs config URIs
+     * @return fluent, this
+     */
+    public ManagedServiceBuilder enableLokateDiscovery(final URI... configURIs) {
+        serviceDiscoverySupplier = () -> LokateServiceDiscoveryProvider.createLokateServiceDiscovery(configURIs);
+        return this;
+    }
+
+    /**
+     * Enable lokate discovery.
+     *
+     * @param configURIs config URIs
+     * @return fluent, this
+     */
+    public ManagedServiceBuilder enableLokateDiscovery(final List<URI> configURIs) {
+        serviceDiscoverySupplier = () -> LokateServiceDiscoveryProvider.createLokateServiceDiscovery(configURIs);
         return this;
     }
 

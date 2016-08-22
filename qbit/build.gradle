@@ -190,6 +190,7 @@ project('service-discovery') {
         compile project(':qbit:core')
         compile group: 'io.vertx', name: 'vertx-core', version: vertxVersion
         compile group: 'io.vertx', name: 'vertx-web', version: vertxVersion
+        compile 'io.advantageous.discovery:lokate:1.2.0'
         testCompile project(':qbit:test-support')
     }
 
