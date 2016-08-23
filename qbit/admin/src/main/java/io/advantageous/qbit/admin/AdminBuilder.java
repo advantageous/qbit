@@ -82,6 +82,7 @@ public class AdminBuilder {
     private String hostName;
     private String machineName;
     private boolean useMachineName = Sys.sysProp("QBIT_USE_MACHINE_NAME_FOR_STATS", true);
+    private String statName;
 
 
     @SuppressWarnings("WeakerAccess")
@@ -219,7 +220,7 @@ public class AdminBuilder {
     public AdminBuilder registerJavaVMStatsJob(final StatsCollector statsCollector) {
 
         final JavaStatsCollectorJob jvmStatsJob = new JavaStatsCollectorJob(60, TimeUnit.SECONDS, statsCollector,
-                isUseMachineName() ? getMachineName() : getMicroServiceName());
+                getStatName());
         return addAdminJob(jvmStatsJob);
     }
 
@@ -506,5 +507,19 @@ public class AdminBuilder {
     public AdminBuilder setUseMachineName(boolean useMachineName) {
         this.useMachineName = useMachineName;
         return this;
+    }
+
+    public String getStatName() {
+        if (statName == null) {
+            statName = System.getenv("MICRO_SERVICE_STAT_NAME");
+            if (statName == null) {
+                statName = isUseMachineName() ? getMachineName() : getMicroServiceName();
+            }
+        }
+        return statName;
+    }
+
+    public void setStatName(String statName) {
+        this.statName = statName;
     }
 }
