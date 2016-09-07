@@ -37,6 +37,7 @@ import io.advantageous.qbit.reactive.Callback;
 import io.advantageous.qbit.sender.Sender;
 import io.advantageous.qbit.service.BeforeMethodCall;
 import io.advantageous.reakt.promise.Promise;
+import io.advantageous.reakt.promise.PromiseHandle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -352,7 +353,7 @@ public class BoonClient implements Client {
         Class<?> returnType = null;
         Class<?> compType = null;
 
-        if (method.returnType() == Promise.class) {
+        if (PromiseHandle.class.isAssignableFrom(method.returnType()) ) {
 
             Type t0 = method.method().getGenericReturnType();
             if (t0 instanceof ParameterizedType) {

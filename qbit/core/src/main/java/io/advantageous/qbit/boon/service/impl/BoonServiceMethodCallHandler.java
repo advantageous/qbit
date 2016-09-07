@@ -37,6 +37,7 @@ import io.advantageous.qbit.reactive.Callback;
 import io.advantageous.qbit.service.ServiceMethodHandler;
 import io.advantageous.qbit.service.impl.ServiceConstants;
 import io.advantageous.reakt.promise.Promise;
+import io.advantageous.reakt.promise.PromiseHandle;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.*;
@@ -137,7 +138,7 @@ public class BoonServiceMethodCallHandler implements ServiceMethodHandler {
 
     private boolean hasHandlers(MethodAccess serviceMethod) {
 
-        if (serviceMethod.returnType() == Promise.class) {
+        if (PromiseHandle.class.isAssignableFrom(serviceMethod.returnType())) {
             return true;
         }
 

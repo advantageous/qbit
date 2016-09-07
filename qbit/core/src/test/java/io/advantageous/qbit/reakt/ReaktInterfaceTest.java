@@ -3,7 +3,9 @@ package io.advantageous.qbit.reakt;
 
 import io.advantageous.qbit.service.*;
 import io.advantageous.qbit.time.Duration;
+import io.advantageous.reakt.CallbackHandle;
 import io.advantageous.reakt.promise.Promise;
+import io.advantageous.reakt.promise.PromiseHandle;
 import io.advantageous.reakt.promise.Promises;
 import org.junit.After;
 import org.junit.Before;
@@ -13,6 +15,7 @@ import java.net.URI;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Consumer;
 
 import static org.junit.Assert.*;
 
@@ -161,6 +164,39 @@ public class ReaktInterfaceTest {
     }
 
 
+    @Test
+    public void testServiceWithReturnPromiseHandleFail() {
+        testFailHandle(serviceDiscovery);
+        testFailHandle(serviceDiscoveryStrongTyped);
+        testFailHandle(serviceDiscoveryServiceBundle);
+    }
+
+    private void testFailHandle(ServiceDiscovery serviceDiscovery) {
+        serviceDiscovery.lookupServiceByPromiseHandle(null).then(this::handleSuccess)
+                .catchError(this::handleError).invoke();
+
+        await();
+        assertNull("We do not have a return", returnValue.get());
+        assertNotNull("There were  errors", errorRef.get());
+    }
+
+
+    @Test
+    public void testServiceWithReturnPromiseHandleSuccess() {
+        testSuccessHandle(serviceDiscovery);
+        testSuccessHandle(serviceDiscoveryStrongTyped);
+        testSuccessHandle(serviceDiscoveryServiceBundle);
+    }
+
+    private void testSuccessHandle(ServiceDiscovery serviceDiscovery) {
+        serviceDiscovery.lookupServiceByPromiseHandle(URI.create("http://localhost/foo")).then(this::handleSuccess)
+                .catchError(this::handleError).invoke();
+
+        await();
+        assertNotNull("We do not have a return", returnValue.get());
+        assertNull("There were  errors", errorRef.get());
+    }
+
     @Test(expected = IllegalStateException.class)
     public void testServiceWithReturnPromiseSuccessInvokeTwice() {
         final Promise<URI> promise = serviceDiscovery.lookupService(empURI).then(this::handleSuccess)
@@ -196,6 +232,8 @@ public class ReaktInterfaceTest {
 
         Promise<Integer> five();
 
+
+        PromiseHandle<URI> lookupServiceByPromiseHandle(final URI uri);
     }
 
     public class ServiceDiscoveryImpl {
@@ -206,6 +244,16 @@ public class ReaktInterfaceTest {
             } else {
                 callback.resolve(successResult);
             }
+        }
+
+        public PromiseHandle<URI> lookupServiceByPromiseHandle(final URI uri) {
+            return Promises.deferCall(callback -> {
+                    if (uri == null) {
+                        callback.reject("uri can't be null");
+                    } else {
+                        callback.resolve(successResult);
+                    }
+                });
         }
 
         public void ok(final io.advantageous.qbit.reactive.Callback<Boolean> callback) {
