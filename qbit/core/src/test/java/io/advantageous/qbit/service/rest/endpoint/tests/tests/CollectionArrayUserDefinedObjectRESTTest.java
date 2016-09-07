@@ -210,6 +210,21 @@ public class CollectionArrayUserDefinedObjectRESTTest {
 
     }
 
+    @Test
+    public void testReturnMapByPromiseHandle() {
+
+        final HttpTextResponse httpResponse = httpServerSimulator.get("/es/returnMapByPromiseHandle");
+
+        assertEquals(200, httpResponse.code());
+
+        Map<String, Employee> employeeMap = new BoonJsonMapper().fromJsonMap(httpResponse.body(), String.class, Employee.class);
+
+        assertEquals(2, employeeMap.size());
+
+        System.out.println(employeeMap);
+
+    }
+
 
     @Test
     public void testSendEmployeesWithCallback() {

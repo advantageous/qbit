@@ -8,12 +8,14 @@ import io.advantageous.qbit.server.EndpointServerBuilder;
 import io.advantageous.qbit.server.ServiceEndpointServer;
 import io.advantageous.qbit.util.PortUtils;
 import io.advantageous.reakt.promise.Promise;
+import io.advantageous.reakt.promise.PromiseHandle;
 import io.advantageous.reakt.promise.Promises;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.net.URI;
+import java.time.Duration;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
@@ -107,6 +109,16 @@ public class ReaktInterfaceWebSocketRPCTest {
 
     }
 
+    @Test
+    public void testServiceWithReturnPromiseSuccessFromImplHandle() {
+
+        final URI uri = serviceDiscoveryWebSocket.lookupServiceByPromiseHandle(empURI).blockingGet(Duration.ofSeconds(30));
+
+        assertEquals(successResult, uri);
+
+    }
+
+
 
 
     @Test
@@ -123,6 +135,12 @@ public class ReaktInterfaceWebSocketRPCTest {
         assertNotNull("There were  errors", errorRef.get());
     }
 
+
+    @Test (expected = Exception.class)
+    public void testServiceWithReturnPromiseHandleFail() {
+        final URI uri = serviceDiscoveryWebSocket.lookupServiceByPromiseHandle(null).blockingGet(Duration.ofSeconds(10));
+
+    }
 
 
     private void handleError(Throwable error) {
@@ -166,6 +184,9 @@ public class ReaktInterfaceWebSocketRPCTest {
 
         Promise<URI> lookupServiceByPromise(URI uri);
 
+
+        PromiseHandle<URI> lookupServiceByPromiseHandle(URI uri);
+
         Promise<Boolean> ok();
 
         Promise<Integer> five();
@@ -184,16 +205,23 @@ public class ReaktInterfaceWebSocketRPCTest {
 
 
         public Promise<URI> lookupServiceByPromise(final URI uri) {
-            return Promises.invokablePromise(new Consumer<Promise<URI>>() {
-                @Override
-                public void accept(Promise<URI> uriPromise) {
+            return Promises.invokablePromise(uriPromise-> {
+                if (uri == null) {
+                    uriPromise.reject("uri can't be null");
+                } else {
+                    uriPromise.resolve(successResult);
+                }
+            });
+        }
+
+        public PromiseHandle<URI> lookupServiceByPromiseHandle(final URI uri) {
+            return Promises.deferCall(uriPromise-> {
                     if (uri == null) {
                         uriPromise.reject("uri can't be null");
                     } else {
                         uriPromise.resolve(successResult);
                     }
-                }
-            });
+                });
         }
 
         public void ok(final io.advantageous.qbit.reactive.Callback<Boolean> callback) {
