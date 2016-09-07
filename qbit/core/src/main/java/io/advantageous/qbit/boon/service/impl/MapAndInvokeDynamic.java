@@ -7,6 +7,7 @@ import io.advantageous.qbit.message.impl.ResponseImpl;
 import io.advantageous.qbit.reactive.Callback;
 import io.advantageous.qbit.service.impl.ServiceConstants;
 import io.advantageous.reakt.promise.Promise;
+import io.advantageous.reakt.promise.PromiseHandle;
 
 import java.util.List;
 
@@ -23,7 +24,7 @@ class MapAndInvokeDynamic implements MapAndInvoke {
     public Response<Object> mapArgsAsyncHandlersAndInvoke(MethodCall<Object> serviceMethodCall, MethodAccess serviceMethod) {
 
 
-        if (serviceMethod.parameterTypes().length == 0 && !(serviceMethod.returnType() == Promise.class)) {
+        if (serviceMethod.parameterTypes().length == 0 && !(PromiseHandle.class.isAssignableFrom(serviceMethod.returnType()))) {
 
             Object returnValue = serviceMethod.invokeDynamicObject(boonServiceMethodCallHandler.service, null);
             return boonServiceMethodCallHandler.response(serviceMethod, serviceMethodCall, returnValue);
