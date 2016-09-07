@@ -169,7 +169,7 @@ public class SimpleVertxHttpServerWrapper implements HttpServer {
                 }
 
                 final Buffer[] bufferHolder = new Buffer[1];
-                final HttpRequest bodyHttpRequest = vertxUtils.createRequest(request, () -> bufferHolder[0], new HashMap<>(),
+                final HttpRequest bodyHttpRequest = vertxUtils.createRequest(request, () -> bufferHolder[0], data,
                         simpleHttpServer.getDecorators(), simpleHttpServer.getHttpResponseCreator());
                 if (simpleHttpServer.getShouldContinueReadingRequestBody().test(bodyHttpRequest)) {
                     request.bodyHandler((buffer) -> {
