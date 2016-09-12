@@ -26,8 +26,6 @@ import io.advantageous.qbit.http.server.RequestContinuePredicate;
 import io.advantageous.qbit.service.discovery.ServiceDiscovery;
 import io.advantageous.qbit.service.health.HealthServiceAsync;
 import io.advantageous.qbit.system.QBitSystemManager;
-import io.advantageous.qbit.vertx.http.server.HttpServerVertx;
-import io.vertx.core.Vertx;
 
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.TimeUnit;
@@ -38,7 +36,7 @@ import java.util.concurrent.TimeUnit;
  */
 public interface HttpServerFactory {
 
-    default HttpServer create(
+    HttpServer create(
             HttpServerOptions options,
             String endPointName,
             QBitSystemManager systemManager,
@@ -47,12 +45,5 @@ public interface HttpServerFactory {
             final int serviceDiscoveryTtl,
             final TimeUnit serviceDiscoveryTtlTimeUnit,
             final CopyOnWriteArrayList<HttpResponseDecorator> decorators,
-            final HttpResponseCreator httpResponseCreator, RequestContinuePredicate requestBodyContinuePredicate) {
-	
-	
-	    return new HttpServerVertx(true, Vertx.vertx(), endPointName, options,
-	            systemManager, serviceDiscovery, healthServiceAsync,
-	            serviceDiscoveryTtl, serviceDiscoveryTtlTimeUnit, decorators, httpResponseCreator, requestBodyContinuePredicate);
-	
-	}
+            final HttpResponseCreator httpResponseCreator, RequestContinuePredicate requestBodyContinuePredicate);
 }
