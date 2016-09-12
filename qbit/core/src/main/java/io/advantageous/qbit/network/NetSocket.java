@@ -83,10 +83,10 @@ public interface NetSocket {
     void openAndWait();
 
     default void openAndNotify(final Consumer<NetSocket> openConsumer, Consumer<Exception> exceptionConsumer) {
-	
-	    this.setOpenConsumer(aVoid -> openConsumer.accept(this));
-	    open(exceptionConsumer);
-	}
+       
+        this.setOpenConsumer(aVoid -> openConsumer.accept(this));
+        open(exceptionConsumer);
+    }
 
 
     default void openAndNotify(final Consumer<NetSocket> openConsumer) {

@@ -8,10 +8,10 @@ public interface CallbackManager {
     void registerCallbacks(MethodCall<Object> methodCall);
 
     default void startReturnHandlerProcessor(Queue<Response<Object>> responseQueue) {
-	
-	    //noinspection Convert2MethodRef
-	    responseQueue.startListener(response -> handleResponse(response));
-	}
+
+        //noinspection Convert2MethodRef
+        responseQueue.startListener(response -> handleResponse(response));
+    }
 
     void handleResponse(Response<Object> response);
 

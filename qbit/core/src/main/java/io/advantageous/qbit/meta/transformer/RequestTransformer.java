@@ -29,18 +29,18 @@ import java.util.List;
 public interface RequestTransformer {
 
     default MethodCall<Object> transform(HttpRequest request, List<String> errorsList) {
-	
-	    return transformByPosition(request, errorsList, false);
-	}
+        
+        return transformByPosition(request, errorsList, false);
+    }
 
     MethodCall<Object> transformByPosition(final HttpRequest request,
                                            final List<String> errorsList, boolean byPosition);
 
 
     default MethodCall<Object> transFormBridgeBody(Object body, List<String> errors, String address, String method) {
-	    final String uri = ("/" + address + "/" + method).replace("//", "/");
-	    final HttpRequest request = HttpRequestBuilder.httpRequestBuilder().setUri(uri).setBody(body == null ? null : body.toString()).setMethod("BRIDGE").build();
-	    return this.transformByPosition(request, errors, true);
-	}
+        final String uri = ("/" + address + "/" + method).replace("//", "/");
+        final HttpRequest request = HttpRequestBuilder.httpRequestBuilder().setUri(uri).setBody(body == null ? null : body.toString()).setMethod("BRIDGE").build();
+        return this.transformByPosition(request, errors, true);
+    }
 
 }

@@ -37,14 +37,14 @@ public interface ProtocolParser {
     List<Message<Object>> parse(String address, String body);
 
     default List<MethodCall<Object>> parseMethodCalls(String address, String body) {
-	    //noinspection unchecked
-	    return (List<MethodCall<Object>>) (Object) parse(address, body);
-	}
+        //noinspection unchecked
+        return (List<MethodCall<Object>>) (Object) parse(address, body);
+    }
 
     default List<Response<Object>> parseResponses(String address, String body) {
-	    //noinspection unchecked
-	    return (List<Response<Object>>) (Object) parse(address, body);
-	}
+        //noinspection unchecked
+        return (List<Response<Object>>) (Object) parse(address, body);
+    }
 
 
 }

@@ -36,6 +36,6 @@ public interface ClientFactory {
                   HttpClient httpClient,
                   int requestBatchSize,
                   final BeforeMethodSent beforeMethodSent) {
-	    return new BoonClient(uri, httpClient, requestBatchSize, beforeMethodSent);
-	}
+        return new BoonClient(uri, httpClient, requestBatchSize, beforeMethodSent);
+    }
 }

@@ -38,22 +38,22 @@ public interface Request<T> extends Message<T> {
 
 
     default boolean hasParams() {
-	    return false;
-	}
+        return false;
+    }
 
     default boolean hasHeaders() {
-	    return false;
-	}
+        return false;
+    }
 
     long timestamp();
 
     default boolean isHandled() {
-	    return false;
-	}
+        return false;
+    }
 
     default void handled() {
-	
-	}
+         
+    }
 
     default boolean hasCallback() {
         return false;

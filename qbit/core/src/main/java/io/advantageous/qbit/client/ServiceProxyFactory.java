@@ -42,6 +42,6 @@ public interface ServiceProxyFactory {
                       String serviceName,
                       EndPoint endPoint,
                       BeforeMethodSent beforeMethodSent) {
-	    return createProxyWithReturnAddress(serviceInterface, serviceName, "local", 0, new AtomicBoolean(true), "", endPoint, beforeMethodSent);
-	}
+        return createProxyWithReturnAddress(serviceInterface, serviceName, "local", 0, new AtomicBoolean(true), "", endPoint, beforeMethodSent);
+    }
 }

@@ -32,9 +32,9 @@ public interface EventBusProxyCreator {
     }
 
     default <T> T createProxy(final EventManager eventManager, final Class<T> eventBusProxyInterface) {
-	
-	    return createProxyWithChannelPrefix(eventManager, eventBusProxyInterface, null);
-	}
+
+        return createProxyWithChannelPrefix(eventManager, eventBusProxyInterface, null);
+    }
 
 
     <T> T createProxyWithChannelPrefix(final EventManager eventManager,

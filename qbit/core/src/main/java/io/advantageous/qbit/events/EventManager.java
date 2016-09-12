@@ -61,9 +61,9 @@ public interface EventManager {
      * Opposite of join. ONLY FOR SERVICES.
      */
     default void leave() {
-	    final ServiceQueue serviceQueue = serviceContext().currentService();
-	    leaveEventBus(serviceQueue);
-	}
+        final ServiceQueue serviceQueue = serviceContext().currentService();
+        leaveEventBus(serviceQueue);
+    }
 
     /**
      * This method can be called outside of a service.
@@ -138,10 +138,10 @@ public interface EventManager {
      * @param <T>     T
      */
     default <T> void sendCopy(String channel, T event) {
-	
-	    T copy = BeanUtils.copy(event);
-	    this.send(channel, copy);
-	}
+                                   
+        T copy = BeanUtils.copy(event);
+        this.send(channel, copy);
+    }
 
 
     void forwardEvent(EventTransferObject<Object> event);
