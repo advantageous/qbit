@@ -65,7 +65,6 @@ import io.advantageous.qbit.transforms.NoOpResponseTransformer;
 import io.advantageous.qbit.transforms.Transformer;
 import io.advantageous.qbit.util.Timer;
 import io.advantageous.reakt.promise.Promise;
-import io.advantageous.reakt.promise.PromiseHandle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -700,7 +699,7 @@ public class BaseServiceQueueImpl implements ServiceQueue {
         final Method[] declaredMethods = classMeta.cls().getDeclaredMethods();
 
         for (Method m : declaredMethods) {
-            if (!(m.getReturnType() == void.class || PromiseHandle.class.isAssignableFrom(m.getReturnType()))) {
+            if (!(m.getReturnType() == void.class || Promise.class.isAssignableFrom(m.getReturnType()))) {
                 throw new IllegalStateException("Async interface can only return void or a Promise " + serviceInterface.getName());
             }
         }

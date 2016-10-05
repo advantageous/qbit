@@ -38,20 +38,20 @@ public class WebSocketProxy {
 
         Promise<Employee> promise = Promises.blockingPromise();
 
-        employeeService.addEmployee(new Employee("rick")).invokeWithPromise(promise);
+        employeeService.addEmployee(new Employee("rick")).asHandler().invokeWithPromise(promise.asHandler());
 
         ServiceProxyUtils.flushServiceProxy(employeeService);
-        assertTrue(promise.success());
+        assertTrue(promise.asHandler().success());
 
         serviceEndpointServer.stop();
 
         promise = Promises.blockingPromise();
 
-        employeeService.addEmployee(new Employee("rick")).invokeWithPromise(promise);
+        employeeService.addEmployee(new Employee("rick")).asHandler().invokeWithPromise(promise.asHandler());
 
-        assertTrue(promise.failure());
+        assertTrue(promise.asHandler().failure());
 
-        assertTrue(promise.cause() instanceof ConnectException);
+        assertTrue(promise.asHandler().cause() instanceof ConnectException);
 
         client.stop();
 
@@ -73,14 +73,14 @@ public class WebSocketProxy {
 
         Promise<Boolean> promise = Promises.blockingPromise();
 
-        employeeService.addEmployees(Arrays.asList(new Employee("rick"))).invokeWithPromise(promise);
+        employeeService.addEmployees(Arrays.asList(new Employee("rick"))).asHandler().invokeWithPromise(promise.asHandler());
 
         ServiceProxyUtils.flushServiceProxy(employeeService);
 
-        boolean success = promise.success();
+        boolean success = promise.asHandler().success();
 
         if (!success) {
-            promise.cause().printStackTrace();
+            promise.asHandler().cause().printStackTrace();
         }
         assertTrue(success);
 
@@ -106,33 +106,33 @@ public class WebSocketProxy {
 
         Promise<Boolean> promise = Promises.blockingPromise();
 
-        employeeService.sendBoolean(true).invokeWithPromise(promise);
+        employeeService.sendBoolean(true).asHandler().invokeWithPromise(promise.asHandler());
 
         ServiceProxyUtils.flushServiceProxy(employeeService);
 
-        boolean success = promise.success();
+        boolean success = promise.asHandler().success();
 
         if (!success) {
-            promise.cause().printStackTrace();
+            promise.asHandler().cause().printStackTrace();
         }
         assertTrue(success);
-        assertTrue(promise.get());
+        assertTrue(promise.asHandler().get());
 
 
 
         Promise<Boolean> promise2 = Promises.blockingPromise();
 
-        employeeService.sendBoolean(false).invokeWithPromise(promise2);
+        employeeService.sendBoolean(false).asHandler().invokeWithPromise(promise2.asHandler());
 
         ServiceProxyUtils.flushServiceProxy(employeeService);
 
-        boolean success2 = promise2.success();
+        boolean success2 = promise2.asHandler().success();
 
         if (!success2) {
-            promise2.cause().printStackTrace();
+            promise2.asHandler().cause().printStackTrace();
         }
         assertTrue(success2);
-        assertFalse(promise2.get());
+        assertFalse(promise2.asHandler().get());
 
 
         serviceEndpointServer.stop();

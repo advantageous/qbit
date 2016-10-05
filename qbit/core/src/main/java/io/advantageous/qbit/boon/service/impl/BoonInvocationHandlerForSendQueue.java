@@ -7,8 +7,8 @@ import io.advantageous.qbit.queue.SendQueue;
 import io.advantageous.qbit.reakt.Reakt;
 import io.advantageous.qbit.util.Timer;
 import io.advantageous.reakt.Callback;
+import io.advantageous.reakt.CallbackHandler;
 import io.advantageous.reakt.promise.Promise;
-import io.advantageous.reakt.promise.PromiseHandle;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
@@ -41,7 +41,7 @@ public class BoonInvocationHandlerForSendQueue implements InvocationHandler {
         };
 
         for (Method method : serviceInterface.getMethods()) {
-            promiseMap.put(method.getName(), PromiseHandle.class.isAssignableFrom(method.getReturnType()));
+            promiseMap.put(method.getName(), Promise.class.isAssignableFrom(method.getReturnType()));
             methodMetaMap.put(method.getName(), hasReaktCallback(method.getParameterTypes()));
         }
         timestamp = Timer.timer().now();
@@ -138,8 +138,8 @@ public class BoonInvocationHandlerForSendQueue implements InvocationHandler {
     private void convertToReaktCallbacks(Object[] args) {
         for (int index = 0; index < args.length; index++) {
             Object object = args[index];
-            if (object instanceof Callback) {
-                args[index] = Reakt.convertCallback(((Callback) object));
+            if (object instanceof CallbackHandler) {
+                args[index] = Reakt.convertCallback(((CallbackHandler<Object>) object));
             }
         }
     }

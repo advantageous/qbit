@@ -306,7 +306,7 @@ public class BoonServiceMethodCallHandlerTest {
 
         assertFalse(response.wasErrors());
         assertTrue(myService.called);
-        assertTrue(promise.success());
+        assertTrue(promise.asHandler().success());
 
     }
 
@@ -340,7 +340,7 @@ public class BoonServiceMethodCallHandlerTest {
 
         assertFalse(response.wasErrors());
         assertTrue(myService.called);
-        assertTrue(promise.success());
+        assertTrue(promise.asHandler().success());
 
 
     }
@@ -375,7 +375,7 @@ public class BoonServiceMethodCallHandlerTest {
 
         assertFalse(response.wasErrors());
         assertTrue(myService.called);
-        assertTrue(promise.success());
+        assertTrue(promise.asHandler().success());
 
 
     }
@@ -385,9 +385,9 @@ public class BoonServiceMethodCallHandlerTest {
             @Override
             public boolean send(Response<Object> item) {
                 if (item.wasErrors()) {
-                    promise.reject((Throwable) item.body());
+                    promise.asHandler().reject((Throwable) item.body());
                 } else {
-                    promise.resolve(((Boolean) item.body()));
+                    promise.asHandler().resolve(((Boolean) item.body()));
                 }
                 return true;
             }

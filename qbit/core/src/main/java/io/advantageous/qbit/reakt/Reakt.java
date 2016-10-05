@@ -47,7 +47,7 @@ public class Reakt {
      * @param <T>      type of result
      * @return QBit callback
      */
-    public static <T> Callback<T> convertCallback(final io.advantageous.reakt.Callback<T> callback) {
+    public static <T> Callback<T> convertCallback(final io.advantageous.reakt.CallbackHandler<T> callback) {
         return convertReaktCallbackToQBitCallback(callback, CallbackBuilder.callbackBuilder());
     }
 
@@ -58,7 +58,7 @@ public class Reakt {
      * @param <T>      type of result
      * @return QBit callback
      */
-    public static <T> io.advantageous.reakt.Callback<T> convertQBitCallback(final Callback<T> callback) {
+    public static <T> io.advantageous.reakt.CallbackHandler<T> convertQBitCallback(final Callback<T> callback) {
         return result -> {
 
             if (result.failure()) {
@@ -80,15 +80,15 @@ public class Reakt {
      * @return QBit callback
      */
     public static <T> Callback<T> convertCallback(final Reactor reactor,
-                                                  final io.advantageous.reakt.Callback<T> callback) {
+                                                  final io.advantageous.reakt.CallbackHandler<T> callback) {
         return convertReaktCallbackToQBitCallback(callback, reactor.callbackBuilder());
     }
 
     private static <T> Callback<T> convertPromiseToCallback(final Promise<T> promise, CallbackBuilder callbackBuilder) {
-        return convertReaktCallbackToQBitCallback(promise, callbackBuilder);
+        return convertReaktCallbackToQBitCallback(promise.asHandler(), callbackBuilder);
     }
 
-    private static <T> Callback<T> convertReaktCallbackToQBitCallback(final io.advantageous.reakt.Callback<T> callback, CallbackBuilder callbackBuilder) {
+    private static <T> Callback<T> convertReaktCallbackToQBitCallback(final io.advantageous.reakt.CallbackHandler<T> callback, CallbackBuilder callbackBuilder) {
         return callbackBuilder
                 .withCallback(o -> {
                     callback.onResult(Result.result((T) o));

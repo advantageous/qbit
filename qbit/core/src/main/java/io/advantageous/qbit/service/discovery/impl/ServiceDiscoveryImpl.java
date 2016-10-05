@@ -483,7 +483,7 @@ public class ServiceDiscoveryImpl implements ServiceDiscovery {
         if (callbacks != null) {
             Callback<List<EndpointDefinition>> callback = callbacks.poll();
             while (callback != null) {
-                callback.reply(healthyServices);
+                callback.resolve(healthyServices);
                 callback = callbacks.poll();
             }
         }
