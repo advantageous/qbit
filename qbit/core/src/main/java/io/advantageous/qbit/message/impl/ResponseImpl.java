@@ -64,7 +64,7 @@ public class ResponseImpl<T> implements Response<T> {
         this.timestamp = methodCall.timestamp();
         this.id = methodCall.id();
 
-        if (ex instanceof Exceptions.SoftenedException) {
+        if (ex instanceof Exceptions.SoftenedException && ex.getCause() != null) {
             this.body = ex.getCause();
         } else {
             this.body = ex;
