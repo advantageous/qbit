@@ -8,7 +8,6 @@ import io.advantageous.qbit.server.EndpointServerBuilder;
 import io.advantageous.qbit.server.ServiceEndpointServer;
 import io.advantageous.qbit.util.PortUtils;
 import io.advantageous.reakt.promise.Promise;
-import io.advantageous.reakt.promise.PromiseHandle;
 import io.advantageous.reakt.promise.Promises;
 import org.junit.After;
 import org.junit.Before;
@@ -156,10 +155,10 @@ public class ReaktInterfaceWebSocketRPCTest {
     @Test
     public void testOk() {
         final Promise<Boolean> promise = blockingPromiseBoolean();
-        serviceDiscoveryWebSocket.ok().invokeWithPromise(promise);
+        serviceDiscoveryWebSocket.ok().asHandler().invokeWithPromise(promise.asHandler());
         flushServiceProxy(serviceDiscoveryWebSocket);
-        assertTrue(promise.success());
-        assertTrue(promise.get());
+        assertTrue(promise.asHandler().success());
+        assertTrue(promise.asHandler().get());
     }
 
 
@@ -167,12 +166,12 @@ public class ReaktInterfaceWebSocketRPCTest {
     public void test5() {
 
         final Promise<Integer> promise = blockingPromiseInt();
-        serviceDiscoveryWebSocket.five().invokeWithPromise(promise);
+        serviceDiscoveryWebSocket.five().asHandler().invokeWithPromise(promise.asHandler());
 
         flushServiceProxy(serviceDiscoveryWebSocket);
 
-        assertTrue(promise.success());
-        assertEquals(new Integer(5), promise.get());
+        assertTrue(promise.asHandler().success());
+        assertEquals(new Integer(5), promise.asHandler().get());
 
 
     }
@@ -185,7 +184,7 @@ public class ReaktInterfaceWebSocketRPCTest {
         Promise<URI> lookupServiceByPromise(URI uri);
 
 
-        PromiseHandle<URI> lookupServiceByPromiseHandle(URI uri);
+        Promise<URI> lookupServiceByPromiseHandle(URI uri);
 
         Promise<Boolean> ok();
 
@@ -214,7 +213,7 @@ public class ReaktInterfaceWebSocketRPCTest {
             });
         }
 
-        public PromiseHandle<URI> lookupServiceByPromiseHandle(final URI uri) {
+        public Promise<URI> lookupServiceByPromiseHandle(final URI uri) {
             return Promises.deferCall(uriPromise-> {
                     if (uri == null) {
                         uriPromise.reject("uri can't be null");

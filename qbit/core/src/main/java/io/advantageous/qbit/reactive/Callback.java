@@ -30,7 +30,7 @@ import org.slf4j.LoggerFactory;
  * Was called Handler and created by Rick Hightower quite a bit before 10/14/14
  */
 
-public interface Callback<T> extends io.advantageous.reakt.Callback<T> {
+public interface Callback<T> extends io.advantageous.reakt.CallbackHandler<T> {
 
 
     /**

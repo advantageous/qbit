@@ -3,9 +3,7 @@ package io.advantageous.qbit.reakt;
 
 import io.advantageous.qbit.service.*;
 import io.advantageous.qbit.time.Duration;
-import io.advantageous.reakt.CallbackHandle;
 import io.advantageous.reakt.promise.Promise;
-import io.advantageous.reakt.promise.PromiseHandle;
 import io.advantageous.reakt.promise.Promises;
 import org.junit.After;
 import org.junit.Before;
@@ -15,7 +13,6 @@ import java.net.URI;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
-import java.util.function.Consumer;
 
 import static org.junit.Assert.*;
 
@@ -123,12 +120,12 @@ public class ReaktInterfaceTest {
     private void testOk(ServiceDiscovery serviceDiscovery) {
 
         final Promise<Boolean> promise = Promises.blockingPromiseBoolean();
-        serviceDiscovery.ok().invokeWithPromise(promise);
+        serviceDiscovery.ok().asHandler().invokeWithPromise(promise.asHandler());
 
         ServiceProxyUtils.flushServiceProxy(serviceDiscovery);
 
-        assertTrue(promise.success());
-        assertTrue(promise.get());
+        assertTrue(promise.asHandler().success());
+        assertTrue(promise.asHandler().get());
 
 
     }
@@ -137,12 +134,12 @@ public class ReaktInterfaceTest {
     private void test5(ServiceDiscovery serviceDiscovery) {
 
         final Promise<Integer> promise = Promises.blockingPromiseInt();
-        serviceDiscovery.five().invokeWithPromise(promise);
+        serviceDiscovery.five().asHandler().invokeWithPromise(promise.asHandler());
 
         ServiceProxyUtils.flushServiceProxy(serviceDiscovery);
 
-        assertTrue(promise.success());
-        assertEquals(new Integer(5), promise.get());
+        assertTrue(promise.asHandler().success());
+        assertEquals(new Integer(5), promise.asHandler().get());
 
 
     }
@@ -210,7 +207,7 @@ public class ReaktInterfaceTest {
         final Promise<URI> promise = serviceDiscovery.lookupService(empURI).then(this::handleSuccess)
                 .catchError(this::handleError);
 
-        assertTrue("Is this an invokable promise", promise.isInvokable());
+        assertTrue("Is this an invokable promise", promise.asHandler().isInvokable());
     }
 
 
@@ -233,7 +230,7 @@ public class ReaktInterfaceTest {
         Promise<Integer> five();
 
 
-        PromiseHandle<URI> lookupServiceByPromiseHandle(final URI uri);
+        Promise<URI> lookupServiceByPromiseHandle(final URI uri);
     }
 
     public class ServiceDiscoveryImpl {
@@ -246,7 +243,7 @@ public class ReaktInterfaceTest {
             }
         }
 
-        public PromiseHandle<URI> lookupServiceByPromiseHandle(final URI uri) {
+        public Promise<URI> lookupServiceByPromiseHandle(final URI uri) {
             return Promises.deferCall(callback -> {
                     if (uri == null) {
                         callback.reject("uri can't be null");

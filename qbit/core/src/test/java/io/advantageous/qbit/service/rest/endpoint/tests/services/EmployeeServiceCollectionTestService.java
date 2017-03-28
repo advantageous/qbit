@@ -10,7 +10,6 @@ import io.advantageous.qbit.annotation.Service;
 import io.advantageous.qbit.reactive.Callback;
 import io.advantageous.qbit.service.rest.endpoint.tests.model.Employee;
 import io.advantageous.reakt.promise.Promise;
-import io.advantageous.reakt.promise.PromiseHandle;
 import io.advantageous.reakt.promise.Promises;
 
 import java.util.List;
@@ -162,7 +161,7 @@ public class EmployeeServiceCollectionTestService {
     }
 
     @RequestMapping("/returnMapByPromiseHandle")
-    public PromiseHandle<Map<String, Employee>> returnMapByPromiseHandle() {
+    public Promise<Map<String, Employee>> returnMapByPromiseHandle() {
         return Promises.deferCall(promise -> promise.resolve(Maps.map("1", new Employee(1, "Rick"), "2", new Employee(2, "Diana"))));
     }
 

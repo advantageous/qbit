@@ -30,15 +30,15 @@ public class ReaktTest {
 
         /* Convert promise to callback and then call the callback. */
         final io.advantageous.reakt.Callback<Employee> employeeCallback = convertQBitCallback(convertPromise(promise));
-        employeeCallback.reply(new Employee("Rick"));
+        employeeCallback.resolve(new Employee("Rick"));
 
         /* test. */
         assertNotNull(ref.get()); //callback called
-        assertTrue(promise.complete()); //done
-        assertTrue(promise.success()); //no error
-        assertFalse(promise.failure()); // no error
-        assertTrue(promise.expect().isPresent()); //result is present
-        assertEquals("Rick", promise.expect().get().name); //result is Rick
+        assertTrue(promise.asHandler().complete()); //done
+        assertTrue(promise.asHandler().success()); //no error
+        assertFalse(promise.asHandler().failure()); // no error
+        assertTrue(promise.asHandler().expect().isPresent()); //result is present
+        assertEquals("Rick", promise.asHandler().expect().get().name); //result is Rick
     }
 
     @Test
@@ -60,11 +60,11 @@ public class ReaktTest {
 
         /* test. */
         assertNotNull(ref.get()); //callback called
-        assertTrue(promise.complete()); //done
-        assertTrue(promise.success()); //no error
-        assertFalse(promise.failure()); // no error
-        assertTrue(promise.expect().isPresent()); //result is present
-        assertEquals("Rick", promise.expect().get().name); //result is Rick
+        assertTrue(promise.asHandler().complete()); //done
+        assertTrue(promise.asHandler().success()); //no error
+        assertFalse(promise.asHandler().failure()); // no error
+        assertTrue(promise.asHandler().expect().isPresent()); //result is present
+        assertEquals("Rick", promise.asHandler().expect().get().name); //result is Rick
     }
 
     @Test
@@ -85,25 +85,25 @@ public class ReaktTest {
 
         assertNull(ref.get()); //callback not called
         assertNotNull(error.get()); //error handler called
-        assertTrue(promise.complete()); //done
-        assertFalse(promise.success()); //error
-        assertTrue(promise.failure()); //error
+        assertTrue(promise.asHandler().complete()); //done
+        assertFalse(promise.asHandler().success()); //error
+        assertTrue(promise.asHandler().failure()); //error
 
         try {
-            assertTrue(promise.expect().isPresent()); //result access causes exception
+            assertTrue(promise.asHandler().expect().isPresent()); //result access causes exception
             fail();
         } catch (Exception ex) {
 
         }
 
-        assertNotNull(promise.cause());
+        assertNotNull(promise.asHandler().cause());
     }
 
     @Test
     public void testConvertCallback() throws Exception {
 
         final AtomicReference<Result<Employee>> ref = new AtomicReference<>();
-        final io.advantageous.reakt.Callback<Employee> callback = ref::set;
+        final io.advantageous.reakt.CallbackHandler<Employee> callback = ref::set;
 
         /* Convert promise to callback and then call the callback. */
         final Callback<Employee> employeeCallback = Reakt.convertCallback(callback);
@@ -124,7 +124,7 @@ public class ReaktTest {
     public void testConvertCallbackUsingReactor() throws Exception {
 
         final AtomicReference<Result<Employee>> ref = new AtomicReference<>();
-        final io.advantageous.reakt.Callback<Employee> callback = ref::set;
+        final io.advantageous.reakt.CallbackHandler<Employee> callback = ref::set;
 
         final Reactor reactor = ReactorBuilder.reactorBuilder().build();
         /* Convert promise to callback and then call the callback. */
@@ -149,11 +149,11 @@ public class ReaktTest {
 
 
         final AtomicReference<Result<Employee>> ref = new AtomicReference<>();
-        final io.advantageous.reakt.Callback<Employee> callback = ref::set;
+        final io.advantageous.reakt.CallbackHandler<Employee> callback = ref::set;
 
         /* Convert promise to callback and then call the callback. */
         final Callback<Employee> employeeCallback = Reakt.convertCallback(callback);
-        employeeCallback.returnError("NOT FOUND");
+        employeeCallback.reject("NOT FOUND");
 
         final Result<Employee> result = ref.get();
 
@@ -179,7 +179,7 @@ public class ReaktTest {
 
 
         final AtomicReference<Result<Employee>> ref = new AtomicReference<>();
-        final io.advantageous.reakt.Callback<Employee> callback = ref::set;
+        final io.advantageous.reakt.CallbackHandler<Employee> callback = ref::set;
 
         /* Convert promise to callback and then call the callback. */
         final Callback<Employee> employeeCallback = Reakt.convertCallback(callback);

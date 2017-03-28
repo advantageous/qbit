@@ -27,7 +27,7 @@ public class Bug746 {
         final FeedService feedService = serviceQueue.createProxyWithAutoFlush(FeedService.class, Duration.ofMillis(100));
 
         final List<FeedMeta> feedMetas = feedService.listFeeds()
-                .invokeAsBlockingPromise(Duration.ofSeconds(30)).get();
+                .blockingGet(Duration.ofSeconds(30));
 
         assertNotNull(feedMetas);
         assertEquals(1, feedMetas.size());
@@ -48,13 +48,13 @@ public class Bug746 {
 
         final FeedService feedService = serviceBundle.createLocalProxy(FeedService.class, "foo");
 
-        final Promise<List<FeedMeta>> listPromise = feedService.listFeeds()
+        final Promise<List<FeedMeta>> listPromise = feedService.listFeeds().asHandler()
                 .invokeAsBlockingPromise(Duration.ofSeconds(30));
 
         ServiceProxyUtils.flushServiceProxy(feedService);
 
 
-        final List<FeedMeta> feedMetas = listPromise.get();
+        final List<FeedMeta> feedMetas = listPromise.asHandler().get();
 
 
         assertNotNull(feedMetas);
@@ -80,8 +80,7 @@ public class Bug746 {
         final FeedService feedService = client.createProxy(FeedService.class, "foo");
 
 
-        final List<FeedMeta> feedMetas = feedService.listFeeds()
-                .invokeAsBlockingPromise(Duration.ofSeconds(30)).get();
+        final List<FeedMeta> feedMetas = feedService.listFeeds().blockingGet(Duration.ofSeconds(30));
 
 
         assertNotNull(feedMetas);

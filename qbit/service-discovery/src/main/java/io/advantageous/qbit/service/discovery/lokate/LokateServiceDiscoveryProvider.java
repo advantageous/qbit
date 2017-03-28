@@ -57,8 +57,7 @@ public class LokateServiceDiscoveryProvider implements ServiceDiscoveryProvider 
     public List<EndpointDefinition> loadServices(final String serviceName) {
         final URI serviceLookupURI = URI.create(URI.create(serviceName).getSchemeSpecificPart());
 
-        final List<URI> uris = discoveryService.lookupService(serviceName)
-                .invokeAsBlockingPromise(Duration.ofSeconds(30)).get();
+        final List<URI> uris = discoveryService.lookupService(serviceName).blockingGet(Duration.ofSeconds(30));
 
         return uris.stream().map(serviceResultURI -> {
             final String serviceName1 = serviceLookupURI.getSchemeSpecificPart().replace("/", "")

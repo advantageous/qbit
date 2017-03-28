@@ -1,12 +1,14 @@
 package io.advantageous.qbit.service.health;
 
 import io.advantageous.qbit.client.ClientProxy;
+import io.advantageous.reakt.Callback;
 import io.advantageous.reakt.promise.Promise;
 import io.advantageous.reakt.promise.Promises;
 
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Consumer;
 
 /**
  * Reakt style client for QBit health system.
@@ -48,9 +50,7 @@ public interface HealthServiceClient extends ClientProxy {
      * @return ok
      */
     default Promise<Boolean> ok() {
-        final Promise<Boolean> promise = Promises.promise();
-        promise.resolve(true);
-        return promise;
+        return Promises.invokablePromise(callback -> callback.resolve(true));
     }
 
     /**
@@ -59,9 +59,8 @@ public interface HealthServiceClient extends ClientProxy {
      * @return promise
      */
     default Promise<List<String>> findHealthyNodes() {
-        final Promise<List<String>> promise = Promises.promise();
-        promise.resolve(Collections.emptyList());
-        return promise;
+
+        return Promises.deferCall(promise -> promise.resolve(Collections.emptyList()));
     }
 
     /**
@@ -70,9 +69,7 @@ public interface HealthServiceClient extends ClientProxy {
      * @return promise
      */
     default Promise<List<String>> findAllNodes() {
-        final Promise<List<String>> promise = Promises.promise();
-        promise.resolve(Collections.emptyList());
-        return promise;
+        return Promises.deferCall(promise -> promise.resolve(Collections.emptyList()));
     }
 
     /**
@@ -82,10 +79,7 @@ public interface HealthServiceClient extends ClientProxy {
      * @return promise
      */
     default Promise<List<String>> findAllNodesWithStatus(HealthStatus queryStatus) {
-        final Promise<List<String>> promise = Promises.promise();
-        promise.resolve(Collections.emptyList());
-        return promise;
-
+        return Promises.deferCall(promise -> promise.resolve(Collections.emptyList()));
     }
 
     /**
@@ -94,10 +88,7 @@ public interface HealthServiceClient extends ClientProxy {
      * @return promise
      */
     default Promise<List<String>> findNotHealthyNodes() {
-        final Promise<List<String>> promise = Promises.promise();
-        promise.resolve(Collections.emptyList());
-        return promise;
-
+        return Promises.deferCall(promise -> promise.resolve(Collections.emptyList()));
     }
 
 
@@ -107,9 +98,7 @@ public interface HealthServiceClient extends ClientProxy {
      * @return promise
      */
     default Promise<List<NodeHealthStat>> loadNodes() {
-        final Promise<List<NodeHealthStat>> promise = Promises.promise();
-        promise.resolve(Collections.emptyList());
-        return promise;
+        return Promises.deferCall(promise -> promise.resolve(Collections.emptyList()));
     }
 
     /**
