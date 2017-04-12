@@ -545,6 +545,16 @@ public class SingleArgumentUserDefinedObjectRESTTest {
         assertEquals("true", httpResponse.body());
     }
 
+
+    @Test
+    public void addEmployeeUsingCallbackWithRequestParam() {
+        final HttpTextResponse httpResponse = httpServerSimulator.postBody("/es/employee-async-ack-with-request-param",
+                new Employee(1, "Rick"));
+
+        assertEquals(200, httpResponse.code());
+        assertEquals("1", httpResponse.body());
+    }
+
     @Test
     public void addEmployeeThrowException() {
         final HttpTextResponse httpResponse = httpServerSimulator.postBody("/es/throw",

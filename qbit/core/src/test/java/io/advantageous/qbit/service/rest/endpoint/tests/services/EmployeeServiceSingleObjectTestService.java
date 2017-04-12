@@ -185,6 +185,20 @@ public class EmployeeServiceSingleObjectTestService {
         callback.accept(add);
     }
 
+    /**
+     * Like employee-async-ack but with @RequestParam annotated employee param
+     *
+     * @param callback callback
+     * @param employee employee
+     */
+    @RequestMapping(value = "/employee-async-ack-with-request-param", method = RequestMethod.POST)
+    public void addEmployeeAsyncAckWithRequestParam(final Callback<Long> callback,
+                                                    @RequestParam(value = "employee") final Employee employee) {
+        puts(employee);
+        employeeList.add(employee);
+        callback.accept(employee.getId());
+    }
+
 
     @RequestMapping(value = "/throw", method = RequestMethod.POST)
     public void addEmployeeThrowException(final Callback<Boolean> callback,
