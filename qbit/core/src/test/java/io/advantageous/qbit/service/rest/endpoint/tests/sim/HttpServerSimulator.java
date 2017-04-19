@@ -197,11 +197,6 @@ public class HttpServerSimulator implements HttpServer {
     }
 
     @Override
-    public void setWebSocketIdleConsume(Consumer<Void> idleConsumer) {
-
-    }
-
-    @Override
     public void start() {
 
     }

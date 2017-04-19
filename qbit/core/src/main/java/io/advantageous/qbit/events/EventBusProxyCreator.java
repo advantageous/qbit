@@ -31,7 +31,10 @@ public interface EventBusProxyCreator {
         return createProxy(QBit.factory().systemEventManager(), eventBusProxyInterface);
     }
 
-    <T> T createProxy(final EventManager eventManager, final Class<T> eventBusProxyInterface);
+    default <T> T createProxy(final EventManager eventManager, final Class<T> eventBusProxyInterface) {
+	
+	    return createProxyWithChannelPrefix(eventManager, eventBusProxyInterface, null);
+	}
 
 
     <T> T createProxyWithChannelPrefix(final EventManager eventManager,

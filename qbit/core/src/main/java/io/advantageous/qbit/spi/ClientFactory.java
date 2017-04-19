@@ -18,6 +18,7 @@
 
 package io.advantageous.qbit.spi;
 
+import io.advantageous.qbit.boon.client.BoonClient;
 import io.advantageous.qbit.client.BeforeMethodSent;
 import io.advantageous.qbit.client.Client;
 import io.advantageous.qbit.http.client.HttpClient;
@@ -31,8 +32,10 @@ import io.advantageous.qbit.http.client.HttpClient;
  */
 public interface ClientFactory {
 
-    Client create(String uri,
+    default Client create(String uri,
                   HttpClient httpClient,
                   int requestBatchSize,
-                  final BeforeMethodSent beforeMethodSent);
+                  final BeforeMethodSent beforeMethodSent) {
+	    return new BoonClient(uri, httpClient, requestBatchSize, beforeMethodSent);
+	}
 }

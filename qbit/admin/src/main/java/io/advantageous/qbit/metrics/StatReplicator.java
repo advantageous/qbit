@@ -32,5 +32,7 @@ public interface StatReplicator extends RemoteTCPClientProxy, ServiceFlushable, 
 
     void replicateLevel(String name, long level, long time);
 
-    void replicateTiming(String name, long timing, long time);
+    default void replicateTiming(String name, long level, long time) {
+	
+	}
 }

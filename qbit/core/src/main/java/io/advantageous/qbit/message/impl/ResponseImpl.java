@@ -132,11 +132,6 @@ public class ResponseImpl<T> implements Response<T> {
     }
 
     @Override
-    public boolean isSingleton() {
-        return true;
-    }
-
-    @Override
     public boolean wasErrors() {
         return errors;
     }

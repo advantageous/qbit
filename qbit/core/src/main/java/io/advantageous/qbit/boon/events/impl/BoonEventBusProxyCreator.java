@@ -50,12 +50,6 @@ public class BoonEventBusProxyCreator implements EventBusProxyCreator {
     Object context = Sys.contextToHold();
 
     @Override
-    public <T> T createProxy(final EventManager eventManager, final Class<T> eventBusProxyInterface) {
-
-        return createProxyWithChannelPrefix(eventManager, eventBusProxyInterface, null);
-    }
-
-    @Override
     public <T> T createProxyWithChannelPrefix(final EventManager eventManager, final Class<T> eventBusProxyInterface,
                                               final String channelPrefix) {
 

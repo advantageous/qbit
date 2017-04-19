@@ -55,11 +55,6 @@ public class EventTransferObject<T> implements Event<T> {
     }
 
     @Override
-    public boolean isSingleton() {
-        return true;
-    }
-
-    @Override
     public String toString() {
         return "EventImpl{" +
                 "body=" + body +
