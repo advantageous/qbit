@@ -86,32 +86,8 @@ public class MethodCallLocal implements MethodCall<Object> {
     }
 
     @Override
-    public boolean hasParams() {
-        return false;
-    }
-
-    @Override
-    public boolean hasHeaders() {
-        return false;
-    }
-
-    @Override
     public long timestamp() {
         return timestamp;
-    }
-
-    @Override
-    public boolean isHandled() {
-        return false;
-    }
-
-    @Override
-    public void handled() {
-    }
-
-    @Override
-    public String objectName() {
-        return "";
     }
 
     @Override
@@ -127,10 +103,5 @@ public class MethodCallLocal implements MethodCall<Object> {
     @Override
     public Object body() {
         return arguments;
-    }
-
-    @Override
-    public boolean isSingleton() {
-        return true;
     }
 }

@@ -92,19 +92,6 @@ public class BoonProtocolParser implements ProtocolParser {
 
     }
 
-    @Override
-    public List<MethodCall<Object>> parseMethodCalls(String address, String body) {
-        //noinspection unchecked
-        return (List<MethodCall<Object>>) (Object) parse(address, body);
-    }
-
-    @Override
-    public List<Response<Object>> parseResponses(String address, String body) {
-        //noinspection unchecked
-        return (List<Response<Object>>) (Object) parse(address, body);
-    }
-
-
     private Response<Object> parseResponseFromChars(char[] args, final String returnAddress) {
         final char[][] chars = CharScanner.splitFromStartWithLimit(args, (char) PROTOCOL_SEPARATOR, 0, RESPONSE_RETURN);
 

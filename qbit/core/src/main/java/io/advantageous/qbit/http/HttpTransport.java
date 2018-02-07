@@ -72,7 +72,9 @@ public interface HttpTransport extends Startable {
 
     void setHttpRequestsIdleConsumer(Consumer<Void> idleConsumer);
 
-    void setWebSocketIdleConsume(Consumer<Void> idleConsumer);
+    default void setWebSocketIdleConsume(Consumer<Void> idleConsumer) {
+       
+    }
 
     default HttpTransport startTransport() {
         start();

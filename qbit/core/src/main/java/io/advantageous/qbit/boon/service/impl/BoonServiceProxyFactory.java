@@ -110,10 +110,4 @@ public class BoonServiceProxyFactory implements ServiceProxyFactory {
     }
 
 
-    @Override
-    public <T> T createProxy(Class<T> serviceInterface, String serviceName, EndPoint endPoint, BeforeMethodSent beforeMethodSent) {
-        return createProxyWithReturnAddress(serviceInterface, serviceName, "local", 0, new AtomicBoolean(true), "", endPoint, beforeMethodSent);
-    }
-
-
 }

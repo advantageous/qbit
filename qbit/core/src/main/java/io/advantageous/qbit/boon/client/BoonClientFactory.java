@@ -19,9 +19,6 @@
 package io.advantageous.qbit.boon.client;
 
 import io.advantageous.boon.core.Sys;
-import io.advantageous.qbit.client.BeforeMethodSent;
-import io.advantageous.qbit.client.Client;
-import io.advantageous.qbit.http.client.HttpClient;
 import io.advantageous.qbit.spi.ClientFactory;
 
 public class BoonClientFactory implements ClientFactory {
@@ -30,13 +27,4 @@ public class BoonClientFactory implements ClientFactory {
      * Holds on to Boon cache so we don't have to recreate reflected gak.
      */
     Object context = Sys.contextToHold();
-
-
-    @Override
-    public Client create(final String uri,
-                         final HttpClient httpClient,
-                         final int requestBatchSize,
-                         final BeforeMethodSent beforeMethodSent) {
-        return new BoonClient(uri, httpClient, requestBatchSize, beforeMethodSent);
-    }
 }

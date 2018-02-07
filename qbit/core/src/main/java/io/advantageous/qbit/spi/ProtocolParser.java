@@ -36,9 +36,15 @@ public interface ProtocolParser {
 
     List<Message<Object>> parse(String address, String body);
 
-    List<MethodCall<Object>> parseMethodCalls(String addressPrefix, String body);
+    default List<MethodCall<Object>> parseMethodCalls(String address, String body) {
+        //noinspection unchecked
+        return (List<MethodCall<Object>>) (Object) parse(address, body);
+    }
 
-    List<Response<Object>> parseResponses(String addressPrefix, String body);
+    default List<Response<Object>> parseResponses(String address, String body) {
+        //noinspection unchecked
+        return (List<Response<Object>>) (Object) parse(address, body);
+    }
 
 
 }

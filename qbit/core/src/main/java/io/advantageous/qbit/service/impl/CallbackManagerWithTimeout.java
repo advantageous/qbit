@@ -20,7 +20,6 @@ package io.advantageous.qbit.service.impl;
 
 import io.advantageous.qbit.message.MethodCall;
 import io.advantageous.qbit.message.Response;
-import io.advantageous.qbit.queue.Queue;
 import io.advantageous.qbit.reactive.Callback;
 import io.advantageous.qbit.util.Timer;
 import org.slf4j.Logger;
@@ -92,18 +91,6 @@ public class CallbackManagerWithTimeout implements CallbackManager {
         registerHandlerCallbackForClient(methodCall, methodCall.callback());
     }
 
-
-    /**
-     * Handles responses coming back from services.
-     *
-     * @param responseQueue response queue
-     */
-    @Override
-    public void startReturnHandlerProcessor(final Queue<Response<Object>> responseQueue) {
-
-        //noinspection Convert2MethodRef
-        responseQueue.startListener(response -> handleResponse(response));
-    }
 
     @Override
     public void handleResponse(final Response<Object> response) {

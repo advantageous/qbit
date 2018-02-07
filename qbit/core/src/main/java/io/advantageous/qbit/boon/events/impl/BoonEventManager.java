@@ -21,7 +21,6 @@ package io.advantageous.qbit.boon.events.impl;
 import io.advantageous.boon.core.Str;
 import io.advantageous.boon.core.Sys;
 import io.advantageous.boon.core.reflection.AnnotationData;
-import io.advantageous.boon.core.reflection.BeanUtils;
 import io.advantageous.boon.core.reflection.ClassMeta;
 import io.advantageous.boon.core.reflection.MethodAccess;
 import io.advantageous.qbit.GlobalConstants;
@@ -47,7 +46,6 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import static io.advantageous.boon.core.reflection.ClassMeta.classMeta;
 import static io.advantageous.qbit.annotation.AnnotationUtils.*;
-import static io.advantageous.qbit.service.ServiceContext.serviceContext;
 
 /**
  * @author rhightower
@@ -203,13 +201,6 @@ public class BoonEventManager implements EventManager {
 
 
         doListen(serviceQueue.service(), serviceQueue);
-    }
-
-
-    @Override
-    public void leave() {
-        final ServiceQueue serviceQueue = serviceContext().currentService();
-        leaveEventBus(serviceQueue);
     }
 
 
@@ -493,13 +484,6 @@ public class BoonEventManager implements EventManager {
         }
 
         return events;
-    }
-
-    @Override
-    public <T> void sendCopy(String channel, T event) {
-
-        T copy = BeanUtils.copy(event);
-        this.send(channel, copy);
     }
 
     @Override

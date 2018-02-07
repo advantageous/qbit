@@ -37,15 +37,23 @@ public interface Request<T> extends Message<T> {
     }
 
 
-    boolean hasParams();
+    default boolean hasParams() {
+        return false;
+    }
 
-    boolean hasHeaders();
+    default boolean hasHeaders() {
+        return false;
+    }
 
     long timestamp();
 
-    boolean isHandled();
+    default boolean isHandled() {
+        return false;
+    }
 
-    void handled();
+    default void handled() {
+         
+    }
 
     default boolean hasCallback() {
         return false;
